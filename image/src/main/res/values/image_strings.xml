@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image_doodle">Draw</string>
+    <string name="image_text">Text</string>
+    <string name="image_mosaic">Mosaic</string>
+    <string name="image_clip">Clip</string>
+    <string name="image_reset">Reset</string>
+    <string name="image_done">Done</string>
+    <string name="image_cancel">Cancel</string>
+    <string name="image_rotate">Rotate</string>
+
+    <string name="image_mosaic_tip">Move your finger to apply the mosaic</string>
+    <string name="image_undo">Undo</string>
+    <string name="image_all_photo">All photos</string>
+    <string name="image_original">Original</string>
+    <string name="image_preview">Preview</string>
+</resources>

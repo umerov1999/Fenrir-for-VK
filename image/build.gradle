@@ -1,0 +1,31 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion fenrirCompileSDK
+    buildToolsVersion fenrirBuildTools
+
+    resourcePrefix "image_"
+
+    defaultConfig {
+        minSdkVersion fenrirMinSDK
+        //noinspection ExpiredTargetSdkVersion,OldTargetApi
+        targetSdkVersion fenrirTargetSDK
+
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+dependencies {
+    implementation "androidx.appcompat:appcompat:$appcompatVersion"
+    implementation "androidx.recyclerview:recyclerview:$recyclerviewVersion"
+    implementation "androidx.core:core:$coreVersion"
+    implementation "androidx.activity:activity:$activityVersion"
+    implementation "androidx.fragment:fragment:$fragmentVersion"
+    implementation project(path: ':material')
+    implementation "androidx.constraintlayout:constraintlayout:$constraintlayoutVersion"
+}

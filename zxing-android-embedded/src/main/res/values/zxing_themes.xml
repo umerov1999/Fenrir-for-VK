@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <style name="zxing_DayNight" parent="Theme.Material3.DayNight.NoActionBar">
+        <!--        <item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">?dividerColor</item>-->
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeBackground">?attr/colorPrimary</item>
+    </style>
+
+    <style name="zxing_CaptureTheme" parent="zxing_DayNight">
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="colorPrimary">#673AB7</item>
+        <item name="colorControlNormal">#673AB7</item>
+        <item name="colorSecondary">#FF9800</item>
+        <item name="colorOnPrimary">#FFF</item>
+        <item name="colorOnSecondary">#FFF</item>
+    </style>
+</resources>

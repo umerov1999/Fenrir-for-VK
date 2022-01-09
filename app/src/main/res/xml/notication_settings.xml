@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="@string/general_settings"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="high_notif_priority"
+            android:summary="@string/high_notif_priority_summary"
+            android:title="@string/high_notif_priority_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="quick_reply_immediately"
+            android:summary="@string/quick_reply_summary"
+            android:title="@string/quick_reply"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="notif_sound"
+            android:title="@string/select_ringtone_title"
+            app:iconSpaceReserved="false" />
+
+        <ListPreference
+            android:defaultValue="4"
+            android:entries="@array/array_vibration_length_names"
+            android:entryValues="@array/array_vibration_length_value"
+            android:key="vibration_length"
+            android:title="@string/vibration_length"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/messages_in_dialogs_tite"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="new_dialog_message_notif_enable"
+            android:title="@string/enable_dialogs_notif_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="new_dialog_message_notif_enable"
+            android:key="new_dialog_message_notif_sound"
+            android:title="@string/enable_dialogs_sound_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="new_dialog_message_notif_enable"
+            android:key="new_dialog_message_notif_vibration"
+            android:title="@string/enable_dialogs_vibro_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="new_dialog_message_notif_enable"
+            android:key="new_dialog_message_notif_led"
+            android:title="@string/enable_dialogs_led_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/messages_in_groupchat_tite"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="new_groupchat_message_notif_enable"
+            android:title="@string/enable_groupchat_notif_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="new_groupchat_message_notif_enable"
+            android:key="new_groupchat_message_notif_sound"
+            android:title="@string/enable_groupchat_sound_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="new_groupchat_message_notif_enable"
+            android:key="new_groupchat_message_notif_vibration"
+            android:title="@string/enable_groupchat_vibro_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="new_groupchat_message_notif_enable"
+            android:key="new_groupchat_message_notif_led"
+            android:title="@string/enable_groupchat_led_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <!--Other notif-->
+    <PreferenceCategory
+        android:title="@string/other_notifications_settings"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="other_notifications_enable"
+            android:title="@string/enable_dialogs_notif_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="other_notif_sound"
+            android:title="@string/enable_groupchat_sound_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="other_notif_vibration"
+            android:title="@string/enable_groupchat_vibro_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="other_notif_led"
+            android:title="@string/enable_groupchat_led_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/other_notifications_types"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="new_comment_notification"
+            android:title="@string/new_comment_notification"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="friend_request_accepted_notification"
+            android:title="@string/friend_request_accepted_notification"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="new_follower_notification"
+            android:title="@string/new_follower_notification"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="group_invited_notification"
+            android:title="@string/group_invited_notification"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="reply_notification"
+            android:title="@string/reply_notification"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="new_wall_post_notification"
+            android:title="@string/new_wall_post_notification"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="wall_publish_notification"
+            android:title="@string/wall_publish_notification"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="new_posts_notification"
+            android:title="@string/new_posts_of_users_and_communities"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="likes_notification"
+            android:title="@string/likes"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="birtday_notification"
+            android:title="@string/birthdays"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="other_notifications_enable"
+            android:key="mention_notification"
+            android:title="@string/mentions"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

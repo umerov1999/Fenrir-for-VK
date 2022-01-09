@@ -1,0 +1,4 @@
+include ':app', ':picasso', ':firebase-installations', ':zxing-android-embedded', ':ucrop', ':image', ':retrofit', ':material', ':gson'
+//include ':ealvatag'
+//include ':preference'
+//include ':libfenrir'

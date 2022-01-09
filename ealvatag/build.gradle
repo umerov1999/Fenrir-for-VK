@@ -1,0 +1,26 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion fenrirCompileSDK
+    buildToolsVersion fenrirBuildTools
+
+    defaultConfig {
+        minSdkVersion fenrirMinSDK
+        //noinspection ExpiredTargetSdkVersion,OldTargetApi
+        targetSdkVersion fenrirTargetSDK
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-parcelize-runtime:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:$kotlin_version"
+    implementation "com.squareup.okio:okio:$okioVersion"
+    implementation "com.google.guava:guava:$guavaVersion"
+    implementation "androidx.annotation:annotation:$annotationVersion"
+}

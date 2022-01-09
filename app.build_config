@@ -1,0 +1,8 @@
+vk_app_id=2274003
+vk_client_secret="hHbZxrka2uZ6jB1inYsH"
+kate_app_id=2685278
+kate_client_secret="lxhD8OD7dMsqtXIm5IUY"
+vk_service_token="7915b3df7915b3df7915b3dfd9794b73c0779157915b3df20c283430d77571be482c8b3"
+fake_abi="arm64-v8a"
+fake_device="SAMSUNG SM-G980F"
+fcm_session_id_gen_url="https://fenrir-vk-main-default-rtdb.firebaseio.com/"

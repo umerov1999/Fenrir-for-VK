@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image_doodle">Рисовать</string>
+    <string name="image_text">Текст</string>
+    <string name="image_mosaic">Мозаика</string>
+    <string name="image_clip">Обрезать</string>
+    <string name="image_reset">Сбросить</string>
+    <string name="image_done">Готово</string>
+    <string name="image_cancel">Отмена</string>
+    <string name="image_rotate">Повернуть</string>
+
+    <string name="image_mosaic_tip">Перемещайте палец, чтобы применить мозаику</string>
+    <string name="image_undo">Отменить</string>
+    <string name="image_all_photo">Все фотографии</string>
+    <string name="image_original">Оригинал</string>
+    <string name="image_preview">Предпросмотр</string>
+</resources>

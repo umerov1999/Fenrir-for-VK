@@ -1,0 +1,34 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion fenrirCompileSDK
+    buildToolsVersion fenrirBuildTools
+
+    defaultConfig {
+        minSdkVersion fenrirMinSDK
+        //noinspection ExpiredTargetSdkVersion,OldTargetApi
+        targetSdkVersion fenrirTargetSDK
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        abortOnError false
+    }
+
+    resourcePrefix 'ucrop_'
+
+}
+
+dependencies {
+    implementation "androidx.appcompat:appcompat:$appcompatVersion"
+    implementation "androidx.exifinterface:exifinterface:$exifinterfaceVersion"
+    implementation "androidx.core:core:$coreVersion"
+    implementation "androidx.activity:activity:$activityVersion"
+    implementation "androidx.fragment:fragment:$fragmentVersion"
+    implementation "androidx.annotation:annotation:$annotationVersion"
+    implementation "androidx.transition:transition:1.4.1"
+    implementation "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
+    implementation "io.reactivex.rxjava3:rxandroid:$rxAndroidVersion"
+}

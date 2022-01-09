@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_enable_storage_permission">Enable storage permission</string>
+
+    <string name="image_enable_storage_tips">This function requires storage permission, please grant it in the settings for this application.</string>
+
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:paddingStart="@dimen/content_medium_margin"
+    android:paddingTop="@dimen/content_large_margin"
+    android:paddingEnd="@dimen/content_medium_margin"
+    android:paddingBottom="@dimen/content_large_margin">
+
+    <ImageView
+        android:id="@+id/progress_button_progress_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_progress_button_icon_vector" />
+
+    <LinearLayout
+        android:id="@+id/progress_button_title_root"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/progress_button_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+</FrameLayout>

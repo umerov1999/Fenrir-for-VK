@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image_enable_storage_permission">Доступ к хранилищу</string>
+    <string name="image_enable_storage_tips">Эта функция требует доступа к хранилищу, разрешите приложению доступ через настройки.</string>
+</resources>

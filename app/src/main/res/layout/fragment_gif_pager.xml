@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <include layout="@layout/toolbar_photo" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <dev.ragnarok.fenrir.view.CircleCounterButton
+            android:id="@+id/button_add_or_delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            custom:active_background_color="?attr/icon_color_active"
+            custom:always_counter="false"
+            custom:noactive_icon_color="#fff" />
+
+        <dev.ragnarok.fenrir.view.CircleCounterButton
+            android:id="@+id/button_download"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            custom:active="false"
+            custom:active_background_color="?attr/icon_color_active"
+            custom:always_counter="false"
+            custom:button_icon="@drawable/download"
+            custom:noactive_icon_color="#fff" />
+
+        <dev.ragnarok.fenrir.view.CircleCounterButton
+            android:id="@+id/button_share"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            custom:active_background_color="?attr/icon_color_active"
+            custom:always_counter="false"
+            custom:button_icon="@drawable/ic_outline_share"
+            custom:noactive_icon_color="#fff" />
+
+    </LinearLayout>
+
+</RelativeLayout>

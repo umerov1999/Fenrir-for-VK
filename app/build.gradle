@@ -1,0 +1,172 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    packagingOptions {
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/*.version'
+        exclude 'META-INF/*.kotlin_module'
+    }
+
+    compileSdkVersion fenrirCompileSDK
+    buildToolsVersion fenrirBuildTools
+    ndkVersion fenrirNdk
+
+    defaultConfig {
+        minSdkVersion fenrirMinSDK
+        //noinspection ExpiredTargetSdkVersion,OldTargetApi
+        targetSdkVersion fenrirTargetSDK
+        versionCode FenrirVersionCode
+        versionName FenrirVersionName
+
+        buildConfigField 'String', 'SERVICE_TOKEN', getProps("vk_service_token")
+        buildConfigField 'String', 'FAKE_ABI', getProps("fake_abi")
+        buildConfigField 'String', 'FAKE_DEVICE', getProps("fake_device")
+        buildConfigField 'String', 'FCM_SESSION_ID_GEN_URL', getProps("fcm_session_id_gen_url")
+        buildConfigField 'boolean', 'MANAGE_SCOPED_STORAGE', 'true'
+
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+        }
+    }
+
+    lintOptions {
+        warning 'InvalidPackage'
+        abortOnError false
+    }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            //options.compilerArgs << "-Xlint:deprecation"
+            options.compilerArgs << "-Xmaxwarns" << "1000" << "-Xmaxerrs" << "1000"
+        }
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled fenrirMinSDK < 26
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        encoding 'utf-8'
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+        }
+
+        debug {
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+
+    flavorDimensions "type"
+
+    productFlavors {
+        fenrir {
+            applicationId "dev.ragnarok.fenrir"
+            dimension "type"
+            buildConfigField 'int', 'VK_API_APP_ID', getProps("vk_app_id")
+            buildConfigField 'int', 'DEFAULT_ACCOUNT_TYPE', 'AccountType.VK_ANDROID'
+            buildConfigField 'String', 'VK_CLIENT_SECRET', getProps("vk_client_secret")
+        }
+        kate {
+            applicationId "dev.ragnarok.fenrir_kate"
+            dimension "type"
+            buildConfigField 'int', 'VK_API_APP_ID', getProps("kate_app_id")
+            buildConfigField 'int', 'DEFAULT_ACCOUNT_TYPE', 'AccountType.KATE'
+            buildConfigField 'String', 'VK_CLIENT_SECRET', getProps("kate_client_secret")
+        }
+    }
+}
+
+def getProps(String propName) {
+    def propsFile = rootProject.file('app.build_config')
+    if (propsFile.exists()) {
+        def props = new Properties()
+        FileInputStream fis
+        try {
+            fis = new FileInputStream(propsFile)
+            props.load(fis)
+            def value = props[propName]
+            fis.close()
+            return value
+        } finally {
+            if (fis != null) fis.close()
+        }
+    } else {
+        throw new GradleException('File app.build_config not found')
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-parcelize-runtime:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
+    compileOnly "org.jetbrains.kotlin:kotlin-annotations-jvm:$kotlin_version"
+    compileOnly "org.checkerframework:checker-qual-android:$checkerQualVersion"
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    implementation "androidx.core:core-ktx:$coreVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-common:$lifecycleVersion"
+    implementation "androidx.annotation:annotation:$annotationVersion"
+    implementation "androidx.recyclerview:recyclerview:$recyclerviewVersion"
+    implementation "androidx.viewpager2:viewpager2:$viewpager2Version"
+    implementation "androidx.vectordrawable:vectordrawable:$vectordrawableVersion"
+    implementation "androidx.appcompat:appcompat:$appcompatVersion"
+    implementation 'androidx.customview:customview:1.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
+    implementation 'androidx.browser:browser:1.4.0'
+    implementation 'androidx.webkit:webkit:1.4.0'
+    implementation "androidx.exifinterface:exifinterface:$exifinterfaceVersion"
+    implementation "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
+    implementation "io.reactivex.rxjava3:rxandroid:$rxAndroidVersion"
+    implementation 'com.google.firebase:firebase-database:20.0.3'
+    implementation 'com.google.firebase:firebase-datatransport:18.1.1'
+    fenrirImplementation('com.google.firebase:firebase-messaging:23.0.0') {
+        exclude group: "com.google.firebase", module: "firebase-installations"
+    }
+    fenrirImplementation project(path: ':firebase-installations')
+    //noinspection GradleDependency
+    kateImplementation 'com.google.firebase:firebase-messaging:20.1.0'
+    kateImplementation 'com.google.firebase:firebase-encoders-json:18.0.0'
+    //implementation project(path: ':libfenrir')
+    implementation project(path: ':picasso')
+    implementation project(path: ':ucrop')
+    implementation project(path: ':image')
+    implementation project(path: ':material')
+    implementation project(path: ':zxing-android-embedded')
+    implementation project(path: ':gson')
+    implementation project(path: ':retrofit')
+    implementation "com.squareup.okhttp3:okhttp:$okhttpLibraryVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpLibraryVersion"
+    implementation "com.squareup.okio:okio:$okioVersion"
+    implementation "com.google.android.exoplayer:exoplayer-core:$exoLibraryVersion"
+    implementation "com.google.android.exoplayer:exoplayer-hls:$exoLibraryVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constraintlayoutVersion"
+    implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha04'
+    implementation 'androidx.media:media:1.5.0-beta01'
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayoutVersion"
+    implementation "androidx.activity:activity-ktx:$activityVersion"
+    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    implementation "com.google.guava:guava:$guavaVersion"
+    implementation "androidx.drawerlayout:drawerlayout:$drawerlayoutVersion"
+    implementation 'androidx.loader:loader:1.1.0'
+    implementation "androidx.collection:collection-ktx:$collectionVersion"
+}
+
+apply plugin: 'com.google.gms.google-services'

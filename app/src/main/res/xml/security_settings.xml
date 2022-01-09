@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="@string/general_settings"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="use_pin_for_security"
+        android:title="@string/use_pin_for_security_title"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:dependency="use_pin_for_security"
+        android:key="use_pin_for_entrance"
+        android:summary="@string/ask_for_pin_on_application_start_summary"
+        android:title="@string/ask_for_pin_on_application_start_title"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:dependency="use_pin_for_entrance"
+        android:key="delayed_pin_for_entrance"
+        android:summary="@string/delayed_pin_for_entrance_summary"
+        android:title="@string/delayed_pin_for_entrance_title"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:dependency="use_pin_for_security"
+        android:key="allow_fingerprint"
+        android:title="@string/allow_fingerprint_title"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:dependency="use_pin_for_security"
+        android:key="change_pin"
+        android:title="@string/change_pin_title"
+        app:iconSpaceReserved="false" />
+
+    <PreferenceCategory
+        android:title="@string/secured_messages"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:key="encryption_terms_of_use"
+        android:title="@string/encryption_terms_of_use_title"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:key="delete_all_encryption_keys"
+        android:summary="@string/clear_storage_of_encryption_keys"
+        android:title="@string/delete_keys"
+        app:iconSpaceReserved="false" />
+
+
+    <PreferenceCategory
+        android:title="@string/other"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreference
+        android:key="hide_notif_message_body"
+        android:summary="@string/hide_notif_message_body_summary"
+        android:title="@string/hide_notif_message_body_title"
+        app:iconSpaceReserved="false" />
+
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/crypt_version_names"
+        android:entryValues="@array/crypt_version_list"
+        android:key="crypt_version"
+        android:title="@string/crypt_version"
+        app:iconSpaceReserved="false"
+        app:useSimpleSummaryProvider="true" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="disable_encryption"
+        android:title="@string/disable_encryption"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="show_hidden_accounts"
+        android:title="@string/show_hidden_accounts"
+        app:iconSpaceReserved="false" />
+
+</PreferenceScreen>
