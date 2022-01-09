@@ -23,6 +23,6 @@
 
 Локальный медиа сервер https://github.com/umerov1999/FenrirMediaServer/releases
 
-Старые репозитории:
-https://github.com/umerov1999/Old_Fenrir-for-VK Release 1
-https://github.com/umerov1999/Old2_Fenrir-for-VK Release 2
+Старые репозитории: 
+https://github.com/umerov1999/Old_Fenrir-for-VK Release 1 
+https://github.com/umerov1999/Old2_Fenrir-for-VK Release 2 
