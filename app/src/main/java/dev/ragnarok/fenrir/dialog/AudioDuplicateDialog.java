@@ -178,7 +178,11 @@ public class AudioDuplicateDialog extends BaseMvpDialogFragment<AudioDuplicatePr
             holder.time.setVisibility(View.INVISIBLE);
         else {
             holder.time.setVisibility(View.VISIBLE);
-            holder.time.setText(AppTextUtils.getDurationString(audio.getDuration()));
+            if (audio.isLocalServer()) {
+                holder.time.setText(Utils.BytesToSize(audio.getDuration()));
+            } else {
+                holder.time.setText(AppTextUtils.getDurationString(audio.getDuration()));
+            }
         }
         updateAudioStatus(holder, audio);
         if (!Utils.isEmpty(audio.getThumb_image_little())) {

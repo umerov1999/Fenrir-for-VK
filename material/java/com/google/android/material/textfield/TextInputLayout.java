@@ -185,6 +185,7 @@ public class TextInputLayout extends LinearLayout {
 
   /** Duration for the label's scale up and down animations. */
   private static final int LABEL_SCALE_ANIMATION_DURATION = 167;
+
   private static final long PLACEHOLDER_FADE_DURATION = 87;
   private static final long PLACEHOLDER_START_DELAY = 67;
 
@@ -200,6 +201,8 @@ public class TextInputLayout extends LinearLayout {
   EditText editText;
   private CharSequence originalHint;
 
+  private int minEms = NO_WIDTH;
+  private int maxEms = NO_WIDTH;
   private int minWidth = NO_WIDTH;
   private int maxWidth = NO_WIDTH;
 
@@ -239,7 +242,8 @@ public class TextInputLayout extends LinearLayout {
   private boolean isProvidingHint;
 
   @Nullable private MaterialShapeDrawable boxBackground;
-  @Nullable private MaterialShapeDrawable boxUnderline;
+  @Nullable private MaterialShapeDrawable boxUnderlineDefault;
+  @Nullable private MaterialShapeDrawable boxUnderlineFocused;
   @NonNull private ShapeAppearanceModel shapeAppearanceModel;
   private boolean areCornerRadiiRtl;
 
@@ -507,10 +511,14 @@ public class TextInputLayout extends LinearLayout {
     hintAnimationEnabled = a.getBoolean(R.styleable.TextInputLayout_hintAnimationEnabled, true);
     expandedHintEnabled = a.getBoolean(R.styleable.TextInputLayout_expandedHintEnabled, true);
 
-    if (a.hasValue(R.styleable.TextInputLayout_android_minWidth)) {
+    if (a.hasValue(R.styleable.TextInputLayout_android_minEms)) {
+      setMinEms(a.getInt(R.styleable.TextInputLayout_android_minEms, NO_WIDTH));
+    } else if (a.hasValue(R.styleable.TextInputLayout_android_minWidth)) {
       setMinWidth(a.getDimensionPixelSize(R.styleable.TextInputLayout_android_minWidth, NO_WIDTH));
     }
-    if (a.hasValue(R.styleable.TextInputLayout_android_maxWidth)) {
+    if (a.hasValue(R.styleable.TextInputLayout_android_maxEms)) {
+      setMaxEms(a.getInt(R.styleable.TextInputLayout_android_maxEms, NO_WIDTH));
+    } else if (a.hasValue(R.styleable.TextInputLayout_android_maxWidth)) {
       setMaxWidth(a.getDimensionPixelSize(R.styleable.TextInputLayout_android_maxWidth, NO_WIDTH));
     }
 
@@ -725,7 +733,8 @@ public class TextInputLayout extends LinearLayout {
     int endIconDrawableId = a.getResourceId(R.styleable.TextInputLayout_endIconDrawable, 0);
     endIconDelegates.append(END_ICON_CUSTOM, new CustomEndIconDelegate(this, endIconDrawableId));
     endIconDelegates.append(END_ICON_NONE, new NoEndIconDelegate(this));
-    endIconDelegates.append(END_ICON_PASSWORD_TOGGLE,
+    endIconDelegates.append(
+        END_ICON_PASSWORD_TOGGLE,
         new PasswordToggleEndIconDelegate(
             this,
             endIconDrawableId == 0
@@ -951,7 +960,8 @@ public class TextInputLayout extends LinearLayout {
     switch (boxBackgroundMode) {
       case BOX_BACKGROUND_FILLED:
         boxBackground = new MaterialShapeDrawable(shapeAppearanceModel);
-        boxUnderline = new MaterialShapeDrawable();
+        boxUnderlineDefault = new MaterialShapeDrawable();
+        boxUnderlineFocused = new MaterialShapeDrawable();
         break;
       case BOX_BACKGROUND_OUTLINE:
         if (hintEnabled && !(boxBackground instanceof CutoutDrawable)) {
@@ -959,11 +969,13 @@ public class TextInputLayout extends LinearLayout {
         } else {
           boxBackground = new MaterialShapeDrawable(shapeAppearanceModel);
         }
-        boxUnderline = null;
+        boxUnderlineDefault = null;
+        boxUnderlineFocused = null;
         break;
       case BOX_BACKGROUND_NONE:
         boxBackground = null;
-        boxUnderline = null;
+        boxUnderlineDefault = null;
+        boxUnderlineFocused = null;
         break;
       default:
         throw new IllegalArgumentException(
@@ -1030,7 +1042,7 @@ public class TextInputLayout extends LinearLayout {
   /**
    * Set the value to use for the EditText's collapsed top padding in box mode.
    *
-   * <p> Customized boxCollapsedPaddingTop will be disabled if the font scale is larger than 1.3.
+   * <p>Customized boxCollapsedPaddingTop will be disabled if the font scale is larger than 1.3.
    *
    * @param boxCollapsedPaddingTop the value to use for the EditText's collapsed top padding
    * @attr ref com.google.android.material.R.styleable#TextInputLayout_boxCollapsedPaddingTop
@@ -1458,8 +1470,16 @@ public class TextInputLayout extends LinearLayout {
     }
 
     this.editText = editText;
-    setMinWidth(minWidth);
-    setMaxWidth(maxWidth);
+    if (minEms != NO_WIDTH) {
+      setMinEms(minEms);
+    } else {
+      setMinWidth(minWidth);
+    }
+    if (maxEms != NO_WIDTH) {
+      setMaxEms(maxEms);
+    } else {
+      setMaxWidth(maxWidth);
+    }
     onApplyBoxBackgroundMode();
     setTextInputAccessibilityDelegate(new AccessibilityDelegate(this));
 
@@ -1614,6 +1634,56 @@ public class TextInputLayout extends LinearLayout {
   }
 
   /**
+   * Sets the minimum width in terms of ems of the text field. The layout will be at least {@code
+   * minEms} wide if its {@code layout_width} is set to {@code wrap_content}.
+   *
+   * @param minEms The minimum width in terms of ems to be set
+   * @attr ref com.google.android.material.R.styleable#TextInputLayout_android_minEms
+   * @see #getMinEms()
+   */
+  public void setMinEms(int minEms) {
+    this.minEms = minEms;
+    if (editText != null && minEms != NO_WIDTH) {
+      editText.setMinEms(minEms);
+    }
+  }
+
+  /**
+   * Returns the text field's minimum width in terms of ems, or -1 if no minimum width is set.
+   *
+   * @attr ref com.google.android.material.R.styleable#TextInputLayout_android_minEms
+   * @see #setMinEms(int)
+   */
+  public int getMinEms() {
+    return minEms;
+  }
+
+  /**
+   * Sets the maximum width in terms of ems of the text field. The layout will be at most {@code
+   * maxEms} wide if its {@code layout_width} is set to {@code wrap_content}.
+   *
+   * @param maxEms The maximum width in terms of ems to be set
+   * @attr ref com.google.android.material.R.styleable#TextInputLayout_android_maxEms
+   * @see #getMaxEms()
+   */
+  public void setMaxEms(int maxEms) {
+    this.maxEms = maxEms;
+    if (editText != null && maxEms != NO_WIDTH) {
+      editText.setMaxEms(maxEms);
+    }
+  }
+
+  /**
+   * Returns the text field's maximum width in terms of ems, or -1 if no maximum width is set.
+   *
+   * @attr ref com.google.android.material.R.styleable#TextInputLayout_android_maxEms
+   * @see #setMaxEms(int)
+   */
+  public int getMaxEms() {
+    return maxEms;
+  }
+
+  /**
    * Sets the minimum width of the text field. The layout will be at least this dimension wide if
    * its {@code layout_width} is set to {@code wrap_content}.
    *
@@ -1688,7 +1758,7 @@ public class TextInputLayout extends LinearLayout {
    *
    * @attr ref com.google.android.material.R.styleable#TextInputLayout_android_maxWidth
    * @see #setMaxWidth(int)
-   * @see #setMaxWidthResource(int) (int)
+   * @see #setMaxWidthResource(int)
    */
   @Px
   public int getMaxWidth() {
@@ -2846,12 +2916,18 @@ public class TextInputLayout extends LinearLayout {
 
   private void applyBoxUnderlineAttributes() {
     // Exit if the underline is not being drawn by TextInputLayout.
-    if (boxUnderline == null) {
+    if (boxUnderlineDefault == null || boxUnderlineFocused == null) {
       return;
     }
 
     if (canDrawStroke()) {
-      boxUnderline.setFillColor(ColorStateList.valueOf(boxStrokeColor));
+      // If the edit text is focused, set boxUnderlineDefault to defaultStrokeColor to use it as the
+      // backdrop for the focused underline expansion.
+      boxUnderlineDefault.setFillColor(
+          editText.isFocused()
+              ? ColorStateList.valueOf(defaultStrokeColor)
+              : ColorStateList.valueOf(boxStrokeColor));
+      boxUnderlineFocused.setFillColor(ColorStateList.valueOf(boxStrokeColor));
     }
     invalidate();
   }
@@ -3115,8 +3191,7 @@ public class TextInputLayout extends LinearLayout {
           shouldCornersBeRtl ? boxCornerRadiusTopLeft : boxCornerRadiusTopRight,
           shouldCornersBeRtl ? boxCornerRadiusTopRight : boxCornerRadiusTopLeft,
           shouldCornersBeRtl ? boxCornerRadiusBottomLeft : boxCornerRadiusBottomRight,
-          shouldCornersBeRtl ? boxCornerRadiusBottomRight : boxCornerRadiusBottomLeft
-      );
+          shouldCornersBeRtl ? boxCornerRadiusBottomRight : boxCornerRadiusBottomLeft);
     }
   }
 
@@ -4128,9 +4203,13 @@ public class TextInputLayout extends LinearLayout {
   }
 
   private void updateBoxUnderlineBounds(@NonNull Rect bounds) {
-    if (boxUnderline != null) {
+    if (boxUnderlineDefault != null) {
+      int top = bounds.bottom - boxStrokeWidthDefaultPx;
+      boxUnderlineDefault.setBounds(bounds.left, top, bounds.right, bounds.bottom);
+    }
+    if (boxUnderlineFocused != null) {
       int top = bounds.bottom - boxStrokeWidthFocusedPx;
-      boxUnderline.setBounds(bounds.left, top, bounds.right, bounds.bottom);
+      boxUnderlineFocused.setBounds(bounds.left, top, bounds.right, bounds.bottom);
     }
   }
 
@@ -4154,11 +4233,27 @@ public class TextInputLayout extends LinearLayout {
   }
 
   private void drawBoxUnderline(Canvas canvas) {
-    if (boxUnderline != null) {
-      // Draw using the current boxStrokeWidth.
-      Rect underlineBounds = boxUnderline.getBounds();
-      underlineBounds.top = underlineBounds.bottom - boxStrokeWidthPx;
-      boxUnderline.draw(canvas);
+    if (boxUnderlineFocused != null && boxUnderlineDefault != null) {
+      // Always draw boxUnderlineDefault, because it's either the only underline that should be
+      // drawn or the backdrop for the focused underline expansion.
+      boxUnderlineDefault.draw(canvas);
+
+      if (editText.isFocused()) {
+        Rect focusedUnderlineBounds = boxUnderlineFocused.getBounds();
+        Rect defaultUnderlineBounds = boxUnderlineDefault.getBounds();
+
+        // Calculate the expansion fraction bounds based on the CollapsingTextHelper's hint text
+        // expansion fraction.
+        float hintExpansionFraction = collapsingTextHelper.getExpansionFraction();
+        int midpointX = defaultUnderlineBounds.centerX();
+
+        focusedUnderlineBounds.left =
+            AnimationUtils.lerp(midpointX, defaultUnderlineBounds.left, hintExpansionFraction);
+        focusedUnderlineBounds.right =
+            AnimationUtils.lerp(midpointX, defaultUnderlineBounds.right, hintExpansionFraction);
+
+        boxUnderlineFocused.draw(canvas);
+      }
     }
   }
 
@@ -4301,18 +4396,21 @@ public class TextInputLayout extends LinearLayout {
       tintEndIconOnError(indicatorViewController.errorShouldBeShown());
     }
 
-    int originalBoxStrokeWidthPx = boxStrokeWidthPx;
-    // Update the text box's stroke width based on the current state.
-    if (hasFocus && isEnabled()) {
-      boxStrokeWidthPx = boxStrokeWidthFocusedPx;
-    } else {
-      boxStrokeWidthPx = boxStrokeWidthDefaultPx;
-    }
-
-    if (boxStrokeWidthPx != originalBoxStrokeWidthPx
-        && boxBackgroundMode == BOX_BACKGROUND_OUTLINE) {
-      // If stroke width changes, cutout bounds need to be recalculated.
-      recalculateCutout();
+    // Update the outlined text box's stroke width based on the current state. The filled stroke
+    // width does not need to be updated based on state, because the filled stroke is handled as
+    // separate drawables for default and focused states, with constant stroke widths; only the
+    // stroke visibility changes based on state.
+    if (boxBackgroundMode == BOX_BACKGROUND_OUTLINE) {
+      int originalBoxStrokeWidthPx = boxStrokeWidthPx;
+      if (hasFocus && isEnabled()) {
+        boxStrokeWidthPx = boxStrokeWidthFocusedPx;
+      } else {
+        boxStrokeWidthPx = boxStrokeWidthDefaultPx;
+      }
+      if (boxStrokeWidthPx != originalBoxStrokeWidthPx) {
+        // If stroke width changes, cutout bounds need to be recalculated.
+        recalculateCutout();
+      }
     }
 
     // Update the text box's background color based on the current state.

@@ -112,9 +112,9 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         image = in.readString();
         accessKey = in.readString();
         commentsCount = in.readInt();
-        canComment = in.readByte() != 0;
-        canRepost = in.readByte() != 0;
-        userLikes = in.readByte() != 0;
+        canComment = in.readBoolean();
+        canRepost = in.readBoolean();
+        userLikes = in.readBoolean();
         likesCount = in.readInt();
         mp4link240 = in.readString();
         mp4link360 = in.readString();
@@ -125,13 +125,13 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         hls = in.readString();
         live = in.readString();
         platform = in.readString();
-        repeat = in.readByte() != 0;
+        repeat = in.readBoolean();
         duration = in.readInt();
         privacyView = in.readParcelable(SimplePrivacy.NativeCreator);
         privacyComment = in.readParcelable(SimplePrivacy.NativeCreator);
-        canEdit = in.readByte() != 0;
-        canAdd = in.readByte() != 0;
-        isPrivate = in.readByte() != 0;
+        canEdit = in.readBoolean();
+        canAdd = in.readBoolean();
+        isPrivate = in.readBoolean();
         msgId = in.readInt();
         msgPeerId = in.readInt();
     }
@@ -209,9 +209,9 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeString(image);
         dest.writeString(accessKey);
         dest.writeInt(commentsCount);
-        dest.writeByte((byte) (canComment ? 1 : 0));
-        dest.writeByte((byte) (canRepost ? 1 : 0));
-        dest.writeByte((byte) (userLikes ? 1 : 0));
+        dest.writeBoolean(canComment);
+        dest.writeBoolean(canRepost);
+        dest.writeBoolean(userLikes);
         dest.writeInt(likesCount);
         dest.writeString(mp4link240);
         dest.writeString(mp4link360);
@@ -222,13 +222,13 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeString(hls);
         dest.writeString(live);
         dest.writeString(platform);
-        dest.writeByte((byte) (repeat ? 1 : 0));
+        dest.writeBoolean(repeat);
         dest.writeInt(duration);
         dest.writeParcelable(privacyView);
         dest.writeParcelable(privacyComment);
-        dest.writeByte((byte) (canEdit ? 1 : 0));
-        dest.writeByte((byte) (canAdd ? 1 : 0));
-        dest.writeByte((byte) (isPrivate ? 1 : 0));
+        dest.writeBoolean(canEdit);
+        dest.writeBoolean(canAdd);
+        dest.writeBoolean(isPrivate);
         dest.writeInt(msgId);
         dest.writeInt(msgPeerId);
     }

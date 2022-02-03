@@ -20,6 +20,8 @@
  */
 package ealvatag.tag.datatype;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 
 import ealvatag.tag.InvalidDataTypeException;
@@ -136,6 +138,7 @@ public class ID3v2LyricLine extends AbstractDataType {
     /**
      * @return
      */
+    @NonNull
     public String toString() {
         return timeStamp + " " + text;
     }

@@ -5,6 +5,8 @@ import static ealvatag.logging.EalvaTagLog.LogLevel.ERROR;
 import static ealvatag.logging.EalvaTagLog.LogLevel.TRACE;
 import static ealvatag.logging.EalvaTagLog.LogLevel.WARN;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -173,6 +175,7 @@ public class PartOfSet extends AbstractString {
         return (PartOfSetValue) value;
     }
 
+    @NonNull
     public String toString() {
         return value == null ? "" : value.toString();
     }
@@ -381,6 +384,7 @@ public class PartOfSet extends AbstractString {
             return sb.toString();
         }
 
+        @NonNull
         public String toString() {
 
             //Don't Pad

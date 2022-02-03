@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory;
 import dev.ragnarok.fenrir.model.Photo;
 import dev.ragnarok.fenrir.model.TmpSource;
 import dev.ragnarok.fenrir.module.FenrirNative;
+import dev.ragnarok.fenrir.module.parcel.ParcelFlags;
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter;
 import dev.ragnarok.fenrir.mvp.view.IPhotosLocalServerView;
@@ -219,7 +220,7 @@ public class PhotosLocalServerPresenter extends AccountDependencyPresenter<IPhot
                     .compose(RxUtils.applyCompletableIOToMainSchedulers())
                     .subscribe(() -> callView(view -> view.displayGallery(getAccountId(), -311, getAccountId(), source, finalIndex, reverse)), Analytics::logUnexpectedError));
         } else {
-            ParcelNative mem = ParcelNative.create();
+            ParcelNative mem = ParcelNative.create(ParcelFlags.NULL_LIST);
             mem.writeInt(photos.size());
             for (int i = 0; i < photos.size(); i++) {
                 Photo photo = photos.get(i);

@@ -20,6 +20,8 @@
  */
 package ealvatag.tag.datatype;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 import java.util.Arrays;
 
@@ -121,10 +123,12 @@ public class Lyrics3TimeStamp extends AbstractDataType {
         }
     }
 
+    @NonNull
     public String toString() {
         return writeString();
     }
 
+    @NonNull
     String writeString() {
         String str;
         str = "[";

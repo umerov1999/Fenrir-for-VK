@@ -12,11 +12,29 @@ object ThemesController {
         ThemeValue(
             "cold",
             "#9BC4FC",
-            "#D8C2FF",
+            "#D1B8FD",
             "Cold",
             R.style.App_DayNight_Cold,
             R.style.App_DayNight_Cold_Amoled,
             R.style.App_DayNight_Cold_MD1
+        ).toast("#4D7198", "#448AFF"),
+        ThemeValue(
+            "cold_gold",
+            "#9BA0FC",
+            "#FDDCB8",
+            "Cold Gold",
+            R.style.App_DayNight_ColdGold,
+            R.style.App_DayNight_ColdGold_Amoled,
+            R.style.App_DayNight_ColdGold_MD1
+        ).toast("#4D7198", "#448AFF"),
+        ThemeValue(
+            "cold_green",
+            "#9BC4FC",
+            "#B8FDB9",
+            "Cold Green",
+            R.style.App_DayNight_ColdGreen,
+            R.style.App_DayNight_ColdGreen_Amoled,
+            R.style.App_DayNight_ColdGreen_MD1
         ).toast("#4D7198", "#448AFF"),
         ThemeValue(
             "ice",

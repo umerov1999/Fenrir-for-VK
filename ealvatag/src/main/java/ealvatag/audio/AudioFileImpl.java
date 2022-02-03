@@ -21,6 +21,8 @@ package ealvatag.audio;
 import static ealvatag.utils.Check.checkArgNotNull;
 import static ealvatag.utils.Check.checkArgNotNullOrEmpty;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.io.Files;
@@ -138,7 +140,7 @@ public class AudioFileImpl implements AudioFile {
 
     @Override
     public Optional<Tag> getTag() {
-        return Optional.fromNullable((Tag) tag);
+        return Optional.fromNullable(tag);
     }
 
     @Override
@@ -161,12 +163,7 @@ public class AudioFileImpl implements AudioFile {
     }
 
     private Supplier<Tag> makeTagSupplier() throws CannotWriteException {
-        return new Supplier<Tag>() {
-            @Override
-            public Tag get() {
-                return setTag(makeDefaultTag());
-            }
-        };
+        return () -> setTag(makeDefaultTag());
     }
 
     @Override
@@ -258,14 +255,13 @@ public class AudioFileImpl implements AudioFile {
     }
 
 
+    @NonNull
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("AudioFileImpl{");
-        sb.append("file=").append(file);
-        sb.append(", audioHeader=").append(audioHeader);
-        sb.append(", tag=").append(tag);
-        sb.append(", extension='").append(extension).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "AudioFileImpl{" + "file=" + file +
+                ", audioHeader=" + audioHeader +
+                ", tag=" + tag +
+                ", extension='" + extension + '\'' +
+                '}';
     }
 }

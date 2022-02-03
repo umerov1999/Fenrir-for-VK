@@ -20,6 +20,8 @@ import static ealvatag.utils.Check.CANNOT_BE_NULL;
 import static ealvatag.utils.Check.checkArgNotNull;
 import static ealvatag.utils.Check.checkVarArg0NotNull;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
@@ -145,7 +147,7 @@ public abstract class GenericTag extends AbstractTag {
      *
      * @author Raphaël Slinckx
      */
-    protected class GenericTagTextField implements TagTextField {
+    protected static class GenericTagTextField implements TagTextField {
 
         /**
          * Stores the identifier.
@@ -224,6 +226,7 @@ public abstract class GenericTag extends AbstractTag {
             return "".equals(content);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return getContent();

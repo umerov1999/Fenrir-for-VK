@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import dev.ragnarok.fenrir.domain.IAudioInteractor;
 import dev.ragnarok.fenrir.domain.InteractorFactory;
@@ -64,6 +65,23 @@ public class AudioDuplicatePresenter extends RxSupportPresenter<IAudioDuplicateV
         }
     }
 
+    private Single<Integer> doBitrate(String url) {
+        return Single.create(v -> {
+            try {
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(url, new HashMap<>());
+                String bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
+                if (bitrate != null) {
+                    v.onSuccess((int) (Long.parseLong(bitrate) / 1000));
+                } else {
+                    v.onError(new Throwable("Can't receipt bitrate "));
+                }
+            } catch (RuntimeException e) {
+                v.onError(e);
+            }
+        });
+    }
+
     private void getBitrate(@NonNull Audio audio) {
         if (Utils.isEmpty(audio.getUrl())) {
             return;
@@ -74,10 +92,16 @@ public class AudioDuplicatePresenter extends RxSupportPresenter<IAudioDuplicateV
                         newBitrate = Mp3InfoHelper.getBitrate(audio.getDuration(), r);
                         callView(o -> o.setNewBitrate(newBitrate));
                     }, this::onDataGetError);
-        } else {
+        } else if (!audio.isLocalServer()) {
             audioListDisposable = Mp3InfoHelper.getLength(audio.getUrl()).compose(RxUtils.applySingleIOToMainSchedulers())
                     .subscribe(r -> {
                         newBitrate = Mp3InfoHelper.getBitrate(audio.getDuration(), r);
+                        callView(o -> o.setNewBitrate(newBitrate));
+                    }, this::onDataGetError);
+        } else {
+            audioListDisposable = doBitrate(audio.getUrl()).compose(RxUtils.applySingleIOToMainSchedulers())
+                    .subscribe(r -> {
+                        newBitrate = r;
                         callView(o -> o.setNewBitrate(newBitrate));
                     }, this::onDataGetError);
         }

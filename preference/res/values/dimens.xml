@@ -12,5 +12,5 @@
     <dimen name="preference_seekbar_value_minWidth">36dp</dimen>
     <!-- The padding at the start of the dropdown menu within a DropDownPreference
     TODO: Pending UX discussion in b/110975540 - keeping old behaviour for now.-->
-    <dimen name="preference_dropdown_padding_start">0dp</dimen>
+    <dimen name="preference_dropdown_padding_start">72dp</dimen>
 </resources>

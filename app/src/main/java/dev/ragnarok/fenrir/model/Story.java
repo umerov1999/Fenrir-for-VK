@@ -38,7 +38,7 @@ public class Story extends AbsModel implements ParcelNative.ParcelableNative {
         owner_id = in.readInt();
         date = in.readLong();
         expires_at = in.readLong();
-        is_expired = in.readInt() != 0;
+        is_expired = in.readByte() != 0;
         access_key = in.readString();
         target_url = in.readString();
         video = in.readParcelable(Video.class.getClassLoader());
@@ -51,7 +51,7 @@ public class Story extends AbsModel implements ParcelNative.ParcelableNative {
         owner_id = in.readInt();
         date = in.readLong();
         expires_at = in.readLong();
-        is_expired = in.readInt() != 0;
+        is_expired = in.readBoolean();
         access_key = in.readString();
         target_url = in.readString();
         video = in.readParcelable(Video.NativeCreator);
@@ -66,7 +66,7 @@ public class Story extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeInt(owner_id);
         dest.writeLong(date);
         dest.writeLong(expires_at);
-        dest.writeInt(is_expired ? 1 : 0);
+        dest.writeByte((byte) (is_expired ? 1 : 0));
         dest.writeString(access_key);
         dest.writeString(target_url);
         dest.writeParcelable(video, flags);
@@ -80,7 +80,7 @@ public class Story extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeInt(owner_id);
         dest.writeLong(date);
         dest.writeLong(expires_at);
-        dest.writeInt(is_expired ? 1 : 0);
+        dest.writeBoolean(is_expired);
         dest.writeString(access_key);
         dest.writeString(target_url);
         dest.writeParcelable(video);

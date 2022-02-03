@@ -12,6 +12,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        encoding 'utf-8'
     }
     lintOptions {
         abortOnError false

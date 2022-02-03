@@ -20,7 +20,7 @@
  */
 package ealvatag.tag.datatype;
 
-import org.jetbrains.annotations.Nullable;
+import androidx.annotation.Nullable;
 
 import java.io.EOFException;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public abstract class AbstractDataType {
      * Holds the key such as "Text" or "PictureType", the naming of keys are fairly arbitary but are intended
      * to make it easier to for the developer, the keys themseleves are not written to the tag.
      */
-    protected String identifier = "";
+    protected String identifier;
 
     /**
      * Holds the calling body, allows an datatype to query other objects in the
@@ -183,6 +183,7 @@ public abstract class AbstractDataType {
      *
      * @return value held by this Object
      */
+    @Nullable
     public Object getValue() {
         return value;
     }
@@ -191,7 +192,7 @@ public abstract class AbstractDataType {
      * Set the value held by this datatype, this is used typically used when the
      * user wants to modify the value in an existing frame.
      */
-    public void setValue(Object value) {
+    public void setValue(@Nullable Object value) {
         this.value = value;
     }
 

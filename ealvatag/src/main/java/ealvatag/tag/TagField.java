@@ -18,6 +18,8 @@
  */
 package ealvatag.tag;
 
+import androidx.annotation.NonNull;
+
 import java.io.UnsupportedEncodingException;
 
 import ealvatag.audio.AbstractTag;
@@ -108,5 +110,6 @@ public interface TagField {
      *
      * @return Description of the fields content.
      */
+    @NonNull
     String toString();
 }

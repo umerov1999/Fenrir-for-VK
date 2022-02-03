@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.google.android.material.checkbox.MaterialCheckBox
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/enabled_anim"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,6 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="25"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="8" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -44,9 +46,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="10"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="4" />
 
-        <com.google.android.material.checkbox.MaterialCheckBox
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/edit_invert_rotation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,6 +72,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="25"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="16" />
     </LinearLayout>
 </ScrollView>

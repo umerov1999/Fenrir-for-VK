@@ -308,7 +308,7 @@ public class ID3v23Tag extends AbstractID3v2Tag {
         if (genericKey == FieldKey.YEAR) {
             AggregatedFrame af = (AggregatedFrame) getFrame(TyerTdatAggregatedFrame.ID_TYER_TDAT);
             if (af != null) {
-                return ImmutableList.<TagField>of(af);
+                return ImmutableList.of(af);
             } else {
                 return super.getFields(genericKey);
             }
@@ -986,7 +986,7 @@ public class ID3v23Tag extends AbstractID3v2Tag {
                 invalidFrames++;
                 //Don't try and find any more frames
                 break;
-            } catch (InvalidDataTypeException idete) {
+            } catch (InvalidTagException idete) {
                 //Failed reading frame but may just have invalid data but correct length so lets carry on
                 //in case we can read the next frame
                 LOG.log(WARN, "%s:Corrupt Frame", loggingFilename, idete);
@@ -994,10 +994,8 @@ public class ID3v23Tag extends AbstractID3v2Tag {
             } catch (IOException e) {
                 LOG.log(WARN, "Unexpectedly reached end of frame" + e);
                 invalidFrames++;
-            } catch (@SuppressWarnings("TryWithIdenticalCatches") InvalidTagException e) {  // TODO: 1/25/17 get exceptions straightened out
-                LOG.log(WARN, "%s:Corrupt Frame", loggingFilename, e);
-                invalidFrames++;
-            }
+            } // TODO: 1/25/17 get exceptions straightened out
+
         }
     }
 

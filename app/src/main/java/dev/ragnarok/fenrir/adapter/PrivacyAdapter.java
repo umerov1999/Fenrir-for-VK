@@ -24,7 +24,6 @@ import dev.ragnarok.fenrir.model.FriendList;
 import dev.ragnarok.fenrir.model.Privacy;
 import dev.ragnarok.fenrir.model.User;
 import dev.ragnarok.fenrir.picasso.PicassoInstance;
-import dev.ragnarok.fenrir.settings.CurrentTheme;
 import dev.ragnarok.fenrir.util.Utils;
 
 public class PrivacyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -147,11 +146,8 @@ public class PrivacyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     private void bindListEntry(EntryViewHolder holder, FriendList friendList, boolean allow) {
-        holder.avatar.setColorFilter(CurrentTheme.getColorSecondary(mContext));
-
-        PicassoInstance.with()
-                .load(R.drawable.ic_privacy_friends_list)
-                .into(holder.avatar);
+        PicassoInstance.with().cancelRequest(holder.avatar);
+        holder.avatar.setImageResource(R.drawable.ic_privacy_friends_list);
 
         holder.title.setText(friendList.getName());
         holder.buttonRemove.setOnClickListener(v -> {
@@ -166,8 +162,6 @@ public class PrivacyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     private void bindUserEntry(EntryViewHolder holder, User user, boolean allow) {
-        holder.avatar.setColorFilter(null);
-
         PicassoInstance.with()
                 .load(user.getMaxSquareAvatar())
                 .into(holder.avatar);

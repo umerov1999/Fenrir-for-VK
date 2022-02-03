@@ -812,7 +812,7 @@ public class FeedbackViewBinder {
         holder.uName.setText(spannable, TextView.BufferType.SPANNABLE);
         holder.uTime.setText(getDateFromUnixTime(notification.getDate()));
         holder.uInfo.setVisibility(View.GONE);
-        holder.uChangable.setIcon(R.drawable.ic_vk_share);
+        holder.uChangable.setIcon(R.drawable.share);
 
         showFirstUserAvatarOnImageView(notification.getOwners(), holder.uAvatar);
         setupAttachmentViewWithPhoto((Photo) notification.getWhat(), holder.ivAttachment);
@@ -842,7 +842,7 @@ public class FeedbackViewBinder {
         holder.uName.setText(spannable, TextView.BufferType.SPANNABLE);
         holder.uInfo.setVisibility(View.GONE);
         holder.uTime.setText(getDateFromUnixTime(notification.getDate()));
-        holder.uChangable.setIcon(R.drawable.ic_vk_share);
+        holder.uChangable.setIcon(R.drawable.share);
 
         showFirstUserAvatarOnImageView(notification.getOwners(), holder.uAvatar);
         setupAttachmentViewWithVideo((Video) notification.getWhat(), holder.ivAttachment);
@@ -881,7 +881,7 @@ public class FeedbackViewBinder {
 
         showFirstUserAvatarOnImageView(notification.getOwners(), holder.uAvatar);
         holder.uTime.setText(getDateFromUnixTime(notification.getDate()));
-        holder.uChangable.setIcon(R.drawable.ic_vk_share);
+        holder.uChangable.setIcon(R.drawable.share);
 
         String firstAttachmentUrl = post.findFirstImageCopiesInclude();
 

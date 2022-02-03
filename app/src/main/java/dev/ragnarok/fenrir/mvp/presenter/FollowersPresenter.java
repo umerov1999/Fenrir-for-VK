@@ -38,6 +38,7 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
     private boolean doLoadTabs;
     private List<Owner> not_followers;
     private List<Owner> add_followers;
+    private int offset;
 
     public FollowersPresenter(int accountId, int userId, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
@@ -47,14 +48,14 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
         isNotFriendShow = Settings.get().other().isNot_friend_show();
     }
 
-    private void requestActualData(int offset, boolean do_scan) {
+    private void requestActualData(boolean do_scan) {
         actualDataLoading = true;
         resolveRefreshingView();
 
         int accountId = getAccountId();
         actualDataDisposable.add(relationshipInteractor.getFollowers(accountId, userId, isNotFriendShow ? 1000 : 200, offset)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe(users -> onActualDataReceived(offset, users, do_scan), this::onActualDataGetError));
+                .subscribe(users -> onActualDataReceived(users, do_scan), this::onActualDataGetError));
     }
 
     public void removeFollower(Owner owner) {
@@ -86,7 +87,8 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
         }
         loadAllCacheData();
         if (!isNotFriendShow) {
-            requestActualData(0, false);
+            offset = 0;
+            requestActualData(false);
         }
     }
 
@@ -118,7 +120,7 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
         }
     }
 
-    private void onActualDataReceived(int offset, List<User> users, boolean do_scan) {
+    private void onActualDataReceived(List<User> users, boolean do_scan) {
         if (do_scan && isNotFriendShow) {
             not_followers = new ArrayList<>();
             for (Owner i : data) {
@@ -149,6 +151,7 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
             data.addAll(users);
             callView(view -> view.notifyDataAdded(startSzie, users.size()));
         }
+        offset += isNotFriendShow ? 1000 : 200;
 
         resolveRefreshingView();
     }
@@ -156,7 +159,7 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
     @Override
     void onUserScrolledToEnd() {
         if (!endOfContent && !cacheLoadingNow && !actualDataLoading && actualDataReceived) {
-            requestActualData(data.size(), false);
+            requestActualData(false);
         }
     }
 
@@ -166,7 +169,8 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
         cacheLoadingNow = false;
 
         actualDataDisposable.clear();
-        requestActualData(0, false);
+        offset = 0;
+        requestActualData(false);
     }
 
     private void loadAllCacheData() {
@@ -182,7 +186,8 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
         cacheLoadingNow = false;
         callView(v -> showError(v, getCauseIfRuntime(t)));
         if (isNotFriendShow) {
-            requestActualData(0, false);
+            offset = 0;
+            requestActualData(false);
         }
     }
 
@@ -192,7 +197,8 @@ public class FollowersPresenter extends SimpleOwnersPresenter<IFollowersView> {
         data.addAll(users);
         callView(IFollowersView::notifyDataSetChanged);
         if (isNotFriendShow) {
-            requestActualData(0, users.size() > 0);
+            offset = 0;
+            requestActualData(users.size() > 0);
         }
     }
 

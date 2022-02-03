@@ -11,10 +11,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import dev.ragnarok.fenrir.Injection;
@@ -35,9 +33,11 @@ import dev.ragnarok.fenrir.model.PhotoAlbum;
 import dev.ragnarok.fenrir.model.TmpSource;
 import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper;
 import dev.ragnarok.fenrir.module.FenrirNative;
+import dev.ragnarok.fenrir.module.parcel.ParcelFlags;
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter;
 import dev.ragnarok.fenrir.mvp.view.IVkPhotosView;
+import dev.ragnarok.fenrir.player.MusicPlaybackController;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.upload.IUploadManager;
 import dev.ragnarok.fenrir.upload.Upload;
@@ -50,7 +50,6 @@ import dev.ragnarok.fenrir.util.AssertUtils;
 import dev.ragnarok.fenrir.util.Pair;
 import dev.ragnarok.fenrir.util.RxUtils;
 import dev.ragnarok.fenrir.util.Utils;
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 
@@ -75,7 +74,6 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
     private final CompositeDisposable cacheDisposable = new CompositeDisposable();
     private PhotoAlbum album;
     private Owner owner;
-    private List<String> mDownloads;
     private boolean requestNow;
     private boolean endOfContent;
     private boolean isShowBDate;
@@ -297,11 +295,7 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
             appendDisposable(interactor.get(getAccountId(), ownerId, albumId, COUNT, offset, !invertPhotoRev)
                     .map(t -> {
                         List<SelectablePhotoWrapper> wrap = wrappersOf(t);
-                        if (!Utils.isEmpty(mDownloads)) {
-                            for (SelectablePhotoWrapper i : wrap) {
-                                i.setDownloaded(existPhoto(i.getPhoto()));
-                            }
-                        }
+                        MusicPlaybackController.tracksExist.markExistPhotos(wrap);
                         return wrap;
                     })
                     .compose(RxUtils.applySingleIOToMainSchedulers())
@@ -310,11 +304,7 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
             appendDisposable(interactor.getUsersPhoto(getAccountId(), ownerId, 1, invertPhotoRev ? 1 : 0, offset, COUNT)
                     .map(t -> {
                         List<SelectablePhotoWrapper> wrap = wrappersOf(t);
-                        if (!Utils.isEmpty(mDownloads)) {
-                            for (SelectablePhotoWrapper i : wrap) {
-                                i.setDownloaded(existPhoto(i.getPhoto()));
-                            }
-                        }
+                        MusicPlaybackController.tracksExist.markExistPhotos(wrap);
                         return wrap;
                     })
                     .compose(RxUtils.applySingleIOToMainSchedulers())
@@ -323,11 +313,7 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
             appendDisposable(interactor.getAll(getAccountId(), ownerId, 1, 1, offset, COUNT)
                     .map(t -> {
                         List<SelectablePhotoWrapper> wrap = wrappersOf(t);
-                        if (!Utils.isEmpty(mDownloads)) {
-                            for (SelectablePhotoWrapper i : wrap) {
-                                i.setDownloaded(existPhoto(i.getPhoto()));
-                            }
-                        }
+                        MusicPlaybackController.tracksExist.markExistPhotos(wrap);
                         return wrap;
                     })
                     .compose(RxUtils.applySingleIOToMainSchedulers())
@@ -366,32 +352,12 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
                 .subscribe(this::onInitialDataReceived));
     }
 
-    private String transform_owner(int owner_id) {
-        if (owner_id < 0)
-            return "club" + Math.abs(owner_id);
-        else
-            return "id" + owner_id;
-    }
-
-    private boolean existPhoto(Photo photo) {
-        for (String i : mDownloads) {
-            if (i.contains(transform_owner(photo.getOwnerId()) + "_" + photo.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void updateInfo(int position, long ptr) {
         List<Photo> p = ParcelNative.fromNative(ptr).readParcelableList(Photo.NativeCreator);
         photos.clear();
         photos.addAll(wrappersOf(p));
         photos.get(position).setCurrent(true);
-        if (!Utils.isEmpty(mDownloads)) {
-            for (SelectablePhotoWrapper i : photos) {
-                i.setDownloaded(existPhoto(i.getPhoto()));
-            }
-        }
+        MusicPlaybackController.tracksExist.markExistPhotos(photos);
         callView(v -> {
             v.notifyDataSetChanged();
             v.scrollTo(position);
@@ -530,7 +496,7 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
                     .compose(RxUtils.applyCompletableIOToMainSchedulers())
                     .subscribe(() -> callView(view -> view.displayGallery(getAccountId(), albumId, ownerId, source, finalIndex)), Analytics::logUnexpectedError));
         } else {
-            ParcelNative mem = ParcelNative.create();
+            ParcelNative mem = ParcelNative.create(ParcelFlags.NULL_LIST);
             mem.writeInt(photos.size());
             for (int i = 0; i < photos.size(); i++) {
                 SelectablePhotoWrapper photo = photos.get(i);
@@ -581,64 +547,17 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
         callView(IVkPhotosView::startLocalPhotosSelectionIfHasPermission);
     }
 
-    private void loadDownloadPath(String Path) {
-        File temp = new File(Path);
-        if (!temp.exists())
-            return;
-        File[] file_list = temp.listFiles();
-        if (file_list == null || file_list.length <= 0)
-            return;
-        for (File u : file_list) {
-            if (u.isFile())
-                mDownloads.add(u.getName());
-            else if (u.isDirectory()) {
-                loadDownloadPath(u.getAbsolutePath());
-            }
-        }
-    }
-
     public void loadDownload() {
         isShowBDate = true;
         setRequestNow(true);
-        appendDisposable(loadLocalImages()
+        appendDisposable(MusicPlaybackController.tracksExist.findLocalImages(photos)
                 .compose(RxUtils.applyCompletableIOToMainSchedulers())
-                .subscribe(this::onCacheLoaded, t -> {/*TODO*/}));
+                .subscribe(this::onCacheLoaded, RxUtils.ignore()));
     }
 
     private void onCacheLoaded() {
         callView(view -> view.onToggleShowDate(isShowBDate));
         callView(IVkPhotosView::notifyDataSetChanged);
         setRequestNow(false);
-    }
-
-    private Completable loadLocalImages() {
-        return Completable.create(t -> {
-            File temp = new File(Settings.get().other().getPhotoDir());
-            if (!temp.exists()) {
-                t.onComplete();
-                return;
-            }
-            File[] file_list = temp.listFiles();
-            if (file_list == null || file_list.length <= 0) {
-                t.onComplete();
-                return;
-            }
-            if (mDownloads == null) {
-                mDownloads = new LinkedList<>();
-            } else {
-                mDownloads.clear();
-            }
-            for (File u : file_list) {
-                if (u.isFile())
-                    mDownloads.add(u.getName());
-                else if (u.isDirectory()) {
-                    loadDownloadPath(u.getAbsolutePath());
-                }
-            }
-            for (SelectablePhotoWrapper i : photos) {
-                i.setDownloaded(existPhoto(i.getPhoto()));
-            }
-            t.onComplete();
-        });
     }
 }

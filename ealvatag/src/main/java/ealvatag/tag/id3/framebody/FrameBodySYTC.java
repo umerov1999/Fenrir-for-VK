@@ -160,7 +160,7 @@ public class FrameBodySYTC extends AbstractID3v2FrameBody implements ID3v24Frame
      * @return map of tempi
      */
     public Map<Long, Integer> getTempi() {
-        Map<Long, Integer> map = new LinkedHashMap<Long, Integer>();
+        Map<Long, Integer> map = new LinkedHashMap<>();
         List<SynchronisedTempoCode> codes =
                 (List<SynchronisedTempoCode>) getObjectValue(DataTypes.OBJ_SYNCHRONISED_TEMPO_LIST);
         for (SynchronisedTempoCode code : codes) {
@@ -175,7 +175,7 @@ public class FrameBodySYTC extends AbstractID3v2FrameBody implements ID3v24Frame
      * @return list of timestamps
      */
     public List<Long> getTimestamps() {
-        List<Long> list = new ArrayList<Long>();
+        List<Long> list = new ArrayList<>();
         List<SynchronisedTempoCode> codes =
                 (List<SynchronisedTempoCode>) getObjectValue(DataTypes.OBJ_SYNCHRONISED_TEMPO_LIST);
         for (SynchronisedTempoCode code : codes) {

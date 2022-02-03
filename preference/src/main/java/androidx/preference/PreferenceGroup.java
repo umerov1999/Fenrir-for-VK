@@ -413,27 +413,42 @@ public abstract class PreferenceGroup extends Preference {
         if (str == null) {
             throw new IllegalArgumentException("Str cannot be null");
         }
+        T ret = null;
         if (findNoCase(safeToString(getTitle()), str) || findNoCase(safeToString(getSummary()), str) || findNoCase(getKey(), str)) {
-            return (T) this;
+            ret = (T) this;
+            setSelected(true);
+        } else {
+            setSelected(false);
         }
         int preferenceCount = getPreferenceCount();
         for (int i = 0; i < preferenceCount; i++) {
             Preference preference = getPreference(i);
 
             if (findNoCase(safeToString(preference.getTitle()), str) || findNoCase(safeToString(preference.getSummary()), str) || findNoCase(preference.getKey(), str)) {
-                return (T) preference;
+                if (ret == null) {
+                    ret = (T) preference;
+                }
+                preference.setSelected(true);
+            } else {
+                preference.setSelected(false);
             }
 
             if (preference instanceof PreferenceGroup) {
                 T returnedPreference = ((PreferenceGroup) preference).findPreferenceByName(str);
                 if (returnedPreference != null) {
                     ((PreferenceGroup) preference).setInitialExpandedChildrenCount(Integer.MAX_VALUE);
+                    returnedPreference.setSelected(true);
                     preference.notifyHierarchyChanged();
-                    return returnedPreference;
+                    if (ret == null) {
+                        ret = returnedPreference;
+                    }
+                } else if (preference.hasKey()) {
+                    ((PreferenceGroup) preference).setInitialExpandedChildrenCount(1);
+                    preference.notifyHierarchyChanged();
                 }
             }
         }
-        return null;
+        return ret;
     }
 
     /**
@@ -599,8 +614,6 @@ public abstract class PreferenceGroup extends Preference {
          * if not found
          */
         int getPreferenceAdapterPosition(@NonNull Preference preference);
-
-        void setSelectedPreference(int pos);
     }
 
     /**

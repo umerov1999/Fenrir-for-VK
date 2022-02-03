@@ -123,15 +123,16 @@
 
             </LinearLayout>
 
-            <com.google.android.material.checkbox.MaterialCheckBox
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/save_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:checked="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="@string/save"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
         </LinearLayout>
 

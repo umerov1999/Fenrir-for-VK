@@ -17,6 +17,8 @@
 
 package ealvatag.utils;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
@@ -86,6 +88,7 @@ public class InclusiveIntegerRange {
         return hash;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)

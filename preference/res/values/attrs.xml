@@ -57,8 +57,6 @@
         <attr name="preferenceFragmentListStyle" format="reference" />
         <!-- Default style for switch preferences. -->
         <attr name="switchPreferenceStyle" format="reference" />
-        <!-- Default style for switch compat preferences. -->
-        <attr name="switchPreferenceCompatStyle" format="reference" />
         <!-- Default style for seekbar preferences. -->
         <attr name="seekBarPreferenceStyle" format="reference" />
     </declare-styleable>

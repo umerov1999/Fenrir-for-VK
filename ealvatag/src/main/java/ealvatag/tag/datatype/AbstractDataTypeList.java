@@ -18,6 +18,8 @@ package ealvatag.tag.datatype;
 
 import static ealvatag.logging.EalvaTagLog.LogLevel.DEBUG;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,7 @@ public abstract class AbstractDataTypeList<T extends AbstractDataType> extends A
 
     public AbstractDataTypeList(String identifier, AbstractTagFrameBody frameBody) {
         super(identifier, frameBody);
-        setValue(new ArrayList<T>());
+        setValue(new ArrayList<>());
     }
 
     /**
@@ -56,7 +58,7 @@ public abstract class AbstractDataTypeList<T extends AbstractDataType> extends A
     }
 
     public void setValue(List<T> list) {
-        super.setValue(list == null ? new ArrayList<T>() : new ArrayList<T>(list));
+        super.setValue(list == null ? new ArrayList<T>() : new ArrayList<>(list));
     }
 
     /**
@@ -149,6 +151,7 @@ public abstract class AbstractDataTypeList<T extends AbstractDataType> extends A
         return getValue() != null ? getValue().hashCode() : 0;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return getValue() != null ? getValue().toString() : "%s";

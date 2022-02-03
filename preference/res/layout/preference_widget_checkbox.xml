@@ -16,7 +16,7 @@
 
 <!-- Layout used by CheckBoxPreference for the checkbox style. This is inflated
      inside android.R.layout.preference. -->
-<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.checkbox.MaterialCheckBox xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/checkbox"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

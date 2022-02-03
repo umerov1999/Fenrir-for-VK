@@ -19,6 +19,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory;
 import dev.ragnarok.fenrir.model.Photo;
 import dev.ragnarok.fenrir.model.TmpSource;
 import dev.ragnarok.fenrir.module.FenrirNative;
+import dev.ragnarok.fenrir.module.parcel.ParcelFlags;
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 import dev.ragnarok.fenrir.mvp.view.IPhotoPagerView;
 import dev.ragnarok.fenrir.settings.Settings;
@@ -134,7 +135,7 @@ public class PhotoAlbumPagerPresenter extends PhotoPagerPresenter {
     @Override
     public void close() {
         if (Settings.get().other().isNative_parcel_photo() && FenrirNative.isNativeLoaded()) {
-            long ptr = ParcelNative.create().writeParcelableList(getData()).getNativePointer();
+            long ptr = ParcelNative.createParcelableList(getData(), ParcelFlags.NULL_LIST);
             callView(v -> v.returnInfo(getCurrentIndex(), ptr));
         } else {
             callView(IPhotoPagerView::closeOnly);

@@ -84,17 +84,14 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
         super.onPrepareDialogBuilder(builder);
 
         builder.setSingleChoiceItems(mEntries, mClickedDialogEntryIndex,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mClickedDialogEntryIndex = which;
+                (dialog, which) -> {
+                    mClickedDialogEntryIndex = which;
 
-                        // Clicking on an item simulates the positive button click, and dismisses
-                        // the dialog.
-                        ListPreferenceDialogFragmentCompat.this.onClick(dialog,
-                                DialogInterface.BUTTON_POSITIVE);
-                        dialog.dismiss();
-                    }
+                    // Clicking on an item simulates the positive button click, and dismisses
+                    // the dialog.
+                    onClick(dialog,
+                            DialogInterface.BUTTON_POSITIVE);
+                    dialog.dismiss();
                 });
 
         // The typical interaction for list-based dialogs is to have click-on-an-item dismiss the

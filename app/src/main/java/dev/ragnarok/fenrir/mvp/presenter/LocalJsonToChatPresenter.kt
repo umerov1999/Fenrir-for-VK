@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import java.util.*
 
 class LocalJsonToChatPresenter(
     accountId: Int,

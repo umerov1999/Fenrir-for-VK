@@ -165,6 +165,36 @@
         <item name="colorSecondaryContainer">#E9E8EC</item>
     </style>
 
+    <style name="App.DayNight.ColdGreen" parent="App.DayNight">
+        <item name="colorPrimary">#7493BC</item>
+        <item name="colorControlNormal">#7493BC</item>
+        <item name="colorSecondary">#9FD1AC</item>
+        <item name="icon_color_active">#AA448AFF</item>
+        <item name="icon_color_inactive">#AAFF0000</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnPrimaryContainer">#03183D</item>
+        <item name="colorPrimaryContainer">#ECECEC</item>
+        <item name="colorPrimaryInverse">#D4D8DD</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorOnSecondaryContainer">#141B14</item>
+        <item name="colorSecondaryContainer">#E8ECE9</item>
+    </style>
+
+    <style name="App.DayNight.ColdGold" parent="App.DayNight">
+        <item name="colorPrimary">#7478BC</item>
+        <item name="colorControlNormal">#7478BC</item>
+        <item name="colorSecondary">#D1BF9F</item>
+        <item name="icon_color_active">#AA448AFF</item>
+        <item name="icon_color_inactive">#AAFF0000</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnPrimaryContainer">#03183D</item>
+        <item name="colorPrimaryContainer">#ECECEC</item>
+        <item name="colorPrimaryInverse">#D4D8DD</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorOnSecondaryContainer">#1B1914</item>
+        <item name="colorSecondaryContainer">#ECEBE8</item>
+    </style>
+
     <style name="App.DayNight.BlueYellow" parent="App.DayNight">
         <item name="colorPrimary">#448AFF</item>
         <item name="colorControlNormal">#448AFF</item>
@@ -510,6 +540,10 @@
 
     <style name="App.DayNight.Cold.Amoled" parent="App.DayNight.Cold" />
 
+    <style name="App.DayNight.ColdGreen.Amoled" parent="App.DayNight.ColdGreen" />
+
+    <style name="App.DayNight.ColdGold.Amoled" parent="App.DayNight.ColdGold" />
+
     <style name="App.DayNight.BlueYellow.Amoled" parent="App.DayNight.BlueYellow" />
 
     <style name="App.DayNight.Fire.Amoled" parent="App.DayNight.Fire" />
@@ -580,6 +614,16 @@
     </style>
 
     <style name="App.DayNight.Cold.MD1" parent="App.DayNight.Cold">
+        <item name="materialCardStyle">@style/CardViewMD</item>
+        <item name="materialCardBackgroundStyle">@drawable/background_rectangle_filled</item>
+    </style>
+
+    <style name="App.DayNight.ColdGreen.MD1" parent="App.DayNight.ColdGreen">
+        <item name="materialCardStyle">@style/CardViewMD</item>
+        <item name="materialCardBackgroundStyle">@drawable/background_rectangle_filled</item>
+    </style>
+
+    <style name="App.DayNight.ColdGold.MD1" parent="App.DayNight.ColdGold">
         <item name="materialCardStyle">@style/CardViewMD</item>
         <item name="materialCardBackgroundStyle">@drawable/background_rectangle_filled</item>
     </style>

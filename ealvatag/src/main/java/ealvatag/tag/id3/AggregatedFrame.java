@@ -14,7 +14,7 @@ import ealvatag.tag.id3.valuepair.TextEncoding;
  */
 public class AggregatedFrame implements TagTextField {
     //TODO rather than just maintaining insertion order we want to define a preset order
-    protected Set<AbstractID3v2Frame> frames = new LinkedHashSet<AbstractID3v2Frame>();
+    protected Set<AbstractID3v2Frame> frames = new LinkedHashSet<>();
 
     public void addFrame(AbstractID3v2Frame frame) {
         frames.add(frame);

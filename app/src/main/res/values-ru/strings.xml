@@ -1214,6 +1214,7 @@
     <string name="use_internal_downloader_summary">Для видео и документов</string>
     <string name="bitrate">Битрейт: %1$d kbs, Размер: %2$s</string>
     <string name="error_timeout_message">Превышено время ожидание запроса</string>
+    <string name="error_unknown_host">Нет подключения к сети</string>
     <string name="login_sms_code_hint">SMS-код</string>
     <string name="button_proxy">Прокси</string>
     <string name="button_settings">Настройки</string>
@@ -1462,7 +1463,6 @@
     <string name="link_not_banned">Нормальная ссылка</string>
     <string name="link_banned">Запрещённая ссылка</string>
     <string name="link_processing">Ссылка проверяется</string>
-    <string name="blacklisted">Вы в чёрном списке!!!</string>
     <string name="additional_info">Дополнительная информация</string>
     <string name="mini_player_audio_round_icon">Круглые обложки в мини-плеере</string>
     <string name="select_audio">Выбор аудио</string>
@@ -1593,6 +1593,7 @@
     <string name="go_discography">Перейти к дискографии</string>
     <string name="reverse_time">От старых к новым</string>
     <string name="local_server_sync">Синхронизировать список скачанных</string>
+    <string name="local_server_sync_get">Получить список скачанных</string>
     <string name="return_away">Вернуться</string>
     <string name="update_time">Задать текущее время</string>
     <string name="max_bitmap_resolution">Максимальное разрешение картинки</string>

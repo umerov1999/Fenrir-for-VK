@@ -175,7 +175,7 @@ public abstract class AbstractFrameBodyPairs extends AbstractID3v2FrameBody impl
         StringBuilder sb = new StringBuilder();
         int count = 1;
         for (Pair entry : text.getValue().getMapping()) {
-            sb.append(entry.getKey() + '\0' + entry.getValue());
+            sb.append(entry.getKey()).append('\0').append(entry.getValue());
             if (count != getNumberOfPairs()) {
                 sb.append('\0');
             }

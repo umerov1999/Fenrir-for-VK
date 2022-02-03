@@ -23,7 +23,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Px
 import com.squareup.picasso3.Picasso.Priority
 import com.squareup.picasso3.Picasso.Priority.NORMAL
-import java.util.*
 import java.util.concurrent.TimeUnit.NANOSECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 

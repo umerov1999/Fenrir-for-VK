@@ -59,8 +59,8 @@ public class ImageFormats {
      */
     public static final String MIME_TYPE_JPG = "image/jpg";
 
-    private static final Map<String, String> imageFormatsToMimeType = new HashMap<String, String>();
-    private static final Map<String, String> imageMimeTypeToFormat = new HashMap<String, String>();
+    private static final Map<String, String> imageFormatsToMimeType = new HashMap<>();
+    private static final Map<String, String> imageMimeTypeToFormat = new HashMap<>();
 
     static {
         imageFormatsToMimeType.put(V22_JPG_FORMAT, MIME_TYPE_JPEG);

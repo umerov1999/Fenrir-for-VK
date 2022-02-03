@@ -1,5 +1,7 @@
 package ealvatag.tag.reference;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,12 +20,12 @@ public class ISOCountry {
     private static final Map<String, Country> descriptionMap;
 
     static {
-        codeMap = new HashMap<String, Country>();
+        codeMap = new HashMap<>();
         for (Country country : Country.values()) {
             codeMap.put(country.code, country);
         }
 
-        descriptionMap = new HashMap<String, Country>();
+        descriptionMap = new HashMap<>();
         for (Country country : Country.values()) {
             descriptionMap.put(country.description, country);
         }
@@ -47,7 +49,7 @@ public class ISOCountry {
     }
 
     public static String[] getDescriptionsAsArray() {
-        List<String> descriptions = new ArrayList<String>();
+        List<String> descriptions = new ArrayList<>();
         for (Country country : Country.values()) {
             descriptions.add(country.description);
         }
@@ -322,6 +324,7 @@ public class ISOCountry {
             return description;
         }
 
+        @NonNull
         public String toString() {
             return getDescription();
         }

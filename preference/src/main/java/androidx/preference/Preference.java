@@ -41,14 +41,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,10 +97,10 @@ public class Preference implements Comparable<Preference> {
 
     @NonNull
     private final Context mContext;
-
+    private final boolean mAllowDividerAbove;
+    private final boolean mAllowDividerBelow;
     @Nullable
     private PreferenceManager mPreferenceManager;
-
     /**
      * The data store that should be used by this preference to store / retrieve data. If {@code
      * null} then {@link PreferenceManager#getPreferenceDataStore()} needs to be checked. If that
@@ -111,26 +109,21 @@ public class Preference implements Comparable<Preference> {
      */
     @Nullable
     private PreferenceDataStore mPreferenceDataStore;
-
     /**
      * Set when added to hierarchy since we need a unique ID within that hierarchy.
      */
     private long mId;
-
     /**
      * Set true temporarily to keep {@link #onAttachedToHierarchy(PreferenceManager)} from
      * overwriting mId.
      */
     private boolean mHasId;
-
     private OnPreferenceChangeListener mOnChangeListener;
     private OnPreferenceClickListener mOnClickListener;
-
-    private int mOrder = DEFAULT_ORDER;
+    private int mOrder;
     private int mViewId;
     private CharSequence mTitle;
     private CharSequence mSummary;
-
     /**
      * mIconResId is overridden by mIcon, if mIcon is specified.
      */
@@ -140,23 +133,16 @@ public class Preference implements Comparable<Preference> {
     private Intent mIntent;
     private String mFragment;
     private Bundle mExtras;
-    private boolean mEnabled = true;
-    private boolean mSelectable = true;
+    private boolean mEnabled;
+    private boolean mSelectable;
     private boolean mRequiresKey;
-    private boolean mPersistent = true;
+    private boolean mPersistent;
     private String mDependencyKey;
     private Object mDefaultValue;
     private boolean mDependencyMet = true;
     private boolean mParentDependencyMet = true;
-    private final View.OnClickListener mClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            performClick(v);
-        }
-    };
-    private boolean mVisible = true;
-    private boolean mAllowDividerAbove = true;
-    private boolean mAllowDividerBelow = true;
+    private final View.OnClickListener mClickListener = this::performClick;
+    private boolean mVisible;
     private boolean mHasSingleLineTitleAttr;
     private boolean mSingleLineTitle = true;
     private boolean mIconSpaceReserved;
@@ -164,8 +150,8 @@ public class Preference implements Comparable<Preference> {
     /**
      * @see #setShouldDisableView(boolean)
      */
-    private boolean mShouldDisableView = true;
-    private int mLayoutResId = R.layout.preference;
+    private boolean mShouldDisableView;
+    private int mLayoutResId;
     private int mWidgetLayoutResId;
     private OnPreferenceChangeInternalListener mListener;
     private List<Preference> mDependents;
@@ -1131,7 +1117,7 @@ public class Preference implements Comparable<Preference> {
      *                        summary of this preference is requested
      * @see SummaryProvider
      */
-    public final void setSummaryProvider(@Nullable SummaryProvider summaryProvider) {
+    public final <T extends Preference> void setSummaryProvider(@Nullable SummaryProvider<T> summaryProvider) {
         mSummaryProvider = summaryProvider;
         notifyChanged();
     }
@@ -2126,19 +2112,6 @@ public class Preference implements Comparable<Preference> {
         if (state != AbsSavedState.EMPTY_STATE && state != null) {
             throw new IllegalArgumentException("Wrong state class -- expecting Preference State");
         }
-    }
-
-    /**
-     * Initializes an {@link android.view.accessibility.AccessibilityNodeInfo} with information
-     * about the View for this preference.
-     *
-     * @deprecated Preferences aren't views. They should not need any accessibility changes,
-     * unless the view hierarchy is customized. In this situation, please add Accessibility
-     * information in {@link #onBindViewHolder}.
-     */
-    @CallSuper
-    @Deprecated
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
     }
 
     /**

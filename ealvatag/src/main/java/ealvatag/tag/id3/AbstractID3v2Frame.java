@@ -23,9 +23,9 @@ import static ealvatag.logging.EalvaTagLog.LogLevel.WARN;
 import static ealvatag.tag.id3.ID3v22Frames.FRAME_ID_V2_ATTACHED_PICTURE;
 import static ealvatag.tag.id3.ID3v24Frames.FRAME_ID_ATTACHED_PICTURE;
 
-import com.google.common.base.Strings;
+import androidx.annotation.Nullable;
 
-import org.jetbrains.annotations.Nullable;
+import com.google.common.base.Strings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -117,7 +117,7 @@ public abstract class AbstractID3v2Frame extends AbstractTagFrame implements Tag
      * Create a new frame with empty body based on identifier
      */
     //TODO the identifier checks should be done in the relevent subclasses
-    public AbstractID3v2Frame(String identifier) {
+    public AbstractID3v2Frame(@Nullable String identifier) {
         LOG.log(DEBUG, "Creating empty frame of type %s", identifier);
         this.identifier = identifier;
 
@@ -210,6 +210,7 @@ public abstract class AbstractID3v2Frame extends AbstractTagFrame implements Tag
      *
      * @return the frame identifier
      */
+    @Nullable
     public String getIdentifier() {
         return identifier;
     }
@@ -537,7 +538,7 @@ public abstract class AbstractID3v2Frame extends AbstractTagFrame implements Tag
         return isArtworkFrameId(identifier);
     }
 
-    public class StatusFlags {
+    public static class StatusFlags {
         static final String TYPE_FLAGS = "statusFlags";
 
         byte originalFlags;
@@ -582,7 +583,7 @@ public abstract class AbstractID3v2Frame extends AbstractTagFrame implements Tag
         }
     }
 
-    class EncodingFlags {
+    static class EncodingFlags {
         static final String TYPE_FLAGS = "encodingFlags";
 
         protected byte flags;

@@ -7,7 +7,6 @@ import com.google.gson.JsonObject
 import dev.ragnarok.fenrir.Injection
 import dev.ragnarok.fenrir.fragment.PreferencesFragment
 import dev.ragnarok.fenrir.settings.Settings
-import java.util.*
 
 class SettingsBackup {
     private val settings: Array<SettingCollector> = arrayOf(

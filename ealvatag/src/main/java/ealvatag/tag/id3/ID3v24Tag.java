@@ -112,9 +112,7 @@ public class ID3v24Tag extends AbstractID3v2Tag {
     private static final int TAG_EXT_HEADER_CRC_LENGTH = 6;
     private static final int TAG_EXT_HEADER_RESTRICTION_LENGTH = 2;
     private static final int TAG_EXT_HEADER_CRC_DATA_LENGTH = 5;
-    @SuppressWarnings("FieldCanBeLocal")
     private static final int TAG_EXT_HEADER_RESTRICTION_DATA_LENGTH = 1;
-    @SuppressWarnings("FieldCanBeLocal")
     private static final int TAG_EXT_NUMBER_BYTES_DATA_LENGTH = 1;
     /**
      * ID3v2.4 Header bit mask
@@ -373,7 +371,7 @@ public class ID3v24Tag extends AbstractID3v2Tag {
                 }
                 if (((id3tag.genre & ID3v1Tag.BYTE_TO_UNSIGNED) >= 0) &&
                         ((id3tag.genre & ID3v1Tag.BYTE_TO_UNSIGNED) != ID3v1Tag.BYTE_TO_UNSIGNED)) {
-                    Integer genreId = id3tag.genre & ID3v1Tag.BYTE_TO_UNSIGNED;
+                    int genreId = id3tag.genre & ID3v1Tag.BYTE_TO_UNSIGNED;
                     String genre = "(" + genreId + ") " + GenreTypes.getInstanceOf().getValue(genreId);
 
                     newBody = new FrameBodyTCON((byte) 0, genre);

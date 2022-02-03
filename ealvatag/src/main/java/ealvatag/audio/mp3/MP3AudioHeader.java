@@ -23,6 +23,8 @@ import static ealvatag.logging.EalvaTagLog.LogLevel.ERROR;
 import static ealvatag.logging.EalvaTagLog.LogLevel.TRACE;
 import static ealvatag.logging.EalvaTagLog.LogLevel.WARN;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.MoreObjects;
 
 import java.io.EOFException;
@@ -550,6 +552,7 @@ public class MP3AudioHeader implements AudioHeader {
         this.audioDataEndPosition = audioDataEndPosition;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)

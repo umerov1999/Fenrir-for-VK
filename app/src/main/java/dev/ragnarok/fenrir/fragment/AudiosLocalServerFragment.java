@@ -16,6 +16,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -76,7 +77,6 @@ public class AudiosLocalServerFragment extends BaseMvpFragment<AudiosLocalServer
         searchView.setLeftIcon(R.drawable.magnify);
         searchView.setRightIcon(R.drawable.dots_vertical);
         searchView.setQuery("", true);
-        searchView.setOnAdditionalButtonLongClickListener(() -> Utils.checkMusicInPC(requireActivity()));
         searchView.setOnAdditionalButtonClickListener(() -> callPresenter(AudiosLocalServerPresenter::fireOptions));
 
         mSwipeRefreshLayout = root.findViewById(R.id.refresh);
@@ -166,7 +166,17 @@ public class AudiosLocalServerFragment extends BaseMvpFragment<AudiosLocalServer
             }
 
             @Override
-            public void onSync() {
+            public void onRemoteSync() {
+                try {
+                    MusicPlaybackController.tracksExist.findRemoteAudios(requireActivity());
+                    CustomToast.CreateCustomToast(requireActivity()).showToastSuccessBottom(R.string.success);
+                } catch (IOException e) {
+                    Utils.showErrorInAdapter(requireActivity(), e);
+                }
+            }
+
+            @Override
+            public void onRemoteGet() {
                 DownloadWorkUtils.doSyncRemoteAudio(requireActivity());
             }
         }).show(getChildFragmentManager(), "dialog-local-server-options");

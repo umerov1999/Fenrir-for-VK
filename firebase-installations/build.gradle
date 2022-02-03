@@ -5,13 +5,14 @@ android {
     buildToolsVersion fenrirBuildTools
 
     defaultConfig {
-        minSdkVersion fenrirMinSDK
+        minSdkVersion 21
         //noinspection ExpiredTargetSdkVersion,OldTargetApi
         targetSdkVersion fenrirTargetSDK
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        encoding 'utf-8'
     }
 }
 

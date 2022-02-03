@@ -6,6 +6,8 @@
  */
 package ealvatag.utils.tree;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -265,14 +267,15 @@ public class EventListenerList implements Serializable {
     /**
      * Returns a string representation of the EventListenerList.
      */
+    @NonNull
     public String toString() {
         Object[] lList = listenerList;
-        String s = "EventListenerList: ";
-        s += lList.length / 2 + " listeners: ";
+        StringBuilder s = new StringBuilder("EventListenerList: ");
+        s.append(lList.length / 2).append(" listeners: ");
         for (int i = 0; i <= lList.length - 2; i += 2) {
-            s += " type " + ((Class) lList[i]).getName();
-            s += " listener " + lList[i + 1];
+            s.append(" type ").append(((Class) lList[i]).getName());
+            s.append(" listener ").append(lList[i + 1]);
         }
-        return s;
+        return s.toString();
     }
 }

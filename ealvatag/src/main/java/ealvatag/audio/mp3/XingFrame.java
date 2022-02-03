@@ -3,6 +3,8 @@ package ealvatag.audio.mp3;
 import static ealvatag.logging.EalvaTagLog.LogLevel.INFO;
 import static ealvatag.logging.EalvaTagLog.LogLevel.TRACE;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 import java.util.Arrays;
 
@@ -216,6 +218,7 @@ public class XingFrame {
         return vbr;
     }
 
+    @NonNull
     public String toString() {
         return "xingheader" + " vbr:" + vbr + " frameCountEnabled:" + isFrameCountEnabled + " frameCount:" +
                 frameCount + " audioSizeEnabled:" + isAudioSizeEnabled + " audioFileSize:" + audioSize;

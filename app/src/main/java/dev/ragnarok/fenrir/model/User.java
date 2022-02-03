@@ -89,8 +89,8 @@ public class User extends Owner implements Identificable {
         id = in.readInt();
         firstName = in.readString();
         lastName = in.readString();
-        online = in.readByte() != 0;
-        onlineMobile = in.readByte() != 0;
+        online = in.readBoolean();
+        onlineMobile = in.readBoolean();
         onlineApp = in.readInt();
         photo50 = in.readString();
         photo100 = in.readString();
@@ -104,13 +104,13 @@ public class User extends Owner implements Identificable {
         sex = in.readInt();
         domain = in.readString();
         maiden_name = in.readString();
-        friend = in.readByte() != 0;
+        friend = in.readBoolean();
         friendStatus = in.readInt();
-        can_write_private_message = in.readByte() != 0;
-        blacklisted_by_me = in.readByte() != 0;
-        blacklisted = in.readByte() != 0;
-        verified = in.readByte() != 0;
-        can_access_closed = in.readByte() != 0;
+        can_write_private_message = in.readBoolean();
+        blacklisted_by_me = in.readBoolean();
+        blacklisted = in.readBoolean();
+        verified = in.readBoolean();
+        can_access_closed = in.readBoolean();
     }
 
     @Override
@@ -361,8 +361,8 @@ public class User extends Owner implements Identificable {
         dest.writeInt(id);
         dest.writeString(firstName);
         dest.writeString(lastName);
-        dest.writeByte((byte) (online ? 1 : 0));
-        dest.writeByte((byte) (onlineMobile ? 1 : 0));
+        dest.writeBoolean(online);
+        dest.writeBoolean(onlineMobile);
         dest.writeInt(onlineApp);
         dest.writeString(photo50);
         dest.writeString(photo100);
@@ -374,13 +374,13 @@ public class User extends Owner implements Identificable {
         dest.writeInt(sex);
         dest.writeString(domain);
         dest.writeString(maiden_name);
-        dest.writeByte((byte) (friend ? 1 : 0));
+        dest.writeBoolean(friend);
         dest.writeInt(friendStatus);
-        dest.writeByte((byte) (can_write_private_message ? 1 : 0));
-        dest.writeByte((byte) (blacklisted_by_me ? 1 : 0));
-        dest.writeByte((byte) (blacklisted ? 1 : 0));
-        dest.writeByte((byte) (verified ? 1 : 0));
-        dest.writeByte((byte) (can_access_closed ? 1 : 0));
+        dest.writeBoolean(can_write_private_message);
+        dest.writeBoolean(blacklisted_by_me);
+        dest.writeBoolean(blacklisted);
+        dest.writeBoolean(verified);
+        dest.writeBoolean(can_access_closed);
     }
 
     @Override

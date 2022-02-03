@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.mvp.presenter;
 
-import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
-
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -24,6 +22,7 @@ public class OnlineFriendsPresenter extends SimpleOwnersPresenter<ISimpleOwnersV
     private boolean endOfContent;
     private boolean actualDataLoading;
     private boolean doLoadTabs;
+    private int offset;
 
     public OnlineFriendsPresenter(int accountId, int userId, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
@@ -44,17 +43,18 @@ public class OnlineFriendsPresenter extends SimpleOwnersPresenter<ISimpleOwnersV
         } else {
             doLoadTabs = true;
         }
-        requestActualData(0);
+        offset = 0;
+        requestActualData();
     }
 
-    private void requestActualData(int offset) {
+    private void requestActualData() {
         actualDataLoading = true;
         resolveRefreshingView();
 
         int accountId = getAccountId();
         actualDataDisposable.add(relationshipInteractor.getOnlineFriends(accountId, userId, 200, offset)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe(users -> onDataReceived(offset, users), this::onDataGetError));
+                .subscribe(this::onDataReceived, this::onDataGetError));
     }
 
     private void onDataGetError(Throwable t) {
@@ -64,7 +64,7 @@ public class OnlineFriendsPresenter extends SimpleOwnersPresenter<ISimpleOwnersV
         callView(v -> showError(v, t));
     }
 
-    private void onDataReceived(int offset, List<User> users) {
+    private void onDataReceived(List<User> users) {
         actualDataLoading = false;
 
         endOfContent = users.isEmpty();
@@ -80,19 +80,21 @@ public class OnlineFriendsPresenter extends SimpleOwnersPresenter<ISimpleOwnersV
         }
 
         resolveRefreshingView();
+        offset += 200;
     }
 
     @Override
     void onUserScrolledToEnd() {
-        if (!endOfContent && !actualDataLoading && nonEmpty(data)) {
-            requestActualData(data.size());
+        if (!endOfContent && !actualDataLoading && offset > 0) {
+            requestActualData();
         }
     }
 
     @Override
     void onUserRefreshed() {
         actualDataDisposable.clear();
-        requestActualData(0);
+        offset = 0;
+        requestActualData();
     }
 
     @Override

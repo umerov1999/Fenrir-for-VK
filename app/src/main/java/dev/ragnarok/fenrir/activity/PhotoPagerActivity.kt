@@ -39,6 +39,7 @@ import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.module.FenrirNative
+import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.photo.*
@@ -127,7 +128,10 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             args.putBoolean(Extra.READONLY, readOnly)
             args.putBoolean(Extra.INVERT, invert)
             if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_photo) {
-                args.putLong(EXTRA_PHOTOS, ParcelNative.createParcelableList(photos))
+                args.putLong(
+                    EXTRA_PHOTOS,
+                    ParcelNative.createParcelableList(photos, ParcelFlags.NULL_LIST)
+                )
             } else {
                 args.putParcelableArrayList(EXTRA_PHOTOS, photos)
             }
@@ -480,7 +484,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                             ) ParcelNative.loadParcelableArrayList(
                                 requireArguments().getLong(
                                     EXTRA_PHOTOS
-                                ), Photo.NativeCreator
+                                ), Photo.NativeCreator, ParcelFlags.MUTABLE_LIST
                             ) else requireArguments().getParcelableArrayList(EXTRA_PHOTOS)!!
                         if (FenrirNative.isNativeLoaded() && Settings.get()
                                 .other().isNative_parcel_photo

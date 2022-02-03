@@ -64,12 +64,7 @@ public class AudioFileIO {
         // TODO: 1/19/17 This warning "do not forget" = ensure tests check this
 
         // Tag Readers
-        AudioFileReaderFactory realReaderFactory = new AudioFileReaderFactory() {
-            @Override
-            public AudioFileReader make() {
-                return new RealFileReader();
-            }
-        };
+        AudioFileReaderFactory realReaderFactory = RealFileReader::new;
 
         readerFactories = ImmutableMap.<String, AudioFileReaderFactory>builder()
                 .put(SupportedFileFormat.MP3.getFileSuffix(), new CachingAudioFileReaderFactory() {
@@ -83,12 +78,7 @@ public class AudioFileIO {
                 .build();
 
         writerFactories = ImmutableMap.<String, AudioFileWriterFactory>builder()
-                .put(SupportedFileFormat.MP3.getFileSuffix(), new AudioFileWriterFactory() {
-                    @Override
-                    public AudioFileWriter make() {
-                        return new MP3FileWriter();
-                    }
-                })
+                .put(SupportedFileFormat.MP3.getFileSuffix(), MP3FileWriter::new)
                 .build();
     }
 

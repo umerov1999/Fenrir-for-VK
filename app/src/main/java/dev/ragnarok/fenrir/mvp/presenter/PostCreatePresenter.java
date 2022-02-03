@@ -189,11 +189,7 @@ public class PostCreatePresenter extends AbsPostEditPresenter<IPostCreateView> {
     }
 
     private void resolveSignerInfo() {
-        boolean visible = false;
-
-        if (isGroup() && !isEditorOrHigher() || !fromGroup.get() || addSignature.get()) {
-            visible = true;
-        }
+        boolean visible = isGroup() && !isEditorOrHigher() || !fromGroup.get() || addSignature.get();
 
         if (isCommunity() && isEditorOrHigher()) {
             visible = addSignature.get();

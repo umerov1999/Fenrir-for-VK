@@ -453,15 +453,17 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
             } else {
                 if (getMainActivityTransform() == MainActivityTransforms.MAIN) {
                     checkFCMRegistration(false);
-                    mCompositeDisposable.add(InteractorFactory.createAudioInteractor().PlaceToAudioCache(this)
+                    mCompositeDisposable.add(MusicPlaybackController.tracksExist.findAllAudios(this)
                             .compose(RxUtils.applyCompletableIOToMainSchedulers())
-                            .subscribe(RxUtils.dummy(), RxUtils.ignore()));
+                            .subscribe(RxUtils.dummy(), t -> {
+                                if (Settings.get().other().isDeveloper_mode()) {
+                                    Utils.showErrorInAdapter(this, t);
+                                }
+                            }));
 
                     mCompositeDisposable.add(InteractorFactory.createStickersInteractor().PlaceToStickerCache(this)
                             .compose(RxUtils.applyCompletableIOToMainSchedulers())
                             .subscribe(RxUtils.dummy(), RxUtils.ignore()));
-
-                    Utils.checkMusicInPC(this);
 
                     if (!Settings.get().other().appStoredVersionEqual()) {
                         PreferencesFragment.cleanUICache(this, false);
@@ -493,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
     private void updateNotificationCount(int account) {
         mCompositeDisposable.add(new CountersInteractor(Injection.provideNetworkInterfaces()).getApiCounters(account)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe(this::updateNotificationsBagde, t -> removeNotificationsBagde()));
+                .subscribe(this::updateNotificationsBadge, t -> removeNotificationsBadge()));
     }
 
     @Override
@@ -1714,7 +1716,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
         if (mBottomNavigation != null) {
             if (count > 0) {
                 BadgeDrawable badgeDrawable = mBottomNavigation.getOrCreateBadge(R.id.menu_messages);
-                badgeDrawable.setDynamicColor(true);
+                badgeDrawable.setBadgeNotSaveColor(true);
                 badgeDrawable.setNumber(count);
             } else {
                 mBottomNavigation.removeBadge(R.id.menu_messages);
@@ -1722,20 +1724,20 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
         }
     }
 
-    private void updateNotificationsBagde(@NonNull SectionCounters counters) {
+    private void updateNotificationsBadge(@NonNull SectionCounters counters) {
         getNavigationFragment().onUnreadDialogsCountChange(counters.getMessages());
         getNavigationFragment().onUnreadNotificationsCountChange(counters.getNotifications());
         if (mBottomNavigation != null) {
             if (counters.getNotifications() > 0) {
                 BadgeDrawable badgeDrawable = mBottomNavigation.getOrCreateBadge(R.id.menu_feedback);
-                badgeDrawable.setDynamicColor(true);
+                badgeDrawable.setBadgeNotSaveColor(true);
                 badgeDrawable.setNumber(counters.getNotifications());
             } else {
                 mBottomNavigation.removeBadge(R.id.menu_feedback);
             }
             if (counters.getMessages() > 0) {
                 BadgeDrawable badgeDrawable = mBottomNavigation.getOrCreateBadge(R.id.menu_messages);
-                badgeDrawable.setDynamicColor(true);
+                badgeDrawable.setBadgeNotSaveColor(true);
                 badgeDrawable.setNumber(counters.getMessages());
             } else {
                 mBottomNavigation.removeBadge(R.id.menu_messages);
@@ -1743,7 +1745,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
         }
     }
 
-    private void removeNotificationsBagde() {
+    private void removeNotificationsBadge() {
         getNavigationFragment().onUnreadDialogsCountChange(0);
         getNavigationFragment().onUnreadNotificationsCountChange(0);
         if (mBottomNavigation != null) {

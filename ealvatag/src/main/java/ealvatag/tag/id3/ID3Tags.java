@@ -15,7 +15,7 @@
  */
 package ealvatag.tag.id3;
 
-import org.jetbrains.annotations.Nullable;
+import androidx.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
 

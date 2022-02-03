@@ -20,6 +20,8 @@
  */
 package ealvatag.tag.id3.framebody;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 
 import ealvatag.tag.InvalidTagException;
@@ -134,6 +136,7 @@ public class FrameBodyUnsupported extends AbstractID3v2FrameBody implements ID3v
      *
      * @return a string representation of this frame
      */
+    @NonNull
     public String toString() {
         return getIdentifier();
     }

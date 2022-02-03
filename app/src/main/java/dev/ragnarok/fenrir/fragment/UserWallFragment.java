@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -194,9 +193,7 @@ public class UserWallFragment extends AbsWallFragment<IUserWallView, UserWallPre
         if (onlineIcon != null) {
             mHeaderHolder.ivOnline.setIcon(onlineIcon);
         }
-        if (user.getBlacklisted()) {
-            Utils.ColoredSnack(requireView(), R.string.blacklisted, BaseTransientBottomBar.LENGTH_LONG, Color.parseColor("#ccc9a200")).show();
-        }
+        mHeaderHolder.blacklisted.setVisibility(user.getBlacklisted() ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -552,6 +549,7 @@ public class UserWallFragment extends AbsWallFragment<IUserWallView, UserWallPre
         final ImageView tvAudioStatus;
         final TextView tvLastSeen;
         final OnlineView ivOnline;
+        final ImageView blacklisted;
 
         final TextView bFriends;
         final TextView bGroups;
@@ -575,6 +573,7 @@ public class UserWallFragment extends AbsWallFragment<IUserWallView, UserWallPre
         UserHeaderHolder(@NonNull View root) {
             vgCover = root.findViewById(R.id.cover);
             tvStatus = root.findViewById(R.id.fragment_user_profile_status);
+            blacklisted = root.findViewById(R.id.item_blacklisted);
             tvAudioStatus = root.findViewById(R.id.fragment_user_profile_audio);
             tvName = root.findViewById(R.id.fragment_user_profile_name);
             tvScreenName = root.findViewById(R.id.fragment_user_profile_id);

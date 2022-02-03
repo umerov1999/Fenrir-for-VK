@@ -67,7 +67,7 @@ public class TextEncodedStringSizeTerminated extends AbstractString {
         List<String> values = Arrays.asList(valuesarray);
         //Read only list so if empty have to create new list
         if (values.size() == 0) {
-            values = new ArrayList<String>(1);
+            values = new ArrayList<>(1);
             values.add("");
         }
         return values;

@@ -1,5 +1,7 @@
 package ealvatag.audio.real;
 
+import androidx.annotation.NonNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -72,6 +74,7 @@ public class RealChunk {
         return size;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return id + "\t" + size;

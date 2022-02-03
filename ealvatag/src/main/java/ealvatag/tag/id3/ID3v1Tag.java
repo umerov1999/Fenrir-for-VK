@@ -335,7 +335,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
     public ImmutableList<TagField> getAlbum() {
         String firstAlbum = getFirstAlbum();
         if (firstAlbum.length() > 0) {
-            return ImmutableList.<TagField>of(new ID3v1TagField(ID3v1FieldKey.ALBUM.name(), firstAlbum));
+            return ImmutableList.of(new ID3v1TagField(ID3v1FieldKey.ALBUM.name(), firstAlbum));
         } else {
             return ImmutableList.of();
         }
@@ -355,7 +355,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
     public ImmutableList<TagField> getArtist() {
         String firstArtist = getFirstArtist();
         if (firstArtist.length() > 0) {
-            return ImmutableList.<TagField>of(new ID3v1TagField(ID3v1FieldKey.ARTIST.name(), firstArtist));
+            return ImmutableList.of(new ID3v1TagField(ID3v1FieldKey.ARTIST.name(), firstArtist));
         } else {
             return ImmutableList.of();
         }
@@ -374,7 +374,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
      */
     public ImmutableList<TagField> getComment() {
         if (getFirstComment().length() > 0) {
-            return ImmutableList.<TagField>of(new ID3v1TagField(ID3v1FieldKey.COMMENT.name(), getFirstComment()));
+            return ImmutableList.of(new ID3v1TagField(ID3v1FieldKey.COMMENT.name(), getFirstComment()));
         } else {
             return ImmutableList.of();
         }
@@ -398,7 +398,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
     public ImmutableList<TagField> getGenre() {
         String firstGenre = getFirst(FieldKey.GENRE);
         if (firstGenre.length() > 0) {
-            return ImmutableList.<TagField>of(new ID3v1TagField(ID3v1FieldKey.GENRE.name(), firstGenre));
+            return ImmutableList.of(new ID3v1TagField(ID3v1FieldKey.GENRE.name(), firstGenre));
         } else {
             return ImmutableList.of();
         }
@@ -429,7 +429,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
     public ImmutableList<TagField> getTitle() {
         String firstTitle = getFirst(FieldKey.TITLE);
         if (firstTitle.length() > 0) {
-            return ImmutableList.<TagField>of(new ID3v1TagField(ID3v1FieldKey.TITLE.name(), firstTitle));
+            return ImmutableList.of(new ID3v1TagField(ID3v1FieldKey.TITLE.name(), firstTitle));
         } else {
             return ImmutableList.of();
         }
@@ -450,7 +450,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
      */
     public ImmutableList<TagField> getYear() {
         if (getFirst(FieldKey.YEAR).length() > 0) {
-            return ImmutableList.<TagField>of(new ID3v1TagField(ID3v1FieldKey.YEAR.name(), getFirst(FieldKey.YEAR)));
+            return ImmutableList.of(new ID3v1TagField(ID3v1FieldKey.YEAR.name(), getFirst(FieldKey.YEAR)));
         } else {
             return ImmutableList.of();
         }
@@ -799,7 +799,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
     public Optional<TagField> getFirstField(FieldKey genericKey)
             throws IllegalArgumentException, UnsupportedFieldException {
         List<TagField> l = getFields(genericKey);
-        return (l.size() != 0) ? Optional.fromNullable(l.get(0)) : Optional.<TagField>absent();
+        return (l.size() != 0) ? Optional.fromNullable(l.get(0)) : Optional.absent();
     }
 
     public TagField createCompilationField(boolean value) throws UnsupportedFieldException {
@@ -839,7 +839,7 @@ public class ID3v1Tag extends AbstractID3v1Tag implements TagFieldContainer {
      * @return genre or empty string if not valid
      */
     String getFirstGenre() {
-        Integer genreId = genre & BYTE_TO_UNSIGNED;
+        int genreId = genre & BYTE_TO_UNSIGNED;
         String genreValue = GenreTypes.getInstanceOf().getValue(genreId);
         if (genreValue == null) {
             return "";

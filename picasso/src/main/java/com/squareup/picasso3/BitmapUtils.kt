@@ -29,32 +29,10 @@ import okio.*
 import java.io.IOException
 import java.nio.ByteBuffer
 import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 
 object BitmapUtils {
-
-    internal class ExceptionCatchingSource(delegate: Source?) : ForwardingSource(delegate!!) {
-        var thrownException: IOException? = null
-
-        @Throws(IOException::class)
-        override fun read(sink: Buffer, byteCount: Long): Long {
-            return try {
-                super.read(sink, byteCount)
-            } catch (e: IOException) {
-                thrownException = e
-                throw e
-            }
-        }
-
-        @Throws(IOException::class)
-        fun throwIfCaught() {
-            if (thrownException is IOException) {
-                // TODO: Log when Android returns a non-null Bitmap after swallowing an IOException.
-                // TODO: https://github.com/square/picasso/issues/2003/
-                throw thrownException as IOException
-            }
-        }
-    }
-
     /**
      * Lazily create [BitmapFactory.Options] based in given
      * [Request], only instantiating them if needed.
@@ -62,36 +40,33 @@ object BitmapUtils {
     @JvmStatic
     fun createBitmapOptions(data: Request): BitmapFactory.Options? {
         val justBounds = data.hasSize()
-        var options: BitmapFactory.Options? = null
-        if (justBounds || data.config != null) {
-            options = BitmapFactory.Options()
-            options.inJustDecodeBounds = justBounds
-            if (data.config != null) {
-                options.inPreferredConfig = data.config
+        return if (justBounds || data.config != null) {
+            BitmapFactory.Options().apply {
+                inJustDecodeBounds = justBounds
+                if (data.config != null) {
+                    inPreferredConfig = data.config
+                }
             }
-        }
-        return options
+        } else null
     }
 
+    @JvmStatic
     fun requiresInSampleSize(options: BitmapFactory.Options?): Boolean {
         return options != null && options.inJustDecodeBounds
     }
 
     @JvmStatic
     fun calculateInSampleSize(
-        reqWidth: Int, reqHeight: Int,
-        options: BitmapFactory.Options, request: Request
+        reqWidth: Int, reqHeight: Int, options: BitmapFactory.Options, request: Request
     ) {
         calculateInSampleSize(
-            reqWidth, reqHeight, options.outWidth, options.outHeight, options,
-            request
+            reqWidth, reqHeight, options.outWidth, options.outHeight, options, request
         )
     }
 
     @JvmStatic
     fun shouldResize(
-        onlyScaleDown: Boolean, inWidth: Int, inHeight: Int,
-        targetWidth: Int, targetHeight: Int
+        onlyScaleDown: Boolean, inWidth: Int, inHeight: Int, targetWidth: Int, targetHeight: Int
     ): Boolean {
         return (!onlyScaleDown || targetWidth != 0 && inWidth > targetWidth
                 || targetHeight != 0 && inHeight > targetHeight)
@@ -99,31 +74,29 @@ object BitmapUtils {
 
     @JvmStatic
     fun calculateInSampleSize(
-        reqWidth: Int, reqHeight: Int, width: Int, height: Int,
-        options: BitmapFactory.Options, request: Request
+        reqWidth: Int, reqHeight: Int, width: Int, height: Int, options: BitmapFactory.Options,
+        request: Request
     ) {
-        var sampleSize = 1
-        if (height > reqHeight || width > reqWidth) {
-            val heightRatio: Int
-            val widthRatio: Int
-            when {
-                reqHeight == 0 -> {
-                    sampleSize = floor(width.toFloat() / reqWidth.toFloat()).toInt()
-                }
-                reqWidth == 0 -> {
-                    sampleSize = floor(height.toFloat() / reqHeight.toFloat()).toInt()
-                }
-                else -> {
+        val sampleSize =
+            if (height > reqHeight || width > reqWidth) {
+                val heightRatio: Int
+                val widthRatio: Int
+                if (reqHeight == 0) {
+                    floor(width.toFloat() / reqWidth.toFloat()).toInt()
+                } else if (reqWidth == 0) {
+                    floor(height.toFloat() / reqHeight.toFloat()).toInt()
+                } else {
                     heightRatio = floor(height.toFloat() / reqHeight.toFloat()).toInt()
                     widthRatio = floor(width.toFloat() / reqWidth.toFloat()).toInt()
-                    sampleSize =
-                        if (request.centerInside) Math.max(heightRatio, widthRatio) else Math.min(
-                            heightRatio,
-                            widthRatio
-                        )
+                    if (request.centerInside)
+                        max(heightRatio, widthRatio)
+                    else
+                        min(heightRatio, widthRatio)
                 }
+            } else {
+                1
             }
-        }
+
         options.inSampleSize = sampleSize
         options.inJustDecodeBounds = false
     }
@@ -135,14 +108,14 @@ object BitmapUtils {
      */
     @Throws(IOException::class)
     @JvmStatic
-    fun decodeStream(source: Source?, request: Request): Bitmap {
+    fun decodeStream(source: Source, request: Request): Bitmap {
         val exceptionCatchingSource = ExceptionCatchingSource(source)
         val bufferedSource = exceptionCatchingSource.buffer()
         val bitmap =
-            if (VERSION.SDK_INT >= 28) decodeStreamP(request, bufferedSource) else decodeStreamPreP(
-                request,
-                bufferedSource
-            )
+            if (VERSION.SDK_INT >= 28)
+                decodeStreamP(request, bufferedSource)
+            else
+                decodeStreamPreP(request, bufferedSource)
         exceptionCatchingSource.throwIfCaught()
         return bitmap
     }
@@ -163,23 +136,17 @@ object BitmapUtils {
         // We decode from a byte array because, a) when decoding a WebP network stream, BitmapFactory
         // throws a JNI Exception, so we workaround by decoding a byte array, or b) user requested
         // purgeable, which only affects bitmaps decoded from byte arrays.
-        val bitmap: Bitmap? = if (isWebPFile) {
+        val bitmap = if (isWebPFile) {
             val bytes = bufferedSource.readByteArray()
             if (calculateSize) {
                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
-                calculateInSampleSize(
-                    request.targetWidth, request.targetHeight,
-                    Utils.checkNotNull(options, "options == null"), request
-                )
+                calculateInSampleSize(request.targetWidth, request.targetHeight, options!!, request)
             }
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
         } else {
             if (calculateSize) {
                 BitmapFactory.decodeStream(bufferedSource.peek().inputStream(), null, options)
-                calculateInSampleSize(
-                    request.targetWidth, request.targetHeight,
-                    Utils.checkNotNull(options, "options == null"), request
-                )
+                calculateInSampleSize(request.targetWidth, request.targetHeight, options!!, request)
             }
             BitmapFactory.decodeStream(bufferedSource.inputStream(), null, options)
         }
@@ -211,10 +178,7 @@ object BitmapUtils {
         val options = createBitmapOptions(request)
         if (requiresInSampleSize(options)) {
             BitmapFactory.decodeResource(resources, id, options)
-            calculateInSampleSize(
-                request.targetWidth, request.targetHeight,
-                Utils.checkNotNull(options, "options == null"), request
-            )
+            calculateInSampleSize(request.targetWidth, request.targetHeight, options!!, request)
         }
         return BitmapFactory.decodeResource(resources, id, options)
     }
@@ -252,5 +216,28 @@ object BitmapUtils {
         resources.getValue(drawableId, typedValue, true)
         val file = typedValue.string
         return file != null && file.toString().endsWith(".xml")
+    }
+
+    internal class ExceptionCatchingSource(delegate: Source) : ForwardingSource(delegate) {
+        var thrownException: IOException? = null
+
+        @Throws(IOException::class)
+        override fun read(sink: Buffer, byteCount: Long): Long {
+            return try {
+                super.read(sink, byteCount)
+            } catch (e: IOException) {
+                thrownException = e
+                throw e
+            }
+        }
+
+        @Throws(IOException::class)
+        fun throwIfCaught() {
+            if (thrownException is IOException) {
+                // TODO: Log when Android returns a non-null Bitmap after swallowing an IOException.
+                // TODO: https://github.com/square/picasso/issues/2003/
+                throw thrownException as IOException
+            }
+        }
     }
 }

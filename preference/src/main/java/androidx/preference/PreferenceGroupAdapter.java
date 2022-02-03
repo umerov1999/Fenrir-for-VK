@@ -75,12 +75,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
      * {@link #mPreferenceGroup}, they can be children of other nested {@link PreferenceGroup}s.
      */
     private List<Preference> mVisiblePreferences;
-    private final Runnable mSyncRunnable = new Runnable() {
-        @Override
-        public void run() {
-            updatePreferences();
-        }
-    };
+    private final Runnable mSyncRunnable = this::updatePreferences;
 
     public PreferenceGroupAdapter(@NonNull PreferenceGroup preferenceGroup) {
         mPreferenceGroup = preferenceGroup;
@@ -287,18 +282,15 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
                 collapsedPreferences,
                 group.getId()
         );
-        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(@NonNull Preference preference) {
-                group.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
-                onPreferenceHierarchyChange(preference);
-                PreferenceGroup.OnExpandButtonClickListener listener =
-                        group.getOnExpandButtonClickListener();
-                if (listener != null) {
-                    listener.onExpandButtonClick();
-                }
-                return true;
+        preference.setOnPreferenceClickListener(preference1 -> {
+            group.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
+            onPreferenceHierarchyChange(preference1);
+            PreferenceGroup.OnExpandButtonClickListener listener =
+                    group.getOnExpandButtonClickListener();
+            if (listener != null) {
+                listener.onExpandButtonClick();
             }
+            return true;
         });
         return preference;
     }
@@ -427,15 +419,6 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
             }
         }
         return RecyclerView.NO_POSITION;
-    }
-
-    @Override
-    public void setSelectedPreference(int pos) {
-        int size = mVisiblePreferences.size();
-        for (int i = 0; i < size; i++) {
-            Preference candidate = mVisiblePreferences.get(i);
-            candidate.setSelected(i == pos);
-        }
     }
 
     @Override

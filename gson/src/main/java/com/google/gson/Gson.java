@@ -16,9 +16,12 @@
 
 package com.google.gson;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
+import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
@@ -110,6 +113,10 @@ public final class Gson {
     static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
     static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
     static final boolean DEFAULT_USE_JDK_UNSAFE = true;
+    static final String DEFAULT_DATE_PATTERN = null;
+    static final FieldNamingStrategy DEFAULT_FIELD_NAMING_STRATEGY = FieldNamingPolicy.IDENTITY;
+    static final ToNumberStrategy DEFAULT_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
+    static final ToNumberStrategy DEFAULT_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
     private static final TypeToken<?> NULL_KEY_SURROGATE = TypeToken.get(Object.class);
     private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
@@ -181,14 +188,14 @@ public final class Gson {
      * </ul>
      */
     public Gson() {
-        this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
+        this(Excluder.DEFAULT, DEFAULT_FIELD_NAMING_STRATEGY,
                 Collections.emptyMap(), DEFAULT_SERIALIZE_NULLS,
                 DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
                 DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
                 DEFAULT_USE_JDK_UNSAFE,
-                LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
+                LongSerializationPolicy.DEFAULT, DEFAULT_DATE_PATTERN, DateFormat.DEFAULT, DateFormat.DEFAULT,
                 Collections.emptyList(), Collections.emptyList(),
-                Collections.emptyList(), ToNumberPolicy.DOUBLE, ToNumberPolicy.LAZILY_PARSED_NUMBER);
+                Collections.emptyList(), DEFAULT_OBJECT_TO_NUMBER_STRATEGY, DEFAULT_NUMBER_TO_NUMBER_STRATEGY);
     }
 
     Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
@@ -257,6 +264,8 @@ public final class Gson {
         factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
         factories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));
         factories.add(TypeAdapters.newFactory(BigInteger.class, TypeAdapters.BIG_INTEGER));
+        // Add adapter for LazilyParsedNumber because user can obtain it from Gson and then try to serialize it again
+        factories.add(TypeAdapters.newFactory(LazilyParsedNumber.class, TypeAdapters.LAZILY_PARSED_NUMBER));
         factories.add(TypeAdapters.URL_FACTORY);
         factories.add(TypeAdapters.URI_FACTORY);
         factories.add(TypeAdapters.UUID_FACTORY);
@@ -644,8 +653,8 @@ public final class Gson {
      *                  this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
      *                  to get the type for {@code Collection<Foo>}, you should use:
      *                  <pre>
-     *                                                                     Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
-     *                                                                     </pre>
+     *                                                                                                                        Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+     *                                                                                                                        </pre>
      * @return Json representation of {@code src}
      * @since 1.4
      */
@@ -686,8 +695,8 @@ public final class Gson {
      *                  this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
      *                  to get the type for {@code Collection<Foo>}, you should use:
      *                  <pre>
-     *                                                                     Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
-     *                                                                     </pre>
+     *                                                                                                                        Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+     *                                                                                                                        </pre>
      * @return Json representation of {@code src}
      */
     public String toJson(Object src, Type typeOfSrc) {
@@ -728,8 +737,8 @@ public final class Gson {
      *                  this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
      *                  to get the type for {@code Collection<Foo>}, you should use:
      *                  <pre>
-     *                                                                     Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
-     *                                                                     </pre>
+     *                                                                                                                        Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+     *                                                                                                                        </pre>
      * @param writer    Writer to which the Json representation of src needs to be written.
      * @throws JsonIOException if there was a problem writing to the writer
      * @since 1.2
@@ -901,8 +910,8 @@ public final class Gson {
      *                {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
      *                {@code Collection<Foo>}, you should use:
      *                <pre>
-     *                                                             Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
-     *                                                             </pre>
+     *                                                                                                          Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+     *                                                                                                          </pre>
      * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code null}
      * or if {@code json} is empty.
      * @throws JsonParseException  if json is not a valid representation for an object of type typeOfT
@@ -953,8 +962,8 @@ public final class Gson {
      *                {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
      *                {@code Collection<Foo>}, you should use:
      *                <pre>
-     *                                                             Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
-     *                                                             </pre>
+     *                                                                                                          Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+     *                                                                                                          </pre>
      * @return an object of type T from the json. Returns {@code null} if {@code json} is at EOF.
      * @throws JsonIOException     if there was a problem reading from the Reader
      * @throws JsonSyntaxException if json is not a valid representation for an object of type
@@ -1040,8 +1049,8 @@ public final class Gson {
      *                {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
      *                {@code Collection<Foo>}, you should use:
      *                <pre>
-     *                                                             Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
-     *                                                             </pre>
+     *                                                                                                          Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+     *                                                                                                          </pre>
      * @return an object of type T from the json. Returns {@code null} if {@code json} is {@code null}
      * or if {@code json} is empty.
      * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
@@ -1054,6 +1063,7 @@ public final class Gson {
         return fromJson(new JsonTreeReader(json), typeOfT);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "{serializeNulls:" +

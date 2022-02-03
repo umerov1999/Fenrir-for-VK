@@ -1,5 +1,7 @@
 package ealvatag.tag.reference;
 
+import androidx.annotation.NonNull;
+
 /**
  * An enumeration of popular tagger applications
  *
@@ -33,6 +35,7 @@ public enum Tagger {
         this.desc = desc;
     }
 
+    @NonNull
     public String toString() {
         return desc;
     }

@@ -67,16 +67,16 @@ public class Community extends Owner {
         name = in.readString();
         screenName = in.readString();
         closed = in.readInt();
-        admin = in.readByte() != 0;
+        admin = in.readBoolean();
         adminLevel = in.readInt();
-        member = in.readByte() != 0;
+        member = in.readBoolean();
         membersCount = in.readInt();
         memberStatus = in.readInt();
         type = in.readInt();
         photo50 = in.readString();
         photo100 = in.readString();
         photo200 = in.readString();
-        verified = in.readByte() != 0;
+        verified = in.readBoolean();
     }
 
     @Override
@@ -115,16 +115,16 @@ public class Community extends Owner {
         dest.writeString(name);
         dest.writeString(screenName);
         dest.writeInt(closed);
-        dest.writeByte((byte) (admin ? 1 : 0));
+        dest.writeBoolean(admin);
         dest.writeInt(adminLevel);
-        dest.writeByte((byte) (member ? 1 : 0));
+        dest.writeBoolean(member);
         dest.writeInt(membersCount);
         dest.writeInt(memberStatus);
         dest.writeInt(type);
         dest.writeString(photo50);
         dest.writeString(photo100);
         dest.writeString(photo200);
-        dest.writeByte((byte) (verified ? 1 : 0));
+        dest.writeBoolean(verified);
     }
 
     public String getName() {

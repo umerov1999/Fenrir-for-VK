@@ -32,6 +32,7 @@ import dev.ragnarok.fenrir.media.gif.IGifPlayer
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.Story
 import dev.ragnarok.fenrir.module.FenrirNative
+import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.StoryPagerPresenter
@@ -179,7 +180,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                 ) ParcelNative.loadParcelableArrayList(
                     requireArguments().getLong(
                         Extra.STORY
-                    ), Story.NativeCreator
+                    ), Story.NativeCreator, ParcelFlags.EMPTY_LIST
                 ) else
                     requireArguments().getParcelableArrayList(Extra.STORY)!!
                 if (FenrirNative.isNativeLoaded() && Settings.get()
@@ -576,7 +577,10 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             args.putInt(Extra.ACCOUNT_ID, aid)
             args.putInt(Extra.INDEX, index)
             if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_story) {
-                args.putLong(Extra.STORY, ParcelNative.createParcelableList(stories))
+                args.putLong(
+                    Extra.STORY,
+                    ParcelNative.createParcelableList(stories, ParcelFlags.NULL_LIST)
+                )
             } else {
                 args.putParcelableArrayList(Extra.STORY, stories)
             }

@@ -22,6 +22,8 @@ package ealvatag.tag.datatype;
 
 import static ealvatag.logging.EalvaTagLog.LogLevel.WARN;
 
+import androidx.annotation.NonNull;
+
 import ealvatag.logging.ErrorMessage;
 import ealvatag.tag.InvalidDataTypeException;
 import ealvatag.tag.id3.AbstractTagFrameBody;
@@ -148,6 +150,7 @@ public class NumberHashMap extends NumberFixedLength {
         }
     }
 
+    @NonNull
     public String toString() {
         if (value == null) {
             return "";

@@ -29,9 +29,7 @@ import static com.squareup.picasso3.Utils.checkNotNull;
 import static com.squareup.picasso3.Utils.createDefaultCacheDir;
 import static com.squareup.picasso3.Utils.log;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -49,7 +47,6 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.squareup.picasso3.RequestHandler.Result;
-import com.squareup.picasso3.Utils.PicassoThreadFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +56,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -552,20 +548,7 @@ public class Picasso implements DefaultLifecycleObserver {
         }
 
         if (listener != null && exception != null) {
-            Request request = hunter.data;
-            Uri uri = request.uri;
-            if (uri == null) {
-                //this must be resource
-                Resources resources = context.getResources();
-                int resourceId = request.resourceId;
-                uri = new Uri.Builder()
-                        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                        .authority(resources.getResourcePackageName(resourceId))
-                        .appendPath(resources.getResourceTypeName(resourceId))
-                        .appendPath(resources.getResourceEntryName(resourceId))
-                        .build();
-            }
-            listener.onImageLoadFailed(this, uri, exception);
+            listener.onImageLoadFailed(this, hunter.data.uri, exception);
         }
     }
 
@@ -824,7 +807,7 @@ public class Picasso implements DefaultLifecycleObserver {
         @NonNull
         public Builder client(@NonNull OkHttpClient client) {
             checkNotNull(client, "client == null");
-            callFactory = client;
+            callFactory = (Call.Factory) client;
             return this;
         }
 
@@ -844,24 +827,11 @@ public class Picasso implements DefaultLifecycleObserver {
          * Specify the executor service for loading images in the background.
          * <p>
          * Note: Calling {@link Picasso#shutdown() shutdown()} will not shutdown supplied executors.
-         * Note: Calling {@link #threadFactory(ThreadFactory)} overwrites this value.
          */
         @NonNull
         public Builder executor(@NonNull ExecutorService executorService) {
             checkNotNull(executorService, "executorService == null");
             service = executorService;
-            return this;
-        }
-
-        /**
-         * Specify the the thread factory for loading images in the background.
-         * <p>
-         * Note: Calling {@link #executor(ExecutorService)} overwrites this value.
-         */
-        @NonNull
-        public Builder threadFactory(@NonNull ThreadFactory threadFactory) {
-            checkNotNull(threadFactory, "threadFactory == null");
-            service = new PicassoExecutorService(threadFactory);
             return this;
         }
 
@@ -951,7 +921,7 @@ public class Picasso implements DefaultLifecycleObserver {
                 File cacheDir = createDefaultCacheDir(context);
                 long maxSize = calculateDiskCacheSize(cacheDir);
                 unsharedCache = new okhttp3.Cache(cacheDir, maxSize);
-                callFactory = new OkHttpClient.Builder()
+                callFactory = (Call.Factory) new OkHttpClient.Builder()
                         .cache(unsharedCache)
                         .build();
             }
@@ -959,7 +929,7 @@ public class Picasso implements DefaultLifecycleObserver {
                 cache = new PlatformLruCache(Utils.calculateMemoryCacheSize(context));
             }
             if (service == null) {
-                service = new PicassoExecutorService(new PicassoThreadFactory());
+                service = new PicassoExecutorService();
             }
 
             Dispatcher dispatcher = new Dispatcher(context, service, HANDLER, cache);

@@ -39,7 +39,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Objects
 import dev.ragnarok.fenrir.util.Utils
-import java.util.*
 
 class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsView>(),
     IUserDetailsView, RecyclerMenuAdapter.ActionListener {

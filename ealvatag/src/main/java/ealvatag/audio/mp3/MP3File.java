@@ -317,11 +317,7 @@ public class MP3File extends AudioFileImpl {
      */
     private boolean isFilePortionNull(int startByte, int endByte) throws IOException {
         LOG.log(TRACE, "Checking file portion:%s:%s", Hex.asHex(startByte), Hex.asHex(endByte));
-        FileInputStream fis = null;
-        FileChannel fc = null;
-        try {
-            fis = new FileInputStream(file);
-            fc = fis.getChannel();
+        try (FileInputStream fis = new FileInputStream(file); FileChannel fc = fis.getChannel()) {
             fc.position(startByte);
             ByteBuffer bb = ByteBuffer.allocateDirect(endByte - startByte);
             fc.read(bb);
@@ -329,14 +325,6 @@ public class MP3File extends AudioFileImpl {
                 if (bb.get() != 0) {
                     return false;
                 }
-            }
-        } finally {
-            if (fc != null) {
-                fc.close();
-            }
-
-            if (fis != null) {
-                fis.close();
             }
         }
         return true;

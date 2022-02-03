@@ -15,8 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
 import dev.ragnarok.fenrir.Constants;
@@ -38,7 +38,7 @@ public class DirectAuthDialog extends BaseMvpDialogFragment<DirectAuthPresenter,
     private TextInputEditText mPassword;
     private TextInputEditText mCaptcha;
     private TextInputEditText mSmsCode;
-    private MaterialCheckBox mSavePassword;
+    private SwitchMaterial mSavePassword;
     private View mSmsCodeRoot;
     private View mContentRoot;
     private View mLoadingRoot;

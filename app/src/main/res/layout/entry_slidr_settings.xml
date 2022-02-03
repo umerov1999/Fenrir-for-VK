@@ -34,6 +34,8 @@
             android:layout_marginBottom="5dp"
             android:max="200"
             android:min="20"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="80" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -49,6 +51,8 @@
             android:layout_marginBottom="5dp"
             android:max="100"
             android:min="4"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="50" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -64,6 +68,8 @@
             android:layout_marginBottom="10dp"
             android:max="100"
             android:min="4"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="50" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -88,6 +94,8 @@
             android:layout_marginBottom="5dp"
             android:max="200"
             android:min="20"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="50" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -103,6 +111,8 @@
             android:layout_marginBottom="5dp"
             android:max="100"
             android:min="4"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="50" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -118,6 +128,8 @@
             android:layout_marginBottom="5dp"
             android:max="100"
             android:min="4"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:progress="50" />
     </LinearLayout>
 </ScrollView>

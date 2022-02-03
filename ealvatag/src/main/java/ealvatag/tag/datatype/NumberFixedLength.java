@@ -22,6 +22,8 @@ package ealvatag.tag.datatype;
 
 import static ealvatag.logging.EalvaTagLog.LogLevel.DEBUG;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Preconditions;
 
 import java.io.EOFException;
@@ -134,6 +136,7 @@ public class NumberFixedLength extends AbstractDataType {
     /**
      * @return String representation of this datatype
      */
+    @NonNull
     public String toString() {
         if (value == null) {
             return "";

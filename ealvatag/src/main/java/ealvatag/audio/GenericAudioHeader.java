@@ -18,6 +18,8 @@ package ealvatag.audio;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.MoreObjects;
 
 import java.util.concurrent.TimeUnit;
@@ -241,6 +243,7 @@ public class GenericAudioHeader implements AudioHeader {
         this.audioDataEndPosition = audioDataEndPosition;
     }
 
+    @NonNull
     @Override
     public final String toString() {
         return toStringHelper().toString();

@@ -151,14 +151,15 @@ dependencies {
     implementation project(path: ':zxing-android-embedded')
     implementation project(path: ':gson')
     implementation project(path: ':retrofit')
+    implementation project(path: ':exoplayer')
     implementation "com.squareup.okhttp3:okhttp:$okhttpLibraryVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpLibraryVersion"
     implementation "com.squareup.okio:okio:$okioVersion"
-    implementation "com.google.android.exoplayer:exoplayer-core:$exoLibraryVersion"
-    implementation "com.google.android.exoplayer:exoplayer-hls:$exoLibraryVersion"
+    //implementation "com.google.android.exoplayer:exoplayer-core:$exoLibraryVersion"
+    //implementation "com.google.android.exoplayer:exoplayer-hls:$exoLibraryVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayoutVersion"
     implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha04'
-    implementation 'androidx.media:media:1.5.0-beta01'
+    implementation 'androidx.media:media:1.5.0-rc01'
     implementation "androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayoutVersion"
     implementation "androidx.activity:activity-ktx:$activityVersion"
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"

@@ -42,11 +42,8 @@ public class FlingRelativeLayout extends RelativeLayout {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        boolean handled = false;
+        boolean handled = null != mGestureDetector && mGestureDetector.onTouchEvent(ev);
         // Check to see if the user double tapped
-        if (null != mGestureDetector && mGestureDetector.onTouchEvent(ev)) {
-            handled = true;
-        }
 
         return handled || super.onTouchEvent(ev);
     }

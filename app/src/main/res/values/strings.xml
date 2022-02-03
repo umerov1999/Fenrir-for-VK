@@ -1435,6 +1435,7 @@
     <string name="use_internal_downloader_summary">For videos and documents</string>
     <string name="bitrate">Bitrate: %1$d kbs, Size: %2$s</string>
     <string name="error_timeout_message">Request timed out</string>
+    <string name="error_unknown_host">No network connection</string>
     <string name="login_sms_code_hint">SMS-code</string>
     <string name="login_captcha_hint" translatable="false">Captcha</string>
     <string name="button_proxy">Proxy</string>
@@ -1695,7 +1696,6 @@
     <string name="link_not_banned">Normal link</string>
     <string name="link_banned">Banned link</string>
     <string name="link_processing">Link is being verified</string>
-    <string name="blacklisted">You are blacklisted!!!</string>
     <string name="additional_info">Additional Information</string>
     <string name="mini_player_audio_round_icon">Round covers in mini player</string>
     <string name="select_audio">Audio selection</string>
@@ -1829,6 +1829,7 @@
     <string name="return_away">Return</string>
     <string name="reverse_time">From old to new</string>
     <string name="local_server_sync">Synchronize the remote list</string>
+    <string name="local_server_sync_get">Get remote list</string>
     <string name="update_time">Set current time</string>
     <string name="max_bitmap_resolution">Max bitmap Resolution</string>
     <string name="artists">Artists</string>

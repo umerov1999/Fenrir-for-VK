@@ -16,6 +16,8 @@ package ealvatag.tag.datatype;
 import static ealvatag.logging.EalvaTagLog.LogLevel.TRACE;
 import static ealvatag.logging.EalvaTagLog.LogLevel.WARN;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 
 import ealvatag.tag.InvalidDataTypeException;
@@ -149,12 +151,14 @@ public class SynchronisedTempoCode extends AbstractDataType implements Cloneable
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "" + getTempo() + " (\"" + EventTimingTypes.getInstanceOf().getValue(getTempo()) + "\"), " +
                 getTimestamp();
     }
 
+    @NonNull
     @Override
     public Object clone() throws CloneNotSupportedException {
         return new SynchronisedTempoCode(this);

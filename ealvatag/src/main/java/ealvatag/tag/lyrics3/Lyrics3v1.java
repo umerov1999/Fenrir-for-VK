@@ -23,6 +23,8 @@
 
 package ealvatag.tag.lyrics3;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -225,6 +227,7 @@ public class Lyrics3v1 extends AbstractLyrics3 {
     /**
      * @return
      */
+    @NonNull
     public String toString() {
         String str = getIdentifier() + " " + getSize() + "\n";
 

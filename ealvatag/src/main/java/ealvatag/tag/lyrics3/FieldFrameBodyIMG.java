@@ -23,6 +23,8 @@
 
 package ealvatag.tag.lyrics3;
 
+import androidx.annotation.NonNull;
+
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public class FieldFrameBodyIMG extends AbstractLyrics3v2FieldFrameBody {
     /**
      *
      */
-    private ArrayList<Lyrics3Image> images = new ArrayList<Lyrics3Image>();
+    private ArrayList<Lyrics3Image> images = new ArrayList<>();
 
     /**
      * Creates a new FieldBodyIMG datatype.
@@ -194,14 +196,15 @@ public class FieldFrameBodyIMG extends AbstractLyrics3v2FieldFrameBody {
     /**
      * @return
      */
+    @NonNull
     public String toString() {
-        String str = getIdentifier() + " : ";
+        StringBuilder str = new StringBuilder(getIdentifier() + " : ");
 
         for (Object image : images) {
-            str += (image + " ; ");
+            str.append(image).append(" ; ");
         }
 
-        return str;
+        return str.toString();
     }
 
     /**
@@ -252,7 +255,7 @@ public class FieldFrameBodyIMG extends AbstractLyrics3v2FieldFrameBody {
         String token;
         int offset = 0;
         int delim = imageString.indexOf(Lyrics3v2Fields.CRLF);
-        images = new ArrayList<Lyrics3Image>();
+        images = new ArrayList<>();
 
         while (delim >= 0) {
             token = imageString.substring(offset, delim);
@@ -275,19 +278,19 @@ public class FieldFrameBodyIMG extends AbstractLyrics3v2FieldFrameBody {
      * @return
      */
     private String writeString() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         Lyrics3Image image;
 
         for (Object image1 : images) {
             image = (Lyrics3Image) image1;
-            str += (image.writeString() + Lyrics3v2Fields.CRLF);
+            str.append(image.writeString()).append(Lyrics3v2Fields.CRLF);
         }
 
         if (str.length() > 2) {
             return str.substring(0, str.length() - 2);
         }
 
-        return str;
+        return str.toString();
     }
 
 

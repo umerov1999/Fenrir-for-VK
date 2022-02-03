@@ -1,5 +1,7 @@
 package ealvatag.audio.real;
 
+import androidx.annotation.NonNull;
+
 import ealvatag.audio.GenericTag;
 import ealvatag.tag.FieldDataInvalidException;
 import ealvatag.tag.FieldKey;
@@ -7,6 +9,7 @@ import ealvatag.tag.TagField;
 import ealvatag.tag.UnsupportedFieldException;
 
 public class RealTag extends GenericTag {
+    @NonNull
     public String toString() {
         return "REAL " + super.toString();
     }

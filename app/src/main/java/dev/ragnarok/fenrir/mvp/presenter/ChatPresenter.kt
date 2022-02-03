@@ -14,12 +14,15 @@ import androidx.core.content.ContextCompat
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import dev.ragnarok.fenrir.*
+import dev.ragnarok.fenrir.App
 import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
 import dev.ragnarok.fenrir.Extensions.Companion.nonEmpty
 import dev.ragnarok.fenrir.Extensions.Companion.nullOrEmpty
 import dev.ragnarok.fenrir.Extensions.Companion.subscribeIOAndIgnoreResults
 import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
+import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.Injection
+import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.server.VkApiDocsUploadServer
@@ -64,7 +67,6 @@ import java.io.*
 import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 
 class ChatPresenter(

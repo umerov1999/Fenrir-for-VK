@@ -27,6 +27,15 @@
         app:icon="@drawable/refresh" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/local_server_get"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/local_server_sync_get"
+        android:textSize="12sp"
+        app:icon="@drawable/save" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/go_discography"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

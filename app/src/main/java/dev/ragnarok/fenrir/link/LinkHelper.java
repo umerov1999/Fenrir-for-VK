@@ -159,7 +159,11 @@ public class LinkHelper {
             case AbsLink.PROFILE:
             case AbsLink.GROUP:
                 OwnerLink ownerLink = (OwnerLink) link;
-                PlaceFactory.getOwnerWallPlace(accountId, ownerLink.ownerId, null).tryOpenWith(activity);
+                int ownId = ownerLink.ownerId;
+                if (ownId == 0) {
+                    ownId = Settings.get().accounts().getCurrent();
+                }
+                PlaceFactory.getOwnerWallPlace(accountId, ownId, null).tryOpenWith(activity);
                 break;
 
             case AbsLink.TOPIC:

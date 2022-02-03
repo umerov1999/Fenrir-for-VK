@@ -7,6 +7,8 @@
 
 package ealvatag.utils.tree;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -296,6 +298,7 @@ public class TreePath extends Object implements Serializable {
      *
      * @return a String representation of this object
      */
+    @NonNull
     public String toString() {
         StringBuilder tempSpot = new StringBuilder("[");
 

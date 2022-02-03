@@ -24,7 +24,7 @@
     <public name="Preference.Information" type="style" />
     <public name="Preference.PreferenceScreen" type="style" />
     <public name="Preference.SeekBarPreference" type="style" />
-    <public name="Preference.SwitchPreferenceCompat" type="style" />
+    <public name="Preference.SwitchPreference" type="style" />
     <public name="PreferenceFragment" type="style" />
     <public name="PreferenceFragmentList" type="style" />
 </resources>

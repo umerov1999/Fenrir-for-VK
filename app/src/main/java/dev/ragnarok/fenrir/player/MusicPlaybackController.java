@@ -20,7 +20,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -30,6 +29,7 @@ import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.Logger;
 import dev.ragnarok.fenrir.util.Objects;
+import dev.ragnarok.fenrir.util.existfile.AbsFileExist;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 
@@ -37,12 +37,11 @@ import io.reactivex.rxjava3.subjects.PublishSubject;
 public final class MusicPlaybackController {
 
     public static final Map<Integer, ArrayList<Audio>> Audios = new LinkedHashMap<>();
-    public static final List<String> CachedAudios = new LinkedList<>();
-    public static final List<String> RemoteAudios = new LinkedList<>();
     private static final WeakHashMap<Context, ServiceBinder> mConnectionMap;
     private static final PublishSubject<Integer> SERVICE_BIND_PUBLISHER = PublishSubject.create();
     private static final String TAG = MusicPlaybackController.class.getSimpleName();
     public static IAudioPlayerService mService;
+    public static AbsFileExist tracksExist;
     private static int sForegroundActivities;
 
     static {

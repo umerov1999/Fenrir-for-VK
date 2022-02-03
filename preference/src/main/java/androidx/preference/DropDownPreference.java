@@ -34,7 +34,7 @@ import androidx.annotation.Nullable;
 public class DropDownPreference extends ListPreference {
 
     private final Context mContext;
-    private final ArrayAdapter mAdapter;
+    private final ArrayAdapter<String> mAdapter;
     private final OnItemSelectedListener mItemSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
@@ -96,11 +96,10 @@ public class DropDownPreference extends ListPreference {
      * @return The custom {@link ArrayAdapter} that needs to be used with this class
      */
     @NonNull
-    protected ArrayAdapter createAdapter() {
+    protected ArrayAdapter<String> createAdapter() {
         return new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_dropdown_item);
     }
 
-    @SuppressWarnings("unchecked")
     private void updateEntries() {
         mAdapter.clear();
         if (getEntries() != null) {

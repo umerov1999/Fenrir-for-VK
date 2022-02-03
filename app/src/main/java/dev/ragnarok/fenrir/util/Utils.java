@@ -59,16 +59,11 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.stream.JsonReader;
 import com.google.zxing.qrcode.CustomQRCodeWriter;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -112,7 +107,6 @@ import dev.ragnarok.fenrir.model.Sticker;
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable;
 import dev.ragnarok.fenrir.place.Place;
 import dev.ragnarok.fenrir.place.PlaceFactory;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
 import dev.ragnarok.fenrir.service.ErrorLocalizer;
 import dev.ragnarok.fenrir.settings.CurrentTheme;
 import dev.ragnarok.fenrir.settings.Settings;
@@ -1760,23 +1754,6 @@ public class Utils {
                 }
             }
         });
-    }
-
-    public static void checkMusicInPC(Context context) {
-        if (!AppPerms.hasReadStoragePermissionSimple(context))
-            return;
-        File audios = new File(Settings.get().other().getMusicDir(), "local_server_audio_list.json");
-        if (!audios.exists())
-            return;
-        try {
-            JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(audios), StandardCharsets.UTF_8));
-            reader.beginArray();
-            while (reader.hasNext()) {
-                MusicPlaybackController.RemoteAudios.add(reader.nextString());
-            }
-        } catch (Throwable ignore) {
-            CustomToast.CreateCustomToast(context).showToastError(R.string.remote_audio_error);
-        }
     }
 
     @Nullable

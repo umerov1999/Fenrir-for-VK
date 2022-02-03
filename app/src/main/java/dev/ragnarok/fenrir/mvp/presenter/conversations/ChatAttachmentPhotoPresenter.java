@@ -21,6 +21,7 @@ import dev.ragnarok.fenrir.domain.mappers.Dto2Model;
 import dev.ragnarok.fenrir.model.Photo;
 import dev.ragnarok.fenrir.model.TmpSource;
 import dev.ragnarok.fenrir.module.FenrirNative;
+import dev.ragnarok.fenrir.module.parcel.ParcelFlags;
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentPhotosView;
 import dev.ragnarok.fenrir.settings.Settings;
@@ -86,7 +87,7 @@ public class ChatAttachmentPhotoPresenter extends BaseChatAttachmentsPresenter<P
     @SuppressWarnings("unused")
     public void firePhotoClick(int position, Photo photo) {
         if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_photo()) {
-            callView(view -> view.goToTempPhotosGallery(getAccountId(), ParcelNative.create().writeParcelableList(data).getNativePointer(), position));
+            callView(view -> view.goToTempPhotosGallery(getAccountId(), ParcelNative.createParcelableList(data, ParcelFlags.NULL_LIST), position));
         } else {
             TmpSource source = new TmpSource(getInstanceId(), 0);
             fireTempDataUsage();

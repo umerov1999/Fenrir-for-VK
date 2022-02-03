@@ -55,6 +55,7 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
     private boolean searchRunNow;
     private boolean doLoadTabs;
     private List<Owner> not_requests;
+    private int offset;
 
     public RequestsPresenter(int accountId, int userId, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
@@ -73,7 +74,7 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
         return full.contains(preparedQ);
     }
 
-    private void requestActualData(int offset, boolean do_scan) {
+    private void requestActualData(boolean do_scan) {
         int accountId = getAccountId();
         if (accountId != userId) {
             cacheLoadingNow = false;
@@ -85,7 +86,7 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
 
         actualDataDisposable.add(relationshipInteractor.getRequests(accountId, offset, isNotFriendShow ? 1000 : 200)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe(users -> onActualDataReceived(offset, users, do_scan), this::onActualDataGetError));
+                .subscribe(users -> onActualDataReceived(users, do_scan), this::onActualDataGetError));
     }
 
     private void onActualDataGetError(Throwable t) {
@@ -118,7 +119,7 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
         }
         loadAllCachedData();
         if (!isNotFriendShow) {
-            requestActualData(0, false);
+            requestActualData(false);
         }
     }
 
@@ -135,7 +136,7 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
         }
     }
 
-    private void onActualDataReceived(int offset, List<User> users, boolean do_scan) {
+    private void onActualDataReceived(List<User> users, boolean do_scan) {
         if (do_scan && isNotFriendShow) {
             not_requests = new ArrayList<>();
             for (User i : getAllData()) {
@@ -168,6 +169,7 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
                 safelyNotifyDataSetChanged();
             }
         }
+        offset += isNotFriendShow ? 1000 : 200;
 
         resolveRefreshingView();
     }
@@ -185,7 +187,8 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
         cacheLoadingNow = false;
         callView(v -> showError(v, t));
         if (isNotFriendShow) {
-            requestActualData(0, false);
+            offset = 0;
+            requestActualData(false);
         }
     }
 
@@ -197,7 +200,8 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
 
         safelyNotifyDataSetChanged();
         if (isNotFriendShow) {
-            requestActualData(0, users.size() > 0);
+            offset = 0;
+            requestActualData(users.size() > 0);
         }
     }
 
@@ -216,7 +220,8 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
             cacheLoadingNow = false;
             actualDataLoadingNow = false;
 
-            requestActualData(0, false);
+            offset = 0;
+            requestActualData(false);
         }
     }
 
@@ -365,7 +370,7 @@ public class RequestsPresenter extends AccountDependencyPresenter<IRequestsView>
                 return;
             }
 
-            requestActualData(getAllData().size(), false);
+            requestActualData(false);
         }
     }
 

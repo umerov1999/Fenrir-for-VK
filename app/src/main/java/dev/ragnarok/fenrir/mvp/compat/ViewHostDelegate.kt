@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.mvp.core.*
 import java.lang.ref.WeakReference
-import java.util.*
 
 class ViewHostDelegate<P : IPresenter<V>, V : IMvpView> {
 

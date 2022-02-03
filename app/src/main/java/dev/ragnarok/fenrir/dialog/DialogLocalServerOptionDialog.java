@@ -43,7 +43,9 @@ public class DialogLocalServerOptionDialog extends BottomSheetDialogFragment {
         SwitchMaterial scReverse = root.findViewById(R.id.reverse_time);
         toggleDiscography = root.findViewById(R.id.go_discography);
         MaterialButton sync = root.findViewById(R.id.local_server_sync);
-        sync.setOnClickListener(v -> listener.onSync());
+        MaterialButton get = root.findViewById(R.id.local_server_get);
+        sync.setOnClickListener(v -> listener.onRemoteSync());
+        get.setOnClickListener(v -> listener.onRemoteGet());
         scReverse.setChecked(isReverse);
         scReverse.setOnCheckedChangeListener((buttonView, isChecked) -> {
             isReverse = isChecked;
@@ -71,6 +73,8 @@ public class DialogLocalServerOptionDialog extends BottomSheetDialogFragment {
 
         void onDiscography(boolean discography);
 
-        void onSync();
+        void onRemoteSync();
+
+        void onRemoteGet();
     }
 }

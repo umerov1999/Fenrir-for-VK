@@ -147,7 +147,7 @@ final class NetworkRequestHandler extends RequestHandler {
         final int networkPolicy;
 
         ResponseException(int code, int networkPolicy) {
-            super("Server error: HTTP " + code);
+            super("HTTP " + code);
             this.code = code;
             this.networkPolicy = networkPolicy;
         }

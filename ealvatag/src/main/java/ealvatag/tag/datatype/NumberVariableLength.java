@@ -20,6 +20,8 @@
  */
 package ealvatag.tag.datatype;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 
 import ealvatag.tag.InvalidDataTypeException;
@@ -195,6 +197,7 @@ public class NumberVariableLength extends AbstractDataType {
     /**
      * @return String representation of the number
      */
+    @NonNull
     public String toString() {
         if (value == null) {
             return "";

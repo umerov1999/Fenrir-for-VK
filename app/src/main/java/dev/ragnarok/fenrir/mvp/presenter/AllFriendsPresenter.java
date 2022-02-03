@@ -56,6 +56,7 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
     private boolean doLoadTabs;
     private List<Owner> not_friends;
     private List<Owner> add_friends;
+    private int offset;
 
     public AllFriendsPresenter(int accountId, int userId, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
@@ -85,11 +86,11 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
         }
         loadAllCachedData();
         if (!isNotFriendShow) {
-            requestActualData(0, false);
+            requestActualData(false);
         }
     }
 
-    private void requestActualData(int offset, boolean do_scan) {
+    private void requestActualData(boolean do_scan) {
         actualDataLoadingNow = true;
         resolveRefreshingView();
 
@@ -97,7 +98,7 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
 
         actualDataDisposable.add(relationshipInteractor.getActualFriendsList(accountId, userId, isNotFriendShow ? null : 200, offset)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe(users -> onActualDataReceived(offset, users, do_scan), this::onActualDataGetError));
+                .subscribe(users -> onActualDataReceived(users, do_scan), this::onActualDataGetError));
     }
 
     private void onActualDataGetError(Throwable t) {
@@ -136,7 +137,8 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
         }
     }
 
-    private void onActualDataReceived(int offset, List<User> users, boolean do_scan) {
+    private void onActualDataReceived(List<User> users, boolean do_scan) {
+
         if (do_scan && isNotFriendShow) {
             not_friends = new ArrayList<>();
             for (User i : getAllData()) {
@@ -177,6 +179,11 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
                 safelyNotifyDataSetChanged();
             }
         }
+        if (isNotFriendShow) {
+            offset = getAllData().size();
+        } else {
+            offset += 200;
+        }
 
         resolveRefreshingView();
     }
@@ -194,7 +201,8 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
         cacheLoadingNow = false;
         callView(v -> showError(v, t));
         if (isNotFriendShow) {
-            requestActualData(0, false);
+            offset = 0;
+            requestActualData(false);
         }
     }
 
@@ -206,7 +214,8 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
 
         safelyNotifyDataSetChanged();
         if (isNotFriendShow) {
-            requestActualData(0, users.size() > 0);
+            offset = 0;
+            requestActualData(users.size() > 0);
         }
     }
 
@@ -225,7 +234,8 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
             cacheLoadingNow = false;
             actualDataLoadingNow = false;
 
-            requestActualData(0, false);
+            offset = 0;
+            requestActualData(false);
         }
     }
 
@@ -374,7 +384,7 @@ public class AllFriendsPresenter extends AccountDependencyPresenter<IAllFriendsV
                 return;
             }
 
-            requestActualData(getAllData().size(), false);
+            requestActualData(false);
         }
     }
 

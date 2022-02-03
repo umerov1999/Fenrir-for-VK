@@ -22,6 +22,8 @@
  */
 package ealvatag.tag.lyrics3;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -41,7 +43,7 @@ public class Lyrics3v2 extends AbstractLyrics3 {
     /**
      *
      */
-    private HashMap<String, Lyrics3v2Field> fieldMap = new HashMap<String, Lyrics3v2Field>();
+    private HashMap<String, Lyrics3v2Field> fieldMap = new HashMap<>();
 
 
     public Lyrics3v2(Lyrics3v2 copyObject) {
@@ -214,7 +216,7 @@ public class Lyrics3v2 extends AbstractLyrics3 {
         seek(byteBuffer);
         filePointer = byteBuffer.position();
 
-        fieldMap = new HashMap<String, Lyrics3v2Field>();
+        fieldMap = new HashMap<>();
 
         Lyrics3v2Field lyric;
 
@@ -287,17 +289,18 @@ public class Lyrics3v2 extends AbstractLyrics3 {
     /**
      * @return
      */
+    @NonNull
     public String toString() {
         Iterator<Lyrics3v2Field> iterator = fieldMap.values().iterator();
         Lyrics3v2Field field;
-        String str = getIdentifier() + " " + getSize() + "\n";
+        StringBuilder str = new StringBuilder(getIdentifier() + " " + getSize() + "\n");
 
         while (iterator.hasNext()) {
             field = iterator.next();
-            str += (field + "\n");
+            str.append(field).append("\n");
         }
 
-        return str;
+        return str.toString();
     }
 
     /**

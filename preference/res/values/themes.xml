@@ -17,9 +17,7 @@
 <resources>
 
     <style name="PreferenceThemeOverlay" parent="BasePreferenceThemeOverlay">
-        <!-- When binding the view we attempt to resolve colorAccent and set that instead - we only
-        end up using this color if we are not inside an AppCompat theme. -->
-        <item name="preferenceCategoryTitleTextColor">@color/preference_fallback_accent_color</item>
+        <item name="preferenceCategoryTitleTextColor">?android:attr/colorAccent</item>
     </style>
 
     <style name="BasePreferenceThemeOverlay">
@@ -37,16 +35,9 @@
         <item name="preferenceScreenStyle">@style/Preference.PreferenceScreen.Material</item>
         <item name="preferenceStyle">@style/Preference.Material</item>
         <item name="seekBarPreferenceStyle">@style/Preference.SeekBarPreference.Material</item>
-        <item name="switchPreferenceCompatStyle">@style/Preference.SwitchPreferenceCompat.Material
-        </item>
         <item name="switchPreferenceStyle">@style/Preference.SwitchPreference.Material</item>
         <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.AppCompat.Body2
         </item>
     </style>
 
-    <!-- Deprecated. Use PreferenceThemeOverlay instead. -->
-    <style name="PreferenceThemeOverlay.v14" />
-
-    <!-- Deprecated. Use PreferenceThemeOverlay instead. -->
-    <style name="PreferenceThemeOverlay.v14.Material" />
 </resources>

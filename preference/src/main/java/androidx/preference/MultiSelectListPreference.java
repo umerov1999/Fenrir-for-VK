@@ -181,11 +181,10 @@ public class MultiSelectListPreference extends DialogPreference {
     protected boolean[] getSelectedItems() {
         CharSequence[] entries = mEntryValues;
         int entryCount = entries.length;
-        Set<String> values = mValues;
         boolean[] result = new boolean[entryCount];
 
         for (int i = 0; i < entryCount; i++) {
-            result[i] = values.contains(entries[i].toString());
+            result[i] = mValues.contains(entries[i].toString());
         }
 
         return result;

@@ -84,12 +84,16 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
         else
             mNotificationBuilder?.priority = Notification.PRIORITY_MAX
         if (isPlaying) {
-            mService.startForeground(FENRIR_MUSIC_SERVICE, mNotificationBuilder?.build())
+            mService.goForeground(
+                FENRIR_MUSIC_SERVICE,
+                mNotificationBuilder?.build(),
+                mNotificationManager
+            )
         }
     }
 
     fun killNotification() {
-        mService.stopForeground(true)
+        mService.outForeground(true)
         mNotificationBuilder = null
     }
 
@@ -99,7 +103,7 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
             return
         }
         if (!isPlaying) {
-            mService.stopForeground(false)
+            mService.outForeground(false)
         }
         //Remove pause action
         mNotificationBuilder?.mActions?.removeAt(1)

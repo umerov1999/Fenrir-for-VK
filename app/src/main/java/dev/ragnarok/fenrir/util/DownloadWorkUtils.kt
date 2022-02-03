@@ -200,9 +200,8 @@ object DownloadWorkUtils {
             }
             return 1
         }
-        for (i in MusicPlaybackController.RemoteAudios) {
-            if (i.equals(file_name, true))
-                return 2
+        if (MusicPlaybackController.tracksExist.isExistRemoteAudio(file_name)) {
+            return 2
         }
         return 0
     }
@@ -213,15 +212,7 @@ object DownloadWorkUtils {
             return 1
         }
         val audioName = makeLegalFilename(audio.artist + " - " + audio.title, "mp3")
-        for (i in MusicPlaybackController.CachedAudios) {
-            if (i.equals(audioName, true))
-                return 1
-        }
-        for (i in MusicPlaybackController.RemoteAudios) {
-            if (i.equals(audioName, true))
-                return 2
-        }
-        return 0
+        return MusicPlaybackController.tracksExist.isExistAllAudio(audioName)
     }
 
     @JvmStatic
@@ -947,7 +938,7 @@ object DownloadWorkUtils {
                     NotificationHelper.NOTIFICATION_DOWNLOAD,
                     NotificationHelper.NOTIFICATION_DOWNLOADING
                 )
-                MusicPlaybackController.CachedAudios.add(file_v.buildFilename())
+                MusicPlaybackController.tracksExist.addAudio(file_v.buildFilename())
                 Utils.inMainThread {
                     CustomToast.CreateCustomToast(applicationContext)
                         .showToastBottom(if (updated_tag) R.string.tag_modified else R.string.saved)

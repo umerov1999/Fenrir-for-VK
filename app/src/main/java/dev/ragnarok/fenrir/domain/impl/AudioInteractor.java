@@ -3,11 +3,9 @@ package dev.ragnarok.fenrir.domain.impl;
 import static dev.ragnarok.fenrir.util.Utils.listEmptyIfNull;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,9 +24,6 @@ import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.model.AudioCatalog;
 import dev.ragnarok.fenrir.model.AudioPlaylist;
 import dev.ragnarok.fenrir.model.CatalogBlock;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
-import dev.ragnarok.fenrir.settings.Settings;
-import dev.ragnarok.fenrir.util.AppPerms;
 import dev.ragnarok.fenrir.util.Utils;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
@@ -364,28 +359,5 @@ public class AudioInteractor implements IAudioInteractor {
                 .audio()
                 .getCatalogBlockById(block_id, start_from)
                 .map(Dto2Model::transform);
-    }
-
-    @Override
-    public Completable PlaceToAudioCache(Context context) {
-        if (!AppPerms.hasReadStoragePermissionSimple(context))
-            return Completable.complete();
-        return Completable.create(t -> {
-            File temp = new File(Settings.get().other().getMusicDir());
-            if (!temp.exists()) {
-                t.onComplete();
-                return;
-            }
-            File[] file_list = temp.listFiles();
-            if (file_list == null || file_list.length <= 0) {
-                t.onComplete();
-                return;
-            }
-            MusicPlaybackController.CachedAudios.clear();
-            for (File u : file_list) {
-                if (u.isFile())
-                    MusicPlaybackController.CachedAudios.add(u.getName());
-            }
-        });
     }
 }

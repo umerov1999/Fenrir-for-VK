@@ -24,10 +24,7 @@ public class SelectionUtils {
 
         SelectProfileCriteria criteria = ((ProfileSelectable) context).getAcceptableCriteria();
 
-        boolean canSelect = false;
-        if (criteria.getIsPeopleOnly() ? mayBeUser instanceof User : mayBeUser instanceof Owner || mayBeUser instanceof FavePage) {
-            canSelect = true;
-        }
+        boolean canSelect = criteria.getIsPeopleOnly() ? mayBeUser instanceof User : mayBeUser instanceof Owner || mayBeUser instanceof FavePage;
 
         if (canSelect && criteria.getOwnerType() == SelectProfileCriteria.OwnerType.ONLY_FRIENDS) {
             assert mayBeUser instanceof User;

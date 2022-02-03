@@ -7,6 +7,8 @@
 
 package ealvatag.utils.tree;
 
+import androidx.annotation.NonNull;
+
 import java.util.EventObject;
 
 
@@ -275,6 +277,7 @@ public class TreeModelEvent extends EventObject {
      *
      * @return a String representation of this object
      */
+    @NonNull
     public String toString() {
         StringBuilder retBuffer = new StringBuilder();
 
@@ -284,16 +287,16 @@ public class TreeModelEvent extends EventObject {
         }
         if (childIndices != null) {
             retBuffer.append(" indices [ ");
-            for (int counter = 0; counter < childIndices.length; counter++) {
-                retBuffer.append(childIndices[counter])
+            for (int childIndex : childIndices) {
+                retBuffer.append(childIndex)
                         .append(" ");
             }
             retBuffer.append("]");
         }
         if (children != null) {
             retBuffer.append(" children [ ");
-            for (int counter = 0; counter < children.length; counter++) {
-                retBuffer.append(children[counter])
+            for (Object child : children) {
+                retBuffer.append(child)
                         .append(" ");
             }
             retBuffer.append("]");

@@ -22,6 +22,8 @@ package ealvatag.tag.datatype;
 
 import static ealvatag.logging.EalvaTagLog.LogLevel.TRACE;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -72,6 +74,7 @@ public abstract class AbstractString extends AbstractDataType {
      *
      * @return a string representation of the value
      */
+    @NonNull
     public String toString() {
         return (String) value;
     }

@@ -565,7 +565,7 @@ public abstract class AbsWallPresenter<V extends IWallView> extends PlaceSupport
     }
 
     public void fireCopyUrlClick() {
-        callView(v -> v.copyToClipboard(getString(R.string.link), (isCommunity() ? "vk.com/club" : "vk.com/id") + Math.abs(ownerId)));
+        callView(v -> v.copyToClipboard(getString(R.string.link), "https://vk.com/" + (isCommunity() ? "club" : "id") + Math.abs(ownerId)));
     }
 
     public void fireCopyIdClick() {

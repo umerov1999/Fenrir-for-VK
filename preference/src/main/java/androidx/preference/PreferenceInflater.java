@@ -117,11 +117,8 @@ class PreferenceInflater {
      */
     @NonNull
     public Preference inflate(int resource, @Nullable PreferenceGroup root) {
-        XmlResourceParser parser = getContext().getResources().getXml(resource);
-        try {
+        try (XmlResourceParser parser = getContext().getResources().getXml(resource)) {
             return inflate(parser, root);
-        } finally {
-            parser.close();
         }
     }
 
@@ -173,13 +170,11 @@ class PreferenceInflater {
             } catch (InflateException e) {
                 throw e;
             } catch (XmlPullParserException e) {
-                InflateException ex = new InflateException(e.getMessage(), e);
-                throw ex;
+                throw new InflateException(e.getMessage(), e);
             } catch (IOException e) {
-                InflateException ex = new InflateException(
+                throw new InflateException(
                         parser.getPositionDescription()
                                 + ": " + e.getMessage(), e);
-                throw ex;
             }
 
             return result;
@@ -258,9 +253,8 @@ class PreferenceInflater {
             // If loadClass fails, we should propagate the exception.
             throw e;
         } catch (Exception e) {
-            InflateException ie = new InflateException(attrs
+            throw new InflateException(attrs
                     .getPositionDescription() + ": Error inflating class " + name, e);
-            throw ie;
         }
     }
 
@@ -295,16 +289,14 @@ class PreferenceInflater {
             throw e;
 
         } catch (ClassNotFoundException e) {
-            InflateException ie = new InflateException(attrs
+            throw new InflateException(attrs
                     .getPositionDescription()
                     + ": Error inflating class (not found)" + name, e);
-            throw ie;
 
         } catch (Exception e) {
-            InflateException ie = new InflateException(attrs
+            throw new InflateException(attrs
                     .getPositionDescription()
                     + ": Error inflating class " + name, e);
-            throw ie;
         }
     }
 

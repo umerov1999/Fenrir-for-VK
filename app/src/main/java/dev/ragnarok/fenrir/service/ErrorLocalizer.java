@@ -6,6 +6,7 @@ import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
 import android.content.Context;
 
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.ApiException;
@@ -24,6 +25,10 @@ public class ErrorLocalizer {
 
         if (throwable instanceof SocketTimeoutException) {
             return context.getString(R.string.error_timeout_message);
+        }
+
+        if (throwable instanceof UnknownHostException) {
+            return context.getString(R.string.error_unknown_host);
         }
 
         if (throwable instanceof NotFoundException) {

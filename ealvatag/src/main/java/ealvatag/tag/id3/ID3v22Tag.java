@@ -551,7 +551,7 @@ public class ID3v22Tag extends AbstractID3v2Tag {
                 invalidFrames++;
                 //Don't try and find any more frames
                 break;
-            } catch (InvalidDataTypeException idete) {
+            } catch (InvalidTagException idete) {
                 //Failed reading frame but may just have invalid data but correct length so lets carry on
                 //in case we can read the next frame
                 LOG.log(WARN, "%s:Corrupt Frame", logName, idete);
@@ -559,10 +559,8 @@ public class ID3v22Tag extends AbstractID3v2Tag {
             } catch (IOException e) {
                 LOG.log(WARN, "%s:Unexpectedly reached end of frame", logName, e);
                 invalidFrames++;
-            } catch (@SuppressWarnings("TryWithIdenticalCatches") InvalidTagException e) {  // TODO: 1/25/17 get exceptions straightened out
-                LOG.log(WARN, "%s:Corrupt Frame", logName, e);
-                invalidFrames++;
-            }
+            } // TODO: 1/25/17 get exceptions straightened out
+
         }
     }
 

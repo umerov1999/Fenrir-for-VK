@@ -20,6 +20,8 @@ import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.existfile.FileExistJVM
+import dev.ragnarok.fenrir.util.existfile.FileExistNative
 import ealvatag.tag.TagOptionSingleton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Flowable
@@ -42,6 +44,12 @@ class App : Application() {
         FenrirNative.updateAppContext(this)
         FenrirNative.updateDensity { Utils.getDensity() }
         ConstructorConstructor.setLogUnsafe(Settings.get().other().isDeveloper_mode)
+
+        if (FenrirNative.isNativeLoaded()) {
+            MusicPlaybackController.tracksExist = FileExistNative()
+        } else {
+            MusicPlaybackController.tracksExist = FileExistJVM()
+        }
 
         Utils.setCompressTraffic(Settings.get().other().isCompress_traffic)
         RLottieDrawable.setCacheResourceAnimation(Settings.get().other().isEnable_cache_ui_anim)

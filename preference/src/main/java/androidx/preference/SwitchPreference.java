@@ -25,12 +25,13 @@ import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.TypedArrayUtils;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 /**
  * A {@link Preference} that provides a two-state toggleable option.
@@ -217,15 +218,15 @@ public class SwitchPreference extends TwoStatePreference {
     }
 
     private void syncSwitchView(View view) {
-        if (view instanceof Switch) {
-            Switch switchView = (Switch) view;
+        if (view instanceof SwitchMaterial) {
+            SwitchMaterial switchView = (SwitchMaterial) view;
             switchView.setOnCheckedChangeListener(null);
         }
         if (view instanceof Checkable) {
             ((Checkable) view).setChecked(mChecked);
         }
-        if (view instanceof Switch) {
-            Switch switchView = (Switch) view;
+        if (view instanceof SwitchMaterial) {
+            SwitchMaterial switchView = (SwitchMaterial) view;
             switchView.setTextOn(mSwitchOn);
             switchView.setTextOff(mSwitchOff);
             switchView.setOnCheckedChangeListener(mListener);

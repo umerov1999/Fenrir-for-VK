@@ -13,6 +13,8 @@
  */
 package ealvatag.tag.datatype;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 
 import ealvatag.tag.InvalidDataTypeException;
@@ -112,6 +114,7 @@ public class TempoCode extends AbstractDataType {
         return arr;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return value == null ? "" : value.toString();

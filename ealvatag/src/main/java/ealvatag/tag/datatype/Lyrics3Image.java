@@ -20,6 +20,8 @@
  */
 package ealvatag.tag.datatype;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 import java.util.Arrays;
 
@@ -192,6 +194,7 @@ public class Lyrics3Image extends AbstractDataType {
     /**
      * @return
      */
+    @NonNull
     public String toString() {
         String str;
         str = "filename = " + filename + ", description = " + description;

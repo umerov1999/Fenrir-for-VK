@@ -25,13 +25,15 @@
  */
 package ealvatag.logging;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 
 /**
  * Abstract class that provides structure to use for displaying a files metadata content
  */
 public abstract class AbstractTagDisplayFormatter {
-    private static final HashMap<String, String> hexBinaryMap = new HashMap<String, String>();
+    private static final HashMap<String, String> hexBinaryMap = new HashMap<>();
 
     static {
         hexBinaryMap.put("0", "0000");
@@ -96,5 +98,6 @@ public abstract class AbstractTagDisplayFormatter {
 
     public abstract void addElement(String type, boolean value);
 
+    @NonNull
     public abstract String toString();
 }

@@ -23,25 +23,21 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
 
     private static final String SAVE_STATE_TEXT = "EditTextPreferenceDialogFragment.text";
     private static final int SHOW_REQUEST_TIMEOUT = 1000;
-    private EditText mEditText;
+    private TextInputEditText mEditText;
     private CharSequence mText;
     private long mShowRequestTime = -1;
-    private final Runnable mShowSoftInputRunnable = new Runnable() {
-        @Override
-        public void run() {
-            scheduleShowSoftInputInner();
-        }
-    };
+    private final Runnable mShowSoftInputRunnable = this::scheduleShowSoftInputInner;
 
     @NonNull
     public static EditTextPreferenceDialogFragmentCompat newInstance(String key) {

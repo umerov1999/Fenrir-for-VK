@@ -84,6 +84,18 @@
                         android:visibility="gone"
                         app:tint="?white_color" />
 
+                    <ImageView
+                        android:id="@+id/item_blacklisted"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:padding="4dp"
+                        android:src="@drawable/audio_died"
+                        android:visibility="gone"
+                        app:tint="#AAFF0000" />
+
                     <dev.ragnarok.fenrir.view.OnlineView
                         android:id="@+id/header_navi_menu_online"
                         android:layout_width="@dimen/online_dot_size_big"

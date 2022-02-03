@@ -47,7 +47,7 @@ public final class ParcelableOwnerWrapper implements Parcelable, ParcelNative.Pa
 
     private ParcelableOwnerWrapper(ParcelNative in) {
         type = in.readInt();
-        isNull = in.readByte() != 0;
+        isNull = in.readBoolean();
 
         if (!isNull) {
             if (type == OwnerType.USER) {
@@ -151,7 +151,7 @@ public final class ParcelableOwnerWrapper implements Parcelable, ParcelNative.Pa
     @Override
     public void writeToParcelNative(ParcelNative dest) {
         dest.writeInt(type);
-        dest.writeByte((byte) (isNull ? 1 : 0));
+        dest.writeBoolean(isNull);
 
         if (!isNull) {
             dest.writeParcelable(owner);

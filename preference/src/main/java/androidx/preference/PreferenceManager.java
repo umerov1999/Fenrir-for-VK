@@ -30,6 +30,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 
+import java.util.Objects;
+
 /**
  * Used to help create {@link Preference} hierarchies from activities or XML.
  *
@@ -708,7 +710,7 @@ public class PreferenceManager {
             }
             Drawable p1Icon = p1.getIcon();
             Drawable p2Icon = p2.getIcon();
-            if (p1Icon != p2Icon && (p1Icon == null || !p1Icon.equals(p2Icon))) {
+            if (!Objects.equals(p1Icon, p2Icon)) {
                 return false;
             }
             if (p1.isEnabled() != p2.isEnabled()) {

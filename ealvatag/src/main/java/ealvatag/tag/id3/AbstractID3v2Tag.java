@@ -24,6 +24,8 @@ import static ealvatag.utils.Check.CANNOT_BE_NULL;
 import static ealvatag.utils.Check.checkArgNotNull;
 import static ealvatag.utils.Check.checkVarArg0NotNull;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -178,8 +180,8 @@ public abstract class AbstractID3v2Tag extends AbstractID3Tag implements TagFiel
     public static Optional<Id3v2Header> getHeader(Buffer buffer) throws EOFException {
         buffer.require(10);
 
-        for (int i = 0; i < TAG_ID.length; i++) {
-            if (buffer.readByte() != TAG_ID[i]) {
+        for (byte b : TAG_ID) {
+            if (buffer.readByte() != b) {
                 return Optional.absent();
             }
         }
@@ -902,10 +904,10 @@ public abstract class AbstractID3v2Tag extends AbstractID3Tag implements TagFiel
      */
     public Iterator<TagField> getFields() {
         //Iterator of each different frameId in this tag
-        final Iterator<Map.Entry<String, Object>> it = frameMap.entrySet().iterator();
+        Iterator<Map.Entry<String, Object>> it = frameMap.entrySet().iterator();
 
         //Iterator used by hasNext() so doesn't effect next()
-        final Iterator<Map.Entry<String, Object>> itHasNext = frameMap.entrySet().iterator();
+        Iterator<Map.Entry<String, Object>> itHasNext = frameMap.entrySet().iterator();
 
 
         return new Iterator<TagField>() {
@@ -1993,8 +1995,8 @@ public abstract class AbstractID3v2Tag extends AbstractID3Tag implements TagFiel
                 }
             } else if (o instanceof List) {
                 ArrayList<AbstractID3v2Frame> multiFrames = (ArrayList<AbstractID3v2Frame>) o;
-                for (ListIterator<AbstractID3v2Frame> li = multiFrames.listIterator(); li.hasNext(); ) {
-                    frame = li.next();
+                for (AbstractID3v2Frame multiFrame : multiFrames) {
+                    frame = multiFrame;
                     size += frame.getSize();
                 }
             }
@@ -2080,8 +2082,8 @@ public abstract class AbstractID3v2Tag extends AbstractID3Tag implements TagFiel
                 frame.createStructure();
             } else {
                 ArrayList<AbstractID3v2Frame> multiFrames = (ArrayList<AbstractID3v2Frame>) o;
-                for (ListIterator<AbstractID3v2Frame> li = multiFrames.listIterator(); li.hasNext(); ) {
-                    frame = li.next();
+                for (AbstractID3v2Frame multiFrame : multiFrames) {
+                    frame = multiFrame;
                     frame.createStructure();
                 }
             }
@@ -2367,6 +2369,7 @@ public abstract class AbstractID3v2Tag extends AbstractID3Tag implements TagFiel
         }
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
@@ -2483,7 +2486,7 @@ public abstract class AbstractID3v2Tag extends AbstractID3Tag implements TagFiel
      * cannot be sub classed. We want to use enums instead of regular classes because they are
      * much easier for end users to  to use.
      */
-    class FrameAndSubId {
+    static class FrameAndSubId {
         private final FieldKey genericKey;
         private final String frameId;
         private final String subId;

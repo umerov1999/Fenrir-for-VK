@@ -7,6 +7,8 @@
  */
 package ealvatag.audio.mp3;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -22,7 +24,6 @@ import okio.Buffer;
  * Represents a MPEGFrameHeader, an MP3 is made up of a number of frames each frame starts with a four
  * byte frame header.
  */
-@SuppressWarnings("PointlessArithmeticExpression")
 public class MPEGFrameHeader {
     public static final int HEADER_SIZE = 4;
     /**
@@ -35,14 +36,14 @@ public class MPEGFrameHeader {
     /**
      * Constants for MPEG Version
      */
-    public static final Map<Integer, String> mpegVersionMap = new HashMap<Integer, String>();
+    public static final Map<Integer, String> mpegVersionMap = new HashMap<>();
     public final static int VERSION_2_5 = 0;
     public final static int VERSION_2 = 2;
     public final static int VERSION_1 = 3;
     /**
      * Constants for MPEG Layer
      */
-    public static final Map<Integer, String> mpegLayerMap = new HashMap<Integer, String>();
+    public static final Map<Integer, String> mpegLayerMap = new HashMap<>();
     public final static int LAYER_I = 3;
     public final static int LAYER_II = 2;
     public final static int LAYER_III = 1;
@@ -55,7 +56,7 @@ public class MPEGFrameHeader {
     /**
      * Constants for Channel mode
      */
-    public static final Map<Integer, String> modeMap = new HashMap<Integer, String>();
+    public static final Map<Integer, String> modeMap = new HashMap<>();
     public final static int MODE_STEREO = 0;
     public final static int MODE_JOINT_STEREO = 1;
     public final static int MODE_DUAL_CHANNEL = 2;
@@ -76,17 +77,17 @@ public class MPEGFrameHeader {
     /**
      * Bit Rates, the setBitrate varies for different Version and Layer
      */
-    private static final Map<Integer, Integer> bitrateMap = new HashMap<Integer, Integer>();
+    private static final Map<Integer, Integer> bitrateMap = new HashMap<>();
     /**
      * Constants for Emphasis
      */
-    private static final Map<Integer, String> emphasisMap = new HashMap<Integer, String>();
-    private static final Map<Integer, String> modeExtensionMap = new HashMap<Integer, String>();
+    private static final Map<Integer, String> emphasisMap = new HashMap<>();
+    private static final Map<Integer, String> modeExtensionMap = new HashMap<>();
     private final static int MODE_EXTENSION_NONE = 0;
     private final static int MODE_EXTENSION_ONE = 1;
     private final static int MODE_EXTENSION_TWO = 2;
     private final static int MODE_EXTENSION_THREE = 3;
-    private static final Map<Integer, String> modeExtensionLayerIIIMap = new HashMap<Integer, String>();
+    private static final Map<Integer, String> modeExtensionLayerIIIMap = new HashMap<>();
     private final static int MODE_EXTENSION_OFF_OFF = 0;
     private final static int MODE_EXTENSION_ON_OFF = 1;
     private final static int MODE_EXTENSION_OFF_ON = 2;
@@ -94,15 +95,15 @@ public class MPEGFrameHeader {
     /**
      * Sampling Rate in Hz
      */
-    private static final Map<Integer, Map<Integer, Integer>> samplingRateMap = new HashMap<Integer, Map<Integer, Integer>>();
-    private static final Map<Integer, Integer> samplingV1Map = new HashMap<Integer, Integer>();
-    private static final Map<Integer, Integer> samplingV2Map = new HashMap<Integer, Integer>();
-    private static final Map<Integer, Integer> samplingV25Map = new HashMap<Integer, Integer>();
+    private static final Map<Integer, Map<Integer, Integer>> samplingRateMap = new HashMap<>();
+    private static final Map<Integer, Integer> samplingV1Map = new HashMap<>();
+    private static final Map<Integer, Integer> samplingV2Map = new HashMap<>();
+    private static final Map<Integer, Integer> samplingV25Map = new HashMap<>();
     /* Samples Per Frame */
-    private static final Map<Integer, Map<Integer, Integer>> samplesPerFrameMap = new HashMap<Integer, Map<Integer, Integer>>();
-    private static final Map<Integer, Integer> samplesPerFrameV1Map = new HashMap<Integer, Integer>();
-    private static final Map<Integer, Integer> samplesPerFrameV2Map = new HashMap<Integer, Integer>();
-    private static final Map<Integer, Integer> samplesPerFrameV25Map = new HashMap<Integer, Integer>();
+    private static final Map<Integer, Map<Integer, Integer>> samplesPerFrameMap = new HashMap<>();
+    private static final Map<Integer, Integer> samplesPerFrameV1Map = new HashMap<>();
+    private static final Map<Integer, Integer> samplesPerFrameV2Map = new HashMap<>();
+    private static final Map<Integer, Integer> samplesPerFrameV25Map = new HashMap<>();
     private static final int SCALE_BY_THOUSAND = 1000;
     private static final int LAYER_I_FRAME_SIZE_COEFFICIENT = 12;
     private static final int LAYER_II_FRAME_SIZE_COEFFICIENT = 144;
@@ -806,6 +807,7 @@ public class MPEGFrameHeader {
     /**
      * @return a string represntation
      */
+    @NonNull
     public String toString() {
         return " mpeg frameheader:" +
                 " frame length:" +

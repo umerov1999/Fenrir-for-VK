@@ -22,6 +22,8 @@ package ealvatag.tag.datatype;
 
 import static ealvatag.logging.EalvaTagLog.LogLevel.DEBUG;
 
+import androidx.annotation.NonNull;
+
 import java.io.EOFException;
 
 import ealvatag.tag.InvalidDataTypeException;
@@ -94,6 +96,7 @@ public class ByteArraySizeTerminated extends AbstractDataType {
      *
      * @return the number of bytes
      */
+    @NonNull
     public String toString() {
         return getSize() + " bytes";
     }

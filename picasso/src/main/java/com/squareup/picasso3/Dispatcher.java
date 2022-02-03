@@ -15,7 +15,6 @@
  */
 package com.squareup.picasso3;
 
-import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 import static com.squareup.picasso3.BitmapHunter.forRequest;
 import static com.squareup.picasso3.MemoryPolicy.shouldWriteToMemoryCache;
@@ -41,7 +40,6 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Handler;
@@ -116,6 +114,7 @@ class Dispatcher {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean isNetworkAvailable(@NonNull Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -124,7 +123,7 @@ class Dispatcher {
             NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
             return actNw != null && (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH));
         } else {
-            NetworkInfo nwInfo = connectivityManager.getActiveNetworkInfo();
+            android.net.NetworkInfo nwInfo = connectivityManager.getActiveNetworkInfo();
             return nwInfo != null && nwInfo.isConnected();
         }
     }
@@ -540,6 +539,7 @@ class Dispatcher {
         }
     }
 
+    @SuppressWarnings("deprecation")
     static class NetworkBroadcastReceiver extends BroadcastReceiver {
         private final Dispatcher dispatcher;
 
@@ -550,7 +550,7 @@ class Dispatcher {
         void register() {
             if (dispatcher.scansNetworkChanges) {
                 IntentFilter filter = new IntentFilter();
-                filter.addAction(CONNECTIVITY_ACTION);
+                filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
                 dispatcher.context.registerReceiver(this, filter);
             }
         }
@@ -568,7 +568,7 @@ class Dispatcher {
                 return;
             }
             String action = intent.getAction();
-            if (CONNECTIVITY_ACTION.equals(action)) {
+            if (android.net.ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
                 dispatcher.dispatchNetworkStateChange(isNetworkAvailable(context));
             }
         }

@@ -22,6 +22,8 @@
  */
 package ealvatag.tag.lyrics3;
 
+import androidx.annotation.NonNull;
+
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class FieldFrameBodyLYR extends AbstractLyrics3v2FieldFrameBody {
     /**
      *
      */
-    private ArrayList<Lyrics3Line> lines = new ArrayList<Lyrics3Line>();
+    private ArrayList<Lyrics3Line> lines = new ArrayList<>();
 
     /**
      * Creates a new FieldBodyLYR datatype.
@@ -166,7 +168,7 @@ public class FieldFrameBodyLYR extends AbstractLyrics3v2FieldFrameBody {
         Lyrics3Line newLine;
         ID3v2LyricLine currentLine;
         Lyrics3TimeStamp timeStamp;
-        HashMap<String, Lyrics3Line> lineMap = new HashMap<String, Lyrics3Line>();
+        HashMap<String, Lyrics3Line> lineMap = new HashMap<>();
 
         while (iterator.hasNext()) {
             currentLine = iterator.next();
@@ -264,14 +266,15 @@ public class FieldFrameBodyLYR extends AbstractLyrics3v2FieldFrameBody {
     /**
      * @return
      */
+    @NonNull
     public String toString() {
-        String str = getIdentifier() + " : ";
+        StringBuilder str = new StringBuilder(getIdentifier() + " : ");
 
         for (Object line : lines) {
-            str += line.toString();
+            str.append(line.toString());
         }
 
-        return str;
+        return str.toString();
     }
 
     /**
@@ -320,7 +323,7 @@ public class FieldFrameBodyLYR extends AbstractLyrics3v2FieldFrameBody {
         String token;
         int offset = 0;
         int delim = lineString.indexOf(Lyrics3v2Fields.CRLF);
-        lines = new ArrayList<Lyrics3Line>();
+        lines = new ArrayList<>();
 
         Lyrics3Line line;
 
@@ -346,14 +349,14 @@ public class FieldFrameBodyLYR extends AbstractLyrics3v2FieldFrameBody {
      */
     private String writeString() {
         Lyrics3Line line;
-        String str = "";
+        StringBuilder str = new StringBuilder();
 
         for (Object line1 : lines) {
             line = (Lyrics3Line) line1;
-            str += (line.writeString() + Lyrics3v2Fields.CRLF);
+            str.append(line.writeString()).append(Lyrics3v2Fields.CRLF);
         }
 
-        return str;
+        return str.toString();
 
         //return str.substring(0,str.length()-2); // cut off the last CRLF pair
     }

@@ -4,6 +4,8 @@ import static ealvatag.logging.EalvaTagLog.LogLevel.DEBUG;
 import static ealvatag.logging.EalvaTagLog.LogLevel.ERROR;
 import static ealvatag.logging.EalvaTagLog.LogLevel.WARN;
 
+import androidx.annotation.NonNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -227,6 +229,7 @@ public class PairedTextEncodedStringNullTerminated extends AbstractDataType {
         return buffer.toByteArray();
     }
 
+    @NonNull
     public String toString() {
         return value.toString();
     }
@@ -279,6 +282,7 @@ public class PairedTextEncodedStringNullTerminated extends AbstractDataType {
          *
          * @return a string representation of the value
          */
+        @NonNull
         public String toString() {
             StringBuilder sb = new StringBuilder();
             for (Pair next : mapping) {

@@ -2,6 +2,8 @@ package ealvatag.audio.mp3;
 
 import static ealvatag.logging.EalvaTagLog.LogLevel.TRACE;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.MoreObjects;
 
 import java.io.EOFException;
@@ -138,6 +140,7 @@ public class VbriFrame {
     }
 
 
+    @NonNull
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)

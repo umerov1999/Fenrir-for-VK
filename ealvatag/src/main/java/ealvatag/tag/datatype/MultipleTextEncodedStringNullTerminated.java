@@ -4,6 +4,8 @@ import static ealvatag.logging.EalvaTagLog.LogLevel.DEBUG;
 import static ealvatag.logging.EalvaTagLog.LogLevel.ERROR;
 import static ealvatag.logging.EalvaTagLog.LogLevel.WARN;
 
+import androidx.annotation.NonNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -64,8 +66,8 @@ public class MultipleTextEncodedStringNullTerminated extends AbstractDataType {
         if (null == value) return false;
         List<String> list = ((Values) value).getList();
         if (list.isEmpty()) return false;
-        for (ListIterator<String> li = list.listIterator(); li.hasNext(); ) {
-            if (!new TextEncodedStringNullTerminated(identifier, frameBody, li.next()).canBeEncoded())
+        for (String s : list) {
+            if (!new TextEncodedStringNullTerminated(identifier, frameBody, s).canBeEncoded())
                 return false;
         }
         return true;
@@ -150,9 +152,9 @@ public class MultipleTextEncodedStringNullTerminated extends AbstractDataType {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try {
             if (null != value) {
-                for (ListIterator<String> li = ((Values) value).getList().listIterator(); li.hasNext(); ) {
+                for (String s : ((Values) value).getList()) {
                     TextEncodedStringNullTerminated next =
-                            new TextEncodedStringNullTerminated(identifier, frameBody, li.next());
+                            new TextEncodedStringNullTerminated(identifier, frameBody, s);
                     buffer.write(next.writeByteArray());
                     localSize += next.getSize();
                 }
@@ -215,6 +217,7 @@ public class MultipleTextEncodedStringNullTerminated extends AbstractDataType {
          *
          * @return a string representation of the value
          */
+        @NonNull
         public String toString() {
             StringBuilder sb = new StringBuilder();
             for (ListIterator<String> li = valueList.listIterator(); li.hasNext(); ) {

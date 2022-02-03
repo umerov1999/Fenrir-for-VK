@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.model.Post;
 import dev.ragnarok.fenrir.model.TmpSource;
 import dev.ragnarok.fenrir.model.criteria.WallCriteria;
 import dev.ragnarok.fenrir.module.FenrirNative;
+import dev.ragnarok.fenrir.module.parcel.ParcelFlags;
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter;
 import dev.ragnarok.fenrir.mvp.view.wallattachments.IWallPhotosAttachmentsView;
@@ -60,7 +61,7 @@ public class WallPhotosAttachmentsPresenter extends PlaceSupportPresenter<IWallP
     @SuppressWarnings("unused")
     public void firePhotoClick(int position, Photo photo) {
         if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_photo()) {
-            callView(view -> view.goToTempPhotosGallery(getAccountId(), ParcelNative.create().writeParcelableList(mPhotos).getNativePointer(), position));
+            callView(view -> view.goToTempPhotosGallery(getAccountId(), ParcelNative.createParcelableList(mPhotos, ParcelFlags.NULL_LIST), position));
         } else {
             TmpSource source = new TmpSource(getInstanceId(), 0);
 

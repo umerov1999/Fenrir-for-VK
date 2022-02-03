@@ -39,6 +39,8 @@ import static ealvatag.utils.Check.CANNOT_BE_NULL_OR_EMPTY;
 import static ealvatag.utils.Check.checkArgNotNull;
 import static ealvatag.utils.Check.checkArgNotNullOrEmpty;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
@@ -301,7 +303,7 @@ public abstract class AbstractTag implements TagFieldContainer {
 
     @Override
     public Iterator<TagField> getFields() {
-        final Iterator<Map.Entry<String, List<TagField>>> it = fields.entrySet().iterator();
+        Iterator<Map.Entry<String, List<TagField>>> it = fields.entrySet().iterator();
         return new Iterator<TagField>() {
             private Iterator<TagField> fieldsIt;
 
@@ -352,7 +354,7 @@ public abstract class AbstractTag implements TagFieldContainer {
     @Override
     public Optional<TagField> getFirstField(String id) throws IllegalArgumentException, UnsupportedFieldException {
         List<TagField> l = getFieldList(id);
-        return l.size() != 0 ? Optional.fromNullable(l.get(0)) : Optional.<TagField>absent();
+        return l.size() != 0 ? Optional.fromNullable(l.get(0)) : Optional.absent();
     }
 
     @Override
@@ -398,12 +400,13 @@ public abstract class AbstractTag implements TagFieldContainer {
         }
     }
 
+    @NonNull
     public String toString() {
         StringBuilder out = new StringBuilder();
         out.append("Tag content:\n");
-        Iterator it = getFields();
+        Iterator<TagField> it = getFields();
         while (it.hasNext()) {
-            TagField field = (TagField) it.next();
+            TagField field = it.next();
             out.append("\t");
             out.append(field.getId());
             out.append(":");

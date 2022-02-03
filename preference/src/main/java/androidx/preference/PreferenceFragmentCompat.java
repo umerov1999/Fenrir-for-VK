@@ -122,10 +122,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_BIND_PREFERENCES:
-                    bindPreferences();
-                    break;
+            if (msg.what == MSG_BIND_PREFERENCES) {
+                bindPreferences();
             }
         }
     };
@@ -579,7 +577,6 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      *                           saved state as given here.
      * @return A new {@link RecyclerView} object to be placed into the view hierarchy
      */
-    @SuppressWarnings("deprecation")
     @NonNull
     public RecyclerView onCreateRecyclerView(@NonNull LayoutInflater inflater,
                                              @NonNull ViewGroup parent, @Nullable Bundle savedInstanceState) {
@@ -596,9 +593,6 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                 .inflate(R.layout.preference_recyclerview, parent, false);
 
         recyclerView.setLayoutManager(onCreateLayoutManager());
-        recyclerView.setAccessibilityDelegateCompat(
-                new PreferenceRecyclerViewAccessibilityDelegate(recyclerView));
-
         return recyclerView;
     }
 
@@ -620,7 +614,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}
      */
     @NonNull
-    protected RecyclerView.Adapter onCreateAdapter(@NonNull PreferenceScreen preferenceScreen) {
+    protected RecyclerView.Adapter<?> onCreateAdapter(@NonNull PreferenceScreen preferenceScreen) {
         return new PreferenceGroupAdapter(preferenceScreen);
     }
 
@@ -711,36 +705,32 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
     private void scrollToPreferenceInternal(@Nullable Preference preference,
                                             @Nullable String key) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                RecyclerView.Adapter<?> adapter = mList.getAdapter();
-                if (!(adapter instanceof
-                        PreferenceGroup.PreferencePositionCallback)) {
-                    if (adapter != null) {
-                        throw new IllegalStateException("Adapter must implement "
-                                + "PreferencePositionCallback");
-                    } else {
-                        // Adapter was set to null, so don't scroll
-                        return;
-                    }
-                }
-                int position;
-                if (preference != null) {
-                    position = ((PreferenceGroup.PreferencePositionCallback) adapter)
-                            .getPreferenceAdapterPosition(preference);
+        Runnable r = () -> {
+            RecyclerView.Adapter<?> adapter = mList.getAdapter();
+            if (!(adapter instanceof
+                    PreferenceGroup.PreferencePositionCallback)) {
+                if (adapter != null) {
+                    throw new IllegalStateException("Adapter must implement "
+                            + "PreferencePositionCallback");
                 } else {
-                    position = ((PreferenceGroup.PreferencePositionCallback) adapter)
-                            .getPreferenceAdapterPosition(key);
+                    // Adapter was set to null, so don't scroll
+                    return;
                 }
-                ((PreferenceGroup.PreferencePositionCallback) adapter).setSelectedPreference(position);
-                if (position != RecyclerView.NO_POSITION) {
-                    mList.scrollToPosition(position);
-                } else {
-                    // Item not found, wait for an update and try again
-                    adapter.registerAdapterDataObserver(
-                            new ScrollToPreferenceObserver(adapter, mList, preference, key));
-                }
+            }
+            int position = 0;
+            if (preference != null) {
+                position = ((PreferenceGroup.PreferencePositionCallback) adapter)
+                        .getPreferenceAdapterPosition(preference);
+            } else if (key != null) {
+                position = ((PreferenceGroup.PreferencePositionCallback) adapter)
+                        .getPreferenceAdapterPosition(key);
+            }
+            if (position != RecyclerView.NO_POSITION) {
+                mList.scrollToPosition(position);
+            } else {
+                // Item not found, wait for an update and try again
+                adapter.registerAdapterDataObserver(
+                        new ScrollToPreferenceObserver(adapter, mList, preference, key));
             }
         };
         if (mList == null) {

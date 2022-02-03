@@ -24,6 +24,8 @@
  */
 package ealvatag.tag.id3;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -155,13 +157,13 @@ public abstract class AbstractTagFrameBody extends AbstractTagItem {
      */
     @SuppressWarnings("unused")                     // TODO: 2/18/17 Is this method needed?
     public final String getLongDescription() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (AbstractDataType object : dataTypeList) {
             if ((object.toString() != null) && (object.toString().length() > 0)) {
-                str += (object.getIdentifier() + " = " + object + "\n");
+                str.append(object.getIdentifier()).append(" = ").append(object).append("\n");
             }
         }
-        return str;
+        return str.toString();
     }
 
     /**
@@ -262,6 +264,7 @@ public abstract class AbstractTagFrameBody extends AbstractTagItem {
      *
      * @return brief description of FrameBody
      */
+    @NonNull
     public String toString() {
         return getBriefDescription();
     }

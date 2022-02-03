@@ -1635,7 +1635,8 @@ public class MessengerContentProvider extends ContentProvider {
         }
 
         // Get the database and run the query
-        SQLiteDatabase _DB = getDbHelper(uri).getReadableDatabase();
+        //SQLiteDatabase _DB = getDbHelper(uri).getReadableDatabase();
+        SQLiteDatabase _DB = getDbHelper(uri).getWritableDatabase();
         Cursor _Result = _QB.query(_DB, projection, selection, selectionArgs, null, null, _OrderBy);
 
         // Tell the cursor what uri to watch, so it knows when its source data changes

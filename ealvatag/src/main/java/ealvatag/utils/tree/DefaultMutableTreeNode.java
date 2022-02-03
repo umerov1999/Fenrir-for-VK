@@ -8,6 +8,8 @@
 package ealvatag.utils.tree;
 // ISSUE: this class depends on nothing in AWT -- move to java.util?
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -1230,6 +1232,7 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
      *
      * @see #getUserObject
      */
+    @NonNull
     public String toString() {
         if (userObject == null) {
             return null;
@@ -1245,8 +1248,9 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
      *
      * @return a copy of this node
      */
+    @NonNull
     public Object clone() {
-        DefaultMutableTreeNode newNode = null;
+        DefaultMutableTreeNode newNode;
 
         try {
             newNode = (DefaultMutableTreeNode) super.clone();
@@ -1291,7 +1295,7 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
             userObject = tValues[1];
     }
 
-    final class PreorderEnumeration implements Enumeration<TreeNode> {
+    static final class PreorderEnumeration implements Enumeration<TreeNode> {
         protected Stack stack;
 
         public PreorderEnumeration(TreeNode rootNode) {
@@ -1323,7 +1327,7 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
     }  // End of class PreorderEnumeration
 
 
-    final class PostorderEnumeration implements Enumeration<TreeNode> {
+    static final class PostorderEnumeration implements Enumeration<TreeNode> {
         protected TreeNode root;
         protected Enumeration<TreeNode> children;
         protected Enumeration<TreeNode> subtree;
@@ -1358,7 +1362,7 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
     }  // End of class PostorderEnumeration
 
 
-    final class BreadthFirstEnumeration implements Enumeration<TreeNode> {
+    static final class BreadthFirstEnumeration implements Enumeration<TreeNode> {
         protected Queue queue;
 
         public BreadthFirstEnumeration(TreeNode rootNode) {
@@ -1389,7 +1393,7 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
 
 
         // A simple queue with a linked list data structure.
-        final class Queue {
+        static final class Queue {
             QNode head;    // null if empty
             QNode tail;
 
@@ -1445,7 +1449,7 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
     }  // End of class BreadthFirstEnumeration
 
 
-    final class PathBetweenNodesEnumeration implements Enumeration<TreeNode> {
+    static final class PathBetweenNodesEnumeration implements Enumeration<TreeNode> {
         protected Stack<TreeNode> stack;
 
         public PathBetweenNodesEnumeration(TreeNode ancestor,
@@ -1457,7 +1461,7 @@ public class DefaultMutableTreeNode extends Object implements Cloneable,
 
             TreeNode current;
 
-            stack = new Stack<TreeNode>();
+            stack = new Stack<>();
             stack.push(descendant);
 
             current = descendant;

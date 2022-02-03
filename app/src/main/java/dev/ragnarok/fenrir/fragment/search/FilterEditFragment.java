@@ -449,12 +449,12 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
         LocationResult locationResult;
         boolean gps_enabled;
         boolean network_enabled;
-        LocationListener networkLocation = new LocationListener() {
+        LocationListener gpsLocation = new LocationListener() {
             public void onLocationChanged(Location location) {
                 timer1.cancel();
                 locationResult.gotLocation(location);
                 lm.removeUpdates(this);
-                lm.removeUpdates(gpsLocation);
+                lm.removeUpdates(networkLocation);
             }
 
             public void onProviderDisabled(String provider) {
@@ -467,12 +467,12 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
             public void onStatusChanged(String provider, int status, Bundle extras) {
             }
         };
-        LocationListener gpsLocation = new LocationListener() {
+        LocationListener networkLocation = new LocationListener() {
             public void onLocationChanged(Location location) {
                 timer1.cancel();
                 locationResult.gotLocation(location);
                 lm.removeUpdates(this);
-                lm.removeUpdates(networkLocation);
+                lm.removeUpdates(gpsLocation);
             }
 
             public void onProviderDisabled(String provider) {

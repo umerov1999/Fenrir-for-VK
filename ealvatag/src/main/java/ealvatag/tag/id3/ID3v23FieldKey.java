@@ -1,8 +1,8 @@
 package ealvatag.tag.id3;
 
-import com.google.common.base.Preconditions;
+import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.common.base.Preconditions;
 
 import ealvatag.tag.id3.framebody.FrameBodyCOMM;
 import ealvatag.tag.id3.framebody.FrameBodyTXXX;
@@ -247,7 +247,7 @@ public enum ID3v23FieldKey {
         private static final StringBuilder builder = new StringBuilder(MAX_LENGTH);
 
         @SuppressWarnings("Duplicates")
-        private static String makeFieldName(@NotNull String frameId, @NotNull String subId) {
+        private static String makeFieldName(@NonNull String frameId, @NonNull String subId) {
             builder.setLength(0);
             builder.append(frameId)
                     .append(':')

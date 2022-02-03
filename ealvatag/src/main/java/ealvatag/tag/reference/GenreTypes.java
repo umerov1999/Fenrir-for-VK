@@ -265,8 +265,8 @@ public class GenreTypes implements SimpleIntStringMap {
     public void iterateValues(ValuesIterator iterator) {
         int length = values.length;
         if (iterator.begin(length)) {
-            for (int i = 0; i < length; i++) {
-                if (!iterator.value(values[i])) {
+            for (String value : values) {
+                if (!iterator.value(value)) {
                     break;
                 }
             }

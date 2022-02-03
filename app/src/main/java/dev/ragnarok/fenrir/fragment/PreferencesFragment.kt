@@ -28,8 +28,8 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.*
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import com.squareup.picasso3.BitmapSafeResize.isOverflowCanvas
@@ -471,8 +471,8 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("player_background")?.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
                 val view = View.inflate(requireActivity(), R.layout.entry_player_background, null)
-                val enabledRotation: MaterialCheckBox = view.findViewById(R.id.enabled_anim)
-                val invertRotation: MaterialCheckBox = view.findViewById(R.id.edit_invert_rotation)
+                val enabledRotation: SwitchMaterial = view.findViewById(R.id.enabled_anim)
+                val invertRotation: SwitchMaterial = view.findViewById(R.id.edit_invert_rotation)
                 val rotationSpeed = view.findViewById<SeekBar>(R.id.edit_rotation_speed)
                 val zoom = view.findViewById<SeekBar>(R.id.edit_zoom)
                 val blur = view.findViewById<SeekBar>(R.id.edit_blur)
@@ -555,7 +555,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 val view = View.inflate(requireActivity(), R.layout.entry_local_server, null)
                 val url: TextInputEditText = view.findViewById(R.id.edit_url)
                 val password: TextInputEditText = view.findViewById(R.id.edit_password)
-                val enabled: MaterialCheckBox = view.findViewById(R.id.enabled_server)
+                val enabled: SwitchMaterial = view.findViewById(R.id.enabled_server)
                 val settings = Settings.get().other().localServer
                 url.setText(settings.url)
                 password.setText(settings.password)

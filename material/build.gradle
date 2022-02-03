@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 
-//1.5.0-rc01
+//1.6.0-alpha02
 
 def srcDirs = [
         'com/google/android/material/animation',
@@ -82,6 +82,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
         aaptOptions.additionalParameters "--no-version-vectors"
+        encoding 'utf-8'
     }
 }
 

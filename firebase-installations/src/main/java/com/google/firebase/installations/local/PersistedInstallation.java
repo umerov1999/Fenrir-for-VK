@@ -43,18 +43,30 @@ public class PersistedInstallation {
     private static final String EXPIRES_IN_SECONDS_KEY = "ExpiresInSecs";
     private static final String PERSISTED_STATUS_KEY = "Status";
     private static final String FIS_ERROR_KEY = "FisError";
-    private final File dataFile;
     @NonNull
     private final FirebaseApp firebaseApp;
+    private File dataFile;
 
     public PersistedInstallation(@NonNull FirebaseApp firebaseApp) {
-        // Different FirebaseApp in the same Android application should have the same application
-        // context and same dir path
-        dataFile =
-                new File(
-                        firebaseApp.getApplicationContext().getFilesDir(),
-                        SETTINGS_FILE_NAME_PREFIX + "." + firebaseApp.getPersistenceKey() + ".json");
         this.firebaseApp = firebaseApp;
+    }
+
+    private File getDataFile() {
+
+        if (dataFile == null) {
+            synchronized (this) {
+                if (dataFile == null) {
+                    // Different FirebaseApp in the same Android application should have the same application
+                    // context and same dir path
+                    dataFile =
+                            new File(
+                                    firebaseApp.getApplicationContext().getFilesDir(),
+                                    SETTINGS_FILE_NAME_PREFIX + "." + firebaseApp.getPersistenceKey() + ".json");
+                }
+            }
+        }
+
+        return dataFile;
     }
 
     @NonNull
@@ -69,23 +81,21 @@ public class PersistedInstallation {
         long expiresIn = json.optLong(EXPIRES_IN_SECONDS_KEY, 0);
         String fisError = json.optString(FIS_ERROR_KEY, null);
 
-        PersistedInstallationEntry prefs =
-                PersistedInstallationEntry.builder()
-                        .setFirebaseInstallationId(fid)
-                        .setRegistrationStatus(RegistrationStatus.values()[status])
-                        .setAuthToken(authToken)
-                        .setRefreshToken(refreshToken)
-                        .setTokenCreationEpochInSecs(tokenCreationTime)
-                        .setExpiresInSecs(expiresIn)
-                        .setFisError(fisError)
-                        .build();
-        return prefs;
+        return PersistedInstallationEntry.builder()
+                .setFirebaseInstallationId(fid)
+                .setRegistrationStatus(RegistrationStatus.values()[status])
+                .setAuthToken(authToken)
+                .setRefreshToken(refreshToken)
+                .setTokenCreationEpochInSecs(tokenCreationTime)
+                .setExpiresInSecs(expiresIn)
+                .setFisError(fisError)
+                .build();
     }
 
     private JSONObject readJSONFromFile() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] tmpBuf = new byte[16 * 1024];
-        try (FileInputStream fis = new FileInputStream(dataFile)) {
+        try (FileInputStream fis = new FileInputStream(getDataFile())) {
             while (true) {
                 int numRead = fis.read(tmpBuf, 0, tmpBuf.length);
                 if (numRead < 0) {
@@ -127,7 +137,7 @@ public class PersistedInstallation {
             fos.close();
 
             // Snapshot the temp file to the actual file
-            if (!tmpFile.renameTo(dataFile)) {
+            if (!tmpFile.renameTo(getDataFile())) {
                 throw new IOException("unable to rename the tmpfile to " + SETTINGS_FILE_NAME_PREFIX);
             }
         } catch (JSONException | IOException e) {
@@ -146,7 +156,7 @@ public class PersistedInstallation {
      * Sets the state to ATTEMPT_MIGRATION.
      */
     public void clearForTesting() {
-        dataFile.delete();
+        getDataFile().delete();
     }
 
     // Registration Status of each persisted fid entry

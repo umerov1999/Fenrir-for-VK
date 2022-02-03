@@ -1,12 +1,7 @@
 package dev.ragnarok.fenrir.player
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.app.*
+import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
@@ -33,6 +28,7 @@ import com.squareup.picasso3.Picasso.LoadedFrom
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
 import dev.ragnarok.fenrir.Extensions.Companion.insertAfter
+import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.media.exo.ExoUtil
@@ -77,10 +73,31 @@ class MusicPlaybackService : Service() {
     private var mPlayListOrig: ArrayList<Audio>? = null
     private var mNotificationHelper: NotificationHelper? = null
     private var mMediaMetadataCompat: MediaMetadataCompat? = null
+    private var inForeground: Boolean = false
     override fun onBind(intent: Intent): IBinder {
         if (D) Logger.d(TAG, "Service bound, intent = $intent")
         cancelShutdown()
         return mBinder
+    }
+
+    fun goForeground(id: Int, notification: Notification?, mManager: NotificationManager?) {
+        if (notification == null || mManager == null) {
+            return
+        }
+        try {
+            if (inForeground) {
+                mManager.notify(id, notification)
+                return
+            }
+            startForeground(id, notification)
+            inForeground = true
+        } catch (ignored: java.lang.Exception) {
+        }
+    }
+
+    fun outForeground(removeNotification: Boolean) {
+        inForeground = false
+        stopForeground(removeNotification)
     }
 
     override fun onUnbind(intent: Intent): Boolean {
@@ -340,7 +357,7 @@ class MusicPlaybackService : Service() {
             scheduleDelayedShutdown()
             isPlaying = false
         } else {
-            stopForeground(false) //надо подумать
+            outForeground(false) //надо подумать
         }
     }
 

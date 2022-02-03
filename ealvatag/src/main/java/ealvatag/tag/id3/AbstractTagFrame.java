@@ -21,6 +21,8 @@
  */
 package ealvatag.tag.id3;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Objects;
 
 /**
@@ -115,6 +117,7 @@ public abstract class AbstractTagFrame extends AbstractTagItem {
 
     }
 
+    @NonNull
     @Override
     public String toString() {
         return getBody().toString();

@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.domain;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -81,6 +79,4 @@ public interface IAudioInteractor {
     Single<List<AudioCatalog>> getCatalog(int accountId, String artist_id, String query);
 
     Single<CatalogBlock> getCatalogBlockById(int accountId, String block_id, String start_from);
-
-    Completable PlaceToAudioCache(Context context);
 }
