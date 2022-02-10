@@ -28,7 +28,6 @@ import com.squareup.picasso3.Picasso.LoadedFrom
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
 import dev.ragnarok.fenrir.Extensions.Companion.insertAfter
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.media.exo.ExoUtil

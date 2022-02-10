@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.Nullable;
-import androidx.preference.PreferenceManager;
 
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.model.PhotoSize;
 import dev.ragnarok.fenrir.settings.theme.ThemeOverlay;
 import dev.ragnarok.fenrir.upload.Upload;
@@ -177,7 +177,7 @@ class MainSettings implements ISettings.IMainSettings {
     }
 
     private SharedPreferences getDefaultPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(app);
+        return PreferenceScreen.getPreferences(app);
     }
 
     @Override

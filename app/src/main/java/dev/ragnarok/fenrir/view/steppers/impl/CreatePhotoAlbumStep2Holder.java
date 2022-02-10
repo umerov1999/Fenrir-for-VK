@@ -2,10 +2,11 @@ package dev.ragnarok.fenrir.view.steppers.impl;
 
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.material.checkbox.MaterialCheckBox;
 
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.view.steppers.base.AbsStepHolder;
@@ -14,8 +15,8 @@ import dev.ragnarok.fenrir.view.steppers.base.BaseHolderListener;
 public class CreatePhotoAlbumStep2Holder extends AbsStepHolder<CreatePhotoAlbumStepsHost> {
 
     private final ActionListener mActionListener;
-    private CheckBox mUploadByAdminsOnly;
-    private CheckBox mDisableComments;
+    private MaterialCheckBox mUploadByAdminsOnly;
+    private MaterialCheckBox mDisableComments;
 
     public CreatePhotoAlbumStep2Holder(@NonNull ViewGroup parent, @NonNull ActionListener actionListener) {
         super(parent, R.layout.content_create_photo_album_step_2, CreatePhotoAlbumStepsHost.STEP_UPLOAD_AND_COMMENTS);

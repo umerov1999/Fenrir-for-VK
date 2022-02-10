@@ -521,7 +521,7 @@ public class CommentsFragment extends PlaceSupportMvpFragment<CommentsPresenter,
         callPresenter(p -> p.fireCommentContextViewCreated(contextView, comment));
 
         if (!Utils.isEmpty(comment.getText())) {
-            menus.add(new OptionRequest(CommentsOption.copy_item_comment, getString(R.string.copy), R.drawable.content_copy, true));
+            menus.add(new OptionRequest(CommentsOption.copy_item_comment, getString(R.string.copy_value), R.drawable.content_copy, true));
         }
         menus.add(new OptionRequest(CommentsOption.reply_item_comment, getString(R.string.reply), R.drawable.reply, true));
         menus.add(new OptionRequest(CommentsOption.report_item_comment, getString(R.string.report), R.drawable.report, true));

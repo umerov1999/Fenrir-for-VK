@@ -4,8 +4,6 @@ import static dev.ragnarok.fenrir.util.Utils.safeIsEmpty;
 
 import android.content.Context;
 
-import androidx.preference.PreferenceManager;
-
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.model.drawer.AbsMenuItem;
 import dev.ragnarok.fenrir.model.drawer.RecentChat;
 
@@ -35,7 +34,7 @@ class RecentChatsSettings implements ISettings.IRecentChats {
     public List<RecentChat> get(int acountid) {
         List<RecentChat> recentChats = new ArrayList<>();
 
-        Set<String> stringSet = PreferenceManager.getDefaultSharedPreferences(app)
+        Set<String> stringSet = PreferenceScreen.getPreferences(app)
                 .getStringSet(recentChatKeyFor(acountid), null);
 
         if (!safeIsEmpty(stringSet)) {
@@ -63,7 +62,7 @@ class RecentChatsSettings implements ISettings.IRecentChats {
             }
         }
 
-        PreferenceManager.getDefaultSharedPreferences(app)
+        PreferenceScreen.getPreferences(app)
                 .edit()
                 .putStringSet(recentChatKeyFor(accountid), target)
                 .apply();

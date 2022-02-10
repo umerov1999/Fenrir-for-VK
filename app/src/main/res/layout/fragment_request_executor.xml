@@ -48,16 +48,23 @@
                         android:text="@string/request_method_title"
                         android:textColor="?android:textColorSecondary" />
 
-                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/method"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:hint="store.getStockItems"
-                        android:inputType="textVisiblePassword"
-                        android:padding="8dp"
-                        android:textSize="14sp"
-                        tools:ignore="HardcodedText" />
+                        android:padding="8dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/method"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="store.getStockItems"
+                            android:inputType="text"
+                            android:minHeight="48dp"
+                            android:textSize="14sp"
+                            tools:ignore="HardcodedText" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -67,18 +74,24 @@
                         android:text="@string/request_body_title"
                         android:textColor="?android:textColorSecondary" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/body"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:gravity="top"
-                        android:hint="type1=>value1\ntype2=>value2"
-                        android:inputType="textVisiblePassword|textMultiLine"
-                        android:minHeight="80dp"
-                        android:padding="8dp"
-                        android:textSize="14sp"
-                        tools:ignore="HardcodedText" />
+                        android:padding="8dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/body"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:hint="type1=>value1\ntype2=>value2"
+                            android:inputType="text|textMultiLine"
+                            android:minHeight="80dp"
+                            android:textSize="14sp"
+                            tools:ignore="HardcodedText" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_execute"
@@ -154,16 +167,22 @@
 
                     </RelativeLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/response_body"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:gravity="top"
-                        android:inputType="text|textMultiLine|textLongMessage|textNoSuggestions"
-                        android:minHeight="200dp"
-                        android:padding="8dp"
-                        android:textSize="12sp" />
+                        android:padding="8dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/response_body"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:gravity="top"
+                            android:inputType="text|textMultiLine|textLongMessage|textNoSuggestions"
+                            android:minHeight="200dp"
+                            android:textSize="12sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 

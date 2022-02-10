@@ -2,9 +2,14 @@ package dev.ragnarok.fenrir.domain.impl;
 
 import static dev.ragnarok.fenrir.util.Utils.listEmptyIfNull;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.api.interfaces.INetworker;
@@ -53,6 +58,31 @@ public class FeedInteractor implements IFeedInteractor {
 
     private static FeedList createFeedListFromEntity(FeedListEntity entity) {
         return new FeedList(entity.getId(), entity.getTitle());
+    }
+
+    private boolean containInWords(@Nullable Set<String> rgx, @NonNull VKApiNews dto) {
+        if (Utils.isEmpty(rgx)) {
+            return false;
+        }
+        if (!Utils.isEmpty(dto.text)) {
+            for (String i : rgx) {
+                if (dto.text.toLowerCase(Locale.getDefault()).contains(i.toLowerCase(Locale.getDefault()))) {
+                    return true;
+                }
+            }
+        }
+        if (!Utils.isEmpty(dto.copy_history)) {
+            for (VKApiPost i : dto.copy_history) {
+                if (!Utils.isEmpty(i.text)) {
+                    for (String s : rgx) {
+                        if (i.text.toLowerCase(Locale.getDefault()).contains(s.toLowerCase(Locale.getDefault()))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -137,13 +167,14 @@ public class FeedInteractor implements IFeedInteractor {
                     .flatMap(response -> {
                         boolean blockAds = Settings.get().other().isAd_block_story_news();
                         boolean needStripRepost = Settings.get().other().isStrip_news_repost();
+                        Set<String> rgx = Settings.get().other().isBlock_news_by_words();
                         String nextFrom = response.nextFrom;
                         List<Owner> owners = Dto2Model.transformOwners(response.profiles, response.groups);
                         List<VKApiNews> feed = listEmptyIfNull(response.items);
                         List<NewsEntity> dbos = new ArrayList<>(feed.size());
                         VKOwnIds ownIds = new VKOwnIds();
                         for (VKApiNews dto : feed) {
-                            if (dto.source_id == 0 || (blockAds && dto.type.equals("ads") || dto.mark_as_ads != 0) || (needStripRepost && dto.isOnlyRepost())) {
+                            if (dto.source_id == 0 || (blockAds && (dto.type.equals("ads") || dto.mark_as_ads != 0)) || (needStripRepost && dto.isOnlyRepost()) || containInWords(rgx, dto)) {
                                 continue;
                             }
                             dbos.add(Dto2Entity.mapNews(dto));
@@ -159,7 +190,7 @@ public class FeedInteractor implements IFeedInteractor {
                                             .map(owners1 -> {
                                                 List<News> news = new ArrayList<>(feed.size());
                                                 for (VKApiNews dto : feed) {
-                                                    if (dto.source_id == 0 || (blockAds && dto.type.equals("ads") || dto.mark_as_ads != 0) || (needStripRepost && dto.isOnlyRepost())) {
+                                                    if (dto.source_id == 0 || (blockAds && (dto.type.equals("ads") || dto.mark_as_ads != 0)) || (needStripRepost && dto.isOnlyRepost()) || containInWords(rgx, dto)) {
                                                         continue;
                                                     } else if (needStripRepost && dto.hasCopyHistory()) {
                                                         dto.stripRepost();

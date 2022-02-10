@@ -1773,6 +1773,7 @@
     <string name="autoplay_gif">Autoplay GIF</string>
     <string name="select_icon">Select an icon:</string>
     <string name="default_icon">Standard</string>
+    <string name="dynamic_icon">Dynamic Android 12</string>
     <string name="custom_icon">Custom</string>
     <string name="select_custom_icon">Change icon</string>
     <string name="messages_menu_down">Message action menu at the bottom</string>
@@ -1875,6 +1876,8 @@
     <string name="side_transition">Side animated transition</string>
     <string name="lollipop21">This application is not designed to work on Android 5.0 sdk 21, because this firmware has a bug in the Skia module. If it crashes, disable the native library in the settings, but then you will lose stickers, animated gif, qr</string>
     <string name="ad_block_story_news">Blocking ads</string>
+    <string name="block_news_by_words">Block news by words</string>
+    <string name="block_news_by_words_message">Each pattern on a new line</string>
     <string name="ad_block_story_news_summary">Stories, news</string>
     <string name="open_comment_thread">Open %1$s</string>
     <string name="expand_voice_transcript">Expand Voice Transcript</string>
@@ -1900,4 +1903,7 @@
     <string name="slidr_velocity_threshold">Velocity threshold %1$d</string>
     <string name="slidr_distance_threshold">Distance threshold %1$d</string>
     <string name="slidr_settings">Settings Slidr</string>
+    <string name="not_set_artist">Not set</string>
+    <string name="copy_value">Copy</string>
+    <string name="download_voice_ogg">Download voice as ogg</string>
 </resources>

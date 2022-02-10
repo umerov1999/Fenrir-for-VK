@@ -190,6 +190,26 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        parentFragmentManager.setFragmentResultListener(
+            MessageAttachmentsFragment.MESSAGE_CLOSE_ONLY,
+            this
+        ) { _, _ -> presenter?.fireSendClickFromAttachmens() }
+        parentFragmentManager.setFragmentResultListener(
+            MessageAttachmentsFragment.MESSAGE_SYNC_ATTACHMENTS,
+            this
+        ) { _, bundle ->
+            run {
+                if (bundle.containsKey(Extra.BUNDLE)) {
+                    val modelBundle = bundle.getParcelable<ModelsBundle>(Extra.BUNDLE)
+                    if (modelBundle != null)
+                        presenter?.fireEditMessageResult(modelBundle)
+                }
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -954,22 +974,6 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             destination.id,
             attachments
         )
-        parentFragmentManager.setFragmentResultListener(
-            MessageAttachmentsFragment.MESSAGE_CLOSE_ONLY,
-            fragment,
-            { _, _ -> presenter?.fireSendClickFromAttachmens() })
-        parentFragmentManager.setFragmentResultListener(
-            MessageAttachmentsFragment.MESSAGE_SYNC_ATTACHMENTS,
-            fragment,
-            { _, bundle ->
-                run {
-                    if (bundle.containsKey(Extra.BUNDLE)) {
-                        val modelBundle = bundle.getParcelable<ModelsBundle>(Extra.BUNDLE)
-                        if (modelBundle != null)
-                            presenter?.fireEditMessageResult(modelBundle)
-                    }
-                }
-            })
         fragment.show(parentFragmentManager, "message-attachments")
     }
 

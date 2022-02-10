@@ -147,7 +147,9 @@ import dev.ragnarok.fenrir.fragment.wallattachments.WallSearchCommentsAttachment
 import dev.ragnarok.fenrir.link.LinkHelper;
 import dev.ragnarok.fenrir.listener.AppStyleable;
 import dev.ragnarok.fenrir.listener.BackPressCallback;
+import dev.ragnarok.fenrir.listener.CanBackPressedCallback;
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback;
+import dev.ragnarok.fenrir.listener.UpdatableNavigation;
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment;
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest;
 import dev.ragnarok.fenrir.model.Audio;
@@ -191,7 +193,7 @@ import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity implements AbsNavigationFragment.NavigationDrawerCallbacks,
-        OnSectionResumeCallback, AppStyleable, PlaceProvider, ServiceConnection, NavigationBarView.OnItemSelectedListener {
+        OnSectionResumeCallback, AppStyleable, PlaceProvider, ServiceConnection, UpdatableNavigation, NavigationBarView.OnItemSelectedListener {
 
     public static final String ACTION_MAIN = "android.intent.action.MAIN";
     public static final String ACTION_CHAT_FROM_SHORTCUT = "dev.ragnarok.fenrir.ACTION_CHAT_FROM_SHORTCUT";
@@ -555,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
         if (isNull(mToolbar)) return;
 
         FragmentManager manager = getSupportFragmentManager();
-        if (manager.getBackStackEntryCount() > 1) {
+        if (manager.getBackStackEntryCount() > 1 || (getFrontFragment() instanceof CanBackPressedCallback) && ((CanBackPressedCallback) getFrontFragment()).canBackPressed()) {
             mToolbar.setNavigationIcon(R.drawable.arrow_left);
             mToolbar.setNavigationOnClickListener(v -> onBackPressed());
         } else {
@@ -1777,5 +1779,10 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onUpdateNavigation() {
+        resolveToolbarNavigationIcon();
     }
 }

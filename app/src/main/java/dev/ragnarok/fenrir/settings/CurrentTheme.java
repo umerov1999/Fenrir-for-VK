@@ -9,12 +9,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 
-import androidx.preference.PreferenceManager;
-
 import com.squareup.picasso3.Transformation;
 
 import java.io.File;
 
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.picasso.transforms.EllipseTransformation;
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation;
@@ -59,7 +58,7 @@ public class CurrentTheme {
 
     public static Drawable getChatBackground(Activity activity) {
         boolean dark = Settings.get().ui().isDarkModeEnabled(activity);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(activity);
         String page = preferences.getString(KEY_CHAT_BACKGROUND, "0");
         assert page != null;
         Drawable ret;

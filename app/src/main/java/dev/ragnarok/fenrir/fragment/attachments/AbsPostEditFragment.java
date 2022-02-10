@@ -6,12 +6,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.android.material.checkbox.MaterialCheckBox;
 
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.mvp.presenter.AbsPostEditPresenter;
@@ -23,14 +24,14 @@ import dev.ragnarok.fenrir.util.AssertUtils;
 public abstract class AbsPostEditFragment<P extends AbsPostEditPresenter<V>, V extends IBasePostEditView>
         extends AbsAttachmentsEditFragment<P, V> implements IBasePostEditView {
 
-    private CheckBox mFromGroupCheckBox;
+    private MaterialCheckBox mFromGroupCheckBox;
 
-    private CheckBox mFrindsOnlyCheckBox;
+    private MaterialCheckBox mFrindsOnlyCheckBox;
 
     private View mSignerRoot;
     private ImageView mSignerAvatar;
     private TextView mSignerName;
-    private CheckBox mShowAuthorCheckbox;
+    private MaterialCheckBox mShowAuthorCheckbox;
 
     @Nullable
     @Override

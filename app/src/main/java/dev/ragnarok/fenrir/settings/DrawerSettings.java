@@ -13,8 +13,7 @@ import static dev.ragnarok.fenrir.util.Utils.isEmpty;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.preference.PreferenceManager;
-
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.model.SwitchableCategory;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
@@ -45,13 +44,13 @@ class DrawerSettings implements ISettings.IDrawerSettings {
 
     @Override
     public boolean isCategoryEnabled(@SwitchableCategory int category) {
-        return PreferenceManager.getDefaultSharedPreferences(app)
+        return PreferenceScreen.getPreferences(app)
                 .getBoolean(keyForCategory(category), true);
     }
 
     @Override
     public void setCategoriesOrder(@SwitchableCategory int[] order, boolean[] active) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
 
         for (int i = 0; i < order.length; i++) {
             @SwitchableCategory
@@ -77,7 +76,7 @@ class DrawerSettings implements ISettings.IDrawerSettings {
     public int[] getCategoriesOrder() {
         @SwitchableCategory
         int[] all = {FRIENDS, NEWSFEED_COMMENTS, GROUPS, PHOTOS, VIDEOS, MUSIC, DOCS, BOOKMARKS};
-        String line = PreferenceManager.getDefaultSharedPreferences(app).getString("drawer_categories_order", null);
+        String line = PreferenceScreen.getPreferences(app).getString("drawer_categories_order", null);
 
         String[] parts = isEmpty(line) ? new String[0] : line.split("-");
 

@@ -2,8 +2,6 @@ package dev.ragnarok.fenrir.settings;
 
 import android.content.Context;
 
-import androidx.preference.PreferenceManager;
-
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -11,6 +9,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import de.maxr1998.modernpreferences.PreferenceScreen;
 
 class PushSettings implements ISettings.IPushSettings {
 
@@ -31,7 +31,7 @@ class PushSettings implements ISettings.IPushSettings {
             target.add(gson.toJson(registration));
         }
 
-        PreferenceManager.getDefaultSharedPreferences(app)
+        PreferenceScreen.getPreferences(app)
                 .edit()
                 .putStringSet(KEY_REGISTERED_FOR, target)
                 .apply();
@@ -39,7 +39,7 @@ class PushSettings implements ISettings.IPushSettings {
 
     @Override
     public List<VkPushRegistration> getRegistrations() {
-        Set<String> set = PreferenceManager.getDefaultSharedPreferences(app)
+        Set<String> set = PreferenceScreen.getPreferences(app)
                 .getStringSet(KEY_REGISTERED_FOR, null);
 
         List<VkPushRegistration> result = new ArrayList<>(set == null ? 0 : set.size());

@@ -235,7 +235,7 @@ public class AudioLocalRecyclerAdapter extends RecyclerView.Adapter<AudioLocalRe
         if (!Utils.isEmpty(audio.getArtist())) {
             holder.artist.setText(audio.getArtist());
         } else {
-            holder.artist.setText(mContext.getString(R.string.not_set));
+            holder.artist.setText(mContext.getString(R.string.not_set_artist));
         }
         holder.title.setText(audio.getTitle());
 

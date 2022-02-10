@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 
 import dev.ragnarok.fenrir.R;
@@ -23,7 +23,7 @@ import dev.ragnarok.fenrir.mvp.view.IAddProxyView;
 
 public class AddProxyFragment extends BaseMvpFragment<AddProxyPresenter, IAddProxyView> implements IAddProxyView {
 
-    private CheckBox mAuth;
+    private MaterialCheckBox mAuth;
     private View mAuthFieldsRoot;
 
     public static AddProxyFragment newInstance() {

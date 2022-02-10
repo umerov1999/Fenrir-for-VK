@@ -139,7 +139,11 @@ public class MaterialAlertDialogBuilder extends AlertDialog.Builder {
   @NonNull
   @Override
   public AlertDialog create() {
-    AlertDialog alertDialog = super.create();
+    return create(super.create());
+  }
+
+  @NonNull
+  public AlertDialog create(@NonNull AlertDialog alertDialog) {
     Window window = alertDialog.getWindow();
     /* {@link Window#getDecorView()} should be called before any changes are made to the Window
      * as it locks in attributes and affects layout. */

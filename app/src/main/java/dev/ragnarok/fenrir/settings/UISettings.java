@@ -4,8 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 
-import androidx.preference.PreferenceManager;
-
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.fragment.PreferencesFragment;
 import dev.ragnarok.fenrir.fragment.fave.FaveTabsFragment;
 import dev.ragnarok.fenrir.fragment.friends.FriendsTabsFragment;
@@ -23,13 +22,13 @@ class UISettings implements ISettings.IUISettings {
 
     @Override
     public int getAvatarStyle() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         return preferences.getInt(PreferencesFragment.KEY_AVATAR_STYLE, AvatarStyle.CIRCLE);
     }
 
     @Override
     public void storeAvatarStyle(@AvatarStyle int style) {
-        PreferenceManager.getDefaultSharedPreferences(app)
+        PreferenceScreen.getPreferences(app)
                 .edit()
                 .putInt(PreferencesFragment.KEY_AVATAR_STYLE, style)
                 .apply();
@@ -37,19 +36,19 @@ class UISettings implements ISettings.IUISettings {
 
     @Override
     public String getMainThemeKey() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         return preferences.getString("app_theme", "cold");
     }
 
     @Override
     public void setMainTheme(String key) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         preferences.edit().putString("app_theme", key).apply();
     }
 
     @Override
     public void switchNightMode(@NightMode int key) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         preferences.edit().putString("night_switch", String.valueOf(key)).apply();
     }
 
@@ -64,7 +63,7 @@ class UISettings implements ISettings.IUISettings {
     @Override
     public int getNightMode() {
         try {
-            return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(app)
+            return Integer.parseInt(PreferenceScreen.getPreferences(app)
                     .getString("night_switch", String.valueOf(NightMode.ENABLE)).trim());
         } catch (Exception e) {
             return NightMode.ENABLE;
@@ -73,11 +72,11 @@ class UISettings implements ISettings.IUISettings {
 
     @Override
     public Place getDefaultPage(int accountId) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         String page = preferences.getString(PreferencesFragment.KEY_DEFAULT_CATEGORY, "last_closed");
 
         if ("last_closed".equals(page)) {
-            int type = PreferenceManager.getDefaultSharedPreferences(app).getInt("last_closed_place_type", Place.DIALOGS);
+            int type = PreferenceScreen.getPreferences(app).getInt("last_closed_place_type", Place.DIALOGS);
             switch (type) {
                 case Place.DIALOGS:
                     return PlaceFactory.getDialogsPlace(accountId, accountId, null);
@@ -138,35 +137,35 @@ class UISettings implements ISettings.IUISettings {
 
     @Override
     public void notifyPlaceResumed(int type) {
-        PreferenceManager.getDefaultSharedPreferences(app).edit()
+        PreferenceScreen.getPreferences(app).edit()
                 .putInt("last_closed_place_type", type)
                 .apply();
     }
 
     @Override
     public boolean isSystemEmoji() {
-        return PreferenceManager.getDefaultSharedPreferences(app).getBoolean("emojis_type", false);
+        return PreferenceScreen.getPreferences(app).getBoolean("emojis_type", false);
     }
 
     @Override
     public boolean isEmojis_full_screen() {
-        return PreferenceManager.getDefaultSharedPreferences(app).getBoolean("emojis_full_screen", false);
+        return PreferenceScreen.getPreferences(app).getBoolean("emojis_full_screen", false);
     }
 
     @Override
     public boolean isStickers_by_theme() {
-        return PreferenceManager.getDefaultSharedPreferences(app).getBoolean("stickers_by_theme", true);
+        return PreferenceScreen.getPreferences(app).getBoolean("stickers_by_theme", true);
     }
 
     @Override
     public boolean isStickers_by_new() {
-        return PreferenceManager.getDefaultSharedPreferences(app).getBoolean("stickers_by_new", false);
+        return PreferenceScreen.getPreferences(app).getBoolean("stickers_by_new", false);
     }
 
     @Override
     public int isPhoto_swipe_triggered_pos() {
         try {
-            return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(app).getString("photo_swipe_triggered_pos", "180").trim());
+            return Integer.parseInt(PreferenceScreen.getPreferences(app).getString("photo_swipe_triggered_pos", "180").trim());
         } catch (Exception e) {
             return 180;
         }
@@ -174,14 +173,14 @@ class UISettings implements ISettings.IUISettings {
 
     @Override
     public boolean isShow_profile_in_additional_page() {
-        return PreferenceManager.getDefaultSharedPreferences(app).getBoolean("show_profile_in_additional_page", true);
+        return PreferenceScreen.getPreferences(app).getBoolean("show_profile_in_additional_page", true);
     }
 
     @SwipesChatMode
     @Override
     public int getSwipes_chat_mode() {
         try {
-            return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(app).getString("swipes_for_chats", "1").trim());
+            return Integer.parseInt(PreferenceScreen.getPreferences(app).getString("swipes_for_chats", "1").trim());
         } catch (Exception e) {
             return SwipesChatMode.SLIDR;
         }
@@ -189,6 +188,6 @@ class UISettings implements ISettings.IUISettings {
 
     @Override
     public boolean isDisplay_writing() {
-        return PreferenceManager.getDefaultSharedPreferences(app).getBoolean("display_writing", true);
+        return PreferenceScreen.getPreferences(app).getBoolean("display_writing", true);
     }
 }

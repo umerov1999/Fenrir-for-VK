@@ -11,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +18,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 
 import dev.ragnarok.fenrir.Extra;
@@ -36,8 +36,8 @@ public class CreatePollFragment extends BaseMvpFragment<CreatePollPresenter, ICr
 
     public static final String REQUEST_CREATE_POLL = "request_create_poll";
     private TextInputEditText mQuestion;
-    private CheckBox mAnonymous;
-    private CheckBox mMultiply;
+    private MaterialCheckBox mAnonymous;
+    private MaterialCheckBox mMultiply;
     private ViewGroup mOptionsViewGroup;
 
     public static CreatePollFragment newInstance(Bundle args) {

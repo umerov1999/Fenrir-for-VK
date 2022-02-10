@@ -32,7 +32,7 @@ public abstract class AbsSearchFragment<P extends AbsSearchPresenter<V, ?, T, ?>
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView mEmptyText;
 
-    private void onSeachOptionsChanged() {
+    private void onSearchOptionsChanged() {
         callPresenter(p -> p.fireOptionsChanged());
     }
 
@@ -66,6 +66,12 @@ public abstract class AbsSearchFragment<P extends AbsSearchPresenter<V, ?, T, ?>
         mEmptyText.setText(getEmptyText());
         postCreate(root);
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getParentFragmentManager().setFragmentResultListener(FilterEditFragment.REQUEST_FILTER_EDIT, this, (requestKey, result) -> onSearchOptionsChanged());
     }
 
     @StringRes
@@ -126,7 +132,6 @@ public abstract class AbsSearchFragment<P extends AbsSearchPresenter<V, ?, T, ?>
     @Override
     public void displayFilter(int accountId, ArrayList<BaseOption> options) {
         FilterEditFragment fragment = FilterEditFragment.newInstance(accountId, options);
-        getParentFragmentManager().setFragmentResultListener(FilterEditFragment.REQUEST_FILTER_EDIT, fragment, (requestKey, result) -> onSeachOptionsChanged());
         fragment.show(getParentFragmentManager(), "filter-edit");
     }
 

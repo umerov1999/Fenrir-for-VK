@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="image_doodle">Draw</string>
     <string name="image_text">Text</string>
     <string name="image_mosaic">Mosaic</string>
@@ -14,4 +14,19 @@
     <string name="image_all_photo">All photos</string>
     <string name="image_original">Original</string>
     <string name="image_preview">Preview</string>
+
+    <string name="image_enable_storage_permission">Enable storage permission</string>
+
+    <string name="image_enable_storage_tips">This function requires storage permission, please grant it in the settings for this application.</string>
+
+    <string name="ucrop_label_original">Original</string>
+    <string name="ucrop_label_edit_photo">Cropping</string>
+
+    <string name="ucrop_menu_crop">Crop</string>
+
+    <string name="ucrop_error_input_data_is_absent" translatable="false">Both input and output must be specified Uri.</string>
+    <string name="ucrop_mutate_exception_hint" translatable="false">So override the color resource (ucrop_color_toolbar_widget) in your app to make it work on devices pre-L</string>
+    <string name="ucrop_rotate">Rotate</string>
+    <string name="ucrop_scale">Scale</string>
+    <string name="ucrop_crop">Crop</string>
 </resources>

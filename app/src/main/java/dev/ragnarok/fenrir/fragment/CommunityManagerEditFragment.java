@@ -7,7 +7,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -17,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class CommunityManagerEditFragment extends BaseMvpFragment<CommunityManag
     private RadioButton mButtonModerator;
     private RadioButton mButtonEditor;
     private RadioButton mButtonAdmin;
-    private CheckBox mShowAsContact;
+    private MaterialCheckBox mShowAsContact;
     private View mContactInfoRoot;
     private TextInputEditText mPosition;
     private TextInputEditText mEmail;

@@ -85,6 +85,8 @@ public interface ISettings {
 
         boolean isAd_block_story_news();
 
+        Set<String> isBlock_news_by_words();
+
         boolean isNew_loading_dialog();
 
         String get_Api_Domain();
@@ -172,6 +174,8 @@ public interface ISettings {
         String getStickerDir();
 
         boolean isPhoto_to_user_dir();
+
+        boolean isDownload_voice_ogg();
 
         boolean isDelete_cache_images();
 

@@ -27,6 +27,8 @@ import dev.ragnarok.fenrir.view.KeyboardView;
 public class CreatePinFragment extends BaseMvpFragment<CreatePinPresenter, ICreatePinView>
         implements ICreatePinView, KeyboardView.OnKeyboardClickListener, BackPressCallback {
 
+    public static final String EXTRA_PREF_SCREEN = "pref_screen";
+    public static final String EXTRA_PREF_KEY = "pref_key";
     private static final String EXTRA_PIN_VALUE = "pin_value";
     private TextView mTitle;
     private View mValuesRoot;
@@ -92,6 +94,10 @@ public class CreatePinFragment extends BaseMvpFragment<CreatePinPresenter, ICrea
     public void sendSuccessAndClose(int[] values) {
         Intent data = new Intent();
         data.putExtra(EXTRA_PIN_VALUE, values);
+        if (requireActivity().getIntent() != null && requireActivity().getIntent().getExtras() != null && requireActivity().getIntent().getExtras().containsKey(EXTRA_PREF_KEY)) {
+            data.putExtra(EXTRA_PREF_SCREEN, requireActivity().getIntent().getExtras().getString(EXTRA_PREF_SCREEN));
+            data.putExtra(EXTRA_PREF_KEY, requireActivity().getIntent().getExtras().getString(EXTRA_PREF_KEY));
+        }
         requireActivity().setResult(Activity.RESULT_OK, data);
         requireActivity().finish();
     }

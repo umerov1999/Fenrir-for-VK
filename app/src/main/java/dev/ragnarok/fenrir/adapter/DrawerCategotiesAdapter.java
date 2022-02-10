@@ -3,10 +3,11 @@ package dev.ragnarok.fenrir.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class DrawerCategotiesAdapter extends RecyclerView.Adapter<DrawerCategoti
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        final CheckBox checkBox;
+        final MaterialCheckBox checkBox;
 
         public ViewHolder(View itemView) {
             super(itemView);

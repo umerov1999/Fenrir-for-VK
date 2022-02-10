@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.model.Peer;
 
@@ -60,7 +60,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public void reloadNotifSettings(boolean onlyRoot) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         notification_peers.clear();
         notification_peers.addAll(preferences.getStringSet(KEY_PEERS_UIDS, new HashSet<>(1)));
         if (onlyRoot) {
@@ -74,7 +74,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public void setNotifPref(int aid, int peerid, int mask) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         notification_peers.add(keyFor(aid, peerid));
         types.put(keyFor(aid, peerid), mask);
         preferences.edit()
@@ -89,7 +89,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public int getOtherNotificationMask() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         int mask = 0;
         if (preferences.getBoolean("other_notifications_enable", true)) {
             mask = mask + FLAG_SHOW_NOTIF;
@@ -111,61 +111,61 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public boolean isCommentsNotificationsEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("new_comment_notification", true);
     }
 
     @Override
     public boolean isFriendRequestAcceptationNotifEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("friend_request_accepted_notification", true);
     }
 
     @Override
     public boolean isNewFollowerNotifEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("new_follower_notification", true);
     }
 
     @Override
     public boolean isWallPublishNotifEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("wall_publish_notification", true);
     }
 
     @Override
     public boolean isGroupInvitedNotifEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("group_invited_notification", true);
     }
 
     @Override
     public boolean isReplyNotifEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("reply_notification", true);
     }
 
     @Override
     public boolean isNewPostOnOwnWallNotifEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("new_wall_post_notification", true);
     }
 
     @Override
     public boolean isNewPostsNotificationEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("new_posts_notification", true);
     }
 
     @Override
     public boolean isBirthdayNotifyEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("birtday_notification", true);
     }
 
     @Override
     public boolean isMentionNotifyEnabled() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("mention_notification", true);
     }
 
@@ -182,7 +182,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public boolean isLikeNotificationEnable() {
-        return isOtherNotificationsEnable() && PreferenceManager.getDefaultSharedPreferences(app)
+        return isOtherNotificationsEnable() && PreferenceScreen.getPreferences(app)
                 .getBoolean("likes_notification", true);
     }
 
@@ -205,13 +205,13 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public String getNotificationRingtone() {
-        return PreferenceManager.getDefaultSharedPreferences(app)
+        return PreferenceScreen.getPreferences(app)
                 .getString(KEY_NOTIFICATION_RINGTONE, getDefNotificationRingtone());
     }
 
     @Override
     public void setNotificationRingtoneUri(String path) {
-        PreferenceManager.getDefaultSharedPreferences(app)
+        PreferenceScreen.getPreferences(app)
                 .edit()
                 .putString(KEY_NOTIFICATION_RINGTONE, path)
                 .apply();
@@ -219,7 +219,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public long[] getVibrationLength() {
-        switch (PreferenceManager.getDefaultSharedPreferences(app)
+        switch (PreferenceScreen.getPreferences(app)
                 .getString(KEY_VIBRO_LENGTH, "4")) {
             case "0":
                 return new long[]{0, 300};
@@ -238,7 +238,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public boolean isQuickReplyImmediately() {
-        return PreferenceManager.getDefaultSharedPreferences(app).getBoolean("quick_reply_immediately", false);
+        return PreferenceScreen.getPreferences(app).getBoolean("quick_reply_immediately", false);
     }
 
     @Override
@@ -252,7 +252,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public void setDefault(int aid, int peerId) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         notification_peers.remove(keyFor(aid, peerId));
         types.remove(keyFor(aid, peerId));
         preferences.edit()
@@ -263,7 +263,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
 
     @Override
     public void resetAccount(int aid) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         for (String i : new HashSet<>(notification_peers)) {
             if (i.contains(keyForAccount(aid))) {
                 notification_peers.remove(i);
@@ -288,7 +288,7 @@ public class NotificationsPrefs implements ISettings.INotificationSettings {
     }
 
     private int getGlobalNotifPref(boolean isGroup) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences sharedPreferences = PreferenceScreen.getPreferences(app);
         int value = sharedPreferences.getBoolean("high_notif_priority", false) ? FLAG_HIGH_PRIORITY : 0;
 
         if (!isGroup) {

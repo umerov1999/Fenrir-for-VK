@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import androidx.annotation.ColorInt;
@@ -298,9 +299,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
    */
   @NonNull
   public Snackbar setText(@NonNull CharSequence message) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) view.getChildAt(0);
-    final TextView tv = contentLayout.getMessageView();
-    tv.setText(message);
+    getMessageView().setText(message);
     return this;
   }
 
@@ -334,8 +333,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
   @NonNull
   public Snackbar setAction(
       @Nullable CharSequence text, @Nullable final View.OnClickListener listener) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) this.view.getChildAt(0);
-    final TextView tv = contentLayout.getActionView();
+    final TextView tv = getActionView();
     if (TextUtils.isEmpty(text) || listener == null) {
       tv.setVisibility(View.GONE);
       tv.setOnClickListener(null);
@@ -378,8 +376,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
   }
 
   public Snackbar setOnClickListener(View.OnClickListener clickListener) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) view.getChildAt(0);
-    contentLayout.setOnClickListener(clickListener);
+    getContentLayout().setOnClickListener(clickListener);
     return this;
   }
 
@@ -389,9 +386,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
    */
   @NonNull
   public Snackbar setTextColor(ColorStateList colors) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) view.getChildAt(0);
-    final TextView tv = contentLayout.getMessageView();
-    tv.setTextColor(colors);
+    getMessageView().setTextColor(colors);
     return this;
   }
 
@@ -401,9 +396,17 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
    */
   @NonNull
   public Snackbar setTextColor(@ColorInt int color) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) view.getChildAt(0);
-    final TextView tv = contentLayout.getMessageView();
-    tv.setTextColor(color);
+    getMessageView().setTextColor(color);
+    return this;
+  }
+
+  /**
+   * Sets the max line count of the message specified in {@link #setText(CharSequence)} and {@link
+   * #setText(int)}.
+   */
+  @NonNull
+  public Snackbar setTextMaxLines(int maxLines) {
+    getMessageView().setMaxLines(maxLines);
     return this;
   }
 
@@ -413,9 +416,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
    */
   @NonNull
   public Snackbar setActionTextColor(ColorStateList colors) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) view.getChildAt(0);
-    final TextView tv = contentLayout.getActionView();
-    tv.setTextColor(colors);
+    getActionView().setTextColor(colors);
     return this;
   }
 
@@ -425,8 +426,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
    */
   @NonNull
   public Snackbar setMaxInlineActionWidth(@Dimension int width) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) view.getChildAt(0);
-    contentLayout.setMaxInlineActionWidth(width);
+    getContentLayout().setMaxInlineActionWidth(width);
     return this;
   }
 
@@ -436,9 +436,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
    */
   @NonNull
   public Snackbar setActionTextColor(@ColorInt int color) {
-    final SnackbarContentLayout contentLayout = (SnackbarContentLayout) view.getChildAt(0);
-    final TextView tv = contentLayout.getActionView();
-    tv.setTextColor(color);
+    getActionView().setTextColor(color);
     return this;
   }
 
@@ -521,5 +519,17 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
         }
       }
     }
+  }
+
+  private TextView getMessageView() {
+    return getContentLayout().getMessageView();
+  }
+
+  private Button getActionView() {
+    return getContentLayout().getActionView();
+  }
+
+  private SnackbarContentLayout getContentLayout() {
+    return (SnackbarContentLayout) view.getChildAt(0);
   }
 }

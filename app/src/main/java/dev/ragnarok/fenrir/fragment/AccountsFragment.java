@@ -82,7 +82,6 @@ import dev.ragnarok.fenrir.model.User;
 import dev.ragnarok.fenrir.place.PlaceFactory;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.settings.backup.SettingsBackup;
-import dev.ragnarok.fenrir.settings.theme.ThemesController;
 import dev.ragnarok.fenrir.util.AppPerms;
 import dev.ragnarok.fenrir.util.CustomToast;
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback;
@@ -96,12 +95,31 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 public class AccountsFragment extends BaseFragment implements View.OnClickListener, AccountAdapter.Callback {
 
     private static final String SAVE_DATA = "save_data";
+    private static final String REQUEST_EXPORT_ACCOUNT = "export_account";
+    private static final String REQUEST_IMPORT_ACCOUNT = "import_account";
     private final CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private final ActivityResultLauncher<Intent> requestPin = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    startExportAccounts();
+                }
+            });
+    private final AppPerms.doRequestPermissions requestWritePermission = AppPerms.requestPermissions(this,
+            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+            () -> {
+                if (Settings.get().security().isUsePinForSecurity()) {
+                    requestPin.launch(new Intent(requireActivity(), EnterPinActivity.class));
+                } else {
+                    startExportAccounts();
+                }
+            });
+    private final AppPerms.doRequestPermissions requestReadPermission = AppPerms.requestPermissions(this,
+            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+            this::startImportAccounts);
     private TextView empty;
     private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private AccountAdapter mAdapter;
-
     private int temp_to_show;
     private final ActivityResultLauncher<Intent> requestEnterPin = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -144,24 +162,6 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
                     processNewAccount(uid, token, Constants.DEFAULT_ACCOUNT_TYPE, Login, Password, TwoFA, true, isSave);
                 }
             });
-    private final ActivityResultLauncher<Intent> requestPin = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    startExportAccounts();
-                }
-            });
-    private final AppPerms.doRequestPermissions requestWritePermission = AppPerms.requestPermissions(this,
-            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-            () -> {
-                if (Settings.get().security().isUsePinForSecurity()) {
-                    requestPin.launch(new Intent(requireActivity(), EnterPinActivity.class));
-                } else {
-                    startExportAccounts();
-                }
-            });
-    private final AppPerms.doRequestPermissions requestReadPermission = AppPerms.requestPermissions(this,
-            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-            this::startImportAccounts);
     private IAccountsInteractor accountsInteractor;
 
     @Override
@@ -224,6 +224,69 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
         }
 
         resolveEmptyText();
+
+        getParentFragmentManager().setFragmentResultListener(REQUEST_EXPORT_ACCOUNT, this, (requestKey, result) -> {
+            File file = new File(result.getStringArray(FilePickerDialog.RESULT_VALUE)[0], "fenrir_accounts_backup.json");
+            appendDisposable(mOwnersInteractor.findBaseOwnersDataAsBundle(Settings.get().accounts().getCurrent(), Settings.get().accounts().getRegistered(), IOwnersRepository.MODE_ANY)
+                    .compose(RxUtils.applySingleIOToMainSchedulers())
+                    .subscribe(userInfo -> SaveAccounts(file, userInfo), throwable -> SaveAccounts(file, null)));
+        });
+
+        getParentFragmentManager().setFragmentResultListener(REQUEST_IMPORT_ACCOUNT, this, (requestKey, result) -> {
+            try {
+                StringBuilder jbld = new StringBuilder();
+                File file = new File(result.getStringArray(FilePickerDialog.RESULT_VALUE)[0]);
+                if (file.exists()) {
+                    FileInputStream dataFromServerStream = new FileInputStream(file);
+                    BufferedReader d = new BufferedReader(new InputStreamReader(dataFromServerStream, StandardCharsets.UTF_8));
+                    while (d.ready())
+                        jbld.append(d.readLine());
+                    d.close();
+                    JsonObject obj = JsonParser.parseString(jbld.toString()).getAsJsonObject();
+                    JsonArray reader = obj.getAsJsonArray("fenrir_accounts");
+                    for (JsonElement i : reader) {
+                        JsonObject elem = i.getAsJsonObject();
+                        int id = elem.get("user_id").getAsInt();
+                        if (Settings.get().accounts().getRegistered().contains(id))
+                            continue;
+                        String token = elem.get("access_token").getAsString();
+                        int Type = elem.get("type").getAsInt();
+                        processNewAccount(id, token, Type, null, null, "fenrir_app", false, false);
+                        if (elem.has("login")) {
+                            Settings.get().accounts().storeLogin(id, elem.get("login").getAsString());
+                        }
+                        if (elem.has("device")) {
+                            Settings.get().accounts().storeDevice(id, elem.get("device").getAsString());
+                        }
+                    }
+                    if (obj.has("settings")) {
+                        new SettingsBackup().doRestore(obj.getAsJsonObject("settings"));
+                        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG).showToastSuccessBottom((R.string.need_restart));
+                    }
+                }
+                CustomToast.CreateCustomToast(requireActivity()).showToast(R.string.accounts_restored, file.getAbsolutePath());
+            } catch (Exception e) {
+                CustomToast.CreateCustomToast(requireActivity()).showToastError(e.getLocalizedMessage());
+            }
+        });
+        getParentFragmentManager().setFragmentResultListener(DirectAuthDialog.ACTION_LOGIN_VIA_WEB, this, (requestKey, result) -> startLoginViaWeb());
+        getParentFragmentManager().setFragmentResultListener(DirectAuthDialog.ACTION_VALIDATE_VIA_WEB, this, (requestKey, result) -> {
+            String url = result.getString(Extra.URL);
+            String Login = result.getString(Extra.LOGIN);
+            String Password = result.getString(Extra.PASSWORD);
+            String TwoFA = result.getString(Extra.TWO_FA);
+            boolean isSave = result.getBoolean(Extra.SAVE);
+            startValidateViaWeb(url, Login, Password, TwoFA, isSave);
+        });
+        getParentFragmentManager().setFragmentResultListener(DirectAuthDialog.ACTION_LOGIN_COMPLETE, this, (requestKey, result) -> {
+            int uid = result.getInt(Extra.USER_ID);
+            String token = result.getString(Extra.TOKEN);
+            String Login = result.getString(Extra.LOGIN);
+            String Password = result.getString(Extra.PASSWORD);
+            String TwoFA = result.getString(Extra.TWO_FA);
+            boolean isSave = result.getBoolean(Extra.SAVE);
+            processNewAccount(uid, token, Constants.DEFAULT_ACCOUNT_TYPE, Login, Password, TwoFA, true, isSave);
+        });
     }
 
     private void resolveEmptyText() {
@@ -281,21 +344,14 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
         DialogProperties properties = new DialogProperties();
         properties.selection_mode = DialogConfigs.SINGLE_MODE;
         properties.selection_type = DialogConfigs.DIR_SELECT;
-        properties.root = Environment.getExternalStorageDirectory();
-        properties.error_dir = Environment.getExternalStorageDirectory();
-        properties.offset = Environment.getExternalStorageDirectory();
+        properties.root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        properties.error_dir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        properties.offset = Environment.getExternalStorageDirectory().getAbsolutePath();
         properties.extensions = null;
         properties.show_hidden_files = true;
-        FilePickerDialog dialog = new FilePickerDialog(requireActivity(), properties, ThemesController.INSTANCE.currentStyle());
-        dialog.setTitle(R.string.export_accounts);
-        dialog.setDialogSelectionListener(files -> {
-            File file = new File(files[0], "fenrir_accounts_backup.json");
-
-            appendDisposable(mOwnersInteractor.findBaseOwnersDataAsBundle(Settings.get().accounts().getCurrent(), Settings.get().accounts().getRegistered(), IOwnersRepository.MODE_ANY)
-                    .compose(RxUtils.applySingleIOToMainSchedulers())
-                    .subscribe(userInfo -> SaveAccounts(file, userInfo), throwable -> SaveAccounts(file, null)));
-        });
-        dialog.show();
+        properties.tittle = R.string.export_accounts;
+        properties.request = REQUEST_EXPORT_ACCOUNT;
+        FilePickerDialog.newInstance(properties).show(getParentFragmentManager(), "ExportAccount");
     }
 
     private int indexOf(int uid) {
@@ -368,24 +424,6 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
 
     private void startDirectLogin() {
         DirectAuthDialog auth = DirectAuthDialog.newInstance();
-        getParentFragmentManager().setFragmentResultListener(DirectAuthDialog.ACTION_LOGIN_VIA_WEB, auth, (requestKey, result) -> startLoginViaWeb());
-        getParentFragmentManager().setFragmentResultListener(DirectAuthDialog.ACTION_VALIDATE_VIA_WEB, auth, (requestKey, result) -> {
-            String url = result.getString(Extra.URL);
-            String Login = result.getString(Extra.LOGIN);
-            String Password = result.getString(Extra.PASSWORD);
-            String TwoFA = result.getString(Extra.TWO_FA);
-            boolean isSave = result.getBoolean(Extra.SAVE);
-            startValidateViaWeb(url, Login, Password, TwoFA, isSave);
-        });
-        getParentFragmentManager().setFragmentResultListener(DirectAuthDialog.ACTION_LOGIN_COMPLETE, auth, (requestKey, result) -> {
-            int uid = result.getInt(Extra.USER_ID);
-            String token = result.getString(Extra.TOKEN);
-            String Login = result.getString(Extra.LOGIN);
-            String Password = result.getString(Extra.PASSWORD);
-            String TwoFA = result.getString(Extra.TWO_FA);
-            boolean isSave = result.getBoolean(Extra.SAVE);
-            processNewAccount(uid, token, Constants.DEFAULT_ACCOUNT_TYPE, Login, Password, TwoFA, true, isSave);
-        });
         auth.show(getParentFragmentManager(), "direct-login");
     }
 
@@ -538,51 +576,14 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
         DialogProperties properties = new DialogProperties();
         properties.selection_mode = DialogConfigs.SINGLE_MODE;
         properties.selection_type = DialogConfigs.FILE_SELECT;
-        properties.root = Environment.getExternalStorageDirectory();
-        properties.error_dir = Environment.getExternalStorageDirectory();
-        properties.offset = Environment.getExternalStorageDirectory();
+        properties.root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        properties.error_dir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        properties.offset = Environment.getExternalStorageDirectory().getAbsolutePath();
         properties.extensions = new String[]{"json"};
         properties.show_hidden_files = true;
-        FilePickerDialog dialog = new FilePickerDialog(requireActivity(), properties, ThemesController.INSTANCE.currentStyle());
-        dialog.setTitle(R.string.import_accounts);
-        dialog.setDialogSelectionListener(files -> {
-            try {
-                StringBuilder jbld = new StringBuilder();
-                File file = new File(files[0]);
-                if (file.exists()) {
-                    FileInputStream dataFromServerStream = new FileInputStream(file);
-                    BufferedReader d = new BufferedReader(new InputStreamReader(dataFromServerStream, StandardCharsets.UTF_8));
-                    while (d.ready())
-                        jbld.append(d.readLine());
-                    d.close();
-                    JsonObject obj = JsonParser.parseString(jbld.toString()).getAsJsonObject();
-                    JsonArray reader = obj.getAsJsonArray("fenrir_accounts");
-                    for (JsonElement i : reader) {
-                        JsonObject elem = i.getAsJsonObject();
-                        int id = elem.get("user_id").getAsInt();
-                        if (Settings.get().accounts().getRegistered().contains(id))
-                            continue;
-                        String token = elem.get("access_token").getAsString();
-                        int Type = elem.get("type").getAsInt();
-                        processNewAccount(id, token, Type, null, null, "fenrir_app", false, false);
-                        if (elem.has("login")) {
-                            Settings.get().accounts().storeLogin(id, elem.get("login").getAsString());
-                        }
-                        if (elem.has("device")) {
-                            Settings.get().accounts().storeDevice(id, elem.get("device").getAsString());
-                        }
-                    }
-                    if (obj.has("settings")) {
-                        new SettingsBackup().doRestore(obj.getAsJsonObject("settings"));
-                        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG).showToastSuccessBottom((R.string.need_restart));
-                    }
-                }
-                CustomToast.CreateCustomToast(requireActivity()).showToast(R.string.accounts_restored, file.getAbsolutePath());
-            } catch (Exception e) {
-                CustomToast.CreateCustomToast(requireActivity()).showToastError(e.getLocalizedMessage());
-            }
-        });
-        dialog.show();
+        properties.tittle = R.string.import_accounts;
+        properties.request = REQUEST_IMPORT_ACCOUNT;
+        FilePickerDialog.newInstance(properties).show(getParentFragmentManager(), "ImportAccount");
     }
 
     @Override

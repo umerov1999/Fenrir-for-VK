@@ -4,12 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -47,9 +47,9 @@ public class CommunityOptionsFragment extends BaseMvpFragment<CommunityOptionsPr
     private TextView mMonth;
     private TextView mYear;
     private View mFeedbackCommentsRoot;
-    private CheckBox mFeedbackComments;
-    private CheckBox mObsceneFilter;
-    private CheckBox mObsceneStopWords;
+    private MaterialCheckBox mFeedbackComments;
+    private MaterialCheckBox mObsceneFilter;
+    private MaterialCheckBox mObsceneStopWords;
     private TextInputEditText mObsceneStopWordsEditText;
 
     public static CommunityOptionsFragment newInstance(int accountId, Community community, GroupSettings settings) {

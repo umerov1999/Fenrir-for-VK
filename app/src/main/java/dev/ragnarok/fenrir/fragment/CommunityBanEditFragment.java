@@ -10,7 +10,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -58,7 +58,7 @@ public class CommunityBanEditFragment extends BaseMvpFragment<CommunityBanEditPr
     private MySpinnerView mBlockFor;
     private MySpinnerView mReason;
     private TextInputEditText mComment;
-    private CheckBox mShowComment;
+    private MaterialCheckBox mShowComment;
 
     public static CommunityBanEditFragment newInstance(int accountId, int groupId, Banned banned) {
         return newInstance(accountId, groupId, banned, null);

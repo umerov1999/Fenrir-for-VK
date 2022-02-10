@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.preference.PreferenceManager;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy;
 import dev.ragnarok.fenrir.util.AeSimpleSHA1;
 import dev.ragnarok.fenrir.util.Objects;
@@ -93,12 +93,12 @@ public class SecuritySettings implements ISettings.ISecuritySettings {
     @Override
     public void reloadHiddenDialogSettings() {
         hiddenPeers.clear();
-        hiddenPeers.addAll(PreferenceManager.getDefaultSharedPreferences(mApplication).getStringSet(KEY_HIDDEN_PEERS, new HashSet<>(1)));
+        hiddenPeers.addAll(PreferenceScreen.getPreferences(mApplication).getStringSet(KEY_HIDDEN_PEERS, new HashSet<>(1)));
     }
 
     @Override
     public boolean IsShow_hidden_accounts() {
-        return PreferenceManager.getDefaultSharedPreferences(mApplication)
+        return PreferenceScreen.getPreferences(mApplication)
                 .getBoolean("show_hidden_accounts", true);
     }
 
@@ -185,33 +185,33 @@ public class SecuritySettings implements ISettings.ISecuritySettings {
 
     @Override
     public boolean needHideMessagesBodyForNotif() {
-        return PreferenceManager.getDefaultSharedPreferences(mApplication)
+        return PreferenceScreen.getPreferences(mApplication)
                 .getBoolean("hide_notif_message_body", false);
     }
 
     @Override
     public boolean isUsePinForSecurity() {
-        return hasPinHash() && PreferenceManager.getDefaultSharedPreferences(mApplication)
+        return hasPinHash() && PreferenceScreen.getPreferences(mApplication)
                 .getBoolean(KEY_USE_PIN_FOR_SECURITY, false);
     }
 
     @Override
     public boolean isEntranceByFingerprintAllowed() {
-        return PreferenceManager.getDefaultSharedPreferences(mApplication).getBoolean("allow_fingerprint", false);
+        return PreferenceScreen.getPreferences(mApplication).getBoolean("allow_fingerprint", false);
     }
 
     @Override
     public boolean isUsePinForEntrance() {
-        return hasPinHash() && PreferenceManager.getDefaultSharedPreferences(mApplication)
+        return hasPinHash() && PreferenceScreen.getPreferences(mApplication)
                 .getBoolean(KEY_USE_PIN_FOR_ENTRANCE, false);
     }
 
     @Override
     public boolean isDelayedAllow() {
-        if (!PreferenceManager.getDefaultSharedPreferences(mApplication).getBoolean(DELAYED_PIN_FOR_ENTRANCE, false)) {
+        if (!PreferenceScreen.getPreferences(mApplication).getBoolean(DELAYED_PIN_FOR_ENTRANCE, false)) {
             return false;
         }
-        long last = PreferenceManager.getDefaultSharedPreferences(mApplication).getLong(LAST_PIN_ENTERED, -1);
+        long last = PreferenceScreen.getPreferences(mApplication).getLong(LAST_PIN_ENTERED, -1);
         if (last <= 0) {
             return false;
         }
@@ -221,7 +221,7 @@ public class SecuritySettings implements ISettings.ISecuritySettings {
 
     @Override
     public void updateLastPinTime() {
-        PreferenceManager.getDefaultSharedPreferences(mApplication).edit().putLong(LAST_PIN_ENTERED, System.currentTimeMillis()).apply();
+        PreferenceScreen.getPreferences(mApplication).edit().putLong(LAST_PIN_ENTERED, System.currentTimeMillis()).apply();
     }
 
     @Override
@@ -261,7 +261,7 @@ public class SecuritySettings implements ISettings.ISecuritySettings {
     public void addHiddenDialog(int peerId) {
         hiddenPeers.add(String.valueOf(peerId));
 
-        PreferenceManager.getDefaultSharedPreferences(mApplication).edit()
+        PreferenceScreen.getPreferences(mApplication).edit()
                 .putStringSet(KEY_HIDDEN_PEERS, hiddenPeers)
                 .apply();
     }
@@ -269,7 +269,7 @@ public class SecuritySettings implements ISettings.ISecuritySettings {
     @Override
     public void removeHiddenDialog(int peerId) {
         hiddenPeers.remove(String.valueOf(peerId));
-        PreferenceManager.getDefaultSharedPreferences(mApplication).edit()
+        PreferenceScreen.getPreferences(mApplication).edit()
                 .putStringSet(KEY_HIDDEN_PEERS, hiddenPeers)
                 .apply();
     }

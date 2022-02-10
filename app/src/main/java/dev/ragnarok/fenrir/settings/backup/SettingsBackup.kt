@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.settings.backup
 
 import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import de.maxr1998.modernpreferences.PreferenceScreen
 import dev.ragnarok.fenrir.Injection
 import dev.ragnarok.fenrir.fragment.PreferencesFragment
 import dev.ragnarok.fenrir.settings.Settings
@@ -64,6 +64,7 @@ class SettingsBackup {
         SettingCollector("autoplay_gif", SettingTypes.TYPE_BOOL),
         SettingCollector("strip_news_repost", SettingTypes.TYPE_BOOL),
         SettingCollector("ad_block_story_news", SettingTypes.TYPE_BOOL),
+        SettingCollector("block_news_by_words_set", SettingTypes.TYPE_STRING_SET),
         SettingCollector("new_loading_dialog", SettingTypes.TYPE_BOOL),
         SettingCollector("vk_api_domain", SettingTypes.TYPE_STRING),
         SettingCollector("vk_auth_domain", SettingTypes.TYPE_STRING),
@@ -99,6 +100,7 @@ class SettingsBackup {
         SettingCollector("sticker_dir", SettingTypes.TYPE_STRING),
         SettingCollector("sticker_dir", SettingTypes.TYPE_STRING),
         SettingCollector("photo_to_user_dir", SettingTypes.TYPE_BOOL),
+        SettingCollector("download_voice_ogg", SettingTypes.TYPE_BOOL),
         SettingCollector("delete_cache_images", SettingTypes.TYPE_BOOL),
         SettingCollector("compress_traffic", SettingTypes.TYPE_BOOL),
         SettingCollector("do_not_clear_back_stack", SettingTypes.TYPE_BOOL),
@@ -147,7 +149,7 @@ class SettingsBackup {
     fun doBackup(): JsonObject? {
         var has = false
         val pref =
-            PreferenceManager.getDefaultSharedPreferences(Injection.provideApplicationContext())
+            PreferenceScreen.getPreferences(Injection.provideApplicationContext())
         val ret = JsonObject()
         for (i in settings) {
             val temp = i.requestSetting(pref)
@@ -175,7 +177,7 @@ class SettingsBackup {
 
     fun doRestore(ret: JsonObject?) {
         val pref =
-            PreferenceManager.getDefaultSharedPreferences(Injection.provideApplicationContext())
+            PreferenceScreen.getPreferences(Injection.provideApplicationContext())
 
         for (i in Settings.get().notifications().chatsNotifKeys) {
             pref.edit().remove(i).apply()

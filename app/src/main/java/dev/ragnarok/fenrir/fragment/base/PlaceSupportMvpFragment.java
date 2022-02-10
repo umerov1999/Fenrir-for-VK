@@ -1,6 +1,8 @@
 package dev.ragnarok.fenrir.fragment.base;
 
 import android.Manifest;
+import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +57,34 @@ public abstract class PlaceSupportMvpFragment<P extends PlaceSupportPresenter<V>
     private final AppPerms.doRequestPermissions requestWritePermission = AppPerms.requestPermissions(this,
             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
             () -> CustomToast.CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text));
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getParentFragmentManager().setFragmentResultListener(PostShareDialog.REQUEST_POST_SHARE, this, (requestKey, result) -> {
+            int method = PostShareDialog.extractMethod(result);
+            int accountId1 = PostShareDialog.extractAccountId(result);
+            Post post1 = PostShareDialog.extractPost(result);
+
+            AssertUtils.requireNonNull(post1);
+
+            switch (method) {
+                case PostShareDialog.Methods.SHARE_LINK:
+                    Utils.shareLink(requireActivity(), post1.generateVkPostLink(), post1.getText());
+                    break;
+                case PostShareDialog.Methods.REPOST_YOURSELF:
+                    PlaceFactory.getRepostPlace(accountId1, null, post1).tryOpenWith(requireActivity());
+                    break;
+                case PostShareDialog.Methods.SEND_MESSAGE:
+                    SendAttachmentsActivity.startForSendAttachments(requireActivity(), accountId1, post1);
+                    break;
+                case PostShareDialog.Methods.REPOST_GROUP:
+                    int ownerId = PostShareDialog.extractOwnerId(result);
+                    PlaceFactory.getRepostPlace(accountId1, Math.abs(ownerId), post1).tryOpenWith(requireActivity());
+                    break;
+            }
+        });
+    }
 
     @Override
     public void onOwnerClick(int ownerId) {
@@ -308,29 +338,6 @@ public abstract class PlaceSupportMvpFragment<P extends PlaceSupportPresenter<V>
     @Override
     public void repostPost(int accountId, @NonNull Post post) {
         PostShareDialog dialog = PostShareDialog.newInstance(accountId, post);
-        getParentFragmentManager().setFragmentResultListener(PostShareDialog.REQUEST_POST_SHARE, dialog, (requestKey, result) -> {
-            int method = PostShareDialog.extractMethod(result);
-            int accountId1 = PostShareDialog.extractAccountId(result);
-            Post post1 = PostShareDialog.extractPost(result);
-
-            AssertUtils.requireNonNull(post1);
-
-            switch (method) {
-                case PostShareDialog.Methods.SHARE_LINK:
-                    Utils.shareLink(requireActivity(), post1.generateVkPostLink(), post1.getText());
-                    break;
-                case PostShareDialog.Methods.REPOST_YOURSELF:
-                    PlaceFactory.getRepostPlace(accountId1, null, post1).tryOpenWith(requireActivity());
-                    break;
-                case PostShareDialog.Methods.SEND_MESSAGE:
-                    SendAttachmentsActivity.startForSendAttachments(requireActivity(), accountId1, post1);
-                    break;
-                case PostShareDialog.Methods.REPOST_GROUP:
-                    int ownerId = PostShareDialog.extractOwnerId(result);
-                    PlaceFactory.getRepostPlace(accountId1, Math.abs(ownerId), post1).tryOpenWith(requireActivity());
-                    break;
-            }
-        });
         dialog.show(getParentFragmentManager(), "post-sharing");
     }
 

@@ -4,8 +4,6 @@ android {
     compileSdkVersion fenrirCompileSDK
     buildToolsVersion fenrirBuildTools
 
-    resourcePrefix "image_"
-
     defaultConfig {
         minSdkVersion fenrirMinSDK
         //noinspection ExpiredTargetSdkVersion,OldTargetApi
@@ -29,4 +27,7 @@ dependencies {
     implementation "androidx.fragment:fragment:$fragmentVersion"
     implementation project(path: ':material')
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayoutVersion"
+    implementation "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
+    implementation "io.reactivex.rxjava3:rxandroid:$rxAndroidVersion"
+    implementation "androidx.exifinterface:exifinterface:$exifinterfaceVersion"
 }

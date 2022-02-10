@@ -213,7 +213,7 @@
     <style name="App.DayNight.ColdGreen" parent="App.DayNight">
         <item name="colorPrimary">#9BC4FC</item>
         <item name="colorControlNormal">#9BC4FC</item>
-        <item name="colorSecondary">#B8FDB9</item>
+        <item name="colorSecondary">#A2E3A3</item>
         <item name="icon_color_active">#AA448AFF</item>
         <item name="icon_color_inactive">#AAFF0000</item>
         <item name="colorOnPrimary">#0D1B2D</item>
@@ -228,7 +228,7 @@
     <style name="App.DayNight.ColdGold" parent="App.DayNight">
         <item name="colorPrimary">#9BA0FC</item>
         <item name="colorControlNormal">#9BA0FC</item>
-        <item name="colorSecondary">#FDDCB8</item>
+        <item name="colorSecondary">#CAAF92</item>
         <item name="icon_color_active">#AA448AFF</item>
         <item name="icon_color_inactive">#AAFF0000</item>
         <item name="colorOnPrimary">#0D1B2D</item>

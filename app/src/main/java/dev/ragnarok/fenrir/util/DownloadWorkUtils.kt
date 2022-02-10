@@ -277,12 +277,23 @@ object DownloadWorkUtils {
 
     @JvmStatic
     fun doDownloadVoice(context: Context, doc: VoiceMessage) {
-        if (Utils.isEmpty(doc.linkMp3))
+        if (Utils.isEmpty(doc.linkMp3) && Utils.isEmpty(doc.linkOgg))
             return
+        val extDownload: String
+        val urlDownload: String
+        if (!Utils.isEmpty(doc.linkOgg) && (Utils.isEmpty(doc.linkMp3) || Settings.get()
+                .other().isDownload_voice_ogg)
+        ) {
+            extDownload = "ogg"
+            urlDownload = doc.linkOgg
+        } else {
+            extDownload = "mp3"
+            urlDownload = doc.linkMp3
+        }
         val result_filename = DownloadInfo(
             makeLegalFilename("Голосовуха " + doc.ownerId + "_" + doc.id, null),
             Settings.get().other().docDir,
-            "mp3"
+            extDownload
         )
         CheckDirectory(result_filename.path)
         if (default_file_exist(context, result_filename)) {
@@ -290,9 +301,9 @@ object DownloadWorkUtils {
         }
         try {
             if (!Settings.get().other().isUse_internal_downloader) {
-                toExternalDownloader(context, doc.linkMp3, result_filename)
+                toExternalDownloader(context, urlDownload, result_filename)
             } else {
-                toDefaultInternalDownloader(context, doc.linkMp3, result_filename)
+                toDefaultInternalDownloader(context, urlDownload, result_filename)
             }
         } catch (e: Exception) {
             CustomToast.CreateCustomToast(context).showToastError("Voice Error: " + e.message)

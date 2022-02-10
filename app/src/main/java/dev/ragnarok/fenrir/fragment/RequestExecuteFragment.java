@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import dev.ragnarok.fenrir.Extra;
@@ -49,7 +48,7 @@ public class RequestExecuteFragment extends BaseMvpFragment<RequestExecutePresen
 
         mResposeBody = root.findViewById(R.id.response_body);
 
-        MaterialAutoCompleteTextView methodEditText = root.findViewById(R.id.method);
+        TextInputEditText methodEditText = root.findViewById(R.id.method);
         methodEditText.addTextChangedListener(new TextWatcherAdapter() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {

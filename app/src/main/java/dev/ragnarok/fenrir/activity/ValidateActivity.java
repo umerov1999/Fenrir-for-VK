@@ -30,6 +30,7 @@ import dev.ragnarok.fenrir.settings.CurrentTheme;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.settings.theme.ThemesController;
 import dev.ragnarok.fenrir.util.Logger;
+import dev.ragnarok.fenrir.util.Utils;
 
 public class ValidateActivity extends AppCompatActivity {
 
@@ -37,7 +38,7 @@ public class ValidateActivity extends AppCompatActivity {
     private static final String EXTRA_VALIDATE = "validate";
 
     public static Intent createIntent(Context context, String validate_url) {
-        return new Intent(context, LoginActivity.class)
+        return new Intent(context, ValidateActivity.class)
                 .putExtra(EXTRA_VALIDATE, validate_url);
     }
 
@@ -108,7 +109,9 @@ public class ValidateActivity extends AppCompatActivity {
                     try {
                         String accessToken = tryExtractAccessToken(url);
                         String userId = tryExtractUserId(url);
-                        Settings.get().accounts().storeAccessToken(Integer.parseInt(userId), accessToken);
+                        if (!Utils.isEmpty(accessToken) || !Utils.isEmpty(userId)) {
+                            Settings.get().accounts().storeAccessToken(Integer.parseInt(userId), accessToken);
+                        }
                     } catch (Exception ignored) {
                     }
 

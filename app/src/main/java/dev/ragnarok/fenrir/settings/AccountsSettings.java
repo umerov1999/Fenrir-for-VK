@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.Injection;
@@ -46,7 +46,7 @@ class AccountsSettings implements ISettings.IAccountsSettings {
     @SuppressLint("UseSparseArrays")
     AccountsSettings(Context context) {
         app = context.getApplicationContext();
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences = PreferenceScreen.getPreferences(context);
 
         tokens = Collections.synchronizedMap(new HashMap<>(1));
         types = Collections.synchronizedMap(new HashMap<>(1));
@@ -130,7 +130,7 @@ class AccountsSettings implements ISettings.IAccountsSettings {
     public void setCurrent(int accountId) {
         if (getCurrent() == accountId) return;
 
-        PreferenceManager.getDefaultSharedPreferences(app)
+        PreferenceScreen.getPreferences(app)
                 .edit()
                 .putInt(KEY_CURRENT, accountId)
                 .apply();
@@ -141,7 +141,7 @@ class AccountsSettings implements ISettings.IAccountsSettings {
     public void remove(int accountId) {
         int currentAccountId = getCurrent();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
 
         accounts.remove(String.valueOf(accountId));
         preferences.edit()
@@ -178,7 +178,7 @@ class AccountsSettings implements ISettings.IAccountsSettings {
 
     @Override
     public void registerAccountId(int accountId, boolean setCurrent) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences preferences = PreferenceScreen.getPreferences(app);
         accounts.add(String.valueOf(accountId));
 
         SharedPreferences.Editor editor = preferences.edit();

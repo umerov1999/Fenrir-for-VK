@@ -162,7 +162,7 @@
                 android:padding="8dp"
                 android:textSize="14sp" />
 
-            <CheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/community_ban_show_comment_to_user"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

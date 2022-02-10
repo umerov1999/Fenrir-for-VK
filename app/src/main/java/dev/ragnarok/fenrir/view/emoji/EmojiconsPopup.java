@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.domain.InteractorFactory;
@@ -139,7 +139,7 @@ public class EmojiconsPopup {
 
     public void storeState() {
         if (Objects.nonNull(emojisPager)) {
-            PreferenceManager.getDefaultSharedPreferences(mContext)
+            PreferenceScreen.getPreferences(mContext)
                     .edit()
                     .putInt(KEY_PAGE, emojisPager.getCurrentItem())
                     .apply();
@@ -251,7 +251,7 @@ public class EmojiconsPopup {
         EmojisPagerAdapter mEmojisAdapter = new EmojisPagerAdapter(views, stickersGridViews, this);
         emojisPager.setAdapter(mEmojisAdapter);
 
-        int storedPage = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(KEY_PAGE, 0);
+        int storedPage = PreferenceScreen.getPreferences(mContext).getInt(KEY_PAGE, 0);
         if (mEmojisAdapter.getItemCount() > storedPage) {
             emojisPager.setCurrentItem(storedPage);
         }
