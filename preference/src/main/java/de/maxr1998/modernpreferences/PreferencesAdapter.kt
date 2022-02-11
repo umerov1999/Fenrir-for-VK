@@ -36,8 +36,10 @@ import androidx.core.content.res.use
 import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 import de.maxr1998.modernpreferences.helpers.categoryHeader
+import de.maxr1998.modernpreferences.helpers.onLongClick
 import de.maxr1998.modernpreferences.preferences.*
 import kotlinx.parcelize.Parcelize
 import java.util.*
@@ -131,26 +133,46 @@ class PreferencesAdapter @VisibleForTesting constructor(
         context: Context,
         preference: Preference,
         query: String,
-        found: PreferenceScreen.Builder
+        found: PreferenceScreen.Builder, view: View?
     ) {
         if (preference is CategoryHeader) {
             return
         } else if (preference is PreferenceScreen) {
             for (i in preference.getPreferenceList()) {
-                findPrefByName(context, i, query, found)
+                findPrefByName(context, i, query, found, view)
             }
         } else if (preference is CollapsePreference) {
             for (i in preference.getPreferencesList()) {
-                findPrefByName(context, i, query, found)
+                findPrefByName(context, i, query, found, view)
             }
         } else {
             if (prefNameHas(context, query, preference)) {
-                found.addPreferenceItem(preference.makeCopyForFind())
+                if (view == null || preference.longClickListener != null) {
+                    found.addPreferenceItem(preference.makeCopyForFind())
+                } else {
+                    val ref = preference.makeCopyForFind()
+                    val title = preference.parent?.title
+                    val titleRes = preference.parent?.titleRes ?: DEFAULT_RES_ID
+                    if (title != null && title.isNotEmpty()) {
+                        ref.onLongClick {
+                            Snackbar.make(view, title, Snackbar.LENGTH_LONG)
+                                .show()
+                            true
+                        }
+                    } else if (titleRes != DEFAULT_RES_ID) {
+                        ref.onLongClick {
+                            Snackbar.make(view, titleRes, Snackbar.LENGTH_LONG)
+                                .show()
+                            true
+                        }
+                    }
+                    found.addPreferenceItem(ref)
+                }
             }
         }
     }
 
-    fun findPreferences(context: Context, query: String) {
+    fun findPreferences(context: Context, query: String, view: View?) {
         val data = currentScreen
         val builder = PreferenceScreen.Builder(context, "found_result")
         builder.searchQuery = query
@@ -158,7 +180,7 @@ class PreferencesAdapter @VisibleForTesting constructor(
         builder.categoryHeader("found_result_header") {
             title = context.getString(R.string.pref_found, query)
         }
-        findPrefByName(context, data, query, builder)
+        findPrefByName(context, data, query, builder, view)
         var iconHas = false
         for (s in builder.getPreferences()) {
             if (s.iconRes != DEFAULT_RES_ID || s.icon != null) {
@@ -478,7 +500,12 @@ class PreferencesAdapter @VisibleForTesting constructor(
      * @return whether the state could be loaded
      */
     @MainThread
-    fun loadSavedState(context: Context, state: SavedState, root: PreferenceScreen): Boolean {
+    fun loadSavedState(
+        context: Context,
+        state: SavedState,
+        root: PreferenceScreen,
+        view: View?
+    ): Boolean {
         currentScreen.adapter = null
         while (screenStack.peek() != emptyScreen) {
             screenStack.pop()
@@ -492,13 +519,13 @@ class PreferencesAdapter @VisibleForTesting constructor(
                 val builder = PreferenceScreen.Builder(context, "found_result")
                 builder.searchQuery = i.searchQuery
                 builder.titleRes = R.string.pref_find
-                builder.categoryHeader("found_result") {
+                builder.categoryHeader("found_result_header") {
                     title = context.getString(R.string.pref_found, i.searchQuery)
                 }
-                findPrefByName(context, currentScreen, i.searchQuery, builder)
+                findPrefByName(context, currentScreen, i.searchQuery, builder, view)
                 var iconHas = false
                 for (s in builder.getPreferences()) {
-                    if (s.key != "found_result_header" && (s.iconRes != DEFAULT_RES_ID || s.icon != null)) {
+                    if (s.iconRes != DEFAULT_RES_ID || s.icon != null) {
                         iconHas = true
                         break
                     }

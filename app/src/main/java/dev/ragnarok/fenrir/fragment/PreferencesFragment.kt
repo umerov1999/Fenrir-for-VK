@@ -157,13 +157,22 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
         if (isNull) {
             preferencesAdapter?.onScreenChangeListener = this
-            loadInstanceState({ createRootScreen() }, savedInstanceState)
+            loadInstanceState({ createRootScreen() }, savedInstanceState, root)
         }
 
+        searchView.setOnBackButtonClickListener {
+            if (!Utils.isEmpty(searchView.text) && !Utils.isEmpty(searchView.text?.trim())) {
+                preferencesAdapter?.findPreferences(
+                    requireActivity(),
+                    searchView.text!!.toString(),
+                    searchView
+                )
+            }
+        }
         searchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
-                    preferencesAdapter?.findPreferences(requireActivity(), query!!)
+                    preferencesAdapter?.findPreferences(requireActivity(), query!!, searchView)
                 }
                 return true
             }
@@ -496,12 +505,26 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
         subScreen("appearance_settings") {
             titleRes = R.string.appearance_settings
+
+
             pref(KEY_APP_THEME) {
                 iconRes = R.drawable.select_colored
                 titleRes = R.string.choose_theme_title
                 onClick {
                     PlaceFactory.getSettingsThemePlace().tryOpenWith(requireActivity())
                     true
+                }
+            }
+
+            pref("select_custom_icon") {
+                titleRes = R.string.select_custom_icon
+                val hasOreo = Utils.hasOreo()
+                visible = hasOreo
+                if (hasOreo) {
+                    onClick {
+                        showSelectIcon()
+                        true
+                    }
                 }
             }
 
@@ -1701,23 +1724,11 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
 
-            pref("local_media_server") {
+            accentButtonPref("local_media_server") {
                 titleRes = R.string.local_media_server
                 onClick {
                     LocalMediaServerDialog().show(parentFragmentManager, "LocalMediaServer")
                     true
-                }
-            }
-
-            pref("select_custom_icon") {
-                titleRes = R.string.select_custom_icon
-                val hasOreo = Utils.hasOreo()
-                visible = hasOreo
-                if (hasOreo) {
-                    onClick {
-                        showSelectIcon()
-                        true
-                    }
                 }
             }
 
@@ -1846,64 +1857,73 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val view = View.inflate(requireActivity(), R.layout.icon_select_alert, null)
             view.findViewById<View>(R.id.default_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
-                    requireActivity(),
-                    DefaultFenrirAlias::class.java
+                ToggleAlias.reset(
+                    requireActivity()
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.blue_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     BlueFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.green_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     GreenFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.violet_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     VioletFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.red_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     RedFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.yellow_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     YellowFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.black_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     BlackFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.vk_official).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     VKFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.white_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     WhiteFenrirAlias::class.java
                 )
+                dismiss()
             }
             view.findViewById<View>(R.id.lineage_icon).setOnClickListener {
-                ToggleAlias().toggleTo(
+                ToggleAlias.toggleTo(
                     requireActivity(),
                     LineageFenrirAlias::class.java
                 )
+                dismiss()
             }
             return MaterialAlertDialogBuilder(requireActivity())
                 .setView(view)

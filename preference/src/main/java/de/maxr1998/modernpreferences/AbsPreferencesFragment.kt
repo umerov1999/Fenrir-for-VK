@@ -1,6 +1,7 @@
 package de.maxr1998.modernpreferences
 
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.ArrayRes
 import androidx.fragment.app.Fragment
 import de.maxr1998.modernpreferences.preferences.*
@@ -123,13 +124,13 @@ abstract class AbsPreferencesFragment : Fragment() {
         return false
     }
 
-    protected fun loadInstanceState(screen: MakeScreen, savedInstanceState: Bundle?) {
+    protected fun loadInstanceState(screen: MakeScreen, savedInstanceState: Bundle?, view: View?) {
         savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>(keyInstanceState)
             ?.let {
                 preferencesAdapter?.loadSavedState(
                     requireActivity(),
                     it,
-                    screen.create()
+                    screen.create(), view
                 )
             }
             ?: preferencesAdapter?.setRootScreen(screen.create())

@@ -89,13 +89,22 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
         }
         if (isNull) {
             preferencesAdapter?.onScreenChangeListener = this
-            loadInstanceState({ createRootScreen() }, savedInstanceState)
+            loadInstanceState({ createRootScreen() }, savedInstanceState, root)
         }
 
+        searchView.setOnBackButtonClickListener {
+            if (!Utils.isEmpty(searchView.text) && !Utils.isEmpty(searchView.text?.trim())) {
+                preferencesAdapter?.findPreferences(
+                    requireActivity(),
+                    searchView.text!!.toString(),
+                    searchView
+                )
+            }
+        }
         searchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
-                    preferencesAdapter?.findPreferences(requireActivity(), query!!)
+                    preferencesAdapter?.findPreferences(requireActivity(), query!!, searchView)
                 }
                 return true
             }
