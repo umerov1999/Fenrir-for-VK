@@ -97,14 +97,14 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
                 preferencesAdapter?.findPreferences(
                     requireActivity(),
                     searchView.text!!.toString(),
-                    searchView
+                    root
                 )
             }
         }
         searchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
-                    preferencesAdapter?.findPreferences(requireActivity(), query!!, searchView)
+                    preferencesAdapter?.findPreferences(requireActivity(), query!!, root)
                 }
                 return true
             }

@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.activity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.fragment.AccountsFragment;
@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.fragment.PreferencesFragment;
 import dev.ragnarok.fenrir.fragment.ThemeFragment;
 import dev.ragnarok.fenrir.place.Place;
 import dev.ragnarok.fenrir.place.PlaceProvider;
+import dev.ragnarok.fenrir.util.Utils;
 
 public class AccountsActivity extends NoMainActivity implements PlaceProvider {
 
@@ -42,7 +43,7 @@ public class AccountsActivity extends NoMainActivity implements PlaceProvider {
                     .addToBackStack("preferences_themes")
                     .commit();
         } else {
-            Snackbar.make(findViewById(getMainContainerViewId()), getString(R.string.not_available), BaseTransientBottomBar.LENGTH_SHORT).show();
+            Utils.ColoredSnack(findViewById(getMainContainerViewId()), R.string.not_available, BaseTransientBottomBar.LENGTH_SHORT, Color.RED).show();
         }
     }
 

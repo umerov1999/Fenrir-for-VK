@@ -30,7 +30,7 @@ import okhttp3.Response;
 
 public class RLottieImageView extends AppCompatImageView {
 
-    private final NetworkCache cache;
+    private final RLottieNetworkCache cache;
     private HashMap<String, Integer> layerColors;
     private RLottieDrawable drawable;
     private boolean autoRepeat;
@@ -44,7 +44,7 @@ public class RLottieImageView extends AppCompatImageView {
 
     public RLottieImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        cache = new NetworkCache(context);
+        cache = new RLottieNetworkCache(context);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RLottieImageView);
         int animRes = a.getResourceId(R.styleable.RLottieImageView_fromRes, 0);

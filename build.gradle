@@ -1,6 +1,6 @@
 buildscript {
     ext.fenrirCompileSDK = 31
-    ext.fenrirBuildTools = '32.0.0'
+    ext.fenrirBuildTools = '31.0.0'
     ext.fenrirNdk = '23.1.7779620'
     ext.fenrirMinSDK = 21
     ext.fenrirTargetSDK = 31

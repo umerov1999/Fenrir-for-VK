@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/background_gray">
 
-    <dev.ragnarok.fenrir.view.natives.video.AnimatedShapeableImageView
+    <dev.ragnarok.fenrir.view.natives.animation.AnimatedShapeableImageView
         android:id="@+id/item_video_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

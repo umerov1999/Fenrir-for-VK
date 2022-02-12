@@ -32,7 +32,7 @@ import okhttp3.Response;
 
 public class RLottieShapeableImageView extends ShapeableImageView {
 
-    private final NetworkCache cache;
+    private final RLottieNetworkCache cache;
     private HashMap<String, Integer> layerColors;
     private RLottieDrawable drawable;
     private boolean autoRepeat;
@@ -46,7 +46,7 @@ public class RLottieShapeableImageView extends ShapeableImageView {
 
     public RLottieShapeableImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        cache = new NetworkCache(context);
+        cache = new RLottieNetworkCache(context);
 
         @SuppressLint("CustomViewStyleable") TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RLottieImageView);
         int animRes = a.getResourceId(R.styleable.RLottieImageView_fromRes, 0);

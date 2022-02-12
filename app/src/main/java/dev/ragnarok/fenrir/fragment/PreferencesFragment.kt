@@ -165,14 +165,14 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 preferencesAdapter?.findPreferences(
                     requireActivity(),
                     searchView.text!!.toString(),
-                    searchView
+                    root
                 )
             }
         }
         searchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
-                    preferencesAdapter?.findPreferences(requireActivity(), query!!, searchView)
+                    preferencesAdapter?.findPreferences(requireActivity(), query!!, root)
                 }
                 return true
             }
@@ -414,12 +414,10 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     true
                 }
             }
-            switch("force_cache") {
-                titleRes = R.string.force_cache
-            }
 
             switch("use_api_5_90_for_audio") {
-                titleRes = R.string.use_api_5_90_for_audio_summary
+                summaryRes = R.string.use_api_5_90_for_audio_summary
+                titleRes = R.string.use_api_5_90_for_audio
                 defaultValue = true
             }
             pref(KEY_SECURITY) {
@@ -471,7 +469,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
             pref("reset_notifications_groups") {
-                titleRes = R.string.notifications_sync
+                titleRes = R.string.reset_notifications_groups
                 iconRes = R.drawable.feed_settings
                 val hasOreo = Utils.hasOreo()
                 visible = hasOreo
@@ -486,8 +484,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
             pref("refresh_audio_token") {
-                titleRes = R.string.notif_setting_title
-                iconRes = R.drawable.feed_settings
+                titleRes = R.string.refresh_audio_token
+                iconRes = R.drawable.dir_song
                 onClick {
                     disposables.add(
                         RefreshToken.upgradeTokenRx(
@@ -506,7 +504,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         subScreen("appearance_settings") {
             titleRes = R.string.appearance_settings
 
-
             pref(KEY_APP_THEME) {
                 iconRes = R.drawable.select_colored
                 titleRes = R.string.choose_theme_title
@@ -518,6 +515,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
             pref("select_custom_icon") {
                 titleRes = R.string.select_custom_icon
+                iconRes = R.drawable.client_round
                 val hasOreo = Utils.hasOreo()
                 visible = hasOreo
                 if (hasOreo) {
@@ -1116,6 +1114,10 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onCheckedChange {
                     requireActivity().recreate()
                 }
+            }
+
+            switch("force_cache") {
+                titleRes = R.string.force_cache
             }
 
             switch("use_long_click_download") {

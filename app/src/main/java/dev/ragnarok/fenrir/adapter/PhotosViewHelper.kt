@@ -20,7 +20,7 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.AspectRatioImageView
 import dev.ragnarok.fenrir.view.mozaik.MozaikLayout
-import dev.ragnarok.fenrir.view.natives.video.AnimatedShapeableImageView
+import dev.ragnarok.fenrir.view.natives.animation.AnimatedShapeableImageView
 import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.addZoomableView
 import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.removeZoomableView
 import java.util.*

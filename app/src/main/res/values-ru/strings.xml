@@ -1542,7 +1542,7 @@
     <string name="default_icon">Стандартная</string>
     <string name="dynamic_icon">Динамическая Android 12</string>
     <string name="custom_icon">Кастомные</string>
-    <string name="select_custom_icon">Сменить иконку</string>
+    <string name="select_custom_icon">Сменить иконку приложения</string>
     <string name="messages_menu_down">Меню действий с сообщениями внизу</string>
     <string name="my">Мои</string>
     <string name="registration_date">Дата регистрации</string>
