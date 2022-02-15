@@ -169,6 +169,14 @@ public class RLottieImageView extends AppCompatImageView {
         setAnimation(new RLottieDrawable(file, false, w, h, false, false, null, false));
     }
 
+    public void fromString(@NonNull String jsonString, int w, int h) {
+        if (!FenrirNative.isNativeLoaded()) {
+            return;
+        }
+        clearAnimationDrawable();
+        setAnimation(new RLottieDrawable(jsonString, w, h, false, false, null, false));
+    }
+
     public void clearAnimationDrawable() {
         mDisposable.dispose();
         if (drawable != null) {
@@ -185,7 +193,6 @@ public class RLottieImageView extends AppCompatImageView {
         super.onAttachedToWindow();
         attachedToWindow = true;
         if (drawable != null) {
-            drawable.setCallback(this);
             drawable.setCurrentParentView(this);
             if (playing) {
                 drawable.start();

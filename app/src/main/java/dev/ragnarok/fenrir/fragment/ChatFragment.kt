@@ -76,6 +76,7 @@ import dev.ragnarok.fenrir.view.emoji.BotKeyboardView
 import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup
 import dev.ragnarok.fenrir.view.emoji.StickersKeyWordsAdapter
+import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import me.minetsh.imaging.IMGEditActivity
 import java.io.File
 import java.lang.ref.WeakReference
@@ -101,6 +102,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     private var inputViewController: InputViewController? = null
     private var emptyText: TextView? = null
+    private var emptyAnimation: RLottieImageView? = null
 
     private var pinnedView: View? = null
     private var pinnedAvatar: ImageView? = null
@@ -243,6 +245,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         EmptyAvatar = root.findViewById(R.id.empty_avatar_text)
 
         emptyText = root.findViewById(R.id.fragment_chat_empty_text)
+        emptyAnimation = root.findViewById(R.id.fragment_chat_empty_animation)
         toolbarRootView = root.findViewById(R.id.toolbar_root)
 
         Writing_msg_Group = root.findViewById(R.id.writingGroup)
@@ -1472,6 +1475,23 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     override fun setEmptyTextVisible(visible: Boolean) {
         emptyText?.isVisible = visible
+        emptyAnimation?.isVisible = visible
+        if (visible) {
+            emptyAnimation?.fromRes(
+                R.raw.valknut,
+                Utils.dp(120f),
+                Utils.dp(120f),
+                intArrayOf(
+                    0x333333,
+                    CurrentTheme.getColorPrimary(requireActivity()),
+                    0x777777,
+                    CurrentTheme.getColorSecondary(requireActivity())
+                )
+            )
+            emptyAnimation?.playAnimation()
+        } else {
+            emptyAnimation?.clearAnimationDrawable()
+        }
     }
 
     override fun setupRecordPauseButton(available: Boolean, isPlaying: Boolean) {

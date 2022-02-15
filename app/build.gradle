@@ -9,8 +9,13 @@ android {
         exclude 'META-INF/license.txt'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+        exclude "/okhttp3/**"
         exclude 'META-INF/*.version'
-        exclude 'META-INF/*.kotlin_module'
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     compileSdkVersion fenrirCompileSDK
@@ -36,8 +41,8 @@ android {
     }
 
     lintOptions {
-        warning 'InvalidPackage'
-        abortOnError false
+        abortOnError true
+        checkReleaseBuilds true
     }
 
     gradle.projectsEvaluated {

@@ -47,7 +47,6 @@ class SettingsBackup {
         SettingCollector("emojis_full_screen", SettingTypes.TYPE_BOOL),
         SettingCollector("stickers_by_theme", SettingTypes.TYPE_BOOL),
         SettingCollector("stickers_by_new", SettingTypes.TYPE_BOOL),
-        SettingCollector("photo_swipe_triggered_pos", SettingTypes.TYPE_STRING),
         SettingCollector("show_profile_in_additional_page", SettingTypes.TYPE_BOOL),
         SettingCollector("swipes_for_chats", SettingTypes.TYPE_STRING),
         SettingCollector("display_writing", SettingTypes.TYPE_BOOL),

@@ -3,7 +3,7 @@ package de.maxr1998.modernpreferences.preferences.choice
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager
-import de.maxr1998.modernpreferences.ExtraPref
+import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 
 class MultiChoiceDialogPreference(
@@ -87,7 +87,7 @@ class MultiChoiceDialogPreference(
 
         companion object {
             fun newInstance(args: Bundle, list: ArrayList<String>): MultiChooseDialog {
-                args.putStringArrayList(ExtraPref.DEFAULT_VALUE, list)
+                args.putStringArrayList(PreferencesExtra.DEFAULT_VALUE, list)
                 val dialog = MultiChooseDialog()
                 dialog.arguments = args
                 return dialog
@@ -105,23 +105,24 @@ class MultiChoiceDialogPreference(
                 selections = it.toHashSet()
             } ?: run {
                 selections =
-                    requireArguments().getStringArrayList(ExtraPref.DEFAULT_VALUE)!!.toHashSet()
+                    requireArguments().getStringArrayList(PreferencesExtra.DEFAULT_VALUE)!!
+                        .toHashSet()
             }
         }
 
         override fun commit() {
             val intent = Bundle()
-            intent.putStringArrayList(ExtraPref.RESULT_VALUE, ArrayList(selections.toList()))
+            intent.putStringArrayList(PreferencesExtra.RESULT_VALUE, ArrayList(selections.toList()))
             intent.putString(
-                ExtraPref.PREFERENCE_KEY,
-                requireArguments().getString(ExtraPref.PREFERENCE_KEY)
+                PreferencesExtra.PREFERENCE_KEY,
+                requireArguments().getString(PreferencesExtra.PREFERENCE_KEY)
             )
             intent.putString(
-                ExtraPref.PREFERENCE_SCREEN_KEY,
-                requireArguments().getString(ExtraPref.PREFERENCE_SCREEN_KEY)
+                PreferencesExtra.PREFERENCE_SCREEN_KEY,
+                requireArguments().getString(PreferencesExtra.PREFERENCE_SCREEN_KEY)
             )
             parentFragmentManager.setFragmentResult(
-                ExtraPref.MULTI_CHOOSE_DIALOG_REQUEST,
+                PreferencesExtra.MULTI_CHOOSE_DIALOG_REQUEST,
                 intent
             )
         }

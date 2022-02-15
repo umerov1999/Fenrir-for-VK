@@ -63,7 +63,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         this.decoderCallback = decoderCallback;
     }
 
-    private void setAnimationByUrlCache(String url) {
+    private void setAnimationByUrlCache(String url, boolean fade) {
         if (!FenrirNative.isNativeLoaded()) {
             if (nonNull(decoderCallback)) {
                 decoderCallback.onLoaded(false);
@@ -78,7 +78,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             }
             return;
         }
-        setAnimation(new AnimatedFileDrawable(ch, 0, defaultWidth, defaultHeight, () -> {
+        setAnimation(new AnimatedFileDrawable(ch, 0, defaultWidth, defaultHeight, fade, () -> {
             if (nonNull(decoderCallback)) {
                 decoderCallback.onLoaded(false);
             }
@@ -86,7 +86,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         playAnimation();
     }
 
-    private void setAnimationByResCache(@RawRes int res) {
+    private void setAnimationByResCache(@RawRes int res, boolean fade) {
         if (!FenrirNative.isNativeLoaded()) {
             if (nonNull(decoderCallback)) {
                 decoderCallback.onLoaded(false);
@@ -101,7 +101,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             }
             return;
         }
-        setAnimation(new AnimatedFileDrawable(ch, 0, defaultWidth, defaultHeight, () -> {
+        setAnimation(new AnimatedFileDrawable(ch, 0, defaultWidth, defaultHeight, fade, () -> {
             if (nonNull(decoderCallback)) {
                 decoderCallback.onLoaded(false);
             }
@@ -109,7 +109,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         playAnimation();
     }
 
-    public void fromNet(String url, OkHttpClient.Builder client) {
+    public void fromNet(@NonNull String key, @Nullable String url, OkHttpClient.Builder client) {
         if (!FenrirNative.isNativeLoaded() || url == null || url.isEmpty()) {
             if (nonNull(decoderCallback)) {
                 decoderCallback.onLoaded(false);
@@ -117,8 +117,8 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             return;
         }
         clearAnimationDrawable();
-        if (cache.isCachedFile(url)) {
-            setAnimationByUrlCache(url);
+        if (cache.isCachedFile(key)) {
+            setAnimationByUrlCache(key, true);
             return;
         }
         mDisposable = Single.create((SingleOnSubscribe<Boolean>) u -> {
@@ -133,9 +133,9 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
                 }
                 InputStream bfr = Objects.requireNonNull(response.body()).byteStream();
                 BufferedInputStream input = new BufferedInputStream(bfr);
-                cache.writeTempCacheFile(url, input);
+                cache.writeTempCacheFile(key, input);
                 input.close();
-                cache.renameTempFile(url);
+                cache.renameTempFile(key);
             } catch (Exception e) {
                 u.onSuccess(false);
                 return;
@@ -143,7 +143,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             u.onSuccess(true);
         }).compose(RxUtils.applySingleComputationToMainSchedulers()).subscribe(u -> {
             if (u) {
-                setAnimationByUrlCache(url);
+                setAnimationByUrlCache(key, true);
             } else {
                 if (nonNull(decoderCallback)) {
                     decoderCallback.onLoaded(false);
@@ -161,7 +161,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         }
         clearAnimationDrawable();
         if (cache.isCachedRes(res)) {
-            setAnimationByResCache(res);
+            setAnimationByResCache(res, true);
             return;
         }
         mDisposable = Single.create((SingleOnSubscribe<Boolean>) u -> {
@@ -178,7 +178,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             u.onSuccess(true);
         }).compose(RxUtils.applySingleComputationToMainSchedulers()).subscribe(u -> {
             if (u) {
-                setAnimationByResCache(res);
+                setAnimationByResCache(res, true);
             } else {
                 if (nonNull(decoderCallback)) {
                     decoderCallback.onLoaded(false);
@@ -195,7 +195,6 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             return;
         drawable = videoDrawable;
         drawable.setAllowDecodeSingleFrame(true);
-        drawable.setParentView(this);
         setImageDrawable(drawable);
     }
 
@@ -207,7 +206,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             return;
         }
         clearAnimationDrawable();
-        setAnimation(new AnimatedFileDrawable(file, 0, defaultWidth, defaultHeight, () -> {
+        setAnimation(new AnimatedFileDrawable(file, 0, defaultWidth, defaultHeight, false, () -> {
             if (nonNull(decoderCallback)) {
                 decoderCallback.onLoaded(false);
             }
@@ -218,7 +217,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         mDisposable.dispose();
         if (drawable != null) {
             drawable.stop();
-            drawable.setParentView(null);
+            drawable.setCallback(null);
             drawable.recycle();
             drawable = null;
         }
@@ -231,7 +230,6 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         attachedToWindow = true;
         if (drawable != null) {
             drawable.setCallback(this);
-            drawable.setParentView(this);
             if (playing) {
                 drawable.start();
             }
@@ -245,7 +243,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         attachedToWindow = false;
         if (drawable != null) {
             drawable.stop();
-            drawable.setParentView(null);
+            drawable.setCallback(null);
         }
     }
 
@@ -260,7 +258,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
             mDisposable.dispose();
             if (drawable != null) {
                 drawable.stop();
-                drawable.setParentView(null);
+                drawable.setCallback(null);
                 drawable.recycle();
                 drawable = null;
             }
@@ -273,7 +271,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         mDisposable.dispose();
         if (drawable != null) {
             drawable.stop();
-            drawable.setParentView(null);
+            drawable.setCallback(null);
             drawable.recycle();
             drawable = null;
         }
@@ -285,7 +283,7 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         mDisposable.dispose();
         if (drawable != null) {
             drawable.stop();
-            drawable.setParentView(null);
+            drawable.setCallback(null);
             drawable.recycle();
             drawable = null;
         }

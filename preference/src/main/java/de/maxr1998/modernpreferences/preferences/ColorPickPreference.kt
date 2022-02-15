@@ -9,8 +9,8 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import de.maxr1998.modernpreferences.ExtraPref
 import de.maxr1998.modernpreferences.PreferencesAdapter
+import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.R
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 import de.maxr1998.modernpreferences.preferences.colorpicker.ColorCircleDrawable
@@ -113,18 +113,18 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
                 screenKey: String?
             ): ColorPickDialog {
                 val args = Bundle()
-                args.putInt(ExtraPref.TITLE_RES, titleRes)
-                args.putCharSequence(ExtraPref.TITLE, title)
+                args.putInt(PreferencesExtra.TITLE_RES, titleRes)
+                args.putCharSequence(PreferencesExtra.TITLE, title)
 
-                args.putBoolean(ExtraPref.COLOR_ALPHA_SLIDER, alphaSlider)
-                args.putBoolean(ExtraPref.COLOR_LIGHT_SLIDER, lightSlider)
-                args.putBoolean(ExtraPref.COLOR_BORDER, border)
-                args.putInt(ExtraPref.COLOR_WHEEL_TYPE, wheelType)
-                args.putInt(ExtraPref.COLOR_DENSITY, density)
-                args.putInt(ExtraPref.DEFAULT_VALUE, selectedColor)
+                args.putBoolean(PreferencesExtra.COLOR_ALPHA_SLIDER, alphaSlider)
+                args.putBoolean(PreferencesExtra.COLOR_LIGHT_SLIDER, lightSlider)
+                args.putBoolean(PreferencesExtra.COLOR_BORDER, border)
+                args.putInt(PreferencesExtra.COLOR_WHEEL_TYPE, wheelType)
+                args.putInt(PreferencesExtra.COLOR_DENSITY, density)
+                args.putInt(PreferencesExtra.DEFAULT_VALUE, selectedColor)
 
-                args.putString(ExtraPref.PREFERENCE_KEY, key)
-                args.putString(ExtraPref.PREFERENCE_SCREEN_KEY, screenKey)
+                args.putString(PreferencesExtra.PREFERENCE_KEY, key)
+                args.putString(PreferencesExtra.PREFERENCE_SCREEN_KEY, screenKey)
                 val dialog = ColorPickDialog()
                 dialog.arguments = args
                 return dialog
@@ -148,14 +148,15 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            titleRes = requireArguments().getInt(ExtraPref.TITLE_RES)
-            title = requireArguments().getCharSequence(ExtraPref.TITLE)
-            alphaSlider = requireArguments().getBoolean(ExtraPref.COLOR_ALPHA_SLIDER)
-            lightSlider = requireArguments().getBoolean(ExtraPref.COLOR_LIGHT_SLIDER)
-            border = requireArguments().getBoolean(ExtraPref.COLOR_BORDER)
-            wheelType = WHEEL_TYPE.indexOf(requireArguments().getInt(ExtraPref.COLOR_WHEEL_TYPE))
-            density = requireArguments().getInt(ExtraPref.COLOR_DENSITY)
-            selectedColor = requireArguments().getInt(ExtraPref.DEFAULT_VALUE)
+            titleRes = requireArguments().getInt(PreferencesExtra.TITLE_RES)
+            title = requireArguments().getCharSequence(PreferencesExtra.TITLE)
+            alphaSlider = requireArguments().getBoolean(PreferencesExtra.COLOR_ALPHA_SLIDER)
+            lightSlider = requireArguments().getBoolean(PreferencesExtra.COLOR_LIGHT_SLIDER)
+            border = requireArguments().getBoolean(PreferencesExtra.COLOR_BORDER)
+            wheelType =
+                WHEEL_TYPE.indexOf(requireArguments().getInt(PreferencesExtra.COLOR_WHEEL_TYPE))
+            density = requireArguments().getInt(PreferencesExtra.COLOR_DENSITY)
+            selectedColor = requireArguments().getInt(PreferencesExtra.DEFAULT_VALUE)
         }
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -170,17 +171,17 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
                     android.R.string.ok
                 ) { _: DialogInterface?, selectedColorFromPicker: Int, _: Array<Int?>? ->
                     val intent = Bundle()
-                    intent.putInt(ExtraPref.RESULT_VALUE, selectedColorFromPicker)
+                    intent.putInt(PreferencesExtra.RESULT_VALUE, selectedColorFromPicker)
                     intent.putString(
-                        ExtraPref.PREFERENCE_KEY,
-                        requireArguments().getString(ExtraPref.PREFERENCE_KEY)
+                        PreferencesExtra.PREFERENCE_KEY,
+                        requireArguments().getString(PreferencesExtra.PREFERENCE_KEY)
                     )
                     intent.putString(
-                        ExtraPref.PREFERENCE_SCREEN_KEY,
-                        requireArguments().getString(ExtraPref.PREFERENCE_SCREEN_KEY)
+                        PreferencesExtra.PREFERENCE_SCREEN_KEY,
+                        requireArguments().getString(PreferencesExtra.PREFERENCE_SCREEN_KEY)
                     )
                     parentFragmentManager.setFragmentResult(
-                        ExtraPref.COLOR_DIALOG_REQUEST,
+                        PreferencesExtra.COLOR_DIALOG_REQUEST,
                         intent
                     )
                     dismiss()

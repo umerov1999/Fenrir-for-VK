@@ -39,9 +39,9 @@ import dev.ragnarok.fenrir.view.MySearchView
 class NotificationPreferencesFragment : AbsPreferencesFragment(),
     PreferencesAdapter.OnScreenChangeListener,
     BackPressCallback, CanBackPressedCallback {
-    private lateinit var preferencesView: RecyclerView
-    private lateinit var layoutManager: LinearLayoutManager
-    private lateinit var searchView: MySearchView
+    private var preferencesView: RecyclerView? = null
+    private var layoutManager: LinearLayoutManager? = null
+    private var searchView: MySearchView? = null
     override val keyInstanceState: String = "notification_preferences"
 
     private val requestRingTone = registerForActivityResult(
@@ -74,9 +74,9 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
         val root = inflater.inflate(R.layout.preference_fenrir_list_fragment, container, false)
         (requireActivity() as AppCompatActivity).setSupportActionBar(root.findViewById(R.id.toolbar))
         searchView = root.findViewById(R.id.searchview)
-        searchView.setRightButtonVisibility(false)
-        searchView.setLeftIcon(R.drawable.magnify)
-        searchView.setQuery("", true)
+        searchView?.setRightButtonVisibility(false)
+        searchView?.setLeftIcon(R.drawable.magnify)
+        searchView?.setQuery("", true)
         layoutManager = LinearLayoutManager(requireActivity())
         val isNull = createPreferenceAdapter()
         preferencesView = (root.findViewById<RecyclerView>(R.id.recycler_view)).apply {
@@ -89,30 +89,32 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
         }
         if (isNull) {
             preferencesAdapter?.onScreenChangeListener = this
-            loadInstanceState({ createRootScreen() }, savedInstanceState, root)
+            loadInstanceState({ createRootScreen() }, root)
         }
 
-        searchView.setOnBackButtonClickListener {
-            if (!Utils.isEmpty(searchView.text) && !Utils.isEmpty(searchView.text?.trim())) {
-                preferencesAdapter?.findPreferences(
-                    requireActivity(),
-                    searchView.text!!.toString(),
-                    root
-                )
-            }
-        }
-        searchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
-                    preferencesAdapter?.findPreferences(requireActivity(), query!!, root)
+        searchView?.let {
+            it.setOnBackButtonClickListener {
+                if (!Utils.isEmpty(it.text) && !Utils.isEmpty(it.text?.trim())) {
+                    preferencesAdapter?.findPreferences(
+                        requireActivity(),
+                        it.text!!.toString(),
+                        root
+                    )
                 }
-                return true
             }
+            it.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
+                        preferencesAdapter?.findPreferences(requireActivity(), query!!, root)
+                    }
+                    return true
+                }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
-        })
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    return false
+                }
+            })
+        }
         return root
     }
 
@@ -125,16 +127,16 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
     }
 
     override fun beforeScreenChange(screen: PreferenceScreen): Boolean {
-        preferencesAdapter?.stopObserveScrollPosition(preferencesView)
+        preferencesView?.let { preferencesAdapter?.stopObserveScrollPosition(it) }
         return true
     }
 
     override fun onScreenChanged(screen: PreferenceScreen, subScreen: Boolean, animation: Boolean) {
-        searchView.visibility = if (screen.getSearchQuery() == null) View.VISIBLE else View.GONE
+        searchView?.visibility = if (screen.getSearchQuery() == null) View.VISIBLE else View.GONE
         if (animation) {
-            preferencesView.scheduleLayoutAnimation()
+            preferencesView?.scheduleLayoutAnimation()
         }
-        preferencesAdapter?.restoreAndObserveScrollPosition(preferencesView)
+        preferencesView?.let { preferencesAdapter?.restoreAndObserveScrollPosition(it) }
         val actionBar = ActivityUtils.supportToolbarFor(this)
         if (actionBar != null) {
             if (screen.key == "root" || Utils.isEmpty(screen.title) && screen.titleRes == DEFAULT_RES_ID) {
@@ -373,7 +375,7 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
         if (requireActivity() is UpdatableNavigation) {
             (requireActivity() as UpdatableNavigation).onUpdateNavigation()
         }
-        searchView.visibility =
+        searchView?.visibility =
             if (preferencesAdapter?.currentScreen?.getSearchQuery() == null) View.VISIBLE else View.GONE
         ActivityFeatures.Builder()
             .begin()
@@ -454,9 +456,9 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
     }
 
     override fun onDestroy() {
-        preferencesAdapter?.stopObserveScrollPosition(preferencesView)
+        preferencesView?.let { preferencesAdapter?.stopObserveScrollPosition(it) }
         preferencesAdapter?.onScreenChangeListener = null
-        preferencesView.adapter = null
+        preferencesView?.adapter = null
         super.onDestroy()
     }
 }

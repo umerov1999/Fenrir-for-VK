@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import de.maxr1998.modernpreferences.ExtraPref
+import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.R
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 
@@ -145,16 +145,16 @@ class MultiLineEditTextPreference(key: String, fragmentManager: FragmentManager)
                 screenKey: String?
             ): MultiLineEditTextDialog {
                 val args = Bundle()
-                args.putInt(ExtraPref.TITLE_RES, titleRes)
-                args.putCharSequence(ExtraPref.TITLE, title)
-                args.putCharSequence(ExtraPref.CURRENT_INPUT, currentInput)
-                args.putInt(ExtraPref.TEXT_INPUT_TYPE, textInputType)
-                args.putCharSequence(ExtraPref.TEXT_INPUT_HINT, textInputHint)
-                args.putInt(ExtraPref.TEXT_INPUT_HINT_RES, textInputHintRes)
-                args.putCharSequence(ExtraPref.MESSAGE, message)
-                args.putInt(ExtraPref.MESSAGE_RES, messageRes)
-                args.putString(ExtraPref.PREFERENCE_KEY, key)
-                args.putString(ExtraPref.PREFERENCE_SCREEN_KEY, screenKey)
+                args.putInt(PreferencesExtra.TITLE_RES, titleRes)
+                args.putCharSequence(PreferencesExtra.TITLE, title)
+                args.putCharSequence(PreferencesExtra.CURRENT_INPUT, currentInput)
+                args.putInt(PreferencesExtra.TEXT_INPUT_TYPE, textInputType)
+                args.putCharSequence(PreferencesExtra.TEXT_INPUT_HINT, textInputHint)
+                args.putInt(PreferencesExtra.TEXT_INPUT_HINT_RES, textInputHintRes)
+                args.putCharSequence(PreferencesExtra.MESSAGE, message)
+                args.putInt(PreferencesExtra.MESSAGE_RES, messageRes)
+                args.putString(PreferencesExtra.PREFERENCE_KEY, key)
+                args.putString(PreferencesExtra.PREFERENCE_SCREEN_KEY, screenKey)
                 val dialog = MultiLineEditTextDialog()
                 dialog.arguments = args
                 return dialog
@@ -178,14 +178,14 @@ class MultiLineEditTextPreference(key: String, fragmentManager: FragmentManager)
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            titleRes = requireArguments().getInt(ExtraPref.TITLE_RES)
-            title = requireArguments().getCharSequence(ExtraPref.TITLE)
-            currentInput = requireArguments().getCharSequence(ExtraPref.CURRENT_INPUT)
-            textInputType = requireArguments().getInt(ExtraPref.TEXT_INPUT_TYPE)
-            textInputHint = requireArguments().getCharSequence(ExtraPref.TEXT_INPUT_HINT)
-            textInputHintRes = requireArguments().getInt(ExtraPref.TEXT_INPUT_HINT_RES)
-            message = requireArguments().getCharSequence(ExtraPref.MESSAGE)
-            messageRes = requireArguments().getInt(ExtraPref.MESSAGE_RES)
+            titleRes = requireArguments().getInt(PreferencesExtra.TITLE_RES)
+            title = requireArguments().getCharSequence(PreferencesExtra.TITLE)
+            currentInput = requireArguments().getCharSequence(PreferencesExtra.CURRENT_INPUT)
+            textInputType = requireArguments().getInt(PreferencesExtra.TEXT_INPUT_TYPE)
+            textInputHint = requireArguments().getCharSequence(PreferencesExtra.TEXT_INPUT_HINT)
+            textInputHintRes = requireArguments().getInt(PreferencesExtra.TEXT_INPUT_HINT_RES)
+            message = requireArguments().getCharSequence(PreferencesExtra.MESSAGE)
+            messageRes = requireArguments().getInt(PreferencesExtra.MESSAGE_RES)
         }
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -221,17 +221,17 @@ class MultiLineEditTextPreference(key: String, fragmentManager: FragmentManager)
                 setCancelable(false)
                 setPositiveButton(android.R.string.ok) { _, _ ->
                     val intent = Bundle()
-                    intent.putCharSequence(ExtraPref.RESULT_VALUE, editText.text)
+                    intent.putCharSequence(PreferencesExtra.RESULT_VALUE, editText.text)
                     intent.putString(
-                        ExtraPref.PREFERENCE_KEY,
-                        requireArguments().getString(ExtraPref.PREFERENCE_KEY)
+                        PreferencesExtra.PREFERENCE_KEY,
+                        requireArguments().getString(PreferencesExtra.PREFERENCE_KEY)
                     )
                     intent.putString(
-                        ExtraPref.PREFERENCE_SCREEN_KEY,
-                        requireArguments().getString(ExtraPref.PREFERENCE_SCREEN_KEY)
+                        PreferencesExtra.PREFERENCE_SCREEN_KEY,
+                        requireArguments().getString(PreferencesExtra.PREFERENCE_SCREEN_KEY)
                     )
                     parentFragmentManager.setFragmentResult(
-                        ExtraPref.MULTI_LINE_EDIT_DIALOG_REQUEST,
+                        PreferencesExtra.MULTI_LINE_EDIT_DIALOG_REQUEST,
                         intent
                     )
                     dismiss()

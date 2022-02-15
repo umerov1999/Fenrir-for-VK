@@ -37,6 +37,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -559,7 +560,7 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
             JsonObject settings = new SettingsBackup().doBackup();
             if (settings != null)
                 root.add("settings", settings);
-            byte[] bytes = root.toString().getBytes(StandardCharsets.UTF_8);
+            byte[] bytes = new GsonBuilder().setPrettyPrinting().create().toJson(root).getBytes(StandardCharsets.UTF_8);
             out = new FileOutputStream(file);
             out.write(bytes);
             out.flush();

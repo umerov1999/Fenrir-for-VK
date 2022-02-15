@@ -4,8 +4,8 @@ buildscript {
     ext.fenrirNdk = '23.1.7779620'
     ext.fenrirMinSDK = 21
     ext.fenrirTargetSDK = 31
-    ext.FenrirVersionCode = 177
-    ext.FenrirVersionName = '2.77'
+    ext.FenrirVersionCode = 178
+    ext.FenrirVersionName = '2.78'
 
     ext.kotlin_version = '1.6.10'
     ext.kotlin_coroutines = '1.6.0'

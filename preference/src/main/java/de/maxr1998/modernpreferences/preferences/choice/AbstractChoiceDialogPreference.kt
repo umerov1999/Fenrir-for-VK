@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import de.maxr1998.modernpreferences.ExtraPref
+import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 import de.maxr1998.modernpreferences.preferences.DialogPreference
 
@@ -35,11 +35,11 @@ abstract class AbstractChoiceDialogPreference(
     }
 
     protected fun baseDialogInit(args: Bundle) {
-        args.putInt(ExtraPref.TITLE_RES, titleRes)
-        args.putCharSequence(ExtraPref.TITLE, title)
-        args.putString(ExtraPref.PREFERENCE_KEY, key)
-        args.putString(ExtraPref.PREFERENCE_SCREEN_KEY, parent?.key)
-        args.putParcelableArrayList(ExtraPref.REQUEST_VALUE, items)
+        args.putInt(PreferencesExtra.TITLE_RES, titleRes)
+        args.putCharSequence(PreferencesExtra.TITLE, title)
+        args.putString(PreferencesExtra.PREFERENCE_KEY, key)
+        args.putString(PreferencesExtra.PREFERENCE_SCREEN_KEY, parent?.key)
+        args.putParcelableArrayList(PreferencesExtra.REQUEST_VALUE, items)
     }
 
     abstract fun resetSelection()
@@ -60,9 +60,9 @@ abstract class AbstractChoiceDialogPreference(
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            titleRes = requireArguments().getInt(ExtraPref.TITLE_RES)
-            title = requireArguments().getCharSequence(ExtraPref.TITLE)
-            items = requireArguments().getParcelableArrayList(ExtraPref.REQUEST_VALUE)!!
+            titleRes = requireArguments().getInt(PreferencesExtra.TITLE_RES)
+            title = requireArguments().getCharSequence(PreferencesExtra.TITLE)
+            items = requireArguments().getParcelableArrayList(PreferencesExtra.REQUEST_VALUE)!!
         }
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

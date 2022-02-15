@@ -3,7 +3,7 @@ package de.maxr1998.modernpreferences.preferences.choice
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager
-import de.maxr1998.modernpreferences.ExtraPref
+import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 
 class SingleChoiceDialogPreference(
@@ -73,7 +73,7 @@ class SingleChoiceDialogPreference(
 
         companion object {
             fun newInstance(args: Bundle, obj: SelectionItem?): SingleChooseDialog {
-                args.putParcelable(ExtraPref.DEFAULT_VALUE, obj)
+                args.putParcelable(PreferencesExtra.DEFAULT_VALUE, obj)
                 val dialog = SingleChooseDialog()
                 dialog.arguments = args
                 return dialog
@@ -85,7 +85,7 @@ class SingleChoiceDialogPreference(
             savedInstanceState?.getParcelable<SelectionItem?>("single_selections")?.let {
                 currentSelection = it
             } ?: run {
-                currentSelection = requireArguments().getParcelable(ExtraPref.DEFAULT_VALUE)
+                currentSelection = requireArguments().getParcelable(PreferencesExtra.DEFAULT_VALUE)
             }
         }
 
@@ -96,17 +96,17 @@ class SingleChoiceDialogPreference(
 
         override fun commit() {
             val intent = Bundle()
-            intent.putParcelable(ExtraPref.RESULT_VALUE, currentSelection)
+            intent.putParcelable(PreferencesExtra.RESULT_VALUE, currentSelection)
             intent.putString(
-                ExtraPref.PREFERENCE_KEY,
-                requireArguments().getString(ExtraPref.PREFERENCE_KEY)
+                PreferencesExtra.PREFERENCE_KEY,
+                requireArguments().getString(PreferencesExtra.PREFERENCE_KEY)
             )
             intent.putString(
-                ExtraPref.PREFERENCE_SCREEN_KEY,
-                requireArguments().getString(ExtraPref.PREFERENCE_SCREEN_KEY)
+                PreferencesExtra.PREFERENCE_SCREEN_KEY,
+                requireArguments().getString(PreferencesExtra.PREFERENCE_SCREEN_KEY)
             )
             parentFragmentManager.setFragmentResult(
-                ExtraPref.SINGLE_CHOOSE_DIALOG_REQUEST,
+                PreferencesExtra.SINGLE_CHOOSE_DIALOG_REQUEST,
                 intent
             )
         }

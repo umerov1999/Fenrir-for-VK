@@ -163,15 +163,6 @@ class UISettings implements ISettings.IUISettings {
     }
 
     @Override
-    public int isPhoto_swipe_triggered_pos() {
-        try {
-            return Integer.parseInt(PreferenceScreen.getPreferences(app).getString("photo_swipe_triggered_pos", "180").trim());
-        } catch (Exception e) {
-            return 180;
-        }
-    }
-
-    @Override
     public boolean isShow_profile_in_additional_page() {
         return PreferenceScreen.getPreferences(app).getBoolean("show_profile_in_additional_page", true);
     }

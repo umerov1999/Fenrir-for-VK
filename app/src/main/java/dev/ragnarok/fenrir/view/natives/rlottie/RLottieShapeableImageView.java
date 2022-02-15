@@ -187,7 +187,6 @@ public class RLottieShapeableImageView extends ShapeableImageView {
         super.onAttachedToWindow();
         attachedToWindow = true;
         if (drawable != null) {
-            drawable.setCallback(this);
             drawable.setCurrentParentView(this);
             if (playing) {
                 drawable.start();

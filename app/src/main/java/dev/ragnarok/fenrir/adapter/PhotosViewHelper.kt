@@ -198,6 +198,7 @@ class PhotosViewHelper internal constructor(
                         }
                     }
                     holder.vgPhoto.fromNet(
+                        ((image.attachment as Document).ownerId.toString() + "_" + (image.attachment as Document).id.toString()),
                         (image.attachment as Document).videoPreview?.src,
                         Utils.createOkHttp(5)
                     )

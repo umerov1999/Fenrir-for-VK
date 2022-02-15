@@ -575,8 +575,6 @@ public interface ISettings {
 
         boolean isStickers_by_new();
 
-        int isPhoto_swipe_triggered_pos();
-
         boolean isShow_profile_in_additional_page();
 
         @SwipesChatMode

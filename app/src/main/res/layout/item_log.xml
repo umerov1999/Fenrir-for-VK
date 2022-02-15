@@ -26,7 +26,7 @@
                 android:layout_height="@dimen/avatar_size_small"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/circle_white"
+                android:background="@drawable/circle_back_white"
                 android:backgroundTint="?colorPrimary"
                 android:scaleType="center"
                 android:src="@drawable/ic_log_vector"

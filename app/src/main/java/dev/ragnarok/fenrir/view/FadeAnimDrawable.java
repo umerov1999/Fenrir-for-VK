@@ -7,7 +7,6 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
-import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -24,7 +23,6 @@ public final class FadeAnimDrawable extends BitmapDrawable implements Animatable
     private boolean animatingFade;
     private boolean animating;
     private int alpha = 0xFF;
-    private View currentParentView;
     private float targetRotation;
 
     public FadeAnimDrawable(Context context, @NonNull Bitmap bitmap) {
@@ -47,21 +45,14 @@ public final class FadeAnimDrawable extends BitmapDrawable implements Animatable
             ((Animatable) placeholder).stop();
         }
         FadeAnimDrawable drawable = new FadeAnimDrawable(context, bitmap);
-        drawable.setCurrentParentView(target);
+        drawable.setCallback(target);
         if (start) {
             drawable.start();
         }
         target.setImageDrawable(drawable);
     }
 
-    public void setCurrentParentView(View view) {
-        currentParentView = view;
-    }
-
     protected void invalidateInternal() {
-        if (currentParentView != null) {
-            currentParentView.invalidate();
-        }
         if (getCallback() != null) {
             invalidateSelf();
         }

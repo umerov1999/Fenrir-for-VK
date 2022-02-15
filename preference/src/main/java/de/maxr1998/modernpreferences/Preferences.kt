@@ -451,7 +451,7 @@ open class Preference(key: String) : AbstractPreference(key) {
          * 1 by default, allowed values are 1 to 3.
          */
         @Suppress("MagicNumber")
-        var titleMaxLines: Int = 1
+        var titleMaxLines: Int = 2
             set(value) {
                 require(value in 1..3) { "titleMaxLines must be within [1,3]" }
                 field = value

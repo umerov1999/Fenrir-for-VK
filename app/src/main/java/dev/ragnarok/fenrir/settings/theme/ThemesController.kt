@@ -289,7 +289,7 @@ object ThemesController {
             R.style.App_DayNight_Ice,
             R.style.App_DayNight_Ice_Amoled,
             R.style.App_DayNight_Ice_MD1
-        ),
+        ).specialised(true),
         ThemeValue(
             "dynamic",
             "#ffffff",
@@ -298,7 +298,8 @@ object ThemesController {
             R.style.App_DayNight_Dynamic,
             R.style.App_DayNight_Dynamic_Amoled,
             R.style.App_DayNight_Dynamic_MD1
-        ).toast("#4D7198", "#448AFF").enable(DynamicColors.isDynamicColorAvailable()),
+        ).specialised(true).toast("#4D7198", "#448AFF")
+            .enable(DynamicColors.isDynamicColorAvailable()),
     )
     private var randSymbol =
         Utils.nextIntInRangeButExclude(

@@ -474,7 +474,7 @@
 
     <string name="title_activity_create_post">New entry</string>
 
-    <string name="chat_empty_text">The history of the dialog will be displayed here.</string>
+    <string name="chat_empty_text">Nothing here yet…</string>
 
     <string name="emojis_type_title">Use system emoticons</string>
     <string name="emojis_full_screen">Full screen stickers</string>
@@ -1100,7 +1100,6 @@
     <string name="privacy_to_all_users">All users</string>
     <string name="privacy_to_friends_and_friends_of_friends">Friends and friends of friends</string>
     <string name="press_plus_for_add">Click (+) to tag a user</string>
-    <string name="photo_swipe_triggered_pos">Photo swipe event position</string>
     <string name="and">and</string>
     <string name="privacy_view">View access</string>
     <string name="privacy_settings">Privacy settings</string>

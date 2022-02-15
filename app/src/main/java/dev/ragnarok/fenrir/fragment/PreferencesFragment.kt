@@ -42,9 +42,9 @@ import com.squareup.picasso3.BitmapSafeResize.isOverflowCanvas
 import com.squareup.picasso3.BitmapSafeResize.setHardwareRendering
 import com.squareup.picasso3.BitmapSafeResize.setMaxResolution
 import de.maxr1998.modernpreferences.AbsPreferencesFragment
-import de.maxr1998.modernpreferences.ExtraPref
 import de.maxr1998.modernpreferences.PreferenceScreen
 import de.maxr1998.modernpreferences.PreferencesAdapter
+import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.helpers.*
 import de.maxr1998.modernpreferences.preferences.CustomTextPreference
 import de.maxr1998.modernpreferences.preferences.choice.SelectionItem
@@ -102,9 +102,9 @@ import java.io.IOException
 
 class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScreenChangeListener,
     BackPressCallback, CanBackPressedCallback {
-    private lateinit var preferencesView: RecyclerView
-    private lateinit var layoutManager: LinearLayoutManager
-    private lateinit var searchView: MySearchView
+    private var preferencesView: RecyclerView? = null
+    private var layoutManager: LinearLayoutManager? = null
+    private var searchView: MySearchView? = null
     private val disposables = CompositeDisposable()
     override val keyInstanceState: String = "root_preferences"
 
@@ -142,9 +142,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     ): View {
         val root = inflater.inflate(R.layout.preference_fenrir_list_fragment, container, false)
         searchView = root.findViewById(R.id.searchview)
-        searchView.setRightButtonVisibility(false)
-        searchView.setLeftIcon(R.drawable.magnify)
-        searchView.setQuery("", true)
+        searchView?.setRightButtonVisibility(false)
+        searchView?.setLeftIcon(R.drawable.magnify)
+        searchView?.setQuery("", true)
         layoutManager = LinearLayoutManager(requireActivity())
         val isNull = createPreferenceAdapter()
         preferencesView = (root.findViewById<RecyclerView>(R.id.recycler_view)).apply {
@@ -157,30 +157,32 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
         if (isNull) {
             preferencesAdapter?.onScreenChangeListener = this
-            loadInstanceState({ createRootScreen() }, savedInstanceState, root)
+            loadInstanceState({ createRootScreen() }, root)
         }
 
-        searchView.setOnBackButtonClickListener {
-            if (!Utils.isEmpty(searchView.text) && !Utils.isEmpty(searchView.text?.trim())) {
-                preferencesAdapter?.findPreferences(
-                    requireActivity(),
-                    searchView.text!!.toString(),
-                    root
-                )
-            }
-        }
-        searchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
-                    preferencesAdapter?.findPreferences(requireActivity(), query!!, root)
+        searchView?.let {
+            it.setOnBackButtonClickListener {
+                if (!Utils.isEmpty(it.text) && !Utils.isEmpty(it.text?.trim())) {
+                    preferencesAdapter?.findPreferences(
+                        requireActivity(),
+                        it.text!!.toString(),
+                        root
+                    )
                 }
-                return true
             }
+            it.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
+                        preferencesAdapter?.findPreferences(requireActivity(), query!!, root)
+                    }
+                    return true
+                }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
-        })
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    return false
+                }
+            })
+        }
         return root
     }
 
@@ -193,16 +195,16 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     }
 
     override fun beforeScreenChange(screen: PreferenceScreen): Boolean {
-        preferencesAdapter?.stopObserveScrollPosition(preferencesView)
+        preferencesView?.let { preferencesAdapter?.stopObserveScrollPosition(it) }
         return true
     }
 
     override fun onScreenChanged(screen: PreferenceScreen, subScreen: Boolean, animation: Boolean) {
-        searchView.visibility = if (screen.getSearchQuery() == null) View.VISIBLE else View.GONE
+        searchView?.visibility = if (screen.getSearchQuery() == null) View.VISIBLE else View.GONE
         if (animation) {
-            preferencesView.scheduleLayoutAnimation()
+            preferencesView?.scheduleLayoutAnimation()
         }
-        preferencesAdapter?.restoreAndObserveScrollPosition(preferencesView)
+        preferencesView?.let { preferencesAdapter?.restoreAndObserveScrollPosition(it) }
         val actionBar = ActivityUtils.supportToolbarFor(this)
         if (actionBar != null) {
             if (screen.key == "root" || Utils.isEmpty(screen.title) && screen.titleRes == DEFAULT_RES_ID) {
@@ -515,7 +517,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
             pref("select_custom_icon") {
                 titleRes = R.string.select_custom_icon
-                iconRes = R.drawable.client_round
+                iconRes = R.drawable.app_icon_pref
                 val hasOreo = Utils.hasOreo()
                 visible = hasOreo
                 if (hasOreo) {
@@ -533,6 +535,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             ) {
                 initialSelection = "2"
                 titleRes = R.string.night_mode_title
+                iconRes = R.drawable.night_mode_pref
                 onSelectionChange {
                     when (it.toInt()) {
                         NightMode.DISABLE -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -814,18 +817,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             switch("change_upload_size") {
                 defaultValue = false
                 titleRes = R.string.change_upload_size
-            }
-
-            editText("photo_swipe_triggered_pos", parentFragmentManager) {
-                defaultValue = "180"
-                titleRes = R.string.photo_swipe_triggered_pos
-                isTrim = true
-                onTextBeforeChanged {
-                    if (Utils.isEmpty(it) || it?.trim()?.isEmpty() == true) {
-                        return@onTextBeforeChanged false
-                    }
-                    true
-                }
             }
 
         }
@@ -1994,7 +1985,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         .storeAvatarStyle(if (circle) AvatarStyle.CIRCLE else AvatarStyle.OVAL)
                     clear_cache()
                     parentFragmentManager.setFragmentResult(
-                        ExtraPref.RECREATE_ACTIVITY_REQUEST,
+                        PreferencesExtra.RECREATE_ACTIVITY_REQUEST,
                         Bundle()
                     )
                     dismiss()
@@ -2081,7 +2072,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         if (requireActivity() is UpdatableNavigation) {
             (requireActivity() as UpdatableNavigation).onUpdateNavigation()
         }
-        searchView.visibility =
+        searchView?.visibility =
             if (preferencesAdapter?.currentScreen?.getSearchQuery() == null) View.VISIBLE else View.GONE
         ActivityFeatures.Builder()
             .begin()
@@ -2162,7 +2153,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         .other().playerCoverBackgroundSettings =
                         PlayerCoverBackgroundSettings().set_default()
                     parentFragmentManager.setFragmentResult(
-                        ExtraPref.RECREATE_ACTIVITY_REQUEST,
+                        PreferencesExtra.RECREATE_ACTIVITY_REQUEST,
                         Bundle()
                     )
                     dismiss()
@@ -2177,7 +2168,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     Settings.get()
                         .other().playerCoverBackgroundSettings = st
                     parentFragmentManager.setFragmentResult(
-                        ExtraPref.RECREATE_ACTIVITY_REQUEST,
+                        PreferencesExtra.RECREATE_ACTIVITY_REQUEST,
                         Bundle()
                     )
                     dismiss()
@@ -2385,7 +2376,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         .other().slidrSettings =
                         SlidrSettings().set_default()
                     parentFragmentManager.setFragmentResult(
-                        ExtraPref.RECREATE_ACTIVITY_REQUEST,
+                        PreferencesExtra.RECREATE_ACTIVITY_REQUEST,
                         Bundle()
                     )
                     dismiss()
@@ -2407,7 +2398,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     Settings.get()
                         .other().slidrSettings = st
                     parentFragmentManager.setFragmentResult(
-                        ExtraPref.RECREATE_ACTIVITY_REQUEST,
+                        PreferencesExtra.RECREATE_ACTIVITY_REQUEST,
                         Bundle()
                     )
                     dismiss()
@@ -2417,9 +2408,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
     override fun onDestroy() {
         disposables.dispose()
-        preferencesAdapter?.stopObserveScrollPosition(preferencesView)
+        preferencesView?.let { preferencesAdapter?.stopObserveScrollPosition(it) }
         preferencesAdapter?.onScreenChangeListener = null
-        preferencesView.adapter = null
+        preferencesView?.adapter = null
         super.onDestroy()
     }
 

@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -570,7 +571,7 @@ public class MessagesRepository implements IMessagesRepository {
     public Single<Pair<Peer, List<Message>>> getMessagesFromLocalJSon(int accountId, Context context) {
         Gson gson = VkRetrofitProvider.getVkgson();
         try {
-            InputStreamReader b = new InputStreamReader(context.getContentResolver().openInputStream(((Activity) context).getIntent().getData()));
+            InputStreamReader b = new InputStreamReader(context.getContentResolver().openInputStream(((Activity) context).getIntent().getData()), StandardCharsets.UTF_8);
             ChatJsonResponse resp = gson.fromJson(b, ChatJsonResponse.class);
             b.close();
             if (resp == null || isEmpty(resp.page_title)) {

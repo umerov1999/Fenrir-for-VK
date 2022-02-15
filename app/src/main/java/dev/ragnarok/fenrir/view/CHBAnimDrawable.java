@@ -9,7 +9,6 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
-import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -23,7 +22,6 @@ public final class CHBAnimDrawable extends BitmapDrawable implements Animatable 
     private boolean animatingFade;
     private boolean animating;
     private int alpha = 0xFF;
-    private View currentParentView;
     private float targetSaturation = 1f;
 
     public CHBAnimDrawable(Context context, @NonNull Bitmap bitmap, boolean animatingFade) {
@@ -39,21 +37,14 @@ public final class CHBAnimDrawable extends BitmapDrawable implements Animatable 
             ((Animatable) placeholder).stop();
         }
         CHBAnimDrawable drawable = new CHBAnimDrawable(context, bitmap, fadeIn);
-        drawable.setCurrentParentView(target);
+        drawable.setCallback(target);
         if (start) {
             drawable.start();
         }
         target.setImageDrawable(drawable);
     }
 
-    public void setCurrentParentView(View view) {
-        currentParentView = view;
-    }
-
     protected void invalidateInternal() {
-        if (currentParentView != null) {
-            currentParentView.invalidate();
-        }
         if (getCallback() != null) {
             invalidateSelf();
         }

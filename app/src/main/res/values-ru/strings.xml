@@ -290,7 +290,7 @@
 
     <string name="title_activity_create_post">Новая запись</string>
 
-    <string name="chat_empty_text">Здесь будет выводиться история переписки.</string>
+    <string name="chat_empty_text">Здесь пока ничего нет…</string>
 
     <string name="emojis_type_title">Использовать системные смайлы</string>
     <string name="emojis_full_screen">Стикеры на весь экран</string>
@@ -903,7 +903,6 @@
     <string name="privacy_to_all_users">Всем пользователям</string>
     <string name="privacy_to_friends_and_friends_of_friends">Друзьям и друзьям друзей</string>
     <string name="press_plus_for_add">Нажмите (+) чтобы отметить пользователя</string>
-    <string name="photo_swipe_triggered_pos">Позиция события свайпа фото</string>
     <string name="and">и</string>
     <string name="privacy_view">Доступ к просмотру</string>
     <string name="privacy_settings">Настройки приватности</string>

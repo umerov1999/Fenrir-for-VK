@@ -13,90 +13,92 @@ import de.maxr1998.modernpreferences.preferences.choice.SingleChoiceDialogPrefer
 abstract class AbsPreferencesFragment : Fragment() {
     protected var preferencesAdapter: PreferencesAdapter? = null
     protected abstract val keyInstanceState: String
+    private var currentSaved: PreferencesAdapter.SavedState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        currentSaved = savedInstanceState?.getParcelable(keyInstanceState)
 
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.EDIT_DIALOG_REQUEST, this
+            PreferencesExtra.EDIT_DIALOG_REQUEST, this
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
-                result.getString(ExtraPref.PREFERENCE_SCREEN_KEY),
-                result.getString(ExtraPref.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
+                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
             ) {
-                (it as EditTextPreference).persist(result.getCharSequence(ExtraPref.RESULT_VALUE))
+                (it as EditTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
         }
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.SEPARATOR_DIALOG_REQUEST, this
+            PreferencesExtra.SEPARATOR_DIALOG_REQUEST, this
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
-                result.getString(ExtraPref.PREFERENCE_SCREEN_KEY),
-                result.getString(ExtraPref.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
+                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
             ) {
-                (it as SeparatorSpaceTextPreference).persist(result.getCharSequence(ExtraPref.RESULT_VALUE))
+                (it as SeparatorSpaceTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
         }
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.MULTI_LINE_EDIT_DIALOG_REQUEST, this
+            PreferencesExtra.MULTI_LINE_EDIT_DIALOG_REQUEST, this
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
-                result.getString(ExtraPref.PREFERENCE_SCREEN_KEY),
-                result.getString(ExtraPref.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
+                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
             ) {
-                (it as MultiLineEditTextPreference).persist(result.getCharSequence(ExtraPref.RESULT_VALUE))
+                (it as MultiLineEditTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
         }
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.CUSTOM_TEXT_DIALOG_REQUEST, this
+            PreferencesExtra.CUSTOM_TEXT_DIALOG_REQUEST, this
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
-                result.getString(ExtraPref.PREFERENCE_SCREEN_KEY),
-                result.getString(ExtraPref.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
+                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
             ) {
-                (it as CustomTextPreference).persist(result.getCharSequence(ExtraPref.RESULT_VALUE))
+                (it as CustomTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
         }
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.MULTI_CHOOSE_DIALOG_REQUEST, this
+            PreferencesExtra.MULTI_CHOOSE_DIALOG_REQUEST, this
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
-                result.getString(ExtraPref.PREFERENCE_SCREEN_KEY),
-                result.getString(ExtraPref.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
+                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
             ) {
                 (it as MultiChoiceDialogPreference).persistSelection(
                     result.getStringArrayList(
-                        ExtraPref.RESULT_VALUE
+                        PreferencesExtra.RESULT_VALUE
                     )!!
                 )
             }
         }
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.SINGLE_CHOOSE_DIALOG_REQUEST, this
+            PreferencesExtra.SINGLE_CHOOSE_DIALOG_REQUEST, this
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
-                result.getString(ExtraPref.PREFERENCE_SCREEN_KEY),
-                result.getString(ExtraPref.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
+                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
             ) {
                 (it as SingleChoiceDialogPreference).persistSelection(
                     result.getParcelable(
-                        ExtraPref.RESULT_VALUE
+                        PreferencesExtra.RESULT_VALUE
                     )
                 )
             }
         }
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.COLOR_DIALOG_REQUEST, this
+            PreferencesExtra.COLOR_DIALOG_REQUEST, this
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
-                result.getString(ExtraPref.PREFERENCE_SCREEN_KEY),
-                result.getString(ExtraPref.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
+                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
             ) {
-                (it as ColorPickPreference).persist(result.getInt(ExtraPref.RESULT_VALUE))
+                (it as ColorPickPreference).persist(result.getInt(PreferencesExtra.RESULT_VALUE))
             }
         }
         parentFragmentManager.setFragmentResultListener(
-            ExtraPref.RECREATE_ACTIVITY_REQUEST, this
+            PreferencesExtra.RECREATE_ACTIVITY_REQUEST, this
         ) { _: String?, _: Bundle ->
             requireActivity().recreate()
         }
@@ -124,8 +126,8 @@ abstract class AbsPreferencesFragment : Fragment() {
         return false
     }
 
-    protected fun loadInstanceState(screen: MakeScreen, savedInstanceState: Bundle?, view: View?) {
-        savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>(keyInstanceState)
+    protected fun loadInstanceState(screen: MakeScreen, view: View?) {
+        currentSaved
             ?.let {
                 preferencesAdapter?.loadSavedState(
                     requireActivity(),
@@ -138,7 +140,13 @@ abstract class AbsPreferencesFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(keyInstanceState, preferencesAdapter?.getSavedState())
+        val state = preferencesAdapter?.getSavedState() ?: currentSaved
+        state?.let {
+            outState.putParcelable(
+                keyInstanceState,
+                state
+            )
+        }
     }
 
     fun interface MakeScreen {
