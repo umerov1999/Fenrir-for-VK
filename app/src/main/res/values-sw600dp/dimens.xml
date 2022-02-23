@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="articles_column_count">2</integer>
     <integer name="videos_column_count">3</integer>

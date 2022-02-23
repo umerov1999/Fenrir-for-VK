@@ -172,7 +172,7 @@ final class Decode {
             int distanceContext =
                     distanceContextOffset + (copyLengthOffset > 4 ? 3 : copyLengthOffset - 2);
             int index = cmdCode * 4;
-            cmdLookup[index + 0] =
+            cmdLookup[index] =
                     (short) (INSERT_LENGTH_N_BITS[insertCode] | (COPY_LENGTH_N_BITS[copyCode] << 8));
             cmdLookup[index + 1] = insertLengthOffsets[insertCode];
             cmdLookup[index + 2] = copyLengthOffsets[copyCode];

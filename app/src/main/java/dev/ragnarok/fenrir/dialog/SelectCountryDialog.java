@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.dialog;
 
+import static dev.ragnarok.fenrir.fragment.search.FilterEditFragment.REQUEST_FILTER_OPTION;
 import static dev.ragnarok.fenrir.util.Objects.nonNull;
 
 import android.app.Dialog;
@@ -30,7 +31,6 @@ import dev.ragnarok.fenrir.mvp.view.ICountriesView;
 public class SelectCountryDialog extends BaseMvpDialogFragment<CountriesPresenter, ICountriesView>
         implements CountriesAdapter.Listener, ICountriesView {
 
-    public static final String REQUEST_CODE_COUNTRY = "request_country";
     private CountriesAdapter mAdapter;
     private View mLoadingView;
 
@@ -103,7 +103,7 @@ public class SelectCountryDialog extends BaseMvpDialogFragment<CountriesPresente
         if (getArguments() != null) {
             intent.putAll(getArguments());
         }
-        getParentFragmentManager().setFragmentResult(REQUEST_CODE_COUNTRY, intent);
+        getParentFragmentManager().setFragmentResult(REQUEST_FILTER_OPTION, intent);
         dismiss();
     }
 

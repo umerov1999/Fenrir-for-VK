@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import androidx.annotation.NonNull;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -192,6 +194,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
      *
      * @return an iterator to navigate the elements of the array.
      */
+    @NonNull
+    @Override
     public Iterator<JsonElement> iterator() {
         return elements.iterator();
     }

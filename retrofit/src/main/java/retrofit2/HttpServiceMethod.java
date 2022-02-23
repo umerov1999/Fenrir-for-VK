@@ -67,12 +67,11 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
                 // Unwrap the actual body type from Response<T>.
                 responseType = Utils.getParameterUpperBound(0, (ParameterizedType) responseType);
                 continuationWantsResponse = true;
-            } else {
-                // TODO figure out if type is nullable or not
-                // Metadata metadata = method.getDeclaringClass().getAnnotation(Metadata.class)
-                // Find the entry for method
-                // Determine if return type is nullable or not
-            }
+            }  // TODO figure out if type is nullable or not
+            // Metadata metadata = method.getDeclaringClass().getAnnotation(Metadata.class)
+            // Find the entry for method
+            // Determine if return type is nullable or not
+
 
             adapterType = new Utils.ParameterizedTypeImpl(null, Call.class, responseType);
             annotations = SkipCallbackExecutorImpl.ensurePresent(annotations);

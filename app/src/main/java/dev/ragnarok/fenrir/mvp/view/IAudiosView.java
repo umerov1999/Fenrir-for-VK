@@ -23,4 +23,6 @@ public interface IAudiosView extends IMvpView, IErrorView, IAccountDependencyVie
     void displayRefreshing(boolean refreshing);
 
     void updatePlaylists(List<AudioPlaylist> stories);
+
+    void showAudioDeadHelper();
 }

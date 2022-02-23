@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment;
 
+import static dev.ragnarok.fenrir.Constants.DEFAULT_ACCOUNT_TYPE;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
@@ -160,7 +162,7 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
                     String Password = result.getData().getStringExtra(Extra.PASSWORD);
                     String TwoFA = result.getData().getStringExtra(Extra.TWO_FA);
                     boolean isSave = result.getData().getBooleanExtra(Extra.SAVE, false);
-                    processNewAccount(uid, token, Constants.DEFAULT_ACCOUNT_TYPE, Login, Password, TwoFA, true, isSave);
+                    processNewAccount(uid, token, DEFAULT_ACCOUNT_TYPE, Login, Password, TwoFA, true, isSave);
                 }
             });
     private IAccountsInteractor accountsInteractor;
@@ -286,7 +288,7 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
             String Password = result.getString(Extra.PASSWORD);
             String TwoFA = result.getString(Extra.TWO_FA);
             boolean isSave = result.getBoolean(Extra.SAVE);
-            processNewAccount(uid, token, Constants.DEFAULT_ACCOUNT_TYPE, Login, Password, TwoFA, true, isSave);
+            processNewAccount(uid, token, DEFAULT_ACCOUNT_TYPE, Login, Password, TwoFA, true, isSave);
         });
     }
 
@@ -556,6 +558,10 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
                 }
                 arr.add(temp);
             }
+            JsonObject app = new JsonObject();
+            app.addProperty("version", Utils.getAppVersionName(requireActivity()));
+            app.addProperty("api_type", DEFAULT_ACCOUNT_TYPE);
+            root.add("app", app);
             root.add("fenrir_accounts", arr);
             JsonObject settings = new SettingsBackup().doBackup();
             if (settings != null)

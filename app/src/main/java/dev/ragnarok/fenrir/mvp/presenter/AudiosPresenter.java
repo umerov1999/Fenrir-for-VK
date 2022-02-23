@@ -35,6 +35,7 @@ import dev.ragnarok.fenrir.player.MusicPlaybackService;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.DownloadWorkUtils;
 import dev.ragnarok.fenrir.util.FindAtWithContent;
+import dev.ragnarok.fenrir.util.HelperSimple;
 import dev.ragnarok.fenrir.util.RxUtils;
 import dev.ragnarok.fenrir.util.Utils;
 import io.reactivex.rxjava3.core.Single;
@@ -62,6 +63,7 @@ public class AudiosPresenter extends AccountDependencyPresenter<IAudiosView> {
     private boolean loadingNow;
     private boolean endOfContent;
     private boolean doAudioLoadTabs;
+    private boolean needDeadHelper;
 
     public AudiosPresenter(int accountId, int ownerId, Integer albumId, String accessKey, boolean iSSelectMode, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
@@ -72,6 +74,7 @@ public class AudiosPresenter extends AccountDependencyPresenter<IAudiosView> {
         this.albumId = albumId;
         this.accessKey = accessKey;
         searcher = new FindAudio(getCompositeDisposable());
+        needDeadHelper = HelperSimple.INSTANCE.hasHelp(HelperSimple.AUDIO_DEAD, 1);
     }
 
     private void loadedPlaylist(AudioPlaylist t) {
@@ -160,6 +163,15 @@ public class AudiosPresenter extends AccountDependencyPresenter<IAudiosView> {
             callView(view -> view.notifyDataAdded(startOwnSize, data.size()));
         }
         setLoadingNow(false);
+        if (needDeadHelper) {
+            for (Audio i : audios) {
+                if (Utils.isEmpty(i.getUrl()) || "https://vk.com/mp3/audio_api_unavailable.mp3".equals(i.getUrl())) {
+                    needDeadHelper = false;
+                    callView(IAudiosView::showAudioDeadHelper);
+                    break;
+                }
+            }
+        }
     }
 
     public void playAudio(Context context, int position) {

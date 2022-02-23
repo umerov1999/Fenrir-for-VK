@@ -114,6 +114,7 @@ public final class ConstructorConstructor {
         if (Modifier.isAbstract(rawType.getModifiers())) {
             return null;
         }
+
         Constructor<? super T> constructor;
         try {
             constructor = rawType.getDeclaredConstructor();

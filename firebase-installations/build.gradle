@@ -8,6 +8,7 @@ android {
         minSdkVersion fenrirMinSDK
         //noinspection ExpiredTargetSdkVersion,OldTargetApi
         targetSdkVersion fenrirTargetSDK
+        buildConfigField 'String', 'VERSION_NAME', '"17.0.0"'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

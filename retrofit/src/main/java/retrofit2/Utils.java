@@ -15,6 +15,7 @@
  */
 package retrofit2;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
@@ -120,7 +121,7 @@ final class Utils {
             ParameterizedType pb = (ParameterizedType) b;
             Object ownerA = pa.getOwnerType();
             Object ownerB = pb.getOwnerType();
-            return (ownerA == ownerB || (ownerA != null && ownerA.equals(ownerB)))
+            return (Objects.equals(ownerA, ownerB))
                     && pa.getRawType().equals(pb.getRawType())
                     && Arrays.equals(pa.getActualTypeArguments(), pb.getActualTypeArguments());
 
@@ -419,11 +420,13 @@ final class Utils {
             this.typeArguments = typeArguments.clone();
         }
 
+        @NonNull
         @Override
         public Type[] getActualTypeArguments() {
             return typeArguments.clone();
         }
 
+        @NonNull
         @Override
         public Type getRawType() {
             return rawType;
@@ -447,6 +450,7 @@ final class Utils {
                     ^ (ownerType != null ? ownerType.hashCode() : 0);
         }
 
+        @NonNull
         @Override
         public String toString() {
             if (typeArguments.length == 0) return typeToString(rawType);
@@ -467,6 +471,7 @@ final class Utils {
             this.componentType = componentType;
         }
 
+        @NonNull
         @Override
         public Type getGenericComponentType() {
             return componentType;
@@ -482,6 +487,7 @@ final class Utils {
             return componentType.hashCode();
         }
 
+        @NonNull
         @Override
         public String toString() {
             return typeToString(componentType) + "[]";
@@ -516,11 +522,13 @@ final class Utils {
             }
         }
 
+        @NonNull
         @Override
         public Type[] getUpperBounds() {
             return new Type[]{upperBound};
         }
 
+        @NonNull
         @Override
         public Type[] getLowerBounds() {
             return lowerBound != null ? new Type[]{lowerBound} : EMPTY_TYPE_ARRAY;
@@ -537,6 +545,7 @@ final class Utils {
             return (lowerBound != null ? 31 + lowerBound.hashCode() : 1) ^ (31 + upperBound.hashCode());
         }
 
+        @NonNull
         @Override
         public String toString() {
             if (lowerBound != null) return "? super " + typeToString(lowerBound);

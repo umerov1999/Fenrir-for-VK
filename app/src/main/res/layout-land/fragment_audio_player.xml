@@ -9,43 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <View
             android:id="@+id/cover_background"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:adjustViewBounds="true"
-            android:alpha="0.75"
-            android:contentDescription="@string/album_cover"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/cover_gradient_top"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/album_cover"
-            android:rotation="180"
-            android:scaleType="centerCrop"
-            android:src="@drawable/player_semitransperent"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/seekbar_container"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/cover_gradient"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/album_cover"
-            android:scaleType="centerCrop"
-            android:src="@drawable/player_semitransperent"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

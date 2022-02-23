@@ -15,6 +15,8 @@
  */
 package retrofit2;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 
 import okhttp3.Request;
@@ -70,6 +72,7 @@ public interface Call<T> extends Cloneable {
      * Create a new, identical call to this one which can be enqueued or executed even if this call
      * has already been.
      */
+    @NonNull
     Call<T> clone();
 
     /**

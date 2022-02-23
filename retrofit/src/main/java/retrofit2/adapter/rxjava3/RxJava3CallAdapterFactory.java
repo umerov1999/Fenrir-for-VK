@@ -92,7 +92,7 @@ public final class RxJava3CallAdapterFactory extends CallAdapter.Factory {
      * Returns an instance which creates synchronous observables that {@code subscribeOn(..)} the
      * supplied {@code scheduler} by default.
      */
-    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
+    // Guarding public API nullability.
     public static RxJava3CallAdapterFactory createWithScheduler(Scheduler scheduler) {
         if (scheduler == null) throw new NullPointerException("scheduler == null");
         return new RxJava3CallAdapterFactory(scheduler, false);

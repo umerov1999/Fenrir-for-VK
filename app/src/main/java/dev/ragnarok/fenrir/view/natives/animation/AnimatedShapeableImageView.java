@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.view.natives.animation;
 
 import static dev.ragnarok.fenrir.util.Objects.nonNull;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -53,9 +52,9 @@ public class AnimatedShapeableImageView extends ShapeableImageView {
         super(context, attrs);
         cache = new AnimationNetworkCache(context);
 
-        @SuppressLint("CustomViewStyleable") TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RLottieImageView);
-        defaultWidth = (int) a.getDimension(R.styleable.RLottieImageView_w, 100);
-        defaultHeight = (int) a.getDimension(R.styleable.RLottieImageView_h, 100);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AnimatedShapeableImageView);
+        defaultWidth = (int) a.getDimension(R.styleable.AnimatedShapeableImageView_default_width, 100);
+        defaultHeight = (int) a.getDimension(R.styleable.AnimatedShapeableImageView_default_height, 100);
         a.recycle();
     }
 

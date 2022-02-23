@@ -440,7 +440,7 @@ public class JsonReader implements Closeable {
         if (p == PEEKED_NONE) {
             p = doPeek();
         }
-        return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY;
+        return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY && p != PEEKED_EOF;
     }
 
     /**
@@ -1239,6 +1239,7 @@ public class JsonReader implements Closeable {
     /**
      * Closes this JSON reader and the underlying {@link java.io.Reader}.
      */
+    @Override
     public void close() throws IOException {
         peeked = PEEKED_NONE;
         stack[0] = JsonScope.CLOSED;

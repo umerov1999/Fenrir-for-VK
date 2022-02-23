@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -25,6 +26,8 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +38,7 @@ import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.ActivityFeatures;
 import dev.ragnarok.fenrir.activity.ActivityUtils;
+import dev.ragnarok.fenrir.activity.SendAttachmentsActivity;
 import dev.ragnarok.fenrir.adapter.AudioRecyclerAdapter;
 import dev.ragnarok.fenrir.adapter.horizontal.HorizontalPlaylistAdapter;
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment;
@@ -54,6 +58,7 @@ import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.AppPerms;
 import dev.ragnarok.fenrir.util.CustomToast;
 import dev.ragnarok.fenrir.util.DownloadWorkUtils;
+import dev.ragnarok.fenrir.util.HelperSimple;
 import dev.ragnarok.fenrir.util.Utils;
 import dev.ragnarok.fenrir.util.ViewUtils;
 import dev.ragnarok.fenrir.view.MySearchView;
@@ -304,6 +309,20 @@ public class AudiosFragment extends BaseMvpFragment<AudiosPresenter, IAudiosView
         }
     }
 
+    private void showSnackbar(@StringRes int res, boolean isLong) {
+        View view = getView();
+        if (nonNull(view)) {
+            Snackbar.make(view, res, isLong ? BaseTransientBottomBar.LENGTH_LONG : BaseTransientBottomBar.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void showAudioDeadHelper() {
+        if (HelperSimple.INSTANCE.needHelp(HelperSimple.AUDIO_DEAD, 1)) {
+            showSnackbar(R.string.audio_dead_helper, true);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -400,5 +419,10 @@ public class AudiosFragment extends BaseMvpFragment<AudiosPresenter, IAudiosView
             callPresenter(p -> p.onDelete(item));
         else
             callPresenter(p -> p.onAdd(item));
+    }
+
+    @Override
+    public void onShareClick(AudioPlaylist item, int pos) {
+        SendAttachmentsActivity.startForSendAttachments(requireActivity(), Settings.get().accounts().getCurrent(), item);
     }
 }

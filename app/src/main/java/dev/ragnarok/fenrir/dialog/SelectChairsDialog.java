@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.dialog;
 
+import static dev.ragnarok.fenrir.fragment.search.FilterEditFragment.REQUEST_FILTER_OPTION;
+
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
@@ -25,7 +27,6 @@ import dev.ragnarok.fenrir.util.RxUtils;
 
 public class SelectChairsDialog extends AccountDependencyDialogFragment implements ChairsAdapter.Listener {
 
-    public static final String REQUEST_CODE_CHAIRS = "request_chairs";
     private static final int COUNT_PER_REQUEST = 1000;
     private int mAccountId;
     private int facultyId;
@@ -105,7 +106,7 @@ public class SelectChairsDialog extends AccountDependencyDialogFragment implemen
         if (getArguments() != null) {
             intent.putAll(getArguments());
         }
-        getParentFragmentManager().setFragmentResult(REQUEST_CODE_CHAIRS, intent);
+        getParentFragmentManager().setFragmentResult(REQUEST_FILTER_OPTION, intent);
         dismiss();
     }
 }

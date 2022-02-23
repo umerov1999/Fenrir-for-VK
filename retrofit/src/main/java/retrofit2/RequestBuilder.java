@@ -15,6 +15,7 @@
  */
 package retrofit2;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.retrofit2.BuildConfig;
@@ -130,34 +131,35 @@ final class RequestBuilder {
         int codePoint;
         for (int i = pos; i < limit; i += Character.charCount(codePoint)) {
             codePoint = input.codePointAt(i);
-            if (alreadyEncoded
-                    && (codePoint == '\t' || codePoint == '\n' || codePoint == '\f' || codePoint == '\r')) {
-                // Skip this character.
-            } else if (codePoint < 0x20
-                    || codePoint >= 0x7f
-                    || PATH_SEGMENT_ALWAYS_ENCODE_SET.indexOf(codePoint) != -1
-                    || (!alreadyEncoded && (codePoint == '/' || codePoint == '%'))) {
-                // Percent encode this character.
-                if (utf8Buffer == null) {
-                    utf8Buffer = new Buffer();
-                }
-                utf8Buffer.writeUtf8CodePoint(codePoint);
-                try {
-                    while (!utf8Buffer.exhausted()) {
-                        int b = utf8Buffer.readByte() & 0xff;
-                        out.writeByte('%');
-                        out.writeByte(HEX_DIGITS[(b >> 4) & 0xf]);
-                        out.writeByte(HEX_DIGITS[b & 0xf]);
+            if (!alreadyEncoded
+                    || (codePoint != '\t' && codePoint != '\n' && codePoint != '\f' && codePoint != '\r')) {
+                if (codePoint < 0x20
+                        || codePoint >= 0x7f
+                        || PATH_SEGMENT_ALWAYS_ENCODE_SET.indexOf(codePoint) != -1
+                        || (!alreadyEncoded && (codePoint == '/' || codePoint == '%'))) {
+                    // Percent encode this character.
+                    if (utf8Buffer == null) {
+                        utf8Buffer = new Buffer();
                     }
-                } catch (IOException e) {
-                    if (BuildConfig.DEBUG) {
-                        e.printStackTrace();
+                    utf8Buffer.writeUtf8CodePoint(codePoint);
+                    try {
+                        while (!utf8Buffer.exhausted()) {
+                            int b = utf8Buffer.readByte() & 0xff;
+                            out.writeByte('%');
+                            out.writeByte(HEX_DIGITS[(b >> 4) & 0xf]);
+                            out.writeByte(HEX_DIGITS[b & 0xf]);
+                        }
+                    } catch (IOException e) {
+                        if (BuildConfig.DEBUG) {
+                            e.printStackTrace();
+                        }
                     }
+                } else {
+                    // This character doesn't need encoding. Just copy it over.
+                    out.writeUtf8CodePoint(codePoint);
                 }
-            } else {
-                // This character doesn't need encoding. Just copy it over.
-                out.writeUtf8CodePoint(codePoint);
-            }
+            }  // Skip this character.
+
         }
     }
 
@@ -237,7 +239,7 @@ final class RequestBuilder {
         multipartBuilder.addPart(part);
     }
 
-    void setBody(RequestBody body) {
+    void setBody(@Nullable RequestBody body) {
         this.body = body;
     }
 
@@ -305,7 +307,7 @@ final class RequestBuilder {
         }
 
         @Override
-        public void writeTo(BufferedSink sink) throws IOException {
+        public void writeTo(@NonNull BufferedSink sink) throws IOException {
             delegate.writeTo(sink);
         }
     }

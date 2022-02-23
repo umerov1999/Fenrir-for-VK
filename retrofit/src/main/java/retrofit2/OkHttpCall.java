@@ -18,6 +18,7 @@ package retrofit2;
 import static retrofit2.Utils.throwIfFatal;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
@@ -62,6 +63,7 @@ final class OkHttpCall<T> implements Call<T> {
         this.responseConverter = responseConverter;
     }
 
+    @NonNull
     @SuppressWarnings("CloneDoesntCallSuperClone")
     // We are a final type & this saves clearing state.
     @Override
@@ -152,7 +154,7 @@ final class OkHttpCall<T> implements Call<T> {
         call.enqueue(
                 new okhttp3.Callback() {
                     @Override
-                    public void onResponse(okhttp3.Call call, okhttp3.Response rawResponse) {
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response rawResponse) {
                         Response<T> response;
                         try {
                             response = parseResponse(rawResponse);
@@ -171,7 +173,7 @@ final class OkHttpCall<T> implements Call<T> {
                     }
 
                     @Override
-                    public void onFailure(okhttp3.Call call, IOException e) {
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
                         callFailure(e);
                     }
 
@@ -298,6 +300,7 @@ final class OkHttpCall<T> implements Call<T> {
             return contentLength;
         }
 
+        @NonNull
         @Override
         public BufferedSource source() {
             throw new IllegalStateException("Cannot read raw response body of a converted body.");
@@ -316,7 +319,7 @@ final class OkHttpCall<T> implements Call<T> {
                     Okio.buffer(
                             new ForwardingSource(delegate.source()) {
                                 @Override
-                                public long read(Buffer sink, long byteCount) throws IOException {
+                                public long read(@NonNull Buffer sink, long byteCount) throws IOException {
                                     try {
                                         return super.read(sink, byteCount);
                                     } catch (IOException e) {
@@ -337,6 +340,7 @@ final class OkHttpCall<T> implements Call<T> {
             return delegate.contentLength();
         }
 
+        @NonNull
         @Override
         public BufferedSource source() {
             return delegateSource;

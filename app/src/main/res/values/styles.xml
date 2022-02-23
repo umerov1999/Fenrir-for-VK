@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <style name="Base.App.DayNight" parent="Theme.Material3.DayNight.NoActionBar">
@@ -982,12 +983,6 @@
 
     <style name="MyButton.shapeAppearance" parent="">
         <item name="cornerSize">25%</item>
-    </style>
-
-    <style name="BottomNavigation.Main" parent="Widget.Material3.BottomNavigationView">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="labelVisibilityMode">unlabeled</item>
-        <item name="itemIconTint">@color/selector_bottom_navigation</item>
     </style>
 
     <style name="ZoomLayoutStyle" parent="App.DayNight">

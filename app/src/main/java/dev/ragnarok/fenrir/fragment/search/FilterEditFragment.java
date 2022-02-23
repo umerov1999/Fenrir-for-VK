@@ -60,6 +60,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 public class FilterEditFragment extends BottomSheetDialogFragment implements SearchOptionsAdapter.OptionClickListener {
 
     public static final String REQUEST_FILTER_EDIT = "request_filter_edit";
+    public static final String REQUEST_FILTER_OPTION = "request_filter_option";
     private final CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private final AppPerms.doRequestPermissions requestGPSPermission = AppPerms.requestPermissions(this,
             new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -76,14 +77,6 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
         FilterEditFragment fragment = new FilterEditFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    private void onDialogResult(@NonNull Bundle result) {
-        int key = result.getInt(Extra.KEY);
-        Integer id = result.containsKey(Extra.ID) ? result.getInt(Extra.ID) : null;
-        String title = result.containsKey(Extra.TITLE) ? result.getString(Extra.TITLE) : null;
-
-        mergeDatabaseOptionValue(key, id == null ? null : new DatabaseOption.Entry(id, title));
     }
 
     @Override
@@ -128,6 +121,13 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
         resolveEmptyTextVisibility();
 
         dialog.setContentView(root);
+        getParentFragmentManager().setFragmentResultListener(REQUEST_FILTER_OPTION, this, (requestKey, result) -> {
+            int key = result.getInt(Extra.KEY);
+            Integer id = result.containsKey(Extra.ID) ? result.getInt(Extra.ID) : null;
+            String title = result.containsKey(Extra.TITLE) ? result.getString(Extra.TITLE) : null;
+
+            mergeDatabaseOptionValue(key, id == null ? null : new DatabaseOption.Entry(id, title));
+        });
     }
 
     private void onSaveClick() {
@@ -158,7 +158,7 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
             if (option.key == key && option instanceof DatabaseOption) {
                 DatabaseOption databaseOption = (DatabaseOption) option;
                 databaseOption.value = value;
-                resetChildDependensies(databaseOption.childDependencies);
+                resetChildDependents(databaseOption.childDependencies);
                 mAdapter.notifyDataSetChanged();
                 break;
             }
@@ -188,10 +188,10 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
         }
     }
 
-    private void resetChildDependensies(int... childs) {
-        if (childs != null) {
+    private void resetChildDependents(int... children) {
+        if (children != null) {
             boolean changed = false;
-            for (int key : childs) {
+            for (int key : children) {
                 for (BaseOption option : mData) {
                     if (option.key == key) {
                         option.reset();
@@ -204,19 +204,6 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
                 mAdapter.notifyDataSetChanged();
             }
         }
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        getParentFragmentManager().setFragmentResultListener(SelectCountryDialog.REQUEST_CODE_COUNTRY, this, (requestKey, result) -> onDialogResult(result));
-        getParentFragmentManager().setFragmentResultListener(SelectCityDialog.REQUEST_CODE_CITY, this, (requestKey, result) -> onDialogResult(result));
-        getParentFragmentManager().setFragmentResultListener(SelectUniversityDialog.REQUEST_CODE_UNIVERSITY, this, (requestKey, result) -> onDialogResult(result));
-        getParentFragmentManager().setFragmentResultListener(SelectSchoolsDialog.REQUEST_CODE_SCHOOL, this, (requestKey, result) -> onDialogResult(result));
-        getParentFragmentManager().setFragmentResultListener(SelectFacultyDialog.REQUEST_CODE_FACULTY, this, (requestKey, result) -> onDialogResult(result));
-        getParentFragmentManager().setFragmentResultListener(SelectChairsDialog.REQUEST_CODE_CHAIRS, this, (requestKey, result) -> onDialogResult(result));
-        getParentFragmentManager().setFragmentResultListener(SelectSchoolClassesDialog.REQUEST_CODE_SCHOOL_CLASSES, this, (requestKey, result) -> onDialogResult(result));
     }
 
     @Override
@@ -349,7 +336,7 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
 
     @Override
     public void onOptionCleared(BaseOption option) {
-        resetChildDependensies(option.childDependencies);
+        resetChildDependents(option.childDependencies);
     }
 
     @Override

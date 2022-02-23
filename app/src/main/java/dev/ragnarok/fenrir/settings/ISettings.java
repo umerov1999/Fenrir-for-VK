@@ -139,7 +139,7 @@ public interface ISettings {
 
         boolean isUse_stop_audio();
 
-        boolean isBlur_for_player();
+        boolean isPlayer_Has_Background();
 
         boolean isShow_mini_player();
 

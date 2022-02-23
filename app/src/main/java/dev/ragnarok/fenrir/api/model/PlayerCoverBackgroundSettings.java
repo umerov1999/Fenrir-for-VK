@@ -9,6 +9,9 @@ public class PlayerCoverBackgroundSettings {
     @SerializedName("invert_rotation")
     public boolean invert_rotation;
 
+    @SerializedName("fade_saturation")
+    public boolean fade_saturation;
+
     @SerializedName("rotation_speed")
     public float rotation_speed;
 
@@ -21,7 +24,8 @@ public class PlayerCoverBackgroundSettings {
     public PlayerCoverBackgroundSettings set_default() {
         enabled_rotation = true;
         invert_rotation = false;
-        rotation_speed = 0.006f;
+        fade_saturation = true;
+        rotation_speed = 0.3f;
         zoom = 1.2f;
         blur = 16;
         return this;

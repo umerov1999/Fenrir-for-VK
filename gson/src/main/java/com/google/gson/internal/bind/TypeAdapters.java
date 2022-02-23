@@ -893,6 +893,7 @@ public final class TypeAdapters {
 
     private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
         private final Map<String, T> nameToConstant = new HashMap<>();
+        private final Map<String, T> stringToConstant = new HashMap<>();
         private final Map<T, String> constantToName = new HashMap<>();
 
         public EnumTypeAdapter(Class<T> classOfT) {
@@ -900,23 +901,28 @@ public final class TypeAdapters {
                 // Uses reflection to find enum constants to work around name mismatches for obfuscated classes
                 // Reflection access might throw SecurityException, therefore run this in privileged context;
                 // should be acceptable because this only retrieves enum constants, but does not expose anything else
-                Field[] constantFields = AccessController.doPrivileged((PrivilegedAction<Field[]>) () -> {
-                    Field[] fields = classOfT.getDeclaredFields();
-                    ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
-                    for (Field f : fields) {
-                        if (f.isEnumConstant()) {
-                            constantFieldsList.add(f);
+                Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
+                    @Override
+                    public Field[] run() {
+                        Field[] fields = classOfT.getDeclaredFields();
+                        ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+                        for (Field f : fields) {
+                            if (f.isEnumConstant()) {
+                                constantFieldsList.add(f);
+                            }
                         }
-                    }
 
-                    Field[] constantFields1 = constantFieldsList.toArray(new Field[0]);
-                    AccessibleObject.setAccessible(constantFields1, true);
-                    return constantFields1;
+                        Field[] constantFields = constantFieldsList.toArray(new Field[0]);
+                        AccessibleObject.setAccessible(constantFields, true);
+                        return constantFields;
+                    }
                 });
                 for (Field constantField : constantFields) {
                     @SuppressWarnings("unchecked")
                     T constant = (T) (constantField.get(null));
                     String name = constant.name();
+                    String toStringVal = constant.toString();
+
                     SerializedName annotation = constantField.getAnnotation(SerializedName.class);
                     if (annotation != null) {
                         name = annotation.value();
@@ -925,6 +931,7 @@ public final class TypeAdapters {
                         }
                     }
                     nameToConstant.put(name, constant);
+                    stringToConstant.put(toStringVal, constant);
                     constantToName.put(constant, name);
                 }
             } catch (IllegalAccessException e) {
@@ -938,7 +945,9 @@ public final class TypeAdapters {
                 in.nextNull();
                 return null;
             }
-            return nameToConstant.get(in.nextString());
+            String key = in.nextString();
+            T constant = nameToConstant.get(key);
+            return (constant == null) ? stringToConstant.get(key) : constant;
         }
 
         @Override

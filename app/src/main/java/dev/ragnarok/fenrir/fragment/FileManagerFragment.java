@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.fragment;
 
 import static dev.ragnarok.fenrir.util.Utils.isEmpty;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -488,6 +489,7 @@ public class FileManagerFragment extends Fragment implements FileManagerAdapter.
             states = new HashMap<>();
         }
 
+        @SuppressLint("RestrictedApi")
         DirectoryScrollPositions(Parcel in) {
             int size = in.readInt();
             states = new HashMap<>(size);

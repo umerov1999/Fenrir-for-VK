@@ -24,7 +24,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 
-@IgnoreJRERequirement // Only added when CompletableFuture is available (Java 8+ / Android API 24+).
+// Only added when CompletableFuture is available (Java 8+ / Android API 24+).
 @TargetApi(24)
 final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
     @Override
@@ -55,7 +55,6 @@ final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
         return new ResponseCallAdapter<>(responseType);
     }
 
-    @IgnoreJRERequirement
     private static final class BodyCallAdapter<R> implements CallAdapter<R, CompletableFuture<R>> {
         private final Type responseType;
 
@@ -75,7 +74,6 @@ final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
             return future;
         }
 
-        @IgnoreJRERequirement
         private class BodyCallback implements Callback<R> {
             private final CompletableFuture<R> future;
 
@@ -99,7 +97,6 @@ final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
         }
     }
 
-    @IgnoreJRERequirement
     private static final class ResponseCallAdapter<R>
             implements CallAdapter<R, CompletableFuture<Response<R>>> {
         private final Type responseType;
@@ -120,7 +117,6 @@ final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
             return future;
         }
 
-        @IgnoreJRERequirement
         private class ResponseCallback implements Callback<R> {
             private final CompletableFuture<Response<R>> future;
 
@@ -140,7 +136,6 @@ final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
         }
     }
 
-    @IgnoreJRERequirement
     private static final class CallCancelCompletableFuture<T> extends CompletableFuture<T> {
         private final Call<?> call;
 

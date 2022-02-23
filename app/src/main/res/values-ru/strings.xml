@@ -232,7 +232,6 @@
     <string name="counter_groups">группы</string>
     <string name="counter_friends">друзья</string>
     <string name="counter_followers">подписчики</string>
-    <string name="counter_mutual">общие</string>
     <string name="counter_requests">подписки</string>
     <string name="counter_photos">фото</string>
     <string name="counter_audios">аудио</string>
@@ -436,7 +435,6 @@
     <string name="exist_audio">Уже скачано (изменение даты…)</string>
     <string name="error_audio">Ошибка аудио</string>
 
-    <string name="error_sending">Ошибка входа, повторите попытку позже</string>
     <string name="default_category_summary">Выберите страницу, которая будет показана при запуске приложения</string>
     <string name="default_category_title">Стартовая страница</string>
 
@@ -882,7 +880,6 @@
     <string name="will_be_posted_at">Будет опубликован %1$s</string>
     <string name="date_is_invalid">Вы ввели неверную дату</string>
     <string name="this_device_does_not_support_fcm">Для работы FCM требуются Google сервисы, включите удержание Longpoll</string>
-    <string name="double_press_to_exit">Двойное нажатие для выхода из приложения</string>
     <string name="from_list">Из списка</string>
     <string name="photo_size">Размер фото</string>
     <string name="additional_settings">Дополнительные параметры</string>
@@ -1227,7 +1224,6 @@
     <string name="login_app_code_hint">Код подтверждения</string>
     <string name="button_login_send_code_via_sms">Отправить код через SMS</string>
     <string name="error_not_found_message">Объект не найден</string>
-    <string name="my_communities_title">Мои сообщества</string>
     <string name="quick_search_title">Быстрый поиск</string>
     <string name="countries_title">Страны</string>
     <string name="message_channel">Сообщения</string>
@@ -1437,7 +1433,6 @@
     <string name="open_avatar">Открыть аватар</string>
     <string name="add_and_download_button">Скачать и добавить</string>
     <string name="delete_cache_images">Очищать кэш изображений при входе</string>
-    <string name="remote_audio_error">Ошибка получения списка сохранённых аудио на ПК</string>
     <string name="audio_catalog">Каталог</string>
     <string name="audio_goto_artist">Перейти к исполнителю</string>
     <string name="hide_dialog">Скрыть</string>
@@ -1463,7 +1458,6 @@
     <string name="link_banned">Запрещённая ссылка</string>
     <string name="link_processing">Ссылка проверяется</string>
     <string name="additional_info">Дополнительная информация</string>
-    <string name="mini_player_audio_round_icon">Круглые обложки в мини-плеере</string>
     <string name="select_audio">Выбор аудио</string>
     <string name="stop_action">Стоп</string>
     <string name="important">Важные сообщения</string>
@@ -1495,9 +1489,6 @@
     <string name="what_search">Что ищем?</string>
     <string name="search_dialogs">Диалоги</string>
     <string name="search_messages">Сообщения</string>
-    <string name="search_audios">Аудио</string>
-    <string name="search_playlists">Плейлисты</string>
-    <string name="changes">Изменения:</string>
     <string name="do_update">Обновить</string>
     <string name="audio_save_mode_button">Скачивать несколько треков</string>
     <string name="hint_stickers">Подсказывать стикеры</string>
@@ -1506,7 +1497,7 @@
     <string name="work_manager">Fenrir Work</string>
     <string name="channel_keep_work_manager">WorkManager</string>
     <string name="action_create_list">Создать список</string>
-    <string name="blur_for_player">Размытие в плеере</string>
+    <string name="player_has_background">Фон плеера</string>
     <string name="show_mutual_count">Показывать общих друзей</string>
     <string name="show_mutual_count_summary">На странице пользователя</string>
     <string name="change_name">Название</string>
@@ -1548,15 +1539,14 @@
     <string name="not_permitted">Разрешения не предоставлены! Функция не доступна</string>
     <string name="dialog_send_helper">Переслать можно свайпом диалога</string>
     <string name="playlist_helper">Добавлять аудио можно только в свои плейлисты (лонгклик по плейлисту)</string>
+    <string name="audio_dead_helper">Треки без ссылок (вк не отдал) имеют иконку черепа или предупреждения. Будет играть специальный трек вместо них</string>
     <string name="language_ui">Язык</string>
-    <string name="please_wait_internal">Пожалуйста, подождите…</string>
     <string name="end_list_anim">Анимация \"конец списка\"</string>
     <string name="radius">Радиус</string>
     <string name="gps">Геолокация</string>
     <string name="restore_login_info">Логин: %1$s, Пароль %2$s, Токен %3$s, Валидация %4$s</string>
     <string name="registration_date_info">Зарегистрирован: %1$s\nАвторизация: %2$s\nИзменение стены %3$s</string>
     <string name="all_photos">Все фото</string>
-    <string name="photo_with_user">Фото с пользователем</string>
     <string name="detect_qr">Распознать QR</string>
     <string name="show_photos_line">Показывать трекбар с фотками</string>
     <string name="native_parcel_photo">Нативный Parcel для фото</string>
@@ -1618,7 +1608,8 @@
     <string name="rotate_speed">Скорость вращения %1$d</string>
     <string name="rotate_scale">Масштаб фона %1$d</string>
     <string name="player_blur">Размытие %1$d</string>
-    <string name="invert_rotating">Вращать вдругую сторону</string>
+    <string name="invert_rotating">Вращать по часовой</string>
+    <string name="fade_saturation">Мерцающая насыщенность</string>
     <string name="player_background">Настройка фона плеера</string>
     <string name="do_report">Отправить жалобу?</string>
     <string name="full_data">Полностью</string>

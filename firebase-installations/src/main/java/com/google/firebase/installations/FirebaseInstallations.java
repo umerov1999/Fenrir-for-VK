@@ -108,10 +108,10 @@ public class FirebaseInstallations implements FirebaseInstallationsApi {
     private final Object lock = new Object();
     private final ExecutorService backgroundExecutor;
     private final ExecutorService networkExecutor;
-    @GuardedBy("lock")
-    private final List<StateListener> listeners = new ArrayList<>();
     @GuardedBy("FirebaseInstallations.this")
     private final Set<FidListener> fidListeners = new HashSet<>();
+    @GuardedBy("lock")
+    private final List<StateListener> listeners = new ArrayList<>();
     /* FID of this Firebase Installations instance. Cached after successfully registering and
     persisting the FID locally. NOTE: cachedFid resets if FID is deleted.*/
     @GuardedBy("this")

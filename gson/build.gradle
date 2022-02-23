@@ -8,6 +8,7 @@ android {
         minSdkVersion fenrirMinSDK
         //noinspection ExpiredTargetSdkVersion,OldTargetApi
         targetSdkVersion fenrirTargetSDK
+        buildConfigField 'String', 'VERSION', '"2.9.0"'
     }
 
     compileOptions {

@@ -16,6 +16,8 @@
 
 package com.google.gson.internal;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -58,6 +60,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
     private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
 
+    @NonNull
     @Override
     protected Excluder clone() {
         try {
@@ -109,6 +112,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
         return result;
     }
 
+    @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         Class<?> rawType = type.getRawType();
         boolean excludeClass = excludeClassChecks(rawType);

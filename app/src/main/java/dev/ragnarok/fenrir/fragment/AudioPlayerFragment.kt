@@ -49,10 +49,7 @@ import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.player.MusicPlaybackController
 import dev.ragnarok.fenrir.player.MusicPlaybackController.PlayerStatus
-import dev.ragnarok.fenrir.player.ui.PlayPauseButton
-import dev.ragnarok.fenrir.player.ui.RepeatButton
-import dev.ragnarok.fenrir.player.ui.RepeatingImageButton
-import dev.ragnarok.fenrir.player.ui.ShuffleButton
+import dev.ragnarok.fenrir.player.ui.*
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
@@ -65,7 +62,6 @@ import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.isEmpty
-import dev.ragnarok.fenrir.view.FadeAnimDrawable
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieShapeableImageView
 import dev.ragnarok.fenrir.view.pager.WeakPicassoLoadCallback
 import dev.ragnarok.fenrir.view.seek.DefaultTimeBar
@@ -110,9 +106,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
     private var tvAlbum: TextView? = null
     private var tvSubtitle: TextView? = null
     private var ivCoverPager: ViewPager2? = null
-    private var ivBackground: ImageView? = null
-    private var playerGradientFirst: ImageView? = null
-    private var playerGradientSecond: ImageView? = null
+    private var ivBackground: View? = null
 
     // Handler used to update the current time
     private var mTimeHandler: TimeHandler? = null
@@ -194,8 +188,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
                 resolveTotalTime()
                 resolveControlViews()
                 ivBackground?.let {
-                    if (it.drawable is Animatable) {
-                        (it.drawable as Animatable).apply {
+                    if (it.background is Animatable) {
+                        (it.background as Animatable).apply {
                             if (MusicPlaybackController.isPlaying()) {
                                 start()
                             } else {
@@ -292,8 +286,6 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
         val root = inflater.inflate(R.layout.fragment_audio_player, container, false)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
         mPlayerProgressStrings = resources.getStringArray(R.array.player_progress_state)
-        playerGradientFirst = root.findViewById(R.id.cover_gradient_top)
-        playerGradientSecond = root.findViewById(R.id.cover_gradient)
         mProgress = root.findViewById(R.id.seek_player_pos)
         mPlayPauseButton = root.findViewById(R.id.action_button_play)
         mShuffleButton = root.findViewById(R.id.action_button_shuffle)
@@ -756,14 +748,12 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
     val target = object : BitmapTarget {
         override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
             if (isAdded) {
-                playerGradientFirst?.visibility = View.VISIBLE
-                playerGradientSecond?.visibility = View.VISIBLE
                 ivBackground?.let {
                     FadeAnimDrawable.setBitmap(
                         it,
-                        requireActivity(),
                         bitmap,
-                        MusicPlaybackController.isPlaying()
+                        MusicPlaybackController.isPlaying(),
+                        CurrentTheme.getColorSurface(requireActivity())
                     )
                 }
             }
@@ -774,12 +764,10 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
 
         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
             if (isAdded) {
-                if (ivBackground?.drawable is Animatable) {
-                    (ivBackground?.drawable as Animatable).stop()
+                if (ivBackground?.background is Animatable) {
+                    (ivBackground?.background as Animatable).stop()
                 }
-                ivBackground?.setImageDrawable(null)
-                playerGradientFirst?.visibility = View.GONE
-                playerGradientSecond?.visibility = View.GONE
+                ivBackground?.background = null
             }
         }
     }
@@ -801,10 +789,9 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
         tvTitle?.text = audioTrack?.artist
         tvSubtitle?.text = audioTrack?.title
 
-        if (Settings.get().other().isBlur_for_player) {
+        if (Settings.get().other().isPlayer_Has_Background) {
             val coverUrl =
                 firstNonEmptyString(
-                    audioTrack?.thumb_image_very_big,
                     audioTrack?.thumb_image_big,
                     audioTrack?.thumb_image_little
                 )
@@ -821,12 +808,10 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
                     .into(target)
             } else {
                 PicassoInstance.with().cancelRequest(target)
-                if (ivBackground?.drawable is Animatable) {
-                    (ivBackground?.drawable as Animatable).stop()
+                if (ivBackground?.background is Animatable) {
+                    (ivBackground?.background as Animatable).stop()
                 }
-                ivBackground?.setImageDrawable(null)
-                playerGradientFirst?.visibility = View.GONE
-                playerGradientSecond?.visibility = View.GONE
+                ivBackground?.background = null
             }
         }
 
@@ -1156,7 +1141,6 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
             val coverUrl =
                 firstNonEmptyString(
                     audioTrack.thumb_image_big,
-                    audioTrack.thumb_image_very_big,
                     audioTrack.thumb_image_little
                 )
             if (coverUrl != null) {
@@ -1195,7 +1179,10 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), TimeBar.OnScrubListener
             ivCover.scaleType = ImageView.ScaleType.CENTER
             if (FenrirNative.isNativeLoaded()) {
                 ivCover.fromRes(
-                    R.raw.auidio_no_cover, 450, 450, intArrayOf(
+                    R.raw.auidio_no_cover,
+                    450,
+                    450,
+                    intArrayOf(
                         0x333333,
                         CurrentTheme.getColorSurface(requireActivity()),
                         0x777777,

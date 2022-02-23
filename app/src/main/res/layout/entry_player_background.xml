@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -30,10 +31,10 @@
             android:id="@+id/edit_rotation_speed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="25"
+            android:max="10"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:progress="8" />
+            android:progress="3" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text_zoom"
@@ -57,6 +58,15 @@
             android:checked="false"
             android:padding="8dp"
             android:text="@string/invert_rotating"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/edit_fade_saturation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:padding="8dp"
+            android:text="@string/fade_saturation"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
         <include layout="@layout/line_divider" />

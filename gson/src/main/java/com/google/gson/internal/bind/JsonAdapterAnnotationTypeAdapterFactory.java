@@ -70,7 +70,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
             typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null);
         } else {
             throw new IllegalArgumentException("Invalid attempt to bind an instance of "
-                    + instance.getClass().getName() + " as a @JsonAdapter for " + type
+                    + instance.getClass().getName() + " as a @JsonAdapter for " + type.toString()
                     + ". @JsonAdapter value must be a TypeAdapter, TypeAdapterFactory,"
                     + " JsonSerializer or JsonDeserializer.");
         }

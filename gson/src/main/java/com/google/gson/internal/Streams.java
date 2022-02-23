@@ -114,15 +114,18 @@ public final class Streams {
         static class CurrentWrite implements CharSequence {
             char[] chars;
 
+            @Override
             public int length() {
                 return chars.length;
             }
 
+            @Override
             public char charAt(int i) {
                 return chars[i];
             }
 
             @NonNull
+            @Override
             public CharSequence subSequence(int start, int end) {
                 return new String(chars, start, end - start);
             }

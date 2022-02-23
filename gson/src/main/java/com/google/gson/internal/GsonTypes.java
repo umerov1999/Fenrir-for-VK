@@ -512,15 +512,18 @@ public final class GsonTypes {
         }
 
         @NonNull
+        @Override
         public Type[] getActualTypeArguments() {
             return typeArguments.clone();
         }
 
         @NonNull
+        @Override
         public Type getRawType() {
             return rawType;
         }
 
+        @Override
         public Type getOwnerType() {
             return ownerType;
         }
@@ -564,6 +567,7 @@ public final class GsonTypes {
         }
 
         @NonNull
+        @Override
         public Type getGenericComponentType() {
             return componentType;
         }
@@ -579,6 +583,7 @@ public final class GsonTypes {
             return componentType.hashCode();
         }
 
+        @NonNull
         @Override
         public String toString() {
             return typeToString(componentType) + "[]";
@@ -615,11 +620,14 @@ public final class GsonTypes {
             }
         }
 
+        @NonNull
+        @Override
         public Type[] getUpperBounds() {
             return new Type[]{upperBound};
         }
 
         @NonNull
+        @Override
         public Type[] getLowerBounds() {
             return lowerBound != null ? new Type[]{lowerBound} : EMPTY_TYPE_ARRAY;
         }
@@ -637,6 +645,7 @@ public final class GsonTypes {
                     ^ (31 + upperBound.hashCode());
         }
 
+        @NonNull
         @Override
         public String toString() {
             if (lowerBound != null) {

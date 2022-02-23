@@ -382,8 +382,8 @@ class OtherSettings implements ISettings.IOtherSettings {
     }
 
     @Override
-    public boolean isBlur_for_player() {
-        return PreferenceScreen.getPreferences(app).getBoolean("blur_for_player", true);
+    public boolean isPlayer_Has_Background() {
+        return PreferenceScreen.getPreferences(app).getBoolean("player_has_background", true);
     }
 
     @Override
@@ -684,7 +684,7 @@ class OtherSettings implements ISettings.IOtherSettings {
     @Override
     public @NonNull
     PlayerCoverBackgroundSettings getPlayerCoverBackgroundSettings() {
-        String ret = PreferenceScreen.getPreferences(app).getString("player_background_json", null);
+        String ret = PreferenceScreen.getPreferences(app).getString("player_background_settings_json", null);
         if (ret == null) {
             return new PlayerCoverBackgroundSettings().set_default();
         } else {
@@ -694,7 +694,7 @@ class OtherSettings implements ISettings.IOtherSettings {
 
     @Override
     public void setPlayerCoverBackgroundSettings(@NonNull PlayerCoverBackgroundSettings settings) {
-        PreferenceScreen.getPreferences(app).edit().putString("player_background_json", new Gson().toJson(settings)).apply();
+        PreferenceScreen.getPreferences(app).edit().putString("player_background_settings_json", new Gson().toJson(settings)).apply();
     }
 
     @Override

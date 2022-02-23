@@ -828,7 +828,7 @@ final class RequestFactory {
                 for (int i = p - 1; i >= 0; i--) {
                     ParameterHandler<?> otherHandler = parameterHandlers[i];
                     if (otherHandler instanceof ParameterHandler.Tag
-                            && ((ParameterHandler.Tag) otherHandler).cls.equals(tagType)) {
+                            && ((ParameterHandler.Tag<?>) otherHandler).cls.equals(tagType)) {
                         throw parameterError(
                                 method,
                                 p,

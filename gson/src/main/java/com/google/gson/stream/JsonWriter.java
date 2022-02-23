@@ -569,6 +569,7 @@ public class JsonWriter implements Closeable, Flushable {
      * Ensures all buffered data is written to the underlying {@link Writer}
      * and flushes that writer.
      */
+    @Override
     public void flush() throws IOException {
         if (stackSize == 0) {
             throw new IllegalStateException("JsonWriter is closed.");
@@ -581,6 +582,7 @@ public class JsonWriter implements Closeable, Flushable {
      *
      * @throws IOException if the JSON document is incomplete.
      */
+    @Override
     public void close() throws IOException {
         out.close();
 

@@ -680,7 +680,7 @@ public class DefaultTimeBar extends View implements TimeBar {
                 if (scrubbing) {
                     if (y < fineScrubYThreshold) {
                         int relativeX = x - lastCoarseScrubXPosition;
-                        positionScrubber(lastCoarseScrubXPosition + relativeX / FINE_SCRUB_RATIO);
+                        positionScrubber(lastCoarseScrubXPosition + (float) relativeX / FINE_SCRUB_RATIO);
                     } else {
                         lastCoarseScrubXPosition = x;
                         positionScrubber(x);

@@ -102,10 +102,7 @@ public final class LazilyParsedNumber extends Number {
         }
         if (obj instanceof LazilyParsedNumber) {
             LazilyParsedNumber other = (LazilyParsedNumber) obj;
-            if (value == null) {
-                return other.value == null;
-            }
-            return value.equals(other.value);
+            return value == other.value || value.equals(other.value);
         }
         return false;
     }

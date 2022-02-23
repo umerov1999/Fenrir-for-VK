@@ -15,6 +15,8 @@
  */
 package retrofit2;
 
+import androidx.annotation.NonNull;
+
 import java.lang.annotation.Annotation;
 
 // This class conforms to the annotation requirements documented on Annotation.
@@ -48,6 +50,7 @@ final class SkipCallbackExecutorImpl implements SkipCallbackExecutor {
         return 0;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "@" + SkipCallbackExecutor.class.getName() + "()";

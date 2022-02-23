@@ -384,7 +384,6 @@
     <string name="counter_groups">groups</string>
     <string name="counter_friends">friends</string>
     <string name="counter_followers">followers</string>
-    <string name="counter_mutual">mutuals</string>
     <string name="counter_requests">subscriptions</string>
     <string name="counter_photos">photo</string>
     <string name="counter_audios">audio</string>
@@ -620,7 +619,6 @@
     <string name="exist_audio">Already downloaded (change of date…)</string>
     <string name="error_audio">Audio error</string>
 
-    <string name="error_sending">Login failed, please try again later</string>
     <string name="default_category_summary">Select the page that will be shown when the application starts</string>
     <string name="default_category_title">Start page</string>
 
@@ -1079,7 +1077,6 @@
     <string name="will_be_posted_at">Will be published %1$s</string>
     <string name="date_is_invalid">You entered the wrong date</string>
     <string name="this_device_does_not_support_fcm">FCM requires Google services, enable keep Longpoll option</string>
-    <string name="double_press_to_exit">Double tap to exit the app</string>
     <string name="from_list">From the list</string>
     <string name="photo_size">Size photo</string>
     <string name="additional_settings">Extra options</string>
@@ -1449,7 +1446,6 @@
     <string name="login_app_code_hint">Confirmation code</string>
     <string name="button_login_send_code_via_sms">Send code via SMS</string>
     <string name="error_not_found_message">Object not found</string>
-    <string name="my_communities_title">My communities</string>
     <string name="quick_search_title">Quick search</string>
     <string name="countries_title">Countries</string>
     <string name="message_channel">Messages</string>
@@ -1670,7 +1666,6 @@
     <string name="add_and_download_button">Download and add</string>
     <string name="delete_cache_images">Clear image cache on startup</string>
     <string name="voice_click" translatable="false">Ab</string>
-    <string name="remote_audio_error">Error getting the list of saved audio on PC</string>
     <string name="audio_catalog">Catalog</string>
     <string name="audio_goto_artist">Go to artist</string>
     <string name="hide_dialog">Hide</string>
@@ -1696,7 +1691,6 @@
     <string name="link_banned">Banned link</string>
     <string name="link_processing">Link is being verified</string>
     <string name="additional_info">Additional Information</string>
-    <string name="mini_player_audio_round_icon">Round covers in mini player</string>
     <string name="select_audio">Audio selection</string>
     <string name="stop_action">Stop</string>
     <string name="important">Important messages</string>
@@ -1728,9 +1722,6 @@
     <string name="what_search">What are you looking for?</string>
     <string name="search_dialogs">Dialogs</string>
     <string name="search_messages">Messages</string>
-    <string name="search_audios">Audio</string>
-    <string name="search_playlists">Playlists</string>
-    <string name="changes">Changes:</string>
     <string name="do_update">Refresh</string>
     <string name="audio_save_mode_button">Download multiple tracks</string>
     <string name="hint_stickers">Suggest stickers</string>
@@ -1739,7 +1730,7 @@
     <string name="work_manager">Fenrir Work</string>
     <string name="channel_keep_work_manager">WorkManager</string>
     <string name="action_create_list">Create list</string>
-    <string name="blur_for_player">Blur in the player</string>
+    <string name="player_has_background">Player has background</string>
     <string name="show_mutual_count">Show mutual friends</string>
     <string name="show_mutual_count_summary">On user page</string>
     <string name="change_name">Name</string>
@@ -1781,15 +1772,14 @@
     <string name="not_permitted">No permissions granted! Function not available</string>
     <string name="dialog_send_helper">You can forward it by swiping the dialogue</string>
     <string name="playlist_helper">You can add audio only to your playlists (long click on the playlist)</string>
+    <string name="audio_dead_helper">Tracks without links (VK did not give away) have a skull icon or a warning. Will play a special track instead of them</string>
     <string name="language_ui">Language</string>
-    <string name="please_wait_internal">Please wait…</string>
     <string name="end_list_anim">End of list animation</string>
     <string name="radius">Radius</string>
     <string name="gps">GPS</string>
     <string name="restore_login_info">Login: %1$s, Password %2$s, Token %3$s, Validation %4$s</string>
     <string name="registration_date_info">Registered: %1$s\nAuth: %2$s\nWall Changed %3$s</string>
     <string name="all_photos">All Photos</string>
-    <string name="photo_with_user">Photo with user</string>
     <string name="detect_qr">Detect QR</string>
     <string name="show_photos_line">Show photos carousel</string>
     <string name="native_parcel_photo">Native Parcel for photo</string>
@@ -1819,7 +1809,6 @@
     <string name="popup">Popup</string>
     <string name="not_read_count">Not read: %1$d</string>
     <string name="choose_button_label">Select</string>
-    <string name="default_dir" translatable="false">/sdcard</string>
     <string name="label_parent_directory">Parent Directory</string>
     <string name="last_edit">Last edited: %1$s, %2$s</string>
     <string name="error_dir_access">Directory cannot be accessed</string>
@@ -1854,6 +1843,7 @@
     <string name="rotate_scale">Scale %1$d</string>
     <string name="player_blur">Blur %1$d</string>
     <string name="invert_rotating">Invert rotating</string>
+    <string name="fade_saturation">Fade saturation</string>
     <string name="player_background">Player background cover settings</string>
     <string name="do_report">Send report?</string>
     <string name="full_data">Full</string>

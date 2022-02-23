@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -52,6 +53,10 @@ public class PhotoFullScreenActivity extends NoMainActivity implements PlaceProv
                 return;
             }
             openPlace(place);
+        } else if (Intent.ACTION_VIEW.equals(action)) {
+            Uri data = intent.getData();
+            String a = "full_" + data.toString();
+            attachToFront(SinglePhotoFragment.newInstance(SinglePhotoFragment.buildArgs(a, "tmp", "tmp")));
         }
     }
 

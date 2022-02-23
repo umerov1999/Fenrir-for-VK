@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.fragment;
 import static dev.ragnarok.fenrir.util.Objects.nonNull;
 import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -341,6 +342,7 @@ public class FeedFragment extends PlaceSupportMvpFragment<FeedPresenter, IFeedVi
         callPresenter(FeedPresenter::fireRefresh);
     }
 
+    @SuppressLint("RestrictedApi")
     private void restoreRecycleViewManagerState(String state) {
         if (nonEmpty(state)) {
             if (mFeedLayoutManager instanceof LinearLayoutManager) {

@@ -15,6 +15,7 @@
 package com.google.firebase.installations.remote;
 
 import static com.google.android.gms.common.internal.Preconditions.checkArgument;
+import static com.google.firebase.installations.BuildConfig.VERSION_NAME;
 
 import android.content.Context;
 import android.net.TrafficStats;
@@ -161,7 +162,7 @@ public class FirebaseInstallationServiceClient {
             firebaseInstallationData.put("fid", fid);
             firebaseInstallationData.put("appId", appId);
             firebaseInstallationData.put("authVersion", FIREBASE_INSTALLATION_AUTH_VERSION);
-            firebaseInstallationData.put("sdkVersion", SDK_VERSION_PREFIX + "17.0.0");
+            firebaseInstallationData.put("sdkVersion", SDK_VERSION_PREFIX + VERSION_NAME);
             return firebaseInstallationData;
         } catch (JSONException e) {
             throw new IllegalStateException(e);
@@ -179,7 +180,7 @@ public class FirebaseInstallationServiceClient {
     private static JSONObject buildGenerateAuthTokenRequestBody() {
         try {
             JSONObject sdkVersionData = new JSONObject();
-            sdkVersionData.put("sdkVersion", SDK_VERSION_PREFIX + "17.0.0");
+            sdkVersionData.put("sdkVersion", SDK_VERSION_PREFIX + VERSION_NAME);
 
             JSONObject firebaseInstallationData = new JSONObject();
             firebaseInstallationData.put("installation", sdkVersionData);
@@ -372,6 +373,7 @@ public class FirebaseInstallationServiceClient {
      * @param projectID    Project Id
      * @param refreshToken a token used to authenticate FIS requests
      */
+    @NonNull
     public void deleteFirebaseInstallation(
             @NonNull String apiKey,
             @NonNull String fid,

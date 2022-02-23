@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import okhttp3.ResponseBody;
 
-@IgnoreJRERequirement // Only added when Optional is available (Java 8+ / Android API 24+).
+// Only added when Optional is available (Java 8+ / Android API 24+).
 @TargetApi(24)
 final class OptionalConverterFactory extends Converter.Factory {
     @Override
@@ -44,7 +44,6 @@ final class OptionalConverterFactory extends Converter.Factory {
         return new OptionalConverter<>(delegate);
     }
 
-    @IgnoreJRERequirement
     static final class OptionalConverter<T> implements Converter<ResponseBody, Optional<T>> {
         final Converter<ResponseBody, T> delegate;
 

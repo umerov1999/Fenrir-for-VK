@@ -99,14 +99,31 @@
             tools:ignore="SmallSp"
             tools:text="year" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_playlist"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/plus"
-            app:elevation="2dp"
-            app:fabSize="mini"
-            app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior" />
+            android:orientation="horizontal">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_playlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/plus"
+                app:elevation="2dp"
+                app:fabSize="mini"
+                app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/share_playlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/share"
+                app:elevation="2dp"
+                app:fabSize="mini"
+                app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </LinearLayout>

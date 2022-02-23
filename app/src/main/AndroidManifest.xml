@@ -387,9 +387,16 @@
         <activity
             android:name=".activity.PhotoFullScreenActivity"
             android:configChanges="keyboardHidden|orientation"
+            android:exported="true"
             android:label="@string/photos"
             android:theme="@style/App.DayNight.Swipes"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize|stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".activity.NotReadMessagesActivity"

@@ -1121,8 +1121,14 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.revert_play_audio
             }
 
+            switch("player_has_background") {
+                defaultValue = true
+                titleRes = R.string.player_has_background
+            }
+
             pref("player_background") {
                 titleRes = R.string.player_background
+                dependency = "player_has_background"
                 onClick {
                     PlayerBackgroundDialog().show(parentFragmentManager, "PlayerBackgroundPref")
                     true
@@ -1132,11 +1138,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             switch("use_stop_audio") {
                 defaultValue = false
                 titleRes = R.string.use_stop_audio
-            }
-
-            switch("blur_for_player") {
-                defaultValue = true
-                titleRes = R.string.blur_for_player
             }
 
             switch("broadcast") {
@@ -2089,6 +2090,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             val enabledRotation: SwitchMaterial = view.findViewById(R.id.enabled_anim)
             val invertRotation: SwitchMaterial =
                 view.findViewById(R.id.edit_invert_rotation)
+            val fadeSaturation: SwitchMaterial =
+                view.findViewById(R.id.edit_fade_saturation)
             val rotationSpeed = view.findViewById<SeekBar>(R.id.edit_rotation_speed)
             val zoom = view.findViewById<SeekBar>(R.id.edit_zoom)
             val blur = view.findViewById<SeekBar>(R.id.edit_blur)
@@ -2136,13 +2139,14 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 .other().playerCoverBackgroundSettings
             enabledRotation.isChecked = settings.enabled_rotation
             invertRotation.isChecked = settings.invert_rotation
+            fadeSaturation.isChecked = settings.fade_saturation
             blur.progress = settings.blur
-            rotationSpeed.progress = (settings.rotation_speed * 1000).toInt()
+            rotationSpeed.progress = (settings.rotation_speed * 10).toInt()
             zoom.progress = ((settings.zoom - 1) * 10).toInt()
             textZoom.text =
                 getString(R.string.rotate_scale, ((settings.zoom - 1) * 10).toInt())
             textRotationSpeed.text =
-                getString(R.string.rotate_speed, (settings.rotation_speed * 1000).toInt())
+                getString(R.string.rotate_speed, (settings.rotation_speed * 10).toInt())
             textBlur.text = getString(R.string.player_blur, settings.blur)
             return MaterialAlertDialogBuilder(requireActivity())
                 .setView(view)
@@ -2162,8 +2166,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     val st = PlayerCoverBackgroundSettings()
                     st.blur = blur.progress
                     st.invert_rotation = invertRotation.isChecked
+                    st.fade_saturation = fadeSaturation.isChecked
                     st.enabled_rotation = enabledRotation.isChecked
-                    st.rotation_speed = rotationSpeed.progress.toFloat() / 1000
+                    st.rotation_speed = rotationSpeed.progress.toFloat() / 10
                     st.zoom = zoom.progress.toFloat() / 10 + 1f
                     Settings.get()
                         .other().playerCoverBackgroundSettings = st

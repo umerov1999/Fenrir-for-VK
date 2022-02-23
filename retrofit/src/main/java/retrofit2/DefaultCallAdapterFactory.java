@@ -15,6 +15,7 @@
  */
 package retrofit2;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
@@ -122,6 +123,7 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
             return delegate.isCanceled();
         }
 
+        @NonNull
         @SuppressWarnings("CloneDoesntCallSuperClone") // Performing deep clone.
         @Override
         public Call<T> clone() {

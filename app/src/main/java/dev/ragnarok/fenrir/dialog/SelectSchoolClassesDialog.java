@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.dialog;
 
+import static dev.ragnarok.fenrir.fragment.search.FilterEditFragment.REQUEST_FILTER_OPTION;
+
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
@@ -25,7 +27,6 @@ import dev.ragnarok.fenrir.util.RxUtils;
 
 public class SelectSchoolClassesDialog extends AccountDependencyDialogFragment implements SchoolClassesAdapter.Listener {
 
-    public static final String REQUEST_CODE_SCHOOL_CLASSES = "request_school_classes";
     private int mAccountId;
     private int countryId;
     private IDatabaseInteractor mDatabaseInteractor;
@@ -101,7 +102,7 @@ public class SelectSchoolClassesDialog extends AccountDependencyDialogFragment i
             intent.putAll(getArguments());
         }
 
-        getParentFragmentManager().setFragmentResult(REQUEST_CODE_SCHOOL_CLASSES, intent);
+        getParentFragmentManager().setFragmentResult(REQUEST_FILTER_OPTION, intent);
         dismiss();
     }
 }

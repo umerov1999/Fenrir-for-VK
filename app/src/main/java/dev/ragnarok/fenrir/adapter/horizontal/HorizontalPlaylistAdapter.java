@@ -77,10 +77,18 @@ public class HorizontalPlaylistAdapter extends RecyclerBindableAdapter<AudioPlay
         }
         holder.update.setText(AppTextUtils.getDateFromUnixTime(context, playlist.getUpdate_time()));
         holder.add.setOnClickListener(v -> listener.onPlayListClick(playlist, position));
-        if (playlist.getOwnerId() == Settings.get().accounts().getCurrent())
-            holder.add.setImageResource(R.drawable.ic_outline_delete);
-        else
-            holder.add.setImageResource(R.drawable.plus);
+        holder.share.setOnClickListener(v -> listener.onShareClick(playlist, position));
+        if (playlist.getId() >= 0) {
+            holder.add.setVisibility(View.VISIBLE);
+            holder.share.setVisibility(View.VISIBLE);
+            if (playlist.getOwnerId() == Settings.get().accounts().getCurrent())
+                holder.add.setImageResource(R.drawable.ic_outline_delete);
+            else
+                holder.add.setImageResource(R.drawable.plus);
+        } else {
+            holder.add.setVisibility(View.GONE);
+            holder.share.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -99,6 +107,8 @@ public class HorizontalPlaylistAdapter extends RecyclerBindableAdapter<AudioPlay
 
     public interface Listener {
         void onPlayListClick(AudioPlaylist item, int pos);
+
+        void onShareClick(AudioPlaylist item, int pos);
     }
 
     static class Holder extends RecyclerView.ViewHolder {
@@ -112,6 +122,7 @@ public class HorizontalPlaylistAdapter extends RecyclerBindableAdapter<AudioPlay
         final TextView genre;
         final TextView update;
         final FloatingActionButton add;
+        final FloatingActionButton share;
 
         public Holder(View itemView) {
             super(itemView);
@@ -124,6 +135,7 @@ public class HorizontalPlaylistAdapter extends RecyclerBindableAdapter<AudioPlay
             artist = itemView.findViewById(R.id.item_artist);
             genre = itemView.findViewById(R.id.item_genre);
             add = itemView.findViewById(R.id.add_playlist);
+            share = itemView.findViewById(R.id.share_playlist);
         }
     }
 }

@@ -9,6 +9,7 @@ object HelperSimple {
     const val PLAYLIST_HELPER = "playlist_helper"
     const val STORY_HELPER = "story_helper"
     const val LOLLIPOP_21 = "lollipop21"
+    const val AUDIO_DEAD = "audio_dead"
     fun needHelp(key: String, count: Int): Boolean {
         val app = Injection.provideApplicationContext()
         val ret = PreferenceScreen.getPreferences(app).getInt(key, 0)

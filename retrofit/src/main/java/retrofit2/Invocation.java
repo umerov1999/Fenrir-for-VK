@@ -15,6 +15,8 @@
  */
 package retrofit2;
 
+import androidx.annotation.NonNull;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +76,7 @@ public final class Invocation {
         return arguments;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return String.format(

@@ -4,15 +4,6 @@
         <attr name="fixWrapText" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="CustomPreferenceCategory">
-        <attr name="category_icon" format="reference" />
-    </declare-styleable>
-
-    <declare-styleable name="CustomAuthorPreference">
-        <attr name="avatar" format="reference" />
-    </declare-styleable>
-
-
     <declare-styleable name="CircleRoadProgress">
         <attr name="circleCenterPointX" format="float" />
         <attr name="circleCenterPointY" format="float" />
@@ -33,8 +24,6 @@
         <attr name="emojiconTextLength" format="integer" />
         <attr name="hashTagColor" format="color" />
     </declare-styleable>
-
-    <attr name="navi_header_image" format="reference" />
 
     <attr name="message_bubble_color" format="color" />
     <attr name="sticker_hint_color" format="color" />
@@ -158,9 +147,6 @@
             <enum name="height" value="1" />
         </attr>
     </declare-styleable>
-    <declare-styleable name="BottomSheetLayout">
-        <attr name="collapsedHeight" format="dimension" />
-    </declare-styleable>
 
     <declare-styleable name="MessageView">
         <attr name="radius" format="dimension" />
@@ -176,18 +162,6 @@
         <attr name="zoom_enabled" format="boolean" />
     </declare-styleable>
 
-    <attr name="mpm_activeIconColor" format="color|reference" />
-
-    <attr name="mpm_separatorColor" format="color|reference" />
-
-    <attr name="mpm_paddingBottom" format="dimension" />
-
-    <attr name="mpm_paddingStart" format="dimension" />
-
-    <attr name="mpm_paddingEnd" format="dimension" />
-
-    <attr name="mpm_paddingTop" format="dimension" />
-
     <attr name="materialPopupMenuStyle" format="reference" />
 
     <declare-styleable name="MaterialRecyclerViewPopupWindow">
@@ -195,10 +169,10 @@
         <attr name="android:dropDownVerticalOffset" />
         <attr name="android:backgroundDimEnabled" />
         <attr name="android:backgroundDimAmount" />
-        <attr name="mpm_paddingBottom" />
-        <attr name="mpm_paddingStart" />
-        <attr name="mpm_paddingEnd" />
-        <attr name="mpm_paddingTop" />
+        <attr name="mpm_paddingBottom" format="dimension" />
+        <attr name="mpm_paddingStart" format="dimension" />
+        <attr name="mpm_paddingEnd" format="dimension" />
+        <attr name="mpm_paddingTop" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="SnowfallView">
@@ -218,6 +192,10 @@
         <attr name="fromRes" format="reference" />
         <attr name="w" format="dimension" />
         <attr name="h" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="AnimatedShapeableImageView">
+        <attr name="default_width" format="dimension" />
+        <attr name="default_height" format="dimension" />
     </declare-styleable>
     <declare-styleable name="BottomShadowView">
         <attr name="android:background" />

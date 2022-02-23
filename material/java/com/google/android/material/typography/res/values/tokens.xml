@@ -20,80 +20,145 @@
 <resources>
   <!-- Generated from token set (md.sys.typescale) in default context. -->
   <!-- Body Large -->
-  <string name="m3_sys_typescale_body_large_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_body_large_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_body_large_text_size">16sp</dimen>
-  <item name="m3_sys_typescale_body_large_letter_spacing" format="float" type="dimen">0.03125</item>
+  <style name="TextAppearance.M3.Sys.Typescale.BodyLarge" parent="TextAppearance.AppCompat.Body2">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">16sp</item>
+    <item name="android:letterSpacing">0.03125</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Body Small -->
-  <string name="m3_sys_typescale_body_small_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_body_small_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_body_small_text_size">12sp</dimen>
-  <item name="m3_sys_typescale_body_small_letter_spacing" format="float" type="dimen">0.03333333</item>
+  <style name="TextAppearance.M3.Sys.Typescale.BodySmall" parent="TextAppearance.AppCompat.Caption">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">12sp</item>
+    <item name="android:letterSpacing">0.03333333</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Body Medium -->
-  <string name="m3_sys_typescale_body_medium_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_body_medium_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_body_medium_text_size">14sp</dimen>
-  <item name="m3_sys_typescale_body_medium_letter_spacing" format="float" type="dimen">0.01785714</item>
+  <style name="TextAppearance.M3.Sys.Typescale.BodyMedium" parent="TextAppearance.AppCompat.Body1">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:letterSpacing">0.01785714</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Label Large -->
-  <string name="m3_sys_typescale_label_large_font" translatable="false">sans-serif-medium</string>
-  <bool name="m3_sys_typescale_label_large_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_label_large_text_size">14sp</dimen>
-  <item name="m3_sys_typescale_label_large_letter_spacing" format="float" type="dimen">0.00714286</item>
+  <style name="TextAppearance.M3.Sys.Typescale.LabelLarge" parent="TextAppearance.AppCompat.Body1">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <!-- Roboto Medium isn't available in pre-21. Setting text style to bold to achieve some level of bolding. -->
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:letterSpacing">0.00714286</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Label Small -->
-  <string name="m3_sys_typescale_label_small_font" translatable="false">sans-serif-medium</string>
-  <bool name="m3_sys_typescale_label_small_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_label_small_text_size">11sp</dimen>
-  <item name="m3_sys_typescale_label_small_letter_spacing" format="float" type="dimen">0.04545455</item>
+  <style name="TextAppearance.M3.Sys.Typescale.LabelSmall" parent="TextAppearance.AppCompat.Caption">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <!-- Roboto Medium isn't available in pre-21. Setting text style to bold to achieve some level of bolding. -->
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">11sp</item>
+    <item name="android:letterSpacing">0.04545455</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Title Large -->
-  <string name="m3_sys_typescale_title_large_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_title_large_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_title_large_text_size">22sp</dimen>
-  <item name="m3_sys_typescale_title_large_letter_spacing" format="float" type="dimen">0</item>
+  <style name="TextAppearance.M3.Sys.Typescale.TitleLarge" parent="TextAppearance.AppCompat.Title">
+    <item name="fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">22sp</item>
+    <item name="android:letterSpacing">0</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Title Small -->
-  <string name="m3_sys_typescale_title_small_font" translatable="false">sans-serif-medium</string>
-  <bool name="m3_sys_typescale_title_small_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_title_small_text_size">14sp</dimen>
-  <item name="m3_sys_typescale_title_small_letter_spacing" format="float" type="dimen">0.00714286</item>
+  <style name="TextAppearance.M3.Sys.Typescale.TitleSmall" parent="TextAppearance.AppCompat.Subhead">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <!-- Roboto Medium isn't available in pre-21. Setting text style to bold to achieve some level of bolding. -->
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:letterSpacing">0.00714286</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Label Medium -->
-  <string name="m3_sys_typescale_label_medium_font" translatable="false">sans-serif-medium</string>
-  <bool name="m3_sys_typescale_label_medium_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_label_medium_text_size">12sp</dimen>
-  <item name="m3_sys_typescale_label_medium_letter_spacing" format="float" type="dimen">0.04166667</item>
+  <style name="TextAppearance.M3.Sys.Typescale.LabelMedium" parent="TextAppearance.AppCompat.Caption">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <!-- Roboto Medium isn't available in pre-21. Setting text style to bold to achieve some level of bolding. -->
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">12sp</item>
+    <item name="android:letterSpacing">0.04166667</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Title Medium -->
-  <string name="m3_sys_typescale_title_medium_font" translatable="false">sans-serif-medium</string>
-  <bool name="m3_sys_typescale_title_medium_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_title_medium_text_size">16sp</dimen>
-  <item name="m3_sys_typescale_title_medium_letter_spacing" format="float" type="dimen">0.009375</item>
+  <style name="TextAppearance.M3.Sys.Typescale.TitleMedium" parent="TextAppearance.AppCompat.Subhead">
+    <item name="fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_plain_medium</item>
+    <!-- Roboto Medium isn't available in pre-21. Setting text style to bold to achieve some level of bolding. -->
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">16sp</item>
+    <item name="android:letterSpacing">0.009375</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Display Large -->
-  <string name="m3_sys_typescale_display_large_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_display_large_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_display_large_text_size">57sp</dimen>
-  <item name="m3_sys_typescale_display_large_letter_spacing" format="float" type="dimen">-0.00438596</item>
+  <style name="TextAppearance.M3.Sys.Typescale.DisplayLarge" parent="TextAppearance.AppCompat.Display3">
+    <item name="fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">57sp</item>
+    <item name="android:letterSpacing">-0.00438596</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Display Small -->
-  <string name="m3_sys_typescale_display_small_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_display_small_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_display_small_text_size">36sp</dimen>
-  <item name="m3_sys_typescale_display_small_letter_spacing" format="float" type="dimen">0</item>
+  <style name="TextAppearance.M3.Sys.Typescale.DisplaySmall" parent="TextAppearance.AppCompat.Display1">
+    <item name="fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">36sp</item>
+    <item name="android:letterSpacing">0</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Display Medium -->
-  <string name="m3_sys_typescale_display_medium_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_display_medium_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_display_medium_text_size">45sp</dimen>
-  <item name="m3_sys_typescale_display_medium_letter_spacing" format="float" type="dimen">0</item>
+  <style name="TextAppearance.M3.Sys.Typescale.DisplayMedium" parent="TextAppearance.AppCompat.Display2">
+    <item name="fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">45sp</item>
+    <item name="android:letterSpacing">0</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Headline Large -->
-  <string name="m3_sys_typescale_headline_large_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_headline_large_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_headline_large_text_size">32sp</dimen>
-  <item name="m3_sys_typescale_headline_large_letter_spacing" format="float" type="dimen">0</item>
+  <style name="TextAppearance.M3.Sys.Typescale.HeadlineLarge" parent="TextAppearance.AppCompat.Display1">
+    <item name="fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">32sp</item>
+    <item name="android:letterSpacing">0</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Headline Small -->
-  <string name="m3_sys_typescale_headline_small_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_headline_small_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_headline_small_text_size">24sp</dimen>
-  <item name="m3_sys_typescale_headline_small_letter_spacing" format="float" type="dimen">0</item>
+  <style name="TextAppearance.M3.Sys.Typescale.HeadlineSmall" parent="TextAppearance.AppCompat.Title">
+    <item name="fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">24sp</item>
+    <item name="android:letterSpacing">0</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Headline Medium -->
-  <string name="m3_sys_typescale_headline_medium_font" translatable="false">sans-serif</string>
-  <bool name="m3_sys_typescale_headline_medium_text_all_caps">false</bool>
-  <dimen name="m3_sys_typescale_headline_medium_text_size">28sp</dimen>
-  <item name="m3_sys_typescale_headline_medium_letter_spacing" format="float" type="dimen">0</item>
+  <style name="TextAppearance.M3.Sys.Typescale.HeadlineMedium" parent="TextAppearance.AppCompat.Headline">
+    <item name="fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:fontFamily">@string/m3_ref_typeface_brand_regular</item>
+    <item name="android:textStyle">normal</item>
+    <item name="android:textSize">28sp</item>
+    <item name="android:letterSpacing">0</item>
+    <item name="android:textAllCaps">false</item>
+  </style>
   <!-- Generated from token set (md.ref.typeface) in context (audience=3p). -->
   <!-- Brand -->
   <string name="m3_ref_typeface_brand_medium" translatable="false">sans-serif-medium</string>

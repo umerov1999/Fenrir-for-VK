@@ -54,7 +54,7 @@ public final class GsonConverterFactory extends Converter.Factory {
      * Create an instance using {@code gson} for conversion. Encoding to JSON and decoding from JSON
      * (when no charset is specified by a header) will use UTF-8.
      */
-    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
+    // Guarding public API nullability.
     public static GsonConverterFactory create(Gson gson) {
         if (gson == null) throw new NullPointerException("gson == null");
         return new GsonConverterFactory(gson);
