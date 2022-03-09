@@ -35,12 +35,12 @@ public class CryptHelper {
         @MessageType
         int type = MessageType.NORMAL;
 
-        if (Utils.safeIsEmpty(text)) {
-            type = MessageType.NORMAL;
-        } else if (isKeyExchangeServiceMessage(text)) {
-            type = MessageType.KEY_EXCHANGE;
-        } else if (isAes(text)) {
-            type = MessageType.CRYPTED;
+        if (!Utils.safeIsEmpty(text)) {
+            if (isKeyExchangeServiceMessage(text)) {
+                type = MessageType.KEY_EXCHANGE;
+            } else if (isAes(text)) {
+                type = MessageType.CRYPTED;
+            }
         }
 
         // Exestime.log("analizeMessageBody", start, "length: " + (Objects.isNull(text) ? 0 : text.length()), "type: " + type);
@@ -197,7 +197,6 @@ public class CryptHelper {
      * @param text : original plain text
      * @param key  :The public key
      * @return Encrypted text
-     * @throws java.lang.Exception
      */
     public static byte[] encryptRsa(String text, PublicKey key) throws BadPaddingException, IllegalBlockSizeException,
             InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
@@ -217,7 +216,6 @@ public class CryptHelper {
      * @param text :encrypted text
      * @param key  :The private key
      * @return plain text
-     * @throws java.lang.Exception
      */
     public static String decryptRsa(byte[] text, PrivateKey key) throws InvalidKeyException, BadPaddingException,
             IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException {

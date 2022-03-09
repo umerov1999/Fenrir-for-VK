@@ -26,46 +26,52 @@
                 android:contentDescription="@string/app_name"
                 android:src="@mipmap/ic_launcher" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
                 android:text="@string/app_name"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:textSize="@dimen/font_size_big_title" />
 
         </LinearLayout>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:text="@string/first_pagan"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textSize="16sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:padding="4dp"
             android:text="@string/developer"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?colorPrimary"
             android:textSize="@dimen/font_size_subtitle" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:text="@string/helped_developer"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textSize="@dimen/font_size_subtitle" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:autoLink="web"
+            android:gravity="center"
             android:padding="4dp"
             android:text="@string/repo"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textSize="16sp" />
 
         <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
             android:id="@+id/lottie_animation"

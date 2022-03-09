@@ -395,18 +395,18 @@ public class NotReadMessagesFragment extends PlaceSupportMvpFragment<NotReadMess
                 .apply(requireActivity());
     }
 
-    class ActionModeHolder implements View.OnClickListener {
-        public View buttonClose;
-        public View rootView;
-        public View buttonEdit;
-        public View buttonForward;
-        public View buttonCopy;
-        public View buttonDelete;
-        public View buttonPin;
-        public View buttonSpam;
-        public ImageView buttonStar;
-        public TextView titleView;
-        WeakReference<NotReadMessagesFragment> reference;
+    private class ActionModeHolder implements View.OnClickListener {
+        final View buttonClose;
+        final View rootView;
+        final View buttonEdit;
+        final View buttonForward;
+        final View buttonCopy;
+        final View buttonDelete;
+        final View buttonPin;
+        final View buttonSpam;
+        final ImageView buttonStar;
+        final TextView titleView;
+        final WeakReference<NotReadMessagesFragment> reference;
 
         public ActionModeHolder(View rootView, NotReadMessagesFragment fragment) {
             this.rootView = rootView;

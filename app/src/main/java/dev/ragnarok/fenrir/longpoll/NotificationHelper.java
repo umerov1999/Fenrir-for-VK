@@ -543,12 +543,20 @@ public class NotificationHelper {
     }
 
     private static class Content {
-        public String Mime;
-        public Uri uri_data;
+        final String Mime;
+        final Uri uri_data;
 
         Content(String Mime, Uri uri_data) {
             this.Mime = Mime;
             this.uri_data = uri_data;
+        }
+
+        public String getMime() {
+            return Mime;
+        }
+
+        public Uri getUri_data() {
+            return uri_data;
         }
     }
 }

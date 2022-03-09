@@ -10,12 +10,12 @@ import java.util.ArrayList;
 
 import dev.ragnarok.fenrir.domain.IAudioInteractor;
 import dev.ragnarok.fenrir.domain.InteractorFactory;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackService;
 import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.model.CatalogBlock;
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter;
 import dev.ragnarok.fenrir.mvp.view.IAudiosInCatalogView;
 import dev.ragnarok.fenrir.place.PlaceFactory;
-import dev.ragnarok.fenrir.player.MusicPlaybackService;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.RxUtils;
 import dev.ragnarok.fenrir.util.Utils;

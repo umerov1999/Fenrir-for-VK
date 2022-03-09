@@ -140,6 +140,7 @@ public class FeedAdapter extends RecyclerBindableAdapter<News, FeedAdapter.PostH
         ViewUtils.setCountText(holder.viewsCounter, item.getViewCount(), false);
     }
 
+    @NonNull
     @Override
     protected PostHolder viewHolder(View view, int type) {
         return new PostHolder(view);

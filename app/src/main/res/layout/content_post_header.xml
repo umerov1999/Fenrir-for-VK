@@ -25,7 +25,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        app:layout_constraintEnd_toStartOf="@+id/post_views_counter"
+        app:layout_constraintEnd_toStartOf="@id/post_views_counter"
         app:layout_constraintStart_toEndOf="@id/item_post_avatar"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Rustam Fattakhetdinov" />
@@ -37,10 +37,10 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-        app:layout_constraintBottom_toBottomOf="@+id/item_post_avatar"
-        app:layout_constraintEnd_toEndOf="@+id/item_post_owner_name"
-        app:layout_constraintStart_toStartOf="@+id/item_post_owner_name"
-        app:layout_constraintTop_toBottomOf="@+id/item_post_owner_name"
+        app:layout_constraintBottom_toBottomOf="@id/item_post_avatar"
+        app:layout_constraintEnd_toEndOf="@id/item_post_owner_name"
+        app:layout_constraintStart_toStartOf="@id/item_post_owner_name"
+        app:layout_constraintTop_toBottomOf="@id/item_post_owner_name"
         tools:text="Today 19:26" />
 
 

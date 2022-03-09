@@ -38,17 +38,19 @@
             android:textSize="@dimen/font_size_subtitle"
             android:textStyle="bold" />
 
-        <dev.ragnarok.fenrir.view.seek.DefaultTimeBar
+        <dev.ragnarok.fenrir.view.CustomSeekBar
             android:id="@+id/mediacontroller_progress"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_toStartOf="@+id/time"
-            android:layout_toEndOf="@+id/time_current"
-            app:buffered_color="?colorPrimary"
-            app:played_color="?colorPrimary"
-            app:scrubber_color="?colorPrimary"
-            app:scrubber_drawable="@drawable/seekbar_thumb_material_anim"
-            app:unplayed_color="?colorSecondary" />
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/time"
+            android:layout_toEndOf="@id/time_current"
+            app:applyAlpha="true"
+            app:bufferedColor="?colorPrimary"
+            app:circleColor="?colorPrimary"
+            app:lineColor="?colorSecondary"
+            app:lineHeight="3dp"
+            app:pressedCircleColor="?colorSecondary"
+            app:progressColor="?colorPrimary" />
 
     </RelativeLayout>
 

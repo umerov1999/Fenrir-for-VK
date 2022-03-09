@@ -39,7 +39,7 @@ public class AccountsActivity extends NoMainActivity implements PlaceProvider {
         } else if (place.getType() == Place.SETTINGS_THEME) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(getMainContainerViewId(), ThemeFragment.newInstance())
+                    .replace(getMainContainerViewId(), new ThemeFragment())
                     .addToBackStack("preferences_themes")
                     .commit();
         } else {

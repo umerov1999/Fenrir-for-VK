@@ -101,7 +101,6 @@ public class FileManagerFragment extends Fragment implements FileManagerAdapter.
         if (bytes > 1024) {
             long kbs = bytes / 1024;
             retStr += (kbs) + "KB";
-            bytes = bytes - (kbs * 1024);
         } else {
             retStr += (bytes) + " bytes";
         }

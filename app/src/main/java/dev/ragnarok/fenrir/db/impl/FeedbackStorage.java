@@ -180,8 +180,8 @@ class FeedbackStorage extends AbsStorage implements IFeedbackStorage {
     }
 
     private FeedbackEntity mapDto(Cursor cursor) {
-        int dbtype = cursor.getInt(cursor.getColumnIndex(NotificationColumns.TYPE));
-        String data = cursor.getString(cursor.getColumnIndex(NotificationColumns.DATA));
+        int dbtype = cursor.getInt(cursor.getColumnIndexOrThrow(NotificationColumns.TYPE));
+        String data = cursor.getString(cursor.getColumnIndexOrThrow(NotificationColumns.DATA));
 
         Class<? extends FeedbackEntity> feedbackClass = classForType(dbtype);
         return GSON.fromJson(data, feedbackClass);

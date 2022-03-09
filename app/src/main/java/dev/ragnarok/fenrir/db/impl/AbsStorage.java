@@ -53,7 +53,7 @@ public class AbsStorage implements IStorage {
 
     @Nullable
     static <T> T deserializeJson(Cursor cursor, String column, Class<T> clazz) {
-        String json = cursor.getString(cursor.getColumnIndex(column));
+        String json = cursor.getString(cursor.getColumnIndexOrThrow(column));
         if (nonEmpty(json)) {
             return GSON.fromJson(json, clazz);
         } else {

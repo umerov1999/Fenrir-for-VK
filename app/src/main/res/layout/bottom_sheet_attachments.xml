@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginTop="4dp"
-            android:layout_toEndOf="@+id/offset_view"
+            android:layout_toEndOf="@id/offset_view"
             android:gravity="center"
             android:maxWidth="200dp"
             android:orientation="vertical"

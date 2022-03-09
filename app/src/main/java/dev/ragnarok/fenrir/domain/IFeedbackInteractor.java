@@ -16,4 +16,6 @@ public interface IFeedbackInteractor {
     Single<AnswerVKOfficialList> getOfficial(int accountId, Integer count, Integer startFrom);
 
     Completable maskAaViewed(int accountId);
+
+    Completable hide(int accountId, String query);
 }

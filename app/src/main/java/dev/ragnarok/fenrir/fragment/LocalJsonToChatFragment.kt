@@ -200,8 +200,8 @@ class LocalJsonToChatFragment :
         mEmpty?.visibility = if (mAdapter?.itemCount == 0) View.VISIBLE else View.GONE
     }
 
-    override fun displayData(posts: List<Message>) {
-        mAdapter?.items = posts
+    override fun displayData(posts: ArrayList<Message>) {
+        mAdapter?.setItems(posts, true)
         resolveEmptyText()
     }
 

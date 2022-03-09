@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.adapter;
 
-import static dev.ragnarok.fenrir.player.MusicPlaybackController.observeServiceBinding;
+import static dev.ragnarok.fenrir.media.music.MusicPlaybackController.observeServiceBinding;
 import static dev.ragnarok.fenrir.util.Utils.firstNonEmptyString;
 
 import android.animation.Animator;
@@ -36,6 +36,8 @@ import java.util.Objects;
 
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.R;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController;
+import dev.ragnarok.fenrir.media.music.PlayerStatus;
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment;
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest;
 import dev.ragnarok.fenrir.model.Audio;
@@ -44,7 +46,6 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance;
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation;
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation;
 import dev.ragnarok.fenrir.place.PlaceFactory;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
 import dev.ragnarok.fenrir.settings.CurrentTheme;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.AppTextUtils;
@@ -87,7 +88,7 @@ public class AudioLocalRecyclerAdapter extends RecyclerView.Adapter<AudioLocalRe
                         new String[]{Uri.parse(url).getLastPathSegment()}, null);
                 if (cursor != null && cursor.moveToFirst()) {
                     MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                    String fl = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                    String fl = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
                     retriever.setDataSource(fl);
                     cursor.close();
                     String bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
@@ -129,7 +130,7 @@ public class AudioLocalRecyclerAdapter extends RecyclerView.Adapter<AudioLocalRe
             holder.play_cover.clearColorFilter();
             return;
         }
-        switch (MusicPlaybackController.PlayerStatus()) {
+        switch (MusicPlaybackController.playerStatus()) {
             case 1:
                 Utils.doWavesLottie(holder.visual, true);
                 holder.play_cover.setColorFilter(Color.parseColor("#44000000"));
@@ -298,18 +299,18 @@ public class AudioLocalRecyclerAdapter extends RecyclerView.Adapter<AudioLocalRe
         audioListDisposable.dispose();
     }
 
-    private void onServiceBindEvent(@MusicPlaybackController.PlayerStatus int status) {
+    private void onServiceBindEvent(@PlayerStatus int status) {
         switch (status) {
-            case MusicPlaybackController.PlayerStatus.UPDATE_TRACK_INFO:
-            case MusicPlaybackController.PlayerStatus.SERVICE_KILLED:
-            case MusicPlaybackController.PlayerStatus.UPDATE_PLAY_PAUSE:
+            case PlayerStatus.UPDATE_TRACK_INFO:
+            case PlayerStatus.SERVICE_KILLED:
+            case PlayerStatus.UPDATE_PLAY_PAUSE:
                 updateAudio(currAudio);
                 currAudio = MusicPlaybackController.getCurrentAudio();
                 updateAudio(currAudio);
                 break;
-            case MusicPlaybackController.PlayerStatus.REPEATMODE_CHANGED:
-            case MusicPlaybackController.PlayerStatus.SHUFFLEMODE_CHANGED:
-            case MusicPlaybackController.PlayerStatus.UPDATE_PLAY_LIST:
+            case PlayerStatus.REPEATMODE_CHANGED:
+            case PlayerStatus.SHUFFLEMODE_CHANGED:
+            case PlayerStatus.UPDATE_PLAY_LIST:
                 break;
         }
     }

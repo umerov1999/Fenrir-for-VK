@@ -12,7 +12,6 @@ import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse;
 import dev.ragnarok.fenrir.api.services.IAccountService;
 import io.reactivex.rxjava3.core.Single;
 
-
 class AccountApi extends AbsApi implements IAccountApi {
 
     AccountApi(int accountId, IServiceProvider provider) {

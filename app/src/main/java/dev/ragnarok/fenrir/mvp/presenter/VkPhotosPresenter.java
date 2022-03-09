@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.model.VKApiCommunity;
 import dev.ragnarok.fenrir.db.Stores;
@@ -24,6 +24,7 @@ import dev.ragnarok.fenrir.domain.IOwnersRepository;
 import dev.ragnarok.fenrir.domain.IPhotosInteractor;
 import dev.ragnarok.fenrir.domain.InteractorFactory;
 import dev.ragnarok.fenrir.domain.Repository;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController;
 import dev.ragnarok.fenrir.model.Community;
 import dev.ragnarok.fenrir.model.LocalPhoto;
 import dev.ragnarok.fenrir.model.Owner;
@@ -37,7 +38,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelFlags;
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter;
 import dev.ragnarok.fenrir.mvp.view.IVkPhotosView;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.upload.IUploadManager;
 import dev.ragnarok.fenrir.upload.Upload;
@@ -90,7 +90,7 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
 
         interactor = InteractorFactory.createPhotosInteractor();
         ownersRepository = Repository.INSTANCE.getOwners();
-        uploadManager = Injection.provideUploadManager();
+        uploadManager = Includes.getUploadManager();
 
         destination = UploadDestination.forPhotoAlbum(albumId, ownerId);
 
@@ -110,23 +110,23 @@ public class VkPhotosPresenter extends AccountDependencyPresenter<IVkPhotosView>
         loadInitialData();
 
         appendDisposable(uploadManager.observeAdding()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadQueueAdded));
 
         appendDisposable(uploadManager.observeDeleting(true)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadsRemoved));
 
         appendDisposable(uploadManager.observeResults()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadResults));
 
         appendDisposable(uploadManager.obseveStatus()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadStatusUpdate));
 
         appendDisposable(uploadManager.observeProgress()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadProgressUpdate));
 
         refreshOwnerInfoIfNeed();

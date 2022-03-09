@@ -206,8 +206,8 @@ class CommentsStorage extends AbsStorage implements ICommentsStorage {
             DraftComment comment = null;
             if (nonNull(cursor)) {
                 if (cursor.moveToNext()) {
-                    int dbid = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
-                    String body = cursor.getString(cursor.getColumnIndex(CommentsColumns.TEXT));
+                    int dbid = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+                    String body = cursor.getString(cursor.getColumnIndexOrThrow(CommentsColumns.TEXT));
 
                     comment = new DraftComment(dbid).setBody(body);
                 }
@@ -336,29 +336,29 @@ class CommentsStorage extends AbsStorage implements ICommentsStorage {
     }
 
     private CommentEntity mapDbo(int accountId, Cursor cursor, boolean includeAttachments, boolean forceAttachments, Cancelable cancelable) {
-        int attachmentsCount = cursor.getInt(cursor.getColumnIndex(CommentsColumns.ATTACHMENTS_COUNT));
-        int dbid = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+        int attachmentsCount = cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.ATTACHMENTS_COUNT));
+        int dbid = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
 
-        int sourceId = cursor.getInt(cursor.getColumnIndex(CommentsColumns.SOURCE_ID));
-        int sourceOwnerId = cursor.getInt(cursor.getColumnIndex(CommentsColumns.SOURCE_OWNER_ID));
-        int sourceType = cursor.getInt(cursor.getColumnIndex(CommentsColumns.SOURCE_TYPE));
-        String sourceAccessKey = cursor.getString(cursor.getColumnIndex(CommentsColumns.SOURCE_ACCESS_KEY));
-        int id = cursor.getInt(cursor.getColumnIndex(CommentsColumns.COMMENT_ID));
+        int sourceId = cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.SOURCE_ID));
+        int sourceOwnerId = cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.SOURCE_OWNER_ID));
+        int sourceType = cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.SOURCE_TYPE));
+        String sourceAccessKey = cursor.getString(cursor.getColumnIndexOrThrow(CommentsColumns.SOURCE_ACCESS_KEY));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.COMMENT_ID));
 
-        String threadsJson = cursor.getString(cursor.getColumnIndex(CommentsColumns.THREADS));
+        String threadsJson = cursor.getString(cursor.getColumnIndexOrThrow(CommentsColumns.THREADS));
 
         CommentEntity dbo = new CommentEntity().set(sourceId, sourceOwnerId, sourceType, sourceAccessKey, id)
-                .setFromId(cursor.getInt(cursor.getColumnIndex(CommentsColumns.FROM_ID)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(CommentsColumns.DATE)))
-                .setText(cursor.getString(cursor.getColumnIndex(CommentsColumns.TEXT)))
-                .setReplyToUserId(cursor.getInt(cursor.getColumnIndex(CommentsColumns.REPLY_TO_USER)))
-                .setThreadsCount(cursor.getInt(cursor.getColumnIndex(CommentsColumns.THREADS_COUNT)))
-                .setReplyToComment(cursor.getInt(cursor.getColumnIndex(CommentsColumns.REPLY_TO_COMMENT)))
-                .setLikesCount(cursor.getInt(cursor.getColumnIndex(CommentsColumns.LIKES)))
-                .setUserLikes(cursor.getInt(cursor.getColumnIndex(CommentsColumns.USER_LIKES)) == 1)
-                .setCanLike(cursor.getInt(cursor.getColumnIndex(CommentsColumns.CAN_LIKE)) == 1)
-                .setCanEdit(cursor.getInt(cursor.getColumnIndex(CommentsColumns.CAN_EDIT)) == 1)
-                .setDeleted(cursor.getInt(cursor.getColumnIndex(CommentsColumns.DELETED)) == 1);
+                .setFromId(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.FROM_ID)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(CommentsColumns.DATE)))
+                .setText(cursor.getString(cursor.getColumnIndexOrThrow(CommentsColumns.TEXT)))
+                .setReplyToUserId(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.REPLY_TO_USER)))
+                .setThreadsCount(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.THREADS_COUNT)))
+                .setReplyToComment(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.REPLY_TO_COMMENT)))
+                .setLikesCount(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.LIKES)))
+                .setUserLikes(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.USER_LIKES)) == 1)
+                .setCanLike(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.CAN_LIKE)) == 1)
+                .setCanEdit(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.CAN_EDIT)) == 1)
+                .setDeleted(cursor.getInt(cursor.getColumnIndexOrThrow(CommentsColumns.DELETED)) == 1);
         if (nonNull(threadsJson)) {
             dbo.setThreads(GSON.fromJson(threadsJson, THREADS_TYPE));
         }

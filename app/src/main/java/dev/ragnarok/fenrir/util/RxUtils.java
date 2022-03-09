@@ -4,8 +4,8 @@ import androidx.annotation.Nullable;
 
 import java.io.Closeable;
 
-import dev.ragnarok.fenrir.BuildConfig;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Constants;
+import dev.ragnarok.fenrir.Includes;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableTransformer;
 import io.reactivex.rxjava3.core.FlowableTransformer;
@@ -30,7 +30,7 @@ public class RxUtils {
 
     public static <T> Consumer<T> ignore() {
         return t -> {
-            if (t instanceof Throwable && BuildConfig.DEBUG) {
+            if (t instanceof Throwable && Constants.IS_DEBUG) {
                 ((Throwable) t).printStackTrace();
             }
         };
@@ -53,37 +53,37 @@ public class RxUtils {
     public static <T> MaybeTransformer<T, T> applyMaybeIOToMainSchedulers() {
         return upstream -> upstream
                 .subscribeOn(Schedulers.io())
-                .observeOn(Injection.provideMainThreadScheduler());
+                .observeOn(Includes.provideMainThreadScheduler());
     }
 
     public static <T> SingleTransformer<T, T> applySingleIOToMainSchedulers() {
         return upstream -> upstream
                 .subscribeOn(Schedulers.io())
-                .observeOn(Injection.provideMainThreadScheduler());
+                .observeOn(Includes.provideMainThreadScheduler());
     }
 
     public static <T> SingleTransformer<T, T> applySingleComputationToMainSchedulers() {
         return upstream -> upstream
                 .subscribeOn(Schedulers.computation())
-                .observeOn(Injection.provideMainThreadScheduler());
+                .observeOn(Includes.provideMainThreadScheduler());
     }
 
     public static <T> ObservableTransformer<T, T> applyObservableIOToMainSchedulers() {
         return upstream -> upstream
                 .subscribeOn(Schedulers.io())
-                .observeOn(Injection.provideMainThreadScheduler());
+                .observeOn(Includes.provideMainThreadScheduler());
     }
 
     public static <T> FlowableTransformer<T, T> applyFlowableIOToMainSchedulers() {
         return upstream -> upstream
                 .subscribeOn(Schedulers.computation())
-                .observeOn(Injection.provideMainThreadScheduler());
+                .observeOn(Includes.provideMainThreadScheduler());
     }
 
 
     public static CompletableTransformer applyCompletableIOToMainSchedulers() {
         return completable -> completable.subscribeOn(Schedulers.io())
-                .observeOn(Injection.provideMainThreadScheduler());
+                .observeOn(Includes.provideMainThreadScheduler());
     }
 
     public static <T> T BlockingGetSingle(Single<T> single, T default_value) {

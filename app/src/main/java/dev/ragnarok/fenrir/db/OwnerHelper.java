@@ -18,8 +18,8 @@ public class OwnerHelper {
                     null, BaseColumns._ID + " = ?", new String[]{String.valueOf(ownerId)}, null);
             if (uCursor != null) {
                 if (uCursor.moveToNext()) {
-                    result = uCursor.getString(uCursor.getColumnIndex(UserColumns.FIRST_NAME)) +
-                            " " + uCursor.getString(uCursor.getColumnIndex(UserColumns.LAST_NAME));
+                    result = uCursor.getString(uCursor.getColumnIndexOrThrow(UserColumns.FIRST_NAME)) +
+                            " " + uCursor.getString(uCursor.getColumnIndexOrThrow(UserColumns.LAST_NAME));
                 }
 
                 uCursor.close();
@@ -30,7 +30,7 @@ public class OwnerHelper {
 
             if (gCursor != null) {
                 if (gCursor.moveToNext()) {
-                    result = gCursor.getString(gCursor.getColumnIndex(GroupColumns.NAME));
+                    result = gCursor.getString(gCursor.getColumnIndexOrThrow(GroupColumns.NAME));
                 }
 
                 gCursor.close();

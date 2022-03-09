@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/button_add"
+        android:layout_toStartOf="@id/button_add"
         android:autoLink="web"
         android:linksClickable="true"
         android:padding="@dimen/content_medium_margin"

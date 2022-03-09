@@ -31,15 +31,16 @@ import com.squareup.picasso3.Picasso.LoadedFrom
 internal class MediaStoreRequestHandler(context: Context) : ContentStreamRequestHandler(context) {
     override fun canHandleRequest(data: Request): Boolean {
         val uri = data.uri
-        return uri != null
-                && ContentResolver.SCHEME_CONTENT == uri.scheme && MediaStore.AUTHORITY == uri.authority
+        return uri != null &&
+                ContentResolver.SCHEME_CONTENT == uri.scheme &&
+                MediaStore.AUTHORITY == uri.authority
     }
 
     override fun load(picasso: Picasso, request: Request, callback: Callback) {
         var signaledCallback = false
         try {
             val contentResolver = context.contentResolver
-            val requestUri = checkNotNull(request.uri, { "request.uri == null" })
+            val requestUri = checkNotNull(request.uri) { "request.uri == null" }
             val exifOrientation = getExifOrientation(requestUri)
 
             val mimeType = contentResolver.getType(requestUri)
@@ -57,7 +58,7 @@ internal class MediaStoreRequestHandler(context: Context) : ContentStreamRequest
 
                 val id = ContentUris.parseId(requestUri)
 
-                val options = checkNotNull(createBitmapOptions(request), { "options == null" })
+                val options = checkNotNull(createBitmapOptions(request)) { "options == null" }
                 options.inJustDecodeBounds = true
 
                 calculateInSampleSize(
@@ -125,7 +126,6 @@ internal class MediaStoreRequestHandler(context: Context) : ContentStreamRequest
     companion object {
         private val CONTENT_ORIENTATION = arrayOf(MediaStore.Images.ImageColumns.ORIENTATION)
 
-        @JvmStatic
         fun getPicassoKind(targetWidth: Int, targetHeight: Int): PicassoKind {
             return if (targetWidth <= PicassoKind.MICRO.width && targetHeight <= PicassoKind.MICRO.height) {
                 PicassoKind.MICRO

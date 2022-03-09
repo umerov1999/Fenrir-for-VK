@@ -28,7 +28,7 @@
             android:id="@+id/online"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:layout_alignBottom="@+id/avatar"
+            android:layout_alignBottom="@id/avatar"
             android:padding="3dp"
             app:circle_color="?icon_color_active"
             app:stroke_color="?android:colorBackground" />

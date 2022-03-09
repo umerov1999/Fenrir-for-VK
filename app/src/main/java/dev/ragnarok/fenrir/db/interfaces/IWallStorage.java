@@ -44,11 +44,6 @@ public interface IWallStorage extends IStorage {
 
     /**
      * Уведомить хранилище, что пост более не существует
-     *
-     * @param accountId
-     * @param postVkid
-     * @param postOwnerId
-     * @return
      */
     Completable invalidatePost(int accountId, int postVkid, int postOwnerId);
 

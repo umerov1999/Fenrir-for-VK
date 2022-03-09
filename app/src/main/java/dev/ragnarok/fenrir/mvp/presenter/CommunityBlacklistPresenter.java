@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.interfaces.INetworker;
 import dev.ragnarok.fenrir.db.interfaces.IOwnersStorage;
@@ -49,14 +49,14 @@ public class CommunityBlacklistPresenter extends AccountDependencyPresenter<ICom
         data = new ArrayList<>();
         moreStartFrom = new IntNextFrom(0);
 
-        INetworker networker = Injection.provideNetworkInterfaces();
-        IOwnersStorage repository = Injection.provideStores().owners();
+        INetworker networker = Includes.getNetworkInterfaces();
+        IOwnersStorage repository = Includes.getStores().owners();
 
         groupSettingsInteractor = new GroupSettingsInteractor(networker, repository, Repository.INSTANCE.getOwners());
 
         appendDisposable(repository.observeBanActions()
                 .filter(action -> action.getGroupId() == groupId)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onBanActionReceived));
 
         requestDataAtStart();

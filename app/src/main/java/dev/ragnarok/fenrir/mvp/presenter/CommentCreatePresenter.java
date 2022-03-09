@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.db.AttachToType;
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository;
 import dev.ragnarok.fenrir.model.AbsModel;
@@ -38,7 +38,7 @@ public class CommentCreatePresenter extends AbsAttachmentsEditPresenter<ICreateC
 
     public CommentCreatePresenter(int accountId, int commentDbid, int sourceOwnerId, String body, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
-        attachmentsRepository = Injection.provideAttachmentsRepository();
+        attachmentsRepository = Includes.getAttachmentsRepository();
         commentId = commentDbid;
         destination = UploadDestination.forComment(commentId, sourceOwnerId);
 
@@ -49,29 +49,29 @@ public class CommentCreatePresenter extends AbsAttachmentsEditPresenter<ICreateC
         Predicate<Upload> predicate = o -> destination.compareTo(o.getDestination());
 
         appendDisposable(uploadManager.observeAdding()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(updates -> onUploadQueueUpdates(updates, predicate)));
 
         appendDisposable(uploadManager.obseveStatus()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadStatusUpdate));
 
         appendDisposable(uploadManager.observeProgress()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadProgressUpdate));
 
         appendDisposable(uploadManager.observeDeleting(true)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadObjectRemovedFromQueue));
 
         appendDisposable(attachmentsRepository.observeAdding()
                 .filter(this::filterAttachEvents)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::handleAttachmentsAdding));
 
         appendDisposable(attachmentsRepository.observeRemoving()
                 .filter(this::filterAttachEvents)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::handleAttachmentRemoving));
 
         loadAttachments();

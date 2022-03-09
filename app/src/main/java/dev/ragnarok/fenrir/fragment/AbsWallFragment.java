@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -73,6 +72,7 @@ import dev.ragnarok.fenrir.util.FindAttachmentType;
 import dev.ragnarok.fenrir.util.Utils;
 import dev.ragnarok.fenrir.util.ViewUtils;
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper;
+import dev.ragnarok.fenrir.view.UpEditFab;
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView;
 
 public abstract class AbsWallFragment<V extends IWallView, P extends AbsWallPresenter<V>>
@@ -82,31 +82,7 @@ public abstract class AbsWallFragment<V extends IWallView, P extends AbsWallPres
     private WallAdapter mWallAdapter;
     private LoadMoreFooterHelper mLoadMoreFooterHelper;
     private HorizontalStoryAdapter mStoryAdapter;
-    private FloatingActionButton fabCreate;
-    private boolean isCreatePost = true;
-    private final RecyclerView.OnScrollListener mFabScrollListener = new RecyclerView.OnScrollListener() {
-        int scrollMinOffset;
-
-        @Override
-        public void onScrolled(@NonNull RecyclerView view, int dx, int dy) {
-            if (scrollMinOffset == 0) {
-                // one-time-init
-                scrollMinOffset = (int) Utils.dpToPx(2, view.getContext());
-            }
-
-            if (dy > scrollMinOffset && fabCreate.isShown()) {
-                fabCreate.hide();
-            }
-
-            if (dy < -scrollMinOffset && !fabCreate.isShown()) {
-                fabCreate.show();
-                if (view.getLayoutManager() instanceof LinearLayoutManager) {
-                    LinearLayoutManager myLayoutManager = (LinearLayoutManager) view.getLayoutManager();
-                    ToggleFab(myLayoutManager.findFirstVisibleItemPosition() > 7);
-                }
-            }
-        }
-    };
+    private UpEditFab fabCreate;
 
     public static Bundle buildArgs(int accountId, int ownerId, @Nullable Owner owner) {
         Bundle args = new Bundle();
@@ -214,13 +190,6 @@ public abstract class AbsWallFragment<V extends IWallView, P extends AbsWallPres
         }
     }
 
-    private void ToggleFab(boolean isUp) {
-        if (isCreatePost == isUp) {
-            isCreatePost = !isUp;
-            fabCreate.setImageResource(isCreatePost ? R.drawable.pencil : R.drawable.ic_outline_keyboard_arrow_up);
-        }
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -248,8 +217,18 @@ public abstract class AbsWallFragment<V extends IWallView, P extends AbsWallPres
 
         RecyclerView recyclerView = root.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(manager);
+
+        fabCreate = root.findViewById(R.id.fragment_user_profile_fab);
+        fabCreate.setOnClickListener(v -> {
+            if (fabCreate.isEdit()) {
+                callPresenter(AbsWallPresenter::fireCreateClick);
+            } else {
+                recyclerView.scrollToPosition(0);
+            }
+        });
+
         recyclerView.addOnScrollListener(new PicassoPauseOnScrollListener(Constants.PICASSO_TAG));
-        recyclerView.addOnScrollListener(mFabScrollListener);
+        recyclerView.addOnScrollListener(fabCreate.getRecyclerObserver(7));
         recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
             public void onScrollToLastElement() {
@@ -262,17 +241,6 @@ public abstract class AbsWallFragment<V extends IWallView, P extends AbsWallPres
 
         View footerView = inflater.inflate(R.layout.footer_load_more, recyclerView, false);
         mLoadMoreFooterHelper = LoadMoreFooterHelper.createFrom(footerView, () -> callPresenter(AbsWallPresenter::fireLoadMoreClick));
-
-        fabCreate = root.findViewById(R.id.fragment_user_profile_fab);
-        fabCreate.setOnClickListener(v -> {
-            if (isCreatePost) {
-                callPresenter(AbsWallPresenter::fireCreateClick);
-            } else {
-                recyclerView.scrollToPosition(0);
-                ToggleFab(false);
-            }
-        });
-
 
         View headerStory = inflater.inflate(R.layout.header_story, recyclerView, false);
         RecyclerView headerStoryRecyclerView = headerStory.findViewById(R.id.header_story);

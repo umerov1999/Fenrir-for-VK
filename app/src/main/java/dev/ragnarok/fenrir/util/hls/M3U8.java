@@ -230,14 +230,14 @@ public class M3U8 {
                     while ((line = br.readLine()) != null) {
                         line = line.trim();
                         Property property = checkProperty(line);
-                        if (property == null) {
-                            continue;
-                        } else if (property.type.equals("FILE")) {
-                            URL tsUrl = new URL(mediaURL, line);
-                            list.add(new TSDownload(tsUrl, type, key, iv));
-                            for (int i = iv.length; i > 0; i--) {
-                                iv[i - 1] = (byte) (iv[i - 1] + 1);
-                                if (iv[i - 1] != 0) break;
+                        if (property != null) {
+                            if (property.type.equals("FILE")) {
+                                URL tsUrl = new URL(mediaURL, line);
+                                list.add(new TSDownload(tsUrl, type, key, iv));
+                                for (int i = iv.length; i > 0; i--) {
+                                    iv[i - 1] = (byte) (iv[i - 1] + 1);
+                                    if (iv[i - 1] != 0) break;
+                                }
                             }
                         }
                     }
@@ -321,40 +321,40 @@ public class M3U8 {
                 while ((line = br.readLine()) != null) {
                     line = line.trim();
                     Property property = checkProperty(line);
-                    if (property == null) {
-                        continue;
-                    } else if (property.type.equals("EXT-X-KEY")) {
-                        if ("NONE".equals(property.properties.get("METHOD"))) {
-                            type = KeyType.NONE;
-                            continue;
-                        }
-                        type = KeyType.AES128;
-                        URL keyUrl = new URL(mediaURL, property.properties.get("URI"));
-                        InputStream ooo = getStream(client, keyUrl);
-                        if (ooo == null) {
-                            return false;
-                        }
-                        try (InputStream ks = ooo) {
-                            int keyLen = ks.read(key);
-                            if (keyLen != key.length) {
-                                throw new RuntimeException("key error");
+                    if (property != null) {
+                        if (property.type.equals("EXT-X-KEY")) {
+                            if ("NONE".equals(property.properties.get("METHOD"))) {
+                                type = KeyType.NONE;
+                                continue;
                             }
-                        }
-                        if (property.properties.get("IV") != null) {
-                            String ivstr = property.properties.get("IV");
-                            ivstr = ivstr.substring(2);
-                            for (int i = 0; i < iv.length; i++) {
-                                iv[i] = (byte) Integer.parseInt(ivstr.substring(i * 2, (i + 1) * 2), 16);
+                            type = KeyType.AES128;
+                            URL keyUrl = new URL(mediaURL, property.properties.get("URI"));
+                            InputStream ooo = getStream(client, keyUrl);
+                            if (ooo == null) {
+                                return false;
                             }
-                        } else {
-                            Arrays.fill(iv, (byte) 0);
-                        }
-                    } else if (property.type.equals("FILE")) {
-                        URL tsUrl = new URL(mediaURL, line);
-                        list.add(new TSDownload(tsUrl, type, key, iv));
-                        for (int i = iv.length; i > 0; i--) {
-                            iv[i - 1] = (byte) (iv[i - 1] + 1);
-                            if (iv[i - 1] != 0) break;
+                            try (InputStream ks = ooo) {
+                                int keyLen = ks.read(key);
+                                if (keyLen != key.length) {
+                                    throw new RuntimeException("key error");
+                                }
+                            }
+                            if (property.properties.get("IV") != null) {
+                                String ivstr = property.properties.get("IV");
+                                ivstr = ivstr.substring(2);
+                                for (int i = 0; i < iv.length; i++) {
+                                    iv[i] = (byte) Integer.parseInt(ivstr.substring(i * 2, (i + 1) * 2), 16);
+                                }
+                            } else {
+                                Arrays.fill(iv, (byte) 0);
+                            }
+                        } else if (property.type.equals("FILE")) {
+                            URL tsUrl = new URL(mediaURL, line);
+                            list.add(new TSDownload(tsUrl, type, key, iv));
+                            for (int i = iv.length; i > 0; i--) {
+                                iv[i - 1] = (byte) (iv[i - 1] + 1);
+                                if (iv[i - 1] != 0) break;
+                            }
                         }
                     }
                 }

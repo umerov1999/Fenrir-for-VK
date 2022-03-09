@@ -5,7 +5,7 @@ import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
 
 import java.util.concurrent.TimeUnit;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.interfaces.INetworker;
 import dev.ragnarok.fenrir.api.model.VkApiLongpollServer;
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate;
@@ -31,7 +31,7 @@ class UserLongpoll implements ILongpoll {
     private final INetworker networker;
     private final Callback callback;
     private final Observable<Long> mDelayedObservable = Observable.interval(DELAY_ON_ERROR, DELAY_ON_ERROR,
-            TimeUnit.MILLISECONDS, Injection.provideMainThreadScheduler());
+            TimeUnit.MILLISECONDS, Includes.provideMainThreadScheduler());
     private String key;
     private String server;
     private Long ts;

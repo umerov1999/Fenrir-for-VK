@@ -204,9 +204,7 @@ public class ColorPickerView extends View {
             height = MeasureSpec.getSize(heightMeasureSpec);
         else if (heightMode == MeasureSpec.EXACTLY)
             height = MeasureSpec.getSize(heightMeasureSpec);
-        int squareDimen = width;
-        if (height < width)
-            squareDimen = height;
+        int squareDimen = Math.min(height, width);
         setMeasuredDimension(squareDimen, squareDimen);
     }
 

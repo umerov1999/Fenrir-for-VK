@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -66,7 +67,7 @@ public class CommentsAdapter extends RecyclerBindableAdapter<Comment, RecyclerVi
     }
 
     @Override
-    protected void onBindItemViewHolder(RecyclerView.ViewHolder viewHolder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, int type) {
         switch (type) {
             case TYPE_NORMAL:
                 bindNormalHolder((NormalCommentHolder) viewHolder, getItem(position));
@@ -205,6 +206,7 @@ public class CommentsAdapter extends RecyclerBindableAdapter<Comment, RecyclerVi
         return spannable;
     }
 
+    @NonNull
     @Override
     protected RecyclerView.ViewHolder viewHolder(View view, int type) {
         switch (type) {
@@ -213,7 +215,7 @@ public class CommentsAdapter extends RecyclerBindableAdapter<Comment, RecyclerVi
             case TYPE_DELETED:
                 return new DeletedHolder(view);
             default:
-                return null;
+                throw new IllegalArgumentException();
         }
     }
 

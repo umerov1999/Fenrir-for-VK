@@ -5,6 +5,8 @@ import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -106,6 +108,15 @@ public class ProxySettingsImpl implements IProxySettings {
                 .apply();
 
         activePublisher.onNext(Optional.wrap(config));
+    }
+
+    @Override
+    public void broadcastUpdate(@Nullable ProxyConfig config) {
+        if (Objects.isNull(config)) {
+            activePublisher.onNext(Optional.wrap(getActiveProxy()));
+        } else {
+            activePublisher.onNext(Optional.wrap(config));
+        }
     }
 
     @Override

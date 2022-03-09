@@ -110,8 +110,6 @@ public class VKApiCommunity extends VKApiOwner {
     public String screen_name;
     /**
      * Whether the community is closed
-     *
-     * @see {@link VKApiCommunity.Status}
      */
     public int is_closed;
     /**
@@ -120,8 +118,6 @@ public class VKApiCommunity extends VKApiOwner {
     public boolean is_admin;
     /**
      * Rights of the user
-     *
-     * @see {@link VKApiCommunity.AdminLevel}
      */
     public int admin_level;
     /**
@@ -256,8 +252,6 @@ public class VKApiCommunity extends VKApiOwner {
     public VkApiCover cover;
     /**
      * Community type
-     *
-     * @see {@link VKApiCommunity.Type}
      */
     public int type;
     /**

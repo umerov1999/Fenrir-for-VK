@@ -38,7 +38,7 @@
             android:layout_width="40dp"
             android:layout_height="3dp"
             android:src="@drawable/player_handler"
-            app:layout_constraintBottom_toBottomOf="@+id/goto_button"
+            app:layout_constraintBottom_toBottomOf="@id/goto_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -100,23 +100,24 @@
             android:textSize="11sp"
             app:layout_constraintBottom_toTopOf="@id/seek_player_pos"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/audio_player_current_time"
+            app:layout_constraintStart_toEndOf="@id/audio_player_current_time"
             tools:ignore="SmallSp" />
 
-        <dev.ragnarok.fenrir.view.seek.DefaultTimeBar
+        <dev.ragnarok.fenrir.view.CustomSeekBar
             android:id="@+id/seek_player_pos"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/audio_player_current_time"
+            android:layout_below="@id/audio_player_current_time"
             android:layout_marginBottom="6dp"
-            app:buffered_color="@color/neutral"
+            app:applyAlpha="true"
+            app:bufferedColor="@color/neutral"
+            app:circleColor="?colorOnSurface"
             app:layout_constraintBottom_toTopOf="@id/audio_save"
-            app:layout_constraintEnd_toEndOf="@+id/audio_share"
-            app:layout_constraintStart_toStartOf="@+id/audio_add"
-            app:played_color="?colorOnSurface"
-            app:scrubber_color="?colorOnSurface"
-            app:scrubber_drawable="@drawable/seekbar_thumb_material_anim"
-            app:unplayed_color="@color/neutral" />
+            app:layout_constraintEnd_toEndOf="@id/audio_share"
+            app:layout_constraintStart_toStartOf="@id/audio_add"
+            app:lineColor="@color/neutral"
+            app:pressedCircleColor="?colorOnSurface"
+            app:progressColor="?colorOnSurface" />
 
 
         <ImageView
@@ -133,7 +134,7 @@
             app:layout_constraintTop_toTopOf="@id/audio_save"
             app:tint="?colorOnSurface" />
 
-        <dev.ragnarok.fenrir.player.ui.RepeatingImageButton
+        <dev.ragnarok.fenrir.view.media.RepeatingImageButton
             android:id="@+id/audio_save"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -141,9 +142,9 @@
             android:src="@drawable/save"
             android:stateListAnimator="@animator/clicked"
             android:tint="?colorOnSurface"
-            app:layout_constraintEnd_toStartOf="@+id/audio_share"
+            app:layout_constraintEnd_toStartOf="@id/audio_share"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
-            app:layout_constraintStart_toEndOf="@+id/audio_add" />
+            app:layout_constraintStart_toEndOf="@id/audio_add" />
 
         <TextView
             android:id="@+id/audio_player_album"
@@ -159,8 +160,8 @@
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@+id/audio_share"
-            app:layout_constraintStart_toStartOf="@+id/audio_add"
+            app:layout_constraintEnd_toEndOf="@id/audio_share"
+            app:layout_constraintStart_toStartOf="@id/audio_add"
             app:layout_constraintTop_toBottomOf="@id/audio_save"
             tools:text="Album" />
 
@@ -177,8 +178,8 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            app:layout_constraintEnd_toEndOf="@+id/audio_share"
-            app:layout_constraintStart_toStartOf="@+id/audio_add"
+            app:layout_constraintEnd_toEndOf="@id/audio_share"
+            app:layout_constraintStart_toStartOf="@id/audio_add"
             app:layout_constraintTop_toBottomOf="@id/audio_player_album"
             tools:text="Jara" />
 
@@ -196,8 +197,8 @@
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="?android:textColorSecondary"
             android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@+id/audio_share"
-            app:layout_constraintStart_toStartOf="@+id/audio_add"
+            app:layout_constraintEnd_toEndOf="@id/audio_share"
+            app:layout_constraintStart_toStartOf="@id/audio_add"
             app:layout_constraintTop_toBottomOf="@id/audio_player_subtitle"
             tools:text="Warduna" />
 
@@ -216,7 +217,7 @@
             app:tint="?colorOnSurface" />
 
 
-        <dev.ragnarok.fenrir.player.ui.ShuffleButton
+        <dev.ragnarok.fenrir.view.media.ShuffleButton
             android:id="@+id/action_button_shuffle"
             android:layout_width="@dimen/audio_player_controls_end_button_width"
             android:layout_height="@dimen/audio_player_controls_end_button_height"
@@ -225,12 +226,12 @@
             android:scaleType="centerInside"
             android:src="@drawable/shuffle_disabled"
             android:tint="?colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="@+id/action_button_play"
-            app:layout_constraintEnd_toStartOf="@+id/action_button_previous"
+            app:layout_constraintBottom_toBottomOf="@id/action_button_play"
+            app:layout_constraintEnd_toStartOf="@id/action_button_previous"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/action_button_play" />
+            app:layout_constraintTop_toTopOf="@id/action_button_play" />
 
-        <dev.ragnarok.fenrir.player.ui.RepeatingImageButton
+        <dev.ragnarok.fenrir.view.media.RepeatingImageButton
             android:id="@+id/action_button_previous"
             android:layout_width="@dimen/audio_player_controls_main_button_width"
             android:layout_height="@dimen/audio_player_controls_main_button_height"
@@ -239,12 +240,12 @@
             android:scaleType="centerInside"
             android:src="@drawable/page_first"
             android:tint="?colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="@+id/action_button_play"
+            app:layout_constraintBottom_toBottomOf="@id/action_button_play"
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toStartOf="@+id/action_button_play"
+            app:layout_constraintEnd_toStartOf="@id/action_button_play"
             app:layout_constraintStart_toEndOf="@id/action_button_shuffle" />
 
-        <dev.ragnarok.fenrir.player.ui.PlayPauseButton
+        <dev.ragnarok.fenrir.view.media.PlayPauseButton
             android:id="@+id/action_button_play"
             style="?attr/fab_player"
             android:layout_width="@dimen/audio_player_controls_main_button_width"
@@ -256,11 +257,11 @@
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toStartOf="@+id/action_button_next"
+            app:layout_constraintEnd_toStartOf="@id/action_button_next"
             app:layout_constraintStart_toEndOf="@id/action_button_previous"
             app:layout_constraintTop_toBottomOf="@id/audio_player_title" />
 
-        <dev.ragnarok.fenrir.player.ui.RepeatingImageButton
+        <dev.ragnarok.fenrir.view.media.RepeatingImageButton
             android:id="@+id/action_button_next"
             android:layout_width="@dimen/audio_player_controls_main_button_width"
             android:layout_height="@dimen/audio_player_controls_main_button_height"
@@ -269,12 +270,12 @@
             android:scaleType="centerInside"
             android:src="@drawable/page_last"
             android:tint="?colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="@+id/action_button_play"
+            app:layout_constraintBottom_toBottomOf="@id/action_button_play"
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toStartOf="@+id/action_button_repeat"
+            app:layout_constraintEnd_toStartOf="@id/action_button_repeat"
             app:layout_constraintStart_toEndOf="@id/action_button_play" />
 
-        <dev.ragnarok.fenrir.player.ui.RepeatButton
+        <dev.ragnarok.fenrir.view.media.RepeatButton
             android:id="@+id/action_button_repeat"
             android:layout_width="@dimen/audio_player_controls_end_button_width"
             android:layout_height="@dimen/audio_player_controls_end_button_height"
@@ -284,11 +285,11 @@
             android:scaleType="centerInside"
             android:src="@drawable/repeat_off"
             android:tint="?colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="@+id/action_button_play"
+            app:layout_constraintBottom_toBottomOf="@id/action_button_play"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/action_button_next"
-            app:layout_constraintTop_toTopOf="@+id/action_button_play" />
+            app:layout_constraintTop_toTopOf="@id/action_button_play" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

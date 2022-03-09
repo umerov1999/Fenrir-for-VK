@@ -33,7 +33,7 @@ class DepthTransformer : ViewPager2.PageTransformer {
 
                     // Scale the page down (between MIN_SCALE and 1)
                     val scaleFactor =
-                        (Companion.MIN_SCALE + (1 - Companion.MIN_SCALE) * (1 - abs(position)))
+                        (MIN_SCALE + (1 - MIN_SCALE) * (1 - abs(position)))
                     scaleX = scaleFactor
                     scaleY = scaleFactor
                 }
@@ -62,7 +62,7 @@ class ZoomOutTransformer : ViewPager2.PageTransformer {
                 }
                 position <= 1 -> { // [-1,1]
                     // Modify the default slide transition to shrink the page as well
-                    val scaleFactor = (1 - abs(position)).coerceAtLeast(Companion.MIN_SCALE)
+                    val scaleFactor = (1 - abs(position)).coerceAtLeast(MIN_SCALE)
                     val vertMargin = pageHeight * (1 - scaleFactor) / 2
                     val horizontalMargin = pageWidth * (1 - scaleFactor) / 2
                     translationX = if (position < 0) {
@@ -76,8 +76,8 @@ class ZoomOutTransformer : ViewPager2.PageTransformer {
                     scaleY = scaleFactor
 
                     // Fade the page relative to its size.
-                    alpha = (Companion.MIN_ALPHA +
-                            (((scaleFactor - Companion.MIN_SCALE) / (1 - Companion.MIN_SCALE)) * (1 - Companion.MIN_ALPHA)))
+                    alpha = (MIN_ALPHA +
+                            (((scaleFactor - MIN_SCALE) / (1 - MIN_SCALE)) * (1 - MIN_ALPHA)))
                 }
                 else -> { // (1,+Infinity]
                     // This page is way off-screen to the right.
@@ -136,8 +136,8 @@ class BackgroundToForegroundTransformer : ViewPager2.PageTransformer {
         page.translationX = if (position < 0.0f) width * position else -width * position * 0.25f
     }
 
-    private fun min(`val`: Float, min: Float): Float {
-        return `val`.coerceAtLeast(min)
+    private fun min(value: Float, min: Float): Float {
+        return value.coerceAtLeast(min)
     }
 }
 

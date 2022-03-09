@@ -109,8 +109,9 @@ public class CreatePhotoAlbumFragment extends BaseMvpFragment<EditPhotoAlbumPres
     @Override
     public void attachSteppersHost(@NonNull CreatePhotoAlbumStepsHost host) {
         mAdapter = new AbsSteppersVerticalAdapter<CreatePhotoAlbumStepsHost>(host, this) {
+            @NonNull
             @Override
-            public AbsStepHolder<CreatePhotoAlbumStepsHost> createHolderForStep(ViewGroup parent, CreatePhotoAlbumStepsHost host, int step) {
+            public AbsStepHolder<CreatePhotoAlbumStepsHost> createHolderForStep(ViewGroup parent, @NonNull CreatePhotoAlbumStepsHost host, int step) {
                 return createHolder(step, parent);
             }
         };

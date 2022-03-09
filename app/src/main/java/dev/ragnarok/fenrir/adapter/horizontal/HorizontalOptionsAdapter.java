@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -53,6 +54,7 @@ public class HorizontalOptionsAdapter<T extends Entry> extends RecyclerBindableA
         });
     }
 
+    @NonNull
     @Override
     protected Holder viewHolder(View view, int type) {
         return new Holder(view);

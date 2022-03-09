@@ -15,7 +15,7 @@ import androidx.annotation.StringRes;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.model.VKApiCommunity;
 import dev.ragnarok.fenrir.api.model.VKApiPost;
@@ -108,23 +108,23 @@ public class PostEditPresenter extends AbsPostEditPresenter<IPostEditView> {
                 && object.getDestination().compareTo(uploadDestination);
 
         appendDisposable(uploadManager.observeAdding()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(updates -> onUploadQueueUpdates(updates, uploadPredicate)));
 
         appendDisposable(uploadManager.observeProgress()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadProgressUpdate));
 
         appendDisposable(uploadManager.obseveStatus()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadStatusUpdate));
 
         appendDisposable(uploadManager.observeDeleting(false)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadObjectRemovedFromQueue));
 
         appendDisposable(uploadManager.observeResults()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadComplete));
     }
 

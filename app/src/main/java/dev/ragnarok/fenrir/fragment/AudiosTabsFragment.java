@@ -101,14 +101,6 @@ public class AudiosTabsFragment extends BaseFragment {
             else
                 tab.setText(VKApiAudio.Genre.getTitleByGenre(requireActivity(), fid));
         }).attach();
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                Integer fid = adapter.mFragments.get(position);
-                viewPager.setUserInputEnabled(fid != CATALOG);
-            }
-        });
     }
 
     public int getAccountId() {

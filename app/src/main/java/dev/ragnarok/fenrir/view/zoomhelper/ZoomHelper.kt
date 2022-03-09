@@ -537,16 +537,6 @@ class ZoomHelper {
         dismissDialog()
     }
 
-    /**
-     * dismiss and release the static ZoomHelper
-     * All the static ZoomHelper settings will change to the default value!
-     * Listeners will
-     */
-    fun release() {
-        dismiss()
-        InstanceState.release()
-    }
-
     companion object {
 
         /**
@@ -581,7 +571,7 @@ class ZoomHelper {
          */
         fun removeZoomableView(view: View) = view.setTag(R.id.zoomable, null)
 
-        fun getInstance() = InstanceState.getZoomHelper()
+        fun getInstance() = InstanceState.zoomHelper
 
         /**
          * @return true if layout is skipping

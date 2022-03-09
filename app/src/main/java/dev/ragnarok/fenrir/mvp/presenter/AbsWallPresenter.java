@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.model.VKApiPost;
 import dev.ragnarok.fenrir.api.model.VkApiProfileInfo;
@@ -112,19 +112,19 @@ public abstract class AbsWallPresenter<V extends IWallView> extends PlaceSupport
         appendDisposable(walls
                 .observeMinorChanges()
                 .filter(update -> update.getAccountId() == getAccountId() && update.getOwnerId() == getOwnerId())
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostChange));
 
         appendDisposable(walls
                 .observeChanges()
                 .filter(post -> post.getOwnerId() == ownerId)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostChange));
 
         appendDisposable(walls
                 .observePostInvalidation()
                 .filter(pair -> pair.getOwnerId() == ownerId)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(pair -> onPostInvalid(pair.getId())));
     }
 

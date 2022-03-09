@@ -294,6 +294,8 @@ public class Dto2Entity {
 
                 copyEntity.setCopies(copiesEntity);
                 return copyEntity;
+            case FeedbackType.NULL:
+                break;
         }
 
         throw new UnsupportedOperationException("Unsupported feedback type: " + feedback.type);

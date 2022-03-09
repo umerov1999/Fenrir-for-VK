@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.mvp.presenter;
 
-import static dev.ragnarok.fenrir.Injection.provideMainThreadScheduler;
+import static dev.ragnarok.fenrir.Includes.provideMainThreadScheduler;
 import static dev.ragnarok.fenrir.util.Objects.isNull;
 import static dev.ragnarok.fenrir.util.Utils.findIndexById;
 import static dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity;
 import dev.ragnarok.fenrir.domain.IDocsInteractor;
@@ -74,7 +74,7 @@ public class DocsListPresenter extends AccountDependencyPresenter<IDocListView> 
     public DocsListPresenter(int accountId, int ownerId, @Nullable String action, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
         docsInteractor = InteractorFactory.createDocsInteractor();
-        uploadManager = Injection.provideUploadManager();
+        uploadManager = Includes.getUploadManager();
 
         mOwnerId = ownerId;
 

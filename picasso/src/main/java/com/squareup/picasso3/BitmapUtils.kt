@@ -37,7 +37,6 @@ object BitmapUtils {
      * Lazily create [BitmapFactory.Options] based in given
      * [Request], only instantiating them if needed.
      */
-    @JvmStatic
     fun createBitmapOptions(data: Request): BitmapFactory.Options? {
         val justBounds = data.hasSize()
         return if (justBounds || data.config != null) {
@@ -50,31 +49,40 @@ object BitmapUtils {
         } else null
     }
 
-    @JvmStatic
-    fun requiresInSampleSize(options: BitmapFactory.Options?): Boolean {
+    private fun requiresInSampleSize(options: BitmapFactory.Options?): Boolean {
         return options != null && options.inJustDecodeBounds
     }
 
-    @JvmStatic
     fun calculateInSampleSize(
-        reqWidth: Int, reqHeight: Int, options: BitmapFactory.Options, request: Request
+        reqWidth: Int,
+        reqHeight: Int,
+        options: BitmapFactory.Options,
+        request: Request
     ) {
         calculateInSampleSize(
             reqWidth, reqHeight, options.outWidth, options.outHeight, options, request
         )
     }
 
-    @JvmStatic
     fun shouldResize(
-        onlyScaleDown: Boolean, inWidth: Int, inHeight: Int, targetWidth: Int, targetHeight: Int
+        onlyScaleDown: Boolean,
+        inWidth: Int,
+        inHeight: Int,
+        targetWidth: Int,
+        targetHeight: Int
     ): Boolean {
-        return (!onlyScaleDown || targetWidth != 0 && inWidth > targetWidth
-                || targetHeight != 0 && inHeight > targetHeight)
+        return (
+                !onlyScaleDown || targetWidth != 0 && inWidth > targetWidth ||
+                        targetHeight != 0 && inHeight > targetHeight
+                )
     }
 
-    @JvmStatic
     fun calculateInSampleSize(
-        reqWidth: Int, reqHeight: Int, width: Int, height: Int, options: BitmapFactory.Options,
+        reqWidth: Int,
+        reqHeight: Int,
+        width: Int,
+        height: Int,
+        options: BitmapFactory.Options,
         request: Request
     ) {
         val sampleSize =
@@ -106,8 +114,6 @@ object BitmapUtils {
      * about the supplied request in order to do the decoding efficiently (such as through leveraging
      * `inSampleSize`).
      */
-    @Throws(IOException::class)
-    @JvmStatic
     fun decodeStream(source: Source, request: Request): Bitmap {
         val exceptionCatchingSource = ExceptionCatchingSource(source)
         val bufferedSource = exceptionCatchingSource.buffer()
@@ -122,13 +128,11 @@ object BitmapUtils {
 
     @RequiresApi(28)
     @SuppressLint("Override")
-    @Throws(IOException::class)
     private fun decodeStreamP(request: Request, bufferedSource: BufferedSource): Bitmap {
         val imageSource = ImageDecoder.createSource(ByteBuffer.wrap(bufferedSource.readByteArray()))
         return decodeImageSource(imageSource, request)
     }
 
-    @Throws(IOException::class)
     private fun decodeStreamPreP(request: Request, bufferedSource: BufferedSource): Bitmap {
         val isWebPFile = Utils.isWebPFile(bufferedSource)
         val options = createBitmapOptions(request)
@@ -157,7 +161,6 @@ object BitmapUtils {
         return bitmap
     }
 
-    @Throws(IOException::class)
     fun decodeResource(context: Context, request: Request): Bitmap {
         if (VERSION.SDK_INT >= 28) {
             return decodeResourceP(context, request)
@@ -168,7 +171,6 @@ object BitmapUtils {
     }
 
     @RequiresApi(28)
-    @Throws(IOException::class)
     private fun decodeResourceP(context: Context, request: Request): Bitmap {
         val imageSource = ImageDecoder.createSource(context.resources, request.resourceId)
         return decodeImageSource(imageSource, request)
@@ -184,17 +186,19 @@ object BitmapUtils {
     }
 
     @RequiresApi(28)
-    @Throws(IOException::class)
     private fun decodeImageSource(imageSource: ImageDecoder.Source, request: Request): Bitmap {
         return ImageDecoder.decodeBitmap(imageSource) { imageDecoder, imageInfo, _ ->
             imageDecoder.allocator = when {
                 BitmapSafeResize.isHardwareRendering() == 1 -> {
+                    imageDecoder.isMutableRequired = true
                     ImageDecoder.ALLOCATOR_DEFAULT
                 }
                 BitmapSafeResize.isHardwareRendering() == 2 -> {
+                    imageDecoder.isMutableRequired = false
                     ImageDecoder.ALLOCATOR_HARDWARE
                 }
                 else -> {
+                    imageDecoder.isMutableRequired = true
                     ImageDecoder.ALLOCATOR_SOFTWARE
                 }
             }
@@ -219,9 +223,8 @@ object BitmapUtils {
     }
 
     internal class ExceptionCatchingSource(delegate: Source) : ForwardingSource(delegate) {
-        var thrownException: IOException? = null
+        private var thrownException: IOException? = null
 
-        @Throws(IOException::class)
         override fun read(sink: Buffer, byteCount: Long): Long {
             return try {
                 super.read(sink, byteCount)
@@ -231,7 +234,6 @@ object BitmapUtils {
             }
         }
 
-        @Throws(IOException::class)
         fun throwIfCaught() {
             if (thrownException is IOException) {
                 // TODO: Log when Android returns a non-null Bitmap after swallowing an IOException.

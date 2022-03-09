@@ -99,15 +99,17 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
         }
 
         searchView?.let {
-            it.setOnBackButtonClickListener {
-                if (!Utils.isEmpty(it.text) && !Utils.isEmpty(it.text?.trim())) {
-                    preferencesAdapter?.findPreferences(
-                        requireActivity(),
-                        it.text!!.toString(),
-                        root
-                    )
+            it.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
+                override fun onBackButtonClick() {
+                    if (!Utils.isEmpty(it.text) && !Utils.isEmpty(it.text?.trim())) {
+                        preferencesAdapter?.findPreferences(
+                            requireActivity(),
+                            it.text!!.toString(),
+                            root
+                        )
+                    }
                 }
-            }
+            })
             it.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {

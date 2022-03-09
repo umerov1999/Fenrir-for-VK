@@ -53,22 +53,22 @@ class TopicsStorage extends AbsStorage implements ITopicsStore {
     }
 
     private static TopicEntity mapDbo(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(TopicsColumns.TOPIC_ID));
-        int ownerId = cursor.getInt(cursor.getColumnIndex(TopicsColumns.OWNER_ID));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(TopicsColumns.TOPIC_ID));
+        int ownerId = cursor.getInt(cursor.getColumnIndexOrThrow(TopicsColumns.OWNER_ID));
 
         TopicEntity dbo = new TopicEntity().set(id, ownerId)
-                .setTitle(cursor.getString(cursor.getColumnIndex(TopicsColumns.TITLE)))
-                .setCreatedTime(cursor.getLong(cursor.getColumnIndex(TopicsColumns.CREATED)))
-                .setCreatorId(cursor.getInt(cursor.getColumnIndex(TopicsColumns.CREATED_BY)))
-                .setLastUpdateTime(cursor.getLong(cursor.getColumnIndex(TopicsColumns.UPDATED)))
-                .setUpdatedBy(cursor.getInt(cursor.getColumnIndex(TopicsColumns.UPDATED_BY)))
-                .setClosed(cursor.getInt(cursor.getColumnIndex(TopicsColumns.IS_CLOSED)) == 1)
-                .setFixed(cursor.getInt(cursor.getColumnIndex(TopicsColumns.IS_FIXED)) == 1)
-                .setCommentsCount(cursor.getInt(cursor.getColumnIndex(TopicsColumns.COMMENTS)))
-                .setFirstComment(cursor.getString(cursor.getColumnIndex(TopicsColumns.FIRST_COMMENT)))
-                .setLastComment(cursor.getString(cursor.getColumnIndex(TopicsColumns.LAST_COMMENT)));
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(TopicsColumns.TITLE)))
+                .setCreatedTime(cursor.getLong(cursor.getColumnIndexOrThrow(TopicsColumns.CREATED)))
+                .setCreatorId(cursor.getInt(cursor.getColumnIndexOrThrow(TopicsColumns.CREATED_BY)))
+                .setLastUpdateTime(cursor.getLong(cursor.getColumnIndexOrThrow(TopicsColumns.UPDATED)))
+                .setUpdatedBy(cursor.getInt(cursor.getColumnIndexOrThrow(TopicsColumns.UPDATED_BY)))
+                .setClosed(cursor.getInt(cursor.getColumnIndexOrThrow(TopicsColumns.IS_CLOSED)) == 1)
+                .setFixed(cursor.getInt(cursor.getColumnIndexOrThrow(TopicsColumns.IS_FIXED)) == 1)
+                .setCommentsCount(cursor.getInt(cursor.getColumnIndexOrThrow(TopicsColumns.COMMENTS)))
+                .setFirstComment(cursor.getString(cursor.getColumnIndexOrThrow(TopicsColumns.FIRST_COMMENT)))
+                .setLastComment(cursor.getString(cursor.getColumnIndexOrThrow(TopicsColumns.LAST_COMMENT)));
 
-        String pollJson = cursor.getString(cursor.getColumnIndex(TopicsColumns.ATTACHED_POLL));
+        String pollJson = cursor.getString(cursor.getColumnIndexOrThrow(TopicsColumns.ATTACHED_POLL));
         if (nonEmpty(pollJson)) {
             dbo.setPoll(GSON.fromJson(pollJson, PollEntity.class));
         }

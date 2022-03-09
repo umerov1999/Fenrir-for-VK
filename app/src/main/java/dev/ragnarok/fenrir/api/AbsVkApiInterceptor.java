@@ -19,7 +19,7 @@ import java.util.Random;
 
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.activity.ValidateActivity;
 import dev.ragnarok.fenrir.api.model.Captcha;
 import dev.ragnarok.fenrir.api.model.Error;
@@ -61,7 +61,7 @@ abstract class AbsVkApiInterceptor implements Interceptor {
     private String RECEIPT_GMS_TOKEN() {
         try {
             GoogleApiAvailability instance = GoogleApiAvailability.getInstance();
-            int isGooglePlayServicesAvailable = instance.isGooglePlayServicesAvailable(Injection.provideApplicationContext());
+            int isGooglePlayServicesAvailable = instance.isGooglePlayServicesAvailable(Includes.provideApplicationContext());
             if (isGooglePlayServicesAvailable != 0) {
                 return null;
             }
@@ -76,7 +76,7 @@ abstract class AbsVkApiInterceptor implements Interceptor {
     @SuppressLint("CheckResult")
     private void startValidateActivity(Context context, String url) {
         Completable.complete()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(() -> {
                     Intent intent = ValidateActivity.createIntent(context, url);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -121,7 +121,7 @@ abstract class AbsVkApiInterceptor implements Interceptor {
                 .add("lang", Constants.DEVICE_COUNTRY_CODE)
                 .add("https", "1");
         if (!HasDeviceId)
-            formBuilder.add("device_id", Utils.getDeviceId(Injection.provideApplicationContext()));
+            formBuilder.add("device_id", Utils.getDeviceId(Includes.provideApplicationContext()));
 
         Request request = original.newBuilder()
                 .method("POST", formBuilder.build())
@@ -198,13 +198,13 @@ abstract class AbsVkApiInterceptor implements Interceptor {
                 }
 
                 if (error.errorCode == ApiErrorCodes.VALIDATE_NEED) {
-                    startValidateActivity(Injection.provideApplicationContext(), error.redirectUri);
+                    startValidateActivity(Includes.provideApplicationContext(), error.redirectUri);
                 }
 
                 if (error.errorCode == ApiErrorCodes.CAPTCHA_NEED) {
                     Captcha captcha = new Captcha(error.captchaSid, error.captchaImg);
 
-                    ICaptchaProvider provider = Injection.provideCaptchaProvider();
+                    ICaptchaProvider provider = Includes.getCaptchaProvider();
                     provider.requestCaptha(captcha.getSid(), captcha);
 
                     String code = null;

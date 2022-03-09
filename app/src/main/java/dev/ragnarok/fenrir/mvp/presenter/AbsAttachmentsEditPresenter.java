@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.model.AbsModel;
 import dev.ragnarok.fenrir.model.AttachmentEntry;
@@ -51,7 +51,7 @@ public abstract class AbsAttachmentsEditPresenter<V extends IBaseAttachmentsEdit
 
     AbsAttachmentsEditPresenter(int accountId, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
-        uploadManager = Injection.provideUploadManager();
+        uploadManager = Includes.getUploadManager();
 
         if (nonNull(savedInstanceState)) {
             currentPhotoCameraUri = savedInstanceState.getParcelable(SAVE_CURRENT_PHOTO_CAMERA_URI);

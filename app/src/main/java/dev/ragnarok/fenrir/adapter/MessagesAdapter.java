@@ -101,7 +101,7 @@ public class MessagesAdapter extends RecyclerBindableAdapter<Message, RecyclerVi
     }
 
     @Override
-    protected void onBindItemViewHolder(RecyclerView.ViewHolder viewHolder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, int type) {
         Message message = getItem(position);
         switch (type) {
             case TYPE_SERVICE:
@@ -418,6 +418,7 @@ public class MessagesAdapter extends RecyclerBindableAdapter<Message, RecyclerVi
         attachmentsViewBinder.displayAttachments(message.getAttachments(), holder.mAttachmentsHolder, true, message.getId());
     }
 
+    @NonNull
     @Override
     protected RecyclerView.ViewHolder viewHolder(View view, int type) {
         switch (type) {
@@ -436,7 +437,7 @@ public class MessagesAdapter extends RecyclerBindableAdapter<Message, RecyclerVi
                 return new GiftMessageHolder(view);
         }
 
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

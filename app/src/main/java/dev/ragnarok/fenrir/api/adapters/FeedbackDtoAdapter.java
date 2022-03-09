@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.api.adapters;
 
-import androidx.annotation.NonNull;
-
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -30,160 +28,101 @@ import dev.ragnarok.fenrir.api.model.feedback.VkApiMentionWallFeedback;
 import dev.ragnarok.fenrir.api.model.feedback.VkApiReplyCommentFeedback;
 import dev.ragnarok.fenrir.api.model.feedback.VkApiUsersFeedback;
 import dev.ragnarok.fenrir.api.model.feedback.VkApiWallFeedback;
-import dev.ragnarok.fenrir.util.Objects;
 
 public class FeedbackDtoAdapter extends AbsAdapter implements JsonDeserializer<VkApiBaseFeedback> {
+    private static final String TAG = FeedbackDtoAdapter.class.getSimpleName();
+    private static final BaseMentionCommentParser MENTION_COMMENT_PARSER = new BaseMentionCommentParser();
+    private static final BaseLikeCommentParser LIKE_COMMENT_PARSER = new BaseLikeCommentParser();
+    private static final BaseCopyParser COPY_PARSER = new BaseCopyParser();
+    private static final BaseCreateCommentParser CREATE_COMMENT_PARSER = new BaseCreateCommentParser();
+    private static final BaseReplyCommentParser REPLY_COMMENT_PARSER = new BaseReplyCommentParser();
+    private static final LikeParser LIKE_PARSER = new LikeParser();
+    private static final BaseUsersParser USERS_PARSER = new BaseUsersParser();
+    private static final BaseMentionWallParser MENTION_WALL_PARSER = new BaseMentionWallParser();
+    private static final BaseWallParser WALL_PARSER = new BaseWallParser();
 
-    private static final BaseMentionCommentParser<VkApiMentionCommentFeedback> MENTION_COMMENT_PARSER = new BaseMentionCommentParser<>();
-    private static final BaseLikeCommentParser<VkApiLikeCommentFeedback> LIKE_COMMENT_PARSER = new BaseLikeCommentParser<>();
-    private static final BaseCopyParser<VkApiCopyFeedback> COPY_PARSER = new BaseCopyParser<>();
-    private static final BaseCreateCommentParser<VkApiCommentFeedback> CREATE_COMMENT_PARSER = new BaseCreateCommentParser<>();
-    private static final BaseReplyCommentParser<VkApiReplyCommentFeedback> REPLY_COMMENT_PARSER = new BaseReplyCommentParser<>();
-    private static final LikeParser<VkApiLikeFeedback> LIKE_PARSER = new LikeParser<>();
-    private static final BaseUsersParser<VkApiUsersFeedback> USERS_PARSER = new BaseUsersParser<>();
-
-    private static VkApiBaseFeedback createInstance(String type) {
-        switch (type) {
-            case "follow":
-            case "friend_accepted":
-                return new VkApiUsersFeedback();
-
-            case "mention":
-                return new VkApiMentionWallFeedback();
-
-            case "mention_comments":
-            case "mention_comment_photo":
-            case "mention_comment_video":
-                return new VkApiMentionCommentFeedback();
-
-            case "wall":
-            case "wall_publish":
-                return new VkApiWallFeedback();
-
-            case "comment_post":
-            case "comment_photo":
-            case "comment_video":
-                return new VkApiCommentFeedback();
-
-            case "reply_comment":
-            case "reply_comment_photo":
-            case "reply_comment_video":
-            case "reply_topic":
-                return new VkApiReplyCommentFeedback();
-
-            case "like_photo":
-            case "like_post":
-            case "like_video":
-                return new VkApiLikeFeedback();
-
-            case "like_comment":
-            case "like_comment_photo":
-            case "like_comment_video":
-            case "like_comment_topic":
-                return new VkApiLikeCommentFeedback();
-
-            case "copy_post":
-            case "copy_photo":
-            case "copy_video":
-                return new VkApiCopyFeedback();
-        }
-
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public VkApiBaseFeedback deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        if (!checkObject(json)) {
+            throw new JsonParseException(TAG + " error parse object");
+        }
         JsonObject root = json.getAsJsonObject();
 
         String type = optString(root, "type");
-        VkApiBaseFeedback dto = createInstance(type);
 
-        if (Objects.nonNull(dto)) {
-            Parser parser = getParser(type);
-            parser.parse(root, dto, context);
-        }
-
-        return dto;
-    }
-
-    private Parser<?> getParser(@NonNull String type) {
         switch (type) {
             case "follow":
             case "friend_accepted":
-                return USERS_PARSER;
+                return USERS_PARSER.parse(root, context);
 
             case "mention":
-                return new Parser<VkApiMentionWallFeedback>() {
-                    @Override
-                    void parse(JsonObject root, VkApiMentionWallFeedback dto, JsonDeserializationContext context) {
-                        super.parse(root, dto, context);
-                        dto.post = context.deserialize(root.get("feedback"), VKApiPost.class);
-                    }
-                };
+                return MENTION_WALL_PARSER.parse(root, context);
 
             case "wall":
             case "wall_publish":
-                return new Parser<VkApiWallFeedback>() {
-                    @Override
-                    void parse(JsonObject root, VkApiWallFeedback dto, JsonDeserializationContext context) {
-                        super.parse(root, dto, context);
-                        dto.post = context.deserialize(root.get("feedback"), VKApiPost.class);
-                    }
-                };
+                return WALL_PARSER.parse(root, context);
 
             case "comment_photo":
             case "comment_post":
             case "comment_video":
-                return CREATE_COMMENT_PARSER;
+                return CREATE_COMMENT_PARSER.parse(root, context);
 
             case "reply_comment":
             case "reply_comment_photo":
             case "reply_comment_video":
             case "reply_topic":
-                return REPLY_COMMENT_PARSER;
+                return REPLY_COMMENT_PARSER.parse(root, context);
 
             case "like_video":
             case "like_photo":
             case "like_post":
-                return LIKE_PARSER;
+                return LIKE_PARSER.parse(root, context);
 
             case "like_comment_photo":
             case "like_comment_video":
             case "like_comment_topic":
             case "like_comment":
-                return LIKE_COMMENT_PARSER;
+                return LIKE_COMMENT_PARSER.parse(root, context);
 
             case "copy_post":
             case "copy_photo":
             case "copy_video":
-                return COPY_PARSER;
+                return COPY_PARSER.parse(root, context);
 
             case "mention_comment_photo":
             case "mention_comment_video":
             case "mention_comments":
-                return MENTION_COMMENT_PARSER;
+                return MENTION_COMMENT_PARSER.parse(root, context);
 
             default:
                 throw new UnsupportedOperationException("unsupported type " + type);
         }
     }
 
-    private static class Parser<T extends VkApiBaseFeedback> {
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
+    private abstract static class Parser<T extends VkApiBaseFeedback> {
+        protected abstract T createDto();
+
+        T parse(JsonObject root, JsonDeserializationContext context) {
+            T dto = createDto();
             dto.type = optString(root, "type");
             dto.date = optLong(root, "date");
 
             if (root.has("reply")) {
                 dto.reply = context.deserialize(root.get("reply"), VKApiComment.class);
             }
+            return dto;
         }
     }
 
-    private static class BaseCopyParser<T extends VkApiCopyFeedback> extends Parser<T> {
+    private static class BaseCopyParser extends Parser<VkApiCopyFeedback> {
         @Override
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
-            super.parse(root, dto, context);
+        protected VkApiCopyFeedback createDto() {
+            return new VkApiCopyFeedback();
+        }
+
+        @Override
+        VkApiCopyFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiCopyFeedback dto = super.parse(root, context);
             dto.copies = context.deserialize(root.get("feedback"), Copies.class);
 
             Class<? extends Copyable> copyClass;
@@ -203,13 +142,19 @@ public class FeedbackDtoAdapter extends AbsAdapter implements JsonDeserializer<V
             }
 
             dto.what = context.deserialize(root.get("parent"), copyClass);
+            return dto;
         }
     }
 
-    private static class BaseCreateCommentParser<T extends VkApiCommentFeedback> extends Parser<T> {
+    private static class BaseCreateCommentParser extends Parser<VkApiCommentFeedback> {
         @Override
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
-            super.parse(root, dto, context);
+        protected VkApiCommentFeedback createDto() {
+            return new VkApiCommentFeedback();
+        }
+
+        @Override
+        VkApiCommentFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiCommentFeedback dto = super.parse(root, context);
             dto.comment = context.deserialize(root.get("feedback"), VKApiComment.class);
 
             Class<? extends Commentable> commentableClass;
@@ -228,19 +173,25 @@ public class FeedbackDtoAdapter extends AbsAdapter implements JsonDeserializer<V
             }
 
             dto.comment_of = context.deserialize(root.get("parent"), commentableClass);
+            return dto;
         }
     }
 
-    private static class BaseReplyCommentParser<T extends VkApiReplyCommentFeedback> extends Parser<T> {
+    private static class BaseReplyCommentParser extends Parser<VkApiReplyCommentFeedback> {
         @Override
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
-            super.parse(root, dto, context);
+        protected VkApiReplyCommentFeedback createDto() {
+            return new VkApiReplyCommentFeedback();
+        }
+
+        @Override
+        VkApiReplyCommentFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiReplyCommentFeedback dto = super.parse(root, context);
             dto.feedback_comment = context.deserialize(root.get("feedback"), VKApiComment.class);
 
             if ("reply_topic".equals(dto.type)) {
                 dto.own_comment = null;
                 dto.comments_of = context.deserialize(root.get("parent"), VKApiTopic.class);
-                return;
+                return dto;
             }
 
             dto.own_comment = context.deserialize(root.get("parent"), VKApiComment.class);
@@ -266,21 +217,33 @@ public class FeedbackDtoAdapter extends AbsAdapter implements JsonDeserializer<V
             }
 
             dto.comments_of = context.deserialize(root.getAsJsonObject("parent").get(parentCommentableField), commentableClass);
+            return dto;
         }
     }
 
-    private static class BaseUsersParser<T extends VkApiUsersFeedback> extends Parser<T> {
+    private static class BaseUsersParser extends Parser<VkApiUsersFeedback> {
         @Override
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
-            super.parse(root, dto, context);
+        protected VkApiUsersFeedback createDto() {
+            return new VkApiUsersFeedback();
+        }
+
+        @Override
+        VkApiUsersFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiUsersFeedback dto = super.parse(root, context);
             dto.users = context.deserialize(root.get("feedback"), UserArray.class);
+            return dto;
         }
     }
 
-    private static class LikeParser<T extends VkApiLikeFeedback> extends Parser<T> {
+    private static class LikeParser extends Parser<VkApiLikeFeedback> {
         @Override
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
-            super.parse(root, dto, context);
+        protected VkApiLikeFeedback createDto() {
+            return new VkApiLikeFeedback();
+        }
+
+        @Override
+        VkApiLikeFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiLikeFeedback dto = super.parse(root, context);
 
             Class<? extends Likeable> likedClass;
             switch (dto.type) {
@@ -299,13 +262,19 @@ public class FeedbackDtoAdapter extends AbsAdapter implements JsonDeserializer<V
 
             dto.liked = context.deserialize(root.get("parent"), likedClass);
             dto.users = context.deserialize(root.get("feedback"), UserArray.class);
+            return dto;
         }
     }
 
-    private static class BaseLikeCommentParser<T extends VkApiLikeCommentFeedback> extends Parser<T> {
+    private static class BaseLikeCommentParser extends Parser<VkApiLikeCommentFeedback> {
         @Override
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
-            super.parse(root, dto, context);
+        protected VkApiLikeCommentFeedback createDto() {
+            return new VkApiLikeCommentFeedback();
+        }
+
+        @Override
+        VkApiLikeCommentFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiLikeCommentFeedback dto = super.parse(root, context);
 
             Class<? extends Commentable> commentableClass;
             String parentJsonField;
@@ -334,13 +303,47 @@ public class FeedbackDtoAdapter extends AbsAdapter implements JsonDeserializer<V
             dto.users = context.deserialize(root.get("feedback"), UserArray.class);
             dto.comment = context.deserialize(root.get("parent"), VKApiComment.class);
             dto.commented = context.deserialize(root.getAsJsonObject("parent").get(parentJsonField), commentableClass);
+            return dto;
         }
     }
 
-    private static class BaseMentionCommentParser<T extends VkApiMentionCommentFeedback> extends Parser<T> {
+    private static class BaseMentionWallParser extends Parser<VkApiMentionWallFeedback> {
         @Override
-        void parse(JsonObject root, T dto, JsonDeserializationContext context) {
-            super.parse(root, dto, context);
+        protected VkApiMentionWallFeedback createDto() {
+            return new VkApiMentionWallFeedback();
+        }
+
+        @Override
+        VkApiMentionWallFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiMentionWallFeedback dto = super.parse(root, context);
+            dto.post = context.deserialize(root.get("feedback"), VKApiPost.class);
+            return dto;
+        }
+    }
+
+    private static class BaseWallParser extends Parser<VkApiWallFeedback> {
+        @Override
+        protected VkApiWallFeedback createDto() {
+            return new VkApiWallFeedback();
+        }
+
+        @Override
+        VkApiWallFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiWallFeedback dto = super.parse(root, context);
+            dto.post = context.deserialize(root.get("feedback"), VKApiPost.class);
+            return dto;
+        }
+    }
+
+    private static class BaseMentionCommentParser extends Parser<VkApiMentionCommentFeedback> {
+        @Override
+        protected VkApiMentionCommentFeedback createDto() {
+            return new VkApiMentionCommentFeedback();
+        }
+
+        @Override
+        VkApiMentionCommentFeedback parse(JsonObject root, JsonDeserializationContext context) {
+            VkApiMentionCommentFeedback dto = super.parse(root, context);
             dto.where = context.deserialize(root.get("feedback"), VKApiComment.class);
 
             Class<? extends Commentable> commentableClass;
@@ -360,6 +363,7 @@ public class FeedbackDtoAdapter extends AbsAdapter implements JsonDeserializer<V
             }
 
             dto.comment_of = context.deserialize(root.get("parent"), commentableClass);
+            return dto;
         }
     }
 }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.model.VKApiUser;
 import dev.ragnarok.fenrir.domain.IAccountsInteractor;
@@ -85,7 +85,7 @@ public class UserWallPresenter extends AbsWallPresenter<IUserWallView> {
         photosInteractor = InteractorFactory.createPhotosInteractor();
         faveInteractor = InteractorFactory.createFaveInteractor();
         wallsRepository = Repository.INSTANCE.getWalls();
-        uploadManager = Injection.provideUploadManager();
+        uploadManager = Includes.getUploadManager();
 
         filters = new ArrayList<>();
         filters.addAll(createPostFilters());
@@ -99,7 +99,7 @@ public class UserWallPresenter extends AbsWallPresenter<IUserWallView> {
         refreshUserDetails();
 
         appendDisposable(uploadManager.observeResults()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadFinished, RxUtils.ignore()));
     }
 

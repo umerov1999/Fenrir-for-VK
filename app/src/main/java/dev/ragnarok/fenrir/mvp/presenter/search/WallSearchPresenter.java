@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.db.model.PostUpdate;
 import dev.ragnarok.fenrir.domain.ILikesInteractor;
 import dev.ragnarok.fenrir.domain.IWallsRepository;
@@ -34,7 +34,7 @@ public class WallSearchPresenter extends AbsSearchPresenter<IWallSearchView, Wal
         walls = Repository.INSTANCE.getWalls();
 
         appendDisposable(walls.observeMinorChanges()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostMinorUpdates));
     }
 

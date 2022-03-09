@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -74,6 +73,7 @@ import dev.ragnarok.fenrir.util.InputTextDialog;
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback;
 import dev.ragnarok.fenrir.util.Utils;
 import dev.ragnarok.fenrir.util.ViewUtils;
+import dev.ragnarok.fenrir.view.UpEditFab;
 
 public class DialogsFragment extends BaseMvpFragment<DialogsPresenter, IDialogsView>
         implements IDialogsView, DialogsAdapter.ClickListener {
@@ -90,31 +90,7 @@ public class DialogsFragment extends BaseMvpFragment<DialogsPresenter, IDialogsV
     private RecyclerView mRecyclerView;
     private DialogsAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private boolean isCreateChat = true;
-    private FloatingActionButton mFab;
-    private final RecyclerView.OnScrollListener mFabScrollListener = new RecyclerView.OnScrollListener() {
-        int scrollMinOffset;
-
-        @Override
-        public void onScrolled(@NonNull RecyclerView view, int dx, int dy) {
-            if (scrollMinOffset == 0) {
-                // one-time-init
-                scrollMinOffset = (int) Utils.dpToPx(2, view.getContext());
-            }
-
-            if (dy > scrollMinOffset && mFab.isShown()) {
-                mFab.hide();
-            }
-
-            if (dy < -scrollMinOffset && !mFab.isShown()) {
-                mFab.show();
-                if (view.getLayoutManager() instanceof LinearLayoutManager) {
-                    LinearLayoutManager myLayoutManager = (LinearLayoutManager) view.getLayoutManager();
-                    ToggleFab(myLayoutManager.findFirstVisibleItemPosition() > 20);
-                }
-            }
-        }
-    };
+    private UpEditFab mFab;
     private final ActivityResultLauncher<Intent> requestEnterPin = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
@@ -123,6 +99,7 @@ public class DialogsFragment extends BaseMvpFragment<DialogsPresenter, IDialogsV
                     notifyDataSetChanged();
                 }
             });
+    private RecyclerView.OnScrollListener mFabScrollListener;
 
     public static DialogsFragment newInstance(int accountId, int dialogsOwnerId, @Nullable String subtitle) {
         DialogsFragment fragment = new DialogsFragment();
@@ -132,13 +109,6 @@ public class DialogsFragment extends BaseMvpFragment<DialogsPresenter, IDialogsV
         args.putInt(Extra.OWNER_ID, dialogsOwnerId);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    private void ToggleFab(boolean isUp) {
-        if (isCreateChat == isUp) {
-            isCreateChat = !isUp;
-            mFab.setImageResource(isCreateChat ? R.drawable.pencil : R.drawable.ic_outline_keyboard_arrow_up);
-        }
     }
 
     private void onSecurityClick() {
@@ -204,11 +174,10 @@ public class DialogsFragment extends BaseMvpFragment<DialogsPresenter, IDialogsV
                 ReconfigureOptionsHide(false);
                 notifyDataSetChanged();
             } else {
-                if (isCreateChat) {
+                if (mFab.isEdit()) {
                     createGroupChat();
                 } else {
                     mRecyclerView.smoothScrollToPosition(0);
-                    ToggleFab(false);
                 }
             }
         });
@@ -219,6 +188,7 @@ public class DialogsFragment extends BaseMvpFragment<DialogsPresenter, IDialogsV
             }
             return true;
         });
+        mFabScrollListener = mFab.getRecyclerObserver(20);
 
         mRecyclerView = root.findViewById(R.id.recycleView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));

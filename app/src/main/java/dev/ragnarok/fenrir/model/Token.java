@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 
 public final class Token implements Parcelable {
 
@@ -49,6 +51,7 @@ public final class Token implements Parcelable {
         return accessToken;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Token{" +

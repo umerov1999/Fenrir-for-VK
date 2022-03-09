@@ -21,10 +21,10 @@ import dev.ragnarok.fenrir.dialog.AudioDuplicateDialog
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.hls.TSDemuxer
-import dev.ragnarok.fenrir.player.MusicPlaybackController
 import dev.ragnarok.fenrir.service.QuickReplyService
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
@@ -601,7 +601,7 @@ object DownloadWorkUtils {
                         .build()
                     val response = builder.build().newCall(request).execute()
                     if (!response.isSuccessful) {
-                        throw java.lang.Exception(
+                        throw Exception(
                             "Server return " + response.code +
                                     " " + response.message
                         )

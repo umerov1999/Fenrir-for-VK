@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy;
 import dev.ragnarok.fenrir.domain.IAccountsInteractor;
@@ -94,15 +94,15 @@ public class DialogsPresenter extends AccountDependencyPresenter<IDialogsView> {
 
         appendDisposable(messagesInteractor
                 .observePeerUpdates()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPeerUpdate, ignore()));
 
         appendDisposable(messagesInteractor.observePeerDeleting()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(dialog -> onDialogDeleted(dialog.getAccountId(), dialog.getPeerId()), ignore()));
 
         appendDisposable(longpollManager.observeKeepAlive()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(ignore -> checkLongpoll(), ignore()));
 
         loadCachedThenActualData();

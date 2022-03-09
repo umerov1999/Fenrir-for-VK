@@ -21,7 +21,7 @@ import dev.ragnarok.fenrir.Extensions.Companion.nullOrEmpty
 import dev.ragnarok.fenrir.Extensions.Companion.subscribeIOAndIgnoreResults
 import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
 import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.Injection
+import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.api.model.*
@@ -92,7 +92,7 @@ class ChatPresenter(
     private val stickersInteractor = InteractorFactory.createStickersInteractor()
     private val utilsInteractor = InteractorFactory.createUtilsInteractor()
     private val longpollManager: ILongpollManager = LongpollInstance.get()
-    private val uploadManager: IUploadManager = Injection.provideUploadManager()
+    private val uploadManager: IUploadManager = Includes.uploadManager
 
     private var stickersWordsDisplayDisposable = Disposable.disposed()
     private var cacheLoadingDisposable = Disposable.disposed()
@@ -170,7 +170,7 @@ class ChatPresenter(
                     && event.attachToId == draftMessageId
         }
 
-        val attachmentsRepository = Injection.provideAttachmentsRepository()
+        val attachmentsRepository = Includes.attachmentsRepository
 
         appendDisposable(attachmentsRepository
             .observeAdding()
@@ -833,7 +833,11 @@ class ChatPresenter(
                 .subscribe({ stickers -> view?.updateStickers(stickers) }, ignore())
     }
 
-    fun fireDraftMessageTextEdited(s: String) {
+    fun fireDraftMessageTextEdited(s: String?) {
+        s ?: run {
+            draftMessageText = null
+            return
+        }
         if (Peer.isGroupChat(peerId)) {
             if (!isEmpty(s) && s.length == 1 && s[0] == '@') {
                 view?.showChatMembers(accountId, Peer.toChatId(peerId))
@@ -958,7 +962,7 @@ class ChatPresenter(
     private fun onMessageSaveSuccess(message: Message) {
         addMessageToList(message)
         view?.notifyDataChanged()
-        view?.ScrollTo(0)
+        view?.scrollTo(0)
     }
 
     private fun startSendService() {
@@ -1052,7 +1056,7 @@ class ChatPresenter(
     }
 
     fun sendRecordingMessageImpl(file: File) {
-        view?.ScrollTo(0)
+        view?.scrollTo(0)
         val builder = SaveMessageBuilder(messagesOwnerId, peerId).setVoiceMessageFile(file)
         this.sendMessage(builder)
     }
@@ -1563,7 +1567,7 @@ class ChatPresenter(
             appendDisposable(
                 messagesRepository.markAsRead(messagesOwnerId, peer.id, message.originalId)
                     .fromIOToMain()
-                    .subscribe(dummy(), { t -> showError(view, t) })
+                    .subscribe(dummy()) { t -> showError(view, t) }
             )
         }
     }
@@ -1580,7 +1584,7 @@ class ChatPresenter(
             appendDisposable(
                 messagesRepository.markAsRead(messagesOwnerId, peer.id, last.originalId)
                     .fromIOToMain()
-                    .subscribe(dummy(), { t -> showError(view, t) })
+                    .subscribe(dummy()) { t -> showError(view, t) }
             )
         }
     }
@@ -1641,7 +1645,7 @@ class ChatPresenter(
                     if (!isImportant) 1 else 0
                 )
                     .fromIOToMain()
-                    .subscribe(dummy(), { t -> showError(view, t) })
+                    .subscribe(dummy()) { t -> showError(view, t) }
             )
         }
     }
@@ -1745,7 +1749,7 @@ class ChatPresenter(
             appendDisposable(
                 messagesRepository.deleteMessages(messagesOwnerId, peerId, sent, false, true)
                     .fromIOToMain()
-                    .subscribe(dummy(), { t -> showError(view, t) })
+                    .subscribe(dummy()) { t -> showError(view, t) }
             )
         }
 
@@ -1758,7 +1762,7 @@ class ChatPresenter(
         appendDisposable(
             messagesRepository.deleteMessages(messagesOwnerId, peerId, ids, forAll, false)
                 .fromIOToMain()
-                .subscribe(dummy(), { t -> showError(view, t) })
+                .subscribe(dummy()) { t -> showError(view, t) }
         )
     }
 
@@ -1854,12 +1858,12 @@ class ChatPresenter(
 
     fun fireLeaveChatClick() {
         val chatId = Peer.toChatId(peerId)
-        val accountId = super.getAccountId()
+        val accountId = super.accountId
 
         appendDisposable(
             messagesRepository.removeChatMember(accountId, chatId, accountId)
                 .fromIOToMain()
-                .subscribe(dummy(), { t -> showError(view, t) })
+                .subscribe(dummy()) { t -> showError(view, t) }
         )
     }
 
@@ -1979,7 +1983,7 @@ class ChatPresenter(
         appendDisposable(
             messagesRepository.editChat(messagesOwnerId, chatId, newValue)
                 .fromIOToMain()
-                .subscribe(dummy(), { t -> showError(view, t) })
+                .subscribe(dummy()) { t -> showError(view, t) }
         )
     }
 
@@ -2125,24 +2129,24 @@ class ChatPresenter(
 
     private fun checkGraffitiMessage(filePath: Sticker.LocalSticker): Single<Optional<IAttachmentToken?>> {
         if (!isEmpty(filePath.path)) {
-            val docsApi = Injection.provideNetworkInterfaces().vkDefault(accountId).docs()
+            val docsApi = Includes.networkInterfaces.vkDefault(accountId).docs()
             return docsApi.getMessagesUploadServer(
                 peerId,
                 if (filePath.isAnimated) "doc" else "graffiti"
             )
                 .flatMap { server: VkApiDocsUploadServer ->
                     val file = File(filePath.path)
-                    val `is` = arrayOfNulls<InputStream>(1)
+                    val sInput = arrayOfNulls<InputStream>(1)
                     try {
-                        `is`[0] = FileInputStream(file)
-                        return@flatMap Injection.provideNetworkInterfaces().uploads()
+                        sInput[0] = FileInputStream(file)
+                        return@flatMap Includes.networkInterfaces.uploads()
                             .uploadDocumentRx(
                                 server.url,
                                 if (filePath.isAnimated) filePath.animationName else file.name,
-                                `is`[0]!!,
+                                sInput[0]!!,
                                 null
                             )
-                            .doFinally(safelyCloseAction(`is`[0]))
+                            .doFinally(safelyCloseAction(sInput[0]))
                             .flatMap { uploadDto: UploadDocDto ->
                                 docsApi
                                     .save(uploadDto.file, null, null)
@@ -2160,7 +2164,7 @@ class ChatPresenter(
                                     }
                             }
                     } catch (e: FileNotFoundException) {
-                        safelyClose(`is`[0])
+                        safelyClose(sInput[0])
                         return@flatMap Single.error(e)
                     }
                 }
@@ -2189,7 +2193,7 @@ class ChatPresenter(
     }
 
     fun fireStickerSendClick(sticker: Sticker) {
-        view?.ScrollTo(0)
+        view?.scrollTo(0)
         val builder = SaveMessageBuilder(messagesOwnerId, peerId).attach(sticker)
 
         val fwds = ArrayList<Message>()
@@ -2212,7 +2216,7 @@ class ChatPresenter(
             LinkHelper.openLinkInBrowser(context, item.link)
             return
         }
-        view?.ScrollTo(0)
+        view?.scrollTo(0)
         val builder =
             SaveMessageBuilder(messagesOwnerId, peerId).setPayload(item.payload).setBody(item.label)
         sendMessage(builder)
@@ -2342,7 +2346,7 @@ class ChatPresenter(
         fireEditAttachmentRemoved(entry)
         if (entry.attachment is Upload) {
             val upl = entry.attachment as Upload
-            val intents: MutableList<UploadIntent> = java.util.ArrayList()
+            val intents: MutableList<UploadIntent> = ArrayList()
             intents.add(
                 UploadIntent(accountId, upl.destination)
                     .setSize(upl.size)
@@ -2389,7 +2393,7 @@ class ChatPresenter(
                             "@id$Id,"
                         else
                             "@" + info.first.domain + ","
-                        view?.AppendMessageText(Dmn)
+                        view?.appendMessageText(Dmn)
                     }
                 }, { })
         }
@@ -2471,7 +2475,7 @@ class ChatPresenter(
         appendDisposable(
             messagesRepository.pin(accountId, peerId, message)
                 .fromIOToMain()
-                .subscribe(dummy(), { onPinFail(it) })
+                .subscribe(dummy()) { onPinFail(it) }
         )
     }
 

@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.media.voice.IVoicePlayer;
 import dev.ragnarok.fenrir.media.voice.PrepareException;
@@ -44,7 +44,7 @@ public abstract class AbsMessageListPresenter<V extends IBasicMessageListView> e
 
         mData = new ArrayList<>();
 
-        mVoicePlayer = Injection.provideVoicePlayerFactory().createPlayer();
+        mVoicePlayer = Includes.getVoicePlayerFactory().createPlayer();
         mVoicePlayer.setCallback(this);
         mVoiceMessageLookup = new Lookup(500);
         mVoiceMessageLookup.setCallback(() -> resolveVoiceMessagePlayingState(true));

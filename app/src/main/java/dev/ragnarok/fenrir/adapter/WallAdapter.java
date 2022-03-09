@@ -85,7 +85,7 @@ public class WallAdapter extends RecyclerBindableAdapter<Post, RecyclerView.View
     }
 
     @Override
-    protected void onBindItemViewHolder(RecyclerView.ViewHolder viewHolder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, int type) {
         Post item = getItem(position);
         switch (type) {
             case TYPE_NORMAL:
@@ -205,6 +205,7 @@ public class WallAdapter extends RecyclerBindableAdapter<Post, RecyclerView.View
         });
     }
 
+    @NonNull
     @Override
     protected RecyclerView.ViewHolder viewHolder(View view, int type) {
         switch (type) {

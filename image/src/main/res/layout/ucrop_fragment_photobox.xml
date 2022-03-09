@@ -10,7 +10,7 @@
         android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/controls_wrapper"
+        android:layout_above="@id/controls_wrapper"
         android:layout_marginBottom="-12dp"
         android:background="@color/ucrop_color_crop_background">
 

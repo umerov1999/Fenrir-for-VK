@@ -38,14 +38,14 @@
         android:id="@+id/controls_shadow"
         android:layout_width="match_parent"
         android:layout_height="8dp"
-        android:layout_alignBottom="@+id/wrapper_controls"
+        android:layout_alignBottom="@id/wrapper_controls"
         android:src="@drawable/ucrop_shadow_upside" />
 
     <LinearLayout
         android:id="@+id/wrapper_states"
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_wrapper_states"
-        android:layout_below="@+id/controls_shadow"
+        android:layout_below="@id/controls_shadow"
         android:background="@color/ucrop_color_widget_background"
         android:baselineAligned="false"
         android:gravity="center"

@@ -22,7 +22,6 @@ import androidx.exifinterface.media.ExifInterface
 import com.squareup.picasso3.BitmapUtils.decodeStream
 import com.squareup.picasso3.Picasso.LoadedFrom.DISK
 import java.io.FileNotFoundException
-import java.io.IOException
 
 internal class FileRequestHandler(context: Context) : ContentStreamRequestHandler(context) {
     override fun canHandleRequest(data: Request): Boolean {
@@ -50,7 +49,6 @@ internal class FileRequestHandler(context: Context) : ContentStreamRequestHandle
         }
     }
 
-    @Throws(IOException::class)
     override fun getExifOrientation(uri: Uri): Int {
         val path = uri.path ?: throw FileNotFoundException("path == null, uri: $uri")
         return ExifInterface(path).getAttributeInt(

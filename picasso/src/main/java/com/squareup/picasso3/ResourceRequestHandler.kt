@@ -25,7 +25,9 @@ internal class ResourceRequestHandler(private val context: Context) : RequestHan
     override fun canHandleRequest(data: Request): Boolean {
         return if (data.resourceId != 0 && !isXmlResource(context.resources, data.resourceId)) {
             true
-        } else data.uri != null && ContentResolver.SCHEME_ANDROID_RESOURCE == data.uri.scheme
+        } else {
+            data.uri != null && ContentResolver.SCHEME_ANDROID_RESOURCE == data.uri.scheme
+        }
     }
 
     override fun load(

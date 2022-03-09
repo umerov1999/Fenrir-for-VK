@@ -30,8 +30,10 @@ internal class AssetRequestHandler(private val context: Context) : RequestHandle
 
     override fun canHandleRequest(data: Request): Boolean {
         val uri = data.uri
-        return (uri != null && ContentResolver.SCHEME_FILE == uri.scheme &&
-                uri.pathSegments.isNotEmpty() && ANDROID_ASSET == uri.pathSegments[0])
+        return uri != null &&
+                ContentResolver.SCHEME_FILE == uri.scheme &&
+                uri.pathSegments.isNotEmpty() &&
+                ANDROID_ASSET == uri.pathSegments[0]
     }
 
     override fun load(
@@ -72,7 +74,6 @@ internal class AssetRequestHandler(private val context: Context) : RequestHandle
         private const val ASSET_PREFIX_LENGTH =
             "${ContentResolver.SCHEME_FILE}:///$ANDROID_ASSET/".length
 
-        @JvmStatic
         fun getFilePath(request: Request): String {
             val uri = checkNotNull(request.uri)
             return uri.toString()

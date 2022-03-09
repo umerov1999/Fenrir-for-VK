@@ -65,6 +65,7 @@ public class DocsAsImagesAdapter extends RecyclerBindableAdapter<Document, DocsA
                 && mActionListener.onDocLongClick(holder.getBindingAdapterPosition(), item));
     }
 
+    @NonNull
     @Override
     protected DocViewHolder viewHolder(View view, int type) {
         return new DocViewHolder(view);

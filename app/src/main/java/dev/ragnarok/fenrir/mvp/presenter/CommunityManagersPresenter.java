@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.model.VKApiCommunity;
 import dev.ragnarok.fenrir.api.model.VKApiUser;
@@ -44,15 +44,15 @@ public class CommunityManagersPresenter extends AccountDependencyPresenter<IComm
 
     public CommunityManagersPresenter(int accountId, Community groupId, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
-        interactor = new GroupSettingsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores().owners(), Repository.INSTANCE.getOwners());
+        interactor = new GroupSettingsInteractor(Includes.getNetworkInterfaces(), Includes.getStores().owners(), Repository.INSTANCE.getOwners());
         this.groupId = groupId;
         data = new ArrayList<>();
 
-        appendDisposable(Injection.provideStores()
+        appendDisposable(Includes.getStores()
                 .owners()
                 .observeManagementChanges()
                 .filter(pair -> pair.getFirst() == groupId.getId())
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(pair -> onManagerActionReceived(pair.getSecond()), Analytics::logUnexpectedError));
 
         requestData();
@@ -92,7 +92,7 @@ public class CommunityManagersPresenter extends AccountDependencyPresenter<IComm
         List<Integer> Ids = new ArrayList<>(contacts.size());
         for (ContactInfo it : contacts)
             Ids.add(it.getUserId());
-        appendDisposable(Injection.provideNetworkInterfaces().vkDefault(accountId).users().get(Ids, null, UserColumns.API_FIELDS, null)
+        appendDisposable(Includes.getNetworkInterfaces().vkDefault(accountId).users().get(Ids, null, UserColumns.API_FIELDS, null)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
                 .subscribe(t -> {
                     List<VKApiUser> users = listEmptyIfNull(t);

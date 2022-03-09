@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.fragment;
 
 import static dev.ragnarok.fenrir.util.Objects.nonNull;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.Extra;
@@ -35,6 +39,8 @@ import dev.ragnarok.fenrir.mvp.view.IAnswerVKOfficialView;
 import dev.ragnarok.fenrir.place.Place;
 import dev.ragnarok.fenrir.place.PlaceFactory;
 import dev.ragnarok.fenrir.settings.Settings;
+import dev.ragnarok.fenrir.util.MessagesReplyItemCallback;
+import dev.ragnarok.fenrir.util.Utils;
 import dev.ragnarok.fenrir.util.ViewUtils;
 
 public class AnswerVKOfficialFragment extends BaseMvpFragment<AnswerVKOfficialPresenter, IAnswerVKOfficialView> implements SwipeRefreshLayout.OnRefreshListener, IAnswerVKOfficialView, AnswerVKOfficialAdapter.ClickListener {
@@ -67,6 +73,17 @@ public class AnswerVKOfficialFragment extends BaseMvpFragment<AnswerVKOfficialPr
                 callPresenter(AnswerVKOfficialPresenter::fireScrollToEnd);
             }
         });
+
+        new ItemTouchHelper(new MessagesReplyItemCallback(o -> {
+            if (mAdapter.checkPosition(o)) {
+                AnswerVKOfficial notification = mAdapter.getByPosition(o);
+                if (!Utils.isEmpty(notification.hide_query)) {
+                    callPresenter(p -> p.hideNotification(o, notification.hide_query));
+                } else {
+                    Utils.ColoredSnack(recyclerView, R.string.error_hiding, BaseTransientBottomBar.LENGTH_LONG, Color.RED).show();
+                }
+            }
+        })).attachToRecyclerView(recyclerView);
 
         mSwipeRefreshLayout = root.findViewById(R.id.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -138,6 +155,14 @@ public class AnswerVKOfficialFragment extends BaseMvpFragment<AnswerVKOfficialPr
     }
 
     @Override
+    public void notifyItemRemoved(int position) {
+        if (nonNull(mAdapter)) {
+            mAdapter.notifyItemRemoved(position);
+            resolveEmptyText();
+        }
+    }
+
+    @Override
     public void showRefreshing(boolean refreshing) {
         if (nonNull(mSwipeRefreshLayout)) {
             mSwipeRefreshLayout.setRefreshing(refreshing);
@@ -152,10 +177,10 @@ public class AnswerVKOfficialFragment extends BaseMvpFragment<AnswerVKOfficialPr
     @Override
     public void openAction(@NonNull AnswerVKOfficial.Action action) {
         if (action.getType() == AnswerVKOfficial.Action_Types.URL) {
-            LinkHelper.openLinkInBrowser(requireActivity(), ((AnswerVKOfficial.ActionURL) action).url);
+            LinkHelper.openLinkInBrowser(requireActivity(), ((AnswerVKOfficial.ActionURL) action).getUrl());
         } else if (action.getType() == AnswerVKOfficial.Action_Types.MESSAGE) {
             AnswerVKOfficial.ActionMessage msg = (AnswerVKOfficial.ActionMessage) action;
-            PlaceFactory.getMessagesLookupPlace(Settings.get().accounts().getCurrent(), msg.peerId, msg.messageId, null).tryOpenWith(requireActivity());
+            PlaceFactory.getMessagesLookupPlace(Settings.get().accounts().getCurrent(), msg.getPeerId(), msg.getMessageId(), null).tryOpenWith(requireActivity());
         }
     }
 

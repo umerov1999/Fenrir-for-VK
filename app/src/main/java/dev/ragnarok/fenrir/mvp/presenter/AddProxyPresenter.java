@@ -7,7 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter;
 import dev.ragnarok.fenrir.mvp.view.IAddProxyView;
 import dev.ragnarok.fenrir.settings.IProxySettings;
@@ -25,7 +25,7 @@ public class AddProxyPresenter extends RxSupportPresenter<IAddProxyView> {
 
     public AddProxyPresenter(@Nullable Bundle savedInstanceState) {
         super(savedInstanceState);
-        settings = Injection.provideProxySettings();
+        settings = Includes.getProxySettings();
     }
 
     @Override

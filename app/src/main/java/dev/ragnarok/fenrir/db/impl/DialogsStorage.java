@@ -235,11 +235,11 @@ class DialogsStorage extends AbsStorage implements IDialogsStorage {
             List<PeerStateEntity> entities = new ArrayList<>(safeCountOf(cursor));
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    PeerStateEntity entity = new PeerStateEntity(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)))
-                            .setInRead(cursor.getInt(cursor.getColumnIndex(PeersColumns.IN_READ)))
-                            .setOutRead(cursor.getInt(cursor.getColumnIndex(PeersColumns.OUT_READ)))
-                            .setLastMessageId(cursor.getInt(cursor.getColumnIndex(PeersColumns.LAST_MESSAGE_ID)))
-                            .setUnreadCount(cursor.getInt(cursor.getColumnIndex(PeersColumns.UNREAD)));
+                    PeerStateEntity entity = new PeerStateEntity(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID)))
+                            .setInRead(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.IN_READ)))
+                            .setOutRead(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.OUT_READ)))
+                            .setLastMessageId(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.LAST_MESSAGE_ID)))
+                            .setUnreadCount(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.UNREAD)));
                     entities.add(entity);
                 }
                 cursor.close();
@@ -277,20 +277,20 @@ class DialogsStorage extends AbsStorage implements IDialogsStorage {
             if (cursor != null) {
                 if (cursor.moveToNext()) {
                     entity = new SimpleDialogEntity(peerId)
-                            .setUnreadCount(cursor.getInt(cursor.getColumnIndex(PeersColumns.UNREAD)))
-                            .setTitle(cursor.getString(cursor.getColumnIndex(PeersColumns.TITLE)))
-                            .setPhoto200(cursor.getString(cursor.getColumnIndex(PeersColumns.PHOTO_200)))
-                            .setPhoto100(cursor.getString(cursor.getColumnIndex(PeersColumns.PHOTO_100)))
-                            .setPhoto50(cursor.getString(cursor.getColumnIndex(PeersColumns.PHOTO_50)))
-                            .setInRead(cursor.getInt(cursor.getColumnIndex(PeersColumns.IN_READ)))
-                            .setOutRead(cursor.getInt(cursor.getColumnIndex(PeersColumns.OUT_READ)))
+                            .setUnreadCount(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.UNREAD)))
+                            .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(PeersColumns.TITLE)))
+                            .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(PeersColumns.PHOTO_200)))
+                            .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(PeersColumns.PHOTO_100)))
+                            .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(PeersColumns.PHOTO_50)))
+                            .setInRead(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.IN_READ)))
+                            .setOutRead(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.OUT_READ)))
                             .setPinned(deserializeJson(cursor, PeersColumns.PINNED, MessageEntity.class))
                             .setCurrentKeyboard(deserializeJson(cursor, PeersColumns.KEYBOARD, KeyboardEntity.class))
-                            .setLastMessageId(cursor.getInt(cursor.getColumnIndex(PeersColumns.LAST_MESSAGE_ID)))
-                            .setAcl(cursor.getInt(cursor.getColumnIndex(PeersColumns.ACL)))
-                            .setMajor_id(cursor.getInt(cursor.getColumnIndex(PeersColumns.MAJOR_ID)))
-                            .setMinor_id(cursor.getInt(cursor.getColumnIndex(PeersColumns.MINOR_ID)))
-                            .setGroupChannel(cursor.getInt(cursor.getColumnIndex(PeersColumns.IS_GROUP_CHANNEL)) == 1);
+                            .setLastMessageId(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.LAST_MESSAGE_ID)))
+                            .setAcl(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.ACL)))
+                            .setMajor_id(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.MAJOR_ID)))
+                            .setMinor_id(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.MINOR_ID)))
+                            .setGroupChannel(cursor.getInt(cursor.getColumnIndexOrThrow(PeersColumns.IS_GROUP_CHANNEL)) == 1);
                 }
 
                 cursor.close();
@@ -326,7 +326,7 @@ class DialogsStorage extends AbsStorage implements IDialogsStorage {
                     DialogsColumns.FULL_ID + " IN (" + TextUtils.join(",", peerIds) + ")", null, null);
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    int peerId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+                    int peerId = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
                     peerIds.remove(peerId);
                 }
 
@@ -439,10 +439,10 @@ class DialogsStorage extends AbsStorage implements IDialogsStorage {
             if (cursor != null) {
                 if (cursor.moveToNext()) {
                     chat = new Chat(peerId);
-                    chat.setTitle(cursor.getString(cursor.getColumnIndex(DialogsColumns.TITLE)))
-                            .setPhoto200(cursor.getString(cursor.getColumnIndex(DialogsColumns.PHOTO_200)))
-                            .setPhoto100(cursor.getString(cursor.getColumnIndex(DialogsColumns.PHOTO_100)))
-                            .setPhoto50(cursor.getString(cursor.getColumnIndex(DialogsColumns.PHOTO_50)));
+                    chat.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.TITLE)))
+                            .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.PHOTO_200)))
+                            .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.PHOTO_100)))
+                            .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.PHOTO_50)));
                 }
 
                 cursor.close();
@@ -454,36 +454,36 @@ class DialogsStorage extends AbsStorage implements IDialogsStorage {
 
     private DialogEntity mapEntity(@NonNull Cursor cursor) {
         @ChatAction
-        int action = cursor.getInt(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_ACTION));
+        int action = cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_ACTION));
 
-        boolean encrypted = cursor.getInt(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_ENCRYPTED)) == 1;
+        boolean encrypted = cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_ENCRYPTED)) == 1;
 
-        int messageId = cursor.getInt(cursor.getColumnIndex(DialogsColumns.LAST_MESSAGE_ID));
-        int peerId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
-        int fromId = cursor.getInt(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_FROM_ID));
+        int messageId = cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.LAST_MESSAGE_ID));
+        int peerId = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+        int fromId = cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_FROM_ID));
 
         MessageEntity message = new MessageEntity().set(messageId, peerId, fromId)
-                .setBody(cursor.getString(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_BODY)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_DATE)))
-                .setOut(cursor.getInt(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_OUT)) == 1)
-                .setHasAttachmens(cursor.getInt(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_HAS_ATTACHMENTS)) == 1)
-                .setForwardCount(cursor.getInt(cursor.getColumnIndex(DialogsColumns.FOREIGN_MESSAGE_FWD_COUNT)))
+                .setBody(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_BODY)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_DATE)))
+                .setOut(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_OUT)) == 1)
+                .setHasAttachmens(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_HAS_ATTACHMENTS)) == 1)
+                .setForwardCount(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.FOREIGN_MESSAGE_FWD_COUNT)))
                 .setAction(action)
                 .setEncrypted(encrypted);
 
         return new DialogEntity(peerId)
                 .setMessage(message)
-                .setInRead(cursor.getInt(cursor.getColumnIndex(DialogsColumns.IN_READ)))
-                .setOutRead(cursor.getInt(cursor.getColumnIndex(DialogsColumns.OUT_READ)))
-                .setTitle(cursor.getString(cursor.getColumnIndex(DialogsColumns.TITLE)))
-                .setPhoto50(cursor.getString(cursor.getColumnIndex(DialogsColumns.PHOTO_50)))
-                .setPhoto100(cursor.getString(cursor.getColumnIndex(DialogsColumns.PHOTO_100)))
-                .setPhoto200(cursor.getString(cursor.getColumnIndex(DialogsColumns.PHOTO_200)))
-                .setUnreadCount(cursor.getInt(cursor.getColumnIndex(DialogsColumns.UNREAD)))
-                .setLastMessageId(cursor.getInt(cursor.getColumnIndex(DialogsColumns.LAST_MESSAGE_ID)))
-                .setAcl(cursor.getInt(cursor.getColumnIndex(DialogsColumns.ACL)))
-                .setMajor_id(cursor.getInt(cursor.getColumnIndex(DialogsColumns.MAJOR_ID)))
-                .setMinor_id(cursor.getInt(cursor.getColumnIndex(DialogsColumns.MINOR_ID)))
-                .setGroupChannel(cursor.getInt(cursor.getColumnIndex(DialogsColumns.LAST_MESSAGE_ID)) == 1);
+                .setInRead(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.IN_READ)))
+                .setOutRead(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.OUT_READ)))
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.TITLE)))
+                .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.PHOTO_50)))
+                .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.PHOTO_100)))
+                .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(DialogsColumns.PHOTO_200)))
+                .setUnreadCount(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.UNREAD)))
+                .setLastMessageId(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.LAST_MESSAGE_ID)))
+                .setAcl(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.ACL)))
+                .setMajor_id(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.MAJOR_ID)))
+                .setMinor_id(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.MINOR_ID)))
+                .setGroupChannel(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.LAST_MESSAGE_ID)) == 1);
     }
 }

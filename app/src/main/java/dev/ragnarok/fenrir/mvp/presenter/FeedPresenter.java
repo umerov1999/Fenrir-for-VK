@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.db.model.PostUpdate;
 import dev.ragnarok.fenrir.domain.IFaveInteractor;
@@ -64,7 +64,7 @@ public class FeedPresenter extends PlaceSupportPresenter<IFeedView> {
         faveInteractor = InteractorFactory.createFaveInteractor();
 
         appendDisposable(walls.observeMinorChanges()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostUpdateEvent));
 
         feedInteractor = InteractorFactory.createFeedInteractor();

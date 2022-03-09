@@ -15,7 +15,6 @@ import android.widget.RelativeLayout
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
-import androidx.annotation.NonNull
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,12 +27,11 @@ import com.squareup.picasso3.Callback
 import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.activity.*
 import dev.ragnarok.fenrir.activity.slidr.Slidr
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.adapter.horizontal.ImageAdapter
+import dev.ragnarok.fenrir.adapter.horizontal.ImageListAdapter
 import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
 import dev.ragnarok.fenrir.listener.AppStyleable
@@ -229,7 +227,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
     private var mCanSaveYourself = false
     private var mCanDelete = false
     private val bShowPhotosLine = Settings.get().other().isShow_photos_line
-    private val mAdapterRecycler = ImageAdapter()
+    private val mAdapterRecycler = ImageListAdapter()
 
     @LayoutRes
     override fun getNoMainContentView(): Int {
@@ -333,7 +331,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         if (bShowPhotosLine) {
             mPreviewsRecycler?.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-            mAdapterRecycler.setListener(object : ImageAdapter.OnRecyclerImageClickListener {
+            mAdapterRecycler.setListener(object : ImageListAdapter.OnRecyclerImageClickListener {
                 override fun onRecyclerImageClick(index: Int) {
                     mViewPager?.currentItem = index
                 }
@@ -628,8 +626,8 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         this.invalidateOptionsMenu()
     }
 
-    override fun goToComments(aid: Int, commented: Commented) {
-        PlaceFactory.getCommentsPlace(aid, commented, null).tryOpenWith(this)
+    override fun goToComments(accountId: Int, commented: Commented) {
+        PlaceFactory.getCommentsPlace(accountId, commented, null).tryOpenWith(this)
     }
 
     override fun displayPhotoListLoading(loading: Boolean) {
@@ -757,10 +755,10 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         private val mPicassoLoadCallback: WeakPicassoLoadCallback
         val photo: TouchImageView
         val progress: RLottieImageView
-        var animationDispose = Disposable.disposed()
+        var animationDispose: Disposable = Disposable.disposed()
         private var mAnimationLoaded = false
         private var mLoadingNow = false
-        fun bindTo(@NonNull photo_image: Photo) {
+        fun bindTo(photo_image: Photo) {
             photo.resetZoom()
             val size: Int = photoSizeFromPrefs
             val url = photo_image.getUrlForSize(size, true)
@@ -829,7 +827,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             }
         }
 
-        private fun loadImage(@NonNull url: String?) {
+        private fun loadImage(url: String) {
             mLoadingNow = true
             resolveProgressVisibility(true)
             PicassoInstance.with()

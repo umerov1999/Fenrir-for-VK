@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Executors;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.interfaces.INetworker;
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiGroupLongpollUpdates;
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates;
@@ -109,7 +109,7 @@ public class AndroidLongpollManager implements ILongpollManager, UserLongpoll.Ca
         compositeDisposable.add(new LongPollEventSaver()
                 .save(accountId, updates)
                 .subscribeOn(MONO_SCHEDULER)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(() -> onUpdatesSaved(accountId, updates), RxUtils.ignore()));
     }
 

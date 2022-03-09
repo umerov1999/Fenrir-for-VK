@@ -55,6 +55,16 @@ public class AnswerVKOfficialPresenter extends AccountDependencyPresenter<IAnswe
                 .subscribe(data -> onActualDataReceived(offset, data), this::onActualDataGetError));
     }
 
+    public void hideNotification(int position, String query) {
+        int accountId = getAccountId();
+        actualDataDisposable.add(fInteractor.hide(accountId, query)
+                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .subscribe(() -> {
+                    pages.items.remove(position);
+                    callView(v -> v.notifyItemRemoved(position));
+                }, this::onActualDataGetError));
+    }
+
     private void onActualDataGetError(Throwable t) {
         actualDataLoading = false;
         callView(v -> showError(v, getCauseIfRuntime(t)));

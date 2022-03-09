@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity;
 import dev.ragnarok.fenrir.api.model.VKApiCommunity;
@@ -98,7 +98,7 @@ public class CommentsPresenter extends PlaceSupportPresenter<ICommentsView> {
         super(accountId, savedInstanceState);
         authorId = accountId;
         ownersRepository = Repository.INSTANCE.getOwners();
-        interactor = new CommentsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Repository.INSTANCE.getOwners());
+        interactor = new CommentsInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Repository.INSTANCE.getOwners());
         stickersInteractor = InteractorFactory.createStickersInteractor();
         this.commented = commented;
         this.focusToComment = focusToComment;
@@ -112,25 +112,25 @@ public class CommentsPresenter extends PlaceSupportPresenter<ICommentsView> {
             loadCachedData();
         }
 
-        IAttachmentsRepository attachmentsRepository = Injection.provideAttachmentsRepository();
+        IAttachmentsRepository attachmentsRepository = Includes.getAttachmentsRepository();
 
         appendDisposable(attachmentsRepository
                 .observeAdding()
                 .filter(this::filterAttachmentEvent)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onAttchmentAddEvent));
 
         appendDisposable(attachmentsRepository
                 .observeRemoving()
                 .filter(this::filterAttachmentEvent)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onAttchmentRemoveEvent));
 
-        appendDisposable(Injection.provideStores()
+        appendDisposable(Includes.getStores()
                 .comments()
                 .observeMinorUpdates()
                 .filter(update -> update.getCommented().equals(commented))
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onCommentMinorUpdate, Analytics::logUnexpectedError));
 
         restoreDraftCommentSync();

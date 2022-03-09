@@ -154,26 +154,26 @@ class PhotosStorage extends AbsStorage implements IPhotosStorage {
     private PhotoEntity mapPhotoDbo(Cursor cursor) {
         PhotoSizeEntity sizes = null;
 
-        String sizesJson = cursor.getString(cursor.getColumnIndex(PhotosColumns.SIZES));
+        String sizesJson = cursor.getString(cursor.getColumnIndexOrThrow(PhotosColumns.SIZES));
         if (nonEmpty(sizesJson)) {
             sizes = GSON.fromJson(sizesJson, PhotoSizeEntity.class);
         }
 
-        int id = cursor.getInt(cursor.getColumnIndex(PhotosColumns.PHOTO_ID));
-        int ownerId = cursor.getInt(cursor.getColumnIndex(PhotosColumns.OWNER_ID));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.PHOTO_ID));
+        int ownerId = cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.OWNER_ID));
         return new PhotoEntity().set(id, ownerId)
                 .setSizes(sizes)
-                .setAlbumId(cursor.getInt(cursor.getColumnIndex(PhotosColumns.ALBUM_ID)))
-                .setWidth(cursor.getInt(cursor.getColumnIndex(PhotosColumns.WIDTH)))
-                .setHeight(cursor.getInt(cursor.getColumnIndex(PhotosColumns.HEIGHT)))
-                .setText(cursor.getString(cursor.getColumnIndex(PhotosColumns.TEXT)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(PhotosColumns.DATE)))
-                .setUserLikes(cursor.getInt(cursor.getColumnIndex(PhotosColumns.USER_LIKES)) == 1)
-                .setCanComment(cursor.getInt(cursor.getColumnIndex(PhotosColumns.CAN_COMMENT)) == 1)
-                .setLikesCount(cursor.getInt(cursor.getColumnIndex(PhotosColumns.LIKES)))
-                .setCommentsCount(cursor.getInt(cursor.getColumnIndex(PhotosColumns.COMMENTS)))
-                .setTagsCount(cursor.getInt(cursor.getColumnIndex(PhotosColumns.TAGS)))
-                .setAccessKey(cursor.getString(cursor.getColumnIndex(PhotosColumns.ACCESS_KEY)))
-                .setDeleted(cursor.getInt(cursor.getColumnIndex(PhotosColumns.DELETED)) == 1);
+                .setAlbumId(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.ALBUM_ID)))
+                .setWidth(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.WIDTH)))
+                .setHeight(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.HEIGHT)))
+                .setText(cursor.getString(cursor.getColumnIndexOrThrow(PhotosColumns.TEXT)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(PhotosColumns.DATE)))
+                .setUserLikes(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.USER_LIKES)) == 1)
+                .setCanComment(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.CAN_COMMENT)) == 1)
+                .setLikesCount(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.LIKES)))
+                .setCommentsCount(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.COMMENTS)))
+                .setTagsCount(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.TAGS)))
+                .setAccessKey(cursor.getString(cursor.getColumnIndexOrThrow(PhotosColumns.ACCESS_KEY)))
+                .setDeleted(cursor.getInt(cursor.getColumnIndexOrThrow(PhotosColumns.DELETED)) == 1);
     }
 }

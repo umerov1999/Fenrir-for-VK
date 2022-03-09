@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.domain;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.domain.impl.AccountsInteractor;
 import dev.ragnarok.fenrir.domain.impl.AudioInteractor;
 import dev.ragnarok.fenrir.domain.impl.BoardInteractor;
@@ -26,87 +26,87 @@ import dev.ragnarok.fenrir.settings.Settings;
 public class InteractorFactory {
 
     public static INewsfeedInteractor createNewsfeedInteractor() {
-        return new NewsfeedInteractor(Injection.provideNetworkInterfaces(), Repository.INSTANCE.getOwners());
+        return new NewsfeedInteractor(Includes.getNetworkInterfaces(), Repository.INSTANCE.getOwners());
     }
 
     public static IStickersInteractor createStickersInteractor() {
-        return new StickersInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores().stickers());
+        return new StickersInteractor(Includes.getNetworkInterfaces(), Includes.getStores().stickers());
     }
 
     public static IPollInteractor createPollInteractor() {
-        return new PollInteractor(Injection.provideNetworkInterfaces());
+        return new PollInteractor(Includes.getNetworkInterfaces());
     }
 
     public static IDocsInteractor createDocsInteractor() {
-        return new DocsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores().docs());
+        return new DocsInteractor(Includes.getNetworkInterfaces(), Includes.getStores().docs());
     }
 
     public static ILikesInteractor createLikesInteractor() {
-        return new LikesInteractor(Injection.provideNetworkInterfaces());
+        return new LikesInteractor(Includes.getNetworkInterfaces());
     }
 
     public static IFeedbackInteractor createFeedbackInteractor() {
-        return new FeedbackInteractor(Injection.provideStores(), Injection.provideNetworkInterfaces(), Repository.INSTANCE.getOwners());
+        return new FeedbackInteractor(Includes.getStores(), Includes.getNetworkInterfaces(), Repository.INSTANCE.getOwners());
     }
 
     public static IDatabaseInteractor createDatabaseInteractor() {
-        return new DatabaseInteractor(Injection.provideStores().database(), Injection.provideNetworkInterfaces());
+        return new DatabaseInteractor(Includes.getStores().database(), Includes.getNetworkInterfaces());
     }
 
     public static ICommunitiesInteractor createCommunitiesInteractor() {
-        return new CommunitiesInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores());
+        return new CommunitiesInteractor(Includes.getNetworkInterfaces(), Includes.getStores());
     }
 
     public static IBoardInteractor createBoardInteractor() {
-        return new BoardInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Repository.INSTANCE.getOwners());
+        return new BoardInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Repository.INSTANCE.getOwners());
     }
 
     public static IUtilsInteractor createUtilsInteractor() {
-        return new UtilsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Repository.INSTANCE.getOwners());
+        return new UtilsInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Repository.INSTANCE.getOwners());
     }
 
     public static IRelationshipInteractor createRelationshipInteractor() {
-        return new RelationshipInteractor(Injection.provideStores(), Injection.provideNetworkInterfaces());
+        return new RelationshipInteractor(Includes.getStores(), Includes.getNetworkInterfaces());
     }
 
     public static IFeedInteractor createFeedInteractor() {
-        return new FeedInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Settings.get().other(), Repository.INSTANCE.getOwners());
+        return new FeedInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Settings.get().other(), Repository.INSTANCE.getOwners());
     }
 
     public static IGroupSettingsInteractor createGroupSettingsInteractor() {
-        return new GroupSettingsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores().owners(), Repository.INSTANCE.getOwners());
+        return new GroupSettingsInteractor(Includes.getNetworkInterfaces(), Includes.getStores().owners(), Repository.INSTANCE.getOwners());
     }
 
     public static IDialogsInteractor createDialogsInteractor() {
-        return new DialogsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores());
+        return new DialogsInteractor(Includes.getNetworkInterfaces(), Includes.getStores());
     }
 
     public static IVideosInteractor createVideosInteractor() {
-        return new VideosInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores());
+        return new VideosInteractor(Includes.getNetworkInterfaces(), Includes.getStores());
     }
 
     public static IAccountsInteractor createAccountInteractor() {
         return new AccountsInteractor(
-                Injection.provideNetworkInterfaces(),
-                Injection.provideSettings().accounts(),
-                Injection.provideBlacklistRepository(),
+                Includes.getNetworkInterfaces(),
+                Includes.getSettings().accounts(),
+                Includes.getBlacklistRepository(),
                 Repository.INSTANCE.getOwners()
         );
     }
 
     public static IPhotosInteractor createPhotosInteractor() {
-        return new PhotosInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores());
+        return new PhotosInteractor(Includes.getNetworkInterfaces(), Includes.getStores());
     }
 
     public static IFaveInteractor createFaveInteractor() {
-        return new FaveInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Repository.INSTANCE.getOwners());
+        return new FaveInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Repository.INSTANCE.getOwners());
     }
 
     public static ILocalServerInteractor createLocalServerInteractor() {
-        return new LocalServerInteractor(Injection.provideNetworkInterfaces());
+        return new LocalServerInteractor(Includes.getNetworkInterfaces());
     }
 
     public static IAudioInteractor createAudioInteractor() {
-        return new AudioInteractor(Injection.provideNetworkInterfaces());
+        return new AudioInteractor(Includes.getNetworkInterfaces());
     }
 }

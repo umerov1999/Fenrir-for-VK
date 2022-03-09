@@ -126,7 +126,7 @@ class LocalJsonToChatPresenter(
 
     private fun loadActualData() {
         resolveRefreshingView(true)
-        val accountId = super.getAccountId()
+        val accountId = super.accountId
         actualDataDisposable.add(fInteractor.getMessagesFromLocalJSon(accountId, context)
             .compose(RxUtils.applySingleIOToMainSchedulers())
             .subscribe({ onActualDataReceived(it) }) { onActualDataGetError(it) })

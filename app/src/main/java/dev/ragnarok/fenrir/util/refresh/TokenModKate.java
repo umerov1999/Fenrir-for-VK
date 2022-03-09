@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.ProxyUtil;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -139,7 +139,7 @@ public class TokenModKate {
                         .addHeader("Gcm-ver", "200313005")
                         .addHeader("Gcm-cert", "966882ba564c2619d55d0a9afd4327a38c327456")
                         .build()));
-        ProxyUtil.applyProxyConfig(builder, Injection.provideProxySettings().getActiveProxy());
+        ProxyUtil.applyProxyConfig(builder, Includes.getProxySettings().getActiveProxy());
         FormBody.Builder formBody = new FormBody.Builder();
         for (String i : list) {
             String[] v = i.split("=");

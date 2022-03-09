@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.mvp.presenter;
 
-import static dev.ragnarok.fenrir.Injection.provideMainThreadScheduler;
+import static dev.ragnarok.fenrir.Includes.provideMainThreadScheduler;
 import static dev.ragnarok.fenrir.util.Utils.findIndexById;
 import static dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime;
 import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.domain.IVideosInteractor;
 import dev.ragnarok.fenrir.domain.InteractorFactory;
@@ -74,7 +74,7 @@ public class VideosListPresenter extends AccountDependencyPresenter<IVideosListV
                                @Nullable String albumTitle, Context context, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
         interactor = InteractorFactory.createVideosInteractor();
-        uploadManager = Injection.provideUploadManager();
+        uploadManager = Includes.getUploadManager();
         destination = UploadDestination.forVideo(IVideosListView.ACTION_SELECT.equalsIgnoreCase(action) ? 0 : 1, ownerId);
         uploadsData = new ArrayList<>(0);
         searcher = new FindVideo(netDisposable);

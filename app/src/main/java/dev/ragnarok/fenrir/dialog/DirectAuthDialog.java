@@ -19,6 +19,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
+import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
@@ -114,8 +115,9 @@ public class DirectAuthDialog extends BaseMvpDialogFragment<DirectAuthPresenter,
 
         builder.setView(view);
         builder.setPositiveButton(R.string.button_login, null);
-        if (Constants.IS_HAS_LOGIN_WEB)
+        if (Constants.DEFAULT_ACCOUNT_TYPE == AccountType.KATE) {
             builder.setNeutralButton(R.string.button_login_via_web, (dialogInterface, i) -> callPresenter(DirectAuthPresenter::fireLoginViaWebClick));
+        }
         builder.setTitle(R.string.login_title);
         builder.setIcon(R.drawable.logo_vk);
 

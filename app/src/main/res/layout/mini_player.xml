@@ -50,17 +50,17 @@
             android:scrollHorizontally="true"
             android:singleLine="true" />
 
-        <dev.ragnarok.fenrir.view.seek.DefaultTimeBar
+        <dev.ragnarok.fenrir.view.CustomSeekBar
             android:id="@+id/seek_player_pos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
-            app:buffered_color="?colorPrimary"
-            app:played_color="?colorPrimary"
-            app:scrubber_color="?colorPrimary"
-            app:scrubber_drawable="@drawable/seekbar_thumb_material_anim"
-            app:unplayed_color="?colorSecondary" />
+            android:layout_marginStart="4dp"
+            app:applyAlpha="true"
+            app:bufferedColor="?colorPrimary"
+            app:circleColor="?colorPrimary"
+            app:lineColor="?colorSecondary"
+            app:pressedCircleColor="?colorSecondary"
+            app:progressColor="?colorPrimary" />
     </LinearLayout>
 
     <ImageButton

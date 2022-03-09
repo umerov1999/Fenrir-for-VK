@@ -5,7 +5,7 @@ import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
 
 import com.google.gson.Gson;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.ApiException;
 import dev.ragnarok.fenrir.api.AuthException;
 import dev.ragnarok.fenrir.api.CaptchaNeedException;
@@ -81,7 +81,7 @@ public class AuthApi implements IAuthApi {
                                              String scope, String code, String captchaSid, String captchaKey, boolean forceSms) {
         return service.provideAuthService()
                 .flatMap(service -> service
-                        .directLogin(grantType, clientId, clientSecret, username, pass, v, twoFaSupported ? 1 : null, scope, code, captchaSid, captchaKey, forceSms ? 1 : 0, Utils.getDeviceId(Injection.provideApplicationContext()), 1)
+                        .directLogin(grantType, clientId, clientSecret, username, pass, v, twoFaSupported ? 1 : null, scope, code, captchaSid, captchaKey, forceSms ? 1 : 0, Utils.getDeviceId(Includes.provideApplicationContext()), 1)
                         .compose(withHttpErrorHandling()));
     }
 

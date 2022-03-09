@@ -216,17 +216,17 @@ public class CommunityOptionsFragment extends BaseMvpFragment<CommunityOptionsPr
 
     @Override
     public void setFeedbackCommentsChecked(boolean checked) {
-        safelySetCheched(mFeedbackComments, checked);
+        safelySetChecked(mFeedbackComments, checked);
     }
 
     @Override
     public void setObsceneFilterChecked(boolean checked) {
-        safelySetCheched(mObsceneFilter, checked);
+        safelySetChecked(mObsceneFilter, checked);
     }
 
     @Override
     public void setObsceneStopWordsChecked(boolean checked) {
-        safelySetCheched(mObsceneStopWords, checked);
+        safelySetChecked(mObsceneStopWords, checked);
     }
 
     @Override

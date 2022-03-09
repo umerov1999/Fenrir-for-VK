@@ -37,7 +37,7 @@ internal class Randomizer {
         }
     }
 
-    fun randomGaussian(): Double {
+    private fun randomGaussian(): Double {
         val gaussian = random.nextGaussian() / 3 // more 99% of instances in range (-1, 1)
         return if (gaussian > -1 && gaussian < 1) gaussian else randomGaussian()
     }

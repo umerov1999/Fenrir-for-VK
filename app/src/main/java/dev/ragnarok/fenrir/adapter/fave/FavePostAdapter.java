@@ -60,7 +60,7 @@ public class FavePostAdapter extends RecyclerBindableAdapter<Post, RecyclerView.
     }
 
     @Override
-    protected void onBindItemViewHolder(RecyclerView.ViewHolder viewHolder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, int type) {
         Post item = getItem(position);
         if (type == TYPE_NORMAL) {
             NormalHolder normalHolder = (NormalHolder) viewHolder;
@@ -154,6 +154,7 @@ public class FavePostAdapter extends RecyclerBindableAdapter<Post, RecyclerView.
         });
     }
 
+    @NonNull
     @Override
     protected RecyclerView.ViewHolder viewHolder(View view, int type) {
         if (type == TYPE_NORMAL) {

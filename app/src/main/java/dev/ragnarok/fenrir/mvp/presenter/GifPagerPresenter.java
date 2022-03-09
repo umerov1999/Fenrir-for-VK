@@ -11,7 +11,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 
 import java.util.ArrayList;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.media.gif.IGifPlayer;
 import dev.ragnarok.fenrir.media.gif.PlayerPrepareException;
@@ -86,7 +86,7 @@ public class GifPagerPresenter extends BaseDocumentPresenter<IGifPagerView> impl
 
         String url = document.getVideoPreview().getSrc();
 
-        mGifPlayer = Injection.provideGifPlayerFactory().createGifPlayer(url, true);
+        mGifPlayer = Includes.getGifPlayerFactory().createGifPlayer(url, true);
         mGifPlayer.addStatusChangeListener(this);
         mGifPlayer.addVideoSizeChangeListener(this);
 

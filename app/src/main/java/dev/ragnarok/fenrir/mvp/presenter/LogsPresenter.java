@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.db.interfaces.ILogsStorage;
 import dev.ragnarok.fenrir.model.LogEvent;
@@ -34,7 +34,7 @@ public class LogsPresenter extends RxSupportPresenter<ILogsView> {
     public LogsPresenter(@Nullable Bundle savedInstanceState) {
         super(savedInstanceState);
 
-        store = Injection.provideLogsStore();
+        store = Includes.getLogsStore();
         types = createTypes();
         events = new ArrayList<>();
 

@@ -1661,4 +1661,5 @@
     <string name="not_set_artist">Не указано</string>
     <string name="copy_value">Копировать</string>
     <string name="download_voice_ogg">Скачивать голосовые в ogg</string>
+    <string name="error_hiding">Невозможно скрыть!</string>
 </resources>

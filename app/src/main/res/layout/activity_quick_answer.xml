@@ -49,7 +49,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_marginEnd="16dp"
-                        android:layout_toEndOf="@+id/avatar"
+                        android:layout_toEndOf="@id/avatar"
                         android:orientation="vertical"
                         android:paddingStart="16dp"
                         android:paddingTop="8dp"
@@ -73,7 +73,7 @@
                             android:id="@+id/item_message_attachment_container"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@+id/item_message_text"
+                            android:layout_below="@id/item_message_text"
                             android:orientation="vertical">
 
                             <include
@@ -126,8 +126,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="6dp"
 
-                        android:layout_toStartOf="@+id/activity_quick_answer_send"
-                        android:layout_toEndOf="@+id/activity_quick_answer_to_dialog"
+                        android:layout_toStartOf="@id/activity_quick_answer_send"
+                        android:layout_toEndOf="@id/activity_quick_answer_to_dialog"
                         android:background="@drawable/background_message_round"
                         android:ellipsize="end"
                         android:gravity="center_vertical"

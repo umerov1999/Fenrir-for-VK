@@ -18,13 +18,10 @@ package com.squareup.picasso3
 import com.squareup.picasso3.RequestHandler.Result
 
 internal abstract class Action(
-    @JvmField val picasso: Picasso,
-    @JvmField val request: Request
+    val picasso: Picasso,
+    val request: Request
 ) {
-    @JvmField
     var willReplay = false
-
-    @JvmField
     var cancelled = false
 
     abstract fun complete(result: Result)

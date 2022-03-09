@@ -97,6 +97,32 @@ public class AnswerVKOfficialDtoAdapter extends AbsAdapter implements JsonDeseri
                 }
             }
 
+            try {
+                if (hasObject(root_item, "action_buttons")) {
+                    JsonObject action_buttons = root_item.get("action_buttons").getAsJsonObject();
+                    for (String ss1 : action_buttons.keySet()) {
+                        if (checkArray(action_buttons.get(ss1))) {
+                            for (JsonElement ss2 : action_buttons.getAsJsonArray(ss1)) {
+                                if (checkObject(ss2)) {
+                                    JsonObject act = ss2.getAsJsonObject();
+                                    if (hasObject(act, "action")) {
+                                        JsonObject actu = act.getAsJsonObject("action");
+                                        if ("hide_item".equals(optString(actu, "type")) && hasObject(actu, "context")) {
+                                            JsonObject actctx = actu.getAsJsonObject("context");
+                                            dto.hide_query = optString(actctx, "query");
+                                            if (!Utils.isEmpty(dto.hide_query)) {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+
             dto.iconType = optString(root_item, "icon_type");
             dto.header = optString(root_item, "header");
             if (dto.header != null) {

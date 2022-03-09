@@ -145,6 +145,7 @@ public class MenuListAdapter extends RecyclerBindableAdapter<AbsMenuItem, Recycl
         });
     }
 
+    @NonNull
     @Override
     protected RecyclerView.ViewHolder viewHolder(View view, int type) {
         switch (type) {
@@ -241,8 +242,8 @@ public class MenuListAdapter extends RecyclerBindableAdapter<AbsMenuItem, Recycl
     }
 
     private static class NoIconHolder extends RecyclerView.ViewHolder {
-        TextView txTitle;
-        View contentRoot;
+        final TextView txTitle;
+        final View contentRoot;
 
         NoIconHolder(View view) {
             super(view);

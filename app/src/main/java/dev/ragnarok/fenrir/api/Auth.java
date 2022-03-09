@@ -7,7 +7,7 @@ import java.net.URLEncoder;
 
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.util.VKStringUtils;
 import dev.ragnarok.fenrir.util.Utils;
 
@@ -21,7 +21,7 @@ public class Auth {
 
         url = url + "&display=mobile&scope="
                 + scope + "&redirect_uri=" + URLEncoder.encode(redirect_url, "utf-8") + "&response_type=token"
-                + "&v=" + URLEncoder.encode(Constants.API_VERSION, "utf-8") + "&lang=" + URLEncoder.encode(Constants.DEVICE_COUNTRY_CODE, "utf-8") + "&device_id=" + URLEncoder.encode(Utils.getDeviceId(Injection.provideApplicationContext()), "utf-8");
+                + "&v=" + URLEncoder.encode(Constants.API_VERSION, "utf-8") + "&lang=" + URLEncoder.encode(Constants.DEVICE_COUNTRY_CODE, "utf-8") + "&device_id=" + URLEncoder.encode(Utils.getDeviceId(Includes.provideApplicationContext()), "utf-8");
 
         if (Utils.nonEmpty(groupIds)) {
             url = url + "&group_ids=" + groupIds;

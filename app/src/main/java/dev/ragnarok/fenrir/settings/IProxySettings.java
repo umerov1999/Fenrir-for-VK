@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.settings;
 
+import androidx.annotation.Nullable;
+
 import java.util.List;
 
 import dev.ragnarok.fenrir.model.ProxyConfig;
@@ -22,6 +24,8 @@ public interface IProxySettings {
     ProxyConfig getActiveProxy();
 
     void setActive(ProxyConfig config);
+
+    void broadcastUpdate(@Nullable ProxyConfig config);
 
     void delete(ProxyConfig config);
 }

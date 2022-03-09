@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -34,7 +35,7 @@ public class SearchOptionsAdapter extends RecyclerBindableAdapter<BaseOption, Re
     }
 
     @Override
-    protected void onBindItemViewHolder(RecyclerView.ViewHolder viewHolder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, int type) {
         BaseOption option = getItem(position);
 
         switch (type) {
@@ -227,6 +228,7 @@ public class SearchOptionsAdapter extends RecyclerBindableAdapter<BaseOption, Re
         });
     }
 
+    @NonNull
     @Override
     protected RecyclerView.ViewHolder viewHolder(View view, int type) {
         switch (type) {
@@ -236,7 +238,7 @@ public class SearchOptionsAdapter extends RecyclerBindableAdapter<BaseOption, Re
                 return new SimpleBooleanHolder(view);
         }
 
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -137,7 +137,7 @@ public class Article extends AbsModel {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Graffiti))
+        if (!(o instanceof Article))
             return false;
 
         Article article = (Article) o;

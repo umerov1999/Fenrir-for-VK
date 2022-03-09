@@ -12,5 +12,7 @@ public interface IAnswerVKOfficialView extends IAccountDependencyView, IMvpView,
 
     void notifyDataAdded(int position, int count);
 
+    void notifyItemRemoved(int position);
+
     void showRefreshing(boolean refreshing);
 }

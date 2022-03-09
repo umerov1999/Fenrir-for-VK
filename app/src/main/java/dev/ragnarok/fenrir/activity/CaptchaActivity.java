@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputEditText;
 
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.ICaptchaProvider;
 import dev.ragnarok.fenrir.picasso.PicassoInstance;
@@ -79,16 +79,16 @@ public class CaptchaActivity extends AppCompatActivity {
 
         requestSid = getIntent().getStringExtra(Extra.CAPTCHA_SID);
 
-        captchaProvider = Injection.provideCaptchaProvider();
+        captchaProvider = Includes.getCaptchaProvider();
 
         mCompositeDisposable.add(captchaProvider.observeWaiting()
                 .filter(sid -> sid.equals(requestSid))
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(rid -> onWaitingRequestRecieved(), ignore()));
 
         mCompositeDisposable.add(captchaProvider.observeCanceling()
                 .filter(sid -> sid.equals(requestSid))
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(integer -> onRequestCancelled(), ignore()));
     }
 

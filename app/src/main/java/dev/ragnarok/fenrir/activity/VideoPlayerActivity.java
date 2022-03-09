@@ -28,7 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.slidr.Slidr;
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig;
@@ -136,7 +136,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             }
         }
         if (update) {
-            IProxySettings settings = Injection.provideProxySettings();
+            IProxySettings settings = Includes.getProxySettings();
             ProxyConfig config = settings.getActiveProxy();
 
             String url = getFileUrl();
@@ -211,7 +211,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     }
 
     private IVideoPlayer createPlayer() {
-        IProxySettings settings = Injection.provideProxySettings();
+        IProxySettings settings = Includes.getProxySettings();
         ProxyConfig config = settings.getActiveProxy();
 
         String url = getFileUrl();

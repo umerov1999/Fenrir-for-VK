@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.mvp.presenter;
 
-import static dev.ragnarok.fenrir.Injection.provideMainThreadScheduler;
+import static dev.ragnarok.fenrir.Includes.provideMainThreadScheduler;
 import static dev.ragnarok.fenrir.util.Utils.findIndexById;
 
 import android.content.Context;
@@ -14,14 +14,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.db.Stores;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackService;
 import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter;
 import dev.ragnarok.fenrir.mvp.view.IAudiosLocalView;
 import dev.ragnarok.fenrir.place.PlaceFactory;
-import dev.ragnarok.fenrir.player.MusicPlaybackService;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.upload.IUploadManager;
 import dev.ragnarok.fenrir.upload.Upload;
@@ -53,7 +53,7 @@ public class AudiosLocalPresenter extends AccountDependencyPresenter<IAudiosLoca
         super(accountId, savedInstanceState);
         destination = UploadDestination.forAudio(accountId);
         remotePlay = UploadDestination.forRemotePlay();
-        uploadManager = Injection.provideUploadManager();
+        uploadManager = Includes.getUploadManager();
         uploadsData = new ArrayList<>(0);
         audios = new ArrayList<>();
         origin_audios = new ArrayList<>();

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.interfaces.INetworker;
 import dev.ragnarok.fenrir.api.model.VKApiCommunity;
 import dev.ragnarok.fenrir.exception.NotFoundException;
@@ -31,7 +31,7 @@ public class CommunityInfoLinksPresenter extends AccountDependencyPresenter<ICom
     public CommunityInfoLinksPresenter(int accountId, Community groupId, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
 
-        networker = Injection.provideNetworkInterfaces();
+        networker = Includes.getNetworkInterfaces();
         this.groupId = groupId;
         links = new ArrayList<>();
 

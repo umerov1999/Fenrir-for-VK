@@ -21,16 +21,7 @@ final class Utils {
 
     private static final int[] INT_ZEROES = new int[1024];
 
-    /**
-     * Fills byte array with zeroes.
-     *
-     * <p> Current implementation uses {@link System#arraycopy}, so it should be used for length not
-     * less than 16.
-     *
-     * @param dest   array to fill with zeroes
-     * @param offset the first byte to fill
-     * @param length number of bytes to change
-     */
+
     static void fillBytesWithZeroes(byte[] dest, int start, int end) {
         int cursor = start;
         while (cursor < end) {
@@ -40,16 +31,7 @@ final class Utils {
         }
     }
 
-    /**
-     * Fills int array with zeroes.
-     *
-     * <p> Current implementation uses {@link System#arraycopy}, so it should be used for length not
-     * less than 16.
-     *
-     * @param dest   array to fill with zeroes
-     * @param offset the first item to fill
-     * @param length number of item to change
-     */
+
     static void fillIntsWithZeroes(int[] dest, int start, int end) {
         int cursor = start;
         while (cursor < end) {

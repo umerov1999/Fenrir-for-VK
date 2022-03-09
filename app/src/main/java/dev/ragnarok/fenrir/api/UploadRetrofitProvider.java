@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder;
 import java.util.concurrent.TimeUnit;
 
 import dev.ragnarok.fenrir.AccountType;
-import dev.ragnarok.fenrir.BuildConfig;
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.settings.IProxySettings;
 import dev.ragnarok.fenrir.settings.Settings;
@@ -62,7 +61,7 @@ public class UploadRetrofitProvider implements IUploadRetrofitProvider {
     private Retrofit createUploadRetrofit() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
-        if (BuildConfig.DEBUG) {
+        if (Constants.IS_DEBUG) {
             logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
         } else {
             logging.setLevel(HttpLoggingInterceptor.Level.NONE);

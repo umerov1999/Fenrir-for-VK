@@ -25,7 +25,7 @@
 
     <!--app:layout_anchor="@android:id/list"-->
     <!--app:layout_anchorGravity="bottom|right|end"-->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <dev.ragnarok.fenrir.view.UpEditFab
         android:id="@+id/fragment_user_profile_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    app:contentPadding="15dp">
+    app:contentPadding="8dp"
+    app:contentPaddingBottom="16dp"
+    app:contentPaddingTop="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,6 +19,7 @@
             android:id="@+id/item_catalog_block"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:background="?android:attr/selectableItemBackground"
             android:orientation="vertical"
             android:stateListAnimator="@animator/clicked">
@@ -41,7 +44,7 @@
                 tools:text="Subtitle" />
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
+        <dev.ragnarok.fenrir.view.VP2NestedRecyclerView
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -17,7 +17,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/fragment_comments_reply_container">
+            android:layout_above="@id/fragment_comments_reply_container">
 
             <ProgressBar
                 android:id="@+id/progress_bar"

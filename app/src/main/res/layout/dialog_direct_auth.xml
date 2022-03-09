@@ -140,8 +140,8 @@
             android:id="@+id/loading_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/content_root"
-            android:layout_alignBottom="@+id/content_root">
+            android:layout_alignTop="@id/content_root"
+            android:layout_alignBottom="@id/content_root">
 
             <ProgressBar
                 android:layout_width="wrap_content"

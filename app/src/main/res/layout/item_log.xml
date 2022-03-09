@@ -37,8 +37,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
-                android:layout_toStartOf="@+id/log_button_share_container"
-                android:layout_toEndOf="@+id/log_icon"
+                android:layout_toStartOf="@id/log_button_share_container"
+                android:layout_toEndOf="@id/log_icon"
                 android:orientation="vertical">
 
                 <TextView

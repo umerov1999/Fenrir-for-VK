@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.db.model.PostUpdate;
 import dev.ragnarok.fenrir.domain.IFaveInteractor;
@@ -77,12 +77,12 @@ public class WallPostPresenter extends PlaceSupportPresenter<IWallPostView> {
 
         appendDisposable(wallInteractor.observeMinorChanges()
                 .filter(event -> event.getOwnerId() == ownerId && event.getPostId() == postId)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostUpdate));
 
         appendDisposable(wallInteractor.observeChanges()
                 .filter(p -> postId == p.getVkid() && p.getOwnerId() == ownerId)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostChanged));
     }
 

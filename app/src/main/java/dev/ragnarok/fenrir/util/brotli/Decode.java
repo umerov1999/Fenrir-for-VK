@@ -1250,7 +1250,7 @@ final class Decode {
                         s.metaBlockLength -= copyLength;
                         s.pos += copyLength;
                     } else {
-                        for (; s.j < s.copyLength; ) {
+                        while (s.j < s.copyLength) {
                             ringBuffer[s.pos] =
                                     ringBuffer[(s.pos - s.distance) & ringBufferMask];
                             s.metaBlockLength--;

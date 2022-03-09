@@ -62,6 +62,15 @@ public class AnswerVKOfficialAdapter extends RecyclerView.Adapter<AnswerVKOffici
         mStartOfToday = Utils.startOfTodayMillis();
     }
 
+    public boolean checkPosition(int position) {
+        return position >= 0 && data.items.size() > position;
+    }
+
+    @NonNull
+    public AnswerVKOfficial getByPosition(int position) {
+        return data.items.get(position);
+    }
+
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

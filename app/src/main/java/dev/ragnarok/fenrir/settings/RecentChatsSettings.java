@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 
 import de.maxr1998.modernpreferences.PreferenceScreen;
-import dev.ragnarok.fenrir.model.drawer.AbsMenuItem;
 import dev.ragnarok.fenrir.model.drawer.RecentChat;
 
 class RecentChatsSettings implements ISettings.IRecentChats {
@@ -53,10 +52,10 @@ class RecentChatsSettings implements ISettings.IRecentChats {
     @Override
     public void store(int accountid, List<RecentChat> chats) {
         Set<String> target = new LinkedHashSet<>();
-        for (AbsMenuItem item : chats) {
-            if (item instanceof RecentChat) {
+        for (RecentChat item : chats) {
+            if (item != null) {
 
-                if (((RecentChat) item).getAid() != accountid) continue;
+                if (item.getAid() != accountid) continue;
 
                 target.add(gson.toJson(item));
             }

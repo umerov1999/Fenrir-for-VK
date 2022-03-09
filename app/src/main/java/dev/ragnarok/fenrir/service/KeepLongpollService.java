@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.longpoll.ILongpollManager;
 import dev.ragnarok.fenrir.longpoll.LongpollInstance;
@@ -60,12 +60,12 @@ public class KeepLongpollService extends Service {
         sendKeepAlive();
 
         compositeDisposable.add(longpollManager.observeKeepAlive()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(ignored -> sendKeepAlive(), RxUtils.ignore()));
 
         compositeDisposable.add(Settings.get().accounts()
                 .observeChanges()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(ignored -> sendKeepAlive(), RxUtils.ignore()));
     }
 

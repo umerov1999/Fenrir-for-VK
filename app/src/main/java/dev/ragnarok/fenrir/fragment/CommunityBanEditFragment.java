@@ -235,7 +235,7 @@ public class CommunityBanEditFragment extends BaseMvpFragment<CommunityBanEditPr
 
     @Override
     public void setShowCommentChecked(boolean checked) {
-        safelySetCheched(mShowComment, checked);
+        safelySetChecked(mShowComment, checked);
     }
 
     @Override

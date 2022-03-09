@@ -90,21 +90,21 @@ class StickersStorage extends AbsStorage implements IStickersStorage {
     }
 
     private static StickerSetEntity map(Cursor cursor) {
-        String stickersJson = cursor.getString(cursor.getColumnIndex(STICKERS));
-        String iconJson = cursor.getString(cursor.getColumnIndex(ICON));
-        return new StickerSetEntity(cursor.getInt(cursor.getColumnIndex(_ID)))
+        String stickersJson = cursor.getString(cursor.getColumnIndexOrThrow(STICKERS));
+        String iconJson = cursor.getString(cursor.getColumnIndexOrThrow(ICON));
+        return new StickerSetEntity(cursor.getInt(cursor.getColumnIndexOrThrow(_ID)))
                 .setStickers(GSON.fromJson(stickersJson, TYPE))
-                .setActive(cursor.getInt(cursor.getColumnIndex(ACTIVE)) == 1)
-                .setPurchased(cursor.getInt(cursor.getColumnIndex(PURCHASED)) == 1)
-                .setPromoted(cursor.getInt(cursor.getColumnIndex(PROMOTED)) == 1)
+                .setActive(cursor.getInt(cursor.getColumnIndexOrThrow(ACTIVE)) == 1)
+                .setPurchased(cursor.getInt(cursor.getColumnIndexOrThrow(PURCHASED)) == 1)
+                .setPromoted(cursor.getInt(cursor.getColumnIndexOrThrow(PROMOTED)) == 1)
                 .setIcon(GSON.fromJson(iconJson, ICONS))
-                .setPosition(cursor.getInt(cursor.getColumnIndex(POSITION)))
-                .setTitle(cursor.getString(cursor.getColumnIndex(TITLE)));
+                .setPosition(cursor.getInt(cursor.getColumnIndexOrThrow(POSITION)))
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(TITLE)));
     }
 
     private static StickersKeywordsEntity mapStickersKeywords(Cursor cursor) {
-        String stickersJson = cursor.getString(cursor.getColumnIndex(StickersKeywordsColumns.STICKERS));
-        String keywordsJson = cursor.getString(cursor.getColumnIndex(StickersKeywordsColumns.KEYWORDS));
+        String stickersJson = cursor.getString(cursor.getColumnIndexOrThrow(StickersKeywordsColumns.STICKERS));
+        String keywordsJson = cursor.getString(cursor.getColumnIndexOrThrow(StickersKeywordsColumns.KEYWORDS));
         return new StickersKeywordsEntity(GSON.fromJson(keywordsJson, WORDS), GSON.fromJson(stickersJson, TYPE));
     }
 

@@ -45,21 +45,21 @@ class LocalMediaStorage extends AbsStorage implements ILocalMediaStorage {
     }
 
     private static LocalVideo mapVideo(Cursor cursor) {
-        return new LocalVideo(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)), PicassoInstance.buildUriForPicassoNew(Content_Local.VIDEO, cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))))
-                .setDuration(cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.DURATION)))
-                .setSize(cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)))
-                .setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)));
+        return new LocalVideo(cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID)), PicassoInstance.buildUriForPicassoNew(Content_Local.VIDEO, cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))))
+                .setDuration(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DURATION)))
+                .setSize(cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)))
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)));
     }
 
     private static @Nullable
     Audio mapAudio(int accountId, Cursor cursor) {
-        long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
+        long id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID));
         String data = PicassoInstance.buildUriForPicassoNew(Content_Local.AUDIO, id).toString();
 
-        if (Utils.isEmpty(cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)))) {
+        if (Utils.isEmpty(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)))) {
             return null;
         }
-        String TrackName = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)).replace(".mp3", "");
+        String TrackName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)).replace(".mp3", "");
         String Artist = "";
         String[] arr = TrackName.split(" - ");
         if (arr.length > 1) {
@@ -67,7 +67,7 @@ class LocalMediaStorage extends AbsStorage implements ILocalMediaStorage {
             TrackName = TrackName.replace(Artist + " - ", "");
         }
 
-        int dur = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.DURATION));
+        int dur = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DURATION));
         if (dur != 0) {
             dur /= 1000;
         }
@@ -157,8 +157,8 @@ class LocalMediaStorage extends AbsStorage implements ILocalMediaStorage {
                 while (cursor.moveToNext()) {
                     if (e.isDisposed()) break;
 
-                    long imageId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
-                    String data = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                    long imageId = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+                    String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
 
                     result.add(new LocalPhoto()
                             .setImageId(imageId)
@@ -184,8 +184,8 @@ class LocalMediaStorage extends AbsStorage implements ILocalMediaStorage {
                 while (cursor.moveToNext()) {
                     if (e.isDisposed()) break;
 
-                    long imageId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
-                    String data = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                    long imageId = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+                    String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
 
                     result.add(new LocalPhoto()
                             .setImageId(imageId)

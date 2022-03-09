@@ -92,6 +92,7 @@ public class GroupChatsAdapter extends RecyclerBindableAdapter<GroupChats, Group
         holder.itemView.setOnClickListener(view -> mActionListener.onGroupChatsClick(item));
     }
 
+    @NonNull
     @Override
     protected ViewHolder viewHolder(View view, int type) {
         return new ViewHolder(view);

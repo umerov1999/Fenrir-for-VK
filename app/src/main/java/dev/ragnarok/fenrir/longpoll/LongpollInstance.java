@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.longpoll;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.realtime.Processors;
 
 public class LongpollInstance {
@@ -11,7 +11,7 @@ public class LongpollInstance {
         if (longpollManager == null) {
             synchronized (LongpollInstance.class) {
                 if (longpollManager == null) {
-                    longpollManager = new AndroidLongpollManager(Injection.provideNetworkInterfaces(), Processors.realtimeMessages());
+                    longpollManager = new AndroidLongpollManager(Includes.getNetworkInterfaces(), Processors.realtimeMessages());
                 }
             }
         }

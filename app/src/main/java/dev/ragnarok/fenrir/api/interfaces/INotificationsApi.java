@@ -19,4 +19,6 @@ public interface INotificationsApi {
     @CheckResult
     Single<AnswerVKOfficialList> getOfficial(Integer count, Integer startFrom, String filters, Long startTime, Long endTime);
 
+    @CheckResult
+    Single<Integer> hide(String query);
 }

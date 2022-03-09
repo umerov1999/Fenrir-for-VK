@@ -15,6 +15,6 @@
         android:id="@+id/scale_scroll_wheel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/text_view_scale" />
+        android:layout_below="@id/text_view_scale" />
 
 </RelativeLayout>

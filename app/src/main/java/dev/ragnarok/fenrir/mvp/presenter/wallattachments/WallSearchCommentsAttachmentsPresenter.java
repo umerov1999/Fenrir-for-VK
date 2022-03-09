@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.domain.ICommentsInteractor;
 import dev.ragnarok.fenrir.domain.Repository;
@@ -42,7 +42,7 @@ public class WallSearchCommentsAttachmentsPresenter extends PlaceSupportPresente
         this.posts = posts;
         owner_id = ownerId;
         data = new ArrayList<>();
-        interactor = new CommentsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Repository.INSTANCE.getOwners());
+        interactor = new CommentsInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Repository.INSTANCE.getOwners());
         loadActualData();
     }
 

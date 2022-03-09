@@ -46,7 +46,7 @@
                 android:id="@+id/item_icon"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:layout_alignBottom="@+id/item_friend_avatar"
+                android:layout_alignBottom="@id/item_friend_avatar"
                 android:layout_alignParentEnd="true"
                 android:padding="3dp" />
 

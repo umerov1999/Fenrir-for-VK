@@ -18,8 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginStart="12dp"
-        android:layout_toStartOf="@+id/active"
-        android:layout_toEndOf="@+id/avatar"
+        android:layout_toStartOf="@id/active"
+        android:layout_toEndOf="@id/avatar"
         android:orientation="vertical">
 
         <TextView

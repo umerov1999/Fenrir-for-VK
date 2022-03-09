@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.model.VKApiPost;
 import dev.ragnarok.fenrir.db.model.PostUpdate;
 import dev.ragnarok.fenrir.domain.IFeedInteractor;
@@ -36,7 +36,7 @@ public class NewsFeedSearchPresenter extends AbsSearchPresenter<INewsFeedSearchV
         walls = Repository.INSTANCE.getWalls();
 
         appendDisposable(walls.observeMinorChanges()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostUpdate, RxUtils.ignore()));
     }
 

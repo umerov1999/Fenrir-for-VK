@@ -31,14 +31,14 @@ class KeysPersistStorage extends AbsStorage implements IKeysStorage {
 
     private AesKeyPair map(Cursor cursor) {
         return new AesKeyPair()
-                .setVersion(cursor.getInt(cursor.getColumnIndex(KeyColumns.VERSION)))
-                .setPeerId(cursor.getInt(cursor.getColumnIndex(KeyColumns.PEER_ID)))
-                .setSessionId(cursor.getLong(cursor.getColumnIndex(KeyColumns.SESSION_ID)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(KeyColumns.DATE)))
-                .setStartMessageId(cursor.getInt(cursor.getColumnIndex(KeyColumns.START_SESSION_MESSAGE_ID)))
-                .setEndMessageId(cursor.getInt(cursor.getColumnIndex(KeyColumns.END_SESSION_MESSAGE_ID)))
-                .setHisAesKey(cursor.getString(cursor.getColumnIndex(KeyColumns.IN_KEY)))
-                .setMyAesKey(cursor.getString(cursor.getColumnIndex(KeyColumns.OUT_KEY)));
+                .setVersion(cursor.getInt(cursor.getColumnIndexOrThrow(KeyColumns.VERSION)))
+                .setPeerId(cursor.getInt(cursor.getColumnIndexOrThrow(KeyColumns.PEER_ID)))
+                .setSessionId(cursor.getLong(cursor.getColumnIndexOrThrow(KeyColumns.SESSION_ID)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(KeyColumns.DATE)))
+                .setStartMessageId(cursor.getInt(cursor.getColumnIndexOrThrow(KeyColumns.START_SESSION_MESSAGE_ID)))
+                .setEndMessageId(cursor.getInt(cursor.getColumnIndexOrThrow(KeyColumns.END_SESSION_MESSAGE_ID)))
+                .setHisAesKey(cursor.getString(cursor.getColumnIndexOrThrow(KeyColumns.IN_KEY)))
+                .setMyAesKey(cursor.getString(cursor.getColumnIndexOrThrow(KeyColumns.OUT_KEY)));
     }
 
     @Override

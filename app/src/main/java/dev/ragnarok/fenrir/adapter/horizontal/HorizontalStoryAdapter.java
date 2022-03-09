@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Calendar;
@@ -59,6 +60,7 @@ public class HorizontalStoryAdapter extends RecyclerBindableAdapter<Story, Horiz
         holder.itemView.setOnClickListener(v -> listener.onOptionClick(item, position));
     }
 
+    @NonNull
     @Override
     protected Holder viewHolder(View view, int type) {
         return new Holder(view);

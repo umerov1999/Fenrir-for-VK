@@ -66,6 +66,18 @@ class CustomToast private constructor(context: Context?, Timage: Bitmap?) {
         showToastSuccessBottom(mContext.resources.getString(message, *params))
     }
 
+    fun showToastWarningBottom(message: String?) {
+        if (mContext == null) return
+        val t = getToast(mContext, message, Color.parseColor("#AAED760E"))
+        t.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM, 0, 40)
+        t.show()
+    }
+
+    fun showToastWarningBottom(@StringRes message: Int, vararg params: Any?) {
+        if (mContext == null) return
+        showToastWarningBottom(mContext.resources.getString(message, *params))
+    }
+
     fun showToastInfo(message: String?) {
         if (mContext == null) return
         val t = getToast(mContext, message, ThemesController.toastColor(true))

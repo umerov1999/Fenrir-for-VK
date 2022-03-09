@@ -45,19 +45,19 @@ abstract class RequestHandler {
         /**
          * Returns the resulting [Picasso.LoadedFrom] generated from a [load] call.
          */
-        @JvmField val loadedFrom: LoadedFrom,
+        val loadedFrom: LoadedFrom,
         /**
          * Returns the resulting EXIF rotation generated from a [load] call.
          */
-        @JvmField val exifRotation: Int = 0
+        val exifRotation: Int = 0
     ) {
-        class Bitmap @JvmOverloads constructor(
+        class Bitmap constructor(
             var bitmap: android.graphics.Bitmap,
             loadedFrom: LoadedFrom,
             exifRotation: Int = 0
         ) : Result(loadedFrom, exifRotation)
 
-        class Drawable @JvmOverloads constructor(
+        class Drawable constructor(
             val drawable: android.graphics.drawable.Drawable,
             loadedFrom: LoadedFrom,
             exifRotation: Int = 0

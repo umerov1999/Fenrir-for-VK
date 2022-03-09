@@ -67,6 +67,7 @@ public class DocsAdapter extends RecyclerBindableAdapter<Document, DocsAdapter.D
                 && mActionListener.onDocLongClick(getItemRawPosition(holder.getBindingAdapterPosition()), item));
     }
 
+    @NonNull
     @Override
     protected DocViewHolder viewHolder(View view, int type) {
         return new DocViewHolder(view);

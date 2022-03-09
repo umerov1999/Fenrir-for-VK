@@ -14,7 +14,7 @@ import androidx.annotation.StringRes;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.model.VKApiCommunity;
 import dev.ragnarok.fenrir.domain.ICommunitiesInteractor;
@@ -61,7 +61,7 @@ public class GroupWallPresenter extends AbsWallPresenter<IGroupWallView> {
         ownersRepository = Repository.INSTANCE.getOwners();
         faveInteractor = InteractorFactory.createFaveInteractor();
         communitiesInteractor = InteractorFactory.createCommunitiesInteractor();
-        settings = Injection.provideSettings().accounts();
+        settings = Includes.getSettings().accounts();
         wallsRepository = Repository.INSTANCE.getWalls();
 
         filters = new ArrayList<>();
@@ -459,7 +459,7 @@ public class GroupWallPresenter extends AbsWallPresenter<IGroupWallView> {
         /*final int accountId = super.getAccountId();
         final int grouId = Math.abs(ownerId);
 
-        IGroupSettingsInteractor interactor = new GroupSettingsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores().owners());
+        IGroupSettingsInteractor interactor = new GroupSettingsInteractor(Includes.getNetworkInterfaces(), Includes.getStores().owners());
         appendDisposable(interactor.getGroupSettings(accountId, grouId)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
                 .subscribe(this::onSettingsReceived, throwable -> {

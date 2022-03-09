@@ -92,12 +92,12 @@ class FeedStorage extends AbsStorage implements IFeedStorage {
     }
 
     private static FeedListEntity mapList(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
-        String title = cursor.getString(cursor.getColumnIndex(FeedListsColumns.TITLE));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+        String title = cursor.getString(cursor.getColumnIndexOrThrow(FeedListsColumns.TITLE));
 
         FeedListEntity entity = new FeedListEntity(id).setTitle(title);
 
-        String sources = cursor.getString(cursor.getColumnIndex(FeedListsColumns.SOURCE_IDS));
+        String sources = cursor.getString(cursor.getColumnIndexOrThrow(FeedListsColumns.SOURCE_IDS));
 
         int[] sourceIds = null;
 
@@ -112,7 +112,7 @@ class FeedStorage extends AbsStorage implements IFeedStorage {
         }
 
         return entity.setSourceIds(sourceIds)
-                .setNoReposts(cursor.getInt(cursor.getColumnIndex(FeedListsColumns.NO_REPOSTS)) == 1);
+                .setNoReposts(cursor.getInt(cursor.getColumnIndexOrThrow(FeedListsColumns.NO_REPOSTS)) == 1);
     }
 
     @Override
@@ -258,7 +258,7 @@ class FeedStorage extends AbsStorage implements IFeedStorage {
     }*/
 
     private NewsEntity mapNewsBase(Cursor cursor) {
-        String friendString = cursor.getString(cursor.getColumnIndex(NewsColumns.TAG_FRIENDS));
+        String friendString = cursor.getString(cursor.getColumnIndexOrThrow(NewsColumns.TAG_FRIENDS));
 
         ArrayList<Integer> friends = null;
         if (nonEmpty(friendString)) {
@@ -272,29 +272,29 @@ class FeedStorage extends AbsStorage implements IFeedStorage {
 
         NewsEntity dbo = new NewsEntity()
                 .setFriendsTags(friends)
-                .setType(cursor.getString(cursor.getColumnIndex(NewsColumns.TYPE)))
-                .setSourceId(cursor.getInt(cursor.getColumnIndex(NewsColumns.SOURCE_ID)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(NewsColumns.DATE)))
-                .setPostId(cursor.getInt(cursor.getColumnIndex(NewsColumns.POST_ID)))
-                .setPostType(cursor.getString(cursor.getColumnIndex(NewsColumns.POST_TYPE)))
-                .setFinalPost(cursor.getInt(cursor.getColumnIndex(NewsColumns.FINAL_POST)) == 1)
-                .setCopyOwnerId(cursor.getInt(cursor.getColumnIndex(NewsColumns.COPY_OWNER_ID)))
-                .setCopyPostId(cursor.getInt(cursor.getColumnIndex(NewsColumns.COPY_POST_ID)))
-                .setCopyPostDate(cursor.getLong(cursor.getColumnIndex(NewsColumns.COPY_POST_DATE)))
-                .setText(cursor.getString(cursor.getColumnIndex(NewsColumns.TEXT)))
-                .setCanEdit(cursor.getInt(cursor.getColumnIndex(NewsColumns.CAN_EDIT)) == 1)
-                .setCanDelete(cursor.getInt(cursor.getColumnIndex(NewsColumns.CAN_DELETE)) == 1)
-                .setCommentCount(cursor.getInt(cursor.getColumnIndex(NewsColumns.COMMENT_COUNT)))
-                .setCanPostComment(cursor.getInt(cursor.getColumnIndex(NewsColumns.COMMENT_CAN_POST)) == 1)
-                .setLikesCount(cursor.getInt(cursor.getColumnIndex(NewsColumns.LIKE_COUNT)))
-                .setUserLikes(cursor.getInt(cursor.getColumnIndex(NewsColumns.USER_LIKE)) == 1)
-                .setCanLike(cursor.getInt(cursor.getColumnIndex(NewsColumns.CAN_LIKE)) == 1)
-                .setCanPublish(cursor.getInt(cursor.getColumnIndex(NewsColumns.CAN_PUBLISH)) == 1)
-                .setRepostCount(cursor.getInt(cursor.getColumnIndex(NewsColumns.REPOSTS_COUNT)))
-                .setUserReposted(cursor.getInt(cursor.getColumnIndex(NewsColumns.USER_REPOSTED)) == 1)
-                .setViews(cursor.getInt(cursor.getColumnIndex(NewsColumns.VIEWS)));
+                .setType(cursor.getString(cursor.getColumnIndexOrThrow(NewsColumns.TYPE)))
+                .setSourceId(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.SOURCE_ID)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(NewsColumns.DATE)))
+                .setPostId(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.POST_ID)))
+                .setPostType(cursor.getString(cursor.getColumnIndexOrThrow(NewsColumns.POST_TYPE)))
+                .setFinalPost(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.FINAL_POST)) == 1)
+                .setCopyOwnerId(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.COPY_OWNER_ID)))
+                .setCopyPostId(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.COPY_POST_ID)))
+                .setCopyPostDate(cursor.getLong(cursor.getColumnIndexOrThrow(NewsColumns.COPY_POST_DATE)))
+                .setText(cursor.getString(cursor.getColumnIndexOrThrow(NewsColumns.TEXT)))
+                .setCanEdit(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.CAN_EDIT)) == 1)
+                .setCanDelete(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.CAN_DELETE)) == 1)
+                .setCommentCount(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.COMMENT_COUNT)))
+                .setCanPostComment(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.COMMENT_CAN_POST)) == 1)
+                .setLikesCount(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.LIKE_COUNT)))
+                .setUserLikes(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.USER_LIKE)) == 1)
+                .setCanLike(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.CAN_LIKE)) == 1)
+                .setCanPublish(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.CAN_PUBLISH)) == 1)
+                .setRepostCount(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.REPOSTS_COUNT)))
+                .setUserReposted(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.USER_REPOSTED)) == 1)
+                .setViews(cursor.getInt(cursor.getColumnIndexOrThrow(NewsColumns.VIEWS)));
 
-        String attachmentsJson = cursor.getString(cursor.getColumnIndex(NewsColumns.ATTACHMENTS_JSON));
+        String attachmentsJson = cursor.getString(cursor.getColumnIndexOrThrow(NewsColumns.ATTACHMENTS_JSON));
 
         if (nonEmpty(attachmentsJson)) {
             AttachmentsEntity attachmentsEntity = GSON.fromJson(attachmentsJson, AttachmentsEntity.class);

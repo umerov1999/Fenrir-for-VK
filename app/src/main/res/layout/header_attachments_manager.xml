@@ -32,7 +32,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="4dp"
-                    android:layout_toStartOf="@+id/button_disable_postpone"
+                    android:layout_toStartOf="@id/button_disable_postpone"
                     android:padding="8dp"
                     android:text="@string/will_be_posted_at"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />

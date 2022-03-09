@@ -5,14 +5,15 @@ import android.app.Application
 import android.os.Handler
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.internal.ConstructorConstructor
+import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.model.PeerUpdate
 import dev.ragnarok.fenrir.model.SentMsg
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.fenrir.picasso.PicassoInstance
-import dev.ragnarok.fenrir.player.MusicPlaybackController
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.service.KeepLongpollService
 import dev.ragnarok.fenrir.settings.Settings
@@ -23,7 +24,6 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.existfile.FileExistJVM
 import dev.ragnarok.fenrir.util.existfile.FileExistNative
 import ealvatag.tag.TagOptionSingleton
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
@@ -55,7 +55,7 @@ class App : Application() {
         RLottieDrawable.setCacheResourceAnimation(Settings.get().other().isEnable_cache_ui_anim)
         TagOptionSingleton.getInstance().isAndroid = true
         MusicPlaybackController.registerBroadcast(this)
-        PicassoInstance.init(this, Injection.provideProxySettings())
+        PicassoInstance.init(this, Includes.proxySettings)
         if (Settings.get().other().isKeepLongpoll) {
             KeepLongpollService.start(this)
         }
@@ -86,7 +86,7 @@ class App : Application() {
         compositeDisposable.add(
             messages
                 .observeMessagesSendErrors()
-                .observeOn(AndroidSchedulers.mainThread())
+                .toMainThread()
                 .subscribe({ throwable: Throwable ->
                     run {
                         CreateCustomToast(this).showToastError(

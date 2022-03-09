@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Calendar;
@@ -51,7 +52,7 @@ public class FeedbackAdapter extends RecyclerBindableAdapter<Feedback, FeedbackA
     }
 
     @Override
-    protected void onBindItemViewHolder(FeedbackHolder viewHolder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull FeedbackHolder viewHolder, int position, int type) {
         Feedback item = getItem(position);
         Feedback previous = position > 0 ? getItem(position - 1) : null;
 
@@ -223,6 +224,7 @@ public class FeedbackAdapter extends RecyclerBindableAdapter<Feedback, FeedbackA
         return getItemViewType(notification);
     }
 
+    @NonNull
     @Override
     protected FeedbackHolder viewHolder(View view, int type) {
         switch (type) {
@@ -232,7 +234,7 @@ public class FeedbackAdapter extends RecyclerBindableAdapter<Feedback, FeedbackA
                 return new UsersHolder(view);
         }
 
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -244,7 +246,7 @@ public class FeedbackAdapter extends RecyclerBindableAdapter<Feedback, FeedbackA
                 return R.layout.item_feedback_user;
         }
 
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     private int getHeaderStatus(Feedback previous, long date) {

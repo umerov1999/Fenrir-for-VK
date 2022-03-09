@@ -69,7 +69,7 @@ public class AttchmentsEditorAdapter extends RecyclerBindableAdapter<AttachmentE
     }
 
     @Override
-    protected void onBindItemViewHolder(ViewHolder holder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull ViewHolder holder, int position, int type) {
         AttachmentEntry attachment = getItem(position);
 
         sharedHolders.put(attachment.getId(), holder);
@@ -91,6 +91,7 @@ public class AttchmentsEditorAdapter extends RecyclerBindableAdapter<AttachmentE
         sharedHolders.release();
     }
 
+    @NonNull
     @Override
     protected ViewHolder viewHolder(View view, int type) {
         return new ViewHolder(view);

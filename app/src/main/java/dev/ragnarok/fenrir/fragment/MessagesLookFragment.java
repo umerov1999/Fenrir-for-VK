@@ -329,18 +329,18 @@ public class MessagesLookFragment extends PlaceSupportMvpFragment<MessagesLookPr
                 .apply(requireActivity());
     }
 
-    class ActionModeHolder implements View.OnClickListener {
-        public View buttonClose;
-        public View rootView;
-        public View buttonEdit;
-        public View buttonForward;
-        public View buttonCopy;
-        public View buttonDelete;
-        public View buttonPin;
-        public View buttonSpam;
-        public ImageView buttonStar;
-        public TextView titleView;
-        WeakReference<MessagesLookFragment> reference;
+    private class ActionModeHolder implements View.OnClickListener {
+        final View buttonClose;
+        final View rootView;
+        final View buttonEdit;
+        final View buttonForward;
+        final View buttonCopy;
+        final View buttonDelete;
+        final View buttonPin;
+        final View buttonSpam;
+        final ImageView buttonStar;
+        final TextView titleView;
+        final WeakReference<MessagesLookFragment> reference;
 
         public ActionModeHolder(View rootView, MessagesLookFragment fragment) {
             this.rootView = rootView;

@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.domain.ICommentsInteractor;
 import dev.ragnarok.fenrir.domain.Repository;
@@ -45,7 +45,7 @@ public class CommentEditPresenter extends AbsAttachmentsEditPresenter<ICommentEd
 
     public CommentEditPresenter(Comment comment, int accountId, Integer CommentThread, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
-        commentsInteractor = new CommentsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Repository.INSTANCE.getOwners());
+        commentsInteractor = new CommentsInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Repository.INSTANCE.getOwners());
         orig = comment;
         destination = UploadDestination.forComment(comment.getId(), comment.getCommented().getSourceOwnerId());
         this.CommentThread = CommentThread;
@@ -62,23 +62,23 @@ public class CommentEditPresenter extends AbsAttachmentsEditPresenter<ICommentEd
         Predicate<Upload> predicate = upload -> upload.getAccountId() == getAccountId() && destination.compareTo(upload.getDestination());
 
         appendDisposable(uploadManager.observeAdding()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(added -> onUploadQueueUpdates(added, predicate)));
 
         appendDisposable(uploadManager.observeDeleting(false)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadObjectRemovedFromQueue));
 
         appendDisposable(uploadManager.obseveStatus()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadStatusUpdate));
 
         appendDisposable(uploadManager.observeProgress()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadProgressUpdate));
 
         appendDisposable(uploadManager.observeResults()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadsQueueChanged));
     }
 

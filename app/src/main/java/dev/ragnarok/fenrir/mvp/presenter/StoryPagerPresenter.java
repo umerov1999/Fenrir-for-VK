@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import dev.ragnarok.fenrir.App;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.media.gif.IGifPlayer;
 import dev.ragnarok.fenrir.media.gif.PlayerPrepareException;
@@ -114,7 +114,7 @@ public class StoryPagerPresenter extends AccountDependencyPresenter<IStoryPagerV
             return;
         }
 
-        mGifPlayer = Injection.provideGifPlayerFactory().createGifPlayer(url, false);
+        mGifPlayer = Includes.getGifPlayerFactory().createGifPlayer(url, false);
         mGifPlayer.addStatusChangeListener(this);
         mGifPlayer.addVideoSizeChangeListener(this);
 

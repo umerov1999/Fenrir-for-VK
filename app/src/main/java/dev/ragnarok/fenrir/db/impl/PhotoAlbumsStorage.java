@@ -139,30 +139,30 @@ class PhotoAlbumsStorage extends AbsStorage implements IPhotoAlbumsStorage {
     }
 
     private PhotoAlbumEntity mapAlbum(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(PhotoAlbumsColumns.ALBUM_ID));
-        int ownerId = cursor.getInt(cursor.getColumnIndex(PhotoAlbumsColumns.OWNER_ID));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.ALBUM_ID));
+        int ownerId = cursor.getInt(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.OWNER_ID));
 
         PhotoAlbumEntity album = new PhotoAlbumEntity().set(id, ownerId)
-                .setTitle(cursor.getString(cursor.getColumnIndex(PhotoAlbumsColumns.TITLE)))
-                .setSize(cursor.getInt(cursor.getColumnIndex(PhotoAlbumsColumns.SIZE)))
-                .setDescription(cursor.getString(cursor.getColumnIndex(PhotoAlbumsColumns.DESCRIPTION)))
-                .setCanUpload(cursor.getInt(cursor.getColumnIndex(PhotoAlbumsColumns.CAN_UPLOAD)) == 1)
-                .setUpdatedTime(cursor.getLong(cursor.getColumnIndex(PhotoAlbumsColumns.UPDATED)))
-                .setCreatedTime(cursor.getLong(cursor.getColumnIndex(PhotoAlbumsColumns.CREATED)))
-                .setUploadByAdminsOnly(cursor.getInt(cursor.getColumnIndex(PhotoAlbumsColumns.UPLOAD_BY_ADMINS)) == 1)
-                .setCommentsDisabled(cursor.getInt(cursor.getColumnIndex(PhotoAlbumsColumns.COMMENTS_DISABLED)) == 1);
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.TITLE)))
+                .setSize(cursor.getInt(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.SIZE)))
+                .setDescription(cursor.getString(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.DESCRIPTION)))
+                .setCanUpload(cursor.getInt(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.CAN_UPLOAD)) == 1)
+                .setUpdatedTime(cursor.getLong(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.UPDATED)))
+                .setCreatedTime(cursor.getLong(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.CREATED)))
+                .setUploadByAdminsOnly(cursor.getInt(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.UPLOAD_BY_ADMINS)) == 1)
+                .setCommentsDisabled(cursor.getInt(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.COMMENTS_DISABLED)) == 1);
 
-        String sizesJson = cursor.getString(cursor.getColumnIndex(PhotoAlbumsColumns.SIZES));
+        String sizesJson = cursor.getString(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.SIZES));
         if (nonEmpty(sizesJson)) {
             album.setSizes(GSON.fromJson(sizesJson, PhotoSizeEntity.class));
         }
 
-        String privacyViewText = cursor.getString(cursor.getColumnIndex(PhotoAlbumsColumns.PRIVACY_VIEW));
+        String privacyViewText = cursor.getString(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.PRIVACY_VIEW));
         if (nonEmpty(privacyViewText)) {
             album.setPrivacyView(GSON.fromJson(privacyViewText, PrivacyEntity.class));
         }
 
-        String privacyCommentText = cursor.getString(cursor.getColumnIndex(PhotoAlbumsColumns.PRIVACY_COMMENT));
+        String privacyCommentText = cursor.getString(cursor.getColumnIndexOrThrow(PhotoAlbumsColumns.PRIVACY_COMMENT));
         if (nonEmpty(privacyCommentText)) {
             album.setPrivacyComment(GSON.fromJson(privacyCommentText, PrivacyEntity.class));
         }

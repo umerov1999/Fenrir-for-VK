@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.Utils
 
-class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ImageVewHolder>() {
+class ImageListAdapter : RecyclerView.Adapter<ImageListAdapter.ImageVewHolder>() {
 
     private var mData: List<Photo> = arrayListOf()
     private var mCurrentSelectedIndex = -1
@@ -30,7 +30,7 @@ class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ImageVewHolder>() {
         return mData.size
     }
 
-    override fun onBindViewHolder(holder: ImageAdapter.ImageVewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ImageListAdapter.ImageVewHolder, position: Int) {
         holder.bind(mData[position], position)
     }
 

@@ -105,7 +105,7 @@ abstract class TwoStatePreference(key: String) : StatefulPreference(key) {
                 )
             }
         }
-        (holder.widget as CompoundButton).isChecked = checkedInternal
+        (holder.widget as CompoundButton?)?.isChecked = checkedInternal
     }
 
     override fun onClick(holder: PreferencesAdapter.ViewHolder) {

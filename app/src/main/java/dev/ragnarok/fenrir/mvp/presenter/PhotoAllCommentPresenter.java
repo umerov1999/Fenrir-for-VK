@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity;
 import dev.ragnarok.fenrir.domain.ICommentsInteractor;
@@ -54,7 +54,7 @@ public class PhotoAllCommentPresenter extends PlaceSupportPresenter<IPhotoAllCom
         this.owner_id = owner_id;
 
         photosInteractor = InteractorFactory.createPhotosInteractor();
-        interactor = new CommentsInteractor(Injection.provideNetworkInterfaces(), Injection.provideStores(), Repository.INSTANCE.getOwners());
+        interactor = new CommentsInteractor(Includes.getNetworkInterfaces(), Includes.getStores(), Repository.INSTANCE.getOwners());
         mComments = new ArrayList<>();
 
         requestAtLast();

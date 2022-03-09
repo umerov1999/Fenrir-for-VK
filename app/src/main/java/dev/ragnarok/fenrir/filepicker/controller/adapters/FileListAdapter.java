@@ -129,9 +129,9 @@ public class FileListAdapter extends BaseAdapter {
     }
 
     private static class ViewHolder {
-        ImageView type_icon;
-        TextView name, type;
-        MaterialCheckbox checkbox;
+        final ImageView type_icon;
+        final TextView name, type;
+        final MaterialCheckbox checkbox;
 
         ViewHolder(View itemView) {
             name = itemView.findViewById(R.id.fname);

@@ -387,37 +387,37 @@ class WallStorage extends AbsStorage implements IWallStorage {
     }
 
     private PostEntity mapDbo(int accountId, Cursor cursor, boolean includeAttachments, boolean forceAttachments, @NonNull Cancelable cancelable) {
-        int dbid = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
-        int attachmentsMask = cursor.getInt(cursor.getColumnIndex(PostsColumns.ATTACHMENTS_MASK));
-        int postId = cursor.getInt(cursor.getColumnIndex(PostsColumns.POST_ID));
-        int ownerId = cursor.getInt(cursor.getColumnIndex(PostsColumns.OWNER_ID));
+        int dbid = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+        int attachmentsMask = cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.ATTACHMENTS_MASK));
+        int postId = cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.POST_ID));
+        int ownerId = cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.OWNER_ID));
 
         PostEntity dbo = new PostEntity().set(postId, ownerId)
                 .setDbid(dbid)
-                .setFromId(cursor.getInt(cursor.getColumnIndex(PostsColumns.FROM_ID)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(PostsColumns.DATE)))
-                .setText(cursor.getString(cursor.getColumnIndex(PostsColumns.TEXT)))
-                .setReplyOwnerId(cursor.getInt(cursor.getColumnIndex(PostsColumns.REPLY_OWNER_ID)))
-                .setReplyPostId(cursor.getInt(cursor.getColumnIndex(PostsColumns.REPLY_POST_ID)))
-                .setFriendsOnly(cursor.getInt(cursor.getColumnIndex(PostsColumns.FRIENDS_ONLY)) == 1)
-                .setCommentsCount(cursor.getInt(cursor.getColumnIndex(PostsColumns.COMMENTS_COUNT)))
-                .setCanPostComment(cursor.getInt(cursor.getColumnIndex(PostsColumns.CAN_POST_COMMENT)) == 1)
-                .setLikesCount(cursor.getInt(cursor.getColumnIndex(PostsColumns.LIKES_COUNT)))
-                .setCanLike(cursor.getInt(cursor.getColumnIndex(PostsColumns.CAN_LIKE)) == 1)
-                .setUserLikes(cursor.getInt(cursor.getColumnIndex(PostsColumns.USER_LIKES)) == 1)
-                .setRepostCount(cursor.getInt(cursor.getColumnIndex(PostsColumns.REPOSTS_COUNT)))
-                .setCanPublish(cursor.getInt(cursor.getColumnIndex(PostsColumns.CAN_PUBLISH)) == 1)
-                .setUserReposted(cursor.getInt(cursor.getColumnIndex(PostsColumns.USER_REPOSTED)) == 1)
-                .setPostType(cursor.getInt(cursor.getColumnIndex(PostsColumns.POST_TYPE)))
-                .setSignedId(cursor.getInt(cursor.getColumnIndex(PostsColumns.SIGNED_ID)))
-                .setCreatedBy(cursor.getInt(cursor.getColumnIndex(PostsColumns.CREATED_BY)))
-                .setCanPin(cursor.getInt(cursor.getColumnIndex(PostsColumns.CAN_PIN)) == 1)
-                .setPinned(cursor.getInt(cursor.getColumnIndex(PostsColumns.IS_PINNED)) == 1)
-                .setDeleted(cursor.getInt(cursor.getColumnIndex(PostsColumns.DELETED)) == 1)
-                .setViews(cursor.getInt(cursor.getColumnIndex(PostsColumns.VIEWS)))
-                .setCanEdit(cursor.getInt(cursor.getColumnIndex(PostsColumns.CAN_EDIT)) == 1);
+                .setFromId(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.FROM_ID)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(PostsColumns.DATE)))
+                .setText(cursor.getString(cursor.getColumnIndexOrThrow(PostsColumns.TEXT)))
+                .setReplyOwnerId(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.REPLY_OWNER_ID)))
+                .setReplyPostId(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.REPLY_POST_ID)))
+                .setFriendsOnly(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.FRIENDS_ONLY)) == 1)
+                .setCommentsCount(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.COMMENTS_COUNT)))
+                .setCanPostComment(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.CAN_POST_COMMENT)) == 1)
+                .setLikesCount(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.LIKES_COUNT)))
+                .setCanLike(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.CAN_LIKE)) == 1)
+                .setUserLikes(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.USER_LIKES)) == 1)
+                .setRepostCount(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.REPOSTS_COUNT)))
+                .setCanPublish(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.CAN_PUBLISH)) == 1)
+                .setUserReposted(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.USER_REPOSTED)) == 1)
+                .setPostType(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.POST_TYPE)))
+                .setSignedId(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.SIGNED_ID)))
+                .setCreatedBy(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.CREATED_BY)))
+                .setCanPin(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.CAN_PIN)) == 1)
+                .setPinned(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.IS_PINNED)) == 1)
+                .setDeleted(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.DELETED)) == 1)
+                .setViews(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.VIEWS)))
+                .setCanEdit(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.CAN_EDIT)) == 1);
 
-        String postSourceText = cursor.getString(cursor.getColumnIndex(PostsColumns.POST_SOURCE));
+        String postSourceText = cursor.getString(cursor.getColumnIndexOrThrow(PostsColumns.POST_SOURCE));
         if (nonEmpty(postSourceText)) {
             dbo.setSource(GSON.fromJson(postSourceText, PostEntity.SourceDbo.class));
         }

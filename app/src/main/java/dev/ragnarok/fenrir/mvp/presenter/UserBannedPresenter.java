@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.domain.IAccountsInteractor;
 import dev.ragnarok.fenrir.domain.IBlacklistRepository;
 import dev.ragnarok.fenrir.domain.InteractorFactory;
@@ -41,18 +41,18 @@ public class UserBannedPresenter extends AccountDependencyPresenter<IUserBannedV
 
         loadNextPart(0);
 
-        IBlacklistRepository repository = Injection.provideBlacklistRepository();
+        IBlacklistRepository repository = Includes.getBlacklistRepository();
 
         appendDisposable(repository.observeAdding()
                 .filter(pair -> pair.getFirst() == getAccountId())
                 .map(Pair::getSecond)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUserAdded));
 
         appendDisposable(repository.observeRemoving()
                 .filter(pair -> pair.getFirst() == getAccountId())
                 .map(Pair::getSecond)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUserRemoved));
     }
 

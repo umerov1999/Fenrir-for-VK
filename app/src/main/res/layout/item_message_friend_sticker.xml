@@ -39,8 +39,8 @@
             android:id="@+id/item_message_important"
             android:layout_width="@dimen/online_dot_size"
             android:layout_height="@dimen/online_dot_size"
-            android:layout_alignStart="@+id/item_message_avatar"
-            android:layout_alignBottom="@+id/item_message_avatar"
+            android:layout_alignStart="@id/item_message_avatar"
+            android:layout_alignBottom="@id/item_message_avatar"
             android:padding="3dp"
             android:src="@drawable/star"
             app:circle_color="?icon_color_active"
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_toEndOf="@+id/item_message_avatar"
+            android:layout_toEndOf="@id/item_message_avatar"
             android:orientation="vertical">
 
             <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView

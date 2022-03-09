@@ -57,7 +57,7 @@ import java.util.List;
 
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.db.Stores;
 import dev.ragnarok.fenrir.dialog.ResolveDomainDialog;
@@ -150,6 +150,8 @@ import dev.ragnarok.fenrir.listener.BackPressCallback;
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback;
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback;
 import dev.ragnarok.fenrir.listener.UpdatableNavigation;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackService;
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment;
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest;
 import dev.ragnarok.fenrir.model.Audio;
@@ -170,8 +172,6 @@ import dev.ragnarok.fenrir.mvp.view.IVkPhotosView;
 import dev.ragnarok.fenrir.place.Place;
 import dev.ragnarok.fenrir.place.PlaceFactory;
 import dev.ragnarok.fenrir.place.PlaceProvider;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
-import dev.ragnarok.fenrir.player.MusicPlaybackService;
 import dev.ragnarok.fenrir.push.IPushRegistrationResolver;
 import dev.ragnarok.fenrir.settings.CurrentTheme;
 import dev.ragnarok.fenrir.settings.ISettings;
@@ -365,11 +365,11 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
         mCompositeDisposable.add(Settings.get()
                 .accounts()
                 .observeChanges()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onCurrentAccountChange));
 
-        mCompositeDisposable.add(Injection.provideProxySettings()
-                .observeActive().observeOn(Injection.provideMainThreadScheduler())
+        mCompositeDisposable.add(Includes.getProxySettings()
+                .observeActive().observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(o -> MusicPlaybackController.stop()));
 
         mCompositeDisposable.add(Stores.getInstance()
@@ -495,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
     }
 
     private void updateNotificationCount(int account) {
-        mCompositeDisposable.add(new CountersInteractor(Injection.provideNetworkInterfaces()).getApiCounters(account)
+        mCompositeDisposable.add(new CountersInteractor(Includes.getNetworkInterfaces()).getApiCounters(account)
                 .compose(RxUtils.applySingleIOToMainSchedulers())
                 .subscribe(this::updateNotificationsBadge, t -> removeNotificationsBadge()));
     }
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
             return;
         }
 
-        IPushRegistrationResolver resolver = Injection.providePushRegistrationResolver();
+        IPushRegistrationResolver resolver = Includes.getPushRegistrationResolver();
 
         mCompositeDisposable.add(resolver.resolvePushRegistration()
                 .compose(RxUtils.applyCompletableIOToMainSchedulers())
@@ -1064,7 +1064,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
     }
 
     @Override
-    public void onSectionResume(SectionMenuItem sectionDrawerItem) {
+    public void onSectionResume(@NonNull SectionMenuItem sectionDrawerItem) {
         getNavigationFragment().selectPage(sectionDrawerItem);
 
         if (nonNull(mBottomNavigation)) {
@@ -1518,7 +1518,7 @@ public class MainActivity extends AppCompatActivity implements AbsNavigationFrag
                 break;
 
             case Place.SETTINGS_THEME:
-                ThemeFragment themes = ThemeFragment.newInstance();
+                ThemeFragment themes = new ThemeFragment();
                 attachToFront(themes);
                 if (getNavigationFragment().isSheetOpen()) {
                     getNavigationFragment().closeSheet();

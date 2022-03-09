@@ -358,8 +358,8 @@ class PreferencesAdapter @VisibleForTesting constructor(
     fun restoreAndObserveScrollPosition(preferenceView: RecyclerView) {
         with(currentScreen) {
             if (scrollPosition != 0 || scrollOffset != 0) {
-                val layoutManager = preferenceView.layoutManager as LinearLayoutManager
-                layoutManager.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+                val layoutManager = preferenceView.layoutManager as LinearLayoutManager?
+                layoutManager?.scrollToPositionWithOffset(scrollPosition, scrollOffset)
             }
         }
         preferenceView.addOnScrollListener(scrollListener)
@@ -372,8 +372,8 @@ class PreferencesAdapter @VisibleForTesting constructor(
     private val scrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(r: RecyclerView, state: Int) {
             if (state == RecyclerView.SCROLL_STATE_IDLE) currentScreen.apply {
-                val layoutManager = r.layoutManager as LinearLayoutManager
-                scrollPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+                val layoutManager = r.layoutManager as LinearLayoutManager?
+                scrollPosition = layoutManager?.findFirstCompletelyVisibleItemPosition() ?: 0
                 scrollOffset =
                     r.findViewHolderForAdapterPosition(scrollPosition)?.run { itemView.top } ?: 0
             }
@@ -387,7 +387,7 @@ class PreferencesAdapter @VisibleForTesting constructor(
         type: Int,
         view: View,
     ) : RecyclerView.ViewHolder(view) {
-        val root: ViewGroup get() = itemView as ViewGroup
+        val root get() = itemView as ViewGroup
         val iconFrame: View = itemView.findViewById(R.id.map_icon_frame)
         val icon: ImageView? = itemView.findViewById(android.R.id.icon)
         val title: TextView = itemView.findViewById(android.R.id.title)

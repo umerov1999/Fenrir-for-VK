@@ -93,6 +93,7 @@ public class TopicsAdapter extends RecyclerBindableAdapter<Topic, TopicsAdapter.
         holder.itemView.setOnClickListener(view -> mActionListener.onTopicClick(item));
     }
 
+    @NonNull
     @Override
     protected ViewHolder viewHolder(View view, int type) {
         return new ViewHolder(view);

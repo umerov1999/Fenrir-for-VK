@@ -31,7 +31,7 @@ class PhotosViewHelper internal constructor(
 ) {
     @PhotoSize
     private val mPhotoPreviewSize = Settings.get().main().prefPreviewImageSize
-    private val isAutoplay_gif = Settings.get().other().isAutoplay_gif
+    private val isAutoplayGif = Settings.get().other().isAutoplay_gif
 
     @SuppressLint("SetTextI18n")
     fun displayVideos(videos: List<PostImage>, container: ViewGroup) {
@@ -178,25 +178,28 @@ class PhotosViewHelper internal constructor(
                         )
                     }
                 }
-                if (isAutoplay_gif && image.type == PostImage.TYPE_GIF) {
-                    holder.vgPhoto.setDecoderCallback {
-                        if (!it) {
-                            holder.ivPlay.visibility = View.VISIBLE
-                            if (Utils.nonEmpty(url)) {
-                                PicassoInstance.with()
-                                    .load(url)
-                                    .placeholder(R.drawable.background_gray)
-                                    .tag(Constants.PICASSO_TAG)
-                                    .into(holder.vgPhoto)
-                                tmpV.visibility = View.VISIBLE
+                if (isAutoplayGif && image.type == PostImage.TYPE_GIF) {
+                    holder.vgPhoto.setDecoderCallback(object :
+                        AnimatedShapeableImageView.OnDecoderInit {
+                        override fun onLoaded(success: Boolean) {
+                            if (!success) {
+                                holder.ivPlay.visibility = View.VISIBLE
+                                if (Utils.nonEmpty(url)) {
+                                    PicassoInstance.with()
+                                        .load(url)
+                                        .placeholder(R.drawable.background_gray)
+                                        .tag(Constants.PICASSO_TAG)
+                                        .into(holder.vgPhoto)
+                                    tmpV.visibility = View.VISIBLE
+                                } else {
+                                    PicassoInstance.with().cancelRequest(holder.vgPhoto)
+                                    tmpV.visibility = View.GONE
+                                }
                             } else {
-                                PicassoInstance.with().cancelRequest(holder.vgPhoto)
-                                tmpV.visibility = View.GONE
+                                holder.ivPlay.visibility = View.GONE
                             }
-                        } else {
-                            holder.ivPlay.visibility = View.GONE
                         }
-                    }
+                    })
                     holder.vgPhoto.fromNet(
                         ((image.attachment as Document).ownerId.toString() + "_" + (image.attachment as Document).id.toString()),
                         (image.attachment as Document).videoPreview?.src,
@@ -249,5 +252,4 @@ class PhotosViewHelper internal constructor(
         val tvDelay: TextView = itemView.findViewById(R.id.item_video_album_count)
 
     }
-
 }

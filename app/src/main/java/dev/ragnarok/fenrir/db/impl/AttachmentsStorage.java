@@ -172,9 +172,9 @@ class AttachmentsStorage extends AbsStorage implements IAttachmentsStorage {
                         break;
                     }
 
-                    int id = cursor.getInt(cursor.getColumnIndex(idColumnFor(attachToType)));
-                    int type = cursor.getInt(cursor.getColumnIndex(typeColumnFor(attachToType)));
-                    String json = cursor.getString(cursor.getColumnIndex(dataColumnFor(attachToType)));
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(idColumnFor(attachToType)));
+                    int type = cursor.getInt(cursor.getColumnIndexOrThrow(typeColumnFor(attachToType)));
+                    String json = cursor.getString(cursor.getColumnIndexOrThrow(dataColumnFor(attachToType)));
                     Entity entity = deserializeDbo(type, json);
 
                     dbos.add(Pair.Companion.create(id, entity));
@@ -205,8 +205,8 @@ class AttachmentsStorage extends AbsStorage implements IAttachmentsStorage {
                     break;
                 }
 
-                int type = cursor.getInt(cursor.getColumnIndex(typeColumnFor(attachToType)));
-                String json = cursor.getString(cursor.getColumnIndex(dataColumnFor(attachToType)));
+                int type = cursor.getInt(cursor.getColumnIndexOrThrow(typeColumnFor(attachToType)));
+                String json = cursor.getString(cursor.getColumnIndexOrThrow(dataColumnFor(attachToType)));
 
                 entities.add(deserializeDbo(type, json));
             }

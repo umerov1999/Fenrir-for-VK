@@ -5,7 +5,6 @@ import android.os.Parcelable;
 
 import java.util.List;
 
-import dev.ragnarok.fenrir.api.model.VkApiPrivacy;
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 
 public class SimplePrivacy implements Parcelable, ParcelNative.ParcelableNative {
@@ -139,8 +138,8 @@ public class SimplePrivacy implements Parcelable, ParcelNative.ParcelableNative 
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            VkApiPrivacy.Entry entry = (VkApiPrivacy.Entry) o;
-            return type == entry.type && id == entry.id && allowed == entry.allowed;
+            Entry entry = (Entry) o;
+            return type == entry.getType() && id == entry.getId() && allowed == entry.isAllowed();
         }
 
         @Override

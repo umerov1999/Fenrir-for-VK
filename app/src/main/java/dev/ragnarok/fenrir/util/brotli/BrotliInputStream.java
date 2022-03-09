@@ -40,8 +40,7 @@ public class BrotliInputStream extends InputStream {
      *
      * <p> For byte-by-byte reading ({@link #read()}) internal buffer with
      * {@link #DEFAULT_INTERNAL_BUFFER_SIZE} size is allocated and used.
-     *
-     * <p> Will block the thread until first {@link BitReader#CAPACITY} bytes of data of source
+     * <p>
      * are available.
      *
      * @param source underlying data source
@@ -56,8 +55,7 @@ public class BrotliInputStream extends InputStream {
      *
      * <p> For byte-by-byte reading ({@link #read()}) internal buffer of specified size is
      * allocated and used.
-     *
-     * <p> Will block the thread until first {@link BitReader#CAPACITY} bytes of data of source
+     * <p>
      * are available.
      *
      * @param source             compressed data source

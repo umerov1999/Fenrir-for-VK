@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.ActivityUtils;
 import dev.ragnarok.fenrir.activity.EnterPinActivity;
@@ -570,7 +570,7 @@ public class AccountsFragment extends BaseFragment implements View.OnClickListen
             out = new FileOutputStream(file);
             out.write(bytes);
             out.flush();
-            Injection.provideApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+            Includes.provideApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
             CustomToast.CreateCustomToast(requireActivity()).showToast(R.string.saved_to_param_file_name, file.getAbsolutePath());
         } catch (Exception e) {
             CustomToast.CreateCustomToast(requireActivity()).showToastError(e.getLocalizedMessage());

@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.adapter;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -62,6 +63,7 @@ public class ProxiesAdapter extends RecyclerBindableAdapter<ProxyConfig, Proxies
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
     protected Holder viewHolder(View view, int type) {
         return new Holder(view);

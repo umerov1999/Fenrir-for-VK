@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.interfaces.INetworker;
 import dev.ragnarok.fenrir.api.model.VKApiMessage;
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate;
@@ -62,9 +62,9 @@ class RealtimeMessagesProcessor implements IRealtimeMessagesProcessor {
     private volatile Entry current;
 
     RealtimeMessagesProcessor() {
-        app = Injection.provideApplicationContext();
-        repositories = Injection.provideStores();
-        networker = Injection.provideNetworkInterfaces();
+        app = Includes.provideApplicationContext();
+        repositories = Includes.getStores();
+        networker = Includes.getNetworkInterfaces();
         publishSubject = PublishSubject.create();
         queue = new LinkedList<>();
         notificationsInterceptors = new SparseArray<>(3);

@@ -436,13 +436,12 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
         void gotLocation(Location location);
     }
 
-    class MyLocation {
+    @SuppressWarnings("deprecation")
+    private class MyLocation {
         Timer timer1;
         LocationManager lm;
         LocationResult locationResult;
-        boolean gps_enabled;
-        boolean network_enabled;
-        LocationListener networkLocation = new LocationListener() {
+        final LocationListener networkLocation = new LocationListener() {
             public void onLocationChanged(Location location) {
                 timer1.cancel();
                 locationResult.gotLocation(location);
@@ -460,7 +459,7 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
             public void onStatusChanged(String provider, int status, Bundle extras) {
             }
         };
-        LocationListener gpsLocation = new LocationListener() {
+        final LocationListener gpsLocation = new LocationListener() {
             public void onLocationChanged(Location location) {
                 timer1.cancel();
                 locationResult.gotLocation(location);
@@ -478,6 +477,8 @@ public class FilterEditFragment extends BottomSheetDialogFragment implements Sea
             public void onStatusChanged(String provider, int status, Bundle extras) {
             }
         };
+        boolean gps_enabled;
+        boolean network_enabled;
 
         public boolean getLocation(Context context, LocationResult result) {
             if (Utils.hasMarshmallow() && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

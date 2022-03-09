@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.ApiException;
 import dev.ragnarok.fenrir.api.PercentagePublisher;
@@ -165,7 +165,7 @@ public class UploadManagerImpl implements IUploadManager {
         updateNotification(Collections.emptyList());
 
         notificationUpdateDisposable.add(observeProgress()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::updateNotification));
     }
 
@@ -307,7 +307,7 @@ public class UploadManagerImpl implements IUploadManager {
                     message = firstNonEmptyString(cause.getMessage(), cause.toString());
                 }
                 compositeDisposable.add(Completable.complete()
-                        .observeOn(Injection.provideMainThreadScheduler())
+                        .observeOn(Includes.provideMainThreadScheduler())
                         .subscribe(() -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show()));
 
             }

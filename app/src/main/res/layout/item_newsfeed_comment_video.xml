@@ -64,8 +64,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
-                android:layout_toStartOf="@+id/video_views_counter_root"
-                android:layout_toEndOf="@+id/video_owner_avatar"
+                android:layout_toStartOf="@id/video_views_counter_root"
+                android:layout_toEndOf="@id/video_owner_avatar"
                 android:orientation="vertical">
 
                 <TextView
@@ -106,8 +106,8 @@
                 android:id="@+id/video_lenght"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignEnd="@+id/video_image"
-                android:layout_alignBottom="@+id/video_image"
+                android:layout_alignEnd="@id/video_image"
+                android:layout_alignBottom="@id/video_image"
                 android:background="#90000000"
                 android:gravity="center"
                 android:padding="4dp"

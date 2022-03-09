@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.adapter.fave;
 
 import static dev.ragnarok.fenrir.util.Objects.nonNull;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -21,6 +23,7 @@ import dev.ragnarok.fenrir.model.FaveLink;
 import dev.ragnarok.fenrir.model.PhotoSizes;
 import dev.ragnarok.fenrir.picasso.PicassoInstance;
 import dev.ragnarok.fenrir.settings.Settings;
+import dev.ragnarok.fenrir.util.CustomToast;
 import dev.ragnarok.fenrir.util.Utils;
 import dev.ragnarok.fenrir.util.ViewUtils;
 
@@ -151,6 +154,13 @@ public class FaveLinksAdapter extends RecyclerView.Adapter<FaveLinksAdapter.Hold
                 if (clickListener != null) {
                     clickListener.onLinkDelete(position, faveLink);
                 }
+                return true;
+            });
+            menu.add(0, v.getId(), 0, R.string.copy_url).setOnMenuItemClickListener(item -> {
+                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("response", faveLink.getUrl());
+                clipboard.setPrimaryClip(clip);
+                CustomToast.CreateCustomToast(context).showToast(R.string.copied);
                 return true;
             });
         }

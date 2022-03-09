@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.Auth;
 import dev.ragnarok.fenrir.api.CaptchaNeedException;
 import dev.ragnarok.fenrir.api.NeedValidationException;
@@ -45,7 +45,7 @@ public class DirectAuthPresenter extends RxSupportPresenter<IDirectAuthView> {
 
     public DirectAuthPresenter(@Nullable Bundle savedInstanceState) {
         super(savedInstanceState);
-        networker = Injection.provideNetworkInterfaces();
+        networker = Includes.getNetworkInterfaces();
     }
 
     public void fireLoginClick() {

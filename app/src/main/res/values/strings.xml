@@ -1895,4 +1895,5 @@
     <string name="not_set_artist">Not set</string>
     <string name="copy_value">Copy</string>
     <string name="download_voice_ogg">Download voice as ogg</string>
+    <string name="error_hiding">Error hiding!</string>
 </resources>

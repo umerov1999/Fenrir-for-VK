@@ -232,22 +232,22 @@ public class CommunityManagerEditFragment extends BaseMvpFragment<CommunityManag
 
     @Override
     public void checkModerator() {
-        safelySetCheched(mButtonModerator, true);
+        safelySetChecked(mButtonModerator, true);
     }
 
     @Override
     public void checkEditor() {
-        safelySetCheched(mButtonEditor, true);
+        safelySetChecked(mButtonEditor, true);
     }
 
     @Override
     public void checkAdmin() {
-        safelySetCheched(mButtonAdmin, true);
+        safelySetChecked(mButtonAdmin, true);
     }
 
     @Override
     public void setShowAsContactCheched(boolean cheched) {
-        safelySetCheched(mShowAsContact, cheched);
+        safelySetChecked(mShowAsContact, cheched);
     }
 
     @Override

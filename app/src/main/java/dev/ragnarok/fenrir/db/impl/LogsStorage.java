@@ -25,11 +25,11 @@ public class LogsStorage implements ILogsStorage {
     }
 
     private static LogEvent map(Cursor cursor) {
-        return new LogEvent(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)))
-                .setType(cursor.getInt(cursor.getColumnIndex(LogColumns.TYPE)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(LogColumns.DATE)))
-                .setTag(cursor.getString(cursor.getColumnIndex(LogColumns.TAG)))
-                .setBody(cursor.getString(cursor.getColumnIndex(LogColumns.BODY)));
+        return new LogEvent(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID)))
+                .setType(cursor.getInt(cursor.getColumnIndexOrThrow(LogColumns.TYPE)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(LogColumns.DATE)))
+                .setTag(cursor.getString(cursor.getColumnIndexOrThrow(LogColumns.TAG)))
+                .setBody(cursor.getString(cursor.getColumnIndexOrThrow(LogColumns.BODY)));
     }
 
     private LogSqliteHelper helper() {

@@ -16,6 +16,7 @@ public class AnswerVKOfficial {
     public String text;
     public String iconURL;
     public String iconType;
+    public String hide_query;
     public Long time;
     public List<ImageAdditional> images;
     public List<Photo> attachments;
@@ -52,12 +53,20 @@ public class AnswerVKOfficial {
     }
 
     public static class ActionMessage extends Action {
-        public int peerId;
-        public int messageId;
+        private final int peerId;
+        private final int messageId;
 
         public ActionMessage(int peerId, int messageId) {
             this.messageId = messageId;
             this.peerId = peerId;
+        }
+
+        public int getPeerId() {
+            return peerId;
+        }
+
+        public int getMessageId() {
+            return messageId;
         }
 
         @Override
@@ -67,10 +76,14 @@ public class AnswerVKOfficial {
     }
 
     public static class ActionURL extends Action {
-        public String url;
+        private final String url;
 
         public ActionURL(String url) {
             this.url = url;
+        }
+
+        public String getUrl() {
+            return url;
         }
 
         @Override

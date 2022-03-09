@@ -9,11 +9,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity;
 import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder;
 import dev.ragnarok.fenrir.link.LinkHelper;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackService;
 import dev.ragnarok.fenrir.model.Article;
 import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.model.AudioArtist;
@@ -34,7 +35,6 @@ import dev.ragnarok.fenrir.model.Video;
 import dev.ragnarok.fenrir.model.WallReply;
 import dev.ragnarok.fenrir.model.WikiPage;
 import dev.ragnarok.fenrir.place.PlaceFactory;
-import dev.ragnarok.fenrir.player.MusicPlaybackService;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.AppPerms;
 import dev.ragnarok.fenrir.util.CustomToast;
@@ -63,7 +63,7 @@ public abstract class AccountDependencyDialogFragment extends BaseDialogFragment
         mCompositeDisposable.add(Settings.get()
                 .accounts()
                 .observeChanges()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::fireAccountChange));
     }
 

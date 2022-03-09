@@ -89,7 +89,7 @@ import dev.ragnarok.fenrir.App;
 import dev.ragnarok.fenrir.BuildConfig;
 import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.MainActivity;
 import dev.ragnarok.fenrir.activity.SwipebleActivity;
@@ -1052,7 +1052,6 @@ public class Utils {
      * <p>
      * Inspired from SO answer: http://stackoverflow.com/a/26318757/1446466
      *
-     * @param context
      * @param implicitIntent - The original implicit intent
      * @return Explicit Intent created from the implicit original intent
      */
@@ -1220,7 +1219,7 @@ public class Utils {
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .connectTimeout(60, TimeUnit.SECONDS);
         ProxyUtil.applyProxyConfig(builder, proxyConfig);
-        return new OkHttpDataSource.Factory(builder.build()).setUserAgent(userAgent);
+        return new OkHttpDataSource.Factory((Call.Factory) builder.build()).setUserAgent(userAgent);
     }
 
     public static boolean isColorDark(int color) {
@@ -1492,7 +1491,7 @@ public class Utils {
     @SuppressLint("CheckResult")
     public static void inMainThread(@NonNull safeCallInt function) {
         Completable.complete()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(function::call);
     }
 
@@ -1501,7 +1500,7 @@ public class Utils {
                 .connectTimeout(timeouts, TimeUnit.SECONDS)
                 .readTimeout(timeouts, TimeUnit.SECONDS)
                 .addInterceptor(chain -> chain.proceed(chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader("User-Agent", Constants.USER_AGENT(AccountType.BY_TYPE)).build())).addInterceptor(BrotliInterceptor.INSTANCE);
-        ProxyUtil.applyProxyConfig(builder, Injection.provideProxySettings().getActiveProxy());
+        ProxyUtil.applyProxyConfig(builder, Includes.getProxySettings().getActiveProxy());
         return builder;
     }
 
@@ -1709,7 +1708,7 @@ public class Utils {
                     Request request = chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader("User-Agent", Constants.USER_AGENT(AccountType.BY_TYPE)).build();
                     return chain.proceed(request);
                 });
-        ProxyUtil.applyProxyConfig(builder, Injection.provideProxySettings().getActiveProxy());
+        ProxyUtil.applyProxyConfig(builder, Includes.getProxySettings().getActiveProxy());
         Request request = new Request.Builder()
                 .url("https://vk.com/foaf.php?id=" + owner_id).build();
 

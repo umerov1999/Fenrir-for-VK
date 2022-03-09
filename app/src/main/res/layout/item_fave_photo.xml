@@ -31,10 +31,10 @@
             android:id="@+id/current"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignStart="@+id/imageView"
-            android:layout_alignTop="@+id/imageView"
-            android:layout_alignEnd="@+id/imageView"
-            android:layout_alignBottom="@+id/imageView"
+            android:layout_alignStart="@id/imageView"
+            android:layout_alignTop="@id/imageView"
+            android:layout_alignEnd="@id/imageView"
+            android:layout_alignBottom="@id/imageView"
             android:visibility="gone"
             app:loopAnimation="true" />
 
@@ -42,8 +42,8 @@
             android:id="@+id/vk_photo_item_bottom"
             android:layout_width="match_parent"
             android:layout_height="20dp"
-            android:layout_alignStart="@+id/imageView"
-            android:layout_alignEnd="@+id/imageView"
+            android:layout_alignStart="@id/imageView"
+            android:layout_alignEnd="@id/imageView"
             android:layout_alignBottom="@id/imageView"
             android:layout_alignParentBottom="false"
             android:background="?attr/colorPrimary"
@@ -56,7 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="2dp"
-                android:layout_toEndOf="@+id/vk_photo_item_like"
+                android:layout_toEndOf="@id/vk_photo_item_like"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 android:textColor="@android:color/white"
                 tools:text="4000" />
@@ -78,7 +78,7 @@
                 android:layout_alignWithParentIfMissing="false"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="2dp"
-                android:layout_toStartOf="@+id/vk_photo_item_comment_counter"
+                android:layout_toStartOf="@id/vk_photo_item_comment_counter"
                 android:src="@drawable/comment" />
 
             <ImageView

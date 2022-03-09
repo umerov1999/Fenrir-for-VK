@@ -8,7 +8,7 @@ import java.util.List;
 
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.Utils;
 import io.reactivex.rxjava3.core.Single;
@@ -23,7 +23,7 @@ public class RefreshToken {
         if (gms == null) {
             return false;
         }
-        String token = Injection.provideNetworkInterfaces().vkDefault(account).account().refreshToken(gms, null, null, null).blockingGet().token;
+        String token = Includes.getNetworkInterfaces().vkDefault(account).account().refreshToken(gms, null, null, null).blockingGet().token;
         Log.w("refresh", oldToken + " " + token + " " + gms);
         if (oldToken.equals(token) || isEmpty(token)) {
             return false;
@@ -41,7 +41,7 @@ public class RefreshToken {
             return false;
         }
         long timestamp = System.currentTimeMillis();
-        String token = Injection.provideNetworkInterfaces().vkDefault(account).account().refreshToken(gms.get(0), gms.get(1), TokenModOfficialVK.getNonce(timestamp), timestamp).blockingGet().token;
+        String token = Includes.getNetworkInterfaces().vkDefault(account).account().refreshToken(gms.get(0), gms.get(1), TokenModOfficialVK.getNonce(timestamp), timestamp).blockingGet().token;
         Log.w("refresh", oldToken + " " + token + " " + gms);
         if (oldToken.equals(token) || isEmpty(token)) {
             return false;

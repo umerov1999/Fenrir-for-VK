@@ -30,4 +30,8 @@ public interface INotificationsService {
                                                            @Field("end_time") Long endTime,
                                                            @Field("fields") String fields);
 
+    @FormUrlEncoded
+    @POST("notifications.hide")
+    Single<BaseResponse<Integer>> hide(@Field("query") String query);
+
 }

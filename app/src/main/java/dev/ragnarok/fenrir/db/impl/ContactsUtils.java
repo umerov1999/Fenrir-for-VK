@@ -29,8 +29,8 @@ public class ContactsUtils {
 
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
-                    String id = cursor.getString(cursor.getColumnIndex(BaseColumns._ID));
-                    if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                    String id = cursor.getString(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+                    if (Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                         Cursor pCur = context.getContentResolver().query(
                                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                                 null,
@@ -39,7 +39,7 @@ public class ContactsUtils {
                                 null);
                         while (pCur.moveToNext()) {
                             String phone = pCur.getString(
-                                    pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                    pCur.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
                             contacts.add(phone);
                         }
                         pCur.close();

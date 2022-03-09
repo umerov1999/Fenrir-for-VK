@@ -46,14 +46,16 @@ class Extensions {
         fun Cursor.getNullableInt(columnName: String): Int? =
             getColumnIndex(columnName).let { if (isNull(it)) null else getInt(it) }
 
-        fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndex(columnName))
+        fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
 
-        fun Cursor.getBoolean(columnName: String): Boolean = getInt(getColumnIndex(columnName)) == 1
+        fun Cursor.getBoolean(columnName: String): Boolean =
+            getInt(getColumnIndexOrThrow(columnName)) == 1
 
         fun Cursor.getLong(columnName: String): Long? =
             getColumnIndex(columnName).let { if (isNull(it)) null else getLong(it) }
 
-        fun Cursor.getString(columnName: String): String? = getString(getColumnIndex(columnName))
+        fun Cursor.getString(columnName: String): String? =
+            getString(getColumnIndexOrThrow(columnName))
 
         fun Disposable.notDisposed(): Boolean = !isDisposed
 

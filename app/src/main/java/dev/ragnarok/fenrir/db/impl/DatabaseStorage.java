@@ -65,8 +65,8 @@ public class DatabaseStorage extends AbsStorage implements IDatabaseStore {
                         break;
                     }
 
-                    int id = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
-                    String title = cursor.getString(cursor.getColumnIndex(CountriesColumns.NAME));
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+                    String title = cursor.getString(cursor.getColumnIndexOrThrow(CountriesColumns.NAME));
                     dbos.add(new CountryEntity().set(id, title));
                 }
 

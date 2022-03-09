@@ -229,7 +229,14 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
         stickersKeywordsView = root.findViewById(R.id.stickers)
         stickersAdapter = StickersKeyWordsAdapter(requireActivity(), Collections.emptyList())
-        stickersAdapter?.setStickerClickedListener { presenter?.fireStickerSendClick(it); presenter?.resetDraftMessage() }
+        stickersAdapter?.setStickerClickedListener(object :
+            EmojiconsPopup.OnStickerClickedListener {
+            override fun onStickerClick(sticker: Sticker?) {
+                if (sticker != null) {
+                    presenter?.fireStickerSendClick(sticker)
+                }; presenter?.resetDraftMessage()
+            }
+        })
         stickersKeywordsView?.let {
             it.layoutManager =
                 LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)
@@ -301,8 +308,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
         headerView = inflater.inflate(R.layout.footer_load_more, recyclerView, false)
 
-        loadMoreFooterHelper = LoadMoreFooterHelper.createFrom(headerView) {
-            presenter?.fireLoadUpButtonClick()
+        headerView?.let {
+            loadMoreFooterHelper =
+                LoadMoreFooterHelper.createFrom(it, object : LoadMoreFooterHelper.Callback {
+                    override fun onLoadMoreClick() {
+                        presenter?.fireLoadUpButtonClick()
+                    }
+                })
         }
 
         inputViewController = InputViewController(requireActivity(), root, this)
@@ -343,6 +355,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     }
 
     override fun convert_to_keyboard(keyboard: Keyboard?) {
+        keyboard ?: return
         inputViewController?.updateBotKeyboard(keyboard, !Utils.isHiddenCurrent())
     }
 
@@ -393,13 +406,10 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     override fun hideWriting() {
         val animator: ObjectAnimator? =
             ObjectAnimator.ofFloat(Writing_msg_Group, View.ALPHA, 0.0f).apply {
-                addListener(object : WeakViewAnimatorAdapter<View>(Writing_msg_Group) {
-                    override fun onAnimationEnd(view: View) {
+                addListener(object : WeakViewAnimatorAdapter<View?>(Writing_msg_Group) {
+                    override fun onAnimationEnd(view: View?) {
                         Writing_msg_Group?.visibility = View.GONE
                     }
-
-                    override fun onAnimationStart(view: View) = Unit
-                    override fun onAnimationCancel(view: View) = Unit
                 })
                 duration = 200
             }
@@ -525,7 +535,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             .also {
                 it.setOnMessageActionListener(this)
                 it.setVoiceActionListener(this)
-                it.addFooter(headerView)
+                headerView?.let { it1 -> it.addFooter(it1) }
                 it.setOnHashTagClickListener(this)
             }
 
@@ -627,8 +637,8 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         presenter?.fireTextEdited(text)
     }
 
-    override fun AppendMessageText(text: String?) {
-        inputViewController?.AppendTextQuietly(text)
+    override fun appendMessageText(text: String?) {
+        inputViewController?.appendTextQuietly(text)
     }
 
     override fun displayToolbarTitle(text: String?) {
@@ -814,11 +824,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         presenter?.fireTranscript(voiceMessageId, messageId)
     }
 
-    override fun onStickerClick(sticker: Sticker) {
-        presenter?.fireStickerSendClick(sticker)
+    override fun onStickerClick(sticker: Sticker?) {
+        if (sticker != null) {
+            presenter?.fireStickerSendClick(sticker)
+        }
     }
 
-    override fun onHashTagClicked(hashTag: String) {
+    override fun onHashTagClicked(hashTag: String?) {
         presenter?.fireHashtagClick(hashTag)
     }
 
@@ -1328,20 +1340,20 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                         presenter?.fireShowChatMembers()
                     }
                     Avatar?.setOnLongClickListener {
-                        AppendMessageText("@all,")
+                        appendMessageText("@all,")
                         true
                     }
                 }
             }
-        } catch (ignored: java.lang.Exception) {
+        } catch (ignored: Exception) {
         }
     }
 
     private fun insertDomain(owner: Owner) {
         if (nonEmpty(owner.domain)) {
-            AppendMessageText("@" + owner.domain + ",")
+            appendMessageText("@" + owner.domain + ",")
         } else {
-            AppendMessageText("@id" + owner.ownerId + ",")
+            appendMessageText("@id" + owner.ownerId + ",")
         }
     }
 
@@ -1600,7 +1612,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
     }
 
-    override fun ScrollTo(position: Int) {
+    override fun scrollTo(position: Int) {
         recyclerView?.smoothScrollToPosition(position)
     }
 
@@ -1738,12 +1750,12 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         presenter?.fireSendMyStickerClick(file)
     }
 
-    override fun onInputTextChanged(s: String) {
+    override fun onInputTextChanged(s: String?) {
         presenter?.fireDraftMessageTextEdited(s)
         presenter?.fireTextEdited(s)
     }
 
-    override fun onSendClicked(body: String) {
+    override fun onSendClicked(body: String?) {
         presenter?.fireSendClick()
     }
 

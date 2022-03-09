@@ -10,7 +10,6 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
-import androidx.annotation.NonNull
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -381,10 +380,10 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         private val mPicassoLoadCallback: WeakPicassoLoadCallback
         val photo: TouchImageView
         val progress: RLottieImageView
-        var animationDispose = Disposable.disposed()
+        var animationDispose: Disposable = Disposable.disposed()
         private var mAnimationLoaded = false
         private var mLoadingNow = false
-        override fun bindTo(@NonNull story: Story) {
+        override fun bindTo(story: Story) {
             photo.resetZoom()
             if (story.isIs_expired) {
                 CreateCustomToast(requireActivity()).showToastError(R.string.is_expired)
@@ -459,7 +458,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             }
         }
 
-        private fun loadImage(@NonNull url: String?) {
+        private fun loadImage(url: String) {
             mLoadingNow = true
             resolveProgressVisibility(true)
             PicassoInstance.with()

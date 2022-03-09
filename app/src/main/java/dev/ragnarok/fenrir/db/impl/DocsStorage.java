@@ -33,21 +33,21 @@ class DocsStorage extends AbsStorage implements IDocsStorage {
     }
 
     private static DocumentEntity map(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(DocColumns.DOC_ID));
-        int ownerId = cursor.getInt(cursor.getColumnIndex(DocColumns.OWNER_ID));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(DocColumns.DOC_ID));
+        int ownerId = cursor.getInt(cursor.getColumnIndexOrThrow(DocColumns.OWNER_ID));
 
         DocumentEntity document = new DocumentEntity().set(id, ownerId)
-                .setTitle(cursor.getString(cursor.getColumnIndex(DocColumns.TITLE)))
-                .setSize(cursor.getLong(cursor.getColumnIndex(DocColumns.SIZE)))
-                .setExt(cursor.getString(cursor.getColumnIndex(DocColumns.EXT)))
-                .setUrl(cursor.getString(cursor.getColumnIndex(DocColumns.URL)))
-                .setType(cursor.getInt(cursor.getColumnIndex(DocColumns.TYPE)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(DocColumns.DATE)))
-                .setAccessKey(cursor.getString(cursor.getColumnIndex(DocColumns.ACCESS_KEY)));
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(DocColumns.TITLE)))
+                .setSize(cursor.getLong(cursor.getColumnIndexOrThrow(DocColumns.SIZE)))
+                .setExt(cursor.getString(cursor.getColumnIndexOrThrow(DocColumns.EXT)))
+                .setUrl(cursor.getString(cursor.getColumnIndexOrThrow(DocColumns.URL)))
+                .setType(cursor.getInt(cursor.getColumnIndexOrThrow(DocColumns.TYPE)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(DocColumns.DATE)))
+                .setAccessKey(cursor.getString(cursor.getColumnIndexOrThrow(DocColumns.ACCESS_KEY)));
 
-        String photoJson = cursor.getString(cursor.getColumnIndex(DocColumns.PHOTO));
-        String graffitiJson = cursor.getString(cursor.getColumnIndex(DocColumns.GRAFFITI));
-        String videoJson = cursor.getString(cursor.getColumnIndex(DocColumns.VIDEO));
+        String photoJson = cursor.getString(cursor.getColumnIndexOrThrow(DocColumns.PHOTO));
+        String graffitiJson = cursor.getString(cursor.getColumnIndexOrThrow(DocColumns.GRAFFITI));
+        String videoJson = cursor.getString(cursor.getColumnIndexOrThrow(DocColumns.VIDEO));
 
         if (nonEmpty(photoJson)) {
             document.setPhoto(GSON.fromJson(photoJson, PhotoSizeEntity.class));

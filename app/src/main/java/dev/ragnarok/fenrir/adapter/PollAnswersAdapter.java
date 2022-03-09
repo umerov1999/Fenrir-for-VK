@@ -56,6 +56,7 @@ public class PollAnswersAdapter extends RecyclerBindableAdapter<Poll.Answer, Pol
         holder.rbButton.setVisibility(checkable ? View.VISIBLE : View.GONE);
     }
 
+    @NonNull
     @Override
     protected ViewHolder viewHolder(View view, int type) {
         return new ViewHolder(view);

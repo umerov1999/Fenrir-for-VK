@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.ProxyUtil;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -168,7 +168,7 @@ public class TokenModOfficialVK {
                         .addHeader("Gcm-ver", "200313005")
                         .addHeader("Gcm-cert", "48761eef50ee53afc4cc9c5f10e6bde7f8f5b82f")
                         .build()));
-        ProxyUtil.applyProxyConfig(builder, Injection.provideProxySettings().getActiveProxy());
+        ProxyUtil.applyProxyConfig(builder, Includes.getProxySettings().getActiveProxy());
         FormBody.Builder formBody = new FormBody.Builder();
         for (String i : list) {
             String[] v = i.split("=");

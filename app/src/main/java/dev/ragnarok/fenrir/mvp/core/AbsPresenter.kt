@@ -134,7 +134,7 @@ abstract class AbsPresenter<V : IMvpView>(savedInstanceState: Bundle?) : IPresen
             action.call(this)
             //return
         }
-        //Utils.showYellowTopToast(Injection.provideApplicationContext(), "View not attached to presenter!")
+        //Utils.showYellowTopToast(Includes.provideApplicationContext(), "View not attached to presenter!")
     }
 
     protected fun callResumedView(action: ViewAction<V>) {
@@ -142,7 +142,7 @@ abstract class AbsPresenter<V : IMvpView>(savedInstanceState: Bundle?) : IPresen
             action.call(this)
             //return
         }
-        //Utils.showYellowTopToast(Injection.provideApplicationContext(), "View not resumed!")
+        //Utils.showYellowTopToast(Includes.provideApplicationContext(), "View not resumed!")
     }
 
     companion object {

@@ -11,7 +11,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
-import androidx.annotation.NonNull
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.Callback
 import dev.ragnarok.fenrir.App.Companion.instance
@@ -191,7 +190,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
         private val mPicassoLoadCallback: WeakPicassoLoadCallback
         val photo: TouchImageView
         val progress: RLottieImageView
-        var animationDispose = Disposable.disposed()
+        var animationDispose: Disposable = Disposable.disposed()
         private var mAnimationLoaded = false
         private var mLoadingNow = false
         fun bindTo(url: String?) {
@@ -260,7 +259,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
             }
         }
 
-        private fun loadImage(@NonNull url: String?) {
+        private fun loadImage(url: String?) {
             mLoadingNow = true
             resolveProgressVisibility(true)
             PicassoInstance.with()

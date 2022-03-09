@@ -142,45 +142,45 @@ class VideoStorage extends AbsStorage implements IVideoStorage {
     }
 
     private VideoEntity mapVideo(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(VIDEO_ID));
-        int ownerId = cursor.getInt(cursor.getColumnIndex(ORIGINAL_OWNER_ID));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(VIDEO_ID));
+        int ownerId = cursor.getInt(cursor.getColumnIndexOrThrow(ORIGINAL_OWNER_ID));
 
         VideoEntity video = new VideoEntity().set(id, ownerId)
-                .setAlbumId(cursor.getInt(cursor.getColumnIndex(ALBUM_ID)))
-                .setTitle(cursor.getString(cursor.getColumnIndex(TITLE)))
-                .setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)))
-                .setLink(cursor.getString(cursor.getColumnIndex(LINK)))
-                .setDuration(cursor.getInt(cursor.getColumnIndex(DURATION)))
-                .setDate(cursor.getLong(cursor.getColumnIndex(DATE)))
-                .setAddingDate(cursor.getLong(cursor.getColumnIndex(ADDING_DATE)))
-                .setViews(cursor.getInt(cursor.getColumnIndex(VIEWS)))
-                .setPlayer(cursor.getString(cursor.getColumnIndex(PLAYER)))
-                .setImage(cursor.getString(cursor.getColumnIndex(IMAGE)))
-                .setAccessKey(cursor.getString(cursor.getColumnIndex(ACCESS_KEY)))
-                .setCommentsCount(cursor.getInt(cursor.getColumnIndex(COMMENTS)))
-                .setCanComment(cursor.getInt(cursor.getColumnIndex(CAN_COMENT)) == 1)
-                .setCanRepost(cursor.getInt(cursor.getColumnIndex(CAN_REPOST)) == 1)
-                .setUserLikes(cursor.getInt(cursor.getColumnIndex(USER_LIKES)) == 1)
-                .setLikesCount(cursor.getInt(cursor.getColumnIndex(LIKES)))
-                .setRepeat(cursor.getInt(cursor.getColumnIndex(REPEAT)) == 1)
-                .setMp4link240(cursor.getString(cursor.getColumnIndex(MP4_240)))
-                .setMp4link360(cursor.getString(cursor.getColumnIndex(MP4_360)))
-                .setMp4link480(cursor.getString(cursor.getColumnIndex(MP4_480)))
-                .setMp4link720(cursor.getString(cursor.getColumnIndex(MP4_720)))
-                .setMp4link1080(cursor.getString(cursor.getColumnIndex(MP4_1080)))
-                .setExternalLink(cursor.getString(cursor.getColumnIndex(EXTERNAL)))
-                .setHls(cursor.getString(cursor.getColumnIndex(HLS)))
-                .setLive(cursor.getString(cursor.getColumnIndex(LIVE)))
-                .setPlatform(cursor.getString(cursor.getColumnIndex(VideoColumns.PLATFORM)))
-                .setCanEdit(cursor.getInt(cursor.getColumnIndex(VideoColumns.CAN_EDIT)) == 1)
-                .setCanAdd(cursor.getInt(cursor.getColumnIndex(VideoColumns.CAN_ADD)) == 1);
+                .setAlbumId(cursor.getInt(cursor.getColumnIndexOrThrow(ALBUM_ID)))
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(TITLE)))
+                .setDescription(cursor.getString(cursor.getColumnIndexOrThrow(DESCRIPTION)))
+                .setLink(cursor.getString(cursor.getColumnIndexOrThrow(LINK)))
+                .setDuration(cursor.getInt(cursor.getColumnIndexOrThrow(DURATION)))
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(DATE)))
+                .setAddingDate(cursor.getLong(cursor.getColumnIndexOrThrow(ADDING_DATE)))
+                .setViews(cursor.getInt(cursor.getColumnIndexOrThrow(VIEWS)))
+                .setPlayer(cursor.getString(cursor.getColumnIndexOrThrow(PLAYER)))
+                .setImage(cursor.getString(cursor.getColumnIndexOrThrow(IMAGE)))
+                .setAccessKey(cursor.getString(cursor.getColumnIndexOrThrow(ACCESS_KEY)))
+                .setCommentsCount(cursor.getInt(cursor.getColumnIndexOrThrow(COMMENTS)))
+                .setCanComment(cursor.getInt(cursor.getColumnIndexOrThrow(CAN_COMENT)) == 1)
+                .setCanRepost(cursor.getInt(cursor.getColumnIndexOrThrow(CAN_REPOST)) == 1)
+                .setUserLikes(cursor.getInt(cursor.getColumnIndexOrThrow(USER_LIKES)) == 1)
+                .setLikesCount(cursor.getInt(cursor.getColumnIndexOrThrow(LIKES)))
+                .setRepeat(cursor.getInt(cursor.getColumnIndexOrThrow(REPEAT)) == 1)
+                .setMp4link240(cursor.getString(cursor.getColumnIndexOrThrow(MP4_240)))
+                .setMp4link360(cursor.getString(cursor.getColumnIndexOrThrow(MP4_360)))
+                .setMp4link480(cursor.getString(cursor.getColumnIndexOrThrow(MP4_480)))
+                .setMp4link720(cursor.getString(cursor.getColumnIndexOrThrow(MP4_720)))
+                .setMp4link1080(cursor.getString(cursor.getColumnIndexOrThrow(MP4_1080)))
+                .setExternalLink(cursor.getString(cursor.getColumnIndexOrThrow(EXTERNAL)))
+                .setHls(cursor.getString(cursor.getColumnIndexOrThrow(HLS)))
+                .setLive(cursor.getString(cursor.getColumnIndexOrThrow(LIVE)))
+                .setPlatform(cursor.getString(cursor.getColumnIndexOrThrow(VideoColumns.PLATFORM)))
+                .setCanEdit(cursor.getInt(cursor.getColumnIndexOrThrow(VideoColumns.CAN_EDIT)) == 1)
+                .setCanAdd(cursor.getInt(cursor.getColumnIndexOrThrow(VideoColumns.CAN_ADD)) == 1);
 
-        String privacyViewText = cursor.getString(cursor.getColumnIndex(PRIVACY_VIEW));
+        String privacyViewText = cursor.getString(cursor.getColumnIndexOrThrow(PRIVACY_VIEW));
         if (nonEmpty(privacyViewText)) {
             video.setPrivacyView(GSON.fromJson(privacyViewText, PrivacyEntity.class));
         }
 
-        String privacyCommentText = cursor.getString(cursor.getColumnIndex(PRIVACY_COMMENT));
+        String privacyCommentText = cursor.getString(cursor.getColumnIndexOrThrow(PRIVACY_COMMENT));
         if (nonEmpty(privacyCommentText)) {
             video.setPrivacyComment(GSON.fromJson(privacyCommentText, PrivacyEntity.class));
         }

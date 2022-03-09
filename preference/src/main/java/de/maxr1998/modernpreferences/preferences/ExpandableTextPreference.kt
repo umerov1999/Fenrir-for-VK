@@ -86,8 +86,12 @@ class ExpandableTextPreference(key: String) : Preference(key) {
 
     override fun onClick(holder: PreferencesAdapter.ViewHolder) {
         expanded = !expanded
-        refreshArrowState(holder.widget as CheckBox)
-        refreshTextExpandState(holder.widget.tag as TextView)
+        if (holder.widget is CheckBox) {
+            refreshArrowState(holder.widget)
+        }
+        if (holder.widget?.tag is TextView) {
+            refreshTextExpandState(holder.widget.tag as TextView)
+        }
     }
 
     private fun refreshArrowState(widget: CheckBox) {

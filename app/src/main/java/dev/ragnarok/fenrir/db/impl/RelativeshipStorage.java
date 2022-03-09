@@ -31,46 +31,46 @@ class RelativeshipStorage extends AbsStorage implements IRelativeshipStorage {
     }
 
     private static CommunityEntity mapCommunity(Cursor cursor) {
-        return new CommunityEntity(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.SUBJECT_ID)))
-                .setName(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_NAME)))
-                .setScreenName(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_SCREEN_NAME)))
-                .setClosed(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_CLOSED)))
-                .setVerified(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_VERIFIED)) == 1)
-                .setAdmin(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_ADMIN)) == 1)
-                .setAdminLevel(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_ADMIN_LEVEL)))
-                .setMember(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_MEMBER)) == 1)
-                .setMemberStatus(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_MEMBER_STATUS)))
-                .setMembersCount(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_MEMBERS_COUNT)))
-                .setType(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_TYPE)))
-                .setPhoto50(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_50)))
-                .setPhoto100(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_100)))
-                .setPhoto200(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_200)));
+        return new CommunityEntity(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.SUBJECT_ID)))
+                .setName(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_NAME)))
+                .setScreenName(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_SCREEN_NAME)))
+                .setClosed(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_CLOSED)))
+                .setVerified(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_VERIFIED)) == 1)
+                .setAdmin(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_ADMIN)) == 1)
+                .setAdminLevel(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_ADMIN_LEVEL)))
+                .setMember(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_MEMBER)) == 1)
+                .setMemberStatus(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_MEMBER_STATUS)))
+                .setMembersCount(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_MEMBERS_COUNT)))
+                .setType(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_TYPE)))
+                .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_50)))
+                .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_100)))
+                .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_200)));
     }
 
     private static UserEntity mapDbo(Cursor cursor) {
-        int gid = Math.abs(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.SUBJECT_ID)));
+        int gid = Math.abs(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.SUBJECT_ID)));
         return new UserEntity(gid)
-                .setFirstName(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_FIRST_NAME)))
-                .setLastName(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_LAST_NAME)))
-                .setOnline(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_ONLINE)) == 1)
-                .setOnlineMobile(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_ONLINE)) == 1)
-                .setOnlineApp(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_ONLINE_APP)))
-                .setPhoto50(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_50)))
-                .setPhoto100(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_100)))
-                .setPhoto200(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_200)))
-                .setPhotoMax(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_MAX)))
-                .setLastSeen(cursor.getLong(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_LAST_SEEN)))
-                .setPlatform(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_PLATFORM)))
-                .setStatus(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_STATUS)))
-                .setSex(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_SEX)))
-                .setFriend(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_IS_FRIEND)) == 1)
-                .setFriendStatus(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_USER_FRIEND_STATUS)))
-                .setCanWritePrivateMessage(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_WRITE_MESSAGE_STATUS)) == 1)
-                .setBlacklisted_by_me(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_IS_USER_BLACK_LIST)) == 1)
-                .setBlacklisted(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_IS_BLACK_LISTED)) == 1)
-                .setCan_access_closed(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_IS_CAN_ACCESS_CLOSED)) == 1)
-                .setVerified(cursor.getInt(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_IS_VERIFIED)) == 1)
-                .setMaiden_name(cursor.getString(cursor.getColumnIndex(RelationshipColumns.FOREIGN_SUBJECT_MAIDEN_NAME)));
+                .setFirstName(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_FIRST_NAME)))
+                .setLastName(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_LAST_NAME)))
+                .setOnline(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_ONLINE)) == 1)
+                .setOnlineMobile(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_ONLINE)) == 1)
+                .setOnlineApp(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_ONLINE_APP)))
+                .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_50)))
+                .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_100)))
+                .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_200)))
+                .setPhotoMax(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_PHOTO_MAX)))
+                .setLastSeen(cursor.getLong(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_LAST_SEEN)))
+                .setPlatform(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_PLATFORM)))
+                .setStatus(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_STATUS)))
+                .setSex(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_SEX)))
+                .setFriend(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_IS_FRIEND)) == 1)
+                .setFriendStatus(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_USER_FRIEND_STATUS)))
+                .setCanWritePrivateMessage(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_WRITE_MESSAGE_STATUS)) == 1)
+                .setBlacklisted_by_me(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_IS_USER_BLACK_LIST)) == 1)
+                .setBlacklisted(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_IS_BLACK_LISTED)) == 1)
+                .setCan_access_closed(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_IS_CAN_ACCESS_CLOSED)) == 1)
+                .setVerified(cursor.getInt(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_IS_VERIFIED)) == 1)
+                .setMaiden_name(cursor.getString(cursor.getColumnIndexOrThrow(RelationshipColumns.FOREIGN_SUBJECT_MAIDEN_NAME)));
     }
 
     @Override

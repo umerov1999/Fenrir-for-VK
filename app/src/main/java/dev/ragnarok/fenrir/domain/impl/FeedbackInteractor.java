@@ -135,6 +135,14 @@ public class FeedbackInteractor implements IFeedbackInteractor {
     }
 
     @Override
+    public Completable hide(int accountId, String query) {
+        return networker.vkDefault(accountId)
+                .notifications()
+                .hide(query)
+                .ignoreElement();
+    }
+
+    @Override
     public Single<Pair<List<Feedback>, String>> getActualFeedbacks(int accountId, int count, String startFrom) {
         return networker.vkDefault(accountId)
                 .notifications()

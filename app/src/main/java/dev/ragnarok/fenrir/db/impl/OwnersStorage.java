@@ -138,46 +138,46 @@ class OwnersStorage extends AbsStorage implements IOwnersStorage {
     }
 
     private static CommunityEntity mapCommunityDbo(Cursor cursor) {
-        return new CommunityEntity(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)))
-                .setName(cursor.getString(cursor.getColumnIndex(GroupColumns.NAME)))
-                .setScreenName(cursor.getString(cursor.getColumnIndex(GroupColumns.SCREEN_NAME)))
-                .setClosed(cursor.getInt(cursor.getColumnIndex(GroupColumns.IS_CLOSED)))
-                .setVerified(cursor.getInt(cursor.getColumnIndex(GroupColumns.IS_VERIFIED)) == 1)
-                .setAdmin(cursor.getInt(cursor.getColumnIndex(GroupColumns.IS_ADMIN)) == 1)
-                .setAdminLevel(cursor.getInt(cursor.getColumnIndex(GroupColumns.ADMIN_LEVEL)))
-                .setMember(cursor.getInt(cursor.getColumnIndex(GroupColumns.IS_MEMBER)) == 1)
-                .setMemberStatus(cursor.getInt(cursor.getColumnIndex(GroupColumns.MEMBER_STATUS)))
-                .setMembersCount(cursor.getInt(cursor.getColumnIndex(GroupColumns.MEMBERS_COUNT)))
-                .setType(cursor.getInt(cursor.getColumnIndex(GroupColumns.TYPE)))
-                .setPhoto50(cursor.getString(cursor.getColumnIndex(GroupColumns.PHOTO_50)))
-                .setPhoto100(cursor.getString(cursor.getColumnIndex(GroupColumns.PHOTO_100)))
-                .setPhoto200(cursor.getString(cursor.getColumnIndex(GroupColumns.PHOTO_200)));
+        return new CommunityEntity(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID)))
+                .setName(cursor.getString(cursor.getColumnIndexOrThrow(GroupColumns.NAME)))
+                .setScreenName(cursor.getString(cursor.getColumnIndexOrThrow(GroupColumns.SCREEN_NAME)))
+                .setClosed(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.IS_CLOSED)))
+                .setVerified(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.IS_VERIFIED)) == 1)
+                .setAdmin(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.IS_ADMIN)) == 1)
+                .setAdminLevel(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.ADMIN_LEVEL)))
+                .setMember(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.IS_MEMBER)) == 1)
+                .setMemberStatus(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.MEMBER_STATUS)))
+                .setMembersCount(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.MEMBERS_COUNT)))
+                .setType(cursor.getInt(cursor.getColumnIndexOrThrow(GroupColumns.TYPE)))
+                .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(GroupColumns.PHOTO_50)))
+                .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(GroupColumns.PHOTO_100)))
+                .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(GroupColumns.PHOTO_200)));
     }
 
     private static UserEntity mapUserDbo(Cursor cursor) {
-        return new UserEntity(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)))
-                .setFirstName(cursor.getString(cursor.getColumnIndex(UserColumns.FIRST_NAME)))
-                .setLastName(cursor.getString(cursor.getColumnIndex(UserColumns.LAST_NAME)))
-                .setOnline(cursor.getInt(cursor.getColumnIndex(UserColumns.ONLINE)) == 1)
-                .setOnlineMobile(cursor.getInt(cursor.getColumnIndex(UserColumns.ONLINE_MOBILE)) == 1)
-                .setOnlineApp(cursor.getInt(cursor.getColumnIndex(UserColumns.ONLINE_APP)))
-                .setPhoto50(cursor.getString(cursor.getColumnIndex(UserColumns.PHOTO_50)))
-                .setPhoto100(cursor.getString(cursor.getColumnIndex(UserColumns.PHOTO_100)))
-                .setPhoto200(cursor.getString(cursor.getColumnIndex(UserColumns.PHOTO_200)))
-                .setPhotoMax(cursor.getString(cursor.getColumnIndex(UserColumns.PHOTO_MAX)))
-                .setLastSeen(cursor.getLong(cursor.getColumnIndex(UserColumns.LAST_SEEN)))
-                .setPlatform(cursor.getInt(cursor.getColumnIndex(UserColumns.PLATFORM)))
-                .setStatus(cursor.getString(cursor.getColumnIndex(UserColumns.USER_STATUS)))
-                .setSex(cursor.getInt(cursor.getColumnIndex(UserColumns.SEX)))
-                .setDomain(cursor.getString(cursor.getColumnIndex(UserColumns.DOMAIN)))
-                .setFriend(cursor.getInt(cursor.getColumnIndex(UserColumns.IS_FRIEND)) == 1)
-                .setFriendStatus(cursor.getInt(cursor.getColumnIndex(UserColumns.FRIEND_STATUS)))
-                .setCanWritePrivateMessage(cursor.getInt(cursor.getColumnIndex(UserColumns.WRITE_MESSAGE_STATUS)) == 1)
-                .setBlacklisted_by_me(cursor.getInt(cursor.getColumnIndex(UserColumns.IS_USER_BLACK_LIST)) == 1)
-                .setBlacklisted(cursor.getInt(cursor.getColumnIndex(UserColumns.IS_BLACK_LISTED)) == 1)
-                .setVerified(cursor.getInt(cursor.getColumnIndex(UserColumns.IS_VERIFIED)) == 1)
-                .setCan_access_closed(cursor.getInt(cursor.getColumnIndex(UserColumns.IS_CAN_ACCESS_CLOSED)) == 1)
-                .setMaiden_name(cursor.getString(cursor.getColumnIndex(UserColumns.MAIDEN_NAME)));
+        return new UserEntity(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID)))
+                .setFirstName(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.FIRST_NAME)))
+                .setLastName(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.LAST_NAME)))
+                .setOnline(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.ONLINE)) == 1)
+                .setOnlineMobile(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.ONLINE_MOBILE)) == 1)
+                .setOnlineApp(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.ONLINE_APP)))
+                .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.PHOTO_50)))
+                .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.PHOTO_100)))
+                .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.PHOTO_200)))
+                .setPhotoMax(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.PHOTO_MAX)))
+                .setLastSeen(cursor.getLong(cursor.getColumnIndexOrThrow(UserColumns.LAST_SEEN)))
+                .setPlatform(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.PLATFORM)))
+                .setStatus(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.USER_STATUS)))
+                .setSex(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.SEX)))
+                .setDomain(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.DOMAIN)))
+                .setFriend(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.IS_FRIEND)) == 1)
+                .setFriendStatus(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.FRIEND_STATUS)))
+                .setCanWritePrivateMessage(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.WRITE_MESSAGE_STATUS)) == 1)
+                .setBlacklisted_by_me(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.IS_USER_BLACK_LIST)) == 1)
+                .setBlacklisted(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.IS_BLACK_LISTED)) == 1)
+                .setVerified(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.IS_VERIFIED)) == 1)
+                .setCan_access_closed(cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.IS_CAN_ACCESS_CLOSED)) == 1)
+                .setMaiden_name(cursor.getString(cursor.getColumnIndexOrThrow(UserColumns.MAIDEN_NAME)));
     }
 
     @Override
@@ -212,7 +212,7 @@ class OwnersStorage extends AbsStorage implements IOwnersStorage {
 
             if (nonNull(cursor)) {
                 if (cursor.moveToNext()) {
-                    String json = cursor.getString(cursor.getColumnIndex(UsersDetColumns.DATA));
+                    String json = cursor.getString(cursor.getColumnIndexOrThrow(UsersDetColumns.DATA));
                     if (nonEmpty(json)) {
                         details = GSON.fromJson(json, UserDetailsEntity.class);
                     }
@@ -237,7 +237,7 @@ class OwnersStorage extends AbsStorage implements IOwnersStorage {
 
             if (nonNull(cursor)) {
                 if (cursor.moveToNext()) {
-                    String json = cursor.getString(cursor.getColumnIndex(GroupsDetColumns.DATA));
+                    String json = cursor.getString(cursor.getColumnIndexOrThrow(GroupsDetColumns.DATA));
                     if (nonEmpty(json)) {
                         details = GSON.fromJson(json, CommunityDetailsEntity.class);
                     }
@@ -354,9 +354,9 @@ class OwnersStorage extends AbsStorage implements IOwnersStorage {
 
             if (cursor != null) {
                 if (cursor.moveToNext()) {
-                    boolean online = cursor.getInt(cursor.getColumnIndex(UserColumns.ONLINE)) == 1;
-                    long lastSeen = cursor.getLong(cursor.getColumnIndex(UserColumns.LAST_SEEN));
-                    int sex = cursor.getInt(cursor.getColumnIndex(UserColumns.SEX));
+                    boolean online = cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.ONLINE)) == 1;
+                    long lastSeen = cursor.getLong(cursor.getColumnIndexOrThrow(UserColumns.LAST_SEEN));
+                    int sex = cursor.getInt(cursor.getColumnIndexOrThrow(UserColumns.SEX));
                     String userActivityLine = UserInfoResolveUtil.getUserActivityLine(getContext(), lastSeen, online, sex, false);
 
                     if (nonNull(userActivityLine)) {
@@ -580,7 +580,7 @@ class OwnersStorage extends AbsStorage implements IOwnersStorage {
 
             if (nonNull(cursor)) {
                 while (cursor.moveToNext()) {
-                    int id = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
                     copy.remove(id);
                 }
 
@@ -606,7 +606,7 @@ class OwnersStorage extends AbsStorage implements IOwnersStorage {
 
             if (nonNull(cursor)) {
                 while (cursor.moveToNext()) {
-                    int id = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID));
                     copy.remove(id);
                 }
 
@@ -618,8 +618,8 @@ class OwnersStorage extends AbsStorage implements IOwnersStorage {
     }
 
     private FriendListEntity mapFriendsList(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(FriendListsColumns.LIST_ID));
-        String name = cursor.getString(cursor.getColumnIndex(FriendListsColumns.NAME));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(FriendListsColumns.LIST_ID));
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(FriendListsColumns.NAME));
         return new FriendListEntity(id, name);
     }
 }

@@ -132,54 +132,54 @@ class MessagesStorage extends AbsStorage implements IMessagesStorage {
 
     private static MessageEntity baseMapDbo(Cursor cursor) {
         @MessageStatus
-        int status = cursor.getInt(cursor.getColumnIndex(MessageColumns.STATUS));
+        int status = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.STATUS));
 
         @ChatAction
-        int action = cursor.getInt(cursor.getColumnIndex(MessageColumns.ACTION));
+        int action = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.ACTION));
 
-        int id = cursor.getInt(cursor.getColumnIndex(MessageColumns._ID));
-        int peerId = cursor.getInt(cursor.getColumnIndex(MessageColumns.PEER_ID));
-        int fromId = cursor.getInt(cursor.getColumnIndex(MessageColumns.FROM_ID));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns._ID));
+        int peerId = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.PEER_ID));
+        int fromId = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.FROM_ID));
 
         HashMap<Integer, String> extras = null;
         KeyboardEntity keyboard = null;
 
-        String extrasText = cursor.getString(cursor.getColumnIndex(MessageColumns.EXTRAS));
+        String extrasText = cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.EXTRAS));
         if (nonEmpty(extrasText)) {
             extras = GSON.fromJson(extrasText, EXTRAS_TYPE);
         }
-        String keyboardText = cursor.getString(cursor.getColumnIndex(MessageColumns.KEYBOARD));
+        String keyboardText = cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.KEYBOARD));
         if (nonEmpty(keyboardText)) {
             keyboard = GSON.fromJson(keyboardText, KeyboardEntity.class);
         }
 
         return new MessageEntity().set(id, peerId, fromId)
-                .setEncrypted(cursor.getInt(cursor.getColumnIndex(MessageColumns.ENCRYPTED)) == 1)
+                .setEncrypted(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.ENCRYPTED)) == 1)
                 .setStatus(status)
                 .setAction(action)
                 .setExtras(extras)
-                .setBody(cursor.getString(cursor.getColumnIndex(MessageColumns.BODY)))
-                //.setRead(cursor.getInt(cursor.getColumnIndex(MessageColumns.READ_STATE)) == 1)
-                .setOut(cursor.getInt(cursor.getColumnIndex(MessageColumns.OUT)) == 1)
+                .setBody(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.BODY)))
+                //.setRead(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.READ_STATE)) == 1)
+                .setOut(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.OUT)) == 1)
                 .setStatus(status)
-                .setDate(cursor.getLong(cursor.getColumnIndex(MessageColumns.DATE)))
-                .setHasAttachmens(cursor.getInt(cursor.getColumnIndex(MessageColumns.HAS_ATTACHMENTS)) == 1)
-                .setForwardCount(cursor.getInt(cursor.getColumnIndex(MessageColumns.FORWARD_COUNT)))
-                .setDeleted(cursor.getInt(cursor.getColumnIndex(MessageColumns.DELETED)) == 1)
-                .setDeletedForAll(cursor.getInt(cursor.getColumnIndex(MessageColumns.DELETED_FOR_ALL)) == 1)
-                //.setTitle(cursor.getString(cursor.getColumnIndex(MessageColumns.TITLE)))
-                .setOriginalId(cursor.getInt(cursor.getColumnIndex(MessageColumns.ORIGINAL_ID)))
-                .setImportant(cursor.getInt(cursor.getColumnIndex(MessageColumns.IMPORTANT)) == 1)
+                .setDate(cursor.getLong(cursor.getColumnIndexOrThrow(MessageColumns.DATE)))
+                .setHasAttachmens(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.HAS_ATTACHMENTS)) == 1)
+                .setForwardCount(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.FORWARD_COUNT)))
+                .setDeleted(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.DELETED)) == 1)
+                .setDeletedForAll(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.DELETED_FOR_ALL)) == 1)
+                //.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.TITLE)))
+                .setOriginalId(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.ORIGINAL_ID)))
+                .setImportant(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.IMPORTANT)) == 1)
                 .setAction(action)
-                .setActionMemberId(cursor.getInt(cursor.getColumnIndex(MessageColumns.ACTION_MID)))
-                .setActionEmail(cursor.getString(cursor.getColumnIndex(MessageColumns.ACTION_EMAIL)))
-                .setActionText(cursor.getString(cursor.getColumnIndex(MessageColumns.ACTION_TEXT)))
-                .setPhoto50(cursor.getString(cursor.getColumnIndex(MessageColumns.PHOTO_50)))
-                .setPhoto100(cursor.getString(cursor.getColumnIndex(MessageColumns.PHOTO_100)))
-                .setPhoto200(cursor.getString(cursor.getColumnIndex(MessageColumns.PHOTO_200)))
-                .setRandomId(cursor.getInt(cursor.getColumnIndex(MessageColumns.RANDOM_ID)))
-                .setUpdateTime(cursor.getLong(cursor.getColumnIndex(MessageColumns.UPDATE_TIME)))
-                .setPayload(cursor.getString(cursor.getColumnIndex(MessageColumns.PAYLOAD)))
+                .setActionMemberId(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.ACTION_MID)))
+                .setActionEmail(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.ACTION_EMAIL)))
+                .setActionText(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.ACTION_TEXT)))
+                .setPhoto50(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.PHOTO_50)))
+                .setPhoto100(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.PHOTO_100)))
+                .setPhoto200(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.PHOTO_200)))
+                .setRandomId(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.RANDOM_ID)))
+                .setUpdateTime(cursor.getLong(cursor.getColumnIndexOrThrow(MessageColumns.UPDATE_TIME)))
+                .setPayload(cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.PAYLOAD)))
                 .setKeyboard(keyboard);
 
     }
@@ -257,7 +257,7 @@ class MessagesStorage extends AbsStorage implements IMessagesStorage {
             Integer id = null;
             if (nonNull(cursor)) {
                 if (cursor.moveToNext()) {
-                    id = cursor.getInt(cursor.getColumnIndex(MessageColumns._ID));
+                    id = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns._ID));
                 }
 
                 cursor.close();
@@ -468,8 +468,8 @@ class MessagesStorage extends AbsStorage implements IMessagesStorage {
             DraftMessage message = null;
             if (cursor != null) {
                 if (cursor.moveToNext()) {
-                    int id = cursor.getInt(cursor.getColumnIndex(MessageColumns._ID));
-                    String body = cursor.getString(cursor.getColumnIndex(MessageColumns.BODY));
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns._ID));
+                    String body = cursor.getString(cursor.getColumnIndexOrThrow(MessageColumns.BODY));
                     message = new DraftMessage(id, body);
                 }
 
@@ -560,7 +560,7 @@ class MessagesStorage extends AbsStorage implements IMessagesStorage {
 
             if (cursor != null) {
                 if (cursor.moveToNext()) {
-                    result = cursor.getInt(cursor.getColumnIndex(MessageColumns.STATUS));
+                    result = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.STATUS));
                 }
 
                 cursor.close();
@@ -585,7 +585,7 @@ class MessagesStorage extends AbsStorage implements IMessagesStorage {
         Integer id = null;
         if (cursor != null) {
             if (cursor.moveToNext()) {
-                id = cursor.getInt(cursor.getColumnIndex(MessageColumns._ID));
+                id = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns._ID));
             }
 
             cursor.close();
@@ -674,7 +674,7 @@ class MessagesStorage extends AbsStorage implements IMessagesStorage {
             Cursor cursor = getContentResolver().query(uri, projection, where, null, null);
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    int id = cursor.getInt(cursor.getColumnIndex(MessageColumns._ID));
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns._ID));
                     copy.remove(id);
                 }
 
@@ -820,9 +820,9 @@ class MessagesStorage extends AbsStorage implements IMessagesStorage {
                     }
                     if (isFirst) {
                         isFirst = false;
-                        from_peer = cursor.getInt(cursor.getColumnIndex(MessageColumns.PEER_ID));
+                        from_peer = cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.PEER_ID));
                     }
-                    ids.add(cursor.getInt(cursor.getColumnIndex(MessageColumns.ORIGINAL_ID)));
+                    ids.add(cursor.getInt(cursor.getColumnIndexOrThrow(MessageColumns.ORIGINAL_ID)));
                 }
 
                 cursor.close();

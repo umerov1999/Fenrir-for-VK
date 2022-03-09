@@ -294,7 +294,7 @@ class OtherSettings implements ISettings.IOtherSettings {
 
     @Override
     public boolean isDeveloper_mode() {
-        return PreferenceScreen.getPreferences(app).getBoolean("developer_mode", true);
+        return PreferenceScreen.getPreferences(app).getBoolean("developer_mode", false);
     }
 
     @Override

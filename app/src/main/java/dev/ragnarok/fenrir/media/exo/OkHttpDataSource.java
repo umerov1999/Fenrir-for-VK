@@ -482,6 +482,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
             return this;
         }
 
+        @NonNull
         @Override
         public OkHttpDataSource createDataSource() {
             OkHttpDataSource dataSource =

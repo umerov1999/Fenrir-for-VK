@@ -109,21 +109,21 @@ class VideoAlbumsStorage extends AbsStorage implements IVideoAlbumsStorage {
     }
 
     private VideoAlbumEntity mapAlbum(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(VideoAlbumsColumns.ALBUM_ID));
-        int ownerId = cursor.getInt(cursor.getColumnIndex(VideoAlbumsColumns.OWNER_ID));
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(VideoAlbumsColumns.ALBUM_ID));
+        int ownerId = cursor.getInt(cursor.getColumnIndexOrThrow(VideoAlbumsColumns.OWNER_ID));
 
         PrivacyEntity privacyEntity = null;
 
-        String privacyJson = cursor.getString(cursor.getColumnIndex(VideoAlbumsColumns.PRIVACY));
+        String privacyJson = cursor.getString(cursor.getColumnIndexOrThrow(VideoAlbumsColumns.PRIVACY));
         if (Utils.nonEmpty(privacyJson)) {
             privacyEntity = GSON.fromJson(privacyJson, PrivacyEntity.class);
         }
 
         return new VideoAlbumEntity(id, ownerId)
-                .setTitle(cursor.getString(cursor.getColumnIndex(VideoAlbumsColumns.TITLE)))
-                .setUpdateTime(cursor.getLong(cursor.getColumnIndex(VideoAlbumsColumns.UPDATE_TIME)))
-                .setCount(cursor.getInt(cursor.getColumnIndex(VideoAlbumsColumns.COUNT)))
-                .setImage(cursor.getString(cursor.getColumnIndex(VideoAlbumsColumns.IMAGE)))
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(VideoAlbumsColumns.TITLE)))
+                .setUpdateTime(cursor.getLong(cursor.getColumnIndexOrThrow(VideoAlbumsColumns.UPDATE_TIME)))
+                .setCount(cursor.getInt(cursor.getColumnIndexOrThrow(VideoAlbumsColumns.COUNT)))
+                .setImage(cursor.getString(cursor.getColumnIndexOrThrow(VideoAlbumsColumns.IMAGE)))
                 .setPrivacy(privacyEntity);
     }
 }

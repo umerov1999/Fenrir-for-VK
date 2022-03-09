@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.db.DatabaseIdRange;
 import dev.ragnarok.fenrir.db.MessengerContentProvider;
 import dev.ragnarok.fenrir.db.column.FaveArticlesColumns;
@@ -62,36 +62,36 @@ class FaveStorage extends AbsStorage implements IFaveStorage {
     }
 
     private static UserEntity mapUser(int accountId, int id) {
-        return Injection.provideStores().owners().findUserDboById(accountId, id).blockingGet().get();
+        return Includes.getStores().owners().findUserDboById(accountId, id).blockingGet().get();
     }
 
     private static CommunityEntity mapGroup(int accountId, int id) {
-        return Injection.provideStores().owners().findCommunityDboById(accountId, Math.abs(id)).blockingGet().get();
+        return Includes.getStores().owners().findCommunityDboById(accountId, Math.abs(id)).blockingGet().get();
     }
 
     private static FavePageEntity mapFaveUserDbo(Cursor cursor, int accountId) {
-        return new FavePageEntity(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)))
-                .setDescription(cursor.getString(cursor.getColumnIndex(FavePageColumns.DESCRIPTION)))
-                .setUpdateDate(cursor.getLong(cursor.getColumnIndex(FavePageColumns.UPDATED_TIME)))
-                .setFaveType(cursor.getString(cursor.getColumnIndex(FavePageColumns.FAVE_TYPE)))
-                .setUser(mapUser(accountId, cursor.getInt(cursor.getColumnIndex(BaseColumns._ID))));
+        return new FavePageEntity(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID)))
+                .setDescription(cursor.getString(cursor.getColumnIndexOrThrow(FavePageColumns.DESCRIPTION)))
+                .setUpdateDate(cursor.getLong(cursor.getColumnIndexOrThrow(FavePageColumns.UPDATED_TIME)))
+                .setFaveType(cursor.getString(cursor.getColumnIndexOrThrow(FavePageColumns.FAVE_TYPE)))
+                .setUser(mapUser(accountId, cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID))));
     }
 
     private static FavePageEntity mapFaveGroupDbo(Cursor cursor, int accountId) {
-        return new FavePageEntity(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)))
-                .setDescription(cursor.getString(cursor.getColumnIndex(FavePageColumns.DESCRIPTION)))
-                .setUpdateDate(cursor.getLong(cursor.getColumnIndex(FavePageColumns.UPDATED_TIME)))
-                .setFaveType(cursor.getString(cursor.getColumnIndex(FavePageColumns.FAVE_TYPE)))
-                .setGroup(mapGroup(accountId, cursor.getInt(cursor.getColumnIndex(BaseColumns._ID))));
+        return new FavePageEntity(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID)))
+                .setDescription(cursor.getString(cursor.getColumnIndexOrThrow(FavePageColumns.DESCRIPTION)))
+                .setUpdateDate(cursor.getLong(cursor.getColumnIndexOrThrow(FavePageColumns.UPDATED_TIME)))
+                .setFaveType(cursor.getString(cursor.getColumnIndexOrThrow(FavePageColumns.FAVE_TYPE)))
+                .setGroup(mapGroup(accountId, cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID))));
     }
 
     private static PhotoEntity mapFavePhoto(Cursor cursor) {
-        String json = cursor.getString(cursor.getColumnIndex(FavePhotosColumns.PHOTO));
+        String json = cursor.getString(cursor.getColumnIndexOrThrow(FavePhotosColumns.PHOTO));
         return GSON.fromJson(json, PhotoEntity.class);
     }
 
     private static PhotoEntity mapFaveLinkPhoto(Cursor cursor) {
-        String json = cursor.getString(cursor.getColumnIndex(FaveLinksColumns.PHOTO));
+        String json = cursor.getString(cursor.getColumnIndexOrThrow(FaveLinksColumns.PHOTO));
         return GSON.fromJson(json, PhotoEntity.class);
     }
 
@@ -393,7 +393,7 @@ class FaveStorage extends AbsStorage implements IFaveStorage {
     }
 
     private VideoEntity mapVideo(Cursor cursor) {
-        String json = cursor.getString(cursor.getColumnIndex(FaveVideosColumns.VIDEO));
+        String json = cursor.getString(cursor.getColumnIndexOrThrow(FaveVideosColumns.VIDEO));
         return GSON.fromJson(json, VideoEntity.class);
     }
 
@@ -470,12 +470,12 @@ class FaveStorage extends AbsStorage implements IFaveStorage {
     }
 
     private ArticleEntity mapArticle(Cursor cursor) {
-        String json = cursor.getString(cursor.getColumnIndex(FaveArticlesColumns.ARTICLE));
+        String json = cursor.getString(cursor.getColumnIndexOrThrow(FaveArticlesColumns.ARTICLE));
         return GSON.fromJson(json, ArticleEntity.class);
     }
 
     private MarketEntity mapProduct(Cursor cursor) {
-        String json = cursor.getString(cursor.getColumnIndex(FaveProductColumns.PRODUCT));
+        String json = cursor.getString(cursor.getColumnIndexOrThrow(FaveProductColumns.PRODUCT));
         return GSON.fromJson(json, MarketEntity.class);
     }
 
@@ -663,16 +663,16 @@ class FaveStorage extends AbsStorage implements IFaveStorage {
     }
 
     private FaveLinkEntity mapFaveLink(Cursor cursor) {
-        String id = cursor.getString(cursor.getColumnIndex(FaveLinksColumns.LINK_ID));
-        String url = cursor.getString(cursor.getColumnIndex(FaveLinksColumns.URL));
+        String id = cursor.getString(cursor.getColumnIndexOrThrow(FaveLinksColumns.LINK_ID));
+        String url = cursor.getString(cursor.getColumnIndexOrThrow(FaveLinksColumns.URL));
         return new FaveLinkEntity(id, url)
-                .setTitle(cursor.getString(cursor.getColumnIndex(FaveLinksColumns.TITLE)))
-                .setDescription(cursor.getString(cursor.getColumnIndex(FaveLinksColumns.DESCRIPTION)))
+                .setTitle(cursor.getString(cursor.getColumnIndexOrThrow(FaveLinksColumns.TITLE)))
+                .setDescription(cursor.getString(cursor.getColumnIndexOrThrow(FaveLinksColumns.DESCRIPTION)))
                 .setPhoto(mapFaveLinkPhoto(cursor));
     }
 
     private PostEntity mapFavePosts(Cursor cursor) {
-        String json = cursor.getString(cursor.getColumnIndex(FavePostsColumns.POST));
+        String json = cursor.getString(cursor.getColumnIndexOrThrow(FavePostsColumns.POST));
         return GSON.fromJson(json, PostEntity.class);
     }
 }

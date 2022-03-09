@@ -29,10 +29,10 @@
             android:id="@+id/current"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignStart="@+id/imageView"
-            android:layout_alignTop="@+id/imageView"
-            android:layout_alignEnd="@+id/imageView"
-            android:layout_alignBottom="@+id/imageView"
+            android:layout_alignStart="@id/imageView"
+            android:layout_alignTop="@id/imageView"
+            android:layout_alignEnd="@id/imageView"
+            android:layout_alignBottom="@id/imageView"
             android:visibility="gone"
             app:loopAnimation="true" />
 
@@ -40,7 +40,7 @@
             android:id="@+id/vk_photo_item_top"
             android:layout_width="match_parent"
             android:layout_height="20dp"
-            android:layout_alignStart="@+id/imageView"
+            android:layout_alignStart="@id/imageView"
             android:layout_alignTop="@id/imageView"
             android:background="?attr/colorSecondary"
             android:paddingStart="4dp"

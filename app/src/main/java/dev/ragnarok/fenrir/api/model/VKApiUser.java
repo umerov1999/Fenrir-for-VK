@@ -118,32 +118,22 @@ public class VKApiUser extends VKApiOwner {
     public List<VKApiCareer> careers;
     /**
      * Views on smoking.
-     *
-     * @see {@link VKApiUser.Attitude}
      */
     public int smoking;
     /**
      * Views on alcohol.
-     *
-     * @see {@link VKApiUser.Attitude}
      */
     public int alcohol;
     /**
      * Views on policy.
-     *
-     * @see {@link VKApiUser.Political}
      */
     public int political;
     /**
      * Life main stuffs.
-     *
-     * @see {@link VKApiUser.LifeMain}
      */
     public int life_main;
     /**
      * People main stuffs.
-     *
-     * @see {@link VKApiUser.PeopleMain}
      */
     public int people_main;
     /**
@@ -271,8 +261,6 @@ public class VKApiUser extends VKApiOwner {
     public boolean verified;
     /**
      * User sex.
-     *
-     * @see {@link VKApiUser.Sex}
      */
     public int sex;
     /**
@@ -281,8 +269,6 @@ public class VKApiUser extends VKApiOwner {
     public Counters counters;
     /**
      * Relationship status.
-     *
-     * @see {@link VKApiUser.Relation}
      */
     public int relation;
     /**

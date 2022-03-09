@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.db.model.PostUpdate;
 import dev.ragnarok.fenrir.domain.IFaveInteractor;
 import dev.ragnarok.fenrir.domain.IWallsRepository;
@@ -48,7 +48,7 @@ public class FavePostsPresenter extends PlaceSupportPresenter<IFavePostsView> {
         wallInteractor = Repository.INSTANCE.getWalls();
 
         appendDisposable(wallInteractor.observeMinorChanges()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onPostUpdate));
 
         loadCachedData();

@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import de.maxr1998.modernpreferences.PreferenceScreen
-import dev.ragnarok.fenrir.Injection
+import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.fragment.PreferencesFragment
 import dev.ragnarok.fenrir.settings.Settings
 
@@ -148,7 +148,7 @@ class SettingsBackup {
     fun doBackup(): JsonObject? {
         var has = false
         val pref =
-            PreferenceScreen.getPreferences(Injection.provideApplicationContext())
+            PreferenceScreen.getPreferences(Includes.provideApplicationContext())
         val ret = JsonObject()
         for (i in settings) {
             val temp = i.requestSetting(pref)
@@ -176,7 +176,7 @@ class SettingsBackup {
 
     fun doRestore(ret: JsonObject?) {
         val pref =
-            PreferenceScreen.getPreferences(Injection.provideApplicationContext())
+            PreferenceScreen.getPreferences(Includes.provideApplicationContext())
 
         for (i in Settings.get().notifications().chatsNotifKeys) {
             pref.edit().remove(i).apply()

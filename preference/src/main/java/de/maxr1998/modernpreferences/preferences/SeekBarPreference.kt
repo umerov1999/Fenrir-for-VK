@@ -95,13 +95,13 @@ class SeekBarPreference(key: String) : Preference(key) {
         holder.summary?.updateLayoutParams<ConstraintLayout.LayoutParams> {
             bottomMargin = 0
         }
-        val widget = holder.widget as Space
-        val inflater = LayoutInflater.from(widget.context)
-        val sb = (widget.tag
+        val widget = holder.widget as Space?
+        val inflater = LayoutInflater.from(widget?.context)
+        val sb = (widget?.tag
             ?: inflater.inflate(R.layout.map_preference_widget_seekbar, holder.root)
-                .findViewById(android.R.id.progress)) as ModernSeekBar
-        val tv = (sb.tag ?: holder.itemView.findViewById(R.id.progress_text)) as TextView
-        widget.tag = sb.apply {
+                .findViewById(android.R.id.progress)) as ModernSeekBar?
+        val tv = (sb?.tag ?: holder.itemView.findViewById(R.id.progress_text)) as TextView?
+        widget?.tag = sb?.apply {
             isEnabled = enabled
             max = calcRaw(this@SeekBarPreference.max)
             progress = calcRaw(valueInternal)
@@ -123,11 +123,11 @@ class SeekBarPreference(key: String) : Preference(key) {
                         progress = calcRaw(valueInternal)
                     }
                     // Update preview text
-                    tv.text = formatter(valueInternal)
+                    tv?.text = formatter(valueInternal)
                 }
             }
         }
-        sb.tag = tv.apply {
+        sb?.tag = tv?.apply {
             isEnabled = enabled
             text = formatter(valueInternal)
         }

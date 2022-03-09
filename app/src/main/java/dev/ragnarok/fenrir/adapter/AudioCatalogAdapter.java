@@ -19,19 +19,21 @@ import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.link.LinkHelper;
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackService;
 import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.model.AudioCatalog;
 import dev.ragnarok.fenrir.model.AudioPlaylist;
 import dev.ragnarok.fenrir.model.Link;
 import dev.ragnarok.fenrir.model.Video;
+import dev.ragnarok.fenrir.module.StringExist;
 import dev.ragnarok.fenrir.picasso.PicassoInstance;
 import dev.ragnarok.fenrir.place.PlaceFactory;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
-import dev.ragnarok.fenrir.player.MusicPlaybackService;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.Utils;
 import dev.ragnarok.fenrir.util.ViewUtils;
 import dev.ragnarok.fenrir.view.AspectRatioImageView;
+import dev.ragnarok.fenrir.view.VP2NestedRecyclerView;
 
 public class AudioCatalogAdapter extends RecyclerView.Adapter<AudioCatalogAdapter.ViewHolder> implements AudioPlaylistsCatalogAdapter.ClickListener,
         AudioRecyclerAdapter.ClickListener, VideosAdapter.VideoOnClickListener, CatalogLinksAdapter.ActionListener {
@@ -108,6 +110,7 @@ public class AudioCatalogAdapter extends RecyclerView.Adapter<AudioCatalogAdapte
             holder.list.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
             holder.list.addOnScrollListener(new PicassoPauseOnScrollListener(Constants.PICASSO_TAG));
             holder.list.setAdapter(adapter);
+            holder.list.updateUid(StringExist.calculateCRC32(category.getId()));
         } else if (!Utils.isEmpty(category.getAudios())) {
             Audio current = MusicPlaybackController.getCurrentAudio();
             int scroll_to = category.getAudios().indexOf(current);
@@ -117,6 +120,7 @@ public class AudioCatalogAdapter extends RecyclerView.Adapter<AudioCatalogAdapte
             holder.list.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL));
             holder.list.addOnScrollListener(new PicassoPauseOnScrollListener(Constants.PICASSO_TAG));
             holder.list.setAdapter(adapter);
+            holder.list.updateUid(StringExist.calculateCRC32(category.getId()));
             if (scroll_to >= 0)
                 holder.list.scrollToPosition(scroll_to);
         } else if (!Utils.isEmpty(category.getVideos())) {
@@ -126,6 +130,7 @@ public class AudioCatalogAdapter extends RecyclerView.Adapter<AudioCatalogAdapte
             holder.list.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
             holder.list.addOnScrollListener(new PicassoPauseOnScrollListener(Constants.PICASSO_TAG));
             holder.list.setAdapter(adapter);
+            holder.list.updateUid(StringExist.calculateCRC32(category.getId()));
         } else if (!Utils.isEmpty(category.getLinks())) {
             CatalogLinksAdapter adapter = new CatalogLinksAdapter(category.getLinks());
             adapter.setActionListener(this);
@@ -133,6 +138,7 @@ public class AudioCatalogAdapter extends RecyclerView.Adapter<AudioCatalogAdapte
             holder.list.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
             holder.list.addOnScrollListener(new PicassoPauseOnScrollListener(Constants.PICASSO_TAG));
             holder.list.setAdapter(adapter);
+            holder.list.updateUid(StringExist.calculateCRC32(category.getId()));
         } else
             holder.list.setVisibility(View.GONE);
     }
@@ -226,7 +232,7 @@ public class AudioCatalogAdapter extends RecyclerView.Adapter<AudioCatalogAdapte
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView title;
         final TextView subtitle;
-        final RecyclerView list;
+        final VP2NestedRecyclerView list;
         final AspectRatioImageView Image;
         final View catalog;
 

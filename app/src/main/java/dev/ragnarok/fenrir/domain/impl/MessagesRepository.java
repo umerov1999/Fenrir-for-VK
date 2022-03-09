@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 
 import dev.ragnarok.fenrir.Constants;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.VkRetrofitProvider;
 import dev.ragnarok.fenrir.api.interfaces.IDocsApi;
@@ -186,7 +186,7 @@ public class MessagesRepository implements IMessagesRepository {
                 .subscribe(result -> onUpdloadSuccess(result.getFirst()), ignore()));
 
         compositeDisposable.add(accountsSettings.observeRegistered()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(ignored -> onAccountsChanged(), ignore()));
     }
 
@@ -273,7 +273,7 @@ public class MessagesRepository implements IMessagesRepository {
             if (!Settings.get().other().isBe_online() || Utils.isHiddenAccount(accountId)) {
                 compositeDisposable.add(InteractorFactory.createAccountInteractor().setOffline(accountId)
                         .subscribeOn(senderScheduler)
-                        .observeOn(Injection.provideMainThreadScheduler())
+                        .observeOn(Includes.provideMainThreadScheduler())
                         .subscribe(ignore(), ignore()));
             }
             // no unsent messages
@@ -287,7 +287,7 @@ public class MessagesRepository implements IMessagesRepository {
         nowSending = true;
         compositeDisposable.add(sendUnsentMessage(accountIds)
                 .subscribeOn(senderScheduler)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onMessageSent, this::onMessageSendError));
     }
 
@@ -412,9 +412,9 @@ public class MessagesRepository implements IMessagesRepository {
         if (nonEmpty(outgoing)) {
             for (OutputMessagesSetReadUpdate update : outgoing) {
                 if (!Settings.get().other().isDisable_notifications() && Settings.get().other().isInfo_reading() && update.peer_id < VKApiMessage.CHAT_PEER) {
-                    compositeDisposable.add(OwnerInfo.getRx(Injection.provideApplicationContext(), Settings.get().accounts().getCurrent(), update.peer_id)
+                    compositeDisposable.add(OwnerInfo.getRx(Includes.provideApplicationContext(), Settings.get().accounts().getCurrent(), update.peer_id)
                             .compose(RxUtils.applySingleIOToMainSchedulers())
-                            .subscribe(userInfo -> CustomToast.CreateCustomToast(Injection.provideApplicationContext()).setBitmap(userInfo.getAvatar()).showToastInfo(userInfo.getOwner().getFullName() + " " + Injection.provideApplicationContext().getString(GetTypeUser(userInfo))), throwable -> {
+                            .subscribe(userInfo -> CustomToast.CreateCustomToast(Includes.provideApplicationContext()).setBitmap(userInfo.getAvatar()).showToastInfo(userInfo.getOwner().getFullName() + " " + Includes.provideApplicationContext().getString(GetTypeUser(userInfo))), throwable -> {
                             }));
                 }
                 patches.add(new PeerPatch(update.peer_id).withOutRead(update.local_id));
@@ -424,7 +424,7 @@ public class MessagesRepository implements IMessagesRepository {
         if (nonEmpty(incoming)) {
             for (InputMessagesSetReadUpdate update : incoming) {
                 patches.add(new PeerPatch(update.peer_id).withInRead(update.local_id).withUnreadCount(update.unread_count));
-                tryCancelNotificationForPeer(Injection.provideApplicationContext(), accountId, update.getPeerId());
+                tryCancelNotificationForPeer(Includes.provideApplicationContext(), accountId, update.getPeerId());
             }
         }
 

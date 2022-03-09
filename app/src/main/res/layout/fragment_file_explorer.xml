@@ -7,7 +7,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/relativeLayout3">
+        android:layout_above="@id/relativeLayout3">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_toStartOf="@+id/select_current_directory_button"
+            android:layout_toStartOf="@id/select_current_directory_button"
             android:gravity="center"
             android:padding="8dp"
             android:textColor="#ffffff" />

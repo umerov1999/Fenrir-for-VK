@@ -48,6 +48,7 @@
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="false"
         android:theme="@style/App.DayNight"
         android:usesCleartextTraffic="true"
         tools:targetApi="q">
@@ -525,7 +526,7 @@
         <!-- Used to set options -->
 
         <service
-            android:name=".player.MusicPlaybackService"
+            android:name=".media.music.MusicPlaybackService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />

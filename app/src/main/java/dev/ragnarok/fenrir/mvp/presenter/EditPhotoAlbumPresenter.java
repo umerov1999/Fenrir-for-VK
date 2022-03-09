@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.api.interfaces.INetworker;
 import dev.ragnarok.fenrir.api.interfaces.IPhotosApi;
 import dev.ragnarok.fenrir.api.model.VKApiPhotoAlbum;
@@ -35,7 +35,7 @@ public class EditPhotoAlbumPresenter extends AccountDependencyPresenter<IEditPho
 
     public EditPhotoAlbumPresenter(int accountId, int ownerId, Context context, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
-        networker = Injection.provideNetworkInterfaces();
+        networker = Includes.getNetworkInterfaces();
         this.ownerId = ownerId;
         editor = PhotoAlbumEditor.create();
         editing = false;
@@ -46,7 +46,7 @@ public class EditPhotoAlbumPresenter extends AccountDependencyPresenter<IEditPho
 
     public EditPhotoAlbumPresenter(int accountId, @NonNull PhotoAlbum album, @NonNull PhotoAlbumEditor editor, Context context, @Nullable Bundle savedInstanceState) {
         super(accountId, savedInstanceState);
-        networker = Injection.provideNetworkInterfaces();
+        networker = Includes.getNetworkInterfaces();
         this.album = album;
         ownerId = album.getOwnerId();
         this.editor = editor;

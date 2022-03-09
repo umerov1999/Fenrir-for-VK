@@ -53,7 +53,7 @@ import dev.ragnarok.fenrir.Constants.USER_AGENT_ACCOUNT
 import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
 import dev.ragnarok.fenrir.Extra.ACCOUNT_ID
 import dev.ragnarok.fenrir.Extra.PHOTOS
-import dev.ragnarok.fenrir.Injection.provideProxySettings
+import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.*
 import dev.ragnarok.fenrir.activity.alias.*
@@ -161,15 +161,17 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
 
         searchView?.let {
-            it.setOnBackButtonClickListener {
-                if (!Utils.isEmpty(it.text) && !Utils.isEmpty(it.text?.trim())) {
-                    preferencesAdapter?.findPreferences(
-                        requireActivity(),
-                        it.text!!.toString(),
-                        root
-                    )
+            it.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
+                override fun onBackButtonClick() {
+                    if (!Utils.isEmpty(it.text) && !Utils.isEmpty(it.text?.trim())) {
+                        preferencesAdapter?.findPreferences(
+                            requireActivity(),
+                            it.text!!.toString(),
+                            root
+                        )
+                    }
                 }
-            }
+            })
             it.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
@@ -1484,8 +1486,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         commitString("api.vk.com")
                         reload()
                     }
-                    provideProxySettings()
-                        .setActive(provideProxySettings().activeProxy)
+                    Includes.proxySettings.broadcastUpdate(null)
                 }
             }
 
@@ -1499,8 +1500,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         commitString("oauth.vk.com")
                         reload()
                     }
-                    provideProxySettings()
-                        .setActive(provideProxySettings().activeProxy)
+                    Includes.proxySettings.broadcastUpdate(null)
                 }
             }
 
@@ -2208,8 +2208,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     srv.password = passVal
                     srv.url = urlVal
                     Settings.get().other().localServer = srv
-                    provideProxySettings()
-                        .setActive(provideProxySettings().activeProxy)
+                    Includes.proxySettings.broadcastUpdate(null)
                 }
                 .create()
         }
@@ -2494,14 +2493,15 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         }
                     }
                 }
-                cache = AudioRecordWrapper.getRecordingDirectory(context)
-                if (cache.exists() && cache.isDirectory) {
-                    val children = cache.list()
-                    if (children != null) {
-                        for (child in children) {
-                            val rem = File(cache, child)
-                            if (rem.isFile) {
-                                rem.delete()
+                AudioRecordWrapper.getRecordingDirectory(context)?.let {
+                    if (it.exists() && it.isDirectory) {
+                        val children = it.list()
+                        if (children != null) {
+                            for (child in children) {
+                                val rem = File(it, child)
+                                if (rem.isFile) {
+                                    rem.delete()
+                                }
                             }
                         }
                     }

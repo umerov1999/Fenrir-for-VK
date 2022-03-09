@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.mvp.presenter;
 
-import static dev.ragnarok.fenrir.player.MusicPlaybackController.observeServiceBinding;
+import static dev.ragnarok.fenrir.media.music.MusicPlaybackController.observeServiceBinding;
 import static dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime;
 
 import android.content.Context;
@@ -19,10 +19,10 @@ import java.util.HashMap;
 
 import dev.ragnarok.fenrir.domain.IAudioInteractor;
 import dev.ragnarok.fenrir.domain.InteractorFactory;
+import dev.ragnarok.fenrir.media.music.PlayerStatus;
 import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter;
 import dev.ragnarok.fenrir.mvp.view.IAudioDuplicateView;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
 import dev.ragnarok.fenrir.util.Mp3InfoHelper;
 import dev.ragnarok.fenrir.util.Pair;
 import dev.ragnarok.fenrir.util.RxUtils;
@@ -117,7 +117,7 @@ public class AudioDuplicatePresenter extends RxSupportPresenter<IAudioDuplicateV
                         new String[]{Uri.parse(url).getLastPathSegment()}, null);
                 if (cursor != null && cursor.moveToFirst()) {
                     MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                    String fl = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                    String fl = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
                     retriever.setDataSource(fl);
                     cursor.close();
                     String bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
@@ -150,16 +150,16 @@ public class AudioDuplicatePresenter extends RxSupportPresenter<IAudioDuplicateV
                         this::onDataGetError);
     }
 
-    private void onServiceBindEvent(@MusicPlaybackController.PlayerStatus int status) {
+    private void onServiceBindEvent(@PlayerStatus int status) {
         switch (status) {
-            case MusicPlaybackController.PlayerStatus.UPDATE_TRACK_INFO:
-            case MusicPlaybackController.PlayerStatus.SERVICE_KILLED:
-            case MusicPlaybackController.PlayerStatus.UPDATE_PLAY_PAUSE:
+            case PlayerStatus.UPDATE_TRACK_INFO:
+            case PlayerStatus.SERVICE_KILLED:
+            case PlayerStatus.UPDATE_PLAY_PAUSE:
                 callView(v -> v.displayData(new_audio, old_audio));
                 break;
-            case MusicPlaybackController.PlayerStatus.REPEATMODE_CHANGED:
-            case MusicPlaybackController.PlayerStatus.SHUFFLEMODE_CHANGED:
-            case MusicPlaybackController.PlayerStatus.UPDATE_PLAY_LIST:
+            case PlayerStatus.REPEATMODE_CHANGED:
+            case PlayerStatus.SHUFFLEMODE_CHANGED:
+            case PlayerStatus.UPDATE_PLAY_LIST:
                 break;
         }
     }

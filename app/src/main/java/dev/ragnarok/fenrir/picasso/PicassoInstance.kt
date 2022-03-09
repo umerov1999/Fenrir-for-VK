@@ -149,8 +149,8 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
         @JvmStatic
         @Throws(IOException::class)
         fun clear_cache() {
-            instance!!.getCache_data()
-            instance!!.cache_data!!.evictAll()
+            instance?.getCache_data()
+            instance?.cache_data?.evictAll()
         }
 
         // from picasso sources

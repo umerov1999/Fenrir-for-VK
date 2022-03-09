@@ -5,7 +5,7 @@ import android.annotation.SuppressLint;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.db.interfaces.ILogsStorage;
 import dev.ragnarok.fenrir.model.LogEvent;
 import dev.ragnarok.fenrir.settings.Settings;
@@ -19,7 +19,7 @@ public class PersistentLogger {
     public static void logThrowable(String tag, Throwable throwable) {
         if (!Settings.get().other().isDoLogs())
             return;
-        ILogsStorage store = Injection.provideLogsStore();
+        ILogsStorage store = Includes.getLogsStore();
         Throwable cause = Utils.getCauseIfRuntime(throwable);
 
         getStackTrace(cause)

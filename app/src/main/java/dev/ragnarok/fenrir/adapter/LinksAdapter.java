@@ -53,7 +53,7 @@ public class LinksAdapter extends RecyclerBindableAdapter<Link, LinksAdapter.Lin
     }
 
     @Override
-    protected void onBindItemViewHolder(LinkViewHolder holder, int position, int type) {
+    protected void onBindItemViewHolder(@NonNull LinkViewHolder holder, int position, int type) {
         Link item = getItem(position);
 
         if (Utils.isEmpty(item.getTitle()))
@@ -100,6 +100,7 @@ public class LinksAdapter extends RecyclerBindableAdapter<Link, LinksAdapter.Lin
         });
     }
 
+    @NonNull
     @Override
     protected LinkViewHolder viewHolder(View view, int type) {
         return new LinkViewHolder(view);

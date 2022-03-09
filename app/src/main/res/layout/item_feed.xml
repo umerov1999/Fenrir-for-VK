@@ -35,9 +35,9 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            app:layout_constraintEnd_toStartOf="@+id/post_views_counter"
-            app:layout_constraintStart_toEndOf="@+id/item_post_avatar"
-            app:layout_constraintTop_toTopOf="@+id/item_post_avatar"
+            app:layout_constraintEnd_toStartOf="@id/post_views_counter"
+            app:layout_constraintStart_toEndOf="@id/item_post_avatar"
+            app:layout_constraintTop_toTopOf="@id/item_post_avatar"
             tools:text="Rustam Fattakhetdinov" />
 
         <TextView
@@ -45,9 +45,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            app:layout_constraintEnd_toEndOf="@+id/item_post_owner_name"
-            app:layout_constraintStart_toStartOf="@+id/item_post_owner_name"
-            app:layout_constraintTop_toBottomOf="@+id/item_post_owner_name"
+            app:layout_constraintEnd_toEndOf="@id/item_post_owner_name"
+            app:layout_constraintStart_toStartOf="@id/item_post_owner_name"
+            app:layout_constraintTop_toBottomOf="@id/item_post_owner_name"
             tools:text="Today 19:26" />
 
         <TextView
@@ -60,9 +60,9 @@
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             app:drawableRightCompat="@drawable/ic_eye_white_vector"
             app:drawableTint="?android:textColorSecondary"
-            app:layout_constraintBottom_toBottomOf="@+id/item_post_time"
+            app:layout_constraintBottom_toBottomOf="@id/item_post_time"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/item_post_owner_name"
+            app:layout_constraintTop_toTopOf="@id/item_post_owner_name"
             tools:text="1533" />
 
         <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
@@ -81,8 +81,8 @@
             app:emojiconSize="20sp"
             app:hashTagColor="?attr/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/item_post_avatar"
-            app:layout_constraintTop_toBottomOf="@+id/item_post_avatar"
+            app:layout_constraintStart_toStartOf="@id/item_post_avatar"
+            app:layout_constraintTop_toBottomOf="@id/item_post_avatar"
             tools:text="Message" />
 
         <TextView
@@ -95,8 +95,8 @@
             android:textColor="?attr/colorAccent"
             android:textStyle="bold"
             android:visibility="visible"
-            app:layout_constraintStart_toStartOf="@+id/item_post_text"
-            app:layout_constraintTop_toBottomOf="@+id/item_post_text" />
+            app:layout_constraintStart_toStartOf="@id/item_post_text"
+            app:layout_constraintTop_toBottomOf="@id/item_post_text" />
 
         <LinearLayout
             android:id="@+id/item_post_attachments"
@@ -106,7 +106,7 @@
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/item_post_show_more">
+            app:layout_constraintTop_toBottomOf="@id/item_post_show_more">
 
             <include
                 android:id="@+id/include"
@@ -147,7 +147,7 @@
             app:always_counter="false"
             app:button_icon="@drawable/comment"
             app:layout_constraintEnd_toStartOf="@id/share_button"
-            app:layout_constraintStart_toEndOf="@+id/like_button"
+            app:layout_constraintStart_toEndOf="@id/like_button"
             app:layout_constraintTop_toBottomOf="@id/item_post_attachments"
             app:noactive_icon_color="?attr/colorOnSurface" />
 
@@ -161,7 +161,7 @@
             app:active_background_color="?attr/icon_color_active"
             app:button_icon="@drawable/ic_outline_share"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/comments_button"
+            app:layout_constraintStart_toEndOf="@id/comments_button"
             app:layout_constraintTop_toBottomOf="@id/item_post_attachments"
             app:noactive_icon_color="?attr/colorOnSurface" />
 

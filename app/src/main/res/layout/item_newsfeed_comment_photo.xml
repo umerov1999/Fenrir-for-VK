@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
-                android:layout_toEndOf="@+id/photo_owner_avatar"
+                android:layout_toEndOf="@id/photo_owner_avatar"
                 android:orientation="vertical">
 
                 <TextView

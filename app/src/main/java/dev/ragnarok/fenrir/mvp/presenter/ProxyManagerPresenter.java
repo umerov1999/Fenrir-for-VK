@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.model.ProxyConfig;
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter;
 import dev.ragnarok.fenrir.mvp.view.IProxyManagerView;
@@ -23,20 +23,20 @@ public class ProxyManagerPresenter extends RxSupportPresenter<IProxyManagerView>
 
     public ProxyManagerPresenter(@Nullable Bundle savedInstanceState) {
         super(savedInstanceState);
-        settings = Injection.provideProxySettings();
+        settings = Includes.getProxySettings();
 
         configs = settings.getAll();
 
         appendDisposable(settings.observeAdding()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onProxyAdded));
 
         appendDisposable(settings.observeRemoving()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onProxyDeleted));
 
         appendDisposable(settings.observeActive()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(optional -> onActiveChanged(optional.get())));
     }
 

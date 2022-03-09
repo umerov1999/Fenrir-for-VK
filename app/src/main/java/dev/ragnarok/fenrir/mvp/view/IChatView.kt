@@ -11,7 +11,7 @@ interface IChatView : IBasicMessageListView, IErrorView {
     fun setupLoadUpHeaderState(@LoadMoreState state: Int)
     fun displayDraftMessageAttachmentsCount(count: Int)
     fun displayDraftMessageText(text: String?)
-    fun AppendMessageText(text: String?)
+    fun appendMessageText(text: String?)
     fun displayToolbarTitle(text: String?)
     fun displayToolbarAvatar(peer: Peer?)
     fun displayToolbarSubtitle(text: String?)
@@ -83,7 +83,7 @@ interface IChatView : IBasicMessageListView, IErrorView {
     fun startDocSelection(accountId: Int)
     fun startCamera(fileUri: Uri)
     fun showDeleteForAllDialog(ids: ArrayList<Message>)
-    fun ScrollTo(position: Int)
+    fun scrollTo(position: Int)
     fun showSnackbar(@StringRes res: Int, isLong: Boolean)
     fun goToMessagesLookup(accountId: Int, peerId: Int, messageId: Int, message: Message)
     fun goToUnreadMessages(

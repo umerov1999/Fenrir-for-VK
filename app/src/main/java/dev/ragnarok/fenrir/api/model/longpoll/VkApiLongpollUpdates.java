@@ -14,6 +14,8 @@ import static dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent.ACTION_USE
 import static dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent.ACTION_USER_WRITE_VOICE_IN_DIALOG;
 import static dev.ragnarok.fenrir.util.Utils.safeCountOfMultiple;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,6 +153,7 @@ public final class VkApiLongpollUpdates {
         return output_messages_set_read_updates;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Longpolling updates, count: " + getUpdatesCount() + ", failed: " + failed;

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.db.AttachToType;
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository;
@@ -71,8 +71,8 @@ public class MessageAttachmentsPresenter extends RxSupportPresenter<IMessageAtta
         this.messageOwnerId = messageOwnerId;
         destination = UploadDestination.forMessage(messageId);
         entries = new ArrayList<>();
-        attachmentsRepository = Injection.provideAttachmentsRepository();
-        uploadManager = Injection.provideUploadManager();
+        attachmentsRepository = Includes.getAttachmentsRepository();
+        uploadManager = Includes.getUploadManager();
 
         if (nonNull(savedInstanceState)) {
             currentPhotoCameraUri = savedInstanceState.getParcelable(SAVE_CAMERA_FILE_URI);
@@ -90,29 +90,29 @@ public class MessageAttachmentsPresenter extends RxSupportPresenter<IMessageAtta
         appendDisposable(attachmentsRepository
                 .observeAdding()
                 .filter(predicate)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(event -> onAttachmentsAdded(event.getAttachments())));
 
         appendDisposable(attachmentsRepository
                 .observeRemoving()
                 .filter(predicate)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(event -> onAttachmentRemoved(event.getGeneratedId())));
 
         appendDisposable(uploadManager.observeAdding()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadsAdded));
 
         appendDisposable(uploadManager.observeDeleting(true)
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadsRemoved));
 
         appendDisposable(uploadManager.obseveStatus()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadStatusChanges));
 
         appendDisposable(uploadManager.observeProgress()
-                .observeOn(Injection.provideMainThreadScheduler())
+                .observeOn(Includes.provideMainThreadScheduler())
                 .subscribe(this::onUploadProgressUpdates));
 
         loadData();

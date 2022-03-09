@@ -37,7 +37,7 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_toStartOf="@+id/item_user_remove"
+        android:layout_toStartOf="@id/item_user_remove"
         android:layout_toEndOf="@id/item_user_avatar_container"
         android:orientation="vertical">
 

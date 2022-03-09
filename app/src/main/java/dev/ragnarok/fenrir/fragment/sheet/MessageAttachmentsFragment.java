@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.ragnarok.fenrir.Extra;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.AttachmentsActivity;
 import dev.ragnarok.fenrir.activity.AudioSelectActivity;
@@ -321,10 +321,10 @@ public class MessageAttachmentsFragment extends AbsPresenterBottomSheetFragment<
     public void showThrowable(Throwable throwable) {
         if (isAdded()) {
             if (getView() == null) {
-                showError(ErrorLocalizer.localizeThrowable(Injection.provideApplicationContext(), throwable));
+                showError(ErrorLocalizer.localizeThrowable(Includes.provideApplicationContext(), throwable));
                 return;
             }
-            Snackbar.make(getView(), ErrorLocalizer.localizeThrowable(Injection.provideApplicationContext(), throwable), BaseTransientBottomBar.LENGTH_LONG).setTextColor(Color.WHITE).setBackgroundTint(Color.parseColor("#eeff0000"))
+            Snackbar.make(getView(), ErrorLocalizer.localizeThrowable(Includes.provideApplicationContext(), throwable), BaseTransientBottomBar.LENGTH_LONG).setTextColor(Color.WHITE).setBackgroundTint(Color.parseColor("#eeff0000"))
                     .setAction(R.string.more_info, v -> {
                         StringBuilder Text = new StringBuilder();
                         for (StackTraceElement stackTraceElement : throwable.getStackTrace()) {

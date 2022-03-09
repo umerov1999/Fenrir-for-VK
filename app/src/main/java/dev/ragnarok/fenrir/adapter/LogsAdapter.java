@@ -5,6 +5,7 @@ import static dev.ragnarok.fenrir.util.Utils.safeLenghtOf;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.EventListener;
@@ -71,6 +72,7 @@ public class LogsAdapter extends RecyclerBindableAdapter<LogEventWrapper, LogsAd
         }
     }
 
+    @NonNull
     @Override
     protected Holder viewHolder(View view, int type) {
         return new Holder(view);

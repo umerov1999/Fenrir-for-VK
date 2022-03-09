@@ -33,6 +33,8 @@ import dev.ragnarok.fenrir.Constants;
 import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.fragment.base.BaseMvpDialogFragment;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController;
+import dev.ragnarok.fenrir.media.music.MusicPlaybackService;
 import dev.ragnarok.fenrir.model.Audio;
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory;
 import dev.ragnarok.fenrir.mvp.presenter.AudioDuplicatePresenter;
@@ -41,8 +43,6 @@ import dev.ragnarok.fenrir.picasso.Content_Local;
 import dev.ragnarok.fenrir.picasso.PicassoInstance;
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation;
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation;
-import dev.ragnarok.fenrir.player.MusicPlaybackController;
-import dev.ragnarok.fenrir.player.MusicPlaybackService;
 import dev.ragnarok.fenrir.settings.Settings;
 import dev.ragnarok.fenrir.util.AppTextUtils;
 import dev.ragnarok.fenrir.util.Utils;
@@ -67,14 +67,14 @@ public class AudioDuplicateDialog extends BaseMvpDialogFragment<AudioDuplicatePr
                 MediaStore.MediaColumns.DATA + "=? ",
                 new String[]{filePath}, null);
         if (cursor != null && cursor.moveToFirst()) {
-            long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
+            long id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID));
             String data = PicassoInstance.buildUriForPicassoNew(Content_Local.AUDIO, id).toString();
 
-            if (Utils.isEmpty(cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)))) {
+            if (Utils.isEmpty(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)))) {
                 cursor.close();
                 return null;
             }
-            String TrackName = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)).replace(".mp3", "");
+            String TrackName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)).replace(".mp3", "");
             String Artist = "";
             String[] arr = TrackName.split(" - ");
             if (arr.length > 1) {
@@ -82,7 +82,7 @@ public class AudioDuplicateDialog extends BaseMvpDialogFragment<AudioDuplicatePr
                 TrackName = TrackName.replace(Artist + " - ", "");
             }
 
-            int dur = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.DURATION));
+            int dur = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DURATION));
             if (dur != 0) {
                 dur /= 1000;
             }
@@ -149,7 +149,7 @@ public class AudioDuplicateDialog extends BaseMvpDialogFragment<AudioDuplicatePr
             holder.play_cover.clearColorFilter();
             return;
         }
-        switch (MusicPlaybackController.PlayerStatus()) {
+        switch (MusicPlaybackController.playerStatus()) {
             case 1:
                 Utils.doWavesLottie(holder.visual, true);
                 holder.play_cover.setColorFilter(Color.parseColor("#44000000"));

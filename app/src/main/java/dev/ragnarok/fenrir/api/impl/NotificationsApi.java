@@ -62,4 +62,11 @@ class NotificationsApi extends AbsApi implements INotificationsApi {
                 .flatMap(service -> service.getOfficial(count, startFrom, filters, startTime, endTime, "photo_200_orig,photo_200")
                         .map(extractResponseWithErrorHandling()));
     }
+
+    @Override
+    public Single<Integer> hide(String query) {
+        return provideService(INotificationsService.class, TokenType.USER)
+                .flatMap(service -> service.hide(query)
+                        .map(extractResponseWithErrorHandling()));
+    }
 }

@@ -22,7 +22,7 @@ import java.util.Set;
 import de.maxr1998.modernpreferences.PreferenceScreen;
 import dev.ragnarok.fenrir.AccountType;
 import dev.ragnarok.fenrir.Constants;
-import dev.ragnarok.fenrir.Injection;
+import dev.ragnarok.fenrir.Includes;
 import dev.ragnarok.fenrir.push.IPushRegistrationResolver;
 import dev.ragnarok.fenrir.util.RxUtils;
 import dev.ragnarok.fenrir.util.Utils;
@@ -113,7 +113,7 @@ class AccountsSettings implements ISettings.IAccountsSettings {
     }
 
     private void fireAccountChange() {
-        IPushRegistrationResolver registrationResolver = Injection.providePushRegistrationResolver();
+        IPushRegistrationResolver registrationResolver = Includes.getPushRegistrationResolver();
         registrationResolver.resolvePushRegistration()
                 .compose(RxUtils.applyCompletableIOToMainSchedulers())
                 .subscribe(RxUtils.dummy(), RxUtils.ignore());

@@ -18,7 +18,16 @@ package com.squareup.picasso3
 import com.squareup.picasso3.MemoryPolicy.Companion.shouldReadFromMemoryCache
 import com.squareup.picasso3.Picasso.LoadedFrom
 import com.squareup.picasso3.RequestHandler.Result.Bitmap
-import com.squareup.picasso3.Utils.*
+import com.squareup.picasso3.Utils.OWNER_HUNTER
+import com.squareup.picasso3.Utils.THREAD_IDLE_NAME
+import com.squareup.picasso3.Utils.THREAD_PREFIX
+import com.squareup.picasso3.Utils.VERB_DECODED
+import com.squareup.picasso3.Utils.VERB_EXECUTING
+import com.squareup.picasso3.Utils.VERB_JOINED
+import com.squareup.picasso3.Utils.VERB_REMOVED
+import com.squareup.picasso3.Utils.VERB_TRANSFORMED
+import com.squareup.picasso3.Utils.getLogIdsForHunter
+import com.squareup.picasso3.Utils.log
 import java.io.IOException
 import java.io.InterruptedIOException
 import java.util.concurrent.CountDownLatch
@@ -27,31 +36,23 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 internal open class BitmapHunter(
-    @JvmField val picasso: Picasso,
+    val picasso: Picasso,
     private val dispatcher: Dispatcher,
     private val cache: PlatformLruCache,
     action: Action,
-    @JvmField val requestHandler: RequestHandler
+    val requestHandler: RequestHandler
 ) : Runnable {
-    @JvmField
     val sequence: Int = SEQUENCE_GENERATOR.incrementAndGet()
-
-    @JvmField
     var priority: Picasso.Priority = action.request.priority
-
-    @JvmField
     var data: Request = action.request
     val key: String = action.request.key
-
-    @JvmField
-    var retryCount: Int = requestHandler.retryCount
+    private var retryCount: Int = requestHandler.retryCount
 
     var action: Action? = action
         private set
     var actions: MutableList<Action>? = null
         private set
 
-    @JvmField
     var future: Future<*>? = null
     var result: RequestHandler.Result? = null
         private set
@@ -65,7 +66,7 @@ internal open class BitmapHunter(
         try {
             updateThreadName(data)
 
-            if (picasso.loggingEnabled) {
+            if (picasso.isLoggingEnabled) {
                 log(OWNER_HUNTER, VERB_EXECUTING, getLogIdsForHunter(this))
             }
 
@@ -86,12 +87,11 @@ internal open class BitmapHunter(
         }
     }
 
-    @Throws(IOException::class)
     fun hunt(): Bitmap? {
         if (shouldReadFromMemoryCache(data.memoryPolicy)) {
             cache[key]?.let { bitmap ->
                 picasso.cacheHit()
-                if (picasso.loggingEnabled) {
+                if (picasso.isLoggingEnabled) {
                     log(OWNER_HUNTER, VERB_DECODED, data.logId(), "from cache")
                 }
 
@@ -108,17 +108,21 @@ internal open class BitmapHunter(
 
         val latch = CountDownLatch(1)
         try {
-            requestHandler.load(picasso, data, object : RequestHandler.Callback {
-                override fun onSuccess(result: RequestHandler.Result?) {
-                    resultReference.set(result)
-                    latch.countDown()
-                }
+            requestHandler.load(
+                picasso = picasso,
+                request = data,
+                callback = object : RequestHandler.Callback {
+                    override fun onSuccess(result: RequestHandler.Result?) {
+                        resultReference.set(result)
+                        latch.countDown()
+                    }
 
-                override fun onError(t: Throwable) {
-                    exceptionReference.set(t)
-                    latch.countDown()
+                    override fun onError(t: Throwable) {
+                        exceptionReference.set(t)
+                        latch.countDown()
+                    }
                 }
-            })
+            )
 
             latch.await()
         } catch (ie: InterruptedException) {
@@ -134,11 +138,10 @@ internal open class BitmapHunter(
             }
         }
 
-        val result = resultReference.get() as? Bitmap
-            ?: throw AssertionError("Request handler neither returned a result nor an exception.")
+        val result = resultReference.get() as? Bitmap ?: return null
         result.bitmap = BitmapSafeResize.checkBitmap(result.bitmap)
         val bitmap = result.bitmap
-        if (picasso.loggingEnabled) {
+        if (picasso.isLoggingEnabled) {
             log(OWNER_HUNTER, VERB_DECODED, data.logId())
         }
         picasso.bitmapDecoded(bitmap)
@@ -158,7 +161,7 @@ internal open class BitmapHunter(
     }
 
     fun attach(action: Action) {
-        val loggingEnabled = picasso.loggingEnabled
+        val loggingEnabled = picasso.isLoggingEnabled
         val request = action.request
         if (this.action == null) {
             this.action = action
@@ -203,7 +206,7 @@ internal open class BitmapHunter(
             priority = computeNewPriority()
         }
 
-        if (picasso.loggingEnabled) {
+        if (picasso.isLoggingEnabled) {
             log(
                 OWNER_HUNTER,
                 VERB_REMOVED,
@@ -266,7 +269,6 @@ internal open class BitmapHunter(
             }
         }
 
-        @JvmStatic
         fun forRequest(
             picasso: Picasso,
             dispatcher: Dispatcher,
@@ -274,7 +276,7 @@ internal open class BitmapHunter(
             action: Action
         ): BitmapHunter {
             val request = action.request
-            val requestHandlers = picasso.getRequestHandlers()
+            val requestHandlers = picasso.requestHandlers
 
             // Index-based loop to avoid allocating an iterator.
             for (i in requestHandlers.indices) {
@@ -297,7 +299,6 @@ internal open class BitmapHunter(
             Thread.currentThread().name = builder.toString()
         }
 
-        @JvmStatic
         fun applyTransformations(
             picasso: Picasso,
             data: Request,
@@ -310,7 +311,7 @@ internal open class BitmapHunter(
                 val transformation = transformations[i]
                 val newResult = try {
                     val transformedResult = transformation.transform(res)
-                    if (picasso.loggingEnabled) {
+                    if (picasso.isLoggingEnabled) {
                         log(OWNER_HUNTER, VERB_TRANSFORMED, data.logId(), "from transformations")
                     }
 
