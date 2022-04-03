@@ -14,22 +14,23 @@ import androidx.annotation.IdRes
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.Callback
 import dev.ragnarok.fenrir.App.Companion.instance
-import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.BackPressCallback
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadPhoto
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilenameFromArg
 import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.nonEmpty
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -49,15 +50,19 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
     private var url: String? = null
     private var prefix: String? = null
     private var photo_prefix: String? = null
+    private var mFullscreen = false
+    private var mDownload: CircleCounterButton? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState != null) {
+            mFullscreen = savedInstanceState.getBoolean("mFullscreen")
+        }
         url = requireArguments().getString(Extra.URL)
         prefix = makeLegalFilenameFromArg(requireArguments().getString(Extra.STATUS), null)
         photo_prefix = makeLegalFilenameFromArg(requireArguments().getString(Extra.KEY), null)
     }
 
-    private val requestWritePermission = AppPerms.requestPermissions(
-        this,
+    private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -73,13 +78,13 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_single_url_photo, container, false)
-        val mDownload: CircleCounterButton = root.findViewById(R.id.button_download)
+        mDownload = root.findViewById(R.id.button_download)
         url?.let {
-            mDownload.visibility =
+            mDownload?.visibility =
                 if (it.contains("content://") || it.contains("file://")) View.GONE else View.VISIBLE
         }
         url ?: run {
-            mDownload.visibility = View.GONE
+            mDownload?.visibility = View.GONE
         }
         val ret = PhotoViewHolder(root)
         ret.bindTo(url)
@@ -106,7 +111,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
             }
             true
         }
-        mDownload.setOnClickListener { doSaveOnDrive(true) }
+        mDownload?.setOnClickListener { doSaveOnDrive(true) }
         return root
     }
 
@@ -136,7 +141,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
             dir = dir_final
         }
         val DOWNLOAD_DATE_FORMAT: DateFormat =
-            SimpleDateFormat("yyyyMMdd_HHmmss", Utils.getAppLocale())
+            SimpleDateFormat("yyyyMMdd_HHmmss", Utils.appLocale)
         url?.let {
             doDownloadPhoto(
                 requireActivity(),
@@ -180,9 +185,23 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(false, false)
+            .setBarsColored(colored = false, invertIcons = false)
             .build()
             .apply(requireActivity())
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("mFullscreen", mFullscreen)
+    }
+
+    private fun resolveFullscreenViews() {
+        mDownload?.visibility = if (mFullscreen) View.GONE else View.VISIBLE
+    }
+
+    private fun toggleFullscreen() {
+        mFullscreen = !mFullscreen
+        resolveFullscreenViews()
     }
 
     private inner class PhotoViewHolder(view: View) : Callback {
@@ -196,11 +215,11 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
         fun bindTo(url: String?) {
             reload.setOnClickListener {
                 reload.visibility = View.INVISIBLE
-                if (nonEmpty(url)) {
+                if (url.nonNullNoEmpty()) {
                     loadImage(url)
                 } else PicassoInstance.with().cancelRequest(photo)
             }
-            if (nonEmpty(url)) {
+            if (url.nonNullNoEmpty()) {
                 loadImage(url)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
@@ -297,19 +316,20 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
             progress = view.findViewById(idOfProgressBar())
             reload = view.findViewById(R.id.goto_button)
             mPicassoLoadCallback = WeakPicassoLoadCallback(this)
+            photo.setOnClickListener { toggleFullscreen() }
         }
     }
 
     companion object {
 
-        @JvmStatic
+
         fun newInstance(args: Bundle?): SinglePhotoFragment {
             val fragment = SinglePhotoFragment()
             fragment.arguments = args
             return fragment
         }
 
-        @JvmStatic
+
         fun buildArgs(url: String?, download_prefix: String?, photo_prefix: String?): Bundle {
             val args = Bundle()
             args.putString(Extra.URL, url)

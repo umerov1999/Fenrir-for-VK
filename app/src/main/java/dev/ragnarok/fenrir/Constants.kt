@@ -15,17 +15,17 @@ object Constants {
     const val API_VERSION = "5.131"
     const val DATABASE_VERSION = 12
 
-    @JvmField
     @AccountType
-    val DEFAULT_ACCOUNT_TYPE: Int = BuildConfig.DEFAULT_ACCOUNT_TYPE
+    const val DEFAULT_ACCOUNT_TYPE: Int = BuildConfig.DEFAULT_ACCOUNT_TYPE
+    const val FCM_SESSION_ID_GEN_URL: String = BuildConfig.FCM_SESSION_ID_GEN_URL
 
     @JvmField
     val AUTH_VERSION = if (DEFAULT_ACCOUNT_TYPE == AccountType.KATE) API_VERSION else "5.122"
     const val FILE_PROVIDER_AUTHORITY: String = BuildConfig.APPLICATION_ID + ".file_provider"
-    const val VK_ANDROID_APP_VERSION_NAME = "7.15"
-    const val VK_ANDROID_APP_VERSION_CODE = "11064"
-    const val KATE_APP_VERSION_NAME = "84 lite"
-    const val KATE_APP_VERSION_CODE = "510"
+    const val VK_ANDROID_APP_VERSION_NAME = "7.19"
+    const val VK_ANDROID_APP_VERSION_CODE = "11647"
+    const val KATE_APP_VERSION_NAME = "86 lite"
+    const val KATE_APP_VERSION_CODE = "514"
     const val API_ID: Int = BuildConfig.VK_API_APP_ID
     const val SECRET: String = BuildConfig.VK_CLIENT_SECRET
     const val MAIN_OWNER_FIELDS = UserColumns.API_FIELDS + "," + GroupColumns.API_FIELDS
@@ -52,11 +52,11 @@ object Constants {
         Build.VERSION.RELEASE,
         Build.VERSION.SDK_INT,
         Build.SUPPORTED_ABIS[0],
-        Utils.getDeviceName(),
+        Utils.deviceName,
         DEVICE_COUNTRY_CODE,
         SCREEN_RESOLUTION()
     )
-    val KATE_USER_AGENT_FAKE = String.format(
+    private val KATE_USER_AGENT_FAKE = String.format(
         Locale.US,
         "KateMobileAndroid/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
         KATE_APP_VERSION_NAME,
@@ -68,7 +68,7 @@ object Constants {
         DEVICE_COUNTRY_CODE,
         SCREEN_RESOLUTION()
     )
-    val VK_ANDROID_USER_AGENT = String.format(
+    private val VK_ANDROID_USER_AGENT = String.format(
         Locale.US,
         "VKAndroidApp/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
         VK_ANDROID_APP_VERSION_NAME,
@@ -76,7 +76,7 @@ object Constants {
         Build.VERSION.RELEASE,
         Build.VERSION.SDK_INT,
         Build.SUPPORTED_ABIS[0],
-        Utils.getDeviceName(),
+        Utils.deviceName,
         DEVICE_COUNTRY_CODE,
         SCREEN_RESOLUTION()
     )
@@ -101,7 +101,7 @@ object Constants {
     private fun getTypedUserAgent(@AccountType type: Int): String {
         if (type == AccountType.VK_ANDROID_HIDDEN || type == AccountType.KATE_HIDDEN) {
             val device = Settings.get().accounts().getDevice(Settings.get().accounts().current)
-            if (!Utils.isEmpty(device)) {
+            if (device.nonNullNoEmpty()) {
                 return if (type == AccountType.KATE_HIDDEN) String.format(
                     Locale.US,
                     "KateMobileAndroid/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
@@ -148,7 +148,7 @@ object Constants {
         )
     }
 
-    @JvmStatic
+
     fun USER_AGENT(@AccountType type: Int): String {
         if (type != AccountType.BY_TYPE) {
             return getTypedUserAgent(type)

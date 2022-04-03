@@ -62,7 +62,7 @@ public class GroupInviteFCMMessage {
         Single<OwnerInfo> user = OwnerInfo.getRx(app, accountId, from_id);
 
         Single.zip(group, user, Pair::new)
-                .subscribeOn(NotificationScheduler.INSTANCE)
+                .subscribeOn(NotificationScheduler.getINSTANCE())
                 .subscribe(pair -> {
                     OwnerInfo userInfo = pair.getSecond();
                     OwnerInfo groupInfo = pair.getFirst();

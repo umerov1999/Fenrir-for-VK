@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.db.model.entity;
 
-import static dev.ragnarok.fenrir.util.Objects.nonNull;
-
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
@@ -79,7 +77,7 @@ public class WallReplyEntity extends Entity {
 
     public @Nullable
     List<Entity> getAttachments() {
-        return nonNull(attachments) ? attachments.getEntities() : null;
+        return attachments != null ? attachments.getEntities() : null;
     }
 
     public WallReplyEntity setAttachments(@Nullable List<Entity> entities) {

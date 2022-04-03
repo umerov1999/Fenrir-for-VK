@@ -37,6 +37,7 @@
                     android:layout_width="@dimen/avatar_size_big"
                     android:layout_height="@dimen/avatar_size_big"
                     android:background="@drawable/sel_button_round_5_white"
+                    android:contentDescription="@null"
                     android:padding="1.5dp" />
 
                 <dev.ragnarok.fenrir.view.OnlineView

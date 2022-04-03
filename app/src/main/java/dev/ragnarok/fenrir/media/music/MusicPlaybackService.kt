@@ -1,7 +1,10 @@
 package dev.ragnarok.fenrir.media.music
 
 import android.app.*
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
@@ -26,8 +29,6 @@ import com.google.android.exoplayer2.upstream.RawResourceDataSource
 import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso.LoadedFrom
 import dev.ragnarok.fenrir.*
-import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
-import dev.ragnarok.fenrir.Extensions.Companion.insertAfter
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.media.exo.ExoUtil
@@ -42,7 +43,6 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.makeMediaItem
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.lang.ref.WeakReference
-import java.util.*
 
 class MusicPlaybackService : Service() {
     private val SHUTDOWN = "dev.ragnarok.fenrir.media.music.shutdown"
@@ -373,7 +373,7 @@ class MusicPlaybackService : Service() {
     private fun playCurrentTrack(UpdateMeta: Boolean) {
         synchronized(this) {
             Logger.d(TAG, "playCurrentTrack, mPlayListLen: " + Utils.safeCountOf(mPlayList))
-            if (Utils.safeIsEmpty(mPlayList)) {
+            if (mPlayList.isNullOrEmpty()) {
                 return
             }
             stop(false)
@@ -452,7 +452,7 @@ class MusicPlaybackService : Service() {
 
     private fun fetchCoverAndUpdateMetadata() {
         updateMetadata()
-        if (coverBitmap != null || Utils.isEmpty(albumCover)) {
+        if (coverBitmap != null || albumCover.isNullOrEmpty()) {
             return
         }
         PicassoInstance.with()
@@ -714,7 +714,7 @@ class MusicPlaybackService : Service() {
     fun canPlayAfterCurrent(audio: Audio): Boolean {
         synchronized(this) {
             val current = currentTrackNotSyncPos
-            if (Utils.isEmpty(mPlayList) || current == -1 || mPlayList?.get(current) == audio) {
+            if (mPlayList.isNullOrEmpty() || current == -1 || mPlayList?.get(current) == audio) {
                 return false
             }
             return true
@@ -724,7 +724,7 @@ class MusicPlaybackService : Service() {
     fun playAfterCurrent(audio: Audio) {
         synchronized(this) {
             val current = currentTrackNotSyncPos
-            if (Utils.isEmpty(mPlayList) || current == -1 || mPlayList?.get(current) == audio) {
+            if (mPlayList.isNullOrEmpty() || current == -1 || mPlayList?.get(current) == audio) {
                 return
             }
             mPlayList?.insertAfter(current, audio)
@@ -949,14 +949,14 @@ class MusicPlaybackService : Service() {
                 "file:///android_asset/audio_error.ogg"
             )
             val mediaSource: MediaSource =
-                if (url.contains("file://") || url.contains("content://") || url.contains(
+                if (url?.contains("file://") == true || url?.contains("content://") == true || url?.contains(
                         RawResourceDataSource.RAW_RESOURCE_SCHEME
-                    )
+                    ) == true
                 ) {
                     ProgressiveMediaSource.Factory(factoryLocal)
                         .createMediaSource(makeMediaItem(url))
                 } else {
-                    if (url.contains("index.m3u8")) HlsMediaSource.Factory(factory)
+                    if (url?.contains("index.m3u8") == true) HlsMediaSource.Factory(factory)
                         .createMediaSource(makeMediaItem(url)) else ProgressiveMediaSource.Factory(
                         factory
                     ).createMediaSource(makeMediaItem(url))
@@ -986,7 +986,7 @@ class MusicPlaybackService : Service() {
                         .subscribe(RxUtils.dummy(), RxUtils.ignore())
                 )
             }
-            if (Utils.isEmpty(audio.url) || "https://vk.com/mp3/audio_api_unavailable.mp3" == audio.url) {
+            if (audio.url.isNullOrEmpty() || "https://vk.com/mp3/audio_api_unavailable.mp3" == audio.url) {
                 compositeDisposable.add(audioInteractor.getById(
                     accountId,
                     listOf(audio)
@@ -1292,14 +1292,14 @@ class MusicPlaybackService : Service() {
         private var IDLE_DELAY = Constants.AUDIO_PLAYER_SERVICE_IDLE
         private const val MAX_QUEUE_SIZE = 200
 
-        @JvmStatic
+
         fun startForPlayList(
             context: Context,
             audios: ArrayList<Audio>,
             position: Int,
             forceShuffle: Boolean
         ) {
-            if (Utils.isEmpty(audios)) {
+            if (audios.isNullOrEmpty()) {
                 return
             }
             Logger.d(TAG, "startForPlayList, count: " + audios.size + ", position: " + position)

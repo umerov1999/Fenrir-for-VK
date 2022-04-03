@@ -18,10 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso
-import dev.ragnarok.fenrir.Extensions.Companion.fadeIn
-import dev.ragnarok.fenrir.Extensions.Companion.hide
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.adapter.RecyclerMenuAdapter
@@ -37,7 +34,6 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.Objects
 import dev.ragnarok.fenrir.util.Utils
 
 class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsView>(),
@@ -85,7 +81,7 @@ class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsVi
         val ava: String? = Utils.firstNonEmptyString(user.photoMax, user.photo200, user.photo100)
         if (ivAvatar != null && ava != null) {
             PicassoInstance.with().load(ava)
-                .into(ivAvatar!!)
+                .into(ivAvatar ?: return)
         }
         ivMail?.visibility = if (user.canWritePrivateMessage) View.VISIBLE else View.GONE
     }
@@ -125,7 +121,7 @@ class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsVi
         if (clipboard != null) {
             val title = item.title.getText(requireContext())
             val subtitle =
-                if (Objects.nonNull(item.subtitle)) item.subtitle.getText(requireContext()) else null
+                if (item.subtitle != null) item.subtitle.getText(requireContext()) else null
             val details = Utils.joinNonEmptyStrings("\n", title, subtitle)
             val clip: ClipData =
                 if (item.type == AdvancedItem.TYPE_COPY_DETAILS_ONLY || item.type == AdvancedItem.TYPE_OPEN_URL) {
@@ -193,8 +189,8 @@ class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsVi
     override fun onClick(item: AdvancedItem) {
         if (item.type == AdvancedItem.TYPE_OPEN_URL) {
             val subtitle =
-                if (Objects.nonNull(item.subtitle)) item.subtitle.getText(requireContext()) else null
-            if (!Utils.isEmpty(subtitle) && !Utils.isEmpty(item.urlPrefix)) {
+                if (item.subtitle != null) item.subtitle.getText(requireContext()) else null
+            if (subtitle.nonNullNoEmpty() && item.urlPrefix.nonNullNoEmpty()) {
                 LinkHelper.openLinkInBrowser(requireActivity(), item.urlPrefix + "/" + subtitle)
             }
         } else {
@@ -205,7 +201,7 @@ class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsVi
     companion object {
         const val PARALLAX_COEFF = 0.5f
 
-        @JvmStatic
+
         fun newInstance(accountId: Int, user: User, details: UserDetails): UserDetailsFragment {
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, accountId)

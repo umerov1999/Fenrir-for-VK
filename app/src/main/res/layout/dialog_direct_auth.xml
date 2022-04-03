@@ -106,7 +106,8 @@
                     android:layout_width="130dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center_horizontal"
-                    android:layout_margin="8dp" />
+                    android:layout_margin="8dp"
+                    android:contentDescription="@null" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"

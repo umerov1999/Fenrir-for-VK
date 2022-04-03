@@ -30,9 +30,11 @@ internal class EmojiAdapter(context: Context, data: Array<Emojicon>) : ArrayAdap
         val holder = v?.tag as ViewHolder?
         holder?.icon?.setText(emoji?.emoji, TextView.BufferType.SPANNABLE)
         holder?.icon?.setOnClickListener {
-            emojiClickListener?.onEmojiconClicked(
-                getItem(position)
-            )
+            getItem(position)?.let { it1 ->
+                emojiClickListener?.onEmojiconClicked(
+                    it1
+                )
+            }
         }
         return v!!
     }

@@ -40,7 +40,8 @@
         <ImageView
             android:id="@+id/signer_avatar"
             android:layout_width="24dp"
-            android:layout_height="24dp" />
+            android:layout_height="24dp"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/signer_name"

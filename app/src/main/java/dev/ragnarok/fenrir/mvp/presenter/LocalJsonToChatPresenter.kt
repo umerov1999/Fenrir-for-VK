@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalJsonToChatView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.RxUtils
@@ -48,28 +49,28 @@ class LocalJsonToChatPresenter(
             return false
         when (AttachmentType) {
             1 -> {
-                return !Utils.isEmpty(message.attachments.photos)
+                return message.attachments.photos.nonNullNoEmpty()
             }
             2 -> {
-                return !Utils.isEmpty(message.attachments.videos)
+                return message.attachments.videos.nonNullNoEmpty()
             }
             3 -> {
-                return !Utils.isEmpty(message.attachments.docs)
+                return message.attachments.docs.nonNullNoEmpty()
             }
             4 -> {
-                return !Utils.isEmpty(message.attachments.audios)
+                return message.attachments.audios.nonNullNoEmpty()
             }
             5 -> {
-                return !Utils.isEmpty(message.attachments.links)
+                return message.attachments.links.nonNullNoEmpty()
             }
             6 -> {
-                return !Utils.isEmpty(message.attachments.photoAlbums)
+                return message.attachments.photoAlbums.nonNullNoEmpty()
             }
             7 -> {
-                return !Utils.isEmpty(message.attachments.audioPlaylists)
+                return message.attachments.audioPlaylists.nonNullNoEmpty()
             }
             9 -> {
-                return !Utils.isEmpty(message.attachments.posts)
+                return message.attachments.posts.nonNullNoEmpty()
             }
         }
         return true

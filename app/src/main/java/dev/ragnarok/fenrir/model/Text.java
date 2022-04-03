@@ -7,7 +7,6 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
-import dev.ragnarok.fenrir.util.Objects;
 import dev.ragnarok.fenrir.util.ParcelUtils;
 
 public final class Text implements Parcelable {
@@ -41,7 +40,7 @@ public final class Text implements Parcelable {
     }
 
     public String getText(@NonNull Context context) {
-        return Objects.isNull(res) ? text : context.getString(res);
+        return res == null ? text : context.getString(res);
     }
 
     @Override

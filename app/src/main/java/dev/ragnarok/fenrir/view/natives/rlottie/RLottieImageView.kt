@@ -37,7 +37,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         if (layerColors == null) {
             layerColors = HashMap()
         }
-        layerColors!![layer] = color
+        (layerColors ?: return)[layer] = color
         animatedDrawable?.setLayerColor(layer, color)
     }
 
@@ -103,7 +103,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         animatedDrawable?.setAutoRepeat(if (autoRepeat) 1 else 0)
         if (layerColors != null) {
             animatedDrawable?.beginApplyLayerColors()
-            for ((key, value) in layerColors!!) {
+            for ((key, value) in layerColors ?: return) {
                 animatedDrawable?.setLayerColor(key, value)
             }
             animatedDrawable?.commitApplyLayerColors()

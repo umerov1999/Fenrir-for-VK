@@ -26,7 +26,7 @@ public class SlidrSettings {
         vertical_sensitive = 0.7f;
         vertical_velocity_threshold = 5f;
         horizontal_velocity_threshold = 5f;
-        vertical_distance_threshold = 0.25f;
+        vertical_distance_threshold = 0.11f;
         horizontal_distance_threshold = 0.25f;
         return this;
     }

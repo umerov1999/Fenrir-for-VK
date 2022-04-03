@@ -16,9 +16,9 @@ import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
-import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.RxUtils
@@ -74,7 +74,7 @@ class MySearchView : LinearLayout {
 
     private fun loadQueries() {
         mQueryDisposable.dispose()
-        mQueryDisposable = Stores.getInstance().searchQueriesStore().getQueries(searchId)
+        mQueryDisposable = Stores.instance.searchQueriesStore().getQueries(searchId)
             .fromIOToMain()
             .subscribe({ s: List<String> ->
                 listQueries.clear()
@@ -131,7 +131,7 @@ class MySearchView : LinearLayout {
         if (query != null && TextUtils.getTrimmedLength(query) > 0) {
             mQueryDisposable.dispose()
             mQueryDisposable =
-                Stores.getInstance().searchQueriesStore().insertQuery(searchId, query.toString())
+                Stores.instance.searchQueriesStore().insertQuery(searchId, query.toString())
                     .fromIOToMain()
                     .subscribe({ loadQueries() }, RxUtils.ignore())
             if (mOnQueryChangeListener != null && mOnQueryChangeListener?.onQueryTextSubmit(query.toString()) == true) {
@@ -148,10 +148,10 @@ class MySearchView : LinearLayout {
     }
 
     private fun resolveCloseButton() {
-        val empty = TextUtils.isEmpty(mQuery)
+        val empty = mQuery.isNullOrEmpty()
         Logger.d(TAG, "resolveCloseButton, empty: $empty")
         mButtonClear?.visibility =
-            if (TextUtils.isEmpty(mQuery)) GONE else VISIBLE
+            if (mQuery.isNullOrEmpty()) GONE else VISIBLE
     }
 
     override fun onSaveInstanceState(): Parcelable {

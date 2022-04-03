@@ -4,14 +4,14 @@ import android.content.Context
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.exception.NotFoundException
-import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 object ErrorLocalizer {
     private val sApiLocalizer = ApiLocalizer()
 
-    @JvmStatic
+
     fun localizeThrowable(context: Context, throwable: Throwable?): String {
         throwable ?: return "null"
         if (throwable is ApiException) {
@@ -27,7 +27,7 @@ object ErrorLocalizer {
         if (throwable is NotFoundException) {
             return context.getString(R.string.error_not_found_message)
         }
-        return if (Utils.nonEmpty(throwable.message)) throwable.message!! else throwable.toString()
+        return if (throwable.message.nonNullNoEmpty()) throwable.message!! else throwable.toString()
     }
 
     fun api(): Localizer {
@@ -50,7 +50,7 @@ object ErrorLocalizer {
             ifUnknown: String?,
             vararg params: Any?
         ): String? {
-            return if (Utils.isEmpty(ifUnknown)) context.getString(R.string.unknown_error) else ifUnknown
+            return if (ifUnknown.isNullOrEmpty()) context.getString(R.string.unknown_error) else ifUnknown
         }
     }
 

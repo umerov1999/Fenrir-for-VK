@@ -52,7 +52,7 @@ public final class ModelsBundle implements Parcelable, Iterable<AbsModel> {
     }
 
     public void remove(AbsModel model) {
-        wrappers.remove(model);
+        wrappers.remove(ParcelableModelWrapper.wrap(model));
     }
 
     public ModelsBundle append(Collection<? extends AbsModel> data) {

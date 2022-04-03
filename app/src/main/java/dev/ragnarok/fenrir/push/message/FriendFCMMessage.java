@@ -60,7 +60,7 @@ public class FriendFCMMessage {
 
         Context app = context.getApplicationContext();
         OwnerInfo.getRx(app, accountId, from_id)
-                .subscribeOn(NotificationScheduler.INSTANCE)
+                .subscribeOn(NotificationScheduler.getINSTANCE())
                 .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getUser(), ownerInfo.getAvatar()), throwable -> {/*ignore*/});
     }
 

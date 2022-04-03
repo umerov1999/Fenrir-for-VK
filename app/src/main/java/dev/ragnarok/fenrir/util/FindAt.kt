@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.util
 
+import dev.ragnarok.fenrir.nonNullNoEmpty
+
 class FindAt {
 
     constructor() {
@@ -8,26 +10,26 @@ class FindAt {
         this.ended = false
     }
 
-    constructor(q: String) {
+    constructor(q: String?) {
         this.q = q
         this.offset = 0
         this.ended = false
     }
 
-    constructor(q: String, offset: Int) {
+    constructor(q: String?, offset: Int) {
         this.q = q
         this.offset = offset
         this.ended = false
     }
 
-    constructor(q: String, offset: Int, ended: Boolean) {
+    constructor(q: String?, offset: Int, ended: Boolean) {
         this.q = q
         this.offset = offset
         this.ended = ended
     }
 
     fun do_compare(q: String?): Boolean {
-        if (Utils.isEmpty(q) && Utils.isEmpty(this.q) || !Utils.isEmpty(this.q) && !Utils.isEmpty(q) && this.q.equals(
+        if (q.isNullOrEmpty() && this.q.isNullOrEmpty() || this.q.nonNullNoEmpty() && q.nonNullNoEmpty() && this.q.equals(
                 q,
                 ignoreCase = true
             )
@@ -54,7 +56,7 @@ class FindAt {
     }
 
     fun isSearchMode(): Boolean {
-        return !Utils.isEmpty(q)
+        return q.nonNullNoEmpty()
     }
 
     fun getOffset(): Int {

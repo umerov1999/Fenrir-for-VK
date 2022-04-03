@@ -23,7 +23,8 @@
         <ImageView
             android:id="@+id/header_navi_menu_avatar"
             android:layout_width="@dimen/avatar_size_usual"
-            android:layout_height="@dimen/avatar_size_usual" />
+            android:layout_height="@dimen/avatar_size_usual"
+            android:contentDescription="@null" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -59,6 +60,7 @@
         android:layout_marginStart="2dp"
         android:layout_marginEnd="20dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
         android:src="@drawable/feed"
         android:stateListAnimator="@animator/clicked"
         app:tint="?android:attr/textColorSecondary" />
@@ -69,6 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
         android:src="@drawable/ic_outline_nights_stay"
         android:stateListAnimator="@animator/clicked"
         app:tint="?android:attr/textColorSecondary" />

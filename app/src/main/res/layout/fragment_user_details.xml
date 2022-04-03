@@ -4,22 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:theme="@style/Theme.Toolbar.Surface"
-        app:contentInsetStartWithNavigation="0dp"
-        app:subtitleTextAppearance="@style/TextAppearance.Material3.BodySmall"
-        app:titleTextAppearance="@style/TextAppearance.Toolbar.Title" />
-
     <ImageView
         android:id="@+id/ivAvatar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/profile_avatar_height"
+        android:contentDescription="@null"
         android:scaleType="centerCrop" />
 
     <ImageView
@@ -28,7 +18,18 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/profile_avatar_height"
         android:alpha="0"
+        android:contentDescription="@null"
         android:scaleType="centerCrop" />
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/toolbar_semitransparent_themed"
+        android:theme="@style/Theme.Toolbar.Surface"
+        app:contentInsetStartWithNavigation="0dp"
+        app:subtitleTextAppearance="@style/TextAppearance.Material3.BodySmall"
+        app:titleTextAppearance="@style/TextAppearance.Toolbar.Title" />
 
     <View
         android:layout_width="match_parent"
@@ -54,6 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:contentDescription="@null"
         android:src="@drawable/email"
         android:visibility="gone"
         app:layout_anchor="@id/recycler_view"

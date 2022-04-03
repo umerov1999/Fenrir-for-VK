@@ -14,6 +14,7 @@
         android:id="@+id/item_post_avatar_image"
         android:layout_width="@dimen/avatar_size_chat"
         android:layout_height="@dimen/avatar_size_chat"
+        android:contentDescription="@null"
         android:visibility="gone" />
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -31,6 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
+        android:contentDescription="@null"
         android:minWidth="96dp"
         android:minHeight="96dp"
         android:scaleType="centerCrop"
@@ -47,6 +49,7 @@
             android:layout_margin="4dp"
             android:background="@drawable/circle_back_white"
             android:backgroundTint="?colorPrimary"
+            android:contentDescription="@null"
             android:gravity="center"
             android:padding="8dp"
             android:scaleType="centerCrop"

@@ -20,7 +20,8 @@
         <ImageView
             android:id="@+id/avatar"
             android:layout_width="@dimen/avatar_size_usual"
-            android:layout_height="@dimen/avatar_size_usual" />
+            android:layout_height="@dimen/avatar_size_usual"
+            android:contentDescription="@null" />
 
         <dev.ragnarok.fenrir.view.OnlineView
             android:id="@+id/online"

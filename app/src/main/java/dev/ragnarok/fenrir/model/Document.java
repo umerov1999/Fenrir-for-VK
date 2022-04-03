@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.model;
 
-import static dev.ragnarok.fenrir.util.Objects.nonNull;
-import static dev.ragnarok.fenrir.util.Utils.safeIsEmpty;
+import static dev.ragnarok.fenrir.util.Utils.isEmpty;
 
 import android.os.Parcel;
 
@@ -197,7 +196,7 @@ public class Document extends AbsModel {
     }
 
     public boolean hasValidGifVideoLink() {
-        return nonNull(videoPreview) && !safeIsEmpty(videoPreview.src);
+        return videoPreview != null && !isEmpty(videoPreview.src);
     }
 
     public int getMsgId() {

@@ -18,10 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
@@ -40,10 +37,12 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.*
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.Objects
-import dev.ragnarok.fenrir.util.Utils.nonEmpty
+import dev.ragnarok.fenrir.util.HelperSimple
+import dev.ragnarok.fenrir.util.RxUtils
+import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
@@ -77,14 +76,13 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         transformation = CurrentTheme.createTransformationForAvatar()
     }
 
-    private val requestWritePermission = AppPerms.requestPermissions(
-        this,
+    private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        presenter?.fireWritePermissionResolved()
+        lazyPresenter { fireWritePermissionResolved() }
     }
 
     override fun requestWriteExternalStoragePermission() {
@@ -153,7 +151,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(false, false)
+            .setBarsColored(colored = false, invertIcons = false)
             .build()
             .apply(requireActivity())
     }
@@ -167,6 +165,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         mToolbar?.visibility = if (mFullscreen) View.GONE else View.VISIBLE
         mDownload?.visibility = if (mFullscreen) View.GONE else View.VISIBLE
         mShare?.visibility = if (mFullscreen) View.GONE else View.VISIBLE
+        mLink?.visibility = if (mFullscreen) View.GONE else View.VISIBLE
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<StoryPagerPresenter> =
@@ -225,7 +224,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         }
     }
 
-    override fun setToolbarTitle(@StringRes titleRes: Int, vararg params: Any) {
+    override fun setToolbarTitle(@StringRes titleRes: Int, vararg params: Any?) {
         ActivityUtils.supportToolbarFor(this)?.title = getString(titleRes, *params)
     }
 
@@ -257,7 +256,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                 )
             )
         }
-        if (Utils.isEmpty(story.target_url)) {
+        if (story.target_url.isNullOrEmpty()) {
             mLink?.visibility = View.GONE
         } else {
             mLink?.visibility = View.VISIBLE
@@ -308,7 +307,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
 
     private fun findByPosition(position: Int): MultiHolder? {
         val weak = mHolderSparseArray[position]
-        return if (Objects.isNull(weak)) null else weak.get()
+        return weak?.get()
     }
 
     open class MultiHolder internal constructor(rootView: View) :
@@ -395,11 +394,11 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             val url = story.photo.getUrlForSize(PhotoSize.W, true)
             reload.setOnClickListener {
                 reload.visibility = View.INVISIBLE
-                if (nonEmpty(url)) {
+                if (url.nonNullNoEmpty()) {
                     loadImage(url)
                 } else PicassoInstance.with().cancelRequest(photo)
             }
-            if (nonEmpty(url)) {
+            if (url.nonNullNoEmpty()) {
                 loadImage(url)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
@@ -563,15 +562,15 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
     }
 
     companion object {
-        @JvmStatic
+
         fun newInstance(args: Bundle?): StoryPagerFragment {
             val fragment = StoryPagerFragment()
             fragment.arguments = args
             return fragment
         }
 
-        @JvmStatic
-        fun buildArgs(aid: Int, stories: ArrayList<Story?>, index: Int): Bundle {
+
+        fun buildArgs(aid: Int, stories: ArrayList<Story>, index: Int): Bundle {
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, aid)
             args.putInt(Extra.INDEX, index)

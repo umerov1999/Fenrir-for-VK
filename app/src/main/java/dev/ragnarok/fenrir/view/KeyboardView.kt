@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.view
 
 import android.content.Context
-import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -33,7 +32,7 @@ class KeyboardView : FrameLayout {
         val a = context.theme.obtainStyledAttributes(attrs, R.styleable.KeyboardView, 0, 0)
         try {
             var theme = a.getString(R.styleable.KeyboardView_keyboard_theme)
-            if (TextUtils.isEmpty(theme)) {
+            if (theme.isNullOrEmpty()) {
                 theme = "fullscreen"
             }
             layoutRes =

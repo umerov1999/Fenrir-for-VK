@@ -9,6 +9,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.PhotoSize
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.Utils
@@ -72,7 +73,7 @@ class ImageListAdapter : RecyclerView.Adapter<ImageListAdapter.ImageVewHolder>()
 
         fun bind(pData: Photo, position: Int) {
             val previewUrl: String? = pData.getUrlForSize(PhotoSize.M, false)
-            if (!Utils.isEmpty(previewUrl)) {
+            if (previewUrl.nonNullNoEmpty()) {
                 item_image_iv?.let {
                     PicassoInstance.with()
                         .load(previewUrl)

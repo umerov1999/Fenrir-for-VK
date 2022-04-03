@@ -103,6 +103,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
                 android:padding="14dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/send"
@@ -111,7 +112,8 @@
             <ImageView
                 android:id="@+id/author_avatar"
                 android:layout_width="18dp"
-                android:layout_height="18dp" />
+                android:layout_height="18dp"
+                android:contentDescription="@null" />
 
         </FrameLayout>
     </RelativeLayout>

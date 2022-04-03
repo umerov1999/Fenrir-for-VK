@@ -102,6 +102,7 @@ class SettingsBackup {
         SettingCollector("download_voice_ogg", SettingTypes.TYPE_BOOL),
         SettingCollector("delete_cache_images", SettingTypes.TYPE_BOOL),
         SettingCollector("compress_traffic", SettingTypes.TYPE_BOOL),
+        SettingCollector("limit_cache", SettingTypes.TYPE_BOOL),
         SettingCollector("do_not_clear_back_stack", SettingTypes.TYPE_BOOL),
         SettingCollector("mention_fave", SettingTypes.TYPE_BOOL),
         SettingCollector("disable_encryption", SettingTypes.TYPE_BOOL),
@@ -157,18 +158,18 @@ class SettingsBackup {
                 ret.add(i.name, temp)
             }
         }
-        for (i in Settings.get().notifications().chatsNotif) {
-            val temp = SettingCollector(i.key, SettingTypes.TYPE_INT).requestSetting(pref)
+        for ((key) in Settings.get().notifications().chatsNotif) {
+            val temp = SettingCollector(key, SettingTypes.TYPE_INT).requestSetting(pref)
             if (temp != null) {
                 if (!has) has = true
-                ret.add(i.key, temp)
+                ret.add(key, temp)
             }
         }
-        for (i in Settings.get().other().userNameChanges) {
-            val temp = SettingCollector(i.key, SettingTypes.TYPE_STRING).requestSetting(pref)
+        for ((key) in Settings.get().other().getUserNameChangesMap()) {
+            val temp = SettingCollector(key, SettingTypes.TYPE_STRING).requestSetting(pref)
             if (temp != null) {
                 if (!has) has = true
-                ret.add(i.key, temp)
+                ret.add(key, temp)
             }
         }
         return if (!has) null else ret
@@ -203,7 +204,7 @@ class SettingsBackup {
         Settings.get().other().reloadUserNameChangesSettings(false)
     }
 
-    private inner class SettingCollector(
+    private class SettingCollector(
         val name: String,
         @SettingTypes val type: Int
     ) {
@@ -250,7 +251,7 @@ class SettingsBackup {
                 SettingTypes.TYPE_STRING -> temp.addProperty("value", pref.getString(name, ""))
                 SettingTypes.TYPE_STRING_SET -> {
                     val u = JsonArray()
-                    val prSet = pref.getStringSet(name, HashSet(0))!!
+                    val prSet = pref.getStringSet(name, HashSet(0)) ?: return null
                     if (prSet.isEmpty()) {
                         return null
                     }

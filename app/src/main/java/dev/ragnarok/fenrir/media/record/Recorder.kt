@@ -16,8 +16,7 @@ class Recorder(val filePath: String, val context: Context) {
     private var mCurrentRecordingSectionStartTime: Long? = null
     var status = 0
         private set
-    var isReleased = false
-        private set
+    private var isReleased = false
 
     @Suppress("DEPRECATION")
     fun prepare() {
@@ -27,7 +26,7 @@ class Recorder(val filePath: String, val context: Context) {
         if (isOpusSupported) {
             mRecorder?.setOutputFormat(MediaRecorder.OutputFormat.OGG)
             mRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
-            mRecorder?.setAudioSamplingRate(44100)
+            mRecorder?.setAudioSamplingRate(16000)
             mRecorder?.setAudioEncodingBitRate(16000)
         } else {
             mRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -80,7 +79,8 @@ class Recorder(val filePath: String, val context: Context) {
 
     private fun resetCurrentRecordTime() {
         mCurrentRecordingSectionStartTime ?: return
-        mPreviousSectionsDuration += (System.currentTimeMillis() - mCurrentRecordingSectionStartTime!!)
+        mPreviousSectionsDuration += (System.currentTimeMillis() - (mCurrentRecordingSectionStartTime
+            ?: return))
         mCurrentRecordingSectionStartTime = null
     }
 

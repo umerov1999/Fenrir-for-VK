@@ -24,6 +24,7 @@
             android:id="@+id/delete"
             android:layout_width="19dp"
             android:layout_height="19dp"
+            android:contentDescription="@null"
             android:src="@drawable/close"
             android:stateListAnimator="@animator/clicked"
             app:tint="?colorOnSurface" />

@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.Video
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
@@ -66,7 +67,7 @@ class PhotosViewHelper internal constructor(
                     holder.tvDelay.text = AppTextUtils.getDurationString(video.duration)
                     holder.tvTitle.text = Utils.firstNonEmptyString(video.title, " ")
                 }
-                if (Utils.nonEmpty(url)) {
+                if (url.nonNullNoEmpty()) {
                     PicassoInstance.with()
                         .load(url)
                         .placeholder(R.drawable.background_gray)
@@ -184,7 +185,7 @@ class PhotosViewHelper internal constructor(
                         override fun onLoaded(success: Boolean) {
                             if (!success) {
                                 holder.ivPlay.visibility = View.VISIBLE
-                                if (Utils.nonEmpty(url)) {
+                                if (url.nonNullNoEmpty()) {
                                     PicassoInstance.with()
                                         .load(url)
                                         .placeholder(R.drawable.background_gray)
@@ -201,11 +202,11 @@ class PhotosViewHelper internal constructor(
                         }
                     })
                     holder.vgPhoto.fromNet(
-                        ((image.attachment as Document).ownerId.toString() + "_" + (image.attachment as Document).id.toString()),
-                        (image.attachment as Document).videoPreview?.src,
+                        ((image.attachment as Document).ownerId.toString() + "_" + image.attachment.id.toString()),
+                        image.attachment.videoPreview?.src,
                         Utils.createOkHttp(5)
                     )
-                } else if (Utils.nonEmpty(url)) {
+                } else if (url.nonNullNoEmpty()) {
                     PicassoInstance.with()
                         .load(url)
                         .placeholder(R.drawable.background_gray)
@@ -224,7 +225,7 @@ class PhotosViewHelper internal constructor(
     }
 
     private fun openImages(photos: List<PostImage>, index: Int) {
-        if (Utils.isEmpty(photos) || photos.size <= index) {
+        if (photos.isNullOrEmpty() || photos.size <= index) {
             return
         }
         val models = ArrayList<Photo>()
@@ -233,7 +234,7 @@ class PhotosViewHelper internal constructor(
                 models.add(postImage.attachment as Photo)
             }
         }
-        if (Utils.isEmpty(models)) {
+        if (models.isNullOrEmpty()) {
             return
         }
         attachmentsActionCallback.onPhotosOpen(models, index, true)

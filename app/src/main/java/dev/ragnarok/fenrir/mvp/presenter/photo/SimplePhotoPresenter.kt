@@ -2,10 +2,9 @@ package dev.ragnarok.fenrir.mvp.presenter.photo
 
 import android.content.Context
 import android.os.Bundle
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AccessIdPair
 import dev.ragnarok.fenrir.model.Photo
-import dev.ragnarok.fenrir.util.Objects
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 
 class SimplePhotoPresenter(
@@ -20,8 +19,8 @@ class SimplePhotoPresenter(
             ids.add(AccessIdPair(photo.id, photo.ownerId, photo.accessKey))
         }
         appendDisposable(photosInteractor.getPhotosByIds(accountId, ids)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
-            .subscribe({ photos: List<Photo> -> onPhotosReceived(photos) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onPhotosReceived(it) }) { t: Throwable? ->
                 view?.let {
                     showError(
                         it,
@@ -46,7 +45,7 @@ class SimplePhotoPresenter(
                     originalData[i] = photo
 
                     // если у фото до этого не было ссылок на файлы
-                    if (Objects.isNull(orig.sizes) || orig.sizes.isEmpty) {
+                    if (orig.sizes == null || orig.sizes.isEmpty) {
                         view?.rebindPhotoAt(
                             i
                         )
@@ -56,6 +55,10 @@ class SimplePhotoPresenter(
             }
         }
         refreshInfoViews(true)
+    }
+
+    override fun close() {
+        view?.returnOnlyPos(currentIndex)
     }
 
     init {

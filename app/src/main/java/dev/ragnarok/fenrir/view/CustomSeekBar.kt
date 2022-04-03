@@ -117,7 +117,7 @@ class CustomSeekBar @JvmOverloads constructor(
         invalidate()
     }
 
-    fun setBufferedPosition(value: Long) {
+    private fun setBufferedPosition(value: Long) {
         if (duration <= 0) {
             return
         }

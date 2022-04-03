@@ -20,6 +20,7 @@
         android:layout_gravity="center"
         android:background="@drawable/circle_back_white"
         android:backgroundTint="?colorPrimary"
+        android:contentDescription="@null"
         android:padding="6dp"
         android:scaleType="centerCrop"
         android:src="@drawable/gif"

@@ -23,6 +23,7 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
 
         android:padding="12dp"
         android:saveEnabled="false"

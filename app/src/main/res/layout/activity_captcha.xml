@@ -19,6 +19,7 @@
             android:layout_height="80dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="@null"
             android:scaleType="centerCrop" />
 
         <com.google.android.material.textfield.TextInputEditText

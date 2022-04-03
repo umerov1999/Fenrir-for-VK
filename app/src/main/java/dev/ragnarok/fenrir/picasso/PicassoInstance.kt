@@ -15,9 +15,8 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.ProxyUtil
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.BrotliInterceptor
+import dev.ragnarok.fenrir.util.GzipInterceptor
 import dev.ragnarok.fenrir.util.Logger
-import dev.ragnarok.fenrir.util.Objects
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -34,8 +33,8 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
     private var singleton: Picasso? = null
     private fun onProxyChanged() {
         synchronized(this) {
-            if (Objects.nonNull(singleton)) {
-                singleton!!.shutdown()
+            if (singleton != null) {
+                singleton?.shutdown()
                 singleton = null
                 cache_data?.flush()
             }
@@ -44,9 +43,9 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
     }
 
     private fun getSingleton(): Picasso {
-        if (Objects.isNull(singleton)) {
+        if (singleton == null) {
             synchronized(this) {
-                if (Objects.isNull(singleton)) {
+                if (singleton == null) {
                     singleton = create()
                 }
             }
@@ -68,13 +67,19 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
         Logger.d(TAG, "Picasso singleton creation")
         getCache_data()
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
-            .cache(cache_data) //.addNetworkInterceptor(chain -> chain.proceed(chain.request()).newBuilder().header("Cache-Control", "max-age=31536000,public").build())
+            .cache(cache_data)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request = chain.request().newBuilder()
                     .addHeader("X-VK-Android-Client", "new")
                     .addHeader("User-Agent", Constants.USER_AGENT(AccountType.BY_TYPE)).build()
                 chain.proceed(request)
-            }).addInterceptor(BrotliInterceptor)
+            }).addInterceptor(GzipInterceptor)
+        if (Settings.get().other().isLimit_cache) {
+            builder.addNetworkInterceptor(Interceptor { chain: Interceptor.Chain ->
+                chain.proceed(chain.request()).newBuilder()
+                    .header("Cache-Control", "max-age=86400").build()
+            })
+        }
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
         BitmapSafeResize.setMaxResolution(Settings.get().other().maxBitmapResolution)
         BitmapSafeResize.setHardwareRendering(Settings.get().other().rendering_mode)
@@ -93,7 +98,7 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
         @SuppressLint("StaticFieldLeak")
         private var instance: PicassoInstance? = null
 
-        @JvmStatic
+
         fun buildUriForPicasso(@Content_Local type: Int, id: Long): Uri {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 return buildUriForPicassoNew(type, id)
@@ -118,7 +123,7 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             )
         }
 
-        @JvmStatic
+
         fun buildUriForPicassoNew(@Content_Local type: Int, id: Long): Uri {
             when (type) {
                 Content_Local.PHOTO -> return ContentUris.withAppendedId(
@@ -141,12 +146,12 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             instance = PicassoInstance(context.applicationContext, proxySettings)
         }
 
-        @JvmStatic
+
         fun with(): Picasso {
             return instance!!.getSingleton()
         }
 
-        @JvmStatic
+
         @Throws(IOException::class)
         fun clear_cache() {
             instance?.getCache_data()

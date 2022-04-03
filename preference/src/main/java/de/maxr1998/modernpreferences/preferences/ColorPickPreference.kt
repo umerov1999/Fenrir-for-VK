@@ -15,6 +15,7 @@ import de.maxr1998.modernpreferences.R
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 import de.maxr1998.modernpreferences.preferences.colorpicker.ColorCircleDrawable
 import de.maxr1998.modernpreferences.preferences.colorpicker.ColorPickerView.WHEEL_TYPE
+import de.maxr1998.modernpreferences.preferences.colorpicker.builder.ColorPickerClickListener
 import de.maxr1998.modernpreferences.preferences.colorpicker.builder.ColorPickerDialogBuilder
 
 class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
@@ -23,20 +24,21 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
 
     var alphaSlider = false
     var lightSlider = false
-    var border = false
+    private var border = false
 
     @ColorInt
     var selectedColor = 0
         private set
 
-    var wheelType: WHEEL_TYPE = WHEEL_TYPE.FLOWER
+    private var wheelType: WHEEL_TYPE = WHEEL_TYPE.FLOWER
     var density = 0
 
     @ColorInt
     var defaultValue: Int = Color.WHITE
-    var colorChangeListener: OnColorChangeListener? = null
+    var colorBeforeChangeListener: OnColorBeforeChangeListener? = null
+    var colorAfterChangeListener: OnColorAfterChangeListener? = null
 
-    var colorIndicator: ImageView? = null
+    private var colorIndicator: ImageView? = null
 
     fun copyColorPick(other: ColorPickPreference): ColorPickPreference {
         alphaSlider = other.alphaSlider
@@ -44,6 +46,8 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
         border = other.border
         wheelType = other.wheelType
         density = other.density
+        colorAfterChangeListener = other.colorAfterChangeListener
+        colorBeforeChangeListener = other.colorBeforeChangeListener
         return this
     }
 
@@ -76,10 +80,11 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
     }
 
     fun persist(@ColorInt input: Int) {
-        if (colorChangeListener?.onColorChange(this, input) != false) {
+        if (colorBeforeChangeListener?.onColorBeforeChange(this, input) != false) {
             selectedColor = input
             commitInt(input)
             requestRebind()
+            colorAfterChangeListener?.onColorAfterChange(this, input)
         }
     }
 
@@ -161,31 +166,38 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val builder = ColorPickerDialogBuilder
-                .with(context)
+                .with(requireActivity())
                 .initialColor(selectedColor)
                 .showBorder(border)
                 .wheelType(wheelType)
                 .density(density)
                 .showColorEdit(true)
                 .setPositiveButton(
-                    android.R.string.ok
-                ) { _: DialogInterface?, selectedColorFromPicker: Int, _: Array<Int?>? ->
-                    val intent = Bundle()
-                    intent.putInt(PreferencesExtra.RESULT_VALUE, selectedColorFromPicker)
-                    intent.putString(
-                        PreferencesExtra.PREFERENCE_KEY,
-                        requireArguments().getString(PreferencesExtra.PREFERENCE_KEY)
-                    )
-                    intent.putString(
-                        PreferencesExtra.PREFERENCE_SCREEN_KEY,
-                        requireArguments().getString(PreferencesExtra.PREFERENCE_SCREEN_KEY)
-                    )
-                    parentFragmentManager.setFragmentResult(
-                        PreferencesExtra.COLOR_DIALOG_REQUEST,
-                        intent
-                    )
-                    dismiss()
-                }
+                    android.R.string.ok,
+                    object : ColorPickerClickListener {
+                        override fun onClick(
+                            d: DialogInterface?,
+                            lastSelectedColor: Int,
+                            allColors: Array<Int?>?
+                        ) {
+                            val intent = Bundle()
+                            intent.putInt(PreferencesExtra.RESULT_VALUE, lastSelectedColor)
+                            intent.putString(
+                                PreferencesExtra.PREFERENCE_KEY,
+                                requireArguments().getString(PreferencesExtra.PREFERENCE_KEY)
+                            )
+                            intent.putString(
+                                PreferencesExtra.PREFERENCE_SCREEN_KEY,
+                                requireArguments().getString(PreferencesExtra.PREFERENCE_SCREEN_KEY)
+                            )
+                            parentFragmentManager.setFragmentResult(
+                                PreferencesExtra.COLOR_DIALOG_REQUEST,
+                                intent
+                            )
+                            dismiss()
+                        }
+
+                    })
                 .setNegativeButton(android.R.string.cancel) { _, _ ->
                     dismiss()
                 }
@@ -197,7 +209,11 @@ class ColorPickPreference(key: String, fragmentManager: FragmentManager) :
         }
     }
 
-    fun interface OnColorChangeListener {
-        fun onColorChange(preference: ColorPickPreference, @ColorInt color: Int): Boolean
+    fun interface OnColorBeforeChangeListener {
+        fun onColorBeforeChange(preference: ColorPickPreference, @ColorInt color: Int): Boolean
+    }
+
+    fun interface OnColorAfterChangeListener {
+        fun onColorAfterChange(preference: ColorPickPreference, @ColorInt color: Int)
     }
 }

@@ -14,7 +14,7 @@ class PicassoLocalRequestHandler : RequestHandler() {
     override fun load(picasso: Picasso, request: Request, callback: Callback) {
         val requestUri = checkNotNull(request.uri) { "request.uri == null" }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val target = Stores.getInstance().localMedia().getThumbnail(requestUri, 256, 256)
+            val target = Stores.instance.localMedia().getThumbnail(requestUri, 256, 256)
             if (target == null) {
                 callback.onError(Throwable("Picasso Thumb Not Support"))
             } else {
@@ -38,7 +38,7 @@ class PicassoLocalRequestHandler : RequestHandler() {
                     return
                 }
             }
-            val target = Stores.getInstance().localMedia().getOldThumbnail(ret, contentId)
+            val target = Stores.instance.localMedia().getOldThumbnail(ret, contentId)
             if (target == null) {
                 callback.onError(Throwable("Picasso Thumb Not Support"))
                 return

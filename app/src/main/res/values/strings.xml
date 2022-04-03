@@ -352,11 +352,6 @@
     <string name="enable_groupchat_vibro_title">Vibration</string>
     <string name="enable_groupchat_led_title">LED</string>
 
-    <string name="enter_dir_name">Enter a name for the new folder</string>
-    <string name="cannot_create_catalog">The directory already exists or you entered an invalid directory name</string>
-    <string name="path_not_exist">The path does not exist or cannot be read</string>
-    <string name="create_dir">New folder</string>
-
     <string name="quick_answer_title">Quick answer</string>
 
     <string name="here">Here</string>
@@ -888,7 +883,6 @@
     <string name="share">Share</string>
     <string name="new_comment">New comment</string>
     <string name="editing">Editing</string>
-    <string name="ready">Success</string>
     <string name="add_document_to_yourself_commit">Add to your documents?</string>
     <string name="avatar_style_title">Avatar style</string>
 
@@ -1808,11 +1802,6 @@
     <string name="rotate_video">Rotate</string>
     <string name="popup">Popup</string>
     <string name="not_read_count">Not read: %1$d</string>
-    <string name="choose_button_label">Select</string>
-    <string name="label_parent_directory">Parent Directory</string>
-    <string name="last_edit">Last edited: %1$s, %2$s</string>
-    <string name="error_dir_access">Directory cannot be accessed</string>
-    <string name="label_parent_dir" translatable="false">..</string>
     <string name="show_donate_anim">Show donate animation</string>
     <string name="go_discography">Go Discography</string>
     <string name="return_away">Return</string>
@@ -1896,4 +1885,11 @@
     <string name="copy_value">Copy</string>
     <string name="download_voice_ogg">Download voice as ogg</string>
     <string name="error_hiding">Error hiding!</string>
+    <string name="limit_cache">Limit cache</string>
+    <string name="files_count_a">%1$d file</string>
+    <string name="files_count_b">%1$d files</string>
+    <string name="files_count_c">%1$d files</string>
+    <string name="select_file">Select %1$s</string>
+    <string name="select_folder">Select dir</string>
+    <string name="send_file_as_voice">Send file as Voice</string>
 </resources>

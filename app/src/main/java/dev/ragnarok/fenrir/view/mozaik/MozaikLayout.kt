@@ -94,11 +94,11 @@ class MozaikLayout : RelativeLayout {
                 }
                 val position = image.position
                 val params = parent.layoutParams as LayoutParams
-                params.width = position.sizeX
-                params.height = position.sizeY
-                params.topMargin = position.marginY
-                params.leftMargin = position.marginX
-                parent.measure(image.position.sizeX, image.position.sizeY)
+                params.width = position?.sizeX ?: 0
+                params.height = position?.sizeY ?: 0
+                params.topMargin = position?.marginY ?: 0
+                params.leftMargin = position?.marginX ?: 0
+                parent.measure(image.position?.sizeX ?: 0, image.position?.sizeY ?: 0)
             }
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -161,19 +161,19 @@ class MozaikLayout : RelativeLayout {
                     continue
                 }
                 if (postImage.position == null) {
-                    postImage.position = layoutParamsCalculator!!.getPostImagePosition(p)
+                    postImage.position = (layoutParamsCalculator ?: return).getPostImagePosition(p)
                 }
                 val params = parent.layoutParams as LayoutParams
                 val position = postImage.position
-                params.width = position.sizeX
-                params.height = position.sizeY
-                params.topMargin = position.marginY
-                params.leftMargin = position.marginX
+                params.width = position?.sizeX ?: 0
+                params.height = position?.sizeY ?: 0
+                params.topMargin = position?.marginY ?: 0
+                params.leftMargin = position?.marginX ?: 0
 
                 //parent.setLayoutParams(params);
                 parent.layout(
-                    position.marginX,
-                    position.marginY,
+                    position?.marginX ?: 0,
+                    position?.marginY ?: 0,
                     params.rightMargin,
                     params.bottomMargin
                 )

@@ -18,7 +18,8 @@
         <ImageView
             android:id="@+id/item_audio_play_cover"
             android:layout_width="42dp"
-            android:layout_height="42dp" />
+            android:layout_height="42dp"
+            android:contentDescription="@null" />
 
         <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
             android:id="@+id/item_audio_visual"
@@ -76,6 +77,7 @@
                 android:id="@+id/my"
                 android:layout_width="21dp"
                 android:layout_height="21dp"
+                android:contentDescription="@null"
                 android:padding="4dp"
                 android:src="@drawable/my"
                 app:tint="?colorSecondary" />
@@ -102,6 +104,7 @@
                 android:id="@+id/lyric"
                 android:layout_width="21dp"
                 android:layout_height="21dp"
+                android:contentDescription="@null"
                 android:padding="4dp"
                 android:src="@drawable/lyric"
                 app:tint="?colorSecondary" />
@@ -110,6 +113,7 @@
                 android:id="@+id/quality"
                 android:layout_width="21dp"
                 android:layout_height="21dp"
+                android:contentDescription="@null"
                 android:padding="2dp"
                 android:src="@drawable/high_quality"
                 app:tint="?attr/colorPrimary" />
@@ -118,6 +122,7 @@
                 android:id="@+id/saved"
                 android:layout_width="21dp"
                 android:layout_height="21dp"
+                android:contentDescription="@null"
                 android:padding="2dp"
                 android:src="@drawable/save"
                 app:tint="?attr/colorPrimary" />

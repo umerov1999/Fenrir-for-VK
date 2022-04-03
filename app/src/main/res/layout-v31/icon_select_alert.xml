@@ -34,6 +34,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
+        android:contentDescription="@null"
         android:padding="8dp"
         android:src="@mipmap/ic_launcher"
         android:stateListAnimator="@animator/clicked" />
@@ -63,6 +64,7 @@
             android:layout_height="60dp"
             android:layout_gravity="center_horizontal"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_black"
             android:stateListAnimator="@animator/clicked" />
@@ -72,6 +74,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_white"
             android:stateListAnimator="@animator/clicked" />
@@ -81,6 +84,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_blue"
             android:stateListAnimator="@animator/clicked" />
@@ -111,6 +115,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_green"
             android:stateListAnimator="@animator/clicked" />
@@ -120,6 +125,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_violet"
             android:stateListAnimator="@animator/clicked" />
@@ -129,6 +135,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_yellow"
             android:stateListAnimator="@animator/clicked" />
@@ -146,6 +153,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_red"
             android:stateListAnimator="@animator/clicked" />
@@ -155,6 +163,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/fenrir_lineage"
             android:stateListAnimator="@animator/clicked" />
@@ -164,6 +173,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="25"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@mipmap/vk_official"
             android:stateListAnimator="@animator/clicked" />

@@ -19,6 +19,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.imageview.ShapeableImageView
 import com.squareup.picasso3.Callback
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
@@ -79,8 +80,8 @@ class ModalBottomSheetDialogFragment(listener: Listener) : BottomSheetDialogFrag
         val arguments = arguments
             ?: throw IllegalStateException("You need to create this via the builder")
 
-        val optionHolders = arguments.getParcelableArrayList<OptionHolder>(KEY_OPTIONS)!!
-        val excludes = arguments.getIntegerArrayList(KEY_EXCLUDES)!!
+        val optionHolders = arguments.getParcelableArrayList<OptionHolder>(KEY_OPTIONS) ?: return
+        val excludes = arguments.getIntegerArrayList(KEY_EXCLUDES) ?: return
 
         val options = mutableListOf<Option>()
 
@@ -214,6 +215,20 @@ class ModalBottomSheetDialogFragment(listener: Listener) : BottomSheetDialogFrag
             dialog.show(fragmentManager, tag)
             return dialog
         }
+
+        inline fun show(
+            fragmentManager: FragmentManager,
+            tag: String,
+            crossinline granted: (Option) -> Unit
+        ): ModalBottomSheetDialogFragment {
+            val dialog = build(object : Listener {
+                override fun onModalOptionSelected(option: Option) {
+                    granted.invoke(option)
+                }
+            })
+            dialog.show(fragmentManager, tag)
+            return dialog
+        }
     }
 
     /**
@@ -328,7 +343,7 @@ class ModalBottomSheetDialogFragment(listener: Listener) : BottomSheetDialogFrag
         fun bind(header: String?, url: String?, @DrawableRes res: Int) {
             text.text = header
             PicassoInstance.with().cancelRequest(av)
-            if (!Utils.isEmpty(url)) {
+            if (url.nonNullNoEmpty()) {
                 PicassoInstance.with()
                     .load(url)
                     .transform(PolyTransformation())

@@ -4,8 +4,6 @@ import android.os.Parcel;
 
 import java.util.List;
 
-import dev.ragnarok.fenrir.util.Objects;
-
 public class News extends AbsModel {
 
     public static final Creator<News> CREATOR = new Creator<News>() {
@@ -452,7 +450,7 @@ public class News extends AbsModel {
     }
 
     public boolean hasAttachments() {
-        return Objects.nonNull(attachments) && !attachments.isEmpty();
+        return attachments != null && !attachments.isEmptyAttachments();
     }
 
     public int getViewCount() {

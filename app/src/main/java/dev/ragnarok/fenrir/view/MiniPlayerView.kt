@@ -16,16 +16,16 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.media.music.PlayerStatus
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Objects
+import dev.ragnarok.fenrir.toMainThread
 import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -121,14 +121,12 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
         ) R.drawable.audio_button else R.drawable.audio_button_material
 
     private fun updatePlaybackControls() {
-        if (Objects.nonNull(playCover)) {
-            if (MusicPlaybackController.isPlaying) {
-                Utils.doWavesLottie(visual, true)
-                playCover.setColorFilter(Color.parseColor("#44000000"))
-            } else {
-                Utils.doWavesLottie(visual, false)
-                playCover.clearColorFilter()
-            }
+        if (MusicPlaybackController.isPlaying) {
+            Utils.doWavesLottie(visual, true)
+            playCover.setColorFilter(Color.parseColor("#44000000"))
+        } else {
+            Utils.doWavesLottie(visual, false)
+            playCover.clearColorFilter()
         }
     }
 
@@ -171,19 +169,17 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
             artist,
             " "
         ) + " - " + Utils.firstNonEmptyString(trackName, " ")
-        if (Objects.nonNull(playCover)) {
-            val audio = MusicPlaybackController.currentAudio
-            val placeholder = AppCompatResources.getDrawable(context, audioCoverSimple)
-            if (audio != null && placeholder != null && !Utils.isEmpty(audio.thumb_image_little)) {
-                with()
-                    .load(audio.thumb_image_little)
-                    .placeholder(placeholder)
-                    .transform(transformCover())
-                    .into(playCover)
-            } else {
-                with().cancelRequest(playCover)
-                playCover.setImageResource(audioCoverSimple)
-            }
+        val audio = MusicPlaybackController.currentAudio
+        val placeholder = AppCompatResources.getDrawable(context, audioCoverSimple)
+        if (audio != null && placeholder != null && audio.thumb_image_little.nonNullNoEmpty()) {
+            with()
+                .load(audio.thumb_image_little)
+                .placeholder(placeholder)
+                .transform(transformCover())
+                .into(playCover)
+        } else {
+            with().cancelRequest(playCover)
+            playCover.setImageResource(audioCoverSimple)
         }
         //queueNextRefresh(1);
     }

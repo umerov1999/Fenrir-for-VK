@@ -13,7 +13,7 @@ internal class PlaceHolderView(context: Context?) : View(context) {
 
     override fun onDraw(canvas: Canvas?) {
         if (view != null && isEnabled) {
-            view!!.draw(canvas)
+            (view ?: return).draw(canvas)
             return
         }
         super.onDraw(canvas)

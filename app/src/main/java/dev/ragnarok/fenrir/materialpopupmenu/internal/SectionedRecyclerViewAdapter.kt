@@ -80,8 +80,8 @@ abstract class SectionedRecyclerViewAdapter<H : RecyclerView.ViewHolder, VH : Re
 
     @Suppress("UNCHECKED_CAST")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val section = sectionForPosition!![position]
-        val index = positionWithinSection!![position]
+        val section = (sectionForPosition ?: return)[position]
+        val index = (positionWithinSection ?: return)[position]
         if (isSectionHeaderPosition(position)) {
             onBindSectionHeaderViewHolder(holder as H, section)
         } else {

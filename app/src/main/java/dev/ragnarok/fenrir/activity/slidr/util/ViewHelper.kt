@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.view.TouchImageView
 import java.util.*
 
 object ViewHelper {
-    @JvmStatic
+
     fun hasScrollableChildUnderPoint(
         mView: View,
         direction: SlidrPosition,

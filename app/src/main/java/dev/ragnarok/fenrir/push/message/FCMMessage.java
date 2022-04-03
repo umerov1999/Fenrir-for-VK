@@ -73,7 +73,7 @@ public class FCMMessage {
 
     public void notify(Context context, int accountId) {
         try {
-            Processors.realtimeMessages().process(accountId, message_id, true);
+            Processors.INSTANCE.getRealtimeMessages().process(accountId, message_id, true);
         } catch (QueueContainsException e) {
             e.printStackTrace();
         }

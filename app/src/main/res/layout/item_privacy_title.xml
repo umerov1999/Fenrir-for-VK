@@ -25,6 +25,7 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
         android:src="@drawable/plus"
         app:tint="?attr/colorAccent" />
 

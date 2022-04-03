@@ -36,6 +36,7 @@
             android:layout_height="@dimen/avatar_size_small"
             android:layout_gravity="end|top"
             android:layout_marginEnd="2dp"
+            android:contentDescription="@null"
             android:visibility="gone" />
 
         <dev.ragnarok.fenrir.view.OnlineView
@@ -125,6 +126,7 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginStart="2dp"
+                    android:contentDescription="@null"
                     android:scaleType="fitXY"
                     android:src="@drawable/ic_message_crypt_vector"
                     app:tint="?android:textColorSecondary" />

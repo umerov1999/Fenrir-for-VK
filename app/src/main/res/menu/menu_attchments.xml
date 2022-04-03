@@ -4,7 +4,7 @@
     <item
         android:id="@+id/ready"
         android:icon="@drawable/check"
-        android:title="@string/ready"
+        android:title="@string/button_ok"
         app:iconTint="?colorOnSurface"
         app:showAsAction="always" />
 </menu>

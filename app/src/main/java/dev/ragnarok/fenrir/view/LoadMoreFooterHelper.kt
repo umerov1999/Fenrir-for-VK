@@ -89,8 +89,9 @@ class LoadMoreFooterHelper {
     }
 
     companion object {
-        @JvmStatic
-        fun createFrom(view: View, callback: Callback?): LoadMoreFooterHelper {
+
+        fun createFrom(view: View?, callback: Callback?): LoadMoreFooterHelper? {
+            view ?: return null
             val helper = LoadMoreFooterHelper()
             helper.animation_id = Settings.get().other().endListAnimation
             helper.holder = Holder(view)

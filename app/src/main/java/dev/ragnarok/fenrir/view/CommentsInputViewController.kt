@@ -46,8 +46,9 @@ class CommentsInputViewController(
 
     private fun onEmojiButtonClick() {
         if (emojiPopup?.isKeyBoardOpen == true) {
-            val imm = mActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(inputField.windowToken, 0)
+            val imm =
+                mActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            imm?.hideSoftInputFromWindow(inputField.windowToken, 0)
             emojiNeed = true
             //ibEmoji.setImageResource(R.drawable.keyboard_arrow_down);
         } else {
@@ -94,7 +95,7 @@ class CommentsInputViewController(
             }
         }
         emojiPopup?.onEmojiconClickedListener = object : OnEmojiconClickedListener {
-            override fun onEmojiconClicked(emojicon: Emojicon?) {
+            override fun onEmojiconClicked(emojicon: Emojicon) {
                 input(
                     inputField, emojicon
                 )
@@ -102,7 +103,7 @@ class CommentsInputViewController(
         }
         emojiPopup?.onEmojiconBackspaceClickedListener =
             object : OnEmojiconBackspaceClickedListener {
-                override fun onEmojiconBackspaceClicked(v: View?) {
+                override fun onEmojiconBackspaceClicked(v: View) {
                     val event =
                         KeyEvent(
                             0,

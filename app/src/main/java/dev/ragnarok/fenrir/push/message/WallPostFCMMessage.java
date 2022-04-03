@@ -96,7 +96,7 @@ public class WallPostFCMMessage {
 
         Context app = context.getApplicationContext();
         OwnerInfo.getRx(app, accountId, from_id)
-                .subscribeOn(NotificationScheduler.INSTANCE)
+                .subscribeOn(NotificationScheduler.getINSTANCE())
                 .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getOwner(), ownerInfo.getAvatar()), RxUtils.ignore());
     }
 
@@ -109,7 +109,7 @@ public class WallPostFCMMessage {
 
         Context app = context.getApplicationContext();
         OwnerInfo.getRx(app, accountId, owner_id)
-                .subscribeOn(NotificationScheduler.INSTANCE)
+                .subscribeOn(NotificationScheduler.getINSTANCE())
                 .subscribe(info -> {
                     NotificationManager manager = (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
                     if (Utils.hasOreo()) {

@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
 import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.TmpSource
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -13,7 +14,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Analytics
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 
 class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
@@ -69,13 +69,13 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
 
     private fun loadDataFromDatabase(source: TmpSource) {
         changeLoadingNowState(true)
-        appendDisposable(Stores.getInstance()
+        appendDisposable(Stores.instance
             .tempStore()
             .getData(source.ownerId, source.sourceId, Serializers.PHOTOS_SERIALIZER)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
-            .subscribe({ photos: List<Photo> -> onInitialLoadingFinished(photos) }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onInitialLoadingFinished(it) }) {
                 Analytics.logUnexpectedError(
-                    throwable
+                    it
                 )
             })
     }
@@ -98,8 +98,8 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         changeLoadingNowState(true)
         if (mAlbumId != -9001 && mAlbumId != -9000 && mAlbumId != -311) {
             appendDisposable(photosInteractor[accountId, mOwnerId, mAlbumId, COUNT_PER_LOAD, mPhotos.size, !invertPhotoRev]
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ data: MutableList<Photo> -> onActualPhotosReceived(data) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onActualPhotosReceived(it) }) { t: Throwable ->
                     onActualDataGetError(
                         t
                     )
@@ -113,8 +113,8 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
                 mPhotos.size,
                 COUNT_PER_LOAD
             )
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ data: MutableList<Photo> -> onActualPhotosReceived(data) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onActualPhotosReceived(it) }) { t: Throwable ->
                     onActualDataGetError(
                         t
                     )
@@ -128,10 +128,10 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
                 mPhotos.size,
                 COUNT_PER_LOAD
             )
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ data: MutableList<Photo> -> onActualPhotosReceived(data) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onActualPhotosReceived(it) }) {
                     onActualDataGetError(
-                        t
+                        it
                     )
                 })
         } else {
@@ -140,10 +140,10 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
                 COUNT_PER_LOAD,
                 invertPhotoRev
             )
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ data: MutableList<Photo> -> onActualPhotosReceived(data) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onActualPhotosReceived(it) }) {
                     onActualDataGetError(
-                        t
+                        it
                     )
                 })
         }
@@ -170,7 +170,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         }
     }
 
-    private fun onActualPhotosReceived(data: MutableList<Photo>) {
+    private fun onActualPhotosReceived(data: List<Photo>) {
         changeLoadingNowState(false)
         if (data.isEmpty()) {
             canLoad = false

@@ -29,6 +29,7 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="?android:colorBackground"
+        android:contentDescription="@null"
         android:padding="14dp"
         android:src="@drawable/ic_menu_24_white"
         app:tint="?attr/colorOnSurface" />

@@ -20,8 +20,7 @@ import dev.ragnarok.fenrir.mvp.view.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.AppPerms
-import dev.ragnarok.fenrir.util.AssertUtils
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils
 import kotlin.math.abs
@@ -29,31 +28,31 @@ import kotlin.math.abs
 abstract class PlaceSupportMvpFragment<P : PlaceSupportPresenter<V>, V> : BaseMvpFragment<P, V>(),
     OnAttachmentsActionCallback, IAttachmentsPlacesView,
     OwnerClickListener where V : IMvpView, V : IAttachmentsPlacesView, V : IAccountDependencyView {
-    private val requestWritePermission = AppPerms.requestPermissions(
-        thisFragment(),
+    private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
-    ) { CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text) }
+    ) {
+        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         parentFragmentManager.setFragmentResultListener(
             PostShareDialog.REQUEST_POST_SHARE,
-            thisFragment()
+            this
         ) { _: String?, result: Bundle? ->
             val method = PostShareDialog.extractMethod(
-                result!!
+                result ?: return@setFragmentResultListener
             )
             val accountId1 = PostShareDialog.extractAccountId(result)
             val post1 = PostShareDialog.extractPost(result)
-            AssertUtils.requireNonNull(post1)
             when (method) {
                 PostShareDialog.Methods.SHARE_LINK -> Utils.shareLink(
                     requireActivity(),
-                    post1.generateVkPostLink(),
-                    post1.text
+                    post1?.generateVkPostLink(),
+                    post1?.text
                 )
                 PostShareDialog.Methods.REPOST_YOURSELF -> PlaceFactory.getRepostPlace(
                     accountId1,
@@ -82,16 +81,16 @@ abstract class PlaceSupportMvpFragment<P : PlaceSupportPresenter<V>, V> : BaseMv
         PlaceFactory.getChatPlace(accountId, messagesOwnerId, peer).tryOpenWith(requireActivity())
     }
 
-    override fun onPollOpen(apiPoll: Poll) {
-        presenter?.firePollClick(apiPoll)
+    override fun onPollOpen(poll: Poll) {
+        presenter?.firePollClick(poll)
     }
 
     override fun onVideoPlay(video: Video) {
         presenter?.fireVideoClick(video)
     }
 
-    override fun onAudioPlay(position: Int, apiAudio: ArrayList<Audio>) {
-        presenter?.fireAudioPlayClick(position, apiAudio)
+    override fun onAudioPlay(position: Int, audios: ArrayList<Audio>) {
+        presenter?.fireAudioPlayClick(position, audios)
     }
 
     override fun onForwardMessagesOpen(messages: ArrayList<Message>) {

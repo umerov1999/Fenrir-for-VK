@@ -35,6 +35,7 @@
                 android:layout_height="45dp"
                 android:layout_gravity="center"
                 android:alpha="0.8"
+                android:contentDescription="@null"
                 android:stateListAnimator="@animator/clicked" />
 
             <TextView

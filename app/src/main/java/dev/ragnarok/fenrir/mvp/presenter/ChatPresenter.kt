@@ -14,15 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import dev.ragnarok.fenrir.App
-import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
-import dev.ragnarok.fenrir.Extensions.Companion.nonEmpty
-import dev.ragnarok.fenrir.Extensions.Companion.nullOrEmpty
-import dev.ragnarok.fenrir.Extensions.Companion.subscribeIOAndIgnoreResults
-import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.server.VkApiDocsUploadServer
@@ -33,7 +25,7 @@ import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.crypt.KeyPairDoesNotExistException
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.domain.*
-import dev.ragnarok.fenrir.domain.IOwnersRepository.MODE_NET
+import dev.ragnarok.fenrir.domain.IOwnersRepository.Companion.MODE_NET
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.exception.UploadNotResolvedException
 import dev.ragnarok.fenrir.link.LinkHelper
@@ -51,13 +43,22 @@ import dev.ragnarok.fenrir.realtime.Processors
 import dev.ragnarok.fenrir.service.ChatDownloadWorker
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.task.TextingNotifier
 import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.util.*
-import dev.ragnarok.fenrir.util.Objects
 import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.RxUtils.*
-import dev.ragnarok.fenrir.util.Utils.*
+import dev.ragnarok.fenrir.util.RxUtils.applyMaybeIOToMainSchedulers
+import dev.ragnarok.fenrir.util.RxUtils.dummy
+import dev.ragnarok.fenrir.util.RxUtils.ignore
+import dev.ragnarok.fenrir.util.RxUtils.safelyCloseAction
+import dev.ragnarok.fenrir.util.RxUtils.subscribeOnIOAndIgnore
+import dev.ragnarok.fenrir.util.Utils.addElementToList
+import dev.ragnarok.fenrir.util.Utils.countOfSelection
+import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
+import dev.ragnarok.fenrir.util.Utils.getSelected
+import dev.ragnarok.fenrir.util.Utils.hasFlag
+import dev.ragnarok.fenrir.util.Utils.hasMarshmallow
+import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
+import dev.ragnarok.fenrir.util.Utils.safelyClose
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -91,7 +92,7 @@ class ChatPresenter(
     private val messagesRepository: IMessagesRepository = Repository.messages
     private val stickersInteractor = InteractorFactory.createStickersInteractor()
     private val utilsInteractor = InteractorFactory.createUtilsInteractor()
-    private val longpollManager: ILongpollManager = LongpollInstance.get()
+    private val longpollManager: ILongpollManager = LongpollInstance.longpollManager
     private val uploadManager: IUploadManager = Includes.uploadManager
 
     private var stickersWordsDisplayDisposable = Disposable.disposed()
@@ -145,7 +146,7 @@ class ChatPresenter(
             peer = initialPeer
             outConfig = config
 
-            if (config.initialText.nonEmpty()) {
+            if (config.initialText.nonNullNoEmpty()) {
                 draftMessageText = config.initialText
             }
         } else {
@@ -191,9 +192,11 @@ class ChatPresenter(
 
         recordingLookup = Lookup(1000)
             .also {
-                it.setCallback {
-                    resolveRecordingTimeView()
-                }
+                it.setCallback(object : Lookup.Callback {
+                    override fun onIterated() {
+                        resolveRecordingTimeView()
+                    }
+                })
             }
 
         appendDisposable(
@@ -202,7 +205,7 @@ class ChatPresenter(
                 .subscribe({ onLongpollKeepAliveRequest() }, ignore())
         )
 
-        appendDisposable(Processors.realtimeMessages()
+        appendDisposable(Processors.realtimeMessages
             .observeResults()
             .filter { result -> result.accountId == messagesOwnerId }
             .toMainThread()
@@ -335,7 +338,7 @@ class ChatPresenter(
                 messageId,
                 voiceMessageId
             )
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ }, { t: Throwable? -> showError(view, t) })
         )
     }
@@ -343,7 +346,7 @@ class ChatPresenter(
     fun removeDialog() {
         appendDisposable(
             messagesRepository.deleteDialog(accountId, peerId)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(
                     { onDialogRemovedSuccessfully(accountId) },
                     { t: Throwable? -> showError(view, t) })
@@ -462,15 +465,6 @@ class ChatPresenter(
                 view?.notifyEditAttachmentChanged(index)
             }
         }
-    }
-
-    fun fireNewChatPhotoSelected(photo: LocalPhoto) {
-        val intent = UploadIntent(accountId, UploadDestination.forChatPhoto(Peer.toChatId(peerId)))
-            .setAutoCommit(true)
-            .setFileId(photo.imageId)
-            .setFileUri(photo.fullImageUri)
-            .setSize(Upload.IMAGE_SIZE_FULL)
-        uploadManager.enqueue(listOf(intent))
     }
 
     fun fireNewChatPhotoSelected(file: String) {
@@ -605,7 +599,7 @@ class ChatPresenter(
                         }
                     }
                     if (delete.isNotEmpty()) {
-                        Stores.getInstance()
+                        Stores.instance
                             .messages()
                             .deleteMessages(messagesOwnerId, delete)
                             .blockingSubscribe(ignore(), ignore())
@@ -643,7 +637,7 @@ class ChatPresenter(
     fun fireDeleteChatPhoto() {
         appendDisposable(
             messagesRepository.deleteChatPhoto(accountId, Peer.toChatId(peerId))
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(
                     { peer.avaUrl = null; view?.displayToolbarAvatar(peer) },
                     { t: Throwable? -> showError(view, t) })
@@ -706,7 +700,7 @@ class ChatPresenter(
     private fun fireCheckMessages() {
         if (Settings.get().other().isAuto_read) {
             appendDisposable(
-                checkErrorMessages().compose(applySingleIOToMainSchedulers())
+                checkErrorMessages().fromIOToMain()
                     .subscribe({ t -> if (t) startSendService() else readAllUnreadMessagesIfExists() }) { })
         }
     }
@@ -714,7 +708,7 @@ class ChatPresenter(
     fun fireNetworkChenged() {
         if (!isHiddenAccount(accountId)) {
             appendDisposable(
-                checkErrorMessages().compose(applySingleIOToMainSchedulers())
+                checkErrorMessages().fromIOToMain()
                     .subscribe({ t -> if (t) startSendService() else readAllUnreadMessagesIfExists() }) { })
         }
     }
@@ -727,7 +721,7 @@ class ChatPresenter(
         }
         if (Settings.get().other().isAuto_read) {
             appendDisposable(
-                checkErrorMessages().compose(applySingleIOToMainSchedulers())
+                checkErrorMessages().fromIOToMain()
                     .subscribe({ t -> if (t) startSendService() else readAllUnreadMessagesIfExists() }) { })
         }
     }
@@ -822,12 +816,12 @@ class ChatPresenter(
             return
         }
         stickersWordsDisplayDisposable.dispose()
-        if (isEmpty(s)) {
+        if (s.isNullOrEmpty()) {
             view?.updateStickers(Collections.emptyList())
             return
         }
         stickersWordsDisplayDisposable =
-            stickersInteractor.getKeywordsStickers(accountId, s!!.trim())
+            stickersInteractor.getKeywordsStickers(accountId, s.trim())
                 .delay(500, TimeUnit.MILLISECONDS)
                 .fromIOToMain()
                 .subscribe({ stickers -> view?.updateStickers(stickers) }, ignore())
@@ -839,7 +833,7 @@ class ChatPresenter(
             return
         }
         if (Peer.isGroupChat(peerId)) {
-            if (!isEmpty(s) && s.length == 1 && s[0] == '@') {
+            if (s.nonNullNoEmpty() && s.length == 1 && s[0] == '@') {
                 view?.showChatMembers(accountId, Peer.toChatId(peerId))
             }
         }
@@ -976,13 +970,13 @@ class ChatPresenter(
         }
 
         if (draftMessageId == null) {
-            draftMessageId = Stores.getInstance()
+            draftMessageId = Stores.instance
                 .messages()
                 .saveDraftMessageBody(messagesOwnerId, peerId, draftMessageText)
                 .blockingGet()
         }
 
-        val destination = UploadDestination.forMessage(draftMessageId!!)
+        val destination = UploadDestination.forMessage(draftMessageId ?: return)
         view?.goToMessageAttachmentsEditor(
             accountId,
             messagesOwnerId,
@@ -993,22 +987,22 @@ class ChatPresenter(
     }
 
     private fun canSendNormalMessage(): Boolean {
-        return calculateAttachmentsCount() > 0 || trimmedNonEmpty(draftMessageText) || nowUploadingToEditingMessage()
+        return calculateAttachmentsCount() > 0 || draftMessageText.trimmedNonNullNoEmpty() || nowUploadingToEditingMessage()
     }
 
     private fun resolveEmptyTextVisibility() {
-        view?.setEmptyTextVisible(safeIsEmpty(data) && !isLoadingNow)
+        view?.setEmptyTextVisible(data.isNullOrEmpty() && !isLoadingNow)
     }
 
     private fun nowUploadingToEditingMessage(): Boolean {
         val messageId = draftMessageId ?: return false
 
-        val current = uploadManager.current
-        return current.nonEmpty() && current.get().destination.compareTo(
+        val current = uploadManager.getCurrent()
+        return current.nonEmpty() && current.get()?.destination?.compareTo(
             messageId,
             UploadDestination.WITHOUT_OWNER,
             Method.TO_MESSAGE
-        )
+        ) == true
     }
 
     private fun resolveAttachmentsCounter() {
@@ -1269,10 +1263,7 @@ class ChatPresenter(
 
         addMessageToList(message)
         view?.notifyDataChanged()
-        if (!message.isOut && Objects.nonNull(message.keyboard) && !message.keyboard.inline && !isEmpty(
-                message.keyboard.buttons
-            )
-        ) {
+        if (!message.isOut && message.keyboard != null && !message.keyboard.inline && message.keyboard.buttons.nonNullNoEmpty()) {
             conversation?.currentKeyboard = message.keyboard
             fetchConversationDisposable = Repository.messages
                 .updateDialogKeyboard(accountId, peerId, message.keyboard)
@@ -1280,7 +1271,7 @@ class ChatPresenter(
                 .subscribe(dummy(), ignore())
             view?.convert_to_keyboard(message.keyboard)
         }
-        if (Settings.get().other().isAuto_read && !Processors.realtimeMessages()
+        if (Settings.get().other().isAuto_read && !Processors.realtimeMessages
                 .isNotificationIntercepted(accountId, peerId)
         ) {
             readAllUnreadMessagesIfExists()
@@ -1302,7 +1293,7 @@ class ChatPresenter(
     fun ResolveWritingInfo(context: Context, writeText: WriteText) {
         appendDisposable(
             OwnerInfo.getRx(context, accountId, writeText.from_ids[0])
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ t ->
                     view?.displayWriting(
                         t.owner,
@@ -1327,7 +1318,7 @@ class ChatPresenter(
                     accountId,
                     Peer.toChatId(peerId)
                 )
-                    .compose(applySingleIOToMainSchedulers())
+                    .fromIOToMain()
                     .subscribe({ t ->
                         run {
                             subtitle = getString(R.string.chat_users_count, t.size)
@@ -1338,7 +1329,7 @@ class ChatPresenter(
 
 
             Peer.USER -> appendDisposable(
-                Stores.getInstance()
+                Stores.instance
                     .owners()
                     .getLocalizedUserActivity(messagesOwnerId, Peer.toUserId(peerId))
                     .compose(applyMaybeIOToMainSchedulers())
@@ -1353,10 +1344,6 @@ class ChatPresenter(
     private fun canEdit(message: Message): Boolean {
         return message.isOut && Unixtime.now() - message.date < 24 * 60 * 60
                 && !message.isSticker && !message.isVoiceMessage && !message.isGraffity && !message.isCall
-    }
-
-    private fun canSpam(message: Message): Boolean {
-        return !message.isOut
     }
 
     private fun canChangePin(): Boolean {
@@ -1406,7 +1393,7 @@ class ChatPresenter(
             if (selectionCount == 1) {
                 val message = data.find {
                     it.isSelected
-                }!!
+                } ?: return
 
                 view?.showActionMode(
                     selectionCount.toString(),
@@ -1419,11 +1406,11 @@ class ChatPresenter(
             } else {
                 view?.showActionMode(
                     selectionCount.toString(),
-                    false,
-                    false,
-                    canStar(),
-                    doStar(),
-                    false
+                    canEdit = false,
+                    canPin = false,
+                    canStar = canStar(),
+                    doStar = doStar(),
+                    canSpam = false
                 )
             }
         } else {
@@ -1448,19 +1435,19 @@ class ChatPresenter(
     public override fun onGuiResumed() {
         super.onGuiResumed()
         checkLongpoll()
-        Processors.realtimeMessages()
+        Processors.realtimeMessages
             .registerNotificationsInterceptor(id, Pair.create(messagesOwnerId, peerId))
     }
 
     public override fun onGuiPaused() {
         super.onGuiPaused()
         checkLongpoll()
-        Processors.realtimeMessages().unregisterNotificationsInterceptor(id)
+        Processors.realtimeMessages.unregisterNotificationsInterceptor(id)
     }
 
     private fun tryToRestoreDraftMessage(ignoreBody: Boolean) {
         appendDisposable(
-            Stores.getInstance()
+            Stores.instance
                 .messages()
                 .findDraftMessage(messagesOwnerId, peerId)
                 .compose(applyMaybeIOToMainSchedulers())
@@ -1475,7 +1462,7 @@ class ChatPresenter(
 
         for (entry in message.attachments) {
             if (entry.attachment is FwdMessages) {
-                if (!isEmpty((entry.attachment as FwdMessages).fwds)) {
+                if ((entry.attachment as FwdMessages).fwds.nonNullNoEmpty()) {
                     count += (entry.attachment as FwdMessages).fwds.size
                 }
             } else if (entry.attachment !is Upload) {
@@ -1500,7 +1487,7 @@ class ChatPresenter(
     }
 
     private fun onDraftMessageRestored(message: DraftMessage, ignoreBody: Boolean) {
-        if (isEmpty(draftMessageText)) {
+        if (draftMessageText.isNullOrEmpty()) {
             draftMessageDbAttachmentsCount = message.attachmentsCount
             draftMessageId = message.id
 
@@ -1542,7 +1529,7 @@ class ChatPresenter(
     }
 
     fun saveDraftMessageBody() {
-        Stores.getInstance()
+        Stores.instance
             .messages()
             .saveDraftMessageBody(messagesOwnerId, peerId, draftMessageText)
             .subscribeIOAndIgnoreResults()
@@ -1574,7 +1561,7 @@ class ChatPresenter(
 
     private fun readAllUnreadMessagesIfExists() {
         if (isHiddenAccount(accountId)) return
-        val last = if (data.nonEmpty()) data[0] else return
+        val last = if (data.nonNullNoEmpty()) data[0] else return
 
         if (!last.isOut && last.originalId > lastReadId.incoming) {
             lastReadId.incoming = last.originalId
@@ -1636,16 +1623,14 @@ class ChatPresenter(
             }
             sent.add(message.id)
         }
-        if (sent.nonEmpty()) {
+        if (sent.nonNullNoEmpty()) {
             appendDisposable(
                 messagesRepository.markAsImportant(
                     messagesOwnerId,
                     peer.id,
                     sent,
                     if (!isImportant) 1 else 0
-                )
-                    .fromIOToMain()
-                    .subscribe(dummy()) { t -> showError(view, t) }
+                ).fromIOToMain().subscribe(dummy()) { t -> showError(view, t) }
             )
         }
     }
@@ -1696,7 +1681,7 @@ class ChatPresenter(
             }
         }
 
-        if (sent.nonEmpty()) {
+        if (sent.nonNullNoEmpty()) {
             deleteSentImpl(sent, 0)
         }
 
@@ -1740,14 +1725,18 @@ class ChatPresenter(
                     hasChanged = true
                 }
                 MessageStatus.EDITING -> {
-                    TODO()
+
                 }
             }
         }
 
-        if (sent.nonEmpty()) {
+        if (sent.nonNullNoEmpty()) {
             appendDisposable(
-                messagesRepository.deleteMessages(messagesOwnerId, peerId, sent, false, true)
+                messagesRepository.deleteMessages(
+                    messagesOwnerId, peerId, sent,
+                    forAll = false,
+                    spam = true
+                )
                     .fromIOToMain()
                     .subscribe(dummy()) { t -> showError(view, t) }
             )
@@ -1781,7 +1770,7 @@ class ChatPresenter(
 
     private fun superDeleteEditRecursive(messages: ArrayList<Message>, result: ArrayList<Int>) {
         if (messages.isEmpty()) {
-            if (!isEmpty(result)) {
+            if (result.nonNullNoEmpty()) {
                 normalDelete(result, true)
             }
             return
@@ -1828,7 +1817,7 @@ class ChatPresenter(
 
     private fun deleteMessageFromDbAsync(message: Message) {
         subscribeOnIOAndIgnore(
-            Stores.getInstance()
+            Stores.instance
                 .messages()
                 .deleteMessage(messagesOwnerId, message.id)
         )
@@ -1898,8 +1887,8 @@ class ChatPresenter(
         uploadStreamsImpl(streams, size, false)
     }
 
-    private fun uploadStreams(streams: List<Uri>, mime: String) {
-        if (streams.nullOrEmpty() || !mime.nonEmpty()) return
+    private fun uploadStreams(streams: List<Uri>, mime: String?) {
+        if (streams.isNullOrEmpty() || mime.isNullOrEmpty()) return
 
         val size = Settings.get()
             .main()
@@ -1916,9 +1905,7 @@ class ChatPresenter(
 
     private fun resolveResumePeer() {
         view?.notifyChatResume(accountId, peerId, peer.title, peer.avaUrl)
-        if (Objects.nonNull(conversation)) {
-            view?.convert_to_keyboard(conversation!!.currentKeyboard)
-        }
+        view?.convert_to_keyboard(conversation?.currentKeyboard)
     }
 
     private fun uploadStreamsImpl(streams: List<Uri>, size: Int?, is_video: Boolean) {
@@ -1928,16 +1915,16 @@ class ChatPresenter(
         view?.resetUploadImages()
 
         if (draftMessageId == null) {
-            draftMessageId = Stores.getInstance()
+            draftMessageId = Stores.instance
                 .messages()
                 .saveDraftMessageBody(messagesOwnerId, peerId, draftMessageText)
                 .blockingGet()
         }
 
         val destination = if (is_video) UploadDestination.forMessage(
-            draftMessageId!!,
+            draftMessageId ?: return,
             MessageMethod.VIDEO
-        ) else UploadDestination.forMessage(draftMessageId!!)
+        ) else UploadDestination.forMessage(draftMessageId ?: return)
         val intents = ArrayList<UploadIntent>(streams.size)
 
         if (!is_video) {
@@ -1946,7 +1933,7 @@ class ChatPresenter(
                     UploadIntent(messagesOwnerId, destination)
                         .setAutoCommit(true)
                         .setFileUri(uri)
-                        .setSize(size!!)
+                        .setSize(size ?: return)
                 )
             }
         } else {
@@ -1968,7 +1955,7 @@ class ChatPresenter(
     }
 
     private fun resolveInputImagesUploading() {
-        if (outConfig.uploadFiles.nonEmpty() && outConfig.uploadFilesMimeType.nonEmpty()) {
+        if (outConfig.uploadFiles.nonNullNoEmpty() && outConfig.uploadFilesMimeType.nonNullNoEmpty()) {
             uploadStreams(outConfig.uploadFiles, outConfig.uploadFilesMimeType)
         }
     }
@@ -1990,7 +1977,7 @@ class ChatPresenter(
     fun fireForwardToHereClick(messages: ArrayList<Message>) {
         for (i in outConfig.models) {
             if (i is FwdMessages) {
-                if (!isEmpty(i.fwds)) {
+                if (i.fwds.nonNullNoEmpty()) {
                     for (p in i.fwds) {
                         if (messages.contains(p)) {
                             messages.remove(p)
@@ -1999,7 +1986,7 @@ class ChatPresenter(
                 }
             }
         }
-        if (!isEmpty(messages)) {
+        if (messages.nonNullNoEmpty()) {
             outConfig.models.append(FwdMessages(messages))
         }
 
@@ -2082,7 +2069,7 @@ class ChatPresenter(
 
     private fun onEnableEncryptionKeyStoreSelected(@KeyLocationPolicy policy: Int) {
         appendDisposable(
-            Stores.getInstance()
+            Stores.instance
                 .keys(policy)
                 .getKeys(messagesOwnerId, peerId)
                 .fromIOToMain()
@@ -2093,7 +2080,7 @@ class ChatPresenter(
     }
 
     private fun fireEncriptionEnableClick(@KeyLocationPolicy policy: Int, pairs: List<AesKeyPair>) {
-        if (pairs.nullOrEmpty()) {
+        if (pairs.isNullOrEmpty()) {
             view?.displayIniciateKeyExchangeQuestion(policy)
         } else {
             Settings.get().security().enableMessageEncryption(messagesOwnerId, peerId, policy)
@@ -2127,8 +2114,8 @@ class ChatPresenter(
         }
     }
 
-    private fun checkGraffitiMessage(filePath: Sticker.LocalSticker): Single<Optional<IAttachmentToken?>> {
-        if (!isEmpty(filePath.path)) {
+    private fun checkGraffitiMessage(filePath: Sticker.LocalSticker): Single<Optional<IAttachmentToken>> {
+        if (filePath.path.nonNullNoEmpty()) {
             val docsApi = Includes.networkInterfaces.vkDefault(accountId).docs()
             return docsApi.getMessagesUploadServer(
                 peerId,
@@ -2174,9 +2161,9 @@ class ChatPresenter(
 
     fun fireSendMyStickerClick(file: Sticker.LocalSticker) {
         netLoadingDisposable = checkGraffitiMessage(file)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
-                if (!it.isEmpty) {
+                if (it.nonEmpty()) {
                     val kk = it.get() as AttachmentToken
                     if (!file.isAnimated) {
                         val graffiti = Graffiti().setId(kk.id).setOwner_id(kk.ownerId)
@@ -2235,7 +2222,7 @@ class ChatPresenter(
 
     fun fireGenerateInviteLink() {
         netLoadingDisposable = utilsInteractor.getInviteLink(accountId, peerId, 0)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.copyToClipBoard(it.link)
             }, { onConversationFetchFail(it) })
@@ -2389,7 +2376,7 @@ class ChatPresenter(
                 .fromIOToMain()
                 .subscribe({ info ->
                     run {
-                        val Dmn: String = if (info.first.domain == null)
+                        val Dmn: String = if (info.first?.domain == null)
                             "@id$Id,"
                         else
                             "@" + info.first.domain + ","
@@ -2426,9 +2413,9 @@ class ChatPresenter(
 
                 val intents = localPhotos.map {
                     UploadIntent(accountId, destination).apply {
-                        isAutoCommit = false
+                        pAutoCommit = false
                         fileId = it.imageId
-                        fileUri = it.fullImageUri
+                        pFileUri = it.fullImageUri
                         size = imageSize
                     }
                 }
@@ -2443,8 +2430,8 @@ class ChatPresenter(
             val destination = UploadDestination.forMessage(message.id, MessageMethod.VIDEO)
 
             val intents = UploadIntent(accountId, destination).apply {
-                isAutoCommit = false
-                fileUri = Uri.parse(video.data.toString())
+                pAutoCommit = false
+                pFileUri = Uri.parse(video.data.toString())
             }
 
             uploadManager.enqueue(Collections.singletonList(intents))
@@ -2503,7 +2490,8 @@ class ChatPresenter(
     fun fireEditCameraClick() {
         try {
             val file = FileUtil.createImageFile()
-            currentPhotoCameraUri = FileUtil.getExportedUriForFile(applicationContext, file)
+            currentPhotoCameraUri =
+                file.let { FileUtil.getExportedUriForFile(applicationContext, it) }
             currentPhotoCameraUri?.run {
                 view?.startCamera(this)
             }

@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.net.*
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.text.InputType
 import android.util.SparseBooleanArray
 import android.view.*
@@ -32,7 +33,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.yalantis.ucrop.UCrop
 import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extensions.Companion.nullOrEmpty
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.*
@@ -45,7 +45,7 @@ import dev.ragnarok.fenrir.dialog.ImageSizeAlertDialog
 import dev.ragnarok.fenrir.dialog.LandscapeExpandBottomSheetDialog
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
-import dev.ragnarok.fenrir.fragment.search.criteria.MessageSeachCriteria
+import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
 import dev.ragnarok.fenrir.fragment.sheet.MessageAttachmentsFragment
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.link.internal.TopicLink
@@ -59,6 +59,7 @@ import dev.ragnarok.fenrir.model.selection.*
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.ChatPresenter
 import dev.ragnarok.fenrir.mvp.view.IChatView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
@@ -67,8 +68,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.util.*
-import dev.ragnarok.fenrir.util.Objects
-import dev.ragnarok.fenrir.util.Utils.nonEmpty
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.view.InputViewController
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
@@ -137,23 +137,29 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     private var receiver: NetworkBroadcastReceiver? = null
     private var receiverPostM: NetworkBroadcastReceiverPostM? = null
 
-    private val requestRecordPermission = AppPerms.requestPermissions(
-        this, arrayOf(
+    private val requestRecordPermission = requestPermissionsAbs(
+        arrayOf(
             Manifest.permission.RECORD_AUDIO
         )
-    ) { presenter?.fireRecordPermissionsResolved() }
-    private val requestCameraEditPermission = AppPerms.requestPermissions(
-        this, arrayOf(
+    ) {
+        lazyPresenter { fireRecordPermissionsResolved() }
+    }
+    private val requestCameraEditPermission = requestPermissionsAbs(
+        arrayOf(
             Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
         )
-    ) { presenter?.fireEditCameraClick() }
+    ) {
+        lazyPresenter { fireEditCameraClick() }
+    }
 
-    private val requestCameraEditPermissionScoped = AppPerms.requestPermissions(
-        this, arrayOf(
+    private val requestCameraEditPermissionScoped = requestPermissionsAbs(
+        arrayOf(
             Manifest.permission.CAMERA
         )
-    ) { presenter?.fireEditCameraClick() }
+    ) {
+        lazyPresenter { fireEditCameraClick() }
+    }
 
     private val openCameraRequest = registerForActivityResult(
         ActivityResultContracts.TakePicture()
@@ -161,8 +167,12 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         if (result) {
             when (val defaultSize = Settings.get().main().uploadImageSize) {
                 null -> {
-                    ImageSizeAlertDialog.Builder(activity)
-                        .setOnSelectedCallback { size -> presenter?.fireEditPhotoMaked(size) }
+                    ImageSizeAlertDialog.Builder(requireActivity())
+                        .setOnSelectedCallback(object : ImageSizeAlertDialog.OnSelectedCallback {
+                            override fun onSizeSelected(size: Int) {
+                                presenter?.fireEditPhotoMaked(size)
+                            }
+                        })
                         .show()
                 }
                 else -> presenter?.fireEditPhotoMaked(defaultSize)
@@ -174,7 +184,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            result.data?.getStringExtra(FileManagerFragment.returnFileParameter)?.let {
+            result.data?.getStringExtra(Extra.PATH)?.let {
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(R.string.info)
                     .setMessage(R.string.do_convert_request)
@@ -218,7 +228,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         savedInstanceState: Bundle?
     ): View {
         val root = inflater.inflate(R.layout.fragment_chat, container, false) as ViewGroup
-        root.background = CurrentTheme.getChatBackground(activity)
+        root.background = CurrentTheme.getChatBackground(requireActivity())
 
         toolbar = root.findViewById(R.id.toolbar)
         toolbar?.inflateMenu(R.menu.menu_chat)
@@ -231,10 +241,8 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         stickersAdapter = StickersKeyWordsAdapter(requireActivity(), Collections.emptyList())
         stickersAdapter?.setStickerClickedListener(object :
             EmojiconsPopup.OnStickerClickedListener {
-            override fun onStickerClick(sticker: Sticker?) {
-                if (sticker != null) {
-                    presenter?.fireStickerSendClick(sticker)
-                }; presenter?.resetDraftMessage()
+            override fun onStickerClick(sticker: Sticker) {
+                presenter?.fireStickerSendClick(sticker); presenter?.resetDraftMessage()
             }
         })
         stickersKeywordsView?.let {
@@ -265,7 +273,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
         goto_button = root.findViewById(R.id.goto_button)
         goto_button?.let {
-            if (Utils.isHiddenCurrent()) {
+            if (Utils.isHiddenCurrent) {
                 it.setImageResource(R.drawable.attachment)
                 it.setOnClickListener { presenter?.fireDialogAttachmentsClick() }
             } else {
@@ -300,7 +308,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
         ItemTouchHelper(MessagesReplyItemCallback {
             presenter?.fireResendSwipe(
-                adapter!!.getItemRawPosition(
+                (adapter ?: return@MessagesReplyItemCallback).getItemRawPosition(
                     it
                 )
             )
@@ -356,7 +364,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     override fun convert_to_keyboard(keyboard: Keyboard?) {
         keyboard ?: return
-        inputViewController?.updateBotKeyboard(keyboard, !Utils.isHiddenCurrent())
+        inputViewController?.updateBotKeyboard(keyboard, !Utils.isHiddenCurrent)
     }
 
     override fun displayEditingMessage(message: Message?) {
@@ -389,13 +397,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
         Writing_msg_Type?.setImageResource(if (is_text) R.drawable.pencil else R.drawable.voice)
         ViewUtils.displayAvatar(
-            Writing_msg_Ava!!, CurrentTheme.createTransformationForAvatar(),
+            Writing_msg_Ava ?: return, CurrentTheme.createTransformationForAvatar(),
             owner.get100photoOrSmaller(), null
         )
     }
 
     override fun updateStickers(items: List<Sticker>) {
-        if (Utils.isEmpty(items)) {
+        if (items.isNullOrEmpty()) {
             stickersKeywordsView?.visibility = View.GONE
         } else {
             stickersKeywordsView?.visibility = View.VISIBLE
@@ -514,12 +522,19 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         presenter?.fireRecordSendClick()
     }
 
+    @Suppress("DEPRECATION")
     override fun onRecordCustomClick() {
         if (!AppPerms.hasReadWriteStoragePermission(requireActivity())) {
             requestSendCustomVoicePermission.launch()
             return
         }
-        requestFile.launch(Intent(requireActivity(), FileManagerActivity::class.java))
+        requestFile.launch(
+            FileManagerActivity.makeFileManager(
+                requireActivity(),
+                Environment.getExternalStorageDirectory().absolutePath,
+                null, getString(R.string.send_file_as_voice)
+            )
+        )
     }
 
     override fun onResumePauseClick() {
@@ -527,11 +542,11 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     }
 
     private fun createLayoutManager(): RecyclerView.LayoutManager {
-        return LinearLayoutManager(activity, RecyclerView.VERTICAL, true)
+        return LinearLayoutManager(requireActivity(), RecyclerView.VERTICAL, true)
     }
 
-    override fun displayMessages(messages: List<Message>, lastReadId: LastReadId) {
-        adapter = MessagesAdapter(activity, messages, lastReadId, this, false)
+    override fun displayMessages(messages: MutableList<Message>, lastReadId: LastReadId) {
+        adapter = MessagesAdapter(requireActivity(), messages, lastReadId, this, false)
             .also {
                 it.setOnMessageActionListener(this)
                 it.setVoiceActionListener(this)
@@ -561,13 +576,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     }
 
     override fun configNowVoiceMessagePlaying(
-        voiceId: Int,
+        id: Int,
         progress: Float,
         paused: Boolean,
         amin: Boolean,
         speed: Boolean
     ) {
-        adapter?.configNowVoiceMessagePlaying(voiceId, progress, paused, amin, speed)
+        adapter?.configNowVoiceMessagePlaying(id, progress, paused, amin, speed)
     }
 
     override fun bindVoiceHolderById(
@@ -608,7 +623,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
         val inputStreams = ActivityUtils.checkLocalStreams(requireActivity())
         config.uploadFiles = if (inputStreams == null) null else {
-            if (inputStreams.uris.nullOrEmpty()) null else inputStreams.uris
+            if (inputStreams.uris.isNullOrEmpty()) null else inputStreams.uris
         }
         config.uploadFilesMimeType = inputStreams?.mime
 
@@ -650,7 +665,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     }
 
     override fun displayToolbarAvatar(peer: Peer?) {
-        if (nonEmpty(peer?.avaUrl)) {
+        if (peer?.avaUrl.nonNullNoEmpty()) {
             EmptyAvatar?.visibility = View.GONE
             Avatar?.let {
                 PicassoInstance.with()
@@ -661,7 +676,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         } else {
             Avatar?.let { PicassoInstance.with().cancelRequest(it) }
             peer?.let { itv ->
-                if (!Utils.isEmpty(itv.title)) {
+                if (itv.title.nonNullNoEmpty()) {
                     EmptyAvatar?.visibility = View.VISIBLE
                     var name: String = itv.title
                     if (name.length > 2) name = name.substring(0, 2)
@@ -772,15 +787,15 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 )
 
                 pinnedTitle?.text = sender.fullName
-                if (Utils.isEmpty(body) && pinned.isHasAttachments) {
+                if (body.isNullOrEmpty() && pinned.isHasAttachments) {
                     body = getString(R.string.attachments)
                 }
                 pinnedSubtitle?.text = OwnerLinkSpanFactory.withSpans(
                     body,
-                    true,
-                    false,
-                    object : OwnerLinkSpanFactory.ActionListener {
-                        override fun onTopicLinkClicked(link: TopicLink?) {
+                    owners = true,
+                    topics = false,
+                    listener = object : OwnerLinkSpanFactory.ActionListener {
+                        override fun onTopicLinkClicked(link: TopicLink) {
 
                         }
 
@@ -788,7 +803,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                             presenter?.fireOwnerClick(ownerId)
                         }
 
-                        override fun onOtherClick(URL: String?) {
+                        override fun onOtherClick(URL: String) {
 
                         }
                     })
@@ -824,13 +839,11 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         presenter?.fireTranscript(voiceMessageId, messageId)
     }
 
-    override fun onStickerClick(sticker: Sticker?) {
-        if (sticker != null) {
-            presenter?.fireStickerSendClick(sticker)
-        }
+    override fun onStickerClick(sticker: Sticker) {
+        presenter?.fireStickerSendClick(sticker)
     }
 
-    override fun onHashTagClicked(hashTag: String?) {
+    override fun onHashTagClicked(hashTag: String) {
         presenter?.fireHashtagClick(hashTag)
     }
 
@@ -902,20 +915,22 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     private fun onEditLocalPhotosSelected(photos: List<LocalPhoto>) {
         when (val defaultSize = Settings.get().main().uploadImageSize) {
             null -> {
-                ImageSizeAlertDialog.Builder(activity)
-                    .setOnSelectedCallback { size ->
-                        presenter?.fireEditLocalPhotosSelected(
-                            photos,
-                            size
-                        )
-                    }
+                ImageSizeAlertDialog.Builder(requireActivity())
+                    .setOnSelectedCallback(object : ImageSizeAlertDialog.OnSelectedCallback {
+                        override fun onSizeSelected(size: Int) {
+                            presenter?.fireEditLocalPhotosSelected(
+                                photos,
+                                size
+                            )
+                        }
+                    })
                     .show()
             }
             Upload.IMAGE_SIZE_CROPPING -> {
                 if (photos.size == 1) {
-                    var to_up = photos[0].fullImageUri
-                    if (File(to_up.path!!).isFile) {
-                        to_up = Uri.fromFile(File(to_up.path!!))
+                    var to_up = photos[0].fullImageUri ?: return
+                    if (to_up.path?.let { File(it).isFile } == true) {
+                        to_up = Uri.fromFile(to_up.path?.let { File(it) })
                     }
 
                     openRequestPhotoResize.launch(
@@ -950,13 +965,16 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 run {
                     when (val defaultSize = Settings.get().main().uploadImageSize) {
                         null -> {
-                            ImageSizeAlertDialog.Builder(activity)
-                                .setOnSelectedCallback { size ->
-                                    presenter?.fireFilePhotoForUploadSelected(
-                                        file,
-                                        size
-                                    )
-                                }
+                            ImageSizeAlertDialog.Builder(requireActivity())
+                                .setOnSelectedCallback(object :
+                                    ImageSizeAlertDialog.OnSelectedCallback {
+                                    override fun onSizeSelected(size: Int) {
+                                        presenter?.fireFilePhotoForUploadSelected(
+                                            file,
+                                            size
+                                        )
+                                    }
+                                })
                                 .show()
                         }
                         Upload.IMAGE_SIZE_CROPPING -> {
@@ -1004,9 +1022,9 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
                 val vid: LocalVideo? = result.data?.getParcelableExtra(Extra.VIDEO)
 
-                val file = result.data?.getStringExtra(FileManagerFragment.returnFileParameter)
+                val file = result.data?.getStringExtra(Extra.PATH)
 
-                if (file != null && nonEmpty(file)) {
+                if (file != null && file.nonNullNoEmpty()) {
                     onEditLocalFileSelected(file)
                 } else if (vkphotos.isNotEmpty()) {
                     presenter?.fireEditAttachmentsSelected(vkphotos)
@@ -1026,7 +1044,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             .with(VkPhotosSelectableSource(accountId, ownerId))
             .with(FileManagerSelectableSource())
 
-        val intent = DualTabPhotoActivity.createIntent(activity, 10, sources)
+        val intent = DualTabPhotoActivity.createIntent(requireActivity(), 10, sources)
         openRequestPhoto.launch(intent)
     }
 
@@ -1041,17 +1059,17 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
 
     override fun startVideoSelection(accountId: Int, ownerId: Int) {
-        val intent = VideoSelectActivity.createIntent(activity, accountId, ownerId)
+        val intent = VideoSelectActivity.createIntent(requireActivity(), accountId, ownerId)
         openRequestAudioVideoDoc.launch(intent)
     }
 
     override fun startAudioSelection(accountId: Int) {
-        val intent = AudioSelectActivity.createIntent(activity, accountId)
+        val intent = AudioSelectActivity.createIntent(requireActivity(), accountId)
         openRequestAudioVideoDoc.launch(intent)
     }
 
     override fun startDocSelection(accountId: Int) {
-        val intent = AttachmentsActivity.createIntent(activity, accountId, Types.DOC)
+        val intent = AttachmentsActivity.createIntent(requireActivity(), accountId, Types.DOC)
         openRequestAudioVideoDoc.launch(intent)
     }
 
@@ -1087,13 +1105,12 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     @SuppressLint("ShowToast")
     override fun showSnackbar(@StringRes res: Int, isLong: Boolean) {
-        if (Objects.nonNull(view)) {
+        if (view != null) {
             Snackbar.make(
                 requireView(),
                 res,
                 if (isLong) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT
-            )
-                .setAnchorView(InputView).show()
+            ).setAnchorView(InputView).show()
         }
     }
 
@@ -1260,7 +1277,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
 
         try {
-            PrepareOptionsMenu(toolbar?.menu!!)
+            PrepareOptionsMenu(toolbar?.menu ?: return)
         } catch (ignored: Exception) {
 
         }
@@ -1268,7 +1285,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     }
 
     override fun goToSearchMessage(accountId: Int, peer: Peer) {
-        val criteria = MessageSeachCriteria("").setPeerId(peer.id)
+        val criteria = MessageSearchCriteria("").setPeerId(peer.id)
         PlaceFactory.getSingleTabSearchPlace(accountId, SearchContentType.MESSAGES, criteria)
             .tryOpenWith(requireActivity())
     }
@@ -1283,13 +1300,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
 
     override fun showImageSizeSelectDialog(streams: List<Uri>) {
-        ImageSizeAlertDialog.Builder(activity)
-            .setOnSelectedCallback { size ->
-                run {
+        ImageSizeAlertDialog.Builder(requireActivity())
+            .setOnSelectedCallback(object : ImageSizeAlertDialog.OnSelectedCallback {
+                override fun onSizeSelected(size: Int) {
                     if (size == Upload.IMAGE_SIZE_CROPPING && streams.size == 1) {
                         var to_up = streams[0]
-                        if (File(to_up.path!!).isFile) {
-                            to_up = Uri.fromFile(File(to_up.path!!))
+                        if (File(to_up.path ?: return).isFile) {
+                            to_up = Uri.fromFile(File(to_up.path ?: return))
                         }
 
                         openRequestPhotoResize.launch(
@@ -1304,8 +1321,12 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                         presenter?.fireImageUploadSizeSelected(streams, size)
                     }
                 }
-            }
-            .setOnCancelCallback { presenter?.fireUploadCancelClick() }
+            })
+            .setOnCancelCallback(object : ImageSizeAlertDialog.OnCancelCallback {
+                override fun onCancel() {
+                    presenter?.fireUploadCancelClick()
+                }
+            })
             .show()
     }
 
@@ -1325,7 +1346,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     private fun resolveLeftButton(peerId: Int) {
         try {
-            if (Objects.nonNull(toolbar)) {
+            if (toolbar != null) {
                 resolveToolbarNavigationIcon()
                 if (peerId < VKApiMessage.CHAT_PEER) {
                     Avatar?.setOnClickListener {
@@ -1350,7 +1371,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     }
 
     private fun insertDomain(owner: Owner) {
-        if (nonEmpty(owner.domain)) {
+        if (owner.domain.nonNullNoEmpty()) {
             appendMessageText("@" + owner.domain + ",")
         } else {
             appendMessageText("@id" + owner.ownerId + ",")
@@ -1404,8 +1425,12 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     override fun showChatMembers(accountId: Int, chatId: Int) {
         ChatUsersDomainFragment.newInstance(
             Settings.get().accounts().current,
-            chatId
-        ) { t -> insertDomain(t) }.show(childFragmentManager, "chat_users_domain")
+            chatId, object : ChatUsersDomainFragment.Listener {
+                override fun onSelected(user: Owner) {
+                    insertDomain(user)
+                }
+            }
+        ).show(childFragmentManager, "chat_users_domain")
     }
 
     private val openRequestSelectPhotoToChatAvatar =
@@ -1413,10 +1438,10 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             if (result.data != null && result.resultCode == RESULT_OK) {
                 val photos: ArrayList<LocalPhoto>? =
                     result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
-                if (nonEmpty(photos)) {
-                    var to_up = photos!![0].fullImageUri
-                    if (File(to_up.path!!).isFile) {
-                        to_up = Uri.fromFile(File(to_up.path!!))
+                if (photos.nonNullNoEmpty()) {
+                    var to_up = photos[0].fullImageUri
+                    if (File(to_up.path ?: return@registerForActivityResult).isFile) {
+                        to_up = Uri.fromFile(File(to_up.path ?: return@registerForActivityResult))
                     }
                     openRequestUploadChatAvatar.launch(
                         UCrop.of(
@@ -1441,7 +1466,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                         .setInputType(InputType.TYPE_CLASS_TEXT)
                         .setValue(initialValue)
                         .setTitleRes(R.string.change_chat_title)
-                        .setCallback { newValue -> presenter?.fireChatTitleTyped(newValue) }
+                        .setCallback(object : InputTextDialog.Callback {
+                            override fun onChanged(newValue: String?) {
+                                if (newValue != null) {
+                                    presenter?.fireChatTitleTyped(newValue)
+                                }
+                            }
+                        })
                         .show()
                 }
             }
@@ -1616,8 +1647,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         recyclerView?.smoothScrollToPosition(position)
     }
 
-    private val requestWriteScreenshotPermission = AppPerms.requestPermissions(
-        this,
+    private val requestWriteScreenshotPermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -1626,14 +1656,20 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         ScreenshotHelper.makeScreenshot(requireActivity())
     }
 
-    private val requestSendCustomVoicePermission = AppPerms.requestPermissions(
-        this,
+    @Suppress("DEPRECATION")
+    private val requestSendCustomVoicePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        requestFile.launch(Intent(requireActivity(), FileManagerActivity::class.java))
+        requestFile.launch(
+            FileManagerActivity.makeFileManager(
+                requireActivity(),
+                Environment.getExternalStorageDirectory().absolutePath,
+                null, getString(R.string.send_file_as_voice)
+            )
+        )
     }
 
     private fun downloadChat() {
@@ -1646,8 +1682,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             .show()
     }
 
-    private val requestWriteChatPermission = AppPerms.requestPermissions(
-        this,
+    private val requestWriteChatPermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -1830,9 +1865,9 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     override fun copyToClipBoard(link: String) {
         val clipboard =
-            requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText("response", link)
-        clipboard.setPrimaryClip(clip)
+        clipboard?.setPrimaryClip(clip)
         CustomToast.CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
     }
 
@@ -1841,12 +1876,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         presenter?.saveDraftMessageBody()
     }
 
+    @SuppressLint("MissingPermission")
     @Suppress("DEPRECATION")
     private fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val nw = connectivityManager.activeNetwork ?: return false
+            val nw = connectivityManager?.activeNetwork ?: return false
             val actNw = connectivityManager.getNetworkCapabilities(nw)
             actNw != null && (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || actNw.hasTransport(
                 NetworkCapabilities.TRANSPORT_CELLULAR
@@ -1854,7 +1890,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 NetworkCapabilities.TRANSPORT_BLUETOOTH
             ))
         } else {
-            val nwInfo = connectivityManager.activeNetworkInfo
+            val nwInfo = connectivityManager?.activeNetworkInfo
             nwInfo != null && nwInfo.isConnected
         }
     }
@@ -1863,20 +1899,25 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         super.onCreate(savedInstanceState)
         if (Settings.get().other().isAuto_read) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                receiver = NetworkBroadcastReceiver(requireActivity()) {
-                    if (isNetworkAvailable(requireActivity())) {
-                        presenter?.fireNetworkChenged()
+                receiver = NetworkBroadcastReceiver(requireActivity(), object : Utils.SafeCallInt {
+                    override fun call() {
+                        if (isNetworkAvailable(requireActivity())) {
+                            presenter?.fireNetworkChenged()
+                        }
                     }
-                }
+                })
                 receiver?.register()
                 receiverPostM = null
             } else {
                 receiver = null
-                receiverPostM = NetworkBroadcastReceiverPostM(requireActivity()) {
-                    if (isNetworkAvailable(requireActivity())) {
-                        presenter?.fireNetworkChenged()
-                    }
-                }
+                receiverPostM =
+                    NetworkBroadcastReceiverPostM(requireActivity(), object : Utils.SafeCallInt {
+                        override fun call() {
+                            if (isNetworkAvailable(requireActivity())) {
+                                presenter?.fireNetworkChenged()
+                            }
+                        }
+                    })
                 receiverPostM?.register()
             }
         }
@@ -1901,13 +1942,15 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     internal class NetworkBroadcastReceiverPostM(
         private val context: Context,
-        private val call: Utils.safeCallInt
+        private val call: Utils.SafeCallInt
     ) {
         private var networkCallback: ConnectivityManager.NetworkCallback? = null
         private var connectivityManager: ConnectivityManager? = null
+
+        @SuppressLint("MissingPermission")
         fun register() {
             connectivityManager =
-                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
             if (connectivityManager != null) {
                 networkCallback = object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
@@ -1925,14 +1968,14 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                         .addTransportType(NetworkCapabilities.TRANSPORT_BLUETOOTH)
                 connectivityManager?.registerNetworkCallback(
                     networkRequest.build(),
-                    networkCallback!!
+                    networkCallback ?: return
                 )
             }
         }
 
         fun unregister() {
             if (connectivityManager != null && networkCallback != null) {
-                connectivityManager!!.unregisterNetworkCallback(networkCallback!!)
+                (connectivityManager ?: return).unregisterNetworkCallback(networkCallback ?: return)
             }
         }
     }
@@ -1940,7 +1983,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     @Suppress("DEPRECATION")
     class NetworkBroadcastReceiver(
         private val context: Context,
-        private val call: Utils.safeCallInt
+        private val call: Utils.SafeCallInt
     ) :
         BroadcastReceiver() {
         fun register() {

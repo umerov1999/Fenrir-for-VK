@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="file_picker_checkbox_margin">16dp</dimen>
-    <dimen name="file_picker_toolbar_image_margin">32dp</dimen>
-    <dimen name="file_picker_checkbox_dimens">32dp</dimen>
-</resources> 

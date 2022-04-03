@@ -33,7 +33,8 @@
             android:id="@+id/item_message_avatar"
             android:layout_width="@dimen/avatar_size_small"
             android:layout_height="@dimen/avatar_size_small"
-            android:layout_marginStart="4dp" />
+            android:layout_marginStart="4dp"
+            android:contentDescription="@null" />
 
         <dev.ragnarok.fenrir.view.OnlineView
             android:id="@+id/item_message_important"
@@ -114,6 +115,7 @@
                     android:layout_height="12dp"
                     android:layout_marginStart="-2dp"
                     android:layout_marginEnd="2dp"
+                    android:contentDescription="@null"
                     android:scaleType="fitXY"
                     android:src="@drawable/ic_message_crypt_vector"
                     app:tint="?android:textColorSecondary" />

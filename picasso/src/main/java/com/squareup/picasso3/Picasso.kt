@@ -59,16 +59,16 @@ import java.util.concurrent.ExecutorService
  * or construct your own instance with [Picasso.Builder].
  */
 class Picasso internal constructor(
-    internal val context: Context,
-    internal val dispatcher: Dispatcher,
-    internal val callFactory: Call.Factory,
+    @get:JvmName("-context") internal val context: Context,
+    @get:JvmName("-dispatcher") internal val dispatcher: Dispatcher,
+    @get:JvmName("-callFactory") internal val callFactory: Call.Factory,
     private val closeableCache: Cache?,
-    internal val cache: PlatformLruCache,
-    internal val listener: Listener?,
+    @get:JvmName("-cache") internal val cache: PlatformLruCache,
+    @get:JvmName("-listener") internal val listener: Listener?,
     requestTransformers: List<RequestTransformer>,
     extraRequestHandlers: List<RequestHandler>,
     eventListeners: List<EventListener>,
-    internal val defaultBitmapConfig: Config?,
+    @get:JvmName("-defaultBitmapConfig") internal val defaultBitmapConfig: Config?,
     /** Toggle whether to display debug indicators on images.  */
     var indicatorsEnabled: Boolean,
     /**
@@ -80,11 +80,21 @@ class Picasso internal constructor(
     @Volatile var isLoggingEnabled: Boolean
 ) : DefaultLifecycleObserver {
     internal val requestTransformers: List<RequestTransformer> = requestTransformers.toList()
-    internal val requestHandlers: List<RequestHandler>
-    internal val eventListeners: List<EventListener> = eventListeners.toList()
-    private val targetToAction = mutableMapOf<Any, Action>()
-    private val targetToDeferredRequestCreator = mutableMapOf<ImageView, DeferredRequestCreator>()
 
+    @get:JvmName("-requestHandlers")
+    internal val requestHandlers: List<RequestHandler>
+
+    @get:JvmName("-eventListeners")
+    internal val eventListeners: List<EventListener> = eventListeners.toList()
+
+    @get:JvmName("-targetToAction")
+    internal val targetToAction = mutableMapOf<Any, Action>()
+
+    @get:JvmName("-targetToDeferredRequestCreator")
+    internal val targetToDeferredRequestCreator = mutableMapOf<ImageView, DeferredRequestCreator>()
+
+    @get:JvmName("-shutdown")
+    @set:JvmName("-shutdown")
     internal var shutdown = false
 
     init {
@@ -356,6 +366,7 @@ class Picasso internal constructor(
         shutdown = true
     }
 
+    @JvmName("-transformRequest")
     internal fun transformRequest(request: Request): Request {
         var nextRequest = request
         for (i in requestTransformers.indices) {
@@ -365,6 +376,7 @@ class Picasso internal constructor(
         return nextRequest
     }
 
+    @JvmName("-defer")
     internal fun defer(view: ImageView, request: DeferredRequestCreator) {
         // If there is already a deferred request, cancel it.
         if (targetToDeferredRequestCreator.containsKey(view)) {
@@ -373,6 +385,7 @@ class Picasso internal constructor(
         targetToDeferredRequestCreator[view] = request
     }
 
+    @JvmName("-enqueueAndSubmit")
     internal fun enqueueAndSubmit(action: Action) {
         val target = action.getTarget()
         if (targetToAction[target] !== action) {
@@ -383,10 +396,12 @@ class Picasso internal constructor(
         submit(action)
     }
 
+    @JvmName("-submit")
     internal fun submit(action: Action) {
         dispatcher.dispatchSubmit(action)
     }
 
+    @JvmName("-quickMemoryCacheCheck")
     internal fun quickMemoryCacheCheck(key: String): Bitmap? {
         val cached = cache[key]
         if (cached != null) {
@@ -397,6 +412,7 @@ class Picasso internal constructor(
         return cached
     }
 
+    @JvmName("-complete")
     internal fun complete(hunter: BitmapHunter) {
         val single = hunter.action
         val joined = hunter.actions
@@ -424,6 +440,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-resumeAction")
     internal fun resumeAction(action: Action) {
         val bitmap = if (shouldReadFromMemoryCache(action.request.memoryPolicy)) {
             quickMemoryCacheCheck(action.request.key)
@@ -643,6 +660,7 @@ class Picasso internal constructor(
 
     /** Event listener methods **/
 
+    @JvmName("-cacheMaxSize") // Prefix with '-' to hide from Java.
     internal fun cacheMaxSize(maxSize: Int) {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -650,6 +668,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-cacheSize") // Prefix with '-' to hide from Java.
     internal fun cacheSize(size: Int) {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -657,6 +676,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-cacheHit") // Prefix with '-' to hide from Java.
     internal fun cacheHit() {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -664,6 +684,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-cacheMiss") // Prefix with '-' to hide from Java.
     internal fun cacheMiss() {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -671,6 +692,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-downloadFinished") // Prefix with '-' to hide from Java.
     internal fun downloadFinished(size: Long) {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -678,6 +700,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-bitmapDecoded") // Prefix with '-' to hide from Java.
     internal fun bitmapDecoded(bitmap: Bitmap) {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -685,6 +708,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-bitmapTransformed") // Prefix with '-' to hide from Java.
     internal fun bitmapTransformed(bitmap: Bitmap) {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -692,6 +716,7 @@ class Picasso internal constructor(
         }
     }
 
+    @JvmName("-close") // Prefix with '-' to hide from Java.
     internal fun close() {
         val numListeners = eventListeners.size
         for (i in 0 until numListeners) {
@@ -741,13 +766,14 @@ class Picasso internal constructor(
     }
 
     /** Describes where the image was loaded from.  */
-    enum class LoadedFrom(internal val debugColor: Int) {
+    enum class LoadedFrom(@get:JvmName("-debugColor") internal val debugColor: Int) {
         MEMORY(Color.GREEN),
         DISK(Color.BLUE),
         NETWORK(Color.RED);
     }
 
     internal companion object {
+        @get:JvmName("-handler")
         internal val HANDLER: Handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {

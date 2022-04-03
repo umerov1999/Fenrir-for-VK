@@ -23,7 +23,8 @@
         <ImageView
             android:id="@+id/item_link_pic"
             android:layout_width="80dp"
-            android:layout_height="80dp" />
+            android:layout_height="80dp"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/item_link_name"

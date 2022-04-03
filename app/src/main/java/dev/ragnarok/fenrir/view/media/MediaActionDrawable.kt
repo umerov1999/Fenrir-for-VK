@@ -104,7 +104,10 @@ class MediaActionDrawable : Drawable() {
         paint.strokeWidth = Utils.dpf2(if (isMini) 2f else 3f)
     }
 
-    @Deprecated("Deprecated in Java")
+    @Deprecated(
+        "Deprecated in Java",
+        ReplaceWith("PixelFormat.TRANSPARENT", "android.graphics.PixelFormat")
+    )
     override fun getOpacity(): Int {
         return PixelFormat.TRANSPARENT
     }
@@ -382,9 +385,9 @@ class MediaActionDrawable : Drawable() {
             if (previousIcon != ICON_PLAY && previousIcon != ICON_PAUSE) {
                 canvas.scale(drawableScale, drawableScale)
             }
-            CurrentTheme.getPlayPauseAnimator().draw(canvas, paint2, ms)
+            CurrentTheme.playPauseAnimator.draw(canvas, paint2, ms)
             canvas.scale(1.0f, -1.0f)
-            CurrentTheme.getPlayPauseAnimator().draw(canvas, paint2, ms)
+            CurrentTheme.playPauseAnimator.draw(canvas, paint2, ms)
             canvas.restore()
         }
         val newTime = System.currentTimeMillis()

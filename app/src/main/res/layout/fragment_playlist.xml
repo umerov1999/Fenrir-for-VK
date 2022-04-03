@@ -19,6 +19,7 @@
             android:layout_gravity="center_vertical"
             android:layout_margin="4dp"
             android:alpha="0.9"
+            android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_menu_24_white"
             app:tint="?colorPrimary" />
@@ -55,6 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
+            android:contentDescription="@null"
             android:src="@drawable/audio_player"
             app:fabSize="normal"
             app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior"

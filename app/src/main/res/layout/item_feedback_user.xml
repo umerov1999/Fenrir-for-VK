@@ -52,7 +52,8 @@
                 android:layout_width="@dimen/avatar_size_small"
                 android:layout_height="@dimen/avatar_size_small"
                 android:layout_centerInParent="true"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:contentDescription="@null" />
 
             <dev.ragnarok.fenrir.view.OnlineView
                 android:id="@+id/item_circle_friend_changable"
@@ -71,6 +72,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentEnd="true"
+            android:contentDescription="@null"
             android:scaleType="centerCrop" />
 
         <LinearLayout

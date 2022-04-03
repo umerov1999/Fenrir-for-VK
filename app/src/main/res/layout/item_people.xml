@@ -17,7 +17,8 @@
         <ImageView
             android:id="@+id/item_people_avatar"
             android:layout_width="@dimen/avatar_size_usual"
-            android:layout_height="@dimen/avatar_size_usual" />
+            android:layout_height="@dimen/avatar_size_usual"
+            android:contentDescription="@null" />
 
         <ImageView
             android:id="@+id/item_verified"
@@ -27,6 +28,7 @@
             android:background="@drawable/sel_button_round_5_white"
             android:backgroundTint="#009900"
             android:backgroundTintMode="add"
+            android:contentDescription="@null"
             android:padding="3dp"
             android:src="@drawable/verified"
             android:visibility="gone"
@@ -37,6 +39,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="bottom|end"
+            android:contentDescription="@null"
             android:src="@drawable/audio_died"
             android:visibility="gone"
             app:tint="#AAFF0000" />
@@ -77,6 +80,7 @@
         android:layout_height="@dimen/online_dot_size"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="16dp" />
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@null" />
 
 </RelativeLayout>

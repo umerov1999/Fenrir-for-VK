@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.api.model.Identificable;
 import dev.ragnarok.fenrir.settings.Settings;
-import dev.ragnarok.fenrir.util.Objects;
 import dev.ragnarok.fenrir.util.Utils;
 
 public class Dialog implements Identificable, Parcelable {
@@ -191,7 +190,7 @@ public class Dialog implements Identificable, Parcelable {
     }
 
     public String getLastMessageBody() {
-        return Objects.isNull(message) ? "..." : message.getCryptStatus() == CryptStatus.DECRYPTED ? message.getDecryptedBody() : message.getBody();
+        return message == null ? "..." : message.getCryptStatus() == CryptStatus.DECRYPTED ? message.getDecryptedBody() : message.getBody();
     }
 
     @NonNull

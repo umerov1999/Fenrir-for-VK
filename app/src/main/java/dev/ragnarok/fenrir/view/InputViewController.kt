@@ -15,6 +15,7 @@ import android.widget.TextView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.Keyboard
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
@@ -183,7 +184,7 @@ class InputViewController(
             }
         }
         emojiPopup?.onEmojiconClickedListener = object : OnEmojiconClickedListener {
-            override fun onEmojiconClicked(emojicon: Emojicon?) {
+            override fun onEmojiconClicked(emojicon: Emojicon) {
                 input(
                     mInputField,
                     emojicon
@@ -192,7 +193,7 @@ class InputViewController(
         }
         emojiPopup?.onEmojiconBackspaceClickedListener =
             object : OnEmojiconBackspaceClickedListener {
-                override fun onEmojiconBackspaceClicked(v: View?) {
+                override fun onEmojiconBackspaceClicked(v: View) {
                     val event =
                         KeyEvent(
                             0,
@@ -220,7 +221,7 @@ class InputViewController(
         mInputField.removeTextChangedListener(mTextWatcher)
         mInputField.setText(text)
         mInputField.requestFocus()
-        if (!Utils.isEmpty(text)) mInputField.setSelection(text?.length ?: 0)
+        if (text.nonNullNoEmpty()) mInputField.setSelection(text.length)
         mInputField.addTextChangedListener(mTextWatcher)
     }
 
@@ -229,12 +230,12 @@ class InputViewController(
         if (text != null) {
             mInputField.removeTextChangedListener(mTextWatcher)
             var txt = Utils.firstNonEmptyString(mInputField.text.toString(), " ")
-            if (txt.lastIndexOf('@') != -1) {
+            if ((txt ?: return).lastIndexOf('@') != -1) {
                 txt = txt.substring(0, txt.length - 1)
             }
             mInputField.setText("$txt $text")
             mInputField.requestFocus()
-            if (!Utils.isEmpty(text)) mInputField.setSelection(mInputField.text?.length ?: 0)
+            if (text.nonNullNoEmpty()) mInputField.setSelection(mInputField.text?.length ?: 0)
             callback.onInputTextChanged("$txt $text")
             mInputField.addTextChangedListener(mTextWatcher)
         }

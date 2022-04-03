@@ -115,7 +115,7 @@ class BotKeyboardView : ScrollView {
             buttonHeight = if (!isFullSize) 42 else 42f.coerceAtLeast(
                 (panelHeight - Utils.dp(30f) - ((botButtons?.size
                     ?: 0) - 1) * Utils.dp(10f)).toFloat() / (botButtons?.size
-                    ?: 1) / Utils.getDensity()
+                    ?: 1) / Utils.density
             )
                 .toInt()
             for (a in buttons.indices) {
@@ -184,7 +184,7 @@ class BotKeyboardView : ScrollView {
             buttonHeight = 42f.coerceAtLeast(
                 (panelHeight - Utils.dp(30f) - ((botButtons?.size ?: 0) - 1) * Utils.dp(
                     10f
-                )).toFloat() / (botButtons?.size ?: 1) / Utils.getDensity()
+                )).toFloat() / (botButtons?.size ?: 1) / Utils.density
             ).toInt()
             val count = container?.childCount
             val newHeight = Utils.dp(buttonHeight.toFloat())

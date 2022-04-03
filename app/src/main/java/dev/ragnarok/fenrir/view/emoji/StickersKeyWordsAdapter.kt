@@ -12,7 +12,6 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.Sticker
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnStickerClickedListener
 import java.lang.ref.WeakReference
 
@@ -28,7 +27,7 @@ class StickersKeyWordsAdapter(private val context: Context, private var stickers
     }
 
     fun setData(data: List<Sticker?>) {
-        stickers = if (Utils.isEmpty(data)) {
+        stickers = if (data.isNullOrEmpty()) {
             emptyList()
         } else {
             data
@@ -49,14 +48,14 @@ class StickersKeyWordsAdapter(private val context: Context, private var stickers
         val normalHolder = holder as StickerHolder
         normalHolder.root.visibility = View.VISIBLE
         val url = item?.getImage(256, isNightStiker)?.url
-        if (Utils.isEmpty(url)) {
+        if (url.isNullOrEmpty()) {
             with().cancelRequest(normalHolder.root)
             normalHolder.root.setImageResource(R.drawable.ic_avatar_unknown)
         } else {
             with()
                 .load(url) //.networkPolicy(NetworkPolicy.OFFLINE)
                 .tag(Constants.PICASSO_TAG)
-                .into(normalHolder.root, url?.let { LoadOnErrorCallback(normalHolder.root, it) })
+                .into(normalHolder.root, LoadOnErrorCallback(normalHolder.root, url))
             normalHolder.root.setOnClickListener {
                 stickerClickedListener?.onStickerClick(
                     item

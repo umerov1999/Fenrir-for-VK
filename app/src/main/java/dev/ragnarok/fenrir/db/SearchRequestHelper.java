@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.db;
 
-import static dev.ragnarok.fenrir.util.Objects.isNull;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -20,9 +18,9 @@ public class SearchRequestHelper extends SQLiteOpenHelper {
     }
 
     public static SearchRequestHelper getInstance(Context context) {
-        if (isNull(instance)) {
+        if (instance == null) {
             synchronized (lock) {
-                if (isNull(instance)) {
+                if (instance == null) {
                     instance = new SearchRequestHelper(context.getApplicationContext());
                 }
             }

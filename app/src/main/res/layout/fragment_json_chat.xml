@@ -33,6 +33,7 @@
                     android:id="@+id/toolbar_avatar"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:contentDescription="@null"
                     android:scaleType="centerCrop"
                     android:stateListAnimator="@animator/clicked" />
 
@@ -105,6 +106,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@null"
         android:src="@drawable/attachment"
         app:fabSize="mini"
         app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior" />

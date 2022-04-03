@@ -79,7 +79,7 @@ public class ReplyFCMMessage {
 
         Context app = context.getApplicationContext();
         OwnerInfo.getRx(app, accountId, from_id)
-                .subscribeOn(NotificationScheduler.INSTANCE)
+                .subscribeOn(NotificationScheduler.getINSTANCE())
                 .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getOwner(), ownerInfo.getAvatar()), throwable -> {/*ignore*/});
     }
 

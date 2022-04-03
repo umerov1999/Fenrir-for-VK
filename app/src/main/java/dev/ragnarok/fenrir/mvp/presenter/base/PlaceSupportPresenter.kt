@@ -89,7 +89,7 @@ abstract class PlaceSupportPresenter<V>(accountId: Int, savedInstanceState: Bund
         view?.openPoll(accountId, poll)
     }
 
-    fun fireHashtagClick(hashTag: String?) {
+    fun fireHashtagClick(hashTag: String) {
         view?.openSearch(
             accountId,
             SearchContentType.NEWS,
@@ -98,13 +98,13 @@ abstract class PlaceSupportPresenter<V>(accountId: Int, savedInstanceState: Bund
     }
 
     fun fireShareClick(post: Post?) {
-        view?.repostPost(accountId, post!!)
+        view?.repostPost(accountId, post ?: return)
     }
 
     fun fireCommentsClick(post: Post?) {
         view?.openComments(
             accountId,
-            Commented.from(post!!),
+            Commented.from(post ?: return),
             null
         )
     }

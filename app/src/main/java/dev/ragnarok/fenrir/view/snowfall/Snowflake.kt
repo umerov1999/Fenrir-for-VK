@@ -103,7 +103,7 @@ internal class Snowflake(val params: Params) {
 
     fun draw(canvas: Canvas) {
         if (bitmap != null) {
-            canvas.drawBitmap(bitmap!!, positionX.toFloat(), positionY.toFloat(), paint)
+            canvas.drawBitmap(bitmap ?: return, positionX.toFloat(), positionY.toFloat(), paint)
         } else {
             canvas.drawCircle(positionX.toFloat(), positionY.toFloat(), size.toFloat(), paint)
         }

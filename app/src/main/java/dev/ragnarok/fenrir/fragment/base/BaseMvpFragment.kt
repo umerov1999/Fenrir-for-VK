@@ -7,7 +7,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -24,21 +23,17 @@ import dev.ragnarok.fenrir.mvp.view.IToastView
 import dev.ragnarok.fenrir.mvp.view.IToolbarView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
-import dev.ragnarok.fenrir.spots.SpotsDialog
 import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
+import dev.ragnarok.fenrir.util.spots.SpotsDialog
 
 abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragment<P, V>(),
     IMvpView, IAccountDependencyView, IProgressView, IErrorView, IToastView, IToolbarView {
     private var mLoadingProgressDialog: AlertDialog? = null
     protected fun hasHideToolbarExtra(): Boolean {
         return arguments?.getBoolean(EXTRA_HIDE_TOOLBAR) == true
-    }
-
-    protected fun thisFragment(): Fragment {
-        return this
     }
 
     override fun showToast(@StringRes titleTes: Int, isLong: Boolean, vararg params: Any?) {
@@ -69,7 +64,7 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
                 ).setBackgroundTint(Color.parseColor("#eeff0000"))
                     .setAction(R.string.more_info) {
                         val Text = StringBuilder()
-                        for (stackTraceElement in throwable!!.stackTrace) {
+                        for (stackTraceElement in (throwable ?: return@setAction).stackTrace) {
                             Text.append("    ")
                             Text.append(stackTraceElement)
                             Text.append("\r\n")
@@ -114,7 +109,7 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
     }
 
     protected fun styleSwipeRefreshLayoutWithCurrentTheme(
-        swipeRefreshLayout: SwipeRefreshLayout,
+        swipeRefreshLayout: SwipeRefreshLayout?,
         needToolbarOffset: Boolean
     ) {
         ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme(
@@ -145,23 +140,23 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
     companion object {
         const val EXTRA_HIDE_TOOLBAR = "extra_hide_toolbar"
 
-        @JvmStatic
-        protected fun safelySetChecked(button: CompoundButton?, checked: Boolean) {
+
+        fun safelySetChecked(button: CompoundButton?, checked: Boolean) {
             button?.isChecked = checked
         }
 
-        @JvmStatic
-        protected fun safelySetText(target: TextView?, text: String?) {
+
+        fun safelySetText(target: TextView?, text: String?) {
             target?.text = text
         }
 
-        @JvmStatic
-        protected fun safelySetText(target: TextView?, @StringRes text: Int) {
+
+        fun safelySetText(target: TextView?, @StringRes text: Int) {
             target?.setText(text)
         }
 
-        @JvmStatic
-        protected fun safelySetVisibleOrGone(target: View?, visible: Boolean) {
+
+        fun safelySetVisibleOrGone(target: View?, visible: Boolean) {
             target?.visibility = if (visible) View.VISIBLE else View.GONE
         }
     }

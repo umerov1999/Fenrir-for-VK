@@ -10,7 +10,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.module.FenrirNative
-import dev.ragnarok.fenrir.settings.CurrentTheme.*
+import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.settings.CurrentTheme.getColorPrimary
+import dev.ragnarok.fenrir.settings.CurrentTheme.getColorSecondary
+import dev.ragnarok.fenrir.settings.CurrentTheme.getColorWhite
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.settings.theme.ThemeValue
 import dev.ragnarok.fenrir.util.Utils
@@ -51,7 +54,7 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
         val isSelected = currentId == category.id
         holder.title.text =
             if (category.disabled) holder.itemView.context.getString(R.string.not_available) else category.name
-        if (!Utils.isEmpty(category.name)) {
+        if (category.name.nonNullNoEmpty()) {
             holder.special_title.visibility = View.VISIBLE
             var name = category.name
             if (name.length > 4) name = name.substring(0, 4)

@@ -2,10 +2,10 @@ package dev.ragnarok.fenrir.mvp.presenter.base
 
 import android.os.Bundle
 import androidx.annotation.CallSuper
-import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.toMainThread
 
 abstract class AccountDependencyPresenter<V>(accountId: Int, savedInstanceState: Bundle?) :
     RxSupportPresenter<V>(savedInstanceState) where V : IMvpView, V : IAccountDependencyView {

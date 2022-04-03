@@ -29,13 +29,8 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso3.BitmapTarget
-import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Picasso
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
@@ -53,18 +48,16 @@ import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
-import dev.ragnarok.fenrir.util.Objects
 import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
-import dev.ragnarok.fenrir.util.Utils.isEmpty
 import dev.ragnarok.fenrir.view.CustomSeekBar
 import dev.ragnarok.fenrir.view.media.*
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieShapeableImageView
-import dev.ragnarok.fenrir.view.pager.WeakPicassoLoadCallback
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -220,13 +213,14 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         }
     }
 
-    private val requestWriteQRPermission = AppPerms.requestPermissions(
-        this,
+    private val requestWriteQRPermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
-    ) { CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text) }
+    ) {
+        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+    }
 
     @Suppress("DEPRECATION")
     private fun fireAudioQR() {
@@ -272,13 +266,14 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         dlgAlert.show()
     }
 
-    private val requestWriteAudioPermission = AppPerms.requestPermissions(
-        this,
+    private val requestWriteAudioPermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
-    ) { onSaveButtonClick(requireView()) }
+    ) {
+        onSaveButtonClick(requireView())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -312,7 +307,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                     iconColor = CurrentTheme.getColorSecondary(requireActivity())
                     callback = {
                         val tmpList = MusicPlaybackController.queue
-                        if (!isEmpty(tmpList)) {
+                        if (tmpList.nonNullNoEmpty()) {
                             PlaylistFragment.newInstance(ArrayList(tmpList))
                                 .show(childFragmentManager, "audio_playlist")
                         }
@@ -324,14 +319,14 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                     iconColor = CurrentTheme.getColorSecondary(requireActivity())
                     callback = {
                         val clipboard =
-                            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                         var Artist =
                             if (MusicPlaybackController.artistName != null) MusicPlaybackController.artistName else ""
                         if (MusicPlaybackController.albumName != null) Artist += " (" + MusicPlaybackController.albumName + ")"
                         val Name =
                             if (MusicPlaybackController.trackName != null) MusicPlaybackController.trackName else ""
                         val clip = ClipData.newPlainText("response", "$Artist - $Name")
-                        clipboard.setPrimaryClip(clip)
+                        clipboard?.setPrimaryClip(clip)
                         CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
                     }
                 }
@@ -353,8 +348,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                             SearchContentType.AUDIOS,
                             AudioSearchCriteria(
                                 MusicPlaybackController.artistName,
-                                true,
-                                false
+                                by_artist = true,
+                                in_main_page = false
                             )
                         ).tryOpenWith(requireActivity())
                         dismissAllowingStateLoss()
@@ -420,8 +415,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             ivAdd?.setImageResource(R.drawable.volume_minus)
             ivAdd?.setOnClickListener {
                 val audio =
-                    requireActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                audio.setStreamVolume(
+                    requireActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+                audio?.setStreamVolume(
                     AudioManager.STREAM_MUSIC,
                     audio.getStreamVolume(AudioManager.STREAM_MUSIC) - 1,
                     0
@@ -436,8 +431,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             ivShare.setImageResource(R.drawable.volume_plus)
             ivShare.setOnClickListener {
                 val audio =
-                    requireActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                audio.setStreamVolume(
+                    requireActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+                audio?.setStreamVolume(
                     AudioManager.STREAM_MUSIC,
                     audio.getStreamVolume(AudioManager.STREAM_MUSIC) + 1,
                     0
@@ -644,9 +639,9 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         dlgAlert.setPositiveButton(R.string.button_ok, null)
         dlgAlert.setNeutralButton(requireActivity().getString(R.string.copy_text)) { _: DialogInterface, _: Int ->
             val clipboard =
-                requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
             val clip = ClipData.newPlainText("response", Text)
-            clipboard.setPrimaryClip(clip)
+            clipboard?.setPrimaryClip(clip)
             CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
         }
         dlgAlert.setCancelable(true)
@@ -660,7 +655,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             CreateCustomToast(requireActivity()).showToast(R.string.restored)
         }
         val current = MusicPlaybackController.currentAudio
-        if (Objects.nonNull(current) && current?.id == id && current.ownerId == ownerId) {
+        if (current != null && current.id == id && current.ownerId == ownerId) {
             current.isDeleted = deleted
         }
         resolveAddButton()
@@ -720,7 +715,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
             if (isAdded) {
                 ivBackground?.let {
-                    FadeAnimDrawable.setBitmap(
+                    AudioPlayerBackgroundDrawable.setBitmap(
                         it,
                         bitmap,
                         MusicPlaybackController.isPlaying,
@@ -754,7 +749,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         }
         if (tvAlbum != null) {
             var album = ""
-            if (!isEmpty(audioTrack?.album_title)) album += requireActivity().getString(R.string.album) + " " + audioTrack?.album_title
+            if (audioTrack?.album_title.nonNullNoEmpty()) album += requireActivity().getString(R.string.album) + " " + audioTrack?.album_title
             tvAlbum?.text = album
         }
         tvTitle?.text = audioTrack?.artist
@@ -801,7 +796,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                 TrackIsDownloaded(current) == 2 -> {
                     ivSave?.setImageResource(R.drawable.remote_cloud)
                 }
-                isEmpty(current.url) -> {
+                current.url.isNullOrEmpty() -> {
                     ivSave?.setImageResource(R.drawable.audio_died)
                 }
                 ("https://vk.com/mp3/audio_api_unavailable.mp3" == current.url) -> {
@@ -1086,9 +1081,47 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
 
     }
 
-    private inner class CoverViewHolder(view: View) : RecyclerView.ViewHolder(view), Callback {
+    private inner class CoverViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivCover: RLottieShapeableImageView = view.findViewById(R.id.cover)
-        val mPicassoLoadCallback = WeakPicassoLoadCallback(this)
+
+        val holderTarget = object : BitmapTarget {
+            override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+                if (isAdded) {
+                    ivCover.scaleType = ImageView.ScaleType.FIT_START
+                    AudioPlayerCoverDrawable.setBitmap(ivCover, bitmap)
+                }
+            }
+
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+            }
+
+            override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
+                if (isAdded) {
+                    ivCover.scaleType = ImageView.ScaleType.CENTER
+                    if (FenrirNative.isNativeLoaded()) {
+                        ivCover.fromRes(
+                            R.raw.auidio_no_cover,
+                            450,
+                            450,
+                            intArrayOf(
+                                0x333333,
+                                CurrentTheme.getColorSurface(requireActivity()),
+                                0x777777,
+                                CurrentTheme.getColorOnSurface(requireActivity())
+                            )
+                        )
+                        ivCover.playAnimation()
+                    } else {
+                        ivCover.setImageResource(R.drawable.itunes)
+                        ivCover.drawable?.setTint(
+                            CurrentTheme.getColorOnSurface(
+                                requireActivity()
+                            )
+                        )
+                    }
+                }
+            }
+        }
 
         fun bind(audioTrack: Audio) {
             val coverUrl =
@@ -1100,9 +1133,9 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                 PicassoInstance.with()
                     .load(coverUrl)
                     .tag(PLAYER_TAG)
-                    .into(ivCover, mPicassoLoadCallback)
+                    .into(holderTarget)
             } else {
-                PicassoInstance.with().cancelRequest(ivCover)
+                PicassoInstance.with().cancelRequest(holderTarget)
                 ivCover.scaleType = ImageView.ScaleType.CENTER
                 if (FenrirNative.isNativeLoaded()) {
                     ivCover.fromRes(
@@ -1123,35 +1156,6 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                 }
             }
         }
-
-        override fun onSuccess() {
-            ivCover.scaleType = ImageView.ScaleType.FIT_START
-        }
-
-        override fun onError(t: Throwable) {
-            ivCover.scaleType = ImageView.ScaleType.CENTER
-            if (FenrirNative.isNativeLoaded()) {
-                ivCover.fromRes(
-                    R.raw.auidio_no_cover,
-                    450,
-                    450,
-                    intArrayOf(
-                        0x333333,
-                        CurrentTheme.getColorSurface(requireActivity()),
-                        0x777777,
-                        CurrentTheme.getColorOnSurface(requireActivity())
-                    )
-                )
-                ivCover.playAnimation()
-            } else {
-                ivCover.setImageResource(R.drawable.itunes)
-                ivCover.drawable?.setTint(
-                    CurrentTheme.getColorOnSurface(
-                        requireActivity()
-                    )
-                )
-            }
-        }
     }
 
     private inner class CoverAdapter : RecyclerView.Adapter<CoverViewHolder>() {
@@ -1168,10 +1172,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         @SuppressLint("NotifyDataSetChanged")
         fun updateAudios(audios: List<Audio>?) {
             mAudios.clear()
-            if (!isEmpty(audios)) {
-                if (audios != null) {
-                    mAudios.addAll(audios)
-                }
+            if (audios.nonNullNoEmpty()) {
+                mAudios.addAll(audios)
             }
             notifyDataSetChanged()
         }
@@ -1205,7 +1207,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         // Message to refresh the time
         private const val REFRESH_TIME = 1
 
-        @JvmStatic
+
         fun buildArgs(accountId: Int): Bundle {
             val bundle = Bundle()
             bundle.putInt(Extra.ACCOUNT_ID, accountId)
@@ -1216,7 +1218,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             return newInstance(buildArgs(accountId))
         }
 
-        @JvmStatic
+
         fun newInstance(args: Bundle?): AudioPlayerFragment {
             val fragment = AudioPlayerFragment()
             fragment.arguments = args

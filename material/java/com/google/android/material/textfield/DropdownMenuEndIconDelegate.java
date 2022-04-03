@@ -20,6 +20,7 @@ import com.google.android.material.R;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED;
 import static androidx.core.view.ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+import static androidx.core.view.ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -36,6 +37,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,6 +46,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.AutoCompleteTextView.OnDismissListener;
 import android.widget.EditText;
@@ -98,7 +101,7 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
       new OnFocusChangeListener() {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-          textInputLayout.setEndIconActivated(hasFocus);
+          endLayout.setEndIconActivated(hasFocus);
           if (!hasFocus) {
             setEndIconChecked(false);
             dropdownPopupDirty = false;
@@ -201,8 +204,8 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
   private ValueAnimator fadeInAnim;
 
   DropdownMenuEndIconDelegate(
-      @NonNull TextInputLayout textInputLayout, @DrawableRes int customEndIcon) {
-    super(textInputLayout, customEndIcon);
+      @NonNull EndCompoundLayout endLayout, @DrawableRes int customEndIcon) {
+    super(endLayout, customEndIcon);
   }
 
   @Override
@@ -247,10 +250,10 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
         customEndIcon == 0
             ? (IS_LOLLIPOP ? R.drawable.mtrl_dropdown_arrow : R.drawable.mtrl_ic_arrow_drop_down)
             : customEndIcon;
-    textInputLayout.setEndIconDrawable(drawableResId);
-    textInputLayout.setEndIconContentDescription(
-        textInputLayout.getResources().getText(R.string.exposed_dropdown_menu_content_description));
-    textInputLayout.setEndIconOnClickListener(
+    endLayout.setEndIconDrawable(drawableResId);
+    endLayout.setEndIconContentDescription(
+        endLayout.getResources().getText(R.string.exposed_dropdown_menu_content_description));
+    endLayout.setEndIconOnClickListener(
         new OnClickListener() {
           @Override
           public void onClick(View v) {
@@ -259,10 +262,24 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
           }
         });
     textInputLayout.addOnEditTextAttachedListener(dropdownMenuOnEditTextAttachedListener);
-    textInputLayout.addOnEndIconChangedListener(endIconChangedListener);
+    endLayout.addOnEndIconChangedListener(endIconChangedListener);
     initAnimators();
     accessibilityManager =
         (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+    if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+      accessibilityManager.addTouchExplorationStateChangeListener(
+          new TouchExplorationStateChangeListener() {
+            @Override
+            public void onTouchExplorationStateChanged(boolean enabled) {
+              if (textInputLayout.getEditText() != null
+                  && !isEditable(textInputLayout.getEditText())) {
+                ViewCompat.setImportantForAccessibility(
+                    endIconView,
+                    enabled ? IMPORTANT_FOR_ACCESSIBILITY_NO : IMPORTANT_FOR_ACCESSIBILITY_YES);
+              }
+            }
+          });
+    }
   }
 
   @Override
@@ -273,6 +290,19 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
   @Override
   boolean isBoxBackgroundModeSupported(@BoxBackgroundMode int boxBackgroundMode) {
     return boxBackgroundMode != TextInputLayout.BOX_BACKGROUND_NONE;
+  }
+
+  /*
+   * This method should be called if the ripple background should be updated. For example,
+   * if a new {@link ShapeAppearanceModel} is set on the text field, or if a different
+   * {@link InputType} is set on the {@link AutoCompleteTextView}.
+   */
+  void updateBackground(@NonNull AutoCompleteTextView editText) {
+    if (isEditable(editText)) {
+      removeRippleEffect(editText);
+    } else {
+      addRippleEffect(editText);
+    }
   }
 
   private void showHideDropdown(@Nullable AutoCompleteTextView editText) {
@@ -301,7 +331,7 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
   }
 
   private void setPopupBackground(@NonNull AutoCompleteTextView editText) {
-    if (IS_LOLLIPOP) {
+    if (IS_LOLLIPOP && editText.getDropDownBackground() == null) {
       int boxBackgroundMode = textInputLayout.getBoxBackgroundMode();
       if (boxBackgroundMode == TextInputLayout.BOX_BACKGROUND_OUTLINE) {
         editText.setDropDownBackgroundDrawable(outlinedPopupBackground);
@@ -311,18 +341,15 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
     }
   }
 
-  /*
-  * This method should be called if the outlined ripple background should be updated. For example,
-  * if a new {@link ShapeAppearanceModel} is set on the text field.
-  */
-  void updateOutlinedRippleEffect(@NonNull AutoCompleteTextView editText) {
-    if (isEditable(editText)
-        || textInputLayout.getBoxBackgroundMode() != TextInputLayout.BOX_BACKGROUND_OUTLINE
-        || !(editText.getBackground() instanceof LayerDrawable)) {
+  /* Remove ripple effect from editable layouts if it's present. */
+  private void removeRippleEffect(@NonNull AutoCompleteTextView editText) {
+    if (!(editText.getBackground() instanceof LayerDrawable) || !isEditable(editText)) {
       return;
     }
-
-    addRippleEffect(editText);
+    int boxBackgroundMode = textInputLayout.getBoxBackgroundMode();
+    LayerDrawable layerDrawable = (LayerDrawable) editText.getBackground();
+    int backgroundLayerIndex = boxBackgroundMode == TextInputLayout.BOX_BACKGROUND_OUTLINE ? 1 : 0;
+    ViewCompat.setBackground(editText, layerDrawable.getDrawable(backgroundLayerIndex));
   }
 
   /* Add ripple effect to non editable layouts. */
@@ -475,7 +502,7 @@ class DropdownMenuEndIconDelegate extends EndIconDelegate {
   }
 
   private static boolean isEditable(@NonNull EditText editText) {
-    return editText.getKeyListener() != null;
+    return editText.getInputType() != InputType.TYPE_NULL;
   }
 
   private void setEndIconChecked(boolean checked) {

@@ -88,8 +88,5 @@
     <dimen name="mpm_popup_menu_item_section_separator_margin_vertical">8dp</dimen>
     <dimen name="profile_bottom_peek_height">300dp</dimen>
     <dimen name="profile_avatar_height">240dp</dimen>
-    <dimen name="file_picker_checkbox_margin">8dp</dimen>
-    <dimen name="file_picker_toolbar_image_margin">16dp</dimen>
-    <dimen name="file_picker_checkbox_dimens">24dp</dimen>
 
 </resources>

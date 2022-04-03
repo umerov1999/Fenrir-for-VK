@@ -5,7 +5,6 @@ import android.os.Parcel;
 import androidx.annotation.Keep;
 
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
-import dev.ragnarok.fenrir.util.Objects;
 
 
 @Keep
@@ -220,7 +219,7 @@ public class Photo extends AbsModel implements ISomeones, ParcelNative.Parcelabl
     }
 
     public String getUrlForSize(@PhotoSize int size, boolean excludeNonAspectRatio) {
-        return Objects.isNull(sizes) ? null : sizes.getUrlForSize(size, excludeNonAspectRatio);
+        return sizes == null ? null : sizes.getUrlForSize(size, excludeNonAspectRatio);
     }
 
     public String getAccessKey() {

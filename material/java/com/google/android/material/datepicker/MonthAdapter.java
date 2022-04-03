@@ -17,8 +17,12 @@ package com.google.android.material.datepicker;
 
 import com.google.android.material.R;
 
+import static java.lang.Math.max;
+
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.LayoutInflater;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -41,6 +45,14 @@ class MonthAdapter extends BaseAdapter {
    * The maximum number of weeks possible in any month. 6 for {@link java.util.GregorianCalendar}.
    */
   static final int MAXIMUM_WEEKS = UtcDates.getUtcCalendar().getMaximum(Calendar.WEEK_OF_MONTH);
+
+  /** The maximum number of cells needed in the month grid view. */
+  private static final int MAXIMUM_GRID_CELLS =
+      UtcDates.getUtcCalendar().getMaximum(Calendar.DAY_OF_MONTH)
+          + UtcDates.getUtcCalendar().getMaximum(Calendar.DAY_OF_WEEK)
+          - 1;
+
+  private static final int MIN_TOUCH_TARGET_SIZE_DP = 48;
 
   final Month month;
   /**
@@ -76,7 +88,7 @@ class MonthAdapter extends BaseAdapter {
   @Nullable
   @Override
   public Long getItem(int position) {
-    if (position < month.daysFromStartOfWeekToFirstOfMonth() || position > lastPositionInMonth()) {
+    if (position < firstPositionInMonth() || position > lastPositionInMonth()) {
       return null;
     }
     return month.getDay(positionToDay(position));
@@ -88,27 +100,26 @@ class MonthAdapter extends BaseAdapter {
   }
 
   /**
-   * Returns the number of days in a month plus the amount required to off-set for the first day to
-   * the correct position within the week.
+   * Returns the maximum number of item views needed to display a calender month.
    *
-   * <p>{@see MonthAdapter#firstPositionInMonth}.
+   * <p>{@see MonthAdapter#MAXIMUM_GRID_CELLS}.
    *
    * @return The maximum valid position index
    */
   @Override
   public int getCount() {
-    return month.daysInMonth + firstPositionInMonth();
+    return MAXIMUM_GRID_CELLS;
   }
 
   @NonNull
   @Override
-  public TextView getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+  public TextView getView(
+      int position, @Nullable View convertView, @NonNull final ViewGroup parent) {
     initializeStyles(parent.getContext());
-    TextView day = (TextView) convertView;
-    if (convertView == null) {
-      LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-      day = (TextView) layoutInflater.inflate(R.layout.mtrl_calendar_day, parent, false);
-    }
+    final TextView day = convertView == null
+        ? (TextView) LayoutInflater.from(parent.getContext()).inflate(
+            R.layout.mtrl_calendar_day, parent, false)
+        : (TextView) convertView;
     int offsetPosition = position - firstPositionInMonth();
     if (offsetPosition < 0 || offsetPosition >= month.daysInMonth) {
       day.setVisibility(View.GONE);
@@ -134,6 +145,22 @@ class MonthAdapter extends BaseAdapter {
       return day;
     }
     updateSelectedState(day, date);
+    parent.post(new Runnable() {
+      @Override
+      public void run() {
+        final Rect delegateArea = new Rect();
+        day.getHitRect(delegateArea);
+
+        int dayTouchTargetDeltaVertical = max(0, MIN_TOUCH_TARGET_SIZE_DP - day.getHeight());
+        int dayTouchTargetDeltaHorizontal = max(0, MIN_TOUCH_TARGET_SIZE_DP - day.getWidth());
+
+        delegateArea.top -= dayTouchTargetDeltaVertical;
+        delegateArea.right += dayTouchTargetDeltaHorizontal;
+        delegateArea.bottom += dayTouchTargetDeltaVertical;
+        delegateArea.left -= dayTouchTargetDeltaHorizontal;
+        parent.setTouchDelegate(new TouchDelegate(delegateArea, day));
+      }
+    });
     return day;
   }
 
@@ -220,7 +247,7 @@ class MonthAdapter extends BaseAdapter {
    * not match the number of days in the month.
    */
   int lastPositionInMonth() {
-    return month.daysFromStartOfWeekToFirstOfMonth() + month.daysInMonth - 1;
+    return firstPositionInMonth() + month.daysInMonth - 1;
   }
 
   /**
@@ -231,7 +258,7 @@ class MonthAdapter extends BaseAdapter {
    *     less than {@link MonthAdapter#firstPositionInMonth()}.
    */
   int positionToDay(int position) {
-    return position - month.daysFromStartOfWeekToFirstOfMonth() + 1;
+    return position - firstPositionInMonth() + 1;
   }
 
   /** Returns the adapter index representing the provided day. */

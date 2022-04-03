@@ -27,7 +27,8 @@ class YoutubeButton @JvmOverloads constructor(context: Context, attrs: Attribute
             val text = a.getString(R.styleable.YoutubeButton_youtube_button_text)
             val textcolor =
                 a.getColor(R.styleable.YoutubeButton_youtube_button_text_color, Color.GRAY)
-            val icon = findViewById<ImageView>(R.id.youtube_button_icon)
+            val icon =
+                findViewById<ImageView>(R.id.youtube_button_icon)
             Utils.setColorFilter(icon, iconcolor)
             icon.setImageResource(iconres)
             val textView = findViewById<TextView>(R.id.youtube_button_text)

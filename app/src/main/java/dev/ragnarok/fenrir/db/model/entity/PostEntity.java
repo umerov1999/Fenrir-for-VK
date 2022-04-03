@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.db.model.entity;
 
-import static dev.ragnarok.fenrir.util.Objects.nonNull;
-
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
@@ -309,7 +307,7 @@ public class PostEntity extends Entity {
 
     @Nullable
     public List<Entity> getAttachments() {
-        return nonNull(attachments) ? attachments.getEntities() : null;
+        return attachments != null ? attachments.getEntities() : null;
     }
 
     public PostEntity setAttachments(@Nullable List<Entity> entities) {

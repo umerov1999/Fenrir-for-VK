@@ -10,6 +10,7 @@ import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.mvp.core.AbsPresenter
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.IErrorView
+import dev.ragnarok.fenrir.mvp.view.IToastView
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.InstancesCounter
@@ -45,7 +46,7 @@ abstract class RxSupportPresenter<V : IMvpView>(savedInstanceState: Bundle?) :
         compositeDisposable.dispose()
         if (tempDataUsage) {
             RxUtils.subscribeOnIOAndIgnore(
-                Stores.getInstance()
+                Stores.instance
                     .tempStore()
                     .delete(instanceId)
             )
@@ -56,6 +57,33 @@ abstract class RxSupportPresenter<V : IMvpView>(savedInstanceState: Bundle?) :
 
     fun appendDisposable(disposable: Disposable) {
         compositeDisposable.add(disposable)
+    }
+
+    protected fun showError(throwable: Throwable?) {
+        resumedView ?: return
+        throwable ?: return
+        if (resumedView !is IErrorView) {
+            return
+        }
+        val eView = resumedView as IErrorView
+        val lThrowable = Utils.getCauseIfRuntime(throwable)
+        if (Constants.IS_DEBUG) {
+            lThrowable.printStackTrace()
+        }
+        if (Settings.get().other().isDeveloper_mode) {
+            eView.showThrowable(lThrowable)
+        } else {
+            eView.showError(ErrorLocalizer.localizeThrowable(applicationContext, lThrowable))
+        }
+    }
+
+    protected fun showToast(@StringRes titleTes: Int, isLong: Boolean, vararg params: Any?) {
+        view ?: return
+        if (view !is IToastView) {
+            return
+        }
+        val tView = resumedView as IToastView
+        tView.showToast(titleTes, isLong, params)
     }
 
     protected fun showError(view: IErrorView?, throwable: Throwable?) {

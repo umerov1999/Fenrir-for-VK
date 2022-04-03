@@ -43,5 +43,6 @@
         android:layout_width="40dp"
         android:layout_height="3dp"
         android:layout_gravity="center_horizontal"
+        android:contentDescription="@null"
         android:src="@drawable/player_handler" />
 </LinearLayout>

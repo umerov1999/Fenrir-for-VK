@@ -63,6 +63,7 @@
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
+                android:contentDescription="@null"
                 android:src="@drawable/view"
                 app:tint="?colorPrimary" />
 
@@ -94,6 +95,7 @@
             android:id="@+id/item_copy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@null"
             android:padding="6dp"
             android:src="@drawable/content_copy"
             android:stateListAnimator="@animator/clicked"
@@ -103,6 +105,7 @@
             android:id="@+id/item_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@null"
             android:padding="6dp"
             android:src="@drawable/ic_outline_delete"
             android:stateListAnimator="@animator/clicked"

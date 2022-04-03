@@ -53,6 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:padding="12dp"
             android:src="@drawable/ic_outline_camera"
             app:tint="?attr/colorOnSurface" />
@@ -63,6 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:padding="12dp"
             android:src="@drawable/ic_outline_video_library"
             app:tint="?attr/colorOnSurface" />
@@ -73,6 +75,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:padding="12dp"
             android:src="@drawable/ic_outline_library_music"
             app:tint="?attr/colorOnSurface" />
@@ -83,6 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:padding="12dp"
             android:src="@drawable/ic_outline_library_books"
             app:tint="?attr/colorOnSurface" />
@@ -92,6 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:padding="12dp"
             android:src="@drawable/ic_arrow_down_vector"
             app:tint="?android:textColorPrimary" />

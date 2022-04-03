@@ -14,6 +14,7 @@
         android:layout_alignTop="@id/container"
         android:layout_alignEnd="@id/container"
         android:layout_alignBottom="@id/container"
+        android:contentDescription="@null"
         android:scaleType="centerCrop"
         android:src="?colorSurface" />
 
@@ -23,7 +24,8 @@
         android:layout_alignStart="@id/container"
         android:layout_alignTop="@id/container"
         android:layout_alignBottom="@id/container"
-        android:background="#40000000" />
+        android:background="#40000000"
+        android:contentDescription="@null" />
 
     <LinearLayout
         android:id="@+id/container"
@@ -72,6 +74,7 @@
                     android:background="@drawable/sel_button_round_5_white"
                     android:backgroundTint="#009900"
                     android:backgroundTintMode="add"
+                    android:contentDescription="@null"
                     android:padding="4dp"
                     android:src="@drawable/verified"
                     android:visibility="gone"
@@ -123,6 +126,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="25dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:src="@drawable/feed"
             android:stateListAnimator="@animator/clicked"
             app:tint="#ffffff" />
@@ -133,6 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="25dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:src="@drawable/select_colored"
             android:stateListAnimator="@animator/clicked"
             app:tint="#ffffff" />
@@ -142,6 +147,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:src="@drawable/ic_outline_nights_stay"
             android:stateListAnimator="@animator/clicked"
             app:tint="#ffffff" />

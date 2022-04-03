@@ -12,7 +12,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.util.Objects
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
 
@@ -106,7 +105,7 @@ class CircleCounterButton @JvmOverloads constructor(context: Context, attrs: Att
         mCount = count
         counter?.visibility =
             if (mAlwaysCounter || mCount > 0) VISIBLE else GONE
-        if (Objects.nonNull(animator)) {
+        if (animator != null) {
             animator?.cancel()
         }
         animator = ViewUtils.setCountText(counter, count, animate)

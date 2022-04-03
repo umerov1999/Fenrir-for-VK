@@ -39,6 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.6"
+            android:contentDescription="@null"
             android:scaleType="centerCrop" />
 
         <LinearLayout
@@ -80,6 +81,7 @@
                         android:background="@drawable/sel_button_round_5_white"
                         android:backgroundTint="#009900"
                         android:backgroundTintMode="add"
+                        android:contentDescription="@null"
                         android:padding="4dp"
                         android:src="@drawable/verified"
                         android:visibility="gone"
@@ -92,6 +94,7 @@
                         android:layout_gravity="end|bottom"
                         android:layout_marginStart="4dp"
                         android:layout_marginBottom="4dp"
+                        android:contentDescription="@null"
                         android:padding="4dp"
                         android:src="@drawable/audio_died"
                         android:visibility="gone"
@@ -150,6 +153,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:layout_gravity="center_vertical"
+                            android:contentDescription="@null"
                             android:src="@drawable/song"
                             android:visibility="gone"
                             app:tint="?colorOnSurface" />
@@ -189,6 +193,7 @@
                     android:layout_weight="1"
                     android:insetTop="3dp"
                     android:insetBottom="3dp"
+                    android:textSize="12sp"
                     app:backgroundTint="@color/button_profile_tint"
                     tools:text="Subscribe" />
 
@@ -197,6 +202,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/email"
                     app:elevation="1dp"
                     app:fabSize="mini" />
@@ -208,6 +214,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/about_writed"
                     app:elevation="1dp"
                     app:fabSize="mini" />

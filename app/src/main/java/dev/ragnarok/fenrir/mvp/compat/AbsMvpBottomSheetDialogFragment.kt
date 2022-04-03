@@ -6,8 +6,6 @@ import androidx.loader.app.LoaderManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.core.IPresenter
-import dev.ragnarok.fenrir.mvp.core.PresenterAction
-import dev.ragnarok.fenrir.mvp.core.RetPresenterAction
 
 abstract class AbsMvpBottomSheetDialogFragment<P : IPresenter<V>, V : IMvpView> :
     BottomSheetDialogFragment(), ViewHostDelegate.IFactoryProvider<P, V> {
@@ -63,15 +61,7 @@ abstract class AbsMvpBottomSheetDialogFragment<P : IPresenter<V>, V : IMvpView> 
         super.onDestroy()
     }
 
-    fun callPresenter(action: PresenterAction<P, V>) {
-        delegate.callPresenter(action)
-    }
-
-    fun <T> callPresenter(action: RetPresenterAction<P, V, T>, onDefault: T): T {
-        return delegate.callPresenter(action, onDefault)
-    }
-
-    fun postPresenterReceive(action: PresenterAction<P, V>) {
-        delegate.postPresenterReceive(action)
+    fun lazyPresenter(block: P.() -> Unit) {
+        delegate.lazyPresenter(block)
     }
 }

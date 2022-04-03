@@ -8,15 +8,13 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Logger
-import dev.ragnarok.fenrir.util.Objects
 import dev.ragnarok.fenrir.util.existfile.AbsFileExist
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.*
 
 object MusicPlaybackController {
-    @JvmField
-    val Audios: Map<Int, ArrayList<Audio>> = LinkedHashMap()
+    val Audios: MutableMap<Int, ArrayList<Audio>> = LinkedHashMap()
     private val mConnectionMap: WeakHashMap<Context, ServiceBinder> = WeakHashMap()
     private val SERVICE_BIND_PUBLISHER = PublishSubject.create<Int>()
     private val TAG = MusicPlaybackController::class.java.simpleName
@@ -26,8 +24,8 @@ object MusicPlaybackController {
     private var sForegroundActivities = 0
     fun registerBroadcast(appContext: Context) {
         val receiver: BroadcastReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if (Objects.isNull(intent) || Objects.isNull(intent.action)) return
+            override fun onReceive(context: Context, intent: Intent?) {
+                if (intent == null || intent.action == null) return
                 var result = PlayerStatus.SERVICE_KILLED
                 when (intent.action) {
                     MusicPlaybackService.PREPARED, MusicPlaybackService.PLAYSTATE_CHANGED -> result =
@@ -52,7 +50,7 @@ object MusicPlaybackController {
         appContext.registerReceiver(receiver, filter)
     }
 
-    @JvmStatic
+
     fun bindToServiceWithoutStart(
         realActivity: Activity?,
         callback: ServiceConnection?
@@ -75,7 +73,7 @@ object MusicPlaybackController {
     /**
      * @param token The [ServiceToken] to unbind from
      */
-    @JvmStatic
+
     fun unbindFromService(token: ServiceToken?) {
         if (token == null) {
             return
@@ -88,7 +86,7 @@ object MusicPlaybackController {
         }
     }
 
-    @JvmStatic
+
     fun observeServiceBinding(): Observable<Int> {
         return SERVICE_BIND_PUBLISHER
     }
@@ -118,7 +116,7 @@ object MusicPlaybackController {
         }
     }
 
-    @JvmStatic
+
     val isInitialized: Boolean
         get() {
             try {
@@ -129,7 +127,7 @@ object MusicPlaybackController {
             return false
         }
 
-    @JvmStatic
+
     val isPreparing: Boolean
         get() {
             try {
@@ -151,7 +149,7 @@ object MusicPlaybackController {
     /**
      * Plays or pauses the music.
      */
-    @JvmStatic
+
     fun playOrPause() {
         try {
             if (mService?.isPlaying == true) {
@@ -163,7 +161,7 @@ object MusicPlaybackController {
         }
     }
 
-    @JvmStatic
+
     fun stop() {
         try {
             mService?.stop()
@@ -232,7 +230,7 @@ object MusicPlaybackController {
         }
     }
 
-    @JvmStatic
+
     fun canPlayAfterCurrent(audio: Audio): Boolean {
         try {
             return mService?.canPlayAfterCurrent(audio) == true
@@ -241,7 +239,7 @@ object MusicPlaybackController {
         return false
     }
 
-    @JvmStatic
+
     fun playAfterCurrent(audio: Audio) {
         try {
             mService?.playAfterCurrent(audio)
@@ -252,7 +250,7 @@ object MusicPlaybackController {
     /**
      * @return True if we're playing music, false otherwise.
      */
-    @JvmStatic
+
     val isPlaying: Boolean
         get() {
             try {
@@ -265,7 +263,7 @@ object MusicPlaybackController {
     /**
      * @return The current shuffle mode.
      */
-    @JvmStatic
+
     val shuffleMode: Int
         get() {
             try {
@@ -278,7 +276,7 @@ object MusicPlaybackController {
     /**
      * @return The current repeat mode.
      */
-    @JvmStatic
+
     val repeatMode: Int
         get() {
             try {
@@ -288,7 +286,7 @@ object MusicPlaybackController {
             return 0
         }
 
-    @JvmStatic
+
     val currentAudio: Audio?
         get() {
             try {
@@ -448,12 +446,12 @@ object MusicPlaybackController {
         return 0
     }
 
-    @JvmStatic
+
     fun isNowPlayingOrPreparingOrPaused(audio: Audio): Boolean {
         return audio == currentAudio
     }
 
-    @JvmStatic
+
     fun playerStatus(): Int {
         if (isPreparing || isPlaying) return 1
         return if (currentAudio != null) 2 else 0
@@ -465,7 +463,7 @@ object MusicPlaybackController {
      *
      * @param context The [Context] to use.
      */
-    @JvmStatic
+
     fun notifyForegroundStateChanged(context: Context, inForeground: Boolean) {
         val old = sForegroundActivities
         if (inForeground) {

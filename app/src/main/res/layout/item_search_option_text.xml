@@ -46,6 +46,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
                 android:padding="8dp"
                 android:src="@drawable/close"
                 app:tint="?colorAccent" />

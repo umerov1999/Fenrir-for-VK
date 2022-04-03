@@ -25,6 +25,10 @@ import android.widget.ImageView
 import com.squareup.picasso3.Picasso.LoadedFrom
 import com.squareup.picasso3.Picasso.LoadedFrom.MEMORY
 import com.squareup.picasso3.RequestHandler.Result
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
 
 internal class PicassoDrawable(
     context: Context,
@@ -33,12 +37,13 @@ internal class PicassoDrawable(
     private val loadedFrom: LoadedFrom,
     noFade: Boolean,
     private val debugging: Boolean
-) : BitmapDrawable(context.resources, bitmap) {
+) : BitmapDrawable(context.resources, bitmap), Rotatable {
     private val density: Float = context.resources.displayMetrics.density
     var placeholder: Drawable? = null
     private var startTimeMillis: Long = 0
     private var animating = false
     private var _alpha = 0xFF
+    private var rotate = 0f
 
     init {
         val fade = loadedFrom != MEMORY && !noFade
@@ -49,10 +54,52 @@ internal class PicassoDrawable(
         }
     }
 
+    private fun evaluate(fraction: Float, startValue: Float, endValue: Float): Float {
+        // convert to linear
+        val startValueL = startValue.toDouble().pow(2.2).toFloat()
+        val endValueL = endValue.toDouble().pow(2.2).toFloat()
+
+        // compute the interpolated in linear space
+        var r = startValueL + fraction * (endValueL - startValueL)
+        r = r.toDouble().pow(1.0 / 2.2).toFloat()
+        return r
+    }
+
+    private fun applyRotationAndDraw(canvas: Canvas) {
+        if (rotate > 0f && intrinsicWidth > 0 && intrinsicHeight > 0) {
+            canvas.save()
+            canvas.rotate(rotate, intrinsicWidth / 2f, intrinsicHeight / 2f)
+
+            val cosR = cos(Math.toRadians(rotate.toDouble())).toFloat()
+            val sinR = sin(Math.toRadians(rotate.toDouble())).toFloat()
+
+            val ssx = evaluate(
+                abs(cosR),
+                intrinsicHeight.toFloat(), intrinsicWidth.toFloat()
+            ) / intrinsicWidth.toFloat()
+
+            val ssy = evaluate(
+                abs(sinR),
+                intrinsicHeight.toFloat(), intrinsicWidth.toFloat()
+            ) / intrinsicHeight.toFloat()
+
+            canvas.scale(
+                if (intrinsicWidth > intrinsicHeight) ssx else ssy,
+                if (intrinsicHeight > intrinsicWidth) ssy else ssx,
+                intrinsicWidth / 2f, intrinsicHeight / 2f
+            )
+
+            super.draw(canvas)
+            canvas.restore()
+        } else {
+            super.draw(canvas)
+        }
+    }
+
     override fun draw(canvas: Canvas) {
         if (!animating) {
             try {
-                super.draw(canvas)
+                applyRotationAndDraw(canvas)
             } catch (e: Exception) {
                 if (BuildConfig.DEBUG) {
                     e.printStackTrace()
@@ -64,7 +111,7 @@ internal class PicassoDrawable(
                 animating = false
                 placeholder = null
                 try {
-                    super.draw(canvas)
+                    applyRotationAndDraw(canvas)
                 } catch (e: Exception) {
                     if (BuildConfig.DEBUG) {
                         e.printStackTrace()
@@ -85,7 +132,7 @@ internal class PicassoDrawable(
                 val partialAlpha = (_alpha * normalized).toInt()
                 super.setAlpha(partialAlpha)
                 try {
-                    super.draw(canvas)
+                    applyRotationAndDraw(canvas)
                 } catch (e: Exception) {
                     if (BuildConfig.DEBUG) {
                         e.printStackTrace()
@@ -186,5 +233,14 @@ internal class PicassoDrawable(
                 lineTo(x1.toFloat(), (y1 + width).toFloat())
             }
         }
+    }
+
+    override fun rotate(degrees: Float) {
+        rotate = degrees
+        invalidateSelf()
+    }
+
+    override fun getRotation(): Float {
+        return rotate
     }
 }

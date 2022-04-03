@@ -40,6 +40,7 @@
                 android:layout_width="@dimen/avatar_size_usual"
                 android:layout_height="@dimen/avatar_size_usual"
                 android:layout_centerInParent="true"
+                android:contentDescription="@null"
                 android:stateListAnimator="@animator/clicked" />
 
             <ImageView
@@ -48,6 +49,7 @@
                 android:layout_height="22dp"
                 android:layout_alignBottom="@id/item_friend_avatar"
                 android:layout_alignParentEnd="true"
+                android:contentDescription="@null"
                 android:padding="3dp" />
 
         </RelativeLayout>

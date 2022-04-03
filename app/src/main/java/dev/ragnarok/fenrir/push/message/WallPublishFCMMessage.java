@@ -63,7 +63,7 @@ public class WallPublishFCMMessage {
 
         Context app = context.getApplicationContext();
         OwnerInfo.getRx(app, accountId, -Math.abs(group_id))
-                .subscribeOn(NotificationScheduler.INSTANCE)
+                .subscribeOn(NotificationScheduler.getINSTANCE())
                 .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getCommunity(), ownerInfo.getAvatar()), throwable -> {/*ignore*/});
     }
 
@@ -98,11 +98,11 @@ public class WallPublishFCMMessage {
                 .getCurrent();
 
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(Extra.PLACE, PlaceFactory.getPostPreviewPlace(aid, wallPostLink.postId, wallPostLink.ownerId));
+        intent.putExtra(Extra.PLACE, PlaceFactory.getPostPreviewPlace(aid, wallPostLink.getPostId(), wallPostLink.getOwnerId()));
         intent.setAction(MainActivity.ACTION_OPEN_PLACE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(context, wallPostLink.postId, intent, Utils.makeMutablePendingIntent(PendingIntent.FLAG_CANCEL_CURRENT));
+        PendingIntent contentIntent = PendingIntent.getActivity(context, wallPostLink.getPostId(), intent, Utils.makeMutablePendingIntent(PendingIntent.FLAG_CANCEL_CURRENT));
         builder.setContentIntent(contentIntent);
         Notification notification = builder.build();
 

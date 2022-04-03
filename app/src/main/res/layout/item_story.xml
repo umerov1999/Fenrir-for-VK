@@ -22,7 +22,8 @@
         <ImageView
             android:id="@+id/item_story_pic"
             android:layout_width="72dp"
-            android:layout_height="72dp" />
+            android:layout_height="72dp"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/item_story_name"

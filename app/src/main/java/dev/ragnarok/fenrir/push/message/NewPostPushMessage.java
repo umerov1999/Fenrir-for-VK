@@ -64,7 +64,7 @@ public class NewPostPushMessage {
         if (matcher.find()) {
             Context app = context.getApplicationContext();
             OwnerInfo.getRx(app, accountId, parseInt(matcher.group(1)))
-                    .subscribeOn(NotificationScheduler.INSTANCE)
+                    .subscribeOn(NotificationScheduler.getINSTANCE())
                     .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getAvatar()), throwable -> notifyImpl(app, null));
         } else {
             notifyImpl(context, null);

@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.model;
 
+import static dev.ragnarok.fenrir.util.Utils.isEmpty;
 import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
-import static dev.ragnarok.fenrir.util.Utils.safeIsEmpty;
 
 import android.os.Parcel;
 
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.ragnarok.fenrir.api.model.VKApiPost;
-import dev.ragnarok.fenrir.util.Objects;
 
 public class Post extends AbsModel implements Cloneable {
 
@@ -420,7 +419,7 @@ public class Post extends AbsModel implements Cloneable {
     }
 
     public boolean hasAttachments() {
-        return attachments != null && !attachments.isEmpty();
+        return attachments != null && !attachments.isEmptyAttachments();
     }
 
     public boolean hasText() {
@@ -432,15 +431,15 @@ public class Post extends AbsModel implements Cloneable {
     }
 
     public boolean hasPhotos() {
-        return attachments != null && !safeIsEmpty(attachments.getPhotos());
+        return attachments != null && !isEmpty(attachments.getPhotos());
     }
 
     public boolean hasVideos() {
-        return attachments != null && !safeIsEmpty(attachments.getVideos());
+        return attachments != null && !isEmpty(attachments.getVideos());
     }
 
     public boolean hasCopyHierarchy() {
-        return !safeIsEmpty(copyHierarchy);
+        return !isEmpty(copyHierarchy);
     }
 
     @NonNull
@@ -499,7 +498,7 @@ public class Post extends AbsModel implements Cloneable {
     }
 
     private boolean hasDocs() {
-        return Objects.nonNull(attachments) && nonEmpty(attachments.getDocs());
+        return attachments != null && nonEmpty(attachments.getDocs());
     }
 
     public String findFirstImageCopiesInclude() {

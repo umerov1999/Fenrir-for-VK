@@ -21,29 +21,29 @@ class Emojicon {
     }
 
     companion object {
-        @JvmStatic
+
         fun fromCodePoint(codePoint: Int): Emojicon {
             val emoji = Emojicon()
             emoji.emoji = newString(codePoint)
             return emoji
         }
 
-        @JvmStatic
+
         fun fromChar(ch: Char): Emojicon {
             val emoji = Emojicon()
             emoji.emoji = ch.toString()
             return emoji
         }
 
-        @JvmStatic
+
         fun fromChars(chars: String?): Emojicon {
             val emoji = Emojicon()
             emoji.emoji = chars
             return emoji
         }
 
-        @JvmStatic
-        fun newString(codePoint: Int): String {
+
+        private fun newString(codePoint: Int): String {
             return if (Character.charCount(codePoint) == 1) {
                 codePoint.toString()
             } else {

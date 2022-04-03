@@ -11,7 +11,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 object ScreenshotHelper {
-    @JvmStatic
+
     @Suppress("DEPRECATION")
     fun makeScreenshot(activity: Activity) {
         val saveDir = File(Settings.get().other().photoDir + "/Screenshots")

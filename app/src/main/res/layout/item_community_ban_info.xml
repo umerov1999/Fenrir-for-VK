@@ -22,7 +22,8 @@
             android:layout_width="@dimen/avatar_size_usual"
             android:layout_height="@dimen/avatar_size_usual"
             android:layout_centerInParent="true"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:contentDescription="@null" />
 
         <dev.ragnarok.fenrir.view.OnlineView
             android:id="@+id/online"

@@ -27,7 +27,7 @@ abstract class AbsPresenter<V : IMvpView>(savedInstanceState: Bundle?) : IPresen
 
     var id: Int
 
-    var isDestroyed: Boolean = false
+    private var isDestroyed: Boolean = false
 
     private var isGuiResumed: Boolean = false
 
@@ -127,22 +127,6 @@ abstract class AbsPresenter<V : IMvpView>(savedInstanceState: Bundle?) : IPresen
     @CallSuper
     override fun saveState(outState: Bundle) {
         outState.putInt(SAVE_ID, id)
-    }
-
-    protected fun callView(action: ViewAction<V>) {
-        view?.run {
-            action.call(this)
-            //return
-        }
-        //Utils.showYellowTopToast(Includes.provideApplicationContext(), "View not attached to presenter!")
-    }
-
-    protected fun callResumedView(action: ViewAction<V>) {
-        resumedView?.run {
-            action.call(this)
-            //return
-        }
-        //Utils.showYellowTopToast(Includes.provideApplicationContext(), "View not resumed!")
     }
 
     companion object {

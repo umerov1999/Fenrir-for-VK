@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.model;
 
-import static dev.ragnarok.fenrir.util.Objects.isNull;
-import static dev.ragnarok.fenrir.util.Objects.nonNull;
 import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
 import static dev.ragnarok.fenrir.util.Utils.safeCountOf;
 
@@ -157,7 +155,7 @@ public class Message extends AbsModel implements Identificable, ISelectable {
 
     @ChatAction
     public static int fromApiChatAction(String action) {
-        if (isNull(action) || action.length() == 0) {
+        if (action == null || action.length() == 0) {
             return ChatAction.NO_ACTION;
         }
 
@@ -444,7 +442,7 @@ public class Message extends AbsModel implements Identificable, ISelectable {
 
     public String getServiceText(Context context) {
         String actionSubject = TextUtils.isEmpty(actionEmail) ?
-                (isNull(actionUser) ? null : actionUser.getFullName()) : actionEmail;
+                (actionUser == null ? null : actionUser.getFullName()) : actionEmail;
 
         boolean itself = sender.getOwnerId() == actionMid;
 
@@ -581,30 +579,30 @@ public class Message extends AbsModel implements Identificable, ISelectable {
     }
 
     public boolean isSticker() {
-        return nonNull(attachments) && safeCountOf(attachments.getStickers()) > 0;
+        return attachments != null && safeCountOf(attachments.getStickers()) > 0;
     }
 
     public boolean isGraffity() {
-        return nonNull(attachments) && safeCountOf(attachments.getGraffity()) > 0;
+        return attachments != null && safeCountOf(attachments.getGraffity()) > 0;
     }
 
     public boolean isCall() {
-        return nonNull(attachments) && safeCountOf(attachments.getCalls()) > 0;
+        return attachments != null && safeCountOf(attachments.getCalls()) > 0;
     }
 
     public boolean isGift() {
-        return nonNull(attachments) && safeCountOf(attachments.getGifts()) > 0;
+        return attachments != null && safeCountOf(attachments.getGifts()) > 0;
     }
 
     public boolean isVoiceMessage() {
-        return nonNull(attachments) && nonEmpty(attachments.getVoiceMessages());
+        return attachments != null && nonEmpty(attachments.getVoiceMessages());
     }
 
     public @MessageType
     int getMessageTypeByAttachments() {
         if (!hasAttachments)
             return MessageType.NO;
-        if (isNull(attachments) || getAttachments().isEmpty()) {
+        if (attachments == null || getAttachments().isEmptyAttachments()) {
             return MessageType.OTHERS;
         }
         if (isSticker()) {

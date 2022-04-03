@@ -56,7 +56,7 @@ object Slidr {
      * @return a [dev.ragnarok.fenrir.activity.slidr.model.SlidrInterface] that allows
      * the user to lock/unlock the sliding mechanism for whatever purpose.
      */
-    @JvmStatic
+
     fun attach(activity: Activity, config: SlidrConfig): SlidrInterface {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             activity.setTranslucent(true)

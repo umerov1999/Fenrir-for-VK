@@ -206,7 +206,7 @@ class EmojiconTextView @JvmOverloads constructor(context: Context, attrs: Attrib
         get() = getAllHashTags(false)
 
     interface OnHashTagClickListener {
-        fun onHashTagClicked(hashTag: String?)
+        fun onHashTagClicked(hashTag: String)
     }
 
     companion object {

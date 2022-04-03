@@ -2,7 +2,9 @@ package dev.ragnarok.fenrir.mvp.compat
 
 import android.content.Context
 import android.os.Bundle
-import dev.ragnarok.fenrir.mvp.core.*
+import dev.ragnarok.fenrir.mvp.core.IMvpView
+import dev.ragnarok.fenrir.mvp.core.IPresenter
+import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import java.lang.ref.WeakReference
 
 class ViewHostDelegate<P : IPresenter<V>, V : IMvpView> {
@@ -15,7 +17,7 @@ class ViewHostDelegate<P : IPresenter<V>, V : IMvpView> {
 
     private var viewReference: WeakReference<V?> = WeakReference(null)
 
-    private val onReceivePresenterActions = ArrayList<PresenterAction<P, V>>()
+    private val onReceivePresenterActions = ArrayList<P.() -> Unit>()
 
     @Volatile
     private var app: Context? = null
@@ -59,12 +61,10 @@ class ViewHostDelegate<P : IPresenter<V>, V : IMvpView> {
         presenter = (loader as SimplePresenterLoader<P, V>).get()
         presenter?.run {
             attachViewHost(view)
-
-            val copy = ArrayList(onReceivePresenterActions)
-            onReceivePresenterActions.clear()
-            for (action in copy) {
-                action.call(this)
+            for (action in onReceivePresenterActions) {
+                apply(action)
             }
+            onReceivePresenterActions.clear()
         }
     }
 
@@ -79,7 +79,7 @@ class ViewHostDelegate<P : IPresenter<V>, V : IMvpView> {
         }
 
         viewCreated = true
-        presenter?.createView(viewReference.get()!!)
+        presenter?.createView(viewReference.get() ?: return)
     }
 
     fun onDestroyView() {
@@ -87,26 +87,9 @@ class ViewHostDelegate<P : IPresenter<V>, V : IMvpView> {
         presenter?.destroyView()
     }
 
-    fun callPresenter(action: PresenterAction<P, V>) {
-        presenter?.run {
-            action.call(this)
-            //return
-        }
-        //app?.let { Utils.showYellowTopToast(it, "Presenter not prepared!") }
-    }
-
-    fun <T> callPresenter(action: RetPresenterAction<P, V, T>, onDefault: T): T {
-        presenter?.run {
-            return action.call(this)
-        }
-        return onDefault
-    }
-
-    fun postPresenterReceive(action: PresenterAction<P, V>) {
-        presenter?.run {
-            action.call(this)
-        } ?: run {
-            onReceivePresenterActions.add(action)
+    fun lazyPresenter(block: P.() -> Unit) {
+        presenter?.apply(block) ?: run {
+            onReceivePresenterActions.add(block)
         }
     }
 
@@ -121,7 +104,7 @@ class ViewHostDelegate<P : IPresenter<V>, V : IMvpView> {
     fun onSaveInstanceState(outState: Bundle) {
         presenter?.run {
             lastKnownPresenterState = Bundle()
-            saveState(lastKnownPresenterState!!)
+            saveState(lastKnownPresenterState ?: return@run)
         }
 
         outState.putBundle(SAVE_PRESENTER_STATE, lastKnownPresenterState)

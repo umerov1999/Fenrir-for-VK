@@ -14,6 +14,7 @@
 
 package com.google.firebase.installations.remote;
 
+import static android.content.ContentValues.TAG;
 import static com.google.android.gms.common.internal.Preconditions.checkArgument;
 import static com.google.firebase.installations.BuildConfig.VERSION_NAME;
 
@@ -27,13 +28,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.common.util.VisibleForTesting;
-import com.google.firebase.heartbeatinfo.HeartBeatInfo;
-import com.google.firebase.heartbeatinfo.HeartBeatInfo.HeartBeat;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.heartbeatinfo.HeartBeatController;
 import com.google.firebase.inject.Provider;
 import com.google.firebase.installations.FirebaseInstallationsException;
 import com.google.firebase.installations.FirebaseInstallationsException.Status;
 import com.google.firebase.installations.remote.InstallationResponse.ResponseCode;
-import com.google.firebase.platforminfo.UserAgentPublisher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +49,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -88,8 +89,7 @@ public class FirebaseInstallationServiceClient {
      * Heartbeat tag for firebase installations.
      */
     private static final String FIREBASE_INSTALLATIONS_ID_HEARTBEAT_TAG = "fire-installations-id";
-    private static final String HEART_BEAT_HEADER = "x-firebase-client-log-type";
-    private static final String USER_AGENT_HEADER = "x-firebase-client";
+    private static final String HEART_BEAT_HEADER = "x-firebase-client";
     private static final String X_ANDROID_PACKAGE_HEADER_KEY = "X-Android-Package";
     private static final String X_ANDROID_CERT_HEADER_KEY = "X-Android-Cert";
     private static final String X_ANDROID_IID_MIGRATION_KEY = "x-goog-fis-android-iid-migration-auth";
@@ -101,18 +101,14 @@ public class FirebaseInstallationServiceClient {
     private static final String SDK_VERSION_PREFIX = "a:";
     private static final String FIS_TAG = "Firebase-Installations";
     private final Context context;
-    private final Provider<UserAgentPublisher> userAgentPublisher;
-    private final Provider<HeartBeatInfo> heartbeatInfo;
+    private final Provider<HeartBeatController> heartBeatProvider;
     private final RequestLimiter requestLimiter;
     private boolean shouldServerErrorRetry;
 
     public FirebaseInstallationServiceClient(
-            @NonNull Context context,
-            @NonNull Provider<UserAgentPublisher> publisher,
-            @NonNull Provider<HeartBeatInfo> heartbeatInfo) {
+            @NonNull Context context, @NonNull Provider<HeartBeatController> heartBeatProvider) {
         this.context = context;
-        userAgentPublisher = publisher;
-        this.heartbeatInfo = heartbeatInfo;
+        this.heartBeatProvider = heartBeatProvider;
         requestLimiter = new RequestLimiter();
     }
 
@@ -535,14 +531,16 @@ public class FirebaseInstallationServiceClient {
         httpURLConnection.addRequestProperty(CONTENT_ENCODING_HEADER_KEY, GZIP_CONTENT_ENCODING);
         httpURLConnection.addRequestProperty(CACHE_CONTROL_HEADER_KEY, CACHE_CONTROL_DIRECTIVE);
         httpURLConnection.addRequestProperty(X_ANDROID_PACKAGE_HEADER_KEY, "com.vkontakte.android");
-        if ((heartbeatInfo.get() != null) && (userAgentPublisher.get() != null)) {
-            HeartBeat heartbeat =
-                    heartbeatInfo.get().getHeartBeatCode(FIREBASE_INSTALLATIONS_ID_HEARTBEAT_TAG);
-            if (heartbeat != HeartBeat.NONE) {
+        HeartBeatController heartBeatController = heartBeatProvider.get();
+        if (heartBeatController != null) {
+            try {
                 httpURLConnection.addRequestProperty(
-                        USER_AGENT_HEADER, userAgentPublisher.get().getUserAgent());
-                httpURLConnection.addRequestProperty(
-                        HEART_BEAT_HEADER, Integer.toString(heartbeat.getCode()));
+                        HEART_BEAT_HEADER, Tasks.await(heartBeatController.getHeartBeatsHeader()));
+            } catch (ExecutionException e) {
+                Log.w(TAG, "Failed to get heartbeats header", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Log.w(TAG, "Failed to get heartbeats header", e);
             }
         }
         httpURLConnection.addRequestProperty(X_ANDROID_CERT_HEADER_KEY, getFingerprintHashForPackage());

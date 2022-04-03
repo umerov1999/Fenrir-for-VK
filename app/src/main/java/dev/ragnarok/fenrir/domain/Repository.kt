@@ -9,11 +9,11 @@ import dev.ragnarok.fenrir.settings.Settings
 
 object Repository {
     val owners: IOwnersRepository by lazy {
-        OwnersRepository(Includes.networkInterfaces, Stores.getInstance().owners())
+        OwnersRepository(Includes.networkInterfaces, Stores.instance.owners())
     }
 
     val walls: IWallsRepository by lazy {
-        WallsRepository(Includes.networkInterfaces, Stores.getInstance(), owners)
+        WallsRepository(Includes.networkInterfaces, Stores.instance, owners)
     }
 
     val messages: IMessagesRepository by lazy {

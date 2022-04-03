@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.RxUtils
-import dev.ragnarok.fenrir.util.Utils
 
 class FcmListenerService : FirebaseMessagingService() {
     @SuppressLint("CheckResult")
@@ -35,7 +34,7 @@ class FcmListenerService : FirebaseMessagingService() {
         val accountId = Settings.get()
             .accounts()
             .current
-        if (accountId == ISettings.IAccountsSettings.INVALID_ID || Utils.isEmpty(pushType) || Settings.get()
+        if (accountId == ISettings.IAccountsSettings.INVALID_ID || pushType.isNullOrEmpty() || Settings.get()
                 .other().isSettings_no_push
         ) {
             return

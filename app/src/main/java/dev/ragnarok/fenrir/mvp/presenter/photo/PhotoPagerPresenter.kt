@@ -19,23 +19,27 @@ import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso.LoadedFrom
 import dev.ragnarok.fenrir.App.Companion.instance
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.model.VKApiPhotoTags
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IPhotosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IPhotoPagerView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.*
+import dev.ragnarok.fenrir.util.AppPerms
+import dev.ragnarok.fenrir.util.AppTextUtils
+import dev.ragnarok.fenrir.util.AssertUtils
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadPhoto
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
+import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.core.Completable
 import java.io.File
 import java.util.*
@@ -226,7 +230,7 @@ open class PhotoPagerPresenter internal constructor(
                 Utils.createAlertRecycleFrame(
                     context,
                     adapter,
-                    if (Utils.isEmpty(photo.text)) null else context.getString(R.string.description_hint) + ": " + photo.text,
+                    if (photo.text.isNullOrEmpty()) null else context.getString(R.string.description_hint) + ": " + photo.text,
                     accountId
                 )
             )
@@ -240,12 +244,12 @@ open class PhotoPagerPresenter internal constructor(
             owners.findBaseOwnersDataAsBundle(
                 accountId, setOf(photo.ownerId), IOwnersRepository.MODE_ANY
             )
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ t: IOwnersBundle? ->
+                .fromIOToMain()
+                .subscribe({
                     showPhotoInfo(
                         photo,
                         album,
-                        t
+                        it
                     )
                 }) { showPhotoInfo(photo, album, null) })
     }
@@ -253,11 +257,11 @@ open class PhotoPagerPresenter internal constructor(
     fun fireInfoButtonClick() {
         val photo = current
         appendDisposable(photosInteractor.getAlbumById(accountId, photo.ownerId, photo.albumId)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
-            .subscribe({ t: PhotoAlbum? ->
+            .fromIOToMain()
+            .subscribe({
                 getOwnerForPhoto(
                     photo,
-                    t
+                    it
                 )
             }) { getOwnerForPhoto(photo, null) })
     }
@@ -292,10 +296,10 @@ open class PhotoPagerPresenter internal constructor(
                     accountId,
                     setOf(AccessIdPair(photo.id, photo.ownerId, photo.accessKey))
                 )
-                    .compose(RxUtils.applySingleIOToMainSchedulers())
-                    .subscribe({ t: List<Photo> ->
-                        if (t[0].id == photo.id) {
-                            val ne = t[0]
+                    .fromIOToMain()
+                    .subscribe({
+                        if (it[0].id == photo.id) {
+                            val ne = it[0]
                             if (ne.accessKey == null) {
                                 ne.accessKey = photo.accessKey
                             }
@@ -328,12 +332,12 @@ open class PhotoPagerPresenter internal constructor(
         val accountId = accountId
         val add = !photo.isUserLikes
         appendDisposable(photosInteractor.like(accountId, ownerId, photoId, add, photo.accessKey)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
-            .subscribe({ count: Int ->
+            .fromIOToMain()
+            .subscribe({
                 interceptLike(
                     ownerId,
                     photoId,
-                    count,
+                    it,
                     add
                 )
             }) { t: Throwable? ->
@@ -392,11 +396,11 @@ open class PhotoPagerPresenter internal constructor(
             DownloadResult(path, dir, photo)
         } else {
             appendDisposable(OwnerInfo.getRx(context, accountId, photo.ownerId)
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ userInfo: OwnerInfo ->
+                .fromIOToMain()
+                .subscribe({
                     DownloadResult(
                         makeLegalFilename(
-                            userInfo.owner.fullName,
+                            it.owner.fullName,
                             null
                         ), dir, photo
                     )
@@ -437,7 +441,7 @@ open class PhotoPagerPresenter internal constructor(
         }
         val accountId = accountId
         appendDisposable(photosInteractor.copy(accountId, photo.ownerId, photo.id, photo.accessKey)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ onPhotoCopied() }) { t: Throwable? ->
                 view?.let {
                     showError(
@@ -467,9 +471,9 @@ open class PhotoPagerPresenter internal constructor(
                         .setNeutralButton(R.string.copy_text) { _: DialogInterface?, _: Int ->
                             val clipboard = context.getSystemService(
                                 Context.CLIPBOARD_SERVICE
-                            ) as ClipboardManager
+                            ) as ClipboardManager?
                             val clip = ClipData.newPlainText("response", data)
-                            clipboard.setPrimaryClip(clip)
+                            clipboard?.setPrimaryClip(clip)
                             CreateCustomToast(context).showToast(R.string.copied_to_clipboard)
                         }
                         .setCancelable(true)
@@ -528,7 +532,7 @@ open class PhotoPagerPresenter internal constructor(
         } else {
             photosInteractor.restorePhoto(accountId, ownerId, photoId)
         }
-        appendDisposable(completable.compose(RxUtils.applyCompletableIOToMainSchedulers())
+        appendDisposable(completable.fromIOToMain()
             .subscribe({ onDeleteOrRestoreResult(photoId, ownerId, detele) }) { t: Throwable? ->
                 view?.let {
                     showError(
@@ -556,10 +560,10 @@ open class PhotoPagerPresenter internal constructor(
         appendDisposable(
             InteractorFactory.createPhotosInteractor()
                 .getTags(accountId, photo.ownerId, photo.id, photo.accessKey)
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ userInfo: List<VKApiPhotoTags> ->
-                    val buttons: MutableList<FunctionSource> = ArrayList(userInfo.size)
-                    for (i in userInfo) {
+                .fromIOToMain()
+                .subscribe({
+                    val buttons: MutableList<FunctionSource> = ArrayList(it.size)
+                    for (i in it) {
                         if (i.user_id != 0) {
                             buttons.add(FunctionSource(i.tagged_name, R.drawable.person) {
                                 PlaceFactory.getOwnerWallPlace(
@@ -588,7 +592,7 @@ open class PhotoPagerPresenter internal constructor(
     }
 
     private fun hasPhotos(): Boolean {
-        return !Utils.safeIsEmpty(mPhotos)
+        return mPhotos.nonNullNoEmpty()
     }
 
     fun firePhotoTap() {

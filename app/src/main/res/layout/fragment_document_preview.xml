@@ -34,6 +34,7 @@
                     android:layout_marginTop="100dp"
                     android:background="@drawable/circle_back_white"
                     android:backgroundTint="?colorPrimary"
+                    android:contentDescription="@null"
                     android:padding="16dp"
                     android:src="@drawable/file"
                     custom:tint="?white_color" />

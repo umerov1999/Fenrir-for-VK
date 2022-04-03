@@ -7,8 +7,9 @@ import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import dev.ragnarok.fenrir.activity.slidr.widget.SliderPanel.OnPanelSlideListener
-import dev.ragnarok.fenrir.settings.CurrentTheme.*
-import dev.ragnarok.fenrir.util.Objects
+import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
+import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
+import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.fenrir.util.Utils
 
 internal open class ColorPanelSlideListener(
@@ -58,7 +59,7 @@ internal open class ColorPanelSlideListener(
                     navigationBarNonColored
                 ) as Int
                 val w = activity.window
-                if (Objects.nonNull(w)) {
+                if (w != null) {
                     w.statusBarColor = statusColor
                     w.navigationBarColor = navigationColor
                     val invertIcons = !isDark(statusColor)

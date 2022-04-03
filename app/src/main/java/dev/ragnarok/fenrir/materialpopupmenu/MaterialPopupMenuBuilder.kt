@@ -32,17 +32,17 @@ class MaterialPopupMenuBuilder {
      * Setting this to a non-zero value will force the width of the popup menu to be exactly this value.
      * If set to 0, the default mechanism for measuring popup menu width will be applied.
      */
-    var fixedContentWidthInPx: Int = 0
+    private var fixedContentWidthInPx: Int = 0
 
     /**
      * Setting this to non-`null` value will override `android:dropDownVerticalOffset` set by the style applied in [style].
      */
-    var dropDownVerticalOffset: Int? = null
+    private var dropDownVerticalOffset: Int? = null
 
     /**
      * Setting this to non-`null` value will override `android:dropDownHorizontalOffset` set by the style applied in [style].
      */
-    var dropDownHorizontalOffset: Int? = null
+    private var dropDownHorizontalOffset: Int? = null
 
     private val sectionHolderList = arrayListOf<SectionHolder>()
 
@@ -198,7 +198,7 @@ class MaterialPopupMenuBuilder {
          * Optional. If set to *true* this will show a "menu-end" icon, which indicates that there might be a submenu shown.
          * *false* by default.
          */
-        var hasNestedItems: Boolean = false
+        private var hasNestedItems: Boolean = false
 
         override fun toString(): String {
             return "ItemHolder(label=$label, labelRes=$labelRes, labelColor=$labelColor, icon=$icon, iconDrawable=$iconDrawable, iconColor=$iconColor, hasNestedItems=$hasNestedItems, viewBoundCallback=$viewBoundCallback, callback=$callback, dismissOnSelect=$dismissOnSelect)"

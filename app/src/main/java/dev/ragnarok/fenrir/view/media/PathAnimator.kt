@@ -66,10 +66,14 @@ class PathAnimator(
             val N = keyFrames.size
             while (a < N) {
                 val keyFrame = keyFrames[a]
-                if ((startKeyFrame == null || startKeyFrame!!.time < keyFrame.time) && keyFrame.time <= time) {
+                if ((startKeyFrame == null || (startKeyFrame
+                        ?: return@run).time < keyFrame.time) && keyFrame.time <= time
+                ) {
                     startKeyFrame = keyFrame
                 }
-                if ((endKeyFrame == null || endKeyFrame!!.time > keyFrame.time) && keyFrame.time >= time) {
+                if ((endKeyFrame == null || (endKeyFrame
+                        ?: return@run).time > keyFrame.time) && keyFrame.time >= time
+                ) {
                     endKeyFrame = keyFrame
                 }
                 a++
@@ -82,20 +86,24 @@ class PathAnimator(
             endKeyFrame = startKeyFrame
             startKeyFrame = null
         }
-        if (endKeyFrame == null || startKeyFrame != null && startKeyFrame!!.commands.size != endKeyFrame!!.commands.size) {
+        if (endKeyFrame == null || startKeyFrame != null && (startKeyFrame
+                ?: return).commands.size != (endKeyFrame ?: return).commands.size
+        ) {
             return
         }
         path.reset()
         var a = 0
-        val N = endKeyFrame!!.commands.size
+        val N = (endKeyFrame ?: return).commands.size
         while (a < N) {
-            val startCommand = if (startKeyFrame != null) startKeyFrame!!.commands[a] else null
-            val endCommand = endKeyFrame!!.commands[a]
+            val startCommand =
+                if (startKeyFrame != null) (startKeyFrame ?: return).commands[a] else null
+            val endCommand = (endKeyFrame ?: return).commands[a]
             if (startCommand != null && startCommand.javaClass != endCommand.javaClass) {
                 return
             }
             val progress: Float = if (startKeyFrame != null) {
-                (time - startKeyFrame!!.time) / (endKeyFrame!!.time - startKeyFrame!!.time)
+                (time - (startKeyFrame ?: return).time) / ((endKeyFrame
+                    ?: return).time - (startKeyFrame ?: return).time)
             } else {
                 1.0f
             }
@@ -144,7 +152,7 @@ class PathAnimator(
             a++
         }
         path.close()
-        canvas.drawPath(path, paint!!)
+        canvas.drawPath(path, paint ?: return)
     }
 
     private class KeyFrame {

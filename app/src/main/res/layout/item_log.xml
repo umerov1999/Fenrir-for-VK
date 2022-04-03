@@ -28,6 +28,7 @@
                 android:layout_marginStart="16dp"
                 android:background="@drawable/circle_back_white"
                 android:backgroundTint="?colorPrimary"
+                android:contentDescription="@null"
                 android:scaleType="center"
                 android:src="@drawable/ic_log_vector"
                 app:tint="?white_color" />
@@ -73,6 +74,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
                     android:padding="8dp"
                     android:src="@drawable/ic_outline_share"
                     app:tint="?android:textColorSecondary" />
@@ -84,6 +86,7 @@
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
                     android:padding="8dp"
                     android:src="@drawable/content_copy"
                     app:tint="?android:textColorSecondary" />

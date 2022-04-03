@@ -27,9 +27,7 @@ abstract class AbsStepHolder<T : AbsStepsHost<*>>(
     private val mContentView: View =
         LayoutInflater.from(itemView.context).inflate(internalLayoutRes, parent, false)
 
-    override fun getHolderId(): Int {
-        return itemView.tag as Int
-    }
+    override val holderId: Int = itemView.tag as Int
 
     abstract fun initInternalView(contentView: View)
     fun bindInternalStepViews(host: T) {

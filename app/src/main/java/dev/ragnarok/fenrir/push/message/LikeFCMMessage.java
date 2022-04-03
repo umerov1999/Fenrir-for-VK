@@ -111,7 +111,7 @@ public class LikeFCMMessage {
 
 //        VkPlace parsedPlace = VkPlace.parse(object);
 //
-//        if (isNull(parsedPlace)) {
+//        if (parsedPlace == null) {
 //            PersistentLogger.logThrowable("Push issues", new Exception("LikeFCMMessage, UNKNOWN OBJECT: " + object));
 //            return;
 //        }
@@ -155,7 +155,7 @@ public class LikeFCMMessage {
 //            contentText = context.getString(R.string.push_user_liked_your_comment_on_the_post, userName);
 //        }
 //
-//        if (isNull(place)) {
+//        if (place == null) {
 //            PersistentLogger.logThrowable("Push issues", new Exception("LikeFCMMessage, UNKNOWN PLACE: " + object));
 //            return;
 //        }

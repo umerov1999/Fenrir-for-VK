@@ -19,6 +19,7 @@
             android:layout_gravity="center_vertical"
             android:layout_margin="4dp"
             android:alpha="0.9"
+            android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_menu_24_white"
             app:tint="?colorPrimary" />

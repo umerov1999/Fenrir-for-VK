@@ -58,7 +58,8 @@
                     android:layout_width="@dimen/avatar_size_small"
                     android:layout_height="@dimen/avatar_size_small"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true" />
+                    android:layout_alignParentTop="true"
+                    android:contentDescription="@null" />
 
                 <dev.ragnarok.fenrir.view.OnlineView
                     android:id="@+id/item_circle_changable"
@@ -77,6 +78,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
+                android:contentDescription="@null"
                 android:scaleType="centerCrop" />
 
             <LinearLayout
@@ -159,7 +161,8 @@
                 android:layout_alignTop="@id/item_comment_reply_top_container"
                 android:layout_alignParentStart="false"
                 android:layout_marginStart="2dp"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="2dp"
+                android:contentDescription="@null" />
 
             <dev.ragnarok.fenrir.view.OnlineView
                 android:id="@+id/item_circle_reply"

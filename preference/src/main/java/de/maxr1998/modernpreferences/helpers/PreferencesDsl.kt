@@ -325,3 +325,17 @@ inline fun MultiChoiceDialogPreference.onSelectionBeforeChange(crossinline callb
             callback(selection)
         }
 }
+
+inline fun ColorPickPreference.onColorChange(crossinline callback: (Int) -> Unit) {
+    colorAfterChangeListener =
+        ColorPickPreference.OnColorAfterChangeListener { _, selection ->
+            callback(selection)
+        }
+}
+
+inline fun ColorPickPreference.onColorBeforeChange(crossinline callback: (Int) -> Boolean) {
+    colorBeforeChangeListener =
+        ColorPickPreference.OnColorBeforeChangeListener { _, selection ->
+            callback(selection)
+        }
+}

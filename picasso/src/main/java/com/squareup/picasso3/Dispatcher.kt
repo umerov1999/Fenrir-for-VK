@@ -48,22 +48,35 @@ import com.squareup.picasso3.Utils.hasPermission
 import com.squareup.picasso3.Utils.log
 import java.util.concurrent.ExecutorService
 
-
 internal class Dispatcher internal constructor(
     private val context: Context,
-    internal val service: ExecutorService,
+    @get:JvmName("-service") internal val service: ExecutorService,
     private val mainThreadHandler: Handler,
     private val cache: PlatformLruCache
 ) {
+    @get:JvmName("-hunterMap")
+    internal val hunterMap = mutableMapOf<String, BitmapHunter>()
+
+    @get:JvmName("-failedActions")
+    internal val failedActions = mutableMapOf<Any, Action>()
+
+    @get:JvmName("-pausedActions")
+    internal val pausedActions = mutableMapOf<Any, Action>()
+
+    @get:JvmName("-pausedTags")
+    internal val pausedTags = mutableSetOf<Any>()
+
     private val dispatcherThread: DispatcherThread
-    private val hunterMap = mutableMapOf<String, BitmapHunter>()
-    private val failedActions = mutableMapOf<Any, Action>()
-    private val pausedActions = mutableMapOf<Any, Action>()
-    private val pausedTags = mutableSetOf<Any>()
     private val handler: Handler
-    private val receiver: NetworkBroadcastReceiver?
-    private val receiverPostM: NetworkBroadcastReceiverPostM?
-    private val scansNetworkChanges: Boolean
+
+    @get:JvmName("-receiver")
+    internal val receiver: NetworkBroadcastReceiver?
+
+    @get:JvmName("-receiverPostM")
+    internal val receiverPostM: NetworkBroadcastReceiverPostM?
+
+    @get:JvmName("-scansNetworkChanges")
+    internal val scansNetworkChanges: Boolean
 
     init {
         dispatcherThread = DispatcherThread()
@@ -74,12 +87,12 @@ internal class Dispatcher internal constructor(
         scansNetworkChanges = hasPermission(context, ACCESS_NETWORK_STATE)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             receiver = NetworkBroadcastReceiver(this)
-            receiver.register()
+            receiver?.register()
             receiverPostM = null
         } else {
             receiver = null
             receiverPostM = NetworkBroadcastReceiverPostM(this)
-            receiverPostM.register()
+            receiverPostM?.register()
         }
     }
 

@@ -27,10 +27,9 @@ import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.model.Sticker
 import dev.ragnarok.fenrir.model.Sticker.LocalSticker
 import dev.ragnarok.fenrir.model.StickerSet
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Objects
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.emoji.section.*
 
 class EmojiconsPopup(private var rootView: View?, private val mContext: Activity) {
@@ -83,7 +82,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
     }
     private var emojisPager: ViewPager2? = null
     fun storeState() {
-        if (Objects.nonNull(emojisPager)) {
+        if (emojisPager != null) {
             getPreferences(mContext)
                 .edit()
                 .putInt(KEY_PAGE, emojisPager?.currentItem ?: 0)
@@ -100,7 +99,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
     }
 
     fun getEmojiView(emojiParentView: ViewGroup): View? {
-        if (Objects.isNull(emojiContainer)) {
+        if (emojiContainer == null) {
             emojiContainer = createCustomView(emojiParentView)
             val finalKeyboardHeight = when {
                 Settings.get()
@@ -193,7 +192,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
         val topSectionAdapter = SectionsAdapter(sections, mContext)
         recyclerView.adapter = topSectionAdapter
         view.findViewById<View>(R.id.backspace)
-            .setOnTouchListener(RepeatListener(700, 50) { v: View? ->
+            .setOnTouchListener(RepeatListener(700, 50) { v: View ->
                 onEmojiconBackspaceClickedListener?.onEmojiconBackspaceClicked(v)
             })
         topSectionAdapter.setListener(object : SectionsAdapter.Listener {
@@ -235,7 +234,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
     }
 
     interface OnStickerClickedListener {
-        fun onStickerClick(sticker: Sticker?)
+        fun onStickerClick(sticker: Sticker)
     }
 
     interface OnMyStickerClickedListener {
@@ -243,11 +242,11 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
     }
 
     interface OnEmojiconClickedListener {
-        fun onEmojiconClicked(emojicon: Emojicon?)
+        fun onEmojiconClicked(emojicon: Emojicon)
     }
 
     interface OnEmojiconBackspaceClickedListener {
-        fun onEmojiconBackspaceClicked(v: View?)
+        fun onEmojiconBackspaceClicked(v: View)
     }
 
     interface OnSoftKeyboardOpenCloseListener {
@@ -288,7 +287,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
                     val mData: Array<Emojicon> = views[position].clone()
                     val mAdapter = EmojiAdapter(holder.itemView.context, mData)
                     mAdapter.setEmojiClickListener(object : OnEmojiconClickedListener {
-                        override fun onEmojiconClicked(emojicon: Emojicon?) {
+                        override fun onEmojiconClicked(emojicon: Emojicon) {
                             mEmojiconPopup.onEmojiconClickedListener?.onEmojiconClicked(emojicon)
                         }
 
@@ -319,14 +318,14 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
                     val mAdaptert =
                         StickersAdapter(holder.itemView.context, stickersGridViews[position - 8])
                     mAdaptert.setStickerClickedListener(object : OnStickerClickedListener {
-                        override fun onStickerClick(sticker: Sticker?) {
+                        override fun onStickerClick(sticker: Sticker) {
                             mEmojiconPopup.onStickerClickedListener?.onStickerClick(sticker)
                         }
                     })
                     val gridLayoutManager = GridLayoutManager(holder.itemView.context, 4)
                     recyclerView.layoutManager = gridLayoutManager
                     var title = stickersGridViews[position - 8].title
-                    if (!Utils.isEmpty(title) && title == "recent") title =
+                    if (title.nonNullNoEmpty() && title == "recent") title =
                         recyclerView.context.getString(R.string.usages)
                     (holder.itemView.findViewById<View>(R.id.header_sticker) as TextView).text =
                         title

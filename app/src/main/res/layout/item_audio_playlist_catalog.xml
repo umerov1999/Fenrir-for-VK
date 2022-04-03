@@ -23,6 +23,7 @@
             android:id="@+id/item_thumb"
             android:layout_width="@dimen/avatar_size_big"
             android:layout_height="@dimen/avatar_size_big"
+            android:contentDescription="@null"
             android:scaleType="centerCrop" />
 
         <LinearLayout

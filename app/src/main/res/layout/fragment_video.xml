@@ -43,6 +43,7 @@
                             android:id="@+id/item_owner_avatar"
                             android:layout_width="@dimen/avatar_size_usual"
                             android:layout_height="@dimen/avatar_size_usual"
+                            android:contentDescription="@null"
                             android:visibility="gone" />
 
                         <TextView

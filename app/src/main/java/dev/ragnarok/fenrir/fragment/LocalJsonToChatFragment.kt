@@ -30,6 +30,7 @@ import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.LocalJsonToChatPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalJsonToChatView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
@@ -55,7 +56,7 @@ class LocalJsonToChatFragment :
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_json_chat, container, false)
-        root.background = CurrentTheme.getChatBackground(activity)
+        root.background = CurrentTheme.getChatBackground(requireActivity())
         (requireActivity() as AppCompatActivity).setSupportActionBar(root.findViewById(R.id.toolbar))
         mEmpty = root.findViewById(R.id.empty)
         val mAttachment: FloatingActionButton = root.findViewById(R.id.goto_button)
@@ -78,7 +79,7 @@ class LocalJsonToChatFragment :
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.isEnabled = false
         ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = MessagesAdapter(requireActivity(), emptyList(), this, true)
+        mAdapter = MessagesAdapter(requireActivity(), mutableListOf(), this, true)
         recyclerView?.adapter = mAdapter
         resolveEmptyText()
         return root
@@ -234,7 +235,7 @@ class LocalJsonToChatFragment :
         Avatar?.setOnClickListener {
             presenter?.fireOwnerClick(peer.id)
         }
-        if (Utils.nonEmpty(peer.avaUrl)) {
+        if (peer.avaUrl.nonNullNoEmpty()) {
             EmptyAvatar?.visibility = View.GONE
             Avatar?.let {
                 PicassoInstance.with()
@@ -244,7 +245,7 @@ class LocalJsonToChatFragment :
             }
         } else {
             Avatar?.let { PicassoInstance.with().cancelRequest(it) }
-            if (!Utils.isEmpty(peer.title)) {
+            if (peer.title.nonNullNoEmpty()) {
                 EmptyAvatar?.visibility = View.VISIBLE
                 var name: String = peer.title
                 if (name.length > 2) name = name.substring(0, 2)
@@ -301,7 +302,7 @@ class LocalJsonToChatFragment :
     override fun onMessageDelete(message: Message) {}
 
     companion object {
-        @JvmStatic
+
         fun newInstance(accountId: Int): LocalJsonToChatFragment {
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, accountId)

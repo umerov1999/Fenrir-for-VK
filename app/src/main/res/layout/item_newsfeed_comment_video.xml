@@ -48,6 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/ic_eye_white_vector"
                     app:tint="?android:textColorSecondary" />
 
@@ -57,7 +58,8 @@
                 android:id="@+id/video_owner_avatar"
                 android:layout_width="@dimen/avatar_size_small"
                 android:layout_height="@dimen/avatar_size_small"
-                android:background="@drawable/circle_back_white" />
+                android:background="@drawable/circle_back_white"
+                android:contentDescription="@null" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -120,6 +122,7 @@
                 android:layout_width="60dp"
                 android:layout_height="40dp"
                 android:layout_margin="16dp"
+                android:contentDescription="@null"
                 android:scaleType="fitStart"
                 android:src="@drawable/ic_youtube" />
 

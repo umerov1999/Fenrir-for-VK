@@ -1,0 +1,10 @@
+package dev.ragnarok.fenrir.api.model
+
+class AccessIdPair(val id: Int, val ownerId: Int, val accessKey: String?) {
+    companion object {
+
+        fun format(pair: AccessIdPair): String {
+            return pair.ownerId.toString() + "_" + pair.id + if (pair.accessKey == null) "" else "_" + pair.accessKey
+        }
+    }
+}

@@ -15,10 +15,6 @@ object BitmapSafeResize {
         hardwareRendering = state
     }
 
-    fun getMaxResolution(): Int {
-        return maxResolution
-    }
-
     fun setMaxResolution(maxResolution: Int) {
         if (maxResolution > 100) {
             BitmapSafeResize.maxResolution = maxResolution

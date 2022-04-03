@@ -1,0 +1,116 @@
+package dev.ragnarok.fenrir.fragment.attachments
+
+import android.content.DialogInterface
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.activity.ActivityFeatures
+import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
+import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
+import dev.ragnarok.fenrir.model.Comment
+import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
+import dev.ragnarok.fenrir.mvp.presenter.CommentEditPresenter
+import dev.ragnarok.fenrir.mvp.view.ICommentEditView
+
+class CommentEditFragment : AbsAttachmentsEditFragment<CommentEditPresenter, ICommentEditView>(),
+    ICommentEditView {
+    override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<CommentEditPresenter> {
+        return object : IPresenterFactory<CommentEditPresenter> {
+            override fun create(): CommentEditPresenter {
+                val aid = requireArguments().getInt(Extra.ACCOUNT_ID)
+                val CommentThread: Int? =
+                    if (requireArguments().containsKey(Extra.COMMENT_ID)) requireArguments().getInt(
+                        Extra.COMMENT_ID
+                    ) else null
+                val comment: Comment = requireArguments().getParcelable(Extra.COMMENT)!!
+                return CommentEditPresenter(comment, aid, CommentThread, saveInstanceState)
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_attchments, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.ready) {
+            presenter?.fireReadyClick()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setToolbarTitle(this, R.string.comment_editing_title)
+        setToolbarSubtitle(this, null)
+        ActivityFeatures.Builder()
+            .begin()
+            .setHideNavigationMenu(true)
+            .setBarsColored(requireActivity(), true)
+            .build()
+            .apply(requireActivity())
+    }
+
+    override fun onBackPressed(): Boolean {
+        return presenter?.onBackPressed() ?: false
+    }
+
+    override fun goBackWithResult(comment: Comment?) {
+        val data = Bundle()
+        data.putParcelable(Extra.COMMENT, comment)
+        parentFragmentManager.setFragmentResult(REQUEST_COMMENT_EDIT, data)
+        requireActivity().onBackPressed()
+    }
+
+    override fun showConfirmWithoutSavingDialog() {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.confirmation)
+            .setMessage(R.string.save_changes_question)
+            .setPositiveButton(R.string.button_yes) { _: DialogInterface?, _: Int ->
+                presenter?.fireReadyClick()
+            }
+            .setNegativeButton(R.string.button_no) { _: DialogInterface?, _: Int ->
+                presenter?.fireSavingCancelClick()
+            }
+            .setNeutralButton(R.string.button_cancel, null)
+            .show()
+    }
+
+    override fun goBack() {
+        requireActivity().onBackPressed()
+    }
+
+    override fun onResult() {
+        presenter?.fireReadyClick()
+    }
+
+    companion object {
+        const val REQUEST_COMMENT_EDIT = "request_comment_edit"
+        fun newInstance(
+            accountId: Int,
+            comment: Comment?,
+            CommentThread: Int?
+        ): CommentEditFragment {
+            val args = Bundle()
+            args.putParcelable(Extra.COMMENT, comment)
+            args.putInt(Extra.ACCOUNT_ID, accountId)
+            if (CommentThread != null) {
+                args.putInt(Extra.COMMENT_ID, CommentThread)
+            }
+            val fragment = CommentEditFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
+}

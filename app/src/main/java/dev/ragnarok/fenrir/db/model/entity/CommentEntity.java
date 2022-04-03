@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.db.model.entity;
 
-import static dev.ragnarok.fenrir.util.Objects.nonNull;
-
 import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
@@ -187,7 +185,7 @@ public class CommentEntity {
 
     public @Nullable
     List<Entity> getAttachments() {
-        return nonNull(attachments) ? attachments.getEntities() : null;
+        return attachments != null ? attachments.getEntities() : null;
     }
 
     public CommentEntity setAttachments(@Nullable List<Entity> entities) {

@@ -19,7 +19,8 @@
             android:layout_width="@dimen/avatar_size_tiny"
             android:layout_height="@dimen/avatar_size_tiny"
             android:layout_centerVertical="true"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/item_post_copy_owner_name"
@@ -42,6 +43,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
             android:padding="8dp"
             android:src="@drawable/ic_horisontal_dots"
             app:tint="?android:textColorSecondary" />

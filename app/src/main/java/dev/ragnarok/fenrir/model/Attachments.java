@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.model;
 
-import static dev.ragnarok.fenrir.util.Objects.nonNull;
 import static dev.ragnarok.fenrir.util.Utils.cloneListAsArrayList;
+import static dev.ragnarok.fenrir.util.Utils.isEmpty;
 import static dev.ragnarok.fenrir.util.Utils.nonEmpty;
 import static dev.ragnarok.fenrir.util.Utils.safeCountOf;
 import static dev.ragnarok.fenrir.util.Utils.safeCountOfMultiple;
-import static dev.ragnarok.fenrir.util.Utils.safeIsEmpty;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -566,7 +565,7 @@ public class Attachments implements Parcelable, Cloneable {
         );
     }
 
-    public boolean isEmpty() {
+    public boolean isEmptyAttachments() {
         return size() == 0;
     }
 
@@ -575,7 +574,7 @@ public class Attachments implements Parcelable, Cloneable {
 
         if (nonEmpty(docs)) {
             for (Document document : docs) {
-                if (document.isGif() && nonNull(document.getPhotoPreview())) {
+                if (document.isGif() && document.getPhotoPreview() != null) {
                     hasGifWithPreview = true;
                 } else {
                     return false;
@@ -583,30 +582,30 @@ public class Attachments implements Parcelable, Cloneable {
             }
         }
 
-        if (safeIsEmpty(photos) && safeIsEmpty(videos) && !hasGifWithPreview) {
+        if (isEmpty(photos) && isEmpty(videos) && !hasGifWithPreview) {
             return false;
         }
 
-        return safeIsEmpty(audios) &&
-                safeIsEmpty(stickers) &&
-                safeIsEmpty(posts) &&
-                safeIsEmpty(links) &&
-                safeIsEmpty(articles) &&
-                safeIsEmpty(stories) &&
-                safeIsEmpty(photo_albums) &&
-                safeIsEmpty(calls) &&
-                safeIsEmpty(audio_playlists) &&
-                safeIsEmpty(graffity) &&
-                safeIsEmpty(pages) &&
-                safeIsEmpty(polls) &&
-                safeIsEmpty(voiceMessages) &&
-                safeIsEmpty(not_supported) &&
-                safeIsEmpty(events) &&
-                safeIsEmpty(markets) &&
-                safeIsEmpty(market_albums) &&
-                safeIsEmpty(wall_replies) &&
-                safeIsEmpty(audioArtists) &&
-                safeIsEmpty(gifts);
+        return isEmpty(audios) &&
+                isEmpty(stickers) &&
+                isEmpty(posts) &&
+                isEmpty(links) &&
+                isEmpty(articles) &&
+                isEmpty(stories) &&
+                isEmpty(photo_albums) &&
+                isEmpty(calls) &&
+                isEmpty(audio_playlists) &&
+                isEmpty(graffity) &&
+                isEmpty(pages) &&
+                isEmpty(polls) &&
+                isEmpty(voiceMessages) &&
+                isEmpty(not_supported) &&
+                isEmpty(events) &&
+                isEmpty(markets) &&
+                isEmpty(market_albums) &&
+                isEmpty(wall_replies) &&
+                isEmpty(audioArtists) &&
+                isEmpty(gifts);
     }
 
     @Override
@@ -616,7 +615,7 @@ public class Attachments implements Parcelable, Cloneable {
 
     public ArrayList<PostImage> getPostImagesVideos() {
         ArrayList<PostImage> result = new ArrayList<>(safeCountOf(videos));
-        if (nonNull(videos)) {
+        if (videos != null) {
             for (Video video : videos) {
                 result.add(new PostImage(video, PostImage.TYPE_VIDEO));
             }
@@ -626,15 +625,15 @@ public class Attachments implements Parcelable, Cloneable {
 
     public ArrayList<PostImage> getPostImages() {
         ArrayList<PostImage> result = new ArrayList<>(safeCountOfMultiple(photos, videos));
-        if (nonNull(photos)) {
+        if (photos != null) {
             for (Photo photo : photos) {
                 result.add(new PostImage(photo, PostImage.TYPE_IMAGE));
             }
         }
 
-        if (nonNull(docs)) {
+        if (docs != null) {
             for (Document document : docs) {
-                if (document.isGif() && nonNull(document.getPhotoPreview())) {
+                if (document.isGif() && document.getPhotoPreview() != null) {
                     result.add(new PostImage(document, PostImage.TYPE_GIF));
                 }
             }
@@ -647,7 +646,7 @@ public class Attachments implements Parcelable, Cloneable {
         ArrayList<DocLink> result = new ArrayList<>();
         if (docs != null) {
             for (Document doc : docs) {
-                if (excludeGifWithImages && doc.isGif() && nonNull(doc.getPhotoPreview())) {
+                if (excludeGifWithImages && doc.isGif() && doc.getPhotoPreview() != null) {
                     continue;
                 }
 
@@ -783,95 +782,95 @@ public class Attachments implements Parcelable, Cloneable {
     @Override
     public String toString() {
         String line = "";
-        if (nonNull(audios)) {
+        if (audios != null) {
             line = line + " audios=" + safeCountOf(audios);
         }
 
-        if (nonNull(stickers)) {
+        if (stickers != null) {
             line = line + " stickers=" + safeCountOf(stickers);
         }
 
-        if (nonNull(photos)) {
+        if (photos != null) {
             line = line + " photos=" + safeCountOf(photos);
         }
 
-        if (nonNull(docs)) {
+        if (docs != null) {
             line = line + " docs=" + safeCountOf(docs);
         }
 
-        if (nonNull(videos)) {
+        if (videos != null) {
             line = line + " videos=" + safeCountOf(videos);
         }
 
-        if (nonNull(posts)) {
+        if (posts != null) {
             line = line + " posts=" + safeCountOf(posts);
         }
 
-        if (nonNull(links)) {
+        if (links != null) {
             line = line + " links=" + safeCountOf(links);
         }
 
-        if (nonNull(articles)) {
+        if (articles != null) {
             line = line + " articles=" + safeCountOf(articles);
         }
 
-        if (nonNull(stories)) {
+        if (stories != null) {
             line = line + " stories=" + safeCountOf(stories);
         }
 
-        if (nonNull(photo_albums)) {
+        if (photo_albums != null) {
             line = line + " photo_albums=" + safeCountOf(photo_albums);
         }
 
-        if (nonNull(calls)) {
+        if (calls != null) {
             line = line + " calls=" + safeCountOf(calls);
         }
 
-        if (nonNull(audio_playlists)) {
+        if (audio_playlists != null) {
             line = line + " audio_playlists=" + safeCountOf(audio_playlists);
         }
 
-        if (nonNull(graffity)) {
+        if (graffity != null) {
             line = line + " graffity=" + safeCountOf(graffity);
         }
 
-        if (nonNull(polls)) {
+        if (polls != null) {
             line = line + " polls=" + safeCountOf(polls);
         }
 
-        if (nonNull(pages)) {
+        if (pages != null) {
             line = line + " pages=" + safeCountOf(pages);
         }
 
-        if (nonNull(voiceMessages)) {
+        if (voiceMessages != null) {
             line = line + " voiceMessages=" + safeCountOf(voiceMessages);
         }
 
-        if (nonNull(gifts)) {
+        if (gifts != null) {
             line = line + " gifts=" + safeCountOf(gifts);
         }
 
-        if (nonNull(not_supported)) {
+        if (not_supported != null) {
             line = line + " not_supported=" + safeCountOf(not_supported);
         }
 
-        if (nonNull(events)) {
+        if (events != null) {
             line = line + " events=" + safeCountOf(events);
         }
 
-        if (nonNull(markets)) {
+        if (markets != null) {
             line = line + " markets=" + safeCountOf(markets);
         }
 
-        if (nonNull(market_albums)) {
+        if (market_albums != null) {
             line = line + " market_albums=" + safeCountOf(market_albums);
         }
 
-        if (nonNull(wall_replies)) {
+        if (wall_replies != null) {
             line = line + " wall_replies=" + safeCountOf(wall_replies);
         }
 
-        if (nonNull(audioArtists)) {
+        if (audioArtists != null) {
             line = line + " audioArtists=" + safeCountOf(audioArtists);
         }
 

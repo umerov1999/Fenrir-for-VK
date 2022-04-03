@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.VideoPlatform
 
 object VideoServiceIcons {
-    @JvmStatic
+
     @DrawableRes
     fun getIconByType(platform: String?): Int? {
         return if (platform == null) {

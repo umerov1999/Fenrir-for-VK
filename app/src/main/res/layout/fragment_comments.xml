@@ -78,6 +78,7 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
                 android:src="@drawable/close"
                 app:tint="?colorPrimary" />
 

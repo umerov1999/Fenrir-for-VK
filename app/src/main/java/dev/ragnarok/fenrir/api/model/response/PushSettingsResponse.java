@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.api.model.response;
 
-import static dev.ragnarok.fenrir.util.Objects.nonNull;
-
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Collections;
@@ -15,7 +13,7 @@ public class PushSettingsResponse {
     public ConversationsPush conversations;
 
     public List<ConversationsPush.ConversationPushItem> getPushSettings() {
-        if (nonNull(conversations) && !Utils.isEmpty(conversations.items)) {
+        if (conversations != null && !Utils.isEmpty(conversations.items)) {
             return conversations.items;
         }
         return Collections.emptyList();

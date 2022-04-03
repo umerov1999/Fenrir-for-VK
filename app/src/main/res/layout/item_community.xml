@@ -48,7 +48,8 @@
             <ImageView
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/avatar_size_chat"
-                android:layout_height="@dimen/avatar_size_chat" />
+                android:layout_height="@dimen/avatar_size_chat"
+                android:contentDescription="@null" />
 
             <ImageView
                 android:id="@+id/item_verified"
@@ -58,6 +59,7 @@
                 android:background="@drawable/sel_button_round_5_white"
                 android:backgroundTint="#009900"
                 android:backgroundTintMode="add"
+                android:contentDescription="@null"
                 android:padding="3dp"
                 android:src="@drawable/verified"
                 android:visibility="visible"

@@ -263,7 +263,7 @@ class VideoControllerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
         val hours = totalSeconds / 3600
         return if (hours > 0) {
             String.format(
-                Utils.getAppLocale(),
+                Utils.appLocale,
                 "%d:%02d:%02d",
                 hours,
                 minutes,
@@ -271,7 +271,7 @@ class VideoControllerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
             )
         } else {
             String.format(
-                Utils.getAppLocale(),
+                Utils.appLocale,
                 "%02d:%02d",
                 minutes,
                 seconds

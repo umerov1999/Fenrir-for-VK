@@ -5,7 +5,6 @@ import android.app.Application
 import android.os.Handler
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.internal.ConstructorConstructor
-import dev.ragnarok.fenrir.Extensions.Companion.toMainThread
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
@@ -42,7 +41,7 @@ class App : Application() {
             FenrirNative.loadNativeLibrary { PersistentLogger.logThrowable("NativeError", it) }
         }
         FenrirNative.updateAppContext(this)
-        FenrirNative.updateDensity { Utils.getDensity() }
+        FenrirNative.updateDensity { Utils.density }
         ConstructorConstructor.setLogUnsafe(Settings.get().other().isDeveloper_mode)
 
         if (FenrirNative.isNativeLoaded()) {
@@ -51,7 +50,7 @@ class App : Application() {
             MusicPlaybackController.tracksExist = FileExistJVM()
         }
 
-        Utils.setCompressTraffic(Settings.get().other().isCompress_traffic)
+        Utils.isCompressTraffic = Settings.get().other().isCompress_traffic
         RLottieDrawable.setCacheResourceAnimation(Settings.get().other().isEnable_cache_ui_anim)
         TagOptionSingleton.getInstance().isAndroid = true
         MusicPlaybackController.registerBroadcast(this)
@@ -116,13 +115,13 @@ class App : Application() {
         @Volatile
         private var sApplicationHandler: Handler? = null
 
-        @JvmStatic
+
         val applicationHandler: Handler?
             get() {
                 return sApplicationHandler
             }
 
-        @JvmStatic
+
         val instance: App
             get() {
                 checkNotNull(sInstanse) { "App instance is null!!! WTF???" }

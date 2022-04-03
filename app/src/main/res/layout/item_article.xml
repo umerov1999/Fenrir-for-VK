@@ -72,6 +72,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_margin="8dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/star"
                     android:stateListAnimator="@animator/clicked"
                     app:tint="#fff" />
@@ -92,6 +93,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_margin="8dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/share"
                     android:stateListAnimator="@animator/clicked"
                     app:tint="#fff" />

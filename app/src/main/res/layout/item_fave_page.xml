@@ -49,6 +49,7 @@
                 android:background="@drawable/sel_button_round_5_white"
                 android:backgroundTint="#009900"
                 android:backgroundTintMode="add"
+                android:contentDescription="@null"
                 android:padding="4dp"
                 android:src="@drawable/verified"
                 android:visibility="gone"
@@ -61,6 +62,7 @@
                 android:layout_gravity="end|bottom"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="4dp"
+                android:contentDescription="@null"
                 android:padding="4dp"
                 android:src="@drawable/audio_died"
                 android:visibility="gone"
@@ -85,6 +87,7 @@
                 android:paddingEnd="8dp"
                 android:paddingBottom="4dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textSize="13sp"
                 tools:text="User.Name" />
 
             <TextView
@@ -97,6 +100,7 @@
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textSize="11sp"
                 tools:text="User.Description" />
         </LinearLayout>
 

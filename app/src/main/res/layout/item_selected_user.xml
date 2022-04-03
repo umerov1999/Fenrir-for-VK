@@ -16,7 +16,8 @@
     <ImageView
         android:id="@+id/avatar"
         android:layout_width="24dp"
-        android:layout_height="24dp" />
+        android:layout_height="24dp"
+        android:contentDescription="@null" />
 
     <TextView
         android:id="@+id/name"
@@ -32,6 +33,7 @@
         android:layout_height="24dp"
         android:layout_marginStart="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
         android:padding="2dp"
         android:scaleType="centerCrop"
         android:src="@drawable/close" />

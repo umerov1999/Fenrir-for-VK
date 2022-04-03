@@ -30,9 +30,10 @@ import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.UpdatableNavigation
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.view.MySearchView
 
 
@@ -95,10 +96,10 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
         searchView?.let {
             it.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
                 override fun onBackButtonClick() {
-                    if (!Utils.isEmpty(it.text) && !Utils.isEmpty(it.text?.trim())) {
+                    if (it.text.nonNullNoEmpty() && it.text.trimmedNonNullNoEmpty()) {
                         preferencesAdapter?.findPreferences(
                             requireActivity(),
-                            it.text!!.toString(),
+                            it.text.toString(),
                             root
                         )
                     }
@@ -106,8 +107,8 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
             })
             it.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
-                    if (!Utils.isEmpty(query) && !Utils.isEmpty(query?.trim())) {
-                        preferencesAdapter?.findPreferences(requireActivity(), query!!, root)
+                    if (query.nonNullNoEmpty() && query.trimmedNonNullNoEmpty()) {
+                        preferencesAdapter?.findPreferences(requireActivity(), query, root)
                     }
                     return true
                 }
@@ -141,7 +142,7 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
         preferencesView?.let { preferencesAdapter?.restoreAndObserveScrollPosition(it) }
         val actionBar = ActivityUtils.supportToolbarFor(this)
         if (actionBar != null) {
-            if (screen.key == "root" || Utils.isEmpty(screen.title) && screen.titleRes == DEFAULT_RES_ID) {
+            if (screen.key == "root" || screen.title.isEmpty() && screen.titleRes == DEFAULT_RES_ID) {
                 actionBar.setTitle(R.string.settings)
             } else if (screen.titleRes != DEFAULT_RES_ID) {
                 actionBar.setTitle(screen.titleRes)
@@ -362,7 +363,7 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
         Settings.get().ui().notifyPlaceResumed(Place.PREFERENCES)
         val actionBar = ActivityUtils.supportToolbarFor(this)
         if (actionBar != null) {
-            if (preferencesAdapter?.currentScreen?.key == "root" || Utils.isEmpty(preferencesAdapter?.currentScreen?.title) && (preferencesAdapter?.currentScreen?.titleRes == DEFAULT_RES_ID || preferencesAdapter?.currentScreen?.titleRes == 0)) {
+            if (preferencesAdapter?.currentScreen?.key == "root" || preferencesAdapter?.currentScreen?.title.isNullOrEmpty() && (preferencesAdapter?.currentScreen?.titleRes == DEFAULT_RES_ID || preferencesAdapter?.currentScreen?.titleRes == 0)) {
                 actionBar.setTitle(R.string.settings)
             } else if (preferencesAdapter?.currentScreen?.titleRes != DEFAULT_RES_ID && preferencesAdapter?.currentScreen?.titleRes != 0) {
                 preferencesAdapter?.currentScreen?.titleRes?.let { actionBar.setTitle(it) }

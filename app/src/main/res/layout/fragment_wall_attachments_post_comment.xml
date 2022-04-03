@@ -38,6 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@null"
         android:src="@drawable/ic_arrow_down"
         app:fabSize="normal"
         app:maxImageSize="30dp" />
@@ -48,6 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@null"
         android:src="@drawable/comment"
         app:fabSize="normal"
         app:maxImageSize="30dp" />

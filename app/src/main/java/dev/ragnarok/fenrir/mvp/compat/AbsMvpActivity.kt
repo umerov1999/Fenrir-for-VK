@@ -5,8 +5,6 @@ import androidx.loader.app.LoaderManager
 import dev.ragnarok.fenrir.activity.NoMainActivity
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.core.IPresenter
-import dev.ragnarok.fenrir.mvp.core.PresenterAction
-import dev.ragnarok.fenrir.mvp.core.RetPresenterAction
 import dev.ragnarok.fenrir.mvp.view.IErrorView
 import dev.ragnarok.fenrir.mvp.view.IProgressView
 import dev.ragnarok.fenrir.mvp.view.IToastView
@@ -64,15 +62,7 @@ abstract class AbsMvpActivity<P : IPresenter<V>, V : IMvpView> : NoMainActivity(
         super.onDestroy()
     }
 
-    fun callPresenter(action: PresenterAction<P, V>) {
-        delegate.callPresenter(action)
-    }
-
-    fun <T> callPresenter(action: RetPresenterAction<P, V, T>, onDefault: T): T {
-        return delegate.callPresenter(action, onDefault)
-    }
-
-    fun postPresenterReceive(action: PresenterAction<P, V>) {
-        delegate.postPresenterReceive(action)
+    fun lazyPresenter(block: P.() -> Unit) {
+        delegate.lazyPresenter(block)
     }
 }

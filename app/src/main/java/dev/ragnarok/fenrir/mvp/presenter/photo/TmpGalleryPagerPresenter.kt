@@ -4,11 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.TmpSource
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.util.Analytics
-import dev.ragnarok.fenrir.util.RxUtils
 
 class TmpGalleryPagerPresenter : PhotoPagerPresenter {
     constructor(
@@ -36,13 +36,13 @@ class TmpGalleryPagerPresenter : PhotoPagerPresenter {
 
     private fun loadDataFromDatabase(source: TmpSource) {
         changeLoadingNowState(true)
-        appendDisposable(Stores.getInstance()
+        appendDisposable(Stores.instance
             .tempStore()
             .getData(source.ownerId, source.sourceId, Serializers.PHOTOS_SERIALIZER)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
-            .subscribe({ photos: List<Photo> -> onInitialLoadingFinished(photos) }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onInitialLoadingFinished(it) }) {
                 Analytics.logUnexpectedError(
-                    throwable
+                    it
                 )
             })
     }

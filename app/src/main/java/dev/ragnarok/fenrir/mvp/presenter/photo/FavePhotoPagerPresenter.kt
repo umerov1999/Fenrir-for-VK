@@ -2,9 +2,9 @@ package dev.ragnarok.fenrir.mvp.presenter.photo
 
 import android.content.Context
 import android.os.Bundle
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AccessIdPair
 import dev.ragnarok.fenrir.model.Photo
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 
 class FavePhotoPagerPresenter(
@@ -29,7 +29,7 @@ class FavePhotoPagerPresenter(
         val accountId = accountId
         val forUpdate = listOf(AccessIdPair(photo.id, photo.ownerId, photo.accessKey))
         appendDisposable(photosInteractor.getPhotosByIds(accountId, forUpdate)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ photos: List<Photo> ->
                 onPhotoUpdateReceived(
                     photos,

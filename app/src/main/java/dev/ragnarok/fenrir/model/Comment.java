@@ -5,7 +5,6 @@ import android.os.Parcel;
 import java.util.List;
 
 import dev.ragnarok.fenrir.api.model.Identificable;
-import dev.ragnarok.fenrir.util.Objects;
 import dev.ragnarok.fenrir.util.Utils;
 
 public class Comment extends AbsModel implements Identificable {
@@ -248,11 +247,11 @@ public class Comment extends AbsModel implements Identificable {
     }
 
     public boolean hasAttachments() {
-        return attachments != null && !attachments.isEmpty();
+        return attachments != null && !attachments.isEmptyAttachments();
     }
 
     public boolean hasStickerOnly() {
-        return attachments != null && !Utils.safeIsEmpty(attachments.getStickers());
+        return attachments != null && !Utils.isEmpty(attachments.getStickers());
     }
 
     public String getFullAuthorName() {
@@ -301,7 +300,7 @@ public class Comment extends AbsModel implements Identificable {
     }
 
     public int getAttachmentsCount() {
-        return Objects.isNull(attachments) ? 0 : attachments.size();
+        return attachments == null ? 0 : attachments.size();
     }
 
     public boolean hasThreads() {

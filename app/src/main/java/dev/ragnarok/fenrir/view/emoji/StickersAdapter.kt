@@ -86,7 +86,7 @@ class StickersAdapter(private val context: Context, private val stickers: Sticke
                 val normalHolder = holder as StickerHolder
                 normalHolder.image.visibility = View.VISIBLE
                 val url = item.getImage(256, isNightStiker).url
-                if (Utils.isEmpty(url)) {
+                if (url.isNullOrEmpty()) {
                     with().cancelRequest(normalHolder.image)
                     normalHolder.image.setImageResource(R.drawable.ic_avatar_unknown)
                 } else {

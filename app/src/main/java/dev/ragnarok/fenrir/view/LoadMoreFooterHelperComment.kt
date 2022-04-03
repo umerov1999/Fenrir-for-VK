@@ -56,7 +56,7 @@ class LoadMoreFooterHelperComment {
     }
 
     companion object {
-        @JvmStatic
+
         fun createFrom(view: View, callback: Callback?): LoadMoreFooterHelperComment {
             val helper = LoadMoreFooterHelperComment()
             helper.holder = Holder(view)

@@ -44,6 +44,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
                     android:padding="8dp"
                     android:src="@drawable/close"
                     app:tint="?attr/icon_color_active" />

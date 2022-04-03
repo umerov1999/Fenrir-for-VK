@@ -203,7 +203,7 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
     }
 
     private fun onCreateItemViewHolder(parent: ViewGroup?, type: Int): VH {
-        return viewHolder(inflater?.inflate(layoutId(type), parent, false), type)
+        return viewHolder(inflater?.inflate(layoutId(type), parent, false)!!, type)
     }
 
     override fun getItemCount(): Int {
@@ -320,7 +320,7 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
     }
 
     protected abstract fun onBindItemViewHolder(viewHolder: VH, position: Int, type: Int)
-    protected abstract fun viewHolder(view: View?, type: Int): VH
+    protected abstract fun viewHolder(view: View, type: Int): VH
 
     @LayoutRes
     protected abstract fun layoutId(type: Int): Int

@@ -21,6 +21,7 @@
             android:id="@+id/avatar"
             android:layout_width="@dimen/navi_drawer_icon_size"
             android:layout_height="@dimen/navi_drawer_icon_size"
+            android:contentDescription="@null"
             tools:src="@drawable/google_circles" />
 
         <TextView

@@ -20,12 +20,12 @@ import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.AppPerms
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
-import dev.ragnarok.fenrir.util.Utils
 
 class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.ClickListener,
     BackPressCallback {
@@ -37,10 +37,8 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
         super.onCreate(savedInstanceState)
         mData.clear()
         val tmp: List<Audio>? = requireArguments().getParcelableArrayList(Extra.AUDIOS)
-        if (!Utils.isEmpty(tmp)) {
-            if (tmp != null) {
-                mData.addAll(tmp)
-            }
+        if (tmp.nonNullNoEmpty()) {
+            mData.addAll(tmp)
         }
     }
 
@@ -113,7 +111,13 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mAdapter = AudioRecyclerAdapter(requireActivity(), mData, false, false, 0, null)
+        mAdapter = AudioRecyclerAdapter(
+            requireActivity(), mData,
+            not_show_my = false,
+            iSSelectMode = false,
+            iCatalogBlock = 0,
+            playlist_id = null
+        )
         mAdapter?.setClickListener(this)
         mRecyclerView?.adapter = mAdapter
         val my = MusicPlaybackController.currentAudio
@@ -139,7 +143,7 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
         }
     }
 
-    override fun onEdit(position: Int, audio: Audio?) {
+    override fun onEdit(position: Int, audio: Audio) {
 
     }
 
@@ -152,13 +156,14 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
             .tryOpenWith(requireActivity())
     }
 
-    private val requestWritePermission = AppPerms.requestPermissions(
-        this,
+    private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
-    ) { CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text) }
+    ) {
+        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+    }
 
     override fun onRequestWritePermissions() {
         requestWritePermission.launch()

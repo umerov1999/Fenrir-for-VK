@@ -264,6 +264,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@null"
                 android:src="@drawable/fingerprint"
                 app:tint="?attr/icon_color_active" />
 
@@ -299,6 +300,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@null"
                 android:src="@drawable/backspace"
                 app:tint="?attr/icon_color_active" />
 

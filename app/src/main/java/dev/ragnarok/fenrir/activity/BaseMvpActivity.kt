@@ -13,11 +13,11 @@ import dev.ragnarok.fenrir.mvp.compat.AbsMvpActivity
 import dev.ragnarok.fenrir.mvp.core.AbsPresenter
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
-import dev.ragnarok.fenrir.spots.SpotsDialog
 import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
+import dev.ragnarok.fenrir.util.spots.SpotsDialog
 
 abstract class BaseMvpActivity<P : AbsPresenter<V>, V : IMvpView> : AbsMvpActivity<P, V>(),
     IMvpView {

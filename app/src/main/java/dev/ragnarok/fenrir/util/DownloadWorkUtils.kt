@@ -25,6 +25,7 @@ import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.hls.TSDemuxer
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.service.QuickReplyService
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
@@ -47,7 +48,7 @@ import java.util.*
 object DownloadWorkUtils {
     @SuppressLint("ConstantLocale")
     private val DOWNLOAD_DATE_FORMAT: DateFormat =
-        SimpleDateFormat("yyyyMMdd_HHmmss", Utils.getAppLocale())
+        SimpleDateFormat("yyyyMMdd_HHmmss", Utils.appLocale)
 
     private fun createNotification(
         context: Context,
@@ -63,6 +64,8 @@ object DownloadWorkUtils {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(fin)
             .setOngoing(!fin)
+            .setCategory(if (fin) NotificationCompat.CATEGORY_EVENT else NotificationCompat.CATEGORY_PROGRESS)
+            .setGroup(if (fin) "DOWNLOADING_OPERATION" else null)
             .setOnlyAlertOnce(true)
     }
 
@@ -114,7 +117,6 @@ object DownloadWorkUtils {
         return filename_temp
     }
 
-    @JvmStatic
     fun makeLegalFilename(filename: String, extension: String?): String {
         var result = makeLegalFilenameFull(filename)
         if (result.length > 90) result = result.substring(0, 90).trim { it <= ' ' }
@@ -123,7 +125,6 @@ object DownloadWorkUtils {
         return "$result.$extension"
     }
 
-    @JvmStatic
     fun makeLegalFilenameFromArg(filename: String?, extension: String?): String? {
         filename ?: return null
         var result = makeLegalFilenameFull(filename)
@@ -133,11 +134,10 @@ object DownloadWorkUtils {
         return "$result.$extension"
     }
 
-    private fun optString(value: String): String {
-        return if (Utils.isEmpty(value)) "" else value
+    private fun optString(value: String?): String {
+        return if (value.isNullOrEmpty()) "" else value
     }
 
-    @JvmStatic
     fun CheckDirectory(Path: String): Boolean {
         val dir_final = File(Path)
         return if (!dir_final.isDirectory) {
@@ -152,8 +152,8 @@ object DownloadWorkUtils {
         downloadRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         downloadRequest.setDescription(file.buildFilename())
         downloadRequest.setDestinationUri(Uri.fromFile(File(file.build())))
-        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        downloadManager.enqueue(downloadRequest)
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
+        downloadManager?.enqueue(downloadRequest)
     }
 
     private fun toDefaultInternalDownloader(context: Context, url: String, file: DownloadInfo) {
@@ -215,7 +215,7 @@ object DownloadWorkUtils {
         return MusicPlaybackController.tracksExist.isExistAllAudio(audioName)
     }
 
-    @JvmStatic
+
     fun GetLocalTrackLink(audio: Audio): String {
         if (audio.url.contains("file://") || audio.url.contains("content://"))
             return audio.url
@@ -223,7 +223,7 @@ object DownloadWorkUtils {
             .other().musicDir + "/" + makeLegalFilename(audio.artist + " - " + audio.title, "mp3")
     }
 
-    @JvmStatic
+
     fun doSyncRemoteAudio(context: Context) {
         val url =
             Settings.get()
@@ -251,7 +251,7 @@ object DownloadWorkUtils {
         }
     }
 
-    @JvmStatic
+
     fun doDownloadVideo(context: Context, video: Video, url: String, Res: String) {
         val result_filename = DownloadInfo(
             makeLegalFilename(
@@ -275,13 +275,13 @@ object DownloadWorkUtils {
         }
     }
 
-    @JvmStatic
+
     fun doDownloadVoice(context: Context, doc: VoiceMessage) {
-        if (Utils.isEmpty(doc.linkMp3) && Utils.isEmpty(doc.linkOgg))
+        if (doc.linkMp3.isNullOrEmpty() && doc.linkOgg.isNullOrEmpty())
             return
         val extDownload: String
         val urlDownload: String
-        if (!Utils.isEmpty(doc.linkOgg) && (Utils.isEmpty(doc.linkMp3) || Settings.get()
+        if (doc.linkOgg.nonNullNoEmpty() && (doc.linkMp3.isNullOrEmpty() || Settings.get()
                 .other().isDownload_voice_ogg)
         ) {
             extDownload = "ogg"
@@ -311,7 +311,7 @@ object DownloadWorkUtils {
         }
     }
 
-    @JvmStatic
+
     fun doDownloadSticker(context: Context, sticker: Sticker) {
         val link: String? = if (sticker.isAnimated) {
             Utils.firstNonEmptyString(
@@ -321,7 +321,7 @@ object DownloadWorkUtils {
         } else {
             sticker.getImage(256, false).url
         }
-        if (Utils.isEmpty(link))
+        if (link.isNullOrEmpty())
             return
         val result_filename = DownloadInfo(
             makeLegalFilename(sticker.id.toString(), null),
@@ -334,9 +334,9 @@ object DownloadWorkUtils {
         }
         try {
             if (!Settings.get().other().isUse_internal_downloader) {
-                toExternalDownloader(context, link!!, result_filename)
+                toExternalDownloader(context, link, result_filename)
             } else {
-                toDefaultInternalDownloader(context, link!!, result_filename)
+                toDefaultInternalDownloader(context, link, result_filename)
             }
             Utils.getCachedMyStickers()
                 .add(0, Sticker.LocalSticker(result_filename.build(), sticker.isAnimated))
@@ -354,12 +354,12 @@ object DownloadWorkUtils {
             ext_i = file.substring(pos + 1)
             file = file.substring(0, pos)
         }
-        return DownloadInfo(file, dir, ext_i)
+        return DownloadInfo(file, dir, ext_i!!)
     }
 
-    @JvmStatic
+
     fun doDownloadDoc(context: Context, doc: Document, force: Boolean): Int {
-        if (Utils.isEmpty(doc.url))
+        if (doc.url.isNullOrEmpty())
             return 2
         val result_filename =
             makeDoc(makeLegalFilename(doc.title, null), Settings.get().other().docDir, doc.ext)
@@ -388,7 +388,7 @@ object DownloadWorkUtils {
         return 0
     }
 
-    @JvmStatic
+
     fun doDownloadPhoto(context: Context, url: String, dir: String, file: String) {
         val result_filename = DownloadInfo(file, dir, "jpg")
         if (default_file_exist(context, result_filename)) {
@@ -406,7 +406,6 @@ object DownloadWorkUtils {
         }
     }
 
-    @JvmStatic
     fun doDownloadAudio(
         context: Context,
         audio: Audio,
@@ -414,7 +413,7 @@ object DownloadWorkUtils {
         Force: Boolean,
         isLocal: Boolean
     ): Int {
-        if (!Utils.isEmpty(audio.url) && (audio.url.contains("file://") || audio.url.contains("content://")))
+        if (audio.url.nonNullNoEmpty() && (audio.url.contains("file://") || audio.url.contains("content://")))
             return 3
 
         val result_filename = DownloadInfo(
@@ -473,7 +472,7 @@ object DownloadWorkUtils {
         return 0
     }
 
-    @JvmStatic
+
     fun makeDownloadRequestAudio(audio: Audio, account_id: Int): OneTimeWorkRequest {
         val result_filename = DownloadInfo(
             makeLegalFilename(audio.artist + " - " + audio.title, null),
@@ -493,7 +492,7 @@ object DownloadWorkUtils {
         return downloadWork.build()
     }
 
-    open class DefaultDownloadWorker(context: Context, workerParams: WorkerParameters) :
+    open class DefaultDownloadWorker(val context: Context, workerParams: WorkerParameters) :
         Worker(context, workerParams) {
         protected fun show_notification(
             notification: NotificationCompat.Builder,
@@ -503,7 +502,32 @@ object DownloadWorkUtils {
             if (cancel_id != null) {
                 mNotifyManager.cancel(getId().toString(), cancel_id)
             }
+            if (id == NotificationHelper.NOTIFICATION_DOWNLOAD) {
+                createGroupNotification()
+            }
             mNotifyManager.notify(getId().toString(), id, notification.build())
+        }
+
+        private fun createGroupNotification() {
+            if (!Utils.hasNougat()) {
+                return
+            }
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+                    ?: return
+            val barNotifications = notificationManager.activeNotifications
+            for (notification in barNotifications) {
+                if (notification.id == NotificationHelper.NOTIFICATION_DOWNLOADING_GROUP) {
+                    return
+                }
+            }
+            mNotifyManager.notify(
+                NotificationHelper.NOTIFICATION_DOWNLOADING_GROUP,
+                NotificationCompat.Builder(context, AppNotificationChannels.DOWNLOAD_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.save)
+                    .setCategory(NotificationCompat.CATEGORY_EVENT)
+                    .setGroup("DOWNLOADING_OPERATION").setGroupSummary(true).build()
+            )
         }
 
         @Suppress("DEPRECATION")
@@ -560,10 +584,12 @@ object DownloadWorkUtils {
                     file_v.setFile(file_v.file + "." + file_v.ext)
                     result.renameTo(File(file_v.setExt("error").build()))
                 }
-                Utils.inMainThread {
-                    CustomToast.CreateCustomToast(applicationContext)
-                        .showToastError(R.string.error_with_message, e.localizedMessage)
-                }
+                Utils.inMainThread(object : Utils.SafeCallInt {
+                    override fun call() {
+                        CustomToast.CreateCustomToast(applicationContext)
+                            .showToastError(R.string.error_with_message, e.localizedMessage)
+                    }
+                })
                 return false
             }
             return true
@@ -571,7 +597,7 @@ object DownloadWorkUtils {
 
         @Suppress("DEPRECATION")
         protected fun doDownload(
-            url: String,
+            url: String?,
             file_v: DownloadInfo,
             UseMediaScanner: Boolean
         ): Boolean {
@@ -594,7 +620,7 @@ object DownloadWorkUtils {
             val file = file_v.build()
             try {
                 FileOutputStream(file).use { output ->
-                    if (Utils.isEmpty(url)) throw Exception(applicationContext.getString(R.string.null_image_link))
+                    if (url.isNullOrEmpty()) throw Exception(applicationContext.getString(R.string.null_image_link))
                     val builder = Utils.createOkHttp(60)
                     val request: Request = Request.Builder()
                         .url(url)
@@ -606,17 +632,17 @@ object DownloadWorkUtils {
                                     " " + response.message
                         )
                     }
-                    val bfr = response.body!!.byteStream()
+                    val bfr = (response.body ?: return@use).byteStream()
                     val input = BufferedInputStream(bfr)
                     val data = ByteArray(80 * 1024)
                     var bufferLength: Int
                     var downloadedSize = 0L
                     var cntlength = response.header("Content-Length")
-                    if (Utils.isEmpty(cntlength)) {
+                    if (cntlength.isNullOrEmpty()) {
                         cntlength = response.header("Compressed-Content-Length")
                     }
                     var totalSize = 1L
-                    if (!Utils.isEmpty(cntlength)) totalSize = cntlength!!.toLong()
+                    if (cntlength.nonNullNoEmpty()) totalSize = cntlength.toLong()
                     while (input.read(data).also { bufferLength = it } != -1) {
                         if (isStopped) {
                             output.flush()
@@ -676,10 +702,12 @@ object DownloadWorkUtils {
                     file_v.setFile(file_v.file + "." + file_v.ext)
                     result.renameTo(File(file_v.setExt("error").build()))
                 }
-                Utils.inMainThread {
-                    CustomToast.CreateCustomToast(applicationContext)
-                        .showToastError(R.string.error_with_message, e.localizedMessage)
-                }
+                Utils.inMainThread(object : Utils.SafeCallInt {
+                    override fun call() {
+                        CustomToast.CreateCustomToast(applicationContext)
+                            .showToastError(R.string.error_with_message, e.localizedMessage)
+                    }
+                })
                 return false
             }
             return true
@@ -777,10 +805,12 @@ object DownloadWorkUtils {
                     NotificationHelper.NOTIFICATION_DOWNLOAD,
                     NotificationHelper.NOTIFICATION_DOWNLOADING
                 )
-                Utils.inMainThread {
-                    CustomToast.CreateCustomToast(applicationContext)
-                        .showToastBottom(R.string.saved)
-                }
+                Utils.inMainThread(object : Utils.SafeCallInt {
+                    override fun call() {
+                        CustomToast.CreateCustomToast(applicationContext)
+                            .showToastBottom(R.string.saved)
+                    }
+                })
             }
             return if (ret) Result.success() else Result.failure()
         }
@@ -805,18 +835,18 @@ object DownloadWorkUtils {
 
             val mode = audio.needRefresh()
             if (mode.first) {
-                val link: String? = RxUtils.BlockingGetSingle(
+                val link: String? = RxUtils.blockingGetSingle(
                     InteractorFactory
                         .createAudioInteractor()
                         .getByIdOld(account_id, listOf(audio), mode.second)
                         .map { e: List<Audio> -> e[0].url }, audio.url
                 )
-                if (!Utils.isEmpty(link)) {
+                if (link.nonNullNoEmpty()) {
                     audio.url = link
                 }
             }
 
-            if (Utils.isEmpty(audio.url) || !FenrirNative.isNativeLoaded() && audio.isHLS) {
+            if (audio.url.isNullOrEmpty() || !FenrirNative.isNativeLoaded() && audio.isHLS) {
                 return Result.failure()
             }
 
@@ -833,7 +863,7 @@ object DownloadWorkUtils {
                         audio.thumb_image_little
                     )
                 var updated_tag = false
-                if (needCover && !Utils.isEmpty(cover)) {
+                if (needCover && cover.nonNullNoEmpty()) {
                     val cover_file = DownloadInfo(file_v.file, file_v.path, "jpg")
                     if (doDownload(cover, cover_file, false)) {
                         try {
@@ -845,21 +875,21 @@ object DownloadWorkUtils {
                             val Cover = File(cover_file.build())
                             val newartwork = ArtworkFactory.createArtworkFromFile(Cover)
                             tag.setArtwork(newartwork)
-                            if (!Utils.isEmpty(audio.artist))
+                            if (audio.artist.nonNullNoEmpty())
                                 tag.setField(FieldKey.ARTIST, audio.artist)
-                            if (!Utils.isEmpty(audio.title))
+                            if (audio.title.nonNullNoEmpty())
                                 tag.setField(FieldKey.TITLE, audio.title)
-                            if (!Utils.isEmpty(audio.album_title))
+                            if (audio.album_title.nonNullNoEmpty())
                                 tag.setField(FieldKey.ALBUM, audio.album_title)
                             if (!tag.getValue(FieldKey.GENRE).isPresent && audio.genreByID3 != 0) {
                                 tag.setField(FieldKey.GENRE, audio.genreByID3.toString())
                             }
                             if (audio.lyricsId != 0) {
-                                val LyricString: String? = RxUtils.BlockingGetSingle(
+                                val LyricString: String? = RxUtils.blockingGetSingle(
                                     InteractorFactory.createAudioInteractor()
                                         .getLyrics(account_id, audio.lyricsId), null
                                 )
-                                if (Utils.isEmpty(LyricString)) {
+                                if (LyricString.isNullOrEmpty()) {
                                     tag.setField(
                                         FieldKey.COMMENT,
                                         "{owner_id=" + audio.ownerId + "_id=" + audio.id + "}"
@@ -887,10 +917,15 @@ object DownloadWorkUtils {
                             )
 
                         } catch (e: Throwable) {
-                            Utils.inMainThread {
-                                CustomToast.CreateCustomToast(applicationContext)
-                                    .showToastError(R.string.error_with_message, e.localizedMessage)
-                            }
+                            Utils.inMainThread(object : Utils.SafeCallInt {
+                                override fun call() {
+                                    CustomToast.CreateCustomToast(applicationContext)
+                                        .showToastError(
+                                            R.string.error_with_message,
+                                            e.localizedMessage
+                                        )
+                                }
+                            })
                             e.printStackTrace()
                         }
                     }
@@ -950,10 +985,12 @@ object DownloadWorkUtils {
                     NotificationHelper.NOTIFICATION_DOWNLOADING
                 )
                 MusicPlaybackController.tracksExist.addAudio(file_v.buildFilename())
-                Utils.inMainThread {
-                    CustomToast.CreateCustomToast(applicationContext)
-                        .showToastBottom(if (updated_tag) R.string.tag_modified else R.string.saved)
-                }
+                Utils.inMainThread(object : Utils.SafeCallInt {
+                    override fun call() {
+                        CustomToast.CreateCustomToast(applicationContext)
+                            .showToastBottom(if (updated_tag) R.string.tag_modified else R.string.saved)
+                    }
+                })
             }
             return if (ret) Result.success() else Result.failure()
         }

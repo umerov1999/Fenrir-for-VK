@@ -171,7 +171,7 @@ internal class MaterialRecyclerViewPopupWindow(
             // only set this if the dropdown is not always visible
             popup.isOutsideTouchable = true
             PopupWindowCompat.showAsDropDown(
-                popup, anchorView!!, dropDownHorizontalOffset,
+                popup, anchorView ?: return, dropDownHorizontalOffset,
                 dropDownVerticalOffset, dropDownGravity
             )
         }

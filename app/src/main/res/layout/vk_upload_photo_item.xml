@@ -23,13 +23,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
+                android:contentDescription="@null"
                 android:scaleType="centerCrop" />
 
             <ImageView
                 android:id="@+id/tint"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#9b000000" />
+                android:background="#9b000000"
+                android:contentDescription="@null" />
 
             <FrameLayout
                 android:id="@+id/progress_root"
@@ -42,6 +44,7 @@
                     android:layout_height="48dp"
                     android:layout_gravity="center"
                     android:background="@drawable/circle_back"
+                    android:contentDescription="@null"
                     android:padding="8dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/close"

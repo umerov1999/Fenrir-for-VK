@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/circle_back_white"
             android:backgroundTint="?colorPrimary"
+            android:contentDescription="@null"
             android:padding="12dp"
             android:src="@drawable/ic_external"
             app:tint="?white_color" />
@@ -29,7 +30,8 @@
             android:id="@+id/icon"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:layout_gravity="end|bottom" />
+            android:layout_gravity="end|bottom"
+            android:contentDescription="@null" />
 
     </FrameLayout>
 

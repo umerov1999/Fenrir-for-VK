@@ -41,7 +41,8 @@
                         android:id="@+id/avatar"
                         android:layout_width="@dimen/message_author_avatar_size"
                         android:layout_height="@dimen/message_author_avatar_size"
-                        android:layout_marginStart="4dp" />
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="@null" />
 
                     <dev.ragnarok.fenrir.view.MessageView
                         android:id="@+id/item_message_bubble"
@@ -116,6 +117,7 @@
                         android:layout_height="48dp"
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
+                        android:contentDescription="@null"
                         android:src="@drawable/reply"
                         android:text="@string/go_to_dialog"
                         app:tint="?quick_reply_icon_color" />
@@ -151,6 +153,7 @@
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/circle_back"
                         android:clickable="true"
+                        android:contentDescription="@null"
                         android:focusable="true"
                         android:padding="12dp"
                         android:scaleType="centerCrop"

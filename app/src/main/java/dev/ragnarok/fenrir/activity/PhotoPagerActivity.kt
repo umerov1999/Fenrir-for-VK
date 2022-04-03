@@ -24,7 +24,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.Callback
-import dev.ragnarok.fenrir.Extensions.Companion.fromIOToMain
+import com.squareup.picasso3.Rotatable
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.slidr.Slidr
@@ -34,6 +34,7 @@ import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
 import dev.ragnarok.fenrir.adapter.horizontal.ImageListAdapter
 import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -42,6 +43,7 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.photo.*
 import dev.ragnarok.fenrir.mvp.view.IPhotoPagerView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
@@ -49,11 +51,10 @@ import dev.ragnarok.fenrir.place.PlaceProvider
 import dev.ragnarok.fenrir.place.PlaceUtil
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.AppPerms
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.nonEmpty
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -74,7 +75,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         private const val ACTION_OPEN =
             "dev.ragnarok.fenrir.activity.PhotoPagerActivity"
 
-        @JvmStatic
+
         fun buildArgsForSimpleGallery(
             aid: Int, index: Int, photos: ArrayList<Photo>,
             needUpdate: Boolean
@@ -87,7 +88,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return args
         }
 
-        @JvmStatic
+
         fun buildArgsForAlbum(
             aid: Int,
             albumId: Int,
@@ -108,7 +109,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return args
         }
 
-        @JvmStatic
+
         fun buildArgsForAlbum(
             aid: Int,
             albumId: Int,
@@ -136,7 +137,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return args
         }
 
-        @JvmStatic
+
         fun buildArgsForAlbum(
             aid: Int,
             albumId: Int,
@@ -157,7 +158,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return args
         }
 
-        @JvmStatic
+
         fun buildArgsForFave(aid: Int, photos: ArrayList<Photo>, index: Int): Bundle {
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, aid)
@@ -166,8 +167,14 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return args
         }
 
-        @JvmStatic
-        fun newInstance(context: Context, placeType: Int, args: Bundle?): Intent {
+        private var mLastBackPressedTime: Long = 0
+
+
+        fun newInstance(context: Context, placeType: Int, args: Bundle?): Intent? {
+            if (mLastBackPressedTime + 1000 > System.currentTimeMillis()) {
+                return null
+            }
+            mLastBackPressedTime = System.currentTimeMillis()
             val ph = Intent(context, PhotoPagerActivity::class.java)
             val targetArgs = Bundle()
             targetArgs.putAll(args)
@@ -200,14 +207,13 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         }
     }
 
-    private val requestWritePermission = AppPerms.requestPermissionsActivity(
-        this,
+    private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        presenter?.fireWriteExternalStoragePermissionResolved()
+        lazyPresenter { fireWriteExternalStoragePermissionResolved() }
     }
 
     private var mViewPager: ViewPager2? = null
@@ -343,7 +349,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
     }
 
     override fun openPlace(place: Place) {
-        val args = place.args
+        val args = place.safeArguments()
         when (place.type) {
             Place.PLAYER -> {
                 val player = supportFragmentManager.findFragmentByTag("audio_player")
@@ -396,7 +402,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        if (!Utils.isHiddenCurrent()) {
+        if (!Utils.isHiddenCurrent) {
             menu.findItem(R.id.save_yourself).isVisible = mCanSaveYourself
             menu.findItem(R.id.action_delete).isVisible = mCanDelete
         } else {
@@ -739,7 +745,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(false, false)
+            .setBarsColored(colored = false, invertIcons = false)
             .build()
             .apply(this)
     }
@@ -764,11 +770,11 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             val url = photo_image.getUrlForSize(size, true)
             reload.setOnClickListener {
                 reload.visibility = View.INVISIBLE
-                if (nonEmpty(url)) {
+                if (url.nonNullNoEmpty()) {
                     loadImage(url)
                 } else PicassoInstance.with().cancelRequest(photo)
             }
-            if (nonEmpty(url)) {
+            if (url.nonNullNoEmpty()) {
                 loadImage(url)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
@@ -877,11 +883,19 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                 LayoutInflater.from(container.context)
                     .inflate(R.layout.content_photo_page, container, false)
             )
-            if (Settings.get().other().isDownload_photo_tap) {
-                ret.photo.setOnLongClickListener {
+            ret.photo.setOnLongClickListener {
+                if (Settings.get().other().isDownload_photo_tap) {
                     presenter?.fireSaveOnDriveClick()
-                    true
+                } else if (ret.photo.drawable is Rotatable) {
+                    var rot = (ret.photo.drawable as Rotatable).getRotation() + 45
+                    if (rot >= 360f) {
+                        rot = 0f
+                    }
+                    (ret.photo.drawable as Rotatable).rotate(rot)
+                    ret.photo.fitImageToView()
+                    ret.photo.invalidate()
                 }
+                true
             }
             ret.photo.setOnTouchListener { view: View, event: MotionEvent ->
                 if (event.pointerCount >= 2 || view.canScrollHorizontally(1) && view.canScrollHorizontally(

@@ -319,8 +319,7 @@ object ThemesController {
     ).toast("#4D7198", "#448AFF")
 
     private fun getCurrentTheme(): ThemeValue {
-        val key: String? = Settings.get().ui().mainThemeKey
-        key ?: return defaultTheme
+        val key: String = Settings.get().ui().mainThemeKey
 
         if (key == "random") {
             return randomTheme

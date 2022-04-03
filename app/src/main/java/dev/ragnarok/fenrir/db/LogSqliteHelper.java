@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 import dev.ragnarok.fenrir.db.column.LogColumns;
-import dev.ragnarok.fenrir.util.Objects;
 
 public class LogSqliteHelper extends SQLiteOpenHelper {
 
@@ -18,9 +17,9 @@ public class LogSqliteHelper extends SQLiteOpenHelper {
     }
 
     public static LogSqliteHelper getInstance(Context context) {
-        if (Objects.isNull(instance)) {
+        if (instance == null) {
             synchronized (LogSqliteHelper.class) {
-                if (Objects.isNull(instance)) {
+                if (instance == null) {
                     instance = new LogSqliteHelper(context.getApplicationContext());
                 }
             }

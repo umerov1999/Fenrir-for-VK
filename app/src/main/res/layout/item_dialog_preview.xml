@@ -26,7 +26,8 @@
                 android:layout_width="@dimen/avatar_size_chat"
                 android:layout_height="@dimen/avatar_size_chat"
                 android:layout_centerInParent="true"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:contentDescription="@null" />
 
             <TextView
                 android:id="@+id/empty_avatar_text"

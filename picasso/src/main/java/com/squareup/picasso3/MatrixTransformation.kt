@@ -15,35 +15,33 @@
  */
 package com.squareup.picasso3
 
-import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.graphics.Matrix
+import android.os.Build.VERSION
 import android.view.Gravity
 import androidx.annotation.VisibleForTesting
 import androidx.exifinterface.media.ExifInterface.*
 import com.squareup.picasso3.BitmapUtils.shouldResize
+import com.squareup.picasso3.RequestHandler.Result.Bitmap
 import kotlin.math.*
 
 internal class MatrixTransformation(private val data: Request) : Transformation {
-    override fun transform(source: RequestHandler.Result.Bitmap): RequestHandler.Result.Bitmap {
+    override fun transform(source: Bitmap): Bitmap {
         val sourceBitmap = source.bitmap
         val transformedBitmap = transformResult(data, sourceBitmap, source.exifRotation)
-        return RequestHandler.Result.Bitmap(
-            transformedBitmap,
-            source.loadedFrom,
-            source.exifRotation
-        )
+        return Bitmap(transformedBitmap, source.loadedFrom, source.exifRotation)
     }
 
     override fun key() = "matrixTransformation()"
 
     internal companion object {
         @VisibleForTesting
-        fun transformResult(
+        @JvmName("-transformResult")
+        internal fun transformResult(
             data: Request,
-            result: Bitmap,
+            result: android.graphics.Bitmap,
             exifOrientation: Int
-        ): Bitmap {
+        ): android.graphics.Bitmap {
             val inWidth = result.width
             val inHeight = result.height
             val onlyScaleDown = data.onlyScaleDown
@@ -103,8 +101,8 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
                 }
 
                 // EXIf interpretation should be done before cropping in case the dimensions need to
-                // be recalculated
-                if (exifOrientation != 0) {
+                // be recalculated; SDK 28+ uses ImageDecoder which handles EXIF orientation
+                if (exifOrientation != 0 && VERSION.SDK_INT < 28) {
                     val exifRotation = getExifRotation(exifOrientation)
                     val exifTranslation = getExifTranslation(exifOrientation)
                     if (exifRotation != 0) {
@@ -139,16 +137,12 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
                         widthRatio > heightRatio -> {
                             val newSize =
                                 ceil((inHeight * (heightRatio / widthRatio)).toDouble()).toInt()
-                            drawY = when {
-                                data.centerCropGravity and Gravity.TOP == Gravity.TOP -> {
-                                    0
-                                }
-                                data.centerCropGravity and Gravity.BOTTOM == Gravity.BOTTOM -> {
-                                    inHeight - newSize
-                                }
-                                else -> {
-                                    (inHeight - newSize) / 2
-                                }
+                            drawY = if (data.centerCropGravity and Gravity.TOP == Gravity.TOP) {
+                                0
+                            } else if (data.centerCropGravity and Gravity.BOTTOM == Gravity.BOTTOM) {
+                                inHeight - newSize
+                            } else {
+                                (inHeight - newSize) / 2
                             }
                             drawHeight = newSize
                             scaleX = widthRatio
@@ -157,16 +151,12 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
                         widthRatio < heightRatio -> {
                             val newSize =
                                 ceil((inWidth * (widthRatio / heightRatio)).toDouble()).toInt()
-                            drawX = when {
-                                data.centerCropGravity and Gravity.LEFT == Gravity.LEFT -> {
-                                    0
-                                }
-                                data.centerCropGravity and Gravity.RIGHT == Gravity.RIGHT -> {
-                                    inWidth - newSize
-                                }
-                                else -> {
-                                    (inWidth - newSize) / 2
-                                }
+                            drawX = if (data.centerCropGravity and Gravity.LEFT == Gravity.LEFT) {
+                                0
+                            } else if (data.centerCropGravity and Gravity.RIGHT == Gravity.RIGHT) {
+                                inWidth - newSize
+                            } else {
+                                (inWidth - newSize) / 2
                             }
                             drawWidth = newSize
                             scaleX = targetWidth / drawWidth.toFloat()
@@ -217,6 +207,7 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
         }
 
         @Suppress("MemberVisibilityCanBePrivate")
+        @JvmName("-getExifRotation")
         internal fun getExifRotation(orientation: Int) =
             when (orientation) {
                 ORIENTATION_ROTATE_90, ORIENTATION_TRANSPOSE -> 90
@@ -226,6 +217,7 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
             }
 
         @Suppress("MemberVisibilityCanBePrivate")
+        @JvmName("-getExifTranslation")
         internal fun getExifTranslation(orientation: Int) =
             when (orientation) {
                 ORIENTATION_FLIP_HORIZONTAL, ORIENTATION_FLIP_VERTICAL,
@@ -234,7 +226,7 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
             }
     }
 
-    override fun localTransform(source: Bitmap?): Bitmap? {
+    override fun localTransform(source: android.graphics.Bitmap?): android.graphics.Bitmap? {
         throw UnsupportedOperationException("MatrixTransformation")
     }
 }

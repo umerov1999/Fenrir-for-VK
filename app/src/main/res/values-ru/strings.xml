@@ -200,11 +200,6 @@
     <string name="enable_groupchat_vibro_title">Вибро</string>
     <string name="enable_groupchat_led_title">Светодиод</string>
 
-    <string name="enter_dir_name">Введите имя новой папки</string>
-    <string name="cannot_create_catalog">Каталог уже присутствует или вы ввели недопустимое имя каталога</string>
-    <string name="path_not_exist">Путь не существует или не может быть прочитан</string>
-    <string name="create_dir">Новая папка</string>
-
     <string name="quick_answer_title">Быстрый ответ</string>
 
     <string name="here">Сюда</string>
@@ -699,7 +694,6 @@
     <string name="share">Поделиться</string>
     <string name="new_comment">Новый комментарий</string>
     <string name="editing">Редактирование</string>
-    <string name="ready">Готово</string>
     <string name="add_document_to_yourself_commit">Добавить в свои документы ?</string>
     <string name="avatar_style_title">Стиль аватарок</string>
 
@@ -1345,7 +1339,7 @@
     <string name="use_stop_audio">Стоп вместо паузы аудио</string>
     <string name="use_long_click_download">Скачивать по долгому нажатию</string>
     <string name="download">Скачать"</string>
-    <string name="downloaded">Скаченные"</string>
+    <string name="downloaded">Скачанные"</string>
     <string name="downloading">Скачивание"</string>
     <string name="recommendation">Рекомендации"</string>
     <string name="biometric">Приложите палец к сканеру отпечатков</string>
@@ -1575,10 +1569,6 @@
     <string name="rotate_video">Поворот</string>
     <string name="popup">В окне</string>
     <string name="not_read_count">Непрочитанные: %1$d</string>
-    <string name="choose_button_label">Выбрать</string>
-    <string name="label_parent_directory">Родительский каталог</string>
-    <string name="last_edit">Модификация: %1$s, %2$s</string>
-    <string name="error_dir_access">Каталог недоступен</string>
     <string name="show_donate_anim">Донатная анимация</string>
     <string name="go_discography">Перейти к дискографии</string>
     <string name="reverse_time">От старых к новым</string>
@@ -1662,4 +1652,11 @@
     <string name="copy_value">Копировать</string>
     <string name="download_voice_ogg">Скачивать голосовые в ogg</string>
     <string name="error_hiding">Невозможно скрыть!</string>
+    <string name="limit_cache">Уменьшать кэш</string>
+    <string name="files_count_a">%1$d файл</string>
+    <string name="files_count_b">%1$d файла</string>
+    <string name="files_count_c">%1$d файлов</string>
+    <string name="select_file">Выбор %1$s</string>
+    <string name="select_folder">Выбор директории</string>
+    <string name="send_file_as_voice">Отправить файл как голосовую</string>
 </resources>

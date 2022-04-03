@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi
 import okio.*
 import java.io.IOException
 import java.nio.ByteBuffer
-import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
@@ -49,7 +48,7 @@ object BitmapUtils {
         } else null
     }
 
-    private fun requiresInSampleSize(options: BitmapFactory.Options?): Boolean {
+    fun requiresInSampleSize(options: BitmapFactory.Options?): Boolean {
         return options != null && options.inJustDecodeBounds
     }
 
@@ -78,34 +77,14 @@ object BitmapUtils {
     }
 
     fun calculateInSampleSize(
-        reqWidth: Int,
-        reqHeight: Int,
+        requestWidth: Int,
+        requestHeight: Int,
         width: Int,
         height: Int,
         options: BitmapFactory.Options,
         request: Request
     ) {
-        val sampleSize =
-            if (height > reqHeight || width > reqWidth) {
-                val heightRatio: Int
-                val widthRatio: Int
-                if (reqHeight == 0) {
-                    floor(width.toFloat() / reqWidth.toFloat()).toInt()
-                } else if (reqWidth == 0) {
-                    floor(height.toFloat() / reqHeight.toFloat()).toInt()
-                } else {
-                    heightRatio = floor(height.toFloat() / reqHeight.toFloat()).toInt()
-                    widthRatio = floor(width.toFloat() / reqWidth.toFloat()).toInt()
-                    if (request.centerInside)
-                        max(heightRatio, widthRatio)
-                    else
-                        min(heightRatio, widthRatio)
-                }
-            } else {
-                1
-            }
-
-        options.inSampleSize = sampleSize
+        options.inSampleSize = ratio(requestWidth, requestHeight, width, height, request)
         options.inJustDecodeBounds = false
     }
 
@@ -204,16 +183,42 @@ object BitmapUtils {
             }
             if (request.hasSize()) {
                 val size = imageInfo.size
-                if (shouldResize(
-                        request.onlyScaleDown, size.width, size.height,
-                        request.targetWidth, request.targetHeight
-                    )
-                ) {
-                    imageDecoder.setTargetSize(request.targetWidth, request.targetHeight)
+                val width = size.width
+                val height = size.height
+                val targetWidth = request.targetWidth
+                val targetHeight = request.targetHeight
+                if (shouldResize(request.onlyScaleDown, width, height, targetWidth, targetHeight)) {
+                    val ratio = ratio(targetWidth, targetHeight, width, height, request)
+                    imageDecoder.setTargetSize(width / ratio, height / ratio)
                 }
             }
         }
     }
+
+    private fun ratio(
+        requestWidth: Int,
+        requestHeight: Int,
+        width: Int,
+        height: Int,
+        request: Request
+    ): Int =
+        if (height > requestHeight || width > requestWidth) {
+            val ratio = if (requestHeight == 0) {
+                width / requestWidth
+            } else if (requestWidth == 0) {
+                height / requestHeight
+            } else {
+                val heightRatio = height / requestHeight
+                val widthRatio = width / requestWidth
+                if (request.centerInside)
+                    max(heightRatio, widthRatio)
+                else
+                    min(heightRatio, widthRatio)
+            }
+            if (ratio != 0) ratio else 1
+        } else {
+            1
+        }
 
     fun isXmlResource(resources: Resources, @DrawableRes drawableId: Int): Boolean {
         val typedValue = TypedValue()
@@ -223,7 +228,7 @@ object BitmapUtils {
     }
 
     internal class ExceptionCatchingSource(delegate: Source) : ForwardingSource(delegate) {
-        private var thrownException: IOException? = null
+        var thrownException: IOException? = null
 
         override fun read(sink: Buffer, byteCount: Long): Long {
             return try {

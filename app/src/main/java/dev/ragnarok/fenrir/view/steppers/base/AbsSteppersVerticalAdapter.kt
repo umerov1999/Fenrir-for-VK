@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.adapter.holder.SharedHolders
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.util.Objects
 import dev.ragnarok.fenrir.util.Utils
 
 abstract class AbsSteppersVerticalAdapter<H : AbsStepsHost<*>>(
@@ -25,7 +24,7 @@ abstract class AbsSteppersVerticalAdapter<H : AbsStepsHost<*>>(
         return mSharedHolders.findOneByEntityId(step)
     }
 
-    abstract fun createHolderForStep(parent: ViewGroup?, host: H, step: Int): AbsStepHolder<H>
+    abstract fun createHolderForStep(parent: ViewGroup, host: H, step: Int): AbsStepHolder<H>
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: AbsStepHolder<H>, position: Int) {
@@ -59,10 +58,7 @@ abstract class AbsSteppersVerticalAdapter<H : AbsStepsHost<*>>(
     }
 
     fun updateNextButtonAvailability(step: Int) {
-        val holder = findHolderByStepIndex(step)
-        if (Objects.nonNull(holder)) {
-            holder?.setNextButtonAvailable(mHost.canMoveNext(step))
-        }
+        findHolderByStepIndex(step)?.setNextButtonAvailable(mHost.canMoveNext(step))
     }
 
     override fun getItemCount(): Int {

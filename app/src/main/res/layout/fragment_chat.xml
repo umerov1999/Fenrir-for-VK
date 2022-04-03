@@ -35,6 +35,7 @@
                     android:id="@+id/toolbar_avatar"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:contentDescription="@null"
                     android:stateListAnimator="@animator/clicked" />
 
                 <TextView
@@ -104,6 +105,7 @@
                 android:layout_height="@dimen/avatar_size_tiny"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="12dp"
+                android:contentDescription="@null"
                 tools:ignore="ContentDescription" />
 
             <TextView
@@ -138,6 +140,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
                 android:padding="8dp"
                 android:src="@drawable/close"
                 app:tint="?attr/colorOnSurface" />
@@ -174,6 +177,7 @@
         android:layout_marginTop="@dimen/fab_margin"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="10dp"
+        android:contentDescription="@null"
         android:src="@drawable/ic_outline_keyboard_arrow_up"
         app:fabSize="mini" />
 
@@ -191,6 +195,7 @@
             android:layout_width="@dimen/avatar_size_small"
             android:layout_height="@dimen/avatar_size_small"
             android:layout_marginEnd="4dp"
+            android:contentDescription="@null"
             android:padding="8dp" />
 
         <TextView
@@ -210,6 +215,7 @@
             android:layout_height="@dimen/avatar_size_small"
             android:layout_centerInParent="true"
             android:layout_toEndOf="@id/writing"
+            android:contentDescription="@null"
             android:padding="10dp"
             android:src="@drawable/pencil"
             app:tint="?android:attr/textColorPrimary" />
@@ -240,6 +246,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
                 android:padding="8dp"
                 android:src="@drawable/pencil"
                 app:tint="?attr/colorOnSurface" />
@@ -274,6 +281,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
                 android:padding="8dp"
                 android:src="@drawable/close"
                 app:tint="?attr/colorOnSurface" />

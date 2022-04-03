@@ -40,7 +40,7 @@ class RLottieShapeableImageView @JvmOverloads constructor(
         if (layerColors == null) {
             layerColors = HashMap()
         }
-        layerColors!![layer] = color
+        (layerColors ?: return)[layer] = color
         animatedDrawable?.setLayerColor(layer, color)
     }
 
@@ -106,7 +106,7 @@ class RLottieShapeableImageView @JvmOverloads constructor(
         animatedDrawable?.setAutoRepeat(if (autoRepeat) 1 else 0)
         if (layerColors != null) {
             animatedDrawable?.beginApplyLayerColors()
-            for ((key, value) in layerColors!!) {
+            for ((key, value) in layerColors ?: return) {
                 animatedDrawable?.setLayerColor(key, value)
             }
             animatedDrawable?.commitApplyLayerColors()

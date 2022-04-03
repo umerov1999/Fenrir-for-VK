@@ -22,6 +22,7 @@
             android:id="@+id/icon"
             android:layout_width="@dimen/navi_drawer_icon_size"
             android:layout_height="@dimen/navi_drawer_icon_size"
+            android:contentDescription="@null"
             app:tint="?colorOnSurface"
             tools:src="@drawable/google_circles" />
 
