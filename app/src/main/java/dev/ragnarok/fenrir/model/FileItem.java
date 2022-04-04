@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-import dev.ragnarok.fenrir.module.StringExist;
+import dev.ragnarok.fenrir.module.StringHash;
 
 public class FileItem implements Parcelable {
 
@@ -58,11 +58,11 @@ public class FileItem implements Parcelable {
     }
 
     public int getFileNameHash() {
-        return StringExist.calculateCRC32(file_name);
+        return StringHash.INSTANCE.calculateCRC32(file_name);
     }
 
     public int getFilePathHash() {
-        return StringExist.calculateCRC32(file_path);
+        return StringHash.INSTANCE.calculateCRC32(file_path);
     }
 
     public String getFile_path() {

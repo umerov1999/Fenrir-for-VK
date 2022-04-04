@@ -173,15 +173,15 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             override fun create(): StoryPagerPresenter {
                 val aid = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val index = requireArguments().getInt(Extra.INDEX)
-                val stories: ArrayList<Story> = if (FenrirNative.isNativeLoaded() && Settings.get()
+                val stories: ArrayList<Story> = if (FenrirNative.isNativeLoaded && Settings.get()
                         .other().isNative_parcel_story
                 ) ParcelNative.loadParcelableArrayList(
                     requireArguments().getLong(
                         Extra.STORY
                     ), Story.NativeCreator, ParcelFlags.EMPTY_LIST
-                ) else
+                )!! else
                     requireArguments().getParcelableArrayList(Extra.STORY)!!
-                if (FenrirNative.isNativeLoaded() && Settings.get()
+                if (FenrirNative.isNativeLoaded && Settings.get()
                         .other().isNative_parcel_story
                 ) {
                     requireArguments().putLong(Extra.STORY, 0)
@@ -574,7 +574,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, aid)
             args.putInt(Extra.INDEX, index)
-            if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_story) {
+            if (FenrirNative.isNativeLoaded && Settings.get().other().isNative_parcel_story) {
                 args.putLong(
                     Extra.STORY,
                     ParcelNative.createParcelableList(stories, ParcelFlags.NULL_LIST)

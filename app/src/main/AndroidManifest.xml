@@ -505,7 +505,9 @@
             android:name=".activity.AccountsActivity"
             android:label="@string/account_manager" />
 
-        <activity android:name=".activity.FileManagerActivity" />
+        <activity
+            android:name=".activity.FileManagerSelectActivity"
+            android:theme="@style/App.DayNight.Swipes" />
 
         <activity
             android:name=".activity.PhotoAlbumsActivity"

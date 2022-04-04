@@ -630,7 +630,7 @@ class SliderPanel : FrameLayout {
         isMotionEventSplittingEnabled = false
 
         // Setup the dimmer view
-        scrimPaint = Paint()
+        scrimPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         if (config.getScrimColor() >= 0) {
             scrimPaint.color = config.getScrimColor()
             scrimPaint.alpha = toAlpha(config.getScrimStartAlpha())

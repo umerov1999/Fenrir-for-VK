@@ -846,7 +846,7 @@ object DownloadWorkUtils {
                 }
             }
 
-            if (audio.url.isNullOrEmpty() || !FenrirNative.isNativeLoaded() && audio.isHLS) {
+            if (audio.url.isNullOrEmpty() || !FenrirNative.isNativeLoaded && audio.isHLS) {
                 return Result.failure()
             }
 

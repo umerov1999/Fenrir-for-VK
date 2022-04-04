@@ -57,7 +57,7 @@ class SearchPhotosAdapter(
     }
 
     private fun bindPhotoViewHolder(holder: PhotoViewHolder, position: Int, photo: Photo) {
-        if (FenrirNative.isNativeLoaded()) {
+        if (FenrirNative.isNativeLoaded) {
             if (currentPosition == position) {
                 holder.current.visibility = View.VISIBLE
                 holder.current.fromRes(

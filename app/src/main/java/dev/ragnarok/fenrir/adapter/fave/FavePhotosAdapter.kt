@@ -46,7 +46,7 @@ class FavePhotosAdapter(context: Context, private var data: List<Photo>) :
         viewHolder.vgBottom.setBackgroundColor(Utils.adjustAlpha(colorPrimary, 0.75f))
         viewHolder.vgBottom.visibility =
             if (photo.likesCount + photo.commentsCount > 0) View.VISIBLE else View.GONE
-        if (FenrirNative.isNativeLoaded()) {
+        if (FenrirNative.isNativeLoaded) {
             if (currentPosition == position) {
                 viewHolder.current.visibility = View.VISIBLE
                 viewHolder.current.fromRes(

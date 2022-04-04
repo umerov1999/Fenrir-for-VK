@@ -114,7 +114,7 @@ class AccountAdapter(
             .accounts()
             .current
         holder.active.visibility = if (isCurrent) View.VISIBLE else View.INVISIBLE
-        if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded()) {
+        if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
             if (isCurrent) {
                 holder.active.fromRes(
                     R.raw.select_check_box, Utils.dp(40f), Utils.dp(40f), intArrayOf(

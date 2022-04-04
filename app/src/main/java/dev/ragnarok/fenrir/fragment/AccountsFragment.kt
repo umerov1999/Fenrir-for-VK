@@ -29,7 +29,7 @@ import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.EnterPinActivity
-import dev.ragnarok.fenrir.activity.FileManagerActivity
+import dev.ragnarok.fenrir.activity.FileManagerSelectActivity
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.ProxyManagerActivity
 import dev.ragnarok.fenrir.adapter.AccountAdapter
@@ -46,7 +46,10 @@ import dev.ragnarok.fenrir.longpoll.LongpollInstance.longpollManager
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
-import dev.ragnarok.fenrir.model.*
+import dev.ragnarok.fenrir.model.Account
+import dev.ragnarok.fenrir.model.IOwnersBundle
+import dev.ragnarok.fenrir.model.SaveAccount
+import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.place.PlaceFactory.getPreferencesPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.backup.SettingsBackup
@@ -378,9 +381,11 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
             .compose(applySingleIOToMainSchedulers())
             .subscribe({
                 mSwipeRefreshLayout?.isRefreshing = false
+                val sz = mData?.size ?: 0
                 mData?.clear()
+                mAdapter?.notifyItemRangeRemoved(0, sz)
                 mData?.addAll(it)
-                mAdapter?.notifyDataSetChanged()
+                mAdapter?.notifyItemRangeInserted(0, it.size)
                 resolveEmptyText()
                 if (isAdded && mData.isNullOrEmpty()) {
                     requireActivity().invalidateOptionsMenu()
@@ -392,7 +397,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
     @Suppress("DEPRECATION")
     private fun startExportAccounts() {
         exportAccounts.launch(
-            FileManagerActivity.makeFileManager(
+            FileManagerSelectActivity.makeFileManager(
                 requireActivity(),
                 Environment.getExternalStorageDirectory().absolutePath,
                 "dirs"
@@ -413,14 +418,16 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
 
     private fun merge(account: Account) {
         val index = indexOf(account.id)
-        mData?.nonNullNoEmpty {
+        mData?.let {
             if (index != -1) {
                 it[index] = account
+                mAdapter?.notifyItemChanged(index)
             } else {
+                val sz = it.size
                 it.add(account)
+                mAdapter?.notifyItemInserted(sz)
             }
         }
-        mAdapter?.notifyDataSetChanged()
         resolveEmptyText()
     }
 
@@ -457,7 +464,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         mCompositeDisposable.add(
             mOwnersInteractor.getBaseOwnerInfo(uid, uid, IOwnersRepository.MODE_ANY)
                 .compose(applySingleIOToMainSchedulers())
-                .subscribe({ owner: Owner? -> merge(Account(uid, owner)) }) { })
+                .subscribe({ merge(Account(uid, it)) }) { })
     }
 
     private fun startLoginViaWeb() {
@@ -505,8 +512,9 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
             .remove(account.id)
         DBHelper.removeDatabaseFor(requireActivity(), account.id)
         longpollManager.forceDestroy(account.id)
+        val pos = indexOf(account.id)
         mData?.remove(account)
-        mAdapter?.notifyDataSetChanged()
+        mAdapter?.notifyItemRemoved(pos)
         resolveEmptyText()
     }
 
@@ -685,7 +693,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
     @Suppress("DEPRECATION")
     private fun startImportAccounts() {
         importAccounts.launch(
-            FileManagerActivity.makeFileManager(
+            FileManagerSelectActivity.makeFileManager(
                 requireActivity(),
                 Environment.getExternalStorageDirectory().absolutePath,
                 "json"

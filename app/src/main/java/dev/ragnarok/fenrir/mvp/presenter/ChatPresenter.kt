@@ -1061,7 +1061,7 @@ class ChatPresenter(
         CustomToast.CreateCustomToast(context).showToastInfo(R.string.do_convert)
         appendDisposable(
             Single.create<Boolean> {
-                it.onSuccess(ToMp4Audio.ToMp4Audio(file, to.absolutePath))
+                it.onSuccess(ToMp4Audio.encodeToMp4Audio(file, to.absolutePath))
             }.fromIOToMain()
                 .subscribe({ o ->
                     if (o) {

@@ -69,7 +69,7 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
             holder.special_title.visibility = View.INVISIBLE
         }
         holder.selected.visibility = if (isSelected) View.VISIBLE else View.GONE
-        if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded()) {
+        if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
             if (isSelected) {
                 holder.selected.fromRes(
                     R.raw.theme_selected,
@@ -108,7 +108,7 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
         holder.primary.setBackgroundColor(if (isDark) category.colorNightPrimary else category.colorDayPrimary)
         holder.secondary.setBackgroundColor(if (isDark) category.colorNightSecondary else category.colorDaySecondary)
         holder.selected.visibility = if (isSelected) View.VISIBLE else View.GONE
-        if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded()) {
+        if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
             if (isSelected) {
                 holder.selected.fromRes(
                     R.raw.theme_selected,

@@ -126,7 +126,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             args.putInt(Extra.INDEX, position)
             args.putBoolean(Extra.READONLY, readOnly)
             args.putBoolean(Extra.INVERT, invert)
-            if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_photo) {
+            if (FenrirNative.isNativeLoaded && Settings.get().other().isNative_parcel_photo) {
                 args.putLong(
                     EXTRA_PHOTOS,
                     ParcelNative.createParcelableList(photos, ParcelFlags.NULL_LIST)
@@ -483,14 +483,14 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                         val readOnly = requireArguments().getBoolean(Extra.READONLY)
                         val invert = requireArguments().getBoolean(Extra.INVERT)
                         val photos_album: ArrayList<Photo> =
-                            if (FenrirNative.isNativeLoaded() && Settings.get()
+                            if (FenrirNative.isNativeLoaded && Settings.get()
                                     .other().isNative_parcel_photo
                             ) ParcelNative.loadParcelableArrayList(
                                 requireArguments().getLong(
                                     EXTRA_PHOTOS
                                 ), Photo.NativeCreator, ParcelFlags.MUTABLE_LIST
-                            ) else requireArguments().getParcelableArrayList(EXTRA_PHOTOS)!!
-                        if (FenrirNative.isNativeLoaded() && Settings.get()
+                            )!! else requireArguments().getParcelableArrayList(EXTRA_PHOTOS)!!
+                        if (FenrirNative.isNativeLoaded && Settings.get()
                                 .other().isNative_parcel_photo
                         ) {
                             requireArguments().putLong(EXTRA_PHOTOS, 0)
@@ -520,7 +520,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                         )
                     }
                     Place.VK_PHOTO_TMP_SOURCE -> {
-                        if (!FenrirNative.isNativeLoaded() || !Settings.get()
+                        if (!FenrirNative.isNativeLoaded || !Settings.get()
                                 .other().isNative_parcel_photo
                         ) {
                             val source: TmpSource = requireArguments().getParcelable(Extra.SOURCE)!!

@@ -14,7 +14,7 @@ import dev.ragnarok.fenrir.util.Utils
 class OnlineView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     AppCompatImageView(context, attrs) {
     companion object {
-        private val PAINT = Paint()
+        private val PAINT = Paint(Paint.ANTI_ALIAS_FLAG)
 
         init {
             PAINT.style = Paint.Style.FILL

@@ -72,7 +72,7 @@ class ChatAttachmentPhotoPresenter(peerId: Int, accountId: Int, savedInstanceSta
     }
 
     fun firePhotoClick(position: Int) {
-        if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_photo) {
+        if (FenrirNative.isNativeLoaded && Settings.get().other().isNative_parcel_photo) {
             view?.goToTempPhotosGallery(
                 accountId,
                 ParcelNative.createParcelableList(data, ParcelFlags.NULL_LIST),

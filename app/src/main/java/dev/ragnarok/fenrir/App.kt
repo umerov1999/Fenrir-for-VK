@@ -38,13 +38,21 @@ class App : Application() {
         super.onCreate()
         AppCompatDelegate.setDefaultNightMode(Settings.get().ui().nightMode)
         if (Settings.get().other().isEnable_native) {
-            FenrirNative.loadNativeLibrary { PersistentLogger.logThrowable("NativeError", it) }
+            FenrirNative.loadNativeLibrary(object : FenrirNative.NativeOnException {
+                override fun onException(e: Error) {
+                    PersistentLogger.logThrowable("NativeError", e)
+                }
+            })
         }
         FenrirNative.updateAppContext(this)
-        FenrirNative.updateDensity { Utils.density }
+        FenrirNative.updateDensity(object : FenrirNative.OnGetDensity {
+            override fun get(): Float {
+                return Utils.density
+            }
+        })
         ConstructorConstructor.setLogUnsafe(Settings.get().other().isDeveloper_mode)
 
-        if (FenrirNative.isNativeLoaded()) {
+        if (FenrirNative.isNativeLoaded) {
             MusicPlaybackController.tracksExist = FileExistNative()
         } else {
             MusicPlaybackController.tracksExist = FileExistJVM()
@@ -115,12 +123,10 @@ class App : Application() {
         @Volatile
         private var sApplicationHandler: Handler? = null
 
-
         val applicationHandler: Handler?
             get() {
                 return sApplicationHandler
             }
-
 
         val instance: App
             get() {

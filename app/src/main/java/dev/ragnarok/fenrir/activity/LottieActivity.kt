@@ -111,7 +111,7 @@ class LottieActivity : AppCompatActivity() {
     @Suppress("DEPRECATION")
     private fun startExportGif() {
         fManager.launch(
-            FileManagerActivity.makeFileManager(
+            FileManagerSelectActivity.makeFileManager(
                 this, Environment.getExternalStorageDirectory().absolutePath,
                 "dirs"
             )
@@ -128,7 +128,7 @@ class LottieActivity : AppCompatActivity() {
         lg = findViewById(R.id.log_tag)
         toGif = findViewById(R.id.lottie_to_gif)
         toGif?.setOnClickListener {
-            if (!FenrirNative.isNativeLoaded()) {
+            if (!FenrirNative.isNativeLoaded) {
                 return@setOnClickListener
             }
             if (!AppPerms.hasReadWriteStoragePermission(this)) {

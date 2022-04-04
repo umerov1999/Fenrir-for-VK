@@ -300,7 +300,7 @@ class VkPhotosPresenter(
     }
 
     fun updateInfo(position: Int, ptr: Long) {
-        val p = ParcelNative.fromNative(ptr).readParcelableList(Photo.NativeCreator)
+        val p = ParcelNative.fromNative(ptr).readParcelableList(Photo.NativeCreator)!!
         photos.clear()
         photos.addAll(wrappersOf(p))
         photos[position].current = true
@@ -422,7 +422,7 @@ class VkPhotosPresenter(
     fun firePhotoClick(wrapper: SelectablePhotoWrapper) {
         var Index = 0
         var trig = false
-        if (!FenrirNative.isNativeLoaded() || !Settings.get().other().isNative_parcel_photo) {
+        if (!FenrirNative.isNativeLoaded || !Settings.get().other().isNative_parcel_photo) {
             val photos_ret = ArrayList<Photo>(photos.size)
             for (i in photos.indices) {
                 val photo = photos[i]

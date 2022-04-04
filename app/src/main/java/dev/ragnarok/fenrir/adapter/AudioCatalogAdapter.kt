@@ -16,7 +16,7 @@ import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.*
-import dev.ragnarok.fenrir.module.StringExist
+import dev.ragnarok.fenrir.module.StringHash
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.place.PlaceFactory.getAudiosInAlbumPlace
@@ -87,7 +87,7 @@ class AudioCatalogAdapter(
                 LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
             holder.list?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
             holder.list?.adapter = adapter
-            holder.list?.updateUid(StringExist.calculateCRC32(category.id))
+            holder.list?.updateUid(StringHash.calculateCRC32(category.id))
         } else if (category.audios.nonNullNoEmpty()) {
             val current = currentAudio
             val scroll_to = category.audios.indexOf(current)
@@ -105,7 +105,7 @@ class AudioCatalogAdapter(
                 StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL)
             holder.list?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
             holder.list?.adapter = adapter
-            holder.list?.updateUid(StringExist.calculateCRC32(category.id))
+            holder.list?.updateUid(StringHash.calculateCRC32(category.id))
             if (scroll_to >= 0) holder.list?.scrollToPosition(scroll_to)
         } else if (category.videos.nonNullNoEmpty()) {
             val adapter = VideosAdapter(mContext, category.videos)
@@ -115,7 +115,7 @@ class AudioCatalogAdapter(
                 LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
             holder.list?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
             holder.list?.adapter = adapter
-            holder.list?.updateUid(StringExist.calculateCRC32(category.id))
+            holder.list?.updateUid(StringHash.calculateCRC32(category.id))
         } else if (category.links.nonNullNoEmpty()) {
             val adapter = CatalogLinksAdapter(category.links)
             adapter.setActionListener(this)
@@ -124,7 +124,7 @@ class AudioCatalogAdapter(
                 LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
             holder.list?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
             holder.list?.adapter = adapter
-            holder.list?.updateUid(StringExist.calculateCRC32(category.id))
+            holder.list?.updateUid(StringHash.calculateCRC32(category.id))
         } else holder.list?.visibility = View.GONE
     }
 

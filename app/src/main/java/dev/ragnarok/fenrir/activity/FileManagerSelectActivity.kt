@@ -10,7 +10,7 @@ import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.fragment.FileManagerSelectFragment
 import dev.ragnarok.fenrir.settings.CurrentTheme
 
-class FileManagerActivity : NoMainActivity() {
+class FileManagerSelectActivity : NoMainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Slidr.attach(
@@ -39,14 +39,14 @@ class FileManagerActivity : NoMainActivity() {
 
     companion object {
         fun makeFileManager(context: Context, path: String, ext: String?): Intent {
-            val intent = Intent(context, FileManagerActivity::class.java)
+            val intent = Intent(context, FileManagerSelectActivity::class.java)
             intent.putExtra(Extra.PATH, path)
             intent.putExtra(Extra.EXT, ext)
             return intent
         }
 
         fun makeFileManager(context: Context, path: String, ext: String?, header: String?): Intent {
-            val intent = Intent(context, FileManagerActivity::class.java)
+            val intent = Intent(context, FileManagerSelectActivity::class.java)
             intent.putExtra(Extra.PATH, path)
             intent.putExtra(Extra.EXT, ext)
             header?.let {

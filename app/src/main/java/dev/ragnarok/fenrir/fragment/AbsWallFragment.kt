@@ -88,7 +88,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
             7 -> paganSymbol?.setImageResource(R.drawable.ic_celtic_knot)
             8 -> paganSymbol?.setImageResource(R.drawable.ic_celtic_flower)
             9 -> paganSymbol?.setImageResource(R.drawable.ic_slepnir)
-            10 -> if (FenrirNative.isNativeLoaded()) {
+            10 -> if (FenrirNative.isNativeLoaded) {
                 paganSymbol?.fromRes(
                     R.raw.fenrir, dp(140f), dp(140f), intArrayOf(
                         0x333333,

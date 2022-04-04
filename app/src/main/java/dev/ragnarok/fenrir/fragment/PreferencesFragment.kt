@@ -1304,7 +1304,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         return@onClick true
                     }
                     musicDir.launch(
-                        FileManagerActivity.makeFileManager(
+                        FileManagerSelectActivity.makeFileManager(
                             requireActivity(),
                             Environment.getExternalStorageDirectory().absolutePath,
                             "dirs"
@@ -1323,7 +1323,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         return@onClick true
                     }
                     photoDir.launch(
-                        FileManagerActivity.makeFileManager(
+                        FileManagerSelectActivity.makeFileManager(
                             requireActivity(),
                             Environment.getExternalStorageDirectory().absolutePath,
                             "dirs"
@@ -1342,7 +1342,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         return@onClick true
                     }
                     videoDir.launch(
-                        FileManagerActivity.makeFileManager(
+                        FileManagerSelectActivity.makeFileManager(
                             requireActivity(),
                             Environment.getExternalStorageDirectory().absolutePath,
                             "dirs"
@@ -1361,7 +1361,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         return@onClick true
                     }
                     docDir.launch(
-                        FileManagerActivity.makeFileManager(
+                        FileManagerSelectActivity.makeFileManager(
                             requireActivity(),
                             Environment.getExternalStorageDirectory().absolutePath,
                             "dirs"
@@ -1380,7 +1380,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         return@onClick true
                     }
                     stickerDir.launch(
-                        FileManagerActivity.makeFileManager(
+                        FileManagerSelectActivity.makeFileManager(
                             requireActivity(),
                             Environment.getExternalStorageDirectory().absolutePath,
                             "dirs"
@@ -1670,7 +1670,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         return@onClick true
                     }
                     fixTimeDir.launch(
-                        FileManagerActivity.makeFileManager(
+                        FileManagerSelectActivity.makeFileManager(
                             requireActivity(),
                             Environment.getExternalStorageDirectory().absolutePath,
                             "dirs"
@@ -1721,7 +1721,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onClick {
                     val view = View.inflate(requireActivity(), R.layout.dialog_about_us, null)
                     val anim: RLottieImageView = view.findViewById(R.id.lottie_animation)
-                    if (FenrirNative.isNativeLoaded()) {
+                    if (FenrirNative.isNativeLoaded) {
                         anim.fromRes(
                             R.raw.fenrir,
                             Utils.dp(100f),

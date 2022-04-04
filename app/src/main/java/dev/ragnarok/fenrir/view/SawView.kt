@@ -12,7 +12,7 @@ import dev.ragnarok.fenrir.util.Utils
 
 class SawView(context: Context, attrs: AttributeSet) : View(context, attrs) {
     companion object {
-        private val FILL_PAINT = Paint()
+        private val FILL_PAINT = Paint(Paint.ANTI_ALIAS_FLAG)
         private val PATH = Path()
         private const val SIDE_DOWN = 1
         private const val SIDE_UP = 2

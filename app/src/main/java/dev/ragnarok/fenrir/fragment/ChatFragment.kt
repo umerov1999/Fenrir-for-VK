@@ -529,7 +529,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             return
         }
         requestFile.launch(
-            FileManagerActivity.makeFileManager(
+            FileManagerSelectActivity.makeFileManager(
                 requireActivity(),
                 Environment.getExternalStorageDirectory().absolutePath,
                 null, getString(R.string.send_file_as_voice)
@@ -1664,7 +1664,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         )
     ) {
         requestFile.launch(
-            FileManagerActivity.makeFileManager(
+            FileManagerSelectActivity.makeFileManager(
                 requireActivity(),
                 Environment.getExternalStorageDirectory().absolutePath,
                 null, getString(R.string.send_file_as_voice)

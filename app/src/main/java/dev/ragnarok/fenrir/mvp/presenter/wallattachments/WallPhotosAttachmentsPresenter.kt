@@ -41,7 +41,7 @@ class WallPhotosAttachmentsPresenter(
     }
 
     fun firePhotoClick(position: Int) {
-        if (FenrirNative.isNativeLoaded() && Settings.get().other().isNative_parcel_photo) {
+        if (FenrirNative.isNativeLoaded && Settings.get().other().isNative_parcel_photo) {
             view?.goToTempPhotosGallery(
                 accountId,
                 ParcelNative.createParcelableList(mPhotos, ParcelFlags.NULL_LIST),

@@ -8,6 +8,7 @@ import androidx.annotation.RawRes
 import com.google.android.material.imageview.ShapeableImageView
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.animation.AnimatedFileDrawable
 import dev.ragnarok.fenrir.util.RxUtils
@@ -41,7 +42,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
     }
 
     private fun setAnimationByUrlCache(url: String, fade: Boolean) {
-        if (!FenrirNative.isNativeLoaded()) {
+        if (!FenrirNative.isNativeLoaded) {
             decoderCallback?.onLoaded(false)
             return
         }
@@ -51,14 +52,25 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
             decoderCallback?.onLoaded(false)
             return
         }
-        setAnimation(AnimatedFileDrawable(ch, 0, defaultWidth, defaultHeight, fade) {
-            decoderCallback?.onLoaded(false)
-        })
+        setAnimation(
+            AnimatedFileDrawable(
+                ch,
+                0,
+                defaultWidth,
+                defaultHeight,
+                fade,
+                object : AnimatedFileDrawable.DecoderListener {
+                    override fun onError() {
+                        decoderCallback?.onLoaded(false)
+                    }
+
+                })
+        )
         playAnimation()
     }
 
     private fun setAnimationByResCache(@RawRes res: Int, fade: Boolean) {
-        if (!FenrirNative.isNativeLoaded()) {
+        if (!FenrirNative.isNativeLoaded) {
             decoderCallback?.onLoaded(false)
             return
         }
@@ -68,14 +80,25 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
             decoderCallback?.onLoaded(false)
             return
         }
-        setAnimation(AnimatedFileDrawable(ch, 0, defaultWidth, defaultHeight, fade) {
-            decoderCallback?.onLoaded(false)
-        })
+        setAnimation(
+            AnimatedFileDrawable(
+                ch,
+                0,
+                defaultWidth,
+                defaultHeight,
+                fade,
+                object : AnimatedFileDrawable.DecoderListener {
+                    override fun onError() {
+                        decoderCallback?.onLoaded(false)
+                    }
+
+                })
+        )
         playAnimation()
     }
 
     fun fromNet(key: String, url: String?, client: OkHttpClient.Builder) {
-        if (!FenrirNative.isNativeLoaded() || url == null || url.isEmpty()) {
+        if (!FenrirNative.isNativeLoaded || url == null || url.isEmpty()) {
             decoderCallback?.onLoaded(false)
             return
         }
@@ -104,7 +127,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
                 return@SingleOnSubscribe
             }
             u.onSuccess(true)
-        } as SingleOnSubscribe<Boolean>).compose(RxUtils.applySingleComputationToMainSchedulers())
+        }).fromIOToMain()
             .subscribe(
                 { u: Boolean ->
                     if (u) {
@@ -117,7 +140,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
     }
 
     fun fromRes(@RawRes res: Int) {
-        if (!FenrirNative.isNativeLoaded()) {
+        if (!FenrirNative.isNativeLoaded) {
             decoderCallback?.onLoaded(false)
             return
         }
@@ -138,7 +161,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
                 return@SingleOnSubscribe
             }
             u.onSuccess(true)
-        } as SingleOnSubscribe<Boolean>).compose(RxUtils.applySingleComputationToMainSchedulers())
+        }).fromIOToMain()
             .subscribe(
                 { u: Boolean ->
                     if (u) {
@@ -159,14 +182,25 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
     }
 
     fun fromFile(file: File) {
-        if (!FenrirNative.isNativeLoaded()) {
+        if (!FenrirNative.isNativeLoaded) {
             decoderCallback?.onLoaded(false)
             return
         }
         clearAnimationDrawable()
-        setAnimation(AnimatedFileDrawable(file, 0, defaultWidth, defaultHeight, false) {
-            decoderCallback?.onLoaded(false)
-        })
+        setAnimation(
+            AnimatedFileDrawable(
+                file,
+                0,
+                defaultWidth,
+                defaultHeight,
+                false,
+                object : AnimatedFileDrawable.DecoderListener {
+                    override fun onError() {
+                        decoderCallback?.onLoaded(false)
+                    }
+
+                })
+        )
     }
 
     fun clearAnimationDrawable() {
@@ -268,7 +302,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
 
     private fun copyRes(@RawRes rawRes: Int): Boolean {
         try {
-            FenrirNative.getAppContext().resources.openRawResource(rawRes).use { inputStream ->
+            context.resources.openRawResource(rawRes).use { inputStream ->
                 val out = File(
                     parentResDir(
                         context

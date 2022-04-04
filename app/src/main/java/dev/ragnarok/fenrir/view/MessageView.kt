@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import dev.ragnarok.fenrir.R
 
 class MessageView : LinearLayout {
-    private val FILL_PAINT = Paint()
+    private val FILL_PAINT = Paint(Paint.ANTI_ALIAS_FLAG)
     private val PATH = Path()
     private val DEFAULT_RADIUS = 10f
     private var radius_top_left = DEFAULT_RADIUS

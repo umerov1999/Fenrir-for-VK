@@ -1023,49 +1023,48 @@ object Utils {
 
 
     fun createGradientChatImage(width: Int, height: Int, owner_id: Int): Bitmap {
-        val pp = owner_id % 10
-        var Color1 = "#D81B60"
-        var Color2 = "#F48FB1"
-        when (pp) {
-            0 -> {
-                Color1 = "#FF0061"
-                Color2 = "#FF4200"
-            }
+        val color1: String
+        val color2: String
+        when (owner_id % 10) {
             1 -> {
-                Color1 = "#00ABD6"
-                Color2 = "#8700D6"
+                color1 = "#00ABD6"
+                color2 = "#8700D6"
             }
             2 -> {
-                Color1 = "#FF7900"
-                Color2 = "#FF9500"
+                color1 = "#FF7900"
+                color2 = "#FF9500"
             }
             3 -> {
-                Color1 = "#55D600"
-                Color2 = "#00D67A"
+                color1 = "#55D600"
+                color2 = "#00D67A"
             }
             4 -> {
-                Color1 = "#9400D6"
-                Color2 = "#D6008E"
+                color1 = "#9400D6"
+                color2 = "#D6008E"
             }
             5 -> {
-                Color1 = "#cd8fff"
-                Color2 = "#9100ff"
+                color1 = "#cd8fff"
+                color2 = "#9100ff"
             }
             6 -> {
-                Color1 = "#ff7f69"
-                Color2 = "#fe0bdb"
+                color1 = "#ff7f69"
+                color2 = "#fe0bdb"
             }
             7 -> {
-                Color1 = "#FE790B"
-                Color2 = "#0BFEAB"
+                color1 = "#FE790B"
+                color2 = "#0BFEAB"
             }
             8 -> {
-                Color1 = "#9D0BFE"
-                Color2 = "#0BFEAB"
+                color1 = "#9D0BFE"
+                color2 = "#0BFEAB"
             }
             9 -> {
-                Color1 = "#9D0BFE"
-                Color2 = "#FEDF0B"
+                color1 = "#9D0BFE"
+                color2 = "#FEDF0B"
+            }
+            else -> {
+                color1 = "#FF0061"
+                color2 = "#FF4200"
             }
         }
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -1074,12 +1073,12 @@ object Utils {
             0f,
             width.toFloat(),
             height.toFloat(),
-            Color.parseColor(Color1),
-            Color.parseColor(Color2),
+            Color.parseColor(color1),
+            Color.parseColor(color2),
             Shader.TileMode.CLAMP
         )
         val canvas = Canvas(bitmap)
-        val paint2 = Paint()
+        val paint2 = Paint(Paint.ANTI_ALIAS_FLAG)
         paint2.shader = gradient
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint2)
         return bitmap
