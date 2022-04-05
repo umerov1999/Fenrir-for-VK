@@ -20,7 +20,7 @@ class OtherApi(private val accountId: Int, private val provider: IVkRetrofitProv
             bodyBuilder.add(key, value)
         }
         return provider.provideNormalHttpClient(accountId)
-            .flatMap { client: OkHttpClient ->
+            .flatMap { client ->
                 Single
                     .create { emitter: SingleEmitter<Response> ->
                         val request: Request = Request.Builder()
@@ -43,7 +43,7 @@ class OtherApi(private val accountId: Int, private val provider: IVkRetrofitProv
                         })
                     }
             }
-            .map { response: Response ->
+            .map { response ->
                 val body = response.body
                 val responseBodyString = body?.string()
                 wrap(responseBodyString)

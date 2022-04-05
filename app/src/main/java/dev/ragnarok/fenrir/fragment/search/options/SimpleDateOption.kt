@@ -35,21 +35,13 @@ class SimpleDateOption : BaseOption {
         return super.clone() as SimpleDateOption
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    companion object CREATOR : Parcelable.Creator<SimpleDateOption> {
+        override fun createFromParcel(parcel: Parcel): SimpleDateOption {
+            return SimpleDateOption(parcel)
+        }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<SimpleDateOption> =
-            object : Parcelable.Creator<SimpleDateOption> {
-                override fun createFromParcel(`in`: Parcel): SimpleDateOption {
-                    return SimpleDateOption(`in`)
-                }
-
-                override fun newArray(size: Int): Array<SimpleDateOption?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<SimpleDateOption?> {
+            return arrayOfNulls(size)
+        }
     }
 }

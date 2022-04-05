@@ -4,10 +4,10 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AttachmentEntry
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.view.IRepostView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 
 class RepostPresenter(
     accountId: Int, private val post: Post,
@@ -61,8 +61,8 @@ class RepostPresenter(
         val accountId = accountId
         val body = getTextBody()
         appendDisposable(walls.repost(accountId, post.vkid, post.ownerId, targetGroupId, body)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onPublishComplete() }) { throwable: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onPublishComplete() }) { throwable ->
                 onPublishError(
                     throwable
                 )

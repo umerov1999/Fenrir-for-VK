@@ -3,11 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.INewsfeedInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.NewsfeedComment
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.INewsfeedCommentsView
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class NewsfeedMentionsPresenter(accountId: Int, ownerId: Int, savedInstanceState: Bundle?) :
@@ -41,13 +40,13 @@ class NewsfeedMentionsPresenter(accountId: Int, ownerId: Int, savedInstanceState
 
     private fun load(offset: Int) {
         appendDisposable(interactor.getMentions(accountId, ownerId, 50, offset, null, null)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ pair: Pair<List<NewsfeedComment>, String?> ->
+            .fromIOToMain()
+            .subscribe({
                 onDataReceived(
                     offset,
-                    pair.first
+                    it.first
                 )
-            }) { throwable: Throwable -> onRequestError(throwable) })
+            }) { throwable -> onRequestError(throwable) })
     }
 
     private fun onRequestError(throwable: Throwable) {

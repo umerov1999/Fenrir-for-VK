@@ -7,12 +7,12 @@ import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.view.search.IArtistSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.core.Single
 
@@ -45,7 +45,7 @@ class ArtistSearchPresenter(
     ): Single<Pair<List<VkApiArtist>, IntNextFrom>> {
         val nextFrom = IntNextFrom(startFrom.offset + 50)
         return audioInteractor.searchArtists(accountId, criteria, startFrom.offset, 50)
-            .map { audio: List<VkApiArtist> -> create(audio, nextFrom) }
+            .map { audio -> create(audio, nextFrom) }
     }
 
     fun onAdd(album: AudioPlaylist) {
@@ -56,10 +56,10 @@ class ArtistSearchPresenter(
             album.ownerId,
             album.access_key
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.customToast?.showToast(R.string.success)
-            }) { throwable: Throwable? ->
+            }) { throwable ->
                 showError(
                     throwable
                 )

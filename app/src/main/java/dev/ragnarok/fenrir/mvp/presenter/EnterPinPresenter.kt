@@ -7,13 +7,13 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IEnterPinView
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.ISettings.ISecuritySettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class EnterPinPresenter(savedState: Bundle?) : RxSupportPresenter<IEnterPinView>(savedState) {
@@ -34,8 +34,8 @@ class EnterPinPresenter(savedState: Bundle?) : RxSupportPresenter<IEnterPinView>
                 accountId,
                 IOwnersRepository.MODE_ANY
             )
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ owner: Owner -> onOwnerInfoReceived(owner) }) { })
+                .fromIOToMain()
+                .subscribe({ owner -> onOwnerInfoReceived(owner) }) { })
         }
     }
 

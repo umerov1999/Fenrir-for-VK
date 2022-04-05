@@ -12,15 +12,14 @@ import com.google.gson.JsonParser
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.interfaces.INetworker
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IRequestExecuteView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
-import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safelyClose
@@ -69,8 +68,8 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
         }
         setLoadingNow(true)
         appendDisposable(executeSingle(accountId, trimmedMethod, params)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ body: Pair<String?, String?> -> onRequestResponse(body) }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onRequestResponse(it) }) { throwable ->
                 onRequestError(
                     getCauseIfRuntime(throwable)
                 )
@@ -159,7 +158,7 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
         return networker.vkDefault(accountId)
             .other()
             .rawRequest(method, params)
-            .map { optional: Optional<String> ->
+            .map { optional ->
                 val responseString = optional.get()
                 val fullJson = if (responseString == null) null else toPrettyFormat(responseString)
                 var trimmedJson: String? = null

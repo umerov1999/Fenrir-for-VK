@@ -4,12 +4,12 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.PhotoAlbum
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.wallattachments.IWallPhotoAlbumAttachmentsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -43,13 +43,13 @@ class WallPhotoAlbumAttachmentsPresenter(
             100,
             WallCriteria.MODE_ALL
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Post> ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 onActualDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {

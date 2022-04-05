@@ -3,11 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IBoardInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Topic
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ITopicsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -26,8 +26,8 @@ class TopicsPresenter(accountId: Int, private val ownerId: Int, savedInstanceSta
         val accountId = accountId
         cacheDisposable.add(
             boardInteractor.getCachedTopics(accountId, ownerId)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ topics: List<Topic> -> onCachedDataReceived(topics) }, ignore())
+                .fromIOToMain()
+                .subscribe({ topics -> onCachedDataReceived(topics) }, ignore())
         )
     }
 
@@ -50,13 +50,13 @@ class TopicsPresenter(accountId: Int, private val ownerId: Int, savedInstanceSta
             COUNT_PER_REQUEST,
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ topics: List<Topic> ->
+            .fromIOToMain()
+            .subscribe({ topics ->
                 onActualDataReceived(
                     offset,
                     topics
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {

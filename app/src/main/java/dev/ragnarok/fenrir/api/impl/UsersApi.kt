@@ -24,7 +24,7 @@ internal class UsersApi(accountId: Int, provider: IServiceProvider) :
         nameCase: String?
     ): Single<VKApiUser> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service
                     .getUserWallInfo(
                         """var user_id = Args.user_id;
@@ -50,7 +50,7 @@ return {"user_info": user_info,
 };""", userId, fields, nameCase
                     )
                     .map(extractResponseWithErrorHandling())
-                    .map { response: UserWallInfoResponse ->
+                    .map { response ->
                         if (safeCountOf(response.users) != 1) {
                             throw NotFoundException()
                         }
@@ -67,7 +67,7 @@ return {"user_info": user_info,
         nameCase: String?
     ): Single<Items<VKApiUser>> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.getFollowers(userId, offset, count, fields, nameCase)
                     .map(extractResponseWithErrorHandling())
             }
@@ -81,7 +81,7 @@ return {"user_info": user_info,
         fields: String?
     ): Single<Items<VKApiUser>> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.getRequests(offset, count, extended, out, fields)
                     .map(extractResponseWithErrorHandling())
             }
@@ -123,7 +123,7 @@ return {"user_info": user_info,
         fromList: String?
     ): Single<Items<VKApiUser>> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service
                     .search(
                         query,
@@ -166,7 +166,7 @@ return {"user_info": user_info,
 
     override fun report(userId: Int?, type: String?, comment: String?): Single<Int> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service
                     .report(userId, type, comment)
                     .map(extractResponseWithErrorHandling())
@@ -175,7 +175,7 @@ return {"user_info": user_info,
 
     override fun checkAndAddFriend(userId: Int?): Single<Int> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service
                     .checkAndAddFriend(
                         "var user_id = Args.user_id; if(API.users.get({\"v\":\"" + Constants.API_VERSION + "\", \"user_ids\": user_id, \"fields\": \"friend_status\"})[0].friend_status == 0) {return API.friends.add({\"v\":\"" + Constants.API_VERSION + "\", \"user_id\": user_id});} return 0;",
@@ -187,7 +187,7 @@ return {"user_info": user_info,
 
     override fun getStory(owner_id: Int?, extended: Int?, fields: String?): Single<StoryResponse> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.getStory(owner_id, extended, fields)
                     .map(extractResponseWithErrorHandling())
             }
@@ -195,7 +195,7 @@ return {"user_info": user_info,
 
     override fun getGifts(user_id: Int?, count: Int?, offset: Int?): Single<Items<VKApiGift>> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.getGifts(user_id, count, offset)
                     .map(extractResponseWithErrorHandling())
             }
@@ -209,7 +209,7 @@ return {"user_info": user_info,
         fields: String?
     ): Single<StoryResponse> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.searchStory(q, mentioned_id, count, extended, fields)
                     .map(extractResponseWithErrorHandling())
             }
@@ -234,7 +234,7 @@ return {"user_info": user_info,
             TokenType.COMMUNITY,
             TokenType.SERVICE
         )
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service[join(ids, ","), fields, nameCase]
                     .map(extractResponseWithErrorHandling())
             }
@@ -242,7 +242,7 @@ return {"user_info": user_info,
 
     override fun stories_getPhotoUploadServer(): Single<VkApiStoryUploadServer> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.stories_getPhotoUploadServer(1)
                     .map(extractResponseWithErrorHandling())
             }
@@ -250,7 +250,7 @@ return {"user_info": user_info,
 
     override fun stories_getVideoUploadServer(): Single<VkApiStoryUploadServer> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.stories_getVideoUploadServer(1)
                     .map(extractResponseWithErrorHandling())
             }
@@ -258,7 +258,7 @@ return {"user_info": user_info,
 
     override fun stories_save(upload_results: String?): Single<Items<VKApiStory>> {
         return provideService(IUsersService::class.java, TokenType.USER)
-            .flatMap { service: IUsersService ->
+            .flatMap { service ->
                 service.stories_save(upload_results)
                     .map(extractResponseWithErrorHandling())
             }

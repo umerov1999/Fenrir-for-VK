@@ -20,7 +20,7 @@ class SimplePhotoPresenter(
         }
         appendDisposable(photosInteractor.getPhotosByIds(accountId, ids)
             .fromIOToMain()
-            .subscribe({ onPhotosReceived(it) }) { t: Throwable? ->
+            .subscribe({ onPhotosReceived(it) }) { t ->
                 view?.let {
                     showError(
                         it,

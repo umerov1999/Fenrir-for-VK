@@ -3,14 +3,13 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.FavePage
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFaveUsersView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.FindAtWithContent
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.SafeCallCheckInt
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -48,8 +47,8 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
             }
             sleepDataDisposable = Single.just(Any())
                 .delay(WEB_SEARCH_DELAY.toLong(), TimeUnit.MILLISECONDS)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ searcher.do_search(q) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ searcher.do_search(q) }) { t ->
                     onActualDataGetError(
                         t
                     )
@@ -71,13 +70,13 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
         resolveRefreshingView()
         val accountId = accountId
         actualDataDisposable.add(faveInteractor.getPages(accountId, GET_COUNT, offset, isUser)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
                     offset,
                     it
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -128,8 +127,8 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
         cacheLoadingNow = true
         val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedPages(accountId, isUser)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onCachedDataReceived(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onCachedDataReceived(it) }) { t ->
                 onCachedGetError(
                     t
                 )
@@ -198,8 +197,8 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
     fun fireOwnerDelete(owner: Owner) {
         val accountId = accountId
         appendDisposable(faveInteractor.removePage(accountId, owner.ownerId, isUser)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onUserRemoved(accountId, owner.ownerId) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onUserRemoved(accountId, owner.ownerId) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -207,8 +206,8 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
     fun firePushFirst(owner: Owner) {
         val accountId = accountId
         appendDisposable(faveInteractor.pushFirst(accountId, owner.ownerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ fireRefresh() }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ fireRefresh() }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }

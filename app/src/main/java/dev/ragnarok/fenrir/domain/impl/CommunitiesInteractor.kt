@@ -2,12 +2,10 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.db.column.GroupColumns
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.db.model.entity.CommunityEntity
 import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapCommunities
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformCommunities
@@ -24,7 +22,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
     override fun getCachedData(accountId: Int, userId: Int): Single<List<Community>> {
         return stores.relativeship()
             .getCommunities(accountId, userId)
-            .map { obj: List<CommunityEntity> -> buildCommunitiesFromDbos(obj) }
+            .map { obj -> buildCommunitiesFromDbos(obj) }
     }
 
     override fun getActual(
@@ -35,7 +33,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
     ): Single<List<Community>> {
         return networker.vkDefault(accountId)
             .groups()[userId, true, null, GroupColumns.API_FIELDS, offset, count]
-            .flatMap { items: Items<VKApiCommunity> ->
+            .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiCommunity>(
                     items.getItems()
                 )
@@ -50,7 +48,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
         return networker.vkDefault(accountId)
             .groups()
             .getMembers(groupId.toString(), null, 0, 1000, Constants.MAIN_OWNER_FIELDS, "friends")
-            .map { items: Items<VKApiUser> ->
+            .map { items ->
                 val dtos = listEmptyIfNull<VKApiUser>(
                     items.getItems()
                 )
@@ -83,7 +81,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
                 offset,
                 count
             )
-            .map { items: Items<VKApiCommunity> ->
+            .map { items ->
                 val dtos = listEmptyIfNull<VKApiCommunity>(
                     items.getItems()
                 )

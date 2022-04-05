@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.api.interfaces.IAuthApi
 import dev.ragnarok.fenrir.api.model.LoginResponse
 import dev.ragnarok.fenrir.api.model.VkApiValidationResponce
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
-import dev.ragnarok.fenrir.api.services.IAuthService
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.getDeviceId
 import io.reactivex.rxjava3.core.Single
@@ -23,7 +22,7 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
         scope: String?, code: String?, captchaSid: String?, captchaKey: String?, forceSms: Boolean
     ): Single<LoginResponse> {
         return service.provideAuthService()
-            .flatMap { service: IAuthService ->
+            .flatMap { service ->
                 service
                     .directLogin(
                         grantType,
@@ -55,7 +54,7 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
         v: String?
     ): Single<VkApiValidationResponce> {
         return service.provideAuthService()
-            .flatMap { service: IAuthService ->
+            .flatMap { service ->
                 service
                     .validatePhone(apiId, clientId, clientSecret, sid, v)
                     .map(extractResponseWithErrorHandling())
@@ -75,7 +74,7 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
 
         private fun <T : Any> withHttpErrorHandling(): SingleTransformer<T, T> {
             return SingleTransformer { single: Single<T> ->
-                single.onErrorResumeNext { throwable: Throwable ->
+                single.onErrorResumeNext { throwable ->
                     if (throwable is HttpException) {
                         try {
                             val body = throwable.response()?.errorBody()

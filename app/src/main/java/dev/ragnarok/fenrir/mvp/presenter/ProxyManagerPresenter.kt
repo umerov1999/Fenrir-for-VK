@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.model.ProxyConfig
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IProxyManagerView
 import dev.ragnarok.fenrir.settings.IProxySettings
-import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 
 class ProxyManagerPresenter(savedInstanceState: Bundle?) :
@@ -63,12 +62,12 @@ class ProxyManagerPresenter(savedInstanceState: Bundle?) :
     init {
         appendDisposable(settings.observeAdding()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { config: ProxyConfig -> onProxyAdded(config) })
+            .subscribe { onProxyAdded(it) })
         appendDisposable(settings.observeRemoving()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { config: ProxyConfig -> onProxyDeleted(config) })
+            .subscribe { onProxyDeleted(it) })
         appendDisposable(settings.observeActive()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { optional: Optional<ProxyConfig> -> onActiveChanged(optional.get()) })
+            .subscribe { onActiveChanged(it.get()) })
     }
 }

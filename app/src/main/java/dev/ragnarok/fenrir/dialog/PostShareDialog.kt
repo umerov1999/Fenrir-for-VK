@@ -9,12 +9,11 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.MenuAdapter
 import dev.ragnarok.fenrir.domain.Repository.owners
-import dev.ragnarok.fenrir.model.Owner
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.Text
 import dev.ragnarok.fenrir.model.menu.Item
 import dev.ragnarok.fenrir.util.AssertUtils.assertTrue
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -86,8 +85,8 @@ class PostShareDialog : DialogFragment() {
                         editor = true,
                         moderator = false
                     )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ owners: List<Owner> ->
+                    .fromIOToMain()
+                    .subscribe({ owners ->
                         for (owner in owners) {
                             if (owner.ownerId == mPost?.ownerId) {
                                 continue

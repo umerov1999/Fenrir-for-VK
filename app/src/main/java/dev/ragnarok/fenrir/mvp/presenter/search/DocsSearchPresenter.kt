@@ -37,7 +37,7 @@ class DocsSearchPresenter(
         val offset = startFrom.offset
         val nextFrom = IntNextFrom(50 + offset)
         return docsInteractor.search(accountId, criteria, 50, offset)
-            .map { documents: List<Document> -> create(documents, nextFrom) }
+            .map { documents -> create(documents, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): DocumentSearchCriteria {

@@ -6,12 +6,13 @@ import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.api.model.longpoll.UserIsOfflineUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.UserIsOnlineUpdate
 import dev.ragnarok.fenrir.api.model.response.StoryBlockResponce
-import dev.ragnarok.fenrir.api.model.response.StoryResponse
 import dev.ragnarok.fenrir.db.column.GroupColumns
 import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.db.interfaces.IOwnersStorage
 import dev.ragnarok.fenrir.db.model.UserPatch
-import dev.ragnarok.fenrir.db.model.entity.*
+import dev.ragnarok.fenrir.db.model.entity.CommunityEntity
+import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
+import dev.ragnarok.fenrir.db.model.entity.UserEntity
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapCommunities
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapCommunity
@@ -61,7 +62,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
     private val userUpdatesPublisher = PublishProcessor.create<List<UserUpdate>>()
     private fun getCachedDetails(accountId: Int, userId: Int): Single<Optional<UserDetails>> {
         return cache.getUserDetails(accountId, userId)
-            .flatMap { optional: Optional<UserDetailsEntity> ->
+            .flatMap { optional ->
                 if (optional.isEmpty) {
                     return@flatMap Single.just(empty<UserDetails>())
                 }
@@ -85,7 +86,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                     requiredIds.add(entity.relationPartnerId)
                 }
                 findBaseOwnersDataAsBundle(accountId, requiredIds, IOwnersRepository.MODE_ANY)
-                    .map { bundle: IOwnersBundle ->
+                    .map { bundle ->
                         wrap(
                             buildUserDetailsFromDbo(
                                 entity, bundle
@@ -100,7 +101,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         groupId: Int
     ): Single<Optional<CommunityDetails>> {
         return cache.getGroupsDetails(accountId, groupId)
-            .flatMap { optional: Optional<CommunityDetailsEntity> ->
+            .flatMap { optional ->
                 if (optional.isEmpty) {
                     return@flatMap Single.just(empty<CommunityDetails>())
                 }
@@ -172,7 +173,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .users()
             .getStory(owner_id, 1, UserColumns.API_FIELDS)
-            .flatMap { story: StoryResponse ->
+            .flatMap { story ->
                 val dtos_multy = listEmptyIfNull(story.items)
                 val dtos: MutableList<VKApiStory> = ArrayList()
                 for (itst in dtos_multy) {
@@ -207,7 +208,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .users()
             .searchStory(q, mentioned_id, 1000, 1, UserColumns.API_FIELDS)
-            .flatMap { story: StoryResponse ->
+            .flatMap { story ->
                 val dtos_multy = listEmptyIfNull(story.items)
                 val dtos: MutableList<VKApiStory> = ArrayList()
                 for (itst in dtos_multy) {
@@ -244,7 +245,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             IOwnersRepository.MODE_NET -> return networker.vkDefault(accountId)
                 .users()
                 .getUserWallInfo(userId, VKApiUser.ALL_FIELDS, null)
-                .flatMap { user: VKApiUser ->
+                .flatMap { user ->
                     val userEntity = mapUser(user)
                     val detailsEntity = mapUserDetails(user)
                     cache.storeUserDbos(accountId, listOf(userEntity))
@@ -264,8 +265,8 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getMarketAlbums(owner_id, offset, count)
-            .map { obj: Items<VkApiMarketAlbum> -> listEmptyIfNull(obj.getItems()) }
-            .map { albums: List<VkApiMarketAlbum> ->
+            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { albums ->
                 val market_albums: MutableList<MarketAlbum> = ArrayList(albums.size)
                 market_albums.addAll(transformMarketAlbums(albums))
                 market_albums
@@ -282,8 +283,8 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getMarket(owner_id, album_id, offset, count, 1)
-            .map { obj: Items<VkApiMarket> -> listEmptyIfNull(obj.getItems()) }
-            .map { products: List<VkApiMarket> ->
+            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { products ->
                 val market: MutableList<Market> = ArrayList(products.size)
                 market.addAll(transformMarket(products))
                 market
@@ -297,8 +298,8 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getMarketById(ids)
-            .map { obj: Items<VkApiMarket> -> listEmptyIfNull(obj.getItems()) }
-            .map { products: List<VkApiMarket> ->
+            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { products ->
                 val market: MutableList<Market> = ArrayList(products.size)
                 market.addAll(transformMarket(products))
                 market
@@ -315,7 +316,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             IOwnersRepository.MODE_NET -> return networker.vkDefault(accountId)
                 .groups()
                 .getWallInfo(communityId.toString(), FIELDS_GROUPS_ALL)
-                .flatMap { dto: VKApiCommunity ->
+                .flatMap { dto ->
                     val community = mapCommunity(dto)
                     val details = mapCommunityDetails(dto)
                     cache.storeCommunityDbos(accountId, listOf(community))
@@ -380,8 +381,8 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                     return orig
                 }
             }), GroupColumns.API_FIELDS, null, 1000]
-            .map { obj: Items<VKApiCommunity> -> listEmptyIfNull(obj.getItems()) }
-            .map { groups: List<VKApiCommunity> ->
+            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { groups ->
                 val owners: MutableList<Owner> = ArrayList(groups.size)
                 owners.addAll(transformCommunities(groups))
                 owners
@@ -532,9 +533,9 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                 schoolCity, schoolClass, school, schoolYear, religion, interests, company,
                 position, groupId, targetFromList
             )
-            .map { items: Items<VKApiUser>? ->
+            .map { items ->
                 val dtos = listEmptyIfNull<VKApiUser>(
-                    items?.getItems()
+                    items.getItems()
                 )
                 transformUsers(dtos)
             }
@@ -549,7 +550,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .users()
             .getGifts(user_id, count, offset)
-            .flatMap { dtos: Items<VKApiGift> ->
+            .flatMap { dtos ->
                 val gifts = transformGifts(dtos.items)
                 Single.just(gifts)
             }
@@ -606,13 +607,13 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             b.putAll(alreadyExists)
         }
         return Single.just(b)
-            .flatMap { bundle: IOwnersBundle ->
+            .flatMap { bundle ->
                 val missing = bundle.getMissing(ids)
                 if (missing.isEmpty()) {
                     return@flatMap Single.just(bundle)
                 }
                 findBaseOwnersDataAsList(accountId, missing, mode)
-                    .map { owners: List<Owner> ->
+                    .map { owners ->
                         bundle.putAll(owners)
                         bundle
                     }
@@ -627,7 +628,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         }
         return if (pOwnerId > 0) {
             getUsers(accountId, listOf(pOwnerId), mode)
-                .map { users: List<User> ->
+                .map { users ->
                     if (users.isEmpty()) {
                         throw NotFoundException()
                     }
@@ -635,7 +636,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                 }
         } else {
             getCommunities(accountId, listOf(-pOwnerId), mode)
-                .map { communities: List<Community> ->
+                .map { communities ->
                     if (communities.isEmpty()) {
                         throw NotFoundException()
                     }
@@ -654,9 +655,9 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         }
         when (mode) {
             IOwnersRepository.MODE_CACHE -> return cache.findCommunityDbosByIds(accountId, gids)
-                .map { obj: List<CommunityEntity> -> buildCommunitiesFromDbos(obj) }
+                .map { obj -> buildCommunitiesFromDbos(obj) }
             IOwnersRepository.MODE_ANY -> return cache.findCommunityDbosByIds(accountId, gids)
-                .flatMap { dbos: List<CommunityEntity> ->
+                .flatMap { dbos ->
                     if (dbos.size == gids.size) {
                         return@flatMap Single.just(buildCommunitiesFromDbos(dbos))
                     }
@@ -670,7 +671,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
     private fun getActualUsersAndStore(accountId: Int, uids: Collection<Int>): Single<List<User>> {
         return networker.vkDefault(accountId)
             .users()[uids, null, UserColumns.API_FIELDS, null]
-            .flatMap { dtos: List<VKApiUser>? ->
+            .flatMap { dtos ->
                 cache.storeUserDbos(accountId, mapUsers(dtos))
                     .andThen(Single.just(transformUsers(dtos)))
             }
@@ -683,7 +684,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getById(gids, null, null, GroupColumns.API_FIELDS)
-            .flatMap { dtos: List<VKApiCommunity>? ->
+            .flatMap { dtos ->
                 val communityEntities = mapCommunities(dtos)
                 val communities = transformCommunities(dtos)
                 cache.storeCommunityDbos(accountId, communityEntities)
@@ -700,12 +701,12 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getChats(groupId, offset, count)
-            .map { items: Items<VKApiGroupChats>? ->
+            .map { items ->
                 listEmptyIfNull<VKApiGroupChats>(
-                    items?.getItems()
+                    items.getItems()
                 )
             }
-            .map { obj: List<VKApiGroupChats> -> transformGroupChats(obj) }
+            .map { obj -> transformGroupChats(obj) }
     }
 
     private fun getUsers(accountId: Int, uids: List<Int>, mode: Int): Single<List<User>> {
@@ -714,9 +715,9 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         }
         when (mode) {
             IOwnersRepository.MODE_CACHE -> return cache.findUserDbosByIds(accountId, uids)
-                .map { obj: List<UserEntity> -> buildUsersFromDbo(obj) }
+                .map { obj -> buildUsersFromDbo(obj) }
             IOwnersRepository.MODE_ANY -> return cache.findUserDbosByIds(accountId, uids)
-                .flatMap { dbos: List<UserEntity> ->
+                .flatMap { dbos ->
                     if (dbos.size == uids.size) {
                         return@flatMap Single.just(buildUsersFromDbo(dbos))
                     }

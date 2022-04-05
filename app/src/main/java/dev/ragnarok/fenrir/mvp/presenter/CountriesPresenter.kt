@@ -3,11 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.database.Country
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ICountriesView
 import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import java.util.*
 
@@ -72,8 +72,8 @@ class CountriesPresenter(private val accountId: Int, savedInstanceState: Bundle?
     private fun requestData() {
         setLoadingNow(true)
         appendDisposable(databaseInteractor.getCountries(accountId, false)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ countries: List<Country> -> onDataReceived(countries) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ countries -> onDataReceived(countries) }) { t ->
                 onDataGetError(
                     t
                 )

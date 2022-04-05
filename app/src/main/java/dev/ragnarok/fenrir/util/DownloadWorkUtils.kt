@@ -552,7 +552,7 @@ object DownloadWorkUtils {
                 if (!M3U8(url, file_u.build()).run()) {
                     throw Exception("M3U8 error download")
                 }
-                if (!TSDemuxer.unpackTS(file_u.build(), file, false, false)) {
+                if (!TSDemuxer.unpackTS(file_u.build(), file, info = false, print_debug = false)) {
                     throw Exception("Error TSDemuxer")
                 }
                 File(file_u.build()).delete()
@@ -839,7 +839,7 @@ object DownloadWorkUtils {
                     InteractorFactory
                         .createAudioInteractor()
                         .getByIdOld(account_id, listOf(audio), mode.second)
-                        .map { e: List<Audio> -> e[0].url }, audio.url
+                        .map { e -> e[0].url }, audio.url
                 )
                 if (link.nonNullNoEmpty()) {
                     audio.url = link

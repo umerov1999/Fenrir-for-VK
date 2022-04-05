@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.CountersDto
 import dev.ragnarok.fenrir.domain.ICountersInteractor
 import dev.ragnarok.fenrir.model.SectionCounters
 import io.reactivex.rxjava3.core.Single
@@ -11,7 +10,7 @@ class CountersInteractor(private val networker: INetworker) : ICountersInteracto
         return networker.vkDefault(accountId)
             .account()
             .getCounters("friends,messages,photos,videos,gifts,events,groups,notifications")
-            .map { dto: CountersDto ->
+            .map { dto ->
                 SectionCounters()
                     .setFriends(dto.friends)
                     .setMessages(dto.messages)

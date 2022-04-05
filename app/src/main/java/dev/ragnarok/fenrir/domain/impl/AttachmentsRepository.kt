@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.interfaces.IAttachmentsStorage
-import dev.ragnarok.fenrir.db.model.entity.Entity
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository.*
 import dev.ragnarok.fenrir.domain.IOwnersRepository
@@ -65,7 +64,7 @@ class AttachmentsRepository(
         attachToDbid: Int
     ): Single<List<Pair<Int, AbsModel>>> {
         return store.getAttachmentsDbosWithIds(accountId, attachToType, attachToDbid)
-            .flatMap { pairs: List<Pair<Int, Entity>> ->
+            .flatMap { pairs ->
                 val ids = VKOwnIds()
                 for (pair in pairs) {
                     fillOwnerIds(ids, pair.second)

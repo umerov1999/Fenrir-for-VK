@@ -42,17 +42,13 @@ class SimpleTextOption : BaseOption {
         return 0
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<SimpleTextOption> =
-            object : Parcelable.Creator<SimpleTextOption> {
-                override fun createFromParcel(`in`: Parcel): SimpleTextOption {
-                    return SimpleTextOption(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<SimpleTextOption> {
+        override fun createFromParcel(parcel: Parcel): SimpleTextOption {
+            return SimpleTextOption(parcel)
+        }
 
-                override fun newArray(size: Int): Array<SimpleTextOption?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<SimpleTextOption?> {
+            return arrayOfNulls(size)
+        }
     }
 }

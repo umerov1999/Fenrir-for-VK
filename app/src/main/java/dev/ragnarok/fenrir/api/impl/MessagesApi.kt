@@ -28,7 +28,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
             formatAttachmentToken(it)
         }
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMapCompletable { service: IMessageService ->
+            .flatMapCompletable { service ->
                 service
                     .editMessage(
                         peerId,
@@ -45,31 +45,31 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun removeChatMember(chatId: Int, memberId: Int): Single<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .removeChatUser(chatId, memberId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun deleteChatPhoto(chatId: Int): Single<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .deleteChatPhoto(chatId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: UploadChatPhotoResponse -> response.message_id != 0 }
+                    .map { response -> response.message_id != 0 }
             }
     }
 
     override fun addChatUser(chatId: Int, userId: Int): Single<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .addChatUser(chatId, userId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -80,11 +80,11 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         name_case: String?
     ): Single<List<VKApiChat>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getChat(chatId, join(chatIds, ","), fields, name_case)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: ChatsInfoResponse -> listEmptyIfNull(response.chats) }
+                    .map { response -> listEmptyIfNull(response.chats) }
             }
     }
 
@@ -93,7 +93,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         fields: String?
     ): Single<ConversationMembersResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getConversationMembers(peer_id, fields)
                     .map(extractResponseWithErrorHandling())
@@ -102,17 +102,17 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun editChat(chatId: Int, title: String?): Single<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .editChat(chatId, title)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun createChat(userIds: Collection<Int?>?, title: String?): Single<Int> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .createChat(join(userIds, ","), title)
                     .map(extractResponseWithErrorHandling())
@@ -121,7 +121,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun recogniseAudioMessage(message_id: Int?, audio_message_id: String?): Single<Int> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .recogniseAudioMessage(message_id, audio_message_id)
                     .map(extractResponseWithErrorHandling())
@@ -130,7 +130,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun setMemberRole(peer_id: Int?, member_id: Int?, role: String?): Single<Int> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .setMemberRole(peer_id, member_id, role)
                     .map(extractResponseWithErrorHandling())
@@ -139,7 +139,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun deleteDialog(peerId: Int): Single<ConversationDeleteResult> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .deleteDialog(peerId)
                     .map(extractResponseWithErrorHandling())
@@ -148,11 +148,11 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun restore(messageId: Int): Single<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .restore(messageId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -162,7 +162,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         spam: Boolean?
     ): Single<Map<String, Int>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .delete(
                         join(messageIds, ","),
@@ -175,17 +175,17 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun markAsRead(peerId: Int?, startMessageId: Int?): Single<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .markAsRead(peerId, startMessageId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun markAsImportant(messageIds: Collection<Int>, important: Int?): Single<List<Int>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .markAsImportant(join(messageIds, ","), important)
                     .map(extractResponseWithErrorHandling())
@@ -194,11 +194,11 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun setActivity(peerId: Int, typing: Boolean): Single<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .setActivity(peerId, if (typing) "typing" else null)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -211,7 +211,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         count: Int?
     ): Single<Items<VKApiMessage>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .search(query, peerId, date, previewLength, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -233,7 +233,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         max_msg_id: Int?
     ): Single<LongpollHistoryResponse> {
         return serviceRx(TokenType.USER)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getLongPollHistory(
                         ts, pts, previewLength, integerFromBoolean(onlines), fields,
@@ -252,7 +252,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         fields: String?
     ): Single<AttachmentsHistoryResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getHistoryAttachments(peerId, mediaType, startFrom, count, photoSizes, fields)
                     .map(extractResponseWithErrorHandling())
@@ -268,7 +268,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
             formatAttachmentToken(it)
         }
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .send(
                         randomId, peerId, domain, message, latitude, longitude, atts,
@@ -285,7 +285,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
     ): Single<ItemsProfilesGroupsResponse<VkApiConversation>> {
         val ids = join(peers, ",") { obj: Any -> obj.toString() }
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getConversationsById(ids, integerFromBoolean(extended), fields)
                     .map(extractResponseWithErrorHandling())
@@ -300,7 +300,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         fields: String?
     ): Single<DialogsResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getDialogs(offset, count, startMessageId, integerFromBoolean(extended), fields)
                     .map(extractResponseWithErrorHandling())
@@ -317,7 +317,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun unpin(peerId: Int): Completable {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMapCompletable { service: IMessageService ->
+            .flatMapCompletable { service ->
                 service.unpin(peerId)
                     .map(extractResponseWithErrorHandling())
                     .ignoreElement()
@@ -326,7 +326,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun pin(peerId: Int, messageId: Int): Completable {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMapCompletable { service: IMessageService ->
+            .flatMapCompletable { service ->
                 service.pin(peerId, messageId)
                     .map(extractResponseWithErrorHandling())
                     .ignoreElement()
@@ -335,7 +335,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun pinUnPinConversation(peerId: Int, peen: Boolean): Completable {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMapCompletable { service: IMessageService ->
+            .flatMapCompletable { service ->
                 (if (peen) service.pinConversation(peerId) else service.unpinConversation(peerId))
                     .map(extractResponseWithErrorHandling())
                     .ignoreElement()
@@ -345,11 +345,11 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
     override fun getById(identifiers: Collection<Int>?): Single<List<VKApiMessage>> {
         val ids = join(identifiers, ",")
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getById(ids, null)
                     .map(extractResponseWithErrorHandling())
-                    .map { obj: Items<VKApiMessage> -> obj.getItems() }
+                    .map { listEmptyIfNull(it.getItems()) }
             }
     }
 
@@ -363,7 +363,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         fields: String?
     ): Single<MessageHistoryResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getHistory(
                         offset,
@@ -384,7 +384,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         peerId: Int
     ): Single<Items<VkApiJsonString>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getJsonHistory(offset, count, peerId)
                     .map(extractResponseWithErrorHandling())
@@ -399,7 +399,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         fields: String?
     ): Single<MessageImportantResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getImportantMessages(
                         offset,
@@ -414,7 +414,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
 
     override fun getLongpollServer(needPts: Boolean, lpVersion: Int): Single<VkApiLongpollServer> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .getLongpollServer(if (needPts) 1 else 0, lpVersion)
                     .map(extractResponseWithErrorHandling())
@@ -428,7 +428,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         fields: String?
     ): Single<ConversationsResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IMessageService ->
+            .flatMap { service ->
                 service
                     .searchConversations(query, count, extended, fields)
                     .map(extractResponseWithErrorHandling())

@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
-import dev.ragnarok.fenrir.api.services.ILocalServerService
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.exceptions.Exceptions
@@ -16,7 +15,7 @@ import io.reactivex.rxjava3.functions.Function
 internal class LocalServerApi(private val service: ILocalServerServiceProvider) : ILocalServerApi {
     override fun getVideos(offset: Int?, count: Int?, reverse: Boolean): Single<Items<VKApiVideo>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.getVideos(offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -24,7 +23,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
 
     override fun getAudios(offset: Int?, count: Int?, reverse: Boolean): Single<Items<VKApiAudio>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.getAudios(offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -32,7 +31,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
 
     override fun getPhotos(offset: Int?, count: Int?, reverse: Boolean): Single<Items<VKApiPhoto>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.getPhotos(offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -44,7 +43,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
         reverse: Boolean
     ): Single<Items<VKApiAudio>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.getDiscography(offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -57,7 +56,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
         reverse: Boolean
     ): Single<Items<VKApiVideo>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.searchVideos(query, offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -70,7 +69,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
         reverse: Boolean
     ): Single<Items<VKApiPhoto>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.searchPhotos(query, offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -83,7 +82,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
         reverse: Boolean
     ): Single<Items<VKApiAudio>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.searchAudios(query, offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -96,7 +95,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
         reverse: Boolean
     ): Single<Items<VKApiAudio>> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.searchDiscography(query, offset, count, if (reverse) 1 else 0)
                     .map(extractResponseWithErrorHandling())
             }
@@ -104,7 +103,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
 
     override fun update_time(hash: String?): Single<Int> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.update_time(hash)
                     .map(extractResponseWithErrorHandling())
             }
@@ -112,7 +111,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
 
     override fun delete_media(hash: String?): Single<Int> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.delete_media(hash)
                     .map(extractResponseWithErrorHandling())
             }
@@ -120,7 +119,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
 
     override fun get_file_name(hash: String?): Single<String> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.get_file_name(hash)
                     .map(extractResponseWithErrorHandling())
             }
@@ -128,7 +127,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
 
     override fun update_file_name(hash: String?, name: String?): Single<Int> {
         return service.provideLocalServerService()
-            .flatMap { service: ILocalServerService ->
+            .flatMap { service ->
                 service.update_file_name(hash, name)
                     .map(extractResponseWithErrorHandling())
             }

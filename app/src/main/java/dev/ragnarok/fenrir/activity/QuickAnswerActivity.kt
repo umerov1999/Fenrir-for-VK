@@ -25,6 +25,7 @@ import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder.VoiceActionListener
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -129,8 +130,8 @@ class QuickAnswerActivity : AppCompatActivity() {
                         .setPayload(button.payload).setBody(button.label)
                     compositeDisposable.add(
                         messagesRepository.put(builder)
-                            .compose(RxUtils.applySingleIOToMainSchedulers())
-                            .subscribe({ onMessageSaved() }) { throwable: Throwable ->
+                            .fromIOToMain()
+                            .subscribe({ onMessageSaved() }) { throwable ->
                                 onSavingError(
                                     throwable
                                 )
@@ -291,8 +292,8 @@ class QuickAnswerActivity : AppCompatActivity() {
             .setKeyLocationPolicy(policy)
         compositeDisposable.add(
             messagesRepository.put(builder)
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ onMessageSaved() }) { throwable: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onMessageSaved() }) { throwable ->
                     onSavingError(
                         throwable
                     )
@@ -312,7 +313,7 @@ class QuickAnswerActivity : AppCompatActivity() {
     private fun setMessageAsRead() {
         compositeDisposable.add(
             messagesRepository.markAsRead(accountId, msg.peerId, msg.id)
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(RxUtils.dummy(), RxUtils.ignore())
         )
     }

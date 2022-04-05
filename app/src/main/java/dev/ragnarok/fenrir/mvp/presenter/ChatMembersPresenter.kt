@@ -3,14 +3,13 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IChatMembersView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
@@ -45,8 +44,8 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
         val accountId = accountId
         setRefreshing(true)
         appendDisposable(messagesInteractor.getChatUsers(accountId, chatId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onDataReceived(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onDataReceived(it) }) { t ->
                 onDataGetError(
                     t
                 )
@@ -89,8 +88,8 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
         val accountId = accountId
         val userId = user.member.ownerId
         appendDisposable(messagesInteractor.removeChatMember(accountId, chatId, userId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onUserRemoved(userId) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onUserRemoved(userId) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -116,8 +115,8 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
         }
         if (users.nonNullNoEmpty()) {
             appendDisposable(messagesInteractor.addChatUsers(accountId, chatId, users)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ onChatUsersAdded(it) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onChatUsersAdded(it) }) { t ->
                     onChatUsersAddError(
                         t
                     )
@@ -148,8 +147,8 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
 
     fun fireAdminToggleClick(isAdmin: Boolean, ownerId: Int) {
         appendDisposable(messagesInteractor.setMemberRole(accountId, chatId, ownerId, isAdmin)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ fireRefresh() }) { t: Throwable -> onChatUsersAddError(t) })
+            .fromIOToMain()
+            .subscribe({ fireRefresh() }) { t -> onChatUsersAddError(t) })
     }
 
     init {

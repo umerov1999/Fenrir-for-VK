@@ -153,7 +153,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
         val ignoreIfExists = entry?.isIgnoreIfExists
         entry?.let { Single.just(it) }?.let { its ->
             init(its) // ищем недостающие сообщения в локальной базе
-                .flatMap { result: TmpResult ->
+                .flatMap { result ->
                     repositories
                         .messages()
                         .getMissingMessages(result.accountId, result.allIds)
@@ -163,7 +163,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                             )
                         }
                 }
-                .flatMap { result: TmpResult ->
+                .flatMap { result ->
                     // отсеиваем сообщения, которые уже есть в локальной базе (если требуется)
                     if (ignoreIfExists == true) {
                         removeIf(result.data) { it.isAlreadyExists }
@@ -175,12 +175,12 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                         .compose(andStore)
                 }
                 .compose(NotificationScheduler.fromNotificationThreadToMain())
-                .subscribe({ result: TmpResult ->
+                .subscribe({ result ->
                     onResultReceived(
                         start,
                         result
                     )
-                }) { throwable: Throwable -> onProcessError(throwable) }
+                }) { throwable -> onProcessError(throwable) }
         }
     }// сохраняем сообщения в локальную базу и получаем оттуда "тяжелые" обьекты сообщений// отсеиваем сообщения, которые имеют отношение к обмену ключами
 
@@ -188,7 +188,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
     private val andStore: SingleTransformer<TmpResult, TmpResult>
         get() = SingleTransformer { single: Single<TmpResult> ->
             single
-                .flatMap { result: TmpResult ->
+                .flatMap { result ->
                     // если в исходных данных недостаточно инфы - получаем нужные данные с api
                     val needGetFromNet =
                         collectIds(result.data) {
@@ -202,7 +202,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                         .getById(needGetFromNet)
                         .map { result.appendDtos(it) }
                 }
-                .map { result: TmpResult ->
+                .map { result ->
                     // отсеиваем сообщения, которые имеют отношение к обмену ключами
                     removeIf(
                         result.data
@@ -215,7 +215,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                     }
                     result
                 }
-                .flatMap { result: TmpResult ->
+                .flatMap { result ->
                     if (result.data.isEmpty()) {
                         return@flatMap Single.just(result)
                     }
@@ -228,7 +228,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
     private fun storeToCacheAndReturn(): SingleTransformer<TmpResult, TmpResult> {
         return SingleTransformer { single: Single<TmpResult> ->
             single // собственно, вставка
-                .flatMap { result: TmpResult ->
+                .flatMap { result ->
                     messagesInteractor
                         .insertMessages(
                             result.accountId,
@@ -236,7 +236,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                         ) //.andThen(refreshChangedDialogs(result))
                         .andThen(Single.just(result))
                 }
-                .flatMap { result: TmpResult ->
+                .flatMap { result ->
                     // собственно, получение из локальной базы
                     val ids = collectIds(result.data) {
                         true

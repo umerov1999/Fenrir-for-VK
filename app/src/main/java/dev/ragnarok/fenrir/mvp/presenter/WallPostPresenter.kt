@@ -14,12 +14,11 @@ import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IWallPostView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
@@ -69,8 +68,8 @@ class WallPostPresenter(
                     ownerId,
                     IOwnersRepository.MODE_NET
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ owner: Owner -> onOwnerInfoReceived(owner) }, ignore())
+                    .fromIOToMain()
+                    .subscribe({ owner -> onOwnerInfoReceived(owner) }, ignore())
             )
         }
     }
@@ -91,8 +90,8 @@ class WallPostPresenter(
         val accountId = accountId
         setLoadingPostNow(true)
         appendDisposable(wallInteractor.getById(accountId, ownerId, postId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ post: Post -> onActualPostReceived(post) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ post -> onActualPostReceived(post) }) { t ->
                 onLoadPostInfoError(
                     t
                 )
@@ -255,8 +254,8 @@ class WallPostPresenter(
                 postId,
                 !(post ?: return).isUserLikes
             )
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe(ignore()) { t: Throwable? ->
+                .fromIOToMain()
+                .subscribe(ignore()) { t ->
                     showError(t)
                 })
         } else {
@@ -266,8 +265,8 @@ class WallPostPresenter(
 
     fun fireAddBookmark() {
         appendDisposable(faveInteractor.addPost(accountId, ownerId, postId, null)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onPostAddedToBookmarks() }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onPostAddedToBookmarks() }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -292,8 +291,8 @@ class WallPostPresenter(
             postId
         ) else wallInteractor.restore(accountId, ownerId, postId)
         appendDisposable(completable
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onDeleteOrRestoreComplete(delete) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onDeleteOrRestoreComplete(delete) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -315,8 +314,8 @@ class WallPostPresenter(
     private fun pinOrUnpin(pin: Boolean) {
         val accountId = accountId
         appendDisposable(wallInteractor.pinUnpin(accountId, ownerId, postId, pin)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onPinOrUnpinComplete(pin) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onPinOrUnpinComplete(pin) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -349,14 +348,14 @@ class WallPostPresenter(
             .setTitle(R.string.report)
             .setItems(items) { dialog: DialogInterface, item: Int ->
                 appendDisposable(wallInteractor.reportPost(accountId, ownerId, postId, item)
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ p: Int ->
+                    .fromIOToMain()
+                    .subscribe({ p ->
                         if (p == 1) view?.customToast?.showToast(
                             R.string.success
                         ) else view?.customToast?.showToast(
                             R.string.error
                         )
-                    }) { t: Throwable? ->
+                    }) { t ->
                         showError(getCauseIfRuntime(t))
                     })
                 dialog.dismiss()
@@ -435,11 +434,11 @@ class WallPostPresenter(
         }
         loadOwnerInfoIfNeed()
         appendDisposable(wallInteractor.observeMinorChanges()
-            .filter { event: PostUpdate -> event.ownerId == ownerId && event.postId == postId }
+            .filter { it.ownerId == ownerId && it.postId == postId }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { update: PostUpdate -> onPostUpdate(update) })
+            .subscribe { onPostUpdate(it) })
         appendDisposable(wallInteractor.observeChanges()
-            .filter { p: Post -> postId == p.vkid && p.ownerId == ownerId }
+            .filter { postId == it.vkid && it.ownerId == ownerId }
             .observeOn(provideMainThreadScheduler())
             .subscribe { onPostChanged(it) })
     }

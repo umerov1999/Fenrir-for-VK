@@ -8,10 +8,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.view.View
 import dev.ragnarok.fenrir.util.RxUtils
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -19,6 +16,12 @@ import kotlin.contracts.contract
 
 inline fun <reified T : Any> Single<T>.fromIOToMain(): Single<T> =
     subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+
+inline fun <reified T : Any> Maybe<T>.fromIOToMain(): Maybe<T> =
+    subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+
+inline fun <reified T : Any> Single<T>.fromIOToMainComputation(): Single<T> =
+    subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread())
 
 inline fun <reified T : Any> Single<T>.subscribeIOAndIgnoreResults(): Disposable =
     subscribeOn(Schedulers.io()).subscribe(RxUtils.ignore(), RxUtils.ignore())

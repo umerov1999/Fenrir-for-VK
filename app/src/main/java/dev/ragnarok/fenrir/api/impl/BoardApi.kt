@@ -22,7 +22,7 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
         fields: String?
     ): Single<DefaultCommentsResponse> {
         return provideService(IBoardService::class.java)
-            .flatMap { service: IBoardService ->
+            .flatMap { service ->
                 service
                     .getComments(
                         groupId,
@@ -41,19 +41,19 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
 
     override fun restoreComment(groupId: Int, topicId: Int, commentId: Int): Single<Boolean> {
         return provideService(IBoardService::class.java)
-            .flatMap { service: IBoardService ->
+            .flatMap { service ->
                 service.restoreComment(groupId, topicId, commentId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun deleteComment(groupId: Int, topicId: Int, commentId: Int): Single<Boolean> {
         return provideService(IBoardService::class.java)
-            .flatMap { service: IBoardService ->
+            .flatMap { service ->
                 service.deleteComment(groupId, topicId, commentId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -63,7 +63,7 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
         preview: Int?, previewLength: Int?, fields: String?
     ): Single<TopicsResponse> {
         return provideService(IBoardService::class.java)
-            .flatMap { service: IBoardService ->
+            .flatMap { service ->
                 service
                     .getTopics(
                         groupId,
@@ -77,7 +77,7 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
                         fields
                     )
                     .map(extractResponseWithErrorHandling())
-                    .map { response: TopicsResponse ->
+                    .map { response ->
                         // fix (не приходит owner_id)
                         for (topic in response.items) {
                             topic.owner_id = -groupId
@@ -92,7 +92,7 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
         attachments: Collection<IAttachmentToken>?
     ): Single<Boolean> {
         return provideService(IBoardService::class.java)
-            .flatMap { service: IBoardService ->
+            .flatMap { service ->
                 service.editComment(
                     groupId,
                     topicId,
@@ -103,7 +103,7 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
                         ","
                     ) { formatAttachmentToken(it) })
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -117,7 +117,7 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
         generatedUniqueId: Int?
     ): Single<Int> {
         return provideService(IBoardService::class.java)
-            .flatMap { service: IBoardService ->
+            .flatMap { service ->
                 service
                     .addComment(
                         groupId,

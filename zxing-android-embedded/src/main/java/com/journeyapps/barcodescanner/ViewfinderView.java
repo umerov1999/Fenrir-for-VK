@@ -18,14 +18,18 @@ package com.journeyapps.barcodescanner;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.ColorInt;
+import androidx.core.content.ContextCompat;
 
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.R;
@@ -49,17 +53,27 @@ public class ViewfinderView extends View {
     protected static final int POINT_SIZE = 6;
 
     protected final Paint paint;
-    protected final int resultColor;
-    protected final int laserColor;
-    protected final int resultPointColor;
+    protected final Paint cornerPaint;
+    protected final @ColorInt
+    int resultColor;
+    protected final @ColorInt
+    int laserColor;
+    protected final @ColorInt
+    int resultPointColor;
+    protected final @ColorInt
+    int cornerColor;
+    private final RectF rectTmp = new RectF();
+    private final Path path = new Path();
+    private final float dpF;
+    private final float qrAppearingValue = 1f;
     protected Bitmap resultBitmap;
-    protected int maskColor;
+    protected @ColorInt
+    int maskColor;
     protected boolean laserVisibility;
     protected int scannerAlpha;
     protected List<ResultPoint> possibleResultPoints;
     protected List<ResultPoint> lastPossibleResultPoints;
     protected CameraPreview cameraPreview;
-
     // Cache the framingRect and previewSize, so that we can still draw it after the preview
     // stopped.
     protected Rect framingRect;
@@ -72,27 +86,36 @@ public class ViewfinderView extends View {
         // Initialize these once for performance rather than calling them every time in onDraw().
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        Resources resources = getResources();
-
         // Get setted attributes on view
         @SuppressLint("CustomViewStyleable") TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.zxing_finder);
 
         maskColor = attributes.getColor(R.styleable.zxing_finder_zxing_viewfinder_mask,
-                resources.getColor(R.color.zxing_viewfinder_mask));
+                ContextCompat.getColor(context, R.color.zxing_viewfinder_mask));
         resultColor = attributes.getColor(R.styleable.zxing_finder_zxing_result_view,
-                resources.getColor(R.color.zxing_result_view));
+                ContextCompat.getColor(context, R.color.zxing_result_view));
         laserColor = attributes.getColor(R.styleable.zxing_finder_zxing_viewfinder_laser,
-                resources.getColor(R.color.zxing_viewfinder_laser));
+                ContextCompat.getColor(context, R.color.zxing_viewfinder_laser));
         resultPointColor = attributes.getColor(R.styleable.zxing_finder_zxing_possible_result_points,
-                resources.getColor(R.color.zxing_possible_result_points));
+                ContextCompat.getColor(context, R.color.zxing_possible_result_points));
+        cornerColor = attributes.getColor(R.styleable.zxing_finder_zxing_viewfinder_corner_color,
+                ContextCompat.getColor(context, R.color.zxing_corner_color));
         laserVisibility = attributes.getBoolean(R.styleable.zxing_finder_zxing_viewfinder_laser_visibility,
                 true);
+
+        dpF = getResources().getDisplayMetrics().density;
 
         attributes.recycle();
 
         scannerAlpha = 0;
         possibleResultPoints = new ArrayList<>(MAX_RESULT_POINTS);
         lastPossibleResultPoints = new ArrayList<>(MAX_RESULT_POINTS);
+
+        cornerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        cornerPaint.setColor(cornerColor);
+    }
+
+    private static int lerp(int a, int b, float f) {
+        return (int) (a + f * (b - a));
     }
 
     public void setCameraPreview(CameraPreview view) {
@@ -138,6 +161,11 @@ public class ViewfinderView extends View {
         }
     }
 
+    private RectF aroundPoint(int x, int y, int r) {
+        rectTmp.set(x - r, y - r, x + r, y + r);
+        return rectTmp;
+    }
+
     @Override
     public void onDraw(Canvas canvas) {
         refreshSizes();
@@ -157,6 +185,44 @@ public class ViewfinderView extends View {
         canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
         canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
         canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+
+        int lineWidth = lerp(0, (int) (4 * dpF), Math.min(1, qrAppearingValue * 20f)),
+                halfLineWidth = lineWidth / 2;
+        int lineLength = lerp(Math.min(frame.right - frame.left, frame.bottom - frame.top), (int) (20 * dpF), Math.min(1.2f, (float) Math.pow(qrAppearingValue, 1.8f)));
+
+        path.reset();
+        path.arcTo(aroundPoint(frame.left, frame.top + lineLength, halfLineWidth), 0, 180);
+        path.arcTo(aroundPoint((int) (frame.left + lineWidth * 1.5f), (int) (frame.top + lineWidth * 1.5f), lineWidth * 2), 180, 90);
+        path.arcTo(aroundPoint(frame.left + lineLength, frame.top, halfLineWidth), 270, 180);
+        path.lineTo(frame.left + halfLineWidth, frame.top + halfLineWidth);
+        path.arcTo(aroundPoint((int) (frame.left + lineWidth * 1.5f), (int) (frame.top + lineWidth * 1.5f), lineWidth), 270, -90);
+        path.close();
+        canvas.drawPath(path, cornerPaint);
+
+        path.reset();
+        path.arcTo(aroundPoint(frame.right, frame.top + lineLength, halfLineWidth), 180, -180);
+        path.arcTo(aroundPoint((int) (frame.right - lineWidth * 1.5f), (int) (frame.top + lineWidth * 1.5f), lineWidth * 2), 0, -90);
+        path.arcTo(aroundPoint(frame.right - lineLength, frame.top, halfLineWidth), 270, -180);
+        path.arcTo(aroundPoint((int) (frame.right - lineWidth * 1.5f), (int) (frame.top + lineWidth * 1.5f), lineWidth), 270, 90);
+        path.close();
+        canvas.drawPath(path, cornerPaint);
+
+        path.reset();
+        path.arcTo(aroundPoint(frame.left, frame.bottom - lineLength, halfLineWidth), 0, -180);
+        path.arcTo(aroundPoint((int) (frame.left + lineWidth * 1.5f), (int) (frame.bottom - lineWidth * 1.5f), lineWidth * 2), 180, -90);
+        path.arcTo(aroundPoint(frame.left + lineLength, frame.bottom, halfLineWidth), 90, -180);
+        path.arcTo(aroundPoint((int) (frame.left + lineWidth * 1.5f), (int) (frame.bottom - lineWidth * 1.5f), lineWidth), 90, 90);
+        path.close();
+        canvas.drawPath(path, cornerPaint);
+
+        path.reset();
+        path.arcTo(aroundPoint(frame.right, frame.bottom - lineLength, halfLineWidth), 180, 180);
+        path.arcTo(aroundPoint((int) (frame.right - lineWidth * 1.5f), (int) (frame.bottom - lineWidth * 1.5f), lineWidth * 2), 0, 90);
+        path.arcTo(aroundPoint(frame.right - lineLength, frame.bottom, halfLineWidth), 90, 180);
+        path.arcTo(aroundPoint((int) (frame.right - lineWidth * 1.5f), (int) (frame.bottom - lineWidth * 1.5f), lineWidth), 90, -90);
+        path.close();
+
+        canvas.drawPath(path, cornerPaint);
 
         if (resultBitmap != null) {
             // Draw the opaque result bitmap over the scanning rectangle

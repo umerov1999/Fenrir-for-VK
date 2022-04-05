@@ -37,7 +37,7 @@ class MessagesSearchPresenter(
         val offset = startFrom.offset
         return messagesInteractor
             .searchMessages(accountId, criteria.peerId, COUNT, offset, criteria.query)
-            .map { messages: List<Message> -> create(messages, IntNextFrom(offset + COUNT)) }
+            .map { messages -> create(messages, IntNextFrom(offset + COUNT)) }
     }
 
     override fun instantiateEmptyCriteria(): MessageSearchCriteria {

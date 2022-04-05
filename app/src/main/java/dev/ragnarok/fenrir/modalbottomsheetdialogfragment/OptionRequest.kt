@@ -42,12 +42,13 @@ class OptionRequest(
         writeByte(if (singleLine) 1.toByte() else 0.toByte())
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<OptionRequest> =
-            object : Parcelable.Creator<OptionRequest> {
-                override fun createFromParcel(source: Parcel): OptionRequest = OptionRequest(source)
-                override fun newArray(size: Int): Array<OptionRequest?> = arrayOfNulls(size)
-            }
+    companion object CREATOR : Parcelable.Creator<OptionRequest> {
+        override fun createFromParcel(parcel: Parcel): OptionRequest {
+            return OptionRequest(parcel)
+        }
+
+        override fun newArray(size: Int): Array<OptionRequest?> {
+            return arrayOfNulls(size)
+        }
     }
 }

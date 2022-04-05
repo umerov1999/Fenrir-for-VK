@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VkApiDoc
 import dev.ragnarok.fenrir.db.interfaces.IDocsStorage
 import dev.ragnarok.fenrir.db.model.entity.DocumentEntity
@@ -23,12 +22,12 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
     override fun request(accountId: Int, ownerId: Int, filter: Int): Single<List<Document>> {
         return networker.vkDefault(accountId)
             .docs()[ownerId, null, null, filter]
-            .map { items: Items<VkApiDoc> ->
+            .map { items ->
                 listEmptyIfNull<VkApiDoc>(
                     items.getItems()
                 )
             }
-            .flatMap { dtos: List<VkApiDoc> ->
+            .flatMap { dtos ->
                 val documents: MutableList<Document> = ArrayList(dtos.size)
                 val entities: MutableList<DocumentEntity> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -42,10 +41,10 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
 
     override fun getCacheData(accountId: Int, ownerId: Int, filter: Int): Single<List<Document>> {
         return cache[DocsCriteria(accountId, ownerId).setFilter(filter)]
-            .map { entities: List<DocumentEntity?> ->
+            .map { entities ->
                 val documents: MutableList<Document> = ArrayList(entities.size)
                 for (entity in entities) {
-                    documents.add(buildDocumentFromDbo(entity!!))
+                    documents.add(buildDocumentFromDbo(entity))
                 }
                 documents
             }
@@ -66,11 +65,11 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
         return networker.vkDefault(accountId)
             .docs()
             .getById(listOf(AccessIdPair(docId, ownerId, accessKey)))
-            .map { dtos: List<VkApiDoc?> ->
+            .map { dtos ->
                 if (dtos.isEmpty()) {
                     throw NotFoundException()
                 }
-                transform(dtos[0]!!)
+                transform(dtos[0])
             }
     }
 
@@ -83,7 +82,7 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
         return networker.vkDefault(accountId)
             .docs()
             .search(criteria.query, count, offset)
-            .map { items: Items<VkApiDoc> ->
+            .map { items ->
                 val dtos = listEmptyIfNull<VkApiDoc>(
                     items.getItems()
                 )

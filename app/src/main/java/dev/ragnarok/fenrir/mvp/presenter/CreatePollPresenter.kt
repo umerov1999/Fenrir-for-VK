@@ -4,10 +4,10 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IPollInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICreatePollView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class CreatePollPresenter(accountId: Int, private val mOwnerId: Int, savedInstanceState: Bundle?) :
@@ -62,8 +62,8 @@ class CreatePollPresenter(accountId: Int, private val mOwnerId: Int, savedInstan
             mOwnerId,
             nonEmptyOptions
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ poll: Poll -> onPollCreated(poll) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onPollCreated(it) }) { t ->
                 onPollCreateError(
                     t
                 )

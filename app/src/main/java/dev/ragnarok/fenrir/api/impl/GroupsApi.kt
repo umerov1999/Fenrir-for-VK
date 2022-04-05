@@ -25,7 +25,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         contactEmail: String?
     ): Completable {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMapCompletable { service: IGroupsService ->
+            .flatMapCompletable { service ->
                 service
                     .editManager(
                         groupId,
@@ -43,7 +43,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
 
     override fun unban(groupId: Int, ownerId: Int): Completable {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMapCompletable { service: IGroupsService ->
+            .flatMapCompletable { service ->
                 service
                     .unban(groupId, ownerId)
                     .map(extractResponseWithErrorHandling())
@@ -60,7 +60,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         commentVisible: Boolean?
     ): Completable {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMapCompletable { service: IGroupsService ->
+            .flatMapCompletable { service ->
                 service
                     .ban(
                         groupId,
@@ -77,7 +77,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
 
     override fun getSettings(groupId: Int): Single<GroupSettingsDto> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service
                     .getSettings(groupId)
                     .map(extractResponseWithErrorHandling())
@@ -90,7 +90,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         count: Int
     ): Single<Items<VkApiMarketAlbum>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.getMarketAlbums(owner_id, offset, count)
                     .map(extractResponseWithErrorHandling())
             }
@@ -104,7 +104,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         extended: Int?
     ): Single<Items<VkApiMarket>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.getMarket(owner_id, album_id, offset, count, extended)
                     .map(extractResponseWithErrorHandling())
             }
@@ -114,7 +114,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         val markets =
             join(ids, ",") { AccessIdPair.format(it) }
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.getMarketById(markets, 1)
                     .map(extractResponseWithErrorHandling())
             }
@@ -128,7 +128,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         userId: Int?
     ): Single<Items<VkApiBanned>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.getBanned(groupId, offset, count, fields, userId)
                     .map(extractResponseWithErrorHandling())
             }
@@ -136,7 +136,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
 
     override fun getWallInfo(groupId: String?, fields: String?): Single<VKApiCommunity> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.getGroupWallInfo(
                     "var group_id = Args.group_id; var fields = Args.fields; var negative_group_id = -group_id; var group_info = API.groups.getById({\"v\":\"" + Constants.API_VERSION + "\", \"group_id\":group_id, \"fields\":fields}); var all_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"all\"}).count; var owner_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"owner\"}).count; var suggests_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"suggests\"}).count; var postponed_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"postponed\"}).count; return {\"group_info\": group_info, \"all_wall_count\":all_wall_count, \"owner_wall_count\":owner_wall_count, \"suggests_wall_count\":suggests_wall_count, \"postponed_wall_count\":postponed_wall_count };",
                     groupId,
@@ -144,7 +144,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
                 )
                     .map(extractResponseWithErrorHandling())
             }
-            .map { response: GroupWallInfoResponse ->
+            .map { response ->
                 if (safeCountOf(response.groups) != 1) {
                     throw NotFoundException()
                 }
@@ -161,7 +161,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         filter: String?
     ): Single<Items<VKApiUser>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.getMembers(groupId, sort, offset, count, fields, filter)
                     .map(extractResponseWithErrorHandling())
             }
@@ -180,7 +180,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         count: Int?
     ): Single<Items<VKApiCommunity>> {
         return provideService(IGroupsService::class.java, TokenType.USER)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service
                     .search(
                         query, type, filter, countryId, cityId, integerFromBoolean(future),
@@ -192,19 +192,19 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
 
     override fun leave(groupId: Int): Single<Boolean> {
         return provideService(IGroupsService::class.java, TokenType.USER)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.leave(groupId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun join(groupId: Int, notSure: Int?): Single<Boolean> {
         return provideService(IGroupsService::class.java, TokenType.USER)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service.join(groupId, notSure)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -217,7 +217,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         count: Int?
     ): Single<Items<VKApiCommunity>> {
         return provideService(IGroupsService::class.java, TokenType.USER)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service[userId, integerFromBoolean(extended), filter, fields, offset, count]
                     .map(extractResponseWithErrorHandling())
             }
@@ -225,7 +225,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
 
     override fun getLongPollServer(groupId: Int): Single<GroupLongpollServer> {
         return provideService(IGroupsService::class.java, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service
                     .getLongPollServer(groupId)
                     .map(extractResponseWithErrorHandling())
@@ -247,7 +247,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
             TokenType.COMMUNITY,
             TokenType.SERVICE
         )
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service
                     .getById(join(pds, ","), groupId, fields)
                     .map(extractResponseWithErrorHandling())
@@ -256,7 +256,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
 
     override fun getChats(groupId: Int, offset: Int?, count: Int?): Single<Items<VKApiGroupChats>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
-            .flatMap { service: IGroupsService ->
+            .flatMap { service ->
                 service
                     .getChats(groupId, offset, count)
                     .map(extractResponseWithErrorHandling())

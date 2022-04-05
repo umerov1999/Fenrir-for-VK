@@ -76,7 +76,7 @@ class MySearchView : LinearLayout {
         mQueryDisposable.dispose()
         mQueryDisposable = Stores.instance.searchQueriesStore().getQueries(searchId)
             .fromIOToMain()
-            .subscribe({ s: List<String> ->
+            .subscribe({ s ->
                 listQueries.clear()
                 listQueries.addAll(s)
             }, RxUtils.ignore())

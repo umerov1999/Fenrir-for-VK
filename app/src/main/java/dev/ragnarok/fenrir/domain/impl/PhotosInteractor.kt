@@ -2,7 +2,8 @@ package dev.ragnarok.fenrir.domain.impl
 
 import android.provider.BaseColumns
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.VKApiPhotoAlbum
+import dev.ragnarok.fenrir.api.model.VKApiPhotoTags
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.PhotoPatch
 import dev.ragnarok.fenrir.db.model.PhotoPatch.Like
@@ -25,7 +26,6 @@ import dev.ragnarok.fenrir.fragment.search.options.SimpleDateOption
 import dev.ragnarok.fenrir.fragment.search.options.SimpleGPSOption
 import dev.ragnarok.fenrir.fragment.search.options.SpinnerOption
 import dev.ragnarok.fenrir.model.*
-import dev.ragnarok.fenrir.model.AccessIdPair
 import dev.ragnarok.fenrir.model.criteria.PhotoAlbumsCriteria
 import dev.ragnarok.fenrir.model.criteria.PhotoCriteria
 import dev.ragnarok.fenrir.settings.Settings
@@ -47,8 +47,8 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
     ): Single<List<Photo>> {
         return networker.vkDefault(accountId)
             .photos()[ownerId, albumId.toString(), null, rev, offset, count]
-            .map { items: Items<VKApiPhoto> -> listEmptyIfNull(items.getItems()) }
-            .flatMap { dtos: List<VKApiPhoto> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 val dbos: MutableList<PhotoEntity> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -72,8 +72,8 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getUsersPhoto(ownerId, extended, sort, offset, count)
-            .map { items: Items<VKApiPhoto>? -> listEmptyIfNull(items?.getItems()) }
-            .flatMap { dtos: List<VKApiPhoto> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     photos.add(transform(dto))
@@ -93,8 +93,8 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getAll(ownerId, extended, photo_sizes, offset, count)
-            .map { items: Items<VKApiPhoto>? -> listEmptyIfNull(items?.getItems()) }
-            .flatMap { dtos: List<VKApiPhoto> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     photos.add(transform(dto))
@@ -130,8 +130,8 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
                 offset,
                 count
             )
-            .map { items: Items<VKApiPhoto>? -> listEmptyIfNull(items?.getItems()) }
-            .flatMap { dtos: List<VKApiPhoto> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     photos.add(transform(dto))
@@ -164,8 +164,8 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getAlbums(ownerId, listOf(albumId), null, null, needSystem = true, needCovers = true)
-            .map { items: Items<VKApiPhotoAlbum> -> listEmptyIfNull(items.getItems()) }
-            .map { dtos: List<VKApiPhotoAlbum> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { dtos ->
                 if (dtos.isEmpty()) {
                     throw NotFoundException()
                 }
@@ -187,7 +187,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         val criteria = PhotoAlbumsCriteria(accountId, ownerId)
         return cache.photoAlbums()
             .findAlbumsByCriteria(criteria)
-            .map { entities: List<PhotoAlbumEntity> ->
+            .map { entities ->
                 mapAll(
                     entities
                 ) { mapPhotoAlbum(it) }
@@ -202,7 +202,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
     ): Single<List<VKApiPhotoTags>> {
         return networker.vkDefault(accountId)
             .photos().getTags(ownerId, photo_id, access_key)
-            .map { items: List<VKApiPhotoTags> -> items }
+            .map { items -> items }
     }
 
     override fun getAllComments(
@@ -215,8 +215,8 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getAllComments(ownerId, album_id, 1, offset, count)
-            .flatMap { items: Items<VKApiComment>? ->
-                val dtos = listEmptyIfNull(items?.getItems())
+            .flatMap { items ->
+                val dtos = listEmptyIfNull(items.getItems())
                 val ownids = VKOwnIds()
                 for (dto in dtos) {
                     ownids.append(dto)
@@ -248,8 +248,8 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getAlbums(ownerId, null, offset, count, needSystem = true, needCovers = true)
-            .flatMap { items: Items<VKApiPhotoAlbum>? ->
-                val dtos = listEmptyIfNull(items?.getItems())
+            .flatMap { items ->
+                val dtos = listEmptyIfNull(items.getItems())
                 val dbos: MutableList<PhotoAlbumEntity> = ArrayList(dtos.size)
                 val albums: MutableList<PhotoAlbum> = ArrayList(dbos.size)
                 if (offset == 0) {
@@ -312,7 +312,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
                 .likes()
                 .delete("photo", ownerId, photoId, accessKey)
         }
-        return single.flatMap { count: Int ->
+        return single.flatMap { count ->
             val patch = PhotoPatch().setLike(Like(count, add))
             cache.photos()
                 .applyPatch(accountId, ownerId, photoId, patch)
@@ -374,7 +374,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getById(dtoPairs)
-            .map { dtos: List<VKApiPhoto> ->
+            .map { dtos ->
                 mapAll(
                     dtos
                 ) { transform(it) }

@@ -4,7 +4,6 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
-import dev.ragnarok.fenrir.api.model.response.AttachmentsHistoryResponse
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
@@ -37,7 +36,7 @@ class ChatAttachmentPhotoPresenter(peerId: Int, accountId: Int, savedInstanceSta
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, "photo", nextFrom, 1, 50, null)
-            .map { response: AttachmentsHistoryResponse ->
+            .map { response ->
                 val photos: MutableList<Photo> = ArrayList()
                 for (one in response.items) {
                     if (one?.entry != null && one.entry.attachment is VKApiPhoto) {
@@ -90,7 +89,7 @@ class ChatAttachmentPhotoPresenter(peerId: Int, accountId: Int, savedInstanceSta
                         position,
                         source
                     )
-                }) { throwable: Throwable? -> Analytics.logUnexpectedError(throwable) })
+                }) { throwable -> Analytics.logUnexpectedError(throwable) })
         }
     }
 

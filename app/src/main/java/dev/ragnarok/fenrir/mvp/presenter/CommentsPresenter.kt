@@ -13,7 +13,8 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.*
+import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IAddEvent
+import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
 import dev.ragnarok.fenrir.domain.ICommentsInteractor
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IStickersInteractor
@@ -21,6 +22,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.CommentsInteractor
 import dev.ragnarok.fenrir.exception.NotFoundException
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommentsView
@@ -29,8 +31,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.DisposableHolder
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -82,8 +82,8 @@ class CommentsPresenter(
             authorId,
             IOwnersRepository.MODE_ANY
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owner: Owner -> onAuthorDataReceived(owner) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ owner -> onAuthorDataReceived(owner) }) { t ->
                 onAuthorDataGetError(
                     t
                 )
@@ -164,12 +164,12 @@ class CommentsPresenter(
             authorId,
             s.trim { it <= ' ' })
             .delay(500, TimeUnit.MILLISECONDS)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.updateStickers(
                     it
                 )
-            }) { u: Throwable? ->
+            }) { u ->
                 showError(u)
             })
     }
@@ -245,8 +245,8 @@ class CommentsPresenter(
         }
         setLoadingState(LoadingState.INITIAL)
         actualLoadingDisposable.add(single
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ bundle: CommentsBundle -> onInitialDataReceived(bundle) }) { throwable: Throwable ->
+            .fromIOToMain()
+            .subscribe({ bundle -> onInitialDataReceived(bundle) }) { throwable ->
                 onInitialDataError(
                     throwable
                 )
@@ -273,10 +273,10 @@ class CommentsPresenter(
             false,
             "desc"
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe(
                 { bundle: CommentsBundle -> onCommentsPortionPortionReceived(bundle) }
-            ) { throwable: Throwable? -> onCommentPortionError(getCauseIfRuntime(throwable)) })
+            ) { throwable -> onCommentPortionError(getCauseIfRuntime(throwable)) })
     }
 
     private fun loadDown() {
@@ -294,10 +294,10 @@ class CommentsPresenter(
             false,
             "asc"
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe(
                 { bundle: CommentsBundle -> onCommentsPortionPortionReceived(bundle) }
-            ) { throwable: Throwable? -> onCommentPortionError(getCauseIfRuntime(throwable)) })
+            ) { throwable -> onCommentPortionError(getCauseIfRuntime(throwable)) })
     }
 
     private fun onCommentPortionError(throwable: Throwable) {
@@ -553,13 +553,13 @@ class CommentsPresenter(
             older?.id ?: 0,
             commentId
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ comments: List<Comment> ->
+            .fromIOToMain()
+            .subscribe({ comments ->
                 onDeepCommentLoadingResponse(
                     commentId,
                     comments
                 )
-            }) { throwable: Throwable -> onDeepCommentLoadingError(throwable) })
+            }) { throwable -> onDeepCommentLoadingError(throwable) })
     }
 
     private fun onDeepCommentLoadingError(throwable: Throwable) {
@@ -674,15 +674,15 @@ class CommentsPresenter(
                 appendDisposable(interactor.reportComment(
                     authorId, comment.fromId, comment.id, item
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ p: Int ->
+                    .fromIOToMain()
+                    .subscribe({ p ->
                         if (p == 1) view?.customToast?.showToast(
                             R.string.success
                         )
                         else view?.customToast?.showToast(
                             R.string.error
                         )
-                    }) { t: Throwable? ->
+                    }) { t ->
                         showError(getCauseIfRuntime(t))
                     })
                 dialog.dismiss()
@@ -728,8 +728,8 @@ class CommentsPresenter(
         if (intent.replyToComment == null && CommentThread != null) intent.replyToComment =
             CommentThread
         appendDisposable(interactor.send(accountId, commented, CommentThread, intent)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onNormalSendResponse() }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onNormalSendResponse() }) { t ->
                 onSendError(
                     t
                 )
@@ -742,8 +742,8 @@ class CommentsPresenter(
             CommentThread
         val accountId = authorId
         appendDisposable(interactor.send(accountId, commented, CommentThread, intent)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onQuickSendResponse() }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onQuickSendResponse() }) { t ->
                 onSendError(
                     t
                 )
@@ -837,8 +837,8 @@ class CommentsPresenter(
     private fun deleteRestoreInternal(commentId: Int, delete: Boolean) {
         val accountId = authorId
         appendDisposable(interactor.deleteRestore(accountId, commented, commentId, delete)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -859,8 +859,8 @@ class CommentsPresenter(
     private fun likeInternal(add: Boolean, comment: Comment) {
         val accountId = authorId
         appendDisposable(interactor.like(accountId, comment.commented, comment.id, add)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -971,8 +971,8 @@ class CommentsPresenter(
             ownersRepository.findBaseOwnersDataAsList(accountId, ids, IOwnersRepository.MODE_ANY)
         }
         appendDisposable(single
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owners: List<Owner> -> onAvailableAuthorsReceived(owners) }) {
+            .fromIOToMain()
+            .subscribe({ owners -> onAvailableAuthorsReceived(owners) }) {
                 onAvailableAuthorsGetError()
             })
     }
@@ -1043,7 +1043,7 @@ class CommentsPresenter(
         val accountId = authorId
         cacheLoadingDisposable.add(
             interactor.getAllCachedData(accountId, commented)
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ onCachedDataReceived(it) }, ignore())
         )
     }
@@ -1159,20 +1159,20 @@ class CommentsPresenter(
         val attachmentsRepository = attachmentsRepository
         appendDisposable(attachmentsRepository
             .observeAdding()
-            .filter { event: IAddEvent -> filterAttachmentEvent(event) }
+            .filter { filterAttachmentEvent(it) }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { event: IAddEvent -> onAttchmentAddEvent(event) })
+            .subscribe { onAttchmentAddEvent(it) })
         appendDisposable(attachmentsRepository
             .observeRemoving()
-            .filter { event: IRemoveEvent -> filterAttachmentEvent(event) }
+            .filter { filterAttachmentEvent(it) }
             .observeOn(provideMainThreadScheduler())
             .subscribe { onAttchmentRemoveEvent() })
         appendDisposable(stores
             .comments()
             .observeMinorUpdates()
-            .filter { update: CommentUpdate -> update.commented == commented }
+            .filter { it.commented == commented }
             .observeOn(provideMainThreadScheduler())
-            .subscribe({ update: CommentUpdate -> onCommentMinorUpdate(update) }) { it.printStackTrace() })
+            .subscribe({ update -> onCommentMinorUpdate(update) }) { it.printStackTrace() })
         restoreDraftCommentSync()
         requestInitialData()
         loadAuthorData()

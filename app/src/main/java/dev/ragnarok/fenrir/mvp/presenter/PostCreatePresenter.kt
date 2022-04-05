@@ -11,9 +11,11 @@ import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.*
+import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
+import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IRemoveEvent
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.view.IPostCreateView
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -23,7 +25,6 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.RxUtils.subscribeOnIOAndIgnore
@@ -174,13 +175,13 @@ class PostCreatePresenter(
 
     private fun setupAttachmentsListening() {
         appendDisposable(attachmentsRepository.observeAdding()
-            .filter { event: IAddEvent -> filterAttachmentEvents(event) }
+            .filter { filterAttachmentEvents(it) }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { event: IAddEvent -> onRepositoryAttachmentsAdded(event.attachments) })
+            .subscribe { onRepositoryAttachmentsAdded(it.attachments) })
         appendDisposable(attachmentsRepository.observeRemoving()
-            .filter { event: IRemoveEvent -> filterAttachmentEvents(event) }
+            .filter { filterAttachmentEvents(it) }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { event: IRemoveEvent -> onRepositoryAttachmentsRemoved(event) })
+            .subscribe { onRepositoryAttachmentsRemoved(it) })
     }
 
     private fun setupUploadListening() {
@@ -221,8 +222,8 @@ class PostCreatePresenter(
     private fun restoreEditingWallPostFromDbAsync() {
         appendDisposable(walls
             .getEditingPost(accountId, ownerId, editingType, false)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ post: Post -> onPostRestored(post) }) { obj: Throwable -> obj.printStackTrace() })
+            .fromIOToMain()
+            .subscribe({ post -> onPostRestored(post) }) { obj -> obj.printStackTrace() })
     }
 
     private fun restoreEditingAttachmentsAsync(postDbid: Int) {
@@ -235,8 +236,8 @@ class PostCreatePresenter(
                     second
                 )
             }
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onAttachmentsRestored(it) }) { obj: Throwable -> obj.printStackTrace() })
+            .fromIOToMain()
+            .subscribe({ onAttachmentsRestored(it) }) { obj -> obj.printStackTrace() })
     }
 
     private fun onPostRestored(post: Post) {
@@ -448,8 +449,8 @@ class PostCreatePresenter(
         val destination = UploadDestination.forPost(pPost.dbid, ownerId)
         appendDisposable(uploadManager[accountId, destination]
             .map { it.size }
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ count: Int ->
+            .fromIOToMain()
+            .subscribe({ count ->
                 if (count > 0) {
                     view?.showError(R.string.wait_until_file_upload_is_complete)
                 } else {
@@ -467,8 +468,8 @@ class PostCreatePresenter(
         val accountId = accountId
         appendDisposable(walls
             .post(accountId, pPost, fromGroup, showSigner)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onPostPublishSuccess() }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onPostPublishSuccess() }) { t ->
                 onPostPublishError(
                     t
                 )

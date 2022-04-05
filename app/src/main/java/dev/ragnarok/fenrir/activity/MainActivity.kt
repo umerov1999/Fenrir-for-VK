@@ -31,13 +31,11 @@ import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.integration.android.IntentIntegrator
-import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.Includes.proxySettings
 import dev.ragnarok.fenrir.Includes.pushRegistrationResolver
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.checkInputExist
 import dev.ragnarok.fenrir.activity.ActivityUtils.isMimeAudio
 import dev.ragnarok.fenrir.activity.EnterPinActivity.Companion.getClass
@@ -81,7 +79,6 @@ import dev.ragnarok.fenrir.model.drawer.SectionMenuItem
 import dev.ragnarok.fenrir.mvp.presenter.DocsListPresenter
 import dev.ragnarok.fenrir.mvp.view.IVideosListView
 import dev.ragnarok.fenrir.mvp.view.IVkPhotosView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceProvider
@@ -257,7 +254,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 .accounts()
                 .observeChanges()
                 .observeOn(provideMainThreadScheduler())
-                .subscribe { newAccountId: Int -> onCurrentAccountChange(newAccountId) })
+                .subscribe { onCurrentAccountChange(it) })
         mCompositeDisposable.add(
             proxySettings
                 .observeActive().observeOn(provideMainThreadScheduler())
@@ -265,9 +262,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         mCompositeDisposable.add(Stores.instance
             .dialogs()
             .observeUnreadDialogsCount()
-            .filter { pair: Pair<Int, Int> -> pair.first == mAccountId }
-            .compose(RxUtils.applyObservableIOToMainSchedulers())
-            .subscribe { pair: Pair<Int, Int> -> updateMessagesBagde(pair.second) })
+            .filter { it.first == mAccountId }
+            .toMainThread()
+            .subscribe { updateMessagesBagde(it.second) })
         bindToAudioPlayService()
         setContentView(mLayoutRes)
         mAccountId = Settings.get()
@@ -338,15 +335,15 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 if (getMainActivityTransform() == MainActivityTransforms.MAIN) {
                     checkFCMRegistration(false)
                     mCompositeDisposable.add(MusicPlaybackController.tracksExist.findAllAudios(this)
-                        .compose(RxUtils.applyCompletableIOToMainSchedulers())
-                        .subscribe(RxUtils.dummy()) { t: Throwable? ->
+                        .fromIOToMain()
+                        .subscribe(RxUtils.dummy()) { t ->
                             if (Settings.get().other().isDeveloper_mode) {
                                 Utils.showErrorInAdapter(this, t)
                             }
                         })
                     mCompositeDisposable.add(
                         InteractorFactory.createStickersInteractor().PlaceToStickerCache(this)
-                            .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                            .fromIOToMain()
                             .subscribe(RxUtils.dummy(), RxUtils.ignore())
                     )
                     if (!Settings.get().other().appStoredVersionEqual()) {
@@ -377,8 +374,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
 
     private fun updateNotificationCount(account: Int) {
         mCompositeDisposable.add(CountersInteractor(networkInterfaces).getApiCounters(account)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
-            .subscribe({ counters: SectionCounters -> updateNotificationsBadge(counters) }) { removeNotificationsBadge() })
+            .fromIOToMain()
+            .subscribe({ counters -> updateNotificationsBadge(counters) }) { removeNotificationsBadge() })
     }
 
     override fun onPause() {
@@ -429,7 +426,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         val resolver = pushRegistrationResolver
         mCompositeDisposable.add(
             resolver.resolvePushRegistration()
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(RxUtils.dummy(), RxUtils.ignore())
         )
 
@@ -495,7 +492,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                                         .setOffline(
                                             Settings.get().accounts().current
                                         )
-                                        .compose(RxUtils.applySingleIOToMainSchedulers())
+                                        .fromIOToMain()
                                         .subscribe({ onSetOffline(it) }) {
                                             onSetOffline(
                                                 false
@@ -1049,7 +1046,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         mCompositeDisposable.add(
             InteractorFactory.createFeedbackInteractor()
                 .maskAaViewed(mAccountId)
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     mBottomNavigation?.removeBadge(R.id.menu_feedback)
                     navigationFragment?.onUnreadNotificationsCountChange(0)

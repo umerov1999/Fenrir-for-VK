@@ -7,21 +7,13 @@ class DialogsSearchCriteria : BaseSearchCriteria {
     constructor(query: String?) : super(query)
     private constructor(`in`: Parcel) : super(`in`)
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    companion object CREATOR : Parcelable.Creator<DialogsSearchCriteria> {
+        override fun createFromParcel(parcel: Parcel): DialogsSearchCriteria {
+            return DialogsSearchCriteria(parcel)
+        }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<DialogsSearchCriteria> =
-            object : Parcelable.Creator<DialogsSearchCriteria> {
-                override fun createFromParcel(`in`: Parcel): DialogsSearchCriteria {
-                    return DialogsSearchCriteria(`in`)
-                }
-
-                override fun newArray(size: Int): Array<DialogsSearchCriteria?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<DialogsSearchCriteria?> {
+            return arrayOfNulls(size)
+        }
     }
 }

@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Market
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFaveProductsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class FaveProductsPresenter(accountId: Int, savedInstanceState: Bundle?) :
@@ -40,8 +40,8 @@ class FaveProductsPresenter(accountId: Int, savedInstanceState: Bundle?) :
         cacheLoadingNow = true
         val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedProducts(accountId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ markets: List<Market> -> onCachedDataReceived(markets) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ markets -> onCachedDataReceived(markets) }) { t ->
                 onCacheGetError(
                     t
                 )
@@ -71,13 +71,13 @@ class FaveProductsPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveRefreshingView()
         val accountId = accountId
         netDisposable.add(faveInteractor.getProducts(accountId, COUNT_PER_REQUEST, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ products: List<Market> ->
+            .fromIOToMain()
+            .subscribe({ products ->
                 onNetDataReceived(
                     offset,
                     products
                 )
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     private fun onNetDataGetError(t: Throwable) {

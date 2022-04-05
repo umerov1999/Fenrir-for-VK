@@ -3,12 +3,12 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFeedbackInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IFeedbackView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -53,14 +53,14 @@ class FeedbackPresenter(accountId: Int, savedInstanceState: Bundle?) :
             COUNT_PER_REQUEST,
             startFrom
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
                     startFrom,
                     it.first,
                     it.second
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -122,8 +122,8 @@ class FeedbackPresenter(accountId: Int, savedInstanceState: Bundle?) :
         cacheLoadingNow = true
         val accountId = accountId
         cacheDisposable.add(feedbackInteractor.getCachedFeedbacks(accountId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onCachedDataReceived(it) }) { obj: Throwable -> obj.printStackTrace() })
+            .fromIOToMain()
+            .subscribe({ onCachedDataReceived(it) }) { obj -> obj.printStackTrace() })
     }
 
     private fun onCachedDataReceived(feedbacks: List<Feedback>) {

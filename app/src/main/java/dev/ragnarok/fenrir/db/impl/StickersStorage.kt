@@ -111,7 +111,7 @@ internal class StickersStorage(base: AppStorages) : AbsStorage(base), IStickersS
                 null,
                 null
             )
-            val stickers: MutableList<StickerEntity> = ArrayList(cursor.count)
+            val stickers: MutableList<StickerEntity> = ArrayList(safeCountOf(cursor))
             while (cursor.moveToNext()) {
                 if (e.isDisposed) {
                     break

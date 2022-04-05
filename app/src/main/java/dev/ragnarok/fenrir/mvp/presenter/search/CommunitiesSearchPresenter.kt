@@ -56,7 +56,7 @@ class CommunitiesSearchPresenter(
             50,
             offset
         )
-            .map { communities: List<Community> -> create(communities, nextFrom) }
+            .map { communities -> create(communities, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): GroupSearchCriteria {

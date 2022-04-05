@@ -22,7 +22,7 @@ class FcmListenerService : FirebaseMessagingService() {
         super.onNewToken(s)
         pushRegistrationResolver
             .resolvePushRegistration()
-            .compose(RxUtils.applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe(RxUtils.dummy(), RxUtils.ignore())
     }
 

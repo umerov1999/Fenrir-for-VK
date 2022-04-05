@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityFriendsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class CommunityFriendsPresenter(
@@ -86,8 +86,8 @@ class CommunityFriendsPresenter(
         val accountId = accountId
         setRefreshing(true)
         appendDisposable(communitiesInteractor.getGroupFriends(accountId, groupId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ users: List<Owner> -> onDataReceived(users) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ users -> onDataReceived(users) }) { t ->
                 onDataGetError(
                     t
                 )

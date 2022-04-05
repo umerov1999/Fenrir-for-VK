@@ -4,11 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFriendsByPhonesView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 
 class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IFriendsByPhonesView>(accountId, savedInstanceState) {
@@ -28,8 +28,8 @@ class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceSt
         resolveRefreshingView()
         val accountId = accountId
         appendDisposable(friendsInteractor.getByPhones(accountId, context)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owners: List<User> -> onActualDataReceived(owners) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ owners -> onActualDataReceived(owners) }) { t ->
                 onActualDataGetError(
                     t
                 )

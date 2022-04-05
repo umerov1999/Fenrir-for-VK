@@ -190,7 +190,7 @@ class UploadManagerImpl(
                             first,
                             it
                         )
-                    }, { t: Throwable -> onUploadFail(first, t) })
+                    }, { t -> onUploadFail(first, t) })
             )
         }
     }

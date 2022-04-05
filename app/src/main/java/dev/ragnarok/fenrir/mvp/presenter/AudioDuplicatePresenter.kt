@@ -7,15 +7,15 @@ import android.os.Bundle
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.observeServiceBinding
 import dev.ragnarok.fenrir.media.music.PlayerStatus
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IAudioDuplicateView
+import dev.ragnarok.fenrir.toMainThread
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getBitrate
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getLength
-import dev.ragnarok.fenrir.util.RxUtils.applyObservableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.hls.M3U8
 import io.reactivex.rxjava3.core.Single
@@ -39,10 +39,9 @@ class AudioDuplicatePresenter(
             val mode = new_audio.needRefresh()
             if (mode.first) {
                 audioListDisposable =
-                    mAudioInteractor.getByIdOld(accountId, listOf(new_audio), mode.second).compose(
-                        applySingleIOToMainSchedulers()
-                    )
-                        .subscribe({ t: List<Audio> -> getBitrate(t[0]) }) {
+                    mAudioInteractor.getByIdOld(accountId, listOf(new_audio), mode.second)
+                        .fromIOToMain()
+                        .subscribe({ t -> getBitrate(t[0]) }) {
                             getBitrate(
                                 new_audio
                             )
@@ -74,29 +73,29 @@ class AudioDuplicatePresenter(
             return
         }
         if (audio.isHLS) {
-            audioListDisposable = M3U8(audio.url).length.compose(applySingleIOToMainSchedulers())
-                .subscribe({ r: Long ->
+            audioListDisposable = M3U8(audio.url).length.fromIOToMain()
+                .subscribe({ r ->
                     newBitrate = getBitrate(audio.duration, r)
                     view?.setNewBitrate(
                         newBitrate
                     )
-                }) { t: Throwable -> onDataGetError(t) }
+                }) { t -> onDataGetError(t) }
         } else if (!audio.isLocalServer) {
-            audioListDisposable = getLength(audio.url).compose(applySingleIOToMainSchedulers())
-                .subscribe({ r: Long ->
+            audioListDisposable = getLength(audio.url).fromIOToMain()
+                .subscribe({ r ->
                     newBitrate = getBitrate(audio.duration, r)
                     view?.setNewBitrate(
                         newBitrate
                     )
-                }) { t: Throwable -> onDataGetError(t) }
+                }) { t -> onDataGetError(t) }
         } else {
-            audioListDisposable = doBitrate(audio.url).compose(applySingleIOToMainSchedulers())
-                .subscribe({ r: Int ->
+            audioListDisposable = doBitrate(audio.url).fromIOToMain()
+                .subscribe({ r ->
                     newBitrate = r
                     view?.setNewBitrate(
                         newBitrate
                     )
-                }) { t: Throwable -> onDataGetError(t) }
+                }) { t -> onDataGetError(t) }
         }
     }
 
@@ -141,16 +140,14 @@ class AudioDuplicatePresenter(
         view?.updateShowBitrate(
             needShowBitrateButton
         )
-        audioListDisposable = doLocalBitrate(context, old_audio.url).compose(
-            applySingleIOToMainSchedulers()
-        )
-            .subscribe({ r: Int ->
+        audioListDisposable = doLocalBitrate(context, old_audio.url).fromIOToMain()
+            .subscribe({ r ->
                 oldBitrate = r
                 view?.setOldBitrate(
                     oldBitrate
                 )
                 mp3AndBitrate
-            }) { t: Throwable -> onDataGetError(t) }
+            }) { t -> onDataGetError(t) }
     }
 
     private fun onServiceBindEvent(@PlayerStatus status: Int) {
@@ -189,7 +186,7 @@ class AudioDuplicatePresenter(
 
     init {
         mPlayerDisposable = observeServiceBinding()
-            .compose(applyObservableIOToMainSchedulers())
-            .subscribe { status: Int -> onServiceBindEvent(status) }
+            .toMainThread()
+            .subscribe { onServiceBindEvent(it) }
     }
 }

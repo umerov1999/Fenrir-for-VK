@@ -3,10 +3,6 @@ package dev.ragnarok.fenrir.domain.impl
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.IAttachmentToken
-import dev.ragnarok.fenrir.api.model.response.PostsResponse
-import dev.ragnarok.fenrir.api.model.response.RepostReponse
-import dev.ragnarok.fenrir.api.model.response.WallResponse
-import dev.ragnarok.fenrir.api.model.response.WallSearchResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.interfaces.IWallStorage.IClearWallTask
 import dev.ragnarok.fenrir.db.model.PostPatch
@@ -31,7 +27,6 @@ import dev.ragnarok.fenrir.model.IdPair
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
@@ -101,7 +96,7 @@ class WallsRepository(
                 ownerId, friendsOnly, fromGroup, message, tokens, services, signed, publishDate,
                 latitude, longitude, placeId, postId, guid, markAsAds, adsPromotedStealth
             )
-            .flatMap { vkid: Int ->
+            .flatMap { vkid ->
                 val completable: Completable = if (postId != null && postId != vkid) {
                     // если id поста изменился - удаляем его из бд
                     invalidatePost(accountId, postId, ownerId)
@@ -129,7 +124,7 @@ class WallsRepository(
                 .likes()
                 .delete("post", ownerId, postId, null)
         }
-        return single.flatMap { count: Int ->
+        return single.flatMap { count ->
             // TODO: 05.09.2017 Сохранение лайков в таблице новостей надо ?
             val update = PostUpdate(accountId, postId, ownerId).withLikes(count, add)
             applyPatch(update).andThen(Single.just(count))
@@ -156,7 +151,7 @@ class WallsRepository(
     ): Single<List<Post>> {
         return networker.vkDefault(accountId)
             .wall()[ownerId, null, offset, count, convertToApiFilter(wallFilter), true, Constants.MAIN_OWNER_FIELDS]
-            .flatMap { response: WallResponse ->
+            .flatMap { response ->
                 val owners = transformOwners(response.profiles, response.groups)
                 val dtos = listEmptyIfNull(response.posts)
                 val ids = VKOwnIds()
@@ -170,7 +165,7 @@ class WallsRepository(
                         IOwnersRepository.MODE_ANY,
                         owners
                     )
-                    .flatMap { bundle: IOwnersBundle ->
+                    .flatMap { bundle ->
                         val posts = transformPosts(dtos, bundle)
                         Single.just(posts)
                     }
@@ -186,7 +181,7 @@ class WallsRepository(
     ): Single<List<Post>> {
         return networker.vkDefault(accountId)
             .wall()[ownerId, null, offset, count, convertToApiFilter(wallFilter), true, Constants.MAIN_OWNER_FIELDS]
-            .flatMap { response: WallResponse ->
+            .flatMap { response ->
                 val owners = transformOwners(response.profiles, response.groups)
                 val dtos = listEmptyIfNull(response.posts)
                 val ids = VKOwnIds()
@@ -201,7 +196,7 @@ class WallsRepository(
                         IOwnersRepository.MODE_ANY,
                         owners
                     )
-                    .flatMap { bundle: IOwnersBundle ->
+                    .flatMap { bundle ->
                         val posts = transformPosts(dtos, bundle)
                         val dbos: MutableList<PostEntity> = ArrayList(dtos.size)
                         for (dto in dtos) {
@@ -224,7 +219,7 @@ class WallsRepository(
     private fun entities2models(accountId: Int): SingleTransformer<List<PostEntity>, List<Post>> {
         return SingleTransformer { single: Single<List<PostEntity>> ->
             single
-                .flatMap { dbos: List<PostEntity> ->
+                .flatMap { dbos ->
                     val ids = VKOwnIds()
                     fillOwnerIds(ids, dbos)
                     ownersRepository
@@ -243,12 +238,12 @@ class WallsRepository(
     private fun entity2model(accountId: Int): SingleTransformer<PostEntity, Post> {
         return SingleTransformer { single: Single<PostEntity> ->
             single
-                .flatMap { dbo: PostEntity ->
+                .flatMap { dbo ->
                     val ids = VKOwnIds()
                     fillPostOwnerIds(ids, dbo)
                     ownersRepository
                         .findBaseOwnersDataAsBundle(accountId, ids.all, IOwnersRepository.MODE_ANY)
-                        .map { owners: IOwnersBundle ->
+                        .map { owners ->
                             buildPostFromDbo(
                                 dbo, owners
                             )
@@ -310,7 +305,7 @@ class WallsRepository(
         return networker.vkDefault(accountId)
             .wall()
             .getById(setOf(id), true, 5, Constants.MAIN_OWNER_FIELDS)
-            .flatMap { response: PostsResponse ->
+            .flatMap { response ->
                 if (response.posts.isNullOrEmpty()) {
                     throw NotFoundException()
                 }
@@ -324,7 +319,7 @@ class WallsRepository(
                     IOwnersRepository.MODE_ANY,
                     owners
                 )
-                    .map { bundle: IOwnersBundle -> transform(dto, bundle) }
+                    .map { bundle -> transform(dto, bundle) }
             }
     }
 
@@ -393,7 +388,7 @@ class WallsRepository(
         return networker.vkDefault(accountId)
             .wall()
             .repost(ownerId, postId, message, groupId, null)
-            .flatMap { reponse: RepostReponse ->
+            .flatMap { reponse ->
                 getAndStorePost(
                     accountId,
                     resultOwnerId,
@@ -417,22 +412,22 @@ class WallsRepository(
         return networker.vkDefault(accountId)
             .wall()
             .getById(singlePair(postId, ownerId), true, 5, Constants.MAIN_OWNER_FIELDS)
-            .flatMap { response: PostsResponse ->
+            .flatMap { response ->
                 if (safeCountOf(response.posts) != 1) {
                     throw NotFoundException()
                 }
                 val dbo = mapPost(response.posts[0])
                 val ownerEntities = mapOwners(response.profiles, response.groups)
                 cache.storeWallEntities(accountId, listOf(dbo), ownerEntities, null)
-                    .map { ints: IntArray -> ints[0] }
-                    .flatMap { dbid: Int ->
+                    .map { ints -> ints[0] }
+                    .flatMap { dbid ->
                         cache
                             .findPostById(accountId, dbid)
-                            .map { obj: Optional<PostEntity> -> obj.requareNonEmpty() }
+                            .map { obj -> obj.requareNonEmpty() }
                             .compose(entity2model(accountId))
                     }
             }
-            .map { post: Post ->
+            .map { post ->
                 majorUpdatesPublisher.onNext(post)
                 post
             }
@@ -457,7 +452,7 @@ class WallsRepository(
                 true,
                 Constants.MAIN_OWNER_FIELDS
             )
-            .flatMap { response: WallSearchResponse ->
+            .flatMap { response ->
                 val dtos = listEmptyIfNull(response.items)
                 val owners = transformOwners(response.profiles, response.groups)
                 val ids = VKOwnIds()
@@ -470,7 +465,7 @@ class WallsRepository(
                     IOwnersRepository.MODE_ANY,
                     owners
                 )
-                    .map { ownersBundle: IOwnersBundle ->
+                    .map { ownersBundle ->
                         create(
                             transformPosts(
                                 dtos,

@@ -3,9 +3,9 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.view.ISimpleOwnersView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class MutualFriendsPresenter(accountId: Int, private val userId: Int, savedInstanceState: Bundle?) :
@@ -45,8 +45,8 @@ class MutualFriendsPresenter(accountId: Int, private val userId: Int, savedInsta
             200,
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ users: List<User> -> onDataReceived(users) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ users -> onDataReceived(users) }) { t ->
                 onDataGetError(
                     t
                 )

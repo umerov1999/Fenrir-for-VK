@@ -3,12 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.mvp.view.IMessagesLookView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.Side
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -44,8 +43,8 @@ class MessagesLookPresenter(
             cacheData = false,
             rev = false
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ messages: List<Message> -> onInitDataLoaded(messages) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ messages -> onInitDataLoaded(messages) }) { t ->
                 onDataGetError(
                     t
                 )
@@ -77,8 +76,8 @@ class MessagesLookPresenter(
             accountId, mPeerId, ids,
             forAll = false, spam = false
         )
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -106,8 +105,8 @@ class MessagesLookPresenter(
             cacheData = false,
             rev = false
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onDownDataLoaded(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onDownDataLoaded(it) }) { t ->
                 onDownDataGetError(
                     t
                 )
@@ -118,8 +117,8 @@ class MessagesLookPresenter(
         super.onActionModeDeleteClick()
         val accountId = accountId
         val ids = Observable.fromIterable(data)
-            .filter { obj: Message -> obj.isSelected }
-            .map { obj: Message -> obj.id }
+            .filter { it.isSelected }
+            .map { it.id }
             .toList()
             .blockingGet()
         if (ids.nonNullNoEmpty()) {
@@ -130,8 +129,8 @@ class MessagesLookPresenter(
                 forAll = false,
                 spam = false
             )
-                .compose(applyCompletableIOToMainSchedulers())
-                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t: Throwable? ->
+                .fromIOToMain()
+                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t ->
                     showError(getCauseIfRuntime(t))
                 })
         }
@@ -141,8 +140,8 @@ class MessagesLookPresenter(
         super.onActionModeDeleteClick()
         val accountId = accountId
         val ids = Observable.fromIterable(data)
-            .filter { obj: Message -> obj.isSelected }
-            .map { obj: Message -> obj.id }
+            .filter { it.isSelected }
+            .map { it.id }
             .toList()
             .blockingGet()
         if (ids.nonNullNoEmpty()) {
@@ -150,8 +149,8 @@ class MessagesLookPresenter(
                 accountId, mPeerId, ids,
                 forAll = false, spam = true
             )
-                .compose(applyCompletableIOToMainSchedulers())
-                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t: Throwable? ->
+                .fromIOToMain()
+                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t ->
                     showError(getCauseIfRuntime(t))
                 })
         }
@@ -172,8 +171,8 @@ class MessagesLookPresenter(
             cacheData = false,
             rev = false
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onUpDataLoaded(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onUpDataLoaded(it) }) { t ->
                 onUpDataGetError(
                     t
                 )
@@ -200,8 +199,8 @@ class MessagesLookPresenter(
         val accountId = accountId
         val id = message.id
         appendDisposable(messagesInteractor.restoreMessage(accountId, mPeerId, id)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onMessageRestoredSuccessfully(id) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onMessageRestoredSuccessfully(id) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }

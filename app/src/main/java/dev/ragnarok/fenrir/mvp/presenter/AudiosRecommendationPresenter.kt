@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
@@ -11,7 +12,6 @@ import dev.ragnarok.fenrir.mvp.view.IAudiosRecommendationView
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -78,8 +78,8 @@ class AudiosRecommendationPresenter(
             genre,
             REC_COUNT
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onEndlessListReceived(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onEndlessListReceived(it) }) { t ->
                 onListGetError(
                     t
                 )
@@ -95,7 +95,7 @@ class AudiosRecommendationPresenter(
                     ownerId.toString() + "_" + option_menu_id,
                     REC_COUNT
                 )
-                    .compose(applySingleIOToMainSchedulers())
+                    .fromIOToMain()
                     .subscribe({ onEndlessListReceived(it) }) {
                         onListGetError(
                             it
@@ -107,8 +107,8 @@ class AudiosRecommendationPresenter(
                     ownerId,
                     REC_COUNT
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ onEndlessListReceived(it) }) { t: Throwable ->
+                    .fromIOToMain()
+                    .subscribe({ onEndlessListReceived(it) }) { t ->
                         onListGetError(
                             t
                         )

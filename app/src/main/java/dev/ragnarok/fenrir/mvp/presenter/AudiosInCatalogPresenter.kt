@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.CatalogBlock
@@ -11,7 +12,6 @@ import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IAudiosInCatalogView
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -54,8 +54,8 @@ class AudiosInCatalogPresenter(
     fun requestList() {
         setLoadingNow(true)
         audioListDisposable.add(audioInteractor.getCatalogBlockById(accountId, block_id, next_from)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onListReceived(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onListReceived(it) }) { t ->
                 onListGetError(
                     t
                 )

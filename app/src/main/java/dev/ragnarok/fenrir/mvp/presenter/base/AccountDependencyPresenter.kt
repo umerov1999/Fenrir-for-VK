@@ -72,6 +72,6 @@ abstract class AccountDependencyPresenter<V>(accountId: Int, savedInstanceState:
                 .accounts()
                 .observeChanges()
                 .toMainThread()
-                .subscribe { newAccountId: Int -> onAccountChange(newAccountId) })
+                .subscribe { onAccountChange(it) })
     }
 }

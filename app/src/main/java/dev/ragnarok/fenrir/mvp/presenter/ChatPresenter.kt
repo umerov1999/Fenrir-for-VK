@@ -16,9 +16,10 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityUtils
-import dev.ragnarok.fenrir.api.model.*
-import dev.ragnarok.fenrir.api.model.server.VkApiDocsUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadDocDto
+import dev.ragnarok.fenrir.api.model.AttachmentToken
+import dev.ragnarok.fenrir.api.model.AttachmentsTokenCreator
+import dev.ragnarok.fenrir.api.model.IAttachmentToken
+import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.crypt.AesKeyPair
 import dev.ragnarok.fenrir.crypt.KeyExchangeService
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
@@ -46,7 +47,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.util.*
 import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.RxUtils.applyMaybeIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.RxUtils.safelyCloseAction
@@ -339,7 +339,7 @@ class ChatPresenter(
                 voiceMessageId
             )
                 .fromIOToMain()
-                .subscribe({ }, { t: Throwable? -> showError(view, t) })
+                .subscribe({ }, { t -> showError(view, t) })
         )
     }
 
@@ -349,7 +349,7 @@ class ChatPresenter(
                 .fromIOToMain()
                 .subscribe(
                     { onDialogRemovedSuccessfully(accountId) },
-                    { t: Throwable? -> showError(view, t) })
+                    { t -> showError(view, t) })
         )
     }
 
@@ -586,7 +586,7 @@ class ChatPresenter(
     private fun loadAllCachedData() {
         setCacheLoadingNow(true)
         cacheLoadingDisposable = messagesRepository.getCachedPeerMessages(messagesOwnerId, peer.id)
-            .flatMap { t: List<Message> ->
+            .flatMap { t ->
                 run {
                     val list = t.toMutableList()
                     val iterator = list.iterator()
@@ -640,7 +640,7 @@ class ChatPresenter(
                 .fromIOToMain()
                 .subscribe(
                     { peer.avaUrl = null; view?.displayToolbarAvatar(peer) },
-                    { t: Throwable? -> showError(view, t) })
+                    { t -> showError(view, t) })
         )
     }
 
@@ -1332,7 +1332,7 @@ class ChatPresenter(
                 Stores.instance
                     .owners()
                     .getLocalizedUserActivity(messagesOwnerId, Peer.toUserId(peerId))
-                    .compose(applyMaybeIOToMainSchedulers())
+                    .fromIOToMain()
                     .subscribe({ s ->
                         subtitle = s
                         resolveToolbarSubtitle()
@@ -1450,7 +1450,7 @@ class ChatPresenter(
             Stores.instance
                 .messages()
                 .findDraftMessage(messagesOwnerId, peerId)
-                .compose(applyMaybeIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(
                     { draft -> onDraftMessageRestored(draft, ignoreBody) },
                     { Analytics.logUnexpectedError(it) })
@@ -2121,7 +2121,7 @@ class ChatPresenter(
                 peerId,
                 if (filePath.isAnimated) "doc" else "graffiti"
             )
-                .flatMap { server: VkApiDocsUploadServer ->
+                .flatMap { server ->
                     val file = File(filePath.path)
                     val sInput = arrayOfNulls<InputStream>(1)
                     try {
@@ -2134,10 +2134,10 @@ class ChatPresenter(
                                 null
                             )
                             .doFinally(safelyCloseAction(sInput[0]))
-                            .flatMap { uploadDto: UploadDocDto ->
+                            .flatMap { uploadDto ->
                                 docsApi
                                     .save(uploadDto.file, null, null)
-                                    .map { dtos: VkApiDoc.Entry ->
+                                    .map { dtos ->
                                         if (dtos.type.isEmpty()) {
                                             throw NotFoundException("Unable to save graffiti message")
                                         }

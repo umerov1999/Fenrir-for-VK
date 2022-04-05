@@ -26,17 +26,13 @@ class StringNextFrom : AbsNextFrom {
         nextFrom = null
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<StringNextFrom> =
-            object : Parcelable.Creator<StringNextFrom> {
-                override fun createFromParcel(`in`: Parcel): StringNextFrom {
-                    return StringNextFrom(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<StringNextFrom> {
+        override fun createFromParcel(parcel: Parcel): StringNextFrom {
+            return StringNextFrom(parcel)
+        }
 
-                override fun newArray(size: Int): Array<StringNextFrom?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<StringNextFrom?> {
+            return arrayOfNulls(size)
+        }
     }
 }

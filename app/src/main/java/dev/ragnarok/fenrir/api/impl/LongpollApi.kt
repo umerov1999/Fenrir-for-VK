@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.api.IOtherVkRetrofitProvider
-import dev.ragnarok.fenrir.api.RetrofitWrapper
 import dev.ragnarok.fenrir.api.interfaces.ILongpollApi
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiGroupLongpollUpdates
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
@@ -19,7 +18,7 @@ class LongpollApi internal constructor(private val provider: IOtherVkRetrofitPro
         version: Int
     ): Single<VkApiLongpollUpdates> {
         return provider.provideLongpollRetrofit()
-            .flatMap { wrapper: RetrofitWrapper ->
+            .flatMap { wrapper ->
                 wrapper.create(
                     ILongpollUpdatesService::class.java
                 )
@@ -34,7 +33,7 @@ class LongpollApi internal constructor(private val provider: IOtherVkRetrofitPro
         wait: Int
     ): Single<VkApiGroupLongpollUpdates> {
         return provider.provideLongpollRetrofit()
-            .flatMap { wrapper: RetrofitWrapper ->
+            .flatMap { wrapper ->
                 wrapper.create(
                     ILongpollUpdatesService::class.java
                 )

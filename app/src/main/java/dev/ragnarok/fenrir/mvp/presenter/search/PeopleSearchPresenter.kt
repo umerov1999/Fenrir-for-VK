@@ -36,7 +36,7 @@ class PeopleSearchPresenter(
         val offset = startFrom.offset
         val nextOffset = offset + 50
         return ownersRepository.searchPeoples(accountId, criteria, 50, offset)
-            .map { users: List<User> -> create(users, IntNextFrom(nextOffset)) }
+            .map { users -> create(users, IntNextFrom(nextOffset)) }
     }
 
     override fun instantiateEmptyCriteria(): PeopleSearchCriteria {

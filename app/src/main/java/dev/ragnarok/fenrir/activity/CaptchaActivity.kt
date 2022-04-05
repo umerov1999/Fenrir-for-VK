@@ -57,13 +57,13 @@ class CaptchaActivity : AppCompatActivity() {
         captchaProvider?.let {
             mCompositeDisposable.add(
                 it.observeWaiting()
-                    .filter { sid: String -> sid == requestSid }
+                    .filter { ob -> ob == requestSid }
                     .observeOn(provideMainThreadScheduler())
                     .subscribe({ onWaitingRequestReceived() }, RxUtils.ignore())
             )
             mCompositeDisposable.add(
                 it.observeCanceling()
-                    .filter { sid: String -> sid == requestSid }
+                    .filter { ob -> ob == requestSid }
                     .observeOn(provideMainThreadScheduler())
                     .subscribe({ onRequestCancelled() }, RxUtils.ignore())
             )

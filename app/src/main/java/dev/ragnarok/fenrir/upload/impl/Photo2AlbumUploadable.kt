@@ -4,10 +4,7 @@ import android.content.Context
 import androidx.exifinterface.media.ExifInterface
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToAlbumDto
 import dev.ragnarok.fenrir.db.interfaces.IPhotosStorage
 import dev.ragnarok.fenrir.db.model.entity.PhotoEntity
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity
@@ -46,16 +43,16 @@ class Photo2AlbumUploadable(
             networker.vkDefault(accountId)
                 .photos()
                 .getUploadServer(albumId, groupId)
-                .map { s: VkApiUploadServer -> s }
+                .map { it }
         }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 `is`[0] = UploadUtils.openStream(context, upload.fileUri, upload.size)
                 networker.uploads()
                     .uploadPhotoToAlbumRx(server.url, `is`[0]!!, listener)
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: UploadPhotoToAlbumDto ->
+                    .flatMap { dto ->
                         var latitude: Double? = null
                         var longitude: Double? = null
                         try {
@@ -84,7 +81,7 @@ class Photo2AlbumUploadable(
                                 longitude,
                                 null
                             )
-                            .flatMap { photos: List<VKApiPhoto> ->
+                            .flatMap { photos ->
                                 if (photos.isEmpty()) {
                                     Single.error<UploadResult<Photo>>(
                                         NotFoundException()

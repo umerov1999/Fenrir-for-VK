@@ -19,21 +19,13 @@ class WallSearchCriteria : BaseSearchCriteria {
         dest.writeInt(ownerId)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    companion object CREATOR : Parcelable.Creator<WallSearchCriteria> {
+        override fun createFromParcel(parcel: Parcel): WallSearchCriteria {
+            return WallSearchCriteria(parcel)
+        }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<WallSearchCriteria> =
-            object : Parcelable.Creator<WallSearchCriteria> {
-                override fun createFromParcel(`in`: Parcel): WallSearchCriteria {
-                    return WallSearchCriteria(`in`)
-                }
-
-                override fun newArray(size: Int): Array<WallSearchCriteria?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<WallSearchCriteria?> {
+            return arrayOfNulls(size)
+        }
     }
 }

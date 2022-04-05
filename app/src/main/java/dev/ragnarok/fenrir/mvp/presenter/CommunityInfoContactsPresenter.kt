@@ -11,14 +11,13 @@ import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.GroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUser
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.ContactInfo
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityInfoContactsView
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 
@@ -71,7 +70,7 @@ class CommunityInfoContactsPresenter(
         for (it in contacts) Ids.add(it.userId)
         appendDisposable(
             networkInterfaces.vkDefault(accountId).users()[Ids, null, UserColumns.API_FIELDS, null]
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ t: List<VKApiUser>? ->
                     setLoadingNow(false)
                     val users = listEmptyIfNull(t)
@@ -85,14 +84,14 @@ class CommunityInfoContactsPresenter(
                         managers.add(manager)
                         onDataReceived(managers)
                     }
-                }) { throwable: Throwable -> onRequestError(throwable) })
+                }) { throwable -> onRequestError(throwable) })
     }
 
     private fun requestContacts() {
         val accountId = accountId
         appendDisposable(interactor.getContacts(accountId, groupId.id)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ contacts: List<ContactInfo> -> onContactsReceived(contacts) }) { throwable: Throwable ->
+            .fromIOToMain()
+            .subscribe({ contacts -> onContactsReceived(contacts) }) { throwable ->
                 onRequestError(
                     throwable
                 )
@@ -107,8 +106,8 @@ class CommunityInfoContactsPresenter(
             return
         }
         appendDisposable(interactor.getManagers(accountId, groupId.id)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ managers: List<Manager> -> onDataReceived(managers) }) { throwable: Throwable ->
+            .fromIOToMain()
+            .subscribe({ managers -> onDataReceived(managers) }) { throwable ->
                 onRequestError(
                     throwable
                 )
@@ -166,9 +165,9 @@ class CommunityInfoContactsPresenter(
         appendDisposable(stores
             .owners()
             .observeManagementChanges()
-            .filter { pair: Pair<Int, Manager> -> pair.first == groupId.id }
+            .filter { it.first == groupId.id }
             .observeOn(provideMainThreadScheduler())
-            .subscribe({ pair: Pair<Int, Manager> -> onManagerActionReceived(pair.second) }) { obj: Throwable -> obj.printStackTrace() })
+            .subscribe({ pair -> onManagerActionReceived(pair.second) }) { obj -> obj.printStackTrace() })
         requestData()
     }
 }

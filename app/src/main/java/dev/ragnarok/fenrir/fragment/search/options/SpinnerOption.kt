@@ -93,31 +93,24 @@ class SpinnerOption : BaseOption {
             dest.writeInt(name)
         }
 
-        companion object {
-            @JvmField
-            val CREATOR: Parcelable.Creator<Entry> = object : Parcelable.Creator<Entry> {
-                override fun createFromParcel(`in`: Parcel): Entry {
-                    return Entry(`in`)
-                }
+        companion object CREATOR : Parcelable.Creator<Entry> {
+            override fun createFromParcel(parcel: Parcel): Entry {
+                return Entry(parcel)
+            }
 
-                override fun newArray(size: Int): Array<Entry?> {
-                    return arrayOfNulls(size)
-                }
+            override fun newArray(size: Int): Array<Entry?> {
+                return arrayOfNulls(size)
             }
         }
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<SpinnerOption> =
-            object : Parcelable.Creator<SpinnerOption> {
-                override fun createFromParcel(`in`: Parcel): SpinnerOption {
-                    return SpinnerOption(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<SpinnerOption> {
+        override fun createFromParcel(parcel: Parcel): SpinnerOption {
+            return SpinnerOption(parcel)
+        }
 
-                override fun newArray(size: Int): Array<SpinnerOption?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<SpinnerOption?> {
+            return arrayOfNulls(size)
+        }
     }
 }

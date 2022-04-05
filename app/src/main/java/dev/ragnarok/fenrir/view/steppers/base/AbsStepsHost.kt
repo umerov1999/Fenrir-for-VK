@@ -1,9 +1,7 @@
 package dev.ragnarok.fenrir.view.steppers.base
 
 import android.os.Bundle
-import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.view.steppers.base.AbsStepsHost.AbsState
 
@@ -35,28 +33,10 @@ abstract class AbsStepsHost<T : AbsState>(var state: T) {
         }
     }
 
-    open class AbsState : Parcelable {
+    abstract class AbsState : Parcelable {
         fun reset() {}
         override fun describeContents(): Int {
             return 0
-        }
-
-        @CallSuper
-        override fun writeToParcel(dest: Parcel, flags: Int) {
-
-        }
-
-        companion object {
-            @JvmField
-            val CREATOR = object : Parcelable.Creator<AbsState> {
-                override fun createFromParcel(p: Parcel): AbsState {
-                    return AbsState()
-                }
-
-                override fun newArray(size: Int): Array<AbsState?> {
-                    return arrayOfNulls(size)
-                }
-            }
         }
     }
 }

@@ -5,11 +5,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityManagerEditView
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManagerEditView> {
@@ -163,8 +163,8 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
             email,
             phone
         )
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onSavingComplete() }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onSavingComplete() }) { throwable ->
                 onSavingError(
                     getCauseIfRuntime(throwable)
                 )
@@ -188,8 +188,8 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
             null,
             null
         )
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onSavingComplete() }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onSavingComplete() }) { throwable ->
                 onSavingError(
                     getCauseIfRuntime(throwable)
                 )

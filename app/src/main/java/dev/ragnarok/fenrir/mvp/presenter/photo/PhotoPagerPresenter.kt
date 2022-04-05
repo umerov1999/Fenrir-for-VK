@@ -340,7 +340,7 @@ open class PhotoPagerPresenter internal constructor(
                     it,
                     add
                 )
-            }) { t: Throwable? ->
+            }) { t ->
                 view?.let {
                     showError(it, Utils.getCauseIfRuntime(t))
                 }
@@ -442,7 +442,7 @@ open class PhotoPagerPresenter internal constructor(
         val accountId = accountId
         appendDisposable(photosInteractor.copy(accountId, photo.ownerId, photo.id, photo.accessKey)
             .fromIOToMain()
-            .subscribe({ onPhotoCopied() }) { t: Throwable? ->
+            .subscribe({ onPhotoCopied() }) { t ->
                 view?.let {
                     showError(
                         it,
@@ -533,7 +533,7 @@ open class PhotoPagerPresenter internal constructor(
             photosInteractor.restorePhoto(accountId, ownerId, photoId)
         }
         appendDisposable(completable.fromIOToMain()
-            .subscribe({ onDeleteOrRestoreResult(photoId, ownerId, detele) }) { t: Throwable? ->
+            .subscribe({ onDeleteOrRestoreResult(photoId, ownerId, detele) }) { t ->
                 view?.let {
                     showError(
                         it,
@@ -581,7 +581,7 @@ open class PhotoPagerPresenter internal constructor(
                         .setCancelable(true)
                         .setView(Utils.createAlertRecycleFrame(context, adapter, null, accountId))
                         .show()
-                }) { throwable: Throwable? ->
+                }) { throwable ->
                     view?.let {
                         showError(
                             it,

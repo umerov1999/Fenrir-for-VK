@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.api.model.VKApiStickerSet.Product
 import dev.ragnarok.fenrir.api.model.VkApiStickerSetsData
 import dev.ragnarok.fenrir.api.model.VkApiStickersKeywords
 import dev.ragnarok.fenrir.db.interfaces.IStickersStorage
-import dev.ragnarok.fenrir.db.model.entity.StickerEntity
 import dev.ragnarok.fenrir.db.model.entity.StickerSetEntity
 import dev.ragnarok.fenrir.db.model.entity.StickersKeywordsEntity
 import dev.ragnarok.fenrir.domain.IStickersInteractor
@@ -26,7 +25,6 @@ import dev.ragnarok.fenrir.util.Utils.getCachedMyStickers
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNullMutable
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.util.*
@@ -104,7 +102,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
 
     override fun getStickers(accountId: Int): Single<List<StickerSet>> {
         return storage.getPurchasedAndActive(accountId)
-            .map { entities: List<StickerSetEntity>? ->
+            .map { entities ->
                 mapAll(entities) {
                     map(
                         it
@@ -115,7 +113,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
 
     override fun getKeywordsStickers(accountId: Int, s: String?): Single<List<Sticker>> {
         return storage.getKeywordsStickers(accountId, s)
-            .map { entities: List<StickerEntity>? ->
+            .map { entities ->
                 mapAll(entities) {
                     buildStickerFromDbo(
                         it
@@ -124,8 +122,8 @@ class StickersInteractor(private val networker: INetworker, private val storage:
             }
     }
 
-    override fun PlaceToStickerCache(context: Context?): Completable {
-        return if (!hasReadStoragePermissionSimple(context!!)) Completable.complete() else Completable.create { t: CompletableEmitter ->
+    override fun PlaceToStickerCache(context: Context): Completable {
+        return if (!hasReadStoragePermissionSimple(context)) Completable.complete() else Completable.create { t ->
             val temp = File(Settings.get().other().stickerDir)
             if (!temp.exists()) {
                 t.onComplete()

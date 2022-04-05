@@ -5,9 +5,9 @@ import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.exception.NotFoundException
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityLinksView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 
 class CommunityLinksPresenter(
     accountId: Int,
@@ -45,15 +45,15 @@ class CommunityLinksPresenter(
         appendDisposable(networker.vkDefault(accountId)
             .groups()
             .getById(listOf(groupId), null, null, "links")
-            .map { dtos: List<VKApiCommunity> ->
+            .map { dtos ->
                 if (dtos.size != 1) {
                     throw NotFoundException()
                 }
                 val links = dtos[0].links
                 links ?: emptyList()
             }
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onLinksReceived(it) }) { throwable: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onLinksReceived(it) }) { throwable ->
                 onRequestError(
                     throwable
                 )

@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.view.ISimpleOwnersView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -38,13 +38,13 @@ class LikesListPresenter(
             50,
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owners: List<Owner> ->
+            .fromIOToMain()
+            .subscribe({ owners ->
                 onDataReceived(
                     offset,
                     owners
                 )
-            }) { t: Throwable -> onDataGetError(t) })
+            }) { t -> onDataGetError(t) })
     }
 
     private fun onDataGetError(t: Throwable) {

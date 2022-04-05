@@ -9,13 +9,13 @@ import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.StringNextFrom
 import dev.ragnarok.fenrir.fragment.search.options.SimpleGPSOption
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.view.search.INewsFeedSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import io.reactivex.rxjava3.core.Single
 
@@ -44,10 +44,10 @@ class NewsFeedSearchPresenter(
         startFrom: StringNextFrom
     ): Single<Pair<List<Post>, StringNextFrom>> {
         return feedInteractor.search(accountId, criteria, 50, startFrom.nextFrom)
-            .map { pair: Pair<List<Post>, String?> ->
+            .map {
                 create(
-                    pair.first,
-                    StringNextFrom(pair.second)
+                    it.first,
+                    StringNextFrom(it.second)
                 )
             }
     }
@@ -80,8 +80,8 @@ class NewsFeedSearchPresenter(
     fun fireLikeClick(post: Post) {
         val accountId = accountId
         appendDisposable(walls.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe(ignore()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(ignore()) { t ->
                 showError(t)
             })
     }

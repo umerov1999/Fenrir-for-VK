@@ -22,8 +22,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.canPlayAfterCurrent
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.isNowPlayingOrPreparingOrPaused
@@ -38,7 +37,6 @@ import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.menu.options.AudioLocalOption
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
@@ -48,8 +46,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applyObservableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -106,7 +102,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
         if (url.isNullOrEmpty()) {
             return
         }
-        audioListDisposable = doLocalBitrate(url).compose(applySingleIOToMainSchedulers())
+        audioListDisposable = doLocalBitrate(url).fromIOToMain()
             .subscribe(
                 { r: Pair<Int, Long> ->
                     CreateCustomToast(mContext).showToast(
@@ -117,7 +113,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                         )
                     )
                 }
-            ) { e: Throwable? -> Utils.showErrorInAdapter(mContext as Activity, e) }
+            ) { e -> Utils.showErrorInAdapter(mContext as Activity, e) }
     }
 
     @get:DrawableRes
@@ -330,8 +326,8 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         mPlayerDisposable = observeServiceBinding()
-            .compose(applyObservableIOToMainSchedulers())
-            .subscribe { status: Int -> onServiceBindEvent(status) }
+            .toMainThread()
+            .subscribe { onServiceBindEvent(it) }
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {

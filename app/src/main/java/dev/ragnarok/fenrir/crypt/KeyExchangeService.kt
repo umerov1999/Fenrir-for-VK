@@ -29,13 +29,12 @@ import dev.ragnarok.fenrir.crypt.CryptHelper.generateRsaKeyPair
 import dev.ragnarok.fenrir.crypt.ver.Version.currentVersion
 import dev.ragnarok.fenrir.crypt.ver.Version.ofCurrent
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Logger.wtf
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Unixtime.now
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
@@ -171,7 +170,7 @@ class KeyExchangeService : Service() {
             return
         }
         mSessionIdGenerator.generateNextId()
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 val session = KeyExchangeSession.createOutSession(
                     it, accountId, peerId, keyLocationPolicy
@@ -239,8 +238,8 @@ class KeyExchangeService : Service() {
         message: ExchangeMessage
     ) {
         mCompositeSubscription.add(OwnerInfo.getRx(this, accountId, Peer.toUserId(peerId))
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ userInfo: OwnerInfo ->
+            .fromIOToMain()
+            .subscribe({ userInfo ->
                 displayUserConfirmNotificationImpl(
                     accountId,
                     peerId,
@@ -262,8 +261,8 @@ class KeyExchangeService : Service() {
 
     private fun notifyAboutKeyExchangeAsync(accountId: Int, peerId: Int, sessionId: Long) {
         mCompositeSubscription.add(OwnerInfo.getRx(this, accountId, Peer.toUserId(peerId))
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ userInfo: OwnerInfo ->
+            .fromIOToMain()
+            .subscribe({ userInfo ->
                 notifyAboutKeyExchange(
                     sessionId,
                     userInfo
@@ -504,8 +503,8 @@ class KeyExchangeService : Service() {
         Stores.instance
             .keys(session.keyLocationPolicy)
             .saveKeyPair(pair)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({}) { throwable: Throwable -> showError(throwable.toString()) }
+            .fromIOToMain()
+            .subscribe({}) { throwable -> showError(throwable.toString()) }
     }
 
     private fun processIniciatorState2(
@@ -645,13 +644,13 @@ class KeyExchangeService : Service() {
     private fun sendMessage(accountId: Int, peerId: Int, message: ExchangeMessage) {
         d(TAG, "sendMessage, message: $message")
         sendMessageImpl(accountId, peerId, message)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ integer: Int ->
+            .fromIOToMain()
+            .subscribe({ integer ->
                 onMessageSent(
                     message,
                     integer
                 )
-            }) { throwable: Throwable ->
+            }) { throwable ->
                 showError(throwable.toString())
                 val session = findSessionFor(accountId, peerId)
                 if (session != null) {

@@ -17,9 +17,9 @@ import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
 import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.FilterEditFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.database.School
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class SelectSchoolsDialog : AccountDependencyDialogFragment(), SchoolsAdapter.Listener {
@@ -72,8 +72,8 @@ class SelectSchoolsDialog : AccountDependencyDialogFragment(), SchoolsAdapter.Li
     private fun request(offset: Int) {
         appendDisposable(
             mDatabaseInteractor.getSchools(accountId, schoolId, filter, COUNT_PER_REQUEST, offset)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ schools: List<School> ->
+                .fromIOToMain()
+                .subscribe({ schools ->
                     onDataReceived(
                         offset,
                         schools

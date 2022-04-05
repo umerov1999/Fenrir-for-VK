@@ -123,7 +123,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 insertNew(accountId, vkPostId, ownerId, accountId)
                     .flatMap {
                         findPostById(accountId, ownerId, vkPostId, includeAttachment)
-                            .map { obj: Optional<PostEntity> -> obj.requareNonEmpty() }
+                            .map { obj -> obj.requareNonEmpty() }
                     }
             }
     }

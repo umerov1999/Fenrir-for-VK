@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.VkApiFriendList
 import dev.ragnarok.fenrir.api.model.response.DeleteFriendResponse
-import dev.ragnarok.fenrir.api.model.response.MutualFriendsResponse
 import dev.ragnarok.fenrir.api.model.response.OnlineFriendsResponse
 import dev.ragnarok.fenrir.api.services.IFriendsService
 import io.reactivex.rxjava3.core.Single
@@ -40,7 +39,7 @@ var profiles = API.users.get({"v":"${Constants.API_VERSION}","user_ids":uids, "f
 return {"uids":uids, "profiles":profiles};"""
         val formattedCode = String.format(code, userId, count, offset, targetFields, targetOrder)
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service
                     .getOnline(formattedCode)
                     .map(extractResponseWithErrorHandling())
@@ -74,7 +73,7 @@ return {"uids":uids, "profiles":profiles};"""
         offset: Int?, fields: String?, nameCase: String?
     ): Single<Items<VKApiUser>> {
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service[userId, order, listId, count, offset, fields, nameCase]
                     .map(extractResponseWithErrorHandling())
             }
@@ -82,7 +81,7 @@ return {"uids":uids, "profiles":profiles};"""
 
     override fun getByPhones(phones: String?, fields: String?): Single<List<VKApiUser>> {
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service.getByPhones(phones, fields)
                     .map(extractResponseWithErrorHandling())
             }
@@ -94,7 +93,7 @@ return {"uids":uids, "profiles":profiles};"""
         nameCase: String?
     ): Single<Items<VKApiUser>> {
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service.getRecommendations(count, fields, nameCase)
                     .map(extractResponseWithErrorHandling())
             }
@@ -102,7 +101,7 @@ return {"uids":uids, "profiles":profiles};"""
 
     override fun getLists(userId: Int?, returnSystem: Boolean?): Single<Items<VkApiFriendList>> {
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service.getLists(userId, integerFromBoolean(returnSystem))
                     .map(extractResponseWithErrorHandling())
             }
@@ -110,7 +109,7 @@ return {"uids":uids, "profiles":profiles};"""
 
     override fun delete(userId: Int): Single<DeleteFriendResponse> {
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service.delete(userId)
                     .map(extractResponseWithErrorHandling())
             }
@@ -118,7 +117,7 @@ return {"uids":uids, "profiles":profiles};"""
 
     override fun add(userId: Int, text: String?, follow: Boolean?): Single<Int> {
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service.add(userId, text, integerFromBoolean(follow))
                     .map(extractResponseWithErrorHandling())
             }
@@ -133,7 +132,7 @@ return {"uids":uids, "profiles":profiles};"""
         count: Int?
     ): Single<Items<VKApiUser>> {
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service.search(userId, query, fields, nameCase, offset, count)
                     .map(extractResponseWithErrorHandling())
             }
@@ -172,10 +171,10 @@ return {"uids":uids, "profiles":profiles};"""
         //            return data.profiles;
         //        });
         return provideService(IFriendsService::class.java)
-            .flatMap { service: IFriendsService ->
+            .flatMap { service ->
                 service.getMutual(formattedCode)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: MutualFriendsResponse -> response.profiles }
+                    .map { it.profiles }
             }
     }
 }

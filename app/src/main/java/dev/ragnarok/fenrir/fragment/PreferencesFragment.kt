@@ -483,16 +483,15 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             pref("reset_notifications_groups") {
                 titleRes = R.string.reset_notifications_groups
                 iconRes = R.drawable.feed_settings
-                val hasOreo = Utils.hasOreo()
-                visible = hasOreo
-                if (hasOreo) {
-                    onClick {
+                visible = Utils.hasOreo()
+                onClick {
+                    if (Utils.hasOreo()) {
                         AppNotificationChannels.invalidateSoundChannels(requireActivity())
                         CreateCustomToast(requireActivity())
                             .setDuration(Toast.LENGTH_LONG)
                             .showToastSuccessBottom(R.string.success)
-                        true
                     }
+                    true
                 }
             }
             pref("refresh_audio_token") {

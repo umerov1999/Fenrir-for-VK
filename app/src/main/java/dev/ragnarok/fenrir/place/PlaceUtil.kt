@@ -8,10 +8,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
-import dev.ragnarok.fenrir.model.*
+import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.model.AbsModel
+import dev.ragnarok.fenrir.model.EditingPostType
+import dev.ragnarok.fenrir.model.Post
+import dev.ragnarok.fenrir.model.WallEditorAttrs
 import dev.ragnarok.fenrir.place.PlaceFactory.getCreatePostPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getEditPostPlace
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
 import java.lang.ref.WeakReference
@@ -28,8 +31,8 @@ object PlaceUtil {
         ids.add(ownerId)
         val disposable = owners
             .findBaseOwnersDataAsBundle(accountId, ids, IOwnersRepository.MODE_NET)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owners: IOwnersBundle ->
+            .fromIOToMain()
+            .subscribe({ owners ->
                 val attrs = WallEditorAttrs(owners.getById(ownerId), owners.getById(accountId))
                 val d = dialogWeakReference.get()
                 d?.dismiss()
@@ -37,7 +40,7 @@ object PlaceUtil {
                 if (a != null) {
                     getEditPostPlace(accountId, post, attrs).tryOpenWith(a)
                 }
-            }) { throwable: Throwable -> safelyShowError(reference, throwable) }
+            }) { throwable -> safelyShowError(reference, throwable) }
         dialog.setOnCancelListener { disposable.dispose() }
     }
 
@@ -72,8 +75,8 @@ object PlaceUtil {
         ids.add(ownerId)
         val disposable = owners
             .findBaseOwnersDataAsBundle(accountId, ids, IOwnersRepository.MODE_NET)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owners: IOwnersBundle ->
+            .fromIOToMain()
+            .subscribe({ owners ->
                 val attrs = WallEditorAttrs(owners.getById(ownerId), owners.getById(accountId))
                 val d = dialogWeakReference.get()
                 d?.dismiss()
@@ -90,7 +93,7 @@ object PlaceUtil {
                         mime
                     ).tryOpenWith(a)
                 }
-            }) { throwable: Throwable -> safelyShowError(reference, throwable) }
+            }) { throwable -> safelyShowError(reference, throwable) }
         dialog.setOnCancelListener { disposable.dispose() }
     }
 

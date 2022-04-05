@@ -19,9 +19,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.adapter.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.api.model.AccessIdPair
@@ -43,7 +41,6 @@ import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.menu.options.AudioOption
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
@@ -61,9 +58,6 @@ import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getBitrate
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getLength
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applyObservableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.hls.M3U8
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
@@ -90,13 +84,11 @@ class AudioRecyclerAdapter(
     private var currAudio: Audio?
     private fun deleteTrack(accountId: Int, audio: Audio, position: Int) {
         audioListDisposable = if (playlist_id == null) {
-            mAudioInteractor.delete(accountId, audio.id, audio.ownerId).compose(
-                applyCompletableIOToMainSchedulers()
-            ).subscribe(
+            mAudioInteractor.delete(accountId, audio.id, audio.ownerId).fromIOToMain().subscribe(
                 {
                     CreateCustomToast(mContext).showToast(R.string.deleted)
                     mClickListener?.onDelete(position)
-                }) { t: Throwable? -> Utils.showErrorInAdapter(mContext as Activity, t) }
+                }) { t -> Utils.showErrorInAdapter(mContext as Activity, t) }
         } else {
             mAudioInteractor.removeFromPlaylist(
                 accountId, audio.ownerId, playlist_id, listOf(
@@ -104,21 +96,19 @@ class AudioRecyclerAdapter(
                         audio.id, audio.ownerId, audio.accessKey
                     )
                 )
-            ).compose(applySingleIOToMainSchedulers()).subscribe(
+            ).fromIOToMain().subscribe(
                 { t: Int ->
                     if (t != 0) {
                         CreateCustomToast(mContext).showToast(R.string.deleted)
                         mClickListener?.onDelete(position)
                     }
-                }) { t: Throwable? -> Utils.showErrorInAdapter(mContext as Activity, t) }
+                }) { t -> Utils.showErrorInAdapter(mContext as Activity, t) }
         }
     }
 
     private fun addTrack(accountId: Int, audio: Audio?) {
-        audioListDisposable = mAudioInteractor.add(accountId, audio, null).compose(
-            applyCompletableIOToMainSchedulers()
-        ).subscribe(
-            { CreateCustomToast(mContext).showToast(R.string.added) }) { t: Throwable? ->
+        audioListDisposable = mAudioInteractor.add(accountId, audio, null).fromIOToMain().subscribe(
+            { CreateCustomToast(mContext).showToast(R.string.added) }) { t ->
             Utils.showErrorInAdapter(
                 mContext as Activity,
                 t
@@ -130,10 +120,8 @@ class AudioRecyclerAdapter(
         val mode = audio.needRefresh()
         if (mode.first) {
             audioListDisposable =
-                mAudioInteractor.getByIdOld(accountId, listOf(audio), mode.second).compose(
-                    applySingleIOToMainSchedulers()
-                )
-                    .subscribe({ t: List<Audio> -> getBitrate(t[0]) }) {
+                mAudioInteractor.getByIdOld(accountId, listOf(audio), mode.second).fromIOToMain()
+                    .subscribe({ t -> getBitrate(t[0]) }) {
                         getBitrate(
                             audio
                         )
@@ -148,7 +136,7 @@ class AudioRecyclerAdapter(
             return
         }
         audioListDisposable = if (audio.isHLS) {
-            M3U8(audio.url).length.compose(applySingleIOToMainSchedulers())
+            M3U8(audio.url).length.fromIOToMain()
                 .subscribe(
                     { r: Long ->
                         CreateCustomToast(mContext).showToast(
@@ -159,9 +147,9 @@ class AudioRecyclerAdapter(
                             )
                         )
                     }
-                ) { e: Throwable? -> Utils.showErrorInAdapter(mContext as Activity, e) }
+                ) { e -> Utils.showErrorInAdapter(mContext as Activity, e) }
         } else {
-            getLength(audio.url).compose(applySingleIOToMainSchedulers())
+            getLength(audio.url).fromIOToMain()
                 .subscribe(
                     { r: Long ->
                         CreateCustomToast(mContext).showToast(
@@ -172,7 +160,7 @@ class AudioRecyclerAdapter(
                             )
                         )
                     }
-                ) { e: Throwable? -> Utils.showErrorInAdapter(mContext as Activity, e) }
+                ) { e -> Utils.showErrorInAdapter(mContext as Activity, e) }
         }
     }
 
@@ -183,13 +171,13 @@ class AudioRecyclerAdapter(
     private fun get_lyrics(audio: Audio) {
         audioListDisposable =
             mAudioInteractor.getLyrics(Settings.get().accounts().current, audio.lyricsId)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ t: String ->
+                .fromIOToMain()
+                .subscribe({ t ->
                     onAudioLyricsReceived(
                         t,
                         audio
                     )
-                }) { t: Throwable? -> Utils.showErrorInAdapter(mContext as Activity, t) }
+                }) { t -> Utils.showErrorInAdapter(mContext as Activity, t) }
     }
 
     private fun onAudioLyricsReceived(Text: String, audio: Audio) {
@@ -214,8 +202,8 @@ class AudioRecyclerAdapter(
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         mPlayerDisposable = observeServiceBinding()
-            .compose(applyObservableIOToMainSchedulers())
-            .subscribe { status: Int -> onServiceBindEvent(status) }
+            .toMainThread()
+            .subscribe { onServiceBindEvent(it) }
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {

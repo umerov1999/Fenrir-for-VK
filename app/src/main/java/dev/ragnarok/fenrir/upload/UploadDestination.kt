@@ -71,7 +71,7 @@ open class UploadDestination : Parcelable {
 
     companion object {
         const val WITHOUT_OWNER = 0
-        const val NO_ID = 0
+        private const val NO_ID = 0
 
         @JvmField
         val CREATOR: Parcelable.Creator<UploadDestination> =

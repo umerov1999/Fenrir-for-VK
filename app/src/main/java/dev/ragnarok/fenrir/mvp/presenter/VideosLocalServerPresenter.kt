@@ -3,12 +3,12 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IVideosLocalServerView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.FindAt
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -40,13 +40,13 @@ class VideosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
         actualDataLoading = true
         resolveRefreshingView()
         appendDisposable(fInteractor.getVideos(offset, GET_COUNT, reverse)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
                     offset,
                     it
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -118,7 +118,7 @@ class VideosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
             SEARCH_COUNT,
             reverse
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onSearched(
                     FindAt(
@@ -127,7 +127,7 @@ class VideosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
                         it.size < SEARCH_COUNT
                     ), it
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onSearched(search_at: FindAt, data: List<Video>) {
@@ -161,8 +161,8 @@ class VideosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
         actualDataDisposable.dispose()
         actualDataDisposable = Single.just(Any())
             .delay(WEB_SEARCH_DELAY.toLong(), TimeUnit.MILLISECONDS)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ doSearch() }) { t: Throwable -> onActualDataGetError(t) }
+            .fromIOToMain()
+            .subscribe({ doSearch() }) { t -> onActualDataGetError(t) }
     }
 
     fun fireSearchRequestChanged(q: String?) {

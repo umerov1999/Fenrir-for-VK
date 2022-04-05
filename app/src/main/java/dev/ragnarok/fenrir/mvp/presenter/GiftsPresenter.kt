@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Gift
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IGiftsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class GiftsPresenter(accountId: Int, private val owner_id: Int, savedInstanceState: Bundle?) :
@@ -31,13 +31,13 @@ class GiftsPresenter(accountId: Int, private val owner_id: Int, savedInstanceSta
         resolveRefreshingView()
         val accountId = accountId
         netDisposable.add(ownersRepository.getGifts(accountId, owner_id, COUNT_PER_REQUEST, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ gifts: List<Gift> ->
+            .fromIOToMain()
+            .subscribe({ gifts ->
                 onNetDataReceived(
                     offset,
                     gifts
                 )
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     private fun onNetDataGetError(t: Throwable) {

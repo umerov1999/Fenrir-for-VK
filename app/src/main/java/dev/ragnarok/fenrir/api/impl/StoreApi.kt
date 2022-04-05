@@ -13,14 +13,14 @@ internal class StoreApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IStoreApi {
     override val stickerKeywords: Single<VkApiStickersKeywords>
         get() = provideService(IStoreService::class.java, TokenType.USER)
-            .flatMap { service: IStoreService ->
+            .flatMap { service ->
                 service
                     .getStickersKeywords("var dic=API.store.getStickersKeywords({'v':'" + Constants.API_VERSION + "','aliases':1,'all_products':1}).dictionary;return {'keywords': dic@.words, 'words_stickers': dic@.user_stickers};")
                     .map(extractResponseWithErrorHandling())
             }
     override val stickers: Single<VkApiStickerSetsData>
         get() = provideService(IStoreService::class.java, TokenType.USER)
-            .flatMap { service: IStoreService ->
+            .flatMap { service ->
                 service
                     .getStickers("var pack = API.store.getProducts({'v':'" + Constants.API_VERSION + "','extended':1,'filters':'active','type':'stickers'}); var recent = API.messages.getRecentStickers(); return {'sticker_pack': pack, 'recent': recent};")
                     .map(extractResponseWithErrorHandling())

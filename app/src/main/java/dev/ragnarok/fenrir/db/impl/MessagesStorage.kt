@@ -234,7 +234,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
     override fun applyPatch(accountId: Int, messageId: Int, patch: MessageEditEntity): Single<Int> {
         return stores.attachments()
             .getCount(accountId, AttachToType.MESSAGE, messageId)
-            .flatMap { count: Int ->
+            .flatMap { count ->
                 Single
                     .create { emitter: SingleEmitter<Int> ->
                         val uri = getMessageContentUriFor(accountId)

@@ -4,6 +4,7 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.model.UsersPart
@@ -14,7 +15,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import io.reactivex.rxjava3.core.Single
@@ -65,13 +65,13 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
             if (isNotFriendShow) null else 200,
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ users: List<User> ->
+            .fromIOToMain()
+            .subscribe({ users ->
                 onActualDataReceived(
                     users,
                     do_scan
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -164,8 +164,8 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
         val accountId = accountId
         cacheLoadingNow = true
         cacheDisposable.add(relationshipInteractor.getCachedFriends(accountId, userId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ users: List<User> -> onCachedDataReceived(users) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ users -> onCachedDataReceived(users) }) { t ->
                 onCacheGetError(
                     t
                 )
@@ -263,14 +263,14 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
             netSingle
         }
         searchDisposable.add(single
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onSearchDataReceived(
                     offset,
                     it.first,
                     it.second
                 )
-            }) { t: Throwable -> onSearchError(t) })
+            }) { t -> onSearchError(t) })
     }
 
     private fun onSearchError(t: Throwable) {

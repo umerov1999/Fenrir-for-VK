@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.mvp.presenter
 
 import android.os.Bundle
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.model.Community
@@ -8,14 +9,8 @@ import dev.ragnarok.fenrir.model.DataWrapper
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunitiesView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
-import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleComputationToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Translit.cyr2lat
 import dev.ragnarok.fenrir.util.Translit.lat2cyr
@@ -57,14 +52,14 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         val accountId = accountId
         resolveRefreshing()
         actualDisposable.add(communitiesInteractor.getActual(accountId, userId, 1000, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ communities: List<Community> ->
+            .fromIOToMain()
+            .subscribe({ communities ->
                 onActualDataReceived(
                     offset,
                     communities,
                     do_scan
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     public override fun onGuiResumed() {
@@ -152,8 +147,8 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         cacheLoadingNow = true
         val accountId = accountId
         cacheDisposable.add(communitiesInteractor.getCachedData(accountId, userId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ communities: List<Community> -> onCachedDataReceived(communities) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ communities -> onCachedDataReceived(communities) }) { t ->
                 onCacheGetError(
                     t
                 )
@@ -203,8 +198,8 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         if (searchNow) {
             filterDisposable.add(
                 filter(own.get(), filter)
-                    .compose(applySingleComputationToMainSchedulers())
-                    .subscribe({ filteredData: List<Community> ->
+                    .fromIOToMainComputation()
+                    .subscribe({ filteredData ->
                         onFilteredDataReceived(
                             filteredData
                         )
@@ -235,13 +230,13 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         //this.netSearchOffset = offset;
         resolveRefreshing()
         netSearchDisposable.add(single
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Community> ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 onSearchDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onSearchError(t) })
+            }) { t -> onSearchError(t) })
     }
 
     private fun onSearchError(t: Throwable) {
@@ -282,8 +277,8 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
 
     fun fireUnsubscribe(community: Community) {
         actualDisposable.add(communitiesInteractor.leave(accountId, community.id)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ fireRefresh() }) { t: Throwable -> onSearchError(t) })
+            .fromIOToMain()
+            .subscribe({ fireRefresh() }) { t -> onSearchError(t) })
     }
 
     fun fireCommunityLongClick(community: Community): Boolean {

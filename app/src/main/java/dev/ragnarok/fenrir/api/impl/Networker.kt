@@ -23,7 +23,7 @@ class Networker(settings: IProxySettings) : INetworker {
         return AuthApi(object : IDirectLoginSeviceProvider {
             override fun provideAuthService(): Single<IAuthService> {
                 return otherVkRetrofitProvider.provideAuthRetrofit()
-                    .map { wrapper: RetrofitWrapper ->
+                    .map { wrapper ->
                         wrapper.create(
                             IAuthService::class.java
                         )
@@ -36,7 +36,7 @@ class Networker(settings: IProxySettings) : INetworker {
         return AuthApi(object : IDirectLoginSeviceProvider {
             override fun provideAuthService(): Single<IAuthService> {
                 return otherVkRetrofitProvider.provideAuthServiceRetrofit()
-                    .map { wrapper: RetrofitWrapper ->
+                    .map { wrapper ->
                         wrapper.create(
                             IAuthService::class.java
                         )
@@ -49,7 +49,7 @@ class Networker(settings: IProxySettings) : INetworker {
         return LocalServerApi(object : ILocalServerServiceProvider {
             override fun provideLocalServerService(): Single<ILocalServerService> {
                 return otherVkRetrofitProvider.provideLocalServerRetrofit()
-                    .map { wrapper: RetrofitWrapper ->
+                    .map { wrapper ->
                         wrapper.create(
                             ILocalServerService::class.java
                         )

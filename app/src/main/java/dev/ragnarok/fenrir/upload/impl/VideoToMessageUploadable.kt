@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
 import dev.ragnarok.fenrir.api.model.server.VkApiVideosUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadVideoDto
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.interfaces.IMessagesStorage
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
@@ -40,7 +39,7 @@ class VideoToMessageUploadable(
             .docs()
             .getVideoServer(1, null, UploadUtils.findFileName(context, upload.fileUri))
             .map<UploadServer> { s: VkApiVideosUploadServer -> s }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 val uri = upload.fileUri
@@ -63,7 +62,7 @@ class VideoToMessageUploadable(
                 networker.uploads()
                     .uploadVideoRx(server.url, filename, `is`[0]!!, listener)
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: UploadVideoDto ->
+                    .flatMap { dto ->
                         val video = Video().setId(dto.video_id).setOwnerId(dto.owner_id).setTitle(
                             UploadUtils.findFileName(
                                 context, upload.fileUri

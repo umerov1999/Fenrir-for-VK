@@ -16,17 +16,13 @@ class DocumentSearchCriteria : BaseSearchCriteria {
         return super.clone() as DocumentSearchCriteria
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<DocumentSearchCriteria> =
-            object : Parcelable.Creator<DocumentSearchCriteria> {
-                override fun createFromParcel(`in`: Parcel): DocumentSearchCriteria {
-                    return DocumentSearchCriteria(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<DocumentSearchCriteria> {
+        override fun createFromParcel(parcel: Parcel): DocumentSearchCriteria {
+            return DocumentSearchCriteria(parcel)
+        }
 
-                override fun newArray(size: Int): Array<DocumentSearchCriteria?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<DocumentSearchCriteria?> {
+            return arrayOfNulls(size)
+        }
     }
 }

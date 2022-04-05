@@ -91,7 +91,7 @@ class PushRegistrationResolver(
                 completable
                     .doOnComplete { settings.pushSettings().savePushRegistations(target) }
                     .doOnComplete { d(TAG, "Register success") }
-                    .doOnError { throwable: Throwable -> d(TAG, "Register error, t: $throwable") }
+                    .doOnError { throwable -> d(TAG, "Register error, t: $throwable") }
             }
     }
 
@@ -173,7 +173,7 @@ class PushRegistrationResolver(
             .account()
             .unregisterDevice(registration.deviceId)
             .ignoreElement()
-            .onErrorResumeNext { t: Throwable ->
+            .onErrorResumeNext { t ->
                 val cause = getCauseIfRuntime(t)
                 if (cause is ApiException && cause.error.errorCode == ApiErrorCodes.USER_AUTHORIZATION_FAILED) {
                     return@onErrorResumeNext Completable.complete()
@@ -207,7 +207,7 @@ class PushRegistrationResolver(
     }
 
     private val info: Single<Data>
-        get() = FCMToken.fcmToken.flatMap { s: String ->
+        get() = FCMToken.fcmToken.flatMap { s ->
             val data = Data(s, deviceIdProvider.deviceId)
             Single.just(data)
         }

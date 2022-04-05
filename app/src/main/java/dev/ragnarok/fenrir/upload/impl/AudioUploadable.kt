@@ -4,8 +4,6 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiAudioUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadAudioDto
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Audio
@@ -32,11 +30,11 @@ class AudioUploadable(private val context: Context, private val networker: INetw
             networker.vkDefault(accountId)
                 .audio()
                 .uploadServer
-                .map { s: VkApiAudioUploadServer -> s }
+                .map { s -> s }
         } else {
             Single.just(initialServer)
         }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 val uri = upload.fileUri
@@ -66,7 +64,7 @@ class AudioUploadable(private val context: Context, private val networker: INetw
                 return@flatMap networker.uploads()
                     .uploadAudioRx(server.url, filename, `is`[0]!!, listener)
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: UploadAudioDto ->
+                    .flatMap { dto ->
                         networker
                             .vkDefault(accountId)
                             .audio()

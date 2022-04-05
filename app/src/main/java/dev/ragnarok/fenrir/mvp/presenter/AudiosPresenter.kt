@@ -9,6 +9,7 @@ import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
@@ -22,8 +23,6 @@ import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.FindAtWithContent
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.HelperSimple.hasHelp
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.SafeCallCheckInt
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -106,13 +105,13 @@ class AudiosPresenter(
     fun requestList(offset: Int, album_id: Int?) {
         setLoadingNow(true)
         audioListDisposable.add(audioInteractor[accountId, album_id, ownerId, offset, GET_COUNT, accessKey]
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onListReceived(
                     offset,
                     it
                 )
-            }) { t: Throwable -> onListGetError(t) })
+            }) { t -> onListGetError(t) })
     }
 
     private fun onListReceived(offset: Int, data: List<Audio>) {
@@ -240,8 +239,8 @@ class AudiosPresenter(
             }
             sleepDataDisposable = Single.just(Any())
                 .delay(WEB_SEARCH_DELAY.toLong(), TimeUnit.MILLISECONDS)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ searcher.do_search(q) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ searcher.do_search(q) }) { t ->
                     onListGetError(
                         t
                     )
@@ -264,8 +263,8 @@ class AudiosPresenter(
                     ownerId,
                     accessKey
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ t: AudioPlaylist -> loadedPlaylist(t) }) { t: Throwable? ->
+                    .fromIOToMain()
+                    .subscribe({ t -> loadedPlaylist(t) }) { t ->
                         showError(
                             getCauseIfRuntime(t)
                         )
@@ -278,12 +277,12 @@ class AudiosPresenter(
     fun onDelete(album: AudioPlaylist) {
         val accountId = accountId
         audioListDisposable.add(audioInteractor.deletePlaylist(accountId, album.id, album.ownerId)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.customToast?.showToast(
                     R.string.success
                 )
-            }) { throwable: Throwable? ->
+            }) { throwable ->
                 showError(throwable)
             })
     }
@@ -296,10 +295,10 @@ class AudiosPresenter(
             album.ownerId,
             album.access_key
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.customToast?.showToast(R.string.success)
-            }) { throwable: Throwable? ->
+            }) { throwable ->
                 showError(throwable)
             })
     }
@@ -319,8 +318,8 @@ class AudiosPresenter(
             Settings.get().accounts().current,
             audio.lyricsId
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ t: String? ->
+            .fromIOToMain()
+            .subscribe({ t ->
                 fireEditTrack(
                     context,
                     audio,
@@ -346,10 +345,8 @@ class AudiosPresenter(
                     (root.findViewById<View>(R.id.edit_artist) as TextInputEditText).text.toString(),
                     (root.findViewById<View>(R.id.edit_title) as TextInputEditText).text.toString(),
                     (root.findViewById<View>(R.id.edit_lyrics) as TextInputEditText).text.toString()
-                ).compose(
-                    applyCompletableIOToMainSchedulers()
-                )
-                    .subscribe({ fireRefresh() }) { t: Throwable? ->
+                ).fromIOToMain()
+                    .subscribe({ fireRefresh() }) { t ->
                         showError(getCauseIfRuntime(t))
                     })
             }
@@ -400,7 +397,7 @@ class AudiosPresenter(
         }
         swapDisposable.dispose()
         swapDisposable = audioInteractor.reorder(accountId, ownerId, audio_from.id, before, after)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe(ignore()) { tempSwap(toPosition, fromPosition) }
         return true
     }

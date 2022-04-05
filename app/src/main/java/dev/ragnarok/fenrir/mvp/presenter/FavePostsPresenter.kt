@@ -7,10 +7,10 @@ import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IFavePostsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -80,14 +80,14 @@ class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :
         val accountId = accountId
         val newOffset = offset + COUNT
         appendDisposable(faveInteractor.getPosts(accountId, COUNT, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ posts: List<Post> ->
+            .fromIOToMain()
+            .subscribe({ posts ->
                 onActualDataReceived(
                     offset,
                     newOffset,
                     posts
                 )
-            }) { throwable: Throwable -> onActualDataGetError(throwable) })
+            }) { throwable -> onActualDataGetError(throwable) })
     }
 
     private fun onActualDataGetError(throwable: Throwable) {
@@ -117,8 +117,8 @@ class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun loadCachedData() {
         val accountId = accountId
         cacheCompositeDisposable.add(faveInteractor.getCachedPosts(accountId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ posts: List<Post> -> onCachedDataReceived(posts) }) { obj: Throwable -> obj.printStackTrace() })
+            .fromIOToMain()
+            .subscribe({ posts -> onCachedDataReceived(posts) }) { obj -> obj.printStackTrace() })
     }
 
     private fun onCachedDataReceived(posts: List<Post>) {
@@ -147,17 +147,17 @@ class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :
     fun fireLikeClick(post: Post) {
         val accountId = accountId
         appendDisposable(wallInteractor.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe(ignore()) { t: Throwable -> onLikeError(t) })
+            .fromIOToMain()
+            .subscribe(ignore()) { t -> onLikeError(t) })
     }
 
     fun firePostDelete(index: Int, post: Post) {
         appendDisposable(faveInteractor.removePost(accountId, post.ownerId, post.vkid)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 posts.removeAt(index)
                 view?.notifyDataSetChanged()
-            }) { throwable: Throwable -> onActualDataGetError(throwable) })
+            }) { throwable -> onActualDataGetError(throwable) })
     }
 
     private fun onLikeError(t: Throwable) {
@@ -174,7 +174,7 @@ class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :
         wallInteractor = walls
         appendDisposable(wallInteractor.observeMinorChanges()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { update: PostUpdate -> onPostUpdate(update) })
+            .subscribe { onPostUpdate(it) })
         loadCachedData()
     }
 }

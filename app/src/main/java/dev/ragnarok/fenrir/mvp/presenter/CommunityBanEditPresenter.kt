@@ -4,6 +4,7 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Banned
 import dev.ragnarok.fenrir.model.BlockReason
 import dev.ragnarok.fenrir.model.IdOption
@@ -11,7 +12,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityBanEditView
 import dev.ragnarok.fenrir.util.Logger.wtf
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import java.text.DateFormat
@@ -167,8 +167,8 @@ class CommunityBanEditPresenter : AccountDependencyPresenter<ICommunityBanEditVi
             comment,
             showCommentToUser
         )
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onAddBanComplete() }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onAddBanComplete() }) { throwable ->
                 onAddBanError(
                     getCauseIfRuntime(throwable)
                 )

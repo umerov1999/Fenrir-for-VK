@@ -1,8 +1,7 @@
 package dev.ragnarok.fenrir.mvp.presenter
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.api.Auth.scope
 import dev.ragnarok.fenrir.api.CaptchaNeedException
@@ -12,9 +11,6 @@ import dev.ragnarok.fenrir.api.model.LoginResponse
 import dev.ragnarok.fenrir.model.Captcha
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IDirectAuthView
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class DirectAuthPresenter(savedInstanceState: Bundle?) :
@@ -64,8 +60,8 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
                 captchaCode,
                 forceSms
             )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ response: LoginResponse -> onLoginResponse(response) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ response -> onLoginResponse(response) }) { t ->
                 onLoginError(
                     getCauseIfRuntime(t)
                 )
@@ -109,7 +105,7 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
                             sid,
                             Constants.AUTH_VERSION
                         )
-                        .compose(applySingleIOToMainSchedulers())
+                        .fromIOToMain()
                         .subscribe({ }) {
                             showError(getCauseIfRuntime(t))
                         })

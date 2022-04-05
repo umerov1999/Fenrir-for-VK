@@ -67,7 +67,6 @@ class DatabaseOption : BaseOption {
     }
 
     class Entry : Parcelable, Cloneable {
-        @JvmField
         val id: Int
         val title: String?
 
@@ -106,16 +105,13 @@ class DatabaseOption : BaseOption {
             return super.clone() as Entry
         }
 
-        companion object {
-            @JvmField
-            val CREATOR: Parcelable.Creator<Entry> = object : Parcelable.Creator<Entry> {
-                override fun createFromParcel(`in`: Parcel): Entry {
-                    return Entry(`in`)
-                }
+        companion object CREATOR : Parcelable.Creator<Entry> {
+            override fun createFromParcel(parcel: Parcel): Entry {
+                return Entry(parcel)
+            }
 
-                override fun newArray(size: Int): Array<Entry?> {
-                    return arrayOfNulls(size)
-                }
+            override fun newArray(size: Int): Array<Entry?> {
+                return arrayOfNulls(size)
             }
         }
     }

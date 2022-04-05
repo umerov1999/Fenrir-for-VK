@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.util
 
 import dev.ragnarok.fenrir.api.Apis.get
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
+import dev.ragnarok.fenrir.fromIOToMain
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.util.concurrent.TimeUnit
@@ -18,7 +18,7 @@ class TextingNotifier(private val accountId: Int) {
         lastNotifyTime = System.currentTimeMillis()
         isRequestNow = true
         disposable = createNotifier(accountId, peerId)
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ isRequestNow = false }) { isRequestNow = false }
     }
 

@@ -18,6 +18,7 @@ import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSe
 import dev.ragnarok.fenrir.domain.IDocsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.EditingPostType
@@ -30,8 +31,6 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils.getSizeString
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadDoc
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.ThemedSnack
 import dev.ragnarok.fenrir.util.Utils.shareLink
 import dev.ragnarok.fenrir.view.CircleCounterButton
@@ -194,8 +193,8 @@ class DocPreviewFragment : BaseFragment(), View.OnClickListener {
         mLoadingNow = true
         appendDisposable(
             docsInteractor.findById(accountId, ownerId, documentId, documentAccessKey)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ document: Document -> onDocumentInfoReceived(document) }) {
+                .fromIOToMain()
+                .subscribe({ document -> onDocumentInfoReceived(document) }) {
                     onDocumentInfoGetError()
                 })
     }
@@ -259,7 +258,7 @@ class DocPreviewFragment : BaseFragment(), View.OnClickListener {
     private fun doRemove() {
         appendDisposable(
             docsInteractor.delete(accountId, documentId, ownerId)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ onDeleteSuccess() }) { })
     }
 
@@ -334,8 +333,8 @@ class DocPreviewFragment : BaseFragment(), View.OnClickListener {
         val docsInteractor = InteractorFactory.createDocsInteractor()
         val accessKey = document?.accessKey
         appendDisposable(docsInteractor.add(accountId, documentId, ownerId, accessKey)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onDocumentAdded() }) { t: Throwable -> onDocAddError(t) })
+            .fromIOToMain()
+            .subscribe({ onDocumentAdded() }) { t -> onDocAddError(t) })
     }
 
     private fun onDocAddError(t: Throwable) {

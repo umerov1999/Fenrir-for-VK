@@ -2,15 +2,12 @@ package dev.ragnarok.fenrir.domain.impl
 
 import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
 import dev.ragnarok.fenrir.api.model.VKApiShortLink
 import dev.ragnarok.fenrir.api.model.VkApiFriendList
-import dev.ragnarok.fenrir.api.model.response.ResolveDomailResponse
 import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
 import dev.ragnarok.fenrir.api.model.response.VkApiLinkResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.db.model.entity.CommunityEntity
 import dev.ragnarok.fenrir.db.model.entity.FriendListEntity
 import dev.ragnarok.fenrir.db.model.entity.UserEntity
 import dev.ragnarok.fenrir.domain.IOwnersRepository
@@ -57,9 +54,9 @@ class UtilsInteractor(
                     uids,
                     IOwnersRepository.MODE_ANY
                 )
-                    .flatMap { owners: IOwnersBundle ->
+                    .flatMap { owners ->
                         findFriendListsByIds(accountId, accountId, listsIds)
-                            .map { lists: Map<Int, FriendList> ->
+                            .map { lists ->
                                 val privacies: MutableMap<Int, Privacy> = HashMap(
                                     safeCountOf(orig)
                                 )
@@ -83,7 +80,7 @@ class UtilsInteractor(
                 }
                 stores.owners()
                     .findCommunityByDomain(accountId, domain)
-                    .flatMap { optionalCommunityEntity: Optional<CommunityEntity> ->
+                    .flatMap { optionalCommunityEntity ->
                         if (optionalCommunityEntity.nonEmpty()) {
                             val community =
                                 buildCommunityFromDbo(optionalCommunityEntity.requareNonEmpty())
@@ -93,14 +90,14 @@ class UtilsInteractor(
                         }
                     }
             }
-            .flatMap { optionalOwner: Optional<Owner> ->
+            .flatMap { optionalOwner ->
                 if (optionalOwner.nonEmpty()) {
                     return@flatMap Single.just(optionalOwner)
                 }
                 networker.vkDefault(accountId)
                     .utils()
                     .resolveScreenName(domain)
-                    .flatMap { response: ResolveDomailResponse ->
+                    .flatMap { response ->
                         if ("user" == response.type) {
                             val userId = response.object_id.toInt()
                             ownersRepository.getBaseOwnerInfo(
@@ -133,11 +130,11 @@ class UtilsInteractor(
             Single.just(emptyMap())
         } else stores.owners()
             .findFriendsListsByIds(accountId, userId, ids)
-            .flatMap { map: MutableMap<Int, FriendListEntity> ->
-                if (map.size == ids.size) {
-                    val data: MutableMap<Int, FriendList> = HashMap(map.size)
+            .flatMap { mp ->
+                if (mp.size == ids.size) {
+                    val data: MutableMap<Int, FriendList> = HashMap(mp.size)
                     for (id in ids) {
-                        val dbo = map[id] ?: continue
+                        val dbo = mp[id] ?: continue
                         data[id] = FriendList(dbo.id, dbo.name)
                     }
                     return@flatMap Single.just(data)
@@ -145,14 +142,14 @@ class UtilsInteractor(
                 networker.vkDefault(accountId)
                     .friends()
                     .getLists(userId, true)
-                    .map { items: Items<VkApiFriendList>? ->
+                    .map { items ->
                         listEmptyIfNull<VkApiFriendList>(
-                            items?.getItems()
+                            items.getItems()
                         )
                     }
-                    .flatMap { dtos: List<VkApiFriendList> ->
+                    .flatMap { dtos ->
                         val dbos: MutableList<FriendListEntity> = ArrayList(dtos.size)
-                        val data: MutableMap<Int, FriendList> = HashMap(map.size)
+                        val data: MutableMap<Int, FriendList> = HashMap(mp.size)
                         for (dto in dtos) {
                             dbos.add(FriendListEntity(dto.id, dto.name))
                         }
@@ -166,7 +163,7 @@ class UtilsInteractor(
                                 }
                             }
                             if (!found) {
-                                map[id] = FriendListEntity(id, "UNKNOWN")
+                                mp[id] = FriendListEntity(id, "UNKNOWN")
                             }
                         }
                         stores.relativeship()
@@ -184,12 +181,12 @@ class UtilsInteractor(
         return networker.vkDefault(accountId)
             .utils()
             .getLastShortenedLinks(count, offset)
-            .map { items: Items<VKApiShortLink>? ->
+            .map { items ->
                 listEmptyIfNull<VKApiShortLink>(
-                    items?.getItems()
+                    items.getItems()
                 )
             }
-            .map { out: List<VKApiShortLink> ->
+            .map { out ->
                 val ret: MutableList<ShortLink> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -200,28 +197,28 @@ class UtilsInteractor(
         return networker.vkDefault(accountId)
             .utils()
             .getShortLink(url, t_private)
-            .map { obj: VKApiShortLink -> transform(obj) }
+            .map { obj -> transform(obj) }
     }
 
     override fun deleteFromLastShortened(accountId: Int, key: String?): Single<Int> {
         return networker.vkDefault(accountId)
             .utils()
             .deleteFromLastShortened(key)
-            .map { out: Int -> out }
+            .map { out -> out }
     }
 
     override fun checkLink(accountId: Int, url: String?): Single<VKApiCheckedLink> {
         return networker.vkDefault(accountId)
             .utils()
             .checkLink(url)
-            .map { out: VKApiCheckedLink -> out }
+            .map { out -> out }
     }
 
     override fun joinChatByInviteLink(accountId: Int, link: String?): Single<VkApiChatResponse> {
         return networker.vkDefault(accountId)
             .utils()
             .joinChatByInviteLink(link)
-            .map { out: VkApiChatResponse -> out }
+            .map { out -> out }
     }
 
     override fun getInviteLink(
@@ -232,13 +229,13 @@ class UtilsInteractor(
         return networker.vkDefault(accountId)
             .utils()
             .getInviteLink(peer_id, reset)
-            .map { out: VkApiLinkResponse -> out }
+            .map { out -> out }
     }
 
     override fun customScript(accountId: Int, code: String?): Single<Int> {
         return networker.vkDefault(accountId)
             .utils()
             .customScript(code)
-            .map { out: Int -> out }
+            .map { out -> out }
     }
 }

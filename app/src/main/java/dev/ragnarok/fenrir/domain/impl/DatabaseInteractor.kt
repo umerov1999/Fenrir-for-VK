@@ -1,10 +1,6 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.Items
-import dev.ragnarok.fenrir.api.model.VKApiCity
-import dev.ragnarok.fenrir.api.model.VKApiCountry
-import dev.ragnarok.fenrir.api.model.database.*
 import dev.ragnarok.fenrir.db.interfaces.IDatabaseStore
 import dev.ragnarok.fenrir.db.model.entity.CountryEntity
 import dev.ragnarok.fenrir.domain.IDatabaseInteractor
@@ -24,7 +20,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
         return networker.vkDefault(accountId)
             .database()
             .getChairs(facultyId, offset, count)
-            .map { items: Items<ChairDto> ->
+            .map { items ->
                 val dtos = listEmptyIfNull(items.getItems())
                 val chairs: MutableList<Chair> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -39,7 +35,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
             networker.vkDefault(accountId)
                 .database()
                 .getCountries(true, null, null, 1000)
-                .flatMap { items: Items<VKApiCountry> ->
+                .flatMap { items ->
                     val dtos = listEmptyIfNull(items.getItems())
                     val dbos: MutableList<CountryEntity> = ArrayList(dtos.size)
                     val countries: MutableList<Country> = ArrayList(dbos.size)
@@ -51,7 +47,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
                         .andThen(Single.just<List<Country>>(countries))
                 }
         } else cache.getCountries(accountId)
-            .flatMap { dbos: List<CountryEntity> ->
+            .flatMap { dbos ->
                 if (dbos.isNotEmpty()) {
                     val countries: MutableList<Country> = ArrayList(dbos.size)
                     for (dbo in dbos) {
@@ -74,7 +70,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
         return networker.vkDefault(accountId)
             .database()
             .getCities(countryId, null, q, needAll, offset, count)
-            .map { items: Items<VKApiCity> ->
+            .map { items ->
                 val dtos = listEmptyIfNull(items.getItems())
                 val cities: MutableList<City> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -98,7 +94,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
         return networker.vkDefault(accountId)
             .database()
             .getFaculties(universityId, offset, count)
-            .map { items: Items<FacultyDto> ->
+            .map { items ->
                 val dtos = listEmptyIfNull(items.getItems())
                 val faculties: MutableList<Faculty> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -112,7 +108,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
         return networker.vkDefault(accountId)
             .database()
             .getSchoolClasses(countryId)
-            .map { dtos: List<SchoolClazzDto> ->
+            .map { dtos ->
                 val clazzes: MutableList<SchoolClazz> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     clazzes.add(SchoolClazz(dto.id, dto.title))
@@ -131,7 +127,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
         return networker.vkDefault(accountId)
             .database()
             .getSchools(q, cityId, offset, count)
-            .map { items: Items<SchoolDto> ->
+            .map { items ->
                 val dtos = listEmptyIfNull(items.getItems())
                 val schools: MutableList<School> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -152,7 +148,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
         return networker.vkDefault(accountId)
             .database()
             .getUniversities(filter, countyId, cityId, offset, count)
-            .map { items: Items<UniversityDto> ->
+            .map { items ->
                 val dtos = listEmptyIfNull(items.getItems())
                 val universities: MutableList<University> = ArrayList(dtos.size)
                 for (dto in dtos) {

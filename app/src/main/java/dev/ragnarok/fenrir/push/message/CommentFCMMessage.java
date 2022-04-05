@@ -77,7 +77,7 @@ public class CommentFCMMessage {
         Context app = context.getApplicationContext();
         OwnerInfo.getRx(context, accountId, from_id)
                 .subscribeOn(NotificationScheduler.getINSTANCE())
-                .subscribe(ownerInfo -> notifyImpl(app, ownerInfo), RxUtils.ignore());
+                .subscribe(ownerInfo -> notifyImpl(app, ownerInfo), RxUtils.ignoreJava());
     }
 
     private void notifyImpl(Context context, OwnerInfo ownerInfo) {

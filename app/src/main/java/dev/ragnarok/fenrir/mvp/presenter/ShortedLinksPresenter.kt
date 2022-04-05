@@ -1,14 +1,13 @@
 package dev.ragnarok.fenrir.mvp.presenter
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
 import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.ShortLink
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IShortedLinksView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Unixtime.now
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -32,13 +31,13 @@ class ShortedLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveRefreshingView()
         val accountId = accountId
         actualDataDisposable.add(fInteractor.getLastShortenedLinks(accountId, 10, offset)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
                     offset,
                     it
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -92,11 +91,11 @@ class ShortedLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     fun fireDelete(index: Int, link: ShortLink) {
         actualDataDisposable.add(fInteractor.deleteFromLastShortened(accountId, link.key)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 links.removeAt(index)
                 view?.notifyDataSetChanged()
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     fun fireRefresh() {
@@ -111,8 +110,8 @@ class ShortedLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     fun fireShort() {
         actualDataDisposable.add(fInteractor.getShortLink(accountId, mInput, 1)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: ShortLink ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 data.timestamp = now()
                 data.views = 0
                 links.add(0, data)
@@ -120,20 +119,20 @@ class ShortedLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
                 view?.updateLink(
                     data.short_url
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     fun fireValidate() {
         actualDataDisposable.add(fInteractor.checkLink(accountId, mInput)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: VKApiCheckedLink ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 view?.updateLink(
                     data.link
                 )
                 view?.showLinkStatus(
                     data.status
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     init {

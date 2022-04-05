@@ -45,13 +45,13 @@ class ValidateActivity : AppCompatActivity() {
         validateProvider?.let {
             mCompositeDisposable.add(
                 it.observeWaiting()
-                    .filter { url: String -> url == urlVal }
+                    .filter { ob -> ob == urlVal }
                     .observeOn(Includes.provideMainThreadScheduler())
                     .subscribe({ onWaitingRequestReceived() }, RxUtils.ignore())
             )
             mCompositeDisposable.add(
                 it.observeCanceling()
-                    .filter { url: String -> url == urlVal }
+                    .filter { ob -> ob == urlVal }
                     .observeOn(Includes.provideMainThreadScheduler())
                     .subscribe({ onRequestCancelled() }, RxUtils.ignore())
             )

@@ -3,12 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.INewsfeedInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.NewsfeedComment
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.INewsfeedCommentsView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class NewsfeedCommentsPresenter(accountId: Int, savedInstanceState: Bundle?) :
@@ -45,14 +44,14 @@ class NewsfeedCommentsPresenter(accountId: Int, savedInstanceState: Bundle?) :
             startFrom,
             "post,photo,video,topic"
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ pair: Pair<List<NewsfeedComment>, String?> ->
+            .fromIOToMain()
+            .subscribe({
                 onDataReceived(
                     startFrom,
-                    pair.second,
-                    pair.first
+                    it.second,
+                    it.first
                 )
-            }) { throwable: Throwable -> onRequestError(throwable) })
+            }) { throwable -> onRequestError(throwable) })
     }
 
     private fun loadNext() {

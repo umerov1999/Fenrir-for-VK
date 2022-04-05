@@ -5,11 +5,11 @@ import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.FriendsCounters
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFriendsTabsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 
 class FriendsTabsPresenter(
     accountId: Int,
@@ -29,8 +29,8 @@ class FriendsTabsPresenter(
             userId,
             IOwnersRepository.MODE_ANY
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owner: Owner -> onOwnerInfoReceived(owner) }) { })
+            .fromIOToMain()
+            .subscribe({ owner -> onOwnerInfoReceived(owner) }) { })
     }
 
     private fun onOwnerInfoReceived(owner: Owner) {
@@ -43,8 +43,8 @@ class FriendsTabsPresenter(
     private fun requestCounters() {
         val accountId = accountId
         appendDisposable(relationshipInteractor.getFriendsCounters(accountId, userId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ counters: FriendsCounters -> onCountersReceived(counters) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ counters -> onCountersReceived(counters) }) { t ->
                 onCountersGetError(
                     t
                 )

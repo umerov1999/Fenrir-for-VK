@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFaveVideosView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class FaveVideosPresenter(accountId: Int, savedInstanceState: Bundle?) :
@@ -38,8 +38,8 @@ class FaveVideosPresenter(accountId: Int, savedInstanceState: Bundle?) :
         cacheLoadingNow = true
         val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedVideos(accountId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ videos: List<Video> -> onCachedDataReceived(videos) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ videos -> onCachedDataReceived(videos) }) { t ->
                 onCacheGetError(
                     t
                 )
@@ -69,13 +69,13 @@ class FaveVideosPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveRefreshingView()
         val accountId = accountId
         netDisposable.add(faveInteractor.getVideos(accountId, COUNT_PER_REQUEST, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ videos: List<Video> ->
+            .fromIOToMain()
+            .subscribe({ videos ->
                 onNetDataReceived(
                     offset,
                     videos
                 )
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     private fun onNetDataGetError(t: Throwable) {
@@ -137,11 +137,11 @@ class FaveVideosPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     fun fireVideoDelete(index: Int, video: Video) {
         netDisposable.add(faveInteractor.removeVideo(accountId, video.ownerId, video.id)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 mVideos.removeAt(index)
                 view?.notifyDataSetChanged()
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     fun fireScrollToEnd() {

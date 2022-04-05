@@ -10,5 +10,5 @@ interface IStickersInteractor {
     fun getAndStore(accountId: Int): Completable
     fun getStickers(accountId: Int): Single<List<StickerSet>>
     fun getKeywordsStickers(accountId: Int, s: String?): Single<List<Sticker>>
-    fun PlaceToStickerCache(context: Context?): Completable
+    fun PlaceToStickerCache(context: Context): Completable
 }

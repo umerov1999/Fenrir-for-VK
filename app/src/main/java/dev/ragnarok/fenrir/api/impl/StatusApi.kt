@@ -10,10 +10,10 @@ internal class StatusApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IStatusApi {
     override fun set(text: String?, groupId: Int?): Single<Boolean> {
         return provideService(IStatusService::class.java, TokenType.USER)
-            .flatMap { service: IStatusService ->
+            .flatMap { service ->
                 service.set(text, groupId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 }

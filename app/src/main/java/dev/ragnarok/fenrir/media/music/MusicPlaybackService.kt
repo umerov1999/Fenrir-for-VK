@@ -992,8 +992,7 @@ class MusicPlaybackService : Service() {
                     listOf(audio)
                 )
                     .fromIOToMain()
-                    .map { e: List<Audio> -> e[0].url }
-                    .subscribe({ remoteUrl: String? -> this.setDataSource(remoteUrl) }) {
+                    .subscribe({ remoteUrl -> setDataSource(remoteUrl[0].url) }) {
                         setDataSource(
                             audio.url
                         )

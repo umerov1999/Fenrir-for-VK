@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.menu.AdvancedItem
 import dev.ragnarok.fenrir.model.menu.Section
@@ -13,7 +14,6 @@ import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IUserDetailsView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateWithZeros
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.join
@@ -609,7 +609,7 @@ class UserDetailsPresenter(
         this.details = details
         appendDisposable(
             InteractorFactory.createPhotosInteractor()[accountId, user.ownerId, -6, 50, 0, true]
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ DisplayUserProfileAlbum(it) }, ignore())
         )
     }

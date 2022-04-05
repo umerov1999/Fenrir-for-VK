@@ -4,10 +4,10 @@ import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VkApiLongpollServer
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.util.concurrent.TimeUnit
@@ -77,8 +77,8 @@ internal class UserLongpoll(
                 networker.vkDefault(accountId)
                     .messages()
                     .getLongpollServer(true, V)
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ info: VkApiLongpollServer -> onServerInfoReceived(info) }) { throwable: Throwable ->
+                    .fromIOToMain()
+                    .subscribe({ info -> onServerInfoReceived(info) }) { throwable ->
                         onServerGetError(
                             throwable
                         )
@@ -88,8 +88,8 @@ internal class UserLongpoll(
         setDisposable(
             networker.longpoll()
                 .getUpdates("https://$server", key, ts ?: return, 25, MODE, V)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ updates: VkApiLongpollUpdates -> onUpdates(updates) }) { throwable: Throwable ->
+                .fromIOToMain()
+                .subscribe({ updates -> onUpdates(updates) }) { throwable ->
                     onUpdatesGetError(
                         throwable
                     )

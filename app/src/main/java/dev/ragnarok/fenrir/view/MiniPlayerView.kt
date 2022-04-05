@@ -26,7 +26,6 @@ import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.toMainThread
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.disposables.Disposable
@@ -230,12 +229,12 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
             .accounts()
             .observeChanges()
             .toMainThread()
-            .subscribe { v: Int -> mAccountId = v }
+            .subscribe { mAccountId = it }
         val next = refreshCurrentTime()
         queueNextRefresh(next)
         mPlayerDisposable = MusicPlaybackController.observeServiceBinding()
-            .compose(RxUtils.applyObservableIOToMainSchedulers())
-            .subscribe { status: Int -> onServiceBindEvent(status) }
+            .toMainThread()
+            .subscribe { onServiceBindEvent(it) }
     }
 
     override fun onDetachedFromWindow() {

@@ -6,12 +6,12 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AudioArtist
 import dev.ragnarok.fenrir.model.AudioCatalog
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IAudioCatalogView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -47,8 +47,8 @@ class AudioCatalogPresenter(accountId: Int, artist_id: String?, savedInstanceSta
         }
         actualDataDisposable = Single.just(Any())
             .delay(1, TimeUnit.SECONDS)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ fireRefresh() }) { t: Throwable -> onActualDataGetError(t) }
+            .fromIOToMain()
+            .subscribe({ fireRefresh() }) { t -> onActualDataGetError(t) }
     }
 
     override fun onGuiCreated(viewHost: IAudioCatalogView) {
@@ -72,8 +72,8 @@ class AudioCatalogPresenter(accountId: Int, artist_id: String?, savedInstanceSta
         resolveRefreshingView()
         val accountId = accountId
         appendDisposable(fInteractor.getCatalog(accountId, artist_id, query)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<AudioCatalog> -> onActualDataReceived(data) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ data -> onActualDataReceived(data) }) { t ->
                 onActualDataGetError(
                     t
                 )
@@ -110,7 +110,7 @@ class AudioCatalogPresenter(accountId: Int, artist_id: String?, savedInstanceSta
             album.ownerId,
             album.access_key
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.customToast?.showToast(
                     R.string.success

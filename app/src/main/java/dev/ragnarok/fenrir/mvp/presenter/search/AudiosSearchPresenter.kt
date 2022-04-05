@@ -46,7 +46,7 @@ class AudiosSearchPresenter(
     ): Single<Pair<List<Audio>, IntNextFrom>> {
         val nextFrom = IntNextFrom(startFrom.offset + 50)
         return audioInteractor.search(accountId, criteria, startFrom.offset, 50)
-            .map { audio: List<Audio> -> create(audio, nextFrom) }
+            .map { audio -> create(audio, nextFrom) }
     }
 
     fun playAudio(context: Context, position: Int) {

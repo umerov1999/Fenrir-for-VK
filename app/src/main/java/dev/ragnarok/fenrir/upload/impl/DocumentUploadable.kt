@@ -3,10 +3,7 @@ package dev.ragnarok.fenrir.upload.impl
 import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.VkApiDoc
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiDocsUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadDocDto
 import dev.ragnarok.fenrir.db.interfaces.IDocsStorage
 import dev.ragnarok.fenrir.db.model.entity.DocumentEntity
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity
@@ -42,11 +39,11 @@ class DocumentUploadable(
             networker.vkDefault(accountId)
                 .docs()
                 .getUploadServer(groupId)
-                .map { s: VkApiDocsUploadServer -> s }
+                .map { s -> s }
         } else {
             Single.just(initialServer)
         }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 val uri = upload.fileUri
@@ -67,12 +64,12 @@ class DocumentUploadable(
                 networker.uploads()
                     .uploadDocumentRx(server.url, filename, `is`[0]!!, listener)
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: UploadDocDto ->
+                    .flatMap { dto ->
                         networker
                             .vkDefault(accountId)
                             .docs()
                             .save(dto.file, filename, null)
-                            .flatMap { tmpList: VkApiDoc.Entry ->
+                            .flatMap { tmpList ->
                                 if (tmpList.type.isEmpty()) {
                                     Single.error<UploadResult<Document>>(
                                         NotFoundException()

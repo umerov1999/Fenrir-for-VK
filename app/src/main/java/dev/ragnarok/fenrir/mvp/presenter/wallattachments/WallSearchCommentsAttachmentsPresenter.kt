@@ -7,11 +7,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.ICommentsInteractor
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.CommentsInteractor
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.CommentedType
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.wallattachments.IWallSearchCommentsAttachmentsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -47,7 +47,7 @@ class WallSearchCommentsAttachmentsPresenter(
             posts[index],
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ onActualDataReceived(it) }) {
                 onActualDataGetError(
                     it

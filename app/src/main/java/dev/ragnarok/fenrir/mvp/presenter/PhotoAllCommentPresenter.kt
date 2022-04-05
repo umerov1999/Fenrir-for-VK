@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.CommentsInteractor
 import dev.ragnarok.fenrir.exception.NotFoundException
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AccessIdPair
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.WallReply
@@ -21,8 +22,6 @@ import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IPhotoAllCommentView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.DisposableHolder
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -63,13 +62,13 @@ class PhotoAllCommentPresenter(
             offset,
             COUNT_PER_REQUEST
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onNetDataReceived(
                     offset,
                     it
                 )
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     private fun onNetDataGetError(t: Throwable) {
@@ -136,7 +135,7 @@ class PhotoAllCommentPresenter(
             accountId,
             listOf(AccessIdPair(comment.commented.sourceId, owner_id, null))
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.openSimplePhotoGallery(
                     accountId,
@@ -144,7 +143,7 @@ class PhotoAllCommentPresenter(
                     0,
                     false
                 )
-            }) { t: Throwable? ->
+            }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -152,8 +151,8 @@ class PhotoAllCommentPresenter(
     private fun likeInternal(add: Boolean, comment: Comment) {
         val accountId = accountId
         appendDisposable(interactor.like(accountId, comment.commented, comment.id, add)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -179,13 +178,13 @@ class PhotoAllCommentPresenter(
                         comment.id,
                         item
                     )
-                        .compose(applySingleIOToMainSchedulers())
-                        .subscribe({ p: Int ->
+                        .fromIOToMain()
+                        .subscribe({ p ->
                             if (p == 1) view?.customToast?.showToast(
                                 R.string.success
                             )
                             else view?.customToast?.showToast(R.string.error)
-                        }, { t: Throwable? ->
+                        }, { t ->
                             showError(getCauseIfRuntime(t))
                         })
                 )
@@ -246,13 +245,13 @@ class PhotoAllCommentPresenter(
                 it1,
                 commentId
             )
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     onDeepCommentLoadingResponse(
                         commentId,
                         it
                     )
-                }) { throwable: Throwable -> onDeepCommentLoadingError(throwable) }
+                }) { throwable -> onDeepCommentLoadingError(throwable) }
         })
     }
 

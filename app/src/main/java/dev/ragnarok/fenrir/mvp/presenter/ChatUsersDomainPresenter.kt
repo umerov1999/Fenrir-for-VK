@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IChatUsersDomainView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class ChatUsersDomainPresenter(
@@ -83,8 +83,8 @@ class ChatUsersDomainPresenter(
         val accountId = accountId
         setRefreshing(true)
         appendDisposable(messagesInteractor.getChatUsers(accountId, chatId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ users: List<AppChatUser> -> onDataReceived(users) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ users -> onDataReceived(users) }) { t ->
                 onDataGetError(
                     t
                 )

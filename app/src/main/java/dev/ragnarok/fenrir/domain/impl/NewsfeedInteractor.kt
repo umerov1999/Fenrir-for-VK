@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.domain.impl
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.CommentsDto
-import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse.*
 import dev.ragnarok.fenrir.domain.INewsfeedInteractor
 import dev.ragnarok.fenrir.domain.IOwnersRepository
@@ -33,7 +32,7 @@ class NewsfeedInteractor(
         return networker.vkDefault(accountId)
             .newsfeed()
             .getMentions(owner_id, count, offset, startTime, endTime)
-            .flatMap { response: NewsfeedCommentsResponse ->
+            .flatMap { response ->
                 val owners = transformOwners(response.profiles, response.groups)
                 val ownIds = VKOwnIds()
                 val dtos = listEmptyIfNull(response.items)
@@ -50,7 +49,7 @@ class NewsfeedInteractor(
                     IOwnersRepository.MODE_ANY,
                     owners
                 )
-                    .map { bundle: IOwnersBundle ->
+                    .map { bundle ->
                         val comments: MutableList<NewsfeedComment> = ArrayList(dtos.size)
                         for (dto in dtos) {
                             val comment = createFrom(dto, bundle)
@@ -75,7 +74,7 @@ class NewsfeedInteractor(
                 count, filter, null, null, null,
                 1, startFrom, Constants.MAIN_OWNER_FIELDS
             )
-            .flatMap { response: NewsfeedCommentsResponse ->
+            .flatMap { response ->
                 val owners = transformOwners(response.profiles, response.groups)
                 val ownIds = VKOwnIds()
                 val dtos = listEmptyIfNull(response.items)
@@ -107,7 +106,7 @@ class NewsfeedInteractor(
                     IOwnersRepository.MODE_ANY,
                     owners
                 )
-                    .map { bundle: IOwnersBundle ->
+                    .map { bundle ->
                         val comments: MutableList<NewsfeedComment> = ArrayList(dtos.size)
                         for (dto in dtos) {
                             val comment = createFrom(dto, bundle)

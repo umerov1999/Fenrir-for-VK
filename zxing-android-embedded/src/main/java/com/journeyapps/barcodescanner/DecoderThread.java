@@ -29,6 +29,15 @@ public class DecoderThread {
     private Handler handler;
     private Decoder decoder;
     private Rect cropRect;
+    private final Handler.Callback callback = message -> {
+        if (message.what == R.id.zxing_decode) {
+            decode((SourceData) message.obj);
+        } else if (message.what == R.id.zxing_preview_failed) {
+            // Error already logged. Try again.
+            requestNextPreview();
+        }
+        return true;
+    };
     private boolean running;
     private final PreviewCallback previewCallback = new PreviewCallback() {
         @Override
@@ -54,15 +63,6 @@ public class DecoderThread {
                 }
             }
         }
-    };
-    private final Handler.Callback callback = message -> {
-        if (message.what == R.id.zxing_decode) {
-            decode((SourceData) message.obj);
-        } else if (message.what == R.id.zxing_preview_failed) {
-            // Error already logged. Try again.
-            requestNextPreview();
-        }
-        return true;
     };
 
     public DecoderThread(CameraInstance cameraInstance, Decoder decoder, Handler resultHandler) {

@@ -117,17 +117,13 @@ open class BaseSearchCriteria : Parcelable, Cloneable {
         }
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<BaseSearchCriteria> =
-            object : Parcelable.Creator<BaseSearchCriteria> {
-                override fun createFromParcel(`in`: Parcel): BaseSearchCriteria {
-                    return BaseSearchCriteria(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<BaseSearchCriteria> {
+        override fun createFromParcel(parcel: Parcel): BaseSearchCriteria {
+            return BaseSearchCriteria(parcel)
+        }
 
-                override fun newArray(size: Int): Array<BaseSearchCriteria?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<BaseSearchCriteria?> {
+            return arrayOfNulls(size)
+        }
     }
 }

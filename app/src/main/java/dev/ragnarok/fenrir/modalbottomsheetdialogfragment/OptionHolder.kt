@@ -20,11 +20,13 @@ internal class OptionHolder(val resource: Int?, val optionRequest: OptionRequest
         writeParcelable(optionRequest, 0)
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<OptionHolder> = object : Parcelable.Creator<OptionHolder> {
-            override fun createFromParcel(source: Parcel): OptionHolder = OptionHolder(source)
-            override fun newArray(size: Int): Array<OptionHolder?> = arrayOfNulls(size)
+    companion object CREATOR : Parcelable.Creator<OptionHolder> {
+        override fun createFromParcel(parcel: Parcel): OptionHolder {
+            return OptionHolder(parcel)
+        }
+
+        override fun newArray(size: Int): Array<OptionHolder?> {
+            return arrayOfNulls(size)
         }
     }
 }

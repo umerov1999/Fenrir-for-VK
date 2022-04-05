@@ -3,11 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Article
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFaveArticlesView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class FaveArticlesPresenter(accountId: Int, savedInstanceState: Bundle?) :
@@ -41,8 +41,8 @@ class FaveArticlesPresenter(accountId: Int, savedInstanceState: Bundle?) :
         cacheLoadingNow = true
         val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedArticles(accountId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ articles: List<Article> -> onCachedDataReceived(articles) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ articles -> onCachedDataReceived(articles) }) { t ->
                 onCacheGetError(
                     t
                 )
@@ -72,13 +72,13 @@ class FaveArticlesPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveRefreshingView()
         val accountId = accountId
         netDisposable.add(faveInteractor.getArticles(accountId, COUNT_PER_REQUEST, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ articles: List<Article> ->
+            .fromIOToMain()
+            .subscribe({ articles ->
                 onNetDataReceived(
                     offset,
                     articles
                 )
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     private fun onNetDataGetError(t: Throwable) {
@@ -133,11 +133,11 @@ class FaveArticlesPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     fun fireArticleDelete(index: Int, article: Article) {
         appendDisposable(faveInteractor.removeArticle(accountId, article.ownerId, article.id)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 mArticles.removeAt(index)
                 view?.notifyDataSetChanged()
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     fun fireArticleClick(url: String) {

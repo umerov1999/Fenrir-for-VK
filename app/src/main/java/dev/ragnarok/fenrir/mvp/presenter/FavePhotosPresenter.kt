@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFavePhotosView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -39,8 +39,8 @@ class FavePhotosPresenter(accountId: Int, savedInstanceState: Bundle?) :
         val accountId = accountId
         cacheLoadingNow = true
         cacheDisposable.add(faveInteractor.getCachedPhotos(accountId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ photos: List<Photo> -> onCachedDataReceived(photos) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ photos -> onCachedDataReceived(photos) }) { t ->
                 onCacheGetError(
                     t
                 )
@@ -74,13 +74,13 @@ class FavePhotosPresenter(accountId: Int, savedInstanceState: Bundle?) :
         setRequestNow(true)
         val accountId = accountId
         netDisposable.add(faveInteractor.getPhotos(accountId, COUNT_PER_REQUEST, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ photos: List<Photo> ->
+            .fromIOToMain()
+            .subscribe({ photos ->
                 onActualDataReceived(
                     offset,
                     photos
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {

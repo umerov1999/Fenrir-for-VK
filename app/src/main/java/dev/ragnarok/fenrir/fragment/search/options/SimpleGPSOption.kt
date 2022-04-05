@@ -50,21 +50,13 @@ class SimpleGPSOption : BaseOption {
         return super.clone() as SimpleGPSOption
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    companion object CREATOR : Parcelable.Creator<SimpleGPSOption> {
+        override fun createFromParcel(parcel: Parcel): SimpleGPSOption {
+            return SimpleGPSOption(parcel)
+        }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<SimpleGPSOption> =
-            object : Parcelable.Creator<SimpleGPSOption> {
-                override fun createFromParcel(`in`: Parcel): SimpleGPSOption {
-                    return SimpleGPSOption(`in`)
-                }
-
-                override fun newArray(size: Int): Array<SimpleGPSOption?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<SimpleGPSOption?> {
+            return arrayOfNulls(size)
+        }
     }
 }

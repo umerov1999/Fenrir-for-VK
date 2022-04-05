@@ -6,12 +6,12 @@ import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioPlaylistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.view.search.IAudioPlaylistSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.core.Single
 
@@ -44,7 +44,7 @@ class AudioPlaylistSearchPresenter(
     ): Single<Pair<List<AudioPlaylist>, IntNextFrom>> {
         val nextFrom = IntNextFrom(startFrom.offset + 50)
         return audioInteractor.searchPlaylists(accountId, criteria, startFrom.offset, 50)
-            .map { audio: List<AudioPlaylist> -> create(audio, nextFrom) }
+            .map { audio -> create(audio, nextFrom) }
     }
 
     fun onAdd(album: AudioPlaylist, clone: Boolean) {
@@ -59,10 +59,10 @@ class AudioPlaylistSearchPresenter(
             album.ownerId,
             album.access_key
         ))
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.customToast?.showToast(R.string.success)
-            }) { throwable: Throwable? ->
+            }) { throwable ->
                 showError(throwable)
             })
     }

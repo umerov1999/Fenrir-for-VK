@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.IAttachmentsPlacesView
@@ -129,12 +130,12 @@ abstract class PlaceSupportPresenter<V>(accountId: Int, savedInstanceState: Bund
         if (!article.isFavorite) {
             appendDisposable(InteractorFactory.createFaveInteractor()
                 .addArticle(accountId, article.url)
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(RxUtils.dummy()) { RxUtils.dummy() })
         } else {
             appendDisposable(InteractorFactory.createFaveInteractor()
                 .removeArticle(accountId, article.ownerId, article.id)
-                .compose(RxUtils.applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ RxUtils.dummy() }) { RxUtils.dummy() })
         }
     }

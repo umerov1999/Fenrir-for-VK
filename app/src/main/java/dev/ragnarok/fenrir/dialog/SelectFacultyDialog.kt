@@ -13,8 +13,8 @@ import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
 import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.FilterEditFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.database.Faculty
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class SelectFacultyDialog : AccountDependencyDialogFragment(), FacultiesAdapter.Listener {
@@ -54,8 +54,8 @@ class SelectFacultyDialog : AccountDependencyDialogFragment(), FacultiesAdapter.
     private fun request(offset: Int) {
         appendDisposable(
             mDatabaseInteractor.getFaculties(accountId, facultyId, COUNT_PER_REQUEST, offset)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ faculties: List<Faculty> ->
+                .fromIOToMain()
+                .subscribe({ faculties ->
                     onDataReceived(
                         offset,
                         faculties

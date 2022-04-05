@@ -158,7 +158,7 @@ internal class VkApies private constructor(
                 return provideRetrofit(
                     accountId,
                     *tokenTypes
-                ).map { retrofit: RetrofitWrapper -> retrofit.create(serviceClass) }
+                ).map { retrofit -> retrofit.create(serviceClass) }
             }
 
             fun provideRetrofit(aid: Int, vararg tokenPolicy: Int): Single<RetrofitWrapper> {

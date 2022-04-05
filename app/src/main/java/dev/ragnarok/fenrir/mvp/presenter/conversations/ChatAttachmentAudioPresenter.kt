@@ -4,7 +4,6 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiAudio
-import dev.ragnarok.fenrir.api.model.response.AttachmentsHistoryResponse
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentAudiosView
@@ -31,7 +30,7 @@ class ChatAttachmentAudioPresenter(peerId: Int, accountId: Int, savedInstanceSta
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, "audio", nextFrom, 0, 50, null)
-            .map { response: AttachmentsHistoryResponse ->
+            .map { response ->
                 val audios: MutableList<Audio> = ArrayList(
                     Utils.safeCountOf(response.items)
                 )

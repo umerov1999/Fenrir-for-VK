@@ -3,11 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.CatalogBlock
 import dev.ragnarok.fenrir.model.Link
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ILinksInCatalogView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -50,16 +50,16 @@ class LinksInCatalogPresenter(
     fun requestList() {
         setLoadingNow(true)
         audioListDisposable.add(audioInteractor.getCatalogBlockById(accountId, block_id, next_from)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: CatalogBlock? -> onListReceived(data) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ data -> onListReceived(data) }) { t ->
                 onListGetError(
                     t
                 )
             })
     }
 
-    private fun onListReceived(data: CatalogBlock?) {
-        if (data == null || data.links.isNullOrEmpty()) {
+    private fun onListReceived(data: CatalogBlock) {
+        if (data.links.isNullOrEmpty()) {
             actualReceived = true
             setLoadingNow(false)
             endOfContent = true

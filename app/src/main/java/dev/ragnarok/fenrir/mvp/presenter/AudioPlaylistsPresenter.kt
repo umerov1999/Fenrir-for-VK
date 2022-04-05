@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
@@ -18,7 +19,6 @@ import dev.ragnarok.fenrir.mvp.view.IAudioPlaylistsView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.FindAtWithContent
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.SafeCallCheckInt
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.isValueAssigned
@@ -52,13 +52,13 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
         resolveRefreshingView()
         val accountId = accountId
         appendDisposable(fInteractor.getPlaylists(accountId, owner_id, offset, GET_COUNT)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<AudioPlaylist> ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 onActualDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -111,7 +111,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
                         owner_id,
                         null
                     )
-                        .compose(applySingleIOToMainSchedulers())
+                        .fromIOToMain()
                         .subscribe({
                             addon.clear()
                             addon.add(it)
@@ -135,7 +135,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
                     code_addon.append("];")
                     code.append(code_addon)
                     appendDisposable(fInteractor.getPlaylistsCustom(accountId, code.toString())
-                        .compose(applySingleIOToMainSchedulers())
+                        .fromIOToMain()
                         .subscribe({
                             addon.clear()
                             addon.addAll(it)
@@ -181,8 +181,8 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
         } else {
             actualDataDisposable = Single.just(Any())
                 .delay(WEB_SEARCH_DELAY.toLong(), TimeUnit.MILLISECONDS)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ searcher.do_search(q) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ searcher.do_search(q) }) { t ->
                     onActualDataGetError(
                         t
                     )
@@ -197,7 +197,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
     fun onDelete(index: Int, album: AudioPlaylist) {
         val accountId = accountId
         appendDisposable(fInteractor.deletePlaylist(accountId, album.id, album.ownerId)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 playlists.removeAt(index)
                 view?.notifyItemRemoved(
@@ -206,7 +206,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
                 view?.customToast?.showToast(
                     R.string.success
                 )
-            }) { throwable: Throwable? ->
+            }) { throwable ->
                 showError(
                     throwable
                 )
@@ -226,10 +226,8 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
                     accountId, album.ownerId, album.id,
                     (root.findViewById<View>(R.id.edit_title) as TextInputEditText).text.toString(),
                     (root.findViewById<View>(R.id.edit_description) as TextInputEditText).text.toString()
-                ).compose(
-                    applySingleIOToMainSchedulers()
-                )
-                    .subscribe({ fireRefresh() }) { t: Throwable? ->
+                ).fromIOToMain()
+                    .subscribe({ fireRefresh() }) { t ->
                         showError(getCauseIfRuntime(t))
                     })
             }
@@ -257,10 +255,8 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
                     accountId, owner_id,
                     (root.findViewById<View>(R.id.edit_title) as TextInputEditText).text.toString(),
                     (root.findViewById<View>(R.id.edit_description) as TextInputEditText).text.toString()
-                ).compose(
-                    applySingleIOToMainSchedulers()
-                )
-                    .subscribe({ playlist: AudioPlaylist -> doInsertPlaylist(playlist) }) { t: Throwable? ->
+                ).fromIOToMain()
+                    .subscribe({ playlist -> doInsertPlaylist(playlist) }) { t ->
                         showError(getCauseIfRuntime(t))
                     })
             }
@@ -275,7 +271,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
             album.id,
             album.ownerId
         ) else fInteractor.followPlaylist(accountId, album.id, album.ownerId, album.access_key))
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.customToast?.showToast(
                     R.string.success
@@ -287,7 +283,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
                 ) {
                     fireRefresh()
                 }
-            }) { throwable: Throwable? ->
+            }) { throwable ->
                 showError(throwable)
             })
     }
@@ -305,12 +301,12 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
                 o.id,
                 targets
             )
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     view?.customToast?.showToast(
                         R.string.success
                     )
-                }) { throwable: Throwable? ->
+                }) { throwable ->
                     showError(
                         throwable
                     )

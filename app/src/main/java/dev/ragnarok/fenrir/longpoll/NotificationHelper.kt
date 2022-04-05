@@ -107,10 +107,10 @@ object NotificationHelper {
         if (Settings.get().other().isDisable_notifications) return
         ChatEntryFetcher.getRx(context, accountId, accountId)
             .subscribeOn(NotificationScheduler.INSTANCE)
-            .subscribe({ account: DialogInfo ->
+            .subscribe({ account ->
                 ChatEntryFetcher.getRx(context, accountId, message.peerId)
                     .subscribeOn(NotificationScheduler.INSTANCE)
-                    .subscribe({ info: DialogInfo ->
+                    .subscribe({ info ->
                         if (Settings.get().main().isLoad_history_notif) {
                             messages.getPeerMessages(
                                 accountId,

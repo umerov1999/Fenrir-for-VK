@@ -4,8 +4,6 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiWallUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToWallDto
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
@@ -39,16 +37,16 @@ class Photo2WallUploadable(
             networker.vkDefault(accountId)
                 .photos()
                 .getWallUploadServer(groupId)
-                .map { s: VkApiWallUploadServer -> s }
+                .map { s -> s }
         }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 `is`[0] = UploadUtils.openStream(context, upload.fileUri, upload.size)
                 networker.uploads()
                     .uploadPhotoToWallRx(server.url, `is`[0]!!, listener)
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: UploadPhotoToWallDto ->
+                    .flatMap { dto ->
                         networker.vkDefault(accountId)
                             .photos()
                             .saveWallPhoto(

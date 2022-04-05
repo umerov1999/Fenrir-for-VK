@@ -16,7 +16,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IAccountApi {
     override fun banUser(userId: Int): Single<Int> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .banUser(userId)
                     .map(extractResponseWithErrorHandling())
@@ -25,7 +25,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
 
     override fun unbanUser(userId: Int): Single<Int> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .unbanUser(userId)
                     .map(extractResponseWithErrorHandling())
@@ -38,7 +38,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
         fields: String?
     ): Single<AccountsBannedResponce> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .getBanned(count, offset, fields)
                     .map(extractResponseWithErrorHandling())
@@ -47,10 +47,10 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
 
     override fun unregisterDevice(deviceId: String?): Single<Boolean> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service.unregisterDevice(deviceId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -67,7 +67,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
         settings: String?
     ): Single<Boolean> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .registerDevice(
                         token,
@@ -82,30 +82,30 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
                         settings
                     )
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun setOffline(): Single<Boolean> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .setOffline()
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override val profileInfo: Single<VkApiProfileInfo>
         get() = provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .profileInfo
                     .map(extractResponseWithErrorHandling())
             }
     override val pushSettings: Single<PushSettingsResponse>
         get() = provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .pushSettings
                     .map(extractResponseWithErrorHandling())
@@ -121,7 +121,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
         sex: Int?
     ): Single<VkApiProfileInfoResponce> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .saveProfileInfo(
                         first_name,
@@ -138,7 +138,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
 
     override fun getCounters(filter: String?): Single<CountersDto> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .getCounters(filter)
                     .map(extractResponseWithErrorHandling())
@@ -152,7 +152,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
         timestamp: Long?
     ): Single<RefreshToken> {
         return provideService(IAccountService::class.java, TokenType.USER)
-            .flatMap { service: IAccountService ->
+            .flatMap { service ->
                 service
                     .refreshToken(receipt, receipt2, nonce, timestamp)
                     .map(extractResponseWithErrorHandling())

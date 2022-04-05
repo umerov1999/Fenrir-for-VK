@@ -13,6 +13,7 @@ import dev.ragnarok.fenrir.activity.PostCreateActivity.Companion.newIntent
 import dev.ragnarok.fenrir.adapter.RecyclerMenuAdapter
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Icon
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Text
@@ -21,7 +22,6 @@ import dev.ragnarok.fenrir.model.menu.AdvancedItem
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -79,8 +79,8 @@ class PostPublishPrepareActivity : AppCompatActivity(), RecyclerMenuAdapter.Acti
                     result.addAll(owners)
                     result
                 }
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ owners: List<Owner> -> onOwnersReceived(owners) }) { throwable: Throwable ->
+                .fromIOToMain()
+                .subscribe({ owners -> onOwnersReceived(owners) }) { throwable ->
                     onOwnersGetError(
                         throwable
                     )

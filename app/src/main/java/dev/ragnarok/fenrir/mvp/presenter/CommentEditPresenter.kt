@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.ICommentsInteractor
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.CommentsInteractor
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.view.ICommentEditView
 import dev.ragnarok.fenrir.upload.Upload
@@ -15,7 +16,6 @@ import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
 
 class CommentEditPresenter(
@@ -124,8 +124,8 @@ class CommentEditPresenter(
             CommentThread,
             models
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ comment: Comment? -> onEditComplete(comment) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ comment -> onEditComplete(comment) }) { t ->
                 onEditError(
                     t
                 )
@@ -137,7 +137,7 @@ class CommentEditPresenter(
         showError(t)
     }
 
-    private fun onEditComplete(comment: Comment?) {
+    private fun onEditComplete(comment: Comment) {
         setEditingNow(false)
         canGoBack = true
         view?.goBackWithResult(
@@ -186,8 +186,8 @@ class CommentEditPresenter(
             initialPopulateEntries()
         }
         appendDisposable(uploadManager[accountId, destination]
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe { uploads: List<Upload> -> onUploadsReceived(uploads) })
+            .fromIOToMain()
+            .subscribe { uploads -> onUploadsReceived(uploads) })
         appendDisposable(uploadManager.observeAdding()
             .observeOn(provideMainThreadScheduler())
             .subscribe { it ->
@@ -214,6 +214,6 @@ class CommentEditPresenter(
             .subscribe { onUploadProgressUpdate(it) })
         appendDisposable(uploadManager.observeResults()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { pair: Pair<Upload, UploadResult<*>> -> onUploadsQueueChanged(pair) })
+            .subscribe { onUploadsQueueChanged(it) })
     }
 }

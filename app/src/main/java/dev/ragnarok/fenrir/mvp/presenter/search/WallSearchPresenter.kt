@@ -8,12 +8,12 @@ import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.fragment.search.criteria.WallSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.view.search.IWallSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import io.reactivex.rxjava3.core.Single
 
@@ -73,7 +73,7 @@ class WallSearchPresenter(
         val offset = startFrom.offset
         val nextFrom = IntNextFrom(offset + COUNT)
         return walls.search(accountId, criteria.ownerId, criteria.query, true, COUNT, offset)
-            .map { pair: Pair<List<Post>, Int> -> create(pair.first, nextFrom) }
+            .map { create(it.first, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): WallSearchCriteria {
@@ -96,8 +96,8 @@ class WallSearchPresenter(
     fun fireLikeClick(post: Post) {
         val accountId = accountId
         appendDisposable(walls.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe(ignore()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(ignore()) { t ->
                 showError(t)
             })
     }
@@ -109,6 +109,6 @@ class WallSearchPresenter(
     init {
         appendDisposable(walls.observeMinorChanges()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { update: PostUpdate -> onPostMinorUpdates(update) })
+            .subscribe { onPostMinorUpdates(it) })
     }
 }

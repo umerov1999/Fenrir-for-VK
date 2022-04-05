@@ -24,6 +24,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SwipebleActivity.Companion.applyIntent
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.media.video.ExoVideoPlayer
 import dev.ragnarok.fenrir.media.video.IVideoPlayer
@@ -37,7 +38,6 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.util.Logger
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout
 import dev.ragnarok.fenrir.view.VideoControllerView
@@ -104,8 +104,8 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
                     Settings.get().accounts().current,
                     (video ?: return).ownerId
                 )
-                    .compose(RxUtils.applySingleIOToMainSchedulers())
-                    .subscribe({ userInfo: OwnerInfo ->
+                    .fromIOToMain()
+                    .subscribe({ userInfo ->
                         val av =
                             findViewById<ImageView>(R.id.toolbar_avatar)
                         av.setImageBitmap(userInfo.avatar)

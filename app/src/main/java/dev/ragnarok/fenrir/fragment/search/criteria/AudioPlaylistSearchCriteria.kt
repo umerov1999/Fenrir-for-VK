@@ -11,17 +11,13 @@ class AudioPlaylistSearchCriteria : BaseSearchCriteria {
         return 0
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<AudioPlaylistSearchCriteria> =
-            object : Parcelable.Creator<AudioPlaylistSearchCriteria> {
-                override fun createFromParcel(`in`: Parcel): AudioPlaylistSearchCriteria {
-                    return AudioPlaylistSearchCriteria(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<AudioPlaylistSearchCriteria> {
+        override fun createFromParcel(parcel: Parcel): AudioPlaylistSearchCriteria {
+            return AudioPlaylistSearchCriteria(parcel)
+        }
 
-                override fun newArray(size: Int): Array<AudioPlaylistSearchCriteria?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<AudioPlaylistSearchCriteria?> {
+            return arrayOfNulls(size)
+        }
     }
 }

@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.VideoAlbum
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IVideoAlbumsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -52,13 +52,13 @@ class VideoAlbumsPresenter(
             COUNT_PER_LOAD,
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ albums: List<VideoAlbum> ->
+            .fromIOToMain()
+            .subscribe({ albums ->
                 onActualDataReceived(
                     offset,
                     albums
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -92,8 +92,8 @@ class VideoAlbumsPresenter(
         val accountId = accountId
         cacheDisposable.add(
             videosInteractor.getCachedAlbums(accountId, ownerId)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ albums: List<VideoAlbum> -> onCachedDataReceived(albums) }, ignore())
+                .fromIOToMain()
+                .subscribe({ albums -> onCachedDataReceived(albums) }, ignore())
         )
     }
 

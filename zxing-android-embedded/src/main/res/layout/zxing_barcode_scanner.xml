@@ -11,14 +11,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/zxing_status_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="24dp"
         android:background="@color/zxing_transparent"
         android:gravity="center"
         android:text="@string/zxing_msg_default_status"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         android:textColor="@color/zxing_status_text" />
 </merge>

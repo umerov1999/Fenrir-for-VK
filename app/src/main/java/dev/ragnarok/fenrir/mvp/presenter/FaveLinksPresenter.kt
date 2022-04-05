@@ -9,12 +9,11 @@ import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.FaveLink
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFaveLinksView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
@@ -36,7 +35,7 @@ class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
         val accountId = accountId
         cacheDisposable.add(
             faveInteractor.getCachedLinks(accountId)
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ onCachedDataReceived(it) }, ignore())
         )
     }
@@ -46,13 +45,13 @@ class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
         val accountId = accountId
         resolveRefreshingView()
         actualDisposable.add(faveInteractor.getLinks(accountId, getCount, offset)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
                     it,
                     offset
                 )
-            }) { t: Throwable -> onActualGetError(t) })
+            }) { t -> onActualGetError(t) })
     }
 
     private fun onActualGetError(t: Throwable) {
@@ -134,8 +133,8 @@ class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
         val accountId = accountId
         val id = link.id
         appendDisposable(faveInteractor.removeLink(accountId, id)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onLinkRemoved(accountId, id) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onLinkRemoved(accountId, id) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -164,8 +163,8 @@ class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
                     accountId,
                     (root.findViewById<View>(R.id.edit_link) as TextInputEditText).text.toString()
                         .trim { it <= ' ' })
-                    .compose(applyCompletableIOToMainSchedulers())
-                    .subscribe({ fireRefresh() }) { t: Throwable? ->
+                    .fromIOToMain()
+                    .subscribe({ fireRefresh() }) { t ->
                         showError(getCauseIfRuntime(t))
                     })
             }

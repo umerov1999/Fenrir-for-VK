@@ -1,16 +1,15 @@
 package dev.ragnarok.fenrir.mvp.presenter
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.GroupChats
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IGroupChatsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class GroupChatsPresenter(accountId: Int, private val groupId: Int, savedInstanceState: Bundle?) :
@@ -31,13 +30,13 @@ class GroupChatsPresenter(accountId: Int, private val groupId: Int, savedInstanc
         resolveRefreshingView()
         resolveLoadMoreFooter()
         netDisposable.add(owners.getGroupChats(accountId, groupId, offset, COUNT_PER_REQUEST)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ rec_chats: List<GroupChats> ->
+            .fromIOToMain()
+            .subscribe({ rec_chats ->
                 onActualDataReceived(
                     offset,
                     rec_chats
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -118,13 +117,13 @@ class GroupChatsPresenter(accountId: Int, private val groupId: Int, savedInstanc
 
     fun fireGroupChatsClick(chat: GroupChats) {
         netDisposable.add(utilsInteractor.joinChatByInviteLink(accountId, chat.invite_link)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ t: VkApiChatResponse ->
+            .fromIOToMain()
+            .subscribe({ t ->
                 view?.goToChat(
                     accountId,
                     t.chat_id
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     fun fireScrollToEnd() {

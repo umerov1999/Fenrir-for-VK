@@ -37,7 +37,7 @@ class VideosSearchPresenter(
         val offset = startFrom.offset
         val nextFrom = IntNextFrom(offset + 50)
         return videosInteractor.search(accountId, criteria, 50, offset)
-            .map { videos: List<Video> -> create(videos, nextFrom) }
+            .map { videos -> create(videos, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): VideoSearchCriteria {

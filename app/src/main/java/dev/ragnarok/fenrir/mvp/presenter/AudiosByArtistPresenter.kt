@@ -5,6 +5,7 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.AudioPlaylist
@@ -13,7 +14,6 @@ import dev.ragnarok.fenrir.mvp.view.IAudiosByArtistView
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.functions.Consumer
@@ -63,12 +63,12 @@ class AudiosByArtistPresenter(
             offset,
             GET_COUNT
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe(if (offset == 0) Consumer { onListReceived(it) } else Consumer {
                 onNextListReceived(
                     it
                 )
-            }) { t: Throwable -> onListGetError(t) })
+            }) { t -> onListGetError(t) })
     }
 
     private fun onNextListReceived(next: List<Audio>) {
@@ -170,12 +170,12 @@ class AudiosByArtistPresenter(
             album.ownerId,
             album.access_key
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.customToast?.showToast(
                     R.string.success
                 )
-            }) { throwable: Throwable? ->
+            }) { throwable ->
                 showError(
                     throwable
                 )

@@ -3,12 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFeedbackInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AnswerVKOfficialList
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IAnswerVKOfficialView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -30,25 +29,25 @@ class AnswerVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveRefreshingView()
         val accountId = accountId
         actualDataDisposable.add(fInteractor.getOfficial(accountId, 100, offset)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: AnswerVKOfficialList ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 onActualDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     fun hideNotification(position: Int, query: String?) {
         val accountId = accountId
         actualDataDisposable.add(fInteractor.hide(accountId, query)
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 pages.items.removeAt(position)
                 view?.notifyItemRemoved(
                     position
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {

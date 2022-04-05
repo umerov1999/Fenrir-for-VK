@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.feedback.*
 import dev.ragnarok.fenrir.domain.IFeedbackInteractor
@@ -40,7 +39,7 @@ class FeedbackInteractor(
         return networker.vkDefault(accountId)
             .notifications()
             .getOfficial(count, startFrom, null, null, null)
-            .map { response: AnswerVKOfficialList -> response }
+            .map { response -> response }
     }
 
     override fun hide(accountId: Int, query: String?): Completable {
@@ -57,7 +56,7 @@ class FeedbackInteractor(
     ): Single<Pair<List<Feedback>, String>> {
         return networker.vkDefault(accountId)
             .notifications()[count, startFrom, null, null, null]
-            .flatMap { response: NotificationsResponse ->
+            .flatMap { response ->
                 val dtos = listEmptyIfNull(response.notifications)
                 val dbos: MutableList<FeedbackEntity> = ArrayList(dtos.size)
                 val ownIds = VKOwnIds()
@@ -99,7 +98,7 @@ class FeedbackInteractor(
     private fun getCachedFeedbacksByCriteria(criteria: NotificationsCriteria): Single<List<Feedback>> {
         return cache.notifications()
             .findByCriteria(criteria)
-            .flatMap { dbos: List<FeedbackEntity> ->
+            .flatMap { dbos ->
                 val ownIds = VKOwnIds()
                 for (dbo in dbos) {
                     populateOwnerIds(ownIds, dbo)

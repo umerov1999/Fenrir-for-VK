@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiAttachment
 import dev.ragnarok.fenrir.api.model.VKApiLink
-import dev.ragnarok.fenrir.api.model.response.AttachmentsHistoryResponse
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.Link
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentPostsView
@@ -32,7 +31,7 @@ class ChatAttachmentPostsPresenter(peerId: Int, accountId: Int, savedInstanceSta
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, VKApiAttachment.TYPE_POST, nextFrom, 1, 50, null)
-            .map { response: AttachmentsHistoryResponse ->
+            .map { response ->
                 val docs: MutableList<Link> = ArrayList(Utils.safeCountOf(response.items))
                 if (response.items != null) {
                     for (one in response.items) {

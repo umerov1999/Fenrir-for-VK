@@ -11,17 +11,13 @@ class ArtistSearchCriteria : BaseSearchCriteria {
         return 0
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<ArtistSearchCriteria> =
-            object : Parcelable.Creator<ArtistSearchCriteria> {
-                override fun createFromParcel(`in`: Parcel): ArtistSearchCriteria {
-                    return ArtistSearchCriteria(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<ArtistSearchCriteria> {
+        override fun createFromParcel(`in`: Parcel): ArtistSearchCriteria {
+            return ArtistSearchCriteria(`in`)
+        }
 
-                override fun newArray(size: Int): Array<ArtistSearchCriteria?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<ArtistSearchCriteria?> {
+            return arrayOfNulls(size)
+        }
     }
 }

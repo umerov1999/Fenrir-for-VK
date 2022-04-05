@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.TmpSource
@@ -16,8 +17,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.wallattachments.IWallPhotosAttachmentsView
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -53,13 +52,13 @@ class WallPhotosAttachmentsPresenter(
             actualDataDisposable.add(Stores.instance
                 .tempStore()
                 .put(source.ownerId, source.sourceId, mPhotos, Serializers.PHOTOS_SERIALIZER)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     onPhotosSavedToTmpStore(
                         position,
                         source
                     )
-                }) { obj: Throwable -> obj.printStackTrace() })
+                }) { obj -> obj.printStackTrace() })
         }
     }
 
@@ -82,13 +81,13 @@ class WallPhotosAttachmentsPresenter(
             100,
             WallCriteria.MODE_ALL
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Post> ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 onActualDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {

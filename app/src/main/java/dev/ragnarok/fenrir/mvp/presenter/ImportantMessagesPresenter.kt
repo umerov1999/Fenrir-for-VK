@@ -3,11 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.mvp.view.IImportantMessagesView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -24,13 +23,13 @@ class ImportantMessagesPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveRefreshingView()
         val accountId = accountId
         actualDataDisposable.add(fInteractor.getImportantMessages(accountId, 50, offset, null)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Message> ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 onActualDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataReceived(offset: Int, recv: List<Message>) {
@@ -91,7 +90,7 @@ class ImportantMessagesPresenter(accountId: Int, savedInstanceState: Bundle?) :
     fun fireRemoveImportant(position: Int) {
         val msg = data[position]
         appendDisposable(fInteractor.markAsImportant(accountId, msg.peerId, setOf(msg.id), 0)
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 data.removeAt(position)
                 safeNotifyDataChanged()
@@ -114,7 +113,7 @@ class ImportantMessagesPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     fun fireTranscript(voiceMessageId: String?, messageId: Int) {
         appendDisposable(fInteractor.recogniseAudioMessage(accountId, messageId, voiceMessageId)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ }) { })
     }
 

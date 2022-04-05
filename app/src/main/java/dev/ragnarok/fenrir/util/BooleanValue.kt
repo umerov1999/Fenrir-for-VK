@@ -39,16 +39,13 @@ class BooleanValue : Parcelable {
         dest.writeByte((if (value) 1 else 0).toByte())
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<BooleanValue> = object : Parcelable.Creator<BooleanValue> {
-            override fun createFromParcel(`in`: Parcel): BooleanValue {
-                return BooleanValue(`in`)
-            }
+    companion object CREATOR : Parcelable.Creator<BooleanValue> {
+        override fun createFromParcel(parcel: Parcel): BooleanValue {
+            return BooleanValue(parcel)
+        }
 
-            override fun newArray(size: Int): Array<BooleanValue?> {
-                return arrayOfNulls(size)
-            }
+        override fun newArray(size: Int): Array<BooleanValue?> {
+            return arrayOfNulls(size)
         }
     }
 }

@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.util
 
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -62,7 +62,7 @@ abstract class FindAtWithContent<T>(
 
     private fun progress(searched: Int) {
         disposable.add(
-            search(offset, searchCount).compose(applySingleIOToMainSchedulers())
+            search(offset, searchCount).fromIOToMain()
                 .subscribe({
                     offset += searchCount
                     if (it.isNullOrEmpty()) {
@@ -85,7 +85,7 @@ abstract class FindAtWithContent<T>(
                             progress(searched + result.size)
                         }
                     }
-                }, { e: Throwable -> onError(e) })
+                }, { e -> onError(e) })
         )
     }
 

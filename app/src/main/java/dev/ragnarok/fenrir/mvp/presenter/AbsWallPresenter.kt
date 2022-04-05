@@ -23,15 +23,17 @@ import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.domain.Repository.owners
-import dev.ragnarok.fenrir.model.*
+import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.model.EditingPostType
+import dev.ragnarok.fenrir.model.LoadMoreState
+import dev.ragnarok.fenrir.model.Post
+import dev.ragnarok.fenrir.model.Story
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IWallView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.checkEditInfo
@@ -130,8 +132,8 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     private fun loadWallCachedData() {
         val accountId = accountId
         cacheCompositeDisposable.add(walls.getCachedWall(accountId, ownerId, wallFilter)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ posts: List<Post> -> onCachedDataReceived(posts) }) { obj: Throwable -> obj.printStackTrace() })
+            .fromIOToMain()
+            .subscribe({ posts -> onCachedDataReceived(posts) }) { obj -> obj.printStackTrace() })
     }
 
     private fun onCachedDataReceived(posts: List<Post>) {
@@ -176,14 +178,14 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         val nextOffset = offset + COUNT
         val append = offset > 0
         netCompositeDisposable.add(walls.getWall(accountId, ownerId, offset, COUNT, wallFilter)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
                     nextOffset,
                     it,
                     append
                 )
-            }) { throwable: Throwable -> onActualDataGetError(throwable) })
+            }) { throwable -> onActualDataGetError(throwable) })
     }
 
     private fun onActualDataGetError(throwable: Throwable) {
@@ -320,14 +322,14 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                         p.sex
                     )
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ t: Int? ->
+                    .fromIOToMain()
+                    .subscribe({ t ->
                         when (t) {
                             0 -> CreateCustomToast(context).showToastError(R.string.not_changed)
                             1 -> CreateCustomToast(context).showToastSuccessBottom(R.string.success)
                             2 -> CreateCustomToast(context).showToastBottom(R.string.later)
                         }
-                    }) { t: Throwable? ->
+                    }) { t ->
                         showError(t)
                     })
             }
@@ -337,8 +339,8 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     fun fireEdit(context: Context) {
         appendDisposable(InteractorFactory.createAccountInteractor().getProfileInfo(accountId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ t: VkApiProfileInfo -> fireEdit(context, t) }) { })
+            .fromIOToMain()
+            .subscribe({ t -> fireEdit(context, t) }) { })
     }
 
     fun fireRefresh() {
@@ -350,7 +352,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                 accountId,
                 if (accountId == ownerId) null else ownerId
             )
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     if (it.nonNullNoEmpty()) {
                         stories.clear()
@@ -417,8 +419,8 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     fun firePostRestoreClick(post: Post) {
         appendDisposable(walls.restore(accountId, post.ownerId, post.vkid)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -447,8 +449,8 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         }
         val accountId = accountId
         appendDisposable(walls.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe(ignore()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(ignore()) { t ->
                 showError(t)
             })
     }
@@ -533,8 +535,8 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     fun fireButtonRemoveClick(post: Post) {
         appendDisposable(walls.delete(accountId, ownerId, post.vkid)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -581,7 +583,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                 accountId,
                 if (accountId == ownerId) null else ownerId
             )
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     if (it.nonNullNoEmpty()) {
                         stories.clear()
@@ -592,18 +594,18 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         }
         appendDisposable(walls
             .observeMinorChanges()
-            .filter { update: PostUpdate -> update.accountId == accountId && update.ownerId == ownerId }
+            .filter { it.accountId == accountId && it.ownerId == ownerId }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { update: PostUpdate -> this.onPostChange(update) })
+            .subscribe { onPostChange(it) })
         appendDisposable(walls
             .observeChanges()
-            .filter { post: Post -> post.ownerId == ownerId }
+            .filter { it.ownerId == ownerId }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { post: Post -> this.onPostChange(post) })
+            .subscribe { onPostChange(it) })
         appendDisposable(walls
             .observePostInvalidation()
-            .filter { pair: IdPair -> pair.getOwnerId() == ownerId }
+            .filter { it.getOwnerId() == ownerId }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { pair: IdPair -> onPostInvalid(pair.getId()) })
+            .subscribe { onPostInvalid(it.getId()) })
     }
 }

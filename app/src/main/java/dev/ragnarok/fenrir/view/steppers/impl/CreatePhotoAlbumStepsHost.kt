@@ -75,7 +75,6 @@ class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState(
         }
 
         override fun writeToParcel(dest: Parcel, flags: Int) {
-            super.writeToParcel(dest, flags)
             dest.writeString(title)
             dest.writeString(description)
             dest.writeParcelable(privacyView, flags)
@@ -129,18 +128,14 @@ class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState(
                     '}'
         }
 
-        companion object {
-            @JvmField
-            val CREATOR: Parcelable.Creator<PhotoAlbumState> =
-                object : Parcelable.Creator<PhotoAlbumState> {
-                    override fun createFromParcel(p: Parcel): PhotoAlbumState {
-                        return PhotoAlbumState(p)
-                    }
+        companion object CREATOR : Parcelable.Creator<PhotoAlbumState> {
+            override fun createFromParcel(parcel: Parcel): PhotoAlbumState {
+                return PhotoAlbumState(parcel)
+            }
 
-                    override fun newArray(size: Int): Array<PhotoAlbumState?> {
-                        return arrayOfNulls(size)
-                    }
-                }
+            override fun newArray(size: Int): Array<PhotoAlbumState?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 

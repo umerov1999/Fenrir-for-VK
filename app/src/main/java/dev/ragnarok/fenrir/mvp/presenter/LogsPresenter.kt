@@ -4,13 +4,13 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.Includes.logsStore
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.interfaces.ILogsStorage
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LogEvent
 import dev.ragnarok.fenrir.model.LogEventType
 import dev.ragnarok.fenrir.model.LogEventWrapper
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ILogsView
 import dev.ragnarok.fenrir.util.DisposableHolder
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class LogsPresenter(savedInstanceState: Bundle?) :
@@ -54,8 +54,8 @@ class LogsPresenter(savedInstanceState: Bundle?) :
         val type = selectedType
         setLoading(true)
         disposableHolder.append(store.getAll(type)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ events: List<LogEvent> -> onDataReceived(events) }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ events -> onDataReceived(events) }) { throwable ->
                 onDataReceiveError(
                     getCauseIfRuntime(throwable)
                 )

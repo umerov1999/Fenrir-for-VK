@@ -1,20 +1,19 @@
 package dev.ragnarok.fenrir.dialog
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
 import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.place.PlaceFactory.getExternalLinkPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
 
 class ResolveDomainDialog : AccountDependencyDialogFragment() {
@@ -41,16 +40,21 @@ class ResolveDomainDialog : AccountDependencyDialogFragment() {
     private fun request() {
         appendDisposable(
             (mUtilsInteractor ?: return).resolveDomain(mAccountId, domain)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ optionalOwner: Optional<Owner> -> onResolveResult(optionalOwner) }) { t: Throwable ->
-                    onResolveError(
-                        t
-                    )
+                .fromIOToMain()
+                .subscribe({ optionalOwner -> onResolveResult(optionalOwner) }) {
+                    onResolveError()
                 })
     }
 
-    private fun onResolveError(t: Throwable) {
-        showErrorAlert(getCauseIfRuntime(t).message)
+    private fun onResolveError() {
+        url?.let {
+            if (Settings.get().main().isOpenUrlInternal > 0) {
+                LinkHelper.openLinkInBrowser(requireActivity(), it)
+            } else {
+                getExternalLinkPlace(accountId, it).tryOpenWith(requireActivity())
+            }
+        }
+        dismissAllowingStateLoss()
     }
 
     private fun onResolveResult(optionalOwner: Optional<Owner>) {
@@ -63,15 +67,6 @@ class ResolveDomainDialog : AccountDependencyDialogFragment() {
             ).tryOpenWith(requireActivity())
         }
         dismissAllowingStateLoss()
-    }
-
-    private fun showErrorAlert(error: String?) {
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(R.string.error)
-            .setMessage(error)
-            .setPositiveButton(R.string.try_again) { _: DialogInterface?, _: Int -> request() }
-            .setNegativeButton(R.string.cancel) { _: DialogInterface?, _: Int -> dismiss() }
-            .show()
     }
 
     companion object {

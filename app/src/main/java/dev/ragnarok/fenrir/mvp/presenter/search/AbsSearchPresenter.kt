@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter.search
 import android.os.Bundle
 import dev.ragnarok.fenrir.fragment.search.criteria.BaseSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.AbsNextFrom
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.search.IBaseSearchView
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.WeakActionHandler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -53,15 +53,15 @@ abstract class AbsSearchPresenter<V : IBaseSearchView<T>, C : BaseSearchCriteria
         setLoadingNow(true)
         searchDisposable.add(
             doSearch(accountId, cloneCriteria, nf)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ pair: Pair<List<T>, N> ->
+                .fromIOToMain()
+                .subscribe({
                     onSearchDataReceived(
                         cloneCriteria,
                         nf,
-                        pair.first,
-                        pair.second
+                        it.first,
+                        it.second
                     )
-                }, { throwable: Throwable -> onSearchError(throwable) })
+                }, { throwable -> onSearchError(throwable) })
         )
     }
 

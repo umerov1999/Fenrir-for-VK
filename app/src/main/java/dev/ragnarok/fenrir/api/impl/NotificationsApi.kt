@@ -14,7 +14,7 @@ internal class NotificationsApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), INotificationsApi {
     override fun markAsViewed(): Single<Int> {
         return provideService(INotificationsService::class.java, TokenType.USER)
-            .flatMap { service: INotificationsService ->
+            .flatMap { service ->
                 service.markAsViewed()
                     .map(extractResponseWithErrorHandling())
             }
@@ -28,10 +28,10 @@ internal class NotificationsApi(accountId: Int, provider: IServiceProvider) :
         endTime: Long?
     ): Single<NotificationsResponse> {
         return provideService(INotificationsService::class.java, TokenType.USER)
-            .flatMap { service: INotificationsService ->
+            .flatMap { service ->
                 service[count, startFrom, filters, startTime, endTime]
                     .map(extractResponseWithErrorHandling())
-                    .map { response: NotificationsResponse ->
+                    .map { response ->
                         val realList: MutableList<VkApiBaseFeedback> =
                             ArrayList(safeCountOf(response.notifications))
                         if (response.notifications != null) {
@@ -58,7 +58,7 @@ internal class NotificationsApi(accountId: Int, provider: IServiceProvider) :
         endTime: Long?
     ): Single<AnswerVKOfficialList> {
         return provideService(INotificationsService::class.java, TokenType.USER)
-            .flatMap { service: INotificationsService ->
+            .flatMap { service ->
                 service.getOfficial(
                     count,
                     startFrom,
@@ -73,7 +73,7 @@ internal class NotificationsApi(accountId: Int, provider: IServiceProvider) :
 
     override fun hide(query: String?): Single<Int> {
         return provideService(INotificationsService::class.java, TokenType.USER)
-            .flatMap { service: INotificationsService ->
+            .flatMap { service ->
                 service.hide(query)
                     .map(extractResponseWithErrorHandling())
             }

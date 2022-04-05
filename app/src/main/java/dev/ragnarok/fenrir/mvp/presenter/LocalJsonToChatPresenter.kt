@@ -5,6 +5,7 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
@@ -12,7 +13,6 @@ import dev.ragnarok.fenrir.mvp.view.ILocalJsonToChatView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -129,7 +129,7 @@ class LocalJsonToChatPresenter(
         resolveRefreshingView(true)
         val accountId = super.accountId
         actualDataDisposable.add(fInteractor.getMessagesFromLocalJSon(accountId, context)
-            .compose(RxUtils.applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ onActualDataReceived(it) }) { onActualDataGetError(it) })
     }
 

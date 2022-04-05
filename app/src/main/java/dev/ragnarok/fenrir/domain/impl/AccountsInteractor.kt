@@ -2,9 +2,6 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VkApiProfileInfo
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfoResponce
-import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponce
-import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse.ConversationsPush.ConversationPushItem
 import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.domain.IAccountsInteractor
@@ -32,7 +29,7 @@ class AccountsInteractor(
         return networker.vkDefault(accountId)
             .account()
             .getBanned(count, offset, UserColumns.API_FIELDS)
-            .map { items: AccountsBannedResponce ->
+            .map { items ->
                 val dtos = listEmptyIfNull(items.profiles)
                 val users = transformUsers(dtos)
                 BannedPart(users)
@@ -91,7 +88,7 @@ class AccountsInteractor(
     override fun getPushSettings(accountId: Int): Single<List<ConversationPushItem>> {
         return networker.vkDefault(accountId)
             .account()
-            .pushSettings.map { obj: PushSettingsResponse -> obj.pushSettings }
+            .pushSettings.map { obj -> obj.pushSettings }
     }
 
     override fun saveProfileInfo(
@@ -107,7 +104,7 @@ class AccountsInteractor(
         return networker.vkDefault(accountId)
             .account()
             .saveProfileInfo(first_name, last_name, maiden_name, screen_name, bdate, home_town, sex)
-            .map { t: VkApiProfileInfoResponce -> t.status }
+            .map { t -> t.status }
     }
 
     override fun getAll(refresh: Boolean): Single<List<Account>> {

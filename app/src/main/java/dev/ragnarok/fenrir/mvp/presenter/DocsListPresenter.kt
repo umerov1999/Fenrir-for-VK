@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.domain.IDocsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
@@ -31,8 +32,6 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DisposableHolder
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
@@ -167,12 +166,12 @@ class DocsListPresenter(
                                 doc.ownerId,
                                 accessKey
                             )
-                                .compose(applySingleIOToMainSchedulers())
+                                .fromIOToMain()
                                 .subscribe({
                                     CreateCustomToast(context).setDuration(
                                         Toast.LENGTH_LONG
                                     ).showToastSuccessBottom(R.string.added)
-                                }) { t: Throwable? ->
+                                }) { t ->
                                     showError(getCauseIfRuntime(t))
                                 })
                         }
@@ -199,7 +198,7 @@ class DocsListPresenter(
 
     private fun doRemove(doc: Document, index: Int) {
         appendDisposable(docsInteractor.delete(accountId, doc.id, doc.ownerId)
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 mDocuments.removeAt(index)
                 view?.notifyDataRemoved(index)
@@ -302,8 +301,8 @@ class DocsListPresenter(
         val filter = selectedFilter
         val accountId = accountId
         requestHolder.append(docsInteractor.request(accountId, mOwnerId, filter)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Document> -> onNetDataReceived(data) }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ data -> onNetDataReceived(data) }) { throwable ->
                 onRequestError(
                     getCauseIfRuntime(throwable)
                 )
@@ -347,8 +346,8 @@ class DocsListPresenter(
         val accountId = accountId
         val filter = selectedFilter
         mLoader.append(docsInteractor.getCacheData(accountId, mOwnerId, filter)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Document> -> onCacheDataReceived(data) }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ data -> onCacheDataReceived(data) }) { throwable ->
                 onLoadError(
                     getCauseIfRuntime(throwable)
                 )
@@ -488,28 +487,28 @@ class DocsListPresenter(
         mAction = action
         destination = forDocuments(ownerId)
         appendDisposable(uploadManager[accountId, destination]
-            .compose(applySingleIOToMainSchedulers<List<Upload>>())
-            .subscribe { data: List<Upload> -> onUploadsDataReceived(data) })
+            .fromIOToMain()
+            .subscribe { data -> onUploadsDataReceived(data) })
         appendDisposable(uploadManager.observeAdding()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { added: List<Upload> -> onUploadsAdded(added) })
+            .subscribe { onUploadsAdded(it) })
         appendDisposable(uploadManager.observeDeleting(true)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { ids: IntArray -> onUploadDeleted(ids) })
+            .subscribe { onUploadDeleted(it) })
         appendDisposable(uploadManager.observeResults()
-            .filter { pair: Pair<Upload, UploadResult<*>> ->
+            .filter {
                 destination.compareTo(
-                    pair.first.destination
+                    it.first.destination
                 )
             }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { pair: Pair<Upload, UploadResult<*>> -> onUploadResults(pair) })
+            .subscribe { onUploadResults(it) })
         appendDisposable(uploadManager.obseveStatus()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { upload: Upload -> onUploadStatusUpdate(upload) })
+            .subscribe { onUploadStatusUpdate(it) })
         appendDisposable(uploadManager.observeProgress()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { updates: List<IProgressUpdate> -> onProgressUpdates(updates) })
+            .subscribe { onProgressUpdates(it) })
         val filter = savedInstanceState?.getInt(SAVE_FILTER) ?: DocFilter.Type.ALL
         filters = createFilters(filter)
         loadAll()

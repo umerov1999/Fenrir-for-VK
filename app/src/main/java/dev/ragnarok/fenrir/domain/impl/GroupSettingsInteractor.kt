@@ -2,9 +2,11 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.GroupSettingsDto
 import dev.ragnarok.fenrir.api.model.GroupSettingsDto.PublicCategory
+import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiCommunity.Contact
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.db.interfaces.IOwnersStorage
 import dev.ragnarok.fenrir.db.model.BanAction
 import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
@@ -33,7 +35,7 @@ class GroupSettingsInteractor(
         return networker.vkDefault(accountId)
             .groups()
             .getSettings(groupId)
-            .flatMap { dto: GroupSettingsDto -> Single.just(createFromDto(dto)) }
+            .flatMap { dto -> Single.just(createFromDto(dto)) }
     }
 
     override fun ban(
@@ -100,8 +102,8 @@ class GroupSettingsInteractor(
         return networker.vkDefault(accountId)
             .groups()
             .getBanned(groupId, startFrom.offset, count, Constants.MAIN_OWNER_FIELDS, null)
-            .map { obj: Items<VkApiBanned> -> obj.getItems() }
-            .flatMap { items: List<VkApiBanned> ->
+            .map { obj -> obj.getItems() }
+            .flatMap { items ->
                 val ids = VKOwnIds()
                 for (u in items) {
                     ids.append(u.banInfo.adminId)
@@ -111,7 +113,7 @@ class GroupSettingsInteractor(
                     ids.all,
                     IOwnersRepository.MODE_ANY
                 )
-                    .map { bundle: IOwnersBundle ->
+                    .map { bundle ->
                         val infos: MutableList<Banned> = ArrayList(items.size)
                         for (u in items) {
                             var admin: User
@@ -142,7 +144,7 @@ class GroupSettingsInteractor(
     override fun getContacts(accountId: Int, groupId: Int): Single<List<ContactInfo>> {
         return networker.vkDefault(accountId).groups()
             .getById(setOf(groupId), null, null, "contacts")
-            .map { communities: List<VKApiCommunity> ->
+            .map { communities ->
                 val temps = listEmptyIfNull(
                     communities[0].contacts
                 )
@@ -165,7 +167,7 @@ class GroupSettingsInteractor(
                 Constants.MAIN_OWNER_FIELDS,
                 "managers"
             )
-            .flatMap { items: Items<VKApiUser> ->
+            .flatMap { items ->
                 networker.vkDefault(accountId)
                     .groups()
                     .getById(setOf(groupId), null, null, "contacts")

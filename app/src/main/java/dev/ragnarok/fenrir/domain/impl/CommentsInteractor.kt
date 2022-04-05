@@ -2,8 +2,10 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.*
-import dev.ragnarok.fenrir.api.model.response.CustomCommentsResponse
+import dev.ragnarok.fenrir.api.model.IAttachmentToken
+import dev.ragnarok.fenrir.api.model.VKApiComment
+import dev.ragnarok.fenrir.api.model.VKApiCommunity
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.DefaultCommentsResponse
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.column.GroupColumns
@@ -50,7 +52,7 @@ class CommentsInteractor(
 
     private fun dbos2models(accountId: Int): SingleTransformer<List<CommentEntity>, List<Comment>> {
         return SingleTransformer { single: Single<List<CommentEntity>> ->
-            single.flatMap { dbos: List<CommentEntity> ->
+            single.flatMap { dbos ->
                 val ownids = VKOwnIds()
                 for (c in dbos) {
                     fillCommentOwnerIds(ownids, c)
@@ -125,7 +127,7 @@ class CommentsInteractor(
     ): Single<List<Comment>> {
         return networker.vkDefault(accountId)
             .comments()["post", ownerId, postId, offset, 100, "desc", null, null, null, Constants.MAIN_OWNER_FIELDS]
-            .flatMap { response: CustomCommentsResponse ->
+            .flatMap { response ->
                 val commentDtos =
                     if (response.main != null) listEmptyIfNull(response.main.comments) else emptyList()
                 val users =
@@ -155,7 +157,7 @@ class CommentsInteractor(
         val type = commented.typeForStoredProcedure
         return networker.vkDefault(accountId)
             .comments()[type, commented.sourceOwnerId, commented.sourceId, offset, count, sort, startCommentId, threadComment, commented.accessKey, Constants.MAIN_OWNER_FIELDS]
-            .flatMap { response: CustomCommentsResponse ->
+            .flatMap { response ->
                 val commentDtos =
                     if (response.main != null) listEmptyIfNull(response.main.comments) else emptyList()
                 val users =
@@ -174,7 +176,7 @@ class CommentsInteractor(
                     )
                 )
                 if (threadComment != null) {
-                    return@flatMap modelsSingle.map { data: List<Comment>? ->
+                    return@flatMap modelsSingle.map { data ->
                         val bundle = CommentsBundle(data)
                             .setAdminLevel(response.admin_level)
                             .setFirstCommentId(response.firstId)
@@ -188,7 +190,7 @@ class CommentsInteractor(
                     }
                 }
                 cacheData(accountId, commented, dbos, mapOwners(users, groups), invalidateCache)
-                    .andThen(modelsSingle.map { data: List<Comment>? ->
+                    .andThen(modelsSingle.map { data ->
                         val bundle = CommentsBundle(data)
                             .setAdminLevel(response.admin_level)
                             .setFirstCommentId(response.firstId)
@@ -344,16 +346,14 @@ class CommentsInteractor(
             Single.just(emptyList())
         }
         return cachedAttachments
-            .flatMap { cachedTokens: List<IAttachmentToken>? ->
+            .flatMap { cachedTokens ->
                 val tokens: MutableList<IAttachmentToken> = ArrayList()
-                if (cachedTokens != null) {
-                    tokens.addAll(cachedTokens)
-                }
+                tokens.addAll(cachedTokens)
                 if (intent.models.nonNullNoEmpty()) {
                     tokens.addAll(createTokens(intent.models))
                 }
                 sendComment(accountId, commented, intent, tokens)
-                    .flatMap { id: Int ->
+                    .flatMap { id ->
                         getCommentByIdAndStore(
                             accountId,
                             commented,
@@ -362,7 +362,7 @@ class CommentsInteractor(
                             true
                         )
                     }
-                    .flatMap { comment: Comment ->
+                    .flatMap { comment ->
                         if (intent.draftMessageId == null) {
                             Single.just(comment)
                         } else {
@@ -408,7 +408,7 @@ class CommentsInteractor(
             startLooking(accountId, commented, tempData, startFromCommentId, continueToCommentId)
                 .repeatUntil(booleanSupplier)
         return completable.toSingleDefault(tempData)
-            .flatMap { data: TempData ->
+            .flatMap { data ->
                 transform(
                     accountId,
                     commented,
@@ -421,10 +421,10 @@ class CommentsInteractor(
 
     override fun getAvailableAuthors(accountId: Int): Single<List<Owner>> {
         return ownersRepository.getBaseOwnerInfo(accountId, accountId, IOwnersRepository.MODE_ANY)
-            .flatMap { owner: Owner ->
+            .flatMap { owner ->
                 networker.vkDefault(accountId)
                     .groups()[accountId, true, "admin,editor", GroupColumns.API_FIELDS, null, 1000]
-                    .map { obj: Items<VKApiCommunity> -> obj.getItems() }
+                    .map { obj -> obj.getItems() }
                     .map<List<Owner>> {
                         val owners: MutableList<Owner> = ArrayList(it.size + 1)
                         owners.add(owner)
@@ -517,7 +517,7 @@ class CommentsInteractor(
                     true,
                     Constants.MAIN_OWNER_FIELDS
                 )
-                    .map { response: DefaultCommentsResponse ->
+                    .map { response ->
                         tempData.append(response, continueToCommentId)
                         response
                     }.ignoreElement()
@@ -642,7 +642,7 @@ class CommentsInteractor(
         val sourceType = commented.sourceType
         return networker.vkDefault(accountId)
             .comments()[type, commented.sourceOwnerId, commented.sourceId, 0, 1, null, commentId, commentThread, commented.accessKey, Constants.MAIN_OWNER_FIELDS]
-            .flatMap { response: CustomCommentsResponse ->
+            .flatMap { response ->
                 if (response.main == null || safeCountOf(response.main.comments) != 1) {
                     throw NotFoundException()
                 }
@@ -683,7 +683,7 @@ class CommentsInteractor(
                     users,
                     communities
                 )
-                    .map { data: List<Comment> -> data[0] })
+                    .map { data -> data[0] })
             }
     }
 

@@ -17,9 +17,9 @@ import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
 import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.FilterEditFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.City
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class SelectCityDialog : AccountDependencyDialogFragment(), CitiesAdapter.Listener {
@@ -78,8 +78,8 @@ class SelectCityDialog : AccountDependencyDialogFragment(), CitiesAdapter.Listen
                 COUNT_PER_REQUEST,
                 offset
             )
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ cities: List<City> ->
+                .fromIOToMain()
+                .subscribe({ cities ->
                     onRequestFinished(
                         cities,
                         offset

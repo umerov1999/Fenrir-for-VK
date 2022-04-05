@@ -58,8 +58,6 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.ShortcutUtils.createAccountShortcutRx
 import dev.ragnarok.fenrir.util.Utils.getAppVersionName
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
@@ -241,7 +239,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     Settings.get().accounts().registered,
                     IOwnersRepository.MODE_ANY
                 )
-                    .compose(applySingleIOToMainSchedulers())
+                    .fromIOToMain()
                     .subscribe({
                         SaveAccounts(
                             file,
@@ -378,7 +376,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         }
         mCompositeDisposable.add(accountsInteractor
             .getAll(refresh)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 mSwipeRefreshLayout?.isRefreshing = false
                 val sz = mData?.size ?: 0
@@ -463,7 +461,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         merge(Account(uid, null))
         mCompositeDisposable.add(
             mOwnersInteractor.getBaseOwnerInfo(uid, uid, IOwnersRepository.MODE_ANY)
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ merge(Account(uid, it)) }) { })
     }
 
@@ -805,9 +803,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 account.id,
                 account.displayName,
                 user.maxSquareAvatar
-            ).compose(
-                applyCompletableIOToMainSchedulers()
-            ).subscribe(
+            ).fromIOToMain().subscribe(
                 {
                     Snackbar.make(
                         requireView(),
@@ -815,7 +811,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                         BaseTransientBottomBar.LENGTH_LONG
                     ).setAnchorView(mRecyclerView).show()
                 }
-            ) { t: Throwable ->
+            ) { t ->
                 t.localizedMessage?.let {
                     Snackbar.make(requireView(), it, BaseTransientBottomBar.LENGTH_LONG)
                         .setTextColor(

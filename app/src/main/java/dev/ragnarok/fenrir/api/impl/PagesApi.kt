@@ -19,7 +19,7 @@ internal class PagesApi(accountId: Int, provider: IServiceProvider) :
         needHtml: Boolean?
     ): Single<VKApiWikiPage> {
         return provideService(IPagesService::class.java, TokenType.USER)
-            .flatMap { service: IPagesService ->
+            .flatMap { service ->
                 service[ownerId, pageId, integerFromBoolean(global), integerFromBoolean(sitePreview), title, integerFromBoolean(
                     needSource
                 ), integerFromBoolean(needHtml)]

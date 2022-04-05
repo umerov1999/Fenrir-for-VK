@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.VideoAlbum
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IVideoAlbumsByVideoView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 
 class VideoAlbumsByVideoPresenter(
     accountId: Int,
@@ -36,8 +36,8 @@ class VideoAlbumsByVideoPresenter(
             videoOwnerId,
             videoId
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ albums: List<VideoAlbum> -> onActualDataReceived(albums) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ albums -> onActualDataReceived(albums) }) { t ->
                 onActualDataGetError(
                     t
                 )

@@ -6,13 +6,13 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VKApiPhotoAlbum
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.PhotoAlbum
 import dev.ragnarok.fenrir.model.PhotoAlbumEditor
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IEditPhotoAlbumView
 import dev.ragnarok.fenrir.mvp.view.IVkPhotosView
 import dev.ragnarok.fenrir.place.PlaceFactory.getVKPhotosAlbumPlace
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.view.steppers.impl.CreatePhotoAlbumStepsHost
 import dev.ragnarok.fenrir.view.steppers.impl.CreatePhotoAlbumStepsHost.PhotoAlbumState
@@ -127,8 +127,8 @@ class EditPhotoAlbumPresenter : AccountDependencyPresenter<IEditPhotoAlbumView> 
                     it, title, description, ownerId, null,
                     null, uploadsByAdminsOnly, commentsDisabled
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ t: Boolean? -> goToEditedAlbum(album, t) }) { l: Throwable? ->
+                    .fromIOToMain()
+                    .subscribe({ t: Boolean? -> goToEditedAlbum(album, t) }) { l ->
                         showError(
                             getCauseIfRuntime(l)
                         )
@@ -145,8 +145,8 @@ class EditPhotoAlbumPresenter : AccountDependencyPresenter<IEditPhotoAlbumView> 
                 uploadsByAdminsOnly,
                 commentsDisabled
             )
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ album: VKApiPhotoAlbum -> goToAlbum(album) }) { t: Throwable? ->
+                .fromIOToMain()
+                .subscribe({ album -> goToAlbum(album) }) { t ->
                     showError(getCauseIfRuntime(t))
                 })
         }

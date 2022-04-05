@@ -11,7 +11,8 @@ import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.*
+import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IMessageAttachmentsView
@@ -23,7 +24,6 @@ import dev.ragnarok.fenrir.util.AppPerms.hasCameraPermission
 import dev.ragnarok.fenrir.util.FileUtil.createImageFile
 import dev.ragnarok.fenrir.util.FileUtil.getExportedUriForFile
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.RxUtils.subscribeOnIOAndIgnore
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate
@@ -149,15 +149,15 @@ class MessageAttachmentsPresenter(
     private fun loadData() {
         appendDisposable(
             createLoadAllSingle()
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ data: List<AttachmentEntry> -> onDataReceived(data) }, ignore())
+                .fromIOToMain()
+                .subscribe({ data -> onDataReceived(data) }, ignore())
         )
     }
 
     private fun createLoadAllSingle(): Single<List<AttachmentEntry>> {
         return attachmentsRepository
             .getAttachmentsWithIds(messageOwnerId, AttachToType.MESSAGE, messageId)
-            .map { pairs: List<Pair<Int, AbsModel>> -> entities2entries(pairs) }
+            .map { entities2entries(it) }
             .zipWith(
                 uploadManager[messageOwnerId, destination]
             ) { atts: List<AttachmentEntry>, uploads: List<Upload?> ->
@@ -514,24 +514,24 @@ class MessageAttachmentsPresenter(
             .observeAdding()
             .filter(predicate)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { event: IAddEvent -> onAttachmentsAdded(event.attachments) })
+            .subscribe { onAttachmentsAdded(it.attachments) })
         appendDisposable(attachmentsRepository
             .observeRemoving()
             .filter(predicate)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { event: IRemoveEvent -> onAttachmentRemoved(event.generatedId) })
+            .subscribe { onAttachmentRemoved(it.generatedId) })
         appendDisposable(uploadManager.observeAdding()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { uploads: List<Upload> -> onUploadsAdded(uploads) })
+            .subscribe { onUploadsAdded(it) })
         appendDisposable(uploadManager.observeDeleting(true)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { ids: IntArray -> onUploadsRemoved(ids) })
+            .subscribe { onUploadsRemoved(it) })
         appendDisposable(uploadManager.obseveStatus()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { upload: Upload -> onUploadStatusChanges(upload) })
+            .subscribe { onUploadStatusChanges(it) })
         appendDisposable(uploadManager.observeProgress()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { updates: List<IProgressUpdate> -> onUploadProgressUpdates(updates) })
+            .subscribe { onUploadProgressUpdates(it) })
         loadData()
     }
 }

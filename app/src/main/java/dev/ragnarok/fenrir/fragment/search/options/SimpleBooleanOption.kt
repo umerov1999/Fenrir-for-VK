@@ -54,17 +54,13 @@ class SimpleBooleanOption : BaseOption {
         return 0
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<SimpleBooleanOption> =
-            object : Parcelable.Creator<SimpleBooleanOption> {
-                override fun createFromParcel(`in`: Parcel): SimpleBooleanOption {
-                    return SimpleBooleanOption(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<SimpleBooleanOption> {
+        override fun createFromParcel(parcel: Parcel): SimpleBooleanOption {
+            return SimpleBooleanOption(parcel)
+        }
 
-                override fun newArray(size: Int): Array<SimpleBooleanOption?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<SimpleBooleanOption?> {
+            return arrayOfNulls(size)
+        }
     }
 }

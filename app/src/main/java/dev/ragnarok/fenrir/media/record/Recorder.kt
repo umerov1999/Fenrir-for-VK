@@ -88,7 +88,7 @@ class Recorder(val filePath: String, val context: Context) {
         assertRecorderNotNull()
         resetCurrentRecordTime()
         try {
-            if (status == Status.PAUSED) {
+            if (isPauseSupported && status == Status.PAUSED) {
                 mRecorder?.resume()
             }
             mRecorder?.stop()

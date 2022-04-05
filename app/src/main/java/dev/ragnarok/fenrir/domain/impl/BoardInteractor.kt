@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.response.TopicsResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.TopicEntity
 import dev.ragnarok.fenrir.domain.IBoardInteractor
@@ -27,7 +26,7 @@ class BoardInteractor(
         val criteria = TopicsCriteria(accountId, ownerId)
         return stores.topics()
             .getByCriteria(criteria)
-            .flatMap { dbos: List<TopicEntity> ->
+            .flatMap { dbos ->
                 val ids = VKOwnIds()
                 for (dbo in dbos) {
                     ids.append(dbo.creatorId)
@@ -71,7 +70,7 @@ class BoardInteractor(
                 null,
                 Constants.MAIN_OWNER_FIELDS
             )
-            .flatMap { response: TopicsResponse ->
+            .flatMap { response ->
                 val dtos = listEmptyIfNull(response.items)
                 val dbos: MutableList<TopicEntity> = ArrayList(dtos.size)
                 for (dto in dtos) {

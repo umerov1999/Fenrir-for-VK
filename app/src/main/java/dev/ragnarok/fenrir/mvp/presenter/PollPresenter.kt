@@ -4,10 +4,10 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IPollInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IPollView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 
 class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IPollView>(accountId, savedInstanceState) {
@@ -29,8 +29,8 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
             mPoll.id,
             mPoll.isBoard
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ poll: Poll -> onPollInfoUpdated(poll) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ poll -> onPollInfoUpdated(poll) }) { t ->
                 onLoadingError(
                     t
                 )
@@ -110,8 +110,8 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
         val voteIds: Set<Int> = HashSet(mTempCheckedId)
         setLoadingNow(true)
         appendDisposable(pollInteractor.addVote(accountId, mPoll, voteIds)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ poll: Poll -> onPollInfoUpdated(poll) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ poll -> onPollInfoUpdated(poll) }) { t ->
                 onLoadingError(
                     t
                 )
@@ -139,8 +139,8 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
         val answerId = mPoll.myAnswerIds[0]
         setLoadingNow(true)
         appendDisposable(pollInteractor.removeVote(accountId, mPoll, answerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ poll: Poll -> onPollInfoUpdated(poll) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ poll -> onPollInfoUpdated(poll) }) { t ->
                 onLoadingError(
                     t
                 )

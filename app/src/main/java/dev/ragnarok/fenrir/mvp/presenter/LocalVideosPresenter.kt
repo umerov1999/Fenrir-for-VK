@@ -3,11 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LocalVideo
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalVideosView
 import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import java.util.*
@@ -24,7 +24,7 @@ class LocalVideosPresenter(savedInstanceState: Bundle?) :
         appendDisposable(Stores.instance
             .localMedia()
             .videos
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ onDataLoaded(it) }) {
                 onLoadError()
             })

@@ -5,12 +5,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.wallattachments.IWallPostQueryAttachmentsView
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -49,13 +48,13 @@ class WallPostQueryAttachmentsPresenter(
             100,
             WallCriteria.MODE_ALL
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Post> ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 onActualDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     fun fireSearchRequestChanged(q: String?, only_insert: Boolean) {
@@ -328,8 +327,8 @@ class WallPostQueryAttachmentsPresenter(
 
     fun firePostRestoreClick(post: Post) {
         appendDisposable(fInteractor.restore(accountId, post.ownerId, post.vkid)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -355,8 +354,8 @@ class WallPostQueryAttachmentsPresenter(
     fun fireLikeClick(post: Post) {
         val accountId = accountId
         appendDisposable(fInteractor.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe(ignore()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(ignore()) { t ->
                 showError(t)
             })
     }

@@ -3,10 +3,7 @@ package dev.ragnarok.fenrir.upload.impl
 import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.response.UploadOwnerPhotoResponse
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiOwnerPhotoUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadOwnerPhotoDto
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Post
@@ -34,29 +31,29 @@ class OwnerPhotoUploadable(
             networker.vkDefault(accountId)
                 .photos()
                 .getOwnerPhotoUploadServer(ownerId)
-                .map { s: VkApiOwnerPhotoUploadServer -> s }
+                .map { it }
         } else {
             Single.just(initialServer)
         }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 `is`[0] = UploadUtils.openStream(context, upload.fileUri, upload.size)
                 networker.uploads()
                     .uploadOwnerPhotoRx(server.url, `is`[0]!!, listener)
                     .doFinally { safelyClose(`is`[0]) }
-                    .flatMap { dto: UploadOwnerPhotoDto ->
+                    .flatMap { dto ->
                         networker.vkDefault(accountId)
                             .photos()
                             .saveOwnerPhoto(dto.server, dto.hash, dto.photo)
-                            .flatMap { response: UploadOwnerPhotoResponse ->
+                            .flatMap { response ->
                                 if (response.postId == 0) {
                                     Single.error<UploadResult<Post>>(
                                         NotFoundException("Post id=0")
                                     )
                                 }
                                 walls.getById(accountId, ownerId, response.postId)
-                                    .map { post: Post -> UploadResult(server, post) }
+                                    .map { post -> UploadResult(server, post) }
                             }
                     }
             } catch (e: Exception) {

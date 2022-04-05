@@ -4,14 +4,12 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Mode
 import dev.ragnarok.fenrir.domain.Repository.messages
-import dev.ragnarok.fenrir.model.Conversation
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.mvp.view.INotReadMessagesView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.Side
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -53,8 +51,8 @@ class NotReadMessagesPresenter(
             cacheData = false,
             rev = false
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ messages: List<Message> -> onInitDataLoaded(messages) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ messages -> onInitDataLoaded(messages) }) { t ->
                 onDataGetError(
                     t
                 )
@@ -87,8 +85,8 @@ class NotReadMessagesPresenter(
             forAll = false,
             spam = false
         )
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe(dummy()) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -116,8 +114,8 @@ class NotReadMessagesPresenter(
             cacheData = false,
             rev = false
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onDownDataLoaded(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onDownDataLoaded(it) }) { t ->
                 onDownDataGetError(
                     t
                 )
@@ -128,8 +126,8 @@ class NotReadMessagesPresenter(
         super.onActionModeDeleteClick()
         val accountId = accountId
         val ids = Observable.fromIterable(data)
-            .filter { obj: Message -> obj.isSelected }
-            .map { obj: Message -> obj.id }
+            .filter { it.isSelected }
+            .map { it.id }
             .toList()
             .blockingGet()
         if (ids.nonNullNoEmpty()) {
@@ -140,8 +138,8 @@ class NotReadMessagesPresenter(
                 forAll = false,
                 spam = false
             )
-                .compose(applyCompletableIOToMainSchedulers())
-                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t: Throwable? ->
+                .fromIOToMain()
+                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t ->
                     showError(getCauseIfRuntime(t))
                 })
         }
@@ -151,8 +149,8 @@ class NotReadMessagesPresenter(
         super.onActionModeDeleteClick()
         val accountId = accountId
         val ids = Observable.fromIterable(data)
-            .filter { obj: Message -> obj.isSelected }
-            .map { obj: Message -> obj.id }
+            .filter { it.isSelected }
+            .map { it.id }
             .toList()
             .blockingGet()
         if (ids.nonNullNoEmpty()) {
@@ -160,8 +158,8 @@ class NotReadMessagesPresenter(
                 accountId, peer.id, ids,
                 forAll = false, spam = true
             )
-                .compose(applyCompletableIOToMainSchedulers())
-                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t: Throwable? ->
+                .fromIOToMain()
+                .subscribe({ onMessagesDeleteSuccessfully(ids) }) { t ->
                     showError(getCauseIfRuntime(t))
                 })
         }
@@ -182,8 +180,8 @@ class NotReadMessagesPresenter(
             cacheData = false,
             rev = false
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onUpDataLoaded(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onUpDataLoaded(it) }) { t ->
                 onUpDataGetError(
                     t
                 )
@@ -210,8 +208,8 @@ class NotReadMessagesPresenter(
         val accountId = accountId
         val id = message.id
         appendDisposable(messagesInteractor.restoreMessage(accountId, peer.id, id)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onMessageRestoredSuccessfully(id) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onMessageRestoredSuccessfully(id) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -271,20 +269,20 @@ class NotReadMessagesPresenter(
             lastReadId.incoming = message.originalId
             view?.notifyDataChanged()
             appendDisposable(messagesInteractor.markAsRead(accountId, peer.id, message.originalId)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     appendDisposable(messagesInteractor.getConversationSingle(
                         accountId,
                         peer.id, Mode.NET
                     )
-                        .compose(applySingleIOToMainSchedulers())
-                        .subscribe({ e: Conversation ->
+                        .fromIOToMain()
+                        .subscribe({ e ->
                             unreadCount = e.unreadCount
                             resolveUnreadCount()
-                        }) { s: Throwable? ->
+                        }) { s ->
                             showError(s)
                         })
-                }) { t: Throwable? ->
+                }) { t ->
                     showError(t)
                 })
         }

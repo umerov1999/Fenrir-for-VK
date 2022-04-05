@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Market
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IProductsView
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class ProductsPresenter(
@@ -41,13 +41,13 @@ class ProductsPresenter(
             offset,
             COUNT_PER_REQUEST
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ products: List<Market> ->
+            .fromIOToMain()
+            .subscribe({ products ->
                 onNetDataReceived(
                     offset,
                     products
                 )
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     private fun onNetDataGetError(t: Throwable) {

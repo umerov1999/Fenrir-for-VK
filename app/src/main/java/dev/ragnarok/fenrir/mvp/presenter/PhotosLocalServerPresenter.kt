@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
 import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.TmpSource
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -15,8 +16,6 @@ import dev.ragnarok.fenrir.mvp.view.IPhotosLocalServerView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.FindAt
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -48,13 +47,13 @@ class PhotosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
         actualDataLoading = true
         resolveRefreshingView()
         appendDisposable(fInteractor.getPhotos(offset, GET_COUNT, reverse)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
                     offset,
                     it
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -126,7 +125,7 @@ class PhotosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
             SEARCH_COUNT,
             reverse
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onSearched(
                     FindAt(
@@ -135,7 +134,7 @@ class PhotosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
                         it.size < SEARCH_COUNT
                     ), it
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onSearched(search_at: FindAt, data: List<Photo>) {
@@ -169,8 +168,8 @@ class PhotosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
         actualDataDisposable.dispose()
         actualDataDisposable = Single.just(Any())
             .delay(WEB_SEARCH_DELAY.toLong(), TimeUnit.MILLISECONDS)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ doSearch() }) { t: Throwable -> onActualDataGetError(t) }
+            .fromIOToMain()
+            .subscribe({ doSearch() }) { t -> onActualDataGetError(t) }
     }
 
     fun fireSearchRequestChanged(q: String?) {
@@ -187,7 +186,7 @@ class PhotosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     fun updateInfo(position: Int, ptr: Long) {
-        val p = ParcelNative.fromNative(ptr).readParcelableList(Photo.NativeCreator)!!
+        val p = ParcelNative.fromNative(ptr).readParcelableList(Photo.NativeCreator) ?: return
         photos.clear()
         photos.addAll(p)
         view?.scrollTo(
@@ -212,7 +211,7 @@ class PhotosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
             appendDisposable(Stores.instance
                 .tempStore()
                 .put(source.ownerId, source.sourceId, photos, Serializers.PHOTOS_SERIALIZER)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     view?.displayGallery(
                         accountId,
@@ -222,7 +221,7 @@ class PhotosLocalServerPresenter(accountId: Int, savedInstanceState: Bundle?) :
                         finalIndex,
                         reverse
                     )
-                }) { obj: Throwable -> obj.printStackTrace() })
+                }) { obj -> obj.printStackTrace() })
         } else {
             val mem = ParcelNative.create(ParcelFlags.NULL_LIST)
             mem.writeInt(photos.size)

@@ -47,12 +47,12 @@ class WallAudiosAttachmentsPresenter(
             WallCriteria.MODE_ALL
         )
             .fromIOToMain()
-            .subscribe({ data: List<Post> ->
+            .subscribe({ data ->
                 onActualDataReceived(
                     offset,
                     data
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
@@ -149,7 +149,7 @@ class WallAudiosAttachmentsPresenter(
     fun firePostRestoreClick(post: Post) {
         appendDisposable(fInteractor.restore(accountId, post.ownerId, post.vkid)
             .fromIOToMain()
-            .subscribe(dummy()) { t: Throwable? ->
+            .subscribe(dummy()) { t ->
                 showError(t)
             })
     }
@@ -176,7 +176,7 @@ class WallAudiosAttachmentsPresenter(
         val accountId = accountId
         appendDisposable(fInteractor.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
             .fromIOToMain()
-            .subscribe(ignore()) { t: Throwable? ->
+            .subscribe(ignore()) { t ->
                 showError(t)
             })
     }

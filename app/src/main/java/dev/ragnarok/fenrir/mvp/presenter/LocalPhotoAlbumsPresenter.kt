@@ -2,13 +2,13 @@ package dev.ragnarok.fenrir.mvp.presenter
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalPhotoAlbumsView
 import dev.ragnarok.fenrir.util.Analytics.logUnexpectedError
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class LocalPhotoAlbumsPresenter(savedInstanceState: Bundle?) :
@@ -91,8 +91,8 @@ class LocalPhotoAlbumsPresenter(savedInstanceState: Bundle?) :
         appendDisposable(Stores.instance
             .localMedia()
             .imageAlbums
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onDataLoaded(it) }) { throwable: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onDataLoaded(it) }) { throwable ->
                 onLoadError(
                     throwable
                 )

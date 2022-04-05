@@ -97,7 +97,7 @@ public class WallPostFCMMessage {
         Context app = context.getApplicationContext();
         OwnerInfo.getRx(app, accountId, from_id)
                 .subscribeOn(NotificationScheduler.getINSTANCE())
-                .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getOwner(), ownerInfo.getAvatar()), RxUtils.ignore());
+                .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getOwner(), ownerInfo.getAvatar()), RxUtils.ignoreJava());
     }
 
     private void notifyNewPost(Context context, int accountId) {
@@ -139,7 +139,7 @@ public class WallPostFCMMessage {
                     configOtherPushNotification(notification);
 
                     manager.notify("new_post" + owner_id + "_" + post_id, NotificationHelper.NOTIFICATION_NEW_POSTS_ID, notification);
-                }, RxUtils.ignore());
+                }, RxUtils.ignoreJava());
     }
 
     private void notifyImpl(Context context, @NonNull Owner owner, Bitmap avatar) {

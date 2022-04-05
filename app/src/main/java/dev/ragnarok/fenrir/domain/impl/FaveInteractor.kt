@@ -1,9 +1,11 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.FaveLinkDto
+import dev.ragnarok.fenrir.api.model.VKApiArticle
+import dev.ragnarok.fenrir.api.model.VKApiPhoto
+import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
-import dev.ragnarok.fenrir.api.model.response.FavePostsResponse
 import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.*
@@ -48,7 +50,7 @@ class FaveInteractor(
         return networker.vkDefault(accountId)
             .fave()
             .getPosts(offset, count)
-            .flatMap { response: FavePostsResponse ->
+            .flatMap { response ->
                 val dtos = listEmptyIfNull(response.posts)
                 val owners = transformOwners(response.profiles, response.groups)
                 val ids = VKOwnIds()
@@ -69,7 +71,7 @@ class FaveInteractor(
                     owners
                 )
                     .map { transformAttachmentsPosts(dtos, it) }
-                    .flatMap { posts: List<Post> ->
+                    .flatMap { posts ->
                         cache.fave()
                             .storePosts(accountId, dbos, ownerEntities, offset == 0)
                             .andThen(Single.just(posts))
@@ -79,7 +81,7 @@ class FaveInteractor(
 
     override fun getCachedPosts(accountId: Int): Single<List<Post>> {
         return cache.fave().getFavePosts(FavePostsCriteria(accountId))
-            .flatMap { postDbos: List<PostEntity> ->
+            .flatMap { postDbos ->
                 val ids = VKOwnIds()
                 for (dbo in postDbos) {
                     fillPostOwnerIds(ids, dbo)
@@ -103,7 +105,7 @@ class FaveInteractor(
         val criteria = FavePhotosCriteria(accountId)
         return cache.fave()
             .getPhotos(criteria)
-            .map { photoDbos: List<PhotoEntity> ->
+            .map { photoDbos ->
                 val photos: MutableList<Photo> = ArrayList(photoDbos.size)
                 for (dbo in photoDbos) {
                     photos.add(map(dbo))
@@ -116,7 +118,7 @@ class FaveInteractor(
         return networker.vkDefault(accountId)
             .fave()
             .getPhotos(offset, count)
-            .flatMap { items: Items<VKApiPhoto> ->
+            .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiPhoto>(
                     items.getItems()
                 )
@@ -135,7 +137,7 @@ class FaveInteractor(
         val criteria = FaveVideosCriteria(accountId)
         return cache.fave()
             .getVideos(criteria)
-            .map { videoDbos: List<VideoEntity> ->
+            .map { videoDbos ->
                 val videos: MutableList<Video> = ArrayList(videoDbos.size)
                 for (dbo in videoDbos) {
                     videos.add(buildVideoFromDbo(dbo))
@@ -148,7 +150,7 @@ class FaveInteractor(
         val criteria = FaveArticlesCriteria(accountId)
         return cache.fave()
             .getArticles(criteria)
-            .map { articleDbos: List<ArticleEntity> ->
+            .map { articleDbos ->
                 val articles: MutableList<Article> = ArrayList(articleDbos.size)
                 for (dbo in articleDbos) {
                     articles.add(buildArticleFromDbo(dbo))
@@ -161,7 +163,7 @@ class FaveInteractor(
         val criteria = FaveProductsCriteria(accountId)
         return cache.fave()
             .getProducts(criteria)
-            .map { productDbos: List<MarketEntity> ->
+            .map { productDbos ->
                 val markets: MutableList<Market> = ArrayList(productDbos.size)
                 for (dbo in productDbos) {
                     markets.add(buildMarketFromDbo(dbo))
@@ -174,7 +176,7 @@ class FaveInteractor(
         return networker.vkDefault(accountId)
             .fave()
             .getVideos(offset, count)
-            .flatMap { items: List<VKApiVideo> ->
+            .flatMap { items ->
                 val dtos = listEmptyIfNull(
                     items
                 )
@@ -230,9 +232,9 @@ class FaveInteractor(
         return networker.vkDefault(accountId)
             .fave()
             .getOwnerPublishedArticles(ownerId, offset, count)
-            .map { items: Items<VKApiArticle>? ->
+            .map { items ->
                 val dtos = listEmptyIfNull<VKApiArticle>(
-                    items?.items
+                    items.items
                 )
                 val articles: MutableList<Article> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -246,11 +248,11 @@ class FaveInteractor(
         return if (isUser) {
             cache.fave()
                 .getFaveUsers(accountId)
-                .map { obj: List<FavePageEntity> -> buildFaveUsersFromDbo(obj) }
+                .map { obj -> buildFaveUsersFromDbo(obj) }
         } else {
             cache.fave()
                 .getFaveGroups(accountId)
-                .map { obj: List<FavePageEntity> -> buildFaveUsersFromDbo(obj) }
+                .map { obj -> buildFaveUsersFromDbo(obj) }
         }
     }
 
@@ -263,7 +265,7 @@ class FaveInteractor(
         return networker.vkDefault(accountId)
             .fave()
             .getPages(offset, count, UserColumns.API_FIELDS, if (isUser) "users" else "groups")
-            .flatMap { items: Items<FavePageResponse> ->
+            .flatMap { items ->
                 val dtos = listEmptyIfNull<FavePageResponse>(
                     items.getItems()
                 )
@@ -308,7 +310,7 @@ class FaveInteractor(
     override fun getCachedLinks(accountId: Int): Single<List<FaveLink>> {
         return cache.fave()
             .getFaveLinks(accountId)
-            .map { entities: List<FaveLinkEntity> ->
+            .map { entities ->
                 val links: MutableList<FaveLink> = ArrayList(entities.size)
                 for (entity in entities) {
                     links.add(createLinkFromEntity(entity))
@@ -321,7 +323,7 @@ class FaveInteractor(
         return networker.vkDefault(accountId)
             .fave()
             .getLinks(offset, count)
-            .flatMap { items: Items<FaveLinkDto> ->
+            .flatMap { items ->
                 val dtos = listEmptyIfNull<FaveLinkDto>(
                     items.getItems()
                 )

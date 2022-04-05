@@ -11,12 +11,14 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.exception.UnauthorizedException
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.longpoll.ILongpollManager
 import dev.ragnarok.fenrir.longpoll.LongpollInstance
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IDialogsView
 import dev.ragnarok.fenrir.mvp.view.IDialogsView.IContextView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AssertUtils.assertPositive
@@ -24,8 +26,6 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.ShortcutUtils.addDynamicShortcut
@@ -76,7 +76,7 @@ class DialogsPresenter(
         if (!Settings.get().other().isBe_online || isHiddenAccount(accountId)) {
             netDisposable.add(
                 accountsInteractor.setOffline(accountId)
-                    .compose(applySingleIOToMainSchedulers())
+                    .fromIOToMain()
                     .subscribe(ignore(), ignore())
             )
         }
@@ -112,8 +112,8 @@ class DialogsPresenter(
         }
         setNetLoadingNow(true)
         netDisposable.add(messagesInteractor.getDialogs(dialogsOwnerId, COUNT, null)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onDialogsFirstResponse(it) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onDialogsFirstResponse(it) }) { t ->
                 onDialogsGetError(
                     t
                 )
@@ -128,17 +128,17 @@ class DialogsPresenter(
         val lastMid = lastDialogMessageId ?: return
         setNetLoadingNow(true)
         netDisposable.add(messagesInteractor.getDialogs(dialogsOwnerId, COUNT, lastMid)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe(
                 { onNextDialogsResponse(it) }
-            ) { throwable: Throwable? -> onDialogsGetError(getCauseIfRuntime(throwable)) })
+            ) { throwable -> onDialogsGetError(getCauseIfRuntime(throwable)) })
     }
 
     private fun onNextDialogsResponse(data: List<Dialog>) {
         if (!Settings.get().other().isBe_online || isHiddenAccount(accountId)) {
             netDisposable.add(
                 accountsInteractor.setOffline(accountId)
-                    .compose(applySingleIOToMainSchedulers())
+                    .fromIOToMain()
                     .subscribe(ignore(), ignore())
             )
         }
@@ -163,8 +163,8 @@ class DialogsPresenter(
     private fun removeDialog(peeId: Int) {
         val accountId = dialogsOwnerId
         appendDisposable(messagesInteractor.deleteDialog(accountId, peeId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onDialogRemovedSuccessfully(accountId, peeId) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onDialogRemovedSuccessfully(accountId, peeId) }) { t ->
                 showError(t)
             })
     }
@@ -180,8 +180,8 @@ class DialogsPresenter(
         cacheNowLoading = true
         resolveRefreshingView()
         cacheLoadingDisposable.add(messagesInteractor.getCachedDialogs(dialogsOwnerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onCachedDataReceived(it) }) { ignored: Throwable ->
+            .fromIOToMain()
+            .subscribe({ onCachedDataReceived(it) }) { ignored ->
                 ignored.printStackTrace()
                 onCachedDataReceived(emptyList())
             })
@@ -210,14 +210,14 @@ class DialogsPresenter(
         }
         builder.setRequireEncryption(encryptionEnabled).keyLocationPolicy = keyLocationPolicy
         appendDisposable(messagesInteractor.put(builder)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .doOnSuccess { messagesInteractor.runSendingQueue() }
             .subscribe({
                 view?.showSnackbar(
                     R.string.success,
                     false
                 )
-            }) { t: Throwable -> onDialogsGetError(t) })
+            }) { t -> onDialogsGetError(t) })
     }
 
     private fun receiveStickers() {
@@ -227,7 +227,7 @@ class DialogsPresenter(
         try {
             InteractorFactory.createStickersInteractor()
                 .getAndStore(accountId)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(dummy(), ignore())
         } catch (ignored: Exception) {
             /*ignore*/
@@ -271,8 +271,8 @@ class DialogsPresenter(
             val id = listOf((update.lastMessage ?: return).messageId)
             appendDisposable(
                 messagesInteractor.findCachedMessages(accountId, id)
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ messages: List<Message> ->
+                    .fromIOToMain()
+                    .subscribe({ messages ->
                         if (messages.isEmpty()) {
                             onDialogDeleted(accountId, peerId)
                         } else {
@@ -318,7 +318,9 @@ class DialogsPresenter(
                 dialog.interlocutor = message.sender
             }
         }
-        dialog.title = update.title?.title
+        update.title?.title.nonNullNoEmpty {
+            dialog.title = it
+        }
         if (index != -1) {
             Collections.sort(dialogs, COMPARATOR)
             safeNotifyDataSetChanged()
@@ -326,12 +328,12 @@ class DialogsPresenter(
             if (Peer.isGroup(peerId) || Peer.isUser(peerId)) {
                 appendDisposable(
                     owners.getBaseOwnerInfo(accountId, peerId, IOwnersRepository.MODE_ANY)
-                        .compose(applySingleIOToMainSchedulers())
-                        .subscribe({ o: Owner? ->
+                        .fromIOToMain()
+                        .subscribe({ o ->
                             dialog.interlocutor = o
                             appendDisposable(
                                 messages.insertDialog(accountId, dialog)
-                                    .compose(applyCompletableIOToMainSchedulers())
+                                    .fromIOToMain()
                                     .subscribe({
                                         dialogs.add(dialog)
                                         Collections.sort(dialogs, COMPARATOR)
@@ -450,13 +452,13 @@ class DialogsPresenter(
             idsListOf(users),
             targetTitle
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ chatid: Int ->
+            .fromIOToMain()
+            .subscribe({ chatid ->
                 onGroupChatCreated(
                     chatid,
                     targetTitle
                 )
-            }) { t: Throwable? ->
+            }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -507,8 +509,8 @@ class DialogsPresenter(
                 app, dialog.imageUrl, accountId,
                 dialog.peerId, dialog.getDisplayTitle(app)
             )
-                .compose(applyCompletableIOToMainSchedulers())
-                .subscribe({ onShortcutCreated() }) { throwable: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onShortcutCreated() }) { throwable ->
                     view?.showError(throwable.message)
                 })
     }
@@ -547,28 +549,28 @@ class DialogsPresenter(
 
     fun fireUnPin(dialog: Dialog) {
         appendDisposable(messagesInteractor.pinUnPinConversation(accountId, dialog.peerId, false)
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.showToast(
                     R.string.success,
                     false
                 )
                 fireRefresh()
-            }) { throwable: Throwable ->
+            }) { throwable ->
                 showError(throwable)
             })
     }
 
     fun firePin(dialog: Dialog) {
         appendDisposable(messagesInteractor.pinUnPinConversation(accountId, dialog.peerId, true)
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.showToast(
                     R.string.success,
                     false
                 )
                 fireRefresh()
-            }) { throwable: Throwable ->
+            }) { throwable ->
                 showError(throwable)
             })
     }
@@ -580,13 +582,13 @@ class DialogsPresenter(
             .setTitle(dialog.getDisplayTitle(applicationContext))
         val completable = addDynamicShortcut(applicationContext, dialogsOwnerId, peer)
         appendDisposable(completable
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.showToast(
                     R.string.success,
                     false
                 )
-            }) { obj: Throwable -> obj.printStackTrace() })
+            }) { obj -> obj.printStackTrace() })
     }
 
     fun fireRead(dialog: Dialog) {
@@ -595,7 +597,7 @@ class DialogsPresenter(
             dialog.peerId,
             dialog.lastMessageId
         )
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 view?.showToast(
                     R.string.success,
@@ -603,7 +605,7 @@ class DialogsPresenter(
                 )
                 dialog.inRead = dialog.lastMessageId
                 view?.notifyDataSetChanged()
-            }) { throwable: Throwable ->
+            }) { throwable ->
                 showError(throwable)
             })
     }
@@ -659,12 +661,12 @@ class DialogsPresenter(
             messagesInteractor
                 .observePeerUpdates()
                 .observeOn(provideMainThreadScheduler())
-                .subscribe({ updates: List<PeerUpdate> -> onPeerUpdate(updates) }, ignore())
+                .subscribe({ onPeerUpdate(it) }, ignore())
         )
         appendDisposable(
             messagesInteractor.observePeerDeleting()
                 .observeOn(provideMainThreadScheduler())
-                .subscribe({ dialog: PeerDeleting ->
+                .subscribe({ dialog ->
                     onDialogDeleted(
                         dialog.accountId,
                         dialog.peerId

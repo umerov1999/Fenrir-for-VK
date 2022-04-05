@@ -2,11 +2,8 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiNews
 import dev.ragnarok.fenrir.api.model.VkApiFeedList
-import dev.ragnarok.fenrir.api.model.response.NewsfeedResponse
-import dev.ragnarok.fenrir.api.model.response.NewsfeedSearchResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.FeedListEntity
 import dev.ragnarok.fenrir.db.model.entity.NewsEntity
@@ -83,7 +80,7 @@ class FeedInteractor(
             networker.vkDefault(accountId)
                 .newsfeed()
                 .getFeedLikes(maxPhotos, startFrom, count, Constants.MAIN_OWNER_FIELDS)
-                .flatMap { response: NewsfeedResponse ->
+                .flatMap { response ->
                     val nextFrom = response.nextFrom
                     val owners = transformOwners(response.profiles, response.groups)
                     val feed = listEmptyIfNull(response.items)
@@ -131,7 +128,7 @@ class FeedInteractor(
                     count,
                     Constants.MAIN_OWNER_FIELDS
                 )
-                .flatMap { response: NewsfeedResponse ->
+                .flatMap { response ->
                     val nextFrom = response.nextFrom
                     val owners = transformOwners(response.profiles, response.groups)
                     val feed = listEmptyIfNull(response.items)
@@ -171,7 +168,7 @@ class FeedInteractor(
         } else {
             networker.vkDefault(accountId)
                 .newsfeed()[filters, null, null, null, maxPhotos, if ("updates" == sourceIds) null else sourceIds, startFrom, count, Constants.MAIN_OWNER_FIELDS]
-                .flatMap { response: NewsfeedResponse ->
+                .flatMap { response ->
                     val blockAds = Settings.get().other().isAd_block_story_news
                     val needStripRepost = Settings.get().other().isStrip_news_repost
                     val rgx = Settings.get().other().isBlock_news_by_words
@@ -248,7 +245,7 @@ class FeedInteractor(
                 startFrom,
                 Constants.MAIN_OWNER_FIELDS
             )
-            .flatMap { response: NewsfeedSearchResponse ->
+            .flatMap { response ->
                 val dtos = listEmptyIfNull(response.items)
                 val owners = transformOwners(response.profiles, response.groups)
                 val ownIds = VKOwnIds()
@@ -270,17 +267,17 @@ class FeedInteractor(
 
     override fun saveList(accountId: Int, title: String?, listIds: Collection<Int>): Single<Int> {
         return networker.vkDefault(accountId)
-            .newsfeed().saveList(title, listIds).map { response: Int -> response }
+            .newsfeed().saveList(title, listIds).map { response -> response }
     }
 
     override fun addBan(accountId: Int, listIds: Collection<Int>): Single<Int> {
         return networker.vkDefault(accountId)
-            .newsfeed().addBan(listIds).map { response: Int -> response }
+            .newsfeed().addBan(listIds).map { response -> response }
     }
 
     override fun deleteList(accountId: Int, list_id: Int?): Single<Int> {
         return networker.vkDefault(accountId)
-            .newsfeed().deleteList(list_id).map { response: Int -> response }
+            .newsfeed().deleteList(list_id).map { response -> response }
     }
 
     override fun ignoreItem(
@@ -290,14 +287,14 @@ class FeedInteractor(
         item_id: Int?
     ): Single<Int> {
         return networker.vkDefault(accountId)
-            .newsfeed().ignoreItem(type, owner_id, item_id).map { response: Int -> response }
+            .newsfeed().ignoreItem(type, owner_id, item_id).map { response -> response }
     }
 
     override fun getCachedFeedLists(accountId: Int): Single<List<FeedList>> {
         val criteria = FeedSourceCriteria(accountId)
         return stores.feed()
             .getAllLists(criteria)
-            .map { entities: List<FeedListEntity> ->
+            .map { entities ->
                 val lists: MutableList<FeedList> = ArrayList(entities.size)
                 for (entity in entities) {
                     lists.add(createFeedListFromEntity(entity))
@@ -310,12 +307,12 @@ class FeedInteractor(
         return networker.vkDefault(accountId)
             .newsfeed()
             .getLists(null)
-            .map { items: Items<VkApiFeedList> ->
+            .map { items ->
                 listEmptyIfNull<VkApiFeedList>(
                     items.getItems()
                 )
             }
-            .flatMap { dtos: List<VkApiFeedList> ->
+            .flatMap { dtos ->
                 val entities: MutableList<FeedListEntity> = ArrayList(dtos.size)
                 val lists: MutableList<FeedList> = ArrayList()
                 for (dto in dtos) {
@@ -336,7 +333,7 @@ class FeedInteractor(
         val criteria = FeedCriteria(accountId)
         return stores.feed()
             .findByCriteria(criteria)
-            .flatMap { dbos: List<NewsEntity> ->
+            .flatMap { dbos ->
                 val ownIds = VKOwnIds()
                 for (dbo in dbos) {
                     fillOwnerIds(ownIds, dbo)

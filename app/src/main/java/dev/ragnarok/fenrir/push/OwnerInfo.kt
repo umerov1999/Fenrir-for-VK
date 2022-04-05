@@ -24,7 +24,7 @@ class OwnerInfo private constructor(val owner: Owner, val avatar: Bitmap?) {
             val app = context.applicationContext
             val interactor = owners
             return interactor.getBaseOwnerInfo(accountId, ownerId, IOwnersRepository.MODE_ANY)
-                .flatMap { owner: Owner ->
+                .flatMap { owner ->
                     Single.fromCallable {
                         NotificationUtils.loadRoundedImage(
                             app,
@@ -34,7 +34,7 @@ class OwnerInfo private constructor(val owner: Owner, val avatar: Bitmap?) {
                     }
                         .map { Optional.wrap(it) }
                         .onErrorReturnItem(empty())
-                        .map { optional: Optional<Bitmap> -> OwnerInfo(owner, optional.get()) }
+                        .map { optional -> OwnerInfo(owner, optional.get()) }
                 }
         }
     }

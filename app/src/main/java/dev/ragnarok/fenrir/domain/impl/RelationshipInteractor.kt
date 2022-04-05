@@ -2,14 +2,9 @@ package dev.ragnarok.fenrir.domain.impl
 
 import android.content.Context
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.Items
-import dev.ragnarok.fenrir.api.model.VKApiUser
-import dev.ragnarok.fenrir.api.model.response.DeleteFriendResponse
-import dev.ragnarok.fenrir.api.model.response.OnlineFriendsResponse
 import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.db.impl.ContactsUtils.getAllContacts
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.db.model.entity.UserEntity
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor.DeletedCodes
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapUsers
@@ -31,19 +26,19 @@ class RelationshipInteractor(
     override fun getCachedFriends(accountId: Int, objectId: Int): Single<List<User>> {
         return repositories.relativeship()
             .getFriends(accountId, objectId)
-            .map { obj: List<UserEntity> -> buildUsersFromDbo(obj) }
+            .map { obj -> buildUsersFromDbo(obj) }
     }
 
     override fun getCachedFollowers(accountId: Int, objectId: Int): Single<List<User>> {
         return repositories.relativeship()
             .getFollowers(accountId, objectId)
-            .map { obj: List<UserEntity> -> buildUsersFromDbo(obj) }
+            .map { obj -> buildUsersFromDbo(obj) }
     }
 
     override fun getCachedRequests(accountId: Int): Single<List<User>> {
         return repositories.relativeship()
             .getRequests(accountId)
-            .map { obj: List<UserEntity> -> buildUsersFromDbo(obj) }
+            .map { obj -> buildUsersFromDbo(obj) }
     }
 
     override fun getActualFriendsList(
@@ -55,8 +50,8 @@ class RelationshipInteractor(
         val order = if (accountId == objectId) "hints" else null
         return networker.vkDefault(accountId)
             .friends()[objectId, order, null, count, offset, UserColumns.API_FIELDS, null]
-            .map { items: Items<VKApiUser> -> listEmptyIfNull(items.getItems()) }
-            .flatMap { dtos: List<VKApiUser> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .flatMap { dtos ->
                 val dbos = mapUsers(dtos)
                 val users = transformUsers(dtos)
                 repositories.relativeship()
@@ -76,25 +71,24 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .friends()
             .getOnline(objectId, order, count, offset, UserColumns.API_FIELDS)
-            .map { response: OnlineFriendsResponse -> listEmptyIfNull(response.profiles) }
-            .map { obj: List<VKApiUser> -> transformUsers(obj) }
+            .map { response -> listEmptyIfNull(response.profiles) }
+            .map { obj -> transformUsers(obj) }
     }
 
     override fun getRecommendations(accountId: Int, count: Int?): Single<List<User>> {
         return networker.vkDefault(accountId)
             .friends()
             .getRecommendations(count, UserColumns.API_FIELDS, null)
-            .map { response: Items<VKApiUser> -> listEmptyIfNull(response.items) }
-            .map { obj: List<VKApiUser> -> transformUsers(obj) }
+            .map { response -> listEmptyIfNull(response.items) }
+            .map { obj -> transformUsers(obj) }
     }
 
     override fun getByPhones(accountId: Int, context: Context): Single<List<User>> {
-        return getAllContacts(context).flatMap { t: String? ->
+        return getAllContacts(context).flatMap {
             networker.vkDefault(accountId)
                 .friends()
-                .getByPhones(t, UserColumns.API_FIELDS)
-                .map { obj: List<VKApiUser>? -> listEmptyIfNull(obj) }
-                .map { obj: List<VKApiUser> -> transformUsers(obj) }
+                .getByPhones(it, UserColumns.API_FIELDS)
+                .map { obj -> transformUsers(obj) }
         }
     }
 
@@ -107,8 +101,8 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .users()
             .getFollowers(objectId, offset, count, UserColumns.API_FIELDS, null)
-            .map { items: Items<VKApiUser>? -> listEmptyIfNull(items?.getItems()) }
-            .flatMap { dtos: List<VKApiUser> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .flatMap { dtos ->
                 val dbos = mapUsers(dtos)
                 val users = transformUsers(dtos)
                 repositories.relativeship()
@@ -121,8 +115,8 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .users()
             .getRequests(offset, count, 1, 1, UserColumns.API_FIELDS)
-            .map { items: Items<VKApiUser>? -> listEmptyIfNull(items?.getItems()) }
-            .flatMap { dtos: List<VKApiUser> ->
+            .map { items -> listEmptyIfNull(items.getItems()) }
+            .flatMap { dtos ->
                 val dbos = mapUsers(dtos)
                 val users = transformUsers(dtos)
                 repositories.relativeship()
@@ -140,7 +134,7 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .friends()
             .getMutual(accountId, objectId, count, offset, UserColumns.API_FIELDS)
-            .map { obj: List<VKApiUser> -> transformUsers(obj) }
+            .map { obj -> transformUsers(obj) }
     }
 
     override fun searchFriends(
@@ -153,16 +147,16 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .friends()
             .search(userId, q, UserColumns.API_FIELDS, null, offset, count)
-            .map { items: Items<VKApiUser>? ->
-                val users = transformUsers(listEmptyIfNull(items?.getItems()))
-                create(users, items?.getCount() ?: 0)
+            .map { items ->
+                val users = transformUsers(listEmptyIfNull(items.getItems()))
+                create(users, items.getCount())
             }
     }
 
     override fun getFriendsCounters(accountId: Int, userId: Int): Single<FriendsCounters> {
         return networker.vkDefault(accountId)
             .users()[listOf(userId), null, "counters", null]
-            .map { users: List<VKApiUser> ->
+            .map { users ->
                 if (users.isEmpty()) {
                     throw NotFoundException()
                 }
@@ -196,7 +190,7 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .friends()
             .delete(userId)
-            .map { response: DeleteFriendResponse ->
+            .map { response ->
                 if (response.friend_deleted) {
                     return@map DeletedCodes.FRIEND_DELETED
                 }

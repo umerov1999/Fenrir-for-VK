@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.MenuListAdapter
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.SwitchableCategory
 import dev.ragnarok.fenrir.model.drawer.AbsMenuItem
@@ -32,7 +33,6 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.NightMode
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -59,7 +59,7 @@ class AdditionalNavigationFragment : AbsNavigationFragment(), MenuListAdapter.Ac
                 .accounts()
                 .observeChanges()
                 .observeOn(provideMainThreadScheduler())
-                .subscribe { newAccountId: Int -> onAccountChange(newAccountId) })
+                .subscribe { onAccountChange(it) })
         mRecentChats = Settings.get()
             .recentChats()[mAccountId]
         mDrawerItems = ArrayList()
@@ -79,8 +79,8 @@ class AdditionalNavigationFragment : AbsNavigationFragment(), MenuListAdapter.Ac
                     mAccountId,
                     IOwnersRepository.MODE_ANY
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ user: Owner -> refreshHeader(user) }, ignore())
+                    .fromIOToMain()
+                    .subscribe({ user -> refreshHeader(user) }, ignore())
             )
         }
     }

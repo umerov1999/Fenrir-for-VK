@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.view.IPostEditView
 import dev.ragnarok.fenrir.upload.Upload
@@ -16,8 +17,6 @@ import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Unixtime.now
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -151,8 +150,8 @@ class PostEditPresenter(
     private fun save() {
         d(TAG, "save, author: " + post.author + ", signer: " + post.creator)
         appendDisposable(uploadManager[accountId, uploadDestination]
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ data: List<Upload> ->
+            .fromIOToMain()
+            .subscribe({ data ->
                 if (data.isEmpty()) {
                     doCommitImpl()
                 } else {
@@ -206,8 +205,8 @@ class PostEditPresenter(
                 getTextBody(), attachmentTokens, null, signed, publishDate,
                 null, null, null, null
             )
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onEditResponse() }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onEditResponse() }) { throwable ->
                 onEditError(
                     getCauseIfRuntime(throwable)
                 )
@@ -228,8 +227,8 @@ class PostEditPresenter(
                 accountId, post.ownerId, null, fromGroup, body, attachmentTokens, null,
                 signed, publishDate, null, null, null, post.vkid, null, null, null
             )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onEditResponse() }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onEditResponse() }) { throwable ->
                 onEditError(
                     getCauseIfRuntime(throwable)
                 )

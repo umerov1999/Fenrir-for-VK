@@ -52,7 +52,6 @@ import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.view.CustomSeekBar
@@ -582,7 +581,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
     private fun add(accountId: Int, audio: Audio) {
         appendDisposable(
             mAudioInteractor.add(accountId, audio, null)
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ onAudioAdded() }) { showErrorInAdapter(it) })
     }
 
@@ -596,7 +595,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         val ownerId = audio.ownerId
         appendDisposable(
             mAudioInteractor.delete(accountId, id, ownerId)
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     onAudioDeletedOrRestored(
                         id,
@@ -611,7 +610,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         val ownerId = audio.ownerId
         appendDisposable(
             mAudioInteractor.restore(accountId, id, ownerId)
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     onAudioDeletedOrRestored(
                         id,
@@ -624,8 +623,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
     private fun get_lyrics(audio: Audio) {
         appendDisposable(
             mAudioInteractor.getLyrics(mAccountId, audio.lyricsId)
-                .compose(RxUtils.applySingleIOToMainSchedulers())
-                .subscribe({ Text: String -> onAudioLyricsReceived(Text) }) { showErrorInAdapter(it) })
+                .fromIOToMain()
+                .subscribe({ Text -> onAudioLyricsReceived(Text) }) { showErrorInAdapter(it) })
     }
 
     private fun onAudioLyricsReceived(Text: String) {
@@ -905,7 +904,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         val ownerId = currentAudio.ownerId
         mBroadcastDisposable.add(
             mAudioInteractor.sendBroadcast(accountId, ownerId, id, targetIds)
-                .compose(RxUtils.applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({}) { })
     }
 

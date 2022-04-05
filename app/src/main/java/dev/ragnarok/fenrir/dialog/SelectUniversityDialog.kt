@@ -17,9 +17,9 @@ import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
 import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.FilterEditFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.database.University
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import java.util.*
 
 class SelectUniversityDialog : AccountDependencyDialogFragment(), UniversitiesAdapter.Listener {
@@ -78,8 +78,8 @@ class SelectUniversityDialog : AccountDependencyDialogFragment(), UniversitiesAd
                 COUNT_PER_REQUEST,
                 offset
             )
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ universities: List<University> ->
+                .fromIOToMain()
+                .subscribe({ universities ->
                     onDataReceived(
                         offset,
                         universities

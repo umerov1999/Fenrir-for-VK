@@ -30,12 +30,12 @@ class FavePhotoPagerPresenter(
         val forUpdate = listOf(AccessIdPair(photo.id, photo.ownerId, photo.accessKey))
         appendDisposable(photosInteractor.getPhotosByIds(accountId, forUpdate)
             .fromIOToMain()
-            .subscribe({ photos: List<Photo> ->
+            .subscribe({ photos ->
                 onPhotoUpdateReceived(
                     photos,
                     index
                 )
-            }) { t: Throwable -> onRefreshFailed(index, t) })
+            }) { t -> onRefreshFailed(index, t) })
     }
 
     private fun onRefreshFailed(index: Int, t: Throwable) {

@@ -183,7 +183,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                 e.onSuccess(comment)
             }
             e.onComplete()
-        }.flatMap { comment: DraftComment ->
+        }.flatMap { comment ->
             stores
                 .attachments()
                 .getCount(accountId, AttachToType.COMMENT, comment.id)

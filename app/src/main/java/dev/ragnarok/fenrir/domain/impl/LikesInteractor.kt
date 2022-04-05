@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.response.LikesListResponse
 import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformOwner
 import dev.ragnarok.fenrir.model.Owner
@@ -33,7 +32,7 @@ class LikesInteractor(private val networker: INetworker) : ILikesInteractor {
                 null,
                 Constants.MAIN_OWNER_FIELDS
             )
-            .map { response: LikesListResponse ->
+            .map { response ->
                 val dtos = listEmptyIfNull(response.owners)
                 val owners: MutableList<Owner> = ArrayList(dtos.size)
                 for (dto in dtos) {

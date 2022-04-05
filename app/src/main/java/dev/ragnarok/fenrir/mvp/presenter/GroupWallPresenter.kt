@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.domain.*
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView
@@ -16,8 +17,6 @@ import dev.ragnarok.fenrir.mvp.view.IGroupWallView.IOptionMenuView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory.getMentionsPlace
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.ShortcutUtils.createWallShortcutRx
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -71,7 +70,7 @@ class GroupWallPresenter(
                 abs(ownerId),
                 IOwnersRepository.MODE_CACHE
             )
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     onFullInfoReceived(it.first, it.second)
                     requestActualFullInfo()
@@ -86,13 +85,13 @@ class GroupWallPresenter(
             abs(ownerId),
             IOwnersRepository.MODE_NET
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onFullInfoReceived(
                     it.first,
                     it.second
                 )
-            }) { t: Throwable -> onDetailsGetError(t) })
+            }) { t -> onDetailsGetError(t) })
     }
 
     private fun onFullInfoReceived(community: Community?, details: CommunityDetails?) {
@@ -175,8 +174,8 @@ class GroupWallPresenter(
         val accountid = accountId
         val groupId = abs(ownerId)
         appendDisposable(communitiesInteractor.leave(accountid, groupId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onLeaveResult() }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onLeaveResult() }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -185,8 +184,8 @@ class GroupWallPresenter(
         val accountid = accountId
         val groupId = abs(ownerId)
         appendDisposable(communitiesInteractor.join(accountid, groupId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onJoinResult() }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onJoinResult() }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -422,7 +421,7 @@ class GroupWallPresenter(
 
         IGroupSettingsInteractor interactor = new GroupSettingsInteractor(Includes.getNetworkInterfaces(), Includes.getStores().owners());
         appendDisposable(interactor.getGroupSettings(accountId, grouId)
-                .compose(RxUtils.applySingleIOToMainSchedulers())
+               .fromIOToMain()
                 .subscribe(this::onSettingsReceived, throwable -> {
                     callView(v -> showError(v, getCauseIfRuntime(throwable)));
                 }));*/
@@ -473,29 +472,29 @@ class GroupWallPresenter(
     fun fireSubscribe() {
         val accountId = accountId
         appendDisposable(wallsRepository.subscribe(accountId, ownerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireUnSubscribe() {
         val accountId = accountId
         appendDisposable(wallsRepository.unsubscribe(accountId, ownerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireAddToBookmarksClick() {
         val accountId = accountId
         appendDisposable(faveInteractor.addPage(accountId, ownerId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireRemoveFromBookmarks() {
         val accountId = accountId
         appendDisposable(faveInteractor.removePage(accountId, ownerId, false)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireMentions() {
@@ -536,12 +535,12 @@ class GroupWallPresenter(
     override fun fireAddToShortcutClick() {
         appendDisposable(
             createWallShortcutRx(context, accountId, community)
-                .compose(applyCompletableIOToMainSchedulers()).subscribe({
+                .fromIOToMain().subscribe({
                     view?.showSnackbar(
                         R.string.success,
                         true
                     )
-                }) { t: Throwable ->
+                }) { t ->
                     view?.showError(t.localizedMessage)
                 })
     }
@@ -552,7 +551,7 @@ class GroupWallPresenter(
             if (ByName) community.fullName else null,
             if (ByName) null else ownerId
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 if (it.nonNullNoEmpty()) {
                     stories.clear()

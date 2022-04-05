@@ -6,16 +6,15 @@ import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository.*
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AttachmentEntry
 import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.mvp.view.ICreateCommentView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.subscribeOnIOAndIgnore
 import dev.ragnarok.fenrir.util.Utils.removeIf
 import io.reactivex.rxjava3.core.Single
@@ -61,12 +60,12 @@ class CommentCreatePresenter(
     private fun attachmentsSingle(): Single<List<AttachmentEntry>> {
         return attachmentsRepository
             .getAttachmentsWithIds(accountId, AttachToType.COMMENT, commentId)
-            .map { pairs: List<Pair<Int, AbsModel>> -> createFrom(pairs, true) }
+            .map { createFrom(it, true) }
     }
 
     private fun uploadsSingle(): Single<List<AttachmentEntry>> {
         return uploadManager[accountId, destination]
-            .flatMap { u: List<Upload> ->
+            .flatMap { u ->
                 Single.just(
                     createFrom(
                         u
@@ -82,7 +81,7 @@ class CommentCreatePresenter(
                     first, second
                 )
             }
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ onAttachmentsRestored(it) }) { it.printStackTrace() })
     }
 
@@ -186,13 +185,13 @@ class CommentCreatePresenter(
                 )
             })
         appendDisposable(attachmentsRepository.observeAdding()
-            .filter { event: IAddEvent -> filterAttachEvents(event) }
+            .filter { filterAttachEvents(it) }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { event: IAddEvent -> handleAttachmentsAdding(event) })
+            .subscribe { handleAttachmentsAdding(it) })
         appendDisposable(attachmentsRepository.observeRemoving()
-            .filter { event: IRemoveEvent -> filterAttachEvents(event) }
+            .filter { filterAttachEvents(it) }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { event: IRemoveEvent -> handleAttachmentRemoving(event) })
+            .subscribe { handleAttachmentRemoving(it) })
         loadAttachments()
     }
 }

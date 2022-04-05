@@ -55,7 +55,7 @@ abstract class AccountDependencyDialogFragment : BaseDialogFragment(), OnAttachm
                 .accounts()
                 .observeChanges()
                 .observeOn(provideMainThreadScheduler())
-                .subscribe { newAid: Int -> fireAccountChange(newAid) })
+                .subscribe { fireAccountChange(it) })
     }
 
     private fun fireAccountChange(newAid: Int) {

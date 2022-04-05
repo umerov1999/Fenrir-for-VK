@@ -7,14 +7,12 @@ import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Market
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IMarketViewView
-import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 
 class MarketViewPresenter(
     accountId: Int,
@@ -36,8 +34,8 @@ class MarketViewPresenter(
         val ids: Collection<AccessIdPair> =
             listOf(AccessIdPair(mMarket.id, mMarket.owner_id, mMarket.access_key))
         appendDisposable(ownerInteractor.getMarketById(accountId, ids)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ market: List<Market> -> onMarketInfoUpdated(market) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ market -> onMarketInfoUpdated(market) }) { t ->
                 onLoadingError(
                     t
                 )
@@ -85,8 +83,8 @@ class MarketViewPresenter(
     fun fireWriteToMarketer(market: Market, context: Context) {
         appendDisposable(
             getRx(context, accountId, market.owner_id)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ userInfo: OwnerInfo ->
+                .fromIOToMain()
+                .subscribe({ userInfo ->
                     val peer = Peer(Peer.fromOwnerId(userInfo.owner.ownerId))
                         .setAvaUrl(userInfo.owner.maxSquareAvatar)
                         .setTitle(userInfo.owner.fullName)
@@ -120,12 +118,12 @@ class MarketViewPresenter(
                 mMarket.owner_id,
                 mMarket.access_key
             )
-                .compose(applyCompletableIOToMainSchedulers())
-                .subscribe({ onFaveSuccess() }) { t: Throwable -> onLoadingError(t) })
+                .fromIOToMain()
+                .subscribe({ onFaveSuccess() }) { t -> onLoadingError(t) })
         } else {
             appendDisposable(faveInteractor.removeProduct(accountId, mMarket.id, mMarket.owner_id)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ onFaveSuccess() }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onFaveSuccess() }) { t ->
                     onLoadingError(
                         t
                     )

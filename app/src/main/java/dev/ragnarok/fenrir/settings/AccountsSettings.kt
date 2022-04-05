@@ -7,9 +7,9 @@ import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes.pushRegistrationResolver
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import io.reactivex.rxjava3.core.Flowable
@@ -56,7 +56,7 @@ internal class AccountsSettings @SuppressLint("UseSparseArrays") constructor(con
     private fun fireAccountChange() {
         val registrationResolver = pushRegistrationResolver
         registrationResolver.resolvePushRegistration()
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe(dummy(), ignore())
         currentPublisher.onNext(current)
     }

@@ -22,7 +22,7 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
             array.add(answer)
         }
         return provideService(IPollsService::class.java, TokenType.USER)
-            .flatMap { service: IPollsService ->
+            .flatMap { service ->
                 service
                     .create(
                         question,
@@ -42,10 +42,10 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
         isBoard: Boolean?
     ): Single<Boolean> {
         return provideService(IPollsService::class.java, TokenType.USER)
-            .flatMap { service: IPollsService ->
+            .flatMap { service ->
                 service.deleteVote(ownerId, pollId, answerId, integerFromBoolean(isBoard))
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
@@ -56,16 +56,16 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
         isBoard: Boolean?
     ): Single<Boolean> {
         return provideService(IPollsService::class.java, TokenType.USER)
-            .flatMap { service: IPollsService ->
+            .flatMap { service ->
                 service.addVote(ownerId, pollId, join(answerIds, ","), integerFromBoolean(isBoard))
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun getById(ownerId: Int, isBoard: Boolean?, pollId: Int): Single<VKApiPoll> {
         return provideService(IPollsService::class.java, TokenType.USER)
-            .flatMap { service: IPollsService ->
+            .flatMap { service ->
                 service.getById(ownerId, integerFromBoolean(isBoard), pollId)
                     .map(extractResponseWithErrorHandling())
             }

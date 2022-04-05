@@ -33,20 +33,13 @@ class DatabaseIdRange : Parcelable {
         dest.writeInt(last)
     }
 
-    companion object {
-        val CREATOR: Parcelable.Creator<DatabaseIdRange> =
-            object : Parcelable.Creator<DatabaseIdRange> {
-                override fun createFromParcel(`in`: Parcel): DatabaseIdRange {
-                    return DatabaseIdRange(`in`)
-                }
+    companion object CREATOR : Parcelable.Creator<DatabaseIdRange> {
+        override fun createFromParcel(parcel: Parcel): DatabaseIdRange {
+            return DatabaseIdRange(parcel)
+        }
 
-                override fun newArray(size: Int): Array<DatabaseIdRange?> {
-                    return arrayOfNulls(size)
-                }
-            }
-
-        fun create(first: Int, last: Int): DatabaseIdRange {
-            return DatabaseIdRange(first, last)
+        override fun newArray(size: Int): Array<DatabaseIdRange?> {
+            return arrayOfNulls(size)
         }
     }
 }

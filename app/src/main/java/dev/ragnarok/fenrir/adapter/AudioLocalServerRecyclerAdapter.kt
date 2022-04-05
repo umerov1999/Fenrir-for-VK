@@ -21,8 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.textfield.TextInputEditText
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.link.VkLinkParser
@@ -40,7 +39,6 @@ import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.menu.options.AudioLocalServerOption
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
@@ -50,8 +48,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
-import dev.ragnarok.fenrir.util.RxUtils.applyObservableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -94,7 +90,7 @@ class AudioLocalServerRecyclerAdapter(
         if (url.isNullOrEmpty()) {
             return
         }
-        audioListDisposable = doBitrate(url).compose(applySingleIOToMainSchedulers())
+        audioListDisposable = doBitrate(url).fromIOToMain()
             .subscribe(
                 { r: Int? ->
                     CreateCustomToast(mContext).showToast(
@@ -105,7 +101,7 @@ class AudioLocalServerRecyclerAdapter(
                         )
                     )
                 }
-            ) { e: Throwable? -> Utils.showErrorInAdapter(mContext as Activity, e) }
+            ) { e -> Utils.showErrorInAdapter(mContext as Activity, e) }
     }
 
     @get:DrawableRes
@@ -277,59 +273,58 @@ class AudioLocalServerRecyclerAdapter(
                             if (hash.isNullOrEmpty()) {
                                 return
                             }
-                            audioListDisposable = mAudioInteractor.update_time(hash).compose(
-                                applySingleIOToMainSchedulers()
-                            ).subscribe(
-                                { CreateCustomToast(mContext).showToast(R.string.success) }) { t: Throwable? ->
-                                Utils.showErrorInAdapter(
-                                    mContext as Activity,
-                                    t
-                                )
-                            }
+                            audioListDisposable =
+                                mAudioInteractor.update_time(hash).fromIOToMain().subscribe(
+                                    { CreateCustomToast(mContext).showToast(R.string.success) }) { t ->
+                                    Utils.showErrorInAdapter(
+                                        mContext as Activity,
+                                        t
+                                    )
+                                }
                         }
                         AudioLocalServerOption.edit_item_audio -> {
                             val hash2 = VkLinkParser.parseLocalServerURL(audio.url)
                             if (hash2.isNullOrEmpty()) {
                                 return
                             }
-                            audioListDisposable = mAudioInteractor.get_file_name(hash2).compose(
-                                applySingleIOToMainSchedulers()
-                            ).subscribe(
-                                { t: String? ->
-                                    val root =
-                                        View.inflate(mContext, R.layout.entry_file_name, null)
-                                    (root.findViewById<View>(R.id.edit_file_name) as TextInputEditText).setText(
+                            audioListDisposable =
+                                mAudioInteractor.get_file_name(hash2).fromIOToMain().subscribe(
+                                    { t: String? ->
+                                        val root =
+                                            View.inflate(mContext, R.layout.entry_file_name, null)
+                                        (root.findViewById<View>(R.id.edit_file_name) as TextInputEditText).setText(
+                                            t
+                                        )
+                                        MaterialAlertDialogBuilder(mContext)
+                                            .setTitle(R.string.change_name)
+                                            .setCancelable(true)
+                                            .setView(root)
+                                            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
+                                                audioListDisposable =
+                                                    mAudioInteractor.update_file_name(
+                                                        hash2,
+                                                        (root.findViewById<View>(R.id.edit_file_name) as TextInputEditText).text.toString()
+                                                            .trim { it <= ' ' })
+                                                        .fromIOToMain()
+                                                        .subscribe({
+                                                            CreateCustomToast(mContext).showToast(
+                                                                R.string.success
+                                                            )
+                                                        }) { o ->
+                                                            Utils.showErrorInAdapter(
+                                                                mContext as Activity,
+                                                                o
+                                                            )
+                                                        }
+                                            }
+                                            .setNegativeButton(R.string.button_cancel, null)
+                                            .show()
+                                    }) { t ->
+                                    Utils.showErrorInAdapter(
+                                        mContext as Activity,
                                         t
                                     )
-                                    MaterialAlertDialogBuilder(mContext)
-                                        .setTitle(R.string.change_name)
-                                        .setCancelable(true)
-                                        .setView(root)
-                                        .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                                            audioListDisposable = mAudioInteractor.update_file_name(
-                                                hash2,
-                                                (root.findViewById<View>(R.id.edit_file_name) as TextInputEditText).text.toString()
-                                                    .trim { it <= ' ' })
-                                                .compose(applySingleIOToMainSchedulers())
-                                                .subscribe({
-                                                    CreateCustomToast(mContext).showToast(
-                                                        R.string.success
-                                                    )
-                                                }) { o: Throwable? ->
-                                                    Utils.showErrorInAdapter(
-                                                        mContext as Activity,
-                                                        o
-                                                    )
-                                                }
-                                        }
-                                        .setNegativeButton(R.string.button_cancel, null)
-                                        .show()
-                                }) { t: Throwable? ->
-                                Utils.showErrorInAdapter(
-                                    mContext as Activity,
-                                    t
-                                )
-                            }
+                                }
                         }
                         AudioLocalServerOption.delete_item_audio -> MaterialAlertDialogBuilder(
                             mContext
@@ -342,15 +337,14 @@ class AudioLocalServerRecyclerAdapter(
                                 if (hash1.isNullOrEmpty()) {
                                     return@setPositiveButton
                                 }
-                                audioListDisposable = mAudioInteractor.delete_media(hash1).compose(
-                                    applySingleIOToMainSchedulers()
-                                ).subscribe(
-                                    { CreateCustomToast(mContext).showToast(R.string.success) }) { o: Throwable? ->
-                                    Utils.showErrorInAdapter(
-                                        mContext as Activity,
-                                        o
-                                    )
-                                }
+                                audioListDisposable =
+                                    mAudioInteractor.delete_media(hash1).fromIOToMain().subscribe(
+                                        { CreateCustomToast(mContext).showToast(R.string.success) }) { o ->
+                                        Utils.showErrorInAdapter(
+                                            mContext as Activity,
+                                            o
+                                        )
+                                    }
                             }
                             .setNegativeButton(R.string.button_cancel, null)
                             .show()
@@ -484,8 +478,8 @@ class AudioLocalServerRecyclerAdapter(
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         mPlayerDisposable = observeServiceBinding()
-            .compose(applyObservableIOToMainSchedulers())
-            .subscribe { status: Int -> onServiceBindEvent(status) }
+            .toMainThread()
+            .subscribe { onServiceBindEvent(it) }
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {

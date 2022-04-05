@@ -38,7 +38,7 @@ class PhotoSearchPresenter(
         val offset = startFrom.offset
         val nextFrom = IntNextFrom(50 + offset)
         return photoInteractor.search(accountId, criteria, offset, 50)
-            .map { photos: List<Photo> -> create(photos, nextFrom) }
+            .map { photos -> create(photos, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): PhotoSearchCriteria {

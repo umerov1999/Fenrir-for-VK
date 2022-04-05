@@ -19,7 +19,7 @@ class MessagesDecryptor(private val store: IStorages) : IMessagesDecryptor {
     override fun withMessagesDecryption(accountId: Int): SingleTransformer<List<Message>, List<Message>> {
         return SingleTransformer { single: Single<List<Message>> ->
             single
-                .flatMap { messages: List<Message> ->
+                .flatMap { messages ->
                     val sessions: MutableList<Pair<Int, Long>> = ArrayList(0)
                     val needDecryption: MutableList<Pair<Message, EncryptedMessage>> = ArrayList(0)
                     for (message in messages) {
@@ -42,7 +42,7 @@ class MessagesDecryptor(private val store: IStorages) : IMessagesDecryptor {
                         return@flatMap Single.just(messages)
                     }
                     getKeyPairs(accountId, sessions)
-                        .map { keys: LongSparseArray<AesKeyPair?> ->
+                        .map { keys ->
                             for (pair in needDecryption) {
                                 val message = pair.first
                                 val em = pair.second

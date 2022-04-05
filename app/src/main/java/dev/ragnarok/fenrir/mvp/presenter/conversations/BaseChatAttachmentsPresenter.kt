@@ -52,7 +52,7 @@ abstract class BaseChatAttachmentsPresenter<T, V : IBaseChatAttachmentsView<T>> 
                             it
                         )
                     },
-                    { throwable: Throwable? ->
+                    { throwable ->
                         onRequestError(
                             Utils.getCauseIfRuntime(
                                 throwable

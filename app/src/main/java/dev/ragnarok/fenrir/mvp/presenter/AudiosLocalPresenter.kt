@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
@@ -18,7 +19,6 @@ import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forAudio
 import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forRemotePlay
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.SafeCallCheckInt
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -48,14 +48,14 @@ class AudiosLocalPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     fun firePrepared() {
         appendDisposable(uploadManager[accountId, destination]
-            .compose(applySingleIOToMainSchedulers<List<Upload>>())
-            .subscribe { data: List<Upload> -> onUploadsDataReceived(data) })
+            .fromIOToMain()
+            .subscribe { data -> onUploadsDataReceived(data) })
         appendDisposable(uploadManager.observeAdding()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { added: List<Upload> -> onUploadsAdded(added) })
+            .subscribe { added -> onUploadsAdded(added) })
         appendDisposable(uploadManager.observeDeleting(true)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { ids: IntArray -> onUploadDeleted(ids) })
+            .subscribe { ids -> onUploadDeleted(ids) })
         appendDisposable(uploadManager.observeResults()
             .filter {
                 destination.compareTo(
@@ -63,13 +63,13 @@ class AudiosLocalPresenter(accountId: Int, savedInstanceState: Bundle?) :
                 ) || remotePlay.compareTo(it.first.destination)
             }
             .observeOn(provideMainThreadScheduler())
-            .subscribe { pair: Pair<Upload, UploadResult<*>> -> onUploadResults(pair) })
+            .subscribe { pair -> onUploadResults(pair) })
         appendDisposable(uploadManager.obseveStatus()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { upload: Upload -> onUploadStatusUpdate(upload) })
+            .subscribe { upload -> onUploadStatusUpdate(upload) })
         appendDisposable(uploadManager.observeProgress()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { updates: List<IProgressUpdate> -> onProgressUpdates(updates) })
+            .subscribe { updates -> onProgressUpdates(updates) })
         fireRefresh()
     }
 
@@ -170,8 +170,8 @@ class AudiosLocalPresenter(accountId: Int, savedInstanceState: Bundle?) :
             audioListDisposable.add(Stores.instance
                 .localMedia()
                 .getAudios(accountId)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ onListReceived(it) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onListReceived(it) }) { t ->
                     onListGetError(
                         t
                     )
@@ -180,8 +180,8 @@ class AudiosLocalPresenter(accountId: Int, savedInstanceState: Bundle?) :
             audioListDisposable.add(Stores.instance
                 .localMedia()
                 .getAudios(accountId, bucket_id.toLong())
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ onListReceived(it) }) { t: Throwable ->
+                .fromIOToMain()
+                .subscribe({ onListReceived(it) }) { t ->
                     onListGetError(
                         t
                     )

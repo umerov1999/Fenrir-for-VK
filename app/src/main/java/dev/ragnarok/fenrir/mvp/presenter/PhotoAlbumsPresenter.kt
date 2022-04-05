@@ -8,13 +8,12 @@ import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.fragment.VKPhotoAlbumsFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IPhotoAlbumsView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -73,8 +72,8 @@ class PhotoAlbumsPresenter(
             mOwnerId,
             IOwnersRepository.MODE_ANY
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ owner: Owner -> onOwnerInfoReceived(owner) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ owner -> onOwnerInfoReceived(owner) }) { t ->
                 onOwnerGetError(
                     t
                 )
@@ -96,13 +95,13 @@ class PhotoAlbumsPresenter(
         resolveProgressView()
         val accountId = accountId
         netDisposable.add(photosInteractor.getActualAlbums(accountId, mOwnerId, 50, offset)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onActualAlbumsReceived(
                     offset,
                     it
                 )
-            }) { t: Throwable -> onActualAlbumsGetError(t) })
+            }) { t -> onActualAlbumsGetError(t) })
     }
 
     private fun onActualAlbumsGetError(t: Throwable) {
@@ -142,7 +141,7 @@ class PhotoAlbumsPresenter(
     private fun loadAllFromDb() {
         val accountId = accountId
         cacheDisposable.add(photosInteractor.getCachedAlbums(accountId, mOwnerId)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({ onCachedDataReceived(it) }) { })
     }
 
@@ -176,8 +175,8 @@ class PhotoAlbumsPresenter(
         val albumId = album.id
         val ownerId = album.ownerId
         appendDisposable(photosInteractor.removedAlbum(accountId, album.ownerId, album.id)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onAlbumRemoved(albumId, ownerId) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onAlbumRemoved(albumId, ownerId) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -264,8 +263,8 @@ class PhotoAlbumsPresenter(
         val accountId = accountId
         appendDisposable(utilsInteractor
             .createFullPrivacies(accountId, privacies)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ full: Map<Int, Privacy> ->
+            .fromIOToMain()
+            .subscribe({ full ->
                 val editor = PhotoAlbumEditor.create()
                     .setPrivacyView(full[0])
                     .setPrivacyComment(full[1])
@@ -278,7 +277,7 @@ class PhotoAlbumsPresenter(
                     album,
                     editor
                 )
-            }) { obj: Throwable -> obj.printStackTrace() })
+            }) { obj -> obj.printStackTrace() })
     }
 
     class AdditionalParams {

@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Video
@@ -21,8 +22,6 @@ import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IVideoPreviewView
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class VideoPreviewPresenter(
@@ -61,8 +60,8 @@ class VideoPreviewPresenter(
             pVideo.id,
             pVideo.accessKey
         )
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onVideoAddedToBookmarks() }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onVideoAddedToBookmarks() }) { t ->
                 showError(
                     getCauseIfRuntime(t)
                 )
@@ -85,10 +84,8 @@ class VideoPreviewPresenter(
                         accountId, vd.ownerId, vd.id,
                         (root.findViewById<View>(R.id.edit_title) as TextInputEditText).text.toString(),
                         (root.findViewById<View>(R.id.edit_description) as TextInputEditText).text.toString()
-                    ).compose(
-                        applyCompletableIOToMainSchedulers()
-                    )
-                        .subscribe({ refreshVideoInfo() }) { t: Throwable? ->
+                    ).fromIOToMain()
+                        .subscribe({ refreshVideoInfo() }) { t ->
                             showError(getCauseIfRuntime(t))
                         })
                 }
@@ -128,8 +125,8 @@ class VideoPreviewPresenter(
                 ownerId,
                 IOwnersRepository.MODE_ANY
             )
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ info: Owner -> onOwnerReceived(info) }) { e: Throwable? ->
+                .fromIOToMain()
+                .subscribe({ info -> onOwnerReceived(info) }) { e ->
                     showError(e)
                 })
         } else {
@@ -186,8 +183,8 @@ class VideoPreviewPresenter(
             view?.displayLoading()
         }
         appendDisposable(interactor.getById(accountId, ownerId, videoId, accessKey, false)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ video: Video -> onActualInfoReceived(video) }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ video -> onActualInfoReceived(video) }) { throwable ->
                 onVideoInfoGetError(
                     getCauseIfRuntime(throwable)
                 )
@@ -213,8 +210,8 @@ class VideoPreviewPresenter(
     fun fireAddToMyClick() {
         val accountId = accountId
         appendDisposable(interactor.addToMy(accountId, accountId, ownerId, videoId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onAddComplete() }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onAddComplete() }) { throwable ->
                 onAddError(
                     getCauseIfRuntime(throwable)
                 )
@@ -224,8 +221,8 @@ class VideoPreviewPresenter(
     fun fireDeleteMyClick() {
         val accountId = accountId
         appendDisposable(interactor.delete(accountId, videoId, ownerId, accountId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onAddComplete() }) { throwable: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onAddComplete() }) { throwable ->
                 onAddError(
                     getCauseIfRuntime(throwable)
                 )
@@ -289,10 +286,10 @@ class VideoPreviewPresenter(
             val add = !it.isUserLikes
             val accountId = accountId
             appendDisposable(interactor.likeOrDislike(accountId, ownerId, videoId, accessKey, add)
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe(
                     { pair: Pair<Int, Boolean> -> onLikesResponse(pair.first, pair.second) }
-                ) { throwable: Throwable? -> onLikeError(getCauseIfRuntime(throwable)) })
+                ) { throwable -> onLikeError(getCauseIfRuntime(throwable)) })
         }
     }
 

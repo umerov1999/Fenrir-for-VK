@@ -20,7 +20,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         type: String?
     ): Single<Items<FavePageResponse>> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getPages(offset, count, type, fields)
                     .map(extractResponseWithErrorHandling())
             }
@@ -28,7 +28,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
 
     override fun getPhotos(offset: Int?, count: Int?): Single<Items<VKApiPhoto>> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getPhotos(offset, count)
                     .map(extractResponseWithErrorHandling())
             }
@@ -36,10 +36,10 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
 
     override fun getVideos(offset: Int?, count: Int?): Single<List<VKApiVideo>> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getVideos(offset, count, "video", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
-                    .flatMap { t: Items<VkApiAttachments.Entry> ->
+                    .flatMap { t ->
                         val temp = listEmptyIfNull(t.items)
                         val videos: MutableList<VKApiVideo> = ArrayList()
                         for (i in temp) {
@@ -52,10 +52,10 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
 
     override fun getArticles(offset: Int?, count: Int?): Single<List<VKApiArticle>> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getArticles(offset, count, "article", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
-                    .flatMap { t: Items<VkApiAttachments.Entry> ->
+                    .flatMap { t ->
                         val temp = listEmptyIfNull(t.items)
                         val articles: MutableList<VKApiArticle> = ArrayList()
                         for (i in temp) {
@@ -72,7 +72,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         count: Int?
     ): Single<Items<VKApiArticle>> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getOwnerPublishedArticles(
                     owner_id,
                     offset,
@@ -87,7 +87,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
 
     override fun getPosts(offset: Int?, count: Int?): Single<FavePostsResponse> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getPosts(offset, count, "post", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
             }
@@ -95,7 +95,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
 
     override fun getLinks(offset: Int?, count: Int?): Single<Items<FaveLinkDto>> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getLinks(offset, count, "link", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
             }
@@ -103,10 +103,10 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
 
     override fun getProducts(offset: Int?, count: Int?): Single<List<VkApiMarket>> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.getProducts(offset, count, "product", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
-                    .flatMap { t: Items<VkApiAttachments.Entry> ->
+                    .flatMap { t ->
                         val temp = listEmptyIfNull(t.items)
                         val markets: MutableList<VkApiMarket> = ArrayList()
                         for (i in temp) {
@@ -119,115 +119,115 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
 
     override fun addPage(userId: Int?, groupId: Int?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.addPage(userId, groupId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun addLink(link: String?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.addLink(link)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun addVideo(owner_id: Int?, id: Int?, access_key: String?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.addVideo(owner_id, id, access_key)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun addArticle(url: String?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.addArticle(url)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun addProduct(id: Int, owner_id: Int, access_key: String?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.addProduct(id, owner_id, access_key)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun addPost(owner_id: Int?, id: Int?, access_key: String?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.addPost(owner_id, id, access_key)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun removePage(userId: Int?, groupId: Int?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.removePage(userId, groupId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun removeLink(linkId: String?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.removeLink(linkId)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun removeArticle(owner_id: Int?, article_id: Int?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.removeArticle(owner_id, article_id)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun removeProduct(id: Int?, owner_id: Int?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.removeProduct(id, owner_id)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun removePost(owner_id: Int?, id: Int?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.removePost(owner_id, id)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun removeVideo(owner_id: Int?, id: Int?): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.removeVideo(owner_id, id)
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 
     override fun pushFirst(owner_id: Int): Single<Boolean> {
         return provideService(IFaveService::class.java)
-            .flatMap { service: IFaveService ->
+            .flatMap { service ->
                 service.pushFirst(
                     """var owner_id = Args.owner_id;
 if (owner_id >= 0) {
@@ -252,7 +252,7 @@ if (owner_id >= 0) {
 return 1;""", owner_id
                 )
                     .map(extractResponseWithErrorHandling())
-                    .map { response: Int -> response == 1 }
+                    .map { it == 1 }
             }
     }
 }

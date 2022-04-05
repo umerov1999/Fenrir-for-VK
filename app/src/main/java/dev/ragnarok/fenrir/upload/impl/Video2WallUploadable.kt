@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
 import dev.ragnarok.fenrir.api.model.server.VkApiVideosUploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadVideoDto
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.exception.NotFoundException
@@ -37,7 +36,7 @@ class Video2WallUploadable(
             .docs()
             .getVideoServer(1, groupId, UploadUtils.findFileName(context, upload.fileUri))
             .map<UploadServer> { s: VkApiVideosUploadServer -> s }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 val uri = upload.fileUri
@@ -58,7 +57,7 @@ class Video2WallUploadable(
                 networker.uploads()
                     .uploadVideoRx(server.url, filename, `is`[0]!!, listener)
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: UploadVideoDto ->
+                    .flatMap { dto ->
                         val video = Video().setId(dto.video_id).setOwnerId(dto.owner_id).setTitle(
                             UploadUtils.findFileName(
                                 context, upload.fileUri

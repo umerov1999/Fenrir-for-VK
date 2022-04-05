@@ -26,16 +26,13 @@ class IntNextFrom : AbsNextFrom {
         offset = 0
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<IntNextFrom> = object : Parcelable.Creator<IntNextFrom> {
-            override fun createFromParcel(`in`: Parcel): IntNextFrom {
-                return IntNextFrom(`in`)
-            }
+    companion object CREATOR : Parcelable.Creator<IntNextFrom> {
+        override fun createFromParcel(parcel: Parcel): IntNextFrom {
+            return IntNextFrom(parcel)
+        }
 
-            override fun newArray(size: Int): Array<IntNextFrom?> {
-                return arrayOfNulls(size)
-            }
+        override fun newArray(size: Int): Array<IntNextFrom?> {
+            return arrayOfNulls(size)
         }
     }
 }

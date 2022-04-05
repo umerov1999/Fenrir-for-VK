@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
-import dev.ragnarok.fenrir.api.model.response.CatalogResponse
-import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
@@ -83,7 +81,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
                     it.getItems()
                 )
             }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -94,8 +92,8 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getPlaylistsCustom(code)
-            .map { items: ServicePlaylistResponse -> listEmptyIfNull(items.playlists) }
-            .map { out: List<VKApiAudioPlaylist> ->
+            .map { items -> listEmptyIfNull(items.playlists) }
+            .map { out ->
                 val ret: MutableList<AudioPlaylist> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -116,7 +114,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
                     it.getItems()
                 )
             }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -127,8 +125,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getById(audios)
-            .map { obj: List<VKApiAudio>? -> listEmptyIfNull(obj) }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -145,8 +142,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         } else networker.vkDefault(accountId)
             .audio()
             .getByIdOld(audios)
-            .map { obj: List<VKApiAudio>? -> listEmptyIfNull(obj) }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -155,7 +151,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
 
     override fun getLyrics(accountId: Int, lyrics_id: Int): Single<String> {
         return networker.vkDefault(accountId)
-            .audio().getLyrics(lyrics_id).map { out: VkApiLyrics -> out.text }
+            .audio().getLyrics(lyrics_id).map { checkNotNull(it.text) }
     }
 
     override fun getPopular(
@@ -167,8 +163,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getPopular(foreign, genre, count)
-            .map { obj: List<VKApiAudio>? -> listEmptyIfNull(obj) }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -183,12 +178,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getRecommendations(audioOwnerId, count)
-            .map { items: Items<VKApiAudio> ->
+            .map { items ->
                 listEmptyIfNull<VKApiAudio>(
                     items.getItems()
                 )
             }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -203,12 +198,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getRecommendationsByAudio(audio, count)
-            .map { items: Items<VKApiAudio> ->
+            .map { items ->
                 listEmptyIfNull<VKApiAudio>(
                     items.getItems()
                 )
             }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -224,12 +219,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getPlaylists(owner_id, offset, count)
-            .map { items: Items<VKApiAudioPlaylist> ->
+            .map { items ->
                 listEmptyIfNull<VKApiAudioPlaylist>(
                     items.getItems()
                 )
             }
-            .map { out: List<VKApiAudioPlaylist> ->
+            .map { out ->
                 val ret: MutableList<AudioPlaylist> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -245,7 +240,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .createPlaylist(ownerId, title, description)
-            .map { out: VKApiAudioPlaylist -> transform(out) }
+            .map { out -> transform(out) }
     }
 
     override fun editPlaylist(
@@ -258,7 +253,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .editPlaylist(ownerId, playlist_id, title, description)
-            .map { resultId: Int -> resultId }
+            .map { it }
     }
 
     override fun removeFromPlaylist(
@@ -270,7 +265,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .removeFromPlaylist(ownerId, playlist_id, audio_ids)
-            .map { resultId: Int -> resultId }
+            .map { resultId -> resultId }
     }
 
     override fun addToPlaylist(
@@ -282,7 +277,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .addToPlaylist(ownerId, playlist_id, audio_ids)
-            .map { resultId: List<AddToPlaylistResponse> -> resultId }
+            .map { it }
     }
 
     override fun getCatalog(
@@ -293,12 +288,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getCatalog(artist_id, query)
-            .map { items: Items<VKApiAudioCatalog> ->
+            .map { items ->
                 listEmptyIfNull<VKApiAudioCatalog>(
                     items.getItems()
                 )
             }
-            .map { out: List<VKApiAudioCatalog> ->
+            .map { out ->
                 val ret: MutableList<AudioCatalog> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -314,7 +309,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .followPlaylist(playlist_id, ownerId, accessKey)
-            .map { obj: VKApiAudioPlaylist -> transform(obj) }
+            .map { obj -> transform(obj) }
     }
 
     override fun clonePlaylist(
@@ -325,7 +320,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .clonePlaylist(playlist_id, ownerId)
-            .map { obj: VKApiAudioPlaylist -> transform(obj) }
+            .map { transform(it) }
     }
 
     override fun getPlaylistById(
@@ -337,7 +332,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getPlaylistById(playlist_id, ownerId, accessKey)
-            .map { obj: VKApiAudioPlaylist -> transform(obj) }
+            .map { obj -> transform(obj) }
     }
 
     override fun reorder(
@@ -350,7 +345,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .reorder(ownerId, audio_id, before, after)
-            .map { resultId: Int -> resultId }
+            .map { it }
     }
 
     @SuppressLint("DefaultLocale")
@@ -373,7 +368,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .deletePlaylist(playlist_id, ownerId)
-            .map { resultId: Int -> resultId }
+            .map { resultId -> resultId }
     }
 
     override fun search(
@@ -395,12 +390,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .search(criteria.query, isautocmp, islyrics, isbyArtist, sort, isMyAudio, offset, count)
-            .map { items: Items<VKApiAudio> ->
+            .map { items ->
                 listEmptyIfNull<VKApiAudio>(
                     items.getItems()
                 )
             }
-            .map { out: List<VKApiAudio> ->
+            .map { out ->
                 val ret: MutableList<Audio> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -416,12 +411,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .searchArtists(criteria.query, offset, count)
-            .map { items: Items<VkApiArtist> ->
+            .map { items ->
                 listEmptyIfNull<VkApiArtist>(
                     items.getItems()
                 )
             }
-            .map { out: List<VkApiArtist> -> out }
+            .map { out -> out }
     }
 
     override fun searchPlaylists(
@@ -433,12 +428,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .searchPlaylists(criteria.query, offset, count)
-            .map { items: Items<VKApiAudioPlaylist> ->
+            .map { items ->
                 listEmptyIfNull<VKApiAudioPlaylist>(
                     items.getItems()
                 )
             }
-            .map { out: List<VKApiAudioPlaylist> ->
+            .map { out ->
                 val ret: MutableList<AudioPlaylist> = ArrayList()
                 for (i in out.indices) ret.add(transform(out[i]))
                 ret
@@ -453,6 +448,6 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         return networker.vkDefault(accountId)
             .audio()
             .getCatalogBlockById(block_id, start_from)
-            .map { obj: CatalogResponse -> transform(obj) }
+            .map { obj -> transform(obj) }
     }
 }

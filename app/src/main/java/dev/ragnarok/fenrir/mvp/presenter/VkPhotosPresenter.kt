@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IPhotosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper
@@ -26,8 +27,6 @@ import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forPhotoAlbum
 import dev.ragnarok.fenrir.upload.UploadUtils.createIntents
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -73,8 +72,8 @@ class VkPhotosPresenter(
                     ownerId,
                     IOwnersRepository.MODE_NET
                 )
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ owner: Owner -> onActualOwnerInfoReceived(owner) }, ignore())
+                    .fromIOToMain()
+                    .subscribe({ owner -> onActualOwnerInfoReceived(owner) }, ignore())
             )
         }
     }
@@ -84,8 +83,8 @@ class VkPhotosPresenter(
         if (album == null) {
             appendDisposable(
                 interactor.getAlbumById(accountId, ownerId, albumId)
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ album: PhotoAlbum -> onAlbumInfoReceived(album) }, ignore())
+                    .fromIOToMain()
+                    .subscribe({ album -> onAlbumInfoReceived(album) }, ignore())
             )
         }
     }
@@ -210,18 +209,18 @@ class VkPhotosPresenter(
         setRequestNow(true)
         if (albumId != -9001 && albumId != -9000) {
             appendDisposable(interactor[accountId, ownerId, albumId, COUNT, offset, !invertPhotoRev]
-                .map { t: List<Photo> ->
+                .map { t ->
                     val wrap = wrappersOf(t)
                     MusicPlaybackController.tracksExist.markExistPhotos(wrap)
                     wrap
                 }
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ photos: List<SelectablePhotoWrapper> ->
+                .fromIOToMain()
+                .subscribe({ photos ->
                     onActualPhotosReceived(
                         offset,
                         photos
                     )
-                }) { t: Throwable -> onActualDataGetError(t) })
+                }) { t -> onActualDataGetError(t) })
         } else if (albumId == -9000) {
             appendDisposable(interactor.getUsersPhoto(
                 accountId,
@@ -231,32 +230,32 @@ class VkPhotosPresenter(
                 offset,
                 COUNT
             )
-                .map { t: List<Photo> ->
+                .map { t ->
                     val wrap = wrappersOf(t)
                     MusicPlaybackController.tracksExist.markExistPhotos(wrap)
                     wrap
                 }
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ photos: List<SelectablePhotoWrapper> ->
+                .fromIOToMain()
+                .subscribe({ photos ->
                     onActualPhotosReceived(
                         offset,
                         photos
                     )
-                }) { t: Throwable -> onActualDataGetError(t) })
+                }) { t -> onActualDataGetError(t) })
         } else {
             appendDisposable(interactor.getAll(accountId, ownerId, 1, 1, offset, COUNT)
-                .map { t: List<Photo> ->
+                .map { t ->
                     val wrap = wrappersOf(t)
                     MusicPlaybackController.tracksExist.markExistPhotos(wrap)
                     wrap
                 }
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ photos: List<SelectablePhotoWrapper> ->
+                .fromIOToMain()
+                .subscribe({ photos ->
                     onActualPhotosReceived(
                         offset,
                         photos
                     )
-                }) { t: Throwable -> onActualDataGetError(t) })
+                }) { t -> onActualDataGetError(t) })
         }
     }
 
@@ -295,12 +294,12 @@ class VkPhotosPresenter(
                     second
                 )
             }
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe { data: Pair<List<Photo>, List<Upload>> -> onInitialDataReceived(data) })
+            .fromIOToMain()
+            .subscribe { data -> onInitialDataReceived(data) })
     }
 
     fun updateInfo(position: Int, ptr: Long) {
-        val p = ParcelNative.fromNative(ptr).readParcelableList(Photo.NativeCreator)!!
+        val p = ParcelNative.fromNative(ptr).readParcelableList(Photo.NativeCreator) ?: return
         photos.clear()
         photos.addAll(wrappersOf(p))
         photos[position].current = true
@@ -438,7 +437,7 @@ class VkPhotosPresenter(
             appendDisposable(Stores.instance
                 .tempStore()
                 .put(source.ownerId, source.sourceId, photos_ret, Serializers.PHOTOS_SERIALIZER)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     view?.displayGallery(
                         accountId,
@@ -447,7 +446,7 @@ class VkPhotosPresenter(
                         source,
                         finalIndex
                     )
-                }) { obj: Throwable -> obj.printStackTrace() })
+                }) { obj -> obj.printStackTrace() })
         } else {
             val mem = ParcelNative.create(ParcelFlags.NULL_LIST)
             mem.writeInt(photos.size)
@@ -512,7 +511,7 @@ class VkPhotosPresenter(
         setRequestNow(true)
         appendDisposable(
             MusicPlaybackController.tracksExist.findLocalImages(photos)
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ onCacheLoaded() }, ignore())
         )
     }
@@ -559,19 +558,19 @@ class VkPhotosPresenter(
         loadInitialData()
         appendDisposable(uploadManager.observeAdding()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { added: List<Upload> -> onUploadQueueAdded(added) })
+            .subscribe { onUploadQueueAdded(it) })
         appendDisposable(uploadManager.observeDeleting(true)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { ids: IntArray -> onUploadsRemoved(ids) })
+            .subscribe { onUploadsRemoved(it) })
         appendDisposable(uploadManager.observeResults()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { pair: Pair<Upload, UploadResult<*>> -> onUploadResults(pair) })
+            .subscribe { onUploadResults(it) })
         appendDisposable(uploadManager.obseveStatus()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { upload: Upload -> onUploadStatusUpdate(upload) })
+            .subscribe { onUploadStatusUpdate(it) })
         appendDisposable(uploadManager.observeProgress()
             .observeOn(provideMainThreadScheduler())
-            .subscribe { updates: List<IProgressUpdate> -> onUploadProgressUpdate(updates) })
+            .subscribe { onUploadProgressUpdate(it) })
         refreshOwnerInfoIfNeed()
         refreshAlbumInfoIfNeed()
     }

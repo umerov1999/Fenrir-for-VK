@@ -22,9 +22,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.domain.InteractorFactory
@@ -44,7 +42,6 @@ import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.menu.options.AudioOption
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
@@ -61,9 +58,6 @@ import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getBitrate
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getLength
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applyObservableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.hls.M3U8
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
@@ -123,21 +117,18 @@ class AudioContainer : LinearLayout {
     }
 
     private fun deleteTrack(accountId: Int, audio: Audio) {
-        audioListDisposable = mAudioInteractor.delete(accountId, audio.id, audio.ownerId).compose(
-            applyCompletableIOToMainSchedulers()
-        ).subscribe(
-            { CreateCustomToast(context).showToast(R.string.deleted) }) { t: Throwable? ->
-            Utils.showErrorInAdapter(
-                context as Activity, t
-            )
-        }
+        audioListDisposable =
+            mAudioInteractor.delete(accountId, audio.id, audio.ownerId).fromIOToMain().subscribe(
+                { CreateCustomToast(context).showToast(R.string.deleted) }) { t ->
+                Utils.showErrorInAdapter(
+                    context as Activity, t
+                )
+            }
     }
 
     private fun addTrack(accountId: Int, audio: Audio) {
-        audioListDisposable = mAudioInteractor.add(accountId, audio, null).compose(
-            applyCompletableIOToMainSchedulers()
-        ).subscribe(
-            { CreateCustomToast(context).showToast(R.string.added) }) { t: Throwable? ->
+        audioListDisposable = mAudioInteractor.add(accountId, audio, null).fromIOToMain().subscribe(
+            { CreateCustomToast(context).showToast(R.string.added) }) { t ->
             Utils.showErrorInAdapter(
                 context as Activity, t
             )
@@ -148,10 +139,8 @@ class AudioContainer : LinearLayout {
         val mode = audio.needRefresh()
         if (mode.first) {
             audioListDisposable =
-                mAudioInteractor.getByIdOld(accountId, listOf(audio), mode.second).compose(
-                    applySingleIOToMainSchedulers()
-                )
-                    .subscribe({ t: List<Audio> -> getBitrate(t[0]) }) {
+                mAudioInteractor.getByIdOld(accountId, listOf(audio), mode.second).fromIOToMain()
+                    .subscribe({ t -> getBitrate(t[0]) }) {
                         getBitrate(
                             audio
                         )
@@ -166,7 +155,7 @@ class AudioContainer : LinearLayout {
             return
         }
         audioListDisposable = if (audio.isHLS) {
-            M3U8(audio.url).length.compose(applySingleIOToMainSchedulers())
+            M3U8(audio.url).length.fromIOToMain()
                 .subscribe(
                     { r: Long ->
                         CreateCustomToast(context).showToast(
@@ -175,13 +164,13 @@ class AudioContainer : LinearLayout {
                             )
                         )
                     }
-                ) { e: Throwable? ->
+                ) { e ->
                     Utils.showErrorInAdapter(
                         context as Activity, e
                     )
                 }
         } else {
-            getLength(audio.url).compose(applySingleIOToMainSchedulers())
+            getLength(audio.url).fromIOToMain()
                 .subscribe(
                     { r: Long ->
                         CreateCustomToast(context).showToast(
@@ -190,7 +179,7 @@ class AudioContainer : LinearLayout {
                             )
                         )
                     }
-                ) { e: Throwable? ->
+                ) { e ->
                     Utils.showErrorInAdapter(
                         context as Activity, e
                     )
@@ -201,8 +190,8 @@ class AudioContainer : LinearLayout {
     private fun get_lyrics(audio: Audio) {
         audioListDisposable =
             mAudioInteractor.getLyrics(Settings.get().accounts().current, audio.lyricsId)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ t: String -> onAudioLyricsReceived(t, audio) }) { t: Throwable? ->
+                .fromIOToMain()
+                .subscribe({ t -> onAudioLyricsReceived(t, audio) }) { t ->
                     Utils.showErrorInAdapter(
                         context as Activity, t
                     )
@@ -704,8 +693,8 @@ class AudioContainer : LinearLayout {
         }
         mPlayerDisposable.dispose()
         mPlayerDisposable = observeServiceBinding()
-            .compose(applyObservableIOToMainSchedulers())
-            .subscribe { status: Int -> onServiceBindEvent(status) }
+            .toMainThread()
+            .subscribe { onServiceBindEvent(it) }
     }
 
     private fun onServiceBindEvent(@PlayerStatus status: Int) {
@@ -730,8 +719,8 @@ class AudioContainer : LinearLayout {
         currAudio = currentAudio
         if (audios.nonNullNoEmpty()) {
             mPlayerDisposable = observeServiceBinding()
-                .compose(applyObservableIOToMainSchedulers())
-                .subscribe { status: Int -> onServiceBindEvent(status) }
+                .toMainThread()
+                .subscribe { onServiceBindEvent(it) }
         }
     }
 

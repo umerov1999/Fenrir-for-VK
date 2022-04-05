@@ -3,12 +3,12 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalPhotosView
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getSelected
 
@@ -25,7 +25,7 @@ class LocalPhotosPresenter(
             appendDisposable(Stores.instance
                 .localMedia()
                 .getPhotos(mLocalImageAlbum.id.toLong())
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ onDataLoaded(it) }) {
                     onLoadError()
                 })
@@ -33,7 +33,7 @@ class LocalPhotosPresenter(
             appendDisposable(Stores.instance
                 .localMedia()
                 .photos
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({ onDataLoaded(it) }) {
                     onLoadError()
                 })

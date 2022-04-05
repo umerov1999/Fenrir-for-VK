@@ -99,7 +99,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         if (mAlbumId != -9001 && mAlbumId != -9000 && mAlbumId != -311) {
             appendDisposable(photosInteractor[accountId, mOwnerId, mAlbumId, COUNT_PER_LOAD, mPhotos.size, !invertPhotoRev]
                 .fromIOToMain()
-                .subscribe({ onActualPhotosReceived(it) }) { t: Throwable ->
+                .subscribe({ onActualPhotosReceived(it) }) { t ->
                     onActualDataGetError(
                         t
                     )
@@ -114,7 +114,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
                 COUNT_PER_LOAD
             )
                 .fromIOToMain()
-                .subscribe({ onActualPhotosReceived(it) }) { t: Throwable ->
+                .subscribe({ onActualPhotosReceived(it) }) { t ->
                     onActualDataGetError(
                         t
                     )

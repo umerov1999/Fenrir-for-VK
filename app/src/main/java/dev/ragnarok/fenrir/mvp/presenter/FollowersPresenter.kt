@@ -4,12 +4,11 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.view.IFollowersView
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
@@ -43,19 +42,19 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
             if (isNotFriendShow) 1000 else 200,
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ users: List<User> ->
+            .fromIOToMain()
+            .subscribe({ users ->
                 onActualDataReceived(
                     users,
                     do_scan
                 )
-            }) { t: Throwable -> onActualDataGetError(t) })
+            }) { t -> onActualDataGetError(t) })
     }
 
     fun removeFollower(owner: Owner) {
         appendDisposable(
             accountsInteractor.banUsers(accountId, listOf(owner as User))
-                .compose(applyCompletableIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     val pos = indexOfOwner(data, owner)
                     if (pos >= 0) {
@@ -175,8 +174,8 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
         cacheLoadingNow = true
         val accountId = accountId
         cacheDisposable.add(relationshipInteractor.getCachedFollowers(accountId, userId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ users: List<User> -> onCachedDataReceived(users) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ users -> onCachedDataReceived(users) }) { t ->
                 onCacheDataGetError(
                     t
                 )

@@ -4,9 +4,7 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VKApiStory
-import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.upload.UploadStoryDto
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
@@ -39,7 +37,7 @@ class StoryUploadable(private val context: Context, private val networker: INetw
         } else {
             Single.just(initialServer)
         }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 val uri = upload.fileUri
@@ -66,7 +64,7 @@ class StoryUploadable(private val context: Context, private val networker: INetw
                         upload.destination.messageMethod == MessageMethod.VIDEO
                     )
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: BaseResponse<UploadStoryDto> ->
+                    .flatMap { dto ->
                         networker
                             .vkDefault(accountId)
                             .users()
@@ -74,7 +72,7 @@ class StoryUploadable(private val context: Context, private val networker: INetw
                             .map {
                                 listEmptyIfNull<VKApiStory>(it.getItems())
                             }
-                            .flatMap { tmpList: List<VKApiStory> ->
+                            .flatMap { tmpList ->
                                 owners.findBaseOwnersDataAsBundle(
                                     accountId, listOf(
                                         Settings.get().accounts().current

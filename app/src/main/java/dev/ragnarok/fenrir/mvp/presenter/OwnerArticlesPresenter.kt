@@ -3,12 +3,11 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Article
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IOwnerArticlesView
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class OwnerArticlesPresenter(
@@ -42,13 +41,13 @@ class OwnerArticlesPresenter(
             COUNT_PER_REQUEST,
             offset
         )
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ articles: List<Article> ->
+            .fromIOToMain()
+            .subscribe({ articles ->
                 onNetDataReceived(
                     offset,
                     articles
                 )
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     private fun onNetDataGetError(t: Throwable) {
@@ -101,20 +100,20 @@ class OwnerArticlesPresenter(
 
     fun fireArticleDelete(index: Int, article: Article) {
         appendDisposable(faveInteractor.removeArticle(accountId, article.ownerId, article.id)
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 mArticles[index].isFavorite = false
                 view?.notifyDataSetChanged()
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     fun fireArticleAdd(index: Int, article: Article) {
         appendDisposable(faveInteractor.addArticle(accountId, article.url)
-            .compose(applyCompletableIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 mArticles[index].isFavorite = true
                 view?.notifyDataSetChanged()
-            }) { t: Throwable -> onNetDataGetError(t) })
+            }) { t -> onNetDataGetError(t) })
     }
 
     fun fireArticleClick(url: String) {

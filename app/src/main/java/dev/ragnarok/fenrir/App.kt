@@ -8,8 +8,6 @@ import com.google.gson.internal.ConstructorConstructor
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
-import dev.ragnarok.fenrir.model.PeerUpdate
-import dev.ragnarok.fenrir.model.SentMsg
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.fenrir.picasso.PicassoInstance
@@ -68,8 +66,8 @@ class App : Application() {
         }
         compositeDisposable.add(messages
             .observePeerUpdates()
-            .flatMap { source: List<PeerUpdate> -> Flowable.fromIterable(source) }
-            .subscribe({ update: PeerUpdate ->
+            .flatMap { source -> Flowable.fromIterable(source) }
+            .subscribe({ update ->
                 if (update.readIn != null) {
                     NotificationHelper.tryCancelNotificationForPeer(
                         this,
@@ -82,7 +80,7 @@ class App : Application() {
         compositeDisposable.add(
             messages
                 .observeSentMessages()
-                .subscribe({ sentMsg: SentMsg ->
+                .subscribe({ sentMsg ->
                     NotificationHelper.tryCancelNotificationForPeer(
                         this,
                         sentMsg.accountId,
@@ -94,7 +92,7 @@ class App : Application() {
             messages
                 .observeMessagesSendErrors()
                 .toMainThread()
-                .subscribe({ throwable: Throwable ->
+                .subscribe({ throwable ->
                     run {
                         CreateCustomToast(this).showToastError(
                             ErrorLocalizer.localizeThrowable(this, throwable)

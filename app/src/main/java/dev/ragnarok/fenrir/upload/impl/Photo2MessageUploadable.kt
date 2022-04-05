@@ -3,10 +3,7 @@ package dev.ragnarok.fenrir.upload.impl
 import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiPhotoMessageServer
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToMessageDto
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.interfaces.IMessagesStorage
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
@@ -41,26 +38,26 @@ class Photo2MessageUploadable(
         } else {
             networker.vkDefault(accountId)
                 .photos()
-                .messagesUploadServer.map { s: VkApiPhotoMessageServer -> s }
+                .messagesUploadServer.map { s -> s }
         }
-        return serverSingle.flatMap { server: UploadServer ->
+        return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {
                 `is`[0] = UploadUtils.openStream(context, upload.fileUri, upload.size)
                 networker.uploads()
                     .uploadPhotoToMessageRx(server.url, `is`[0]!!, listener)
                     .doFinally(safelyCloseAction(`is`[0]))
-                    .flatMap { dto: UploadPhotoToMessageDto ->
+                    .flatMap { dto ->
                         networker.vkDefault(accountId)
                             .photos()
                             .saveMessagesPhoto(dto.server, dto.photo, dto.hash)
-                            .flatMap { photos: List<VKApiPhoto?> ->
+                            .flatMap { photos ->
                                 if (photos.isEmpty()) {
                                     Single.error<UploadResult<Photo>>(
                                         NotFoundException()
                                     )
                                 }
-                                val photo = Dto2Model.transform(photos[0]!!)
+                                val photo = Dto2Model.transform(photos[0])
                                 val result = UploadResult(server, photo)
                                 if (upload.isAutoCommit) {
                                     attachIntoDatabaseRx(

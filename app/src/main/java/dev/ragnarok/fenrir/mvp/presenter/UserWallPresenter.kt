@@ -15,6 +15,7 @@ import dev.ragnarok.fenrir.domain.*
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
 import dev.ragnarok.fenrir.fragment.friends.FriendsTabsFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.view.IUserWallView
@@ -24,8 +25,6 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getMentionsPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.applyCompletableIOToMainSchedulers
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.ShortcutUtils.createWallShortcutRx
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -184,11 +183,11 @@ class UserWallPresenter(
                 ownerId,
                 IOwnersRepository.MODE_CACHE
             )
-                .compose(applySingleIOToMainSchedulers())
+                .fromIOToMain()
                 .subscribe({
                     onFullInfoReceived(it.first, it.second)
                     requestActualFullInfo()
-                }, { t: Throwable -> onDetailsGetError(t) })
+                }, { t -> onDetailsGetError(t) })
         )
     }
 
@@ -199,13 +198,13 @@ class UserWallPresenter(
             ownerId,
             IOwnersRepository.MODE_NET
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 onFullInfoReceived(
                     it.first,
                     it.second
                 )
-            }) { t: Throwable -> onDetailsGetError(t) })
+            }) { t -> onDetailsGetError(t) })
     }
 
     private fun onFullInfoReceived(user: User?, details: UserDetails?) {
@@ -477,8 +476,8 @@ class UserWallPresenter(
     fun fireDeleteFromFriends() {
         val accountId = accountId
         appendDisposable(relationshipInteractor.deleteFriends(accountId, ownerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ responseCode: Int -> onFriendsDeleteResult(responseCode) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ responseCode -> onFriendsDeleteResult(responseCode) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -486,8 +485,8 @@ class UserWallPresenter(
     fun fireNewStatusEntered(newValue: String?) {
         val accountId = accountId
         appendDisposable(accountInteractor.changeStatus(accountId, newValue)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onStatusChanged(newValue) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ onStatusChanged(newValue) }) { t ->
                 showError(
                     getCauseIfRuntime(t)
                 )
@@ -526,36 +525,36 @@ class UserWallPresenter(
     fun fireAddToBookmarks() {
         val accountId = accountId
         appendDisposable(faveInteractor.addPage(accountId, ownerId)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireRemoveFromBookmarks() {
         val accountId = accountId
         appendDisposable(faveInteractor.removePage(accountId, ownerId, true)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireSubscribe() {
         val accountId = accountId
         appendDisposable(wallsRepository.subscribe(accountId, ownerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireUnSubscribe() {
         val accountId = accountId
         appendDisposable(wallsRepository.unsubscribe(accountId, ownerId)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     private fun executeAddToFriendsRequest(text: String?, follow: Boolean) {
         val accountId = accountId
         appendDisposable(relationshipInteractor.addFriend(accountId, ownerId, text, follow)
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ resultCode: Int -> onAddFriendResult(resultCode) }) { t: Throwable? ->
+            .fromIOToMain()
+            .subscribe({ resultCode -> onAddFriendResult(resultCode) }) { t ->
                 showError(getCauseIfRuntime(t))
             })
     }
@@ -598,8 +597,8 @@ class UserWallPresenter(
         setLoadingAvatarPhotosNow(true)
         val accountId = accountId
         appendDisposable(photosInteractor[accountId, ownerId, -6, 100, 0, true]
-            .compose(applySingleIOToMainSchedulers())
-            .subscribe({ photos: List<Photo> -> DisplayUserProfileAlbum(photos) }) { t: Throwable ->
+            .fromIOToMain()
+            .subscribe({ photos -> DisplayUserProfileAlbum(photos) }) { t ->
                 onAvatarAlbumPrepareFailed(
                     t
                 )
@@ -647,8 +646,8 @@ class UserWallPresenter(
         val accountId = accountId
         appendDisposable(InteractorFactory.createAccountInteractor()
             .banUsers(accountId, listOf(user))
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireMentions() {
@@ -684,15 +683,15 @@ class UserWallPresenter(
             .setItems(items) { dialog: DialogInterface, item: Int ->
                 val report = values[item].toString()
                 appendDisposable(ownersRepository.report(accountId, ownerId, report, null)
-                    .compose(applySingleIOToMainSchedulers())
-                    .subscribe({ p: Int ->
+                    .fromIOToMain()
+                    .subscribe({ p ->
                         if (p == 1) view?.customToast?.showToast(
                             R.string.success
                         )
                         else view?.customToast?.showToast(
                             R.string.error
                         )
-                    }) { t: Throwable? ->
+                    }) { t ->
                         showError(getCauseIfRuntime(t))
                     })
                 dialog.dismiss()
@@ -704,8 +703,8 @@ class UserWallPresenter(
         val accountId = accountId
         appendDisposable(InteractorFactory.createAccountInteractor()
             .unbanUser(accountId, user.id)
-            .compose(applyCompletableIOToMainSchedulers())
-            .subscribe({ onExecuteComplete() }) { t: Throwable -> onExecuteError(t) })
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     private fun onExecuteError(t: Throwable) {
@@ -740,12 +739,12 @@ class UserWallPresenter(
     override fun fireAddToShortcutClick() {
         appendDisposable(
             createWallShortcutRx(context, accountId, user)
-                .compose(applyCompletableIOToMainSchedulers()).subscribe({
+                .fromIOToMain().subscribe({
                     view?.showSnackbar(
                         R.string.success,
                         true
                     )
-                }) { t: Throwable ->
+                }) { t ->
                     view?.showError(t.localizedMessage)
                 })
     }
@@ -756,7 +755,7 @@ class UserWallPresenter(
             if (ByName) user.fullName else null,
             if (ByName) null else ownerId
         )
-            .compose(applySingleIOToMainSchedulers())
+            .fromIOToMain()
             .subscribe({
                 if (it.nonNullNoEmpty()) {
                     stories.clear()

@@ -11,12 +11,11 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
-import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.fave.FaveTabsFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.link.types.*
 import dev.ragnarok.fenrir.link.types.FaveLink
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
@@ -46,7 +45,6 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.RxUtils.applySingleIOToMainSchedulers
 import dev.ragnarok.fenrir.util.Utils.showErrorInAdapter
 import dev.ragnarok.fenrir.util.Utils.showRedTopToast
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
@@ -62,8 +60,8 @@ object LinkHelper {
         }
         if (link.contains("vk.cc")) {
             InteractorFactory.createUtilsInteractor().checkLink(accountId, link)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ t: VKApiCheckedLink ->
+                .fromIOToMain()
+                .subscribe({ t ->
                     if ("banned" == t.status) {
                         showRedTopToast(context, R.string.link_banned)
                     } else {
@@ -75,17 +73,17 @@ object LinkHelper {
                             }
                         }
                     }
-                }) { e: Throwable? -> showErrorInAdapter(context, e) }
+                }) { e -> showErrorInAdapter(context, e) }
         } else if (link.contains("vk.me")) {
             InteractorFactory.createUtilsInteractor().joinChatByInviteLink(accountId, link)
-                .compose(applySingleIOToMainSchedulers())
-                .subscribe({ t: VkApiChatResponse ->
+                .fromIOToMain()
+                .subscribe({ t ->
                     getChatPlace(
                         accountId,
                         accountId,
                         Peer(Peer.fromChatId(t.chat_id))
                     ).tryOpenWith(context)
-                }) { e: Throwable? -> showErrorInAdapter(context, e) }
+                }) { e -> showErrorInAdapter(context, e) }
         } else {
             if (!openVKlink(context, accountId, link, isMain)) {
                 if (Settings.get().main().isOpenUrlInternal > 0) {
@@ -291,11 +289,11 @@ object LinkHelper {
                     accountId,
                     listOf(Audio().setId(audioLink.trackId).setOwnerId(audioLink.ownerId))
                 )
-                    .compose(applySingleIOToMainSchedulers())
+                    .fromIOToMain()
                     .subscribe({
                         startForPlayList(activity, ArrayList(it), 0, false)
                         getPlayerPlace(Settings.get().accounts().current).tryOpenWith(activity)
-                    }) { e: Throwable? -> showErrorInAdapter(activity, e) }
+                    }) { e -> showErrorInAdapter(activity, e) }
             }
             else -> return false
         }
