@@ -539,7 +539,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 "  [" + VideoColumns.IMAGE + "] TEXT, " +
                 "  [" + VideoColumns.ACCESS_KEY + "] TEXT, " +
                 "  [" + VideoColumns.COMMENTS + "] INTEGER, " +
-                "  [" + VideoColumns.CAN_COMENT + "] INTEGER, " +
+                "  [" + VideoColumns.CAN_COMMENT + "] BOOLEAN, " +
+                "  [" + VideoColumns.IS_PRIVATE + "] BOOLEAN, " +
+                "  [" + VideoColumns.IS_FAVORITE + "] BOOLEAN, " +
                 "  [" + VideoColumns.CAN_REPOST + "] INTEGER, " +
                 "  [" + VideoColumns.USER_LIKES + "] INTEGER, " +
                 "  [" + VideoColumns.REPEAT + "] INTEGER, " +
@@ -551,6 +553,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "  [" + VideoColumns.MP4_480 + "] TEXT, " +
                 "  [" + VideoColumns.MP4_720 + "] TEXT, " +
                 "  [" + VideoColumns.MP4_1080 + "] TEXT, " +
+                "  [" + VideoColumns.MP4_1440 + "] TEXT, " +
+                "  [" + VideoColumns.MP4_2160 + "] TEXT, " +
                 "  [" + VideoColumns.EXTERNAL + "] TEXT, " +
                 "  [" + VideoColumns.HLS + "] TEXT, " +
                 "  [" + VideoColumns.LIVE + "] TEXT, " +
@@ -594,7 +598,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "  [" + DialogsColumns.MAJOR_ID + "] INTEGER, " +
                 "  [" + DialogsColumns.MINOR_ID + "] INTEGER, " +
                 "  [" + DialogsColumns.LAST_MESSAGE_ID + "] INTEGER, " +
-                "  [" + DialogsColumns.IS_GROUP_CHANNEL + "] INTEGER);";
+                "  [" + DialogsColumns.IS_GROUP_CHANNEL + "] BOOLEAN);";
         db.execSQL(sql);
     }
 
@@ -614,7 +618,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "  [" + PeersColumns.KEYBOARD + "] TEXT, " +
                 "  [" + PeersColumns.MAJOR_ID + "] INTEGER, " +
                 "  [" + PeersColumns.MINOR_ID + "] INTEGER, " +
-                "  [" + PeersColumns.IS_GROUP_CHANNEL + "] INTEGER);";
+                "  [" + PeersColumns.IS_GROUP_CHANNEL + "] BOOLEAN);";
         db.execSQL(sql);
     }
 
@@ -718,6 +722,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "  [" + PostsColumns.CAN_LIKE + "] BOOLEAN, " +
                 "  [" + PostsColumns.CAN_PUBLISH + "] BOOLEAN, " +
                 "  [" + PostsColumns.CAN_EDIT + "] BOOLEAN, " +
+                "  [" + PostsColumns.IS_FAVORITE + "] BOOLEAN, " +
                 "  [" + PostsColumns.REPOSTS_COUNT + "] INTEGER, " +
                 "  [" + PostsColumns.USER_REPOSTED + "] BOOLEAN, " +
                 "  [" + PostsColumns.POST_TYPE + "] TEXT, " +

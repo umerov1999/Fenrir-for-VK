@@ -1,0 +1,12 @@
+include(
+    ":app",
+    ":picasso",
+    ":firebase-installations",
+    ":zxing-android-embedded",
+    ":image",
+    ":retrofit",
+    ":material",
+    ":gson",
+    ":preference"
+)
+//include(":libfenrir")

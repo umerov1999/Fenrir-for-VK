@@ -357,8 +357,12 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
     }
 
     override fun toggleFullScreen() {
-        requestedOrientation =
-            if (isLandscape) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        try {
+            requestedOrientation =
+                if (isLandscape) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } catch (e: Exception) {
+            Utils.showRedTopToast(this, R.string.not_supported)
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -405,6 +409,8 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
             InternalVideoSize.SIZE_480 -> video?.mp4link480 ?: run { finish(); return "null" }
             InternalVideoSize.SIZE_720 -> video?.mp4link720 ?: run { finish(); return "null" }
             InternalVideoSize.SIZE_1080 -> video?.mp4link1080 ?: run { finish(); return "null" }
+            InternalVideoSize.SIZE_1440 -> video?.mp4link1440 ?: run { finish(); return "null" }
+            InternalVideoSize.SIZE_2160 -> video?.mp4link2160 ?: run { finish(); return "null" }
             InternalVideoSize.SIZE_HLS -> video?.hls ?: run { finish(); return "null" }
             InternalVideoSize.SIZE_LIVE -> video?.live ?: run { finish(); return "null" }
             else -> {

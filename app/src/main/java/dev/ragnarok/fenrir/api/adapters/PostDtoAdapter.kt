@@ -87,6 +87,7 @@ class PostDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPost> {
             dto.geo = context.deserialize(root["geo"], VKApiPlace::class.java)
         }
         dto.can_edit = optBoolean(root, "can_edit")
+        dto.is_favorite = optBoolean(root, "is_favorite")
         dto.signer_id = optInt(root, "signer_id")
         dto.created_by = optInt(root, "created_by")
         dto.can_pin = optInt(root, "can_pin") == 1

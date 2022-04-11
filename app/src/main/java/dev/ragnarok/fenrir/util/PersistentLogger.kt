@@ -12,7 +12,22 @@ import java.io.StringWriter
 object PersistentLogger {
     @JvmStatic
     @SuppressLint("CheckResult")
-    fun logThrowable(tag: String, throwable: Throwable?) {
+    fun logThrowable(tag: String, throwable: Throwable) {
+        if (!Settings.get().other().isDoLogs) return
+        val store = logsStore
+        val cause = Utils.getCauseIfRuntime(throwable)
+        cause.printStackTrace()
+        getStackTrace(cause)
+            .flatMapCompletable { s: String ->
+                store.add(LogEvent.Type.ERROR, tag, s)
+                    .ignoreElement()
+            }
+            .onErrorComplete()
+            .subscribeOn(Schedulers.io())
+            .subscribe({}) { }
+    }
+
+    fun logThrowableSync(tag: String, throwable: Throwable) {
         if (!Settings.get().other().isDoLogs) return
         val store = logsStore
         val cause = Utils.getCauseIfRuntime(throwable)
@@ -22,8 +37,7 @@ object PersistentLogger {
                     .ignoreElement()
             }
             .onErrorComplete()
-            .subscribeOn(Schedulers.io())
-            .subscribe({}) { }
+            .blockingAwait()
     }
 
     private fun getStackTrace(throwable: Throwable): Single<String> {

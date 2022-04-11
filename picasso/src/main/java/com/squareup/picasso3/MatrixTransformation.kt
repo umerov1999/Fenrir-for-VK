@@ -137,12 +137,16 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
                         widthRatio > heightRatio -> {
                             val newSize =
                                 ceil((inHeight * (heightRatio / widthRatio)).toDouble()).toInt()
-                            drawY = if (data.centerCropGravity and Gravity.TOP == Gravity.TOP) {
-                                0
-                            } else if (data.centerCropGravity and Gravity.BOTTOM == Gravity.BOTTOM) {
-                                inHeight - newSize
-                            } else {
-                                (inHeight - newSize) / 2
+                            drawY = when {
+                                data.centerCropGravity and Gravity.TOP == Gravity.TOP -> {
+                                    0
+                                }
+                                data.centerCropGravity and Gravity.BOTTOM == Gravity.BOTTOM -> {
+                                    inHeight - newSize
+                                }
+                                else -> {
+                                    (inHeight - newSize) / 2
+                                }
                             }
                             drawHeight = newSize
                             scaleX = widthRatio
@@ -151,12 +155,16 @@ internal class MatrixTransformation(private val data: Request) : Transformation 
                         widthRatio < heightRatio -> {
                             val newSize =
                                 ceil((inWidth * (widthRatio / heightRatio)).toDouble()).toInt()
-                            drawX = if (data.centerCropGravity and Gravity.LEFT == Gravity.LEFT) {
-                                0
-                            } else if (data.centerCropGravity and Gravity.RIGHT == Gravity.RIGHT) {
-                                inWidth - newSize
-                            } else {
-                                (inWidth - newSize) / 2
+                            drawX = when {
+                                data.centerCropGravity and Gravity.LEFT == Gravity.LEFT -> {
+                                    0
+                                }
+                                data.centerCropGravity and Gravity.RIGHT == Gravity.RIGHT -> {
+                                    inWidth - newSize
+                                }
+                                else -> {
+                                    (inWidth - newSize) / 2
+                                }
                             }
                             drawWidth = newSize
                             scaleX = targetWidth / drawWidth.toFloat()

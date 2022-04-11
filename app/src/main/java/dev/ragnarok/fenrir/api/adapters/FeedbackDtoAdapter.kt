@@ -75,7 +75,7 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         ): VkApiCopyFeedback {
             val dto = super.parse(root, context)
             dto.copies = context.deserialize(root["feedback"], Copies::class.java)
-            val copyClass: Class<out Copyable?> = when (dto.type) {
+            val copyClass: Type = when (dto.type) {
                 "copy_post" -> VKApiPost::class.java
                 "copy_photo" -> VKApiPhoto::class.java
                 "copy_video" -> VKApiVideo::class.java
@@ -97,7 +97,7 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         ): VkApiCommentFeedback {
             val dto = super.parse(root, context)
             dto.comment = context.deserialize(root["feedback"], VKApiComment::class.java)
-            val commentableClass: Class<out Commentable?> = when (dto.type) {
+            val commentableClass: Type = when (dto.type) {
                 "comment_post" -> VKApiPost::class.java
                 "comment_photo" -> VKApiPhoto::class.java
                 "comment_video" -> VKApiVideo::class.java
@@ -125,7 +125,7 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
                 return dto
             }
             dto.own_comment = context.deserialize(root["parent"], VKApiComment::class.java)
-            val commentableClass: Class<out Commentable?>
+            val commentableClass: Type
             val parentCommentableField: String
             when (dto.type) {
                 "reply_comment" -> {
@@ -175,7 +175,7 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
             context: JsonDeserializationContext
         ): VkApiLikeFeedback {
             val dto = super.parse(root, context)
-            val likedClass: Class<out Likeable?> = when (dto.type) {
+            val likedClass: Type = when (dto.type) {
                 "like_photo" -> VKApiPhoto::class.java
                 "like_post" -> VKApiPost::class.java
                 "like_video" -> VKApiVideo::class.java
@@ -197,7 +197,7 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
             context: JsonDeserializationContext
         ): VkApiLikeCommentFeedback {
             val dto = super.parse(root, context)
-            val commentableClass: Class<out Commentable?>
+            val commentableClass: Type
             val parentJsonField: String
             when (dto.type) {
                 "like_comment" -> {
@@ -269,7 +269,7 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         ): VkApiMentionCommentFeedback {
             val dto = super.parse(root, context)
             dto.where = context.deserialize(root["feedback"], VKApiComment::class.java)
-            val commentableClass: Class<out Commentable?> = when (dto.type) {
+            val commentableClass: Type = when (dto.type) {
                 "mention_comments" -> VKApiPost::class.java
                 "mention_comment_photo" -> VKApiPhoto::class.java
                 "mention_comment_video" -> VKApiVideo::class.java

@@ -29,6 +29,8 @@ interface IDialogsView : IAccountDependencyView, IMvpView, IErrorView, IToastVie
     fun goToOwnerWall(accountId: Int, ownerId: Int, owner: Owner?)
     fun setCreateGroupChatButtonVisible(visible: Boolean)
     fun notifyHasAttachments(has: Boolean)
+    fun updateAccountIdNoRefresh(accountId: Int)
+
     interface IContextView {
         fun setCanDelete(can: Boolean)
         fun setCanAddToHomescreen(can: Boolean)

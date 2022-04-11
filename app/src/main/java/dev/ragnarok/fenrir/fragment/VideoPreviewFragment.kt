@@ -429,6 +429,20 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     .setSection(section)
             )
         }
+        if (video.mp4link1440.nonNullNoEmpty()) {
+            items.add(
+                Item(Menu.P_1440, Text(R.string.play_1440))
+                    .setIcon(R.drawable.video)
+                    .setSection(section)
+            )
+        }
+        if (video.mp4link2160.nonNullNoEmpty()) {
+            items.add(
+                Item(Menu.P_2160, Text(R.string.play_2160))
+                    .setIcon(R.drawable.video)
+                    .setSection(section)
+            )
+        }
         return items
     }
 
@@ -477,6 +491,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                 video.mp4link480,
                 video.mp4link720,
                 video.mp4link1080,
+                video.mp4link1440,
+                video.mp4link2160,
                 video.live,
                 video.hls
             )
@@ -503,7 +519,10 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             )
         }
         items.add(
-            Item(Menu.ADD_TO_FAVE, Text(R.string.add_to_bookmarks))
+            Item(
+                Menu.ADD_TO_FAVE,
+                if (video.isFavorite) Text(R.string.remove_from_bookmarks) else Text(R.string.add_to_bookmarks)
+            )
                 .setIcon(R.drawable.star)
                 .setSection(SECTION_OTHER)
         )
@@ -512,7 +531,9 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                 video.mp4link360,
                 video.mp4link480,
                 video.mp4link720,
-                video.mp4link1080
+                video.mp4link1080,
+                video.mp4link1440,
+                video.mp4link2160
             )
                 .nonNullNoEmpty()
         ) {
@@ -539,6 +560,10 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             openInternal(video, InternalVideoSize.SIZE_LIVE)
         } else if (!video.hls.isNullOrEmpty()) {
             openInternal(video, InternalVideoSize.SIZE_HLS)
+        } else if (!video.mp4link2160.isNullOrEmpty()) {
+            openInternal(video, InternalVideoSize.SIZE_2160)
+        } else if (!video.mp4link1440.isNullOrEmpty()) {
+            openInternal(video, InternalVideoSize.SIZE_1440)
         } else if (!video.mp4link1080.isNullOrEmpty()) {
             openInternal(video, InternalVideoSize.SIZE_1080)
         } else if (!video.mp4link720.isNullOrEmpty()) {
@@ -609,6 +634,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             Menu.P_480 -> openInternal(video, InternalVideoSize.SIZE_480)
             Menu.P_720 -> openInternal(video, InternalVideoSize.SIZE_720)
             Menu.P_1080 -> openInternal(video, InternalVideoSize.SIZE_1080)
+            Menu.P_1440 -> openInternal(video, InternalVideoSize.SIZE_1440)
+            Menu.P_2160 -> openInternal(video, InternalVideoSize.SIZE_2160)
             Menu.LIVE -> openInternal(video, InternalVideoSize.SIZE_LIVE)
             Menu.HLS -> openInternal(video, InternalVideoSize.SIZE_HLS)
             Menu.P_EXTERNAL_PLAYER -> showPlayExternalPlayerMenu(video)
@@ -630,7 +657,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             } else {
                 showDownloadPlayerMenu(video)
             }
-            Menu.ADD_TO_FAVE -> presenter?.fireAddFaveVideo()
+            Menu.ADD_TO_FAVE -> presenter?.fireFaveVideo()
             Menu.COPY_LINK -> {
                 val clipboard =
                     requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
@@ -654,6 +681,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     Menu.P_480 -> playDirectVkLinkInExternalPlayer(video.mp4link480)
                     Menu.P_720 -> playDirectVkLinkInExternalPlayer(video.mp4link720)
                     Menu.P_1080 -> playDirectVkLinkInExternalPlayer(video.mp4link1080)
+                    Menu.P_1440 -> playDirectVkLinkInExternalPlayer(video.mp4link1440)
+                    Menu.P_2160 -> playDirectVkLinkInExternalPlayer(video.mp4link2160)
                     Menu.LIVE -> playDirectVkLinkInExternalPlayer(video.live)
                     Menu.HLS -> playDirectVkLinkInExternalPlayer(video.hls)
                 }
@@ -679,6 +708,18 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                         video,
                         video.mp4link1080,
                         "1080"
+                    )
+                    Menu.P_1440 -> doDownloadVideo(
+                        requireActivity(),
+                        video,
+                        video.mp4link1440,
+                        "2K"
+                    )
+                    Menu.P_2160 -> doDownloadVideo(
+                        requireActivity(),
+                        video,
+                        video.mp4link2160,
+                        "4K"
                     )
                 }
             }
@@ -797,6 +838,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         const val P_480 = 480
         const val P_720 = 720
         const val P_1080 = 1080
+        const val P_1440 = 1440
+        const val P_2160 = 2160
         const val HLS = -1
         const val LIVE = -2
         const val P_EXTERNAL_PLAYER = -3

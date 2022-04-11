@@ -563,6 +563,11 @@
             android:name=".activity.DualTabPhotoActivity"
             android:label="@string/photos" />
 
+        <activity
+            android:name=".activity.crash.DefaultErrorActivity"
+            android:process=":fenrir_error_activity"
+            android:theme="@style/App.DayNight.Swipes" />
+
         <service
             android:name=".service.KeepLongpollService"
             android:exported="false" />

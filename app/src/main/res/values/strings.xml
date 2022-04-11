@@ -682,6 +682,8 @@
     <string name="play_480" translatable="false">480p</string>
     <string name="play_720" translatable="false">720p</string>
     <string name="play_1080" translatable="false">1080p</string>
+    <string name="play_1440" translatable="false">2K</string>
+    <string name="play_2160" translatable="false">4K</string>
 
     <string name="play">Play</string>
     <string name="play_remote">Play via server</string>
@@ -1892,4 +1894,15 @@
     <string name="select_file">Select %1$s</string>
     <string name="select_folder">Select dir</string>
     <string name="send_file_as_voice">Send file as Voice</string>
+    <string name="hidden_dialogs_helper">Long press pencil button (create a conversation) to show hidden conversations</string>
+    <string name="favorites">Favorites</string>
+
+    <string name="crash_error_activity_error_occurred_explanation">Unhandled exception.</string>
+    <string name="crash_error_activity_restart_app">Restart</string>
+    <string name="crash_error_activity_error_details">Details</string>
+    <string name="crash_error_activity_error_details_title">Exception details</string>
+    <string name="crash_error_activity_error_details_close">Close</string>
+    <string name="crash_error_activity_error_details_copy">Copy</string>
+    <string name="crash_error_activity_error_details_copied">Copied</string>
+    <string name="crash_error_activity_error_details_clipboard_label">Error information</string>
 </resources>

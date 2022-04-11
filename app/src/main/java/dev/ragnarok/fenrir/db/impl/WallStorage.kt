@@ -325,6 +325,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             .setDeleted(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.DELETED)) == 1)
             .setViews(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.VIEWS)))
             .setCanEdit(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.CAN_EDIT)) == 1)
+            .setFavorite(cursor.getInt(cursor.getColumnIndexOrThrow(PostsColumns.IS_FAVORITE)) == 1)
         val postSourceText =
             cursor.getString(cursor.getColumnIndexOrThrow(PostsColumns.POST_SOURCE))
         if (postSourceText.nonNullNoEmpty()) {
@@ -421,6 +422,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             cv.put(PostsColumns.CAN_LIKE, dbo.isCanLike)
             cv.put(PostsColumns.CAN_PUBLISH, dbo.isCanPublish)
             cv.put(PostsColumns.CAN_EDIT, dbo.isCanEdit)
+            cv.put(PostsColumns.IS_FAVORITE, dbo.isFavorite)
             cv.put(PostsColumns.REPOSTS_COUNT, dbo.repostCount)
             cv.put(PostsColumns.USER_REPOSTED, dbo.isUserReposted)
             cv.put(PostsColumns.POST_TYPE, dbo.postType)

@@ -66,7 +66,7 @@ class DialogsPresenter(
 
     override fun onGuiCreated(viewHost: IDialogsView) {
         super.onGuiCreated(viewHost)
-        viewHost.displayData(dialogs, accountId)
+        viewHost.displayData(dialogs, dialogsOwnerId)
 
         // only for user dialogs
         viewHost.setCreateGroupChatButtonVisible(dialogsOwnerId > 0)
@@ -525,7 +525,7 @@ class DialogsPresenter(
     fun fireNotificationsSettingsClick(dialog: Dialog) {
         assertPositive(dialogsOwnerId)
         view?.showNotificationSettings(
-            accountId,
+            dialogsOwnerId,
             dialog.peerId
         )
     }
@@ -542,6 +542,8 @@ class DialogsPresenter(
         netDisposable.clear()
         netLoadingNow = false
         dialogsOwnerId = newAccountId
+        view?.updateAccountIdNoRefresh(dialogsOwnerId)
+
         loadCachedThenActualData()
         longpollManager.forceDestroy(oldAccountId)
         checkLongpoll()

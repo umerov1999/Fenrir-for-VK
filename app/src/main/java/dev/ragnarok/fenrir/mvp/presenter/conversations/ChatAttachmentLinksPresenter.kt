@@ -27,7 +27,7 @@ class ChatAttachmentLinksPresenter(peerId: Int, accountId: Int, savedInstanceSta
     override fun requestAttachments(
         peerId: Int,
         nextFrom: String?
-    ): Single<Pair<String, List<Link>>> {
+    ): Single<Pair<String?, List<Link>>> {
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, VKApiAttachment.TYPE_LINK, nextFrom, 1, 50, null)

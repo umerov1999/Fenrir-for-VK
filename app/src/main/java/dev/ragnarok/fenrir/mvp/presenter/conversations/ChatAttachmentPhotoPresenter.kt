@@ -15,10 +15,10 @@ import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentPhotosView
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Analytics
 import dev.ragnarok.fenrir.util.DisposableHolder
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
+import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.core.Single
 
@@ -32,7 +32,7 @@ class ChatAttachmentPhotoPresenter(peerId: Int, accountId: Int, savedInstanceSta
     override fun requestAttachments(
         peerId: Int,
         nextFrom: String?
-    ): Single<Pair<String, List<Photo>>> {
+    ): Single<Pair<String?, List<Photo>>> {
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, "photo", nextFrom, 1, 50, null)
@@ -89,7 +89,7 @@ class ChatAttachmentPhotoPresenter(peerId: Int, accountId: Int, savedInstanceSta
                         position,
                         source
                     )
-                }) { throwable -> Analytics.logUnexpectedError(throwable) })
+                }) { PersistentLogger.logThrowable("ChatAttachmentPhotoPresenter", it) })
         }
     }
 

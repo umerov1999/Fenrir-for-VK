@@ -79,6 +79,7 @@ class Picasso internal constructor(
      */
     @Volatile var isLoggingEnabled: Boolean
 ) : DefaultLifecycleObserver {
+    @get:JvmName("-requestTransformers")
     internal val requestTransformers: List<RequestTransformer> = requestTransformers.toList()
 
     @get:JvmName("-requestHandlers")

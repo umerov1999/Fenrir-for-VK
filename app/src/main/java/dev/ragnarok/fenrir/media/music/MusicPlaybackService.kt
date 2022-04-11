@@ -74,7 +74,7 @@ class MusicPlaybackService : Service() {
     private var mMediaMetadataCompat: MediaMetadataCompat? = null
     private var inForeground: Boolean = false
     override fun onBind(intent: Intent): IBinder {
-        if (D) Logger.d(TAG, "Service bound, intent = $intent")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Service bound, intent = $intent")
         cancelShutdown()
         return mBinder
     }
@@ -100,7 +100,7 @@ class MusicPlaybackService : Service() {
     }
 
     override fun onUnbind(intent: Intent): Boolean {
-        if (D) Logger.d(TAG, "Service unbound")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Service unbound")
         if (isPlaying || mAnyActivityInForeground) {
             Logger.d(
                 TAG,
@@ -118,7 +118,7 @@ class MusicPlaybackService : Service() {
     }
 
     override fun onCreate() {
-        if (D) Logger.d(TAG, "Creating service")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Creating service")
         super.onCreate()
         mNotificationHelper = NotificationHelper(this)
         setUpRemoteControlClient()
@@ -213,7 +213,7 @@ class MusicPlaybackService : Service() {
 
     @Suppress("DEPRECATION")
     override fun onDestroy() {
-        if (D) Logger.d(TAG, "Destroying service")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Destroying service")
         super.onDestroy()
         val audioEffectsIntent = Intent(AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION)
         audioEffectsIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, audioSessionId)
@@ -230,7 +230,7 @@ class MusicPlaybackService : Service() {
      * {@inheritDoc}
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (D) Logger.d(TAG, "Got new intent $intent, startId = $startId")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Got new intent $intent, startId = $startId")
         if (intent != null) {
             val action = intent.action
             if (intent.hasExtra(NOW_IN_FOREGROUND)) {
@@ -254,7 +254,7 @@ class MusicPlaybackService : Service() {
         if (isPlaying) {
             return
         }
-        if (D) Logger.d(TAG, "Nothing is playing anymore, releasing notification")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Nothing is playing anymore, releasing notification")
         mNotificationHelper?.killNotification()
         if (!mAnyActivityInForeground) {
             stopSelf()
@@ -264,7 +264,10 @@ class MusicPlaybackService : Service() {
     private fun handleCommandIntent(intent: Intent) {
         val action = intent.action
         val command = if (SERVICECMD == action) intent.getStringExtra(CMDNAME) else null
-        if (D) Logger.d(TAG, "handleCommandIntent: action = $action, command = $command")
+        if (Constants.IS_DEBUG) Logger.d(
+            TAG,
+            "handleCommandIntent: action = $action, command = $command"
+        )
         if (SWIPE_DISMISS_ACTION == action) {
             stopSelf()
         }
@@ -326,7 +329,7 @@ class MusicPlaybackService : Service() {
     }
 
     private fun scheduleDelayedShutdown() {
-        if (D) Log.v(TAG, "Scheduling shutdown in $IDLE_DELAY ms")
+        if (Constants.IS_DEBUG) Log.v(TAG, "Scheduling shutdown in $IDLE_DELAY ms")
         mAlarmManager?.set(
             AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + IDLE_DELAY,
             mShutdownIntent
@@ -335,7 +338,10 @@ class MusicPlaybackService : Service() {
     }
 
     private fun cancelShutdown() {
-        if (D) Logger.d(TAG, "Cancelling delayed shutdown, scheduled = $mShutdownScheduled")
+        if (Constants.IS_DEBUG) Logger.d(
+            TAG,
+            "Cancelling delayed shutdown, scheduled = $mShutdownScheduled"
+        )
         if (mShutdownScheduled) {
             mAlarmManager?.cancel(mShutdownIntent)
             mShutdownScheduled = false
@@ -348,7 +354,7 @@ class MusicPlaybackService : Service() {
      * @param goToIdle True to go to the idle state, false otherwise
      */
     private fun stop(goToIdle: Boolean) {
-        if (D) Logger.d(TAG, "Stopping playback, goToIdle = $goToIdle")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Stopping playback, goToIdle = $goToIdle")
         if (mPlayer?.isInitialized == true) {
             mPlayer?.stop()
         }
@@ -412,7 +418,7 @@ class MusicPlaybackService : Service() {
      * Notify the change-receivers that something has changed.
      */
     private fun notifyChange(what: String) {
-        if (D) Logger.d(TAG, "notifyChange: what = $what")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "notifyChange: what = $what")
         updateRemoteControlClient(what)
         if (what == POSITION_CHANGED) {
             return
@@ -780,7 +786,7 @@ class MusicPlaybackService : Service() {
      * Temporarily pauses playback.
      */
     fun pause() {
-        if (D) Logger.d(TAG, "Pausing playback")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Pausing playback")
         synchronized(this) {
             if (isPlaying) {
                 mPlayer?.pause()
@@ -792,7 +798,7 @@ class MusicPlaybackService : Service() {
     }
 
     private fun pauseNonSync() {
-        if (D) Logger.d(TAG, "Pausing playback")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Pausing playback")
         if (isPlaying) {
             mPlayer?.pause()
             scheduleDelayedShutdown()
@@ -805,15 +811,15 @@ class MusicPlaybackService : Service() {
      * Changes from the current track to the next track
      */
     fun gotoNext(force: Boolean): Boolean {
-        if (D) Logger.d(TAG, "Going to next track")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Going to next track")
         synchronized(this) {
             if (Utils.safeCountOf(mPlayList) <= 0) {
-                if (D) Logger.d(TAG, "No play queue")
+                if (Constants.IS_DEBUG) Logger.d(TAG, "No play queue")
                 scheduleDelayedShutdown()
                 return true
             }
             val pos = getNextPosition(force)
-            if (D) Logger.d(TAG, pos.toString())
+            if (Constants.IS_DEBUG) Logger.d(TAG, pos.toString())
             if (pos < 0) {
                 seek(0)
                 pauseNonSync()
@@ -831,14 +837,14 @@ class MusicPlaybackService : Service() {
     fun skip(pos: Int, force: Boolean) {
         if (!force && pos == currentTrackPos)
             return
-        if (D) Logger.d(TAG, "Going to next track")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Going to next track")
         synchronized(this) {
             if (Utils.safeCountOf(mPlayList) <= 0) {
-                if (D) Logger.d(TAG, "No play queue")
+                if (Constants.IS_DEBUG) Logger.d(TAG, "No play queue")
                 scheduleDelayedShutdown()
                 return
             }
-            if (D) Logger.d(TAG, pos.toString())
+            if (Constants.IS_DEBUG) Logger.d(TAG, pos.toString())
             if (pos < 0) {
                 seek(0)
                 pauseNonSync()
@@ -856,7 +862,7 @@ class MusicPlaybackService : Service() {
      * Changes from the current track to the previous played track
      */
     fun prev() {
-        if (D) Logger.d(TAG, "Going to previous track")
+        if (Constants.IS_DEBUG) Logger.d(TAG, "Going to previous track")
         synchronized(this) {
             if (mPlayPos > 0) {
                 mPlayPos--
@@ -1247,7 +1253,6 @@ class MusicPlaybackService : Service() {
 
     companion object {
         private const val TAG = "MusicPlaybackService"
-        private val D = Constants.IS_DEBUG
         const val PLAYSTATE_CHANGED = "dev.ragnarok.fenrir.media.music.playstatechanged"
         const val POSITION_CHANGED = "dev.ragnarok.fenrir.media.music.positionchanged"
         const val META_CHANGED = "dev.ragnarok.fenrir.media.music.metachanged"

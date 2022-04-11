@@ -64,6 +64,8 @@ class VideoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideo> {
             dto.mp4_480 = optString(filesRoot, "mp4_480")
             dto.mp4_720 = optString(filesRoot, "mp4_720")
             dto.mp4_1080 = optString(filesRoot, "mp4_1080")
+            dto.mp4_1440 = optString(filesRoot, "mp4_1440")
+            dto.mp4_2160 = optString(filesRoot, "mp4_2160")
             dto.external = optString(filesRoot, "external")
             dto.hls = optString(filesRoot, "hls")
             dto.live = optString(filesRoot, "live")
@@ -104,6 +106,7 @@ class VideoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideo> {
         dto.can_edit = optBoolean(root, "can_edit")
         dto.can_add = optBoolean(root, "can_add")
         dto.is_private = optBoolean(root, "is_private")
+        dto.is_favorite = optBoolean(root, "is_favorite")
         return dto
     }
 

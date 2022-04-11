@@ -995,4 +995,30 @@
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
+    <style name="App.CrashError" parent="Base.App.DayNight">
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.AppTheme.SmallComponent
+        </item>
+        <item name="shapeAppearanceMediumComponent">
+            @style/ShapeAppearance.AppTheme.MediumComponent
+        </item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.AppTheme.LargeComponent
+        </item>
+
+        <item name="materialCardViewStyle">@style/Theme.MaterialCardView</item>
+        <item name="floatingActionButtonStyle">@style/Theme.FloatingActionButton</item>
+        <item name="materialCardStyle">@style/CardViewMD2</item>
+        <item name="materialCardBackgroundStyle">@drawable/background_rectangle_stroke_filled</item>
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="colorPrimary">#FF4444</item>
+        <item name="colorControlNormal">#FF4460</item>
+        <item name="colorSecondary">#FF9800</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnPrimaryContainer">#450D08</item>
+        <item name="colorPrimaryContainer">#F3E9E8</item>
+        <item name="colorPrimaryInverse">#ECCFCF</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorOnSecondaryContainer">#1E1710</item>
+        <item name="colorSecondaryContainer">#F4ECDD</item>
+    </style>
+
 </resources>

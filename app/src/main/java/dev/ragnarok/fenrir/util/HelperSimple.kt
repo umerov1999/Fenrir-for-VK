@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.util
 
 import de.maxr1998.modernpreferences.PreferenceScreen
 import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.settings.Settings
 
 object HelperSimple {
     const val DIALOG_SEND_HELPER = "dialog_send_helper"
@@ -10,6 +9,7 @@ object HelperSimple {
     const val STORY_HELPER = "story_helper"
     const val LOLLIPOP_21 = "lollipop21"
     const val AUDIO_DEAD = "audio_dead"
+    const val HIDDEN_DIALOGS = "hidden_dialogs"
     fun needHelp(key: String, count: Int): Boolean {
         val app = Includes.provideApplicationContext()
         val ret = PreferenceScreen.getPreferences(app).getInt(key, 0)
@@ -23,30 +23,5 @@ object HelperSimple {
     fun hasHelp(key: String, count: Int): Boolean {
         val app = Includes.provideApplicationContext()
         return PreferenceScreen.getPreferences(app).getInt(key, 0) < count
-    }
-
-    fun countHelp(key: String): Int {
-        val app = Includes.provideApplicationContext()
-        return PreferenceScreen.getPreferences(app).getInt(key, 0)
-    }
-
-    fun toggleHelp(key: String, count: Int) {
-        val app = Includes.provideApplicationContext()
-        val ret = PreferenceScreen.getPreferences(app).getInt(key, 0)
-        if (ret < count) {
-            PreferenceScreen.getPreferences(app).edit().putInt(key, ret + 1).apply()
-        }
-    }
-
-    fun hasAccountHelp(key: String): Boolean {
-        val fullKey = key + "_" + Settings.get().accounts().current
-        val app = Includes.provideApplicationContext()
-        return PreferenceScreen.getPreferences(app).getBoolean(fullKey, true)
-    }
-
-    fun toggleAccountHelp(key: String) {
-        val fullKey = key + "_" + Settings.get().accounts().current
-        val app = Includes.provideApplicationContext()
-        PreferenceScreen.getPreferences(app).edit().putBoolean(fullKey, false).apply()
     }
 }

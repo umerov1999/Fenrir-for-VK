@@ -26,7 +26,7 @@ class ChatAttachmentAudioPresenter(peerId: Int, accountId: Int, savedInstanceSta
     override fun requestAttachments(
         peerId: Int,
         nextFrom: String?
-    ): Single<Pair<String, List<Audio>>> {
+    ): Single<Pair<String?, List<Audio>>> {
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, "audio", nextFrom, 0, 50, null)

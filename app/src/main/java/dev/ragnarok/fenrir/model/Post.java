@@ -56,6 +56,7 @@ public class Post extends AbsModel implements Cloneable {
     private int viewCount;
     private int creatorId;
     private boolean canEdit;
+    private boolean isFavorite;
 
     public Post(Parcel in) {
         super(in);
@@ -89,6 +90,7 @@ public class Post extends AbsModel implements Cloneable {
         source = in.readParcelable(PostSource.class.getClassLoader());
         viewCount = in.readInt();
         canEdit = in.readByte() != 0;
+        isFavorite = in.readByte() != 0;
     }
 
     public Post() {
@@ -119,6 +121,15 @@ public class Post extends AbsModel implements Cloneable {
 
     public Post setVkid(int vkid) {
         this.vkid = vkid;
+        return this;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public Post setFavorite(boolean favorite) {
+        isFavorite = favorite;
         return this;
     }
 
@@ -399,6 +410,7 @@ public class Post extends AbsModel implements Cloneable {
         dest.writeParcelable(source, flags);
         dest.writeInt(viewCount);
         dest.writeByte((byte) (canEdit ? 1 : 0));
+        dest.writeByte((byte) (isFavorite ? 1 : 0));
     }
 
     /**

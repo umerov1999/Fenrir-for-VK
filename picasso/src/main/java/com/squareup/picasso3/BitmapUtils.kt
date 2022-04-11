@@ -116,9 +116,8 @@ object BitmapUtils {
         val isWebPFile = Utils.isWebPFile(bufferedSource)
         val options = createBitmapOptions(request)
         val calculateSize = requiresInSampleSize(options)
-        // We decode from a byte array because, a) when decoding a WebP network stream, BitmapFactory
-        // throws a JNI Exception, so we workaround by decoding a byte array, or b) user requested
-        // purgeable, which only affects bitmaps decoded from byte arrays.
+        // We decode from a byte array because, when decoding a WebP network stream, BitmapFactory
+        // throws a JNI Exception, so we workaround by decoding a byte array.
         val bitmap = if (isWebPFile) {
             val bytes = bufferedSource.readByteArray()
             if (calculateSize) {

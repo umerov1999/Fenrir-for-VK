@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.os.Handler
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.internal.ConstructorConstructor
+import dev.ragnarok.fenrir.activity.crash.CrashUtils
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
@@ -28,13 +28,13 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins
 class App : Application() {
     private val compositeDisposable = CompositeDisposable()
 
-    @SuppressLint("UnsafeExperimentalUsageWarning")
     override fun onCreate() {
         sInstanse = this
-
-        sApplicationHandler = Handler(mainLooper)
         super.onCreate()
+
         AppCompatDelegate.setDefaultNightMode(Settings.get().ui().nightMode)
+        CrashUtils.install(this)
+
         if (Settings.get().other().isEnable_native) {
             FenrirNative.loadNativeLibrary(object : FenrirNative.NativeOnException {
                 override fun onException(e: Error) {
@@ -118,18 +118,11 @@ class App : Application() {
         @Volatile
         private var sInstanse: App? = null
 
-        @Volatile
-        private var sApplicationHandler: Handler? = null
-
-        val applicationHandler: Handler?
-            get() {
-                return sApplicationHandler
-            }
-
         val instance: App
             get() {
-                checkNotNull(sInstanse) { "App instance is null!!! WTF???" }
-                return sInstanse!!
+                sInstanse?.let {
+                    return it
+                } ?: throw IllegalStateException("App instance is null!!! WTF???")
             }
     }
 }

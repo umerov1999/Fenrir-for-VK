@@ -92,6 +92,7 @@ class StoryPagerPresenter(
             return
         }
         val url = firstNonEmptyString(
+            story.video.mp4link2160, story.video.mp4link1440,
             story.video.mp4link1080, story.video.mp4link720, story.video.mp4link480,
             story.video.mp4link360, story.video.mp4link240
         )
@@ -228,6 +229,7 @@ class StoryPagerPresenter(
         if (story.photo != null) doSaveOnDrive(story)
         if (story.video != null) {
             val url = firstNonEmptyString(
+                story.video.mp4link2160, story.video.mp4link1440,
                 story.video.mp4link1080, story.video.mp4link720, story.video.mp4link480,
                 story.video.mp4link360, story.video.mp4link240
             )

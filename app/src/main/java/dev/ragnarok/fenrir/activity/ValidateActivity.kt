@@ -81,7 +81,7 @@ class ValidateActivity : AppCompatActivity() {
         val webview = findViewById<WebView>(R.id.vkontakteview)
         webview.settings.javaScriptEnabled = true
         webview.clearCache(true)
-        webview.settings.userAgentString = Constants.USER_AGENT_ACCOUNT()
+        webview.settings.userAgentString = Constants.USER_AGENT_ACCOUNT
 
         //Чтобы получать уведомления об окончании загрузки страницы
         webview.webViewClient = VkontakteWebViewClient()

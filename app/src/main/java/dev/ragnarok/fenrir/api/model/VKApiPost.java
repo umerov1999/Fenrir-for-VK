@@ -125,6 +125,8 @@ public class VKApiPost implements VKApiAttachment, Commentable, Likeable, Copyab
 
     public boolean can_edit;
 
+    public boolean is_favorite;
+
     @Override
     public String getType() {
         return TYPE_POST;

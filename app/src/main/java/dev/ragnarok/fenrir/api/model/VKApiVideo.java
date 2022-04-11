@@ -139,6 +139,16 @@ public class VKApiVideo implements VKApiAttachment, Commentable, Likeable, Copya
     public String mp4_1080;
 
     /**
+     * URL of video with height of 1440 pixels. Returns only if you use direct auth.
+     */
+    public String mp4_1440;
+
+    /**
+     * URL of video with height of 2160 pixels. Returns only if you use direct auth.
+     */
+    public String mp4_2160;
+
+    /**
      * URL of the external video link.
      */
     public String external;
@@ -154,6 +164,8 @@ public class VKApiVideo implements VKApiAttachment, Commentable, Likeable, Copya
     public boolean can_add;
 
     public boolean is_private;
+
+    public boolean is_favorite;
 
     @Override
     public String getType() {

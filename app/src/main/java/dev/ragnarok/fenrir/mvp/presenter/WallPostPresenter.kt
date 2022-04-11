@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.mvp.presenter
 
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -172,6 +173,7 @@ class WallPostPresenter(
             view.setCanDelete(false)
             view.setCanRestore(false)
             view.setCanEdit(false)
+            view.setInFave(false)
             return
         }
         view.setCanPin(!pPost.isPinned && pPost.isCanPin && !pPost.isDeleted)
@@ -179,6 +181,7 @@ class WallPostPresenter(
         view.setCanDelete(canDelete())
         view.setCanRestore(pPost.isDeleted)
         view.setCanEdit(pPost.isCanEdit)
+        view.setInFave(pPost.isFavorite)
     }
 
     private fun canDelete(): Boolean {
@@ -263,15 +266,29 @@ class WallPostPresenter(
         }
     }
 
-    fun fireAddBookmark() {
-        appendDisposable(faveInteractor.addPost(accountId, ownerId, postId, null)
-            .fromIOToMain()
-            .subscribe({ onPostAddedToBookmarks() }) { t ->
-                showError(getCauseIfRuntime(t))
-            })
+    fun fireBookmark() {
+        post?.let { pPost ->
+            if (!pPost.isFavorite) {
+                appendDisposable(faveInteractor.addPost(accountId, ownerId, postId, null)
+                    .fromIOToMain()
+                    .subscribe({ onPostAddedToBookmarks() }) { t ->
+                        showError(getCauseIfRuntime(t))
+                    })
+            } else {
+                appendDisposable(faveInteractor.removePost(accountId, ownerId, postId)
+                    .fromIOToMain()
+                    .subscribe({ onPostAddedToBookmarks() }) { t ->
+                        showError(getCauseIfRuntime(t))
+                    })
+            }
+        }
     }
 
     private fun onPostAddedToBookmarks() {
+        post?.let {
+            it.isFavorite = (!it.isFavorite)
+        }
+        (context as Activity).invalidateOptionsMenu()
         view?.showSuccessToast()
     }
 
@@ -396,7 +413,7 @@ class WallPostPresenter(
         val builder = StringBuilder()
 
         post?.text.nonNullNoEmpty {
-            builder.append(this).append("\n")
+            builder.append(it).append("\n")
         }
 
         // Append copies text if exists

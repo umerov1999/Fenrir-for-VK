@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Analytics
+import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.Utils
 
 class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
@@ -74,9 +74,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
             .getData(source.ownerId, source.sourceId, Serializers.PHOTOS_SERIALIZER)
             .fromIOToMain()
             .subscribe({ onInitialLoadingFinished(it) }) {
-                Analytics.logUnexpectedError(
-                    it
-                )
+                PersistentLogger.logThrowable("PhotoAlbumPagerPresenter", it)
             })
     }
 

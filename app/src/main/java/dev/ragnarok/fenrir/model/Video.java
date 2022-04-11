@@ -39,6 +39,8 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
     private String mp4link480;
     private String mp4link720;
     private String mp4link1080;
+    private String mp4link1440;
+    private String mp4link2160;
     private String externalLink;
     private String platform;
     private boolean repeat;
@@ -50,6 +52,7 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
     private boolean canComment;
     private boolean isPrivate;
     private boolean canRepost;
+    private boolean isFavorite;
     private String hls;
     private String live;
     private int msgId;
@@ -83,6 +86,8 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         mp4link480 = in.readString();
         mp4link720 = in.readString();
         mp4link1080 = in.readString();
+        mp4link1440 = in.readString();
+        mp4link2160 = in.readString();
         externalLink = in.readString();
         hls = in.readString();
         live = in.readString();
@@ -94,6 +99,7 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         canEdit = in.readByte() != 0;
         canAdd = in.readByte() != 0;
         isPrivate = in.readByte() != 0;
+        isFavorite = in.readByte() != 0;
         msgId = in.readInt();
         msgPeerId = in.readInt();
     }
@@ -121,6 +127,8 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         mp4link480 = in.readString();
         mp4link720 = in.readString();
         mp4link1080 = in.readString();
+        mp4link1440 = in.readString();
+        mp4link2160 = in.readString();
         externalLink = in.readString();
         hls = in.readString();
         live = in.readString();
@@ -132,6 +140,7 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         canEdit = in.readBoolean();
         canAdd = in.readBoolean();
         isPrivate = in.readBoolean();
+        isFavorite = in.readByte() != 0;
         msgId = in.readInt();
         msgPeerId = in.readInt();
     }
@@ -179,6 +188,8 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeString(mp4link480);
         dest.writeString(mp4link720);
         dest.writeString(mp4link1080);
+        dest.writeString(mp4link1440);
+        dest.writeString(mp4link2160);
         dest.writeString(externalLink);
         dest.writeString(hls);
         dest.writeString(live);
@@ -190,6 +201,7 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeByte((byte) (canEdit ? 1 : 0));
         dest.writeByte((byte) (canAdd ? 1 : 0));
         dest.writeByte((byte) (isPrivate ? 1 : 0));
+        dest.writeByte((byte) (isFavorite ? 1 : 0));
         dest.writeInt(msgId);
         dest.writeInt(msgPeerId);
     }
@@ -218,6 +230,8 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeString(mp4link480);
         dest.writeString(mp4link720);
         dest.writeString(mp4link1080);
+        dest.writeString(mp4link1440);
+        dest.writeString(mp4link2160);
         dest.writeString(externalLink);
         dest.writeString(hls);
         dest.writeString(live);
@@ -229,6 +243,7 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
         dest.writeBoolean(canEdit);
         dest.writeBoolean(canAdd);
         dest.writeBoolean(isPrivate);
+        dest.writeByte((byte) (isFavorite ? 1 : 0));
         dest.writeInt(msgId);
         dest.writeInt(msgPeerId);
     }
@@ -257,6 +272,15 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
 
     public Video setCanEdit(boolean canEdit) {
         this.canEdit = canEdit;
+        return this;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public Video setFavorite(boolean favorite) {
+        isFavorite = favorite;
         return this;
     }
 
@@ -460,6 +484,24 @@ public class Video extends AbsModel implements ParcelNative.ParcelableNative {
 
     public Video setMp4link1080(String mp4link1080) {
         this.mp4link1080 = mp4link1080;
+        return this;
+    }
+
+    public String getMp4link1440() {
+        return mp4link1440;
+    }
+
+    public Video setMp4link1440(String mp4link1440) {
+        this.mp4link1440 = mp4link1440;
+        return this;
+    }
+
+    public String getMp4link2160() {
+        return mp4link2160;
+    }
+
+    public Video setMp4link2160(String mp4link2160) {
+        this.mp4link2160 = mp4link2160;
         return this;
     }
 

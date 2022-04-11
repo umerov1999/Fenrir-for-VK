@@ -458,7 +458,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             .setAcl(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.ACL)))
             .setMajor_id(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.MAJOR_ID)))
             .setMinor_id(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.MINOR_ID)))
-            .setGroupChannel(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.LAST_MESSAGE_ID)) == 1)
+            .setGroupChannel(cursor.getInt(cursor.getColumnIndexOrThrow(DialogsColumns.IS_GROUP_CHANNEL)) == 1)
     }
 
     companion object {

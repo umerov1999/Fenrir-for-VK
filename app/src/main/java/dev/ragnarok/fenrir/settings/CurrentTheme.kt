@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import androidx.annotation.DrawableRes
 import com.squareup.picasso3.Transformation
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.R
@@ -106,6 +107,18 @@ object CurrentTheme {
             AvatarStyle.OVAL -> EllipseTransformation()
             AvatarStyle.CIRCLE -> RoundTransformation()
             else -> RoundTransformation()
+        }
+    }
+
+    @DrawableRes
+    fun createFavoritesAvatar(): Int {
+        val style = Settings.get()
+            .ui()
+            .avatarStyle
+        return when (style) {
+            AvatarStyle.OVAL -> R.drawable.ic_favorites_ellipse
+            AvatarStyle.CIRCLE -> R.drawable.ic_favorites_round
+            else -> R.drawable.ic_favorites_round
         }
     }
 

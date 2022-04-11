@@ -45,6 +45,10 @@ public class VideoEntity extends Entity {
 
     private String mp4link1080;
 
+    private String mp4link1440;
+
+    private String mp4link2160;
+
     private String externalLink;
 
     private String hls;
@@ -58,6 +62,8 @@ public class VideoEntity extends Entity {
     private int duration;
 
     private boolean isPrivate;
+
+    private boolean isFavorite;
 
     private PrivacyEntity privacyView;
 
@@ -265,6 +271,24 @@ public class VideoEntity extends Entity {
         return this;
     }
 
+    public String getMp4link1440() {
+        return mp4link1440;
+    }
+
+    public VideoEntity setMp4link1440(String mp4link1440) {
+        this.mp4link1440 = mp4link1440;
+        return this;
+    }
+
+    public String getMp4link2160() {
+        return mp4link2160;
+    }
+
+    public VideoEntity setMp4link2160(String mp4link2160) {
+        this.mp4link2160 = mp4link2160;
+        return this;
+    }
+
     public String getExternalLink() {
         return externalLink;
     }
@@ -361,6 +385,15 @@ public class VideoEntity extends Entity {
 
     public VideoEntity setCanRepost(boolean canRepost) {
         this.canRepost = canRepost;
+        return this;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public VideoEntity setFavorite(boolean favorite) {
+        isFavorite = favorite;
         return this;
     }
 }

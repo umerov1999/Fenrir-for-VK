@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Context
@@ -25,7 +24,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -125,6 +123,15 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             PlaceFactory.securitySettingsPlace.tryOpenWith(requireActivity())
         }
     }
+
+    private val requestPinForAdditionalInfo = registerForActivityResult(
+        StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            showAdditionalInfo(false)
+        }
+    }
+
     private val requestContactsPermission = requestPermissionsAbs(
         arrayOf(Manifest.permission.READ_CONTACTS)
     ) {
@@ -1700,7 +1707,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 dependency = "developer_mode"
                 titleRes = R.string.additional_info
                 onClick {
-                    showAdditionalInfo()
+                    showAdditionalInfo(true)
                     true
                 }
             }
@@ -1815,16 +1822,30 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         return if (can) available[0].gmcToken else null
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun showAdditionalInfo() {
+    private fun showAdditionalInfo(secured: Boolean) {
+        if (secured) {
+            if (!Settings.get().security().isUsePinForSecurity) {
+                CreateCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
+                PlaceFactory.securitySettingsPlace.tryOpenWith(requireActivity())
+            } else {
+                requestPinForAdditionalInfo.launch(
+                    Intent(
+                        requireActivity(),
+                        EnterPinActivity::class.java
+                    )
+                )
+            }
+            return
+        }
         val view = View.inflate(requireActivity(), R.layout.dialog_additional_us, null)
-        (view.findViewById<View>(R.id.item_user_agent) as TextView).text =
-            "User-Agent: " + USER_AGENT_ACCOUNT()
-        (view.findViewById<View>(R.id.item_device_id) as TextView).text =
-            "Device-ID: " + Utils.getDeviceId(requireActivity())
-        (view.findViewById<View>(R.id.item_gcm_token) as TextView).text =
-            "GMS-Token: " + pushToken()
+        view.findViewById<TextInputEditText>(R.id.item_user_agent).setText(USER_AGENT_ACCOUNT)
+        view.findViewById<TextInputEditText>(R.id.item_device_id)
+            .setText(Utils.getDeviceId(requireActivity()))
+        view.findViewById<TextInputEditText>(R.id.item_gcm_token).setText(pushToken())
+        view.findViewById<TextInputEditText>(R.id.item_access_token)
+            .setText(Settings.get().accounts().currentAccessToken)
         MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.additional_info)
             .setView(view)
             .show()
     }

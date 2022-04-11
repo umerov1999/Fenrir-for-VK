@@ -89,4 +89,7 @@
     <dimen name="profile_bottom_peek_height">300dp</dimen>
     <dimen name="profile_avatar_height">240dp</dimen>
 
+    <dimen name="crash_activity_horizontal_margin">16dp</dimen>
+    <dimen name="crash_activity_vertical_margin">16dp</dimen>
+    <dimen name="crash_error_activity_error_details_text_size">12sp</dimen>
 </resources>

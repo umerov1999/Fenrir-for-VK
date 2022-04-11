@@ -1093,4 +1093,30 @@
         <item name="tint">?colorSurface</item>
     </style>
 
+    <style name="App.CrashError" parent="Base.App.DayNight">
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.AppTheme.SmallComponent
+        </item>
+        <item name="shapeAppearanceMediumComponent">
+            @style/ShapeAppearance.AppTheme.MediumComponent
+        </item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.AppTheme.LargeComponent
+        </item>
+
+        <item name="materialCardViewStyle">@style/Theme.MaterialCardView</item>
+        <item name="floatingActionButtonStyle">@style/Theme.FloatingActionButton</item>
+        <item name="materialCardStyle">@style/CardViewMD2</item>
+        <item name="materialCardBackgroundStyle">@drawable/background_rectangle_stroke_filled</item>
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="colorPrimary">#FF4444</item>
+        <item name="colorControlNormal">#FF4460</item>
+        <item name="colorSecondary">#FF9800</item>
+        <item name="colorOnPrimary">#341212</item>
+        <item name="colorOnPrimaryContainer">#F8E7E5</item>
+        <item name="colorPrimaryContainer">#4C2324</item>
+        <item name="colorPrimaryInverse">#6A393B</item>
+        <item name="colorOnSecondary">#191511</item>
+        <item name="colorOnSecondaryContainer">#F6EBDC</item>
+        <item name="colorSecondaryContainer">#292420</item>
+    </style>
+
 </resources>

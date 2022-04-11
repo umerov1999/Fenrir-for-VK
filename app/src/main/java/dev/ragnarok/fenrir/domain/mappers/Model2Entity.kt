@@ -520,6 +520,8 @@ object Model2Entity {
             .setMp4link480(video.mp4link480)
             .setMp4link720(video.mp4link720)
             .setMp4link1080(video.mp4link1080)
+            .setMp4link1440(video.mp4link1440)
+            .setMp4link2160(video.mp4link2160)
             .setExternalLink(video.externalLink)
             .setPlatform(video.platform)
             .setRepeat(video.isRepeat)
@@ -531,6 +533,7 @@ object Model2Entity {
             .setCanComment(video.isCanComment)
             .setCanRepost(video.isCanRepost)
             .setPrivate(video.private)
+            .setFavorite(video.isFavorite)
     }
 
     private fun mapPrivacy(privacy: SimplePrivacy): PrivacyEntity {

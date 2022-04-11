@@ -400,7 +400,9 @@ object Dto2Model {
                         .setPayload(s.action.payload)
                 )
             }
-            buttons.add(v)
+            if (v.isNotEmpty()) {
+                buttons.add(v)
+            }
         }
         return if (!buttons.isNullOrEmpty()) {
             Keyboard().setAuthor_id(keyboard.author_id)
@@ -507,7 +509,9 @@ object Dto2Model {
                         .setPayload(s.action.payload)
                 )
             }
-            buttons.add(v)
+            if (v.isNotEmpty()) {
+                buttons.add(v)
+            }
         }
         return if (!buttons.isNullOrEmpty()) {
             Keyboard().setAuthor_id(keyboard.author_id)
@@ -1159,6 +1163,8 @@ object Dto2Model {
             .setMp4link480(dto.mp4_480)
             .setMp4link720(dto.mp4_720)
             .setMp4link1080(dto.mp4_1080)
+            .setMp4link1440(dto.mp4_1440)
+            .setMp4link2160(dto.mp4_2160)
             .setExternalLink(dto.external)
             .setHls(dto.hls)
             .setLive(dto.live)
@@ -1166,6 +1172,7 @@ object Dto2Model {
             .setCanEdit(dto.can_edit)
             .setCanAdd(dto.can_add)
             .setPrivate(dto.is_private)
+            .setFavorite(dto.is_favorite)
     }
 
     fun transform(dto: VKApiWikiPage): WikiPage {
@@ -1293,6 +1300,7 @@ object Dto2Model {
             .setSignerId(dto.signer_id)
             .setCreatorId(dto.created_by)
             .setCanEdit(dto.can_edit)
+            .setFavorite(dto.is_favorite)
             .setCanPin(dto.can_pin)
             .setPinned(dto.is_pinned)
             .setViewCount(dto.views)

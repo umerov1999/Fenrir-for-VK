@@ -47,6 +47,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.util.*
 import dev.ragnarok.fenrir.util.Optional
+import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.RxUtils.safelyCloseAction
@@ -1336,7 +1337,7 @@ class ChatPresenter(
                     .subscribe({ s ->
                         subtitle = s
                         resolveToolbarSubtitle()
-                    }, { Analytics.logUnexpectedError(it) }, { this.resolveToolbarSubtitle() })
+                    }, { logThrowable("ChatPresenter", it) }, { resolveToolbarSubtitle() })
             )
         }
     }
@@ -1453,7 +1454,7 @@ class ChatPresenter(
                 .fromIOToMain()
                 .subscribe(
                     { draft -> onDraftMessageRestored(draft, ignoreBody) },
-                    { Analytics.logUnexpectedError(it) })
+                    { logThrowable("ChatPresenter", it) })
         )
     }
 
@@ -1811,7 +1812,7 @@ class ChatPresenter(
         appendDisposable(
             messagesRepository.enqueueAgain(messagesOwnerId, message.id)
                 .fromIOToMain()
-                .subscribe({ this.startSendService() }, { Analytics.logUnexpectedError(it) })
+                .subscribe({ startSendService() }, { logThrowable("ChatPresenter", it) })
         )
     }
 
@@ -2075,7 +2076,7 @@ class ChatPresenter(
                 .fromIOToMain()
                 .subscribe(
                     { aesKeyPairs -> fireEncriptionEnableClick(policy, aesKeyPairs) },
-                    { Analytics.logUnexpectedError(it) })
+                    { logThrowable("ChatPresenter", it) })
         )
     }
 

@@ -69,7 +69,7 @@ abstract class BaseChatAttachmentsPresenter<T, V : IBaseChatAttachmentsView<T>> 
         view?.showError(throwable.message)
     }
 
-    private fun onDataReceived(startFrom: String?, result: Pair<String, List<T>>) {
+    private fun onDataReceived(startFrom: String?, result: Pair<String?, List<T>>) {
         loadingHolder.dispose()
         resolveLoadingView()
         nextFrom = result.first
@@ -112,7 +112,7 @@ abstract class BaseChatAttachmentsPresenter<T, V : IBaseChatAttachmentsView<T>> 
     abstract fun requestAttachments(
         peerId: Int,
         nextFrom: String?
-    ): Single<Pair<String, List<T>>>
+    ): Single<Pair<String?, List<T>>>
 
     init {
         data = ArrayList()

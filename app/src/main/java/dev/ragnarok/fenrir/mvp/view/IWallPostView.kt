@@ -30,6 +30,7 @@ interface IWallPostView : IAttachmentsPlacesView, IAccountDependencyView, IMvpVi
         fun setCanPin(can: Boolean)
         fun setCanUnpin(can: Boolean)
         fun setCanEdit(can: Boolean)
+        fun setInFave(inTo: Boolean)
     }
 
     companion object {

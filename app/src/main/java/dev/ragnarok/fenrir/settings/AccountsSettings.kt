@@ -159,6 +159,9 @@ internal class AccountsSettings @SuppressLint("UseSparseArrays") constructor(con
         return tokens[accountId]
     }
 
+    override val currentAccessToken: String?
+        get() = tokens[current]
+
     @AccountType
     override fun getType(accountId: Int): Int {
         if (types.containsKey(accountId)) {

@@ -74,7 +74,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             if (dto.attachments == null) {
                 dto.attachments = VkApiAttachments()
             }
-            parseArray(photosArray, VKApiPhoto::class.java, context, null)?.let {
+            parseArray<VKApiPhoto>(photosArray, VKApiPhoto::class.java, context, null)?.let {
                 dto.attachments.append(it)
             }
         }
@@ -83,7 +83,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             if (dto.attachments == null) {
                 dto.attachments = VkApiAttachments()
             }
-            parseArray(
+            parseArray<VKApiPhoto>(
                 photosTagsArray,
                 VKApiPhoto::class.java,
                 context,
@@ -97,7 +97,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             if (dto.attachments == null) {
                 dto.attachments = VkApiAttachments()
             }
-            parseArray(
+            parseArray<VKApiPhoto>(
                 photosTagsArray,
                 VKApiAudio::class.java,
                 context,
@@ -111,7 +111,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             if (dto.attachments == null) {
                 dto.attachments = VkApiAttachments()
             }
-            parseArray(
+            parseArray<VKApiPhoto>(
                 photosTagsArray,
                 VKApiVideo::class.java,
                 context,

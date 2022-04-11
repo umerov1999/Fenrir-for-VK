@@ -727,7 +727,9 @@ object Dto2Entity {
                         .setLink(s.action.link).setPayload(s.action.payload)
                 )
             }
-            buttons.add(v)
+            if (v.isNotEmpty()) {
+                buttons.add(v)
+            }
         }
         return if (buttons.nonNullNoEmpty()) {
             KeyboardEntity().setAuthor_id(keyboard.author_id)
@@ -908,6 +910,7 @@ object Dto2Entity {
             .setUserLikes(dto.user_likes)
             .setCanLike(dto.can_like)
             .setCanEdit(dto.can_edit)
+            .setFavorite(dto.is_favorite)
             .setCanPublish(dto.can_publish)
             .setRepostCount(dto.reposts_count)
             .setUserReposted(dto.user_reposted)
@@ -1246,6 +1249,8 @@ object Dto2Entity {
             .setMp4link480(dto.mp4_480)
             .setMp4link720(dto.mp4_720)
             .setMp4link1080(dto.mp4_1080)
+            .setMp4link1440(dto.mp4_1440)
+            .setMp4link2160(dto.mp4_2160)
             .setExternalLink(dto.external)
             .setHls(dto.hls)
             .setLive(dto.live)
@@ -1253,6 +1258,7 @@ object Dto2Entity {
             .setCanEdit(dto.can_edit)
             .setCanAdd(dto.can_add)
             .setPrivate(dto.is_private)
+            .setFavorite(dto.is_favorite)
     }
 
     private fun mapPrivacy(dto: VkApiPrivacy): PrivacyEntity {

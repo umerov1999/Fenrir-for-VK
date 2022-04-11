@@ -17,7 +17,7 @@ import dev.ragnarok.fenrir.util.Logger
 class MessengerContentProvider : ContentProvider() {
     companion object {
         // Uri authority
-        const val AUTHORITY: String = BuildConfig.APPLICATION_ID + ".providers.Messages"
+        val AUTHORITY: String = BuildConfig.APPLICATION_ID + ".providers.Messages"
         const val URI_USERS = 1
         const val URI_USERS_ID = 2
         const val URI_MESSAGES = 3
@@ -101,81 +101,81 @@ class MessengerContentProvider : ContentProvider() {
         private const val KEYS_PATH = "keys"
 
         // Типы данных
-        const val USER_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$USER_PATH"
-        const val USER_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.$AUTHORITY.$USER_PATH"
-        const val MESSAGE_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$MESSAGES_PATH"
-        const val MESSAGE_CONTENT_ITEM_TYPE =
+        val USER_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$USER_PATH"
+        val USER_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.$AUTHORITY.$USER_PATH"
+        val MESSAGE_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$MESSAGES_PATH"
+        val MESSAGE_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$MESSAGES_PATH"
-        const val MESSAGES_ATTACHMENTS_CONTENT_TYPE =
+        val MESSAGES_ATTACHMENTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$MESSAGES_ATTACHMENTS_PATH"
-        const val MESSAGES_ATTACHMENTS_CONTENT_ITEM_TYPE =
+        val MESSAGES_ATTACHMENTS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$MESSAGES_ATTACHMENTS_PATH"
-        const val PHOTOS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$PHOTOS_PATH"
-        const val PHOTOS_CONTENT_ITEM_TYPE =
+        val PHOTOS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$PHOTOS_PATH"
+        val PHOTOS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$PHOTOS_PATH"
-        const val DIALOGS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$DIALOGS_PATH"
-        const val PEERS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$PEERS_PATH"
-        const val DOCS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$DOCS_PATH"
-        const val DOCS_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.$AUTHORITY.$DOCS_PATH"
-        const val VIDEOS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$VIDEOS_PATH"
-        const val VIDEOS_CONTENT_ITEM_TYPE =
+        val DIALOGS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$DIALOGS_PATH"
+        val PEERS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$PEERS_PATH"
+        val DOCS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$DOCS_PATH"
+        val DOCS_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.$AUTHORITY.$DOCS_PATH"
+        val VIDEOS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$VIDEOS_PATH"
+        val VIDEOS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$VIDEOS_PATH"
-        const val POSTS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$POSTS_PATH"
-        const val POSTS_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.$AUTHORITY.$POSTS_PATH"
-        const val POSTS_ATTACHMENTS_CONTENT_TYPE =
+        val POSTS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$POSTS_PATH"
+        val POSTS_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.$AUTHORITY.$POSTS_PATH"
+        val POSTS_ATTACHMENTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$POSTS_ATTACHMENTS_PATH"
-        const val POSTS_ATTACHMENTS_CONTENT_ITEM_TYPE =
+        val POSTS_ATTACHMENTS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$POSTS_ATTACHMENTS_PATH"
-        const val GROUPS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$GROUPS_PATH"
-        const val GROUPS_CONTENT_ITEM_TYPE =
+        val GROUPS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$GROUPS_PATH"
+        val GROUPS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$GROUPS_PATH"
-        const val RELATIVESHIP_CONTENT_TYPE =
+        val RELATIVESHIP_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$RELATIVESHIP_PATH"
-        const val COMMENTS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$COMMENTS_PATH"
-        const val COMMENTS_CONTENT_ITEM_TYPE =
+        val COMMENTS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$COMMENTS_PATH"
+        val COMMENTS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$COMMENTS_PATH"
-        const val COMMENTS_ATTACHMENTS_CONTENT_TYPE =
+        val COMMENTS_ATTACHMENTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$COMMENTS_ATTACHMENTS_PATH"
-        const val COMMENTS_ATTACHMENTS_CONTENT_ITEM_TYPE =
+        val COMMENTS_ATTACHMENTS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$COMMENTS_ATTACHMENTS_PATH"
-        const val PHOTO_ALBUMS_CONTENT_TYPE =
+        val PHOTO_ALBUMS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$PHOTO_ALBUMS_PATH"
-        const val NEWS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$NEWS_PATH"
-        const val GROUPS_DET_CONTENT_TYPE =
+        val NEWS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$NEWS_PATH"
+        val GROUPS_DET_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$GROUPS_DET_PATH"
-        const val GROUPS_DET_CONTENT_ITEM_TYPE =
+        val GROUPS_DET_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$GROUPS_DET_PATH"
-        const val VIDEO_ALBUMS_CONTENT_TYPE =
+        val VIDEO_ALBUMS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$VIDEO_ALBUMS_PATH"
-        const val TOPICS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$TOPICS_PATH"
-        const val NOTIFICATIONS_CONTENT_TYPE =
+        val TOPICS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$TOPICS_PATH"
+        val NOTIFICATIONS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$NOTIFICATIONS_PATH"
-        const val USER_DET_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$USER_DET_PATH"
-        const val USER_DET_CONTENT_ITEM_TYPE =
+        val USER_DET_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$USER_DET_PATH"
+        val USER_DET_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$USER_DET_PATH"
-        const val FAVE_PHOTOS_CONTENT_TYPE =
+        val FAVE_PHOTOS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_PHOTOS_PATH"
-        const val FAVE_VIDEOS_CONTENT_TYPE =
+        val FAVE_VIDEOS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_VIDEOS_PATH"
-        const val FAVE_ARTICLES_CONTENT_TYPE =
+        val FAVE_ARTICLES_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_ARTICLES_PATH"
-        const val FAVE_PRODUCTS_CONTENT_TYPE =
+        val FAVE_PRODUCTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_PRODUCTS_PATH"
-        const val FAVE_PAGES_CONTENT_TYPE =
+        val FAVE_PAGES_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_PAGES_PATH"
-        const val FAVE_GROUPS_CONTENT_TYPE =
+        val FAVE_GROUPS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_GROUPS_PATH"
-        const val FAVE_LINKS_CONTENT_TYPE =
+        val FAVE_LINKS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_LINKS_PATH"
-        const val FAVE_POSTS_CONTENT_TYPE =
+        val FAVE_POSTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FAVE_POSTS_PATH"
-        const val COUNTRIES_CONTENT_TYPE =
+        val COUNTRIES_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$COUNTRIES_PATH"
-        const val FEED_LISTS_CONTENT_TYPE =
+        val FEED_LISTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FEED_LISTS_PATH"
-        const val FRIEND_LISTS_CONTENT_TYPE =
+        val FRIEND_LISTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FRIEND_LISTS_PATH"
-        const val KEYS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$KEYS_PATH"
+        val KEYS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$KEYS_PATH"
 
         // описание и создание UriMatcher
         private var sUriMatcher: UriMatcher = UriMatcher(UriMatcher.NO_MATCH)
@@ -788,7 +788,9 @@ class MessengerContentProvider : ContentProvider() {
                 VideoColumns.FULL_ACCESS_KEY
             sVideosProjectionMap[VideoColumns.COMMENTS] =
                 VideoColumns.FULL_COMMENTS
-            sVideosProjectionMap[VideoColumns.CAN_COMENT] = VideoColumns.FULL_CAN_COMENT
+            sVideosProjectionMap[VideoColumns.CAN_COMMENT] = VideoColumns.FULL_CAN_COMMENT
+            sVideosProjectionMap[VideoColumns.IS_PRIVATE] = VideoColumns.FULL_IS_PRIVATE
+            sVideosProjectionMap[VideoColumns.IS_FAVORITE] = VideoColumns.FULL_IS_FAVORITE
             sVideosProjectionMap[VideoColumns.CAN_REPOST] =
                 VideoColumns.FULL_CAN_REPOST
             sVideosProjectionMap[VideoColumns.USER_LIKES] =
@@ -809,6 +811,10 @@ class MessengerContentProvider : ContentProvider() {
                 VideoColumns.FULL_MP4_720
             sVideosProjectionMap[VideoColumns.MP4_1080] =
                 VideoColumns.FULL_MP4_1080
+            sVideosProjectionMap[VideoColumns.MP4_1440] =
+                VideoColumns.FULL_MP4_1440
+            sVideosProjectionMap[VideoColumns.MP4_2160] =
+                VideoColumns.FULL_MP4_2160
             sVideosProjectionMap[VideoColumns.EXTERNAL] = VideoColumns.FULL_EXTERNAL
             sVideosProjectionMap[VideoColumns.HLS] = VideoColumns.FULL_HLS
             sVideosProjectionMap[VideoColumns.LIVE] =
@@ -840,6 +846,8 @@ class MessengerContentProvider : ContentProvider() {
             sPostsProjectionMap[PostsColumns.CAN_PUBLISH] = PostsColumns.FULL_CAN_PUBLISH
             sPostsProjectionMap[PostsColumns.CAN_EDIT] =
                 PostsColumns.FULL_CAN_EDIT
+            sPostsProjectionMap[PostsColumns.IS_FAVORITE] =
+                PostsColumns.FULL_IS_FAVORITE
             sPostsProjectionMap[PostsColumns.REPOSTS_COUNT] =
                 PostsColumns.FULL_REPOSTS_COUNT
             sPostsProjectionMap[PostsColumns.USER_REPOSTED] =

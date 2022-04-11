@@ -98,9 +98,8 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
         if (Settings.get().security().isUsePinForSecurity) {
             requestEnterPin.launch(Intent(requireActivity(), EnterPinActivity::class.java))
         } else {
-            Settings.get().security().showHiddenDialogs = true
-            ReconfigureOptionsHide(true)
-            notifyDataSetChanged()
+            CreateCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
+            securitySettingsPlace.tryOpenWith(requireActivity())
         }
     }
 
@@ -217,6 +216,10 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
                 showSnackbar(R.string.dialog_send_helper, true)
             }
         }
+    }
+
+    override fun updateAccountIdNoRefresh(accountId: Int) {
+        mAdapter?.updateAccount(accountId)
     }
 
     override fun onDialogClick(dialog: Dialog) {
@@ -357,6 +360,9 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
                             Settings.get().security().addHiddenDialog(dialog.id)
                             ReconfigureOptionsHide(Settings.get().security().showHiddenDialogs)
                             notifyDataSetChanged()
+                            if (needHelp(HelperSimple.HIDDEN_DIALOGS, 3)) {
+                                showSnackbar(R.string.hidden_dialogs_helper, true)
+                            }
                         }
                         7 -> {
                             Settings.get().security().removeHiddenDialog(dialog.id)

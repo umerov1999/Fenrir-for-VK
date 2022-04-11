@@ -144,6 +144,7 @@ interface ISettings {
         fun observeRegistered(): Flowable<IAccountsSettings>
         val registered: List<Int>
         var current: Int
+        val currentAccessToken: String?
         fun remove(accountId: Int)
         fun registerAccountId(accountId: Int, setCurrent: Boolean)
         fun storeAccessToken(accountId: Int, accessToken: String?)

@@ -49,23 +49,40 @@ class VideoPreviewPresenter(
     }
 
     private fun onVideoAddedToBookmarks() {
+        video?.let {
+            it.isFavorite = !it.isFavorite
+        }
         view?.showSuccessToast()
     }
 
-    fun fireAddFaveVideo() {
+    fun fireFaveVideo() {
         val pVideo = video ?: return
-        appendDisposable(faveInteractor.addVideo(
-            accountId,
-            pVideo.ownerId,
-            pVideo.id,
-            pVideo.accessKey
-        )
-            .fromIOToMain()
-            .subscribe({ onVideoAddedToBookmarks() }) { t ->
-                showError(
-                    getCauseIfRuntime(t)
-                )
-            })
+        if (!pVideo.isFavorite) {
+            appendDisposable(faveInteractor.addVideo(
+                accountId,
+                pVideo.ownerId,
+                pVideo.id,
+                pVideo.accessKey
+            )
+                .fromIOToMain()
+                .subscribe({ onVideoAddedToBookmarks() }) { t ->
+                    showError(
+                        getCauseIfRuntime(t)
+                    )
+                })
+        } else {
+            appendDisposable(faveInteractor.removeVideo(
+                accountId,
+                pVideo.ownerId,
+                pVideo.id
+            )
+                .fromIOToMain()
+                .subscribe({ onVideoAddedToBookmarks() }) { t ->
+                    showError(
+                        getCauseIfRuntime(t)
+                    )
+                })
+        }
     }
 
     fun fireEditVideo(context: Context) {

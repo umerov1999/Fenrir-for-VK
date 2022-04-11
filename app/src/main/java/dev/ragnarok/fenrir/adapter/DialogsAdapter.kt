@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.squareup.picasso3.Transformation
@@ -34,6 +35,9 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
     private val DF_TODAY = SimpleDateFormat("HH:mm", Utils.appLocale)
     private val DF_OLD = SimpleDateFormat("dd/MM", Utils.appLocale)
     private val mTransformation: Transformation = CurrentTheme.createTransformationForAvatar()
+
+    @DrawableRes
+    private val mFavoritesAvatar = CurrentTheme.createFavoritesAvatar()
     private val mForegroundColorSpan: ForegroundColorSpan =
         ForegroundColorSpan(CurrentTheme.getPrimaryTextColorCode(mContext))
     private val mDataObserver: AdapterDataObserver
@@ -104,7 +108,6 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         val holder = dualHolder as DialogViewHolder
         val dialog = getByPosition(position)
         val previous = if (position == 0) null else findPreviousUnhidden(position - 1)
-        holder.mDialogTitle.text = dialog.getDisplayTitle(mContext)
         var lastMessage: SpannableStringBuilder
         val query = OwnerLinkSpanFactory.withSpans(
             if (dialog.lastMessageBody != null) dialog.lastMessageBody else "",
@@ -283,29 +286,38 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
             holder.tvDate.text = DF_TODAY.format(DATE)
             holder.tvDate.setTextColor(CurrentTheme.getColorPrimary(mContext))
         }
-        if (dialog.imageUrl != null) {
-            holder.EmptyAvatar.visibility = View.INVISIBLE
-            displayAvatar(holder.ivAvatar, mTransformation, dialog.imageUrl, PICASSO_TAG)
-        } else {
-            with().cancelRequest(holder.ivAvatar)
-            if (dialog.getDisplayTitle(mContext).nonNullNoEmpty()) {
-                holder.EmptyAvatar.visibility = View.VISIBLE
-                var name = dialog.getDisplayTitle(mContext)
-                if (name.length > 2) name = name.substring(0, 2)
-                name = name.trim { it <= ' ' }
-                holder.EmptyAvatar.text = name
-            } else {
+
+        if (accountId != dialog.peerId) {
+            holder.mDialogTitle.text = dialog.getDisplayTitle(mContext)
+            if (dialog.imageUrl != null) {
                 holder.EmptyAvatar.visibility = View.INVISIBLE
-            }
-            holder.ivAvatar.setImageBitmap(
-                mTransformation.localTransform(
-                    Utils.createGradientChatImage(
-                        200,
-                        200,
-                        dialog.id
+                displayAvatar(holder.ivAvatar, mTransformation, dialog.imageUrl, PICASSO_TAG)
+            } else {
+                with().cancelRequest(holder.ivAvatar)
+                if (dialog.getDisplayTitle(mContext).nonNullNoEmpty()) {
+                    holder.EmptyAvatar.visibility = View.VISIBLE
+                    var name = dialog.getDisplayTitle(mContext)
+                    if (name.length > 2) name = name.substring(0, 2)
+                    name = name.trim { it <= ' ' }
+                    holder.EmptyAvatar.text = name
+                } else {
+                    holder.EmptyAvatar.visibility = View.INVISIBLE
+                }
+                holder.ivAvatar.setImageBitmap(
+                    mTransformation.localTransform(
+                        Utils.createGradientChatImage(
+                            200,
+                            200,
+                            dialog.id
+                        )
                     )
                 )
-            )
+            }
+        } else {
+            holder.EmptyAvatar.visibility = View.INVISIBLE
+            holder.mDialogTitle.setText(R.string.favorites)
+            with().cancelRequest(holder.ivAvatar)
+            holder.ivAvatar.setImageResource(mFavoritesAvatar)
         }
         holder.mContentRoot.setOnClickListener {
             mClickListener?.onDialogClick(dialog)
@@ -365,6 +377,10 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         mDialogs = data
         this.accountId = accountId
         notifyDataSetChanged()
+    }
+
+    fun updateAccount(accountId: Int) {
+        this.accountId = accountId
     }
 
     override fun getItemCount(): Int {

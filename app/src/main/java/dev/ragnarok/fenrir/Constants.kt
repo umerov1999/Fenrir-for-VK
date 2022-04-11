@@ -13,17 +13,16 @@ object Constants {
     const val RANDOM_PAGAN_SYMBOL_NUMBER = 17
     val RANDOM_EXCLUDE_PAGAN_SYMBOLS: Array<Int>? = null
     const val API_VERSION = "5.131"
-    const val DATABASE_VERSION = 12
+    const val DATABASE_VERSION = 14
 
     @AccountType
     const val DEFAULT_ACCOUNT_TYPE: Int = BuildConfig.DEFAULT_ACCOUNT_TYPE
     const val FCM_SESSION_ID_GEN_URL: String = BuildConfig.FCM_SESSION_ID_GEN_URL
 
-    @JvmField
     val AUTH_VERSION = if (DEFAULT_ACCOUNT_TYPE == AccountType.KATE) API_VERSION else "5.122"
     const val FILE_PROVIDER_AUTHORITY: String = BuildConfig.APPLICATION_ID + ".file_provider"
-    const val VK_ANDROID_APP_VERSION_NAME = "7.19"
-    const val VK_ANDROID_APP_VERSION_CODE = "11647"
+    const val VK_ANDROID_APP_VERSION_NAME = "7.20"
+    const val VK_ANDROID_APP_VERSION_CODE = "11814"
     const val KATE_APP_VERSION_NAME = "86 lite"
     const val KATE_APP_VERSION_CODE = "514"
     const val API_ID: Int = BuildConfig.VK_API_APP_ID
@@ -37,66 +36,68 @@ object Constants {
     const val FRAGMENT_CHAT_DOWN_MENU_VIEW_COUNT = 0
     const val PICASSO_TAG = "picasso_tag"
 
-    @JvmField
     val IS_DEBUG: Boolean = BuildConfig.DEBUG
 
-    @JvmField
     var DEVICE_COUNTRY_CODE = "ru"
 
-    @JvmField
-    val KATE_USER_AGENT = String.format(
-        Locale.US,
-        "KateMobileAndroid/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
-        KATE_APP_VERSION_NAME,
-        KATE_APP_VERSION_CODE,
-        Build.VERSION.RELEASE,
-        Build.VERSION.SDK_INT,
-        Build.SUPPORTED_ABIS[0],
-        Utils.deviceName,
-        DEVICE_COUNTRY_CODE,
-        SCREEN_RESOLUTION()
-    )
-    private val KATE_USER_AGENT_FAKE = String.format(
-        Locale.US,
-        "KateMobileAndroid/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
-        KATE_APP_VERSION_NAME,
-        KATE_APP_VERSION_CODE,
-        Build.VERSION.RELEASE,
-        Build.VERSION.SDK_INT,
-        BuildConfig.FAKE_ABI,
-        BuildConfig.FAKE_DEVICE,
-        DEVICE_COUNTRY_CODE,
-        SCREEN_RESOLUTION()
-    )
-    private val VK_ANDROID_USER_AGENT = String.format(
-        Locale.US,
-        "VKAndroidApp/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
-        VK_ANDROID_APP_VERSION_NAME,
-        VK_ANDROID_APP_VERSION_CODE,
-        Build.VERSION.RELEASE,
-        Build.VERSION.SDK_INT,
-        Build.SUPPORTED_ABIS[0],
-        Utils.deviceName,
-        DEVICE_COUNTRY_CODE,
-        SCREEN_RESOLUTION()
-    )
-    private val VK_ANDROID_USER_AGENT_FAKE = String.format(
-        Locale.US,
-        "VKAndroidApp/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
-        VK_ANDROID_APP_VERSION_NAME,
-        VK_ANDROID_APP_VERSION_CODE,
-        Build.VERSION.RELEASE,
-        Build.VERSION.SDK_INT,
-        BuildConfig.FAKE_ABI,
-        BuildConfig.FAKE_DEVICE,
-        DEVICE_COUNTRY_CODE,
-        SCREEN_RESOLUTION()
-    )
+    val KATE_USER_AGENT
+        get() = String.format(
+            Locale.US,
+            "KateMobileAndroid/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
+            KATE_APP_VERSION_NAME,
+            KATE_APP_VERSION_CODE,
+            Build.VERSION.RELEASE,
+            Build.VERSION.SDK_INT,
+            Build.SUPPORTED_ABIS[0],
+            Utils.deviceName,
+            DEVICE_COUNTRY_CODE,
+            SCREEN_RESOLUTION
+        )
 
-    private fun SCREEN_RESOLUTION(): String {
-        val metrics = Resources.getSystem().displayMetrics ?: return "1920x1080"
-        return metrics.heightPixels.toString() + "x" + metrics.widthPixels
-    }
+    private val KATE_USER_AGENT_FAKE
+        get() = String.format(
+            Locale.US,
+            "KateMobileAndroid/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
+            KATE_APP_VERSION_NAME,
+            KATE_APP_VERSION_CODE,
+            Build.VERSION.RELEASE,
+            Build.VERSION.SDK_INT,
+            BuildConfig.FAKE_ABI,
+            BuildConfig.FAKE_DEVICE,
+            DEVICE_COUNTRY_CODE,
+            SCREEN_RESOLUTION
+        )
+    private val VK_ANDROID_USER_AGENT
+        get() = String.format(
+            Locale.US,
+            "VKAndroidApp/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
+            VK_ANDROID_APP_VERSION_NAME,
+            VK_ANDROID_APP_VERSION_CODE,
+            Build.VERSION.RELEASE,
+            Build.VERSION.SDK_INT,
+            Build.SUPPORTED_ABIS[0],
+            Utils.deviceName,
+            DEVICE_COUNTRY_CODE,
+            SCREEN_RESOLUTION
+        )
+    private val VK_ANDROID_USER_AGENT_FAKE
+        get() = String.format(
+            Locale.US,
+            "VKAndroidApp/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
+            VK_ANDROID_APP_VERSION_NAME,
+            VK_ANDROID_APP_VERSION_CODE,
+            Build.VERSION.RELEASE,
+            Build.VERSION.SDK_INT,
+            BuildConfig.FAKE_ABI,
+            BuildConfig.FAKE_DEVICE,
+            DEVICE_COUNTRY_CODE,
+            SCREEN_RESOLUTION
+        )
+
+    private val SCREEN_RESOLUTION
+        get() = Resources.getSystem().displayMetrics?.let {
+            it.heightPixels.toString() + "x" + it.widthPixels
+        } ?: "1920x1080"
 
     private fun getTypedUserAgent(@AccountType type: Int): String {
         if (type == AccountType.VK_ANDROID_HIDDEN || type == AccountType.KATE_HIDDEN) {
@@ -112,7 +113,7 @@ object Constants {
                     BuildConfig.FAKE_ABI,
                     device,
                     DEVICE_COUNTRY_CODE,
-                    SCREEN_RESOLUTION()
+                    SCREEN_RESOLUTION
                 ) else String.format(
                     Locale.US,
                     "VKAndroidApp/%s-%s (Android %s; SDK %d; %s; %s; %s; %s)",
@@ -123,7 +124,7 @@ object Constants {
                     BuildConfig.FAKE_ABI,
                     device,
                     DEVICE_COUNTRY_CODE,
-                    SCREEN_RESOLUTION()
+                    SCREEN_RESOLUTION
                 )
             }
         }
@@ -136,17 +137,17 @@ object Constants {
         return Utils.BY_DEFAULT_ACCOUNT_TYPE(VK_ANDROID_USER_AGENT, KATE_USER_AGENT)
     }
 
-    fun USER_AGENT_ACCOUNT(): String {
-        val accountId = Settings.get().accounts().current
-        return if (accountId == ISettings.IAccountsSettings.INVALID_ID) {
-            Utils.BY_DEFAULT_ACCOUNT_TYPE(
-                VK_ANDROID_USER_AGENT,
-                KATE_USER_AGENT
+    val USER_AGENT_ACCOUNT
+        get() = Settings.get().accounts().current.let {
+            if (it == ISettings.IAccountsSettings.INVALID_ID) {
+                Utils.BY_DEFAULT_ACCOUNT_TYPE(
+                    VK_ANDROID_USER_AGENT,
+                    KATE_USER_AGENT
+                )
+            } else getTypedUserAgent(
+                Settings.get().accounts().getType(it)
             )
-        } else getTypedUserAgent(
-            Settings.get().accounts().getType(accountId)
-        )
-    }
+        }
 
 
     fun USER_AGENT(@AccountType type: Int): String {

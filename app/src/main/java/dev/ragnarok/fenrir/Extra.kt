@@ -108,4 +108,5 @@ object Extra {
     const val REQUEST = "request"
     const val PATH = "path"
     const val EXT = "ext"
+    const val STACK_TRACE = "stack_trace"
 }

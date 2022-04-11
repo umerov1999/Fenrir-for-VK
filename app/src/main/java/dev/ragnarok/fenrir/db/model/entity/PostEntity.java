@@ -38,6 +38,8 @@ public class PostEntity extends Entity {
 
     private boolean canEdit;
 
+    private boolean isFavorite;
+
     private boolean canPublish;
 
     private int repostCount;
@@ -257,6 +259,15 @@ public class PostEntity extends Entity {
 
     public PostEntity setCreatedBy(int createdBy) {
         this.createdBy = createdBy;
+        return this;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public PostEntity setFavorite(boolean favorite) {
+        isFavorite = favorite;
         return this;
     }
 

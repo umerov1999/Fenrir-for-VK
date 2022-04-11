@@ -6,9 +6,9 @@ import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalPhotoAlbumsView
-import dev.ragnarok.fenrir.util.Analytics.logUnexpectedError
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.Objects.safeEquals
+import dev.ragnarok.fenrir.util.PersistentLogger
 import java.util.*
 
 class LocalAudioAlbumsPresenter(savedInstanceState: Bundle?) :
@@ -100,7 +100,7 @@ class LocalAudioAlbumsPresenter(savedInstanceState: Bundle?) :
     }
 
     private fun onLoadError(throwable: Throwable) {
-        logUnexpectedError(throwable)
+        PersistentLogger.logThrowable("LocalAudioAlbumsPresenter", throwable)
         changeLoadingNowState(false)
     }
 

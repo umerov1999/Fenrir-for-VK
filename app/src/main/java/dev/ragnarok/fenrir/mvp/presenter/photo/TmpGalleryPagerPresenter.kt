@@ -8,7 +8,7 @@ import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.TmpSource
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
-import dev.ragnarok.fenrir.util.Analytics
+import dev.ragnarok.fenrir.util.PersistentLogger
 
 class TmpGalleryPagerPresenter : PhotoPagerPresenter {
     constructor(
@@ -41,9 +41,7 @@ class TmpGalleryPagerPresenter : PhotoPagerPresenter {
             .getData(source.ownerId, source.sourceId, Serializers.PHOTOS_SERIALIZER)
             .fromIOToMain()
             .subscribe({ onInitialLoadingFinished(it) }) {
-                Analytics.logUnexpectedError(
-                    it
-                )
+                PersistentLogger.logThrowable("TmpGalleryPagerPresenter", it)
             })
     }
 

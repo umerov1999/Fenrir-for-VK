@@ -173,7 +173,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
                 return true
             }
             R.id.add_to_bookmarks -> {
-                presenter?.fireAddBookmark()
+                presenter?.fireBookmark()
                 return true
             }
             R.id.edit_post -> {
@@ -230,6 +230,8 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         menu.findItem(R.id.delete_post).isVisible = optionView.pCanDelete
         menu.findItem(R.id.restore_post).isVisible = optionView.pCanRestore
         menu.findItem(R.id.action_allow_text_selection).isVisible = !mTextSelectionAllowed
+        menu.findItem(R.id.add_to_bookmarks)
+            .setTitle(if (!optionView.pInFave) R.string.add_to_bookmarks else R.string.remove_from_bookmarks)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -450,6 +452,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         var pCanPin = false
         var pCanUnpin = false
         var pCanEdit = false
+        var pInFave = false
         override fun setCanDelete(can: Boolean) {
             pCanDelete = can
         }
@@ -468,6 +471,10 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
 
         override fun setCanEdit(can: Boolean) {
             pCanEdit = can
+        }
+
+        override fun setInFave(inTo: Boolean) {
+            pInFave = inTo
         }
     }
 

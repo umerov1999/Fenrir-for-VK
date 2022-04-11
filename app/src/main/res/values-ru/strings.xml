@@ -1659,4 +1659,15 @@
     <string name="select_file">Выбор %1$s</string>
     <string name="select_folder">Выбор директории</string>
     <string name="send_file_as_voice">Отправить файл как голосовую</string>
+    <string name="hidden_dialogs_helper">Удерживайте кнопку карандаш (создание беседы) для показа скрытых диалогов</string>
+    <string name="favorites">Избранное</string>
+
+    <string name="crash_error_activity_error_occurred_explanation">Необрабатываемое исключение.</string>
+    <string name="crash_error_activity_restart_app">Перезапуск</string>
+    <string name="crash_error_activity_error_details">Детали</string>
+    <string name="crash_error_activity_error_details_title">Детали исключения</string>
+    <string name="crash_error_activity_error_details_close">Закрыть</string>
+    <string name="crash_error_activity_error_details_copy">Копировать</string>
+    <string name="crash_error_activity_error_details_copied">Скопировано</string>
+    <string name="crash_error_activity_error_details_clipboard_label">Информация об ошибке</string>
 </resources>

@@ -939,6 +939,7 @@ object Entity2Model {
             .setSignerId(dbo.signedId)
             .setCreatorId(dbo.createdBy)
             .setCanEdit(dbo.isCanEdit)
+            .setFavorite(dbo.isFavorite)
             .setCanPin(dbo.isCanPin)
             .setPinned(dbo.isPinned)
             .setViewCount(dbo.views)
@@ -1006,6 +1007,8 @@ object Entity2Model {
             .setMp4link480(entity.mp4link480)
             .setMp4link720(entity.mp4link720)
             .setMp4link1080(entity.mp4link1080)
+            .setMp4link1440(entity.mp4link1440)
+            .setMp4link2160(entity.mp4link2160)
             .setExternalLink(entity.externalLink)
             .setHls(entity.hls)
             .setLive(entity.live)
@@ -1013,6 +1016,7 @@ object Entity2Model {
             .setCanEdit(entity.isCanEdit)
             .setCanAdd(entity.isCanAdd)
             .setPrivate(entity.private)
+            .setFavorite(entity.isFavorite)
     }
 
 

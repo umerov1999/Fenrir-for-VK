@@ -27,7 +27,7 @@ class ChatAttachmentDocsPresenter(peerId: Int, accountId: Int, savedInstanceStat
     override fun requestAttachments(
         peerId: Int,
         nextFrom: String?
-    ): Single<Pair<String, List<Document>>> {
+    ): Single<Pair<String?, List<Document>>> {
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, VKApiAttachment.TYPE_DOC, nextFrom, 1, 50, null)

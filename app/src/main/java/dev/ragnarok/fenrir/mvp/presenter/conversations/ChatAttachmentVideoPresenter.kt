@@ -26,7 +26,7 @@ class ChatAttachmentVideoPresenter(peerId: Int, accountId: Int, savedInstanceSta
     override fun requestAttachments(
         peerId: Int,
         nextFrom: String?
-    ): Single<Pair<String, List<Video>>> {
+    ): Single<Pair<String?, List<Video>>> {
         return get().vkDefault(accountId)
             .messages()
             .getHistoryAttachments(peerId, "video", nextFrom, 1, 50, null)
