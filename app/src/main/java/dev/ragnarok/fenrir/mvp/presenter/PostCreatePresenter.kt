@@ -448,10 +448,9 @@ class PostCreatePresenter(
         val pPost = post ?: return
         val destination = UploadDestination.forPost(pPost.dbid, ownerId)
         appendDisposable(uploadManager[accountId, destination]
-            .map { it.size }
             .fromIOToMain()
-            .subscribe({ count ->
-                if (count > 0) {
+            .subscribe({
+                if (it.isNotEmpty()) {
                     view?.showError(R.string.wait_until_file_upload_is_complete)
                 } else {
                     doPost()

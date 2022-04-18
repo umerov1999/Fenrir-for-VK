@@ -30,5 +30,5 @@ public class VKApiVideoAlbum {
 
     public String image;
 
-    public VkApiPrivacy privacy;
+    public VKApiPrivacy privacy;
 }

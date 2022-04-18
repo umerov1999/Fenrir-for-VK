@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model.feedback;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -9,6 +11,7 @@ public class Copies {
     @SerializedName("count")
     public int count;
 
+    @Nullable
     @SerializedName("items")
     public List<IdPair> pairs;
 

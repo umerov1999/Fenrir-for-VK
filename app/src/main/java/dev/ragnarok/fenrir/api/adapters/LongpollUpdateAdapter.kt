@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.adapters
 
 import com.google.gson.*
+import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiMessage
-import dev.ragnarok.fenrir.api.model.VkApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.longpoll.*
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.model.Peer

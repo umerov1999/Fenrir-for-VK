@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.api.model.VkApiDoc
+import dev.ragnarok.fenrir.api.model.VKApiDoc
 import dev.ragnarok.fenrir.db.interfaces.IDocsStorage
 import dev.ragnarok.fenrir.db.model.entity.DocumentEntity
 import dev.ragnarok.fenrir.domain.IDocsInteractor
@@ -23,8 +23,8 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
         return networker.vkDefault(accountId)
             .docs()[ownerId, null, null, filter]
             .map { items ->
-                listEmptyIfNull<VkApiDoc>(
-                    items.getItems()
+                listEmptyIfNull<VKApiDoc>(
+                    items.items
                 )
             }
             .flatMap { dtos ->
@@ -83,8 +83,8 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
             .docs()
             .search(criteria.query, count, offset)
             .map { items ->
-                val dtos = listEmptyIfNull<VkApiDoc>(
-                    items.getItems()
+                val dtos = listEmptyIfNull<VKApiDoc>(
+                    items.items
                 )
                 val documents: MutableList<Document> = ArrayList()
                 for (dto in dtos) {

@@ -5,8 +5,8 @@ import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IAccountApi
 import dev.ragnarok.fenrir.api.model.CountersDto
 import dev.ragnarok.fenrir.api.model.RefreshToken
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfo
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfoResponce
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfoResponce
 import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponce
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse
 import dev.ragnarok.fenrir.api.services.IAccountService
@@ -96,7 +96,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
-    override val profileInfo: Single<VkApiProfileInfo>
+    override val profileInfo: Single<VKApiProfileInfo>
         get() = provideService(IAccountService::class.java, TokenType.USER)
             .flatMap { service ->
                 service
@@ -119,7 +119,7 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
         bdate: String?,
         home_town: String?,
         sex: Int?
-    ): Single<VkApiProfileInfoResponce> {
+    ): Single<VKApiProfileInfoResponce> {
         return provideService(IAccountService::class.java, TokenType.USER)
             .flatMap { service ->
                 service

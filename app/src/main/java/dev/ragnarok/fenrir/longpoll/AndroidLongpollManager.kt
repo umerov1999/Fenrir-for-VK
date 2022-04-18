@@ -75,8 +75,8 @@ class AndroidLongpollManager internal constructor(
 
     override fun onUpdates(aid: Int, updates: VkApiLongpollUpdates) {
         d(TAG, "updates, accountId: $aid")
-        if (updates.addMessageUpdates.nonNullNoEmpty<Any?>()) {
-            messagesProcessor.process(aid, updates.addMessageUpdates)
+        updates.add_message_updates.nonNullNoEmpty {
+            messagesProcessor.process(aid, it)
         }
         compositeDisposable.add(
             LongPollEventSaver()

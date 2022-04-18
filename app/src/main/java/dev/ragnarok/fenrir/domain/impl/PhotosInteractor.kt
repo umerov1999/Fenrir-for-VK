@@ -47,7 +47,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
     ): Single<List<Photo>> {
         return networker.vkDefault(accountId)
             .photos()[ownerId, albumId.toString(), null, rev, offset, count]
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 val dbos: MutableList<PhotoEntity> = ArrayList(dtos.size)
@@ -72,7 +72,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getUsersPhoto(ownerId, extended, sort, offset, count)
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -93,7 +93,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getAll(ownerId, extended, photo_sizes, offset, count)
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -130,7 +130,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
                 offset,
                 count
             )
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -164,7 +164,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .photos()
             .getAlbums(ownerId, listOf(albumId), null, null, needSystem = true, needCovers = true)
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .map { dtos ->
                 if (dtos.isEmpty()) {
                     throw NotFoundException()
@@ -216,7 +216,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
             .photos()
             .getAllComments(ownerId, album_id, 1, offset, count)
             .flatMap { items ->
-                val dtos = listEmptyIfNull(items.getItems())
+                val dtos = listEmptyIfNull(items.items)
                 val ownids = VKOwnIds()
                 for (dto in dtos) {
                     ownids.append(dto)
@@ -249,7 +249,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
             .photos()
             .getAlbums(ownerId, null, offset, count, needSystem = true, needCovers = true)
             .flatMap { items ->
-                val dtos = listEmptyIfNull(items.getItems())
+                val dtos = listEmptyIfNull(items.items)
                 val dbos: MutableList<PhotoAlbumEntity> = ArrayList(dtos.size)
                 val albums: MutableList<PhotoAlbum> = ArrayList(dbos.size)
                 if (offset == 0) {

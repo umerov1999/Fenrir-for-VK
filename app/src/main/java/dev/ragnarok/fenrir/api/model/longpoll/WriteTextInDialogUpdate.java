@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model.longpoll;
 
+import androidx.annotation.Nullable;
+
 public class WriteTextInDialogUpdate extends AbsLongpollEvent {
 
     public int peer_id;
+    @Nullable
     public int[] from_ids;
     public int from_ids_count;
     public boolean is_text;

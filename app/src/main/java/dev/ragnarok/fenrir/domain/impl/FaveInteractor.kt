@@ -34,6 +34,7 @@ import dev.ragnarok.fenrir.domain.mappers.Entity2Model.map
 import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAll
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.*
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.VKOwnIds
@@ -59,8 +60,8 @@ class FaveInteractor(
                 }
                 val ownerEntities = mapOwners(response.profiles, response.groups)
                 val dbos: MutableList<PostEntity> = ArrayList(safeCountOf(response.posts))
-                if (response.posts != null) {
-                    for (dto in response.posts) {
+                response.posts.requireNonNull {
+                    for (dto in it) {
                         if (dto.attachment is VKApiPost) dbos.add(mapPost(dto.attachment))
                     }
                 }
@@ -120,7 +121,7 @@ class FaveInteractor(
             .getPhotos(offset, count)
             .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiPhoto>(
-                    items.getItems()
+                    items.items
                 )
                 val dbos: MutableList<PhotoEntity> = ArrayList(dtos.size)
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
@@ -267,14 +268,18 @@ class FaveInteractor(
             .getPages(offset, count, UserColumns.API_FIELDS, if (isUser) "users" else "groups")
             .flatMap { items ->
                 val dtos = listEmptyIfNull<FavePageResponse>(
-                    items.getItems()
+                    items.items
                 )
                 val userEntities: MutableList<UserEntity> = ArrayList()
                 val communityEntities: MutableList<CommunityEntity> = ArrayList()
                 for (item in dtos) {
                     when (item.type) {
-                        FavePageType.USER -> userEntities.add(mapUser(item.user))
-                        FavePageType.COMMUNITY -> communityEntities.add(mapCommunity(item.group))
+                        FavePageType.USER -> userEntities.add(mapUser(item.user ?: continue))
+                        FavePageType.COMMUNITY -> communityEntities.add(
+                            mapCommunity(
+                                item.group ?: continue
+                            )
+                        )
                     }
                 }
                 val entities = mapAll(dtos) {
@@ -325,7 +330,7 @@ class FaveInteractor(
             .getLinks(offset, count)
             .flatMap { items ->
                 val dtos = listEmptyIfNull<FaveLinkDto>(
-                    items.getItems()
+                    items.items
                 )
                 val links: MutableList<FaveLink> = ArrayList(dtos.size)
                 val entities: MutableList<FaveLinkEntity> = ArrayList(dtos.size)
@@ -465,7 +470,7 @@ class FaveInteractor(
             return FaveLinkEntity(dto.id, dto.url)
                 .setDescription(dto.description)
                 .setTitle(dto.title)
-                .setPhoto(if (dto.photo != null) mapPhoto(dto.photo) else null)
+                .setPhoto(dto.photo?.let { mapPhoto(it) })
         }
     }
 }

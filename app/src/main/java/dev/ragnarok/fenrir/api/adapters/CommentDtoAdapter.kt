@@ -5,8 +5,8 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
+import dev.ragnarok.fenrir.api.model.VKApiAttachments
 import dev.ragnarok.fenrir.api.model.VKApiComment
-import dev.ragnarok.fenrir.api.model.VkApiAttachments
 import java.lang.reflect.Type
 
 class CommentDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiComment> {
@@ -31,7 +31,7 @@ class CommentDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiComment> {
         dto.reply_to_user = optInt(root, "reply_to_user")
         dto.reply_to_comment = optInt(root, "reply_to_comment")
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VkApiAttachments::class.java)
+            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
         }
         if (hasObject(root, "thread")) {
             val threadRoot = root.getAsJsonObject("thread")

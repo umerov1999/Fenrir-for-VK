@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 public class VKApiStory implements VKApiAttachment {
 
     /**
@@ -33,6 +35,7 @@ public class VKApiStory implements VKApiAttachment {
 
     public VKApiVideo video;
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_STORY;

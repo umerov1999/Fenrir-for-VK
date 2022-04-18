@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 public class VKApiWallReply implements VKApiAttachment {
@@ -20,7 +22,7 @@ public class VKApiWallReply implements VKApiAttachment {
     public String text;
 
     @SerializedName("attachments")
-    public VkApiAttachments attachments;
+    public VKApiAttachments attachments;
 
     public int getAttachmentsCount() {
         return attachments == null ? 0 : attachments.size();
@@ -30,6 +32,7 @@ public class VKApiWallReply implements VKApiAttachment {
         return getAttachmentsCount() > 0;
     }
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_WALL_REPLY;

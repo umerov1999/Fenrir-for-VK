@@ -194,17 +194,17 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
 
     override fun copyLinkToClipboard(link: String?) {
         val clipboard =
-            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText(getString(R.string.link), link)
-        clipboard.setPrimaryClip(clip)
+        clipboard?.setPrimaryClip(clip)
         customToast.showToast(R.string.copied_url)
     }
 
     override fun copyTextToClipboard(text: String?) {
         val manager =
-            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clipData = ClipData.newPlainText(getString(R.string.post_text), text)
-        manager.setPrimaryClip(clipData)
+        manager?.setPrimaryClip(clipData)
         customToast.showToast(R.string.copied_text)
     }
 

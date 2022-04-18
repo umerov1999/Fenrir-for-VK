@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.api.interfaces
 
 import dev.ragnarok.fenrir.api.model.LoginResponse
-import dev.ragnarok.fenrir.api.model.VkApiValidationResponce
+import dev.ragnarok.fenrir.api.model.VKApiValidationResponce
 import io.reactivex.rxjava3.core.Single
 
 interface IAuthApi {
@@ -17,5 +17,5 @@ interface IAuthApi {
         clientSecret: String?,
         sid: String?,
         v: String?
-    ): Single<VkApiValidationResponce>
+    ): Single<VKApiValidationResponce>
 }

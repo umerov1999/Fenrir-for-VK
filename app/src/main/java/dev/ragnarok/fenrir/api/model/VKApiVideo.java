@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 /**
  * A video object describes an video file.
  */
@@ -104,14 +106,14 @@ public class VKApiVideo implements VKApiAttachment, Commentable, Likeable, Copya
     public int likes;
 
     /**
-     * VkApiPrivacy to view of this video.
+     * VKApiPrivacy to view of this video.
      */
-    public VkApiPrivacy privacy_view;
+    public VKApiPrivacy privacy_view;
 
     /**
-     * VkApiPrivacy to comment of this video.
+     * VKApiPrivacy to comment of this video.
      */
-    public VkApiPrivacy privacy_comment;
+    public VKApiPrivacy privacy_comment;
 
     /**
      * URL of video with height of 240 pixels. Returns only if you use direct auth.
@@ -167,6 +169,7 @@ public class VKApiVideo implements VKApiAttachment, Commentable, Likeable, Copya
 
     public boolean is_favorite;
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_VIDEO;

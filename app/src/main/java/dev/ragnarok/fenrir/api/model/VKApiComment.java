@@ -59,7 +59,7 @@ public class VKApiComment {
     /**
      * Information about attachments in the comments (photos, links, etc.;)
      */
-    public VkApiAttachments attachments;
+    public VKApiAttachments attachments;
 
     public int threads_count;
 

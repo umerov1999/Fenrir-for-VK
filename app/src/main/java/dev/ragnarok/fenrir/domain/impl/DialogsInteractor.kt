@@ -16,7 +16,7 @@ class DialogsInteractor(private val networker: INetworker, private val repositor
             .findChatById(accountId, peerId)
             .flatMap { optional ->
                 if (optional.nonEmpty()) {
-                    return@flatMap Single.just(optional.requareNonEmpty())
+                    return@flatMap Single.just(optional.requireNonEmpty())
                 }
                 val chatId = Peer.toChatId(peerId)
                 networker.vkDefault(accountId)

@@ -8,11 +8,9 @@ import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
 import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fromIOToMain
-import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.place.PlaceFactory.getExternalLinkPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
-import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
 
@@ -48,11 +46,7 @@ class ResolveDomainDialog : AccountDependencyDialogFragment() {
 
     private fun onResolveError() {
         url?.let {
-            if (Settings.get().main().isOpenUrlInternal > 0) {
-                LinkHelper.openLinkInBrowser(requireActivity(), it)
-            } else {
-                getExternalLinkPlace(accountId, it).tryOpenWith(requireActivity())
-            }
+            getExternalLinkPlace(mAccountId, it).tryOpenWith(requireActivity())
         }
         dismissAllowingStateLoss()
     }

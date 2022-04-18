@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 /**
  * A note object describes a note.
  */
@@ -47,6 +49,7 @@ public class VKApiNote implements VKApiAttachment {
 
     }
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_NOTE;

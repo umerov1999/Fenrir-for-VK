@@ -11,30 +11,31 @@
     android:paddingBottom="8dp"
     android:stateListAnimator="@animator/clicked">
 
-    <FrameLayout
-        android:id="@+id/item_fave_link_view"
+    <com.google.android.material.card.MaterialCardView
+        style="?materialCardStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp">
+        android:layout_margin="2dp"
+        app:cardBackgroundColor="?message_bubble_color">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/item_fave_link_image"
             android:layout_width="@dimen/avatar_size_big"
-            android:layout_height="@dimen/avatar_size_big"
+            android:layout_height="wrap_content"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.MediumRoundedPictures" />
 
         <ImageView
             android:id="@+id/item_fave_link_empty"
             android:layout_width="@dimen/avatar_size_big"
-            android:layout_height="@dimen/avatar_size_big"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:contentDescription="@null"
             android:padding="17dp"
-            android:src="@drawable/attachment"
+            android:src="@drawable/ic_linked_outline"
             app:tint="?colorPrimary" />
 
-    </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -50,9 +51,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:textColor="?attr/colorSecondary"
-            android:textSize="17sp"
-            android:textStyle="bold"
+            android:textSize="15sp"
             tools:text="Name" />
 
         <TextView
@@ -62,7 +61,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-            android:textSize="13sp"
+            android:textSize="12sp"
             tools:text="Description" />
 
         <TextView
@@ -76,7 +75,7 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textSize="13sp"
+            android:textSize="11sp"
             tools:text="Link" />
 
     </LinearLayout>

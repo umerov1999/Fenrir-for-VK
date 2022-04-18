@@ -3,29 +3,32 @@ package dev.ragnarok.fenrir.api.model.server;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class VkApiAudioUploadServer implements Parcelable, UploadServer {
+import androidx.annotation.Nullable;
 
-    public static final Creator<VkApiAudioUploadServer> CREATOR = new Creator<VkApiAudioUploadServer>() {
+public class VKApiAudioUploadServer implements Parcelable, UploadServer {
+
+    public static final Creator<VKApiAudioUploadServer> CREATOR = new Creator<VKApiAudioUploadServer>() {
         @Override
-        public VkApiAudioUploadServer createFromParcel(Parcel in) {
-            return new VkApiAudioUploadServer(in);
+        public VKApiAudioUploadServer createFromParcel(Parcel in) {
+            return new VKApiAudioUploadServer(in);
         }
 
         @Override
-        public VkApiAudioUploadServer[] newArray(int size) {
-            return new VkApiAudioUploadServer[size];
+        public VKApiAudioUploadServer[] newArray(int size) {
+            return new VKApiAudioUploadServer[size];
         }
     };
+    @Nullable
     public String upload_url;
 
-    public VkApiAudioUploadServer() {
+    public VKApiAudioUploadServer() {
     }
 
-    public VkApiAudioUploadServer(String url) {
+    public VKApiAudioUploadServer(@Nullable String url) {
         upload_url = url;
     }
 
-    protected VkApiAudioUploadServer(Parcel in) {
+    protected VKApiAudioUploadServer(Parcel in) {
         upload_url = in.readString();
     }
 
@@ -39,6 +42,7 @@ public class VkApiAudioUploadServer implements Parcelable, UploadServer {
         dest.writeString(upload_url);
     }
 
+    @Nullable
     @Override
     public String getUrl() {
         return upload_url;

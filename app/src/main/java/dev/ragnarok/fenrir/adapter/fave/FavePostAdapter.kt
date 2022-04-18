@@ -16,7 +16,7 @@ import dev.ragnarok.fenrir.adapter.AttachmentsHolder
 import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder
 import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.adapter.base.RecyclerBindableAdapter
-import dev.ragnarok.fenrir.api.model.VkApiPostSource
+import dev.ragnarok.fenrir.api.model.VKApiPostSource
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.Post
@@ -116,9 +116,9 @@ class FavePostAdapter(
         var postSubtitle = formattedDate
         if (post.source != null) {
             when (post.source.data) {
-                VkApiPostSource.Data.PROFILE_ACTIVITY -> postSubtitle =
+                VKApiPostSource.Data.PROFILE_ACTIVITY -> postSubtitle =
                     mContext.getString(R.string.updated_status_at, formattedDate)
-                VkApiPostSource.Data.PROFILE_PHOTO -> postSubtitle =
+                VKApiPostSource.Data.PROFILE_PHOTO -> postSubtitle =
                     mContext.getString(R.string.updated_profile_photo_at, formattedDate)
             }
         }

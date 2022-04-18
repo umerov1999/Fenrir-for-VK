@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.Items
+import dev.ragnarok.fenrir.api.model.VKApiFriendList
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import dev.ragnarok.fenrir.api.model.VkApiFriendList
 import dev.ragnarok.fenrir.api.model.response.DeleteFriendResponse
 import dev.ragnarok.fenrir.api.model.response.OnlineFriendsResponse
 import io.reactivex.rxjava3.core.Single
@@ -32,7 +32,7 @@ interface IFriendsApi {
     ): Single<Items<VKApiUser>>
 
     @CheckResult
-    fun getLists(userId: Int?, returnSystem: Boolean?): Single<Items<VkApiFriendList>>
+    fun getLists(userId: Int?, returnSystem: Boolean?): Single<Items<VKApiFriendList>>
 
     @CheckResult
     fun delete(userId: Int): Single<DeleteFriendResponse>

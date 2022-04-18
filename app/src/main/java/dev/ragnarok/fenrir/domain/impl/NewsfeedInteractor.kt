@@ -10,7 +10,7 @@ import dev.ragnarok.fenrir.domain.mappers.Dto2Model.buildComment
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformOwners
 import dev.ragnarok.fenrir.model.*
-import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.nonNullNoEmptyOrNullable
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
@@ -38,7 +38,7 @@ class NewsfeedInteractor(
                 val dtos = listEmptyIfNull(response.items)
                 for (dto in dtos) {
                     if (dto is PostDto) {
-                        val post = dto.post
+                        val post = dto.post ?: continue
                         ownIds.append(post)
                         ownIds.append(post.comments)
                     }
@@ -81,22 +81,24 @@ class NewsfeedInteractor(
                 for (dto in dtos) {
                     when (dto) {
                         is PostDto -> {
-                            val post = dto.post
+                            val post = dto.post ?: continue
                             ownIds.append(post)
                             ownIds.append(post.comments)
                         }
                         is PhotoDto -> {
-                            ownIds.append(dto.photo.owner_id)
-                            ownIds.append(dto.photo.comments)
+                            val photo = dto.photo ?: continue
+                            ownIds.append(photo.owner_id)
+                            ownIds.append(photo.comments)
                         }
                         is TopicDto -> {
-                            val topic = dto.topic
+                            val topic = dto.topic ?: continue
                             ownIds.append(topic.owner_id)
                             ownIds.append(topic.comments)
                         }
                         is VideoDto -> {
-                            ownIds.append(dto.video.owner_id)
-                            ownIds.append(dto.video.comments)
+                            val video = dto.video ?: continue
+                            ownIds.append(video.owner_id)
+                            ownIds.append(video.comments)
                         }
                     }
                 }
@@ -125,15 +127,15 @@ class NewsfeedInteractor(
             dto: CommentsDto?,
             bundle: IOwnersBundle
         ): Comment? {
-            return if (dto != null && dto.list.nonNullNoEmpty()) {
-                buildComment(commented, dto.list[dto.list.size - 1], bundle)
-            } else null
+            return dto?.list.nonNullNoEmptyOrNullable {
+                buildComment(commented, it[it.size - 1], bundle)
+            }
         }
 
         private fun createFrom(dto: Dto, bundle: IOwnersBundle): NewsfeedComment? {
             if (dto is PhotoDto) {
                 val photoDto = dto.photo
-                val photo = transform(photoDto)
+                val photo = transform(photoDto ?: return null)
                 val commented = Commented.from(photo)
                 val photoOwner = bundle.getById(photo.ownerId)
                 return NewsfeedComment(PhotoWithOwner(photo, photoOwner))
@@ -141,7 +143,7 @@ class NewsfeedInteractor(
             }
             if (dto is VideoDto) {
                 val videoDto = dto.video
-                val video = transform(videoDto)
+                val video = transform(videoDto ?: return null)
                 val commented = Commented.from(video)
                 val videoOwner = bundle.getById(video.ownerId)
                 return NewsfeedComment(VideoWithOwner(video, videoOwner))
@@ -149,7 +151,7 @@ class NewsfeedInteractor(
             }
             if (dto is PostDto) {
                 val postDto = dto.post
-                val post = transform(postDto, bundle)
+                val post = transform(postDto ?: return null, bundle)
                 val commented = Commented.from(post)
                 return NewsfeedComment(post).setComment(
                     oneCommentFrom(
@@ -161,7 +163,7 @@ class NewsfeedInteractor(
             }
             if (dto is TopicDto) {
                 val topicDto = dto.topic
-                val topic = transform(topicDto, bundle)
+                val topic = transform(topicDto ?: return null, bundle)
                 if (topicDto.comments != null) {
                     topic.commentsCount = topicDto.comments.count
                 }

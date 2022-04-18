@@ -35,7 +35,7 @@ interface IGroupsService {
         @Field("owner_id") owner_id: Int,
         @Field("offset") offset: Int,
         @Field("count") count: Int
-    ): Single<BaseResponse<Items<VkApiMarketAlbum>>>
+    ): Single<BaseResponse<Items<VKApiMarketAlbum>>>
 
     @FormUrlEncoded
     @POST("market.get")
@@ -45,14 +45,14 @@ interface IGroupsService {
         @Field("offset") offset: Int,
         @Field("count") count: Int,
         @Field("extended") extended: Int?
-    ): Single<BaseResponse<Items<VkApiMarket>>>
+    ): Single<BaseResponse<Items<VKApiMarket>>>
 
     @FormUrlEncoded
     @POST("market.getById")
     fun getMarketById(
         @Field("item_ids") item_ids: String?,
         @Field("extended") extended: Int?
-    ): Single<BaseResponse<Items<VkApiMarket>>>
+    ): Single<BaseResponse<Items<VKApiMarket>>>
 
     @POST("groups.ban")
     @FormUrlEncoded
@@ -78,7 +78,7 @@ interface IGroupsService {
         @Field("count") count: Int?,
         @Field("fields") fields: String?,
         @Field("user_id") userId: Int?
-    ): Single<BaseResponse<Items<VkApiBanned>>>
+    ): Single<BaseResponse<Items<VKApiBanned>>>
 
     @FormUrlEncoded
     @POST("execute")

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.adapter.ArtistSearchAdapter
-import dev.ragnarok.fenrir.api.model.VkApiArtist
+import dev.ragnarok.fenrir.api.model.VKApiArtist
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
 import dev.ragnarok.fenrir.model.AudioArtist
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
@@ -14,14 +14,14 @@ import dev.ragnarok.fenrir.mvp.presenter.search.ArtistSearchPresenter
 import dev.ragnarok.fenrir.mvp.view.search.IArtistSearchView
 
 class ArtistSearchFragment :
-    AbsSearchFragment<ArtistSearchPresenter, IArtistSearchView, VkApiArtist, ArtistSearchAdapter>(),
+    AbsSearchFragment<ArtistSearchPresenter, IArtistSearchView, VKApiArtist, ArtistSearchAdapter>(),
     ArtistSearchAdapter.ClickListener, IArtistSearchView {
-    override fun setAdapterData(adapter: ArtistSearchAdapter, data: MutableList<VkApiArtist>) {
+    override fun setAdapterData(adapter: ArtistSearchAdapter, data: MutableList<VKApiArtist>) {
         adapter.setData(data)
     }
 
     override fun postCreate(root: View) {}
-    override fun createAdapter(data: MutableList<VkApiArtist>): ArtistSearchAdapter {
+    override fun createAdapter(data: MutableList<VKApiArtist>): ArtistSearchAdapter {
         val ret = ArtistSearchAdapter(data, requireActivity())
         ret.setClickListener(this)
         return ret

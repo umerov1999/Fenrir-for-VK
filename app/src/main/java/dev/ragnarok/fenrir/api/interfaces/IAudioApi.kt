@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
 import dev.ragnarok.fenrir.api.model.response.CatalogResponse
 import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
-import dev.ragnarok.fenrir.api.model.server.VkApiAudioUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
 import dev.ragnarok.fenrir.model.Audio
 import io.reactivex.rxjava3.core.Single
 
@@ -21,7 +21,7 @@ interface IAudioApi {
     ): Single<Items<VKApiAudio>>
 
     @CheckResult
-    fun searchArtists(query: String?, offset: Int?, count: Int?): Single<Items<VkApiArtist>>
+    fun searchArtists(query: String?, offset: Int?, count: Int?): Single<Items<VKApiArtist>>
 
     @CheckResult
     fun searchPlaylists(
@@ -135,7 +135,7 @@ interface IAudioApi {
     fun getByIdOld(audios: List<Audio>): Single<List<VKApiAudio>>
 
     @CheckResult
-    fun getLyrics(lyrics_id: Int): Single<VkApiLyrics>
+    fun getLyrics(lyrics_id: Int): Single<VKApiLyrics>
 
     @CheckResult
     fun getPlaylists(owner_id: Int, offset: Int, count: Int): Single<Items<VKApiAudioPlaylist>>
@@ -150,7 +150,7 @@ interface IAudioApi {
     fun getCatalogBlockById(block_id: String?, start_from: String?): Single<CatalogResponse>
 
     @get:CheckResult
-    val uploadServer: Single<VkApiAudioUploadServer>
+    val uploadServer: Single<VKApiAudioUploadServer>
 
     @CheckResult
     fun save(

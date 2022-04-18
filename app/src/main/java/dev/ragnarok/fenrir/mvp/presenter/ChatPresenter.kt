@@ -793,7 +793,7 @@ class ChatPresenter(
 
     private fun onMessagesGetError(t: Throwable) {
         setNetLoadingNow(false)
-        PersistentLogger.logThrowable("Chat issues", getCauseIfRuntime(t))
+        logThrowable("Chat issues", getCauseIfRuntime(t))
         showError(view, getCauseIfRuntime(t))
     }
 
@@ -2225,7 +2225,7 @@ class ChatPresenter(
         netLoadingDisposable = utilsInteractor.getInviteLink(accountId, peerId, 0)
             .fromIOToMain()
             .subscribe({
-                view?.copyToClipBoard(it.link)
+                it.link?.let { it1 -> view?.copyToClipBoard(it1) }
             }, { onConversationFetchFail(it) })
     }
 

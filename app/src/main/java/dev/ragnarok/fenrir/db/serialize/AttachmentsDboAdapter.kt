@@ -25,7 +25,7 @@ class AttachmentsDboAdapter : AbsAdapter(), JsonDeserializer<AttachmentsEntity?>
             val dbotype = o[KEY_ENTITY_TYPE].asInt
             entities.add(context.deserialize(o[KEY_ENTITY], AttachmentsTypes.classForType(dbotype)))
         }
-        return AttachmentsEntity.from(entities)!!
+        return AttachmentsEntity.from(entities)
     }
 
     override fun serialize(

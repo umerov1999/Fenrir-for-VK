@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +64,7 @@ public class NewPostPushMessage {
         Matcher matcher = PATTERN_WALL_POST.matcher(url);
         if (matcher.find()) {
             Context app = context.getApplicationContext();
-            OwnerInfo.getRx(app, accountId, parseInt(matcher.group(1)))
+            OwnerInfo.getRx(app, accountId, parseInt(Objects.requireNonNull(matcher.group(1))))
                     .subscribeOn(NotificationScheduler.getINSTANCE())
                     .subscribe(ownerInfo -> notifyImpl(app, ownerInfo.getAvatar()), throwable -> notifyImpl(app, null));
         } else {

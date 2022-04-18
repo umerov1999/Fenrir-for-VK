@@ -52,9 +52,9 @@ class ChatPhotoUploadable(private val context: Context, private val networker: I
                                     UploadResult(
                                         server,
                                         firstNonEmptyString(
-                                            response.chat.photo_200,
-                                            response.chat.photo_100,
-                                            response.chat.photo_50
+                                            response.chat?.photo_200,
+                                            response.chat?.photo_100,
+                                            response.chat?.photo_50
                                         ) ?: ""
                                     )
                                 )

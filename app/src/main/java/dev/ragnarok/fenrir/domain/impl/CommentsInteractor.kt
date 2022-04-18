@@ -28,7 +28,7 @@ import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.CommentsCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.VKOwnIds
 import io.reactivex.rxjava3.core.Completable
@@ -92,8 +92,8 @@ class CommentsInteractor(
         accountId: Int,
         commented: Commented,
         comments: List<VKApiComment>,
-        users: Collection<VKApiUser>,
-        groups: Collection<VKApiCommunity>
+        users: Collection<VKApiUser>?,
+        groups: Collection<VKApiCommunity>?
     ): Single<List<Comment>> {
         val ownids = VKOwnIds()
         for (dto in comments) {
@@ -129,11 +129,11 @@ class CommentsInteractor(
             .comments()["post", ownerId, postId, offset, 100, "desc", null, null, null, Constants.MAIN_OWNER_FIELDS]
             .flatMap { response ->
                 val commentDtos =
-                    if (response.main != null) listEmptyIfNull(response.main.comments) else emptyList()
+                    response.main?.comments.orEmpty()
                 val users =
-                    if (response.main != null) listEmptyIfNull(response.main.profiles) else emptyList()
+                    response.main?.profiles.orEmpty()
                 val groups =
-                    if (response.main != null) listEmptyIfNull(response.main.groups) else emptyList()
+                    response.main?.groups.orEmpty()
                 transform(
                     accountId,
                     Commented(postId, ownerId, CommentedType.POST, null),
@@ -159,11 +159,11 @@ class CommentsInteractor(
             .comments()[type, commented.sourceOwnerId, commented.sourceId, offset, count, sort, startCommentId, threadComment, commented.accessKey, Constants.MAIN_OWNER_FIELDS]
             .flatMap { response ->
                 val commentDtos =
-                    if (response.main != null) listEmptyIfNull(response.main.comments) else emptyList()
+                    response.main?.comments.orEmpty()
                 val users =
-                    if (response.main != null) listEmptyIfNull(response.main.profiles) else emptyList()
+                    response.main?.profiles.orEmpty()
                 val groups =
-                    if (response.main != null) listEmptyIfNull(response.main.groups) else emptyList()
+                    response.main?.groups.orEmpty()
                 val modelsSingle = transform(accountId, commented, commentDtos, users, groups)
                 val dbos: MutableList<CommentEntity> = ArrayList(commentDtos.size)
                 for (dto in commentDtos) dbos.add(
@@ -181,8 +181,8 @@ class CommentsInteractor(
                             .setAdminLevel(response.admin_level)
                             .setFirstCommentId(response.firstId)
                             .setLastCommentId(response.lastId)
-                        if (response.main != null && response.main.poll != null) {
-                            val poll = transform(response.main.poll)
+                        response.main?.poll.requireNonNull {
+                            val poll = transform(it)
                             poll.isBoard = true // так как это может быть только из топика
                             bundle.topicPoll = poll
                         }
@@ -195,8 +195,8 @@ class CommentsInteractor(
                             .setAdminLevel(response.admin_level)
                             .setFirstCommentId(response.firstId)
                             .setLastCommentId(response.lastId)
-                        if (response.main != null && response.main.poll != null) {
-                            val poll = transform(response.main.poll)
+                        response.main?.poll.requireNonNull {
+                            val poll = transform(it)
                             poll.isBoard = true // так как это может быть только из топика
                             bundle.topicPoll = poll
                         }
@@ -424,7 +424,7 @@ class CommentsInteractor(
             .flatMap { owner ->
                 networker.vkDefault(accountId)
                     .groups()[accountId, true, "admin,editor", GroupColumns.API_FIELDS, null, 1000]
-                    .map { obj -> obj.getItems() }
+                    .map { obj -> obj.items.orEmpty() }
                     .map<List<Owner>> {
                         val owners: MutableList<Owner> = ArrayList(it.size + 1)
                         owners.add(owner)
@@ -643,12 +643,12 @@ class CommentsInteractor(
         return networker.vkDefault(accountId)
             .comments()[type, commented.sourceOwnerId, commented.sourceId, 0, 1, null, commentId, commentThread, commented.accessKey, Constants.MAIN_OWNER_FIELDS]
             .flatMap { response ->
-                if (response.main == null || safeCountOf(response.main.comments) != 1) {
+                if (response.main == null || safeCountOf(response.main?.comments) != 1) {
                     throw NotFoundException()
                 }
-                val comments = response.main.comments
-                val users = response.main.profiles
-                val communities = response.main.groups
+                val comments = response.main?.comments ?: throw NotFoundException()
+                val users = response.main?.profiles
+                val communities = response.main?.groups
                 val storeCompletable: Completable = if (storeToCache) {
                     val dbos: MutableList<CommentEntity> = ArrayList(comments.size)
                     for (dto in comments) {
@@ -703,23 +703,25 @@ class CommentsInteractor(
         val groups: MutableSet<VKApiCommunity> = HashSet()
         val comments: MutableList<VKApiComment> = ArrayList()
         fun append(response: DefaultCommentsResponse, continueToCommentId: Int) {
-            if (response.groups != null) {
-                groups.addAll(response.groups)
+            response.groups.requireNonNull {
+                groups.addAll(it)
             }
-            if (response.profiles != null) {
-                profiles.addAll(response.profiles)
+            response.profiles.requireNonNull {
+                profiles.addAll(it)
             }
             var hasTargetComment = false
             var additionalCount = 0
-            for (comment in response.items) {
-                if (comment.id == continueToCommentId) {
-                    hasTargetComment = true
-                } else if (hasTargetComment) {
-                    additionalCount++
-                }
-                comments.add(comment)
-                if (additionalCount > 5) {
-                    break
+            response.items.nonNullNoEmpty {
+                for (comment in it) {
+                    if (comment.id == continueToCommentId) {
+                        hasTargetComment = true
+                    } else if (hasTargetComment) {
+                        additionalCount++
+                    }
+                    comments.add(comment)
+                    if (additionalCount > 5) {
+                        break
+                    }
                 }
             }
         }

@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model.response;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -13,6 +15,7 @@ public class TopicsResponse {
     @SerializedName("count")
     public int count;
 
+    @Nullable
     @SerializedName("items")
     public List<VKApiTopic> items;
 
@@ -22,9 +25,11 @@ public class TopicsResponse {
     @SerializedName("can_add_topics")
     public int canAddTopics;
 
+    @Nullable
     @SerializedName("profiles")
     public List<VKApiUser> profiles;
 
+    @Nullable
     @SerializedName("groups")
     public List<VKApiCommunity> groups;
 }

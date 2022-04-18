@@ -14,6 +14,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Objects;
+
 import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.MainActivity;
@@ -43,7 +45,7 @@ public class FriendFCMMessage {
         FriendFCMMessage message = new FriendFCMMessage();
         //message.first_name = bundle.getString("first_name");
         //message.last_name = bundle.getString("last_name");
-        message.from_id = Integer.parseInt(remote.getData().get("from_id"));
+        message.from_id = Integer.parseInt(Objects.requireNonNull(remote.getData().get("from_id")));
         //message.from = optLong(bundle, "from");
         //message.type = bundle.getString("type");
         //message.badge = optInt(bundle, "badge");

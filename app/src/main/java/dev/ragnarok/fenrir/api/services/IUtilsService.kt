@@ -5,8 +5,8 @@ import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
 import dev.ragnarok.fenrir.api.model.VKApiShortLink
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.ResolveDomailResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiLinkResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiChatResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiLinkResponse
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -41,14 +41,14 @@ interface IUtilsService {
 
     @FormUrlEncoded
     @POST("messages.joinChatByInviteLink")
-    fun joinChatByInviteLink(@Field("link") link: String?): Single<BaseResponse<VkApiChatResponse>>
+    fun joinChatByInviteLink(@Field("link") link: String?): Single<BaseResponse<VKApiChatResponse>>
 
     @FormUrlEncoded
     @POST("messages.getInviteLink")
     fun getInviteLink(
         @Field("peer_id") peer_id: Int?,
         @Field("reset") reset: Int?
-    ): Single<BaseResponse<VkApiLinkResponse>>
+    ): Single<BaseResponse<VKApiLinkResponse>>
 
     @FormUrlEncoded
     @POST("execute")

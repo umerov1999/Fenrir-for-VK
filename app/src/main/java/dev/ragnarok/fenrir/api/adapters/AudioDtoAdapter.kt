@@ -5,6 +5,7 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiAudio
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import java.lang.reflect.Type
 
 class AudioDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudio> {
@@ -31,7 +32,7 @@ class AudioDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudio> {
         dto.isHq = optBoolean(root, "is_hq")
         if (hasArray(root, "main_artists")) {
             val arr = root.getAsJsonArray("main_artists")
-            dto.main_artists = HashMap(arr.size())
+            val main_artists: HashMap<String, String> = HashMap(arr.size())
             for (i in arr) {
                 if (!checkObject(i)) {
                     continue
@@ -39,8 +40,11 @@ class AudioDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudio> {
                 val artist = i.asJsonObject
                 val name = optString(artist, "name")
                 val id = optString(artist, "id")
-                dto.main_artists[id] = name
+                if (id.nonNullNoEmpty() && name.nonNullNoEmpty()) {
+                    main_artists[id] = name
+                }
             }
+            dto.main_artists = main_artists
         }
         if (hasObject(root, "album")) {
             var thmb = root.getAsJsonObject("album")

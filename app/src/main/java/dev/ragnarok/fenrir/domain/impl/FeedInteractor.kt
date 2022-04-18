@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
+import dev.ragnarok.fenrir.api.model.VKApiFeedList
 import dev.ragnarok.fenrir.api.model.VKApiNews
-import dev.ragnarok.fenrir.api.model.VkApiFeedList
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.FeedListEntity
 import dev.ragnarok.fenrir.db.model.entity.NewsEntity
@@ -308,8 +308,8 @@ class FeedInteractor(
             .newsfeed()
             .getLists(null)
             .map { items ->
-                listEmptyIfNull<VkApiFeedList>(
-                    items.getItems()
+                listEmptyIfNull<VKApiFeedList>(
+                    items.items
                 )
             }
             .flatMap { dtos ->

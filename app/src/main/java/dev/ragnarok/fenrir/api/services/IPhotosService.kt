@@ -199,7 +199,7 @@ interface IPhotosService {
     fun getUploadServer(
         @Field("album_id") albumId: Int,
         @Field("group_id") groupId: Int?
-    ): Single<BaseResponse<VkApiUploadServer>>
+    ): Single<BaseResponse<VKApiUploadServer>>
 
     @FormUrlEncoded
     @POST("photos.saveOwnerPhoto")
@@ -215,11 +215,11 @@ interface IPhotosService {
 
     @FormUrlEncoded
     @POST("photos.getOwnerPhotoUploadServer")
-    fun getOwnerPhotoUploadServer(@Field("owner_id") ownerId: Int?): Single<BaseResponse<VkApiOwnerPhotoUploadServer>>
+    fun getOwnerPhotoUploadServer(@Field("owner_id") ownerId: Int?): Single<BaseResponse<VKApiOwnerPhotoUploadServer>>
 
     @FormUrlEncoded
     @POST("photos.getChatUploadServer")
-    fun getChatUploadServer(@Field("chat_id") chat_id: Int?): Single<BaseResponse<VkApiChatPhotoUploadServer>>
+    fun getChatUploadServer(@Field("chat_id") chat_id: Int?): Single<BaseResponse<VKApiChatPhotoUploadServer>>
 
     @FormUrlEncoded
     @POST("photos.saveWallPhoto")
@@ -236,7 +236,7 @@ interface IPhotosService {
 
     @FormUrlEncoded
     @POST("photos.getWallUploadServer")
-    fun getWallUploadServer(@Field("group_id") groupId: Int?): Single<BaseResponse<VkApiWallUploadServer>>
+    fun getWallUploadServer(@Field("group_id") groupId: Int?): Single<BaseResponse<VKApiWallUploadServer>>
 
     @FormUrlEncoded
     @POST("photos.save")
@@ -288,7 +288,7 @@ interface IPhotosService {
     ): Single<BaseResponse<Items<VKApiPhoto>>>
 
     @get:GET("photos.getMessagesUploadServer")
-    val messagesUploadServer: Single<BaseResponse<VkApiPhotoMessageServer>>
+    val messagesUploadServer: Single<BaseResponse<VKApiPhotoMessageServer>>
 
     @FormUrlEncoded
     @POST("photos.saveMessagesPhoto")

@@ -24,7 +24,7 @@ class FeedbackUserArrayDtoAdapter : AbsAdapter(), JsonDeserializer<UserArray> {
                 if (!checkObject(array[i])) {
                     continue
                 }
-                dto.ids[i] = array[i].asJsonObject["from_id"].asInt
+                dto.ids?.set(i, array[i].asJsonObject["from_id"].asInt)
             }
         } else {
             dto.ids = IntArray(0)

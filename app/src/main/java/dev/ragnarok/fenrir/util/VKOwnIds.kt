@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.util
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.feedback.Copies
 import dev.ragnarok.fenrir.api.model.feedback.UserArray
-import dev.ragnarok.fenrir.api.model.feedback.VkApiUsersFeedback
+import dev.ragnarok.fenrir.api.model.feedback.VKApiUsersFeedback
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -13,8 +13,10 @@ class VKOwnIds {
     private val uids: MutableSet<Int>
     private val gids: MutableSet<Int>
     fun append(userArray: UserArray): VKOwnIds {
-        for (id in userArray.ids) {
-            append(id)
+        userArray.ids?.let {
+            for (id in it) {
+                append(id)
+            }
         }
         return this
     }
@@ -24,8 +26,8 @@ class VKOwnIds {
         return this
     }
 
-    fun append(dto: VkApiUsersFeedback): VKOwnIds {
-        append(dto.users)
+    fun append(dto: VKApiUsersFeedback): VKOwnIds {
+        dto.users?.let { append(it) }
         return this
     }
 
@@ -36,15 +38,17 @@ class VKOwnIds {
     }
 
     fun append(copies: Copies): VKOwnIds {
-        for (pair in copies.pairs) {
-            append(pair.owner_id)
+        copies.pairs?.let {
+            for (pair in it) {
+                append(pair.owner_id)
+            }
         }
         return this
     }
 
     fun append(commentsDto: CommentsDto?): VKOwnIds {
-        if (commentsDto != null && commentsDto.list.nonNullNoEmpty()) {
-            for (comment in commentsDto.list) {
+        commentsDto?.list.nonNullNoEmpty {
+            for (comment in it) {
                 append(comment)
             }
         }
@@ -75,7 +79,7 @@ class VKOwnIds {
         return this
     }
 
-    fun append(attachments: VkApiAttachments): VKOwnIds {
+    fun append(attachments: VKApiAttachments): VKOwnIds {
         val entries = attachments.entryList()
         for (entry in entries) {
             appendAttachmentDto(entry.attachment)
@@ -117,14 +121,14 @@ class VKOwnIds {
         return this
     }
 
-    fun append(dialog: VkApiDialog): VKOwnIds {
+    fun append(dialog: VKApiDialog): VKOwnIds {
         if (dialog.lastMessage != null) {
             append(dialog.lastMessage)
         }
         return this
     }
 
-    fun append(conversation: VkApiConversation): VKOwnIds {
+    fun append(conversation: VKApiConversation): VKOwnIds {
         if (!Peer.isGroupChat(conversation.peer.id)) {
             append(conversation.peer.id)
         }

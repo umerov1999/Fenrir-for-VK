@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public final class VkApiBanned {
+public final class VKApiBanned {
 
     @SerializedName("type")
     public String type;

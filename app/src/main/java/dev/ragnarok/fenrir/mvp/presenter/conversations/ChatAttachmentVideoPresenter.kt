@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentVideoView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
@@ -34,10 +35,10 @@ class ChatAttachmentVideoPresenter(peerId: Int, accountId: Int, savedInstanceSta
                 val videos: MutableList<Video> = ArrayList(
                     Utils.safeCountOf(response.items)
                 )
-                if (response.items != null) {
-                    for (one in response.items) {
-                        if (one?.entry != null && one.entry.attachment is VKApiVideo) {
-                            val dto = one.entry.attachment as VKApiVideo
+                response.items.nonNullNoEmpty {
+                    for (one in it) {
+                        if (one?.entry != null && one.entry?.attachment is VKApiVideo) {
+                            val dto = one.entry?.attachment as VKApiVideo
                             videos.add(
                                 Dto2Model.transform(dto).setMsgId(one.messageId)
                                     .setMsgPeerId(peerId)

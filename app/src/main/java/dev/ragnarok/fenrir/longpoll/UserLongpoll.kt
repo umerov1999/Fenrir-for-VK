@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.longpoll
 
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.VkApiLongpollServer
+import dev.ragnarok.fenrir.api.model.VKApiLongpollServer
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -56,7 +56,7 @@ internal class UserLongpoll(
         }
     }
 
-    private fun onServerInfoReceived(info: VkApiLongpollServer) {
+    private fun onServerInfoReceived(info: VKApiLongpollServer) {
         d(TAG, "onResponse, info: $info")
         ts = info.ts
         key = info.key
@@ -116,8 +116,8 @@ internal class UserLongpoll(
     }
 
     private fun fixUpdates(updates: VkApiLongpollUpdates) {
-        if (updates.add_message_updates.nonNullNoEmpty()) {
-            for (update in updates.add_message_updates) {
+        updates.add_message_updates.nonNullNoEmpty {
+            for (update in it) {
                 if (update.outbox) {
                     update.from = accountId
                 }

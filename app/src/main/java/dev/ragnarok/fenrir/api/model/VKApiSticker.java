@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -26,6 +28,7 @@ public class VKApiSticker implements VKApiAttachment {
     @SerializedName("animations")
     public List<VKApiAnimation> animations;
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_STICKER;

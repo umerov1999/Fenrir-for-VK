@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.api.model;
 
-public class VkApiPostSource {
+public class VKApiPostSource {
 
     /**
      * На данный момент поддерживаются следующие типы источников записи на стене, значение которых указываются в поле type:

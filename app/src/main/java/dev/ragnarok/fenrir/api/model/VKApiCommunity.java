@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir.api.model;
 
-import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 
 import java.util.List;
+
+import dev.ragnarok.fenrir.util.Utils;
 
 /**
  * Community object describes a community.
@@ -249,7 +249,7 @@ public class VKApiCommunity extends VKApiOwner {
      */
     public boolean can_message;
 
-    public VkApiCover cover;
+    public VKApiCover cover;
     /**
      * Community type
      */
@@ -287,11 +287,11 @@ public class VKApiCommunity extends VKApiOwner {
 
     @Override
     public String getMaxSquareAvatar() {
-        if (!TextUtils.isEmpty(photo_200)) {
+        if (!Utils.isEmpty(photo_200)) {
             return photo_200;
         }
 
-        if (!TextUtils.isEmpty(photo_100)) {
+        if (!Utils.isEmpty(photo_100)) {
             return photo_100;
         }
 
@@ -305,7 +305,7 @@ public class VKApiCommunity extends VKApiOwner {
     }
 
     /**
-     * VkApiPrivacy status of the group.
+     * VKApiPrivacy status of the group.
      */
     public static class MemberStatus {
         public static final int IS_NOT_MEMBER = 0;
@@ -332,7 +332,7 @@ public class VKApiCommunity extends VKApiOwner {
     }
 
     /**
-     * VkApiPrivacy status of the group.
+     * VKApiPrivacy status of the group.
      */
     public static class Status {
         public static final int OPEN = 0;

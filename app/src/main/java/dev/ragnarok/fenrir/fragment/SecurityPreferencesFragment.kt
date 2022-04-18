@@ -167,9 +167,8 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
     @Suppress("DEPRECATION")
     private fun createRootScreen() = screen(requireActivity()) {
         collapseIcon = true
-        subScreen("security_preferences") {
+        collapse("security_preferences") {
             titleRes = R.string.general_settings
-            collapseIcon = true
             switch(SecuritySettings.KEY_USE_PIN_FOR_SECURITY) {
                 defaultValue = false
                 titleRes = R.string.use_pin_for_security_title
@@ -189,28 +188,28 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
                 }
             }
 
-            switch("use_pin_for_entrance") {
+            switch(SecuritySettings.KEY_USE_PIN_FOR_ENTRANCE) {
                 defaultValue = false
-                dependency = "use_pin_for_security"
+                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
                 summaryRes = R.string.ask_for_pin_on_application_start_summary
                 titleRes = R.string.ask_for_pin_on_application_start_title
             }
 
-            switch("delayed_pin_for_entrance") {
+            switch(SecuritySettings.DELAYED_PIN_FOR_ENTRANCE) {
                 defaultValue = false
-                dependency = "use_pin_for_entrance"
+                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
                 summaryRes = R.string.delayed_pin_for_entrance_summary
                 titleRes = R.string.delayed_pin_for_entrance_title
             }
 
             switch("allow_fingerprint") {
                 defaultValue = false
-                dependency = "use_pin_for_security"
+                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
                 titleRes = R.string.allow_fingerprint_title
             }
 
-            pref("change_pin") {
-                dependency = SecuritySettings.KEY_CHANGE_PIN
+            pref(SecuritySettings.KEY_CHANGE_PIN) {
+                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
                 titleRes = R.string.change_pin_title
                 onClick {
                     requestChangePin.launch(
@@ -223,9 +222,8 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
                 }
             }
         }
-        subScreen("secured_messages_section") {
+        collapse("secured_messages_section") {
             titleRes = R.string.secured_messages
-            collapseIcon = true
 
             pref("encryption_terms_of_use") {
                 titleRes = R.string.encryption_terms_of_use_title
@@ -253,9 +251,8 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
                 }
             }
         }
-        subScreen("other_section") {
+        collapse("other_section") {
             titleRes = R.string.other
-            collapseIcon = true
 
             switch("hide_notif_message_body") {
                 summaryRes = R.string.hide_notif_message_body_summary

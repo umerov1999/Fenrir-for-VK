@@ -115,7 +115,7 @@ class CommunityDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCommunity> {
         dto.activity = optString(root, VKApiCommunity.ACTIVITY)
         dto.can_message = optBoolean(root, "can_message")
         if (hasObject(root, "cover")) {
-            dto.cover = context.deserialize(root["cover"], VkApiCover::class.java)
+            dto.cover = context.deserialize(root["cover"], VKApiCover::class.java)
         }
         return dto
     }

@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.domain.impl
 import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
+import dev.ragnarok.fenrir.api.model.VKApiFriendList
 import dev.ragnarok.fenrir.api.model.VKApiShortLink
-import dev.ragnarok.fenrir.api.model.VkApiFriendList
-import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiLinkResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiChatResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiLinkResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.FriendListEntity
 import dev.ragnarok.fenrir.db.model.entity.UserEntity
@@ -83,7 +83,7 @@ class UtilsInteractor(
                     .flatMap { optionalCommunityEntity ->
                         if (optionalCommunityEntity.nonEmpty()) {
                             val community =
-                                buildCommunityFromDbo(optionalCommunityEntity.requareNonEmpty())
+                                buildCommunityFromDbo(optionalCommunityEntity.requireNonEmpty())
                             Single.just(wrap(community))
                         } else {
                             Single.just(empty())
@@ -98,24 +98,32 @@ class UtilsInteractor(
                     .utils()
                     .resolveScreenName(domain)
                     .flatMap { response ->
-                        if ("user" == response.type) {
-                            val userId = response.object_id.toInt()
-                            ownersRepository.getBaseOwnerInfo(
-                                accountId,
-                                userId,
-                                IOwnersRepository.MODE_ANY
-                            )
-                                .map { wrap(it) }
-                        } else if ("group" == response.type) {
-                            val ownerId = -abs(response.object_id.toInt())
-                            ownersRepository.getBaseOwnerInfo(
-                                accountId,
-                                ownerId,
-                                IOwnersRepository.MODE_ANY
-                            )
-                                .map { wrap(it) }
-                        }
-                        Single.just(empty())
+                        response.object_id?.let {
+                            when (response.type) {
+                                "user" -> {
+                                    val userId =
+                                        it.toInt()
+                                    ownersRepository.getBaseOwnerInfo(
+                                        accountId,
+                                        userId,
+                                        IOwnersRepository.MODE_ANY
+                                    )
+                                        .map { pp -> wrap(pp) }
+                                }
+                                "group" -> {
+                                    val ownerId = -abs(
+                                        it.toInt()
+                                    )
+                                    ownersRepository.getBaseOwnerInfo(
+                                        accountId,
+                                        ownerId,
+                                        IOwnersRepository.MODE_ANY
+                                    )
+                                        .map { pp -> wrap(pp) }
+                                }
+                                else -> Single.just(empty())
+                            }
+                        } ?: Single.just(empty())
                     }
             }
     }
@@ -143,8 +151,8 @@ class UtilsInteractor(
                     .friends()
                     .getLists(userId, true)
                     .map { items ->
-                        listEmptyIfNull<VkApiFriendList>(
-                            items.getItems()
+                        listEmptyIfNull<VKApiFriendList>(
+                            items.items
                         )
                     }
                     .flatMap { dtos ->
@@ -183,7 +191,7 @@ class UtilsInteractor(
             .getLastShortenedLinks(count, offset)
             .map { items ->
                 listEmptyIfNull<VKApiShortLink>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -214,7 +222,7 @@ class UtilsInteractor(
             .map { out -> out }
     }
 
-    override fun joinChatByInviteLink(accountId: Int, link: String?): Single<VkApiChatResponse> {
+    override fun joinChatByInviteLink(accountId: Int, link: String?): Single<VKApiChatResponse> {
         return networker.vkDefault(accountId)
             .utils()
             .joinChatByInviteLink(link)
@@ -225,7 +233,7 @@ class UtilsInteractor(
         accountId: Int,
         peer_id: Int?,
         reset: Int?
-    ): Single<VkApiLinkResponse> {
+    ): Single<VKApiLinkResponse> {
         return networker.vkDefault(accountId)
             .utils()
             .getInviteLink(peer_id, reset)

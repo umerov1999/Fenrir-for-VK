@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.Items
-import dev.ragnarok.fenrir.api.model.VkApiFeedList
+import dev.ragnarok.fenrir.api.model.VKApiFeedList
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedSearchResponse
@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Single
 
 interface INewsfeedApi {
     @CheckResult
-    fun getLists(listIds: Collection<Int>?): Single<Items<VkApiFeedList>>
+    fun getLists(listIds: Collection<Int>?): Single<Items<VKApiFeedList>>
 
     @CheckResult
     fun search(

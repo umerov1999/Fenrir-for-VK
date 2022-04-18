@@ -413,12 +413,12 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
             when (it.id) {
                 R.id.action_copy_url -> {
                     val clipboard =
-                        requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                     val clip = ClipData.newPlainText(
                         getString(R.string.link),
                         "https://vk.com/video" + video.ownerId + "_" + video.id
                     )
-                    clipboard.setPrimaryClip(clip)
+                    clipboard?.setPrimaryClip(clip)
                     CreateCustomToast(requireActivity()).showToast(R.string.copied_url)
                 }
                 R.id.check_show_author -> {

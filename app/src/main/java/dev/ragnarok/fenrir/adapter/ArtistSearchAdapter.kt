@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.model.VkApiArtist
+import dev.ragnarok.fenrir.api.model.VKApiArtist
 
-class ArtistSearchAdapter(private var data: List<VkApiArtist>, private val context: Context) :
+class ArtistSearchAdapter(private var data: List<VKApiArtist>, private val context: Context) :
     RecyclerView.Adapter<ArtistSearchAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -35,7 +35,7 @@ class ArtistSearchAdapter(private var data: List<VkApiArtist>, private val conte
             holder.tvId.text = "id" + item.id
         }
         holder.itemView.setOnClickListener {
-            clickListener?.onArtistClick(item.id)
+            item.id?.let { it1 -> clickListener?.onArtistClick(it1) }
         }
     }
 
@@ -43,7 +43,7 @@ class ArtistSearchAdapter(private var data: List<VkApiArtist>, private val conte
         return data.size
     }
 
-    fun setData(data: List<VkApiArtist>) {
+    fun setData(data: List<VKApiArtist>) {
         this.data = data
         notifyDataSetChanged()
     }

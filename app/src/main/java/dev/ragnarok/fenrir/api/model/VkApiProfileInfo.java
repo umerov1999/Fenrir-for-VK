@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.api.model;
 import com.google.gson.annotations.SerializedName;
 
 
-public class VkApiProfileInfo {
+public class VKApiProfileInfo {
 
     @SerializedName("first_name")
     public String first_name;

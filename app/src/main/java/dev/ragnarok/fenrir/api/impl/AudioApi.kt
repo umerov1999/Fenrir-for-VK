@@ -6,7 +6,7 @@ import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
 import dev.ragnarok.fenrir.api.model.response.CatalogResponse
 import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
-import dev.ragnarok.fenrir.api.model.server.VkApiAudioUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
 import dev.ragnarok.fenrir.api.services.IAudioService
 import dev.ragnarok.fenrir.model.Audio
 import io.reactivex.rxjava3.core.Single
@@ -54,7 +54,7 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
         query: String?,
         offset: Int?,
         count: Int?
-    ): Single<Items<VkApiArtist>> {
+    ): Single<Items<VKApiArtist>> {
         return provideService(IAudioService::class.java)
             .flatMap { service ->
                 service
@@ -354,7 +354,7 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
-    override fun getLyrics(lyrics_id: Int): Single<VkApiLyrics> {
+    override fun getLyrics(lyrics_id: Int): Single<VKApiLyrics> {
         return provideService(IAudioService::class.java)
             .flatMap { service ->
                 service
@@ -375,7 +375,7 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
-    override val uploadServer: Single<VkApiAudioUploadServer>
+    override val uploadServer: Single<VKApiAudioUploadServer>
         get() = provideService(IAudioService::class.java)
             .flatMap { service ->
                 service.uploadServer

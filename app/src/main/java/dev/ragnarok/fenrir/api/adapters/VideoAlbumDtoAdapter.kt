@@ -4,8 +4,8 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
+import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.api.model.VKApiVideoAlbum
-import dev.ragnarok.fenrir.api.model.VkApiPrivacy
 import java.lang.reflect.Type
 
 class VideoAlbumDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideoAlbum> {
@@ -26,7 +26,7 @@ class VideoAlbumDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideoAlbum> {
         album.count = optInt(root, "count")
         album.updated_time = optInt(root, "updated_time").toLong()
         if (hasObject(root, "privacy_view")) {
-            album.privacy = context.deserialize(root["privacy_view"], VkApiPrivacy::class.java)
+            album.privacy = context.deserialize(root["privacy_view"], VKApiPrivacy::class.java)
         }
         if (hasArray(root, "image")) {
             val images = root.getAsJsonArray("image")

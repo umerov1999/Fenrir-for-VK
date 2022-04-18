@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -13,6 +15,7 @@ public final class CommentsDto {
     @SerializedName("can_post")
     public boolean canPost;
 
+    @Nullable
     @SerializedName("list")
     public List<VKApiComment> list;
 }

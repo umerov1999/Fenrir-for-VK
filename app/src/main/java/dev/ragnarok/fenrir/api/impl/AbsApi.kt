@@ -25,20 +25,17 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
 
         fun <T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
             return Function { response: BaseResponse<T> ->
-                if (response.error != null) {
-                    throw Exceptions.propagate(ApiException(response.error))
-                }
-                response.response
+                response.error?.let { throw Exceptions.propagate(ApiException(it)) }
+                    ?: (response.response ?: throw NullPointerException("VK return null response"))
             }
         }
 
 
         fun <T : Any> extractBlockResponseWithErrorHandling(): Function<BaseResponse<BlockResponse<T>>, T> {
             return Function { response: BaseResponse<BlockResponse<T>> ->
-                if (response.error != null) {
-                    throw Exceptions.propagate(ApiException(response.error))
-                }
-                response.response.block
+                response.error?.let { throw Exceptions.propagate(ApiException(it)) }
+                    ?: (response.response?.block
+                        ?: throw NullPointerException("VK return null response block"))
             }
         }
 
@@ -46,8 +43,8 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
         fun <T> handleExecuteErrors(vararg expectedMethods: String): Function<BaseResponse<T>, BaseResponse<T>> {
             require(expectedMethods.isNotEmpty()) { "No expected methods found" }
             return Function { response: BaseResponse<T> ->
-                if (response.executeErrors.nonNullNoEmpty()) {
-                    for (error in response.executeErrors) {
+                response.executeErrors.nonNullNoEmpty {
+                    for (error in it) {
                         for (expectedMethod in expectedMethods) {
                             if (expectedMethod.equals(error.method, ignoreCase = true)) {
                                 throw Exceptions.propagate(ApiException(error))

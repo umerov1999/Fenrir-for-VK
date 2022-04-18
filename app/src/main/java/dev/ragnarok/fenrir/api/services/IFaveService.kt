@@ -27,7 +27,7 @@ interface IFaveService {
         @Field("item_type") item_type: String?,
         @Field("extended") extended: Int?,
         @Field("fields") fields: String?
-    ): Single<BaseResponse<Items<VkApiAttachments.Entry>>>
+    ): Single<BaseResponse<Items<VKApiAttachments.Entry>>>
 
     @FormUrlEncoded
     @POST("fave.get")
@@ -37,7 +37,7 @@ interface IFaveService {
         @Field("item_type") item_type: String?,
         @Field("extended") extended: Int?,
         @Field("fields") fields: String?
-    ): Single<BaseResponse<Items<VkApiAttachments.Entry>>>
+    ): Single<BaseResponse<Items<VKApiAttachments.Entry>>>
 
     @FormUrlEncoded
     @POST("articles.getOwnerPublished")
@@ -78,7 +78,7 @@ interface IFaveService {
         @Field("item_type") item_type: String?,
         @Field("extended") extended: Int?,
         @Field("fields") fields: String?
-    ): Single<BaseResponse<Items<VkApiAttachments.Entry>>>
+    ): Single<BaseResponse<Items<VKApiAttachments.Entry>>>
 
     @FormUrlEncoded
     @POST("fave.getPhotos")

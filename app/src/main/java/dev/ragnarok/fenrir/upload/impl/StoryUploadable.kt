@@ -68,9 +68,9 @@ class StoryUploadable(private val context: Context, private val networker: INetw
                         networker
                             .vkDefault(accountId)
                             .users()
-                            .stories_save(dto.response.upload_result)
+                            .stories_save(dto.response?.upload_result)
                             .map {
-                                listEmptyIfNull<VKApiStory>(it.getItems())
+                                listEmptyIfNull<VKApiStory>(it.items)
                             }
                             .flatMap { tmpList ->
                                 owners.findBaseOwnersDataAsBundle(

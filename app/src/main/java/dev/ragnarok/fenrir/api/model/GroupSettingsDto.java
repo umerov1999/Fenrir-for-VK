@@ -1,17 +1,23 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
 public class GroupSettingsDto {
 
+    @Nullable
     public String title;
 
+    @Nullable
     public String description;
 
+    @Nullable
     public String address;
 
+    @Nullable
     public Place place;
 
     public int country_id;
@@ -42,6 +48,7 @@ public class GroupSettingsDto {
 
     public boolean obscene_stopwords;
 
+    @Nullable
     public String[] obscene_words;
 
     public int access;
@@ -51,20 +58,25 @@ public class GroupSettingsDto {
     /**
      * "public_date": "13.0.2014"
      */
+    @Nullable
     public String public_date;
 
+    @Nullable
     public String public_date_label;
 
     /**
      * Может быть как int, так и String
      */
+    @Nullable
     public String public_category;
 
     /**
      * Может быть как int, так и String
      */
+    @Nullable
     public String public_subcategory;
 
+    @Nullable
     public List<PublicCategory> public_category_list;
 
     public int contacts;
@@ -77,10 +89,12 @@ public class GroupSettingsDto {
 
     public boolean rss;
 
+    @Nullable
     public String website;
 
     public int age_limits;
 
+    @Nullable
     public Market market;
 
     public static final class Place {
@@ -88,6 +102,7 @@ public class GroupSettingsDto {
         @SerializedName("id")
         public int id;
 
+        @Nullable
         @SerializedName("title")
         public String title;
 
@@ -100,12 +115,14 @@ public class GroupSettingsDto {
         @SerializedName("created")
         public long created;
 
+        @Nullable
         @SerializedName("icon")
         public String icon;
 
         @SerializedName("group_id")
         public int group_id;
 
+        @Nullable
         @SerializedName("group_photo")
         public String group_photo;
 
@@ -121,6 +138,7 @@ public class GroupSettingsDto {
         @SerializedName("city")
         public int city;
 
+        @Nullable
         @SerializedName("address")
         public String address;
     }
@@ -130,9 +148,11 @@ public class GroupSettingsDto {
         @SerializedName("id")
         public int id;
 
+        @Nullable
         @SerializedName("name")
         public String name;
 
+        @Nullable
         @SerializedName("subtypes_list")
         public List<PublicCategory> subtypes_list;
     }
@@ -150,9 +170,11 @@ public class GroupSettingsDto {
          * -2 Весь мир
          * -3 Страны СНГ
          */
+        @Nullable
         @SerializedName("country_ids")
         public int[] country_ids;
 
+        @Nullable
         @SerializedName("city_ids")
         public int[] city_ids;
 
@@ -162,6 +184,7 @@ public class GroupSettingsDto {
         @SerializedName("contact_id")
         public int contact_id;
 
+        @Nullable
         @SerializedName("currency")
         public Currency currency;
     }
@@ -171,6 +194,7 @@ public class GroupSettingsDto {
         @SerializedName("id")
         public int id;
 
+        @Nullable
         @SerializedName("name")
         public String name;
     }

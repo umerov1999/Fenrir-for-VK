@@ -35,7 +35,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
             .groups()[userId, true, null, GroupColumns.API_FIELDS, offset, count]
             .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiCommunity>(
-                    items.getItems()
+                    items.items
                 )
                 val dbos = mapCommunities(dtos)
                 stores.relativeship()
@@ -50,7 +50,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
             .getMembers(groupId.toString(), null, 0, 1000, Constants.MAIN_OWNER_FIELDS, "friends")
             .map { items ->
                 val dtos = listEmptyIfNull<VKApiUser>(
-                    items.getItems()
+                    items.items
                 )
                 transformOwners(dtos, null)
             }
@@ -83,7 +83,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
             )
             .map { items ->
                 val dtos = listEmptyIfNull<VKApiCommunity>(
-                    items.getItems()
+                    items.items
                 )
                 transformCommunities(dtos)
             }

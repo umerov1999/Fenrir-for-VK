@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model.response;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -14,12 +16,15 @@ public class WallResponse {
     @SerializedName("count")
     public int count;
 
+    @Nullable
     @SerializedName("items")
     public List<VKApiPost> posts;
 
+    @Nullable
     @SerializedName("profiles")
     public List<VKApiUser> profiles;
 
+    @Nullable
     @SerializedName("groups")
     public List<VKApiCommunity> groups;
 }

@@ -11,18 +11,6 @@ public class UploadOwnerPhotoResponse {
     // "saved":1,
     // "post_id":2596}
 
-    @SerializedName("photo_hash")
-    public String photoHash;
-
-    @SerializedName("photo_src")
-    public String photoSrc;
-
-    @SerializedName("photo_src_big")
-    public String photoSrcBig;
-
-    @SerializedName("photo_src_small")
-    public String photoSrcSmall;
-
     @SerializedName("saved")
     public boolean saved;
 

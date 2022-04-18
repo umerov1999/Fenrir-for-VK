@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class VkApiCover {
+public class VKApiCover {
 
     @SerializedName("enabled")
     public boolean enabled;

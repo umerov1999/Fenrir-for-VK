@@ -4,8 +4,8 @@ object MakeConfig {
     const val appNdk = "24.0.8215888"
     const val appMinSDK = 21
     const val appTargetSDK = 31
-    const val appVersionCode = 182
-    const val appVersionName = "2.82-Kotlin"
+    const val appVersionCode = 184
+    const val appVersionName = "2.84-Kotlin"
 
     const val kotlin_version = "1.6.20"
     const val kotlin_coroutines = "1.6.1"
@@ -30,6 +30,7 @@ object MakeConfig {
     const val drawerlayoutVersion = "1.1.1"
     const val collectionVersion = "1.2.0"
     const val lifecycleVersion = "2.4.1"
+    const val cameraVersion = "1.1.0-beta03"
 
     object Props {
         const val vk_app_id = "2274003"

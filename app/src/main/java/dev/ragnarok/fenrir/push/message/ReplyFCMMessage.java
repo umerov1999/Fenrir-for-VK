@@ -15,6 +15,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Objects;
+
 import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.MainActivity;
@@ -58,8 +60,8 @@ public class ReplyFCMMessage {
 
     public static ReplyFCMMessage fromRemoteMessage(@NonNull RemoteMessage remote) {
         ReplyFCMMessage message = new ReplyFCMMessage();
-        message.from_id = Integer.parseInt(remote.getData().get("from_id"));
-        message.reply_id = Integer.parseInt(remote.getData().get("reply_id"));
+        message.from_id = Integer.parseInt(Objects.requireNonNull(remote.getData().get("from_id")));
+        message.reply_id = Integer.parseInt(Objects.requireNonNull(remote.getData().get("reply_id")));
         //message.sex = optInt(bundle, "sex");
         //message.firstName = bundle.getString("first_name");
         //message.lastName = bundle.getString("last_name");

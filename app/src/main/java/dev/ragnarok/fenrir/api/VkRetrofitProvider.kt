@@ -4,11 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.api.adapters.*
-import dev.ragnarok.fenrir.api.adapters.local_json.ChatJsonResponseDtoAdapter
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.database.SchoolClazzDto
 import dev.ragnarok.fenrir.api.model.feedback.UserArray
-import dev.ragnarok.fenrir.api.model.feedback.VkApiBaseFeedback
+import dev.ragnarok.fenrir.api.model.feedback.VKApiBaseFeedback
 import dev.ragnarok.fenrir.api.model.local_json.ChatJsonResponse
 import dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent
 import dev.ragnarok.fenrir.api.model.response.ChatsInfoResponse
@@ -119,21 +118,21 @@ class VkRetrofitProvider(
     companion object {
         val vkgson: Gson = GsonBuilder()
             .registerTypeAdapter(AnswerVKOfficialList::class.java, AnswerVKOfficialDtoAdapter())
-            .registerTypeAdapter(VkApiAttachments.Entry::class.java, AttachmentsEntryDtoAdapter())
-            .registerTypeAdapter(VkApiDoc.Entry::class.java, DocsEntryDtoAdapter())
+            .registerTypeAdapter(VKApiAttachments.Entry::class.java, AttachmentsEntryDtoAdapter())
+            .registerTypeAdapter(VKApiDoc.Entry::class.java, DocsEntryDtoAdapter())
             .registerTypeAdapter(VKApiPhoto::class.java, PhotoDtoAdapter())
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, BooleanAdapter())
             .registerTypeAdapter(Boolean::class.javaObjectType, BooleanAdapter())
-            .registerTypeAdapter(VkApiPrivacy::class.java, PrivacyDtoAdapter())
+            .registerTypeAdapter(VKApiPrivacy::class.java, PrivacyDtoAdapter())
             .registerTypeAdapter(VKApiPhotoAlbum::class.java, PhotoAlbumDtoAdapter())
             .registerTypeAdapter(VKApiVideoAlbum::class.java, VideoAlbumDtoAdapter())
-            .registerTypeAdapter(VkApiAttachments::class.java, AttachmentsDtoAdapter())
+            .registerTypeAdapter(VKApiAttachments::class.java, AttachmentsDtoAdapter())
             .registerTypeAdapter(VKApiAudio::class.java, AudioDtoAdapter())
             .registerTypeAdapter(VKApiPost::class.java, PostDtoAdapter())
-            .registerTypeAdapter(VkApiPostSource::class.java, PostSourceDtoAdapter())
+            .registerTypeAdapter(VKApiPostSource::class.java, PostSourceDtoAdapter())
             .registerTypeAdapter(VKApiUser::class.java, UserDtoAdapter())
             .registerTypeAdapter(VKApiCommunity::class.java, CommunityDtoAdapter())
-            .registerTypeAdapter(VkApiBaseFeedback::class.java, FeedbackDtoAdapter())
+            .registerTypeAdapter(VKApiBaseFeedback::class.java, FeedbackDtoAdapter())
             .registerTypeAdapter(VKApiComment::class.java, CommentDtoAdapter())
             .registerTypeAdapter(VKApiVideo::class.java, VideoDtoAdapter())
             .registerTypeAdapter(UserArray::class.java, FeedbackUserArrayDtoAdapter())
@@ -158,12 +157,12 @@ class VkRetrofitProvider(
             .registerTypeAdapter(VKApiArticle::class.java, ArticleDtoAdapter())
             .registerTypeAdapter(VKApiCatalogLink::class.java, VKApiCatalogLinkDtoAdapter())
             .registerTypeAdapter(ChatJsonResponse::class.java, ChatJsonResponseDtoAdapter())
-            .registerTypeAdapter(VkApiJsonString::class.java, JsonStringDtoAdapter())
+            .registerTypeAdapter(VKApiJsonString::class.java, JsonStringDtoAdapter())
             .registerTypeAdapter(
-                VkApiProfileInfoResponce::class.java,
+                VKApiProfileInfoResponce::class.java,
                 ProfileInfoResponceDtoAdapter()
             )
-            .registerTypeAdapter(VkApiMarket::class.java, MarketDtoAdapter())
+            .registerTypeAdapter(VKApiMarket::class.java, MarketDtoAdapter())
             .registerTypeAdapter(
                 ServicePlaylistResponse::class.java,
                 ServicePlaylistResponseDtoAdapter()

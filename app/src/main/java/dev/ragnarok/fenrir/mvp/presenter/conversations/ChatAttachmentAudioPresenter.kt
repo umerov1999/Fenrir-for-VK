@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentAudiosView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
@@ -34,10 +35,10 @@ class ChatAttachmentAudioPresenter(peerId: Int, accountId: Int, savedInstanceSta
                 val audios: MutableList<Audio> = ArrayList(
                     Utils.safeCountOf(response.items)
                 )
-                if (response.items != null) {
-                    for (one in response.items) {
-                        if (one?.entry != null && one.entry.attachment is VKApiAudio) {
-                            val dto = one.entry.attachment as VKApiAudio
+                response.items.nonNullNoEmpty {
+                    for (one in it) {
+                        if (one?.entry != null && one.entry?.attachment is VKApiAudio) {
+                            val dto = one.entry?.attachment as VKApiAudio
                             audios.add(Dto2Model.transform(dto))
                         }
                     }

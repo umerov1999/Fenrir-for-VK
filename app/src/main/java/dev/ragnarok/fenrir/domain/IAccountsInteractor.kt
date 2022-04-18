@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.domain
 
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfo
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse.ConversationsPush.ConversationPushItem
 import dev.ragnarok.fenrir.model.Account
 import dev.ragnarok.fenrir.model.BannedPart
@@ -14,7 +14,7 @@ interface IAccountsInteractor {
     fun unbanUser(accountId: Int, userId: Int): Completable
     fun changeStatus(accountId: Int, status: String?): Completable
     fun setOffline(accountId: Int): Single<Boolean>
-    fun getProfileInfo(accountId: Int): Single<VkApiProfileInfo>
+    fun getProfileInfo(accountId: Int): Single<VKApiProfileInfo>
     fun getPushSettings(accountId: Int): Single<List<ConversationPushItem>>
     fun saveProfileInfo(
         accountId: Int,

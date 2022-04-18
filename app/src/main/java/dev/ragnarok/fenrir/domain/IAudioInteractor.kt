@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.domain
 
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.api.model.VkApiArtist
+import dev.ragnarok.fenrir.api.model.VKApiArtist
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioPlaylistSearchCriteria
@@ -73,7 +73,7 @@ interface IAudioInteractor {
         criteria: ArtistSearchCriteria,
         offset: Int,
         count: Int
-    ): Single<List<VkApiArtist>>
+    ): Single<List<VKApiArtist>>
 
     fun searchPlaylists(
         accountId: Int,

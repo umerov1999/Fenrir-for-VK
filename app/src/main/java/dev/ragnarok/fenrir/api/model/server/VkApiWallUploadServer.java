@@ -3,22 +3,25 @@ package dev.ragnarok.fenrir.api.model.server;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class VkApiWallUploadServer implements Parcelable, UploadServer {
+import androidx.annotation.Nullable;
 
-    public static final Creator<VkApiWallUploadServer> CREATOR = new Creator<VkApiWallUploadServer>() {
+public class VKApiWallUploadServer implements Parcelable, UploadServer {
+
+    public static final Creator<VKApiWallUploadServer> CREATOR = new Creator<VKApiWallUploadServer>() {
         @Override
-        public VkApiWallUploadServer createFromParcel(Parcel in) {
-            return new VkApiWallUploadServer(in);
+        public VKApiWallUploadServer createFromParcel(Parcel in) {
+            return new VKApiWallUploadServer(in);
         }
 
         @Override
-        public VkApiWallUploadServer[] newArray(int size) {
-            return new VkApiWallUploadServer[size];
+        public VKApiWallUploadServer[] newArray(int size) {
+            return new VKApiWallUploadServer[size];
         }
     };
     /**
      * адрес для загрузки фотографий
      */
+    @Nullable
     public String upload_url;
     /**
      * идентификатор альбома, в который будет загружена фотография
@@ -29,11 +32,11 @@ public class VkApiWallUploadServer implements Parcelable, UploadServer {
      */
     public int user_id;
 
-    public VkApiWallUploadServer() {
+    public VKApiWallUploadServer() {
 
     }
 
-    protected VkApiWallUploadServer(Parcel in) {
+    protected VKApiWallUploadServer(Parcel in) {
         upload_url = in.readString();
         album_id = in.readInt();
         user_id = in.readInt();
@@ -51,6 +54,7 @@ public class VkApiWallUploadServer implements Parcelable, UploadServer {
         dest.writeInt(user_id);
     }
 
+    @Nullable
     @Override
     public String getUrl() {
         return upload_url;

@@ -5,13 +5,13 @@ import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.feedback.*
 import java.lang.reflect.Type
 
-class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
+class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
     @Throws(JsonParseException::class)
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
-    ): VkApiBaseFeedback {
+    ): VKApiBaseFeedback {
         if (!checkObject(json)) {
             throw JsonParseException("$TAG error parse object")
         }
@@ -51,7 +51,7 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         }
     }
 
-    private abstract class Parser<T : VkApiBaseFeedback?> {
+    private abstract class Parser<T : VKApiBaseFeedback?> {
         protected abstract fun createDto(): T
         open fun parse(root: JsonObject, context: JsonDeserializationContext): T {
             val dto = createDto()
@@ -64,15 +64,15 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         }
     }
 
-    private class BaseCopyParser : Parser<VkApiCopyFeedback>() {
-        override fun createDto(): VkApiCopyFeedback {
-            return VkApiCopyFeedback()
+    private class BaseCopyParser : Parser<VKApiCopyFeedback>() {
+        override fun createDto(): VKApiCopyFeedback {
+            return VKApiCopyFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiCopyFeedback {
+        ): VKApiCopyFeedback {
             val dto = super.parse(root, context)
             dto.copies = context.deserialize(root["feedback"], Copies::class.java)
             val copyClass: Type = when (dto.type) {
@@ -86,15 +86,15 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         }
     }
 
-    private class BaseCreateCommentParser : Parser<VkApiCommentFeedback>() {
-        override fun createDto(): VkApiCommentFeedback {
-            return VkApiCommentFeedback()
+    private class BaseCreateCommentParser : Parser<VKApiCommentFeedback>() {
+        override fun createDto(): VKApiCommentFeedback {
+            return VKApiCommentFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiCommentFeedback {
+        ): VKApiCommentFeedback {
             val dto = super.parse(root, context)
             dto.comment = context.deserialize(root["feedback"], VKApiComment::class.java)
             val commentableClass: Type = when (dto.type) {
@@ -108,15 +108,15 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         }
     }
 
-    private class BaseReplyCommentParser : Parser<VkApiReplyCommentFeedback>() {
-        override fun createDto(): VkApiReplyCommentFeedback {
-            return VkApiReplyCommentFeedback()
+    private class BaseReplyCommentParser : Parser<VKApiReplyCommentFeedback>() {
+        override fun createDto(): VKApiReplyCommentFeedback {
+            return VKApiReplyCommentFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiReplyCommentFeedback {
+        ): VKApiReplyCommentFeedback {
             val dto = super.parse(root, context)
             dto.feedback_comment = context.deserialize(root["feedback"], VKApiComment::class.java)
             if ("reply_topic" == dto.type) {
@@ -150,30 +150,30 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         }
     }
 
-    private class BaseUsersParser : Parser<VkApiUsersFeedback>() {
-        override fun createDto(): VkApiUsersFeedback {
-            return VkApiUsersFeedback()
+    private class BaseUsersParser : Parser<VKApiUsersFeedback>() {
+        override fun createDto(): VKApiUsersFeedback {
+            return VKApiUsersFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiUsersFeedback {
+        ): VKApiUsersFeedback {
             val dto = super.parse(root, context)
             dto.users = context.deserialize(root["feedback"], UserArray::class.java)
             return dto
         }
     }
 
-    private class LikeParser : Parser<VkApiLikeFeedback>() {
-        override fun createDto(): VkApiLikeFeedback {
-            return VkApiLikeFeedback()
+    private class LikeParser : Parser<VKApiLikeFeedback>() {
+        override fun createDto(): VKApiLikeFeedback {
+            return VKApiLikeFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiLikeFeedback {
+        ): VKApiLikeFeedback {
             val dto = super.parse(root, context)
             val likedClass: Type = when (dto.type) {
                 "like_photo" -> VKApiPhoto::class.java
@@ -187,15 +187,15 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         }
     }
 
-    private class BaseLikeCommentParser : Parser<VkApiLikeCommentFeedback>() {
-        override fun createDto(): VkApiLikeCommentFeedback {
-            return VkApiLikeCommentFeedback()
+    private class BaseLikeCommentParser : Parser<VKApiLikeCommentFeedback>() {
+        override fun createDto(): VKApiLikeCommentFeedback {
+            return VKApiLikeCommentFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiLikeCommentFeedback {
+        ): VKApiLikeCommentFeedback {
             val dto = super.parse(root, context)
             val commentableClass: Type
             val parentJsonField: String
@@ -228,45 +228,45 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiBaseFeedback> {
         }
     }
 
-    private class BaseMentionWallParser : Parser<VkApiMentionWallFeedback>() {
-        override fun createDto(): VkApiMentionWallFeedback {
-            return VkApiMentionWallFeedback()
+    private class BaseMentionWallParser : Parser<VKApiMentionWallFeedback>() {
+        override fun createDto(): VKApiMentionWallFeedback {
+            return VKApiMentionWallFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiMentionWallFeedback {
+        ): VKApiMentionWallFeedback {
             val dto = super.parse(root, context)
             dto.post = context.deserialize(root["feedback"], VKApiPost::class.java)
             return dto
         }
     }
 
-    private class BaseWallParser : Parser<VkApiWallFeedback>() {
-        override fun createDto(): VkApiWallFeedback {
-            return VkApiWallFeedback()
+    private class BaseWallParser : Parser<VKApiWallFeedback>() {
+        override fun createDto(): VKApiWallFeedback {
+            return VKApiWallFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiWallFeedback {
+        ): VKApiWallFeedback {
             val dto = super.parse(root, context)
             dto.post = context.deserialize(root["feedback"], VKApiPost::class.java)
             return dto
         }
     }
 
-    private class BaseMentionCommentParser : Parser<VkApiMentionCommentFeedback>() {
-        override fun createDto(): VkApiMentionCommentFeedback {
-            return VkApiMentionCommentFeedback()
+    private class BaseMentionCommentParser : Parser<VKApiMentionCommentFeedback>() {
+        override fun createDto(): VKApiMentionCommentFeedback {
+            return VKApiMentionCommentFeedback()
         }
 
         override fun parse(
             root: JsonObject,
             context: JsonDeserializationContext
-        ): VkApiMentionCommentFeedback {
+        ): VKApiMentionCommentFeedback {
             val dto = super.parse(root, context)
             dto.where = context.deserialize(root["feedback"], VKApiComment::class.java)
             val commentableClass: Type = when (dto.type) {

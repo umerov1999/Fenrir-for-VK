@@ -4,10 +4,6 @@
     package="dev.ragnarok.fenrir"
     android:installLocation="auto">
 
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
-
     <queries>
         <package android:name="com.coub.android" />
         <package android:name="org.schabi.newpipe" />
@@ -39,7 +35,7 @@
         tools:ignore="ScopedStorage" />
 
     <application
-        android:name=".App"
+        android:name="dev.ragnarok.fenrir.App"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:hardwareAccelerated="true"
@@ -58,18 +54,18 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".activity.LoginActivity"
+            android:name="dev.ragnarok.fenrir.activity.LoginActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/authorization" />
 
         <activity
-            android:name=".activity.ValidateActivity"
+            android:name="dev.ragnarok.fenrir.activity.ValidateActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/validate"
             android:theme="@style/App.DayNight.Swipes" />
 
         <activity
-            android:name=".activity.ProxyManagerActivity"
+            android:name="dev.ragnarok.fenrir.activity.ProxyManagerActivity"
             android:label="@string/proxy_manager_title" />
 
         <activity
@@ -79,14 +75,14 @@
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name=".activity.QuickAnswerActivity"
+            android:name="dev.ragnarok.fenrir.activity.QuickAnswerActivity"
             android:excludeFromRecents="true"
             android:taskAffinity=""
             android:theme="@style/QuickReply"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".activity.ChatActivityBubbles"
+            android:name="dev.ragnarok.fenrir.activity.ChatActivityBubbles"
             android:allowEmbedded="true"
             android:configChanges="keyboardHidden|orientation"
             android:documentLaunchMode="always"
@@ -96,18 +92,18 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name=".activity.KeyExchangeCommitActivity"
+            android:name="dev.ragnarok.fenrir.activity.KeyExchangeCommitActivity"
             android:excludeFromRecents="true"
             android:theme="@style/QuickReply" />
 
         <activity
-            android:name=".activity.CaptchaActivity"
+            android:name="dev.ragnarok.fenrir.activity.CaptchaActivity"
             android:excludeFromRecents="true"
             android:theme="@style/QuickReply"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".activity.PostPublishPrepareActivity"
+            android:name="dev.ragnarok.fenrir.activity.PostPublishPrepareActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/share_to_wall_label"
@@ -148,21 +144,21 @@
         </activity>
 
         <provider
-            android:name=".db.MessengerContentProvider"
+            android:name="dev.ragnarok.fenrir.db.MessengerContentProvider"
             android:authorities="${applicationId}.providers.Messages"
             android:exported="false"
             android:multiprocess="true" />
 
         <service
-            android:name=".service.QuickReplyService"
+            android:name="dev.ragnarok.fenrir.service.QuickReplyService"
             android:exported="false" />
 
         <activity
-            android:name=".activity.PhotosActivity"
+            android:name="dev.ragnarok.fenrir.activity.PhotosActivity"
             android:label="@string/photos" />
 
         <activity
-            android:name=".activity.PostCreateActivity"
+            android:name="dev.ragnarok.fenrir.activity.PostCreateActivity"
             android:label="@string/share_to_wall_label"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
 
@@ -175,7 +171,7 @@
         </activity>
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name="dev.ragnarok.fenrir.activity.MainActivity"
             android:configChanges="keyboardHidden"
             android:exported="true"
             android:launchMode="singleTask"
@@ -194,12 +190,12 @@
         </activity>
 
         <activity-alias
-            android:name=".activity.alias.DefaultFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.DefaultFenrirAlias"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -207,12 +203,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.BlueFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.BlueFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_blue"
             android:roundIcon="@mipmap/fenrir_blue"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -220,12 +216,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.GreenFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.GreenFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_green"
             android:roundIcon="@mipmap/fenrir_green"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -233,12 +229,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.YellowFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.YellowFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_yellow"
             android:roundIcon="@mipmap/fenrir_yellow"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -246,12 +242,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.VioletFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.VioletFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_violet"
             android:roundIcon="@mipmap/fenrir_violet"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -259,12 +255,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.LineageFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.LineageFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_lineage"
             android:roundIcon="@mipmap/fenrir_lineage"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -272,12 +268,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.RedFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.RedFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_red"
             android:roundIcon="@mipmap/fenrir_red"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -285,12 +281,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.BlackFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.BlackFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_black"
             android:roundIcon="@mipmap/fenrir_black"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -298,12 +294,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.VKFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.VKFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/vk_official"
             android:roundIcon="@mipmap/vk_official"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -311,12 +307,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".activity.alias.WhiteFenrirAlias"
+            android:name="dev.ragnarok.fenrir.activity.alias.WhiteFenrirAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/fenrir_white"
             android:roundIcon="@mipmap/fenrir_white"
-            android:targetActivity=".activity.MainActivity">
+            android:targetActivity="dev.ragnarok.fenrir.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -324,12 +320,12 @@
         </activity-alias>
 
         <activity
-            android:name=".activity.SelectProfilesActivity"
+            android:name="dev.ragnarok.fenrir.activity.SelectProfilesActivity"
             android:configChanges="keyboardHidden|orientation"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name=".activity.SwipebleActivity"
+            android:name="dev.ragnarok.fenrir.activity.SwipebleActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
             android:theme="@style/App.DayNight.Swipes"
@@ -372,21 +368,21 @@
         </activity>
 
         <activity
-            android:name=".activity.ChatActivity"
+            android:name="dev.ragnarok.fenrir.activity.ChatActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/chat"
             android:theme="@style/App.DayNight.Swipes"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name=".activity.PhotoPagerActivity"
+            android:name="dev.ragnarok.fenrir.activity.PhotoPagerActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/photos"
             android:theme="@style/App.DayNight.Swipes"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name=".activity.PhotoFullScreenActivity"
+            android:name="dev.ragnarok.fenrir.activity.PhotoFullScreenActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
             android:label="@string/photos"
@@ -400,14 +396,14 @@
         </activity>
 
         <activity
-            android:name=".activity.NotReadMessagesActivity"
+            android:name="dev.ragnarok.fenrir.activity.NotReadMessagesActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/not_read"
             android:theme="@style/App.DayNight.Swipes"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name=".activity.LocalJsonToChatActivity"
+            android:name="dev.ragnarok.fenrir.activity.LocalJsonToChatActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
             android:label="@string/chat_json"
@@ -429,7 +425,7 @@
         </activity>
 
         <activity
-            android:name=".activity.LottieActivity"
+            android:name="dev.ragnarok.fenrir.activity.LottieActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
             android:label="@string/lottie_preview"
@@ -453,7 +449,7 @@
         </activity>
 
         <activity
-            android:name=".activity.SendAttachmentsActivity"
+            android:name="dev.ragnarok.fenrir.activity.SendAttachmentsActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
             android:label="@string/share"
@@ -491,30 +487,30 @@
         </activity>
 
         <activity
-            android:name=".activity.AttachmentsActivity"
+            android:name="dev.ragnarok.fenrir.activity.AttachmentsActivity"
             android:label="@string/attachments" />
 
         <activity
-            android:name=".activity.VideoSelectActivity"
+            android:name="dev.ragnarok.fenrir.activity.VideoSelectActivity"
             android:label="@string/videos" />
         <activity
-            android:name=".activity.AudioSelectActivity"
+            android:name="dev.ragnarok.fenrir.activity.AudioSelectActivity"
             android:label="@string/audios" />
 
         <activity
-            android:name=".activity.AccountsActivity"
+            android:name="dev.ragnarok.fenrir.activity.AccountsActivity"
             android:label="@string/account_manager" />
 
         <activity
-            android:name=".activity.FileManagerSelectActivity"
+            android:name="dev.ragnarok.fenrir.activity.FileManagerSelectActivity"
             android:theme="@style/App.DayNight.Swipes" />
 
         <activity
-            android:name=".activity.PhotoAlbumsActivity"
+            android:name="dev.ragnarok.fenrir.activity.PhotoAlbumsActivity"
             android:label="@string/photos" />
 
         <activity
-            android:name=".activity.VideoPlayerActivity"
+            android:name="dev.ragnarok.fenrir.activity.VideoPlayerActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:label="@string/app_name"
             android:launchMode="singleTask"
@@ -528,7 +524,7 @@
         <!-- Used to set options -->
 
         <service
-            android:name=".media.music.MusicPlaybackService"
+            android:name="dev.ragnarok.fenrir.media.music.MusicPlaybackService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
@@ -545,35 +541,40 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".activity.EnterPinActivity" />
+        <activity android:name="dev.ragnarok.fenrir.activity.EnterPinActivity" />
 
         <activity
-            android:name=".activity.EnterPinActivityPortraitOnly"
+            android:name="dev.ragnarok.fenrir.activity.EnterPinActivityPortraitOnly"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name=".activity.CreatePinActivity"
+            android:name="dev.ragnarok.fenrir.activity.CreatePinActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
 
-        <service android:name=".crypt.KeyExchangeService" />
+        <service android:name="dev.ragnarok.fenrir.crypt.KeyExchangeService" />
 
         <activity
-            android:name=".activity.DualTabPhotoActivity"
+            android:name="dev.ragnarok.fenrir.activity.qr.CameraScanActivity"
+            android:label="@string/scan_qr"
+            android:theme="@style/App.DayNight.Swipes" />
+
+        <activity
+            android:name="dev.ragnarok.fenrir.activity.DualTabPhotoActivity"
             android:label="@string/photos" />
 
         <activity
-            android:name=".activity.crash.DefaultErrorActivity"
+            android:name="dev.ragnarok.fenrir.activity.crash.DefaultErrorActivity"
             android:process=":fenrir_error_activity"
             android:theme="@style/App.DayNight.Swipes" />
 
         <service
-            android:name=".service.KeepLongpollService"
+            android:name="dev.ragnarok.fenrir.service.KeepLongpollService"
             android:exported="false" />
 
         <service
-            android:name=".FcmListenerService"
+            android:name="dev.ragnarok.fenrir.FcmListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

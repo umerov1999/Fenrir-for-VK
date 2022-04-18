@@ -203,6 +203,26 @@ object CurrentTheme {
         } ?: Color.TRANSPARENT
     }
 
+    fun getColorActive(context: Context?): Int {
+        return context?.let {
+            getColorFromAttrs(
+                R.attr.icon_color_active,
+                it,
+                "#000000"
+            )
+        } ?: Color.TRANSPARENT
+    }
+
+    fun getColorInActive(context: Context?): Int {
+        return context?.let {
+            getColorFromAttrs(
+                R.attr.icon_color_inactive,
+                it,
+                "#000000"
+            )
+        } ?: Color.TRANSPARENT
+    }
+
     fun getStatusBarNonColored(context: Context): Int {
         return getColorFromAttrs(R.attr.statusbarNonColoredColor, context, "#000000")
     }

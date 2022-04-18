@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.response.*
-import dev.ragnarok.fenrir.api.model.server.VkApiAudioUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -37,7 +37,7 @@ interface IAudioService {
         @Field("q") query: String?,
         @Field("offset") offset: Int?,
         @Field("count") count: Int?
-    ): Single<BaseResponse<Items<VkApiArtist>>>
+    ): Single<BaseResponse<Items<VKApiArtist>>>
 
     //https://vk.com/dev/audio.searchPlaylists
     @FormUrlEncoded
@@ -139,7 +139,7 @@ interface IAudioService {
 
     @FormUrlEncoded
     @POST("audio.getLyrics")
-    fun getLyrics(@Field("lyrics_id") lyrics_id: Int): Single<BaseResponse<VkApiLyrics>>
+    fun getLyrics(@Field("lyrics_id") lyrics_id: Int): Single<BaseResponse<VKApiLyrics>>
 
     @FormUrlEncoded
     @POST("audio.getPlaylists")
@@ -198,7 +198,7 @@ interface IAudioService {
     ): Single<BaseResponse<BlockResponse<CatalogResponse>>>
 
     @get:POST("audio.getUploadServer")
-    val uploadServer: Single<BaseResponse<VkApiAudioUploadServer>>
+    val uploadServer: Single<BaseResponse<VKApiAudioUploadServer>>
 
     @FormUrlEncoded
     @POST("audio.save")

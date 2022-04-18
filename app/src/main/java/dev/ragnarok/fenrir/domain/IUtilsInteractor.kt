@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.domain
 
 import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
-import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiLinkResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiChatResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiLinkResponse
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Privacy
 import dev.ragnarok.fenrir.model.ShortLink
@@ -21,7 +21,7 @@ interface IUtilsInteractor {
     fun getLastShortenedLinks(accountId: Int, count: Int?, offset: Int?): Single<List<ShortLink>>
     fun deleteFromLastShortened(accountId: Int, key: String?): Single<Int>
     fun checkLink(accountId: Int, url: String?): Single<VKApiCheckedLink>
-    fun joinChatByInviteLink(accountId: Int, link: String?): Single<VkApiChatResponse>
-    fun getInviteLink(accountId: Int, peer_id: Int?, reset: Int?): Single<VkApiLinkResponse>
+    fun joinChatByInviteLink(accountId: Int, link: String?): Single<VKApiChatResponse>
+    fun getInviteLink(accountId: Int, peer_id: Int?, reset: Int?): Single<VKApiLinkResponse>
     fun customScript(accountId: Int, code: String?): Single<Int>
 }

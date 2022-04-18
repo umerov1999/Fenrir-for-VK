@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.api.interfaces
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.CountersDto
 import dev.ragnarok.fenrir.api.model.RefreshToken
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfo
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfoResponce
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfoResponce
 import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponce
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse
 import io.reactivex.rxjava3.core.Single
@@ -38,7 +38,7 @@ interface IAccountApi {
     fun setOffline(): Single<Boolean>
 
     @get:CheckResult
-    val profileInfo: Single<VkApiProfileInfo>
+    val profileInfo: Single<VKApiProfileInfo>
 
     @get:CheckResult
     val pushSettings: Single<PushSettingsResponse>
@@ -52,7 +52,7 @@ interface IAccountApi {
         bdate: String?,
         home_town: String?,
         sex: Int?
-    ): Single<VkApiProfileInfoResponce>
+    ): Single<VKApiProfileInfoResponce>
 
     @CheckResult
     fun getCounters(filter: String?): Single<CountersDto>

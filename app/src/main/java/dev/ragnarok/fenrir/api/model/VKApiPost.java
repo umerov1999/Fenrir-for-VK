@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 /**
@@ -90,7 +92,7 @@ public class VKApiPost implements VKApiAttachment, Commentable, Likeable, Copyab
     /**
      * Information about attachments to the post (photos, links, etc.), if any;
      */
-    public VkApiAttachments attachments;
+    public VKApiAttachments attachments;
 
     /**
      * Information about location.
@@ -117,7 +119,7 @@ public class VKApiPost implements VKApiAttachment, Commentable, Likeable, Copyab
      */
     public List<VKApiPost> copy_history;
 
-    public VkApiPostSource post_source;
+    public VKApiPostSource post_source;
 
     public int views;
 
@@ -127,6 +129,7 @@ public class VKApiPost implements VKApiAttachment, Commentable, Likeable, Copyab
 
     public boolean is_favorite;
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_POST;

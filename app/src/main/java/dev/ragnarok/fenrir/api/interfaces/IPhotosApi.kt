@@ -33,14 +33,14 @@ interface IPhotosApi {
     @CheckResult
     fun createAlbum(
         title: String?, groupId: Int?, description: String?,
-        privacyView: VkApiPrivacy?, privacyComment: VkApiPrivacy?,
+        privacyView: VKApiPrivacy?, privacyComment: VKApiPrivacy?,
         uploadByAdminsOnly: Boolean?, commentsDisabled: Boolean?
     ): Single<VKApiPhotoAlbum>
 
     @CheckResult
     fun editAlbum(
         albumId: Int, title: String?, description: String?, ownerId: Int?,
-        privacyView: VkApiPrivacy?, privacyComment: VkApiPrivacy?,
+        privacyView: VKApiPrivacy?, privacyComment: VKApiPrivacy?,
         uploadByAdminsOnly: Boolean?, commentsDisabled: Boolean?
     ): Single<Boolean>
 
@@ -65,7 +65,7 @@ interface IPhotosApi {
     fun getById(ids: Collection<AccessIdPair>): Single<List<VKApiPhoto>>
 
     @CheckResult
-    fun getUploadServer(albumId: Int, groupId: Int?): Single<VkApiUploadServer>
+    fun getUploadServer(albumId: Int, groupId: Int?): Single<VKApiUploadServer>
 
     @CheckResult
     fun saveOwnerPhoto(
@@ -75,10 +75,10 @@ interface IPhotosApi {
     ): Single<UploadOwnerPhotoResponse>
 
     @CheckResult
-    fun getOwnerPhotoUploadServer(ownerId: Int?): Single<VkApiOwnerPhotoUploadServer>
+    fun getOwnerPhotoUploadServer(ownerId: Int?): Single<VKApiOwnerPhotoUploadServer>
 
     @CheckResult
-    fun getChatUploadServer(chat_id: Int?): Single<VkApiChatPhotoUploadServer>
+    fun getChatUploadServer(chat_id: Int?): Single<VKApiChatPhotoUploadServer>
 
     @CheckResult
     fun setChatPhoto(file: String?): Single<UploadChatPhotoResponse>
@@ -90,7 +90,7 @@ interface IPhotosApi {
     ): Single<List<VKApiPhoto>>
 
     @CheckResult
-    fun getWallUploadServer(groupId: Int?): Single<VkApiWallUploadServer>
+    fun getWallUploadServer(groupId: Int?): Single<VKApiWallUploadServer>
 
     @CheckResult
     fun save(
@@ -123,7 +123,7 @@ interface IPhotosApi {
     ): Single<Items<VKApiPhoto>>
 
     @get:CheckResult
-    val messagesUploadServer: Single<VkApiPhotoMessageServer>
+    val messagesUploadServer: Single<VKApiPhotoMessageServer>
 
     @CheckResult
     fun saveMessagesPhoto(server: Int?, photo: String?, hash: String?): Single<List<VKApiPhoto>>

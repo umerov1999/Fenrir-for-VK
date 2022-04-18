@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.CountersDto
 import dev.ragnarok.fenrir.api.model.RefreshToken
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfo
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfoResponce
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfoResponce
 import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponce
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse
@@ -77,7 +77,7 @@ interface IAccountService {
     fun setOffline(): Single<BaseResponse<Int>>
 
     @get:GET("account.getProfileInfo")
-    val profileInfo: Single<BaseResponse<VkApiProfileInfo>>
+    val profileInfo: Single<BaseResponse<VKApiProfileInfo>>
 
     @get:GET("account.getPushSettings")
     val pushSettings: Single<BaseResponse<PushSettingsResponse>>
@@ -92,7 +92,7 @@ interface IAccountService {
         @Field("bdate") bdate: String?,
         @Field("home_town") home_town: String?,
         @Field("sex") sex: Int?
-    ): Single<BaseResponse<VkApiProfileInfoResponce>>
+    ): Single<BaseResponse<VKApiProfileInfoResponce>>
 
     @FormUrlEncoded
     @POST("auth.refreshToken")

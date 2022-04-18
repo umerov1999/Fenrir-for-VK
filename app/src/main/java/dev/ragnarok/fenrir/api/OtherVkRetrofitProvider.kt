@@ -10,6 +10,7 @@ import dev.ragnarok.fenrir.api.adapters.LongpollUpdateAdapter
 import dev.ragnarok.fenrir.api.adapters.LongpollUpdatesAdapter
 import dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.GzipInterceptor
@@ -122,8 +123,8 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                         formBuilder.add(body.name(i), body.value(i))
                     }
                 }
-                if (localSettings.password != null) {
-                    formBuilder.add("password", localSettings.password)
+                localSettings.password.nonNullNoEmpty {
+                    formBuilder.add("password", it)
                 }
                 val request = original.newBuilder()
                     .method("POST", formBuilder.build())

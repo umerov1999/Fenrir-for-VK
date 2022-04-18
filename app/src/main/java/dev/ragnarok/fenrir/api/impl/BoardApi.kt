@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.api.model.IAttachmentToken
 import dev.ragnarok.fenrir.api.model.response.DefaultCommentsResponse
 import dev.ragnarok.fenrir.api.model.response.TopicsResponse
 import dev.ragnarok.fenrir.api.services.IBoardService
+import dev.ragnarok.fenrir.requireNonNull
 import io.reactivex.rxjava3.core.Single
 
 internal class BoardApi(accountId: Int, provider: IServiceProvider) :
@@ -79,8 +80,10 @@ internal class BoardApi(accountId: Int, provider: IServiceProvider) :
                     .map(extractResponseWithErrorHandling())
                     .map { response ->
                         // fix (не приходит owner_id)
-                        for (topic in response.items) {
-                            topic.owner_id = -groupId
+                        response.items.requireNonNull {
+                            for (topic in it) {
+                                topic.owner_id = -groupId
+                            }
                         }
                         response
                     }

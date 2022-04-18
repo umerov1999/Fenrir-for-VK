@@ -25,7 +25,7 @@ interface IFaveApi {
     fun getArticles(offset: Int?, count: Int?): Single<List<VKApiArticle>>
 
     @CheckResult
-    fun getProducts(offset: Int?, count: Int?): Single<List<VkApiMarket>>
+    fun getProducts(offset: Int?, count: Int?): Single<List<VKApiMarket>>
 
     @CheckResult
     fun getOwnerPublishedArticles(

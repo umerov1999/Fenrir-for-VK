@@ -20,7 +20,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .getVideos(offset, count, reverse)
             .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiVideo>(
-                    items.getItems()
+                    items.items
                 )
                 val dbos: MutableList<VideoEntity> = ArrayList(dtos.size)
                 val videos: MutableList<Video> = ArrayList(dbos.size)
@@ -37,7 +37,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .getAudios(offset, count, reverse)
             .map { items ->
                 listEmptyIfNull<VKApiAudio>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -52,7 +52,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .getDiscography(offset, count, reverse)
             .map { items ->
                 listEmptyIfNull<VKApiAudio>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -67,7 +67,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .getPhotos(offset, count, reverse)
             .map { items ->
                 listEmptyIfNull<VKApiPhoto>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -87,7 +87,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .searchVideos(q, offset, count, reverse)
             .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiVideo>(
-                    items.getItems()
+                    items.items
                 )
                 val dbos: MutableList<VideoEntity> = ArrayList(dtos.size)
                 val videos: MutableList<Video> = ArrayList(dbos.size)
@@ -109,7 +109,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .searchAudios(q, offset, count, reverse)
             .map { items ->
                 listEmptyIfNull<VKApiAudio>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -129,7 +129,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .searchDiscography(q, offset, count, reverse)
             .map { items ->
                 listEmptyIfNull<VKApiAudio>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -149,7 +149,7 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .searchPhotos(q, offset, count, reverse)
             .map { items ->
                 listEmptyIfNull<VKApiPhoto>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->

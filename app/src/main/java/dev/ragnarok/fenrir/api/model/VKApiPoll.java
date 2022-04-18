@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 /**
@@ -78,6 +80,7 @@ public class VKApiPoll implements VKApiAttachment {
 
     }
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_POLL;

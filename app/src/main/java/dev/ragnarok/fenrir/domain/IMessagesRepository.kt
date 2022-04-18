@@ -28,7 +28,7 @@ interface IMessagesRepository {
         updates: List<BadgeCountChangeUpdate>?
     ): Completable
 
-    fun handleWriteUpdates(accountId: Int, updates: List<WriteTextInDialogUpdate>): Completable
+    fun handleWriteUpdates(accountId: Int, updates: List<WriteTextInDialogUpdate>?): Completable
     fun observeSentMessages(): Flowable<SentMsg>
     fun observePeerUpdates(): Flowable<List<PeerUpdate>>
     fun observeMessageUpdates(): Flowable<List<MessageUpdate>>

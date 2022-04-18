@@ -6,12 +6,12 @@ import java.util.ArrayList;
 
 import dev.ragnarok.fenrir.api.util.VKStringUtils;
 
-public class VkApiPrivacy {
+public class VKApiPrivacy {
 
     public String category;
     public ArrayList<Entry> entries;
 
-    public VkApiPrivacy(String category) {
+    public VKApiPrivacy(String category) {
         this.category = category;
         entries = new ArrayList<>();
     }

@@ -4,25 +4,25 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.VkApiPrivacy
+import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import java.lang.reflect.Type
 
-class PrivacyDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiPrivacy> {
+class PrivacyDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPrivacy> {
     @Throws(JsonParseException::class)
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
-    ): VkApiPrivacy {
+    ): VKApiPrivacy {
         if (!checkObject(json)) {
-            return VkApiPrivacy("null")
+            return VKApiPrivacy("null")
         }
         val root = json.asJsonObject
 
         // Examples
         // {"category":"only_me"}
         // {"owners":{"allowed":[13326918,26632922,31182820,50949233,113672278,138335672]}}
-        val privacy = VkApiPrivacy(optString(root, "category", "only_me"))
+        val privacy = VKApiPrivacy(optString(root, "category", "only_me"))
         val owners = root["owners"]
         if (checkObject(owners)) {
             val allowed = owners.asJsonObject["allowed"]

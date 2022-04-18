@@ -2,10 +2,10 @@ package dev.ragnarok.fenrir.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class VkApiDialog {
+public class VKApiDialog {
 
     @SerializedName("conversation")
-    public VkApiConversation conversation;
+    public VKApiConversation conversation;
 
     @SerializedName("last_message")
     public VKApiMessage lastMessage;

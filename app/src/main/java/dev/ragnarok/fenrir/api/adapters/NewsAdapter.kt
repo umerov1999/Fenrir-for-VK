@@ -64,7 +64,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             dto.views = optInt(viewRoot, "count", 0)
         }
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VkApiAttachments::class.java)
+            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
         }
         if (root.has("geo")) {
             dto.geo = context.deserialize(root["geo"], VKApiPlace::class.java)
@@ -72,7 +72,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
         if (root.has("photos")) {
             val photosArray = root.getAsJsonObject("photos").getAsJsonArray("items")
             if (dto.attachments == null) {
-                dto.attachments = VkApiAttachments()
+                dto.attachments = VKApiAttachments()
             }
             parseArray<VKApiPhoto>(photosArray, VKApiPhoto::class.java, context, null)?.let {
                 dto.attachments.append(it)
@@ -81,7 +81,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
         if (root.has("photo_tags")) {
             val photosTagsArray = root.getAsJsonObject("photo_tags").getAsJsonArray("items")
             if (dto.attachments == null) {
-                dto.attachments = VkApiAttachments()
+                dto.attachments = VKApiAttachments()
             }
             parseArray<VKApiPhoto>(
                 photosTagsArray,
@@ -95,7 +95,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
         if (root.has("audio")) {
             val photosTagsArray = root.getAsJsonObject("audio").getAsJsonArray("items")
             if (dto.attachments == null) {
-                dto.attachments = VkApiAttachments()
+                dto.attachments = VKApiAttachments()
             }
             parseArray<VKApiPhoto>(
                 photosTagsArray,
@@ -109,7 +109,7 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
         if (root.has("video")) {
             val photosTagsArray = root.getAsJsonObject("video").getAsJsonArray("items")
             if (dto.attachments == null) {
-                dto.attachments = VkApiAttachments()
+                dto.attachments = VKApiAttachments()
             }
             parseArray<VKApiPhoto>(
                 photosTagsArray,

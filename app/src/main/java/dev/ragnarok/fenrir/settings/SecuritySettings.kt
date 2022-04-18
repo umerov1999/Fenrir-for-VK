@@ -2,11 +2,11 @@ package dev.ragnarok.fenrir.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.text.TextUtils
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
+import dev.ragnarok.fenrir.module.StringHash
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.ISecuritySettings
-import dev.ragnarok.fenrir.util.AeSimpleSHA1
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import java.security.NoSuchAlgorithmException
 import java.util.*
@@ -96,7 +96,7 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
     }
 
     override fun hasPinHash(): Boolean {
-        return !TextUtils.isEmpty(mPinHash)
+        return mPinHash.nonNullNoEmpty()
     }
 
     override fun pinHistoryDepthValue(): Int {
@@ -189,8 +189,8 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
         private const val PREFS_NAME = "security_prefs"
         private const val KEY_PIN_HASH = "app_pin"
         private const val KEY_PIN_ENTER_HISTORY = "pin_enter_history"
-        private const val KEY_USE_PIN_FOR_ENTRANCE = "use_pin_for_entrance"
-        private const val DELAYED_PIN_FOR_ENTRANCE = "delayed_pin_for_entrance"
+        const val KEY_USE_PIN_FOR_ENTRANCE = "use_pin_for_entrance"
+        const val DELAYED_PIN_FOR_ENTRANCE = "delayed_pin_for_entrance"
         private const val LAST_PIN_ENTERED = "last_pin_entered"
         private const val KEY_ENCRYPTION_POLICY_ACCEPTED = "encryption_policy_accepted"
         private const val KEY_HIDDEN_PEERS = "hidden_peers"
@@ -214,7 +214,7 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
 
         private fun calculateHash(value: String): String {
             return try {
-                AeSimpleSHA1.sha1(value)
+                StringHash.calculateSha1(value)
             } catch (e: NoSuchAlgorithmException) {
                 throw IllegalStateException()
             }

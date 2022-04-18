@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.domain.mappers
 
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.VKApiAudioCatalog.VKApiArtistBlock
+import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiSticker.VKApiAnimation
-import dev.ragnarok.fenrir.api.model.VkApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.feedback.Copies
 import dev.ragnarok.fenrir.api.model.feedback.UserArray
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate
@@ -20,11 +20,12 @@ import dev.ragnarok.fenrir.model.AudioArtist.AudioArtistImage
 import dev.ragnarok.fenrir.model.AudioCatalog.ArtistBlock
 import dev.ragnarok.fenrir.model.Document.VideoPreview
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 
 object Dto2Model {
 
-    fun transform(dto: VkApiFriendList): FriendList {
+    fun transform(dto: VKApiFriendList): FriendList {
         return FriendList(dto.id, dto.name)
     }
 
@@ -269,7 +270,7 @@ object Dto2Model {
     }
 
 
-    fun transformMarketAlbums(dtos: List<VkApiMarketAlbum>?): List<MarketAlbum> {
+    fun transformMarketAlbums(dtos: List<VKApiMarketAlbum>?): List<MarketAlbum> {
         return mapAll(
             dtos
         ) {
@@ -286,7 +287,7 @@ object Dto2Model {
     }
 
 
-    fun transformMarket(dtos: List<VkApiMarket>?): List<Market> {
+    fun transformMarket(dtos: List<VKApiMarket>?): List<Market> {
         return mapAll(
             dtos
         ) { transform(it) }
@@ -309,8 +310,8 @@ object Dto2Model {
     fun transformFaveUser(favePage: FavePageResponse): FavePage {
         var id = 0
         when (favePage.type) {
-            FavePageType.USER -> id = favePage.user.id
-            FavePageType.COMMUNITY -> id = favePage.group.id
+            FavePageType.USER -> id = favePage.user?.id ?: 0
+            FavePageType.COMMUNITY -> id = favePage.group?.id ?: 0
         }
         val page = FavePage(id)
             .setDescription(favePage.description)
@@ -375,7 +376,7 @@ object Dto2Model {
         return message
     }
 
-    fun transform(accountId: Int, dtos: List<VkApiDialog>, owners: IOwnersBundle): List<Dialog> {
+    fun transform(accountId: Int, dtos: List<VKApiDialog>, owners: IOwnersBundle): List<Dialog> {
         val data: MutableList<Dialog> = ArrayList(dtos.size)
         for (dto in dtos) {
             data.add(transform(accountId, dto, owners))
@@ -413,7 +414,7 @@ object Dto2Model {
     }
 
 
-    fun transform(accountId: Int, dto: VkApiConversation, bundle: IOwnersBundle): Conversation {
+    fun transform(accountId: Int, dto: VKApiConversation, bundle: IOwnersBundle): Conversation {
         val entity = Conversation(dto.peer.id)
             .setInRead(dto.inRead)
             .setOutRead(dto.outRead)
@@ -445,7 +446,7 @@ object Dto2Model {
     }
 
 
-    fun transform(accountId: Int, dto: VkApiDialog, bundle: IOwnersBundle): Dialog {
+    fun transform(accountId: Int, dto: VKApiDialog, bundle: IOwnersBundle): Dialog {
         val message = dto.lastMessage
         val interlocutor: Owner = if (Peer.isGroup(message.peer_id) || Peer.isUser(
                 message.peer_id
@@ -569,14 +570,14 @@ object Dto2Model {
         return appMessage
     }
 
-    fun transform(dto: VkApiDoc.Graffiti): Document.Graffiti {
+    fun transform(dto: VKApiDoc.Graffiti): Document.Graffiti {
         return Document.Graffiti()
             .setWidth(dto.width)
             .setHeight(dto.height)
             .setSrc(dto.src)
     }
 
-    fun transform(dto: VkApiDoc.Video): VideoPreview {
+    fun transform(dto: VKApiDoc.Video): VideoPreview {
         return VideoPreview()
             .setHeight(dto.height)
             .setSrc(dto.src)
@@ -609,7 +610,7 @@ object Dto2Model {
         return sizes
     }
 
-    fun transform(orig: VkApiPrivacy): SimplePrivacy {
+    fun transform(orig: VKApiPrivacy): SimplePrivacy {
         val entries = ArrayList<SimplePrivacy.Entry>(safeCountOf(orig.entries))
         if (orig.entries != null) {
             for (entry in orig.entries) {
@@ -629,12 +630,12 @@ object Dto2Model {
         privacy.type = simplePrivacy.type
         for (entry in simplePrivacy.entries) {
             when (entry.type) {
-                VkApiPrivacy.Entry.TYPE_FRIENDS_LIST -> if (entry.isAllowed) {
+                VKApiPrivacy.Entry.TYPE_FRIENDS_LIST -> if (entry.isAllowed) {
                     privacy.allowFor(friendListMap[entry.id])
                 } else {
                     privacy.disallowFor(friendListMap[entry.id])
                 }
-                VkApiPrivacy.Entry.TYPE_OWNER -> if (entry.isAllowed) {
+                VKApiPrivacy.Entry.TYPE_OWNER -> if (entry.isAllowed) {
                     privacy.allowFor(owners.getById(entry.id) as User)
                 } else {
                     privacy.disallowFor(owners.getById(entry.id) as User)
@@ -646,8 +647,8 @@ object Dto2Model {
 
     fun buildUserArray(copies: Copies, owners: IOwnersBundle): List<Owner> {
         val data: MutableList<Owner> = ArrayList(safeCountOf(copies.pairs))
-        if (copies.pairs != null) {
-            for (pair in copies.pairs) {
+        copies.pairs.requireNonNull {
+            for (pair in it) {
                 data.add(owners.getById(pair.owner_id))
             }
         }
@@ -668,9 +669,9 @@ object Dto2Model {
     }
 
     fun buildUserArray(original: UserArray, owners: IOwnersBundle): List<Owner> {
-        val data: MutableList<Owner> = ArrayList(if (original.ids == null) 0 else original.ids.size)
-        if (original.ids != null) {
-            for (id in original.ids) {
+        val data: MutableList<Owner> = ArrayList(original.ids?.size ?: 0)
+        original.ids.requireNonNull {
+            for (id in it) {
                 data.add(owners.getById(id))
             }
         }
@@ -826,13 +827,13 @@ object Dto2Model {
         return NotSupported().setType(dto.type).setBody(dto.body)
     }
 
-    private fun transformEvent(dto: VkApiEvent, owners: IOwnersBundle): Event {
+    private fun transformEvent(dto: VKApiEvent, owners: IOwnersBundle): Event {
         return Event(dto.id).setButton_text(dto.button_text).setText(dto.text)
             .setSubject(owners.getById(if (dto.id >= 0) -dto.id else dto.id))
     }
 
 
-    fun transform(dto: VkApiMarket): Market {
+    fun transform(dto: VKApiMarket): Market {
         return Market(dto.id, dto.owner_id)
             .setAccess_key(dto.access_key)
             .setIs_favorite(dto.is_favorite)
@@ -847,7 +848,7 @@ object Dto2Model {
             .setThumb_photo(dto.thumb_photo)
     }
 
-    fun transform(dto: VkApiMarketAlbum): MarketAlbum {
+    fun transform(dto: VKApiMarketAlbum): MarketAlbum {
         return MarketAlbum(dto.id, dto.owner_id)
             .setAccess_key(dto.access_key)
             .setCount(dto.count)
@@ -996,7 +997,7 @@ object Dto2Model {
         return Article(article.id, article.owner_id)
             .setAccessKey(article.access_key)
             .setOwnerName(article.owner_name)
-            .setPhoto(if (article.photo == null) null else transform(article.photo))
+            .setPhoto(article.photo?.let { transform(it) })
             .setTitle(article.title)
             .setSubTitle(article.subtitle)
             .setURL(article.url)
@@ -1050,10 +1051,10 @@ object Dto2Model {
             .setUrl(dto.url)
             .setTitle(dto.title)
             .setDescription(dto.description)
-            .setPhoto(if (dto.photo != null) transform(dto.photo) else null)
+            .setPhoto(dto.photo?.let { transform(it) })
     }
 
-    fun transform(dto: VkApiAudioMessage): VoiceMessage {
+    fun transform(dto: VKApiAudioMessage): VoiceMessage {
         return VoiceMessage(dto.id, dto.owner_id)
             .setDuration(dto.duration)
             .setWaveform(dto.waveform)
@@ -1064,7 +1065,7 @@ object Dto2Model {
     }
 
 
-    fun transform(dto: VkApiDoc): Document {
+    fun transform(dto: VKApiDoc): Document {
         val document = Document(dto.id, dto.ownerId)
         document.setTitle(dto.title)
             .setSize(dto.size)
@@ -1189,7 +1190,7 @@ object Dto2Model {
     }
 
     private fun buildAttachments(
-        apiAttachments: VkApiAttachments,
+        apiAttachments: VKApiAttachments,
         owners: IOwnersBundle
     ): Attachments {
         val attachments = Attachments()
@@ -1205,9 +1206,9 @@ object Dto2Model {
                 VKApiAttachment.TYPE_PHOTO -> attachments.preparePhotos()
                     .add(transform(attachment as VKApiPhoto))
                 VKApiAttachment.TYPE_DOC -> attachments.prepareDocs()
-                    .add(transform(attachment as VkApiDoc))
+                    .add(transform(attachment as VKApiDoc))
                 VKApiAttachment.TYPE_AUDIO_MESSAGE -> attachments.prepareVoiceMessages().add(
-                    transform(attachment as VkApiAudioMessage)
+                    transform(attachment as VKApiAudioMessage)
                 )
                 VKApiAttachment.TYPE_VIDEO -> attachments.prepareVideos()
                     .add(transform(attachment as VKApiVideo))
@@ -1227,11 +1228,11 @@ object Dto2Model {
                 VKApiAttachment.TYPE_NOT_SUPPORT -> attachments.prepareNotSupporteds()
                     .add(transform(attachment as VKApiNotSupported))
                 VKApiAttachment.TYPE_EVENT -> attachments.prepareEvents()
-                    .add(transformEvent(attachment as VkApiEvent, owners))
+                    .add(transformEvent(attachment as VKApiEvent, owners))
                 VKApiAttachment.TYPE_MARKET -> attachments.prepareMarkets()
-                    .add(transform(attachment as VkApiMarket))
+                    .add(transform(attachment as VKApiMarket))
                 VKApiAttachment.TYPE_MARKET_ALBUM -> attachments.prepareMarketAlbums()
-                    .add(transform(attachment as VkApiMarketAlbum))
+                    .add(transform(attachment as VKApiMarketAlbum))
                 VKApiAttachment.TYPE_ARTIST -> attachments.prepareAudioArtist()
                     .add(transform(attachment as VKApiAudioArtist))
                 VKApiAttachment.TYPE_AUDIO_PLAYLIST -> attachments.prepareAudioPlaylists().add(
@@ -1261,7 +1262,7 @@ object Dto2Model {
 
 
     fun transformAttachmentsPosts(
-        dtos: Collection<VkApiAttachments.Entry>,
+        dtos: Collection<VKApiAttachments.Entry>,
         bundle: IOwnersBundle
     ): List<Post> {
         val posts: MutableList<Post> = ArrayList(safeCountOf(dtos))

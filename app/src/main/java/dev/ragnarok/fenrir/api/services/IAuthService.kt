@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.LoginResponse
-import dev.ragnarok.fenrir.api.model.VkApiValidationResponce
+import dev.ragnarok.fenrir.api.model.VKApiValidationResponce
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
@@ -36,5 +36,5 @@ interface IAuthService {
         @Field("client_secret") clientSecret: String?,
         @Field("sid") sid: String?,
         @Field("v") v: String?
-    ): Single<BaseResponse<VkApiValidationResponce>>
+    ): Single<BaseResponse<VKApiValidationResponce>>
 }

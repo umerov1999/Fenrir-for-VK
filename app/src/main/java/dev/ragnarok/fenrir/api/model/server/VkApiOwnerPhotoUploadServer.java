@@ -3,26 +3,29 @@ package dev.ragnarok.fenrir.api.model.server;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class VkApiOwnerPhotoUploadServer implements Parcelable, UploadServer {
+import androidx.annotation.Nullable;
 
-    public static final Creator<VkApiOwnerPhotoUploadServer> CREATOR = new Creator<VkApiOwnerPhotoUploadServer>() {
+public class VKApiOwnerPhotoUploadServer implements Parcelable, UploadServer {
+
+    public static final Creator<VKApiOwnerPhotoUploadServer> CREATOR = new Creator<VKApiOwnerPhotoUploadServer>() {
         @Override
-        public VkApiOwnerPhotoUploadServer createFromParcel(Parcel in) {
-            return new VkApiOwnerPhotoUploadServer(in);
+        public VKApiOwnerPhotoUploadServer createFromParcel(Parcel in) {
+            return new VKApiOwnerPhotoUploadServer(in);
         }
 
         @Override
-        public VkApiOwnerPhotoUploadServer[] newArray(int size) {
-            return new VkApiOwnerPhotoUploadServer[size];
+        public VKApiOwnerPhotoUploadServer[] newArray(int size) {
+            return new VKApiOwnerPhotoUploadServer[size];
         }
     };
+    @Nullable
     public String upload_url;
 
-    public VkApiOwnerPhotoUploadServer() {
+    public VKApiOwnerPhotoUploadServer() {
 
     }
 
-    protected VkApiOwnerPhotoUploadServer(Parcel in) {
+    protected VKApiOwnerPhotoUploadServer(Parcel in) {
         upload_url = in.readString();
     }
 
@@ -36,6 +39,7 @@ public class VkApiOwnerPhotoUploadServer implements Parcelable, UploadServer {
         dest.writeString(upload_url);
     }
 
+    @Nullable
     @Override
     public String getUrl() {
         return upload_url;

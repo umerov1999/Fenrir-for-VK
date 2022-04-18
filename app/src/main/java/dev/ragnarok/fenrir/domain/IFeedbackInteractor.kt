@@ -12,7 +12,7 @@ interface IFeedbackInteractor {
         accountId: Int,
         count: Int,
         startFrom: String?
-    ): Single<Pair<List<Feedback>, String>>
+    ): Single<Pair<List<Feedback>, String?>>
 
     fun getOfficial(accountId: Int, count: Int?, startFrom: Int?): Single<AnswerVKOfficialList>
     fun maskAaViewed(accountId: Int): Completable

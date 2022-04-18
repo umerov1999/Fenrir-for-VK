@@ -557,9 +557,9 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
                     when (option.id) {
                         CommentsOption.copy_item_comment -> {
                             val clipboard = requireActivity()
-                                .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                             val clip = ClipData.newPlainText("comment", comment.text)
-                            clipboard.setPrimaryClip(clip)
+                            clipboard?.setPrimaryClip(clip)
                             CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
                                 .showToast(R.string.copied_to_clipboard)
                         }

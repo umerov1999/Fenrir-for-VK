@@ -1,7 +1,8 @@
 package dev.ragnarok.fenrir.api.model.feedback;
 
-public class VkApiUsersFeedback extends VkApiBaseFeedback {
+import androidx.annotation.Nullable;
 
+public class VKApiUsersFeedback extends VKApiBaseFeedback {
+    @Nullable
     public UserArray users;
-
 }

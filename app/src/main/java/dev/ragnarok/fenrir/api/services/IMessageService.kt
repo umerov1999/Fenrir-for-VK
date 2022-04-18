@@ -352,14 +352,14 @@ interface IMessageService {
         @Field("peer_ids") peerIds: String?,
         @Field("extended") extended: Int?,
         @Field("fields") fields: String?
-    ): Single<BaseResponse<ItemsProfilesGroupsResponse<VkApiConversation>>>
+    ): Single<BaseResponse<ItemsProfilesGroupsResponse<VKApiConversation>>>
 
     @FormUrlEncoded
     @POST("messages.getLongPollServer")
     fun getLongpollServer(
         @Field("need_pts") needPts: Int,
         @Field("lp_version") lpVersion: Int
-    ): Single<BaseResponse<VkApiLongpollServer>>
+    ): Single<BaseResponse<VKApiLongpollServer>>
 
     /**
      * Returns message history for the specified user or group chat.
@@ -391,7 +391,7 @@ interface IMessageService {
         @Field("offset") offset: Int?,
         @Field("count") count: Int?,
         @Field("peer_id") peerId: Int
-    ): Single<BaseResponse<Items<VkApiJsonString>>>
+    ): Single<BaseResponse<Items<VKApiJsonString>>>
 
     @FormUrlEncoded
     @POST("messages.getImportantMessages")

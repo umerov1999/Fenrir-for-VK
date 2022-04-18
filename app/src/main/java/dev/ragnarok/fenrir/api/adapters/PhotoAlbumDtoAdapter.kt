@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.PhotoSizeDto
 import dev.ragnarok.fenrir.api.model.VKApiPhotoAlbum
-import dev.ragnarok.fenrir.api.model.VkApiPrivacy
+import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import java.lang.reflect.Type
 
 class PhotoAlbumDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPhotoAlbum> {
@@ -32,11 +32,11 @@ class PhotoAlbumDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPhotoAlbum> {
         album.can_upload = optInt(root, "can_upload") == 1
         album.thumb_src = optString(root, "thumb_src")
         if (hasObject(root, "privacy_view")) {
-            album.privacy_view = context.deserialize(root["privacy_view"], VkApiPrivacy::class.java)
+            album.privacy_view = context.deserialize(root["privacy_view"], VKApiPrivacy::class.java)
         }
         if (hasObject(root, "privacy_comment")) {
             album.privacy_comment =
-                context.deserialize(root["privacy_comment"], VkApiPrivacy::class.java)
+                context.deserialize(root["privacy_comment"], VKApiPrivacy::class.java)
         }
         if (hasArray(root, "sizes")) {
             val sizesArray = root.getAsJsonArray("sizes")

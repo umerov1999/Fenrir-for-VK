@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.activity
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.app.Activity
 import android.content.*
 import android.graphics.Color
 import android.net.Uri
@@ -30,7 +31,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.google.zxing.integration.android.IntentIntegrator
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
@@ -40,6 +40,7 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.checkInputExist
 import dev.ragnarok.fenrir.activity.ActivityUtils.isMimeAudio
 import dev.ragnarok.fenrir.activity.EnterPinActivity.Companion.getClass
 import dev.ragnarok.fenrir.activity.PhotoPagerActivity.Companion.newInstance
+import dev.ragnarok.fenrir.activity.qr.CameraScanActivity
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.dialog.ResolveDomainDialog
 import dev.ragnarok.fenrir.domain.InteractorFactory
@@ -121,31 +122,31 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
     private val requestQRScan = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
-        val scanner = IntentIntegrator.parseActivityResult(
-            result
-        )
-        if (scanner.contents.nonNullNoEmpty()) {
-            MaterialAlertDialogBuilder(this)
-                .setIcon(R.drawable.qr_code)
-                .setMessage(scanner.contents)
-                .setTitle(getString(R.string.scan_qr))
-                .setPositiveButton(R.string.open) { _: DialogInterface?, _: Int ->
-                    LinkHelper.openUrl(
-                        this,
-                        mAccountId,
-                        scanner.contents
-                    )
-                }
-                .setNeutralButton(R.string.copy_text) { _: DialogInterface?, _: Int ->
-                    val clipboard = getSystemService(
-                        CLIPBOARD_SERVICE
-                    ) as ClipboardManager?
-                    val clip = ClipData.newPlainText("response", scanner.contents)
-                    clipboard?.setPrimaryClip(clip)
-                    CreateCustomToast(this).showToast(R.string.copied_to_clipboard)
-                }
-                .setCancelable(true)
-                .create().show()
+        if (result.resultCode == Activity.RESULT_OK) {
+            val scanner = result.data?.extras?.getString(Extra.URL)
+            if (scanner.nonNullNoEmpty()) {
+                MaterialAlertDialogBuilder(this)
+                    .setIcon(R.drawable.qr_code)
+                    .setMessage(scanner)
+                    .setTitle(getString(R.string.scan_qr))
+                    .setPositiveButton(R.string.open) { _: DialogInterface?, _: Int ->
+                        LinkHelper.openUrl(
+                            this,
+                            mAccountId,
+                            scanner
+                        )
+                    }
+                    .setNeutralButton(R.string.copy_text) { _: DialogInterface?, _: Int ->
+                        val clipboard = getSystemService(
+                            CLIPBOARD_SERVICE
+                        ) as ClipboardManager?
+                        val clip = ClipData.newPlainText("response", scanner)
+                        clipboard?.setPrimaryClip(clip)
+                        CreateCustomToast(this).showToast(R.string.copied_to_clipboard)
+                    }
+                    .setCancelable(true)
+                    .create().show()
+            }
         }
     }
     private val requestLogin = registerForActivityResult(
@@ -513,11 +514,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                                     PlaceFactory.getPreferencesPlace(mAccountId)
                                         .tryOpenWith(this@MainActivity)
                                 } else if (option.id == R.id.button_camera) {
-                                    val integrator = IntentIntegrator(this@MainActivity)
-                                    integrator.setCameraId(0)
-                                    integrator.setBeepEnabled(true)
-                                    integrator.setBarcodeImageEnabled(false)
-                                    requestQRScan.launch(integrator.createScanIntent())
+                                    val intent =
+                                        Intent(this@MainActivity, CameraScanActivity::class.java)
+                                    requestQRScan.launch(intent)
                                 }
                             }
                         })

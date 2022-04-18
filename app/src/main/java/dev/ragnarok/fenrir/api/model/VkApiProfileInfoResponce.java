@@ -1,5 +1,5 @@
 package dev.ragnarok.fenrir.api.model;
 
-public class VkApiProfileInfoResponce {
+public class VKApiProfileInfoResponce {
     public int status;
 }

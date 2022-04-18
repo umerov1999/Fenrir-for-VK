@@ -21,7 +21,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
             .database()
             .getChairs(facultyId, offset, count)
             .map { items ->
-                val dtos = listEmptyIfNull(items.getItems())
+                val dtos = listEmptyIfNull(items.items)
                 val chairs: MutableList<Chair> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     chairs.add(Chair(dto.id, dto.title))
@@ -36,7 +36,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
                 .database()
                 .getCountries(true, null, null, 1000)
                 .flatMap { items ->
-                    val dtos = listEmptyIfNull(items.getItems())
+                    val dtos = listEmptyIfNull(items.items)
                     val dbos: MutableList<CountryEntity> = ArrayList(dtos.size)
                     val countries: MutableList<Country> = ArrayList(dbos.size)
                     for (dto in dtos) {
@@ -71,7 +71,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
             .database()
             .getCities(countryId, null, q, needAll, offset, count)
             .map { items ->
-                val dtos = listEmptyIfNull(items.getItems())
+                val dtos = listEmptyIfNull(items.items)
                 val cities: MutableList<City> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     cities.add(
@@ -95,7 +95,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
             .database()
             .getFaculties(universityId, offset, count)
             .map { items ->
-                val dtos = listEmptyIfNull(items.getItems())
+                val dtos = listEmptyIfNull(items.items)
                 val faculties: MutableList<Faculty> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     faculties.add(Faculty(dto.id, dto.title))
@@ -128,7 +128,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
             .database()
             .getSchools(q, cityId, offset, count)
             .map { items ->
-                val dtos = listEmptyIfNull(items.getItems())
+                val dtos = listEmptyIfNull(items.items)
                 val schools: MutableList<School> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     schools.add(School(dto.id, dto.title))
@@ -149,7 +149,7 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
             .database()
             .getUniversities(filter, countyId, cityId, offset, count)
             .map { items ->
-                val dtos = listEmptyIfNull(items.getItems())
+                val dtos = listEmptyIfNull(items.items)
                 val universities: MutableList<University> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     universities.add(University(dto.id, dto.title))

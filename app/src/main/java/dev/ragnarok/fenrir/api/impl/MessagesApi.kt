@@ -216,7 +216,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
                     .search(query, peerId, date, previewLength, offset, count)
                     .map(extractResponseWithErrorHandling())
             } /*.map(response -> {
-                            fixMessageList(response.getItems());
+                            fixMessageList(response.items);
                             return response;
                         })*/
 
@@ -282,7 +282,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         peers: List<Int>,
         extended: Boolean?,
         fields: String?
-    ): Single<ItemsProfilesGroupsResponse<VkApiConversation>> {
+    ): Single<ItemsProfilesGroupsResponse<VKApiConversation>> {
         val ids = join(peers, ",") { obj: Any -> obj.toString() }
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
@@ -306,7 +306,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
                     .map(extractResponseWithErrorHandling())
             } /*.map(response -> {
                             if (response.dialogs != null) {
-                                for (VkApiDialog dialog : response.dialogs) {
+                                for (VKApiDialog dialog : response.dialogs) {
                                     fixMessage(dialog.message);
                                 }
                             }
@@ -349,7 +349,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
                 service
                     .getById(ids, null)
                     .map(extractResponseWithErrorHandling())
-                    .map { listEmptyIfNull(it.getItems()) }
+                    .map { listEmptyIfNull(it.items) }
             }
     }
 
@@ -382,7 +382,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
         offset: Int?,
         count: Int?,
         peerId: Int
-    ): Single<Items<VkApiJsonString>> {
+    ): Single<Items<VKApiJsonString>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
@@ -412,7 +412,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider?) :
             }
     }
 
-    override fun getLongpollServer(needPts: Boolean, lpVersion: Int): Single<VkApiLongpollServer> {
+    override fun getLongpollServer(needPts: Boolean, lpVersion: Int): Single<VKApiLongpollServer> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service

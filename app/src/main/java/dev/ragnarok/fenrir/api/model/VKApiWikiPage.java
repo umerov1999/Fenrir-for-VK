@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 /**
  * Describes a Wiki page.
  */
@@ -81,6 +83,7 @@ public class VKApiWikiPage implements VKApiAttachment {
 
     public String view_url;
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_WIKI_PAGE;

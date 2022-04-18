@@ -506,11 +506,13 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     .setSection(SECTION_OTHER)
             )
         }
-        items.add(
-            Item(Menu.PLAY_BROWSER, Text(R.string.title_play_in_browser))
-                .setIcon(R.drawable.ic_external)
-                .setSection(SECTION_OTHER)
-        )
+        if (video.player.nonNullNoEmpty()) {
+            items.add(
+                Item(Menu.PLAY_BROWSER, Text(R.string.title_play_in_browser))
+                    .setIcon(R.drawable.ic_external)
+                    .setSection(SECTION_OTHER)
+            )
+        }
         if (external.nonNullNoEmpty()) {
             items.add(
                 Item(Menu.COPY_LINK, Text(R.string.target_url))

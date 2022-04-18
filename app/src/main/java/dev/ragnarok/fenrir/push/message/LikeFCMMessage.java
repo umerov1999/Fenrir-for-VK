@@ -16,6 +16,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
@@ -59,21 +60,13 @@ public class LikeFCMMessage {
     public LikeFCMMessage(int accountId, RemoteMessage remote) {
         this.accountId = accountId;
         Map<String, String> data = remote.getData();
-        long from = Long.parseLong(remote.getFrom());
         id = data.get("id");
-        String url = data.get("url");
-        long time = Long.parseLong(data.get("time"));
-        boolean sound = Integer.parseInt(data.get("sound")) == 1;
         title = data.get("title");
         from_id = Integer.parseInt("from_id");
-        String body = data.get("body");
-        badge = Integer.parseInt(data.get("badge"));
-        int to_id = Integer.parseInt(data.get("to_id"));
-        String group_id = data.get("group_id");
+        badge = Integer.parseInt(Objects.requireNonNull(data.get("badge")));
 
-        LikeContext context = new Gson().fromJson(data.get("context"), LikeContext.class);
+        LikeContext context = new Gson().fromJson(Objects.requireNonNull(data.get("context")), LikeContext.class);
 
-        boolean is_feedback = context.feedback == 1;
         item_id = context.item_id;
         owner_id = context.owner_id;
         like_type = context.type;

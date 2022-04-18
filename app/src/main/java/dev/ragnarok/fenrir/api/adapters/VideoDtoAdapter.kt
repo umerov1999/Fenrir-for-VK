@@ -5,8 +5,8 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.CommentsDto
+import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.api.model.VKApiVideo
-import dev.ragnarok.fenrir.api.model.VkApiPrivacy
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import java.lang.reflect.Type
 
@@ -51,11 +51,11 @@ class VideoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideo> {
         dto.can_repost = optBoolean(root, "can_repost")
         dto.repeat = optBoolean(root, "repeat")
         if (hasObject(root, "privacy_view")) {
-            dto.privacy_view = context.deserialize(root["privacy_view"], VkApiPrivacy::class.java)
+            dto.privacy_view = context.deserialize(root["privacy_view"], VKApiPrivacy::class.java)
         }
         if (hasObject(root, "privacy_comment")) {
             dto.privacy_comment =
-                context.deserialize(root["privacy_comment"], VkApiPrivacy::class.java)
+                context.deserialize(root["privacy_comment"], VKApiPrivacy::class.java)
         }
         if (hasObject(root, "files")) {
             val filesRoot = root.getAsJsonObject("files")

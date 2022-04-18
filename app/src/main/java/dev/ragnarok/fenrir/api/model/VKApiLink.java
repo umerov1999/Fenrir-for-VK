@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 /**
  * A link object describes a link attachment
  */
@@ -42,6 +44,7 @@ public class VKApiLink implements VKApiAttachment {
 
     }
 
+    @NonNull
     @Override
     public String getType() {
         return VKApiAttachment.TYPE_LINK;

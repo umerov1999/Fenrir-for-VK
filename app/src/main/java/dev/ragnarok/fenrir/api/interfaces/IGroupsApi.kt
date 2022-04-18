@@ -35,7 +35,7 @@ interface IGroupsApi {
     fun getSettings(groupId: Int): Single<GroupSettingsDto>
 
     @CheckResult
-    fun getMarketAlbums(owner_id: Int, offset: Int, count: Int): Single<Items<VkApiMarketAlbum>>
+    fun getMarketAlbums(owner_id: Int, offset: Int, count: Int): Single<Items<VKApiMarketAlbum>>
 
     @CheckResult
     fun getMarket(
@@ -44,10 +44,10 @@ interface IGroupsApi {
         offset: Int,
         count: Int,
         extended: Int?
-    ): Single<Items<VkApiMarket>>
+    ): Single<Items<VKApiMarket>>
 
     @CheckResult
-    fun getMarketById(ids: Collection<AccessIdPair>): Single<Items<VkApiMarket>>
+    fun getMarketById(ids: Collection<AccessIdPair>): Single<Items<VKApiMarket>>
 
     @CheckResult
     fun getBanned(
@@ -56,7 +56,7 @@ interface IGroupsApi {
         count: Int?,
         fields: String?,
         userId: Int?
-    ): Single<Items<VkApiBanned>>
+    ): Single<Items<VKApiBanned>>
 
     @CheckResult
     fun getWallInfo(groupId: String?, fields: String?): Single<VKApiCommunity>

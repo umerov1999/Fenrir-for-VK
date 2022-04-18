@@ -109,7 +109,7 @@ interface IMessagesApi {
         peers: List<Int>,
         extended: Boolean?,
         fields: String?
-    ): Single<ItemsProfilesGroupsResponse<VkApiConversation>>
+    ): Single<ItemsProfilesGroupsResponse<VKApiConversation>>
 
     @CheckResult
     fun getById(identifiers: Collection<Int>?): Single<List<VKApiMessage>>
@@ -126,7 +126,7 @@ interface IMessagesApi {
     ): Single<MessageHistoryResponse>
 
     @CheckResult
-    fun getJsonHistory(offset: Int?, count: Int?, peerId: Int): Single<Items<VkApiJsonString>>
+    fun getJsonHistory(offset: Int?, count: Int?, peerId: Int): Single<Items<VKApiJsonString>>
 
     @CheckResult
     fun getImportantMessages(
@@ -138,7 +138,7 @@ interface IMessagesApi {
     ): Single<MessageImportantResponse>
 
     @CheckResult
-    fun getLongpollServer(needPts: Boolean, lpVersion: Int): Single<VkApiLongpollServer>
+    fun getLongpollServer(needPts: Boolean, lpVersion: Int): Single<VKApiLongpollServer>
 
     @CheckResult
     fun searchConversations(

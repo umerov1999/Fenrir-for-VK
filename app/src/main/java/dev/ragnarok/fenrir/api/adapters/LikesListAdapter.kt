@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiOwner
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.LikesListResponse
+import dev.ragnarok.fenrir.requireNonNull
 import java.lang.reflect.Type
 
 class LikesListAdapter : AbsAdapter(), JsonDeserializer<LikesListResponse> {
@@ -38,8 +39,8 @@ class LikesListAdapter : AbsAdapter(), JsonDeserializer<LikesListResponse> {
                 } else if ("group" == type || "page" == type) {
                     owner = context.deserialize(itemRoot, VKApiCommunity::class.java)
                 }
-                if (owner != null) {
-                    response.owners.add(owner)
+                owner.requireNonNull {
+                    response.owners?.add(it)
                 }
             }
         }

@@ -57,7 +57,7 @@ public class VKApiMessage {
     /**
      * List of media-attachments;
      */
-    public VkApiAttachments attachments;
+    public VKApiAttachments attachments;
     /**
      * Array of forwarded messages (if any).
      */
@@ -71,7 +71,7 @@ public class VKApiMessage {
      */
     public boolean deleted;
 
-    public VkApiConversation.CurrentKeyboard keyboard;
+    public VKApiConversation.CurrentKeyboard keyboard;
 
     /**
      * поле передано, если это служебное сообщение

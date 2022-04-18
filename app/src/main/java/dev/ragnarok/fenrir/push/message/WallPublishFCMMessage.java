@@ -14,6 +14,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Objects;
+
 import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.MainActivity;
@@ -47,7 +49,7 @@ public class WallPublishFCMMessage {
         WallPublishFCMMessage message = new WallPublishFCMMessage();
         //message.name = bundle.getString("name");
         //message.from = optLong(bundle, "from");
-        message.group_id = Integer.parseInt(remote.getData().get("group_id"));
+        message.group_id = Integer.parseInt(Objects.requireNonNull(remote.getData().get("group_id")));
         message.text = remote.getData().get("text");
         //message.type = bundle.getString("type");
         message.place = remote.getData().get("place");

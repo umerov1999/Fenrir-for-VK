@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.google.zxing.qrcode.CustomQRCodeWriter
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Constants.USER_AGENT
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
@@ -45,6 +44,7 @@ import dev.ragnarok.fenrir.Includes.proxySettings
 import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity.Companion.start
+import dev.ragnarok.fenrir.activity.qr.CustomQRCodeWriter
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
 import dev.ragnarok.fenrir.api.model.Identificable
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
@@ -126,7 +126,7 @@ object Utils {
     }
 
 
-    fun <T> lastOf(data: List<T>): T {
+    inline fun <reified T> lastOf(data: List<T>): T {
         return data[data.size - 1]
     }
 
@@ -135,12 +135,12 @@ object Utils {
         return orig ?: ""
     }
 
-    fun <T> listEmptyIfNull(orig: List<T>?): List<T> {
+    inline fun <reified T> listEmptyIfNull(orig: List<T>?): List<T> {
         return orig ?: emptyList()
     }
 
 
-    fun <T> listEmptyIfNullMutable(orig: MutableList<T>?): MutableList<T> {
+    inline fun <reified T> listEmptyIfNullMutable(orig: MutableList<T>?): MutableList<T> {
         return orig ?: mutableListOf()
     }
 
@@ -1108,7 +1108,7 @@ object Utils {
     }
 
     @JvmStatic
-    fun <K : Parcelable?> writeParcelableArray(
+    fun <K : Parcelable> writeParcelableArray(
         parcel: Parcel, flags: Int, list: List<K>?
     ) {
         if (list.isNullOrEmpty()) {
@@ -1122,20 +1122,21 @@ object Utils {
     }
 
     @JvmStatic
-    fun <K : Parcelable?> readParcelableArray(
-        parcel: Parcel, classLoader: ClassLoader
-    ): List<K?>? {
+    fun <K : Parcelable> readParcelableArray(
+        parcel: Parcel, classLoader: ClassLoader?
+    ): List<K>? {
+        classLoader ?: return null
         val size = parcel.readInt()
         if (size == 0) return null
-        val list: MutableList<K?> = ArrayList(size)
+        val list: MutableList<K> = ArrayList(size)
         for (i in 0 until size) {
-            list.add(parcel.readParcelable(classLoader))
+            parcel.readParcelable<K>(classLoader)?.let { list.add(it) }
         }
         return list
     }
 
     @JvmStatic
-    fun writeStringMap(parcel: Parcel, map: Map<String?, String?>?) {
+    fun writeStringMap(parcel: Parcel, map: Map<String, String>?) {
         if (map.isNullOrEmpty()) {
             parcel.writeInt(0)
             return
@@ -1148,12 +1149,12 @@ object Utils {
     }
 
     @JvmStatic
-    fun readStringMap(parcel: Parcel): Map<String?, String?>? {
+    fun readStringMap(parcel: Parcel): Map<String, String>? {
         val size = parcel.readInt()
         if (size == 0) return null
-        val map: MutableMap<String?, String?> = HashMap(size)
+        val map: MutableMap<String, String> = HashMap(size)
         for (i in 0 until size) {
-            map[parcel.readString()] = parcel.readString()
+            map[parcel.readString() ?: continue] = parcel.readString() ?: continue
         }
         return map
     }

@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.mvp.presenter.search
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.model.VkApiArtist
+import dev.ragnarok.fenrir.api.model.VKApiArtist
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
@@ -20,7 +20,7 @@ class ArtistSearchPresenter(
     accountId: Int,
     criteria: ArtistSearchCriteria?,
     savedInstanceState: Bundle?
-) : AbsSearchPresenter<IArtistSearchView, ArtistSearchCriteria, VkApiArtist, IntNextFrom>(
+) : AbsSearchPresenter<IArtistSearchView, ArtistSearchCriteria, VKApiArtist, IntNextFrom>(
     accountId,
     criteria,
     savedInstanceState
@@ -42,7 +42,7 @@ class ArtistSearchPresenter(
         accountId: Int,
         criteria: ArtistSearchCriteria,
         startFrom: IntNextFrom
-    ): Single<Pair<List<VkApiArtist>, IntNextFrom>> {
+    ): Single<Pair<List<VKApiArtist>, IntNextFrom>> {
         val nextFrom = IntNextFrom(startFrom.offset + 50)
         return audioInteractor.searchArtists(accountId, criteria, startFrom.offset, 50)
             .map { audio -> create(audio, nextFrom) }

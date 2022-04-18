@@ -15,6 +15,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 import dev.ragnarok.fenrir.Extra;
 import dev.ragnarok.fenrir.R;
 import dev.ragnarok.fenrir.activity.MainActivity;
@@ -56,7 +58,7 @@ public class CommentFCMMessage {
 
     public static CommentFCMMessage fromRemoteMessage(@NonNull RemoteMessage remote) {
         CommentFCMMessage message = new CommentFCMMessage();
-        message.from_id = Integer.parseInt(remote.getData().get("from_id"));
+        message.from_id = Integer.parseInt(Objects.requireNonNull(remote.getData().get("from_id")));
         message.text = remote.getData().get("body");
 
         PushContext context = new Gson().fromJson(remote.getData().get("context"), PushContext.class);

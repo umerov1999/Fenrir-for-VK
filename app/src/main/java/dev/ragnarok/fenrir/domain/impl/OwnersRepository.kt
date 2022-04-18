@@ -66,7 +66,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                 if (optional.isEmpty) {
                     return@flatMap Single.just(empty<UserDetails>())
                 }
-                val entity = optional.requareNonEmpty()
+                val entity = optional.requireNonEmpty()
                 val requiredIds: MutableSet<Int> = HashSet(1)
                 if (entity.careers.nonNullNoEmpty()) {
                     for (career in entity.careers) {
@@ -105,7 +105,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                 if (optional.isEmpty) {
                     return@flatMap Single.just(empty<CommunityDetails>())
                 }
-                val entity = optional.requareNonEmpty()
+                val entity = optional.requireNonEmpty()
                 Single.just(
                     wrap(
                         buildCommunityDetailsFromDbo(
@@ -158,12 +158,12 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
     }
 
     private fun parseStoryBlock(resp: StoryBlockResponce, dtos: MutableList<VKApiStory>) {
-        if (resp.stories.nonNullNoEmpty()) {
-            parseParentStory(resp.stories, dtos)
-            dtos.addAll(resp.stories)
+        resp.stories.nonNullNoEmpty {
+            parseParentStory(it, dtos)
+            dtos.addAll(it)
         }
-        if (resp.grouped.nonNullNoEmpty()) {
-            for (i in resp.grouped) {
+        resp.grouped.nonNullNoEmpty {
+            for (i in it) {
                 parseStoryBlock(i, dtos)
             }
         }
@@ -265,7 +265,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getMarketAlbums(owner_id, offset, count)
-            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { obj -> listEmptyIfNull(obj.items) }
             .map { albums ->
                 val market_albums: MutableList<MarketAlbum> = ArrayList(albums.size)
                 market_albums.addAll(transformMarketAlbums(albums))
@@ -283,7 +283,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getMarket(owner_id, album_id, offset, count, 1)
-            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { obj -> listEmptyIfNull(obj.items) }
             .map { products ->
                 val market: MutableList<Market> = ArrayList(products.size)
                 market.addAll(transformMarket(products))
@@ -298,7 +298,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return networker.vkDefault(accountId)
             .groups()
             .getMarketById(ids)
-            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { obj -> listEmptyIfNull(obj.items) }
             .map { products ->
                 val market: MutableList<Market> = ArrayList(products.size)
                 market.addAll(transformMarket(products))
@@ -381,7 +381,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                     return orig
                 }
             }), GroupColumns.API_FIELDS, null, 1000]
-            .map { obj -> listEmptyIfNull(obj.getItems()) }
+            .map { obj -> listEmptyIfNull(obj.items) }
             .map { groups ->
                 val owners: MutableList<Owner> = ArrayList(groups.size)
                 owners.addAll(transformCommunities(groups))
@@ -535,7 +535,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             )
             .map { items ->
                 val dtos = listEmptyIfNull<VKApiUser>(
-                    items.getItems()
+                    items.items
                 )
                 transformUsers(dtos)
             }
@@ -703,7 +703,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             .getChats(groupId, offset, count)
             .map { items ->
                 listEmptyIfNull<VKApiGroupChats>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { obj -> transformGroupChats(obj) }

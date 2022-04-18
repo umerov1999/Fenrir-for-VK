@@ -61,8 +61,8 @@ internal class MaterialRecyclerViewPopupWindow(
 
     private val popupWidthUnit: Int
 
-    private val windowManager: WindowManager by lazy {
-        context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private val windowManager: WindowManager? by lazy {
+        context.getSystemService(Context.WINDOW_SERVICE) as WindowManager?
     }
 
     private val backgroundDimEnabled: Boolean
@@ -387,6 +387,6 @@ internal class MaterialRecyclerViewPopupWindow(
         val layoutParams = decorView.layoutParams as WindowManager.LayoutParams
         layoutParams.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
         layoutParams.dimAmount = backgroundDimAmount
-        windowManager.updateViewLayout(decorView, layoutParams)
+        windowManager?.updateViewLayout(decorView, layoutParams)
     }
 }

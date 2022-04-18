@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 /**
@@ -80,12 +82,12 @@ public class VKApiPhotoAlbum implements VKApiAttachment {
     /**
      * Настройки приватности для просмотра альбома
      */
-    public VkApiPrivacy privacy_view;
+    public VKApiPrivacy privacy_view;
 
     /**
      * Настройки приватности для комментирования альбома
      */
-    public VkApiPrivacy privacy_comment;
+    public VKApiPrivacy privacy_comment;
 
     /**
      * кто может загружать фотографии в альбом (только для альбома сообщества,
@@ -106,6 +108,7 @@ public class VKApiPhotoAlbum implements VKApiAttachment {
 
     }
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_ALBUM;

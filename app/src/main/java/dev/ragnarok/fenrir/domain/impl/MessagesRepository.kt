@@ -264,14 +264,16 @@ class MessagesRepository(
 
     override fun handleWriteUpdates(
         accountId: Int,
-        updates: List<WriteTextInDialogUpdate>
+        updates: List<WriteTextInDialogUpdate>?
     ): Completable {
         return Completable.fromAction {
-            val list: MutableList<WriteText> = ArrayList()
-            for (update in updates) {
-                list.add(WriteText(accountId, update.peer_id, update.from_ids, update.is_text))
+            if (updates.nonNullNoEmpty()) {
+                val list: MutableList<WriteText> = ArrayList()
+                for (update in updates) {
+                    list.add(WriteText(accountId, update.peer_id, update.from_ids, update.is_text))
+                }
+                writeTextPublisher.onNext(list)
             }
-            writeTextPublisher.onNext(list)
         }
     }
 
@@ -378,7 +380,7 @@ class MessagesRepository(
         when (mode) {
             Mode.ANY -> return cached.flatMap { optional ->
                 if (optional.isEmpty) actual else Single.just(
-                    optional.requareNonEmpty()
+                    optional.requireNonEmpty()
                 )
             }
             Mode.NET -> return actual
@@ -386,7 +388,7 @@ class MessagesRepository(
                 .flatMap { optional ->
                     if (optional.isEmpty) Single.error(
                         NotFoundException()
-                    ) else Single.just(optional.requareNonEmpty())
+                    ) else Single.just(optional.requireNonEmpty())
                 }
             else -> {}
         }
@@ -400,7 +402,7 @@ class MessagesRepository(
                 if (optional.isEmpty) {
                     return@flatMap Single.just(empty<Conversation>())
                 } else {
-                    Single.just(optional.requareNonEmpty())
+                    Single.just(optional.requireNonEmpty())
                         .compose(simpleEntity2Conversation(accountId, emptyList()))
                         .map { wrap(it) }
                 }
@@ -415,7 +417,9 @@ class MessagesRepository(
                 if (response.items.isNullOrEmpty()) {
                     return@flatMap Single.error<Conversation>(NotFoundException())
                 }
-                val dto = response.items[0]
+                val dto = response.items?.get(0) ?: return@flatMap Single.error<Conversation>(
+                    NotFoundException()
+                )
                 val entity = mapConversation(dto)
                 val existsOwners = transformOwners(response.profiles, response.groups)
                 val ownerEntities = mapOwners(response.profiles, response.groups)
@@ -433,7 +437,7 @@ class MessagesRepository(
             Mode.ANY -> cached
                 .flatMap { optional ->
                     if (optional.isEmpty) actual else Single.just(
-                        optional.requareNonEmpty()
+                        optional.requireNonEmpty()
                     )
                 }
                 .toFlowable()
@@ -442,13 +446,13 @@ class MessagesRepository(
                 .flatMap { optional ->
                     if (optional.isEmpty) Single.error(
                         NotFoundException()
-                    ) else Single.just(optional.requareNonEmpty())
+                    ) else Single.just(optional.requireNonEmpty())
                 }
                 .toFlowable()
             Mode.CACHE_THEN_ACTUAL -> {
                 val cachedFlowable = cached.toFlowable()
                     .filter { it.nonEmpty() }
-                    .map { it.requareNonEmpty() }
+                    .map { it.requireNonEmpty() }
                 Flowable.concat(cachedFlowable, actual.toFlowable())
             }
         }
@@ -535,7 +539,7 @@ class MessagesRepository(
                 .map {
                     Pair(
                         Peer(resp.page_id).setAvaUrl(resp.page_avatar).setTitle(resp.page_title),
-                        transformMessages(resp.page_id, resp.messages, it)
+                        transformMessages(resp.page_id, resp.messages.orEmpty(), it)
                     )
                 }
         } catch (e: Throwable) {
@@ -711,7 +715,7 @@ class MessagesRepository(
             .flatMap { response ->
                 val dtos: MutableList<VKApiMessage> =
                     if (response.messages == null) mutableListOf() else listEmptyIfNullMutable(
-                        response.messages.items
+                        response.messages?.items
                     )
                 if (startMessageId != null && dtos.nonNullNoEmpty() && startMessageId == dtos[0].id) {
                     dtos.removeAt(0)
@@ -756,7 +760,7 @@ class MessagesRepository(
             .messages()
             .getJsonHistory(offset, count, peerId)
             .flatMap { response ->
-                val dtos = listEmptyIfNull<VkApiJsonString>(
+                val dtos = listEmptyIfNull<VKApiJsonString>(
                     response.items
                 )
                 val messages: MutableList<String> = ArrayList(dtos.size)
@@ -790,7 +794,8 @@ class MessagesRepository(
                 val dtos: MutableList<VKApiMessage> = listEmptyIfNullMutable(response.messages)
                 var patch: PeerPatch? = null
                 if (startMessageId == null && cacheData && response.conversations.nonNullNoEmpty()) {
-                    val conversation = response.conversations[0]
+                    val conversation =
+                        response.conversations?.get(0) ?: throw NullPointerException("WTF!")
                     patch = PeerPatch(peerId)
                         .withOutRead(conversation.outRead)
                         .withInRead(conversation.inRead)
@@ -875,12 +880,12 @@ class MessagesRepository(
             .map { response ->
                 if (startMessageId != null && safeCountOf(response.dialogs) > 0) {
                     // remove first item, because we will have duplicate with previous response
-                    response.dialogs.removeAt(0)
+                    response.dialogs?.removeAt(0)
                 }
                 response
             }
             .flatMap { response ->
-                val apiDialogs: List<VkApiDialog> = listEmptyIfNull(response.dialogs)
+                val apiDialogs: List<VKApiDialog> = listEmptyIfNull(response.dialogs)
                 val ownerIds: Collection<Int> = if (apiDialogs.nonNullNoEmpty()) {
                     val vkOwnIds = VKOwnIds()
                     vkOwnIds.append(accountId) // добавляем свой профайл на всякий случай
@@ -1098,7 +1103,7 @@ class MessagesRepository(
             .messages()
             .searchConversations(q, count, 1, Constants.MAIN_OWNER_FIELDS)
             .flatMap { chattables ->
-                val conversations: List<VkApiConversation> =
+                val conversations: List<VKApiConversation> =
                     listEmptyIfNull(chattables.conversations)
                 val ownerIds: Collection<Int> = if (conversations.nonNullNoEmpty()) {
                     val vkOwnIds = VKOwnIds()
@@ -1140,7 +1145,7 @@ class MessagesRepository(
             .search(q, peerId, null, null, offset, count)
             .map { items ->
                 listEmptyIfNull<VKApiMessage>(
-                    items.getItems()
+                    items.items
                 )
             }
             .flatMap { dtos ->
@@ -1341,7 +1346,7 @@ class MessagesRepository(
                     return@flatMapCompletable storages.dialogs().removePeerWithId(accountId, peerId)
                         .doOnComplete { peerDeletingPublisher.onNext(deleting) }
                 } else {
-                    val patch = PeerPatch(peerId).withLastMessage(it.requareNonEmpty())
+                    val patch = PeerPatch(peerId).withLastMessage(it.requireNonEmpty())
                     return@flatMapCompletable applyPeerUpdatesAndPublish(accountId, listOf(patch))
                 }
             }
@@ -1479,7 +1484,7 @@ class MessagesRepository(
                                             null,
                                             stickerId,
                                             null,
-                                            it.second.requareNonEmpty()[0]
+                                            it.second.requireNonEmpty()[0]
                                         )
                                 }
                                 networker.vkDefault(accountId)
@@ -1508,7 +1513,7 @@ class MessagesRepository(
         return checkVoiceMessage(accountId, dbo)
             .flatMap { optionalToken ->
                 if (optionalToken.nonEmpty()) {
-                    attachments.add(optionalToken.requareNonEmpty())
+                    attachments.add(optionalToken.requireNonEmpty())
                 }
                 checkForwardMessages(accountId, dbo)
                     .flatMap {
@@ -1526,7 +1531,7 @@ class MessagesRepository(
                                     null,
                                     null,
                                     null,
-                                    it.second.requareNonEmpty()[0]
+                                    it.second.requireNonEmpty()[0]
                                 )
                         } else {
                             networker.vkDefault(accountId)
@@ -1622,7 +1627,7 @@ class MessagesRepository(
                 if (it.isEmpty) {
                     throw KeyPairDoesNotExistException()
                 }
-                val pair = it.requareNonEmpty()
+                val pair = it.requireNonEmpty()
                 val encrypted = encryptWithAes(
                     builder.body,
                     pair.myAesKey,

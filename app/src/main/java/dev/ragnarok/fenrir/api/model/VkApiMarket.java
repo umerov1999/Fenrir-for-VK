@@ -1,7 +1,9 @@
 package dev.ragnarok.fenrir.api.model;
 
 
-public class VkApiMarket implements VKApiAttachment {
+import androidx.annotation.NonNull;
+
+public class VKApiMarket implements VKApiAttachment {
 
     public int id;
 
@@ -29,6 +31,7 @@ public class VkApiMarket implements VKApiAttachment {
 
     public String sku;
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_MARKET;

@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class VkApiLongpollServer {
+public class VKApiLongpollServer {
 
     @SerializedName("key")
     public String key;

@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.exceptions.Exceptions
 import io.reactivex.rxjava3.functions.Function
 
 internal class LocalServerApi(private val service: ILocalServerServiceProvider) : ILocalServerApi {
@@ -136,17 +135,15 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
     companion object {
         fun <T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
             return Function { response: BaseResponse<T> ->
-                if (response.error != null) {
-                    throw Exceptions.propagate(
-                        Exception(
-                            firstNonEmptyString(
-                                response.error.errorMsg,
-                                "Error"
-                            )
+                response.error?.let {
+                    throw Exception(
+                        firstNonEmptyString(
+                            response.error?.errorMsg,
+                            "Error"
                         )
                     )
-                }
-                response.response
+                } ?: (response.response
+                    ?: throw NullPointerException("Local Server return null response"))
             }
         }
     }

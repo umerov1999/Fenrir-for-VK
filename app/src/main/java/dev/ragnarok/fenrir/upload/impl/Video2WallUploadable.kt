@@ -4,7 +4,7 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiVideosUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiVideosUploadServer
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.exception.NotFoundException
@@ -35,7 +35,7 @@ class Video2WallUploadable(
         val serverSingle = networker.vkDefault(accountId)
             .docs()
             .getVideoServer(1, groupId, UploadUtils.findFileName(context, upload.fileUri))
-            .map<UploadServer> { s: VkApiVideosUploadServer -> s }
+            .map<UploadServer> { s: VKApiVideosUploadServer -> s }
         return serverSingle.flatMap { server ->
             val `is` = arrayOfNulls<InputStream>(1)
             try {

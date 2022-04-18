@@ -4,7 +4,7 @@ import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.INewsfeedApi
 import dev.ragnarok.fenrir.api.model.Items
-import dev.ragnarok.fenrir.api.model.VkApiFeedList
+import dev.ragnarok.fenrir.api.model.VKApiFeedList
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedSearchResponse
@@ -14,7 +14,7 @@ import kotlin.math.abs
 
 internal class NewsfeedApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), INewsfeedApi {
-    override fun getLists(listIds: Collection<Int>?): Single<Items<VkApiFeedList>> {
+    override fun getLists(listIds: Collection<Int>?): Single<Items<VKApiFeedList>> {
         return provideService(INewsfeedService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getLists(join(listIds, ","), 1)

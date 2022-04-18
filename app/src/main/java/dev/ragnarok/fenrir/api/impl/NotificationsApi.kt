@@ -3,10 +3,11 @@ package dev.ragnarok.fenrir.api.impl
 import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.INotificationsApi
-import dev.ragnarok.fenrir.api.model.feedback.VkApiBaseFeedback
+import dev.ragnarok.fenrir.api.model.feedback.VKApiBaseFeedback
 import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
 import dev.ragnarok.fenrir.api.services.INotificationsService
 import dev.ragnarok.fenrir.model.AnswerVKOfficialList
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import io.reactivex.rxjava3.core.Single
 
@@ -32,14 +33,14 @@ internal class NotificationsApi(accountId: Int, provider: IServiceProvider) :
                 service[count, startFrom, filters, startTime, endTime]
                     .map(extractResponseWithErrorHandling())
                     .map { response ->
-                        val realList: MutableList<VkApiBaseFeedback> =
+                        val realList: MutableList<VKApiBaseFeedback> =
                             ArrayList(safeCountOf(response.notifications))
-                        if (response.notifications != null) {
-                            for (n in response.notifications) {
+                        response.notifications.requireNonNull {
+                            for (n in it) {
                                 if (n == null) continue
-                                if (n.reply != null) {
+                                n.reply.requireNonNull { r ->
                                     // fix В ответе нет этого параметра
-                                    n.reply.from_id = accountId
+                                    r.from_id = accountId
                                 }
                                 realList.add(n)
                             }

@@ -7,7 +7,7 @@ import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.model.VkApiPostSource
+import dev.ragnarok.fenrir.api.model.VKApiPostSource
 import dev.ragnarok.fenrir.db.model.PostUpdate
 import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.IOwnersRepository
@@ -385,9 +385,9 @@ class WallPostPresenter(
             var type = IWallPostView.SUBTITLE_NORMAL
             if (post?.source != null) {
                 when ((post ?: return).source.data) {
-                    VkApiPostSource.Data.PROFILE_ACTIVITY -> type =
+                    VKApiPostSource.Data.PROFILE_ACTIVITY -> type =
                         IWallPostView.SUBTITLE_STATUS_UPDATE
-                    VkApiPostSource.Data.PROFILE_PHOTO -> type = IWallPostView.SUBTITLE_PHOTO_UPDATE
+                    VKApiPostSource.Data.PROFILE_PHOTO -> type = IWallPostView.SUBTITLE_PHOTO_UPDATE
                 }
             }
             val finalType = type

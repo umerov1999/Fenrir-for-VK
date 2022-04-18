@@ -7,7 +7,7 @@ import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.StoryResponse
 import dev.ragnarok.fenrir.api.model.response.UserWallInfoResponse
-import dev.ragnarok.fenrir.api.model.server.VkApiStoryUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiStoryUploadServer
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -109,11 +109,11 @@ interface IUsersService {
 
     @FormUrlEncoded
     @POST("stories.getPhotoUploadServer")
-    fun stories_getPhotoUploadServer(@Field("add_to_news") add_to_news: Int?): Single<BaseResponse<VkApiStoryUploadServer>>
+    fun stories_getPhotoUploadServer(@Field("add_to_news") add_to_news: Int?): Single<BaseResponse<VKApiStoryUploadServer>>
 
     @FormUrlEncoded
     @POST("stories.getVideoUploadServer")
-    fun stories_getVideoUploadServer(@Field("add_to_news") add_to_news: Int?): Single<BaseResponse<VkApiStoryUploadServer>>
+    fun stories_getVideoUploadServer(@Field("add_to_news") add_to_news: Int?): Single<BaseResponse<VKApiStoryUploadServer>>
 
     @FormUrlEncoded
     @POST("stories.save")

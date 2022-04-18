@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.api.model;
 import com.google.gson.annotations.SerializedName;
 
 
-public class VkApiLyrics {
+public class VKApiLyrics {
 
     @SerializedName("lyrics_id")
     public int lyrics_id;

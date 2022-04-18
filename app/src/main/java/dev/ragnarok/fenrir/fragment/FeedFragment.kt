@@ -335,7 +335,7 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
     }
 
     /*@Override
-    public void onFeedListsLoadFinished(List<VkApiFeedList> result) {
+    public void onFeedListsLoadFinished(List<VKApiFeedList> result) {
         initFeedSources(result);
         int selected = refreshFeedSourcesSelection();
 

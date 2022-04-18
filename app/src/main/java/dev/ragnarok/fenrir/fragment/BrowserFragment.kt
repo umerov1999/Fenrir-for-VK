@@ -155,7 +155,7 @@ class BrowserFragment : BaseFragment(), BackPressCallback {
 
             //link: null, url: https://vk.com/doc124456557_415878705
             if (link == null) {
-                openLinkInBrowser(requireActivity(), url)
+                activity?.let { openLinkInBrowser(it, url) }
                 return true
             }
             if (link is PageLink) {
@@ -163,11 +163,13 @@ class BrowserFragment : BaseFragment(), BackPressCallback {
                 return true
             }
             if (link is AwayLink) {
-                openLinkInBrowser(requireActivity(), link.link)
+                activity?.let { openLinkInBrowser(it, link.link) }
                 return true
             }
-            if (openVKLink(requireActivity(), mAccountId, link, false)) {
-                return true
+            activity?.let {
+                if (openVKLink(it, mAccountId, link, false)) {
+                    return true
+                }
             }
             view.loadUrl(url)
             return true

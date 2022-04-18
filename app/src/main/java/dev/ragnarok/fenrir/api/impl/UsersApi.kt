@@ -10,9 +10,10 @@ import dev.ragnarok.fenrir.api.model.VKApiStory
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.StoryResponse
 import dev.ragnarok.fenrir.api.model.response.UserWallInfoResponse
-import dev.ragnarok.fenrir.api.model.server.VkApiStoryUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiStoryUploadServer
 import dev.ragnarok.fenrir.api.services.IUsersService
 import dev.ragnarok.fenrir.exception.NotFoundException
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import io.reactivex.rxjava3.core.Single
 
@@ -240,7 +241,7 @@ return {"user_info": user_info,
             }
     }
 
-    override fun stories_getPhotoUploadServer(): Single<VkApiStoryUploadServer> {
+    override fun stories_getPhotoUploadServer(): Single<VKApiStoryUploadServer> {
         return provideService(IUsersService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.stories_getPhotoUploadServer(1)
@@ -248,7 +249,7 @@ return {"user_info": user_info,
             }
     }
 
-    override fun stories_getVideoUploadServer(): Single<VkApiStoryUploadServer> {
+    override fun stories_getVideoUploadServer(): Single<VKApiStoryUploadServer> {
         return provideService(IUsersService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.stories_getVideoUploadServer(1)
@@ -266,18 +267,18 @@ return {"user_info": user_info,
 
     companion object {
         private fun createFrom(response: UserWallInfoResponse): VKApiUser {
-            val user = response.users[0]
+            val user = response.users?.get(0) ?: throw NotFoundException()
             if (user.counters == null) {
                 user.counters = VKApiUser.Counters()
             }
-            if (response.allWallCount != null) {
-                user.counters.all_wall = response.allWallCount
+            response.allWallCount.requireNonNull {
+                user.counters.all_wall = it
             }
-            if (response.ownerWallCount != null) {
-                user.counters.owner_wall = response.ownerWallCount
+            response.ownerWallCount.requireNonNull {
+                user.counters.owner_wall = it
             }
-            if (response.postponedWallCount != null) {
-                user.counters.postponed_wall = response.postponedWallCount
+            response.postponedWallCount.requireNonNull {
+                user.counters.postponed_wall = it
             }
             return user
         }

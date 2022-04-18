@@ -53,7 +53,7 @@ class FeedbackInteractor(
         accountId: Int,
         count: Int,
         startFrom: String?
-    ): Single<Pair<List<Feedback>, String>> {
+    ): Single<Pair<List<Feedback>, String?>> {
         return networker.vkDefault(accountId)
             .notifications()[count, startFrom, null, null, null]
             .flatMap { response ->

@@ -82,8 +82,8 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider?) :
         title: String?,
         groupId: Int?,
         description: String?,
-        privacyView: VkApiPrivacy?,
-        privacyComment: VkApiPrivacy?,
+        privacyView: VKApiPrivacy?,
+        privacyComment: VKApiPrivacy?,
         uploadByAdminsOnly: Boolean?,
         commentsDisabled: Boolean?
     ): Single<VKApiPhotoAlbum> {
@@ -105,8 +105,8 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider?) :
         title: String?,
         description: String?,
         ownerId: Int?,
-        privacyView: VkApiPrivacy?,
-        privacyComment: VkApiPrivacy?,
+        privacyView: VKApiPrivacy?,
+        privacyComment: VKApiPrivacy?,
         uploadByAdminsOnly: Boolean?,
         commentsDisabled: Boolean?
     ): Single<Boolean> {
@@ -203,7 +203,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider?) :
             }
     }
 
-    override fun getUploadServer(albumId: Int, groupId: Int?): Single<VkApiUploadServer> {
+    override fun getUploadServer(albumId: Int, groupId: Int?): Single<VKApiUploadServer> {
         return provideService(IPhotosService::class.java, TokenType.USER)
             .flatMap { service ->
                 service
@@ -225,7 +225,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider?) :
             }
     }
 
-    override fun getOwnerPhotoUploadServer(ownerId: Int?): Single<VkApiOwnerPhotoUploadServer> {
+    override fun getOwnerPhotoUploadServer(ownerId: Int?): Single<VKApiOwnerPhotoUploadServer> {
         return provideService(IPhotosService::class.java, TokenType.USER)
             .flatMap { service ->
                 service
@@ -234,7 +234,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider?) :
             }
     }
 
-    override fun getChatUploadServer(chat_id: Int?): Single<VkApiChatPhotoUploadServer> {
+    override fun getChatUploadServer(chat_id: Int?): Single<VKApiChatPhotoUploadServer> {
         return provideService(IPhotosService::class.java, TokenType.USER)
             .flatMap { service ->
                 service
@@ -274,7 +274,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider?) :
             }
     }
 
-    override fun getWallUploadServer(groupId: Int?): Single<VkApiWallUploadServer> {
+    override fun getWallUploadServer(groupId: Int?): Single<VKApiWallUploadServer> {
         return provideService(IPhotosService::class.java, TokenType.USER)
             .flatMap { service ->
                 service
@@ -335,7 +335,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider?) :
             }
     }
 
-    override val messagesUploadServer: Single<VkApiPhotoMessageServer>
+    override val messagesUploadServer: Single<VKApiPhotoMessageServer>
         get() = provideService(IPhotosService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service.messagesUploadServer

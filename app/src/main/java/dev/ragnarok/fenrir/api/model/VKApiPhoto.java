@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 /**
@@ -83,6 +85,7 @@ public class VKApiPhoto implements VKApiAttachment, Commentable, Likeable, Copya
 
     }
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_PHOTO;

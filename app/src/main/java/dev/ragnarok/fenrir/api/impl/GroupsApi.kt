@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.api.model.response.GroupLongpollServer
 import dev.ragnarok.fenrir.api.model.response.GroupWallInfoResponse
 import dev.ragnarok.fenrir.api.services.IGroupsService
 import dev.ragnarok.fenrir.exception.NotFoundException
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -88,7 +89,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         owner_id: Int,
         offset: Int,
         count: Int
-    ): Single<Items<VkApiMarketAlbum>> {
+    ): Single<Items<VKApiMarketAlbum>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service.getMarketAlbums(owner_id, offset, count)
@@ -102,7 +103,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         offset: Int,
         count: Int,
         extended: Int?
-    ): Single<Items<VkApiMarket>> {
+    ): Single<Items<VKApiMarket>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service.getMarket(owner_id, album_id, offset, count, extended)
@@ -110,7 +111,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
-    override fun getMarketById(ids: Collection<AccessIdPair>): Single<Items<VkApiMarket>> {
+    override fun getMarketById(ids: Collection<AccessIdPair>): Single<Items<VKApiMarket>> {
         val markets =
             join(ids, ",") { AccessIdPair.format(it) }
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
@@ -126,7 +127,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         count: Int?,
         fields: String?,
         userId: Int?
-    ): Single<Items<VkApiBanned>> {
+    ): Single<Items<VKApiBanned>> {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service.getBanned(groupId, offset, count, fields, userId)
@@ -265,21 +266,21 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
 
     companion object {
         private fun createFrom(info: GroupWallInfoResponse): VKApiCommunity {
-            val community = info.groups[0]
+            val community = info.groups?.get(0) ?: throw NotFoundException()
             if (community.counters == null) {
                 community.counters = VKApiCommunity.Counters()
             }
-            if (info.allWallCount != null) {
-                community.counters.all_wall = info.allWallCount
+            info.allWallCount.requireNonNull {
+                community.counters.all_wall = it
             }
-            if (info.ownerWallCount != null) {
-                community.counters.owner_wall = info.ownerWallCount
+            info.ownerWallCount.requireNonNull {
+                community.counters.owner_wall = it
             }
-            if (info.suggestsWallCount != null) {
-                community.counters.suggest_wall = info.suggestsWallCount
+            info.suggestsWallCount.requireNonNull {
+                community.counters.suggest_wall = it
             }
-            if (info.postponedWallCount != null) {
-                community.counters.postponed_wall = info.postponedWallCount
+            info.postponedWallCount.requireNonNull {
+                community.counters.postponed_wall = it
             }
             return community
         }

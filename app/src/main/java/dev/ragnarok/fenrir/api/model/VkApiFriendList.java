@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.api.model;
 
-public class VkApiFriendList {
+public class VKApiFriendList {
 
     /**
      * идентификатор списка друзей
@@ -12,7 +12,7 @@ public class VkApiFriendList {
      */
     public String name;
 
-    public VkApiFriendList() {
+    public VKApiFriendList() {
 
     }
 }

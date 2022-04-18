@@ -14,11 +14,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.zxing.integration.android.IntentIntegrator
 import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso.LoadedFrom
 import dev.ragnarok.fenrir.App.Companion.instance
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.activity.qr.CameraScanActivity
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IPhotosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
@@ -456,7 +456,7 @@ open class PhotoPagerPresenter internal constructor(
         with().load(current.getUrlForSize(PhotoSize.W, false))
             .into(object : BitmapTarget {
                 override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                    val data = IntentIntegrator.decodeFromBitmap(bitmap)
+                    val data = CameraScanActivity.decodeFromBitmap(bitmap)
                     MaterialAlertDialogBuilder(context)
                         .setIcon(R.drawable.qr_code)
                         .setMessage(data)

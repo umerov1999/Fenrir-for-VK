@@ -101,18 +101,18 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
             }
     }
 
-    override fun getProducts(offset: Int?, count: Int?): Single<List<VkApiMarket>> {
+    override fun getProducts(offset: Int?, count: Int?): Single<List<VKApiMarket>> {
         return provideService(IFaveService::class.java)
             .flatMap { service ->
                 service.getProducts(offset, count, "product", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
                     .flatMap { t ->
                         val temp = listEmptyIfNull(t.items)
-                        val markets: MutableList<VkApiMarket> = ArrayList()
+                        val markets: MutableList<VKApiMarket> = ArrayList()
                         for (i in temp) {
-                            if (i.attachment is VkApiMarket) markets.add(i.attachment)
+                            if (i.attachment is VKApiMarket) markets.add(i.attachment)
                         }
-                        Single.just<List<VkApiMarket>>(markets)
+                        Single.just<List<VKApiMarket>>(markets)
                     }
             }
     }

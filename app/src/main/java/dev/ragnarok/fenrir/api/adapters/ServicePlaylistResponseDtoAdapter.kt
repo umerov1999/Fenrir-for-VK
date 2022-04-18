@@ -25,12 +25,12 @@ class ServicePlaylistResponseDtoAdapter : AbsAdapter(), JsonDeserializer<Service
             val response = root.getAsJsonArray("response")
             for (i in response) {
                 if (checkObject(i)) {
-                    dto.playlists.add(context.deserialize(i, VKApiAudioPlaylist::class.java))
+                    dto.playlists?.add(context.deserialize(i, VKApiAudioPlaylist::class.java))
                 }
             }
         } else if (checkObject(root["response"])) {
             val response = root.getAsJsonObject("response")
-            dto.playlists.add(context.deserialize(response, VKApiAudioPlaylist::class.java))
+            dto.playlists?.add(context.deserialize(response, VKApiAudioPlaylist::class.java))
         }
         return dto
     }

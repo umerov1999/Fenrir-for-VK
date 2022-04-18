@@ -4,23 +4,25 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-public class VkApiUploadServer implements Parcelable, UploadServer {
+public class VKApiUploadServer implements Parcelable, UploadServer {
 
-    public static final Creator<VkApiUploadServer> CREATOR = new Creator<VkApiUploadServer>() {
+    public static final Creator<VKApiUploadServer> CREATOR = new Creator<VKApiUploadServer>() {
         @Override
-        public VkApiUploadServer createFromParcel(Parcel in) {
-            return new VkApiUploadServer(in);
+        public VKApiUploadServer createFromParcel(Parcel in) {
+            return new VKApiUploadServer(in);
         }
 
         @Override
-        public VkApiUploadServer[] newArray(int size) {
-            return new VkApiUploadServer[size];
+        public VKApiUploadServer[] newArray(int size) {
+            return new VKApiUploadServer[size];
         }
     };
     /**
      * адрес для загрузки фотографий
      */
+    @Nullable
     public String upload_url;
     /**
      * идентификатор альбома, в который будет загружена фотография
@@ -31,13 +33,13 @@ public class VkApiUploadServer implements Parcelable, UploadServer {
      */
     public int user_id;
 
-    protected VkApiUploadServer(Parcel in) {
+    protected VKApiUploadServer(Parcel in) {
         upload_url = in.readString();
         album_id = in.readInt();
         user_id = in.readInt();
     }
 
-    public VkApiUploadServer() {
+    public VKApiUploadServer() {
 
     }
 
@@ -56,13 +58,14 @@ public class VkApiUploadServer implements Parcelable, UploadServer {
     @NonNull
     @Override
     public String toString() {
-        return "VkApiUploadServer{" +
+        return "VKApiUploadServer{" +
                 "upload_url='" + upload_url + '\'' +
                 ", album_id=" + album_id +
                 ", user_id=" + user_id +
                 '}';
     }
 
+    @Nullable
     @Override
     public String getUrl() {
         return upload_url;

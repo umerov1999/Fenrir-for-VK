@@ -40,9 +40,9 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
     SensorEventListener {
     private val app: Context = context.applicationContext
     private val proxyConfig: ProxyConfig? = config
-    private val sensorManager: SensorManager
-    private val proxym: Sensor
-    private val proximityWakelock: PowerManager.WakeLock
+    private val sensorManager: SensorManager?
+    private val proxym: Sensor?
+    private val proximityWakelock: PowerManager.WakeLock?
     private val headset: MusicIntentReceiver
     private var exoPlayer: ExoPlayer? = null
     private var status: Int
@@ -85,7 +85,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
                     C.USAGE_MEDIA
                 ).build(), true
             )
-            sensorManager.registerListener(this, proxym, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager?.registerListener(this, proxym, SensorManager.SENSOR_DELAY_NORMAL)
             val filter = IntentFilter(Intent.ACTION_HEADSET_PLUG)
             app.registerReceiver(headset, filter)
         } catch (ignored: Exception) {
@@ -96,7 +96,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
         if (!Registered) return
         try {
             Registered = false
-            sensorManager.unregisterListener(this)
+            sensorManager?.unregisterListener(this)
             app.unregisterReceiver(headset)
             if (HasPlaying) {
                 playOrPause()
@@ -105,7 +105,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
             HasPlaying = false
             if (ProximitRegistered) {
                 ProximitRegistered = false
-                proximityWakelock.release()
+                proximityWakelock?.release()
             }
             isProximityNear = false
             isHeadset = false
@@ -276,12 +276,12 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
                         )
                         if (!ProximitRegistered) {
                             ProximitRegistered = true
-                            proximityWakelock.acquire(10 * 60 * 1000L /*10 minutes*/)
+                            proximityWakelock?.acquire(10 * 60 * 1000L /*10 minutes*/)
                         }
                     } else {
                         if (ProximitRegistered) {
                             ProximitRegistered = false
-                            proximityWakelock.release(1) // this is non-public API before L
+                            proximityWakelock?.release(1) // this is non-public API before L
                         }
                         exoPlayer?.setAudioAttributes(
                             AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).setUsage(
@@ -309,7 +309,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
                         try {
                             if (ProximitRegistered) {
                                 ProximitRegistered = false
-                                proximityWakelock.release(1) // this is non-public API before L
+                                proximityWakelock?.release(1) // this is non-public API before L
                             }
                             exoPlayer?.setAudioAttributes(
                                 AudioAttributes.Builder().setContentType(
@@ -334,10 +334,10 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
     init {
         status = IVoicePlayer.STATUS_NO_PLAYBACK
         headset = MusicIntentReceiver()
-        sensorManager = app.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        proxym = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
+        sensorManager = app.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
+        proxym = sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
         proximityWakelock =
-            (app.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(
+            (app.getSystemService(Context.POWER_SERVICE) as PowerManager?)?.newWakeLock(
                 PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK,
                 "fenrir:voip=proxim"
             )

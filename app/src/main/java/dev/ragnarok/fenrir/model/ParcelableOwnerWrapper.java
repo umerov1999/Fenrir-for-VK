@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import dev.ragnarok.fenrir.module.parcel.ParcelNative;
 
@@ -69,7 +70,7 @@ public final class ParcelableOwnerWrapper implements Parcelable, ParcelNative.Pa
     }
 
     public static Owner readOwner(ParcelNative in) {
-        return in.<ParcelableOwnerWrapper>readParcelable(NativeCreator).get();
+        return Objects.requireNonNull(in.readParcelable(NativeCreator)).get();
     }
 
     public static void writeOwner(Parcel dest, int flags, Owner owner) {

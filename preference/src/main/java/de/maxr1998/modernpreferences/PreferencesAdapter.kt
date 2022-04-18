@@ -79,10 +79,6 @@ class PreferencesAdapter @VisibleForTesting constructor(
             for (i in preference.getPreferenceList()) {
                 findPrefKey(i, key, once, found)
             }
-        } else if (preference is CollapsePreference) {
-            for (i in preference.getPreferencesList()) {
-                findPrefKey(i, key, once, found)
-            }
         }
     }
 
@@ -135,14 +131,10 @@ class PreferencesAdapter @VisibleForTesting constructor(
         query: String,
         found: PreferenceScreen.Builder, view: View?
     ) {
-        if (preference is CategoryHeader) {
+        if (preference is CategoryHeader || preference is CollapsePreference) {
             return
         } else if (preference is PreferenceScreen) {
             for (i in preference.getPreferenceList()) {
-                findPrefByName(context, i, query, found, view)
-            }
-        } else if (preference is CollapsePreference) {
-            for (i in preference.getPreferencesList()) {
                 findPrefByName(context, i, query, found, view)
             }
         } else {

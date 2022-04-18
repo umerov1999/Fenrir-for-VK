@@ -4,20 +4,20 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfoResponce
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfoResponce
 import java.lang.reflect.Type
 
-class ProfileInfoResponceDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiProfileInfoResponce> {
+class ProfileInfoResponceDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiProfileInfoResponce> {
     @Throws(JsonParseException::class)
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
-    ): VkApiProfileInfoResponce {
+    ): VKApiProfileInfoResponce {
         if (!checkObject(json)) {
             throw JsonParseException("$TAG error parse object")
         }
-        val info = VkApiProfileInfoResponce()
+        val info = VKApiProfileInfoResponce()
         val root = json.asJsonObject
         if (root.has("name_request")) {
             info.status = 2

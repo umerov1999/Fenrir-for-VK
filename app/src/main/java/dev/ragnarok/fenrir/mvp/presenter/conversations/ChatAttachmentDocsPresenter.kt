@@ -4,10 +4,11 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiAttachment
-import dev.ragnarok.fenrir.api.model.VkApiDoc
+import dev.ragnarok.fenrir.api.model.VKApiDoc
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentDocsView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
@@ -35,10 +36,10 @@ class ChatAttachmentDocsPresenter(peerId: Int, accountId: Int, savedInstanceStat
                 val docs: MutableList<Document> = ArrayList(
                     Utils.safeCountOf(response.items)
                 )
-                if (response.items != null) {
-                    for (one in response.items) {
-                        if (one?.entry != null && one.entry.attachment is VkApiDoc) {
-                            val dto = one.entry.attachment as VkApiDoc
+                response.items.nonNullNoEmpty {
+                    for (one in it) {
+                        if (one?.entry != null && one.entry?.attachment is VKApiDoc) {
+                            val dto = one.entry?.attachment as VKApiDoc
                             docs.add(
                                 Dto2Model.transform(dto).setMsgId(one.messageId)
                                     .setMsgPeerId(peerId)

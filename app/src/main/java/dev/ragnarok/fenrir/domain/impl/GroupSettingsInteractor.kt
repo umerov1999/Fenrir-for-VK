@@ -16,6 +16,7 @@ import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUser
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.model.*
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
@@ -102,7 +103,7 @@ class GroupSettingsInteractor(
         return networker.vkDefault(accountId)
             .groups()
             .getBanned(groupId, startFrom.offset, count, Constants.MAIN_OWNER_FIELDS, null)
-            .map { obj -> obj.getItems() }
+            .map { obj -> obj.items.orEmpty() }
             .flatMap { items ->
                 val ids = VKOwnIds()
                 for (u in items) {
@@ -179,7 +180,7 @@ class GroupSettingsInteractor(
                     }
                     .map<List<Manager>> {
                         val users = listEmptyIfNull<VKApiUser>(
-                            items.getItems()
+                            items.items
                         )
                         val managers: MutableList<Manager> = ArrayList(users.size)
                         for (user in users) {
@@ -196,7 +197,8 @@ class GroupSettingsInteractor(
     }
 
     private fun createFromDto(category: PublicCategory): IdOption {
-        return IdOption(category.id, category.name, createFromDtos(category.subtypes_list))
+        return IdOption(category.id, category.name,
+            category.subtypes_list?.let { createFromDtos(it) })
     }
 
     private fun createFromDtos(dtos: List<PublicCategory>): List<IdOption> {
@@ -211,13 +213,15 @@ class GroupSettingsInteractor(
     }
 
     private fun createFromDto(dto: GroupSettingsDto): GroupSettings {
-        val categories = createFromDtos(dto.public_category_list)
+        val categories = dto.public_category_list?.let { createFromDtos(it) }
         var category: IdOption? = null
         var subcategory: IdOption? = null
-        if (dto.public_category != null) {
-            category = findById(categories, dto.public_category.toInt())
-            if (dto.public_subcategory != null && category != null) {
-                subcategory = findById(category.childs, dto.public_subcategory.toInt())
+        dto.public_category.requireNonNull {
+            category = findById(categories, it.toInt())
+            dto.public_subcategory.requireNonNull { o ->
+                category.requireNonNull { p ->
+                    subcategory = findById(p.childs, o.toInt())
+                }
             }
         }
         return GroupSettings()

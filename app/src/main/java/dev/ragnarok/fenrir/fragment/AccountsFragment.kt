@@ -419,12 +419,10 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         mData?.let {
             if (index != -1) {
                 it[index] = account
-                mAdapter?.notifyItemChanged(index)
             } else {
-                val sz = it.size
                 it.add(account)
-                mAdapter?.notifyItemInserted(sz)
             }
+            mAdapter?.notifyDataSetChanged()
         }
         resolveEmptyText()
     }
@@ -510,9 +508,8 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
             .remove(account.id)
         DBHelper.removeDatabaseFor(requireActivity(), account.id)
         longpollManager.forceDestroy(account.id)
-        val pos = indexOf(account.id)
         mData?.remove(account)
-        mAdapter?.notifyItemRemoved(pos)
+        mAdapter?.notifyDataSetChanged()
         resolveEmptyText()
     }
 

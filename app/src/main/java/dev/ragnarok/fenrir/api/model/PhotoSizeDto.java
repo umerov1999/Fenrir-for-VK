@@ -1,13 +1,17 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 
 public class PhotoSizeDto {
 
+    @Nullable
     @SerializedName(value = "url", alternate = "src")
     public String url;
 
+    @Nullable
     @SerializedName("type")
     public String type;
 

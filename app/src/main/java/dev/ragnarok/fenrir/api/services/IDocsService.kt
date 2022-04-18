@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.Items
-import dev.ragnarok.fenrir.api.model.VkApiDoc
+import dev.ragnarok.fenrir.api.model.VKApiDoc
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
-import dev.ragnarok.fenrir.api.model.server.VkApiDocsUploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiVideosUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiDocsUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiVideosUploadServer
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -44,7 +44,7 @@ interface IDocsService {
      */
     @FormUrlEncoded
     @POST("docs.getById")
-    fun getById(@Field("docs") ids: String?): Single<BaseResponse<List<VkApiDoc>>>
+    fun getById(@Field("docs") ids: String?): Single<BaseResponse<List<VKApiDoc>>>
 
     /**
      * Returns a list of documents matching the search criteria.
@@ -60,7 +60,7 @@ interface IDocsService {
         @Field("q") query: String?,
         @Field("count") count: Int?,
         @Field("offset") offset: Int?
-    ): Single<BaseResponse<Items<VkApiDoc>>>
+    ): Single<BaseResponse<Items<VKApiDoc>>>
 
     /**
      * Saves a document after uploading it to a server.
@@ -76,7 +76,7 @@ interface IDocsService {
         @Field("file") file: String?,
         @Field("title") title: String?,
         @Field("tags") tags: String?
-    ): Single<BaseResponse<VkApiDoc.Entry>>
+    ): Single<BaseResponse<VKApiDoc.Entry>>
 
     /**
      * Returns the server address for document upload.
@@ -90,11 +90,11 @@ interface IDocsService {
     fun getMessagesUploadServer(
         @Field("peer_id") peer_id: Int?,
         @Field("type") type: String?
-    ): Single<BaseResponse<VkApiDocsUploadServer>>
+    ): Single<BaseResponse<VKApiDocsUploadServer>>
 
     @FormUrlEncoded
     @POST("docs.getUploadServer")
-    fun getUploadServer(@Field("group_id") groupId: Int?): Single<BaseResponse<VkApiDocsUploadServer>>
+    fun getUploadServer(@Field("group_id") groupId: Int?): Single<BaseResponse<VKApiDocsUploadServer>>
 
     @FormUrlEncoded
     @POST("video.save")
@@ -102,7 +102,7 @@ interface IDocsService {
         @Field("is_private") is_private: Int?,
         @Field("group_id") group_id: Int?,
         @Field("name") name: String?
-    ): Single<BaseResponse<VkApiVideosUploadServer>>
+    ): Single<BaseResponse<VKApiVideosUploadServer>>
 
     /**
      * Returns detailed information about user or community documents.
@@ -130,5 +130,5 @@ interface IDocsService {
         @Field("count") count: Int?,
         @Field("offset") offset: Int?,
         @Field("type") type: Int?
-    ): Single<BaseResponse<Items<VkApiDoc>>>
+    ): Single<BaseResponse<Items<VKApiDoc>>>
 }

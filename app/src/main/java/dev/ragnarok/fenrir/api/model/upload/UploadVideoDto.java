@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api.model.upload;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -12,6 +13,7 @@ public class UploadVideoDto {
     @SerializedName("video_id")
     public int video_id;
 
+    @Nullable
     @SerializedName("video_hash")
     public String video_hash;
 

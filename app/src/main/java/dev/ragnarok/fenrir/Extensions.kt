@@ -140,12 +140,39 @@ inline fun <reified T, reified E : Collection<T>> E?.nonNullNoEmpty(block: (E) -
     if (!isNullOrEmpty()) apply(block)
 }
 
+inline fun <reified T, reified E : Collection<*>> E?.nonNullNoEmptyOrNullable(yes: (E) -> T): T? {
+    return if (!isNullOrEmpty()) yes.invoke(this) else null
+}
+
+inline fun <reified T, reified E : Collection<*>> E?.nonNullNoEmptyOr(
+    yes: (E) -> T,
+    no: () -> T
+): T {
+    return if (!isNullOrEmpty()) yes.invoke(this) else no.invoke()
+}
+
 inline fun <reified T : CharSequence> T?.trimmedNonNullNoEmpty(block: (T) -> Unit) {
     this?.let {
         if (trim { it <= ' ' }.isNotEmpty()) {
             apply(block)
         }
     }
+}
+
+inline fun <reified T : Any> T?.requireNonNull(block: (T) -> Unit) {
+    this?.apply(block)
+}
+
+inline fun <reified T : Any> T?.requireNonNull(yes: (T) -> T, no: () -> T): T {
+    return this?.let { yes.invoke(it) } ?: no.invoke()
+}
+
+inline fun <reified T, reified E : List<T>> E?.requireNonNull(block: (E) -> Unit) {
+    this?.apply(block)
+}
+
+inline fun <reified T, reified E : MutableList<T>> E?.requireNonNullMutable(block: (E) -> Unit) {
+    this?.apply(block)
 }
 
 inline fun <reified T : Any> Flowable<T>.subscribeIgnoreErrors(consumer: Consumer<in T>): Disposable =

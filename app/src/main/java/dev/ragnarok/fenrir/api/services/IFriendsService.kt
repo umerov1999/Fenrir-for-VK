@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.Items
+import dev.ragnarok.fenrir.api.model.VKApiFriendList
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import dev.ragnarok.fenrir.api.model.VkApiFriendList
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.DeleteFriendResponse
 import dev.ragnarok.fenrir.api.model.response.MutualFriendsResponse
@@ -46,7 +46,7 @@ interface IFriendsService {
     fun getLists(
         @Field("user_id") userId: Int?,
         @Field("return_system") returnSystem: Int?
-    ): Single<BaseResponse<Items<VkApiFriendList>>>
+    ): Single<BaseResponse<Items<VKApiFriendList>>>
 
     //https://vk.com/dev/friends.delete
     @FormUrlEncoded

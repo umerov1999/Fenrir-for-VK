@@ -2,7 +2,6 @@ include(
     ":app",
     ":picasso",
     ":firebase-installations",
-    ":zxing-android-embedded",
     ":image",
     ":retrofit",
     ":material",

@@ -1,5 +1,5 @@
 package dev.ragnarok.fenrir.api.model;
 
-public class VkApiJsonString {
+public class VKApiJsonString {
     public String json_data;
 }

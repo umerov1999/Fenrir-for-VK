@@ -71,7 +71,6 @@
         android:contentDescription="@null"
         android:src="@drawable/check"
         app:fabSize="normal"
-        app:layout_behavior=".view.FABBehavior"
         app:maxImageSize="30dp" />
 
     <TextView

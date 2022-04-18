@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.domain.mappers
 
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiSticker.VKApiAnimation
 import dev.ragnarok.fenrir.api.model.VKApiStickerSet.Product
-import dev.ragnarok.fenrir.api.model.VkApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.feedback.*
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
 import dev.ragnarok.fenrir.crypt.CryptHelper.analizeMessageBody
@@ -25,35 +25,39 @@ import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.MessageStatus
 import dev.ragnarok.fenrir.model.feedback.FeedbackType
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 
 object Dto2Entity {
 
-    fun buildFeedbackDbo(feedback: VkApiBaseFeedback): FeedbackEntity {
+    fun buildFeedbackDbo(feedback: VKApiBaseFeedback): FeedbackEntity {
         when (@FeedbackType val type = FeedbackEntity2Model.transformType(feedback.type)) {
             FeedbackType.FOLLOW, FeedbackType.FRIEND_ACCEPTED -> {
-                val usersNotifcation = feedback as VkApiUsersFeedback
+                val usersNotifcation = feedback as VKApiUsersFeedback
                 val usersDbo = UsersEntity(type)
-                usersDbo.owners = usersNotifcation.users.ids
+                usersDbo.owners = usersNotifcation.users?.ids
                 usersDbo.date = feedback.date
                 return usersDbo
             }
             FeedbackType.MENTION -> {
-                val mentionWallFeedback = feedback as VkApiMentionWallFeedback
+                val mentionWallFeedback = feedback as VKApiMentionWallFeedback
                 val mentionDbo = MentionEntity(type)
-                val post = mapPost(mentionWallFeedback.post)
+                val post =
+                    mapPost(mentionWallFeedback.post ?: throw NullPointerException("Feedback"))
                 mentionDbo.where = post
-                if (feedback.reply != null) {
+                feedback.reply.requireNonNull {
                     mentionDbo.reply =
-                        mapComment(post.id, post.ownerId, CommentedType.POST, null, feedback.reply)
+                        mapComment(post.id, post.ownerId, CommentedType.POST, null, it)
                 }
                 mentionDbo.date = feedback.date
                 return mentionDbo
             }
             FeedbackType.MENTION_COMMENT_POST, FeedbackType.MENTION_COMMENT_PHOTO, FeedbackType.MENTION_COMMENT_VIDEO -> {
-                val mentionCommentFeedback = feedback as VkApiMentionCommentFeedback
-                val entity = createFromCommentable(mentionCommentFeedback.comment_of)
+                val mentionCommentFeedback = feedback as VKApiMentionCommentFeedback
+                val entity = createFromCommentable(
+                    mentionCommentFeedback.comment_of ?: throw NullPointerException("Feedback")
+                )
                 val mentionCommentDbo = MentionCommentEntity(type)
                 mentionCommentDbo.date = feedback.date
                 mentionCommentDbo.commented = entity.entity
@@ -62,63 +66,68 @@ object Dto2Entity {
                     entity.ownerId,
                     entity.type,
                     entity.accessKey,
-                    mentionCommentFeedback.where
+                    mentionCommentFeedback.where ?: throw NullPointerException("Feedback")
                 )
-                if (feedback.reply != null) {
+                feedback.reply.requireNonNull {
                     mentionCommentDbo.reply = mapComment(
                         entity.id,
                         entity.ownerId,
                         entity.type,
                         entity.accessKey,
-                        feedback.reply
+                        it
                     )
                 }
                 return mentionCommentDbo
             }
             FeedbackType.WALL, FeedbackType.WALL_PUBLISH -> {
-                val wallFeedback = feedback as VkApiWallFeedback
-                val postEntity = mapPost(wallFeedback.post)
+                val wallFeedback = feedback as VKApiWallFeedback
+                val postEntity =
+                    mapPost(wallFeedback.post ?: throw NullPointerException("Feedback"))
                 val postFeedbackEntity = PostFeedbackEntity(type)
                 postFeedbackEntity.date = feedback.date
                 postFeedbackEntity.post = postEntity
-                if (feedback.reply != null) {
+                feedback.reply.requireNonNull {
                     postFeedbackEntity.reply = mapComment(
                         postEntity.id,
                         postEntity.ownerId,
                         CommentedType.POST,
                         null,
-                        feedback.reply
+                        it
                     )
                 }
                 return postFeedbackEntity
             }
             FeedbackType.COMMENT_POST, FeedbackType.COMMENT_PHOTO, FeedbackType.COMMENT_VIDEO -> {
-                val commentFeedback = feedback as VkApiCommentFeedback
-                val commented = createFromCommentable(commentFeedback.comment_of)
+                val commentFeedback = feedback as VKApiCommentFeedback
+                val commented = createFromCommentable(
+                    commentFeedback.comment_of ?: throw NullPointerException("Feedback")
+                )
                 val commentEntity = NewCommentEntity(type)
                 commentEntity.comment = mapComment(
                     commented.id,
                     commented.ownerId,
                     commented.type,
                     commented.accessKey,
-                    commentFeedback.comment
+                    commentFeedback.comment ?: throw NullPointerException("Feedback")
                 )
                 commentEntity.commented = commented.entity
                 commentEntity.date = feedback.date
-                if (feedback.reply != null) {
+                feedback.reply.requireNonNull {
                     commentEntity.reply = mapComment(
                         commented.id,
                         commented.ownerId,
                         commented.type,
                         commented.accessKey,
-                        feedback.reply
+                        it
                     )
                 }
                 return commentEntity
             }
             FeedbackType.REPLY_COMMENT, FeedbackType.REPLY_COMMENT_PHOTO, FeedbackType.REPLY_COMMENT_VIDEO, FeedbackType.REPLY_TOPIC -> {
-                val replyCommentFeedback = feedback as VkApiReplyCommentFeedback
-                val c = createFromCommentable(replyCommentFeedback.comments_of)
+                val replyCommentFeedback = feedback as VKApiReplyCommentFeedback
+                val c = createFromCommentable(
+                    replyCommentFeedback.comments_of ?: throw NullPointerException("Feedback")
+                )
                 val replyCommentEntity = ReplyCommentEntity(type)
                 replyCommentEntity.date = feedback.date
                 replyCommentEntity.commented = c.entity
@@ -127,34 +136,37 @@ object Dto2Entity {
                     c.ownerId,
                     c.type,
                     c.accessKey,
-                    replyCommentFeedback.feedback_comment
+                    replyCommentFeedback.feedback_comment ?: throw NullPointerException("Feedback")
                 )
-                if (replyCommentFeedback.own_comment != null) {
+                replyCommentFeedback.own_comment.requireNonNull {
                     replyCommentEntity.ownComment = mapComment(
                         c.id,
                         c.ownerId,
                         c.type,
                         c.accessKey,
-                        replyCommentFeedback.own_comment
+                        it
                     )
                 }
-                if (feedback.reply != null) {
+                feedback.reply.requireNonNull {
                     replyCommentEntity.reply =
-                        mapComment(c.id, c.ownerId, c.type, c.accessKey, feedback.reply)
+                        mapComment(c.id, c.ownerId, c.type, c.accessKey, it)
                 }
                 return replyCommentEntity
             }
             FeedbackType.LIKE_POST, FeedbackType.LIKE_PHOTO, FeedbackType.LIKE_VIDEO -> {
-                val likeFeedback = feedback as VkApiLikeFeedback
+                val likeFeedback = feedback as VKApiLikeFeedback
                 val likeEntity = LikeEntity(type)
-                likeEntity.liked = createFromLikeable(likeFeedback.liked)
-                likeEntity.likesOwnerIds = likeFeedback.users.ids
+                likeEntity.liked =
+                    createFromLikeable(likeFeedback.liked ?: throw NullPointerException("Feedback"))
+                likeEntity.likesOwnerIds = likeFeedback.users?.ids
                 likeEntity.date = feedback.date
                 return likeEntity
             }
             FeedbackType.LIKE_COMMENT_POST, FeedbackType.LIKE_COMMENT_PHOTO, FeedbackType.LIKE_COMMENT_VIDEO, FeedbackType.LIKE_COMMENT_TOPIC -> {
-                val likeCommentFeedback = feedback as VkApiLikeCommentFeedback
-                val ce = createFromCommentable(likeCommentFeedback.commented)
+                val likeCommentFeedback = feedback as VKApiLikeCommentFeedback
+                val ce = createFromCommentable(
+                    likeCommentFeedback.commented ?: throw NullPointerException("Feedback")
+                )
                 val likeCommentEntity = LikeCommentEntity(type)
                 likeCommentEntity.commented = ce.entity
                 likeCommentEntity.liked = mapComment(
@@ -162,14 +174,14 @@ object Dto2Entity {
                     ce.ownerId,
                     ce.type,
                     ce.accessKey,
-                    likeCommentFeedback.comment
+                    likeCommentFeedback.comment ?: throw NullPointerException("Feedback")
                 )
                 likeCommentEntity.date = feedback.date
-                likeCommentEntity.likesOwnerIds = likeCommentFeedback.users.ids
+                likeCommentEntity.likesOwnerIds = likeCommentFeedback.users?.ids
                 return likeCommentEntity
             }
             FeedbackType.COPY_POST, FeedbackType.COPY_PHOTO, FeedbackType.COPY_VIDEO -> {
-                val copyFeedback = feedback as VkApiCopyFeedback
+                val copyFeedback = feedback as VKApiCopyFeedback
                 val copyEntity = CopyEntity(type)
                 copyEntity.date = feedback.date
                 when (type) {
@@ -183,7 +195,7 @@ object Dto2Entity {
                         copyEntity.copied = mapVideo(copyFeedback.what as VKApiVideo)
                     }
                 }
-                val copyPairs = listEmptyIfNull(copyFeedback.copies.pairs)
+                val copyPairs = listEmptyIfNull(copyFeedback.copies?.pairs)
                 val copiesEntity = CopiesEntity()
                 copiesEntity.pairDbos = ArrayList(copyPairs.size)
                 for (idPair in copyPairs) {
@@ -316,18 +328,18 @@ object Dto2Entity {
 
     fun mapFavePage(favePage: FavePageResponse): FavePageEntity {
         var id = 0
-        if (favePage.user != null) {
-            id = favePage.user.id
+        favePage.user.requireNonNull {
+            id = it.id
         }
-        if (favePage.group != null) {
-            id = -favePage.group.id
+        favePage.group.requireNonNull {
+            id = -it.id
         }
         return FavePageEntity(id)
             .setDescription(favePage.description)
             .setUpdateDate(favePage.updated_date)
             .setFaveType(favePage.type)
-            .setGroup(if (favePage.group == null) null else mapCommunity(favePage.group))
-            .setUser(if (favePage.user == null) null else mapUser(favePage.user))
+            .setGroup(favePage.group?.let { mapCommunity(it) })
+            .setUser(favePage.user?.let { mapUser(it) })
     }
 
 
@@ -656,7 +668,7 @@ object Dto2Entity {
     }
 
 
-    fun mapConversation(dto: VkApiConversation): SimpleDialogEntity {
+    fun mapConversation(dto: VKApiConversation): SimpleDialogEntity {
         val entity = SimpleDialogEntity(dto.peer.id)
             .setInRead(dto.inRead)
             .setOutRead(dto.outRead)
@@ -682,7 +694,7 @@ object Dto2Entity {
     }
 
 
-    fun mapDialog(dto: VkApiDialog): DialogEntity {
+    fun mapDialog(dto: VKApiDialog): DialogEntity {
         val messageEntity = mapMessage(dto.lastMessage)
         val entity = DialogEntity(messageEntity.peerId)
             .setLastMessageId(messageEntity.id)
@@ -739,7 +751,7 @@ object Dto2Entity {
         } else null
     }
 
-    private fun mapAttachemntsList(attachments: VkApiAttachments): List<Entity>? {
+    private fun mapAttachemntsList(attachments: VKApiAttachments): List<Entity>? {
         val entries = attachments.entryList()
         if (entries.isEmpty()) {
             return null
@@ -749,10 +761,6 @@ object Dto2Entity {
         }
         val entities: MutableList<Entity> = ArrayList(entries.size)
         for (entry in entries) {
-            if (entry == null) {
-                // TODO: 04.10.2017
-                continue
-            }
             entities.add(mapAttachment(entry.attachment))
         }
         return entities
@@ -765,7 +773,7 @@ object Dto2Entity {
         if (dto is VKApiVideo) {
             return mapVideo(dto)
         }
-        if (dto is VkApiDoc) {
+        if (dto is VKApiDoc) {
             return mapDoc(dto)
         }
         if (dto is VKApiLink) {
@@ -795,13 +803,13 @@ object Dto2Entity {
         if (dto is VKApiNotSupported) {
             return mapNotSupported(dto)
         }
-        if (dto is VkApiEvent) {
+        if (dto is VKApiEvent) {
             return mapEvent(dto)
         }
-        if (dto is VkApiMarket) {
+        if (dto is VKApiMarket) {
             return mapMarket(dto)
         }
-        if (dto is VkApiMarketAlbum) {
+        if (dto is VKApiMarketAlbum) {
             return mapMarketAlbum(dto)
         }
         if (dto is VKApiAudioArtist) {
@@ -822,7 +830,7 @@ object Dto2Entity {
         if (dto is VKApiAudio) {
             return mapAudio(dto)
         }
-        if (dto is VkApiAudioMessage) {
+        if (dto is VKApiAudioMessage) {
             return mapAudioMessage(dto)
         }
         if (dto is VKApiGiftItem) {
@@ -1036,7 +1044,7 @@ object Dto2Entity {
         return ArticleEntity().set(article.id, article.owner_id)
             .setAccessKey(article.access_key)
             .setOwnerName(article.owner_name)
-            .setPhoto(if (article.photo != null) mapPhoto(article.photo) else null)
+            .setPhoto(article.photo?.let { mapPhoto(it) })
             .setTitle(article.title)
             .setSubTitle(article.subtitle)
             .setURL(article.url)
@@ -1089,12 +1097,12 @@ object Dto2Entity {
         return NotSupportedEntity().setType(dto.type).setBody(dto.body)
     }
 
-    private fun mapEvent(dto: VkApiEvent): EventEntity {
+    private fun mapEvent(dto: VKApiEvent): EventEntity {
         return EventEntity().setId(dto.id).setButton_text(dto.button_text).setText(dto.text)
     }
 
 
-    fun mapMarket(dto: VkApiMarket): MarketEntity {
+    fun mapMarket(dto: VKApiMarket): MarketEntity {
         return MarketEntity().set(dto.id, dto.owner_id)
             .setAccess_key(dto.access_key)
             .setIs_favorite(dto.is_favorite)
@@ -1109,7 +1117,7 @@ object Dto2Entity {
             .setThumb_photo(dto.thumb_photo)
     }
 
-    private fun mapMarketAlbum(dto: VkApiMarketAlbum): MarketAlbumEntity {
+    private fun mapMarketAlbum(dto: VKApiMarketAlbum): MarketAlbumEntity {
         return MarketAlbumEntity().set(dto.id, dto.owner_id)
             .setAccess_key(dto.access_key)
             .setCount(dto.count)
@@ -1131,7 +1139,7 @@ object Dto2Entity {
             )
     }
 
-    private fun mapAudioMessage(dto: VkApiAudioMessage): AudioMessageEntity {
+    private fun mapAudioMessage(dto: VKApiAudioMessage): AudioMessageEntity {
         return AudioMessageEntity().set(dto.id, dto.owner_id)
             .setAccessKey(dto.access_key)
             .setDuration(dto.duration)
@@ -1142,7 +1150,7 @@ object Dto2Entity {
     }
 
 
-    fun mapDoc(dto: VkApiDoc): DocumentEntity {
+    fun mapDoc(dto: VKApiDoc): DocumentEntity {
         val dbo = DocumentEntity().set(dto.id, dto.ownerId)
             .setTitle(dto.title)
             .setSize(dto.size)
@@ -1261,7 +1269,7 @@ object Dto2Entity {
             .setFavorite(dto.is_favorite)
     }
 
-    private fun mapPrivacy(dto: VkApiPrivacy): PrivacyEntity {
+    private fun mapPrivacy(dto: VKApiPrivacy): PrivacyEntity {
         return PrivacyEntity().set(
             dto.category,
             mapAll(

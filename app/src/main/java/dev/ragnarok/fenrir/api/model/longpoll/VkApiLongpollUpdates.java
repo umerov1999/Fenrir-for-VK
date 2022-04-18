@@ -15,6 +15,7 @@ import static dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent.ACTION_USE
 import static dev.ragnarok.fenrir.util.Utils.safeCountOfMultiple;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +28,23 @@ public final class VkApiLongpollUpdates {
     public long ts;
     public int failed;
 
+    @Nullable
     public List<WriteTextInDialogUpdate> write_text_in_dialog_updates;
+    @Nullable
     public List<AddMessageUpdate> add_message_updates;
+    @Nullable
     public List<UserIsOnlineUpdate> user_is_online_updates;
+    @Nullable
     public List<UserIsOfflineUpdate> user_is_offline_updates;
+    @Nullable
     public List<MessageFlagsResetUpdate> message_flags_reset_updates;
+    @Nullable
     public List<MessageFlagsSetUpdate> message_flags_set_updates;
+    @Nullable
     public List<InputMessagesSetReadUpdate> input_messages_set_read_updates;
+    @Nullable
     public List<OutputMessagesSetReadUpdate> output_messages_set_read_updates;
+    @Nullable
     public List<BadgeCountChangeUpdate> badge_count_change_updates;
 
     public VkApiLongpollUpdates() {
@@ -119,38 +129,6 @@ public final class VkApiLongpollUpdates {
 
     public boolean isEmpty() {
         return getUpdatesCount() == 0;
-    }
-
-    public List<WriteTextInDialogUpdate> getWriteTextInDialogUpdates() {
-        return write_text_in_dialog_updates;
-    }
-
-    public List<AddMessageUpdate> getAddMessageUpdates() {
-        return add_message_updates;
-    }
-
-    public List<UserIsOnlineUpdate> getUserIsOnlineUpdates() {
-        return user_is_online_updates;
-    }
-
-    public List<UserIsOfflineUpdate> getUserIsOfflineUpdates() {
-        return user_is_offline_updates;
-    }
-
-    public List<MessageFlagsResetUpdate> getMessageFlagsResetUpdates() {
-        return message_flags_reset_updates;
-    }
-
-    public List<MessageFlagsSetUpdate> getMessageFlagsSetUpdates() {
-        return message_flags_set_updates;
-    }
-
-    public List<InputMessagesSetReadUpdate> getInputMessagesSetReadUpdates() {
-        return input_messages_set_read_updates;
-    }
-
-    public List<OutputMessagesSetReadUpdate> getOutputMessagesSetReadUpdates() {
-        return output_messages_set_read_updates;
     }
 
     @NonNull

@@ -311,7 +311,7 @@ class WallsRepository(
                 }
                 val owners = transformOwners(response.profiles, response.groups)
                 val dtos = response.posts
-                val dto = dtos[0]
+                val dto = dtos?.get(0) ?: throw NotFoundException()
                 val ids = VKOwnIds().append(dto)
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
@@ -389,11 +389,13 @@ class WallsRepository(
             .wall()
             .repost(ownerId, postId, message, groupId, null)
             .flatMap { reponse ->
-                getAndStorePost(
-                    accountId,
-                    resultOwnerId,
-                    reponse.postId
-                )
+                reponse.postId?.let {
+                    getAndStorePost(
+                        accountId,
+                        resultOwnerId,
+                        it
+                    )
+                } ?: throw NullPointerException("Wall Repository response.postId is Null")
             }
     }
 
@@ -416,14 +418,14 @@ class WallsRepository(
                 if (safeCountOf(response.posts) != 1) {
                     throw NotFoundException()
                 }
-                val dbo = mapPost(response.posts[0])
+                val dbo = mapPost(response.posts?.get(0) ?: throw NotFoundException())
                 val ownerEntities = mapOwners(response.profiles, response.groups)
                 cache.storeWallEntities(accountId, listOf(dbo), ownerEntities, null)
                     .map { ints -> ints[0] }
                     .flatMap { dbid ->
                         cache
                             .findPostById(accountId, dbid)
-                            .map { obj -> obj.requareNonEmpty() }
+                            .map { obj -> obj.requireNonEmpty() }
                             .compose(entity2model(accountId))
                     }
             }

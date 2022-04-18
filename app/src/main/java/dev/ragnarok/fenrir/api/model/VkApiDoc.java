@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
 
-public class VkApiDoc implements VKApiAttachment {
+public class VKApiDoc implements VKApiAttachment {
 
     @SerializedName("id")
     public int id;
@@ -28,6 +30,7 @@ public class VkApiDoc implements VKApiAttachment {
     @SerializedName("access_key")
     public String accessKey;
 
+    @NonNull
     @Override
     public String getType() {
         return VKApiAttachment.TYPE_DOC;
@@ -35,9 +38,9 @@ public class VkApiDoc implements VKApiAttachment {
 
     public static class Entry {
         public final String type;
-        public final VkApiDoc doc;
+        public final VKApiDoc doc;
 
-        public Entry(String type, VkApiDoc doc) {
+        public Entry(String type, VKApiDoc doc) {
             this.type = type;
             this.doc = doc;
         }

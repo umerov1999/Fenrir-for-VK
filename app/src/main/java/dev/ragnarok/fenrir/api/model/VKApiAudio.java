@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.api.model;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Map;
 
@@ -26,11 +27,13 @@ public class VKApiAudio implements VKApiAttachment {
     /**
      * Artist name.
      */
+    @Nullable
     public String artist;
 
     /**
      * Audio file title.
      */
+    @Nullable
     public String title;
 
     /**
@@ -41,6 +44,7 @@ public class VKApiAudio implements VKApiAttachment {
     /**
      * Link to mp3 or hls.
      */
+    @Nullable
     public String url;
 
     /**
@@ -55,6 +59,7 @@ public class VKApiAudio implements VKApiAttachment {
 
     public int album_owner_id;
 
+    @Nullable
     public String album_access_key;
 
     /**
@@ -62,14 +67,19 @@ public class VKApiAudio implements VKApiAttachment {
      */
     public int genre_id;
 
+    @Nullable
     public String thumb_image_little;
 
+    @Nullable
     public String thumb_image_big;
 
+    @Nullable
     public String thumb_image_very_big;
 
+    @Nullable
     public String album_title;
 
+    @Nullable
     public Map<String, String> main_artists;
 
     public boolean isHq;
@@ -77,6 +87,7 @@ public class VKApiAudio implements VKApiAttachment {
     /**
      * An access key using for get information about hidden objects.
      */
+    @Nullable
     public String access_key;
 
     /**
@@ -86,6 +97,7 @@ public class VKApiAudio implements VKApiAttachment {
 
     }
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_AUDIO;

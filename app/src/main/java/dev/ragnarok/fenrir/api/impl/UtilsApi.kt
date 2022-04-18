@@ -7,8 +7,8 @@ import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
 import dev.ragnarok.fenrir.api.model.VKApiShortLink
 import dev.ragnarok.fenrir.api.model.response.ResolveDomailResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiLinkResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiChatResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiLinkResponse
 import dev.ragnarok.fenrir.api.services.IUtilsService
 import io.reactivex.rxjava3.core.Single
 
@@ -54,7 +54,7 @@ internal class UtilsApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
-    override fun joinChatByInviteLink(link: String?): Single<VkApiChatResponse> {
+    override fun joinChatByInviteLink(link: String?): Single<VKApiChatResponse> {
         return provideService(IUtilsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.joinChatByInviteLink(link)
@@ -62,7 +62,7 @@ internal class UtilsApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
-    override fun getInviteLink(peer_id: Int?, reset: Int?): Single<VkApiLinkResponse> {
+    override fun getInviteLink(peer_id: Int?, reset: Int?): Single<VKApiLinkResponse> {
         return provideService(IUtilsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getInviteLink(peer_id, reset)

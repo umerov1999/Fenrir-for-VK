@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir.api.model.longpoll;
 
-import android.text.TextUtils;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-import dev.ragnarok.fenrir.api.model.VkApiConversation;
+import dev.ragnarok.fenrir.api.model.VKApiConversation;
 import dev.ragnarok.fenrir.model.Peer;
 import dev.ragnarok.fenrir.util.Utils;
 
@@ -12,6 +12,7 @@ public class AddMessageUpdate extends AbsLongpollEvent {
 
     public int message_id;
     public long timestamp;
+    @Nullable
     public String text;
     public int from;
     public boolean outbox;
@@ -19,14 +20,21 @@ public class AddMessageUpdate extends AbsLongpollEvent {
     public boolean important;
     public boolean deleted;
     public boolean hasMedia;
+    @Nullable
     public String sourceText;
+    @Nullable
     public String sourceAct;
     public int sourceMid;
+    @Nullable
     public ArrayList<String> fwds;
-    public VkApiConversation.CurrentKeyboard keyboard;
+    @Nullable
+    public VKApiConversation.CurrentKeyboard keyboard;
+    @Nullable
     public String payload;
+    @Nullable
     public String reply;
     public int peer_id;
+    @Nullable
     public String random_id;
     public long edit_time;
 
@@ -42,15 +50,18 @@ public class AddMessageUpdate extends AbsLongpollEvent {
         return outbox;
     }
 
+    @Nullable
     public String getText() {
         return text;
     }
 
+    @Nullable
     public String getPayload() {
         return payload;
     }
 
-    public VkApiConversation.CurrentKeyboard getKeyboard() {
+    @Nullable
+    public VKApiConversation.CurrentKeyboard getKeyboard() {
         return keyboard;
     }
 
@@ -71,7 +82,7 @@ public class AddMessageUpdate extends AbsLongpollEvent {
     }
 
     public boolean isServiceMessage() {
-        return !TextUtils.isEmpty(sourceAct);
+        return !Utils.isEmpty(sourceAct);
     }
 
     public boolean isFull() {

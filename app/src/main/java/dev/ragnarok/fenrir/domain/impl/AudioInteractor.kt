@@ -78,7 +78,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .audio()[playlist_id, ownerId, offset, count, accessKey]
             .map {
                 listEmptyIfNull<VKApiAudio>(
-                    it.getItems()
+                    it.items
                 )
             }
             .map { out ->
@@ -111,7 +111,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .getAudiosByArtist(artist_id, offset, count)
             .map {
                 listEmptyIfNull<VKApiAudio>(
-                    it.getItems()
+                    it.items
                 )
             }
             .map { out ->
@@ -180,7 +180,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .getRecommendations(audioOwnerId, count)
             .map { items ->
                 listEmptyIfNull<VKApiAudio>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -200,7 +200,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .getRecommendationsByAudio(audio, count)
             .map { items ->
                 listEmptyIfNull<VKApiAudio>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -221,7 +221,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .getPlaylists(owner_id, offset, count)
             .map { items ->
                 listEmptyIfNull<VKApiAudioPlaylist>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -290,7 +290,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .getCatalog(artist_id, query)
             .map { items ->
                 listEmptyIfNull<VKApiAudioCatalog>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -392,7 +392,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .search(criteria.query, isautocmp, islyrics, isbyArtist, sort, isMyAudio, offset, count)
             .map { items ->
                 listEmptyIfNull<VKApiAudio>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->
@@ -407,13 +407,13 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         criteria: ArtistSearchCriteria,
         offset: Int,
         count: Int
-    ): Single<List<VkApiArtist>> {
+    ): Single<List<VKApiArtist>> {
         return networker.vkDefault(accountId)
             .audio()
             .searchArtists(criteria.query, offset, count)
             .map { items ->
-                listEmptyIfNull<VkApiArtist>(
-                    items.getItems()
+                listEmptyIfNull<VKApiArtist>(
+                    items.items
                 )
             }
             .map { out -> out }
@@ -430,7 +430,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .searchPlaylists(criteria.query, offset, count)
             .map { items ->
                 listEmptyIfNull<VKApiAudioPlaylist>(
-                    items.getItems()
+                    items.items
                 )
             }
             .map { out ->

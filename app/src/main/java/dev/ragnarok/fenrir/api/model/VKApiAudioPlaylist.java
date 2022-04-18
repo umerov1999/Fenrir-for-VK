@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 public class VKApiAudioPlaylist implements VKApiAttachment {
     public int id;
     public int owner_id;
@@ -21,6 +23,7 @@ public class VKApiAudioPlaylist implements VKApiAttachment {
 
     }
 
+    @NonNull
     @Override
     public String getType() {
         return VKApiAttachment.TYPE_AUDIO_PLAYLIST;

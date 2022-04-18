@@ -20,6 +20,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -150,7 +151,7 @@ public class TokenModKate {
                 .post(formBody.build())
                 .build();
         Response response = builder.build().newCall(request).execute();
-        return new BufferedReader(new InputStreamReader(response.body().byteStream())).readLine();
+        return new BufferedReader(new InputStreamReader(Objects.requireNonNull(response.body()).byteStream())).readLine();
     }
 
     private static String genNewKey() {

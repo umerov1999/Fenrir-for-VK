@@ -5,8 +5,8 @@ import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiCheckedLink
 import dev.ragnarok.fenrir.api.model.VKApiShortLink
 import dev.ragnarok.fenrir.api.model.response.ResolveDomailResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiChatResponse
-import dev.ragnarok.fenrir.api.model.response.VkApiLinkResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiChatResponse
+import dev.ragnarok.fenrir.api.model.response.VKApiLinkResponse
 import io.reactivex.rxjava3.core.Single
 
 interface IUtilsApi {
@@ -26,10 +26,10 @@ interface IUtilsApi {
     fun checkLink(url: String?): Single<VKApiCheckedLink>
 
     @CheckResult
-    fun joinChatByInviteLink(link: String?): Single<VkApiChatResponse>
+    fun joinChatByInviteLink(link: String?): Single<VKApiChatResponse>
 
     @CheckResult
-    fun getInviteLink(peer_id: Int?, reset: Int?): Single<VkApiLinkResponse>
+    fun getInviteLink(peer_id: Int?, reset: Int?): Single<VKApiLinkResponse>
 
     @CheckResult
     fun customScript(code: String?): Single<Int>

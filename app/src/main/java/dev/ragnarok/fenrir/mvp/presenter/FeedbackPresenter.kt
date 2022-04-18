@@ -75,14 +75,14 @@ class FeedbackPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun onActualDataReceived(
         startFrom: String?,
         feedbacks: List<Feedback>,
-        nextFrom: String
+        nextFrom: String?
     ) {
         cacheDisposable.clear()
         cacheLoadingNow = false
         netLoadingNow = false
         netLoadingStartFrom = null
         mNextFrom = nextFrom
-        mEndOfContent = nextFrom.isEmpty()
+        mEndOfContent = nextFrom.isNullOrEmpty()
         actualDataReceived = true
         if (startFrom.isNullOrEmpty()) {
             mData.clear()

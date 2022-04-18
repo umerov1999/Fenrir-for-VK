@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.api.*
 import dev.ragnarok.fenrir.api.interfaces.IAuthApi
 import dev.ragnarok.fenrir.api.model.LoginResponse
-import dev.ragnarok.fenrir.api.model.VkApiValidationResponce
+import dev.ragnarok.fenrir.api.model.VKApiValidationResponce
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.getDeviceId
@@ -52,7 +52,7 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
         clientSecret: String?,
         sid: String?,
         v: String?
-    ): Single<VkApiValidationResponce> {
+    ): Single<VKApiValidationResponce> {
         return service.provideAuthService()
             .flatMap { service ->
                 service
@@ -65,10 +65,9 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
         private val BASE_RESPONSE_GSON = Gson()
         fun <T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
             return Function { response: BaseResponse<T> ->
-                if (response.error != null) {
-                    throw Exceptions.propagate(ApiException(response.error))
-                }
-                response.response
+                response.error?.let { throw Exceptions.propagate(ApiException(it)) }
+                    ?: (response.response
+                        ?: throw NullPointerException("VK return null response"))
             }
         }
 
@@ -100,10 +99,10 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
                                     )
                                 )
                             }
-                            if (response.error.nonNullNoEmpty()) {
+                            response.error.nonNullNoEmpty {
                                 return@onErrorResumeNext Single.error(
                                     AuthException(
-                                        response.error,
+                                        it,
                                         response.errorDescription
                                     )
                                 )

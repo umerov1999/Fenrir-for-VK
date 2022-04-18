@@ -50,7 +50,7 @@ class RelationshipInteractor(
         val order = if (accountId == objectId) "hints" else null
         return networker.vkDefault(accountId)
             .friends()[objectId, order, null, count, offset, UserColumns.API_FIELDS, null]
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val dbos = mapUsers(dtos)
                 val users = transformUsers(dtos)
@@ -101,7 +101,7 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .users()
             .getFollowers(objectId, offset, count, UserColumns.API_FIELDS, null)
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val dbos = mapUsers(dtos)
                 val users = transformUsers(dtos)
@@ -115,7 +115,7 @@ class RelationshipInteractor(
         return networker.vkDefault(accountId)
             .users()
             .getRequests(offset, count, 1, 1, UserColumns.API_FIELDS)
-            .map { items -> listEmptyIfNull(items.getItems()) }
+            .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val dbos = mapUsers(dtos)
                 val users = transformUsers(dtos)
@@ -148,7 +148,7 @@ class RelationshipInteractor(
             .friends()
             .search(userId, q, UserColumns.API_FIELDS, null, offset, count)
             .map { items ->
-                val users = transformUsers(listEmptyIfNull(items.getItems()))
+                val users = transformUsers(listEmptyIfNull(items.items))
                 create(users, items.getCount())
             }
     }

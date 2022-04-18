@@ -34,7 +34,7 @@ public class VKApiNews {
     /**
      * Information about attachments to the post (photos, links, etc.), if any;
      */
-    public VkApiAttachments attachments;
+    public VKApiAttachments attachments;
 
     public VKApiPlace geo;
     public ArrayList<Integer> friends;

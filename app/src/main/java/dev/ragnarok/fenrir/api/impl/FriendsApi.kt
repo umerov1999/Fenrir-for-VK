@@ -4,8 +4,8 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.interfaces.IFriendsApi
 import dev.ragnarok.fenrir.api.model.Items
+import dev.ragnarok.fenrir.api.model.VKApiFriendList
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import dev.ragnarok.fenrir.api.model.VkApiFriendList
 import dev.ragnarok.fenrir.api.model.response.DeleteFriendResponse
 import dev.ragnarok.fenrir.api.model.response.OnlineFriendsResponse
 import dev.ragnarok.fenrir.api.services.IFriendsService
@@ -99,7 +99,7 @@ return {"uids":uids, "profiles":profiles};"""
             }
     }
 
-    override fun getLists(userId: Int?, returnSystem: Boolean?): Single<Items<VkApiFriendList>> {
+    override fun getLists(userId: Int?, returnSystem: Boolean?): Single<Items<VKApiFriendList>> {
         return provideService(IFriendsService::class.java)
             .flatMap { service ->
                 service.getLists(userId, integerFromBoolean(returnSystem))
@@ -174,7 +174,7 @@ return {"uids":uids, "profiles":profiles};"""
             .flatMap { service ->
                 service.getMutual(formattedCode)
                     .map(extractResponseWithErrorHandling())
-                    .map { it.profiles }
+                    .map { it.profiles.orEmpty() }
             }
     }
 }

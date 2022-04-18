@@ -41,7 +41,7 @@ class VideosInteractor(private val networker: INetworker, private val cache: ISt
             .video()[ownerId, null, albumId, count, offset, true]
             .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiVideo>(
-                    items.getItems()
+                    items.items
                 )
                 val dbos: MutableList<VideoEntity> = ArrayList(dtos.size)
                 val videos: MutableList<Video> = ArrayList(dbos.size)
@@ -79,7 +79,7 @@ class VideosInteractor(private val networker: INetworker, private val cache: ISt
         return networker.vkDefault(accountId)
             .video()[null, ids, null, null, null, true]
             .map { items ->
-                items.getItems().nonNullNoEmpty {
+                items.items.nonNullNoEmpty {
                     return@map it[0]
                 }
                 throw NotFoundException()
@@ -188,7 +188,7 @@ class VideosInteractor(private val networker: INetworker, private val cache: ISt
             .getAlbumsByVideo(target_id, owner_id, video_id)
             .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiVideoAlbum>(
-                    items.getItems()
+                    items.items
                 )
                 val albums: MutableList<VideoAlbum> = ArrayList(dtos.size)
                 for (dto in dtos) {
@@ -210,7 +210,7 @@ class VideosInteractor(private val networker: INetworker, private val cache: ISt
             .getAlbums(ownerId, offset, count, true)
             .flatMap { items ->
                 val dtos = listEmptyIfNull<VKApiVideoAlbum>(
-                    items.getItems()
+                    items.items
                 )
                 val dbos: MutableList<VideoAlbumEntity> = ArrayList(dtos.size)
                 val albums: MutableList<VideoAlbum> = ArrayList(dbos.size)

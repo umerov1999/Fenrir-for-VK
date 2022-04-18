@@ -12,7 +12,7 @@ class Optional<T> private constructor(private val value: T?) {
         return value != null
     }
 
-    fun requareNonEmpty(): T {
+    fun requireNonEmpty(): T {
         return value!!
     }
 

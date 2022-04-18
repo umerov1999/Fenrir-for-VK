@@ -4,7 +4,7 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.api.model.server.VkApiAudioUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.settings.Settings
@@ -62,8 +62,8 @@ class RemoteAudioPlayUploadable(private val context: Context, private val networ
                 .flatMap { dto ->
                     Single.just(
                         UploadResult(
-                            VkApiAudioUploadServer(finalServer_url), Audio().setId(
-                                dto.response
+                            VKApiAudioUploadServer(finalServer_url), Audio().setId(
+                                dto.response ?: throw NotFoundException()
                             )
                         )
                     )

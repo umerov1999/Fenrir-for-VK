@@ -152,7 +152,7 @@ abstract class AbsVkApiInterceptor(private val version: String, private val gson
                     var code = false
                     while (true) {
                         try {
-                            code = provider.lookupState(error.redirectUri)
+                            code = provider.lookupState(error.redirectUri ?: break)
                             if (code) {
                                 break
                             } else {
@@ -179,7 +179,7 @@ abstract class AbsVkApiInterceptor(private val version: String, private val gson
                     var code: String? = null
                     while (true) {
                         try {
-                            code = provider.lookupCode(captcha.sid)
+                            code = provider.lookupCode(captcha.sid ?: break)
                             if (code != null) {
                                 break
                             } else {
@@ -195,8 +195,8 @@ abstract class AbsVkApiInterceptor(private val version: String, private val gson
                             Exception("URL: " + request.url + ", code: " + code + ", sid: " + captcha.sid)
                         )
                     }
-                    if (code != null) {
-                        formBuilder.add("captcha_sid", captcha.sid)
+                    if (code != null && captcha.sid != null) {
+                        formBuilder.add("captcha_sid", captcha.sid ?: continue)
                         formBuilder.add("captcha_key", code)
                         request = original.newBuilder()
                             .method("POST", formBuilder.build())

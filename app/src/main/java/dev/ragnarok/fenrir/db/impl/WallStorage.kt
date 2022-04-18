@@ -118,12 +118,12 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         return findPostById(accountId, ownerId, vkPostId, includeAttachment)
             .flatMap {
                 if (it.nonEmpty()) {
-                    return@flatMap Single.just(it.requareNonEmpty())
+                    return@flatMap Single.just(it.requireNonEmpty())
                 }
                 insertNew(accountId, vkPostId, ownerId, accountId)
                     .flatMap {
                         findPostById(accountId, ownerId, vkPostId, includeAttachment)
-                            .map { obj -> obj.requareNonEmpty() }
+                            .map { obj -> obj.requireNonEmpty() }
                     }
             }
     }

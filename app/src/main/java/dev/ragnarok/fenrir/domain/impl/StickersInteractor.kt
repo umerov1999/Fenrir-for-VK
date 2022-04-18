@@ -4,8 +4,8 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VKApiSticker
 import dev.ragnarok.fenrir.api.model.VKApiStickerSet.Product
-import dev.ragnarok.fenrir.api.model.VkApiStickerSetsData
-import dev.ragnarok.fenrir.api.model.VkApiStickersKeywords
+import dev.ragnarok.fenrir.api.model.VKApiStickerSetsData
+import dev.ragnarok.fenrir.api.model.VKApiStickersKeywords
 import dev.ragnarok.fenrir.db.interfaces.IStickersStorage
 import dev.ragnarok.fenrir.db.model.entity.StickerSetEntity
 import dev.ragnarok.fenrir.db.model.entity.StickersKeywordsEntity
@@ -35,7 +35,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
         val stickerSet = networker.vkDefault(accountId)
             .store()
             .stickers
-            .flatMapCompletable { items: VkApiStickerSetsData? ->
+            .flatMapCompletable { items: VKApiStickerSetsData? ->
                 val list: MutableList<Product> = listEmptyIfNullMutable(items?.sticker_pack?.items)
                 if (Settings.get().ui().isStickers_by_new) {
                     list.reverse()
@@ -56,7 +56,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
                 networker.vkDefault(accountId)
                     .store()
                     .stickerKeywords
-                    .flatMapCompletable { hint: VkApiStickersKeywords ->
+                    .flatMapCompletable { hint: VKApiStickersKeywords ->
                         getStickersKeywordsAndStore(
                             accountId,
                             hint
@@ -88,7 +88,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
 
     private fun getStickersKeywordsAndStore(
         accountId: Int,
-        items: VkApiStickersKeywords
+        items: VKApiStickersKeywords
     ): Completable {
         val s: List<List<VKApiSticker>> = listEmptyIfNull(items.words_stickers)
         val w: List<List<String>> = listEmptyIfNull(items.keywords)

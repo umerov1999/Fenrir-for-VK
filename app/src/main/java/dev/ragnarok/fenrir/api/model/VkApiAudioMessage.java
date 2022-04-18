@@ -1,8 +1,10 @@
 package dev.ragnarok.fenrir.api.model;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
-public class VkApiAudioMessage implements VKApiAttachment {
+public class VKApiAudioMessage implements VKApiAttachment {
     @SerializedName("id")
     public int id;
 
@@ -27,6 +29,7 @@ public class VkApiAudioMessage implements VKApiAttachment {
     @SerializedName("transcript")
     public String transcript;
 
+    @NonNull
     @Override
     public String getType() {
         return TYPE_AUDIO_MESSAGE;

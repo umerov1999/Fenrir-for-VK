@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class VkApiConversation {
+public class VKApiConversation {
     @SerializedName("peer")
     public Peer peer;
 

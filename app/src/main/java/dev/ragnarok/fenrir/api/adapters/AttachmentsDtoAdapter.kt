@@ -2,22 +2,22 @@ package dev.ragnarok.fenrir.api.adapters
 
 import com.google.gson.*
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
 import java.lang.reflect.Type
 
-class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiAttachments> {
+class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAttachments> {
     @Throws(JsonParseException::class)
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
-    ): VkApiAttachments {
-        val dto = VkApiAttachments()
+    ): VKApiAttachments {
         if (!checkArray(json)) {
-            return dto
+            return VKApiAttachments()
         }
         val array = json.asJsonArray
-        dto.entries = ArrayList(array.size())
+        val dto = VKApiAttachments(array.size())
         for (i in 0 until array.size()) {
             if (!checkObject(array[i])) {
                 continue
@@ -30,8 +30,8 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiAttachments> {
                 e.printStackTrace()
                 continue
             }
-            if (attachment != null) {
-                dto.entries.add(VkApiAttachments.Entry(type, attachment))
+            if (attachment != null && type.nonNullNoEmpty()) {
+                dto.entries.add(VKApiAttachments.Entry(type, attachment))
             }
         }
         return dto
@@ -55,7 +55,7 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiAttachments> {
             } else if (VKApiAttachment.TYPE_AUDIO == type) {
                 context.deserialize(o, VKApiAudio::class.java)
             } else if (VKApiAttachment.TYPE_DOC == type) {
-                val doc: VkApiDoc = context.deserialize(o, VkApiDoc::class.java)
+                val doc: VKApiDoc = context.deserialize(o, VKApiDoc::class.java)
                 if ("lottie" == doc.ext) {
                     val sticker = VKApiSticker()
                     sticker.sticker_id = doc.id
@@ -65,13 +65,13 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiAttachments> {
                 doc
             } else if (VKApiAttachment.TYPE_POST == type || VKApiAttachment.TYPE_FAVE_POST == type) {
                 context.deserialize(o, VKApiPost::class.java)
-                //} else if (VkApiAttachments.TYPE_POSTED_PHOTO.equals(type)) {
+                //} else if (VKApiAttachments.TYPE_POSTED_PHOTO.equals(type)) {
                 //    return context.deserialize(o, VKApiPostedPhoto.class);
             } else if (VKApiAttachment.TYPE_LINK == type) {
                 context.deserialize(o, VKApiLink::class.java)
-                //} else if (VkApiAttachments.TYPE_NOTE.equals(type)) {
+                //} else if (VKApiAttachments.TYPE_NOTE.equals(type)) {
                 //    return context.deserialize(o, VKApiNote.class);
-                //} else if (VkApiAttachments.TYPE_APP.equals(type)) {
+                //} else if (VKApiAttachments.TYPE_APP.equals(type)) {
                 //    return context.deserialize(o, VKApiApplicationContent.class);
             } else if (VKApiAttachment.TYPE_ARTICLE == type) {
                 context.deserialize(o, VKApiArticle::class.java)
@@ -84,7 +84,7 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiAttachments> {
             } else if (VKApiAttachment.TYPE_STICKER == type) {
                 context.deserialize(o, VKApiSticker::class.java)
             } else if (VKApiAttachment.TYPE_AUDIO_MESSAGE == type) {
-                context.deserialize(o, VkApiAudioMessage::class.java)
+                context.deserialize(o, VKApiAudioMessage::class.java)
             } else if (VKApiAttachment.TYPE_GIFT == type) {
                 context.deserialize(o, VKApiGiftItem::class.java)
             } else if (VKApiAttachment.TYPE_GRAFFITI == type) {
@@ -98,13 +98,13 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiAttachments> {
             } else if (VKApiAttachment.TYPE_WALL_REPLY == type) {
                 context.deserialize(o, VKApiWallReply::class.java)
             } else if (VKApiAttachment.TYPE_EVENT == type) {
-                context.deserialize(o, VkApiEvent::class.java)
+                context.deserialize(o, VKApiEvent::class.java)
             } else if (VKApiAttachment.TYPE_MARKET_ALBUM == type) {
-                context.deserialize(o, VkApiMarketAlbum::class.java)
+                context.deserialize(o, VKApiMarketAlbum::class.java)
             } else if (VKApiAttachment.TYPE_ARTIST == type) {
                 context.deserialize(o, VKApiAudioArtist::class.java)
             } else if (VKApiAttachment.TYPE_MARKET == type || VKApiAttachment.TYPE_PRODUCT == type) {
-                context.deserialize(o, VkApiMarket::class.java)
+                context.deserialize(o, VKApiMarket::class.java)
             } else if (!Utils.isValueAssigned(
                     type,
                     VKApiAttachment.IGNORE_ATTACHMENTS

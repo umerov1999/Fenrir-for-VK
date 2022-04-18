@@ -5,6 +5,13 @@ plugins {
     id("kotlin-android")
 }
 
+fun make_sign_version(config: com.android.build.api.dsl.ApkSigningConfig) {
+    config.enableV1Signing = MakeConfig.appMinSDK < 24
+    config.enableV2Signing = MakeConfig.appMinSDK < 28
+    config.enableV3Signing = MakeConfig.appMinSDK >= 28
+    config.enableV4Signing = false
+}
+
 android {
     packagingOptions {
         resources.excludes.addAll(
@@ -14,7 +21,6 @@ android {
                 "META-INF/LICENSE",
                 "META-INF/NOTICE",
                 "META-INF/DEPENDENCIES",
-                "/okhttp3/**",
                 "META-INF/*.version"
             )
         )
@@ -158,14 +164,13 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxjava:${MakeConfig.rxJavaVersion}")
     implementation("io.reactivex.rxjava3:rxandroid:${MakeConfig.rxAndroidVersion}")
     implementation("com.google.firebase:firebase-database:20.0.4")
-    implementation("com.google.firebase:firebase-datatransport:18.1.1")
+    implementation("com.google.firebase:firebase-datatransport:18.1.2")
     fenrirFCM()
     kateOldFCM()
     //implementation(project("path" to ":libfenrir"))
     implementation(project("path" to ":picasso"))
     implementation(project("path" to ":image"))
     implementation(project("path" to ":material"))
-    implementation(project("path" to ":zxing-android-embedded"))
     implementation(project("path" to ":gson"))
     implementation(project("path" to ":preference"))
     implementation(project("path" to ":retrofit"))
@@ -185,5 +190,10 @@ dependencies {
     implementation("androidx.drawerlayout:drawerlayout:${MakeConfig.drawerlayoutVersion}")
     implementation("androidx.loader:loader:1.1.0")
     implementation("androidx.collection:collection-ktx:${MakeConfig.collectionVersion}")
+    implementation("androidx.camera:camera-core:${MakeConfig.cameraVersion}")
+    implementation("androidx.camera:camera-lifecycle:${MakeConfig.cameraVersion}")
+    implementation("androidx.camera:camera-view:${MakeConfig.cameraVersion}")
+    implementation("androidx.camera:camera-camera2:${MakeConfig.cameraVersion}")
+    implementation(if (MakeConfig.appMinSDK >= 26) "com.google.zxing:core:3.4.1" else "com.google.zxing:core:3.3.3")
 }
 apply(plugin = "com.google.gms.google-services")

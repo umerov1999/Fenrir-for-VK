@@ -1,12 +1,12 @@
 package dev.ragnarok.fenrir.domain.mappers
 
-import dev.ragnarok.fenrir.api.model.VkApiConversation
+import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
 
 object MapUtil {
-    fun calculateConversationAcl(conversation: VkApiConversation): Int {
+    fun calculateConversationAcl(conversation: VKApiConversation): Int {
         var result = 0
         if (conversation.settings != null && conversation.settings.acl != null) {
             val acl = conversation.settings.acl

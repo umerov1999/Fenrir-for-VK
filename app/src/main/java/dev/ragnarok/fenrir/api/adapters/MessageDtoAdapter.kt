@@ -4,9 +4,9 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
+import dev.ragnarok.fenrir.api.model.VKApiAttachments
+import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiMessage
-import dev.ragnarok.fenrir.api.model.VkApiAttachments
-import dev.ragnarok.fenrir.api.model.VkApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import java.lang.reflect.Type
 
@@ -39,7 +39,7 @@ class MessageDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiMessage> {
             dto.keyboard = context.deserialize(root["keyboard"], CurrentKeyboard::class.java)
         }
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VkApiAttachments::class.java)
+            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
         }
         if (hasArray(root, "fwd_messages")) {
             val fwdArray = root.getAsJsonArray("fwd_messages")

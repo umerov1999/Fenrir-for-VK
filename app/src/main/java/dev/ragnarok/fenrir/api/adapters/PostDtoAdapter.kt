@@ -81,7 +81,7 @@ class PostDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPost> {
             dto.views = optInt(views, "count")
         }
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VkApiAttachments::class.java)
+            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
         }
         if (hasObject(root, "geo")) {
             dto.geo = context.deserialize(root["geo"], VKApiPlace::class.java)
@@ -107,7 +107,7 @@ class PostDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPost> {
             dto.copy_history = ArrayList(0)
         }
         if (hasObject(root, "post_source")) {
-            dto.post_source = context.deserialize(root["post_source"], VkApiPostSource::class.java)
+            dto.post_source = context.deserialize(root["post_source"], VKApiPostSource::class.java)
         }
         return dto
     }

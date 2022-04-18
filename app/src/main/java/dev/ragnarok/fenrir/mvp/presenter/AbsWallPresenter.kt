@@ -16,7 +16,7 @@ import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfo
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
 import dev.ragnarok.fenrir.db.model.PostUpdate
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IWallsRepository
@@ -277,7 +277,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         )
     }
 
-    private fun fireEdit(context: Context, p: VkApiProfileInfo) {
+    private fun fireEdit(context: Context, p: VKApiProfileInfo) {
         val root = View.inflate(context, R.layout.entry_info, null)
         (root.findViewById<View>(R.id.edit_first_name) as TextInputEditText).setText(p.first_name)
         (root.findViewById<View>(R.id.edit_last_name) as TextInputEditText).setText(p.last_name)

@@ -129,9 +129,9 @@ class LogsFragment : BaseMvpFragment<LogsPresenter, ILogsView>(), ILogsView,
     override fun onCopyClick(wrapper: LogEventWrapper) {
         val event = wrapper.event
         val clipboard =
-            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText(event.tag, event.body)
-        clipboard.setPrimaryClip(clip)
+        clipboard?.setPrimaryClip(clip)
         CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
     }
 

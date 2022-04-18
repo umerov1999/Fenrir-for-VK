@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.VkApiProfileInfo
+import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse.ConversationsPush.ConversationPushItem
 import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.domain.IAccountsInteractor
@@ -79,7 +79,7 @@ class AccountsInteractor(
             .setOffline()
     }
 
-    override fun getProfileInfo(accountId: Int): Single<VkApiProfileInfo> {
+    override fun getProfileInfo(accountId: Int): Single<VKApiProfileInfo> {
         return networker.vkDefault(accountId)
             .account()
             .profileInfo

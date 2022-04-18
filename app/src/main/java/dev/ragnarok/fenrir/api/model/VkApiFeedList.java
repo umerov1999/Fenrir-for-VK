@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class VkApiFeedList {
+public class VKApiFeedList {
 
     @SerializedName("id")
     public int id;
@@ -16,7 +16,7 @@ public class VkApiFeedList {
     @SerializedName("source_ids")
     public int[] source_ids;
 
-    public VkApiFeedList() {
+    public VKApiFeedList() {
 
     }
 }

@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.api.model.VKApiLink
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.Link
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentPostsView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
@@ -33,10 +34,10 @@ class ChatAttachmentPostsPresenter(peerId: Int, accountId: Int, savedInstanceSta
             .getHistoryAttachments(peerId, VKApiAttachment.TYPE_POST, nextFrom, 1, 50, null)
             .map { response ->
                 val docs: MutableList<Link> = ArrayList(Utils.safeCountOf(response.items))
-                if (response.items != null) {
-                    for (one in response.items) {
-                        if (one?.entry != null && one.entry.attachment is VKApiLink) {
-                            val dto = one.entry.attachment as VKApiLink
+                response.items.nonNullNoEmpty {
+                    for (one in it) {
+                        if (one?.entry != null && one.entry?.attachment is VKApiLink) {
+                            val dto = one.entry?.attachment as VKApiLink
                             docs.add(
                                 Dto2Model.transform(dto).setMsgId(one.messageId)
                                     .setMsgPeerId(peerId)

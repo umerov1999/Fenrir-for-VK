@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentPhotosView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DisposableHolder
 import dev.ragnarok.fenrir.util.Pair
@@ -38,12 +39,15 @@ class ChatAttachmentPhotoPresenter(peerId: Int, accountId: Int, savedInstanceSta
             .getHistoryAttachments(peerId, "photo", nextFrom, 1, 50, null)
             .map { response ->
                 val photos: MutableList<Photo> = ArrayList()
-                for (one in response.items) {
-                    if (one?.entry != null && one.entry.attachment is VKApiPhoto) {
-                        val dto = one.entry.attachment as VKApiPhoto
-                        photos.add(
-                            Dto2Model.transform(dto).setMsgId(one.messageId).setMsgPeerId(peerId)
-                        )
+                response.items.nonNullNoEmpty {
+                    for (one in it) {
+                        if (one?.entry != null && one.entry?.attachment is VKApiPhoto) {
+                            val dto = one.entry?.attachment as VKApiPhoto
+                            photos.add(
+                                Dto2Model.transform(dto).setMsgId(one.messageId)
+                                    .setMsgPeerId(peerId)
+                            )
+                        }
                     }
                 }
                 create(response.next_from, photos)

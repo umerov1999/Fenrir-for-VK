@@ -163,10 +163,12 @@ open class Preference(key: String) : AbstractPreference(key) {
                 pref = Preference(key)
             }
         }
-        return pref.copyPreference(this)
+        pref.copyPreference(this)
+        pref.collapsed = false
+        return pref
     }
 
-    private fun copyPreference(other: Preference): Preference {
+    private fun copyPreference(other: Preference) {
         copyAbstract(other)
         enabled = other.enabled
         dependency = other.dependency
@@ -176,14 +178,15 @@ open class Preference(key: String) : AbstractPreference(key) {
         prefs = other.prefs
         persistent = other.persistent
         includeInCollapseSummary = other.includeInCollapseSummary
-        return this
     }
 
     // State
     var enabled = true
         set(value) {
-            field = value
-            requestRebind()
+            if (field != value) {
+                field = value
+                requestRebind()
+            }
         }
 
     var dependency: String? = null

@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.Items
-import dev.ragnarok.fenrir.api.model.VkApiFeedList
+import dev.ragnarok.fenrir.api.model.VKApiFeedList
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedResponse
@@ -47,7 +47,7 @@ interface INewsfeedService {
     fun getLists(
         @Field("list_ids") listIds: String?,
         @Field("extended") extended: Int?
-    ): Single<BaseResponse<Items<VkApiFeedList>>>
+    ): Single<BaseResponse<Items<VKApiFeedList>>>
 
     //https://vk.com/dev/newsfeed.saveList
     @FormUrlEncoded

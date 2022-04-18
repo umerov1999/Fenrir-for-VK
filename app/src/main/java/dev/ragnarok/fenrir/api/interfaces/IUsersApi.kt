@@ -6,7 +6,7 @@ import dev.ragnarok.fenrir.api.model.VKApiGift
 import dev.ragnarok.fenrir.api.model.VKApiStory
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.StoryResponse
-import dev.ragnarok.fenrir.api.model.server.VkApiStoryUploadServer
+import dev.ragnarok.fenrir.api.model.server.VKApiStoryUploadServer
 import io.reactivex.rxjava3.core.Single
 
 interface IUsersApi {
@@ -49,10 +49,10 @@ interface IUsersApi {
     ): Single<List<VKApiUser>>
 
     @CheckResult
-    fun stories_getPhotoUploadServer(): Single<VkApiStoryUploadServer>
+    fun stories_getPhotoUploadServer(): Single<VKApiStoryUploadServer>
 
     @CheckResult
-    fun stories_getVideoUploadServer(): Single<VkApiStoryUploadServer>
+    fun stories_getVideoUploadServer(): Single<VKApiStoryUploadServer>
 
     @CheckResult
     fun stories_save(upload_results: String?): Single<Items<VKApiStory>>

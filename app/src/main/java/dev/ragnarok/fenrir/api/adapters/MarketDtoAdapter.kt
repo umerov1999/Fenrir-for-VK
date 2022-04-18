@@ -4,20 +4,20 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.VkApiMarket
+import dev.ragnarok.fenrir.api.model.VKApiMarket
 import java.lang.reflect.Type
 
-class MarketDtoAdapter : AbsAdapter(), JsonDeserializer<VkApiMarket> {
+class MarketDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiMarket> {
     @Throws(JsonParseException::class)
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
-    ): VkApiMarket {
+    ): VKApiMarket {
         if (!checkObject(json)) {
             throw JsonParseException("$TAG error parse object")
         }
-        val dto = VkApiMarket()
+        val dto = VKApiMarket()
         val root = json.asJsonObject
         dto.id = optInt(root, "id")
         dto.owner_id = optInt(root, "owner_id")
