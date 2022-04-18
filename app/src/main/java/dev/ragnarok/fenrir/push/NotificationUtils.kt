@@ -20,7 +20,6 @@ import io.reactivex.rxjava3.core.Single
 import java.io.IOException
 
 object NotificationUtils {
-
     fun loadRoundedImageRx(
         context: Context,
         url: String?,
@@ -28,24 +27,6 @@ object NotificationUtils {
     ): Single<Bitmap> {
         val app = context.applicationContext
         return Single.fromCallable { loadRoundedImage(app, url, ifErrorOrEmpty) }
-    }
-
-    fun loadImageRx(url: String?): Single<Bitmap> {
-        return Single.fromCallable { loadImage(url) }
-    }
-
-    private fun loadImage(url: String?): Bitmap? {
-        return if (url.nonNullNoEmpty()) {
-            try {
-                with()
-                    .load(url)
-                    .get()
-            } catch (e: IOException) {
-                null
-            }
-        } else {
-            null
-        }
     }
 
     fun loadRoundedImage(

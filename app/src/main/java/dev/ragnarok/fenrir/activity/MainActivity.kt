@@ -133,7 +133,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         LinkHelper.openUrl(
                             this,
                             mAccountId,
-                            scanner
+                            scanner, false
                         )
                     }
                     .setNeutralButton(R.string.copy_text) { _: DialogInterface?, _: Int ->
@@ -508,7 +508,12 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                                     ) {
                                         val temp =
                                             clipBoard.primaryClip?.getItemAt(0)?.text.toString()
-                                        LinkHelper.openUrl(this@MainActivity, mAccountId, temp)
+                                        LinkHelper.openUrl(
+                                            this@MainActivity,
+                                            mAccountId,
+                                            temp,
+                                            false
+                                        )
                                     }
                                 } else if (option.id == R.id.action_preferences) {
                                     PlaceFactory.getPreferencesPlace(mAccountId)

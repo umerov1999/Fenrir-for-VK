@@ -68,7 +68,7 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
     }
 
     fun setData(
-        answers: MutableList<Poll.Answer>,
+        answers: MutableList<Poll.Answer>?,
         checkable: Boolean,
         multiple: Boolean,
         checkedIds: MutableSet<Int>

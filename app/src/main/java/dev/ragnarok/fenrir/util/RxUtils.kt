@@ -16,15 +16,6 @@ object RxUtils {
         return DUMMMY_ACTION_0
     }
 
-    @JvmStatic
-    fun <T : Any> ignoreJava(): Consumer<T> {
-        return Consumer { t: T ->
-            if (t is Throwable && Constants.IS_DEBUG) {
-                (t as Throwable).printStackTrace()
-            }
-        }
-    }
-
     inline fun <reified T : Any> ignore(): Consumer<T> {
         return Consumer { t: T ->
             if (t is Throwable && Constants.IS_DEBUG) {

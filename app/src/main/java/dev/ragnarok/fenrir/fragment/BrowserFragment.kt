@@ -18,13 +18,18 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
+import dev.ragnarok.fenrir.domain.IUtilsInteractor
+import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.link.LinkHelper.openLinkInBrowser
 import dev.ragnarok.fenrir.link.LinkHelper.openVKLink
 import dev.ragnarok.fenrir.link.VkLinkParser.parse
 import dev.ragnarok.fenrir.link.types.AwayLink
+import dev.ragnarok.fenrir.link.types.DomainLink
 import dev.ragnarok.fenrir.link.types.PageLink
 import dev.ragnarok.fenrir.listener.BackPressCallback
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Logger.d
 
@@ -33,6 +38,7 @@ class BrowserFragment : BaseFragment(), BackPressCallback {
     private var mAccountId = 0
     private var title: String? = null
     private var webState: Bundle? = null
+    private var mUtilsInteractor: IUtilsInteractor = InteractorFactory.createUtilsInteractor()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
@@ -146,7 +152,10 @@ class BrowserFragment : BaseFragment(), BackPressCallback {
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val url = request.url.toString()
-            if (url.contains("github.com") || url.contains("vk.com/@") || url.contains("vk.com/activation")) {
+            if (url.contains("github.com") || url.contains("vk.com/@") || url.contains("vk.com/activation") || url.contains(
+                    "vk.com/app"
+                )
+            ) {
                 view.loadUrl(url)
                 return true
             }
@@ -160,6 +169,26 @@ class BrowserFragment : BaseFragment(), BackPressCallback {
             }
             if (link is PageLink) {
                 view.loadUrl("$url?api_view=0df43cdc43a25550c6beb7357c9d41")
+                return true
+            }
+            if (link is DomainLink) {
+                appendDisposable(
+                    mUtilsInteractor.resolveDomain(mAccountId, link.domain)
+                        .fromIOToMain()
+                        .subscribe({ optionalOwner ->
+                            if (optionalOwner.isEmpty) {
+                                view.loadUrl(url)
+                            } else {
+                                optionalOwner.get()?.let {
+                                    PlaceFactory.getOwnerWallPlace(
+                                        mAccountId,
+                                        it
+                                    ).tryOpenWith(requireActivity())
+                                }
+                            }
+                        }) {
+                            view.loadUrl(url)
+                        })
                 return true
             }
             if (link is AwayLink) {

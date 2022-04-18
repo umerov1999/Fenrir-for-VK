@@ -24,7 +24,7 @@ class LinkSpan(
 ) : ClickableSpan() {
     override fun onClick(widget: View) {
         if (Settings.get().other().is_notification_force_link()) {
-            LinkHelper.openUrl(context as Activity, Settings.get().accounts().current, link)
+            LinkHelper.openUrl(context as Activity, Settings.get().accounts().current, link, false)
             return
         }
         val menus = ModalBottomSheetDialogFragment.Builder()
@@ -53,7 +53,7 @@ class LinkSpan(
                         LinkHelper.openUrl(
                             context as Activity,
                             Settings.get().accounts().current,
-                            link
+                            link, false
                         )
                     } else if (option.id == R.id.button_cancel) {
                         val clipboard =

@@ -49,6 +49,7 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
         resolveQuestionView()
         resolveVotesCountView()
         resolvePollTypeView()
+        resolveCreationTimeView()
         resolveVotesListView()
         resolvePhotoView()
     }
@@ -111,10 +112,8 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
         setLoadingNow(true)
         appendDisposable(pollInteractor.addVote(accountId, mPoll, voteIds)
             .fromIOToMain()
-            .subscribe({ poll -> onPollInfoUpdated(poll) }) { t ->
-                onLoadingError(
-                    t
-                )
+            .subscribe({ onPollInfoUpdated(it) }) {
+                onLoadingError(it)
             })
     }
 
@@ -148,7 +147,8 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
     }
 
     companion object {
-        private fun arrayToSet(ids: IntArray): MutableSet<Int> {
+        private fun arrayToSet(ids: IntArray?): MutableSet<Int> {
+            ids ?: return HashSet(0)
             val set: MutableSet<Int> = HashSet(ids.size)
             for (id in ids) {
                 set.add(id)

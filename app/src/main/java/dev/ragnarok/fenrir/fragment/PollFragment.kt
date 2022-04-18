@@ -53,7 +53,7 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
         mVotesCount = header.findViewById(R.id.votes_count)
         photo = root.findViewById(R.id.item_poll_image)
         mButton = root.findViewById(R.id.vote)
-        mButton?.setOnClickListener {
+        mButton?.onButtonClick {
             presenter?.fireButtonClick()
         }
         recyclerView.adapter = mAnswersAdapter
@@ -82,6 +82,10 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
     override fun displayCreationTime(unixtime: Long) {
         val actionBar = supportToolbarFor(this)
         if (actionBar != null) {
+            if (unixtime <= 0) {
+                actionBar.setSubtitle(R.string.unknown_error)
+                return
+            }
             val formattedDate = SimpleDateFormat("dd.MM.yyyy HH:mm", appLocale)
                 .format(Date(unixtime * 1000))
             actionBar.subtitle = formattedDate
@@ -93,7 +97,7 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
     }
 
     override fun displayVotesList(
-        answers: MutableList<Poll.Answer>,
+        answers: MutableList<Poll.Answer>?,
         canCheck: Boolean,
         multiply: Boolean,
         checked: MutableSet<Int>

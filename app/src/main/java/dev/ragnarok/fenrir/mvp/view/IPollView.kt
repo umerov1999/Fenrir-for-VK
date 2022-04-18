@@ -11,7 +11,7 @@ interface IPollView : IAccountDependencyView, IMvpView, IErrorView {
     fun displayCreationTime(unixtime: Long)
     fun displayVoteCount(count: Int)
     fun displayVotesList(
-        answers: MutableList<Poll.Answer>,
+        answers: MutableList<Poll.Answer>?,
         canCheck: Boolean,
         multiply: Boolean,
         checked: MutableSet<Int>

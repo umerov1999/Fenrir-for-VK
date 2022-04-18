@@ -322,7 +322,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
                         LinkHelper.openUrl(
                             requireActivity(),
                             Settings.get().accounts().current,
-                            URL
+                            URL, false
                         )
                     }
                 })

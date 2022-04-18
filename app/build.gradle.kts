@@ -5,7 +5,7 @@ plugins {
     id("kotlin-android")
 }
 
-fun make_sign_version(config: com.android.build.api.dsl.ApkSigningConfig) {
+fun selectAppSignVersion(config: com.android.build.api.dsl.ApkSigningConfig) {
     config.enableV1Signing = MakeConfig.appMinSDK < 24
     config.enableV2Signing = MakeConfig.appMinSDK < 28
     config.enableV3Signing = MakeConfig.appMinSDK >= 28

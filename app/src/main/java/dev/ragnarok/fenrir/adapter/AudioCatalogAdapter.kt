@@ -184,7 +184,7 @@ class AudioCatalogAdapter(
     }
 
     override fun onLinkClick(index: Int, doc: Link) {
-        LinkHelper.openUrl(mContext as Activity, Settings.get().accounts().current, doc.url)
+        LinkHelper.openUrl(mContext as Activity, Settings.get().accounts().current, doc.url, false)
     }
 
     interface ClickListener {

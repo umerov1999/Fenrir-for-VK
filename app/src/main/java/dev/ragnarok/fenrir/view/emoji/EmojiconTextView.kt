@@ -134,7 +134,12 @@ class EmojiconTextView @JvmOverloads constructor(context: Context, attrs: Attrib
             val url = spannable.toString().substring(m.start(), m.end())
             val urlSpan: ClickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
-                    LinkHelper.openUrl(context as Activity, Settings.get().accounts().current, url)
+                    LinkHelper.openUrl(
+                        context as Activity,
+                        Settings.get().accounts().current,
+                        url,
+                        false
+                    )
                 }
             }
             spannable.setSpan(urlSpan, m.start(), m.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

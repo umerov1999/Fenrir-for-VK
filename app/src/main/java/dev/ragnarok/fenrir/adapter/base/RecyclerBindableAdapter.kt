@@ -33,8 +33,12 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
         return position - headers.size
     }
 
-    fun setItems(items: MutableList<T>, notifyDatasetChanged: Boolean) {
-        this.items = items
+    fun setItems(items: MutableList<T>?, notifyDatasetChanged: Boolean) {
+        if (items == null) {
+            this.items = mutableListOf()
+        } else {
+            this.items = items
+        }
         if (notifyDatasetChanged) {
             notifyDataSetChanged()
         }

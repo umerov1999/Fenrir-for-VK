@@ -336,7 +336,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                     LinkHelper.openUrl(
                         requireActivity(),
                         presenter?.accountId ?: Settings.get().accounts().current,
-                        temp
+                        temp, false
                     )
                 }
                 return true

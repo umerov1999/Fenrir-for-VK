@@ -100,7 +100,6 @@
 
     <declare-styleable name="ProgressButton">
         <attr name="button_layout" format="reference" />
-        <attr name="button_color" format="integer" />
         <attr name="button_text" format="string" />
         <attr name="button_all_caps" format="boolean" />
     </declare-styleable>

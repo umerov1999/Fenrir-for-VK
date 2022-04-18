@@ -118,7 +118,7 @@ class LinksInCatalogFragment : BaseMvpFragment<LinksInCatalogPresenter, ILinksIn
     }
 
     override fun onLinkClick(index: Int, doc: Link) {
-        openUrl(requireActivity(), Settings.get().accounts().current, doc.url)
+        openUrl(requireActivity(), Settings.get().accounts().current, doc.url, false)
     }
 
     companion object {

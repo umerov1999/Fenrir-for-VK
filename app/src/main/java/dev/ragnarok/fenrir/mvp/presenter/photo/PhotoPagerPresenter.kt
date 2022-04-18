@@ -465,7 +465,7 @@ open class PhotoPagerPresenter internal constructor(
                             LinkHelper.openUrl(
                                 context,
                                 accountId,
-                                data
+                                data, false
                             )
                         }
                         .setNeutralButton(R.string.copy_text) { _: DialogInterface?, _: Int ->

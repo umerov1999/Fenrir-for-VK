@@ -33,6 +33,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getDocPreviewPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getExternalLinkPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
+import dev.ragnarok.fenrir.place.PlaceFactory.getPollPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getPostPreviewPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getResolveDomainPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSimpleGalleryPlace
@@ -51,9 +52,7 @@ import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import kotlin.math.abs
 
 object LinkHelper {
-
-    @JvmOverloads
-    fun openUrl(context: Activity, accountId: Int, link: String?, isMain: Boolean = false) {
+    fun openUrl(context: Activity, accountId: Int, link: String?, isMain: Boolean) {
         if (link == null || link.isEmpty()) {
             CreateCustomToast(context).showToastError(R.string.empty_clipboard_url)
             return
@@ -109,10 +108,15 @@ object LinkHelper {
             }
             AbsLink.POLL -> {
                 val pollLink = link as PollLink
-                openLinkInBrowser(
-                    activity,
-                    "https://vk.com/poll" + pollLink.ownerId + "_" + pollLink.Id
-                )
+                getPollPlace(accountId, Poll(pollLink.Id, pollLink.ownerId)).tryOpenWith(activity)
+            }
+            AbsLink.APP_LINK -> {
+                val appLink = link as AppLink
+                getExternalLinkPlace(accountId, appLink.url).tryOpenWith(activity)
+            }
+            AbsLink.ARTICLE_LINK -> {
+                val articleLink = link as ArticleLink
+                getExternalLinkPlace(accountId, articleLink.url).tryOpenWith(activity)
             }
             AbsLink.WALL_COMMENT_THREAD -> {
                 val wallCommentThreadLink = link as WallCommentThreadLink

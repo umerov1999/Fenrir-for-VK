@@ -52,9 +52,13 @@ object VkLinkParser {
     private val PATTERN_FEED_SEARCH = Pattern.compile("vk\\.com/feed\\?q=([^&]*)&section=search")
     private val PATTERN_FENRIR_TRACK = Pattern.compile("vk\\.com/audio/(-?\\d*)_(\\d*)") //+
     private val PATTERN_FENRIR_SERVER_TRACK_HASH = Pattern.compile("hash=([^&]*)")
+
+    private val PATTERN_APP =
+        Pattern.compile("vk\\.com/app(-?\\d*)")
+    private val PATTERN_ARTICLE =
+        Pattern.compile("vk\\.com/@([^&]*)")
     private val PARSERS: MutableList<IParser> = LinkedList()
 
-    @JvmStatic
     fun parse(string: String): AbsLink? {
         if (!string.contains("vk.com")) {
             return null
@@ -80,9 +84,6 @@ object VkLinkParser {
             return null
         }
         if (string.contains("vk.com/friends")) {
-            return null
-        }
-        if (Pattern.matches(".*vk.com/app\\d.*", string)) {
             return null
         }
         if (string.endsWith("vk.com/support")) {
@@ -223,6 +224,14 @@ object VkLinkParser {
             return vkLink
         }
         vkLink = parsePhotos(string)
+        if (vkLink != null) {
+            return vkLink
+        }
+        vkLink = parseApps(string)
+        if (vkLink != null) {
+            return vkLink
+        }
+        vkLink = parseArticles(string)
         if (vkLink != null) {
             return vkLink
         }
@@ -375,6 +384,28 @@ object VkLinkParser {
         try {
             if (matcher.find()) {
                 return matcher.group(1)?.let { PhotoAlbumsLink(it.toInt()) }
+            }
+        } catch (ignored: Exception) {
+        }
+        return null
+    }
+
+    private fun parseApps(string: String): AbsLink? {
+        val matcher = PATTERN_APP.matcher(string)
+        try {
+            if (matcher.find()) {
+                return matcher.group(1)?.let { AppLink(string, it.toInt()) }
+            }
+        } catch (ignored: Exception) {
+        }
+        return null
+    }
+
+    private fun parseArticles(string: String): AbsLink? {
+        val matcher = PATTERN_ARTICLE.matcher(string)
+        try {
+            if (matcher.find()) {
+                return matcher.group(1)?.let { ArticleLink(string, it) }
             }
         } catch (ignored: Exception) {
         }

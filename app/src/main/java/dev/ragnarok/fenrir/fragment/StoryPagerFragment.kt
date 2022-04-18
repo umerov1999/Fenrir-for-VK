@@ -264,7 +264,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                 LinkHelper.openUrl(
                     requireActivity(),
                     account_id,
-                    story.target_url
+                    story.target_url, false
                 )
             }
         }
