@@ -87,7 +87,7 @@
                         android:visibility="gone"
                         app:tint="?white_color" />
 
-                    <ImageView
+                    <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
                         android:id="@+id/item_blacklisted"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
@@ -95,10 +95,9 @@
                         android:layout_marginStart="4dp"
                         android:layout_marginBottom="4dp"
                         android:contentDescription="@null"
-                        android:padding="4dp"
-                        android:src="@drawable/audio_died"
                         android:visibility="gone"
-                        app:tint="#AAFF0000" />
+                        app:loopAnimation="true"
+                        tools:src="@drawable/audio_died" />
 
                     <dev.ragnarok.fenrir.view.OnlineView
                         android:id="@+id/header_navi_menu_online"
@@ -424,7 +423,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/header_user_profile_products_container"
+                android:id="@+id/header_user_profile_narratives_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -435,7 +434,7 @@
                 android:stateListAnimator="@animator/clicked">
 
                 <TextView
-                    android:id="@+id/fragment_user_profile_bproducts"
+                    android:id="@+id/fragment_user_profile_bnarratives"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/ProfileText" />
@@ -444,7 +443,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/counter_markets"
+                    android:text="@string/counter_narratives"
                     android:textAppearance="@style/ProfileSubText" />
 
             </LinearLayout>

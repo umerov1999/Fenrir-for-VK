@@ -31,7 +31,6 @@
     <attr name="toast_background" format="color" />
     <attr name="icon_color_active" format="color" />
     <attr name="icon_color_inactive" format="color" />
-    <attr name="white_color" format="color" />
     <attr name="toolbar_left_icon_color" format="color" />
 
     <attr name="fab_secondary" format="reference" />

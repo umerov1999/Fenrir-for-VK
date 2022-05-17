@@ -196,33 +196,33 @@
     </style>
 
     <style name="App.DayNight.Cold" parent="App.DayNight">
-        <item name="colorPrimary">#9BC4FC</item>
-        <item name="colorControlNormal">#9BC4FC</item>
-        <item name="colorSecondary">#D1B8FD</item>
+        <item name="colorPrimary">#A4C9FF</item>
+        <item name="colorControlNormal">#C4C6CF</item>
+        <item name="colorSecondary">#BCC7DB</item>
         <item name="icon_color_active">#AA448AFF</item>
         <item name="icon_color_inactive">#AAFF0000</item>
-        <item name="colorOnPrimary">#0D1B2D</item>
-        <item name="colorOnPrimaryContainer">#E5E9EE</item>
-        <item name="colorPrimaryContainer">#202F41</item>
-        <item name="colorPrimaryInverse">#38485A</item>
-        <item name="colorOnSecondary">#141316</item>
-        <item name="colorOnSecondaryContainer">#E9E7ED</item>
-        <item name="colorSecondaryContainer">#2D2C30</item>
+        <item name="colorOnPrimary">#00315F</item>
+        <item name="colorOnPrimaryContainer">#D3E3FF</item>
+        <item name="colorPrimaryContainer">#16477D</item>
+        <item name="colorPrimaryInverse">#346096</item>
+        <item name="colorOnSecondary">#263140</item>
+        <item name="colorOnSecondaryContainer">#D8E3F8</item>
+        <item name="colorSecondaryContainer">#3D4758</item>
     </style>
 
     <style name="App.DayNight.ColdGreen" parent="App.DayNight">
-        <item name="colorPrimary">#9BC4FC</item>
-        <item name="colorControlNormal">#9BC4FC</item>
-        <item name="colorSecondary">#A2E3A3</item>
+        <item name="colorPrimary">#BDCF76</item>
+        <item name="colorControlNormal">#C7C7B8</item>
+        <item name="colorSecondary">#C4CAA8</item>
         <item name="icon_color_active">#AA448AFF</item>
         <item name="icon_color_inactive">#AAFF0000</item>
-        <item name="colorOnPrimary">#0D1B2D</item>
-        <item name="colorOnPrimaryContainer">#E5E9EE</item>
-        <item name="colorPrimaryContainer">#202F41</item>
-        <item name="colorPrimaryInverse">#38485A</item>
-        <item name="colorOnSecondary">#131613</item>
-        <item name="colorOnSecondaryContainer">#E7EDE7</item>
-        <item name="colorSecondaryContainer">#2C302D</item>
+        <item name="colorOnPrimary">#293500</item>
+        <item name="colorOnPrimaryContainer">#D9EB90</item>
+        <item name="colorPrimaryContainer">#3F4C00</item>
+        <item name="colorPrimaryInverse">#556518</item>
+        <item name="colorOnSecondary">#2E331B</item>
+        <item name="colorOnSecondaryContainer">#E1E6C3</item>
+        <item name="colorSecondaryContainer">#444930</item>
     </style>
 
     <style name="App.DayNight.ColdGold" parent="App.DayNight">

@@ -20,6 +20,7 @@ import com.google.android.material.R;
 
 import static com.google.android.material.textfield.IconHelper.applyIconTint;
 import static com.google.android.material.textfield.IconHelper.refreshIconDrawableState;
+import static com.google.android.material.textfield.IconHelper.setCompatRippleBackgroundIfNeeded;
 import static com.google.android.material.textfield.IconHelper.setIconOnClickListener;
 import static com.google.android.material.textfield.IconHelper.setIconOnLongClickListener;
 import static com.google.android.material.textfield.TextInputLayout.END_ICON_CLEAR_TEXT;
@@ -177,6 +178,7 @@ class EndCompoundLayout extends LinearLayout {
         (CheckableImageButton) inflater.inflate(
             R.layout.design_text_input_end_icon, root, false);
     iconView.setId(id);
+    setCompatRippleBackgroundIfNeeded(iconView);
     if (MaterialResources.isFontScaleAtLeast1_3(getContext())) {
       ViewGroup.MarginLayoutParams lp =
           (ViewGroup.MarginLayoutParams) iconView.getLayoutParams();
@@ -322,13 +324,17 @@ class EndCompoundLayout extends LinearLayout {
     if (this.endIconMode == endIconMode) {
       return;
     }
+    getEndIconDelegate().tearDown();
     int previousEndIconMode = this.endIconMode;
     this.endIconMode = endIconMode;
     dispatchOnEndIconChanged(previousEndIconMode);
     setEndIconVisible(endIconMode != END_ICON_NONE);
     EndIconDelegate delegate = getEndIconDelegate();
+    setEndIconDrawable(getIconResId(delegate));
+    setEndIconContentDescription(delegate.getIconContentDescriptionResId());
+    setEndIconCheckable(delegate.isIconCheckable());
     if (delegate.isBoxBackgroundModeSupported(textInputLayout.getBoxBackgroundMode())) {
-      delegate.initialize();
+      delegate.setUp();
     } else {
       throw new IllegalStateException(
           "The current box background mode "
@@ -342,6 +348,34 @@ class EndCompoundLayout extends LinearLayout {
       setOnFocusChangeListenersIfNeeded(delegate);
     }
     applyIconTint(textInputLayout, endIconView, endIconTintList, endIconTintMode);
+    refreshIconState(/* force= */ true);
+  }
+
+  void refreshIconState(boolean force) {
+    boolean stateChanged = false;
+    EndIconDelegate delegate = getEndIconDelegate();
+    if (delegate.isIconCheckable()) {
+      boolean wasChecked = endIconView.isChecked();
+      if (wasChecked != delegate.isIconChecked()) {
+        endIconView.setChecked(!wasChecked);
+        stateChanged = true;
+      }
+    }
+    if (delegate.isIconActivable()) {
+      boolean wasActivated = endIconView.isActivated();
+      if (wasActivated != delegate.isIconActivated()) {
+        setEndIconActivated(!wasActivated);
+        stateChanged = true;
+      }
+    }
+    if (force || stateChanged) {
+      refreshEndIconDrawableState();
+    }
+  }
+
+  private int getIconResId(EndIconDelegate delegate) {
+    int customIconResId = endIconDelegates.customEndIconDrawableId;
+    return customIconResId == 0 ? delegate.getIconDrawableResId() : customIconResId;
   }
 
   void setEndIconOnClickListener(@Nullable OnClickListener endIconOnClickListener) {
@@ -675,12 +709,12 @@ class EndCompoundLayout extends LinearLayout {
     private final SparseArray<EndIconDelegate> delegates = new SparseArray<>();
 
     private final EndCompoundLayout endLayout;
-    private final int endIconDrawableId;
+    private final int customEndIconDrawableId;
     private final int passwordIconDrawableId;
 
     EndIconDelegates(EndCompoundLayout endLayout, TintTypedArray a) {
       this.endLayout = endLayout;
-      endIconDrawableId = a.getResourceId(R.styleable.TextInputLayout_endIconDrawable, 0);
+      customEndIconDrawableId = a.getResourceId(R.styleable.TextInputLayout_endIconDrawable, 0);
       passwordIconDrawableId =
           a.getResourceId(R.styleable.TextInputLayout_passwordToggleDrawable, 0);
     }
@@ -697,14 +731,13 @@ class EndCompoundLayout extends LinearLayout {
     private EndIconDelegate create(@EndIconMode int endIconMode) {
       switch (endIconMode) {
         case END_ICON_PASSWORD_TOGGLE:
-          return new PasswordToggleEndIconDelegate(
-              endLayout, endIconDrawableId == 0 ? passwordIconDrawableId : endIconDrawableId);
+          return new PasswordToggleEndIconDelegate(endLayout, passwordIconDrawableId);
         case END_ICON_CLEAR_TEXT:
-          return new ClearTextEndIconDelegate(endLayout, endIconDrawableId);
+          return new ClearTextEndIconDelegate(endLayout);
         case END_ICON_DROPDOWN_MENU:
-          return new DropdownMenuEndIconDelegate(endLayout, endIconDrawableId);
+          return new DropdownMenuEndIconDelegate(endLayout);
         case END_ICON_CUSTOM:
-          return new CustomEndIconDelegate(endLayout, endIconDrawableId);
+          return new CustomEndIconDelegate(endLayout);
         case END_ICON_NONE:
           return new NoEndIconDelegate(endLayout);
         default:

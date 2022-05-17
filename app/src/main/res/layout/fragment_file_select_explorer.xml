@@ -35,7 +35,7 @@
                 android:id="@+id/current_path"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?icon_color_active"
+                android:background="?colorControlNormal"
                 android:gravity="center"
                 android:padding="8dp"
                 android:paddingStart="12dp"

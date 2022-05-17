@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import okhttp3.ResponseBody;
 
@@ -55,6 +56,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
         boolean isKotlinSuspendFunction = requestFactory.isKotlinSuspendFunction;
         boolean continuationWantsResponse = false;
         boolean continuationBodyNullable = false;
+        boolean continuationIsUnit = false;
 
         Annotation[] annotations = method.getAnnotations();
         Type adapterType;
@@ -67,11 +69,13 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
                 // Unwrap the actual body type from Response<T>.
                 responseType = Utils.getParameterUpperBound(0, (ParameterizedType) responseType);
                 continuationWantsResponse = true;
-            }  // TODO figure out if type is nullable or not
-            // Metadata metadata = method.getDeclaringClass().getAnnotation(Metadata.class)
-            // Find the entry for method
-            // Determine if return type is nullable or not
-
+            } else {
+                continuationIsUnit = Utils.isUnit(responseType);
+                // TODO figure out if type is nullable or not
+                // Metadata metadata = method.getDeclaringClass().getAnnotation(Metadata.class)
+                // Find the entry for method
+                // Determine if return type is nullable or not
+            }
 
             adapterType = new Utils.ParameterizedTypeImpl(null, Call.class, responseType);
             annotations = SkipCallbackExecutorImpl.ensurePresent(annotations);
@@ -93,8 +97,10 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
             throw methodError(method, "Response must include generic type (e.g., Response<String>)");
         }
         // TODO support Unit for Kotlin?
-        if (requestFactory.httpMethod.equals("HEAD") && !Void.class.equals(responseType)) {
-            throw methodError(method, "HEAD method must use Void as response type.");
+        if (requestFactory.httpMethod.equals("HEAD")
+                && !Void.class.equals(responseType)
+                && !Utils.isUnit(responseType)) {
+            throw methodError(method, "HEAD method must use Void or Unit as response type.");
         }
 
         Converter<ResponseBody, ResponseT> responseConverter =
@@ -119,7 +125,8 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
                             callFactory,
                             responseConverter,
                             (CallAdapter<ResponseT, Call<ResponseT>>) callAdapter,
-                            continuationBodyNullable);
+                            continuationBodyNullable,
+                            continuationIsUnit);
         }
     }
 
@@ -203,16 +210,19 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
     static final class SuspendForBody<ResponseT> extends HttpServiceMethod<ResponseT, Object> {
         private final CallAdapter<ResponseT, Call<ResponseT>> callAdapter;
         private final boolean isNullable;
+        private final boolean isUnit;
 
         SuspendForBody(
                 RequestFactory requestFactory,
                 okhttp3.Call.Factory callFactory,
                 Converter<ResponseBody, ResponseT> responseConverter,
                 CallAdapter<ResponseT, Call<ResponseT>> callAdapter,
-                boolean isNullable) {
+                boolean isNullable,
+                boolean isUnit) {
             super(requestFactory, callFactory, responseConverter);
             this.callAdapter = callAdapter;
             this.isNullable = isNullable;
+            this.isUnit = isUnit;
         }
 
         @Override
@@ -231,9 +241,14 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
             // force suspension to occur so that it can be instead delivered to the continuation to
             // bypass this restriction.
             try {
-                return isNullable
-                        ? KotlinExtensions.awaitNullable(call, continuation)
-                        : KotlinExtensions.await(call, continuation);
+                if (isUnit) {
+                    //noinspection unchecked Checked by isUnit
+                    return KotlinExtensions.awaitUnit((Call<Unit>) call, (Continuation<Unit>) continuation);
+                } else if (isNullable) {
+                    return KotlinExtensions.awaitNullable(call, continuation);
+                } else {
+                    return KotlinExtensions.await(call, continuation);
+                }
             } catch (Exception e) {
                 return KotlinExtensions.suspendAndThrow(e, continuation);
             }

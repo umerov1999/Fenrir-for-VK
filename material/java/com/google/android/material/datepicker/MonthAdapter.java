@@ -17,12 +17,8 @@ package com.google.android.material.datepicker;
 
 import com.google.android.material.R;
 
-import static java.lang.Math.max;
-
 import android.content.Context;
-import android.graphics.Rect;
 import android.view.LayoutInflater;
-import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -52,8 +48,6 @@ class MonthAdapter extends BaseAdapter {
           + UtcDates.getUtcCalendar().getMaximum(Calendar.DAY_OF_WEEK)
           - 1;
 
-  private static final int MIN_TOUCH_TARGET_SIZE_DP = 48;
-
   final Month month;
   /**
    * The {@link DateSelector} dictating the draw behavior of {@link #getView(int, View, ViewGroup)}.
@@ -81,7 +75,8 @@ class MonthAdapter extends BaseAdapter {
    * Returns a {@link Long} object for the given grid position
    *
    * @param position Index for the item. 0 matches the {@link Calendar#getFirstDayOfWeek()} for the
-   *     first week of the month represented by {@link Month}.
+   *     first week of the month represented by {@link Month} or {@link
+   *     CalendarConstraints#getFirstDayOfWeek()} if set.
    * @return A {@link Long} representing the day at the position or null if the position does not
    *     represent a valid day in the month.
    */
@@ -113,13 +108,13 @@ class MonthAdapter extends BaseAdapter {
 
   @NonNull
   @Override
-  public TextView getView(
-      int position, @Nullable View convertView, @NonNull final ViewGroup parent) {
+  public TextView getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
     initializeStyles(parent.getContext());
-    final TextView day = convertView == null
-        ? (TextView) LayoutInflater.from(parent.getContext()).inflate(
-            R.layout.mtrl_calendar_day, parent, false)
-        : (TextView) convertView;
+    TextView day = (TextView) convertView;
+    if (convertView == null) {
+      LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+      day = (TextView) layoutInflater.inflate(R.layout.mtrl_calendar_day, parent, false);
+    }
     int offsetPosition = position - firstPositionInMonth();
     if (offsetPosition < 0 || offsetPosition >= month.daysInMonth) {
       day.setVisibility(View.GONE);
@@ -145,22 +140,6 @@ class MonthAdapter extends BaseAdapter {
       return day;
     }
     updateSelectedState(day, date);
-    parent.post(new Runnable() {
-      @Override
-      public void run() {
-        final Rect delegateArea = new Rect();
-        day.getHitRect(delegateArea);
-
-        int dayTouchTargetDeltaVertical = max(0, MIN_TOUCH_TARGET_SIZE_DP - day.getHeight());
-        int dayTouchTargetDeltaHorizontal = max(0, MIN_TOUCH_TARGET_SIZE_DP - day.getWidth());
-
-        delegateArea.top -= dayTouchTargetDeltaVertical;
-        delegateArea.right += dayTouchTargetDeltaHorizontal;
-        delegateArea.bottom += dayTouchTargetDeltaVertical;
-        delegateArea.left -= dayTouchTargetDeltaHorizontal;
-        parent.setTouchDelegate(new TouchDelegate(delegateArea, day));
-      }
-    });
     return day;
   }
 
@@ -236,7 +215,7 @@ class MonthAdapter extends BaseAdapter {
    * be greater than 0.
    */
   int firstPositionInMonth() {
-    return month.daysFromStartOfWeekToFirstOfMonth();
+    return month.daysFromStartOfWeekToFirstOfMonth(calendarConstraints.getFirstDayOfWeek());
   }
 
   /**

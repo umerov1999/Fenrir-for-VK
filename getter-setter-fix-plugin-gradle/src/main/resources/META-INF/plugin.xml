@@ -1,0 +1,20 @@
+<idea-plugin>
+    <id>dev.ragnarok.intellij.getter_setter_plugin</id>
+    <name>Getter Setter Kotlin Fixer</name>
+    <vendor email="fenrir.logs@list.ru" url="https://github.com/umerov1999">Umerov Artem</vendor>
+
+    <description><![CDATA[
+    Fix Kotlin Getter And Setter
+    ]]></description>
+    <depends>com.intellij.modules.platform</depends>
+    <extensions defaultExtensionNs="com.intellij" />
+
+    <actions>
+        <action class="dev.ragnarok.intellij.getter_setter_plugin.GetterSetterFixAction"
+            description="Fix getter and setter" id="GetterSetterFix.Search.Editor"
+            text="Fix getter and setter">
+            <add-to-group anchor="last" group-id="EditorPopupMenu" />
+            <keyboard-shortcut first-keystroke="ctrl t" keymap="$default" />
+        </action>
+    </actions>
+</idea-plugin>

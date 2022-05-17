@@ -354,7 +354,8 @@
     <item name="placeholderTextAppearance">?attr/textAppearanceBodyLarge</item>
     <item name="prefixTextAppearance">?attr/textAppearanceTitleMedium</item>
     <item name="suffixTextAppearance">?attr/textAppearanceTitleMedium</item>
-    <item name="shapeAppearanceOverlay">?attr/shapeAppearanceSmallComponent</item>
+    <item name="shapeAppearance">?attr/shapeAppearanceCornerExtraSmall</item>
+    <item name="shapeAppearanceOverlay">@null</item>
   </style>
 
   <!-- Style for a dense M3 Outlined text field. -->
@@ -402,7 +403,8 @@
     <item name="placeholderTextAppearance">?attr/textAppearanceBodyLarge</item>
     <item name="prefixTextAppearance">?attr/textAppearanceTitleMedium</item>
     <item name="suffixTextAppearance">?attr/textAppearanceTitleMedium</item>
-    <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Material3.TextField.Filled</item>
+    <item name="shapeAppearance">?attr/shapeAppearanceCornerExtraSmall</item>
+    <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Material3.Corner.Top</item>
   </style>
 
   <style name="Widget.Material3.TextInputLayout.FilledBox.Dense">
@@ -445,24 +447,32 @@
   <!-- Styles for the M3 AutoCompleteTextView. -->
   <style name="Widget.Material3.AutoCompleteTextView.OutlinedBox" parent="Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox">
     <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    <item name="simpleItemSelectedColor">?attr/colorSurfaceVariant</item>
+    <item name="simpleItemSelectedRippleColor">@color/m3_simple_item_ripple_color</item>
     <item name="simpleItemLayout">@layout/m3_auto_complete_simple_item</item>
     <item name="android:popupElevation" tools:ignore="NewApi">@dimen/m3_exposed_dropdown_menu_popup_elevation</item>
   </style>
 
   <style name="Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense" parent="Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense">
     <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    <item name="simpleItemSelectedColor">?attr/colorSurfaceVariant</item>
+    <item name="simpleItemSelectedRippleColor">@color/m3_simple_item_ripple_color</item>
     <item name="simpleItemLayout">@layout/m3_auto_complete_simple_item</item>
     <item name="android:popupElevation" tools:ignore="NewApi">@dimen/m3_exposed_dropdown_menu_popup_elevation</item>
   </style>
 
   <style name="Widget.Material3.AutoCompleteTextView.FilledBox" parent="Widget.MaterialComponents.AutoCompleteTextView.FilledBox">
     <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    <item name="simpleItemSelectedColor">?attr/colorSurfaceVariant</item>
+    <item name="simpleItemSelectedRippleColor">@color/m3_simple_item_ripple_color</item>
     <item name="simpleItemLayout">@layout/m3_auto_complete_simple_item</item>
     <item name="android:popupElevation" tools:ignore="NewApi">@dimen/m3_exposed_dropdown_menu_popup_elevation</item>
   </style>
 
   <style name="Widget.Material3.AutoCompleteTextView.FilledBox.Dense" parent="Widget.MaterialComponents.AutoCompleteTextView.FilledBox.Dense">
     <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    <item name="simpleItemSelectedColor">?attr/colorSurfaceVariant</item>
+    <item name="simpleItemSelectedRippleColor">@color/m3_simple_item_ripple_color</item>
     <item name="simpleItemLayout">@layout/m3_auto_complete_simple_item</item>
     <item name="android:popupElevation" tools:ignore="NewApi">@dimen/m3_exposed_dropdown_menu_popup_elevation</item>
   </style>
@@ -516,10 +526,5 @@
 
   <style name="ThemeOverlay.Material3.AutoCompleteTextView.OutlinedBox.Dense">
     <item name="autoCompleteTextViewStyle">@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense</item>
-  </style>
-
-  <style name="ShapeAppearanceOverlay.Material3.TextField.Filled" parent="ShapeAppearance.Material3.SmallComponent">
-    <item name="cornerSizeBottomLeft">0dp</item>
-    <item name="cornerSizeBottomRight">0dp</item>
   </style>
 </resources>

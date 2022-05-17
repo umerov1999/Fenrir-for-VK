@@ -203,8 +203,18 @@ public final class JsonTreeReader extends JsonReader {
 
     @Override
     public boolean nextBoolean() throws IOException {
-        expect(JsonToken.BOOLEAN);
-        boolean result = ((JsonPrimitive) popStack()).getAsBoolean();
+        JsonToken token = peek();
+        if (token != JsonToken.BOOLEAN && token != JsonToken.NUMBER) {
+            throw new IllegalStateException(
+                    "Expected " + JsonToken.BOOLEAN + " but was " + token + locationString());
+        }
+        JsonPrimitive placed = (JsonPrimitive) popStack();
+        boolean result;
+        if (placed.isNumber()) {
+            result = placed.getAsInt() != 0;
+        } else {
+            result = placed.getAsBoolean();
+        }
         if (stackSize > 0) {
             pathIndices[stackSize - 1]++;
         }

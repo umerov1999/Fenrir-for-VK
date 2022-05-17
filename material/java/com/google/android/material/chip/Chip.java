@@ -165,8 +165,6 @@ public class Chip extends AppCompatCheckBox
 
   @Nullable private CharSequence accessibilityClassName;
   private static final String BUTTON_ACCESSIBILITY_CLASS_NAME = "android.widget.Button";
-  private static final String COMPOUND_BUTTON_ACCESSIBILITY_CLASS_NAME =
-      "android.widget.CompoundButton";
   private static final String RADIO_BUTTON_ACCESSIBILITY_CLASS_NAME =
       "android.widget.RadioButton";
   private static final String GENERIC_VIEW_ACCESSIBILITY_CLASS_NAME = "android.view.View";
@@ -294,7 +292,7 @@ public class Chip extends AppCompatCheckBox
   }
 
   // TODO(b/80452017): Due to a11y bug, avoid setting custom ExploreByTouchHelper as delegate
-  // unless there's a close/trailing icon. Re-evaulate this once bug is fixed.
+  // unless there's a close/trailing icon. Re-evaluate this once bug is fixed.
   private void updateAccessibilityDelegate() {
     if (hasCloseIcon() && isCloseIconVisible() && onCloseIconClickListener != null) {
       ViewCompat.setAccessibilityDelegate(this, touchHelper);
@@ -1102,7 +1100,7 @@ public class Chip extends AppCompatCheckBox
   /**
    * Sets this chip's minimum height using a resource id.
    *
-   * @param id The resource id of this chip's mininum height.
+   * @param id The resource id of this chip's minimum height.
    * @attr ref com.google.android.material.R.styleable#Chip_chipMinHeight
    */
   public void setChipMinHeightResource(@DimenRes int id) {
@@ -2335,7 +2333,7 @@ public class Chip extends AppCompatCheckBox
       if (parent instanceof ChipGroup && ((ChipGroup) parent).isSingleSelection()) {
         return RADIO_BUTTON_ACCESSIBILITY_CLASS_NAME;
       } else {
-        return COMPOUND_BUTTON_ACCESSIBILITY_CLASS_NAME;
+        return BUTTON_ACCESSIBILITY_CLASS_NAME;
       }
     } else if (isClickable()) {
       return BUTTON_ACCESSIBILITY_CLASS_NAME;

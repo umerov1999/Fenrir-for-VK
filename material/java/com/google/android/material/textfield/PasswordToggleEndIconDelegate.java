@@ -20,72 +20,83 @@ import com.google.android.material.R;
 
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
-import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputLayout.OnEndIconChangedListener;
+import androidx.annotation.StringRes;
 
 /** Default initialization of the password toggle end icon. */
 class PasswordToggleEndIconDelegate extends EndIconDelegate {
+  private int iconResId = R.drawable.design_password_eye;
 
-  private final OnEndIconChangedListener onEndIconChangedListener =
-      new OnEndIconChangedListener() {
-        @Override
-        public void onEndIconChanged(@NonNull TextInputLayout textInputLayout, int previousIcon) {
-          final EditText editText = textInputLayout.getEditText();
-          if (editText != null && previousIcon == TextInputLayout.END_ICON_PASSWORD_TOGGLE) {
-            // If the end icon was the password toggle add it back the PasswordTransformation
-            // in case it might have been removed to make the password visible.
-            editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-          }
-        }
-      };
+  @Nullable
+  private EditText editText;
 
-  private final OnClickListener onIconClickListener = new OnClickListener() {
-    @Override
-    public void onClick(View v) {
-      EditText editText = textInputLayout.getEditText();
-      if (editText == null) {
-        return;
-      }
-      // Store the current cursor position
-      final int selection = editText.getSelectionEnd();
-      if (hasPasswordTransformation()) {
-        editText.setTransformationMethod(null);
-      } else {
-        editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-      }
-      // And restore the cursor position
-      if (selection >= 0) {
-        editText.setSelection(selection);
-      }
-
-      endLayout.refreshEndIconDrawableState();
+  private final OnClickListener onIconClickListener = view -> {
+    if (editText == null) {
+      return;
     }
+    // Store the current cursor position
+    final int selection = editText.getSelectionEnd();
+    if (hasPasswordTransformation()) {
+      editText.setTransformationMethod(null);
+    } else {
+      editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+    }
+    // And restore the cursor position
+    if (selection >= 0) {
+      editText.setSelection(selection);
+    }
+    refreshIconState();
   };
 
   PasswordToggleEndIconDelegate(
-      @NonNull EndCompoundLayout endLayout, @DrawableRes int customEndIcon) {
-    super(endLayout, customEndIcon);
+      @NonNull EndCompoundLayout endLayout, @DrawableRes int overrideIconResId) {
+    super(endLayout);
+    if (overrideIconResId != 0) {
+      iconResId = overrideIconResId;
+    }
   }
 
   @Override
-  void initialize() {
-    endLayout.setEndIconDrawable(
-        customEndIcon == 0 ? R.drawable.design_password_eye : customEndIcon);
-    endLayout.setEndIconContentDescription(
-        endLayout.getResources().getText(R.string.password_toggle_content_description));
-    endLayout.setEndIconVisible(true);
-    endLayout.setEndIconCheckable(true);
-    endLayout.addOnEndIconChangedListener(onEndIconChangedListener);
-    EditText editText = textInputLayout.getEditText();
+  void setUp() {
     if (isInputTypePassword(editText)) {
       // By default set the input to be disguised.
       editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
     }
+  }
+
+  @Override
+  void tearDown() {
+    if (editText != null) {
+      // Add PasswordTransformation back since it may have been removed to make passwords visible.
+      editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+    }
+  }
+
+  @Override
+  @DrawableRes
+  int getIconDrawableResId() {
+    return iconResId;
+  }
+
+  @Override
+  @StringRes
+  int getIconContentDescriptionResId() {
+    return R.string.password_toggle_content_description;
+  }
+
+  @Override
+  boolean isIconCheckable() {
+    return true;
+  }
+
+  @Override
+  boolean isIconChecked() {
+    // Make sure the password toggle state always matches the EditText's transformation method.
+    return !hasPasswordTransformation();
   }
 
   @Override
@@ -95,18 +106,16 @@ class PasswordToggleEndIconDelegate extends EndIconDelegate {
 
   @Override
   void onEditTextAttached(@Nullable EditText editText) {
-    endIconView.setChecked(!hasPasswordTransformation());
+    this.editText = editText;
+    refreshIconState();
   }
 
   @Override
   void beforeEditTextChanged(CharSequence s, int start, int count, int after) {
-    // Make sure the password toggle state always matches the EditText's transformation
-    // method.
-    endIconView.setChecked(!hasPasswordTransformation());
+    refreshIconState();
   }
 
   private boolean hasPasswordTransformation() {
-    EditText editText = textInputLayout.getEditText();
     return editText != null
         && editText.getTransformationMethod() instanceof PasswordTransformationMethod;
   }

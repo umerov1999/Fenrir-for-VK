@@ -30,6 +30,7 @@ val srcDirs = arrayOf(
     "com/google/android/material/floatingactionbutton",
     "com/google/android/material/imageview",
     "com/google/android/material/internal",
+    "com/google/android/material/materialswitch",
     "com/google/android/material/math",
     "com/google/android/material/lists",
     "com/google/android/material/menu",
@@ -78,8 +79,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
         aaptOptions.additionalParameters.add("--no-version-vectors")
         encoding = "utf-8"
     }

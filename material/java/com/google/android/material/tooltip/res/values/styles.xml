@@ -44,8 +44,5 @@
     <item name="shapeAppearance">@style/ShapeAppearance.Material3.Tooltip</item>
   </style>
 
-  <style name="ShapeAppearance.Material3.Tooltip" parent="ShapeAppearance.MaterialComponents.Tooltip">
-    <item name="cornerSize">50%</item>
-  </style>
-
+  <style name="ShapeAppearance.Material3.Tooltip" parent="ShapeAppearance.Material3.Corner.Full" />
 </resources>

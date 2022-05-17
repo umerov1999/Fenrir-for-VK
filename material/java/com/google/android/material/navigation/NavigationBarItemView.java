@@ -205,7 +205,7 @@ public abstract class NavigationBarItemView extends FrameLayout implements MenuV
             ? itemData.getTooltipText()
             : itemData.getTitle();
 
-    // Avoid calling tooltip for L and M devices because long pressing twuice may freeze devices.
+    // Avoid calling tooltip for L and M devices because long pressing twice may freeze devices.
     if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP || VERSION.SDK_INT > VERSION_CODES.M) {
       TooltipCompat.setTooltipText(this, tooltipText);
     }
@@ -281,7 +281,7 @@ public abstract class NavigationBarItemView extends FrameLayout implements MenuV
         itemData == null || TextUtils.isEmpty(itemData.getTooltipText())
             ? title
             : itemData.getTooltipText();
-    // Avoid calling tooltip for L and M devices because long pressing twuice may freeze devices.
+    // Avoid calling tooltip for L and M devices because long pressing twice may freeze devices.
     if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP || VERSION.SDK_INT > VERSION_CODES.M) {
       TooltipCompat.setTooltipText(this, tooltipText);
     }
@@ -360,12 +360,12 @@ public abstract class NavigationBarItemView extends FrameLayout implements MenuV
     activeIndicatorAnimator.setInterpolator(
         MotionUtils.resolveThemeInterpolator(
             getContext(),
-            R.attr.motionEasingStandard,
+            R.attr.motionEasingEmphasizedInterpolator,
             AnimationUtils.FAST_OUT_SLOW_IN_INTERPOLATOR));
     activeIndicatorAnimator.setDuration(
         MotionUtils.resolveThemeDuration(
             getContext(),
-            R.attr.motionDurationLong1,
+            R.attr.motionDurationLong2,
             getResources().getInteger(R.integer.material_motion_duration_long_1)));
     activeIndicatorAnimator.start();
   }

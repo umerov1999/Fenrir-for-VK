@@ -65,7 +65,7 @@ public class MaterialCheckBox extends AppCompatCheckBox {
   }
 
   public MaterialCheckBox(Context context, @Nullable AttributeSet attrs) {
-    this(context, attrs, R.attr.checkboxStyle);
+    this(context, attrs, androidx.appcompat.R.attr.checkboxStyle);
   }
 
   public MaterialCheckBox(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -168,7 +168,7 @@ public class MaterialCheckBox extends AppCompatCheckBox {
   private ColorStateList getMaterialThemeColorsTintList() {
     if (materialThemeColorsTintList == null) {
       int[] checkBoxColorsList = new int[ENABLED_CHECKED_STATES.length];
-      int colorControlActivated = MaterialColors.getColor(this, R.attr.colorControlActivated);
+      int colorControlActivated = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorControlActivated);
       int colorSurface = MaterialColors.getColor(this, R.attr.colorSurface);
       int colorOnSurface = MaterialColors.getColor(this, R.attr.colorOnSurface);
 

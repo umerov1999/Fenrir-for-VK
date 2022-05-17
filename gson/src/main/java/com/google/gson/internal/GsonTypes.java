@@ -1,19 +1,3 @@
-/**
- * Copyright (C) 2008 Google Inc.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.gson.internal;
 
 import static com.google.gson.internal.GsonPreconditions.checkArgument;
@@ -157,7 +141,10 @@ public final class GsonTypes {
             return Object.class;
 
         } else if (type instanceof WildcardType) {
-            return getRawType(((WildcardType) type).getUpperBounds()[0]);
+            Type[] bounds = ((WildcardType) type).getUpperBounds();
+            // Currently the JLS only permits one bound for wildcards so using first bound is safe
+            assert bounds.length == 1;
+            return getRawType(bounds[0]);
 
         } else {
             String className = type == null ? "null" : type.getClass().getName();
@@ -228,10 +215,6 @@ public final class GsonTypes {
         }
     }
 
-    static int hashCodeOrZero(Object o) {
-        return o != null ? o.hashCode() : 0;
-    }
-
     public static String typeToString(Type type) {
         return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
     }
@@ -241,19 +224,19 @@ public final class GsonTypes {
      * IntegerSet}, the result for when supertype is {@code Set.class} is {@code Set<Integer>} and the
      * result when the supertype is {@code Collection.class} is {@code Collection<Integer>}.
      */
-    static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
-        if (toResolve == rawType) {
+    private static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> supertype) {
+        if (supertype == rawType) {
             return context;
         }
 
         // we skip searching through interfaces if unknown is an interface
-        if (toResolve.isInterface()) {
+        if (supertype.isInterface()) {
             Class<?>[] interfaces = rawType.getInterfaces();
             for (int i = 0, length = interfaces.length; i < length; i++) {
-                if (interfaces[i] == toResolve) {
+                if (interfaces[i] == supertype) {
                     return rawType.getGenericInterfaces()[i];
-                } else if (toResolve.isAssignableFrom(interfaces[i])) {
-                    return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
+                } else if (supertype.isAssignableFrom(interfaces[i])) {
+                    return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], supertype);
                 }
             }
         }
@@ -262,17 +245,17 @@ public final class GsonTypes {
         if (!rawType.isInterface()) {
             while (rawType != Object.class) {
                 Class<?> rawSupertype = rawType.getSuperclass();
-                if (rawSupertype == toResolve) {
+                if (rawSupertype == supertype) {
                     return rawType.getGenericSuperclass();
-                } else if (toResolve.isAssignableFrom(rawSupertype)) {
-                    return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
+                } else if (supertype.isAssignableFrom(rawSupertype)) {
+                    return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, supertype);
                 }
                 rawType = rawSupertype;
             }
         }
 
         // we can't resolve this further
-        return toResolve;
+        return supertype;
     }
 
     /**
@@ -282,10 +265,13 @@ public final class GsonTypes {
      *
      * @param supertype a superclass of, or interface implemented by, this.
      */
-    static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+    private static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
         if (context instanceof WildcardType) {
             // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
-            context = ((WildcardType) context).getUpperBounds()[0];
+            Type[] bounds = ((WildcardType) context).getUpperBounds();
+            // Currently the JLS only permits one bound for wildcards so using first bound is safe
+            assert bounds.length == 1;
+            context = bounds[0];
         }
         checkArgument(supertype.isAssignableFrom(contextRawType));
         return resolve(context, contextRawType,
@@ -311,9 +297,6 @@ public final class GsonTypes {
     public static Type getCollectionElementType(Type context, Class<?> contextRawType) {
         Type collectionType = getSupertype(context, contextRawType, Collection.class);
 
-        if (collectionType instanceof WildcardType) {
-            collectionType = ((WildcardType) collectionType).getUpperBounds()[0];
-        }
         if (collectionType instanceof ParameterizedType) {
             return ((ParameterizedType) collectionType).getActualTypeArguments()[0];
         }
@@ -445,7 +428,7 @@ public final class GsonTypes {
         return toResolve;
     }
 
-    static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
+    private static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
         Class<?> declaredByRaw = declaringClassOf(unknown);
 
         // we can't reduce this further
@@ -509,6 +492,10 @@ public final class GsonTypes {
                 checkNotPrimitive(this.typeArguments[t]);
                 this.typeArguments[t] = canonicalize(this.typeArguments[t]);
             }
+        }
+
+        private static int hashCodeOrZero(Object o) {
+            return o != null ? o.hashCode() : 0;
         }
 
         @NonNull

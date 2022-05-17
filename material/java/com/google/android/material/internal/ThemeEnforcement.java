@@ -40,7 +40,7 @@ import androidx.annotation.StyleableRes;
 @RestrictTo(LIBRARY_GROUP)
 public final class ThemeEnforcement {
 
-  private static final int[] APPCOMPAT_CHECK_ATTRS = {R.attr.colorPrimary};
+  private static final int[] APPCOMPAT_CHECK_ATTRS = {androidx.appcompat.R.attr.colorPrimary};
   private static final String APPCOMPAT_THEME_NAME = "Theme.AppCompat";
 
   private static final int[] MATERIAL_CHECK_ATTRS = {R.attr.colorPrimaryVariant};

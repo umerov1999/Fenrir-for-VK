@@ -1,5 +1,6 @@
 include(
     ":app",
+    ":common",
     ":picasso",
     ":firebase-installations",
     ":image",

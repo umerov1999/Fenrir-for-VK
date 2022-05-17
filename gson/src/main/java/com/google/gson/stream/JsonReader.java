@@ -98,7 +98,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Message> readMessagesArray(JsonReader reader) throws IOException {
- *     List<Message> messages = new ArrayList<Message>();
+ *     List<Message> messages = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -134,7 +134,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Double> readDoublesArray(JsonReader reader) throws IOException {
- *     List<Double> doubles = new ArrayList<Double>();
+ *     List<Double> doubles = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -876,6 +876,14 @@ public class JsonReader implements Closeable {
             peeked = PEEKED_NONE;
             pathIndices[stackSize - 1]++;
             return false;
+        } else if (p == PEEKED_NUMBER) {
+            peekedString = new String(buffer, pos, peekedNumberLength);
+            pos += peekedNumberLength;
+            return ((long) Double.parseDouble((peekedString))) != 0;
+        } else if (p == PEEKED_LONG) {
+            peeked = PEEKED_NONE;
+            pathIndices[stackSize - 1]++;
+            return peekedLong != 0;
         }
         throw new IllegalStateException("Expected a boolean but was " + peek() + locationString());
     }

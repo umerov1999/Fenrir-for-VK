@@ -77,27 +77,6 @@
         <item>Все ссылки</item>
     </string-array>
 
-    <string-array name="array_pagan_symbol_names">
-        <item>Выкл.</item>
-        <item>Кот</item>
-        <item>Иггдрасиль</item>
-        <item>Валькнут</item>
-        <item>Мьёльнир</item>
-        <item>Вегвизир</item>
-        <item>Вегвизир 2</item>
-        <item>Кельтский узел</item>
-        <item>Кельтский цветок</item>
-        <item>Слейпнир</item>
-        <item>Фенрир</item>
-        <item>Трискель</item>
-        <item>Хель</item>
-        <item>Один</item>
-        <item>Викинг</item>
-        <item>Ворон</item>
-        <item>Файер</item>
-        <item>[Рандом]</item>
-    </string-array>
-
     <string-array name="array_accounts_input">
         <item>VK Android</item>
         <item>Kate</item>
@@ -109,13 +88,6 @@
         <item>Женский</item>
         <item>Мужской</item>
     </string-array>
-
-    <!-- Google Play-->
-    <string name="developer">Разработчик: Умеров Артём</string>
-    <string name="helped_developer">Помогал: Данилюк Дмитрий</string>
-    <string name="first_pagan">Первый языческий</string>
-    <string name="repo">Репозиторий: https://github.com/umerov1999/Fenrir-for-VK</string>
-    <string name="repo_local_server">Репозиторий: https://github.com/umerov1999/FenrirMediaServer/releases</string>
 
     <!-- Dialogs-->
     <string name="dialogs">Диалоги</string>
@@ -378,7 +350,8 @@
     <string name="api_error_28">Ключ доступа приложения недействителен</string>
     <string name="api_error_29">Достигнут количественный лимит на вызов метода</string>
     <string name="api_error_30">Закрытый профиль</string>
-    <string name="api_error_34">ВК заблокировал данный запрос (может будет мной исправлено)</string>
+    <string name="api_error_34">ВК заблокировал данный запрос</string>
+    <string name="api_error_42">Ваш IP адрес запрещён</string>
     <string name="api_error_100">Один из необходимых параметров был не передан или неверен</string>
     <string name="api_error_101">Неверный API ID приложения</string>
     <string name="api_error_103">Превышено ограничение на количество вступлений</string>
@@ -661,6 +634,8 @@
     <string name="counter_topics">обсуждения</string>
     <string name="counter_articles">статьи</string>
     <string name="counter_markets">товары</string>
+    <string name="counter_markets_services">услуги</string>
+    <string name="counter_narratives">сюжеты</string>
 
     <string name="topic_comments_counter">последнее обновление: %1$s | %2$d комментариев</string>
     <string name="group_chats_counter">последнее сообщение: %1$s | %2$d участников</string>
@@ -746,6 +721,8 @@
     <string name="photos_count">%1$d фото</string>
     <string name="local_audios_count">%1$d аудио</string>
     <string name="markets_count">%1$d товаров</string>
+    <string name="narratives_count">%1$d сюжетов</string>
+    <string name="narratives">Сюжеты</string>
     <string name="markets_available">Доступен</string>
     <string name="markets_not_available">Недоступен</string>
     <string name="markets_deleted">Удалён</string>
@@ -1084,7 +1061,6 @@
     <string name="title_play_in_another_software">Играть через стороннее ПО</string>
     <string name="title_play_in_browser">Играть в браузере</string>
     <string name="title_select_resolution">Выберите качество</string>
-    <string name="no_compatible_software_installed">Совместимое ПО не установлено</string>
 
     <string name="community_options_main_info_title">Основная информация</string>
     <string name="community_options_name_title">Название</string>
@@ -1551,13 +1527,12 @@
     <string name="date_to">Дата до:</string>
     <string name="uploaded_video">Загружено: %1$s</string>
     <string name="added_video">Добавлено: %1$s</string>
-    <string name="friends_by_phone">Друзья по номерам телефонов</string>
+    <string name="friends_by_phone">Синхронизация контактов</string>
     <string name="old_track">Старый</string>
     <string name="new_track">Новый</string>
     <string name="dual_track">Оба</string>
     <string name="runic">Руны</string>
     <string name="local_media_server">Локальный медиа сервер</string>
-    <string name="enabled">Включен</string>
     <string name="on_server">На сервере</string>
     <string name="no_system_equalizer">Нет системного эквалайзера</string>
     <string name="equalizer_closed">Эквалайзер закрыт</string>
@@ -1577,6 +1552,10 @@
     <string name="return_away">Вернуться</string>
     <string name="update_time">Задать текущее время</string>
     <string name="max_bitmap_resolution">Максимальное разрешение картинки</string>
+    <string name="max_thumb_resolution">Максимальное разрешение обложки</string>
+    <string name="video_ext">Расширения для видео</string>
+    <string name="photo_ext">Расширения для фото</string>
+    <string name="audio_ext">Расширения для аудио</string>
     <string name="artists">Артисты</string>
     <string name="video_controller_to_decor">Видео кнопки в DecorView</string>
     <string name="video_swipes">Свайпы у видео</string>
@@ -1661,6 +1640,10 @@
     <string name="send_file_as_voice">Отправить файл как голосовую</string>
     <string name="hidden_dialogs_helper">Удерживайте кнопку карандаш (создание беседы) для показа скрытых диалогов</string>
     <string name="favorites">Избранное</string>
+    <string name="shortcuts">Ярлыки</string>
+    <string name="comments_disabled_post">Комментарии к данному посту заблокированы!</string>
+    <string name="recently">Недавно</string>
+    <string name="reset">Сбросить</string>
 
     <string name="crash_error_activity_error_occurred_explanation">Необрабатываемое исключение.</string>
     <string name="crash_error_activity_restart_app">Перезапуск</string>

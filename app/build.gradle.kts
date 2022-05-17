@@ -1,8 +1,7 @@
-import android.annotation.SuppressLint
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("kotlinx-serialization")
 }
 
 fun selectAppSignVersion(config: com.android.build.api.dsl.ApkSigningConfig) {
@@ -69,6 +68,10 @@ android {
         options.compilerArgs.addAll(listOf("-Xmaxwarns", "1000", "-Xmaxerrs", "1000"))
     }
 
+    tasks.withType<com.android.build.gradle.tasks.MergeResources> {
+        mustRunAfter(tasks.withType<com.google.gms.googleservices.GoogleServicesTask>())
+    }
+
     compileOptions {
         // Flag to enable support for the new language APIs
         isCoreLibraryDesugaringEnabled = MakeConfig.appMinSDK < 26
@@ -80,7 +83,11 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs = listOf("-opt-in=kotlin.contracts.ExperimentalContracts")
+        freeCompilerArgs = listOf(
+            "-opt-in=kotlin.contracts.ExperimentalContracts",
+            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+            "-opt-in=kotlin.RequiresOptIn"
+        )
     }
 
     buildTypes {
@@ -96,7 +103,6 @@ android {
     }
 
     flavorDimensions.add("type")
-
     productFlavors {
         create("fenrir") {
             applicationId = "dev.ragnarok.fenrir"
@@ -123,23 +129,6 @@ android {
     }
 }
 
-@SuppressLint("GradleDependency")
-fun kateOldFCM() {
-    dependencies {
-        "kateImplementation"("com.google.firebase:firebase-messaging:20.1.0")
-        "kateImplementation"("com.google.firebase:firebase-encoders-json:18.0.0")
-    }
-}
-
-fun fenrirFCM() {
-    dependencies {
-        "fenrirImplementation"("com.google.firebase:firebase-messaging:23.0.2") {
-            exclude("com.google.firebase", "firebase-installations")
-        }
-        "fenrirImplementation"(project("path" to ":firebase-installations"))
-    }
-}
-
 dependencies {
     implementation(fileTree("include" to "*.aar", "dir" to "libs"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${MakeConfig.kotlin_version}")
@@ -163,11 +152,14 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:${MakeConfig.exifinterfaceVersion}")
     implementation("io.reactivex.rxjava3:rxjava:${MakeConfig.rxJavaVersion}")
     implementation("io.reactivex.rxjava3:rxandroid:${MakeConfig.rxAndroidVersion}")
-    implementation("com.google.firebase:firebase-database:20.0.4")
-    implementation("com.google.firebase:firebase-datatransport:18.1.2")
-    fenrirFCM()
-    kateOldFCM()
+    implementation("com.google.firebase:firebase-database:20.0.5")
+    implementation("com.google.firebase:firebase-datatransport:18.1.3")
+    implementation("com.google.firebase:firebase-messaging:23.0.2") {
+        exclude("com.google.firebase", "firebase-installations")
+    }
     //implementation(project("path" to ":libfenrir"))
+    implementation(project("path" to ":common"))
+    implementation(project("path" to ":firebase-installations"))
     implementation(project("path" to ":picasso"))
     implementation(project("path" to ":image"))
     implementation(project("path" to ":material"))
@@ -181,7 +173,7 @@ dependencies {
     implementation("com.google.android.exoplayer:exoplayer-hls:${MakeConfig.exoLibraryVersion}")
     implementation("androidx.constraintlayout:constraintlayout:${MakeConfig.constraintlayoutVersion}")
     implementation("androidx.biometric:biometric-ktx:1.2.0-alpha04")
-    implementation("androidx.media:media:1.6.0-rc01")
+    implementation("androidx.media:media:1.6.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:${MakeConfig.coordinatorlayoutVersion}")
     implementation("androidx.activity:activity-ktx:${MakeConfig.activityVersion}")
     implementation("androidx.fragment:fragment-ktx:${MakeConfig.fragmentVersion}")
@@ -190,10 +182,12 @@ dependencies {
     implementation("androidx.drawerlayout:drawerlayout:${MakeConfig.drawerlayoutVersion}")
     implementation("androidx.loader:loader:1.1.0")
     implementation("androidx.collection:collection-ktx:${MakeConfig.collectionVersion}")
+    implementation("androidx.savedstate:savedstate-ktx:${MakeConfig.savedStateVersion}")
     implementation("androidx.camera:camera-core:${MakeConfig.cameraVersion}")
     implementation("androidx.camera:camera-lifecycle:${MakeConfig.cameraVersion}")
     implementation("androidx.camera:camera-view:${MakeConfig.cameraVersion}")
     implementation("androidx.camera:camera-camera2:${MakeConfig.cameraVersion}")
-    implementation(if (MakeConfig.appMinSDK >= 26) "com.google.zxing:core:3.4.1" else "com.google.zxing:core:3.3.3")
+    implementation(if (MakeConfig.appMinSDK >= 26) "com.google.zxing:core:3.5.0" else "com.google.zxing:core:3.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3")
 }
 apply(plugin = "com.google.gms.google-services")

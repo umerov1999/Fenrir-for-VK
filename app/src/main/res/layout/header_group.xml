@@ -100,6 +100,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="end"
+                        android:maxLines="3"
                         android:textAppearance="@style/ProfileText" />
 
                     <TextView
@@ -108,9 +109,8 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:gravity="end"
-                        android:maxLines="6"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:visibility="visible" />
+                        android:maxLines="2"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -450,7 +450,6 @@
                     android:id="@+id/header_group_bproducts"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:textAppearance="@style/ProfileText" />
 
                 <TextView
@@ -459,6 +458,60 @@
 
                     android:gravity="center"
                     android:text="@string/counter_markets"
+                    android:textAppearance="@style/ProfileSubText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/header_group_products_services_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:stateListAnimator="@animator/clicked">
+
+                <TextView
+                    android:id="@+id/header_group_bservices_products"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/ProfileText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/counter_markets_services"
+                    android:textAppearance="@style/ProfileSubText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/header_group_narratives_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:stateListAnimator="@animator/clicked">
+
+                <TextView
+                    android:id="@+id/header_group_bnarratives"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/ProfileText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/counter_narratives"
                     android:textAppearance="@style/ProfileSubText" />
 
             </LinearLayout>

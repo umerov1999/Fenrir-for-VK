@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -30,30 +29,41 @@ import java.lang.reflect.Modifier;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
+@SuppressLint("DiscouragedPrivateApi")
 public abstract class UnsafeAllocator {
-    @SuppressLint("DiscouragedPrivateApi")
-    public static UnsafeAllocator create() {
-        // try JVM
-        // public class Unsafe {
-        //   public Object allocateInstance(Class<?> type);
-        // }
-        try {
-            Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-            Field f = unsafeClass.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            Object unsafe = f.get(null);
-            Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
-            return new UnsafeAllocator() {
-                @Override
-                @SuppressWarnings("unchecked")
-                public <T> T newInstance(Class<T> c) throws Exception {
-                    assertInstantiable(c);
-                    return (T) allocateInstance.invoke(unsafe, c);
-                }
-            };
-        } catch (Exception ignored) {
+    /**
+     * Check if the class can be instantiated by Unsafe allocator. If the instance has interface or abstract modifiers
+     * return an exception message.
+     *
+     * @param c instance of the class to be checked
+     * @return if instantiable {@code null}, else a non-{@code null} exception message
+     */
+    static String checkInstantiable(Class<?> c) {
+        int modifiers = c.getModifiers();
+        if (Modifier.isInterface(modifiers)) {
+            return "Interfaces can't be instantiated! Register an InstanceCreator "
+                    + "or a TypeAdapter for this type. Interface name: " + c.getName();
         }
+        if (Modifier.isAbstract(modifiers)) {
+            return "Abstract classes can't be instantiated! Register an InstanceCreator "
+                    + "or a TypeAdapter for this type. Class name: " + c.getName();
+        }
+        return null;
+    }
 
+    /**
+     * Asserts that the class is instantiable. This check should have already occurred
+     * in {@link ConstructorConstructor}; this check here acts as safeguard since trying
+     * to use Unsafe for non-instantiable classes might crash the JVM on some devices.
+     */
+    private static void assertInstantiable(Class<?> c) {
+        String exceptionMessage = checkInstantiable(c);
+        if (exceptionMessage != null) {
+            throw new AssertionError("UnsafeAllocator is used for non-instantiable type: " + exceptionMessage);
+        }
+    }
+
+    public static UnsafeAllocator create() {
         // try dalvikvm, post-gingerbread
         // public class ObjectStreamClass {
         //   private static native int getConstructorId(Class<?> c);
@@ -106,22 +116,6 @@ public abstract class UnsafeAllocator {
                         + "but it could not be used. Make sure your runtime is configured correctly.");
             }
         };
-    }
-
-    /**
-     * Check if the class can be instantiated by unsafe allocator. If the instance has interface or abstract modifiers
-     * throw an {@link java.lang.UnsupportedOperationException}
-     *
-     * @param c instance of the class to be checked
-     */
-    static void assertInstantiable(Class<?> c) {
-        int modifiers = c.getModifiers();
-        if (Modifier.isInterface(modifiers)) {
-            throw new UnsupportedOperationException("Interface can't be instantiated! Interface name: " + c.getName());
-        }
-        if (Modifier.isAbstract(modifiers)) {
-            throw new UnsupportedOperationException("Abstract class can't be instantiated! Class name: " + c.getName());
-        }
     }
 
     public abstract <T> T newInstance(Class<T> c) throws Exception;

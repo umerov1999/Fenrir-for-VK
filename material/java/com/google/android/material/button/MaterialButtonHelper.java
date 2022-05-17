@@ -143,6 +143,9 @@ class MaterialButtonHelper {
     MaterialShapeDrawable materialShapeDrawable = getMaterialShapeDrawable();
     if (materialShapeDrawable != null) {
       materialShapeDrawable.setElevation(elevation);
+      // Workaround (b/231320562): Setting background will cause drawables wrapped inside a
+      // RippleDrawable lose their states, we need to reset the state here.
+      materialShapeDrawable.setState(materialButton.getDrawableState());
     }
   }
 

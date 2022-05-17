@@ -79,7 +79,7 @@ public class HarmonizedColorsOptions {
 
     @NonNull @ColorRes private int[] colorResourceIds = new int[] {};
     @Nullable private HarmonizedColorAttributes colorAttributes;
-    @AttrRes private int colorAttributeToHarmonizeWith = R.attr.colorPrimary;
+    @AttrRes private int colorAttributeToHarmonizeWith = androidx.appcompat.R.attr.colorPrimary;
 
     /**
      * Sets the array of color resource ids for harmonization.
@@ -102,7 +102,7 @@ public class HarmonizedColorsOptions {
      *
      * @param colorAttributes The {@link HarmonizedColorAttributes} that needs to be harmonized.
      */
-    @Nullable
+    @NonNull
     public Builder setColorAttributes(@Nullable HarmonizedColorAttributes colorAttributes) {
       this.colorAttributes = colorAttributes;
       return this;
@@ -127,7 +127,9 @@ public class HarmonizedColorsOptions {
   }
 
   @StyleRes
-  int getThemeOverlayResourceId() {
-    return this.colorAttributes != null ? colorAttributes.getThemeOverlay() : 0;
+  int getThemeOverlayResourceId(@StyleRes int defaultThemeOverlay) {
+    return (colorAttributes != null && colorAttributes.getThemeOverlay() != 0)
+        ? colorAttributes.getThemeOverlay()
+        : defaultThemeOverlay;
   }
 }

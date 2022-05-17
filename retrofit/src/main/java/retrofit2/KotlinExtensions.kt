@@ -38,7 +38,7 @@ suspend fun <T : Any> Call<T>.await(): T {
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body == null) {
-                        val invocation = call.request().tag(Invocation::class.java)!!
+                        val invocation = call.request().tag(Invocation::class.java) ?: return
                         val method = invocation.method()
                         val e = KotlinNullPointerException(
                             "Response from " +
@@ -83,6 +83,12 @@ suspend fun <T : Any> Call<T?>.await(): T? {
             }
         })
     }
+}
+
+@JvmName("awaitUnit")
+suspend fun Call<Unit>.await() {
+    @Suppress("UNCHECKED_CAST")
+    (this as Call<Unit?>).await()
 }
 
 suspend fun <T> Call<T>.awaitResponse(): Response<T> {

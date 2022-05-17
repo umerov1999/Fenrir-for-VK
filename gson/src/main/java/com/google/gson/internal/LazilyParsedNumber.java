@@ -22,6 +22,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * This class holds a number value that is lazily converted to a specific number type
@@ -102,7 +103,7 @@ public final class LazilyParsedNumber extends Number {
         }
         if (obj instanceof LazilyParsedNumber) {
             LazilyParsedNumber other = (LazilyParsedNumber) obj;
-            return value == other.value || value.equals(other.value);
+            return Objects.equals(value, other.value);
         }
         return false;
     }

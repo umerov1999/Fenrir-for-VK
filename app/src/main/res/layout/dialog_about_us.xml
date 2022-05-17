@@ -36,47 +36,12 @@
 
         </LinearLayout>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:text="@string/first_pagan"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textSize="16sp" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:padding="4dp"
-            android:text="@string/developer"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textColor="?colorPrimary"
-            android:textSize="@dimen/font_size_subtitle" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:text="@string/helped_developer"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textSize="@dimen/font_size_subtitle" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:autoLink="web"
-            android:gravity="center"
-            android:padding="4dp"
-            android:text="@string/repo"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textSize="16sp" />
+        <include layout="@layout/dialog_about_us_content" />
 
         <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
             android:id="@+id/lottie_animation"
-            android:layout_width="@dimen/avatar_size_big"
-            android:layout_height="@dimen/avatar_size_big"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             android:layout_marginTop="4dp"
             android:contentDescription="@string/pagan_symbol"
             app:loopAnimation="true" />

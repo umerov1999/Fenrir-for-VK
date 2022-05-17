@@ -40,17 +40,20 @@ import java.util.Map;
  * <p>
  * {@code TypeToken<List<String>> list = new TypeToken<List<String>>() {};}
  *
- * <p>This syntax cannot be used to create type literals that have wildcard
- * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.
+ * <p>Capturing a type variable as type argument of a {@code TypeToken} should
+ * be avoided. Due to type erasure the runtime type of a type variable is not
+ * available to Gson and therefore it cannot provide the functionality one
+ * might expect, which gives a false sense of type-safety at compilation time
+ * and can lead to an unexpected {@code ClassCastException} at runtime.
  *
  * @author Bob Lee
  * @author Sven Mawson
  * @author Jesse Wilson
  */
 public class TypeToken<T> {
-    final Class<? super T> rawType;
-    final Type type;
-    final int hashCode;
+    private final Class<? super T> rawType;
+    private final Type type;
+    private final int hashCode;
 
     /**
      * Constructs a new type literal. Derives represented class from type
@@ -62,7 +65,7 @@ public class TypeToken<T> {
      */
     @SuppressWarnings("unchecked")
     protected TypeToken() {
-        type = getSuperclassTypeParameter(getClass());
+        type = getTypeTokenTypeArgument();
         rawType = (Class<? super T>) GsonTypes.getRawType(type);
         hashCode = type.hashCode();
     }
@@ -71,23 +74,10 @@ public class TypeToken<T> {
      * Unsafe. Constructs a type literal manually.
      */
     @SuppressWarnings("unchecked")
-    TypeToken(Type type) {
+    private TypeToken(Type type) {
         this.type = GsonTypes.canonicalize(GsonPreconditions.checkNotNull(type));
         rawType = (Class<? super T>) GsonTypes.getRawType(this.type);
         hashCode = this.type.hashCode();
-    }
-
-    /**
-     * Returns the type from super class's type parameter in {@link GsonTypes#canonicalize
-     * canonical form}.
-     */
-    static Type getSuperclassTypeParameter(Class<?> subclass) {
-        Type superclass = subclass.getGenericSuperclass();
-        if (superclass instanceof Class) {
-            throw new RuntimeException("Missing type parameter.");
-        }
-        ParameterizedType parameterized = (ParameterizedType) superclass;
-        return GsonTypes.canonicalize(parameterized.getActualTypeArguments()[0]);
     }
 
     /**
@@ -102,7 +92,9 @@ public class TypeToken<T> {
                 t = ((GenericArrayType) from).getGenericComponentType();
             } else if (from instanceof Class<?>) {
                 Class<?> classType = (Class<?>) from;
-                while (classType.isArray()) {
+                while (true) {
+                    assert classType != null;
+                    if (!classType.isArray()) break;
                     classType = classType.getComponentType();
                 }
                 t = classType;
@@ -240,6 +232,29 @@ public class TypeToken<T> {
      */
     public static TypeToken<?> getArray(Type componentType) {
         return new TypeToken<>(GsonTypes.arrayOf(componentType));
+    }
+
+    /**
+     * Verifies that {@code this} is an instance of a direct subclass of TypeToken and
+     * returns the type argument for {@code T} in {@link GsonTypes#canonicalize
+     * canonical form}.
+     */
+    private Type getTypeTokenTypeArgument() {
+        Type superclass = getClass().getGenericSuperclass();
+        if (superclass instanceof ParameterizedType) {
+            ParameterizedType parameterized = (ParameterizedType) superclass;
+            if (parameterized.getRawType() == TypeToken.class) {
+                return GsonTypes.canonicalize(parameterized.getActualTypeArguments()[0]);
+            }
+        }
+        // Check for raw TypeToken as superclass
+        else if (superclass == TypeToken.class) {
+            throw new IllegalStateException("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
+                    + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
+        }
+
+        // User created subclass of subclass of TypeToken
+        throw new IllegalStateException("Must only create direct subclasses of TypeToken");
     }
 
     /**

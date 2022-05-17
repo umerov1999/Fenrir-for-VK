@@ -901,25 +901,23 @@ public final class TypeAdapters {
                 // Uses reflection to find enum constants to work around name mismatches for obfuscated classes
                 // Reflection access might throw SecurityException, therefore run this in privileged context;
                 // should be acceptable because this only retrieves enum constants, but does not expose anything else
-                Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
-                    @Override
-                    public Field[] run() {
-                        Field[] fields = classOfT.getDeclaredFields();
-                        ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
-                        for (Field f : fields) {
-                            if (f.isEnumConstant()) {
-                                constantFieldsList.add(f);
-                            }
+                Field[] constantFields = AccessController.doPrivileged((PrivilegedAction<Field[]>) () -> {
+                    Field[] fields = classOfT.getDeclaredFields();
+                    ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+                    for (Field f : fields) {
+                        if (f.isEnumConstant()) {
+                            constantFieldsList.add(f);
                         }
-
-                        Field[] constantFields = constantFieldsList.toArray(new Field[0]);
-                        AccessibleObject.setAccessible(constantFields, true);
-                        return constantFields;
                     }
+
+                    Field[] constantFields1 = constantFieldsList.toArray(new Field[0]);
+                    AccessibleObject.setAccessible(constantFields1, true);
+                    return constantFields1;
                 });
                 for (Field constantField : constantFields) {
                     @SuppressWarnings("unchecked")
                     T constant = (T) (constantField.get(null));
+                    assert constant != null;
                     String name = constant.name();
                     String toStringVal = constant.toString();
 

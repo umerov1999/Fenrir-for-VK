@@ -31,6 +31,7 @@ import com.google.android.gms.common.util.VisibleForTesting;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.heartbeatinfo.HeartBeatController;
 import com.google.firebase.inject.Provider;
+import com.google.firebase.installations.BuildConfig;
 import com.google.firebase.installations.FirebaseInstallationsException;
 import com.google.firebase.installations.FirebaseInstallationsException.Status;
 import com.google.firebase.installations.remote.InstallationResponse.ResponseCode;
@@ -530,7 +531,7 @@ public class FirebaseInstallationServiceClient {
         httpURLConnection.addRequestProperty(ACCEPT_HEADER_KEY, JSON_CONTENT_TYPE);
         httpURLConnection.addRequestProperty(CONTENT_ENCODING_HEADER_KEY, GZIP_CONTENT_ENCODING);
         httpURLConnection.addRequestProperty(CACHE_CONTROL_HEADER_KEY, CACHE_CONTROL_DIRECTIVE);
-        httpURLConnection.addRequestProperty(X_ANDROID_PACKAGE_HEADER_KEY, "com.vkontakte.android");
+        httpURLConnection.addRequestProperty(X_ANDROID_PACKAGE_HEADER_KEY, BuildConfig.PATCH_APP_ID);
         HeartBeatController heartBeatController = heartBeatProvider.get();
         if (heartBeatController != null) {
             try {
@@ -621,6 +622,6 @@ public class FirebaseInstallationServiceClient {
      * Gets the Android package's SHA-1 fingerprint.
      */
     private String getFingerprintHashForPackage() {
-        return "48761EEF50EE53AFC4CC9C5F10E6BDE7F8F5B82F";
+        return BuildConfig.PATCH_APP_FINGERPRINT;
     }
 }

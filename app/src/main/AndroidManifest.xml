@@ -36,7 +36,9 @@
 
     <application
         android:name="dev.ragnarok.fenrir.App"
+        android:allowAudioPlaybackCapture="true"
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -47,7 +49,7 @@
         android:supportsRtl="false"
         android:theme="@style/App.DayNight"
         android:usesCleartextTraffic="true"
-        tools:targetApi="q">
+        tools:targetApi="s">
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -343,21 +345,18 @@
                 <data
                     android:host="vk.com"
                     android:scheme="https" />
-
                 <data
                     android:host="vk.cc"
                     android:scheme="http" />
                 <data
                     android:host="vk.cc"
                     android:scheme="https" />
-
                 <data
                     android:host="vk.me"
                     android:scheme="http" />
                 <data
                     android:host="vk.me"
                     android:scheme="https" />
-
                 <data
                     android:host="m.vk.com"
                     android:scheme="http" />

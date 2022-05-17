@@ -126,6 +126,8 @@ public final class CollapsingTextHelper {
   private CancelableFontCallback expandedFontCallback;
   private CancelableFontCallback collapsedFontCallback;
 
+  private TruncateAt titleTextEllipsize = TruncateAt.END;
+
   @Nullable private CharSequence text;
   @Nullable private CharSequence textToDraw;
   private boolean isRtl;
@@ -447,6 +449,16 @@ public final class CollapsingTextHelper {
     recalculate();
   }
 
+  public void setTitleTextEllipsize(@NonNull TruncateAt ellipsize) {
+    titleTextEllipsize = ellipsize;
+    recalculate();
+  }
+
+  @NonNull
+  public TruncateAt getTitleTextEllipsize() {
+    return titleTextEllipsize;
+  }
+
   public void setCollapsedTypeface(Typeface typeface) {
     if (setCollapsedTypefaceInternal(typeface)) {
       recalculate();
@@ -710,7 +722,7 @@ public final class CollapsingTextHelper {
     calculateUsingTextSize(/* fraction= */ 1, forceRecalculate);
     if (textToDraw != null && textLayout != null) {
       textToDrawCollapsed =
-          TextUtils.ellipsize(textToDraw, textPaint, textLayout.getWidth(), TruncateAt.END);
+          TextUtils.ellipsize(textToDraw, textPaint, textLayout.getWidth(), titleTextEllipsize);
     }
     if (textToDrawCollapsed != null) {
       collapsedTextWidth = measureTextWidth(textPaint, textToDrawCollapsed);
@@ -891,7 +903,7 @@ public final class CollapsingTextHelper {
 
     // Collapsed text
     textPaint.setAlpha((int) (collapsedTextBlend * originalAlpha));
-    // Workaround for API 31(+). Applying the shadow color for collapsed texct.
+    // Workaround for API 31(+). Applying the shadow color for collapsed text.
     if (VERSION.SDK_INT >= VERSION_CODES.S) {
       textPaint.setShadowLayer(
           currentShadowRadius,
@@ -980,24 +992,18 @@ public final class CollapsingTextHelper {
     float availableWidth;
     float newTextSize;
     float newLetterSpacing;
-    boolean updateDrawText = false;
+    Typeface newTypeface;
 
     if (isClose(fraction, /* targetValue= */ 1)) {
       newTextSize = collapsedTextSize;
       newLetterSpacing = collapsedLetterSpacing;
       scale = 1f;
-      if (currentTypeface != collapsedTypeface) {
-        currentTypeface = collapsedTypeface;
-        updateDrawText = true;
-      }
+      newTypeface = collapsedTypeface;
       availableWidth = collapsedWidth;
     } else {
       newTextSize = expandedTextSize;
       newLetterSpacing = expandedLetterSpacing;
-      if (currentTypeface != expandedTypeface) {
-        currentTypeface = expandedTypeface;
-        updateDrawText = true;
-      }
+      newTypeface = expandedTypeface;
       if (isClose(fraction, /* targetValue= */ 0)) {
         // If we're close to the expanded text size, snap to it and use a scale of 1
         scale = 1f;
@@ -1030,13 +1036,26 @@ public final class CollapsingTextHelper {
       }
     }
 
+    boolean updateDrawText;
     if (availableWidth > 0) {
       boolean textSizeChanged = currentTextSize != newTextSize;
       boolean letterSpacingChanged = currentLetterSpacing != newLetterSpacing;
-      updateDrawText = textSizeChanged || letterSpacingChanged || boundsChanged || updateDrawText;
+      boolean typefaceChanged = currentTypeface != newTypeface;
+      boolean availableWidthChanged = textLayout != null && availableWidth != textLayout.getWidth();
+      updateDrawText =
+          textSizeChanged
+              || letterSpacingChanged
+              || availableWidthChanged
+              || typefaceChanged
+              || boundsChanged;
       currentTextSize = newTextSize;
       currentLetterSpacing = newLetterSpacing;
+      currentTypeface = newTypeface;
       boundsChanged = false;
+      // Use linear text scaling if we're scaling the canvas
+      textPaint.setLinearText(scale != 1f);
+    } else {
+      updateDrawText = false;
     }
 
     if (textToDraw == null || updateDrawText) {
@@ -1045,8 +1064,6 @@ public final class CollapsingTextHelper {
       if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
         textPaint.setLetterSpacing(currentLetterSpacing);
       }
-      // Use linear text scaling if we're scaling the canvas
-      textPaint.setLinearText(scale != 1f);
 
       isRtl = calculateIsRtl(text);
       textLayout = createStaticLayout(shouldDrawMultiline() ? maxLines : 1, availableWidth, isRtl);
@@ -1061,7 +1078,7 @@ public final class CollapsingTextHelper {
       Alignment textAlignment = maxLines == 1 ? ALIGN_NORMAL : getMultilineTextLayoutAlignment();
       textLayout =
           StaticLayoutBuilderCompat.obtain(text, textPaint, (int) availableWidth)
-              .setEllipsize(TruncateAt.END)
+              .setEllipsize(titleTextEllipsize)
               .setIsRtl(isRtl)
               .setAlignment(textAlignment)
               .setIncludePad(false)

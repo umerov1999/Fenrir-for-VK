@@ -47,7 +47,7 @@ import java.util.Map;
  * can be serialized as strings; this is insufficient for some key types. For
  * example, consider a map whose keys are points on a grid. The default JSON
  * form encodes reasonably: <pre>   {@code
- *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+ *   Map<Point, String> original = new LinkedHashMap<>();
  *   original.put(new Point(5, 6), "a");
  *   original.put(new Point(8, 8), "b");
  *   System.out.println(gson.toJson(original, type));
@@ -122,8 +122,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
             return null;
         }
 
-        Class<?> rawTypeOfSrc = GsonTypes.getRawType(type);
-        Type[] keyAndValueTypes = GsonTypes.getMapKeyAndValueTypes(type, rawTypeOfSrc);
+        Type[] keyAndValueTypes = GsonTypes.getMapKeyAndValueTypes(type, rawType);
         TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
         TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
         ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);

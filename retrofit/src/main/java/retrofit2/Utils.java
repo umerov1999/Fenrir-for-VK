@@ -32,11 +32,16 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import kotlin.Unit;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 
 final class Utils {
     static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
+    /**
+     * Not volatile because we don't mind multiple threads discovering this.
+     */
+    private static boolean checkForKotlinUnit = true;
 
     private Utils() {
         // No instances.
@@ -395,6 +400,17 @@ final class Utils {
         } else if (t instanceof LinkageError) {
             throw (LinkageError) t;
         }
+    }
+
+    static boolean isUnit(Type type) {
+        if (checkForKotlinUnit) {
+            try {
+                return type == Unit.class;
+            } catch (NoClassDefFoundError ignored) {
+                checkForKotlinUnit = false;
+            }
+        }
+        return false;
     }
 
     static final class ParameterizedTypeImpl implements ParameterizedType {

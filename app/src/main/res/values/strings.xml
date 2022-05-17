@@ -198,48 +198,6 @@
         <item>8</item>
     </string-array>
 
-    <string-array name="array_pagan_symbol_names">
-        <item>Disabled.</item>
-        <item>Cat</item>
-        <item>Yggdrasil</item>
-        <item>Valknut</item>
-        <item>Mjolnir</item>
-        <item>Vegvisir</item>
-        <item>Vegvisir 2</item>
-        <item>Celtic knot</item>
-        <item>Celtic flower</item>
-        <item>Slepnir</item>
-        <item>Fenrir</item>
-        <item>Triskel</item>
-        <item>Hel</item>
-        <item>Odin</item>
-        <item>Viking</item>
-        <item>Raven</item>
-        <item>Fire</item>
-        <item>[Random]</item>
-    </string-array>
-
-    <string-array name="array_pagan_symbol_items" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>15</item>
-        <item>16</item>
-        <item>17</item>
-    </string-array>
-
     <string-array name="array_accounts_input">
         <item>VK Android</item>
         <item>Kate</item>
@@ -261,13 +219,6 @@
         <item>••••• •</item>
         <item>•••••• </item>
     </string-array>
-
-    <!-- Google Play-->
-    <string name="developer">Developer: Umerov Artyom</string>
-    <string name="helped_developer">Helped: Danilyuk Dmitry</string>
-    <string name="first_pagan">First pagan</string>
-    <string name="repo">Repository: https://github.com/umerov1999/Fenrir-for-VK</string>
-    <string name="repo_local_server">Repository: https://github.com/umerov1999/FenrirMediaServer/releases</string>
 
     <!-- Dialogs-->
     <string name="dialogs">Dialogs</string>
@@ -563,6 +514,7 @@
     <string name="api_error_29">Method call limit reached</string>
     <string name="api_error_30">Closed profile</string>
     <string name="api_error_34">VK blocked this request</string>
+    <string name="api_error_42">IP is not allowed</string>
     <string name="api_error_100">One of the required parameters was not passed or was incorrect</string>
     <string name="api_error_101">Invalid API Application ID</string>
     <string name="api_error_103">Limit on number of arrivals exceeded</string>
@@ -852,6 +804,8 @@
     <string name="counter_topics">discussions</string>
     <string name="counter_articles">articles</string>
     <string name="counter_markets">products</string>
+    <string name="counter_markets_services">services</string>
+    <string name="counter_narratives">narratives</string>
 
     <string name="topic_comments_counter">last update: %1$s | %2$d comments</string>
     <string name="group_chats_counter">last message: %1$s | %2$d members</string>
@@ -943,6 +897,8 @@
     <string name="photos_count">%1$d photo</string>
     <string name="local_audios_count">%1$d audio</string>
     <string name="markets_count">%1$d products</string>
+    <string name="narratives_count">%1$d narratives</string>
+    <string name="narratives">Narratives</string>
     <string name="markets_available">Available</string>
     <string name="markets_not_available">Not available</string>
     <string name="markets_deleted">Deleted</string>
@@ -1303,7 +1259,6 @@
     <string name="title_play_in_another_software">Play through third-party software</string>
     <string name="title_play_in_browser">Play in browser</string>
     <string name="title_select_resolution">Choose quality</string>
-    <string name="no_compatible_software_installed">No compatible software installed</string>
 
     <string name="community_options_main_info_title">Main information</string>
     <string name="community_options_name_title">Title</string>
@@ -1786,13 +1741,12 @@
     <string name="date_to">Date to:</string>
     <string name="uploaded_video">Uploaded: %1$s</string>
     <string name="added_video">Added: %1$s</string>
-    <string name="friends_by_phone">Friends by phone numbers</string>
+    <string name="friends_by_phone">Contacts Sync</string>
     <string name="old_track">Old</string>
     <string name="new_track">New</string>
     <string name="dual_track">Both</string>
     <string name="runic">Runic</string>
     <string name="local_media_server">Local Media Server</string>
-    <string name="enabled">Enabled</string>
     <string name="on_server">On Server</string>
     <string name="no_system_equalizer">No system equalizer found</string>
     <string name="equalizer_closed">equalizer closed</string>
@@ -1812,6 +1766,10 @@
     <string name="local_server_sync_get">Get remote list</string>
     <string name="update_time">Set current time</string>
     <string name="max_bitmap_resolution">Max bitmap Resolution</string>
+    <string name="max_thumb_resolution">Max cover resolution</string>
+    <string name="video_ext">Video Extensions</string>
+    <string name="photo_ext">Photo extensions</string>
+    <string name="audio_ext">Audio Extensions</string>
     <string name="artists">Artists</string>
     <string name="video_controller_to_decor">Video controller to decor view</string>
     <string name="video_swipes">Enable video swipes</string>
@@ -1896,6 +1854,10 @@
     <string name="send_file_as_voice">Send file as Voice</string>
     <string name="hidden_dialogs_helper">Long press pencil button (create a conversation) to show hidden conversations</string>
     <string name="favorites">Favorites</string>
+    <string name="shortcuts">Shortcuts</string>
+    <string name="comments_disabled_post">Comments disabled for this post!</string>
+    <string name="recently">Recently</string>
+    <string name="reset">Reset</string>
 
     <string name="crash_error_activity_error_occurred_explanation">Unhandled exception.</string>
     <string name="crash_error_activity_restart_app">Restart</string>
