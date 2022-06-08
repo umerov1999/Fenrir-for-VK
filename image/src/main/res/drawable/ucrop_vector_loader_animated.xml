@@ -3,9 +3,9 @@
     android:drawable="@drawable/ucrop_vector_loader">
     <target
         android:name="circleGroup"
-        android:animation="@anim/ucrop_loader_circle_scale" />
+        android:animation="@animator/ucrop_loader_circle_scale" />
     <target
         android:name="circlePath"
-        android:animation="@anim/ucrop_loader_circle_path" />
+        android:animation="@animator/ucrop_loader_circle_path" />
 
 </animated-vector>

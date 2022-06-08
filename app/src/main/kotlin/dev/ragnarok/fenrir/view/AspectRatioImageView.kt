@@ -23,11 +23,11 @@ class AspectRatioImageView @JvmOverloads constructor(
         when (dominantMeasurement) {
             MEASUREMENT_WIDTH -> {
                 newWidth = measuredWidth
-                newHeight = (newWidth * aspectRatio).toInt()
+                newHeight = (newWidth / aspectRatio).toInt()
             }
             MEASUREMENT_HEIGHT -> {
                 newHeight = measuredHeight
-                newWidth = (newHeight * aspectRatio).toInt()
+                newWidth = (newHeight / aspectRatio).toInt()
             }
             else -> throw IllegalStateException("Unknown measurement with ID $dominantMeasurement")
         }
@@ -112,7 +112,7 @@ class AspectRatioImageView @JvmOverloads constructor(
             a.getInt(R.styleable.AspectRatioImageView_aspectRatioW, DEFAULT_ASPECT_RATIO_W)
         val aspectRatioH =
             a.getInt(R.styleable.AspectRatioImageView_aspectRatioH, DEFAULT_ASPECT_RATIO_H)
-        aspectRatio = aspectRatioH.toFloat() / aspectRatioW.toFloat()
+        aspectRatio = aspectRatioW.toFloat() / aspectRatioH.toFloat()
         aspectRatioEnabled = a.getBoolean(
             R.styleable.AspectRatioImageView_aspectRatioEnabled,
             DEFAULT_ASPECT_RATIO_ENABLED

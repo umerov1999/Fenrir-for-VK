@@ -1006,7 +1006,7 @@ class ChatPresenter(
     }
 
     private fun canSendNormalMessage(): Boolean {
-        return calculateAttachmentsCount() > 0 || draftMessageText.trimmedNonNullNoEmpty() || nowUploadingToEditingMessage()
+        return (calculateAttachmentsCount() > 0 && !isReplyMessageCanVoice()) || draftMessageText.trimmedNonNullNoEmpty() || nowUploadingToEditingMessage()
     }
 
     private fun resolveEmptyTextVisibility() {
@@ -1071,7 +1071,20 @@ class ChatPresenter(
     fun sendRecordingMessageImpl(file: File) {
         view?.scrollTo(0)
         val builder = SaveMessageBuilder(messagesOwnerId, peerId).setVoiceMessageFile(file)
-        this.sendMessage(builder)
+        if (isReplyMessageCanVoice()) {
+            val fwds = ArrayList<Message>()
+            for (model in outConfig.getModels()) {
+                if (model is FwdMessages) {
+                    fwds.addAll(model.fwds)
+                } else {
+                    builder.attach(model)
+                }
+            }
+            builder.setForwardMessages(fwds)
+            outConfig.getModels().clear()
+            resolveAttachmentsCounter()
+        }
+        sendMessage(builder)
     }
 
     fun sendRecordingCustomMessageImpl(context: Context, file: String) {
@@ -1127,7 +1140,7 @@ class ChatPresenter(
             }
 
         } else {
-            view?.showToast(R.string.pause_is_not_supported, true)
+            view?.showError(R.string.pause_is_not_supported)
         }
     }
 
@@ -1492,6 +1505,27 @@ class ChatPresenter(
         }
 
         return count
+    }
+
+    private fun isReplyMessageCanVoice(): Boolean {
+        if (draftMessageDbAttachmentsCount > 0) {
+            return false
+        }
+        var outConfigCount = 0
+        for (model in outConfig.getModels()) {
+            if (model is FwdMessages) {
+                outConfigCount += model.fwds.size
+                for (i in model.fwds) {
+                    if (i.peerId != peerId) {
+                        return false
+                    }
+                }
+            } else {
+                return false
+            }
+        }
+
+        return outConfigCount == 1
     }
 
     private fun calculateAttachmentsCount(): Int {

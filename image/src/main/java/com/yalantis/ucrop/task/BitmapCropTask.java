@@ -177,7 +177,7 @@ public class BitmapCropTask {
         OutputStream outputStream = null;
         ByteArrayOutputStream outStream = null;
         try {
-            outputStream = new FileOutputStream(new File(mImageOutputPath), false);
+            outputStream = new FileOutputStream(mImageOutputPath, false);
             outStream = new ByteArrayOutputStream();
             croppedBitmap.compress(mCompressFormat, mCompressQuality, outStream);
             outputStream.write(outStream.toByteArray());

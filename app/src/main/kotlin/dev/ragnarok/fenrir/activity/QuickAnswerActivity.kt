@@ -189,6 +189,8 @@ class QuickAnswerActivity : AppCompatActivity() {
                 override fun onVoicePlayButtonClick(
                     voiceHolderId: Int,
                     voiceMessageId: Int,
+                    messageId: Int,
+                    peerId: Int,
                     voiceMessage: VoiceMessage
                 ) {
                     val audio =
@@ -213,7 +215,8 @@ class QuickAnswerActivity : AppCompatActivity() {
                 msg.attachments,
                 attachmentsHolder,
                 true,
-                msg.getObjectId()
+                msg.getObjectId(),
+                msg.peerId
             )
             attachmentsViewBinder.displayForwards(msg.fwd, forwardMessagesRoot, true)
         }

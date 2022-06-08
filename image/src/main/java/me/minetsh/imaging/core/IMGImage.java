@@ -651,7 +651,7 @@ public class IMGImage {
     }
 
     public float getScale() {
-        return 1f * mFrame.width() / mImage.getWidth();
+        return mFrame.width() / mImage.getWidth();
     }
 
     public void setScale(float scale) {

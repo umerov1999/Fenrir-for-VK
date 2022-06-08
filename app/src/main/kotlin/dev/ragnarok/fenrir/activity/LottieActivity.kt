@@ -14,9 +14,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.button.MaterialButton
-import com.google.common.io.CharStreams
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.module.BufferWriteNative
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.rlottie.RLottie2Gif
 import dev.ragnarok.fenrir.module.rlottie.RLottie2Gif.Lottie2GifListener
@@ -29,8 +29,6 @@ import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import java.io.File
-import java.io.InputStreamReader
-import java.nio.charset.StandardCharsets
 
 class LottieActivity : AppCompatActivity() {
     private val requestWritePermission = requestPermissionsAbs(
@@ -160,14 +158,14 @@ class LottieActivity : AppCompatActivity() {
         val action = intent.action
         if (Intent.ACTION_VIEW == action) {
             try {
-                val b = InputStreamReader(
-                    contentResolver.openInputStream(
-                        getIntent().data ?: return
-                    ), StandardCharsets.UTF_8
-                )
                 lottie?.setAutoRepeat(true)
-                val result = CharStreams.toString(b)
-                lottie?.fromString(result, Utils.dp(500f), Utils.dp(500f))
+                lottie?.fromString(
+                    BufferWriteNative.fromStreamEndlessNull(
+                        contentResolver.openInputStream(
+                            getIntent().data ?: return
+                        ) ?: return
+                    ), Utils.dp(500f), Utils.dp(500f)
+                )
                 lottie?.playAnimation()
             } catch (e: Throwable) {
                 e.printStackTrace()

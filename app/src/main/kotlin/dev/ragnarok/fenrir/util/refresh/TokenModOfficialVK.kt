@@ -5,12 +5,14 @@ import android.util.Base64
 import dev.ragnarok.fenrir.Constants.VK_ANDROID_APP_VERSION_CODE
 import dev.ragnarok.fenrir.Constants.VK_ANDROID_APP_VERSION_NAME
 import dev.ragnarok.fenrir.Includes.proxySettings
+import dev.ragnarok.fenrir.api.HttpLogger
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
-import okhttp3.*
-import java.io.BufferedReader
+import okhttp3.FormBody
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.security.*
 import java.security.interfaces.RSAPrivateKey
@@ -67,7 +69,7 @@ object TokenModOfficialVK {
             sig,
             genNewKey,
             str2,
-            auth.split(" ").toTypedArray()[1].split(":").toTypedArray()[0],
+            auth.split(Regex(" ")).toTypedArray()[1].split(Regex(":")).toTypedArray()[0],
             clear
         )
         return doRequest("https://android.clients.google.com/c2dm/register3", arrayList, auth)
@@ -89,13 +91,13 @@ object TokenModOfficialVK {
                 println("Token register fail")
                 return null
             }
-            ret.add(sb3.split("\\|ID\\|$rid\\|:").toTypedArray()[1])
+            ret.add(sb3.split(Regex("\\|ID\\|$rid\\|:")).toTypedArray()[1])
             sb3 = receipt(str3, true)
             if (sb3.contains("REGISTRATION_ERROR")) {
                 println("Token register fail")
                 return null
             }
-            ret.add(sb3.split("\\|ID\\|$rid\\|:").toTypedArray()[1])
+            ret.add(sb3.split(Regex("\\|ID\\|$rid\\|:")).toTypedArray()[1])
             println("Token register OK")
             ret
         } catch (unused: Exception) {
@@ -160,8 +162,9 @@ object TokenModOfficialVK {
     @Throws(IOException::class)
     private fun doRequest(str: String, list: List<String>, str3: String): String {
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .readTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(40, TimeUnit.SECONDS)
+            .connectTimeout(40, TimeUnit.SECONDS)
+            .writeTimeout(40, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 chain.proceed(
                     chain.request().newBuilder()
@@ -174,21 +177,17 @@ object TokenModOfficialVK {
                 )
             })
         applyProxyConfig(builder, proxySettings.activeProxy)
+        HttpLogger.adjust(builder)
         val formBody = FormBody.Builder()
         for (i in list) {
-            val v = i.split("=").toTypedArray()
+            val v = i.split(Regex("=")).toTypedArray()
             formBody.add(v[0], v[1])
         }
         val request: Request = Request.Builder()
             .url(str)
             .post(formBody.build())
             .build()
-        val response: Response = builder.build().newCall(request).execute()
-        return BufferedReader(
-            InputStreamReader(
-                response.body.byteStream()
-            )
-        ).readLine()
+        return builder.build().newCall(request).execute().body.string()
     }
 
     private fun genNewKey(): String {

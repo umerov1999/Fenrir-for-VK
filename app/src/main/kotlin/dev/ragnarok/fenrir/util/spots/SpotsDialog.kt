@@ -30,7 +30,7 @@ class SpotsDialog private constructor(
 ) : AlertDialog(
     context
 ) {
-    private var size = 0
+    private val size = 8
     private var spots: ArrayList<AnimatedView> = ArrayList()
     private var animator: AnimatorPlayer? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,24 +70,23 @@ class SpotsDialog private constructor(
 
     private fun initProgress() {
         val progress = findViewById<FrameLayout>(R.id.dmax_spots_progress)
-        size = 10
         spots = ArrayList(size)
-        val size = context.resources.getDimensionPixelSize(R.dimen.spot_size)
+        val sizeP = context.resources.getDimensionPixelSize(R.dimen.spot_size)
         val progressWidth = context.resources.getDimensionPixelSize(R.dimen.progress_width)
-        for (i in spots.indices) {
+        for (i in 0..size) {
             val v = AnimatedView(context)
             v.setBackgroundResource(R.drawable.dmax_spots_spot)
             v.target = progressWidth
             v.xFactor = -1f
             v.visibility = View.INVISIBLE
-            progress?.addView(v, size, size)
-            spots[i] = v
+            progress?.addView(v, sizeP, sizeP)
+            spots.add(v)
         }
     }
 
     private fun createAnimations(): ArrayList<Animator> {
         val animators = ArrayList<Animator>(size)
-        for (i in spots.indices) {
+        for (i in 0..size) {
             val animatedView = spots[i]
             @SuppressLint("Recycle") val move: Animator =
                 ObjectAnimator.ofFloat(animatedView, "xFactor", 0f, 1f)
@@ -95,15 +94,15 @@ class SpotsDialog private constructor(
             move.interpolator = HesitateInterpolator()
             move.startDelay = DELAY.toLong() * i
             move.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
+                override fun onAnimationEnd(animation: Animator?) {
                     animatedView.visibility = View.INVISIBLE
                 }
 
-                override fun onAnimationStart(animation: Animator) {
+                override fun onAnimationStart(animation: Animator?) {
                     animatedView.visibility = View.VISIBLE
                 }
             })
-            animators[i] = move
+            animators.add(move)
         }
         return animators
     }

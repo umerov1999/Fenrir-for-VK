@@ -110,7 +110,7 @@ class MessagesAdapter(
         if (sticker?.isAnimated == true) {
             holder.sticker.fromNet(
                 sticker.getAnimationByType(if (isNightStiker) "dark" else "light"),
-                Utils.createOkHttp(5),
+                Utils.createOkHttp(5, true),
                 Utils.dp(128f),
                 Utils.dp(128f)
             )
@@ -142,7 +142,8 @@ class MessagesAdapter(
                 message.attachments,
                 holder.attachmentsHolder,
                 true,
-                message.getObjectId()
+                message.getObjectId(),
+                message.peerId
             )
             attachmentsViewBinder.displayForwards(message.fwd, holder.forwardMessagesRoot, true)
         }
@@ -356,7 +357,8 @@ class MessagesAdapter(
                 message.attachments,
                 holder.attachmentsHolder,
                 true,
-                message.getObjectId()
+                message.getObjectId(),
+                message.peerId
             )
             attachmentsViewBinder.displayForwards(message.fwd, holder.forwardMessagesRoot, true)
         }
@@ -403,7 +405,8 @@ class MessagesAdapter(
             message.attachments,
             holder.mAttachmentsHolder,
             true,
-            message.getObjectId()
+            message.getObjectId(),
+            message.peerId
         )
     }
 

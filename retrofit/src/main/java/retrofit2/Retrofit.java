@@ -66,7 +66,7 @@ import retrofit2.http.Url;
  * @author Jake Wharton (jw@squareup.com)
  */
 public final class Retrofit {
-    final okhttp3.Call.Factory callFactory;
+    final OkHttpClient callFactory;
     final HttpUrl baseUrl;
     final List<Converter.Factory> converterFactories;
     final int defaultConverterFactoriesSize;
@@ -78,7 +78,7 @@ public final class Retrofit {
     private final Map<Method, ServiceMethod<?>> serviceMethodCache = new ConcurrentHashMap<>();
 
     Retrofit(
-            okhttp3.Call.Factory callFactory,
+            OkHttpClient callFactory,
             HttpUrl baseUrl,
             List<Converter.Factory> converterFactories,
             int defaultConverterFactoriesSize,
@@ -219,7 +219,7 @@ public final class Retrofit {
      * The factory used to create {@linkplain okhttp3.Call OkHttp calls} for sending a HTTP requests.
      * Typically an instance of {@link OkHttpClient}.
      */
-    public okhttp3.Call.Factory callFactory() {
+    public OkHttpClient callFactory() {
         return callFactory;
     }
 
@@ -440,7 +440,7 @@ public final class Retrofit {
         private final List<Converter.Factory> converterFactories = new ArrayList<>();
         private final List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
         private @Nullable
-        okhttp3.Call.Factory callFactory;
+        OkHttpClient callFactory;
         private @Nullable
         HttpUrl baseUrl;
         private @Nullable
@@ -481,18 +481,10 @@ public final class Retrofit {
          * <p>This is a convenience method for calling {@link #callFactory}.
          */
         public Builder client(OkHttpClient client) {
-            return callFactory(Objects.requireNonNull(client, "client == null"));
-        }
-
-        /**
-         * Specify a custom call factory for creating {@link Call} instances.
-         *
-         * <p>Note: Calling {@link #client} automatically sets this value.
-         */
-        public Builder callFactory(okhttp3.Call.Factory factory) {
-            callFactory = Objects.requireNonNull(factory, "factory == null");
+            callFactory = (Objects.requireNonNull(client, "client == null"));
             return this;
         }
+
 
         /**
          * Set the API base URL.
@@ -639,7 +631,7 @@ public final class Retrofit {
 
             Platform platform = Platform.get();
 
-            okhttp3.Call.Factory callFactory = this.callFactory;
+            OkHttpClient callFactory = this.callFactory;
             if (callFactory == null) {
                 callFactory = new OkHttpClient();
             }

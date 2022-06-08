@@ -12,22 +12,6 @@
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_user_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="user_id:"
-            android:inputType="numberSigned"
-            android:textSize="16sp"
-            tools:ignore="HardcodedText" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp">
 

@@ -241,11 +241,11 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
+        delegate.applyDayNight()
         if (savedInstanceState == null && getMainActivityTransform() == MainActivityTransforms.MAIN) {
             nextRandom()
         }
         setTheme(currentStyle())
-        delegate.applyDayNight()
         Utils.prepareDensity(this)
         super.onCreate(savedInstanceState)
         isActivityDestroyed = false
@@ -336,17 +336,15 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 if (getMainActivityTransform() == MainActivityTransforms.MAIN) {
                     checkFCMRegistration(false)
                     mCompositeDisposable.add(MusicPlaybackController.tracksExist.findAllAudios(this)
+                        .andThen(
+                            InteractorFactory.createStickersInteractor().PlaceToStickerCache(this)
+                        )
                         .fromIOToMain()
                         .subscribe(RxUtils.dummy()) { t ->
                             if (Settings.get().other().isDeveloper_mode) {
                                 Utils.showErrorInAdapter(this, t)
                             }
                         })
-                    mCompositeDisposable.add(
-                        InteractorFactory.createStickersInteractor().PlaceToStickerCache(this)
-                            .fromIOToMain()
-                            .subscribe(RxUtils.dummy(), RxUtils.ignore())
-                    )
                     if (!Settings.get().other().appStoredVersionEqual()) {
                         cleanUICache(this, false)
                     }
@@ -371,7 +369,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 }
             }
         }
-        CurrentTheme.dumpDynamicColors(this)
+        //CurrentTheme.dumpDynamicColors(this)
     }
 
     private fun updateNotificationCount(account: Int) {
@@ -425,9 +423,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         if (onlyCheckGMS) {
             return
         }
-        val resolver = pushRegistrationResolver
         mCompositeDisposable.add(
-            resolver.resolvePushRegistration()
+            pushRegistrationResolver.resolvePushRegistration()
                 .fromIOToMain()
                 .subscribe(RxUtils.dummy(), RxUtils.ignore())
         )
@@ -612,7 +609,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         val track = UploadUtils.findFileName(this, i) ?: return false
                         var TrackName = track.replace(".mp3", "")
                         var Artist = ""
-                        val arr = TrackName.split(" - ").toTypedArray()
+                        val arr = TrackName.split(Regex(" - ")).toTypedArray()
                         if (arr.size > 1) {
                             Artist = arr[0]
                             TrackName = TrackName.replace("$Artist - ", "")
@@ -679,7 +676,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 val track = UploadUtils.findFileName(this, data) ?: return false
                 var TrackName = track.replace(".mp3", "")
                 var Artist = ""
-                val arr = TrackName.split(" - ").toTypedArray()
+                val arr = TrackName.split(Regex(" - ")).toTypedArray()
                 if (arr.size > 1) {
                     Artist = arr[0]
                     TrackName = TrackName.replace("$Artist - ", "")
@@ -983,7 +980,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             }
             mLastBackPressedTime = System.currentTimeMillis()
             mViewFragment?.let {
-                val bar = Snackbar.make(
+                val bar: Snackbar = Snackbar.make(
                     it,
                     getString(R.string.click_back_to_exit),
                     BaseTransientBottomBar.LENGTH_SHORT
@@ -1507,6 +1504,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.MARKET_VIEW -> attachToFront(MarketViewFragment.newInstance(args))
             Place.ALBUMS_BY_VIDEO -> attachToFront(VideoAlbumsByVideoFragment.newInstance(args))
             Place.FRIENDS_BY_PHONES -> attachToFront(FriendsByPhonesFragment.newInstance(args))
+            Place.VOTERS -> attachToFront(VotersFragment.newInstance(args))
             else -> throw IllegalArgumentException("Main activity can't open this place, type: " + place.type)
         }
     }

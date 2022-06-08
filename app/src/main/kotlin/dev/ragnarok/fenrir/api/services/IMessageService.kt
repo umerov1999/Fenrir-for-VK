@@ -35,6 +35,10 @@ interface IMessageService {
     fun unpinConversation(@Field("peer_id") peerId: Int): Single<BaseResponse<Int>>
 
     @FormUrlEncoded
+    @POST("messages.markAsListened")
+    fun markAsListened(@Field("message_id") message_id: Int): Single<BaseResponse<Int>>
+
+    @FormUrlEncoded
     @POST("messages.unpin")
     fun unpin(@Field("peer_id") peerId: Int): Single<BaseResponse<Int>>
 

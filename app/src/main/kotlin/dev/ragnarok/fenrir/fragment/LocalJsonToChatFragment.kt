@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +12,8 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.adapter.MessagesAdapter
@@ -30,18 +29,23 @@ import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.LocalJsonToChatPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalJsonToChatView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.ViewUtils
+import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.disposables.Disposable
+import java.util.concurrent.TimeUnit
 
 class LocalJsonToChatFragment :
     PlaceSupportMvpFragment<LocalJsonToChatPresenter, ILocalJsonToChatView>(), ILocalJsonToChatView,
     OnMessageActionListener {
     private var mEmpty: TextView? = null
-    private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
+    private var mLoadingProgressBar: RLottieImageView? = null
+    private var mLoadingProgressBarDispose = Disposable.disposed()
+    private var mLoadingProgressBarLoaded = false
     private var mAdapter: MessagesAdapter? = null
     private var recyclerView: RecyclerView? = null
 
@@ -76,12 +80,9 @@ class LocalJsonToChatFragment :
         recyclerView?.layoutManager =
             LinearLayoutManager(requireActivity(), RecyclerView.VERTICAL, true)
         recyclerView?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
-        mSwipeRefreshLayout = root.findViewById(R.id.refresh)
-        mSwipeRefreshLayout?.isEnabled = false
-        ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
+        mLoadingProgressBar = root.findViewById(R.id.loading_progress_bar)
         mAdapter = MessagesAdapter(requireActivity(), mutableListOf(), this, true)
         recyclerView?.adapter = mAdapter
-        resolveEmptyText()
         return root
     }
 
@@ -197,27 +198,67 @@ class LocalJsonToChatFragment :
         recyclerView?.scrollToPosition(pos)
     }
 
-    private fun resolveEmptyText() {
-        mEmpty?.visibility = if (mAdapter?.itemCount == 0) View.VISIBLE else View.GONE
+    override fun resolveEmptyText(visible: Boolean) {
+        mEmpty?.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     override fun displayData(posts: ArrayList<Message>) {
         mAdapter?.setItems(posts, true)
-        resolveEmptyText()
     }
 
     override fun notifyDataSetChanged() {
         mAdapter?.notifyDataSetChanged()
-        resolveEmptyText()
     }
 
     override fun notifyDataAdded(position: Int, count: Int) {
         mAdapter?.notifyItemRangeInserted(position, count)
-        resolveEmptyText()
     }
 
     override fun showRefreshing(refreshing: Boolean) {
-        mSwipeRefreshLayout?.isRefreshing = refreshing
+        mLoadingProgressBarDispose.dispose()
+        if (mLoadingProgressBarLoaded && !refreshing) {
+            mLoadingProgressBarLoaded = false
+            val k = ObjectAnimator.ofFloat(mLoadingProgressBar, View.ALPHA, 0.0f).setDuration(1000)
+            k.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(animation: Animator?) {
+                }
+
+                override fun onAnimationEnd(animation: Animator?) {
+                    mLoadingProgressBar?.clearAnimationDrawable()
+                    mLoadingProgressBar?.visibility = View.GONE
+                    mLoadingProgressBar?.alpha = 1f
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {
+                    mLoadingProgressBar?.clearAnimationDrawable()
+                    mLoadingProgressBar?.visibility = View.GONE
+                    mLoadingProgressBar?.alpha = 1f
+                }
+
+                override fun onAnimationRepeat(animation: Animator?) {
+                }
+            })
+            k.start()
+        } else if (refreshing) {
+            mLoadingProgressBarDispose = Completable.create {
+                it.onComplete()
+            }.delay(300, TimeUnit.MILLISECONDS).fromIOToMain().subscribe({
+                mLoadingProgressBarLoaded = true
+                mLoadingProgressBar?.visibility = View.VISIBLE
+                mLoadingProgressBar?.fromRes(
+                    R.raw.loading,
+                    Utils.dp(100F),
+                    Utils.dp(100F),
+                    intArrayOf(
+                        0x000000,
+                        CurrentTheme.getColorPrimary(requireActivity()),
+                        0x777777,
+                        CurrentTheme.getColorSecondary(requireActivity())
+                    )
+                )
+                mLoadingProgressBar?.playAnimation()
+            }, RxUtils.ignore())
+        }
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<LocalJsonToChatPresenter> =
@@ -264,6 +305,11 @@ class LocalJsonToChatFragment :
                 )
             )
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mLoadingProgressBarDispose.dispose()
     }
 
     override fun setToolbarTitle(title: String?) {

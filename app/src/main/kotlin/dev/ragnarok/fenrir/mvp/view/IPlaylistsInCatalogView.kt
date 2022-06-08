@@ -4,7 +4,7 @@ import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 
-interface IPlaylistsInCatalogView : IMvpView, IErrorView, IAccountDependencyView {
+interface IPlaylistsInCatalogView : IMvpView, IErrorView, IToastView, IAccountDependencyView {
     fun displayList(audios: List<AudioPlaylist>)
     fun notifyListChanged()
     fun displayRefreshing(refresing: Boolean)

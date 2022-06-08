@@ -56,6 +56,11 @@ class VKApiMessage
     var important = false
 
     /**
+     * Whether the message voice played (false — no, true — yes).
+     */
+    var was_listened = false
+
+    /**
      * Whether the message is deleted (false — no, true — yes).
      */
     var deleted = false

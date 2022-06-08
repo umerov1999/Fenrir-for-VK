@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.db.column
 import android.provider.BaseColumns
 
 object UserColumns : BaseColumns {
-    const val API_FIELDS = "first_name,last_name,online,online_mobile,photo_50," +
-            "photo_100,photo_200,last_seen,platform,status,photo_max_orig,online_app,sex,domain,is_friend,friend_status,blacklisted_by_me,blacklisted,can_write_private_message,can_access_closed,verified,screen_name,is_favorite,is_subscribed,maiden_name"
+    const val API_FIELDS =
+        "blacklisted,blacklisted_by_me,can_access_closed,can_post,can_see_all_posts,can_see_audio,can_write_private_message,domain,first_name,friend_status,is_closed,is_favorite,is_friend,is_subscribed,last_name,last_seen,maiden_name,online,online_app,online_mobile,photo_100,photo_200,photo_50,photo_max_orig,platform,screen_name,sex,status,verified"
 
     /**
      * The table name of books = "books"

@@ -4,7 +4,8 @@ import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 
-interface IWallPostView : IAttachmentsPlacesView, IAccountDependencyView, IMvpView, IErrorView {
+interface IWallPostView : IAttachmentsPlacesView, IAccountDependencyView, IMvpView, IErrorView,
+    IToastView {
     fun displayDefaultToolbarTitle()
     fun displayToolbarTitle(title: String?)
     fun displayToolbarSubtitle(subtitleType: Int, datetime: Long)

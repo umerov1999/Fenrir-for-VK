@@ -85,7 +85,7 @@ class ExoGifPlayer(
 
     private fun onVideoSizeChanged() {
         for (listener in videoSizeChangeListeners) {
-            listener.onVideoSizeChanged(this, videoSize)
+            listener.onVideoSizeChanged(this, videoSize ?: VideoSize(1, 1))
         }
     }
 

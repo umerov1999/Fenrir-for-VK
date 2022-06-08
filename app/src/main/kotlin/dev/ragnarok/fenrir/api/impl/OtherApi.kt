@@ -43,10 +43,8 @@ class OtherApi(private val accountId: Int, private val provider: IVkRetrofitProv
                         })
                     }
             }
-            .map { response ->
-                val body = response.body
-                val responseBodyString = body.string()
-                wrap(responseBodyString)
+            .map {
+                wrap(it.body.string())
             }
     }
 }

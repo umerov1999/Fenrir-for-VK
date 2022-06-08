@@ -497,9 +497,8 @@ open class PhotoPagerPresenter internal constructor(
     }
 
     private fun onPhotoCopied() {
-        view?.showToast(
-            R.string.photo_saved_yourself,
-            true
+        view?.customToast?.showToastSuccessBottom(
+            R.string.photo_saved_yourself
         )
     }
 

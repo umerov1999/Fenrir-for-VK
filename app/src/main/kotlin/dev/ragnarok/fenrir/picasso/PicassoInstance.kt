@@ -15,8 +15,8 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.ProxyUtil
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.CompressDefaultInterceptor
 import dev.ragnarok.fenrir.util.CoverSafeResize
-import dev.ragnarok.fenrir.util.GzipInterceptor
 import dev.ragnarok.fenrir.util.Logger
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -74,7 +74,7 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
                     .addHeader("X-VK-Android-Client", "new")
                     .addHeader("User-Agent", Constants.USER_AGENT(AccountType.BY_TYPE)).build()
                 chain.proceed(request)
-            }).addInterceptor(GzipInterceptor)
+            }).addInterceptor(CompressDefaultInterceptor)
         if (Settings.get().other().isLimit_cache) {
             builder.addNetworkInterceptor(Interceptor { chain: Interceptor.Chain ->
                 chain.proceed(chain.request()).newBuilder()

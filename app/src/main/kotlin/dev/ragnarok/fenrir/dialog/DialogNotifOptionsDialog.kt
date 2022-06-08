@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.settings.ISettings.INotificationSettings
@@ -18,11 +18,11 @@ class DialogNotifOptionsDialog : BottomSheetDialogFragment() {
     private var mask = 0
     private var peerId = 0
     private var accountId = 0
-    private var scEnable: SwitchMaterial? = null
-    private var scHighPriority: SwitchMaterial? = null
-    private var scSound: SwitchMaterial? = null
-    private var scVibro: SwitchMaterial? = null
-    private var scLed: SwitchMaterial? = null
+    private var scEnable: MaterialSwitch? = null
+    private var scHighPriority: MaterialSwitch? = null
+    private var scSound: MaterialSwitch? = null
+    private var scVibro: MaterialSwitch? = null
+    private var scLed: MaterialSwitch? = null
     private var listener: Listener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

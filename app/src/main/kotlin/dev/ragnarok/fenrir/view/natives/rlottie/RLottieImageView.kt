@@ -8,6 +8,7 @@ import androidx.annotation.RawRes
 import androidx.appcompat.widget.AppCompatImageView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.module.BufferWriteNative
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.fenrir.util.RxUtils
@@ -163,7 +164,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         )
     }
 
-    fun fromString(jsonString: String, w: Int, h: Int) {
+    fun fromString(jsonString: BufferWriteNative, w: Int, h: Int) {
         if (!FenrirNative.isNativeLoaded) {
             return
         }

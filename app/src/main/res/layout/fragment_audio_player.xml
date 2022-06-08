@@ -257,7 +257,6 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             app:elevation="3dp"
-            app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toStartOf="@id/action_button_next"

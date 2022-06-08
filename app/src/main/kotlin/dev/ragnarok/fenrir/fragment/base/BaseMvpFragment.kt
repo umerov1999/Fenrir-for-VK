@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -36,16 +35,6 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
         return arguments?.getBoolean(EXTRA_HIDE_TOOLBAR) == true
     }
 
-    override fun showToast(@StringRes titleTes: Int, isLong: Boolean, vararg params: Any?) {
-        if (isAdded) {
-            Toast.makeText(
-                requireActivity(),
-                getString(titleTes, *params),
-                if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     override fun showError(errorText: String?) {
         if (isAdded) {
             Utils.showRedTopToast(requireActivity(), errorText)
@@ -64,6 +53,8 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
                 ).setBackgroundTint(Color.parseColor("#eeff0000"))
                     .setAction(R.string.more_info) {
                         val Text = StringBuilder()
+                        Text.append(localizeThrowable(provideApplicationContext(), throwable))
+                        Text.append("\r\n")
                         for (stackTraceElement in (throwable ?: return@setAction).stackTrace) {
                             Text.append("    ")
                             Text.append(stackTraceElement)

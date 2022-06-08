@@ -628,7 +628,7 @@ object DownloadWorkUtils {
             try {
                 FileOutputStream(file).use { output ->
                     if (url.isNullOrEmpty()) throw Exception(applicationContext.getString(R.string.null_image_link))
-                    val builder = Utils.createOkHttp(60)
+                    val builder = Utils.createOkHttp(60, false)
                     val request: Request = Request.Builder()
                         .url(url)
                         .build()

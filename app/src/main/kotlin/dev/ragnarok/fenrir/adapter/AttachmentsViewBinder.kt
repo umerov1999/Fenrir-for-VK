@@ -62,7 +62,8 @@ class AttachmentsViewBinder(
         attachments: Attachments?,
         containers: AttachmentsHolder,
         postsAsLinks: Boolean,
-        messageId: Int?
+        messageId: Int?,
+        peerId: Int?
     ) {
         if (attachments == null) {
             safeSetVisibitity(containers.vgAudios, View.GONE)
@@ -79,7 +80,12 @@ class AttachmentsViewBinder(
         } else {
             displayArticles(attachments.articles, containers.vgArticles)
             containers.vgAudios?.displayAudios(attachments.audios, mAttachmentsActionCallback)
-            displayVoiceMessages(attachments.voiceMessages, containers.voiceMessageRoot, messageId)
+            displayVoiceMessages(
+                attachments.voiceMessages,
+                containers.voiceMessageRoot,
+                messageId,
+                peerId
+            )
             displayDocs(attachments.getDocLinks(postsAsLinks, true), containers.vgDocs)
             if (containers.vgStickers != null) {
                 displayStickers(attachments.stickers, containers.vgStickers)
@@ -97,7 +103,8 @@ class AttachmentsViewBinder(
     private fun displayVoiceMessages(
         voices: ArrayList<VoiceMessage>?,
         container: ViewGroup?,
-        messageId: Int?
+        messageId: Int?,
+        peerId: Int?
     ) {
         if (voices == null || voices.isEmpty() || container == null) {
             container?.visibility = View.GONE
@@ -117,7 +124,7 @@ class AttachmentsViewBinder(
             if (g < voices.size) {
                 val holder = root.tag as VoiceHolder? ?: continue
                 val voice = voices[g]
-                bindVoiceHolder(holder, voice, messageId)
+                bindVoiceHolder(holder, voice, messageId, peerId)
                 root.visibility = View.VISIBLE
             } else {
                 root.visibility = View.GONE
@@ -205,7 +212,12 @@ class AttachmentsViewBinder(
         }
     }
 
-    private fun bindVoiceHolder(holder: VoiceHolder, voice: VoiceMessage, messageId: Int?) {
+    private fun bindVoiceHolder(
+        holder: VoiceHolder,
+        voice: VoiceMessage,
+        messageId: Int?,
+        peerId: Int?
+    ) {
         val voiceMessageId = voice.getId()
         mVoiceSharedHolders.put(voiceMessageId, holder)
         holder.mDurationText.text = AppTextUtils.getDurationString(voice.getDuration())
@@ -216,6 +228,11 @@ class AttachmentsViewBinder(
         }, {
             holder.mWaveFormView.setWaveForm(DEFAUL_WAVEFORM)
         })
+        if (voice.wasListened()) {
+            holder.mButtonPlay.background = null
+        } else {
+            holder.mButtonPlay.setBackgroundResource(R.drawable.spinner)
+        }
         if (voice.getTranscript().isNullOrEmpty()) {
             holder.TranscriptText.visibility = View.GONE
             if (messageId == null) {
@@ -260,6 +277,8 @@ class AttachmentsViewBinder(
             mVoiceActionListener?.onVoicePlayButtonClick(
                 holder.holderId,
                 voiceMessageId,
+                messageId.orZero(),
+                peerId.orZero(),
                 voice
             )
         }
@@ -300,7 +319,7 @@ class AttachmentsViewBinder(
         if (sticker.isAnimated) {
             imageView.fromNet(
                 sticker.getAnimationByType(if (isNightStiker) "dark" else "light"),
-                Utils.createOkHttp(5),
+                Utils.createOkHttp(5, true),
                 finalWidth.toInt(),
                 finalHeihgt.toInt()
             )
@@ -376,7 +395,7 @@ class AttachmentsViewBinder(
                 ) View.VISIBLE else View.GONE
                 check.ownerName.text = copy.authorName
                 check.buttonDots.tag = copy
-                displayAttachments(copy.attachments, check.attachmentsHolder, false, null)
+                displayAttachments(copy.attachments, check.attachmentsHolder, false, null, null)
             } else {
                 postViewGroup.visibility = View.GONE
             }
@@ -512,7 +531,8 @@ class AttachmentsViewBinder(
                     message.attachments,
                     attachmentContainers,
                     postsAsLinks,
-                    message.getObjectId()
+                    message.getObjectId(),
+                    message.peerId
                 )
             } else {
                 itemView.visibility = View.GONE
@@ -738,7 +758,7 @@ class AttachmentsViewBinder(
                             post.attachments,
                             attachmentsHolder,
                             false,
-                            null
+                            null, null
                         )
                     }
                     AttachmentsTypes.WALL_REPLY -> {
@@ -764,7 +784,7 @@ class AttachmentsViewBinder(
                             comment.attachments,
                             attachmentsHolder,
                             false,
-                            null
+                            null, null
                         )
                     }
                     AttachmentsTypes.EVENT -> {
@@ -938,6 +958,8 @@ class AttachmentsViewBinder(
         fun onVoicePlayButtonClick(
             voiceHolderId: Int,
             voiceMessageId: Int,
+            messageId: Int,
+            peerId: Int,
             voiceMessage: VoiceMessage
         )
 

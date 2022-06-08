@@ -19,4 +19,12 @@ interface IPollView : IAccountDependencyView, IMvpView, IErrorView {
 
     fun displayLoading(loading: Boolean)
     fun setupButton(voted: Boolean)
+
+    fun openVoters(
+        accountId: Int,
+        ownerId: Int,
+        pollId: Int,
+        board: Boolean,
+        answer: Int
+    )
 }

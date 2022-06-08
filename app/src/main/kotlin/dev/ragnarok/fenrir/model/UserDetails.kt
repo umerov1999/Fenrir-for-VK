@@ -60,6 +60,7 @@ class UserDetails : Parcelable {
     private var quotes: String? = null
     private var about: String? = null
     private var books: String? = null
+    private var isClosed: Boolean = false
 
     constructor()
     private constructor(`in`: Parcel) {
@@ -84,6 +85,7 @@ class UserDetails : Parcelable {
         bdate = `in`.readString()
         isFavorite = `in`.readByte().toInt() == 1
         isSubscribed = `in`.readByte().toInt() == 1
+        isClosed = `in`.readByte().toInt() == 1
     }
 
     fun setProductServicesCount(productServicesCount: Int): UserDetails {
@@ -454,6 +456,16 @@ class UserDetails : Parcelable {
         parcel.writeString(bdate)
         parcel.writeByte(if (isFavorite) 1.toByte() else 0.toByte())
         parcel.writeByte(if (isSubscribed) 1.toByte() else 0.toByte())
+        parcel.writeByte(if (isClosed) 1.toByte() else 0.toByte())
+    }
+
+    fun isClosed(): Boolean {
+        return isClosed
+    }
+
+    fun setClosed(closed: Boolean): UserDetails {
+        this.isClosed = closed
+        return this
     }
 
     fun getBdate(): String? {

@@ -220,6 +220,15 @@
         <item>•••••• </item>
     </string-array>
 
+    <string name="crash_error_activity_error_occurred_explanation">Unhandled exception.</string>
+    <string name="crash_error_activity_restart_app">Restart</string>
+    <string name="crash_error_activity_error_details">Details</string>
+    <string name="crash_error_activity_error_details_title">Exception details</string>
+    <string name="crash_error_activity_error_details_close">Close</string>
+    <string name="crash_error_activity_error_details_copy">Copy</string>
+    <string name="crash_error_activity_error_details_copied">Copied</string>
+    <string name="crash_error_activity_error_details_clipboard_label">Error information</string>
+
     <!-- Dialogs-->
     <string name="dialogs">Dialogs</string>
     <string name="dialog_day_today">Today</string>
@@ -837,6 +846,7 @@
     <string name="photo">Photo</string>
     <string name="video">Video</string>
     <string name="share">Share</string>
+    <string name="share_to_message">Share to Message</string>
     <string name="new_comment">New comment</string>
     <string name="editing">Editing</string>
     <string name="add_document_to_yourself_commit">Add to your documents?</string>
@@ -1571,8 +1581,8 @@
     <string name="docs_dir">Documents</string>
     <string name="sticker_dir">Stickers</string>
     <string name="photo_to_user_dir">Sort photos by folders</string>
-    <string name="import_accounts">Importing accounts</string>
-    <string name="export_accounts">Exporting accounts</string>
+    <string name="import_accounts">Import settings</string>
+    <string name="export_accounts">Export settings</string>
     <string name="entry_account">Enter</string>
     <string name="show_qr">Show QR</string>
     <string name="download_peer_to">Download messages</string>
@@ -1773,7 +1783,6 @@
     <string name="artists">Artists</string>
     <string name="video_controller_to_decor">Video controller to decor view</string>
     <string name="video_swipes">Enable video swipes</string>
-    <string name="extra_debug">Extra Debug</string>
     <string name="do_logs">Record logs</string>
     <string name="dump_fcm">Debug firebase</string>
     <string name="need_restart">Restart required</string>
@@ -1858,13 +1867,12 @@
     <string name="comments_disabled_post">Comments disabled for this post!</string>
     <string name="recently">Recently</string>
     <string name="reset">Reset</string>
-
-    <string name="crash_error_activity_error_occurred_explanation">Unhandled exception.</string>
-    <string name="crash_error_activity_restart_app">Restart</string>
-    <string name="crash_error_activity_error_details">Details</string>
-    <string name="crash_error_activity_error_details_title">Exception details</string>
-    <string name="crash_error_activity_error_details_close">Close</string>
-    <string name="crash_error_activity_error_details_copy">Copy</string>
-    <string name="crash_error_activity_error_details_copied">Copied</string>
-    <string name="crash_error_activity_error_details_clipboard_label">Error information</string>
+    <string name="enable_dirs_files_count">Number of files in a folder</string>
+    <string name="gender_woman">Female</string>
+    <string name="gender_man">Male</string>
+    <string name="closed">Closed</string>
+    <string name="opened">Opened</string>
+    <string name="unofficial">Unofficial</string>
+    <string name="mark_listened_voice">Mark Listened Voice</string>
+    <string name="voters">Voters</string>
 </resources>

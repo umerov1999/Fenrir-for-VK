@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,6 +12,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.textview.MaterialTextView
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.adapter.OwnersAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
@@ -88,6 +90,11 @@ abstract class AbsOwnersListFragment<P : SimpleOwnersPresenter<V>, V : ISimpleOw
             mOwnersAdapter?.setItems(owners)
             mCount?.text = getString(R.string.people_count, owners.size)
         }
+    }
+
+    override fun updateTitle(@StringRes res: Int) {
+        val actionBar = ActivityUtils.supportToolbarFor(this)
+        actionBar?.setTitle(res)
     }
 
     override fun notifyDataSetChanged() {

@@ -324,12 +324,12 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (ev.getActionMasked() == MotionEvent.ACTION_DOWN) {
-            return onInterceptTouch(ev) || super.onInterceptTouchEvent(ev);
+            return onInterceptTouch() || super.onInterceptTouchEvent(ev);
         }
         return super.onInterceptTouchEvent(ev);
     }
 
-    boolean onInterceptTouch(MotionEvent event) {
+    boolean onInterceptTouch() {
         if (isHoming()) {
             stopHoming();
             return true;

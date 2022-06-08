@@ -24,6 +24,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.*
+import com.google.gson.reflect.TypeToken
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Constants.DEFAULT_ACCOUNT_TYPE
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
@@ -34,8 +35,11 @@ import dev.ragnarok.fenrir.activity.FileManagerSelectActivity
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.ProxyManagerActivity
 import dev.ragnarok.fenrir.adapter.AccountAdapter
+import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.api.Auth.scope
+import dev.ragnarok.fenrir.api.VkRetrofitProvider
 import dev.ragnarok.fenrir.api.model.VKApiUser
+import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.db.DBHelper
 import dev.ragnarok.fenrir.dialog.DirectAuthDialog
 import dev.ragnarok.fenrir.dialog.DirectAuthDialog.Companion.newInstance
@@ -43,6 +47,7 @@ import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.exception.UnauthorizedException
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
 import dev.ragnarok.fenrir.longpoll.LongpollInstance.longpollManager
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
@@ -61,11 +66,16 @@ import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
 import dev.ragnarok.fenrir.util.ShortcutUtils.createAccountShortcutRx
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.getAppVersionName
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.exceptions.Exceptions
+import okhttp3.*
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -251,7 +261,6 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     }) { SaveAccounts(file, null) })
         }
     }
-
 
     private val accountsInteractor: IAccountsInteractor =
         InteractorFactory.createAccountInteractor()
@@ -699,6 +708,57 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         )
     }
 
+    private fun getUserIdByAccessToken(@AccountType type: Int, accessToken: String): Single<Int> {
+        val bodyBuilder = FormBody.Builder()
+        bodyBuilder.add("access_token", accessToken)
+            .add("v", Constants.API_VERSION)
+            .add("lang", Constants.DEVICE_COUNTRY_CODE)
+            .add("https", "1")
+            .add(
+                "device_id", Utils.getDeviceId(provideApplicationContext())
+            )
+        return Includes.networkInterfaces.getVkRetrofitProvider().provideRawHttpClient(type)
+            .flatMap { client ->
+                Single.create { emitter: SingleEmitter<Response> ->
+                    val request: Request = Request.Builder()
+                        .url(
+                            "https://" + Settings.get().other()
+                                .get_Api_Domain() + "/method/users.get"
+                        )
+                        .method("POST", bodyBuilder.build())
+                        .build()
+                    val call = client.newCall(request)
+                    emitter.setCancellable { call.cancel() }
+                    call.enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            emitter.onError(e)
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            emitter.onSuccess(response)
+                        }
+                    })
+                }
+            }
+            .map<BaseResponse<List<VKApiUser>>> {
+                VkRetrofitProvider.vkgson.fromJson(
+                    it.body.charStream(),
+                    object : TypeToken<BaseResponse<List<VKApiUser>>>() {}.type
+                )
+            }.map { it1 ->
+                it1.error.requireNonNull {
+                    throw Exceptions.propagate(ApiException(it))
+                }
+                val o = it1.response.nonNullNoEmptyOr({
+                    if (it.isEmpty()) -1 else it[0].id
+                }, { -1 })
+                if (o < 0) {
+                    throw UnauthorizedException("Token error")
+                }
+                o
+            }
+    }
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.action_proxy -> {
@@ -719,10 +779,6 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     .setView(root)
                     .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
                         try {
-                            val id =
-                                (root.findViewById<View>(R.id.edit_user_id) as TextInputEditText).text.toString()
-                                    .trim { it <= ' ' }
-                                    .toInt()
                             val access_token =
                                 (root.findViewById<View>(R.id.edit_access_token) as TextInputEditText).text.toString()
                                     .trim { it <= ' ' }
@@ -735,15 +791,38 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                                 AccountType.KATE_HIDDEN
                             )
                             if (access_token.isNotEmpty() && id != 0 && selected >= 0 && selected < 3) {
-                                processNewAccount(
-                                    id,
-                                    access_token,
-                                    types[selected],
-                                    null,
-                                    null,
-                                    "fenrir_app",
-                                    isCurrent = false,
-                                    needSave = false
+                                appendDisposable(
+                                    getUserIdByAccessToken(
+                                        types[selected],
+                                        access_token
+                                    )
+                                        .fromIOToMain()
+                                        .subscribe({
+                                            processNewAccount(
+                                                it,
+                                                access_token,
+                                                types[selected],
+                                                null,
+                                                null,
+                                                "fenrir_app",
+                                                isCurrent = false,
+                                                needSave = false
+                                            )
+                                        }, { it2 ->
+                                            it2.localizedMessage?.let {
+                                                Snackbar.make(
+                                                    requireView(),
+                                                    it,
+                                                    BaseTransientBottomBar.LENGTH_LONG
+                                                )
+                                                    .setTextColor(
+                                                        Color.WHITE
+                                                    )
+                                                    .setBackgroundTint(Color.parseColor("#eeff0000"))
+                                                    .setAnchorView(mRecyclerView)
+                                                    .show()
+                                            }
+                                        })
                                 )
                             }
                         } catch (ignored: NumberFormatException) {

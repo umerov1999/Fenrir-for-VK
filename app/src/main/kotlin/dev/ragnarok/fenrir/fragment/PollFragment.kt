@@ -21,6 +21,7 @@ import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.PollPresenter
 import dev.ragnarok.fenrir.mvp.view.IPollView
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.util.Utils.appLocale
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.AspectRatioImageView
@@ -118,6 +119,17 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
         }
     }
 
+    override fun openVoters(
+        accountId: Int,
+        ownerId: Int,
+        pollId: Int,
+        board: Boolean,
+        answer: Int
+    ) {
+        PlaceFactory.getVotersPlace(accountId, ownerId, pollId, board, answer)
+            .tryOpenWith(requireActivity())
+    }
+
     override fun onResume() {
         super.onResume()
         ActivityFeatures.Builder()
@@ -141,6 +153,12 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
     override fun onAnswerChanged(checked: MutableSet<Int>) {
         presenter?.fireVoteChecked(
             checked
+        )
+    }
+
+    override fun onAnswerClick(id: Int) {
+        presenter?.fireVoteClicked(
+            id
         )
     }
 

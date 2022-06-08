@@ -111,7 +111,8 @@
     <item name="hoveredFocusedTranslationZ">@dimen/m3_fab_translation_z_hovered_focused</item>
     <item name="pressedTranslationZ">@dimen/m3_fab_translation_z_pressed</item>
     <item name="rippleColor">@color/m3_button_ripple_color_selector</item>
-    <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Material3.FloatingActionButton</item>
+    <item name="shapeAppearance">?attr/shapeAppearanceCornerLarge</item>
+    <item name="shapeAppearanceOverlay">@null</item>
     <item name="tint">@color/m3_button_foreground_color_selector</item>
     <!--Remove the motion spec and allow FloatingActionButtonImpl to create a theme-based animation-->
     <item name="showMotionSpec">@null</item>
@@ -143,7 +144,10 @@
     <item name="enforceMaterialTheme">true</item>
     <item name="iconTint">@color/m3_button_foreground_color_selector</item>
     <item name="rippleColor">@color/m3_button_ripple_color_selector</item>
-    <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Material3.FloatingActionButton</item>
+    <item name="shapeAppearance">?attr/shapeAppearanceCornerLarge</item>
+    <item name="shapeAppearanceOverlay">@null</item>
+    <item name="showMotionSpec">@animator/m3_extended_fab_show_motion_spec</item>
+    <item name="hideMotionSpec">@animator/m3_extended_fab_hide_motion_spec</item>
   </style>
 
   <style name="Base.Widget.Material3.ExtendedFloatingActionButton.Icon" parent="Base.Widget.Material3.ExtendedFloatingActionButton">
@@ -192,10 +196,36 @@
     <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.FloatingActionButton.Surface</item>
   </style>
 
+  <!-- M3 Small FABs -->
+  <style name="Base.Widget.Material3.FloatingActionButton.Small" parent="Base.Widget.Material3.FloatingActionButton">
+    <item name="fabCustomSize">@dimen/m3_small_fab_size</item>
+    <item name="maxImageSize">@dimen/m3_small_fab_max_image_size</item>
+    <item name="shapeAppearance">?attr/shapeAppearanceCornerMedium</item>
+    <item name="shapeAppearanceOverlay">@null</item>
+  </style>
+
+  <style name="Widget.Material3.FloatingActionButton.Small.Primary" parent="Base.Widget.Material3.FloatingActionButton.Small">
+    <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.FloatingActionButton.Primary</item>
+  </style>
+
+  <style name="Widget.Material3.FloatingActionButton.Small.Secondary" parent="Base.Widget.Material3.FloatingActionButton.Small">
+    <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.FloatingActionButton.Secondary</item>
+  </style>
+
+  <style name="Widget.Material3.FloatingActionButton.Small.Tertiary" parent="Base.Widget.Material3.FloatingActionButton.Small">
+    <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.FloatingActionButton.Tertiary</item>
+  </style>
+
+  <style name="Widget.Material3.FloatingActionButton.Small.Surface" parent="Base.Widget.Material3.FloatingActionButton.Small">
+    <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.FloatingActionButton.Surface</item>
+  </style>
+
   <!-- M3 Large FABs -->
   <style name="Base.Widget.Material3.FloatingActionButton.Large" parent="Base.Widget.Material3.FloatingActionButton">
     <item name="fabCustomSize">@dimen/m3_large_fab_size</item>
     <item name="maxImageSize">@dimen/m3_large_fab_max_image_size</item>
+    <item name="shapeAppearance">?attr/shapeAppearanceCornerExtraLarge</item>
+    <item name="shapeAppearanceOverlay">@null</item>
   </style>
 
   <style name="Widget.Material3.FloatingActionButton.Large.Primary" parent="Base.Widget.Material3.FloatingActionButton.Large">
@@ -215,6 +245,12 @@
   </style>
 
   <!-- Overlays -->
+
+  <!--
+    Deprecation:
+      Shape appearances in Material3 FAB styles are migrated to new shape theme attributes.
+      This percentage-based corners overlay is only used for existing usage where FAB size changes at runtime.
+  -->
   <style name="ShapeAppearanceOverlay.Material3.FloatingActionButton" parent="">
     <item name="cornerSize">@dimen/m3_fab_corner_size</item>
   </style>

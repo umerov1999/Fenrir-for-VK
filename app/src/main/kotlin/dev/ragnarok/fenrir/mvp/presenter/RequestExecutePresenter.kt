@@ -48,9 +48,9 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
         val params: MutableMap<String, String> = HashMap()
         if (trimmedBody.nonNullNoEmpty()) {
             try {
-                val lines = trimmedBody.split("\\r?\\n".toRegex()).toTypedArray()
+                val lines = trimmedBody.split(Regex("\\r?\\n")).toTypedArray()
                 for (line in lines) {
-                    val parts = line.split("=>".toRegex()).toTypedArray()
+                    val parts = line.split(Regex("=>")).toTypedArray()
                     val name = parts[0].lowercase(Locale.getDefault()).trim { it <= ' ' }
                     var value = parts[1].trim { it <= ' ' }
                     value = value.replace("\"".toRegex(), "")
@@ -163,7 +163,7 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
                 val fullJson = if (responseString == null) null else toPrettyFormat(responseString)
                 var trimmedJson: String? = null
                 if (fullJson.nonNullNoEmpty()) {
-                    val lines = fullJson.split("\\r?\\n".toRegex()).toTypedArray()
+                    val lines = fullJson.split(Regex("\\r?\\n")).toTypedArray()
                     val trimmed: MutableList<String> = ArrayList()
                     for (line in lines) {
                         if (trimmed.size > 1500) {

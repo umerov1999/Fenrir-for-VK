@@ -4,7 +4,7 @@ import dev.ragnarok.fenrir.model.AudioCatalog
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 
-interface IAudioCatalogView : IAccountDependencyView, IMvpView, IErrorView {
+interface IAudioCatalogView : IAccountDependencyView, IMvpView, IErrorView, IToastView {
     fun displayData(pages: List<AudioCatalog>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

@@ -460,6 +460,7 @@ object Dto2Entity {
         }
         dbo.setStatusAudio(user.status_audio?.let { mapAudio(it) })
         dbo.setBdate(user.bdate)
+        dbo.setClosed(user.is_closed)
         dbo.setCity(user.city?.let { mapCity(it) })
         dbo.setCountry(user.country?.let { mapCountry(it) })
         dbo.setHomeTown(user.home_town)
@@ -1210,6 +1211,7 @@ object Dto2Entity {
             .setLinkOgg(dto.linkOgg)
             .setWaveform(dto.waveform)
             .setTranscript(dto.transcript)
+            .setWasListened(dto.was_listened)
     }
 
 

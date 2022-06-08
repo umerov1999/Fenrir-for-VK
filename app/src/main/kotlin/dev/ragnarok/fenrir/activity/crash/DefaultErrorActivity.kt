@@ -7,6 +7,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,7 @@ import dev.ragnarok.fenrir.activity.slidr.Slidr
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.util.Utils
 
 class DefaultErrorActivity : AppCompatActivity() {
     @SuppressLint("PrivateResource")
@@ -49,6 +51,9 @@ class DefaultErrorActivity : AppCompatActivity() {
                 this
             )
         }
+        findViewById<FloatingActionButton>(R.id.crash_error_activity_mail_to_button)
+            .visibility =
+            if (Utils.compareFingerprintHashForPackage(this)) View.VISIBLE else View.GONE
 
         findViewById<FloatingActionButton>(R.id.crash_error_activity_mail_to_button).setOnClickListener {
             val msgIntent = Intent(Intent.ACTION_SEND)

@@ -51,6 +51,7 @@ import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.media.exo.OkHttpDataSource
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.Sticker.LocalSticker
+import dev.ragnarok.fenrir.module.StringHash
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
@@ -81,6 +82,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
+
 object Utils {
     private val reload_news: MutableList<Int> = LinkedList()
     private val reload_dialogs: MutableList<Int> = LinkedList()
@@ -90,13 +92,23 @@ object Utils {
     private var device_id: String? = null
     var density = 1f
         private set
-    var isCompressTraffic = false
-
+    var isCompressTraffic = true
 
     fun getCachedMyStickers(): MutableList<LocalSticker> {
         return cachedMyStickers
     }
 
+    fun compareFingerprintHashForPackage(context: Context): Boolean {
+        return try {
+            val sign = context.getSignature()
+            if (sign != null) {
+                return "73cbb1d92bd8f6432568e838de407ed01b071515" == StringHash.calculateSha1(sign.toByteArray())
+            }
+            true
+        } catch (e: Exception) {
+            true
+        }
+    }
 
     fun needReloadNews(account_id: Int): Boolean {
         if (!reload_news.contains(account_id)) {
@@ -1072,9 +1084,9 @@ object Utils {
         proxyConfig: ProxyConfig?
     ): OkHttpDataSource.Factory {
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
-            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(40, TimeUnit.SECONDS)
+            .connectTimeout(40, TimeUnit.SECONDS)
+            .writeTimeout(40, TimeUnit.SECONDS)
         applyProxyConfig(builder, proxyConfig)
         return OkHttpDataSource.Factory(builder.build()).setUserAgent(userAgent)
     }
@@ -1330,10 +1342,11 @@ object Utils {
     }
 
 
-    fun createOkHttp(timeouts: Int): OkHttpClient.Builder {
+    fun createOkHttp(timeouts: Int, compressIntercept: Boolean): OkHttpClient.Builder {
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
             .connectTimeout(timeouts.toLong(), TimeUnit.SECONDS)
             .readTimeout(timeouts.toLong(), TimeUnit.SECONDS)
+            .writeTimeout(timeouts.toLong(), TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 chain.proceed(
                     chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader(
@@ -1342,7 +1355,10 @@ object Utils {
                         )
                     ).build()
                 )
-            }).addInterceptor(GzipInterceptor)
+            })
+        if (compressIntercept) {
+            builder.addInterceptor(CompressDefaultInterceptor)
+        }
         applyProxyConfig(builder, proxySettings.activeProxy)
         return builder
     }

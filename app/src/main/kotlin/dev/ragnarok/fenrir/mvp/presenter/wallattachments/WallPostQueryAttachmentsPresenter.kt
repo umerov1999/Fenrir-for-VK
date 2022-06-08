@@ -231,7 +231,7 @@ class WallPostQueryAttachmentsPresenter(
         if (endOfContent) resumedView?.onSetLoadingStatus(
             2
         )
-        val str = (Query ?: return).split("\\|").toTypedArray()
+        val str = (Query ?: return).split(Regex("\\|")).toTypedArray()
         for (i in str.indices) {
             str[i] = str[i].trim { it <= ' ' }.lowercase(Locale.getDefault())
         }

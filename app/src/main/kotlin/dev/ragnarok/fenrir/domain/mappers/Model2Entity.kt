@@ -556,6 +556,7 @@ object Model2Entity {
             .setDuration(message.getDuration())
             .setAccessKey(message.getAccessKey())
             .setTranscript(message.getTranscript())
+            .setWasListened(message.wasListened())
     }
 
     private fun buildDocumentDbo(document: Document): DocumentDboEntity {

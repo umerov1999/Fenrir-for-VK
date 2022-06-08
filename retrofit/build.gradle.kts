@@ -27,11 +27,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:${MakeConfig.kotlin_version}")
     implementation("org.jetbrains.kotlin:kotlin-android-extensions-runtime:${MakeConfig.kotlin_version}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${MakeConfig.kotlin_coroutines}")
+    compileOnly("org.jetbrains.kotlin:kotlin-annotations-jvm:${MakeConfig.kotlin_version}")
     implementation("com.squareup.okio:okio:${MakeConfig.okioVersion}")
-    implementation("com.squareup.okhttp3:okhttp:${MakeConfig.okhttpLibraryVersion}")
-    implementation("com.squareup.okhttp3:logging-interceptor:${MakeConfig.okhttpLibraryVersion}")
-    implementation("io.reactivex.rxjava3:rxjava:${MakeConfig.rxJavaVersion}")
-    implementation("io.reactivex.rxjava3:rxandroid:${MakeConfig.rxAndroidVersion}")
+    implementation("com.squareup.okhttp3:okhttp-android:${MakeConfig.okhttpLibraryVersion}")
     implementation("androidx.annotation:annotation:${MakeConfig.annotationVersion}")
     implementation(project("path" to ":gson"))
 }

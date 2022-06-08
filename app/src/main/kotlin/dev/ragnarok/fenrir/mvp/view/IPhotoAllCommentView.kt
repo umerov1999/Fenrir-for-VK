@@ -4,7 +4,7 @@ import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 
-interface IPhotoAllCommentView : IAccountDependencyView, IMvpView, IErrorView,
+interface IPhotoAllCommentView : IAccountDependencyView, IMvpView, IErrorView, IToastView,
     IAttachmentsPlacesView {
     fun displayData(comments: MutableList<Comment>)
     fun notifyDataSetChanged()

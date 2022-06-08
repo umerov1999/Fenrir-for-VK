@@ -34,7 +34,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import com.squareup.picasso3.BitmapSafeResize.isOverflowCanvas
@@ -88,10 +88,13 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.refresh.RefreshToken
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScreenChangeListener,
     BackPressCallback, CanBackPressedCallback {
@@ -99,6 +102,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     private var layoutManager: LinearLayoutManager? = null
     private var searchView: MySearchView? = null
     private val disposables = CompositeDisposable()
+    private var sleepDataDisposable = Disposable.disposed()
+    private val SEARCH_DELAY = 2000
     override val keyInstanceState: String = "root_preferences"
 
     private val requestLightBackground = registerForActivityResult(
@@ -180,6 +185,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             })
             it.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
+                    sleepDataDisposable.dispose()
                     if (query.nonNullNoEmpty() && query.trimmedNonNullNoEmpty()) {
                         preferencesAdapter?.findPreferences(requireActivity(), query, root)
                     }
@@ -187,6 +193,19 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
+                    sleepDataDisposable.dispose()
+                    sleepDataDisposable = Single.just(Any())
+                        .delay(SEARCH_DELAY.toLong(), TimeUnit.MILLISECONDS)
+                        .fromIOToMain()
+                        .subscribe({
+                            if (newText.nonNullNoEmpty() && newText.trimmedNonNullNoEmpty()) {
+                                preferencesAdapter?.findPreferences(
+                                    requireActivity(),
+                                    newText,
+                                    root
+                                )
+                            }
+                        }, { RxUtils.dummy() })
                     return false
                 }
             })
@@ -1073,6 +1092,11 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.auto_read
             }
 
+            switch("mark_listened_voice") {
+                defaultValue = true
+                titleRes = R.string.mark_listened_voice
+            }
+
             switch("not_update_dialogs") {
                 defaultValue = false
                 titleRes = R.string.not_update_dialogs
@@ -1435,12 +1459,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
 
-            switch("extra_debug") {
-                defaultValue = false
-                dependency = "do_logs"
-                titleRes = R.string.extra_debug
-            }
-
             switch("dump_fcm") {
                 defaultValue = false
                 dependency = "do_logs"
@@ -1605,6 +1623,11 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
 
+            switch("enable_dirs_files_count") {
+                defaultValue = true
+                titleRes = R.string.enable_dirs_files_count
+            }
+
             separatorSpace("service_playlists", parentFragmentManager) {
                 defaultValue = "-21 -22 -25 -26 -27 -28"
                 titleRes = R.string.service_playlists
@@ -1681,8 +1704,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.delete_cache_images
             }
 
-            switch("compress_traffic") {
-                defaultValue = false
+            switch("compress_default_traffic") {
+                defaultValue = true
                 titleRes = R.string.compress_traffic
                 onCheckedChange {
                     Utils.isCompressTraffic = it
@@ -1790,14 +1813,21 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
             pref("version") {
                 titleRes = R.string.app_name
-                badge = "VK API $API_VERSION"
+                badge =
+                    if (Utils.compareFingerprintHashForPackage(requireActivity())) "VK API $API_VERSION" else getString(
+                        R.string.unofficial
+                    )
                 summary = Utils.getAppVersionName(requireActivity())
                 onClick {
                     val view = View.inflate(requireActivity(), R.layout.dialog_about_us, null)
                     val anim: RLottieImageView = view.findViewById(R.id.lottie_animation)
                     val txt: TextView =
                         view.findViewById(dev.ragnarok.fenrir_common.R.id.sub_header)
-                    txt.setText(Common.getAboutUsHeader(Settings.get().other().paganSymbol))
+                    txt.setText(
+                        (if (Utils.compareFingerprintHashForPackage(requireActivity())) Common.getAboutUsHeader(
+                            Settings.get().other().paganSymbol
+                        ) else R.string.unofficial)
+                    )
                     val cbc = Common.getAboutUsAnimation(
                         Settings.get().other().paganSymbol,
                         requireActivity()
@@ -2167,10 +2197,10 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val view =
                 View.inflate(requireActivity(), R.layout.entry_player_background, null)
-            val enabledRotation: SwitchMaterial = view.findViewById(R.id.enabled_anim)
-            val invertRotation: SwitchMaterial =
+            val enabledRotation: MaterialSwitch = view.findViewById(R.id.enabled_anim)
+            val invertRotation: MaterialSwitch =
                 view.findViewById(R.id.edit_invert_rotation)
-            val fadeSaturation: SwitchMaterial =
+            val fadeSaturation: MaterialSwitch =
                 view.findViewById(R.id.edit_fade_saturation)
             val rotationSpeed = view.findViewById<SeekBar>(R.id.edit_rotation_speed)
             val zoom = view.findViewById<SeekBar>(R.id.edit_zoom)
@@ -2272,7 +2302,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             val url: TextInputEditText = view.findViewById(dev.ragnarok.fenrir_common.R.id.edit_url)
             val password: TextInputEditText =
                 view.findViewById(dev.ragnarok.fenrir_common.R.id.edit_password)
-            val enabled: SwitchMaterial =
+            val enabled: MaterialSwitch =
                 view.findViewById(dev.ragnarok.fenrir_common.R.id.enabled_server)
             val settings = Settings.get().other().localServer
             url.setText(settings.url)
@@ -2497,6 +2527,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     }
 
     override fun onDestroy() {
+        sleepDataDisposable.dispose()
         disposables.dispose()
         preferencesView?.let { preferencesAdapter?.stopObserveScrollPosition(it) }
         preferencesAdapter?.onScreenChangeListener = null

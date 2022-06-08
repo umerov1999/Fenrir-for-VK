@@ -10,7 +10,7 @@ import android.widget.CompoundButton
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
@@ -29,7 +29,7 @@ class DirectAuthDialog : BaseMvpDialogFragment<DirectAuthPresenter, IDirectAuthV
     private var mPassword: TextInputEditText? = null
     private var mCaptcha: TextInputEditText? = null
     private var mSmsCode: TextInputEditText? = null
-    private var mSavePassword: SwitchMaterial? = null
+    private var mSavePassword: MaterialSwitch? = null
     private var mSmsCodeRoot: View? = null
     private var mContentRoot: View? = null
     private var mLoadingRoot: View? = null

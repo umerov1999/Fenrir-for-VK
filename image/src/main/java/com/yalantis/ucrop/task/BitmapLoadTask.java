@@ -15,7 +15,6 @@ import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -159,7 +158,7 @@ public class BitmapLoadTask {
         OutputStream outputStream = null;
         try {
             inputStream = mContext.getContentResolver().openInputStream(inputUri);
-            outputStream = new FileOutputStream(new File(outputUri.getPath()));
+            outputStream = new FileOutputStream(outputUri.getPath());
             if (inputStream == null) {
                 throw new NullPointerException("InputStream for given input Uri is null");
             }

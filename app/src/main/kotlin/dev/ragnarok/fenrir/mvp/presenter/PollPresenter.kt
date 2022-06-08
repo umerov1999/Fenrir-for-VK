@@ -106,6 +106,10 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
         mTempCheckedId = newid
     }
 
+    fun fireVoteClicked(id: Int) {
+        view?.openVoters(accountId, mPoll.ownerId, mPoll.id, mPoll.isBoard, id)
+    }
+
     private fun vote() {
         if (loadingNow) return
         val accountId = accountId

@@ -229,27 +229,27 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         return provideService(IFaveService::class.java)
             .flatMap { service ->
                 service.pushFirst(
-                    """var owner_id = Args.owner_id;
-if (owner_id >= 0) {
-   var ret = API.fave.removePage({"v":"${Constants.API_VERSION}", "user_id":owner_id});
-   if (ret != 1) {
-       return 0;
-   }
-   ret = API.fave.addPage({"v":"${Constants.API_VERSION}", "user_id":owner_id});
-   if (ret != 1) {
-       return 0;
-   }
-} else {
-   var ret = API.fave.removePage({"v":"${Constants.API_VERSION}", "group_id":-owner_id});
-   if (ret != 1) {
-       return 0;
-   }
-   ret = API.fave.addPage({"v":"${Constants.API_VERSION}", "group_id":-owner_id});
-   if (ret != 1) {
-       return 0;
-   }
-}
-return 1;""", owner_id
+                    "var owner_id = Args.owner_id;\n" +
+                            "if (owner_id >= 0) {\n" +
+                            "   var ret = API.fave.removePage({\"v\":\"" + Constants.API_VERSION + "\", \"user_id\":owner_id});\n" +
+                            "   if (ret != 1) {\n" +
+                            "       return 0;\n" +
+                            "   }\n" +
+                            "   ret = API.fave.addPage({\"v\":\"" + Constants.API_VERSION + "\", \"user_id\":owner_id});\n" +
+                            "   if (ret != 1) {\n" +
+                            "       return 0;\n" +
+                            "   }\n" +
+                            "} else {\n" +
+                            "   var ret = API.fave.removePage({\"v\":\"" + Constants.API_VERSION + "\", \"group_id\":-owner_id});\n" +
+                            "   if (ret != 1) {\n" +
+                            "       return 0;\n" +
+                            "   }\n" +
+                            "   ret = API.fave.addPage({\"v\":\"" + Constants.API_VERSION + "\", \"group_id\":-owner_id});\n" +
+                            "   if (ret != 1) {\n" +
+                            "       return 0;\n" +
+                            "   }\n" +
+                            "}\n" +
+                            "return 1;", owner_id
                 )
                     .map(extractResponseWithErrorHandling())
                     .map { it == 1 }

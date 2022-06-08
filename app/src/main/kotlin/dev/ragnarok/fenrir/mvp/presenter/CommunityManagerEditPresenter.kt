@@ -198,9 +198,8 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
 
     private fun onSavingComplete() {
         setSavingNow(false)
-        view?.showToast(
-            R.string.success,
-            false
+        view?.customToast?.showToastSuccessBottom(
+            R.string.success
         )
         if (currentUserIndex == users.size - 1) {
             view?.goBack()

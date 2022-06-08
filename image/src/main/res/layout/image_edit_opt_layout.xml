@@ -13,31 +13,27 @@
         android:background="@drawable/image_bg_top"
         android:padding="12dp">
 
-        <TextView
+        <ImageButton
             android:id="@+id/tv_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:layout_marginTop="8dp"
-            android:clickable="true"
-            android:focusable="true"
+            android:background="@null"
+            android:contentDescription="@string/image_cancel"
             android:onClick="onClick"
-            android:text="@string/image_cancel"
-            android:textColor="@color/image_color_primary"
-            android:textSize="16sp" />
+            android:src="@drawable/image_btn_cancel" />
 
-        <TextView
+        <ImageButton
             android:id="@+id/tv_done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
             android:layout_marginTop="8dp"
-            android:clickable="true"
-            android:focusable="true"
+            android:background="@null"
+            android:contentDescription="@string/image_done"
             android:onClick="onClick"
-            android:text="@string/image_done"
-            android:textColor="@color/image_color_accent"
-            android:textSize="16sp" />
+            android:src="@drawable/image_btn_ok" />
 
     </FrameLayout>
 
@@ -88,7 +84,6 @@
                     android:layout_width="@dimen/image_color"
                     android:layout_height="@dimen/image_color"
                     android:layout_margin="@dimen/image_color_margin"
-
                     app:image_color="@color/image_color_white" />
 
                 <me.minetsh.imaging.view.IMGColorRadio
@@ -141,7 +136,7 @@
         android:orientation="horizontal"
         android:padding="20dp">
 
-        <RadioButton
+        <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/rb_doodle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -169,7 +164,7 @@
             android:layout_width="@dimen/image_mode_space"
             android:layout_height="wrap_content" />
 
-        <RadioButton
+        <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/rb_mosaic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -457,7 +457,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                         .setIcon(R.drawable.ic_new_pipe)
                         .setSection(SECTION_PLAY)
                 )
-                if (!hasVanced) {
+                if (!hasVanced && AppPrefs.isYoutubeInstalled(requireActivity())) {
                     items.add(
                         Item(Menu.YOUTUBE, Text(R.string.title_play_in_youtube))
                             .setIcon(R.drawable.ic_play_youtube)

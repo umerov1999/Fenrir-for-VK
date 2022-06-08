@@ -66,7 +66,7 @@ class CustomToast private constructor(context: Context?, Timage: Bitmap?) {
         showToastSuccessBottom(mContext.resources.getString(message, *params))
     }
 
-    private fun showToastWarningBottom(message: String?) {
+    fun showToastWarningBottom(message: String?) {
         if (mContext == null) return
         val t = getToast(mContext, message, Color.parseColor("#AAED760E"))
         t.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM, 0, 40)
@@ -128,7 +128,6 @@ class CustomToast private constructor(context: Context?, Timage: Bitmap?) {
     }
 
     companion object {
-
         fun CreateCustomToast(context: Context?): CustomToast {
             return CustomToast(context, null)
         }

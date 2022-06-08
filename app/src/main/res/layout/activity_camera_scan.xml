@@ -24,6 +24,5 @@
         android:alpha="0.7"
         android:contentDescription="@null"
         android:src="@drawable/qr_flashlight"
-        app:fabSize="normal"
         app:maxImageSize="30dp" />
 </FrameLayout>

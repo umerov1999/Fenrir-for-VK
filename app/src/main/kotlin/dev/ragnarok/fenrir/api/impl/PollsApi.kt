@@ -5,7 +5,10 @@ import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IPollsApi
 import dev.ragnarok.fenrir.api.model.VKApiPoll
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.services.IPollsService
+import dev.ragnarok.fenrir.db.column.UserColumns
+import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.core.Single
 
 internal class PollsApi(accountId: Int, provider: IServiceProvider) :
@@ -68,6 +71,34 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
             .flatMap { service ->
                 service.getById(ownerId, integerFromBoolean(isBoard), pollId)
                     .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun getVoters(
+        ownerId: Int,
+        pollId: Int,
+        isBoard: Int?,
+        answer_ids: List<Int>, offset: Int?, count: Int?
+    ): Single<List<VKApiUser>> {
+        val ids = join(answer_ids, ",") { obj: Any -> obj.toString() } ?: return Single.just(
+            emptyList()
+        )
+        return provideService(IPollsService::class.java, TokenType.USER)
+            .flatMap { service ->
+                service.getVoters(
+                    ownerId,
+                    pollId,
+                    isBoard,
+                    ids,
+                    offset,
+                    count,
+                    UserColumns.API_FIELDS,
+                    null
+                )
+                    .map(extractResponseWithErrorHandling())
+                    .map {
+                        Utils.listEmptyIfNull(if (it.isEmpty()) null else it[0].users?.items)
+                    }
             }
     }
 }

@@ -268,8 +268,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?selectableItemBackgroundBorderless"
-            app:elevation="3dp"
-            app:fabSize="auto" />
+            app:elevation="3dp" />
 
         <dev.ragnarok.fenrir.view.media.RepeatingImageButton
             android:id="@+id/action_button_next"

@@ -263,7 +263,7 @@ class GroupSettingsInteractor(
             if (text.isNullOrEmpty()) {
                 return null
             }
-            val parts = text.split("\\.".toRegex()).toTypedArray()
+            val parts = text.split(Regex("\\.")).toTypedArray()
             return Day(
                 parseInt(parts, 0, 0),
                 parseInt(parts, 1, 0),

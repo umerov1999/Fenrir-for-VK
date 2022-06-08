@@ -560,9 +560,8 @@ class CommentsPresenter(
     private fun onDeepCommentLoadingError(throwable: Throwable) {
         view?.dismissDeepLookingCommentProgress()
         if (throwable is NotFoundException) {
-            view?.showToast(
-                R.string.the_comment_is_not_in_the_list,
-                false
+            view?.showError(
+                R.string.the_comment_is_not_in_the_list
             )
         } else {
             showError(throwable)

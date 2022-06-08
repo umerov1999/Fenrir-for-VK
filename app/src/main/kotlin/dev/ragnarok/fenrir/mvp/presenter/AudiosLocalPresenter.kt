@@ -79,7 +79,7 @@ class AudiosLocalPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     private fun checkTittleArtists(data: Audio, q: String): Boolean {
-        val r = q.split("( - )|( )|( {2})".toRegex(), 2).toTypedArray()
+        val r = q.split(Regex("( - )|( )|( {2})"), 2).toTypedArray()
         return if (r.size >= 2) {
             (safeCheck(
                 data.artist,

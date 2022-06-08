@@ -18,7 +18,6 @@ import me.minetsh.imaging.core.sticker.IMGStickerX;
 public class IMGStickerXText extends IMGStickerX {
 
     private final TextPaint mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-    private IMGText mText;
     private StaticLayout mTextLayout;
 
     public IMGStickerXText(IMGText text) {
@@ -30,7 +29,6 @@ public class IMGStickerXText extends IMGStickerX {
     }
 
     public void setText(IMGText text) {
-        mText = text;
 
         mTextPaint.setColor(text.getColor());
         mTextLayout = new StaticLayout(text.getText(), mTextPaint,

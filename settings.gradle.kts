@@ -9,4 +9,6 @@ include(
     ":gson",
     ":preference"
 )
+include(":exoplayer")
+
 //include(":libfenrir")

@@ -159,9 +159,8 @@ class CommunityBlacklistPresenter(
     }
 
     private fun onUnbanComplete() {
-        view?.showToast(
-            R.string.deleted,
-            false
+        view?.customToast?.showToastSuccessBottom(
+            R.string.deleted
         )
     }
 

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -27,16 +26,6 @@ abstract class BaseMvpActivity<P : AbsPresenter<V>, V : IMvpView> : AbsMvpActivi
 
     protected fun requireArguments(): Bundle {
         return intent!!.extras!!
-    }
-
-    override fun showToast(@StringRes titleTes: Int, isLong: Boolean, vararg params: Any?) {
-        if (!isFinishing) {
-            Toast.makeText(
-                this,
-                getString(titleTes, *params),
-                if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-            ).show()
-        }
     }
 
     override fun showError(errorText: String?) {

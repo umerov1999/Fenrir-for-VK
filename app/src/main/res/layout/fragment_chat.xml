@@ -169,6 +169,7 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/goto_button"
+        style="@style/Widget.Material3.FloatingActionButton.Small.Surface"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@id/fragment_friend_dialog_list"
@@ -178,8 +179,7 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="10dp"
         android:contentDescription="@null"
-        android:src="@drawable/ic_outline_keyboard_arrow_up"
-        app:fabSize="mini" />
+        android:src="@drawable/ic_outline_keyboard_arrow_up" />
 
     <RelativeLayout
         android:id="@+id/writingGroup"

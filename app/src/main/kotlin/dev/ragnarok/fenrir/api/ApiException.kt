@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.util.Utils
 
 class ApiException(val error: Error) : Exception(
     Utils.firstNonEmptyString(
-        error.method,
+        error["method"],
         " "
     ) + ": " + Utils.firstNonEmptyString(error.errorMsg, " ")
 )

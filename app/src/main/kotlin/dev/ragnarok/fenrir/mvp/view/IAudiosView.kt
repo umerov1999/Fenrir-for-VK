@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 
-interface IAudiosView : IMvpView, IErrorView, IAccountDependencyView {
+interface IAudiosView : IMvpView, IErrorView, IToastView, IAccountDependencyView {
     fun displayList(audios: MutableList<Audio>)
     fun notifyListChanged()
     fun notifyItemMoved(fromPosition: Int, toPosition: Int)

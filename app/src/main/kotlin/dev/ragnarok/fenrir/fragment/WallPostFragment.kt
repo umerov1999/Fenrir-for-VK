@@ -353,6 +353,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
                 post.attachments,
                 it,
                 false,
+                null,
                 null
             )
         }

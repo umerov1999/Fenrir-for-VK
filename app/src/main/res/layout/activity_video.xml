@@ -6,17 +6,11 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout
-        android:id="@+id/aspect_ratio_layout"
+    <dev.ragnarok.fenrir.view.ExpandableSurfaceView
+        android:id="@+id/videoSurface"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
-
-        <SurfaceView
-            android:id="@+id/videoSurface"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout>
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"

@@ -42,7 +42,6 @@
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@null"
         android:src="@drawable/audio_player"
-        app:fabSize="normal"
         app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior"
         app:maxImageSize="30dp" />
 

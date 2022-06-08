@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
 }
 
-//1.7.0-alpha01
+//1.7.0-alpha02
 
 val srcDirs = arrayOf(
     "com/google/android/material/animation",

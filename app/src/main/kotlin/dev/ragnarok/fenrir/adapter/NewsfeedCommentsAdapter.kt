@@ -191,6 +191,7 @@ class NewsfeedCommentsAdapter(
             comment.attachments,
             holder.commentAttachmentHolder,
             true,
+            null,
             null
         )
         displayAvatar(
@@ -229,6 +230,7 @@ class NewsfeedCommentsAdapter(
             post.attachments,
             holder.postAttachmentsHolder,
             false,
+            null,
             null
         )
         attachmentsViewBinder.displayCopyHistory(

@@ -136,6 +136,12 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
         throw UnsupportedOperationException()
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        super.onPrepareMenu(menu)
+        menu.findItem(R.id.action_search).isVisible =
+            !IVideosListView.ACTION_SELECT.equals(action, ignoreCase = true)
+    }
+
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_video_main, menu)
     }

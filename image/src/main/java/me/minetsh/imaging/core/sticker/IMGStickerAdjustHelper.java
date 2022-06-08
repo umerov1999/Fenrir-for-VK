@@ -20,7 +20,6 @@ public class IMGStickerAdjustHelper implements View.OnTouchListener {
 
     private final IMGStickerView mContainer;
     private final Matrix M = new Matrix();
-    private float mCenterX, mCenterY;
     private double mRadius, mDegrees;
 
     public IMGStickerAdjustHelper(IMGStickerView container, View view) {
@@ -40,6 +39,7 @@ public class IMGStickerAdjustHelper implements View.OnTouchListener {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        float mCenterY;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
 
@@ -47,7 +47,7 @@ public class IMGStickerAdjustHelper implements View.OnTouchListener {
 
                 float y = event.getY();
 
-                mCenterX = mCenterY = 0;
+                float mCenterX = mCenterY = 0;
 
                 float pointX = mView.getX() + x - mContainer.getPivotX();
 

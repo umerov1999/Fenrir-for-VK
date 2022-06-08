@@ -26,6 +26,8 @@ class LocalJsonToChatPresenter(
     private var AttachmentType: Int
     private var isMy: Boolean
     private var peer: Peer
+    private var isLoading: Boolean = false
+    private var showEmpty: Boolean = false
     private val fInteractor: IMessagesRepository = messages
     private val actualDataDisposable = CompositeDisposable()
     override fun onGuiCreated(viewHost: ILocalJsonToChatView) {
@@ -93,6 +95,8 @@ class LocalJsonToChatPresenter(
     }
 
     fun updateMessages(isMyTogle: Boolean): Boolean {
+        isLoading = true
+        resolveRefreshingView()
         if (isMyTogle) {
             isMy = !isMy
         }
@@ -121,12 +125,18 @@ class LocalJsonToChatPresenter(
         resolveToolbar()
         view?.scroll_pos(0)
         view?.notifyDataSetChanged()
-        resolveRefreshingView(false)
+        showEmpty = mPost.isEmpty()
+        resolveEmptyView()
+        isLoading = false
+        resolveRefreshingView()
         return isMy
     }
 
     private fun loadActualData() {
-        resolveRefreshingView(true)
+        showEmpty = false
+        resolveEmptyView()
+        isLoading = true
+        resolveRefreshingView()
         val accountId = super.accountId
         actualDataDisposable.add(fInteractor.getMessagesFromLocalJSon(accountId, context)
             .fromIOToMain()
@@ -136,7 +146,10 @@ class LocalJsonToChatPresenter(
     private fun onActualDataGetError(t: Throwable) {
         PersistentLogger.logThrowable("LocalJSON issues", Exception(Utils.getCauseIfRuntime(t)))
         showError(view, Utils.getCauseIfRuntime(t))
-        resolveRefreshingView(false)
+        isLoading = false
+        resolveRefreshingView()
+        showEmpty = mPost.isEmpty()
+        resolveEmptyView()
     }
 
     private fun onActualDataReceived(data: Pair<Peer, List<Message>>) {
@@ -147,16 +160,24 @@ class LocalJsonToChatPresenter(
         peer = data.first
         resolveToolbar()
         view?.notifyDataSetChanged()
-        resolveRefreshingView(false)
+        isLoading = false
+        resolveRefreshingView()
+        showEmpty = mPost.isEmpty()
+        resolveEmptyView()
     }
 
     override fun onGuiResumed() {
         super.onGuiResumed()
-        resolveRefreshingView(false)
+        resolveRefreshingView()
+        resolveEmptyView()
     }
 
-    private fun resolveRefreshingView(isLoading: Boolean) {
+    private fun resolveRefreshingView() {
         resumedView?.showRefreshing(isLoading)
+    }
+
+    private fun resolveEmptyView() {
+        resumedView?.resolveEmptyText(showEmpty)
     }
 
     private fun resolveToolbar() {

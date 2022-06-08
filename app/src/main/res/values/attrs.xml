@@ -63,11 +63,6 @@
         <attr name="spacing" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="AspectRatioFrameLayout">
-        <attr name="aspectRatioHeight" format="integer" />
-        <attr name="aspectRatioWidth" format="integer" />
-    </declare-styleable>
-
     <declare-styleable name="CircleCounterButton">
         <attr name="button_icon" format="reference" />
         <attr name="always_counter" format="boolean" />
@@ -78,11 +73,6 @@
         <attr name="active_background_color" format="color" />
         <attr name="noactive_background_color" format="color" />
         <attr name="text_color" format="color" />
-    </declare-styleable>
-
-    <declare-styleable name="AlternativeAspectRatioFrameLayout">
-        <attr name="altAspectRatioWidth" format="integer" />
-        <attr name="altAspectRatioHeight" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="WaveFormView">
@@ -158,6 +148,19 @@
 
     <declare-styleable name="TouchImageView">
         <attr name="zoom_enabled" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="AspectRatioFrameLayout">
+        <attr name="resize_mode" format="enum">
+            <enum name="fit" value="0" />
+            <enum name="fixed_width" value="1" />
+            <enum name="fixed_height" value="2" />
+            <enum name="fill" value="3" />
+            <enum name="zoom" value="4" />
+        </attr>
+        <attr name="useAspect" format="boolean" />
+        <attr name="aspectWidth" format="integer" />
+        <attr name="aspectHeight" format="integer" />
     </declare-styleable>
 
     <attr name="materialPopupMenuStyle" format="reference" />

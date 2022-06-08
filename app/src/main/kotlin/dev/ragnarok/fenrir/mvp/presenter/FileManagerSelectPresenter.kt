@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.FileItem
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IFileManagerSelectView
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import io.reactivex.rxjava3.core.Single
 import java.io.File
@@ -168,8 +169,10 @@ class FileManagerSelectPresenter(
     }
 
     private fun getFolderFilesCount(file: File): Long {
-        val o = file.listFiles()?.size?.toLong()
-        return o ?: -1
+        if (!Settings.get().other().isEnable_dirs_files_count()) {
+            return -1
+        }
+        return file.listFiles()?.size?.toLong() ?: -1
     }
 
     private fun rxLoadFileList(): Single<ArrayList<FileItem>> {

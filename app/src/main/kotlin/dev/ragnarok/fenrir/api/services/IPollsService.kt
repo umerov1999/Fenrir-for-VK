@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.VKApiPoll
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
+import dev.ragnarok.fenrir.api.model.response.PollUsersResponse
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -45,4 +46,17 @@ interface IPollsService {
         @Field("is_board") isBoard: Int?,
         @Field("poll_id") pollId: Int?
     ): Single<BaseResponse<VKApiPoll>>
+
+    @FormUrlEncoded
+    @POST("polls.getVoters")
+    fun getVoters(
+        @Field("owner_id") ownerId: Int,
+        @Field("poll_id") pollId: Int,
+        @Field("is_board") isBoard: Int?,
+        @Field("answer_ids") answer_ids: String,
+        @Field("offset") offset: Int?,
+        @Field("count") count: Int?,
+        @Field("fields") fields: String?,
+        @Field("name_case") nameCase: String?
+    ): Single<BaseResponse<List<PollUsersResponse>>>
 }

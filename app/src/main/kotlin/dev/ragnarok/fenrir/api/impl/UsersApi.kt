@@ -26,27 +26,27 @@ internal class UsersApi(accountId: Int, provider: IServiceProvider) :
             .flatMap { service ->
                 service
                     .getUserWallInfo(
-                        """var user_id = Args.user_id;
-var fields =Args.fields;
-var name_case = Args.name_case;
-
-var user_info = API.users.get({"v":"${Constants.API_VERSION}","user_ids":user_id,
-    "fields":fields, "name_case":name_case});
-
-var all_wall_count =API.wall.get({"v":"${Constants.API_VERSION}","owner_id":user_id,
-    "count":1, "filter":"all"}).count;
-    
-var owner_wall_count =API.wall.get({"v":"${Constants.API_VERSION}","owner_id":user_id,
-    "count":1, "filter":"owner"}).count;
-
-var postponed_wall_count =API.wall.get({"v":"${Constants.API_VERSION}","owner_id":user_id,
-    "count":1, "filter":"postponed"}).count;
-
-return {"user_info": user_info, 
-    "all_wall_count":all_wall_count,
-    "owner_wall_count":owner_wall_count,
-    "postponed_wall_count":postponed_wall_count
-};""", userId, fields, nameCase
+                        "var user_id = Args.user_id;\n" +
+                                "var fields =Args.fields;\n" +
+                                "var name_case = Args.name_case;\n" +
+                                "\n" +
+                                "var user_info = API.users.get({\"v\":\"" + Constants.API_VERSION + "\",\"user_ids\":user_id,\n" +
+                                "    \"fields\":fields, \"name_case\":name_case});\n" +
+                                "\n" +
+                                "var all_wall_count =API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":user_id,\n" +
+                                "    \"count\":1, \"filter\":\"all\"}).count;\n" +
+                                "    \n" +
+                                "var owner_wall_count =API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":user_id,\n" +
+                                "    \"count\":1, \"filter\":\"owner\"}).count;\n" +
+                                "\n" +
+                                "var postponed_wall_count =API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":user_id,\n" +
+                                "    \"count\":1, \"filter\":\"postponed\"}).count;\n" +
+                                "\n" +
+                                "return {\"user_info\": user_info, \n" +
+                                "    \"all_wall_count\":all_wall_count,\n" +
+                                "    \"owner_wall_count\":owner_wall_count,\n" +
+                                "    \"postponed_wall_count\":postponed_wall_count\n" +
+                                "};", userId, fields, nameCase
                     )
                     .map(extractResponseWithErrorHandling())
                     .map { response ->

@@ -62,7 +62,6 @@
         android:contentDescription="@null"
         android:src="@drawable/client"
         app:elevation="3dp"
-        app:fabSize="normal"
         app:maxImageSize="36dp" />
 
 </RelativeLayout>

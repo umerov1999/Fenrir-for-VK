@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -36,7 +37,7 @@ import okio.Timeout;
 final class OkHttpCall<T> implements Call<T> {
     private final RequestFactory requestFactory;
     private final Object[] args;
-    private final okhttp3.Call.Factory callFactory;
+    private final OkHttpClient callFactory;
     private final Converter<ResponseBody, T> responseConverter;
 
     private volatile boolean canceled;
@@ -55,7 +56,7 @@ final class OkHttpCall<T> implements Call<T> {
     OkHttpCall(
             RequestFactory requestFactory,
             Object[] args,
-            okhttp3.Call.Factory callFactory,
+            OkHttpClient callFactory,
             Converter<ResponseBody, T> responseConverter) {
         this.requestFactory = requestFactory;
         this.args = args;

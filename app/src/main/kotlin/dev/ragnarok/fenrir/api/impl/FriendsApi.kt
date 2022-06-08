@@ -22,21 +22,21 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
     ): Single<OnlineFriendsResponse> {
         val targetOrder = if (order == null) null else toQuotes(order)
         val targetFields = if (fields == null) null else toQuotes(fields)
-        val code = """var user_id = %s;
-var count = %s;
-var offset = %s;
-var fields = %s;
-
-var uids = API.friends.getOnline({"v":"${Constants.API_VERSION}",
-    "user_id":user_id, 
-    "count":count, 
-    "offset":offset,
-    "order":%s
-});
-
-var profiles = API.users.get({"v":"${Constants.API_VERSION}","user_ids":uids, "fields":fields});
-
-return {"uids":uids, "profiles":profiles};"""
+        val code = "var user_id = %s;\n" +
+                "var count = %s;\n" +
+                "var offset = %s;\n" +
+                "var fields = %s;\n" +
+                "\n" +
+                "var uids = API.friends.getOnline({\"v\":\"" + Constants.API_VERSION + "\",\n" +
+                "    \"user_id\":user_id, \n" +
+                "    \"count\":count, \n" +
+                "    \"offset\":offset,\n" +
+                "    \"order\":%s\n" +
+                "});\n" +
+                "\n" +
+                "var profiles = API.users.get({\"v\":\"" + Constants.API_VERSION + "\",\"user_ids\":uids, \"fields\":fields});\n" +
+                "\n" +
+                "return {\"uids\":uids, \"profiles\":profiles};"
         val formattedCode = String.format(code, userId, count, offset, targetFields, targetOrder)
         return provideService(IFriendsService::class.java)
             .flatMap { service ->
@@ -145,22 +145,22 @@ return {"uids":uids, "profiles":profiles};"""
         offset: Int,
         fields: String?
     ): Single<List<VKApiUser>> {
-        val code = """var source_uid = %s;
-var target_uid = %s;
-var count = %s;
-var offset = %s;
-var fields = %s;
-
-var uids = API.friends.getMutual({"v":"${Constants.API_VERSION}",
-    "source_uid":source_uid, 
-    "target_uid":target_uid, 
-    "count":count, 
-    "offset":offset
-});
-
-var profiles = API.users.get({"v":"${Constants.API_VERSION}","user_ids":uids, "fields":fields});
-
-return {"uids":uids, "profiles":profiles};"""
+        val code = "var source_uid = %s;\n" +
+                "var target_uid = %s;\n" +
+                "var count = %s;\n" +
+                "var offset = %s;\n" +
+                "var fields = %s;\n" +
+                "\n" +
+                "var uids = API.friends.getMutual({\"v\":\"" + Constants.API_VERSION + "\",\n" +
+                "    \"source_uid\":source_uid, \n" +
+                "    \"target_uid\":target_uid, \n" +
+                "    \"count\":count, \n" +
+                "    \"offset\":offset\n" +
+                "});\n" +
+                "\n" +
+                "var profiles = API.users.get({\"v\":\"" + Constants.API_VERSION + "\",\"user_ids\":uids, \"fields\":fields});\n" +
+                "\n" +
+                "return {\"uids\":uids, \"profiles\":profiles};"
         val formattedCode =
             String.format(code, sourceUid, targetUid, count, offset, toQuotes(fields))
 

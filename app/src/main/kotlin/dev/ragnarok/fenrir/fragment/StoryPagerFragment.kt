@@ -43,8 +43,8 @@ import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
-import dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout
 import dev.ragnarok.fenrir.view.CircleCounterButton
+import dev.ragnarok.fenrir.view.ExpandableSurfaceView
 import dev.ragnarok.fenrir.view.TouchImageView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import dev.ragnarok.fenrir.view.pager.WeakPicassoLoadCallback
@@ -53,7 +53,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.TimeUnit
-
 
 class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>(),
     IStoryPagerView {
@@ -328,9 +327,8 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
     }
 
     private inner class Holder(rootView: View) : MultiHolder(rootView), SurfaceHolder.Callback {
-        val mSurfaceView: SurfaceView = rootView.findViewById(R.id.surface_view)
+        val mSurfaceView: ExpandableSurfaceView = rootView.findViewById(R.id.videoSurface)
         val mProgressBar: RLottieImageView
-        val mAspectRatioLayout: AlternativeAspectRatioFrameLayout
         override var isSurfaceReady = false
         override fun surfaceCreated(holder: SurfaceHolder) {
             isSurfaceReady = true
@@ -363,7 +361,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         }
 
         override fun setAspectRatio(w: Int, h: Int) {
-            mAspectRatioLayout.setAspectRatio(w, h)
+            mSurfaceView.setAspectRatio(w, h)
         }
 
         override fun setSurfaceVisible(Vis: Int) {
@@ -373,7 +371,6 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         init {
             mSurfaceHolder = mSurfaceView.holder
             mSurfaceHolder.addCallback(this)
-            mAspectRatioLayout = rootView.findViewById(R.id.aspect_ratio_layout)
             mProgressBar = rootView.findViewById(R.id.preparing_progress_bar)
             mSurfaceView.setOnClickListener { toggleFullscreen() }
         }

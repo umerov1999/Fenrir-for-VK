@@ -970,7 +970,7 @@ class MusicPlaybackService : Service() {
             mCurrentMediaPlayer.setMediaSource(mediaSource)
             mCurrentMediaPlayer.prepare()
             mCurrentMediaPlayer.setAudioAttributes(
-                AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC)
+                AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
                     .setUsage(C.USAGE_MEDIA).build(), true
             )
             val intent = Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION)

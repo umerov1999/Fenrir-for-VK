@@ -42,22 +42,22 @@ class SingleChoiceDialogPreference(
 
     fun persistSelection(sel: SelectionItem?) {
         currentSelection = sel
-        currentSelection?.let { selection ->
+        currentSelection?.let { (key1) ->
             if (selectionBeforeChangeListener?.onSelectionBeforeChange(
                     this,
-                    selection.key
+                    key1
                 ) != false
             ) {
-                commitString(selection.key)
+                commitString(key1)
                 requestRebind()
-                selectionAfterChangeListener?.onSelectionAfterChange(this, selection.key)
+                selectionAfterChangeListener?.onSelectionAfterChange(this, key1)
             }
         }
     }
 
     override fun resetSelection() {
         val persisted = getString() ?: initialSelection
-        currentSelection = persisted?.let { items.find { item -> item.key == persisted } }
+        currentSelection = persisted?.let { items.find { (key1) -> key1 == persisted } }
     }
 
     override fun createAndShowDialogFragment() {

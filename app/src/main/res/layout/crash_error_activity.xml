@@ -72,6 +72,5 @@
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@null"
         android:src="@drawable/crash_ic_mail_outline"
-        app:fabSize="normal"
         app:maxImageSize="30dp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

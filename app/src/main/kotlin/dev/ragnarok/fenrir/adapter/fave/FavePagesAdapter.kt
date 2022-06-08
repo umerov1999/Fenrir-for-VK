@@ -21,6 +21,8 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.settings.CurrentTheme.getColorPrimary
+import dev.ragnarok.fenrir.settings.CurrentTheme.getColorSecondary
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
@@ -82,6 +84,20 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
                     holder.blacklisted.setImageResource(R.drawable.audio_died)
                     holder.blacklisted.setColorFilter(Color.parseColor("#AAFF0000"))
                 }
+            } else if (user?.isFriend == true && Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
+                holder.blacklisted.visibility = View.VISIBLE
+                holder.blacklisted.fromRes(
+                    R.raw.infinity,
+                    Utils.dp(48f),
+                    Utils.dp(48f),
+                    intArrayOf(
+                        0x333333,
+                        getColorPrimary(context),
+                        0x777777,
+                        getColorSecondary(context)
+                    )
+                )
+                holder.blacklisted.playAnimation()
             } else {
                 holder.blacklisted.visibility = View.GONE
                 holder.blacklisted.clearAnimationDrawable()

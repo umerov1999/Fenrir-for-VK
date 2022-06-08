@@ -3,8 +3,13 @@ package dev.ragnarok.fenrir
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.content.Context
+import android.content.pm.PackageManager.GET_SIGNATURES
+import android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES
+import android.content.pm.Signature
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
 import android.view.View
 import androidx.core.database.getBlobOrNull
 import androidx.core.database.getStringOrNull
@@ -399,6 +404,19 @@ fun <T> MutableList<T>.insertAfter(index: Int, element: T) {
         add(cur, element)
     } else {
         add(element)
+    }
+}
+
+@Suppress("DEPRECATION")
+fun Context.getSignature(): Signature? {
+    val appInfo = packageManager.getPackageInfo(
+        packageName,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) GET_SIGNING_CERTIFICATES else GET_SIGNATURES
+    )
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (appInfo.signingInfo.apkContentsSigners.isNotEmpty()) appInfo.signingInfo.apkContentsSigners[0] else null
+    } else {
+        if (appInfo.signatures.isNotEmpty()) appInfo.signatures[0] else null
     }
 }
 

@@ -3,7 +3,9 @@ package dev.ragnarok.fenrir.domain.impl
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.domain.IPollInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
+import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUsers
 import dev.ragnarok.fenrir.model.Poll
+import dev.ragnarok.fenrir.model.User
 import io.reactivex.rxjava3.core.Single
 
 class PollInteractor(private val networker: INetworker) : IPollInteractor {
@@ -62,6 +64,25 @@ class PollInteractor(private val networker: INetworker) : IPollInteractor {
                 transform(
                     it
                 ).setBoard(isBoard)
+            }
+    }
+
+    override fun getVoters(
+        accountId: Int,
+        ownerId: Int,
+        pollId: Int,
+        isBoard: Int?,
+        answer_ids: List<Int>,
+        offset: Int?,
+        count: Int?
+    ): Single<List<User>> {
+        return networker.vkDefault(accountId)
+            .polls()
+            .getVoters(ownerId, pollId, isBoard, answer_ids, offset, count)
+            .map {
+                transformUsers(
+                    it
+                )
             }
     }
 }

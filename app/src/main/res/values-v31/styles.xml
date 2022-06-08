@@ -26,7 +26,7 @@
         <item name="materialCardViewStyle">@style/Theme.MaterialCardView</item>
         <item name="badgeStyle">@style/Theme.BadgeStyle</item>
         <item name="floatingActionButtonStyle">@style/Theme.FloatingActionButton</item>
-        <item name="fab_secondary">@style/Theme.FloatingActionButtonSecondary</item>
+        <item name="fab_secondary">@style/Theme.FloatingActionButtonSecondary.Small</item>
         <item name="fab_player">@style/Theme.FloatingActionButtonSecondary</item>
 
         <item name="materialCardStyle">@style/CardViewMD2</item>
@@ -41,8 +41,8 @@
         <item name="icon_color_inactive">#AAFF0000</item>
 
         <item name="messages_background_color">#ECECEC</item>
-        <item name="my_messages_bubble_color">@color/m3_ref_palette_dynamic_primary80</item>
-        <item name="my_messages_secondary_bubble_color">@color/m3_ref_palette_dynamic_primary70
+        <item name="my_messages_bubble_color">@color/m3_ref_palette_dynamic_secondary90</item>
+        <item name="my_messages_secondary_bubble_color">@color/m3_ref_palette_dynamic_secondary80
         </item>
 
         <item name="message_bubble_color">#D4FFFFFF</item>

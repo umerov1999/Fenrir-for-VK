@@ -340,7 +340,7 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
     }
 
     override fun showCommentSentToast() {
-        showToast(R.string.toast_comment_sent, true)
+        customToast.showToastSuccessBottom(R.string.toast_comment_sent, true)
     }
 
     override fun showAuthorSelectDialog(owners: List<Owner>) {

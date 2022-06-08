@@ -214,11 +214,15 @@ class ImportantMessagesFragment :
     override fun onVoicePlayButtonClick(
         voiceHolderId: Int,
         voiceMessageId: Int,
+        messageId: Int,
+        peerId: Int,
         voiceMessage: VoiceMessage
     ) {
         presenter?.fireVoicePlayButtonClick(
             voiceHolderId,
             voiceMessageId,
+            messageId,
+            peerId,
             voiceMessage
         )
     }

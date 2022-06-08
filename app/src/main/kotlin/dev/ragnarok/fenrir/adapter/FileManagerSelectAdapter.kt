@@ -51,7 +51,10 @@ class FileManagerSelectAdapter(private var data: List<FileItem>) :
         return if (data[position].isDir) 0 else 1
     }
 
-    private fun fixNumerical(context: Context, num: Int): String {
+    private fun fixNumerical(context: Context, num: Int): String? {
+        if (num < 0) {
+            return null
+        }
         val preLastDigit = num % 100 / 10
         if (preLastDigit == 1) {
             return context.getString(R.string.files_count_c, num)

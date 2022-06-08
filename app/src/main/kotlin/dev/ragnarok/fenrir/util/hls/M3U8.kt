@@ -41,7 +41,7 @@ class M3U8 {
     val length: Single<Long>
         get() = Single.create { pp ->
             var ret = 0L
-            val client = Utils.createOkHttp(60).build()
+            val client = Utils.createOkHttp(60, false).build()
             try {
                 val mediaURL: URL
                 var m3u8Url = URL(url)
@@ -140,7 +140,7 @@ class M3U8 {
 
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "UNUSED_VALUE")
     fun run(): Boolean {
-        val client = Utils.createOkHttp(60).build()
+        val client = Utils.createOkHttp(60, false).build()
         try {
             val mediaURL: URL
             var m3u8Url = URL(url)

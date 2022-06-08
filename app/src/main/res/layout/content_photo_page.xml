@@ -31,7 +31,6 @@
         android:contentDescription="@null"
         android:src="@drawable/refresh"
         android:visibility="gone"
-        app:fabSize="normal"
         app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior"
         app:maxImageSize="30dp" />
 

@@ -24,10 +24,17 @@ class AudioMessageDboEntity : DboEntity() {
         private set
     var transcript: String? = null
         private set
+    var was_listened = false
+        private set
 
     operator fun set(id: Int, ownerId: Int): AudioMessageDboEntity {
         this.id = id
         this.ownerId = ownerId
+        return this
+    }
+
+    fun setWasListened(listened: Boolean): AudioMessageDboEntity {
+        this.was_listened = listened
         return this
     }
 

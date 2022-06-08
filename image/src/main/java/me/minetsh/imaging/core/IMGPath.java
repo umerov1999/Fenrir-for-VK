@@ -15,9 +15,9 @@ public class IMGPath {
     public static final float BASE_DOODLE_WIDTH = 20f;
     public static final float BASE_MOSAIC_WIDTH = 72f;
     protected Path path;
-    private int color = Color.RED;
-    private float width = BASE_MOSAIC_WIDTH;
-    private IMGMode mode = IMGMode.DOODLE;
+    private int color;
+    private float width;
+    private IMGMode mode;
 
     public IMGPath() {
         this(new Path());

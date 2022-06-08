@@ -12,12 +12,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
+        <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/enabled_anim"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:padding="8dp"
             android:text="@string/rotating_player_cover"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
@@ -51,21 +50,19 @@
             android:paddingBottom="8dp"
             android:progress="4" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
+        <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/edit_invert_rotation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:padding="8dp"
             android:text="@string/invert_rotating"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
+        <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/edit_fade_saturation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:padding="8dp"
             android:text="@string/fade_saturation"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 

@@ -25,7 +25,7 @@ interface IGifPlayer {
     }
 
     interface IVideoSizeChangeListener {
-        fun onVideoSizeChanged(player: IGifPlayer, size: VideoSize?)
+        fun onVideoSizeChanged(player: IGifPlayer, size: VideoSize)
     }
 
     interface IStatusChangeListener {

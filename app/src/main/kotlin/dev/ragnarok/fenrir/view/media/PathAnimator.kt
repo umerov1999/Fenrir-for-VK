@@ -20,7 +20,7 @@ class PathAnimator(
         try {
             val keyFrame = KeyFrame()
             keyFrame.time = ms * durationScale
-            val args = svg.split(" ").toTypedArray()
+            val args = svg.split(Regex(" ")).toTypedArray()
             var a = 0
             while (a < args.size) {
                 when (args[a][0]) {

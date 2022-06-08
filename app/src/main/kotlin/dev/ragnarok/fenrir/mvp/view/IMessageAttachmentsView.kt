@@ -6,7 +6,7 @@ import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.model.ModelsBundle
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 
-interface IMessageAttachmentsView : IMvpView, IErrorView {
+interface IMessageAttachmentsView : IMvpView, IErrorView, IToastView {
     fun displayAttachments(entries: List<AttachmentEntry>)
     fun notifyDataAdded(positionStart: Int, count: Int)
     fun addPhoto(accountId: Int, ownerId: Int)

@@ -558,6 +558,13 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         ).setTextColor(Color.WHITE).setBackgroundTint(Color.parseColor("#eeff0000"))
             .setAction(R.string.more_info) {
                 val Text = StringBuilder()
+                Text.append(
+                    ErrorLocalizer.localizeThrowable(
+                        Includes.provideApplicationContext(),
+                        throwable
+                    )
+                )
+                Text.append("\r\n")
                 for (stackTraceElement in throwable.stackTrace) {
                     Text.append("    ")
                     Text.append(stackTraceElement)

@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.Nullable;
 
 import java.lang.invoke.MethodHandles.Lookup;
@@ -96,6 +97,7 @@ abstract class Platform {
         private @Nullable
         Constructor<Lookup> lookupConstructor;
 
+        @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N)
         static boolean isSupported() {
             return Build.VERSION.SDK_INT >= 24;
         }

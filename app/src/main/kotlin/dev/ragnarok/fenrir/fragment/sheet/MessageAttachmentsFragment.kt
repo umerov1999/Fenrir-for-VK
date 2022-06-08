@@ -355,6 +355,13 @@ class MessageAttachmentsFragment :
             ).setBackgroundTint(Color.parseColor("#eeff0000"))
                 .setAction(R.string.more_info) {
                     val Text = StringBuilder()
+                    Text.append(
+                        localizeThrowable(
+                            provideApplicationContext(),
+                            throwable
+                        )
+                    )
+                    Text.append("\r\n")
                     for (stackTraceElement in (throwable ?: return@setAction).stackTrace) {
                         Text.append("    ")
                         Text.append(stackTraceElement)

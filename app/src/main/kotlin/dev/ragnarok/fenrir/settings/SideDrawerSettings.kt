@@ -52,7 +52,7 @@ internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
             )
             val line = getPreferences(app).getString("side_drawer_categories_order", null)
             val parts: Array<String> =
-                if (line.isNullOrEmpty()) emptyArray() else line.split("-".toRegex())
+                if (line.isNullOrEmpty()) emptyArray() else line.split(Regex("-"))
                     .toTypedArray()
             val positions = IntArray(parts.size)
             try {

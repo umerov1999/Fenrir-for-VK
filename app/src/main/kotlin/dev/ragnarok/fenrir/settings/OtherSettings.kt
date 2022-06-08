@@ -154,7 +154,7 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             if (rs.isEmpty()) {
                 emptyList()
             } else {
-                val integerStrings = rs.split(" ".toRegex()).toTypedArray()
+                val integerStrings = rs.split(Regex(" ")).toTypedArray()
                 if (integerStrings.isEmpty()) {
                     emptyList()
                 } else {
@@ -242,6 +242,8 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("info_reading", true)
     override val isAuto_read: Boolean
         get() = getPreferences(app).getBoolean("auto_read", false)
+    override val isMarkListenedVoice: Boolean
+        get() = getPreferences(app).getBoolean("mark_listened_voice", true)
     override val isNot_update_dialogs: Boolean
         get() = getPreferences(app).getBoolean("not_update_dialogs", false)
     override val isBe_online: Boolean
@@ -364,7 +366,7 @@ internal class OtherSettings(context: Context) : IOtherSettings {
     override val isDelete_cache_images: Boolean
         get() = getPreferences(app).getBoolean("delete_cache_images", false)
     override val isCompress_traffic: Boolean
-        get() = getPreferences(app).getBoolean("compress_traffic", false)
+        get() = getPreferences(app).getBoolean("compress_default_traffic", true)
     override val isLimit_cache: Boolean
         get() = getPreferences(app).getBoolean("limit_cache", false)
     override val isDo_not_clear_back_stack: Boolean
@@ -409,8 +411,6 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("native_parcel_story", true)
     override val isDoLogs: Boolean
         get() = isDeveloper_mode && getPreferences(app).getBoolean("do_logs", false)
-    override val isExtra_debug: Boolean
-        get() = isDoLogs && getPreferences(app).getBoolean("extra_debug", false)
     override val isDump_fcm: Boolean
         get() = isDoLogs && getPreferences(app).getBoolean("dump_fcm", false)
     override val isHint_stickers: Boolean
@@ -529,6 +529,10 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         } catch (e: Exception) {
             384
         }
+    }
+
+    override fun isEnable_dirs_files_count(): Boolean {
+        return getPreferences(app).getBoolean("enable_dirs_files_count", true)
     }
 
     companion object {

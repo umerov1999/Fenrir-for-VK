@@ -1115,6 +1115,7 @@ object Dto2Model {
             .setLinkMp3(dto.linkMp3)
             .setAccessKey(dto.access_key)
             .setTranscript(dto.transcript)
+            .setWasListened(dto.was_listened)
     }
 
 

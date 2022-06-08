@@ -19,7 +19,7 @@ object ValidationUtil {
             return false
         }
         ipv4T = ipv4T.trim { it <= ' ' }
-        val blocks = ipv4T.split("\\.").toTypedArray()
+        val blocks = ipv4T.split(Regex("\\.")).toTypedArray()
         if (blocks.size != 4) {
             return false
         }

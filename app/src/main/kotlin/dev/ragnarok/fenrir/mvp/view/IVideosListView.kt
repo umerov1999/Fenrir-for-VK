@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 import dev.ragnarok.fenrir.upload.Upload
 
-interface IVideosListView : IAccountDependencyView, IMvpView, IToolbarView, IErrorView {
+interface IVideosListView : IAccountDependencyView, IMvpView, IToolbarView, IErrorView, IToastView {
     fun displayData(data: List<Video>)
     fun notifyDataAdded(position: Int, count: Int)
     fun displayLoading(loading: Boolean)

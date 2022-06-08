@@ -19,6 +19,10 @@ class Networker(settings: IProxySettings) : INetworker {
         return VkApies.create(accountId, accessToken, vkRetrofitProvider)
     }
 
+    override fun getVkRetrofitProvider(): IVkRetrofitProvider {
+        return vkRetrofitProvider
+    }
+
     override fun vkDirectAuth(): IAuthApi {
         return AuthApi(object : IDirectLoginSeviceProvider {
             override fun provideAuthService(): Single<IAuthService> {

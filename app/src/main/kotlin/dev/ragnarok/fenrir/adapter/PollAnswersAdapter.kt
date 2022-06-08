@@ -42,6 +42,10 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
         //holder.mVotedRoot.setVisibility(checkable ? View.GONE : View.VISIBLE);
         viewHolder.tvTitle.visibility = if (checkable) View.GONE else View.VISIBLE
         viewHolder.rbButton.visibility = if (checkable) View.VISIBLE else View.GONE
+
+        viewHolder.pbRate.setOnClickListener {
+            listener?.onAnswerClick(answer.id)
+        }
     }
 
     override fun viewHolder(view: View, type: Int): ViewHolder {
@@ -86,6 +90,7 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
 
     interface OnAnswerChangedCallback {
         fun onAnswerChanged(checked: MutableSet<Int>)
+        fun onAnswerClick(id: Int)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -294,6 +294,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
   private boolean nestedScrolled;
 
+  private float hideFriction = HIDE_FRICTION;
+
   private int childHeight;
   int parentWidth;
   int parentHeight;
@@ -1059,7 +1061,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   }
 
   /**
-   * Sets whether this bottom sheet can hide when it is swiped down.
+   * Sets whether this bottom sheet can hide.
    *
    * @param hideable {@code true} to make this bottom sheet hideable.
    * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_hideable
@@ -1144,6 +1146,28 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   @SaveFlags
   public int getSaveFlags() {
     return this.saveFlags;
+  }
+
+  /**
+   * Sets the friction coefficient to hide the bottom sheet, or set it to the next closest
+   * expanded state.
+   *
+   * @param hideFriction The friction coefficient that determines the swipe velocity needed to
+   *  hide or set the bottom sheet to the closest expanded state.
+   */
+  public void setHideFriction(float hideFriction) {
+    this.hideFriction = hideFriction;
+  }
+
+  /**
+   * Gets the friction coefficient to hide the bottom sheet, or set it to the next closest
+   * expanded state.
+   *
+   * @return The friction coefficient that determines the swipe velocity needed to hide or set the
+   *  bottom sheet to the closest expanded state.
+   */
+  public float getHideFriction() {
+    return this.hideFriction;
   }
 
   /**
@@ -1395,7 +1419,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       return false;
     }
     int peek = calculatePeekHeight();
-    final float newTop = child.getTop() + yvel * HIDE_FRICTION;
+    final float newTop = child.getTop() + yvel * hideFriction;
     return Math.abs(newTop - collapsedOffset) / (float) peek > HIDE_THRESHOLD;
   }
 

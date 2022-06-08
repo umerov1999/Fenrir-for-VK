@@ -80,7 +80,7 @@ class WallAdapter(
             post.attachments,
             holder.attachmentContainers,
             false,
-            null
+            null, null
         )
         attachmentsViewBinder.displayCopyHistory(
             post.getCopyHierarchy(),

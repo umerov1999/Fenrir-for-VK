@@ -59,7 +59,7 @@ class ExoVideoPlayer(
     private fun createPlayer(context: Context): ExoPlayer {
         val ret = ExoPlayer.Builder(context, DefaultRenderersFactory(context)).build()
         ret.setAudioAttributes(
-            AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MOVIE).setUsage(
+            AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).setUsage(
                 C.USAGE_MEDIA
             ).build(), true
         )

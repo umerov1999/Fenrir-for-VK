@@ -54,19 +54,17 @@
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@null"
         android:src="@drawable/audio_player"
-        app:fabSize="normal"
         app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior"
         app:maxImageSize="30dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/save_mode_button"
+        style="@style/Widget.Material3.FloatingActionButton.Small.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@null"
         android:src="@drawable/save"
-        app:fabSize="mini"
-        app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior"
-        app:maxImageSize="24dp" />
+        app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

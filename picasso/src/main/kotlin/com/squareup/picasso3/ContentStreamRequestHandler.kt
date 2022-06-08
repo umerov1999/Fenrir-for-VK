@@ -28,7 +28,7 @@ import java.io.FileNotFoundException
 
 internal open class ContentStreamRequestHandler(val context: Context) : RequestHandler() {
     override fun canHandleRequest(data: Request): Boolean =
-        ContentResolver.SCHEME_CONTENT == data.uri?.scheme ?: false
+        ContentResolver.SCHEME_CONTENT == (data.uri?.scheme ?: false)
 
     override fun load(
         picasso: Picasso,

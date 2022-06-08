@@ -5,15 +5,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/switchcompat"
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/search_option"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
         android:paddingStart="12dp"
-        android:paddingTop="3dp"
         android:paddingEnd="12dp"
-        android:paddingBottom="3dp"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         tools:text="Search option" />
 

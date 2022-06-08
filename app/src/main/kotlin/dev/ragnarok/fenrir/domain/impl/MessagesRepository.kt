@@ -522,8 +522,8 @@ class MessagesRepository(
         accountId: Int,
         context: Context
     ): Single<Pair<Peer, List<Message>>> {
-        val gson = vkgson
-        return try {
+        return Single.create { its ->
+            val gson = vkgson
             val b = InputStreamReader(
                 (context as Activity).intent.data?.let {
                     context.contentResolver.openInputStream(
@@ -534,24 +534,24 @@ class MessagesRepository(
             val resp = gson.fromJson(b, ChatJsonResponse::class.java)
             b.close()
             if (resp == null || resp.page_title.isNullOrEmpty()) {
-                return Single.error(Throwable("parsing error"))
+                its.onError(Throwable("parsing error"))
             }
             val ids = VKOwnIds().append(resp.messages)
-            ownersRepository.findBaseOwnersDataAsBundle(
-                accountId,
-                ids.all,
-                IOwnersRepository.MODE_ANY,
-                emptyList()
+            its.onSuccess(
+                ownersRepository.findBaseOwnersDataAsBundle(
+                    accountId,
+                    ids.all,
+                    IOwnersRepository.MODE_ANY,
+                    emptyList()
+                )
+                    .map {
+                        Pair(
+                            Peer(resp.page_id).setAvaUrl(resp.page_avatar)
+                                .setTitle(resp.page_title),
+                            transformMessages(resp.page_id, resp.messages.orEmpty(), it)
+                        )
+                    }.blockingGet()
             )
-                .map {
-                    Pair(
-                        Peer(resp.page_id).setAvaUrl(resp.page_avatar).setTitle(resp.page_title),
-                        transformMessages(resp.page_id, resp.messages.orEmpty(), it)
-                    )
-                }
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            Single.error(e)
         }
     }
 
@@ -1305,6 +1305,15 @@ class MessagesRepository(
             .pinUnPinConversation(peerId, peen)
     }
 
+    override fun markAsListened(
+        accountId: Int,
+        message_id: Int
+    ): Completable {
+        return networker.vkDefault(accountId)
+            .messages()
+            .markAsListened(message_id)
+    }
+
     override fun markAsImportant(
         accountId: Int,
         peerId: Int,
@@ -1487,24 +1496,7 @@ class MessagesRepository(
                         val stickerId = a.id
                         return checkForwardMessages(accountId, dbo)
                             .flatMap {
-                                if (it.first) {
-                                    return@flatMap networker.vkDefault(accountId)
-                                        .messages()
-                                        .send(
-                                            dbo.id.toLong(),
-                                            dbo.peerId,
-                                            null,
-                                            null,
-                                            null,
-                                            null,
-                                            null,
-                                            null,
-                                            stickerId,
-                                            null,
-                                            it.second.requireNonEmpty()[0]
-                                        )
-                                }
-                                networker.vkDefault(accountId)
+                                return@flatMap networker.vkDefault(accountId)
                                     .messages()
                                     .send(
                                         dbo.id.toLong(),
@@ -1516,8 +1508,8 @@ class MessagesRepository(
                                         null,
                                         null,
                                         stickerId,
-                                        null,
-                                        null
+                                        dbo.payload,
+                                        if (it.first) it.second.requireNonEmpty()[0] else null
                                     )
                             }
                     }
@@ -1534,39 +1526,21 @@ class MessagesRepository(
                 }
                 checkForwardMessages(accountId, dbo)
                     .flatMap {
-                        if (it.first && (!dbo.body.isNullOrEmpty() || dbo.isHasAttachmens)) {
-                            networker.vkDefault(accountId)
-                                .messages()
-                                .send(
-                                    dbo.id.toLong(),
-                                    dbo.peerId,
-                                    null,
-                                    dbo.body,
-                                    null,
-                                    null,
-                                    attachments,
-                                    null,
-                                    null,
-                                    null,
-                                    it.second.requireNonEmpty()[0]
-                                )
-                        } else {
-                            networker.vkDefault(accountId)
-                                .messages()
-                                .send(
-                                    dbo.id.toLong(),
-                                    dbo.peerId,
-                                    null,
-                                    dbo.body,
-                                    null,
-                                    null,
-                                    attachments,
-                                    it.second.get(),
-                                    null,
-                                    null,
-                                    null
-                                )
-                        }
+                        networker.vkDefault(accountId)
+                            .messages()
+                            .send(
+                                dbo.id.toLong(),
+                                dbo.peerId,
+                                null,
+                                dbo.body,
+                                null,
+                                null,
+                                attachments,
+                                if (!it.first) it.second.get() else null,
+                                null,
+                                dbo.payload,
+                                if (it.first) it.second.requireNonEmpty()[0] else null
+                            )
                     }
             }
     }

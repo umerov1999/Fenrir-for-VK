@@ -24,6 +24,9 @@ class VKApiAudioMessage : VKApiAttachment {
     @SerializedName("access_key")
     var access_key: String? = null
 
+    @SerializedName("was_listened")
+    var was_listened = false
+
     @SerializedName("transcript")
     var transcript: String? = null
     override fun getType(): String {

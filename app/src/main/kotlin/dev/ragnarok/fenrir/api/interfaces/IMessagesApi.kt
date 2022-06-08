@@ -158,6 +158,9 @@ interface IMessagesApi {
     fun pinUnPinConversation(peerId: Int, peen: Boolean): Completable
 
     @CheckResult
+    fun markAsListened(message_id: Int): Completable
+
+    @CheckResult
     fun recogniseAudioMessage(message_id: Int?, audio_message_id: String?): Single<Int>
 
     @CheckResult

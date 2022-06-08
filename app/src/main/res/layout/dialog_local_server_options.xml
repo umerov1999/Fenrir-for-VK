@@ -6,16 +6,15 @@
     android:orientation="vertical"
     android:padding="8dp">
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/reverse_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
-        android:padding="8dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:text="@string/reverse_time"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="@dimen/font_size_title" />
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/local_server_sync"

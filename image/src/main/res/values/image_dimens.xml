@@ -14,7 +14,6 @@
     <dimen name="ucrop_margin_horizontal_wheel_progress_line">10dp</dimen>
     <dimen name="ucrop_height_wrapper_controls">64dp</dimen>
     <dimen name="ucrop_height_wrapper_states">72dp</dimen>
-    <dimen name="ucrop_height_divider_shadow">3dp</dimen>
     <dimen name="ucrop_text_size_widget_text">13sp</dimen>
     <dimen name="ucrop_text_size_controls_text">11sp</dimen>
     <dimen name="ucrop_margin_top_widget_text">10dp</dimen>

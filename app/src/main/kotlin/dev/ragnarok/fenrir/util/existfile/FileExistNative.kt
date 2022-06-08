@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.stream.JsonReader
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper
+import dev.ragnarok.fenrir.module.FileUtils
 import dev.ragnarok.fenrir.module.StringExist
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermissionSimple
@@ -52,18 +53,6 @@ class FileExistNative : AbsFileExist {
         return CachedPhotos.contains(transform_owner(photo.ownerId) + "_" + photo.getObjectId())
     }
 
-    private fun loadDownloadPath(Path: String) {
-        val temp = File(Path)
-        if (!temp.exists()) return
-        val file_list = temp.listFiles()
-        if (file_list == null || file_list.isEmpty()) return
-        for (u in file_list) {
-            if (u.isFile) CachedPhotos.insert(u.name) else if (u.isDirectory) {
-                loadDownloadPath(u.absolutePath)
-            }
-        }
-    }
-
     override fun findLocalImages(photos: List<SelectablePhotoWrapper>): Completable {
         return Completable.create { t: CompletableEmitter ->
             val temp = File(Settings.get().other().photoDir)
@@ -71,17 +60,10 @@ class FileExistNative : AbsFileExist {
                 t.onComplete()
                 return@create
             }
-            val file_list = temp.listFiles()
-            if (file_list == null || file_list.isEmpty()) {
-                t.onComplete()
-                return@create
-            }
             CachedPhotos.clear()
-            for (u in file_list) {
-                if (u.isFile) CachedPhotos.insert(u.name) else if (u.isDirectory) {
-                    loadDownloadPath(u.absolutePath)
-                }
-            }
+            CachedPhotos.lockMutex(true)
+            FileUtils.listDirRecursive(temp.absolutePath, CachedPhotos.getNativePointer())
+            CachedPhotos.lockMutex(false)
             for (i in photos) {
                 i.setDownloaded(existPhoto(i.photo))
             }

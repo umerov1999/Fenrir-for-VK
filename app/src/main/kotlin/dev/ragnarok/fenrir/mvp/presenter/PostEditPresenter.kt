@@ -156,9 +156,8 @@ class PostEditPresenter(
                 if (data.isEmpty()) {
                     doCommitImpl()
                 } else {
-                    view?.showToast(
-                        R.string.wait_until_file_upload_is_complete,
-                        true
+                    view?.customToast?.showToastSuccessBottom(
+                        R.string.wait_until_file_upload_is_complete
                     )
                 }
             }) { it.printStackTrace() })

@@ -222,7 +222,6 @@ public class ImageHeaderParser {
      *
      * @return The exif orientation if present or -1 if the header couldn't be parsed or doesn't
      * contain an orientation
-     * @throws IOException
      */
     public int getOrientation() throws IOException {
         int magicNumber = reader.getUInt16();

@@ -89,6 +89,15 @@
         <item>Мужской</item>
     </string-array>
 
+    <string name="crash_error_activity_error_occurred_explanation">Необрабатываемое исключение.</string>
+    <string name="crash_error_activity_restart_app">Перезапуск</string>
+    <string name="crash_error_activity_error_details">Детали</string>
+    <string name="crash_error_activity_error_details_title">Детали исключения</string>
+    <string name="crash_error_activity_error_details_close">Закрыть</string>
+    <string name="crash_error_activity_error_details_copy">Копировать</string>
+    <string name="crash_error_activity_error_details_copied">Скопировано</string>
+    <string name="crash_error_activity_error_details_clipboard_label">Информация об ошибке</string>
+
     <!-- Dialogs-->
     <string name="dialogs">Диалоги</string>
     <string name="dialog_day_today">Сегодня</string>
@@ -667,6 +676,7 @@
     <string name="photo">Фото</string>
     <string name="video">Видео</string>
     <string name="share">Поделиться</string>
+    <string name="share_to_message">В ЛС</string>
     <string name="new_comment">Новый комментарий</string>
     <string name="editing">Редактирование</string>
     <string name="add_document_to_yourself_commit">Добавить в свои документы ?</string>
@@ -1358,8 +1368,8 @@
     <string name="docs_dir">Документы</string>
     <string name="sticker_dir">Стикеры</string>
     <string name="photo_to_user_dir">Сортировать фото по папкам</string>
-    <string name="import_accounts">Импорт аккаунтов</string>
-    <string name="export_accounts">Экспорт аккаунтов</string>
+    <string name="import_accounts">Импорт настроек</string>
+    <string name="export_accounts">Экспорт настроек</string>
     <string name="entry_account">Ввести</string>
     <string name="show_qr">Показать QR</string>
     <string name="download_peer_to">Скачать переписку</string>
@@ -1559,7 +1569,6 @@
     <string name="artists">Артисты</string>
     <string name="video_controller_to_decor">Видео кнопки в DecorView</string>
     <string name="video_swipes">Свайпы у видео</string>
-    <string name="extra_debug">Расширенная отладка</string>
     <string name="do_logs">Записывать логи</string>
     <string name="dump_fcm">Отладка firebase</string>
     <string name="need_restart">Требуется перезапуск</string>
@@ -1644,13 +1653,12 @@
     <string name="comments_disabled_post">Комментарии к данному посту заблокированы!</string>
     <string name="recently">Недавно</string>
     <string name="reset">Сбросить</string>
-
-    <string name="crash_error_activity_error_occurred_explanation">Необрабатываемое исключение.</string>
-    <string name="crash_error_activity_restart_app">Перезапуск</string>
-    <string name="crash_error_activity_error_details">Детали</string>
-    <string name="crash_error_activity_error_details_title">Детали исключения</string>
-    <string name="crash_error_activity_error_details_close">Закрыть</string>
-    <string name="crash_error_activity_error_details_copy">Копировать</string>
-    <string name="crash_error_activity_error_details_copied">Скопировано</string>
-    <string name="crash_error_activity_error_details_clipboard_label">Информация об ошибке</string>
+    <string name="enable_dirs_files_count">Количество файлов в папке</string>
+    <string name="gender_woman">Женский</string>
+    <string name="gender_man">Мужской</string>
+    <string name="closed">Закрытый</string>
+    <string name="opened">Открытый</string>
+    <string name="unofficial">Неофициальный</string>
+    <string name="mark_listened_voice">Отмечать прослушанные голосовые</string>
+    <string name="voters">Проголосовали</string>
 </resources>

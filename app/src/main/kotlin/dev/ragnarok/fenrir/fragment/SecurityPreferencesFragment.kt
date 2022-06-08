@@ -26,6 +26,7 @@ import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.activity.CreatePinActivity
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
@@ -36,7 +37,11 @@ import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.SecuritySettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
+import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.view.MySearchView
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import java.util.concurrent.TimeUnit
 
 
 class SecurityPreferencesFragment : AbsPreferencesFragment(),
@@ -45,6 +50,8 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
     private var preferencesView: RecyclerView? = null
     private var layoutManager: LinearLayoutManager? = null
     private var searchView: MySearchView? = null
+    private var sleepDataDisposable = Disposable.disposed()
+    private val SEARCH_DELAY = 2000
     override val keyInstanceState: String = "security_preferences"
 
     private val requestChangePin = registerForActivityResult(
@@ -114,6 +121,7 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
             })
             it.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
+                    sleepDataDisposable.dispose()
                     if (query.nonNullNoEmpty() && query.trimmedNonNullNoEmpty()) {
                         preferencesAdapter?.findPreferences(requireActivity(), query, root)
                     }
@@ -121,6 +129,19 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
+                    sleepDataDisposable.dispose()
+                    sleepDataDisposable = Single.just(Any())
+                        .delay(SEARCH_DELAY.toLong(), TimeUnit.MILLISECONDS)
+                        .fromIOToMain()
+                        .subscribe({
+                            if (newText.nonNullNoEmpty() && newText.trimmedNonNullNoEmpty()) {
+                                preferencesAdapter?.findPreferences(
+                                    requireActivity(),
+                                    newText,
+                                    root
+                                )
+                            }
+                        }, { RxUtils.dummy() })
                     return false
                 }
             })
@@ -368,6 +389,7 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
     }
 
     override fun onDestroy() {
+        sleepDataDisposable.dispose()
         preferencesView?.let { preferencesAdapter?.stopObserveScrollPosition(it) }
         preferencesAdapter?.onScreenChangeListener = null
         preferencesView?.adapter = null

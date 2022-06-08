@@ -57,6 +57,7 @@ android {
         ndk {
             abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a", "x86_64"))
         }
+        resourceConfigurations.addAll(listOf("en", "ru"))
     }
 
     lint {
@@ -86,7 +87,8 @@ android {
         freeCompilerArgs = listOf(
             "-opt-in=kotlin.contracts.ExperimentalContracts",
             "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-            "-opt-in=kotlin.RequiresOptIn"
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlin.ExperimentalStdlibApi"
         )
     }
 
@@ -145,7 +147,7 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:${MakeConfig.viewpager2Version}")
     implementation("androidx.vectordrawable:vectordrawable:${MakeConfig.vectordrawableVersion}")
     implementation("androidx.appcompat:appcompat:${MakeConfig.appcompatVersion}")
-    implementation("androidx.customview:customview:1.1.0")
+    implementation("androidx.customview:customview:1.2.0-alpha01")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     implementation("androidx.browser:browser:1.4.0")
     implementation("androidx.webkit:webkit:1.4.0")
@@ -153,7 +155,7 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxjava:${MakeConfig.rxJavaVersion}")
     implementation("io.reactivex.rxjava3:rxandroid:${MakeConfig.rxAndroidVersion}")
     implementation("com.google.firebase:firebase-database:20.0.5")
-    implementation("com.google.firebase:firebase-datatransport:18.1.3")
+    implementation("com.google.firebase:firebase-datatransport:18.1.4")
     implementation("com.google.firebase:firebase-messaging:23.0.2") {
         exclude("com.google.firebase", "firebase-installations")
     }
@@ -166,11 +168,12 @@ dependencies {
     implementation(project("path" to ":gson"))
     implementation(project("path" to ":preference"))
     implementation(project("path" to ":retrofit"))
-    implementation("com.squareup.okhttp3:okhttp:${MakeConfig.okhttpLibraryVersion}")
+    implementation("com.squareup.okhttp3:okhttp-android:${MakeConfig.okhttpLibraryVersion}")
     implementation("com.squareup.okhttp3:logging-interceptor:${MakeConfig.okhttpLibraryVersion}")
     implementation("com.squareup.okio:okio:${MakeConfig.okioVersion}")
-    implementation("com.google.android.exoplayer:exoplayer-core:${MakeConfig.exoLibraryVersion}")
-    implementation("com.google.android.exoplayer:exoplayer-hls:${MakeConfig.exoLibraryVersion}")
+    //implementation("com.google.android.exoplayer:exoplayer-core:${MakeConfig.exoLibraryVersion}")
+    //implementation("com.google.android.exoplayer:exoplayer-hls:${MakeConfig.exoLibraryVersion}")
+    implementation(project("path" to ":exoplayer"))
     implementation("androidx.constraintlayout:constraintlayout:${MakeConfig.constraintlayoutVersion}")
     implementation("androidx.biometric:biometric-ktx:1.2.0-alpha04")
     implementation("androidx.media:media:1.6.0")
@@ -187,7 +190,7 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:${MakeConfig.cameraVersion}")
     implementation("androidx.camera:camera-view:${MakeConfig.cameraVersion}")
     implementation("androidx.camera:camera-camera2:${MakeConfig.cameraVersion}")
-    implementation(if (MakeConfig.appMinSDK >= 26) "com.google.zxing:core:3.5.0" else "com.google.zxing:core:3.3.3")
+    //implementation(if (MakeConfig.appMinSDK >= 26) "com.google.zxing:core:3.5.0" else "com.google.zxing:core:3.3.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3")
 }
 apply(plugin = "com.google.gms.google-services")

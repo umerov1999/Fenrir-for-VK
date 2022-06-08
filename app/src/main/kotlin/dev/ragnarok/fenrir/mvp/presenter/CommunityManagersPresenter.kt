@@ -185,9 +185,8 @@ class CommunityManagersPresenter(accountId: Int, groupId: Community, savedInstan
     }
 
     private fun onRemoveComplete() {
-        view?.showToast(
-            R.string.deleted,
-            false
+        view?.customToast?.showToastSuccessBottom(
+            R.string.deleted
         )
     }
 

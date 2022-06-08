@@ -459,7 +459,7 @@ class AudiosPresenter(
         }
 
         private fun checkTittleArtists(data: Audio, q: String): Boolean {
-            val r = q.split("( - )|( )|( {2})".toRegex(), 2).toTypedArray()
+            val r = q.split(Regex("( - )|( )|( {2})"), 2).toTypedArray()
             return if (r.size >= 2) {
                 (safeCheck(
                     data.artist,
@@ -536,7 +536,7 @@ class AudiosPresenter(
 
     companion object {
         private const val GET_COUNT = 100
-        private const val SEARCH_COUNT = 200
+        private const val SEARCH_COUNT = 1000
         private const val SEARCH_VIEW_COUNT = 20
         private const val WEB_SEARCH_DELAY = 1000
     }

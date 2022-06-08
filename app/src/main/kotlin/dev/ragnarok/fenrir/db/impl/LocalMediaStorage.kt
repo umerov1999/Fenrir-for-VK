@@ -289,7 +289,7 @@ internal class LocalMediaStorage(mRepositoryContext: AppStorages) : AbsStorage(m
                 cursor.getString(MediaStore.MediaColumns.DISPLAY_NAME)?.replace(".mp3", "")
                     .orEmpty()
             var Artist = ""
-            val arr = TrackName.split(" - ".toRegex()).toTypedArray()
+            val arr = TrackName.split(Regex(" - ")).toTypedArray()
             if (arr.size > 1) {
                 Artist = arr[0]
                 TrackName = TrackName.replace("$Artist - ", "")

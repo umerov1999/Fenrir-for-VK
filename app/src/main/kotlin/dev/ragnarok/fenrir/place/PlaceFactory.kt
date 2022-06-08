@@ -886,4 +886,15 @@ object PlaceFactory {
     fun getShortcutsPlace(): Place {
         return Place(Place.SHORTCUTS)
     }
+
+    fun getVotersPlace(
+        accountId: Int,
+        ownerId: Int,
+        pollId: Int,
+        board: Boolean,
+        answer: Int
+    ): Place {
+        return Place(Place.VOTERS)
+            .setArguments(VotersFragment.buildArgs(accountId, ownerId, pollId, board, answer))
+    }
 }

@@ -10,15 +10,17 @@ import com.google.android.exoplayer2.util.Assertions
 import com.google.android.exoplayer2.util.Util
 import com.google.common.base.Predicate
 import com.google.common.net.HttpHeaders
+import com.google.common.util.concurrent.SettableFuture
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.io.InputStream
 import java.io.InterruptedIOException
+import java.util.concurrent.ExecutionException
 
 /**
- * An [HttpDataSource] that delegates to Square's [Call.Factory].
+ * An [HttpDataSource] that delegates to Square's [OkHttpClient].
  *
  *
  * Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
@@ -86,8 +88,9 @@ class OkHttpDataSource private constructor(
         val request = makeRequest(dataSpec)
         val response: Response?
         val responseBody: ResponseBody
+        val call = callFactory.newCall(request)
         try {
-            this.response = callFactory.newCall(request).execute()
+            this.response = executeCall(call)
             response = this.response
             responseBody = response?.body ?: return -1
             responseByteStream = responseBody.byteStream()
@@ -221,6 +224,33 @@ class OkHttpDataSource private constructor(
         }
         builder.method(dataSpec.httpMethodString, requestBody)
         return builder.build()
+    }
+
+    /**
+     * This method is an interrupt safe replacement of OkHttp Call.execute() which can get in bad
+     * states if interrupted while writing to the shared connection socket.
+     */
+    @Throws(IOException::class)
+    private fun executeCall(call: Call): Response {
+        val future: SettableFuture<Response> = SettableFuture.create()
+        call.enqueue(
+            object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    future.setException(e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    future.set(response)
+                }
+            })
+        return try {
+            future.get()
+        } catch (e: InterruptedException) {
+            call.cancel()
+            throw InterruptedIOException()
+        } catch (ee: ExecutionException) {
+            throw IOException(ee)
+        }
     }
 
     /**

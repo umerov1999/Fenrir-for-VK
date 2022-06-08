@@ -182,6 +182,7 @@ object Entity2Model {
             .setOwnWallCount(dbo.ownWallCount)
             .setPostponedWallCount(dbo.postponedWallCount)
             .setBdate(dbo.bdate)
+            .setClosed(dbo.isClosed)
             .setCity(dbo.city?.let { map(it) })
             .setCountry(dbo.country?.let { map(it) })
             .setHometown(dbo.homeTown)
@@ -708,6 +709,7 @@ object Entity2Model {
             .setLinkOgg(entity.linkOgg)
             .setWaveform(entity.waveform)
             .setTranscript(entity.transcript)
+            .setWasListened(entity.was_listened)
     }
 
 

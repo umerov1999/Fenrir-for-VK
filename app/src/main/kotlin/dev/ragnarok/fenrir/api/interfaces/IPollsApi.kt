@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.VKApiPoll
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import io.reactivex.rxjava3.core.Single
 
 interface IPollsApi {
@@ -27,4 +28,13 @@ interface IPollsApi {
 
     @CheckResult
     fun getById(ownerId: Int, isBoard: Boolean?, pollId: Int): Single<VKApiPoll>
+
+    @CheckResult
+    fun getVoters(
+        ownerId: Int,
+        pollId: Int,
+        isBoard: Int?,
+        answer_ids: List<Int>,
+        offset: Int?, count: Int?
+    ): Single<List<VKApiUser>>
 }

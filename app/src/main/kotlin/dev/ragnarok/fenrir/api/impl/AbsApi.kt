@@ -1,18 +1,27 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.ApiException
-import dev.ragnarok.fenrir.api.IServiceProvider
-import dev.ragnarok.fenrir.api.TokenType
+import android.os.SystemClock
+import dev.ragnarok.fenrir.Includes
+import dev.ragnarok.fenrir.api.*
+import dev.ragnarok.fenrir.api.model.Captcha
+import dev.ragnarok.fenrir.api.model.Error
 import dev.ragnarok.fenrir.api.model.IAttachmentToken
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
-import dev.ragnarok.fenrir.api.model.response.BlockResponse
-import dev.ragnarok.fenrir.api.model.response.VkReponse
-import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.api.model.response.VkResponse
 import dev.ragnarok.fenrir.nullOrEmpty
+import dev.ragnarok.fenrir.requireNonNull
+import dev.ragnarok.fenrir.service.ApiErrorCodes
+import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.refresh.RefreshToken
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.exceptions.Exceptions
 import io.reactivex.rxjava3.functions.Function
+import okhttp3.*
+import java.io.IOException
+import java.lang.reflect.Type
+import java.util.*
 
 internal open class AbsApi(val accountId: Int, private val retrofitProvider: IServiceProvider) {
     fun <T : Any> provideService(serviceClass: Class<T>, vararg tokenTypes: Int): Single<T> {
@@ -23,47 +32,200 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
         return retrofitProvider.provideService(accountId, serviceClass, *pTokenTypes)
     }
 
-    companion object {
-
-        fun <T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
-            return Function { response: BaseResponse<T> ->
-                response.error?.let { throw Exceptions.propagate(ApiException(it)) }
-                    ?: (response.response ?: throw NullPointerException("VK return null response"))
-            }
+    private fun <T : Any> rawVKRequest(
+        method: String,
+        postParams: Map<String, String>,
+        javaClass: Type
+    ): Single<BaseResponse<T>> {
+        val bodyBuilder = FormBody.Builder()
+        for ((key, value) in postParams) {
+            bodyBuilder.add(key, value)
         }
-
-        fun checkResponseWithErrorHandling(): Function<VkReponse, Completable> {
-            return Function { vkReponse ->
-                vkReponse.error?.let { throw Exceptions.propagate(ApiException(it)) }
-                    ?: Completable.complete()
-            }
-        }
-
-        fun <T : Any> extractBlockResponseWithErrorHandling(): Function<BaseResponse<BlockResponse<T>>, T> {
-            return Function { response: BaseResponse<BlockResponse<T>> ->
-                response.error?.let { throw Exceptions.propagate(ApiException(it)) }
-                    ?: (response.response?.block
-                        ?: throw NullPointerException("VK return null response block"))
-            }
-        }
-
-
-        fun <T> handleExecuteErrors(vararg expectedMethods: String): Function<BaseResponse<T>, BaseResponse<T>> {
-            require(expectedMethods.isNotEmpty()) { "No expected methods found" }
-            return Function { response: BaseResponse<T> ->
-                response.executeErrors.nonNullNoEmpty {
-                    for (error in it) {
-                        for (expectedMethod in expectedMethods) {
-                            if (expectedMethod.equals(error.method, ignoreCase = true)) {
-                                throw Exceptions.propagate(ApiException(error))
-                            }
+        return Includes.networkInterfaces.getVkRetrofitProvider().provideNormalHttpClient(accountId)
+            .flatMap { client ->
+                Single.create { emitter: SingleEmitter<Response> ->
+                    val request: Request = Request.Builder()
+                        .url(
+                            method
+                        )
+                        .method("POST", bodyBuilder.build())
+                        .build()
+                    val call = client.newCall(request)
+                    emitter.setCancellable { call.cancel() }
+                    call.enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            emitter.onError(e)
                         }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            emitter.onSuccess(response)
+                        }
+                    })
+                }
+            }
+            .map {
+                VkRetrofitProvider.vkgson.fromJson(it.body.charStream(), javaClass)
+            }
+    }
+
+    private fun rawVKRequestOnly(
+        method: String,
+        postParams: Map<String, String>
+    ): Single<VkResponse> {
+        val bodyBuilder = FormBody.Builder()
+        for ((key, value) in postParams) {
+            bodyBuilder.add(key, value)
+        }
+        return Includes.networkInterfaces.getVkRetrofitProvider().provideNormalHttpClient(accountId)
+            .flatMap { client ->
+                Single.create { emitter: SingleEmitter<Response> ->
+                    val request: Request = Request.Builder()
+                        .url(
+                            method
+                        )
+                        .method("POST", bodyBuilder.build())
+                        .build()
+                    val call = client.newCall(request)
+                    emitter.setCancellable { call.cancel() }
+                    call.enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            emitter.onError(e)
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            emitter.onSuccess(response)
+                        }
+                    })
+                }
+            }
+            .map {
+                VkRetrofitProvider.vkgson.fromJson(it.body.charStream(), VkResponse::class.java)
+            }
+    }
+
+    private fun handleError(error: Error, params: HashMap<String, String>): Boolean {
+        var handle = true
+        when (error.errorCode) {
+            ApiErrorCodes.TOO_MANY_REQUESTS_PER_SECOND -> {
+                synchronized(AbsVkApiInterceptor::class.java) {
+                    val sleepMs = 1000 + RANDOM.nextInt(500)
+                    SystemClock.sleep(sleepMs.toLong())
+                }
+            }
+            ApiErrorCodes.REFRESH_TOKEN, ApiErrorCodes.CLIENT_VERSION_DEPRECATED -> {
+                val token = error.requests()["access_token"] ?: Settings.get().accounts()
+                    .getAccessToken(accountId)
+                if (token.isNullOrEmpty() || !RefreshToken.upgradeToken(
+                        accountId,
+                        token
+                    )
+                ) {
+                    handle = false
+                } else {
+                    params["access_token"] =
+                        Settings.get().accounts().getAccessToken(accountId).orEmpty()
+                }
+            }
+            ApiErrorCodes.VALIDATE_NEED -> {
+                val provider = Includes.validationProvider
+                provider.requestValidate(error.redirectUri)
+                var code = false
+                while (true) {
+                    try {
+                        code = provider.lookupState(error.redirectUri ?: break)
+                        if (code) {
+                            break
+                        } else {
+                            SystemClock.sleep(1000)
+                        }
+                    } catch (e: OutOfDateException) {
+                        break
                     }
                 }
-                response
+                handle = code
+                if (handle) {
+                    params["access_token"] =
+                        Settings.get().accounts().getAccessToken(accountId).orEmpty()
+                }
+            }
+            ApiErrorCodes.CAPTCHA_NEED -> {
+                val captcha = Captcha(error.captchaSid, error.captchaImg)
+                val provider = Includes.captchaProvider
+                provider.requestCaptha(captcha.sid, captcha)
+                var code: String? = null
+                while (true) {
+                    try {
+                        code = provider.lookupCode(captcha.sid ?: break)
+                        if (code != null) {
+                            break
+                        } else {
+                            SystemClock.sleep(1000)
+                        }
+                    } catch (e: OutOfDateException) {
+                        break
+                    }
+                }
+                if (code != null) {
+                    params["captcha_sid"] = captcha.sid
+                    params["captcha_key"] = code
+                }
+            }
+            else -> {
+                handle = false
             }
         }
+        return handle
+    }
 
+    fun <T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
+        return Function { response: BaseResponse<T> ->
+            response.error.requireNonNull {
+                val params = it.requests()
+
+                if (!handleError(it, params)) {
+                    throw Exceptions.propagate(ApiException(it))
+                } else {
+                    var method = it["post_url"]
+                    if ("empty" == method) {
+                        method = "https://" + Settings.get()
+                            .other().get_Api_Domain() + "/method/" + it["method"]
+                    }
+                    return@Function rawVKRequest<T>(
+                        method,
+                        params,
+                        it.type ?: throw UnsupportedOperationException()
+                    )
+                        .map(extractResponseWithErrorHandling())
+                        .blockingGet() as T
+                }
+            }
+            response.response ?: throw NullPointerException("VK return null response")
+        }
+    }
+
+    fun checkResponseWithErrorHandling(): Function<VkResponse, Completable> {
+        return Function { response: VkResponse ->
+            response.error.requireNonNull {
+                val params = it.requests()
+                if (!handleError(it, params)) {
+                    throw Exceptions.propagate(ApiException(it))
+                } else {
+                    var method = it["post_url"]
+                    if ("empty" == method) {
+                        method = "https://" + Settings.get()
+                            .other().get_Api_Domain() + "/method/" + it["method"]
+                    }
+                    return@Function rawVKRequestOnly(method, params)
+                        .map(checkResponseWithErrorHandling())
+                        .blockingGet()
+                }
+            }
+            Completable.complete()
+        }
+    }
+
+    companion object {
+        val RANDOM = Random()
         inline fun <T> join(
             tokens: Iterable<T>?,
             delimiter: String?,

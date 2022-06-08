@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api
 
 import com.google.gson.Gson
+import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.model.ProxyConfig
 import okhttp3.OkHttpClient
 
@@ -14,4 +15,5 @@ interface IVkMethodHttpClientFactory {
     ): OkHttpClient
 
     fun createServiceVkHttpClient(gson: Gson, config: ProxyConfig?): OkHttpClient
+    fun createRawVkApiOkHttpClient(@AccountType type: Int, config: ProxyConfig?): OkHttpClient
 }

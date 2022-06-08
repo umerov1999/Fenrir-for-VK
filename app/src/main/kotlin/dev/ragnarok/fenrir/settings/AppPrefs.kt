@@ -24,7 +24,7 @@ object AppPrefs {
         val pm = context.packageManager
         return try {
             pm.getPackageInfo(name, PackageManager.GET_ACTIVITIES)
-            true
+            pm.getApplicationInfo(name, 0).enabled
         } catch (ignored: PackageManager.NameNotFoundException) {
             false
         }

@@ -105,7 +105,7 @@ interface IAccountService {
     @POST("account.importMessagesContacts")
     fun importMessagesContacts(
         @Field("contacts") contacts: String?
-    ): Single<VkReponse>
+    ): Single<VkResponse>
 
     @GET("account.resetMessagesContacts")
     fun resetMessagesContacts(): Single<BaseResponse<Int>>

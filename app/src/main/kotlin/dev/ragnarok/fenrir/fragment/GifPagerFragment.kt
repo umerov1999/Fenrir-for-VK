@@ -3,7 +3,10 @@ package dev.ragnarok.fenrir.fragment
 import android.Manifest
 import android.os.Bundle
 import android.util.SparseArray
-import android.view.*
+import android.view.LayoutInflater
+import android.view.SurfaceHolder
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -24,8 +27,8 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
 import dev.ragnarok.fenrir.util.Utils.dp
-import dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout
 import dev.ragnarok.fenrir.view.CircleCounterButton
+import dev.ragnarok.fenrir.view.ExpandableSurfaceView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import java.lang.ref.WeakReference
 
@@ -146,7 +149,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
 
     override fun setAspectRatioAt(position: Int, w: Int, h: Int) {
         val holder = findByPosition(position)
-        holder?.mAspectRatioLayout?.setAspectRatio(w, h)
+        holder?.mSurfaceView?.setAspectRatio(w, h)
     }
 
     override fun setPreparingProgressVisible(position: Int, preparing: Boolean) {
@@ -183,7 +186,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
         val holder = findByPosition(adapterPosition)
         if (holder != null) {
             holder.setProgressVisible(progress)
-            holder.mAspectRatioLayout.setAspectRatio(aspectRatioW, aspectRatioH)
+            holder.mSurfaceView.setAspectRatio(aspectRatioW, aspectRatioH)
             holder.mSurfaceView.visibility =
                 if (progress) View.GONE else View.VISIBLE
         }
@@ -202,10 +205,9 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
 
     inner class Holder internal constructor(rootView: View) : RecyclerView.ViewHolder(rootView),
         SurfaceHolder.Callback {
-        val mSurfaceView: SurfaceView = rootView.findViewById(R.id.surface_view)
+        val mSurfaceView: ExpandableSurfaceView = rootView.findViewById(R.id.videoSurface)
         val mSurfaceHolder: SurfaceHolder = mSurfaceView.holder
         private val mProgressBar: RLottieImageView
-        val mAspectRatioLayout: AlternativeAspectRatioFrameLayout
         var isSurfaceReady = false
         override fun surfaceCreated(holder: SurfaceHolder) {
             isSurfaceReady = true
@@ -241,9 +243,8 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
 
         init {
             mSurfaceHolder.addCallback(this)
-            mAspectRatioLayout = rootView.findViewById(R.id.aspect_ratio_layout)
             mProgressBar = rootView.findViewById(R.id.preparing_progress_bar)
-            mAspectRatioLayout.setOnClickListener { toggleFullscreen() }
+            mSurfaceView.setOnClickListener { toggleFullscreen() }
         }
     }
 

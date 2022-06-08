@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.mvp.presenter.base
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.App.Companion.instance
 import dev.ragnarok.fenrir.Constants
@@ -83,7 +84,8 @@ abstract class RxSupportPresenter<V : IMvpView>(savedInstanceState: Bundle?) :
             return
         }
         val tView = resumedView as IToastView
-        tView.showToast(titleTes, isLong, params)
+        tView.customToast?.setDuration(if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
+            ?.showToast(titleTes, params)
     }
 
     protected fun showError(view: IErrorView?, throwable: Throwable?) {

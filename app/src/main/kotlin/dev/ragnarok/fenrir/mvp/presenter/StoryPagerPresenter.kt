@@ -302,7 +302,7 @@ class StoryPagerPresenter(
         }
     }
 
-    override fun onVideoSizeChanged(player: IGifPlayer, size: VideoSize?) {
+    override fun onVideoSizeChanged(player: IGifPlayer, size: VideoSize) {
         if (mGifPlayer === player) {
             resolveAspectRatio()
         }

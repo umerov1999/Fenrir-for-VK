@@ -12,7 +12,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Process
 import android.util.Rational
-import android.view.*
+import android.view.SurfaceHolder
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
@@ -39,7 +42,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout
+import dev.ragnarok.fenrir.view.ExpandableSurfaceView
 import dev.ragnarok.fenrir.view.VideoControllerView
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -49,10 +52,11 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
     private var mDecorView: View? = null
     private var mSpeed: ImageView? = null
     private var mControllerView: VideoControllerView? = null
-    private var Frame: AlternativeAspectRatioFrameLayout? = null
+    private var mSurfaceView: ExpandableSurfaceView? = null
     private var mPlayer: IVideoPlayer? = null
     private var video: Video? = null
     private var onStopCalled = false
+    private var seekSave: Long = -1
 
     @InternalVideoSize
     private var size = 0
@@ -93,30 +97,27 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         video = intent.getParcelableExtra(EXTRA_VIDEO)
         size = intent.getIntExtra(EXTRA_SIZE, InternalVideoSize.SIZE_240)
         isLocal = intent.getBooleanExtra(EXTRA_LOCAL, false)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val actionBar = supportActionBar
         actionBar?.title = video?.title
         actionBar?.subtitle = video?.description
-        if (toolbar != null) {
-            if (!isLocal && video != null) {
-                mCompositeDisposable.add(OwnerInfo.getRx(
-                    this,
-                    Settings.get().accounts().current,
-                    (video ?: return).ownerId
-                )
-                    .fromIOToMain()
-                    .subscribe({ userInfo ->
-                        val av =
-                            findViewById<ImageView>(R.id.toolbar_avatar)
-                        av.setImageBitmap(userInfo.avatar)
-                        av.setOnClickListener { onOpen() }
-                        if (video?.description.isNullOrEmpty() && actionBar != null) {
-                            actionBar.subtitle = userInfo.owner.fullName
-                        }
-                    }) { })
-            } else {
-                findViewById<View>(R.id.toolbar_avatar).visibility = View.GONE
-            }
+        if (!isLocal && video != null) {
+            mCompositeDisposable.add(OwnerInfo.getRx(
+                this,
+                Settings.get().accounts().current,
+                (video ?: return).ownerId
+            )
+                .fromIOToMain()
+                .subscribe({ userInfo ->
+                    val av =
+                        findViewById<ImageView>(R.id.toolbar_avatar)
+                    av.setImageBitmap(userInfo.avatar)
+                    av.setOnClickListener { onOpen() }
+                    if (video?.description.isNullOrEmpty() && actionBar != null) {
+                        actionBar.subtitle = userInfo.owner.fullName
+                    }
+                }) { })
+        } else {
+            findViewById<View>(R.id.toolbar_avatar).visibility = View.GONE
         }
         if (update) {
             val settings = proxySettings
@@ -130,6 +131,14 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(Utils.updateActivityContext(newBase))
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("size", size)
+        outState.putParcelable("video", video)
+        outState.putBoolean("isLocal", isLocal)
+        outState.putLong("seek", mPlayer?.currentPosition ?: -1)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,18 +163,48 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         }
         if (savedInstanceState == null) {
             handleIntent(intent, false)
+        } else {
+            size = savedInstanceState.getInt("size")
+            video = savedInstanceState.getParcelable("video")
+            isLocal = savedInstanceState.getBoolean("isLocal")
+            seekSave = savedInstanceState.getLong("seek")
+            val actionBar = supportActionBar
+            actionBar?.title = video?.title
+            actionBar?.subtitle = video?.description
+            if (!isLocal && video != null) {
+                mCompositeDisposable.add(OwnerInfo.getRx(
+                    this,
+                    Settings.get().accounts().current,
+                    (video ?: return).ownerId
+                )
+                    .fromIOToMain()
+                    .subscribe({ userInfo ->
+                        val av =
+                            findViewById<ImageView>(R.id.toolbar_avatar)
+                        av.setImageBitmap(userInfo.avatar)
+                        av.setOnClickListener { onOpen() }
+                        if (video?.description.isNullOrEmpty() && actionBar != null) {
+                            actionBar.subtitle = userInfo.owner.fullName
+                        }
+                    }) { })
+            } else {
+                findViewById<View>(R.id.toolbar_avatar).visibility = View.GONE
+            }
+            mControllerView?.updateComment(!isLocal && video?.isCanComment == true)
         }
         mControllerView = VideoControllerView(this)
         val surfaceContainer = findViewById<ViewGroup>(R.id.videoSurfaceContainer)
-        val mSurfaceView = findViewById<SurfaceView>(R.id.videoSurface)
-        Frame = findViewById(R.id.aspect_ratio_layout)
+        mSurfaceView = findViewById(R.id.videoSurface)
         surfaceContainer.setOnClickListener { resolveControlsVisibility() }
-        val videoHolder = mSurfaceView.holder
-        videoHolder.addCallback(this)
+        val videoHolder = mSurfaceView?.holder
+        videoHolder?.addCallback(this)
         resolveControlsVisibility()
         mPlayer = createPlayer()
         mPlayer?.addVideoSizeChangeListener(this)
         mPlayer?.play()
+        if (seekSave > 0) {
+            mPlayer?.seekTo(seekSave)
+        }
         mSpeed = findViewById(R.id.toolbar_play_speed)
         Utils.setTint(
             mSpeed,
@@ -394,7 +433,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
             if (packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
                 && hasPipPermission()
             ) if (!isInPictureInPictureMode) {
-                val aspectRatio = Rational(Frame?.width ?: 0, Frame?.height ?: 0)
+                val aspectRatio = Rational(mSurfaceView?.width ?: 0, mSurfaceView?.height ?: 0)
                 enterPictureInPictureMode(
                     PictureInPictureParams.Builder().setAspectRatio(aspectRatio).build()
                 )
@@ -428,9 +467,8 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         }
     }
 
-    override fun onVideoSizeChanged(player: IVideoPlayer, size: VideoSize?) {
-        size ?: return
-        Frame?.setAspectRatio(size.width, size.height)
+    override fun onVideoSizeChanged(player: IVideoPlayer, size: VideoSize) {
+        mSurfaceView?.setAspectRatio(size.width, size.height)
     }
 
     override fun hideMenu(hide: Boolean) {}

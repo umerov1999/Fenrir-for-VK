@@ -20,4 +20,7 @@
   <public name="Widget.Material3.CompoundButton.CheckBox" type="style"/>
 
   <public name="centerIfNoTextEnabled" type="attr"/>
+  <public name="errorShown" type="attr"/>
+  <public name="errorAccessibilityLabel" type="attr"/>
+  <public name="state_error" type="attr"/>
 </resources>

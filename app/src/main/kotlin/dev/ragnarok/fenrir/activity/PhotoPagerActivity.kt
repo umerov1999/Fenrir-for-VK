@@ -636,6 +636,11 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         PlaceFactory.getCommentsPlace(accountId, commented, null).tryOpenWith(this)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mLoadingProgressBarDispose.dispose()
+    }
+
     override fun displayPhotoListLoading(loading: Boolean) {
         mLoadingProgressBarDispose.dispose()
         if (loading) {

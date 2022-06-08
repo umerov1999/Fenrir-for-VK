@@ -106,23 +106,23 @@
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/add_playlist"
+                style="@style/Widget.Material3.FloatingActionButton.Small.Surface"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@null"
                 android:src="@drawable/plus"
                 app:elevation="2dp"
-                app:fabSize="mini"
                 app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/share_playlist"
+                style="@style/Widget.Material3.FloatingActionButton.Small.Surface"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:contentDescription="@null"
                 android:src="@drawable/share"
                 app:elevation="2dp"
-                app:fabSize="mini"
                 app:layout_behavior="dev.ragnarok.fenrir.view.FABBehavior" />
 
         </LinearLayout>

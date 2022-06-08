@@ -2,18 +2,16 @@ package dev.ragnarok.fenrir.api
 
 import com.google.gson.GsonBuilder
 import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Constants.USER_AGENT
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.retrofit.gson.GsonConverterFactory
+import dev.ragnarok.fenrir.util.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploadRetrofitProvider {
@@ -44,17 +42,10 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
     }
 
     private fun createUploadRetrofit(): Retrofit {
-        val logging = HttpLoggingInterceptor()
-        if (Constants.IS_DEBUG) {
-            logging.setLevel(HttpLoggingInterceptor.Level.BASIC)
-        } else {
-            logging.setLevel(HttpLoggingInterceptor.Level.NONE)
-        }
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
-            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(40, TimeUnit.SECONDS)
+            .connectTimeout(40, TimeUnit.SECONDS)
+            .writeTimeout(40, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
                     chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader(
@@ -67,6 +58,7 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
         val gson = GsonBuilder()
             .create()
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
+        HttpLogger.adjustUpload(builder)
         return Retrofit.Builder()
             .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/") // dummy
             .addConverterFactory(GsonConverterFactory.create(gson))

@@ -81,7 +81,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
             isProximityNear = false
             isHeadset = false
             exoPlayer?.setAudioAttributes(
-                AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).setUsage(
+                AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).setUsage(
                     C.USAGE_MEDIA
                 ).build(), true
             )
@@ -269,7 +269,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
                 try {
                     if (isProximityNear) {
                         exoPlayer?.setAudioAttributes(
-                            AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_SPEECH)
+                            AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
                                 .setUsage(
                                     C.USAGE_VOICE_COMMUNICATION
                                 ).build(), false
@@ -284,9 +284,10 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
                             proximityWakelock?.release(1) // this is non-public API before L
                         }
                         exoPlayer?.setAudioAttributes(
-                            AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).setUsage(
-                                C.USAGE_MEDIA
-                            ).build(), true
+                            AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                                .setUsage(
+                                    C.USAGE_MEDIA
+                                ).build(), true
                         )
                     }
                 } catch (ignored: Exception) {
@@ -313,7 +314,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
                             }
                             exoPlayer?.setAudioAttributes(
                                 AudioAttributes.Builder().setContentType(
-                                    C.CONTENT_TYPE_MUSIC
+                                    C.AUDIO_CONTENT_TYPE_MUSIC
                                 ).setUsage(C.USAGE_MEDIA).build(), true
                             )
                         } catch (ignored: Exception) {

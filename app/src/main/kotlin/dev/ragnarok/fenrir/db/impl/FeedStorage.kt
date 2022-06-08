@@ -160,7 +160,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
         val friendString = cursor.getString(NewsColumns.TAG_FRIENDS)
         val dbo = NewsDboEntity()
         if (friendString.nonNullNoEmpty()) {
-            val strArray = friendString.split(",".toRegex()).toTypedArray()
+            val strArray = friendString.split(Regex(",")).toTypedArray()
             val intArray = ArrayList<Int>(strArray.size)
             for (i in strArray.indices) {
                 intArray[i] = strArray[i].toInt()
@@ -278,7 +278,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
                 cursor.getString(FeedListsColumns.SOURCE_IDS)
             var sourceIds: IntArray? = null
             if (sources.nonNullNoEmpty()) {
-                val ids = sources.split(",".toRegex()).toTypedArray()
+                val ids = sources.split(Regex(",")).toTypedArray()
                 sourceIds = IntArray(ids.size)
                 for (i in ids.indices) {
                     sourceIds[i] = ids[i].toInt()

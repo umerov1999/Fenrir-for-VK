@@ -170,4 +170,5 @@ interface IMessagesRepository {
 
     fun pin(accountId: Int, peerId: Int, message: Message?): Completable
     fun pinUnPinConversation(accountId: Int, peerId: Int, peen: Boolean): Completable
+    fun markAsListened(accountId: Int, message_id: Int): Completable
 }

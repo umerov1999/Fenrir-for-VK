@@ -4,7 +4,9 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
+import dev.ragnarok.fenrir.api.model.VKApiAttachment
 import dev.ragnarok.fenrir.api.model.VKApiAttachments
+import dev.ragnarok.fenrir.api.model.VKApiAudioMessage
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.util.VKStringUtils
@@ -65,6 +67,16 @@ class MessageDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiMessage> {
         }
         dto.deleted = optBoolean(root, "deleted")
         dto.important = optBoolean(root, "important")
+        dto.was_listened = optBoolean(root, "was_listened")
+
+        if (dto.was_listened) {
+            for (i in dto.attachments?.entries.orEmpty()) {
+                if (i.type == VKApiAttachment.TYPE_AUDIO_MESSAGE && i.attachment is VKApiAudioMessage) {
+                    i.attachment.was_listened = true
+                }
+            }
+        }
+
         dto.random_id = optString(root, "random_id")
         dto.payload = optString(root, "payload")
         dto.update_time = optLong(root, "update_time")

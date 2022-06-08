@@ -342,6 +342,15 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
+    override fun markAsListened(message_id: Int): Completable {
+        return serviceRx(TokenType.USER, TokenType.COMMUNITY)
+            .flatMapCompletable { service ->
+                service.markAsListened(message_id)
+                    .map(extractResponseWithErrorHandling())
+                    .ignoreElement()
+            }
+    }
+
     override fun getById(identifiers: Collection<Int>?): Single<List<VKApiMessage>> {
         val ids = join(identifiers, ",")
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)

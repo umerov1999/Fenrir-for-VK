@@ -117,6 +117,13 @@ class UserDetailsEntity {
         private set
     var books: String? = null
         private set
+    var isClosed: Boolean = false
+        private set
+
+    fun setClosed(closed: Boolean): UserDetailsEntity {
+        this.isClosed = closed
+        return this
+    }
 
     fun setProductServicesCount(productServicesCount: Int): UserDetailsEntity {
         this.productServicesCount = productServicesCount

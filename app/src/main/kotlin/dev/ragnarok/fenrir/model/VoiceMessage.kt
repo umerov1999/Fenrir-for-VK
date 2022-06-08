@@ -13,6 +13,7 @@ class VoiceMessage : AbsModel {
     private var accessKey: String? = null
     private var showTranscript = false
     private var transcript: String? = null
+    private var was_listened = false
 
     constructor(id: Int, ownerId: Int) {
         this.id = id
@@ -29,6 +30,15 @@ class VoiceMessage : AbsModel {
         accessKey = `in`.readString()
         transcript = `in`.readString()
         showTranscript = `in`.readByte().toInt() != 0
+    }
+
+    fun setWasListened(listened: Boolean): VoiceMessage {
+        this.was_listened = listened
+        return this
+    }
+
+    fun wasListened(): Boolean {
+        return was_listened
     }
 
     fun isShowTranscript(): Boolean {

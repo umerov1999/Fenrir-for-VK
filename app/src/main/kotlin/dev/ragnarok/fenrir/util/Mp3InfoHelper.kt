@@ -9,7 +9,7 @@ object Mp3InfoHelper {
 
     fun getLength(url: String): Single<Long> {
         return Single.create {
-            val builder = Utils.createOkHttp(60)
+            val builder = Utils.createOkHttp(60, false)
             val request: Request = Request.Builder()
                 .url(url)
                 .build()

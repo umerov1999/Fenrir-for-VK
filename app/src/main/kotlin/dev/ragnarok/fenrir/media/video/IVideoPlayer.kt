@@ -29,7 +29,7 @@ interface IVideoPlayer {
     fun addVideoSizeChangeListener(listener: IVideoSizeChangeListener)
     fun removeVideoSizeChangeListener(listener: IVideoSizeChangeListener)
     interface IVideoSizeChangeListener {
-        fun onVideoSizeChanged(player: IVideoPlayer, size: VideoSize?)
+        fun onVideoSizeChanged(player: IVideoPlayer, size: VideoSize)
     }
 
     interface IUpdatePlayListener {

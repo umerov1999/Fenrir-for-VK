@@ -38,6 +38,11 @@ class LocalJsonToChatActivity : NoMainActivity(), PlaceProvider, AppStyleable {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
     private fun handleIntent(intent: Intent?) {
         if (intent == null) {
             finish()

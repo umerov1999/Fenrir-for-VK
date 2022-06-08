@@ -123,26 +123,30 @@ class StickersInteractor(private val networker: INetworker, private val storage:
     }
 
     override fun PlaceToStickerCache(context: Context): Completable {
-        return if (!hasReadStoragePermissionSimple(context)) Completable.complete() else Completable.create { t ->
-            val temp = File(Settings.get().other().stickerDir)
-            if (!temp.exists()) {
-                t.onComplete()
-                return@create
-            }
-            val file_list = temp.listFiles()
-            if (file_list == null || file_list.isEmpty()) {
-                t.onComplete()
-                return@create
-            }
-            Arrays.sort(file_list) { o1: File, o2: File ->
-                o2.lastModified().compareTo(o1.lastModified())
-            }
-            getCachedMyStickers().clear()
-            for (u in file_list) {
-                if (u.isFile && (u.name.contains(".png") || u.name.contains(".webp"))) {
-                    getCachedMyStickers().add(LocalSticker(u.absolutePath, false))
-                } else if (u.isFile && u.name.contains(".json")) {
-                    getCachedMyStickers().add(LocalSticker(u.absolutePath, true))
+        return if (!hasReadStoragePermissionSimple(context)) {
+            Completable.complete()
+        } else {
+            Completable.create { t ->
+                val temp = File(Settings.get().other().stickerDir)
+                if (!temp.exists()) {
+                    t.onComplete()
+                    return@create
+                }
+                val file_list = temp.listFiles()
+                if (file_list == null || file_list.isEmpty()) {
+                    t.onComplete()
+                    return@create
+                }
+                Arrays.sort(file_list) { o1: File, o2: File ->
+                    o2.lastModified().compareTo(o1.lastModified())
+                }
+                getCachedMyStickers().clear()
+                for (u in file_list) {
+                    if (u.isFile && (u.name.contains(".png") || u.name.contains(".webp"))) {
+                        getCachedMyStickers().add(LocalSticker(u.absolutePath, false))
+                    } else if (u.isFile && u.name.contains(".json")) {
+                        getCachedMyStickers().add(LocalSticker(u.absolutePath, true))
+                    }
                 }
             }
         }

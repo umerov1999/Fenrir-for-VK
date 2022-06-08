@@ -48,7 +48,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
             )
             val line = getPreferences(app).getString("drawer_categories_order", null)
             val parts: Array<String> =
-                if (line.isNullOrEmpty()) emptyArray() else line.split("-".toRegex())
+                if (line.isNullOrEmpty()) emptyArray() else line.split(Regex("-"))
                     .toTypedArray()
             val positions = IntArray(parts.size)
             try {

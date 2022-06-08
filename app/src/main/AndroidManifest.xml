@@ -451,7 +451,7 @@
             android:name="dev.ragnarok.fenrir.activity.SendAttachmentsActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
-            android:label="@string/share"
+            android:label="@string/share_to_message"
             android:windowSoftInputMode="adjustResize">
 
             <intent-filter>

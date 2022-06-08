@@ -42,7 +42,6 @@ interface ISettings {
         val isNative_parcel_photo: Boolean
         val isNative_parcel_story: Boolean
         val isDoLogs: Boolean
-        val isExtra_debug: Boolean
         val isDump_fcm: Boolean
         val isAutoplay_gif: Boolean
         val isStrip_news_repost: Boolean
@@ -64,6 +63,7 @@ interface ISettings {
         fun toggleCommentsDirection(): Boolean
         val isInfo_reading: Boolean
         val isAuto_read: Boolean
+        val isMarkListenedVoice: Boolean
         val isNot_update_dialogs: Boolean
         val isBe_online: Boolean
         val donate_anim_set: Int
@@ -125,6 +125,7 @@ interface ISettings {
         fun photoExt(): Set<String>
         fun audioExt(): Set<String>
         fun getMaxThumbResolution(): Int
+        fun isEnable_dirs_files_count(): Boolean
 
         @get:Lang
         val language: Int

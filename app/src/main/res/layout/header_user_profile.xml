@@ -198,13 +198,13 @@
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/header_user_profile_fab_message"
+                    style="@style/Widget.Material3.FloatingActionButton.Small.Surface"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:contentDescription="@null"
                     android:src="@drawable/email"
-                    app:elevation="1dp"
-                    app:fabSize="mini" />
+                    app:elevation="1dp" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/info_btn"
@@ -215,8 +215,7 @@
                     android:layout_marginEnd="8dp"
                     android:contentDescription="@null"
                     android:src="@drawable/about_writed"
-                    app:elevation="1dp"
-                    app:fabSize="mini" />
+                    app:elevation="1dp" />
 
             </LinearLayout>
 

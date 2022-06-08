@@ -100,13 +100,13 @@ class UserDetailsPresenter(
                 .setSubtitle(
                     Text(
                         when (user.sex) {
-                            Sex.MAN -> R.string.male
-                            Sex.WOMAN -> R.string.female
+                            Sex.MAN -> R.string.gender_man
+                            Sex.WOMAN -> R.string.gender_woman
                             else -> R.string.role_unknown
                         }
                     )
                 )
-                .setIcon(Icon.fromResources(R.drawable.person))
+                .setIcon(Icon.fromResources(R.drawable.gender))
                 .setSection(mainSection)
         )
         if (details.getBdate().nonNullNoEmpty()) {
@@ -228,11 +228,17 @@ class UserDetailsPresenter(
                     .setSubtitle(Text(details.getSite()))
             )
         }
+        items.add(
+            AdvancedItem(16, Text(R.string.profile))
+                .setSubtitle(Text((if (details.isClosed()) R.string.closed else R.string.opened)))
+                .setIcon(R.drawable.lock_outline)
+                .setSection(mainSection)
+        )
         val pesonal = Section(Text(R.string.personal_information))
         addPersonalInfo(
             items,
             R.drawable.star,
-            16,
+            17,
             pesonal,
             R.string.interests,
             details.getInterests()
@@ -240,7 +246,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.star,
-            17,
+            18,
             pesonal,
             R.string.activities,
             details.getActivities()
@@ -248,7 +254,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.music,
-            18,
+            19,
             pesonal,
             R.string.favorite_music,
             details.getMusic()
@@ -256,7 +262,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.movie,
-            19,
+            20,
             pesonal,
             R.string.favorite_movies,
             details.getMovies()
@@ -264,7 +270,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.ic_favorite_tv,
-            20,
+            21,
             pesonal,
             R.string.favorite_tv_shows,
             details.getTv()
@@ -272,7 +278,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.ic_favorite_quotes,
-            21,
+            22,
             pesonal,
             R.string.favorite_quotes,
             details.getQuotes()
@@ -280,7 +286,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.ic_favorite_game,
-            22,
+            23,
             pesonal,
             R.string.favorite_games,
             details.getGames()
@@ -288,7 +294,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.ic_about_me,
-            23,
+            24,
             pesonal,
             R.string.about_me,
             details.getAbout()
@@ -296,7 +302,7 @@ class UserDetailsPresenter(
         addPersonalInfo(
             items,
             R.drawable.book,
-            24,
+            25,
             pesonal,
             R.string.favorite_books,
             details.getBooks()
@@ -304,7 +310,7 @@ class UserDetailsPresenter(
         val beliefs = Section(Text(R.string.beliefs))
         if (getPolitivalViewRes(details.getPolitical()) != null) {
             items.add(
-                AdvancedItem(25, Text(R.string.political_views))
+                AdvancedItem(26, Text(R.string.political_views))
                     .setSection(beliefs)
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSubtitle(
@@ -318,7 +324,7 @@ class UserDetailsPresenter(
         }
         if (getLifeMainRes(details.getLifeMain()) != null) {
             items.add(
-                AdvancedItem(26, Text(R.string.personal_priority))
+                AdvancedItem(27, Text(R.string.personal_priority))
                     .setSection(beliefs)
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSubtitle(
@@ -332,7 +338,7 @@ class UserDetailsPresenter(
         }
         if (getPeopleMainRes(details.getPeopleMain()) != null) {
             items.add(
-                AdvancedItem(27, Text(R.string.important_in_others))
+                AdvancedItem(28, Text(R.string.important_in_others))
                     .setSection(beliefs)
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSubtitle(
@@ -346,7 +352,7 @@ class UserDetailsPresenter(
         }
         if (getAlcoholOrSmokingViewRes(details.getSmoking()) != null) {
             items.add(
-                AdvancedItem(28, Text(R.string.views_on_smoking))
+                AdvancedItem(29, Text(R.string.views_on_smoking))
                     .setSection(beliefs)
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSubtitle(
@@ -360,7 +366,7 @@ class UserDetailsPresenter(
         }
         if (getAlcoholOrSmokingViewRes(details.getAlcohol()) != null) {
             items.add(
-                AdvancedItem(29, Text(R.string.views_on_alcohol))
+                AdvancedItem(30, Text(R.string.views_on_alcohol))
                     .setSection(beliefs)
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSubtitle(
@@ -374,7 +380,7 @@ class UserDetailsPresenter(
         }
         if (details.getInspiredBy().nonNullNoEmpty()) {
             items.add(
-                AdvancedItem(30, Text(R.string.inspired_by))
+                AdvancedItem(31, Text(R.string.inspired_by))
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSection(beliefs)
                     .setSubtitle(Text(details.getInspiredBy()))
@@ -382,7 +388,7 @@ class UserDetailsPresenter(
         }
         if (details.getReligion().nonNullNoEmpty()) {
             items.add(
-                AdvancedItem(31, Text(R.string.world_view))
+                AdvancedItem(32, Text(R.string.world_view))
                     .setSection(beliefs)
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSubtitle(Text(details.getReligion()))
@@ -400,7 +406,7 @@ class UserDetailsPresenter(
                 val company = if (c.group == null) c.company else c.group?.fullName
                 val title = if (c.position.isNullOrEmpty()) company else c.position + ", " + company
                 items.add(
-                    AdvancedItem(32, Text(title))
+                    AdvancedItem(33, Text(title))
                         .setSubtitle(Text(term))
                         .setIcon(icon)
                         .setSection(career)
@@ -414,7 +420,7 @@ class UserDetailsPresenter(
                 val term =
                     m.from.toString() + " - " + if (m.until == 0) getString(R.string.activity_until_now) else m.until.toString()
                 items.add(
-                    AdvancedItem(33, Text(m.unit))
+                    AdvancedItem(34, Text(m.unit))
                         .setSubtitle(Text(term))
                         .setIcon(R.drawable.ic_military)
                         .setSection(section)
@@ -435,7 +441,7 @@ class UserDetailsPresenter(
                             u.getStatus()
                         )
                     items.add(
-                        AdvancedItem(34, Text(title))
+                        AdvancedItem(35, Text(title))
                             .setSection(section)
                             .setSubtitle(if (subtitle.isNullOrEmpty()) null else Text(subtitle))
                             .setIcon(R.drawable.ic_university)
@@ -451,7 +457,7 @@ class UserDetailsPresenter(
                         null
                     }
                     items.add(
-                        AdvancedItem(35, Text(title))
+                        AdvancedItem(36, Text(title))
                             .setSection(section)
                             .setSubtitle(term)
                             .setIcon(R.drawable.ic_school)
@@ -478,7 +484,7 @@ class UserDetailsPresenter(
                     icon = Icon.fromResources(R.drawable.ic_relation)
                 }
                 items.add(
-                    AdvancedItem(36, Text(R.string.relationship))
+                    AdvancedItem(37, Text(R.string.relationship))
                         .setSection(section)
                         .setSubtitle(subtitle)
                         .setIcon(icon)
@@ -493,7 +499,7 @@ class UserDetailsPresenter(
                         )
                     val subtitle = if (r.getUser() == null) r.getName() else r.getUser()?.fullName
                     items.add(
-                        AdvancedItem(37, Text(getRelativeStringByType(r.getType())))
+                        AdvancedItem(38, Text(getRelativeStringByType(r.getType())))
                             .setIcon(icon)
                             .setSubtitle(Text(subtitle))
                             .setSection(section)

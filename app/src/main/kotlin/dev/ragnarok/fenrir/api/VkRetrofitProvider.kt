@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.api.adapters.*
 import dev.ragnarok.fenrir.api.model.*
@@ -18,11 +19,11 @@ import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
 import dev.ragnarok.fenrir.model.AnswerVKOfficialList
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.retrofit.gson.GsonConverterFactory
+import dev.ragnarok.fenrir.util.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 
 class VkRetrofitProvider(
@@ -99,6 +100,15 @@ class VkRetrofitProvider(
             clientFactory.createDefaultVkHttpClient(
                 accountId,
                 vkgson,
+                proxyManager.activeProxy
+            )
+        }
+    }
+
+    override fun provideRawHttpClient(@AccountType type: Int): Single<OkHttpClient> {
+        return Single.fromCallable {
+            clientFactory.createRawVkApiOkHttpClient(
+                type,
                 proxyManager.activeProxy
             )
         }

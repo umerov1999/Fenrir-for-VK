@@ -505,17 +505,17 @@ class PreferencesAdapter @VisibleForTesting constructor(
         }
         screenStack.push(root)
         if (screenStack.size != 2) return false
-        state.screens.forEach { i ->
-            val screen = if (i.searchQuery == null) {
-                findScreenInRoot(screenStack[1], i.key)
+        state.screens.forEach { (key, searchQuery, scrollPosition, scrollOffset) ->
+            val screen = if (searchQuery == null) {
+                findScreenInRoot(screenStack[1], key)
             } else {
                 val builder = PreferenceScreen.Builder(context, "found_result")
-                builder.searchQuery = i.searchQuery
+                builder.searchQuery = searchQuery
                 builder.titleRes = R.string.pref_find
                 builder.categoryHeader("found_result_header") {
-                    title = context.getString(R.string.pref_found, i.searchQuery)
+                    title = context.getString(R.string.pref_found, searchQuery)
                 }
-                findPrefByName(context, currentScreen, i.searchQuery, builder, view)
+                findPrefByName(context, currentScreen, searchQuery, builder, view)
                 var iconHas = false
                 for (s in builder.getPreferences()) {
                     if (s.iconRes != DEFAULT_RES_ID || s.icon != null) {
@@ -527,8 +527,8 @@ class PreferencesAdapter @VisibleForTesting constructor(
                 builder.build()
             }
             if (screen != null) {
-                screen.scrollOffset = i.scrollOffset
-                screen.scrollPosition = i.scrollPosition
+                screen.scrollOffset = scrollOffset
+                screen.scrollPosition = scrollPosition
                 screenStack.push(screen)
             }
         }

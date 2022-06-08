@@ -27,6 +27,11 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${MakeConfig.kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:${MakeConfig.kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-android-extensions-runtime:${MakeConfig.kotlin_version}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${MakeConfig.kotlin_coroutines}")
+    compileOnly("org.jetbrains.kotlin:kotlin-annotations-jvm:${MakeConfig.kotlin_version}")
     implementation("androidx.appcompat:appcompat:${MakeConfig.appcompatVersion}")
     implementation("androidx.recyclerview:recyclerview:${MakeConfig.recyclerviewVersion}")
     implementation("androidx.core:core:${MakeConfig.coreVersion}")

@@ -24,8 +24,7 @@ public class IMGStickerX {
      * isActivated 为false时，其坐标相对Image，切为单位坐标
      */
     protected RectF mFrame = new RectF();
-    private float mBaseScale = 1f, mScale = 1f;
-    private float mBaseRotate, mRotate;
+    private float mRotate;
     private float mX, mY;
     private StickerEvent mTouchEvent;
     private boolean isActivated = true;
@@ -79,7 +78,6 @@ public class IMGStickerX {
     }
 
     public void setScale(float scale) {
-        mScale = scale;
     }
 
     public void setRotate(float rotate) {
@@ -87,11 +85,9 @@ public class IMGStickerX {
     }
 
     public void setBaseScale(float baseScale) {
-        mBaseScale = baseScale;
     }
 
     public void setBaseRotate(float baseRotate) {
-        mBaseRotate = baseRotate;
     }
 
     public void offset(float dx, float dy) {

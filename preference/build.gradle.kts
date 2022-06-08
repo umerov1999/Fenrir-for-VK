@@ -27,6 +27,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${MakeConfig.kotlin_version}")
     implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:${MakeConfig.kotlin_version}")
     implementation("org.jetbrains.kotlin:kotlin-android-extensions-runtime:${MakeConfig.kotlin_version}")
+    compileOnly("org.jetbrains.kotlin:kotlin-annotations-jvm:${MakeConfig.kotlin_version}")
     api("androidx.annotation:annotation:${MakeConfig.annotationVersion}")
     api("androidx.appcompat:appcompat:${MakeConfig.appcompatVersion}")
     api("androidx.core:core-ktx:${MakeConfig.coreVersion}")

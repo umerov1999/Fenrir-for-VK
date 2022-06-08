@@ -371,7 +371,10 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
             .flatMap { service ->
                 service
                     .getCatalogBlockById(block_id, start_from)
-                    .map(extractBlockResponseWithErrorHandling())
+                    .map(extractResponseWithErrorHandling())
+                    .map {
+                        it.block ?: throw NullPointerException("VK return null response block")
+                    }
             }
     }
 

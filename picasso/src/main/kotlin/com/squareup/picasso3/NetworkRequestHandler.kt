@@ -23,11 +23,12 @@ import com.squareup.picasso3.Picasso.LoadedFrom.DISK
 import com.squareup.picasso3.Picasso.LoadedFrom.NETWORK
 import okhttp3.CacheControl
 import okhttp3.Call
+import okhttp3.OkHttpClient
 import okhttp3.Response
 import java.io.IOException
 
 internal class NetworkRequestHandler(
-    private val callFactory: Call.Factory
+    private val callFactory: OkHttpClient
 ) : RequestHandler() {
     override fun canHandleRequest(data: Request): Boolean {
         val uri = data.uri ?: return false

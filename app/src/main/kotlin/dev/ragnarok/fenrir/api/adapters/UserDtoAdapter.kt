@@ -115,6 +115,7 @@ class UserDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiUser> {
         dto.wall_default_owner = "owner" == optString(root, VKApiUser.Field.WALL_DEFAULT)
         dto.verified = optBoolean(root, VKApiUser.Field.VERIFIED)
         dto.can_access_closed = optBoolean(root, "can_access_closed")
+        dto.is_closed = optBoolean(root, "is_closed")
 
         // other
         dto.sex = optInt(root, VKApiUser.Field.SEX)

@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.annotation.CallSuper
 import dev.ragnarok.fenrir.Includes.voicePlayerFactory
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.voice.IVoicePlayer
 import dev.ragnarok.fenrir.media.voice.IVoicePlayer.IPlayerStatusListener
 import dev.ragnarok.fenrir.model.LastReadId
@@ -15,14 +17,15 @@ import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IBasicMessageListView
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Lookup
+import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 
 abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal constructor(
     accountId: Int,
     savedInstanceState: Bundle?
 ) : PlaceSupportPresenter<V>(accountId, savedInstanceState), IPlayerStatusListener {
-    @JvmField
     protected val lastReadId = LastReadId(0, 0)
     val data: ArrayList<Message> = ArrayList()
     private var mVoicePlayer: IVoicePlayer? = null
@@ -172,15 +175,31 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
     }
 
     protected open fun onActionModeForwardClick() {}
+
+    @Suppress("UNUSED_PARAMETER")
     fun fireVoicePlayButtonClick(
         voiceHolderId: Int,
         voiceMessageId: Int,
+        messageId: Int,
+        peerId: Int,
         voiceMessage: VoiceMessage
     ) {
         val player = mVoicePlayer ?: return
         try {
             val messageChanged = player.toggle(voiceMessageId, voiceMessage)
             if (messageChanged) {
+                if (!voiceMessage.wasListened()) {
+                    if (!Utils.isHiddenCurrent && Settings.get().other().isMarkListenedVoice) {
+                        appendDisposable(
+                            Repository.messages.markAsListened(accountId, messageId)
+                                .fromIOToMain()
+                                .subscribe({
+                                    voiceMessage.setWasListened(true)
+                                    resolveVoiceMessagePlayingState()
+                                }, RxUtils.ignore())
+                        )
+                    }
+                }
                 resolveVoiceMessagePlayingState()
             } else {
                 val paused = !player.isSupposedToPlay

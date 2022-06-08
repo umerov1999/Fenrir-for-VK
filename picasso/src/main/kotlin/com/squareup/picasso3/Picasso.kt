@@ -46,7 +46,6 @@ import com.squareup.picasso3.Utils.checkMain
 import com.squareup.picasso3.Utils.createDefaultCacheDir
 import com.squareup.picasso3.Utils.log
 import okhttp3.Cache
-import okhttp3.Call
 import okhttp3.OkHttpClient
 import java.io.File
 import java.io.IOException
@@ -61,7 +60,7 @@ import java.util.concurrent.ExecutorService
 class Picasso internal constructor(
     @get:JvmName("-context") internal val context: Context,
     @get:JvmName("-dispatcher") internal val dispatcher: Dispatcher,
-    @get:JvmName("-callFactory") internal val callFactory: Call.Factory,
+    @get:JvmName("-callFactory") internal val callFactory: OkHttpClient,
     private val closeableCache: Cache?,
     @get:JvmName("-cache") internal val cache: PlatformLruCache,
     @get:JvmName("-listener") internal val listener: Listener?,
@@ -519,7 +518,7 @@ class Picasso internal constructor(
     /** Fluent API for creating [Picasso] instances.  */
     class Builder {
         private val context: Context
-        private var callFactory: Call.Factory? = null
+        private var callFactory: OkHttpClient? = null
         private var service: ExecutorService? = null
         private var cache: PlatformLruCache? = null
         private var listener: Listener? = null
@@ -563,19 +562,9 @@ class Picasso internal constructor(
         /**
          * Specify the HTTP client to be used for network requests.
          *
-         * Note: Calling [callFactory] overwrites this value.
          */
         fun client(client: OkHttpClient) = apply {
             callFactory = client
-        }
-
-        /**
-         * Specify the call factory to be used for network requests.
-         *
-         * Note: Calling [client] overwrites this value.
-         */
-        fun callFactory(factory: Call.Factory) = apply {
-            callFactory = factory
         }
 
         /**

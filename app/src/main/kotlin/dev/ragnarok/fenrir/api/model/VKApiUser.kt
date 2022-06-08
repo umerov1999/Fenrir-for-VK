@@ -272,6 +272,7 @@ class VKApiUser
      */
     var can_write_private_message = false
     var can_access_closed = false
+    var is_closed = false
 
     /**
      * Information whether user can comment wall posts.
@@ -739,7 +740,6 @@ class VKApiUser
     }
 
     companion object {
-        const val SEX_UNKNOWN = 0
         const val SEX_MAN = 2
         const val SEX_WOMAN = 1
         const val CAMERA_50 = "http://vk.com/images/camera_c.gif"
@@ -747,12 +747,8 @@ class VKApiUser
         const val FRIEND_STATUS_REQUEST_SENT = 1
         const val FRIEND_STATUS_HAS_INPUT_REQUEST = 2
         const val FRIEND_STATUS_IS_FRIEDND = 3
-        const val ALL_FIELDS = "sex,bdate,city,country,photo_50,photo_100,photo_200_orig," +
-                "photo_200,photo_400_orig,photo_max,photo_max_orig,photo_id,online,online_mobile,domain," +
-                "has_mobile,contacts,connections,site,education,universities,schools,can_post,can_see_all_posts," +
-                "can_see_audio,can_write_private_message,status,last_seen,common_count,relation,relatives," +
-                "counters,screen_name,maiden_name,timezone,occupation,activities,interests,music,movies,tv," +
-                "books,games,about,quotes,personal,friend_status,military,career,is_friend,blacklisted_by_me,blacklisted,can_access_closed,verified,is_favorite,is_subscribed"
+        const val ALL_FIELDS =
+            "about,activities,bdate,blacklisted,blacklisted_by_me,books,can_access_closed,can_post,can_see_all_posts,can_see_audio,can_write_private_message,career,city,common_count,connections,contacts,counters,country,domain,first_name,education,friend_status,games,has_mobile,interests,is_closed,is_favorite,is_friend,is_subscribed,last_name,last_seen,maiden_name,military,movies,music,occupation,online,online_app,online_mobile,personal,photo_100,photo_200,photo_200_orig,photo_400_orig,photo_50,photo_id,photo_max,photo_max_orig,quotes,relation,relatives,schools,screen_name,sex,site,status,timezone,tv,universities,verified"
 
         fun create(id: Int): VKApiUser {
             val user = VKApiUser()

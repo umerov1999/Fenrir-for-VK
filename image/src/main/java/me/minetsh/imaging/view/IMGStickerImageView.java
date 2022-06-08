@@ -13,8 +13,6 @@ import me.minetsh.imaging.R;
 
 public class IMGStickerImageView extends IMGStickerView {
 
-    private ImageView mImageView;
-
     public IMGStickerImageView(Context context) {
         super(context);
     }
@@ -29,7 +27,7 @@ public class IMGStickerImageView extends IMGStickerView {
 
     @Override
     public View onCreateContentView(Context context) {
-        mImageView = new ImageView(context);
+        ImageView mImageView = new ImageView(context);
         mImageView.setImageResource(R.drawable.image_album_photo);
         return mImageView;
     }

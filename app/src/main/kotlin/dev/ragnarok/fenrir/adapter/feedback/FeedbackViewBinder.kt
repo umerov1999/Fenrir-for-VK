@@ -67,7 +67,13 @@ class FeedbackViewBinder(
         holder.cOwnerTime.setText(actionSpannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         setupAttachmentViewWithVideo(notification.commentOf as Video, holder.ivRightAttachment)
         feedback?.maxAuthorAvaUrl?.let { showUserAvatarOnImageView(it, holder.cOwnerAvatar) }
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
@@ -134,7 +140,13 @@ class FeedbackViewBinder(
             .transform(transformation)
             .into(holder.cOwnerAvatar)
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         setupAttachmentViewWithPhoto(notification.commentOf as Photo, holder.ivRightAttachment)
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
         configReply(notification.reply, holder)
@@ -190,7 +202,13 @@ class FeedbackViewBinder(
             .transform(transformation)
             .into(holder.cOwnerAvatar)
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         holder.ivRightAttachment.visibility = View.GONE
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
         configReply(notification.reply, holder)
@@ -226,7 +244,7 @@ class FeedbackViewBinder(
             .transform(transformation)
             .into(holder.cOwnerAvatar)
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(feedback.attachments, containers, true, null, null)
         holder.ivRightAttachment.visibility = View.GONE
         solveOwnerOpenByAvatar(holder.cOwnerAvatar, feedback.authorId)
         configReply(notification.reply, holder)
@@ -264,7 +282,13 @@ class FeedbackViewBinder(
             .transform(transformation)
             .into(holder.cOwnerAvatar)
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         holder.ivRightAttachment.visibility = View.GONE
         feedback?.authorId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
         configReply(notification.reply, holder)
@@ -306,7 +330,13 @@ class FeedbackViewBinder(
             .transform(transformation)
             .into(holder.cOwnerAvatar)
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         holder.ivRightAttachment.visibility = View.GONE
         feedback?.authorId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
         configReply(notification.reply, holder)
@@ -345,7 +375,13 @@ class FeedbackViewBinder(
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         feedback?.maxAuthorAvaUrl?.let { showUserAvatarOnImageView(it, holder.cOwnerAvatar) }
         setupAttachmentViewWithVideo(notification.commentOf as Video, holder.ivRightAttachment)
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
@@ -384,7 +420,13 @@ class FeedbackViewBinder(
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         feedback?.maxAuthorAvaUrl?.let { showUserAvatarOnImageView(it, holder.cOwnerAvatar) }
         setupAttachmentViewWithPhoto(notification.commentOf as Photo, holder.ivRightAttachment)
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
@@ -427,7 +469,13 @@ class FeedbackViewBinder(
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         val postImage = post.findFirstImageCopiesInclude()
         if (postImage.isNullOrEmpty()) {
             holder.ivRightAttachment.visibility = View.GONE
@@ -479,7 +527,13 @@ class FeedbackViewBinder(
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         setupAttachmentViewWithVideo(notification.commentsOf as Video, holder.ivRightAttachment)
         feedback?.maxAuthorAvaUrl?.let { showUserAvatarOnImageView(it, holder.cOwnerAvatar) }
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
@@ -523,7 +577,13 @@ class FeedbackViewBinder(
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         feedback?.maxAuthorAvaUrl?.let { showUserAvatarOnImageView(it, holder.cOwnerAvatar) }
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
         configReply(notification.reply, holder)
@@ -552,7 +612,13 @@ class FeedbackViewBinder(
         holder.cOwnerText.visibility =
             if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         var action = AppTextUtils.getDateFromUnixTime(feedback?.date.orZero())
         action = action + SPACE + context.getString(R.string.in_reply_to_your_message_in_topic)
         val parentLink = Link.startOf(action.length)
@@ -614,7 +680,13 @@ class FeedbackViewBinder(
             .transform(transformation)
             .into(holder.cOwnerAvatar)
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
-        attachmentsViewBinder.displayAttachments(feedback?.attachments, containers, true, null)
+        attachmentsViewBinder.displayAttachments(
+            feedback?.attachments,
+            containers,
+            true,
+            null,
+            null
+        )
         holder.ivRightAttachment.visibility = View.GONE
         feedback?.fromId?.let { solveOwnerOpenByAvatar(holder.cOwnerAvatar, it) }
         configReply(notification.reply, holder)
@@ -655,7 +727,13 @@ class FeedbackViewBinder(
                 Constants.PICASSO_TAG
             )
             val replyContainers = AttachmentsHolder.forFeedback(holder.vReplyAttachmentsRoot)
-            attachmentsViewBinder.displayAttachments(reply.attachments, replyContainers, true, null)
+            attachmentsViewBinder.displayAttachments(
+                reply.attachments,
+                replyContainers,
+                true,
+                null,
+                null
+            )
             holder.cReplyOwnerAvatar.setOnClickListener { openOwner(reply.fromId) }
         }
     }

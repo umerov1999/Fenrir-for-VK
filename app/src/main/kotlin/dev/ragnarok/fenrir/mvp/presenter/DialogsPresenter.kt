@@ -554,9 +554,8 @@ class DialogsPresenter(
         appendDisposable(messagesInteractor.pinUnPinConversation(accountId, dialog.peerId, false)
             .fromIOToMain()
             .subscribe({
-                view?.showToast(
-                    R.string.success,
-                    false
+                view?.customToast?.showToastSuccessBottom(
+                    R.string.success
                 )
                 fireRefresh()
             }) { throwable ->
@@ -568,9 +567,8 @@ class DialogsPresenter(
         appendDisposable(messagesInteractor.pinUnPinConversation(accountId, dialog.peerId, true)
             .fromIOToMain()
             .subscribe({
-                view?.showToast(
-                    R.string.success,
-                    false
+                view?.customToast?.showToastSuccessBottom(
+                    R.string.success
                 )
                 fireRefresh()
             }) { throwable ->
@@ -587,9 +585,8 @@ class DialogsPresenter(
         appendDisposable(completable
             .fromIOToMain()
             .subscribe({
-                view?.showToast(
-                    R.string.success,
-                    false
+                view?.customToast?.showToastSuccessBottom(
+                    R.string.success
                 )
             }) { obj -> obj.printStackTrace() })
     }
@@ -602,9 +599,8 @@ class DialogsPresenter(
         )
             .fromIOToMain()
             .subscribe({
-                view?.showToast(
-                    R.string.success,
-                    false
+                view?.customToast?.showToastSuccessBottom(
+                    R.string.success
                 )
                 dialog.setInRead(dialog.lastMessageId)
                 view?.notifyDataSetChanged()

@@ -151,7 +151,7 @@ class LongpollUpdateAdapter : AbsAdapter(), JsonDeserializer<AbsLongpollEvent?> 
             if (line == null || line.isEmpty()) {
                 return null
             }
-            val tokens = line.split(separator).toTypedArray()
+            val tokens = line.split(separator.toRegex()).toTypedArray()
             val ids = ArrayList<String>()
             Collections.addAll(ids, *tokens)
             return ids

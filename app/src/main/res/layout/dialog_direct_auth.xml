@@ -15,7 +15,10 @@
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -124,14 +127,14 @@
 
             </LinearLayout>
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/save_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:checked="false"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:text="@string/save"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 

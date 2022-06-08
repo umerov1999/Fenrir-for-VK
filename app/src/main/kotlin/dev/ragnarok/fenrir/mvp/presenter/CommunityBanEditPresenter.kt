@@ -177,9 +177,8 @@ class CommunityBanEditPresenter : AccountDependencyPresenter<ICommunityBanEditVi
 
     private fun onAddBanComplete() {
         setRequestNow(false)
-        view?.showToast(
-            R.string.success,
-            false
+        view?.customToast?.showToastSuccessBottom(
+            R.string.success
         )
         if (index == users.size - 1) {
             view?.goBack()

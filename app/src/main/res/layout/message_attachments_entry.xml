@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<dev.ragnarok.fenrir.view.AspectRatioFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    app:altAspectRatioHeight="4"
-    app:altAspectRatioWidth="3">
+    app:aspectHeight="4"
+    app:aspectWidth="3"
+    app:resize_mode="fit"
+    app:useAspect="true">
 
     <com.google.android.material.card.MaterialCardView
         style="?materialCardStyle"
@@ -101,4 +103,4 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-</dev.ragnarok.fenrir.view.AlternativeAspectRatioFrameLayout>
+</dev.ragnarok.fenrir.view.AspectRatioFrameLayout>

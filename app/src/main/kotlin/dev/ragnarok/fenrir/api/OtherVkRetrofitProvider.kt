@@ -13,15 +13,15 @@ import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.GzipInterceptor
+import dev.ragnarok.fenrir.util.CompressDefaultInterceptor
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.retrofit.gson.GsonConverterFactory
+import dev.ragnarok.fenrir.util.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.FormBody
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private val proxySettings: IProxySettings) :
@@ -49,7 +49,6 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
         return Single.fromCallable {
             val builder: OkHttpClient.Builder = OkHttpClient.Builder()
                 .readTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(HttpLogger.DEFAULT_LOGGING_INTERCEPTOR)
                 .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                     val request =
                         chain.request().newBuilder().addHeader("X-VK-Android-Client", "new")
@@ -60,8 +59,9 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                             ).build()
                     chain.proceed(request)
                 })
-                .addInterceptor(GzipInterceptor)
+                .addInterceptor(CompressDefaultInterceptor)
             ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
+            HttpLogger.adjust(builder)
             val gson = GsonBuilder().create()
             val retrofit = Retrofit.Builder()
                 .baseUrl("https://" + Settings.get().other().get_Auth_Domain() + "/")
@@ -77,7 +77,6 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
         return Single.fromCallable {
             val builder: OkHttpClient.Builder = OkHttpClient.Builder()
                 .readTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(HttpLogger.DEFAULT_LOGGING_INTERCEPTOR)
                 .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                     val request =
                         chain.request().newBuilder().addHeader("X-VK-Android-Client", "new")
@@ -88,8 +87,9 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                             ).build()
                     chain.proceed(request)
                 })
-                .addInterceptor(GzipInterceptor)
+                .addInterceptor(CompressDefaultInterceptor)
             ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
+            HttpLogger.adjust(builder)
             val gson = GsonBuilder().create()
             val retrofit = Retrofit.Builder()
                 .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/")
@@ -105,7 +105,6 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
         val localSettings = Settings.get().other().localServer
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
             .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(HttpLogger.DEFAULT_LOGGING_INTERCEPTOR)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
                     chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader(
@@ -130,7 +129,8 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                     .method("POST", formBuilder.build())
                     .build()
                 chain.proceed(request)
-            }).addInterceptor(GzipInterceptor)
+            }).addInterceptor(CompressDefaultInterceptor)
+        HttpLogger.adjust(builder)
         val url = Utils.firstNonEmptyString(localSettings.url, "https://debug.dev")!!
         return Retrofit.Builder()
             .baseUrl("$url/method/")
@@ -143,7 +143,6 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
     private fun createLongpollRetrofitInstance(): Retrofit {
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
             .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(HttpLogger.DEFAULT_LOGGING_INTERCEPTOR)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
                     chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader(
@@ -153,8 +152,9 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                     ).build()
                 chain.proceed(request)
             })
-            .addInterceptor(GzipInterceptor)
+            .addInterceptor(CompressDefaultInterceptor)
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
+        HttpLogger.adjust(builder)
         val gson = GsonBuilder()
             .registerTypeAdapter(VkApiLongpollUpdates::class.java, LongpollUpdatesAdapter())
             .registerTypeAdapter(AbsLongpollEvent::class.java, LongpollUpdateAdapter())

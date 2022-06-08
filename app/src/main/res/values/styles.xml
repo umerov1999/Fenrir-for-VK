@@ -27,7 +27,7 @@
         <item name="materialCardViewStyle">@style/Theme.MaterialCardView</item>
         <item name="badgeStyle">@style/Theme.BadgeStyle</item>
         <item name="floatingActionButtonStyle">@style/Theme.FloatingActionButton</item>
-        <item name="fab_secondary">@style/Theme.FloatingActionButtonSecondary</item>
+        <item name="fab_secondary">@style/Theme.FloatingActionButtonSecondary.Small</item>
         <item name="fab_player">@style/Theme.FloatingActionButtonSecondary</item>
 
         <item name="materialCardStyle">@style/CardViewMD2</item>
@@ -784,7 +784,7 @@
         </item>
         <item name="materialCardViewStyle">@style/Theme.MaterialCardView</item>
         <item name="floatingActionButtonStyle">@style/Theme.FloatingActionButton</item>
-        <item name="fab_secondary">@style/Theme.FloatingActionButtonSecondary</item>
+        <item name="fab_secondary">@style/Theme.FloatingActionButtonSecondary.Small</item>
         <item name="fab_player">@style/Theme.FloatingActionButtonSecondary</item>
         <item name="dialogs_unread_color">#20b0b0b0</item>
         <item name="navi_menu_selector">@drawable/list_selector_white</item>
@@ -882,6 +882,11 @@
     </style>
 
     <style name="Theme.FloatingActionButtonSecondary" parent="Widget.Material3.FloatingActionButton.Secondary">
+        <item name="backgroundTint">?colorSecondary</item>
+        <item name="tint">@color/white</item>
+    </style>
+
+    <style name="Theme.FloatingActionButtonSecondary.Small" parent="Widget.Material3.FloatingActionButton.Small.Secondary">
         <item name="backgroundTint">?colorSecondary</item>
         <item name="tint">@color/white</item>
     </style>

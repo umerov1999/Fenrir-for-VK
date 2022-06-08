@@ -5,7 +5,7 @@ import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.fragment.search.options.*
@@ -216,7 +216,7 @@ class SearchOptionsAdapter(items: MutableList<BaseOption>) :
 
     class SimpleBooleanHolder internal constructor(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        val checkableView: SwitchMaterial = itemView.findViewById(R.id.switchcompat)
+        val checkableView: MaterialSwitch = itemView.findViewById(R.id.search_option)
     }
 
     companion object {
