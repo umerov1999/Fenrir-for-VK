@@ -20,8 +20,8 @@ object Constants {
 
     val AUTH_VERSION = if (DEFAULT_ACCOUNT_TYPE == AccountType.KATE) API_VERSION else "5.122"
     const val FILE_PROVIDER_AUTHORITY: String = BuildConfig.APPLICATION_ID + ".file_provider"
-    const val VK_ANDROID_APP_VERSION_NAME = "7.24"
-    const val VK_ANDROID_APP_VERSION_CODE = "12116"
+    const val VK_ANDROID_APP_VERSION_NAME = "7.29"
+    const val VK_ANDROID_APP_VERSION_CODE = "12659"
     const val KATE_APP_VERSION_NAME = "88 lite"
     const val KATE_APP_VERSION_CODE = "517"
     const val API_ID: Int = BuildConfig.VK_API_APP_ID

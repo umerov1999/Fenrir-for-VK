@@ -24,6 +24,7 @@
             android:paddingBottom="@dimen/crash_activity_vertical_margin">
 
             <ImageView
+                android:id="@+id/crash_error_activity_bag"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:contentDescription="@null"
@@ -31,6 +32,7 @@
                 android:src="@drawable/crash_ic_bug_report" />
 
             <TextView
+                android:id="@+id/crash_error_activity_throwable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/crash_activity_vertical_margin"
@@ -63,14 +65,4 @@
                 app:icon="@drawable/crash_ic_error" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/crash_error_activity_mail_to_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:contentDescription="@null"
-        android:src="@drawable/crash_ic_mail_outline"
-        app:maxImageSize="30dp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -15,8 +15,8 @@ import dev.ragnarok.fenrir.mvp.view.IToastView
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.InstancesCounter
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 

@@ -142,6 +142,14 @@
         <attr name="second_color" format="color" />
     </declare-styleable>
 
+    <declare-styleable name="RoundCornerLinearView">
+        <attr name="radius_bottom_right" format="dimension" />
+        <attr name="radius_bottom_left" format="dimension" />
+        <attr name="radius_top_right" format="dimension" />
+        <attr name="radius_top_left" format="dimension" />
+        <attr name="view_color" format="color" />
+    </declare-styleable>
+
     <declare-styleable name="BotKeyboardView">
         <attr name="track_keyboard_height" format="boolean" />
     </declare-styleable>

@@ -10,7 +10,7 @@ import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
-import dev.ragnarok.fenrir.util.RxUtils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 
 abstract class PlaceSupportPresenter<V>(accountId: Int, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<V>(

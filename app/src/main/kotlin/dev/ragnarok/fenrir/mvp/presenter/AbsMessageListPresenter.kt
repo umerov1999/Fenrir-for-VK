@@ -19,8 +19,8 @@ import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IBasicMessageListView
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Lookup
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 
 abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal constructor(
     accountId: Int,

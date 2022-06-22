@@ -29,8 +29,8 @@ import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadPhoto
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilenameFromArg
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -263,7 +263,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
                     mAnimationLoaded = true
                     progress.visibility = View.VISIBLE
                     progress.fromRes(
-                        R.raw.loading,
+                        dev.ragnarok.fenrir_common.R.raw.loading,
                         Utils.dp(100F),
                         Utils.dp(100F),
                         intArrayOf(

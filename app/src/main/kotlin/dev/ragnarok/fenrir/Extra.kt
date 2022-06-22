@@ -110,6 +110,7 @@ object Extra {
     const val PATH = "path"
     const val EXT = "ext"
     const val STACK_TRACE = "stack_trace"
+    const val IS_OUT_OF_MEMORY = "is_out_of_memory"
     const val IS_BOARD = "is_board"
     const val ANSWER = "answer"
 }

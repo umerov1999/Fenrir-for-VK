@@ -35,8 +35,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.RxUtils.dummy
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.checkEditInfo
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
@@ -46,6 +44,8 @@ import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.intValueNotIn
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.io.File
 import java.io.FileOutputStream

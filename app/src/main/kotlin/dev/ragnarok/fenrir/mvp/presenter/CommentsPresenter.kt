@@ -28,10 +28,10 @@ import dev.ragnarok.fenrir.mvp.view.ICommentsView
 import dev.ragnarok.fenrir.mvp.view.ICommentsView.ICommentContextView
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DisposableHolder
-import dev.ragnarok.fenrir.util.RxUtils.dummy
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers

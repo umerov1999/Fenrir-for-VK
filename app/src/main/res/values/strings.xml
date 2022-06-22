@@ -228,6 +228,7 @@
     <string name="crash_error_activity_error_details_copy">Copy</string>
     <string name="crash_error_activity_error_details_copied">Copied</string>
     <string name="crash_error_activity_error_details_clipboard_label">Error information</string>
+    <string name="crash_error_activity_out_of_memory">Out of memory!</string>
 
     <!-- Dialogs-->
     <string name="dialogs">Dialogs</string>
@@ -1875,4 +1876,6 @@
     <string name="unofficial">Unofficial</string>
     <string name="mark_listened_voice">Mark Listened Voice</string>
     <string name="voters">Voters</string>
+    <string name="validate_tls">Certificate Verification</string>
+    <string name="validate_tls_summary">Shutdown makes you vulnerable</string>
 </resources>

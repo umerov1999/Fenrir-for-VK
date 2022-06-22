@@ -102,8 +102,8 @@ class ProgressButton : FrameLayout {
             } else {
                 setAnimation(
                     RLottieDrawable(
-                        R.raw.loading,
-                        "res_" + R.raw.loading,
+                        dev.ragnarok.fenrir_common.R.raw.loading,
+                        "res_" + dev.ragnarok.fenrir_common.R.raw.loading,
                         Utils.dp(40f),
                         Utils.dp(40f),
                         false,

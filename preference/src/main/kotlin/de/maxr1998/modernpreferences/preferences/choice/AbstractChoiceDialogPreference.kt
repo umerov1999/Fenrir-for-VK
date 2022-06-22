@@ -62,7 +62,8 @@ abstract class AbstractChoiceDialogPreference(
             super.onCreate(savedInstanceState)
             titleRes = requireArguments().getInt(PreferencesExtra.TITLE_RES)
             title = requireArguments().getCharSequence(PreferencesExtra.TITLE)
-            items = requireArguments().getParcelableArrayList(PreferencesExtra.REQUEST_VALUE)!!
+            items = (requireArguments().getParcelableArrayList(PreferencesExtra.REQUEST_VALUE)
+                ?: return)
         }
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

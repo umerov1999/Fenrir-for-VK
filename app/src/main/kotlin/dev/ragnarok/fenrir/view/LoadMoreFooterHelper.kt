@@ -32,7 +32,10 @@ class LoadMoreFooterHelper {
                     0 -> {
                         holder?.tvEndOfList?.setAutoRepeat(false)
                         holder?.tvEndOfList?.fromRes(
-                            R.raw.end_list_succes, Utils.dp(40f), Utils.dp(40f), intArrayOf(
+                            dev.ragnarok.fenrir_common.R.raw.end_list_succes,
+                            Utils.dp(40f),
+                            Utils.dp(40f),
+                            intArrayOf(
                                 0xffffff, CurrentTheme.getColorControlNormal(
                                     holder?.bLoadMore?.context
                                 )
@@ -42,7 +45,10 @@ class LoadMoreFooterHelper {
                     1 -> {
                         holder?.tvEndOfList?.setAutoRepeat(false)
                         holder?.tvEndOfList?.fromRes(
-                            R.raw.end_list_balls, Utils.dp(40f), Utils.dp(40f), intArrayOf(
+                            dev.ragnarok.fenrir_common.R.raw.end_list_balls,
+                            Utils.dp(40f),
+                            Utils.dp(40f),
+                            intArrayOf(
                                 0xffffff, CurrentTheme.getColorControlNormal(
                                     holder?.bLoadMore?.context
                                 )
@@ -52,7 +58,10 @@ class LoadMoreFooterHelper {
                     else -> {
                         holder?.tvEndOfList?.setAutoRepeat(true)
                         holder?.tvEndOfList?.fromRes(
-                            R.raw.end_list_wave, Utils.dp(80f), Utils.dp(40f), intArrayOf(
+                            dev.ragnarok.fenrir_common.R.raw.end_list_wave,
+                            Utils.dp(80f),
+                            Utils.dp(40f),
+                            intArrayOf(
                                 0x777777, CurrentTheme.getColorPrimary(
                                     holder?.bLoadMore?.context
                                 ), 0x333333, CurrentTheme.getColorSecondary(

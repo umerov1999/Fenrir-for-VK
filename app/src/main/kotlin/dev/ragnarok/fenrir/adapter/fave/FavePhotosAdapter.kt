@@ -50,7 +50,7 @@ class FavePhotosAdapter(context: Context, private var data: List<Photo>) :
             if (currentPosition == position) {
                 viewHolder.current.visibility = View.VISIBLE
                 viewHolder.current.fromRes(
-                    R.raw.donater_fire,
+                    dev.ragnarok.fenrir_common.R.raw.donater_fire,
                     Utils.dp(100f),
                     Utils.dp(100f),
                     intArrayOf(0xFF812E, colorPrimary),

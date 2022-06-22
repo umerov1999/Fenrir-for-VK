@@ -48,10 +48,6 @@ import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.util.*
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
-import dev.ragnarok.fenrir.util.RxUtils.dummy
-import dev.ragnarok.fenrir.util.RxUtils.ignore
-import dev.ragnarok.fenrir.util.RxUtils.safelyCloseAction
-import dev.ragnarok.fenrir.util.RxUtils.subscribeOnIOAndIgnore
 import dev.ragnarok.fenrir.util.Utils.addElementToList
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -60,6 +56,10 @@ import dev.ragnarok.fenrir.util.Utils.hasFlag
 import dev.ragnarok.fenrir.util.Utils.hasMarshmallow
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.Utils.safelyClose
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.safelyCloseAction
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.subscribeOnIOAndIgnore
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable

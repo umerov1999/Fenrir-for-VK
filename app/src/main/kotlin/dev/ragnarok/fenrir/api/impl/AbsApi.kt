@@ -226,7 +226,7 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
 
     companion object {
         val RANDOM = Random()
-        inline fun <T> join(
+        inline fun <reified T> join(
             tokens: Iterable<T>?,
             delimiter: String?,
             crossinline function: (T) -> String

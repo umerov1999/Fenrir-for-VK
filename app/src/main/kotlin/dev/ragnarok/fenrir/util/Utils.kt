@@ -1007,10 +1007,10 @@ object Utils {
         visual?.clearAnimationDrawable()
         if (Play) {
             visual?.setAutoRepeat(true)
-            visual?.fromRes(R.raw.waves, dp(28f), dp(28f))
+            visual?.fromRes(dev.ragnarok.fenrir_common.R.raw.waves, dp(28f), dp(28f))
         } else {
             visual?.setAutoRepeat(false)
-            visual?.fromRes(R.raw.waves_end, dp(28f), dp(28f))
+            visual?.fromRes(dev.ragnarok.fenrir_common.R.raw.waves_end, dp(28f), dp(28f))
         }
         visual?.playAnimation()
     }

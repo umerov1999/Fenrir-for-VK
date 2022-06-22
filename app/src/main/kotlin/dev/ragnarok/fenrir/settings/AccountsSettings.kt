@@ -10,8 +10,8 @@ import dev.ragnarok.fenrir.Includes.pushRegistrationResolver
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
-import dev.ragnarok.fenrir.util.RxUtils.dummy
-import dev.ragnarok.fenrir.util.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.processors.PublishProcessor
 import java.util.*

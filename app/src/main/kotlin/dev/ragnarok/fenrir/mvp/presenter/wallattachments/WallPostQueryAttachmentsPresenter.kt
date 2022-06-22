@@ -10,11 +10,11 @@ import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.wallattachments.IWallPostQueryAttachmentsView
-import dev.ragnarok.fenrir.util.RxUtils.dummy
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.*
 

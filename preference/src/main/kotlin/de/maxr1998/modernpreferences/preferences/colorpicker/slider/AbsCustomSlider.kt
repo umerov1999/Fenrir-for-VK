@@ -76,11 +76,11 @@ abstract class AbsCustomSlider : View {
             barHeight,
             Bitmap.Config.ARGB_8888
         )
-        barCanvas = Canvas(bar!!)
+        barCanvas = Canvas(bar ?: return)
         if (bitmap == null || bitmap?.width != width || bitmap?.height != height) {
             if (bitmap != null) bitmap?.recycle()
             bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            bitmapCanvas = Canvas(bitmap!!)
+            bitmapCanvas = Canvas(bitmap ?: return)
         }
     }
 
@@ -98,17 +98,17 @@ abstract class AbsCustomSlider : View {
             height = getHeight()
         }
         if (bar != null && bitmapCanvas != null) {
-            bitmapCanvas!!.drawColor(0, PorterDuff.Mode.CLEAR)
-            bitmapCanvas!!.drawBitmap(
-                bar!!,
+            (bitmapCanvas ?: return).drawColor(0, PorterDuff.Mode.CLEAR)
+            (bitmapCanvas ?: return).drawBitmap(
+                bar ?: return,
                 barOffsetX.toFloat(),
-                (height - bar!!.height).toFloat() / 2,
+                (height - (bar ?: return).height).toFloat() / 2,
                 null
             )
             val x = handleRadius + value * (width - handleRadius * 2)
             val y = height / 2f
-            drawHandle(bitmapCanvas!!, x, y)
-            canvas.drawBitmap(bitmap!!, 0f, 0f, null)
+            drawHandle(bitmapCanvas ?: return, x, y)
+            canvas.drawBitmap(bitmap ?: return, 0f, 0f, null)
         }
     }
 

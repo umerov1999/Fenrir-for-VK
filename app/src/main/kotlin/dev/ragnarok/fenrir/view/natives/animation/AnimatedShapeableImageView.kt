@@ -11,7 +11,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.animation.AnimatedFileDrawable
-import dev.ragnarok.fenrir.util.RxUtils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.natives.animation.AnimationNetworkCache.Companion.filenameForRes
 import dev.ragnarok.fenrir.view.natives.animation.AnimationNetworkCache.Companion.parentResDir
 import io.reactivex.rxjava3.core.Single

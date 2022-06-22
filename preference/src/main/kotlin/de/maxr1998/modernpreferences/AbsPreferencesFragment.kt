@@ -24,7 +24,8 @@ abstract class AbsPreferencesFragment : Fragment() {
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
                 result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
-                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_KEY)
+                    ?: return@setFragmentResultListener
             ) {
                 (it as EditTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
@@ -34,7 +35,8 @@ abstract class AbsPreferencesFragment : Fragment() {
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
                 result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
-                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_KEY)
+                    ?: return@setFragmentResultListener
             ) {
                 (it as SeparatorSpaceTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
@@ -44,7 +46,8 @@ abstract class AbsPreferencesFragment : Fragment() {
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
                 result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
-                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_KEY)
+                    ?: return@setFragmentResultListener
             ) {
                 (it as MultiLineEditTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
@@ -54,7 +57,8 @@ abstract class AbsPreferencesFragment : Fragment() {
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
                 result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
-                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_KEY)
+                    ?: return@setFragmentResultListener
             ) {
                 (it as CustomTextPreference).persist(result.getCharSequence(PreferencesExtra.RESULT_VALUE))
             }
@@ -64,12 +68,13 @@ abstract class AbsPreferencesFragment : Fragment() {
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
                 result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
-                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_KEY)
+                    ?: return@setFragmentResultListener
             ) {
                 (it as MultiChoiceDialogPreference).persistSelection(
                     result.getStringArrayList(
                         PreferencesExtra.RESULT_VALUE
-                    )!!
+                    ) ?: return@applyToPreferenceInScreen
                 )
             }
         }
@@ -78,7 +83,8 @@ abstract class AbsPreferencesFragment : Fragment() {
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
                 result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
-                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_KEY)
+                    ?: return@setFragmentResultListener
             ) {
                 (it as SingleChoiceDialogPreference).persistSelection(
                     result.getParcelable(
@@ -92,7 +98,8 @@ abstract class AbsPreferencesFragment : Fragment() {
         ) { _: String?, result: Bundle ->
             preferencesAdapter?.applyToPreferenceInScreen(
                 result.getString(PreferencesExtra.PREFERENCE_SCREEN_KEY),
-                result.getString(PreferencesExtra.PREFERENCE_KEY)!!
+                result.getString(PreferencesExtra.PREFERENCE_KEY)
+                    ?: return@setFragmentResultListener
             ) {
                 (it as ColorPickPreference).persist(result.getInt(PreferencesExtra.RESULT_VALUE))
             }

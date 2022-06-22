@@ -16,10 +16,10 @@ import dev.ragnarok.fenrir.service.KeepLongpollService
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.PersistentLogger
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.existfile.FileExistJVM
 import dev.ragnarok.fenrir.util.existfile.FileExistNative
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import ealvatag.tag.TagOptionSingleton
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.disposables.CompositeDisposable

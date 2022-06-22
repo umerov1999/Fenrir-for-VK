@@ -98,14 +98,14 @@ class ColorPickerView : View {
             typedArray.getResourceId(R.styleable.ColorPickerView_lightnessSliderView, 0)
         setRenderer(renderer)
         setDensity(density)
-        setInitialColor(initialColor!!, true)
+        setInitialColor(initialColor ?: return, true)
         typedArray.recycle()
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         updateColorWheel()
-        currentColorCircle = findNearestByColor(initialColor!!)
+        currentColorCircle = findNearestByColor(initialColor ?: return)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -117,7 +117,7 @@ class ColorPickerView : View {
             )
         )
         updateColorWheel()
-        currentColorCircle = findNearestByColor(initialColor!!)
+        currentColorCircle = findNearestByColor(initialColor ?: return)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -130,14 +130,14 @@ class ColorPickerView : View {
         val height = measuredHeight
         if (height < width) width = height
         if (width <= 0) return
-        if (colorWheel == null || colorWheel!!.width != width) {
+        if (colorWheel == null || (colorWheel ?: return).width != width) {
             colorWheel = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888)
-            colorWheelCanvas = Canvas(colorWheel!!)
+            colorWheelCanvas = Canvas(colorWheel ?: return)
             alphaPatternPaint.shader = PaintBuilder.createAlphaPatternShader(26)
         }
-        if (currentColor == null || currentColor!!.width != width) {
+        if (currentColor == null || (currentColor ?: return).width != width) {
             currentColor = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888)
-            currentColorCanvas = Canvas(currentColor!!)
+            currentColorCanvas = Canvas(currentColor ?: return)
         }
         drawColorWheel()
         invalidate()
@@ -147,11 +147,11 @@ class ColorPickerView : View {
         colorWheelCanvas?.drawColor(0, PorterDuff.Mode.CLEAR)
         currentColorCanvas?.drawColor(0, PorterDuff.Mode.CLEAR)
         if (renderer == null) return
-        val half = colorWheelCanvas!!.width / 2f
+        val half = (colorWheelCanvas ?: return).width / 2f
         val strokeWidth: Float = STROKE_RATIO * (1f + ColorWheelRenderer.GAP_PERCENTAGE)
         val maxRadius = half - strokeWidth - half / density
         val cSize = maxRadius / (density - 1) / 2
-        val colorWheelRenderOption = renderer!!.renderOption
+        val colorWheelRenderOption = (renderer ?: return).renderOption
         colorWheelRenderOption.density = density
         colorWheelRenderOption.maxRadius = maxRadius
         colorWheelRenderOption.cSize = cSize
@@ -240,39 +240,39 @@ class ColorPickerView : View {
         val size = maxRadius / density / 2
         if (colorWheel != null && currentColorCircle != null) {
             colorWheelFill.color =
-                Color.HSVToColor(currentColorCircle!!.getHsvWithLightness(lightness))
+                Color.HSVToColor((currentColorCircle ?: return).getHsvWithLightness(lightness))
             colorWheelFill.alpha = (pAlpha * 0xff).toInt()
 
             // a separate canvas is used to erase an issue with the alpha pattern around the edges
             // draw circle slightly larger than it needs to be, then erase edges to proper dimensions
             currentColorCanvas?.drawCircle(
-                currentColorCircle!!.x,
-                currentColorCircle!!.y,
+                (currentColorCircle ?: return).x,
+                (currentColorCircle ?: return).y,
                 size + 4,
                 alphaPatternPaint
             )
             currentColorCanvas?.drawCircle(
-                currentColorCircle!!.x,
-                currentColorCircle!!.y,
+                (currentColorCircle ?: return).x,
+                (currentColorCircle ?: return).y,
                 size + 4,
                 colorWheelFill
             )
             val selectorStroke = PaintBuilder.newPaint().color(-0x1).style(Paint.Style.STROKE)
                 .stroke(size * (STROKE_RATIO - 1)).xPerMode(PorterDuff.Mode.CLEAR).build()
             if (showBorder) colorWheelCanvas?.drawCircle(
-                currentColorCircle!!.x,
-                currentColorCircle!!.y,
+                (currentColorCircle ?: return).x,
+                (currentColorCircle ?: return).y,
                 size + selectorStroke.strokeWidth / 2f,
                 selectorStroke
             )
-            canvas.drawBitmap(colorWheel!!, 0f, 0f, null)
+            canvas.drawBitmap(colorWheel ?: return, 0f, 0f, null)
             currentColorCanvas?.drawCircle(
-                currentColorCircle!!.x,
-                currentColorCircle!!.y,
+                (currentColorCircle ?: return).x,
+                (currentColorCircle ?: return).y,
                 size + selectorStroke.strokeWidth / 2f,
                 selectorStroke
             )
-            canvas.drawBitmap(currentColor!!, 0f, 0f, null)
+            canvas.drawBitmap(currentColor ?: return, 0f, 0f, null)
         }
     }
 
@@ -335,7 +335,7 @@ class ColorPickerView : View {
     fun setInitialColors(colors: Array<Int?>?, selectedColor: Int) {
         allColors = colors
         colorSelection = selectedColor
-        var initialColor = allColors!![colorSelection]
+        var initialColor = (allColors ?: return)[colorSelection]
         if (initialColor == null) initialColor = -0x1
         setInitialColor(initialColor, true)
     }
@@ -345,7 +345,7 @@ class ColorPickerView : View {
         Color.colorToHSV(color, hsv)
         pAlpha = Utils.getAlphaPercent(color)
         lightness = hsv[2]
-        allColors!![colorSelection] = color
+        (allColors ?: return)[colorSelection] = color
         initialColor = color
         setColorPreviewColor(color)
         setColorToSliders(color)
@@ -359,15 +359,17 @@ class ColorPickerView : View {
         if (currentColorCircle != null) {
             initialColor = Color.HSVToColor(
                 Utils.alphaValueAsInt(pAlpha),
-                currentColorCircle!!.getHsvWithLightness(lightness)
+                (currentColorCircle ?: return).getHsvWithLightness(lightness)
             )
-            if (colorEdit != null) colorEdit!!.setText(
+            if (colorEdit != null) (colorEdit ?: return).setText(
                 Utils.getHexString(
-                    initialColor!!, alphaSlider != null
+                    initialColor ?: return, alphaSlider != null
                 )
             )
-            if (alphaSlider != null && initialColor != null) alphaSlider!!.setColor(initialColor!!)
-            callOnColorChangedListeners(lastSelectedColor, initialColor!!)
+            if (alphaSlider != null && initialColor != null) (alphaSlider ?: return).setColor(
+                initialColor ?: return
+            )
+            callOnColorChangedListeners(lastSelectedColor, initialColor ?: return)
             updateColorWheel()
             invalidate()
         }
@@ -384,15 +386,17 @@ class ColorPickerView : View {
         this.pAlpha = pAlpha
         initialColor = Color.HSVToColor(
             Utils.alphaValueAsInt(this.pAlpha),
-            currentColorCircle!!.getHsvWithLightness(lightness)
+            (currentColorCircle ?: return).getHsvWithLightness(lightness)
         )
-        if (colorEdit != null) colorEdit!!.setText(
+        if (colorEdit != null) (colorEdit ?: return).setText(
             Utils.getHexString(
-                initialColor!!, alphaSlider != null
+                initialColor ?: return, alphaSlider != null
             )
         )
-        if (lightnessSlider != null && initialColor != null) lightnessSlider!!.setColor(initialColor!!)
-        callOnColorChangedListeners(lastSelectedColor, initialColor!!)
+        if (lightnessSlider != null && initialColor != null) (lightnessSlider ?: return).setColor(
+            initialColor ?: return
+        )
+        callOnColorChangedListeners(lastSelectedColor, initialColor ?: return)
         updateColorWheel()
         invalidate()
     }
@@ -462,9 +466,9 @@ class ColorPickerView : View {
 
     private fun setHighlightedColor(previewNumber: Int) {
         val children = colorPreview?.childCount ?: 0
-        if (children == 0 || colorPreview!!.visibility != VISIBLE) return
+        if (children == 0 || (colorPreview ?: return).visibility != VISIBLE) return
         for (i in 0 until children) {
-            val childView = colorPreview!!.getChildAt(i) as? LinearLayout ?: continue
+            val childView = (colorPreview ?: return).getChildAt(i) as? LinearLayout ?: continue
             if (i == previewNumber) {
                 childView.setBackgroundColor(Color.WHITE)
             } else {
@@ -474,10 +478,13 @@ class ColorPickerView : View {
     }
 
     private fun setColorPreviewColor(newColor: Int) {
-        if (colorPreview == null || allColors == null || colorSelection > allColors!!.size || allColors!![colorSelection] == null) return
-        val children = colorPreview!!.childCount
-        if (children == 0 || colorPreview!!.visibility != VISIBLE) return
-        val childView = colorPreview!!.getChildAt(colorSelection) as? LinearLayout ?: return
+        if (colorPreview == null || allColors == null || colorSelection > (allColors
+                ?: return).size || (allColors ?: return)[colorSelection] == null
+        ) return
+        val children = (colorPreview ?: return).childCount
+        if (children == 0 || (colorPreview ?: return).visibility != VISIBLE) return
+        val childView =
+            (colorPreview ?: return).getChildAt(colorSelection) as? LinearLayout ?: return
         val childImage = childView.findViewById<ImageView>(R.id.image_preview)
         childImage.setImageDrawable(ColorCircleDrawable(newColor))
     }
@@ -487,8 +494,8 @@ class ColorPickerView : View {
     }
 
     private fun setColorToSliders(selectedColor: Int) {
-        if (lightnessSlider != null) lightnessSlider!!.setColor(selectedColor)
-        if (alphaSlider != null) alphaSlider!!.setColor(selectedColor)
+        if (lightnessSlider != null) (lightnessSlider ?: return).setColor(selectedColor)
+        if (alphaSlider != null) (alphaSlider ?: return).setColor(selectedColor)
     }
 
     enum class WHEEL_TYPE {

@@ -21,8 +21,8 @@ import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IWallPostView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 
 class WallPostPresenter(
     accountId: Int, private val postId: Int, private val ownerId: Int, post: Post?,

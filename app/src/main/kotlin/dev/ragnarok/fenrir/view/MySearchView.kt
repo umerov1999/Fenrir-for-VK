@@ -21,8 +21,8 @@ import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Logger
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import io.reactivex.rxjava3.disposables.Disposable
 
 class MySearchView : LinearLayout {

@@ -196,7 +196,11 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                     mHeaderHolder?.tvName?.setTextColor(Color.parseColor("#df9d00"))
                     mHeaderHolder?.tvScreenName?.setTextColor(Color.parseColor("#df9d00"))
                     setBackgroundTint(mHeaderHolder?.ivVerified, Color.parseColor("#df9d00"))
-                    mHeaderHolder?.bDonate?.fromRes(R.raw.donater_fire, dp(100f), dp(100f))
+                    mHeaderHolder?.bDonate?.fromRes(
+                        dev.ragnarok.fenrir_common.R.raw.donater_fire,
+                        dp(100f),
+                        dp(100f)
+                    )
                 } else {
                     mHeaderHolder?.tvName?.setTextColor(CurrentTheme.getColorPrimary(requireActivity()))
                     mHeaderHolder?.tvScreenName?.setTextColor(
@@ -209,7 +213,7 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                         CurrentTheme.getColorPrimary(requireActivity())
                     )
                     mHeaderHolder?.bDonate?.fromRes(
-                        R.raw.donater_fire,
+                        dev.ragnarok.fenrir_common.R.raw.donater_fire,
                         dp(100f),
                         dp(100f),
                         intArrayOf(0xFF812E, CurrentTheme.getColorPrimary(requireActivity())),
@@ -218,7 +222,7 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                 }
             } else {
                 mHeaderHolder?.bDonate?.fromRes(
-                    R.raw.donater,
+                    dev.ragnarok.fenrir_common.R.raw.donater,
                     dp(100f),
                     dp(100f),
                     intArrayOf(
@@ -256,7 +260,7 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
             mHeaderHolder?.blacklisted?.visibility = View.VISIBLE
             if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
                 mHeaderHolder?.blacklisted?.fromRes(
-                    R.raw.skull,
+                    dev.ragnarok.fenrir_common.R.raw.skull,
                     dp(48f),
                     dp(48f),
                     null

@@ -31,8 +31,8 @@ import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.FileManagerSelectPresenter
 import dev.ragnarok.fenrir.mvp.view.IFileManagerSelectView
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.core.Completable
@@ -205,7 +205,7 @@ class FileManagerSelectFragment :
                 mAnimationLoaded = true
                 loading?.visibility = View.VISIBLE
                 loading?.fromRes(
-                    R.raw.s_loading,
+                    dev.ragnarok.fenrir_common.R.raw.s_loading,
                     Utils.dp(180f),
                     Utils.dp(180f),
                     intArrayOf(

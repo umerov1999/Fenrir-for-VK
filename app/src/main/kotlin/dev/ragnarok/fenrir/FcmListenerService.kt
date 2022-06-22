@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.PersistentLogger
-import dev.ragnarok.fenrir.util.RxUtils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 
 class FcmListenerService : FirebaseMessagingService() {
     @SuppressLint("CheckResult")

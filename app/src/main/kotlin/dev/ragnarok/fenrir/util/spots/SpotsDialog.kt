@@ -154,7 +154,7 @@ class SpotsDialog private constructor(
                 if (messageId != 0) context.getString(messageId) else message
             val anim: RLottieImageView = root.findViewById(R.id.lottie_animation)
             anim.fromRes(
-                R.raw.s_loading,
+                dev.ragnarok.fenrir_common.R.raw.s_loading,
                 dp(180f),
                 dp(180f),
                 intArrayOf(

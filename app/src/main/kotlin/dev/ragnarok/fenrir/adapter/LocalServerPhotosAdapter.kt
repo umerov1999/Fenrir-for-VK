@@ -45,7 +45,7 @@ class LocalServerPhotosAdapter(private val mContext: Context, private var data: 
             if (currentPosition == position) {
                 viewHolder.current.visibility = View.VISIBLE
                 viewHolder.current.fromRes(
-                    R.raw.donater_fire,
+                    dev.ragnarok.fenrir_common.R.raw.donater_fire,
                     Utils.dp(100f),
                     Utils.dp(100f),
                     intArrayOf(0xFF812E, colorPrimary),

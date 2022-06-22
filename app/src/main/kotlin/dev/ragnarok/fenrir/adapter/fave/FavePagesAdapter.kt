@@ -74,7 +74,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
                 holder.blacklisted.visibility = View.VISIBLE
                 if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
                     holder.blacklisted.fromRes(
-                        R.raw.skull,
+                        dev.ragnarok.fenrir_common.R.raw.skull,
                         Utils.dp(48f),
                         Utils.dp(48f),
                         null
@@ -87,7 +87,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
             } else if (user?.isFriend == true && Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
                 holder.blacklisted.visibility = View.VISIBLE
                 holder.blacklisted.fromRes(
-                    R.raw.infinity,
+                    dev.ragnarok.fenrir_common.R.raw.infinity,
                     Utils.dp(48f),
                     Utils.dp(48f),
                     intArrayOf(

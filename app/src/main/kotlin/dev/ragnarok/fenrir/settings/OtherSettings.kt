@@ -407,6 +407,8 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         }
     override val isNative_parcel_photo: Boolean
         get() = getPreferences(app).getBoolean("native_parcel_photo", true)
+    override val isValidate_tls: Boolean
+        get() = getPreferences(app).getBoolean("validate_tls", true)
     override val isNative_parcel_story: Boolean
         get() = getPreferences(app).getBoolean("native_parcel_story", true)
     override val isDoLogs: Boolean

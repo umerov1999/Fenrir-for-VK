@@ -10,8 +10,8 @@ import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.upload.*
-import dev.ragnarok.fenrir.util.RxUtils.safelyCloseAction
 import dev.ragnarok.fenrir.util.Utils.safelyClose
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.safelyCloseAction
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.io.File

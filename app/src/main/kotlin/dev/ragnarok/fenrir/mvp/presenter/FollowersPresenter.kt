@@ -9,10 +9,10 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.view.IFollowersView
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.Utils.indexOfOwner
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceState: Bundle?) :

@@ -61,8 +61,8 @@ class SeparatorSpaceTextPreference(key: String, fragmentManager: FragmentManager
         if (separatorTextChangeBeforeListener?.onSeparatorTextBeforeChange(this, input) != false) {
             currentInput = input
             if (currentInput != null) {
-                var l = currentInput!!.trim().toString()
-                for (i in currentInput!!.trim().toString()) {
+                var l = (currentInput ?: return).trim().toString()
+                for (i in (currentInput ?: return).trim().toString()) {
                     if (i < ' ') {
                         l = l.replace(i, ' ')
                     }

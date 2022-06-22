@@ -83,9 +83,9 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.refresh.RefreshToken
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.core.Single
@@ -411,17 +411,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     private fun createRootScreen() = screen(requireActivity()) {
         subScreen("general_preferences") {
             titleRes = R.string.general_settings
-            singleChoice(
-                "language_ui",
-                selItems(R.array.array_language_names, R.array.array_language_items),
-                parentFragmentManager
-            ) {
-                initialSelection = "0"
-                titleRes = R.string.language_ui
-                onSelectionChange {
-                    requireActivity().recreate()
-                }
-            }
+            iconRes = R.drawable.preferences_settings
             pref("proxy") {
                 titleRes = R.string.http_proxy
                 onClick {
@@ -429,8 +419,25 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     true
                 }
             }
-
+            switch("use_api_5_90_for_audio") {
+                summaryRes = R.string.use_api_5_90_for_audio_summary
+                titleRes = R.string.use_api_5_90_for_audio
+                defaultValue = true
+            }
+            singleChoice(
+                "language_ui",
+                selItems(R.array.array_language_names, R.array.array_language_items),
+                parentFragmentManager
+            ) {
+                iconRes = R.drawable.lang_settings
+                initialSelection = "0"
+                titleRes = R.string.language_ui
+                onSelectionChange {
+                    requireActivity().recreate()
+                }
+            }
             pref("blacklist") {
+                iconRes = R.drawable.ban_settings
                 titleRes = R.string.user_blacklist_title
                 onClick {
                     PlaceFactory.getUserBlackListPlace(
@@ -441,6 +448,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             }
             pref("friends_by_phone") {
                 titleRes = R.string.friends_by_phone
+                iconRes = R.drawable.sync_settings
                 onClick {
                     if (!AppPerms.hasContactsPermission(requireActivity())) {
                         requestContactsPermission.launch()
@@ -450,12 +458,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     }
                     true
                 }
-            }
-
-            switch("use_api_5_90_for_audio") {
-                summaryRes = R.string.use_api_5_90_for_audio_summary
-                titleRes = R.string.use_api_5_90_for_audio
-                defaultValue = true
             }
             pref(KEY_SECURITY) {
                 titleRes = R.string.security
@@ -540,6 +542,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
         subScreen("appearance_settings") {
             titleRes = R.string.appearance_settings
+            iconRes = R.drawable.select_colored
 
             pref(KEY_APP_THEME) {
                 iconRes = R.drawable.select_colored
@@ -674,6 +677,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("behaviour_settings") {
             titleRes = R.string.behaviour_settings
+            iconRes = R.drawable.behavior_settings
             collapseIcon = true
             singleChoice(KEY_DEFAULT_CATEGORY, initStartPagePreference(), parentFragmentManager) {
                 summaryRes = R.string.default_category_summary
@@ -807,6 +811,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("photo_settings") {
             titleRes = R.string.photo_settings
+            iconRes = R.drawable.photo_settings
             collapseIcon = true
             singleChoice(
                 "image_size",
@@ -865,6 +870,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("input_settings") {
             titleRes = R.string.input
+            iconRes = R.drawable.input_settings
             collapseIcon = true
             switch("emojis_type") {
                 defaultValue = false
@@ -911,6 +917,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("custom_chat") {
             titleRes = R.string.custom_chat
+            iconRes = R.drawable.chat_settings
             switch("notification_bubbles") {
                 defaultValue = true
                 titleRes = R.string.notification_bubbles
@@ -1085,6 +1092,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
 
         subScreen("additional_settings") {
+            iconRes = R.drawable.additional_settings
             titleRes = R.string.additional_settings
             collapseIcon = true
             switch("auto_read") {
@@ -1145,6 +1153,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("music_settings") {
             titleRes = R.string.music_settings
+            iconRes = R.drawable.player_settings
             collapseIcon = true
             switch("audio_round_icon") {
                 defaultValue = true
@@ -1234,6 +1243,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("wear_section") {
             titleRes = R.string.for_wear
+            iconRes = R.drawable.wear_settings
             collapseIcon = true
             switch("show_bot_keyboard") {
                 defaultValue = true
@@ -1257,6 +1267,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("sidebar_settings_section") {
             titleRes = R.string.sidebar_settings
+            iconRes = R.drawable.sidebar_settings
             collapseIcon = true
             pref(KEY_DRAWER_ITEMS) {
                 summaryRes = R.string.drawer_categories_summary
@@ -1318,6 +1329,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
         subScreen("download_directory") {
             titleRes = R.string.download_directory
+            iconRes = R.drawable.save_settings
             pref("scoped_storage") {
                 titleRes = R.string.scoped_storage
                 iconRes = R.drawable.security_settings
@@ -1468,6 +1480,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
 
         subScreen("dev_settings") {
+            iconRes = R.drawable.developer_mode
             titleRes = R.string.dev_settings
             switch("developer_mode") {
                 defaultValue = Common.forceDeveloperMode
@@ -1510,6 +1523,15 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         commitString("oauth.vk.com")
                         reload()
                     }
+                    Includes.proxySettings.broadcastUpdate(null)
+                }
+            }
+
+            switch("validate_tls") {
+                defaultValue = true
+                summaryRes = R.string.validate_tls_summary
+                titleRes = R.string.validate_tls
+                onCheckedChange {
                     Includes.proxySettings.broadcastUpdate(null)
                 }
             }
@@ -1771,6 +1793,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
 
         subScreen("about_section") {
+            iconRes = R.drawable.app_info_settings
             titleRes = R.string.about_settings
             collapseIcon = true
             singleChoice(

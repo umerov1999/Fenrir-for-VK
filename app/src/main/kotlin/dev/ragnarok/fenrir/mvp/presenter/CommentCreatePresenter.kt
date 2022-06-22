@@ -15,8 +15,8 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.subscribeOnIOAndIgnore
 import dev.ragnarok.fenrir.util.Utils.removeIf
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.subscribeOnIOAndIgnore
 import io.reactivex.rxjava3.core.Single
 
 class CommentCreatePresenter(

@@ -38,9 +38,9 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.GetLocalTrackLink
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.Logger
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.makeMediaItem
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.lang.ref.WeakReference
 

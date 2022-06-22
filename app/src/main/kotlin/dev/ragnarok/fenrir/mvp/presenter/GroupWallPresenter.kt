@@ -14,10 +14,10 @@ import dev.ragnarok.fenrir.mvp.view.IGroupWallView
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView.IOptionMenuView
 import dev.ragnarok.fenrir.place.PlaceFactory.getMentionsPlace
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.ShortcutUtils.createWallShortcutRx
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import kotlin.math.abs
 
 class GroupWallPresenter(

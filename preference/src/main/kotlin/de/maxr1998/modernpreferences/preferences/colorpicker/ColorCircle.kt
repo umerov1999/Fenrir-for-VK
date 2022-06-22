@@ -20,9 +20,9 @@ class ColorCircle(x: Float, y: Float, hsv: FloatArray) {
 
     fun getHsvWithLightness(lightness: Float): FloatArray? {
         if (hsvClone == null) hsvClone = hsv.clone()
-        hsvClone!![0] = hsv[0]
-        hsvClone!![1] = hsv[1]
-        hsvClone!![2] = lightness
+        (hsvClone ?: return null)[0] = hsv[0]
+        (hsvClone ?: return null)[1] = hsv[1]
+        (hsvClone ?: return null)[2] = lightness
         return hsvClone
     }
 

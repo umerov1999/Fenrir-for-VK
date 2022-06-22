@@ -43,6 +43,7 @@ object CrashUtils {
                         ) + disclaimer
                     }
                     intent.putExtra(Extra.STACK_TRACE, stackTraceString)
+                    intent.putExtra(Extra.IS_OUT_OF_MEMORY, throwable is OutOfMemoryError)
 
                     intent.flags =
                         Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

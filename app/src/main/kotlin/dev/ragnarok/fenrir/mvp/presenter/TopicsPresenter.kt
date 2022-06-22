@@ -8,7 +8,7 @@ import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Topic
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ITopicsView
-import dev.ragnarok.fenrir.util.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class TopicsPresenter(accountId: Int, private val ownerId: Int, savedInstanceState: Bundle?) :

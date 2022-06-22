@@ -16,8 +16,8 @@ import dev.ragnarok.fenrir.api.ICaptchaProvider
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemeOverlay
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class CaptchaActivity : AppCompatActivity() {

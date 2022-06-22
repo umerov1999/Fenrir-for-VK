@@ -39,6 +39,7 @@ interface ISettings {
         val isAudioBroadcastActive: Boolean
         val maxBitmapResolution: Int
         val servicePlaylist: List<Int>
+        val isValidate_tls: Boolean
         val isNative_parcel_photo: Boolean
         val isNative_parcel_story: Boolean
         val isDoLogs: Boolean

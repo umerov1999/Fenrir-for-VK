@@ -14,9 +14,9 @@ import dev.ragnarok.fenrir.model.FaveLink
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFaveLinksView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :

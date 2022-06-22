@@ -72,7 +72,7 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
         if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
             if (isSelected) {
                 holder.selected.fromRes(
-                    R.raw.theme_selected,
+                    dev.ragnarok.fenrir_common.R.raw.theme_selected,
                     Utils.dp(120f),
                     Utils.dp(120f),
                     intArrayOf(
@@ -111,7 +111,7 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
         if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
             if (isSelected) {
                 holder.selected.fromRes(
-                    R.raw.theme_selected,
+                    dev.ragnarok.fenrir_common.R.raw.theme_selected,
                     Utils.dp(120f),
                     Utils.dp(120f),
                     intArrayOf(

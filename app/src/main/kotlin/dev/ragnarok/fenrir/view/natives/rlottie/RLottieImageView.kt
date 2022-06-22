@@ -11,7 +11,7 @@ import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.module.BufferWriteNative
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
-import dev.ragnarok.fenrir.util.RxUtils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.core.SingleOnSubscribe

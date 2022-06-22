@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
+import com.yalantis.ucrop.io.AndroidSchedulers;
 import com.yalantis.ucrop.model.CropParameters;
 import com.yalantis.ucrop.model.ImageState;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableTransformer;
 import io.reactivex.rxjava3.schedulers.Schedulers;

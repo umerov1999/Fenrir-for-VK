@@ -8,8 +8,8 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
-import dev.ragnarok.fenrir.util.RxUtils.dummy
-import dev.ragnarok.fenrir.util.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import java.io.File
 
 @Suppress("DEPRECATION")

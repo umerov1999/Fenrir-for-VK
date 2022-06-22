@@ -178,6 +178,7 @@ object TokenModOfficialVK {
             })
         applyProxyConfig(builder, proxySettings.activeProxy)
         HttpLogger.adjust(builder)
+        HttpLogger.configureToIgnoreCertificates(builder)
         val formBody = FormBody.Builder()
         for (i in list) {
             val v = i.split(Regex("=")).toTypedArray()

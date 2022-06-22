@@ -5,11 +5,12 @@ import android.graphics.Color
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
+import dev.ragnarok.fenrir_common.BuildConfig
 import dev.ragnarok.fenrir_common.R
 
 object Common {
-    const val forceDeveloperMode = false
-    private const val RANDOM_PAGAN_SYMBOL_NUMBER = 17
+    const val forceDeveloperMode = BuildConfig.FORCE_DEVELOPER_MODE
+    private const val RANDOM_PAGAN_SYMBOL_NUMBER = 19
     private var randomPaganSymbol = -1
 
     fun randomizePaganSymbol() {
@@ -70,9 +71,11 @@ object Common {
             11 -> PaganSymbolWall(R.drawable.ic_triskel)
             12 -> PaganSymbolWall(R.drawable.ic_hell)
             13 -> PaganSymbolWall(R.drawable.ic_odin)
-            14 -> PaganSymbolWall(R.drawable.ic_viking)
-            15 -> PaganSymbolWall(R.drawable.ic_raven)
-            16 -> PaganSymbolWall(R.drawable.ic_fire)
+            14 -> PaganSymbolWall(R.drawable.ic_odin2)
+            15 -> PaganSymbolWall(R.drawable.ic_freya)
+            16 -> PaganSymbolWall(R.drawable.ic_viking)
+            17 -> PaganSymbolWall(R.drawable.ic_raven)
+            18 -> PaganSymbolWall(R.drawable.ic_fire)
             else -> PaganSymbolWall(R.drawable.ic_cat)
         }
     }

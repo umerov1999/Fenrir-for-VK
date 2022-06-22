@@ -33,8 +33,8 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.NightMode
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class AdditionalNavigationFragment : AbsNavigationFragment(), MenuListAdapter.ActionListener {

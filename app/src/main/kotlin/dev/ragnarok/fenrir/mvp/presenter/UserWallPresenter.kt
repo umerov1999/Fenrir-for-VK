@@ -22,11 +22,11 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getMentionsPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.ShortcutUtils.createWallShortcutRx
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.getRegistrationDate
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import java.io.File
 
 class UserWallPresenter(

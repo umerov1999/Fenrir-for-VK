@@ -11,8 +11,8 @@ import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IFavePostsView
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :

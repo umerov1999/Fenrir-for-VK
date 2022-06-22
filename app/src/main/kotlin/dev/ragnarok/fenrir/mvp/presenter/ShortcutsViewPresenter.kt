@@ -12,8 +12,8 @@ import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IShortcutsView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.ShortcutUtils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import java.util.regex.Pattern
 
 class ShortcutsViewPresenter(savedInstanceState: Bundle?) :

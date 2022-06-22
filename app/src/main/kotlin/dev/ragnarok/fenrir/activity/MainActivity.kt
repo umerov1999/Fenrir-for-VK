@@ -94,6 +94,7 @@ import dev.ragnarok.fenrir.util.*
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.HelperSimple.needHelp
 import dev.ragnarok.fenrir.util.Pair.Companion.create
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.getInstance
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 

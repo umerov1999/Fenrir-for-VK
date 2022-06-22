@@ -135,7 +135,11 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                     mHeaderHolder?.tvName?.setTextColor(Color.parseColor("#df9d00"))
                     mHeaderHolder?.tvDomain?.setTextColor(Color.parseColor("#df9d00"))
                     setBackgroundTint(mHeaderHolder?.ivVerified, Color.parseColor("#df9d00"))
-                    mHeaderHolder?.bDonate?.fromRes(R.raw.donater_fire, dp(100f), dp(100f))
+                    mHeaderHolder?.bDonate?.fromRes(
+                        dev.ragnarok.fenrir_common.R.raw.donater_fire,
+                        dp(100f),
+                        dp(100f)
+                    )
                 } else {
                     mHeaderHolder?.tvName?.setTextColor(CurrentTheme.getColorPrimary(requireActivity()))
                     mHeaderHolder?.tvDomain?.setTextColor(
@@ -148,7 +152,7 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                         CurrentTheme.getColorPrimary(requireActivity())
                     )
                     mHeaderHolder?.bDonate?.fromRes(
-                        R.raw.donater_fire,
+                        dev.ragnarok.fenrir_common.R.raw.donater_fire,
                         dp(100f),
                         dp(100f),
                         intArrayOf(0xFF812E, CurrentTheme.getColorPrimary(requireActivity())),
@@ -157,7 +161,7 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                 }
             } else {
                 mHeaderHolder?.bDonate?.fromRes(
-                    R.raw.donater,
+                    dev.ragnarok.fenrir_common.R.raw.donater,
                     dp(100f),
                     dp(100f),
                     intArrayOf(

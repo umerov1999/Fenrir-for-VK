@@ -34,7 +34,7 @@ class AlphaSlider : AbsCustomSlider {
         super.createBitmaps()
         alphaPatternPaint.shader = PaintBuilder.createAlphaPatternShader(barHeight * 2)
         clearBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
-        clearBitmapCanvas = Canvas(clearBitmap!!)
+        clearBitmapCanvas = Canvas(clearBitmap ?: return)
     }
 
     override fun drawBar(barCanvas: Canvas?) {
@@ -75,7 +75,7 @@ class AlphaSlider : AbsCustomSlider {
                 handleRadius * 0.75f + clearStroke.strokeWidth / 2,
                 clearStroke
             )
-            canvas.drawBitmap(clearBitmap!!, 0f, 0f, null)
+            canvas.drawBitmap(clearBitmap ?: return, 0f, 0f, null)
         } else {
             canvas.drawCircle(x, y, handleRadius * 0.75f, solid)
         }

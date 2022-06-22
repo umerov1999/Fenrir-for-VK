@@ -59,6 +59,7 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
             .create()
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
         HttpLogger.adjustUpload(builder)
+        HttpLogger.configureToIgnoreCertificates(builder)
         return Retrofit.Builder()
             .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/") // dummy
             .addConverterFactory(GsonConverterFactory.create(gson))

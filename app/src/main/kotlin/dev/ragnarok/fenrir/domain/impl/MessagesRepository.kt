@@ -70,8 +70,6 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.ignore
-import dev.ragnarok.fenrir.util.RxUtils.safelyCloseAction
 import dev.ragnarok.fenrir.util.Unixtime.now
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.hasFlag
@@ -82,6 +80,8 @@ import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.WeakMainLooperHandler
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.safelyCloseAction
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single

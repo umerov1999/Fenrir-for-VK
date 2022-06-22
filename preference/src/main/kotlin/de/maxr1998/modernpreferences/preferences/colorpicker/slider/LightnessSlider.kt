@@ -26,7 +26,7 @@ class LightnessSlider : AbsCustomSlider {
     )
 
     override fun drawBar(barCanvas: Canvas?) {
-        val width = barCanvas!!.width
+        val width = (barCanvas ?: return).width
         val height = barCanvas.height
         val hsv = FloatArray(3)
         Color.colorToHSV(pColor, hsv)

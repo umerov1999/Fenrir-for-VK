@@ -40,9 +40,9 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.HelperSimple
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.ExpandableSurfaceView
 import dev.ragnarok.fenrir.view.TouchImageView
@@ -111,7 +111,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         if (HelperSimple.needHelp(HelperSimple.STORY_HELPER, 2)) {
             mHelper?.visibility = View.VISIBLE
             mHelper?.fromRes(
-                R.raw.story_guide_hand_swipe,
+                dev.ragnarok.fenrir_common.R.raw.story_guide_hand_swipe,
                 Utils.dp(500F),
                 Utils.dp(500F),
                 intArrayOf(0x333333, CurrentTheme.getColorSecondary(requireActivity()))
@@ -344,7 +344,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             mProgressBar.visibility = if (visible) View.VISIBLE else View.GONE
             if (visible) {
                 mProgressBar.fromRes(
-                    R.raw.loading,
+                    dev.ragnarok.fenrir_common.R.raw.loading,
                     Utils.dp(100F),
                     Utils.dp(100F),
                     intArrayOf(
@@ -444,7 +444,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                     mAnimationLoaded = true
                     progress.visibility = View.VISIBLE
                     progress.fromRes(
-                        R.raw.loading,
+                        dev.ragnarok.fenrir_common.R.raw.loading,
                         Utils.dp(100F),
                         Utils.dp(100F),
                         intArrayOf(

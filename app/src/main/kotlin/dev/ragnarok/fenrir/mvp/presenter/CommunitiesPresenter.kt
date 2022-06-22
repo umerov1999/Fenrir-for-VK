@@ -11,11 +11,11 @@ import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunitiesView
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Translit.cyr2lat
 import dev.ragnarok.fenrir.util.Translit.lat2cyr
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOfOwner
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter

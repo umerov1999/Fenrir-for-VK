@@ -11,7 +11,7 @@ import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.realtime.IRealtimeMessagesProcessor
 import dev.ragnarok.fenrir.util.Logger.d
-import dev.ragnarok.fenrir.util.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.processors.PublishProcessor

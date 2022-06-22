@@ -105,7 +105,8 @@ class MultiChoiceDialogPreference(
                 selections = it.toHashSet()
             } ?: run {
                 selections =
-                    requireArguments().getStringArrayList(PreferencesExtra.DEFAULT_VALUE)!!
+                    (requireArguments().getStringArrayList(PreferencesExtra.DEFAULT_VALUE)
+                        ?: return@run)
                         .toHashSet()
             }
         }

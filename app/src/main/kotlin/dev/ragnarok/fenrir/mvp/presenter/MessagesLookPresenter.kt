@@ -8,11 +8,11 @@ import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.mvp.view.IMessagesLookView
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.Side
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import dev.ragnarok.fenrir.util.Utils.indexOf
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
 import io.reactivex.rxjava3.core.Observable
 
 class MessagesLookPresenter(

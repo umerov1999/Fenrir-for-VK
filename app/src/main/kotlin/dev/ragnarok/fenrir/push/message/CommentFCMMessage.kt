@@ -22,9 +22,9 @@ import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.settings.Settings.get
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 
 class CommentFCMMessage {
     /**

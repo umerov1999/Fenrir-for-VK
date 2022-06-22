@@ -120,7 +120,7 @@ class BigVkPhotosAdapter(
             if (photoWrapper.current) {
                 holder.current.visibility = View.VISIBLE
                 holder.current.fromRes(
-                    R.raw.donater_fire,
+                    dev.ragnarok.fenrir_common.R.raw.donater_fire,
                     Utils.dp(100f),
                     Utils.dp(100f),
                     intArrayOf(0xFF812E, CurrentTheme.getColorPrimary(mContext)),

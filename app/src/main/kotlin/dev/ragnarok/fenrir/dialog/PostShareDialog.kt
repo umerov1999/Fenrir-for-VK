@@ -14,7 +14,7 @@ import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.Text
 import dev.ragnarok.fenrir.model.menu.Item
 import dev.ragnarok.fenrir.util.AssertUtils.assertTrue
-import dev.ragnarok.fenrir.util.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class PostShareDialog : DialogFragment() {

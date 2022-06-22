@@ -27,10 +27,10 @@ import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forPhotoAlbum
 import dev.ragnarok.fenrir.upload.UploadUtils.createIntents
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.getSelected
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class VkPhotosPresenter(

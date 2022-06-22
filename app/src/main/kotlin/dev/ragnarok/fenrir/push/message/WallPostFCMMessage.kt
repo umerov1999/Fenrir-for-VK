@@ -22,9 +22,9 @@ import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.settings.Settings.get
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 
 class WallPostFCMMessage {
     //from_id=175895893, first_name=Руслан, from=376771982493, text=Тест push-уведомлений, type=wall_post, place=wall25651989_2509, collapse_key=wall_post, last_name=Колбаса

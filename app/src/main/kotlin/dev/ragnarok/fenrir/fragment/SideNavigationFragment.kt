@@ -34,11 +34,11 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.NightMode
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.getVerifiedColor
 import dev.ragnarok.fenrir.util.Utils.setBackgroundTint
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -280,13 +280,18 @@ class SideNavigationFragment : AbsNavigationFragment(), MenuListAdapter.ActionLi
                     tvUserName?.setTextColor(Color.parseColor("#df9d00"))
                     tvDomain?.setTextColor(Color.parseColor("#df9d00"))
                     setBackgroundTint(ivVerified, Color.parseColor("#df9d00"))
-                    bDonate?.fromRes(R.raw.donater_fire, dp(100f), dp(100f), null)
+                    bDonate?.fromRes(
+                        dev.ragnarok.fenrir_common.R.raw.donater_fire,
+                        dp(100f),
+                        dp(100f),
+                        null
+                    )
                 } else {
                     tvUserName?.setTextColor(CurrentTheme.getColorPrimary(requireActivity()))
                     tvDomain?.setTextColor(CurrentTheme.getColorPrimary(requireActivity()))
                     setBackgroundTint(ivVerified, CurrentTheme.getColorPrimary(requireActivity()))
                     bDonate?.fromRes(
-                        R.raw.donater_fire,
+                        dev.ragnarok.fenrir_common.R.raw.donater_fire,
                         dp(100f),
                         dp(100f),
                         intArrayOf(0xFF812E, CurrentTheme.getColorPrimary(requireActivity())),
@@ -295,7 +300,7 @@ class SideNavigationFragment : AbsNavigationFragment(), MenuListAdapter.ActionLi
                 }
             } else {
                 bDonate?.fromRes(
-                    R.raw.donater,
+                    dev.ragnarok.fenrir_common.R.raw.donater,
                     dp(100f),
                     dp(100f),
                     intArrayOf(

@@ -31,6 +31,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController
 import dev.ragnarok.fenrir.util.hls.M3U8
 import dev.ragnarok.fenrir.util.msgpack.MsgPack
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import ealvatag.audio.AudioFileIO
 import ealvatag.tag.FieldKey
 import ealvatag.tag.Tag
@@ -123,6 +124,16 @@ object DownloadWorkUtils {
         if (extension == null)
             return result
         return "$result.$extension"
+    }
+
+    fun fixStart(filename: String?): String? {
+        if (filename.isNullOrEmpty()) {
+            return filename
+        }
+        if (filename[0] == '.') {
+            return "_" + filename.substring(1)
+        }
+        return filename
     }
 
     fun makeLegalFilenameFromArg(filename: String?, extension: String?): String? {
@@ -249,7 +260,6 @@ object DownloadWorkUtils {
             return
         }
     }
-
 
     fun doDownloadVideo(context: Context, video: Video, url: String, Res: String) {
         val result_filename = DownloadInfo(

@@ -117,7 +117,10 @@ class AccountAdapter(
         if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
             if (isCurrent) {
                 holder.active.fromRes(
-                    R.raw.select_check_box, Utils.dp(40f), Utils.dp(40f), intArrayOf(
+                    dev.ragnarok.fenrir_common.R.raw.select_check_box,
+                    Utils.dp(40f),
+                    Utils.dp(40f),
+                    intArrayOf(
                         0x333333, CurrentTheme.getColorPrimary(
                             context
                         ), 0x777777, CurrentTheme.getColorSecondary(context)

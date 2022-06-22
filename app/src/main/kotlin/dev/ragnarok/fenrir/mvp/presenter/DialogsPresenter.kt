@@ -27,8 +27,6 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
-import dev.ragnarok.fenrir.util.RxUtils.dummy
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.ShortcutUtils.addDynamicShortcut
 import dev.ragnarok.fenrir.util.ShortcutUtils.createChatShortcutRx
 import dev.ragnarok.fenrir.util.Utils
@@ -40,6 +38,8 @@ import dev.ragnarok.fenrir.util.Utils.isHiddenCurrent
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.needReloadDialogs
 import dev.ragnarok.fenrir.util.Utils.needReloadStickers
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.*
 

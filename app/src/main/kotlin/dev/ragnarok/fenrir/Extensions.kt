@@ -13,8 +13,8 @@ import android.os.Build
 import android.view.View
 import androidx.core.database.getBlobOrNull
 import androidx.core.database.getStringOrNull
-import dev.ragnarok.fenrir.util.RxUtils
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.rxutils.io.AndroidSchedulers
 import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Consumer

@@ -1,0 +1,29 @@
+plugins {
+    id("com.android.library")
+}
+
+android {
+    compileSdk = appCompileSDK
+    buildToolsVersion = appBuildTools
+
+    defaultConfig {
+        minSdk = appMinSDK
+        targetSdk = appTargetSDK
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        encoding = "utf-8"
+    }
+}
+
+dependencies {
+    implementation("androidx.appcompat:appcompat:$appcompatVersion")
+    implementation("androidx.annotation:annotation:$annotationVersion")
+    implementation("androidx.core:core:$coreVersion")
+    implementation("androidx.recyclerview:recyclerview:$recyclerviewVersion")
+    implementation("androidx.activity:activity:$activityVersion")
+    implementation("androidx.fragment:fragment:$fragmentVersion")
+    implementation("androidx.collection:collection:$collectionVersion")
+}

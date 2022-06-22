@@ -70,6 +70,7 @@ class VkMethodHttpClientFactory : IVkMethodHttpClientFactory {
             }).addInterceptor(CompressDefaultInterceptor)
         ProxyUtil.applyProxyConfig(builder, config)
         HttpLogger.adjust(builder)
+        HttpLogger.configureToIgnoreCertificates(builder)
         return builder.build()
     }
 
@@ -88,6 +89,7 @@ class VkMethodHttpClientFactory : IVkMethodHttpClientFactory {
             }).addInterceptor(CompressDefaultInterceptor)
         ProxyUtil.applyProxyConfig(builder, config)
         HttpLogger.adjust(builder)
+        HttpLogger.configureToIgnoreCertificates(builder)
         return builder.build()
     }
 }

@@ -24,9 +24,9 @@ import dev.ragnarok.fenrir.util.AppPerms.hasCameraPermission
 import dev.ragnarok.fenrir.util.FileUtil.createImageFile
 import dev.ragnarok.fenrir.util.FileUtil.getExportedUriForFile
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.RxUtils.ignore
-import dev.ragnarok.fenrir.util.RxUtils.subscribeOnIOAndIgnore
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.subscribeOnIOAndIgnore
 import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.io.IOException

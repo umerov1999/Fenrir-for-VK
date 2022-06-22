@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.collection.LongSparseArray
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -22,7 +21,6 @@ import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.model.selection.*
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
-import java.lang.ref.WeakReference
 
 class DualTabPhotosFragment : BaseFragment(), BackPressCallback {
     private lateinit var mSources: Sources
@@ -83,7 +81,7 @@ class DualTabPhotosFragment : BaseFragment(), BackPressCallback {
 
     override fun onBackPressed(): Boolean {
         if (mPagerAdapter != null) {
-            val fragment = mPagerAdapter?.findFragmentByPosition(mCurrentTab)
+            val fragment = mPagerAdapter?.findByPosition(mCurrentTab)
             return fragment !is BackPressCallback || (fragment as BackPressCallback).onBackPressed()
         }
         return true
@@ -91,7 +89,6 @@ class DualTabPhotosFragment : BaseFragment(), BackPressCallback {
 
     private inner class Adapter(fm: Fragment, private val mSources: Sources) :
         FragmentStateAdapter(fm) {
-        private val fragments: LongSparseArray<WeakReference<Fragment>> = LongSparseArray()
         fun getPageTitle(position: Int): CharSequence {
             when (mSources[position].type) {
                 Types.LOCAL_PHOTOS -> return getString(R.string.local_photos_tab_title)
@@ -111,32 +108,26 @@ class DualTabPhotosFragment : BaseFragment(), BackPressCallback {
                 args.putBoolean(BaseMvpFragment.EXTRA_HIDE_TOOLBAR, true)
                 val fragment = LocalImageAlbumsFragment()
                 fragment.arguments = args
-                fragments.put(position.toLong(), WeakReference(fragment))
                 return fragment
             }
             if (source is LocalGallerySelectableSource) {
-                val fragment = LocalPhotosFragment.newInstance(10, null, true)
-                fragments.put(position.toLong(), WeakReference(fragment))
-                return fragment
+                return LocalPhotosFragment.newInstance(10, null, true)
             }
             if (source is LocalVideosSelectableSource) {
                 val args = Bundle()
                 args.putBoolean(BaseMvpFragment.EXTRA_HIDE_TOOLBAR, true)
                 val fragment = LocalVideosFragment.newInstance()
                 fragment.arguments = args
-                fragments.put(position.toLong(), WeakReference(fragment))
                 return fragment
             }
             if (source is VkPhotosSelectableSource) {
-                val fragment = VKPhotoAlbumsFragment.newInstance(
+                return VKPhotoAlbumsFragment.newInstance(
                     source.accountId,
                     source.ownerId,
                     null,
                     null,
                     true
                 )
-                fragments.put(position.toLong(), WeakReference(fragment))
-                return fragment
             }
             if (source is FileManagerSelectableSource) {
                 val args = Bundle()
@@ -144,7 +135,6 @@ class DualTabPhotosFragment : BaseFragment(), BackPressCallback {
                 args.putBoolean(Extra.HIDE_TITLE, true)
                 val fileManagerFragment = FileManagerSelectFragment()
                 fileManagerFragment.arguments = args
-                fragments.put(position.toLong(), WeakReference(fileManagerFragment))
                 return fileManagerFragment
             }
             throw UnsupportedOperationException()
@@ -153,12 +143,6 @@ class DualTabPhotosFragment : BaseFragment(), BackPressCallback {
         override fun getItemCount(): Int {
             return mSources.count()
         }
-
-        fun findFragmentByPosition(position: Int): Fragment? {
-            val weak = fragments[position.toLong()]
-            return weak?.get()
-        }
-
     }
 
     companion object {

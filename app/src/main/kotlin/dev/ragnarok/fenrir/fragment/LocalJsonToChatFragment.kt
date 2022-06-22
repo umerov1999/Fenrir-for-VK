@@ -32,8 +32,8 @@ import dev.ragnarok.fenrir.mvp.view.ILocalJsonToChatView
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.util.RxUtils
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -246,7 +246,7 @@ class LocalJsonToChatFragment :
                 mLoadingProgressBarLoaded = true
                 mLoadingProgressBar?.visibility = View.VISIBLE
                 mLoadingProgressBar?.fromRes(
-                    R.raw.loading,
+                    dev.ragnarok.fenrir_common.R.raw.loading,
                     Utils.dp(100F),
                     Utils.dp(100F),
                     intArrayOf(

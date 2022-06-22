@@ -13,8 +13,8 @@ import dev.ragnarok.fenrir.longpoll.ILongpollManager
 import dev.ragnarok.fenrir.longpoll.LongpollInstance
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class KeepLongpollService : Service() {

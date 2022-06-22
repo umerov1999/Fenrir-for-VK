@@ -225,7 +225,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
             mProgressBar.visibility = if (visible) View.VISIBLE else View.GONE
             if (visible) {
                 mProgressBar.fromRes(
-                    R.raw.loading,
+                    dev.ragnarok.fenrir_common.R.raw.loading,
                     dp(100f),
                     dp(100f),
                     intArrayOf(

@@ -17,9 +17,9 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DisposableHolder
 import dev.ragnarok.fenrir.util.InputTextDialog
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.needReloadNews
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 
 class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     PlaceSupportPresenter<IFeedView>(accountId, savedInstanceState) {

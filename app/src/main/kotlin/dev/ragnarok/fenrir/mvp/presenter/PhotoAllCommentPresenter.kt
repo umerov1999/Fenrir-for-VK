@@ -22,8 +22,8 @@ import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IPhotoAllCommentView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.DisposableHolder
-import dev.ragnarok.fenrir.util.RxUtils.dummy
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class PhotoAllCommentPresenter(

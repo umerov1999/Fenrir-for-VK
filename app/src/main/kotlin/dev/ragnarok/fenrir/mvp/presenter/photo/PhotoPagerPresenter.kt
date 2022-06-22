@@ -38,6 +38,7 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.AssertUtils
 import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadPhoto
+import dev.ragnarok.fenrir.util.DownloadWorkUtils.fixStart
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
 import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.core.Completable
@@ -394,14 +395,14 @@ open class PhotoPagerPresenter internal constructor(
             if (ndx != -1) {
                 path = path?.substring(0, ndx)
             }
-            DownloadResult(path, dir, photo)
+            DownloadResult(fixStart(path), dir, photo)
         } else {
             appendDisposable(OwnerInfo.getRx(context, accountId, photo.ownerId)
                 .fromIOToMain()
                 .subscribe({
                     DownloadResult(
                         makeLegalFilename(
-                            it.owner.fullName ?: ("id" + photo.ownerId),
+                            fixStart(it.owner.fullName) ?: ("id" + photo.ownerId),
                             null
                         ), dir, photo
                     )

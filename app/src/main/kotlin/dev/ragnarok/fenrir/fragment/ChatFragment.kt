@@ -1585,7 +1585,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         emptyAnimation?.isVisible = visible
         if (visible) {
             emptyAnimation?.fromRes(
-                R.raw.valknut,
+                dev.ragnarok.fenrir_common.R.raw.valknut,
                 Utils.dp(120f),
                 Utils.dp(120f),
                 intArrayOf(

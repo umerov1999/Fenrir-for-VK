@@ -16,8 +16,8 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.ExifGeoDegree
-import dev.ragnarok.fenrir.util.RxUtils.safelyCloseAction
 import dev.ragnarok.fenrir.util.Utils.safelyClose
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.safelyCloseAction
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.io.InputStream

@@ -30,7 +30,7 @@ import dev.ragnarok.fenrir.settings.SettingsImpl
 import dev.ragnarok.fenrir.upload.IUploadManager
 import dev.ragnarok.fenrir.upload.UploadManagerImpl
 import dev.ragnarok.fenrir.util.Utils
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import dev.ragnarok.fenrir.util.rxutils.io.AndroidSchedulers
 import io.reactivex.rxjava3.core.Scheduler
 
 object Includes {

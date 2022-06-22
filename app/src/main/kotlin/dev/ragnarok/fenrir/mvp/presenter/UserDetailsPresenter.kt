@@ -15,10 +15,10 @@ import dev.ragnarok.fenrir.mvp.view.IUserDetailsView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateWithZeros
-import dev.ragnarok.fenrir.util.RxUtils.ignore
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.joinNonEmptyStrings
+import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 
 class UserDetailsPresenter(
     accountId: Int,
