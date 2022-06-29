@@ -1,18 +1,18 @@
 package dev.ragnarok.fenrir.util.existfile
 
 import android.content.Context
-import com.google.gson.stream.JsonReader
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermissionSimple
+import dev.ragnarok.fenrir.util.serializeble.json.internal.ReaderJsonLexer
+import dev.ragnarok.fenrir.util.serializeble.json.internal.WriteMode
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.CompletableEmitter
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.math.abs
@@ -49,11 +49,12 @@ class FileExistJVM : AbsFileExist {
             }
             return
         }
-        val reader = JsonReader(InputStreamReader(FileInputStream(audios), StandardCharsets.UTF_8))
-        reader.beginArray()
-        while (reader.hasNext()) {
-            RemoteAudios.add(reader.nextString().lowercase(Locale.getDefault()))
+        val reader = ReaderJsonLexer(FileInputStream(audios), StandardCharsets.UTF_8)
+        reader.consumeNextToken(WriteMode.LIST.begin)
+        while (reader.canConsumeValue()) {
+            RemoteAudios.add(reader.consumeStringLenient().lowercase(Locale.getDefault()))
         }
+        reader.consumeNextToken(WriteMode.LIST.end)
         if (needLock) {
             setBusy(false)
         }

@@ -1,14 +1,16 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class LocalServerSettings {
-    @SerializedName("url")
+    @SerialName("url")
     var url: String? = null
 
-    @SerializedName("password")
+    @SerialName("password")
     var password: String? = null
 
-    @SerializedName("enabled")
+    @SerialName("enabled")
     var enabled = false
 }

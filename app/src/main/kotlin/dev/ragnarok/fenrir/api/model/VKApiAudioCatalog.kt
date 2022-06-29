@@ -1,63 +1,67 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiAudioCatalog {
-    @SerializedName("id")
+    @SerialName("id")
     var id: String? = null
 
-    @SerializedName("source")
+    @SerialName("source")
     var source: String? = null
 
-    @SerializedName("next_from")
+    @SerialName("next_from")
     var next_from: String? = null
 
-    @SerializedName("subtitle")
+    @SerialName("subtitle")
     var subtitle: String? = null
 
-    @SerializedName("title")
+    @SerialName("title")
     var title: String? = null
 
-    @SerializedName("type")
+    @SerialName("type")
     var type: String? = null
 
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("audios")
+    @SerialName("audios")
     var audios: List<VKApiAudio>? = null
 
-    @SerializedName("playlists")
+    @SerialName("playlists")
     var playlists: List<VKApiAudioPlaylist>? = null
 
-    @SerializedName("playlist")
+    @SerialName("playlist")
     var playlist: VKApiAudioPlaylist? = null
 
-    @SerializedName("videos")
+    @SerialName("videos")
     var videos: List<VKApiVideo>? = null
 
-    @SerializedName("items")
+    @SerialName("items")
     var items: List<VKApiCatalogLink>? = null
 
-    @SerializedName("artist")
+    @SerialName("artist")
     var artist: VKApiArtistBlock? = null
 
+    @Serializable
     class VKApiArtistBlock {
-        @SerializedName("name")
+        @SerialName("name")
         var name: String? = null
 
-        @SerializedName("photo")
+        @SerialName("photo")
         var images: List<Image>? = null
     }
 
+    @Serializable
     class Image {
-        @SerializedName("url")
+        @SerialName("url")
         var url: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
     }
 }

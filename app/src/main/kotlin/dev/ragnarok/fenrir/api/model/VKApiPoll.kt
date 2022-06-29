@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * Describes poll on the wall on board.
  */
+@Serializable
 class VKApiPoll
 /**
  * Creates empty Country instance.
@@ -67,6 +70,7 @@ class VKApiPoll
     /**
      * Represents answer for the poll
      */
+    @Serializable
     class Answer {
         /**
          * ID of the answer for the question
@@ -89,12 +93,14 @@ class VKApiPoll
         var rate = 0.0
     }
 
+    @Serializable
     class Photo {
         var color: String? = null
         var id = 0
         var images: List<Image>? = null
     }
 
+    @Serializable
     class Image {
         var width = 0
         var height = 0

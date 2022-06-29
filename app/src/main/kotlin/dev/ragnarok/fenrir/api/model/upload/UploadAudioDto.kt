@@ -1,15 +1,17 @@
 package dev.ragnarok.fenrir.api.model.upload
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class UploadAudioDto {
-    @SerializedName("server")
+    @SerialName("server")
     var server: String? = null
 
-    @SerializedName("audio")
+    @SerialName("audio")
     var audio: String? = null
 
-    @SerializedName("hash")
+    @SerialName("hash")
     var hash: String? = null
     override fun toString(): String {
         return "UploadAudioDto{" +

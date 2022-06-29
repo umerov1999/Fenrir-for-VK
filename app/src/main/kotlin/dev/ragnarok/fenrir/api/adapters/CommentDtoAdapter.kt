@@ -1,23 +1,17 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import com.google.gson.reflect.TypeToken
-import dev.ragnarok.fenrir.api.model.VKApiAttachments
 import dev.ragnarok.fenrir.api.model.VKApiComment
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class CommentDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiComment> {
-    @Throws(JsonParseException::class)
+class CommentDtoAdapter : AbsAdapter<VKApiComment>("VKApiComment") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiComment {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiComment()
         val root = json.asJsonObject
@@ -31,13 +25,17 @@ class CommentDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiComment> {
         dto.reply_to_user = optInt(root, "reply_to_user")
         dto.reply_to_comment = optInt(root, "reply_to_comment")
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
+            dto.attachments = root["attachments"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, "thread")) {
             val threadRoot = root.getAsJsonObject("thread")
             dto.threads_count = optInt(threadRoot, "count")
             if (hasArray(threadRoot, "items")) {
-                dto.threads = context.deserialize(threadRoot["items"], THREADS_TYPE)
+                dto.threads = threadRoot["items"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
             }
         }
         dto.pid = optInt(root, "pid")
@@ -53,6 +51,5 @@ class CommentDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiComment> {
 
     companion object {
         private val TAG = CommentDtoAdapter::class.java.simpleName
-        private val THREADS_TYPE = object : TypeToken<List<VKApiComment>>() {}.type
     }
 }

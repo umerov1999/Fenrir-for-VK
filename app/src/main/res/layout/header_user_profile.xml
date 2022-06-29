@@ -161,6 +161,7 @@
                             android:id="@+id/fragment_user_profile_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:autoLink="web|phone|map|email"
                             android:ellipsize="end"
                             android:gravity="end"
                             android:maxLines="6"

@@ -20,7 +20,7 @@ import dev.ragnarok.fenrir.db.interfaces.IFaveStorage
 import dev.ragnarok.fenrir.db.model.entity.*
 import dev.ragnarok.fenrir.model.criteria.*
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
-import dev.ragnarok.fenrir.util.msgpack.MsgPack
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Single

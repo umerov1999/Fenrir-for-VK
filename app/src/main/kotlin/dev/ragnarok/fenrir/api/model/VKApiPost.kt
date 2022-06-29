@@ -1,11 +1,14 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.PostDtoAdapter
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
+import kotlinx.serialization.Serializable
 
 /**
  * A post object describes a wall post.
  */
+@Serializable(with = PostDtoAdapter::class)
 class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     /**
      * Post ID on the wall, positive number

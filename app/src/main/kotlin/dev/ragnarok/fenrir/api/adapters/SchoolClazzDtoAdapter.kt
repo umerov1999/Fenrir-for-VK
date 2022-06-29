@@ -1,28 +1,28 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.*
 import dev.ragnarok.fenrir.api.model.database.SchoolClazzDto
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonPrimitive
+import dev.ragnarok.fenrir.util.serializeble.json.intOrNull
+import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
-class SchoolClazzDtoAdapter : AbsAdapter(), JsonDeserializer<SchoolClazzDto> {
-    @Throws(JsonParseException::class)
+class SchoolClazzDtoAdapter : AbsAdapter<SchoolClazzDto>("SchoolClazzDto") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): SchoolClazzDto {
         if (!checkArray(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = SchoolClazzDto()
         val root = json.asJsonArray
         dto.id = optInt(root, 0)
         if (root[1] is JsonPrimitive) {
-            val second = root[1].asJsonPrimitive
+            val second = root[1].jsonPrimitive
             if (second.isString) {
-                dto.title = second.asString
-            } else if (second.isNumber) {
-                dto.title = second.asNumber.toString()
+                dto.title = second.content
+            } else {
+                dto.title = second.intOrNull?.toString()
             }
         }
         return dto

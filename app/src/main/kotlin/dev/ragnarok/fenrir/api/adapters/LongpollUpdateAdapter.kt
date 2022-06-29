@@ -1,37 +1,32 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.*
-import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.model.longpoll.*
 import dev.ragnarok.fenrir.api.util.VKStringUtils
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.util.serializeble.json.*
 import java.util.*
 
-class LongpollUpdateAdapter : AbsAdapter(), JsonDeserializer<AbsLongpollEvent?> {
-    @Throws(JsonParseException::class)
+class LongpollUpdateAdapter : AbsAdapter<AbsLongpollEvent?>("AbsLongpollEvent?") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): AbsLongpollEvent? {
         val array = json.asJsonArray
-        val action = array[0].asInt
-        return deserialize(action, array, context)
+        val action = array[0].jsonPrimitive.int
+        return deserialize(action, array)
     }
 
     private fun deserialize(
         action: Int,
-        array: JsonArray,
-        context: JsonDeserializationContext
+        array: JsonArray
     ): AbsLongpollEvent? {
         when (action) {
             AbsLongpollEvent.ACTION_MESSAGE_EDITED, AbsLongpollEvent.ACTION_MESSAGE_CHANGED, AbsLongpollEvent.ACTION_MESSAGE_ADDED -> return deserializeAddMessageUpdate(
-                array,
-                context
+                array
             )
             AbsLongpollEvent.ACTION_USER_WRITE_TEXT_IN_DIALOG -> {
                 val w = WriteTextInDialogUpdate(true)
@@ -101,8 +96,7 @@ class LongpollUpdateAdapter : AbsAdapter(), JsonDeserializer<AbsLongpollEvent?> 
     }
 
     private fun deserializeAddMessageUpdate(
-        array: JsonArray,
-        context: JsonDeserializationContext
+        array: JsonArray
     ): AddMessageUpdate? {
         val update = AddMessageUpdate()
         val flags = optInt(array, 2)
@@ -123,7 +117,9 @@ class LongpollUpdateAdapter : AbsAdapter(), JsonDeserializer<AbsLongpollEvent?> 
             update.payload = optString(extra, "payload")
             if (extra.has("keyboard")) {
                 update.keyboard =
-                    context.deserialize(extra["keyboard"], CurrentKeyboard::class.java)
+                    extra["keyboard"]?.let {
+                        kJson.decodeFromJsonElement(it)
+                    }
             }
         }
         val attachments = opt(array, 7) as JsonObject?

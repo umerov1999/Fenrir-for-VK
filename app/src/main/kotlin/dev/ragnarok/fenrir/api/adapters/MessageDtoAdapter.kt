@@ -1,26 +1,21 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiAttachment
-import dev.ragnarok.fenrir.api.model.VKApiAttachments
 import dev.ragnarok.fenrir.api.model.VKApiAudioMessage
-import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.util.VKStringUtils
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class MessageDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiMessage> {
-    @Throws(JsonParseException::class)
+class MessageDtoAdapter : AbsAdapter<VKApiMessage>("VKApiMessage") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiMessage {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiMessage()
         val root = json.asJsonObject
@@ -38,32 +33,35 @@ class MessageDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiMessage> {
             ) else optString(root, "body")
         )
         if (hasObject(root, "keyboard")) {
-            dto.keyboard = context.deserialize(root["keyboard"], CurrentKeyboard::class.java)
+            dto.keyboard = root["keyboard"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
+            dto.attachments =
+                root["attachments"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         if (hasArray(root, "fwd_messages")) {
             val fwdArray = root.getAsJsonArray("fwd_messages")
-            dto.fwd_messages = ArrayList(fwdArray.size())
-            for (i in 0 until fwdArray.size()) {
-                if (!checkObject(fwdArray[i])) {
+            dto.fwd_messages = ArrayList(fwdArray?.size.orZero())
+            for (i in 0 until fwdArray?.size.orZero()) {
+                if (!checkObject(fwdArray?.get(i))) {
                     continue
                 }
-                dto.fwd_messages?.add(deserialize(fwdArray[i], VKApiMessage::class.java, context))
+                dto.fwd_messages?.add(deserialize(fwdArray?.get(i) ?: continue))
             }
         }
         if (hasObject(root, "reply_message")) {
             if (dto.fwd_messages == null) {
                 dto.fwd_messages = ArrayList(1)
             }
-            dto.fwd_messages?.add(
-                deserialize(
-                    root["reply_message"],
-                    VKApiMessage::class.java,
-                    context
+            root["reply_message"]?.let { deserialize(it) }?.let {
+                dto.fwd_messages?.add(
+                    it
                 )
-            )
+            }
         }
         dto.deleted = optBoolean(root, "deleted")
         dto.important = optBoolean(root, "important")

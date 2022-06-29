@@ -1,14 +1,15 @@
 package dev.ragnarok.fenrir.api.impl
 
-import com.google.gson.Gson
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.api.*
 import dev.ragnarok.fenrir.api.interfaces.IAuthApi
 import dev.ragnarok.fenrir.api.model.LoginResponse
 import dev.ragnarok.fenrir.api.model.VKApiValidationResponse
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.getDeviceId
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleTransformer
 import io.reactivex.rxjava3.exceptions.Exceptions
@@ -62,7 +63,7 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
     }
 
     companion object {
-        private val BASE_RESPONSE_GSON = Gson()
+        private val BASE_RESPONSE_KSERIALIZER = kJson
         fun <T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
             return Function { response: BaseResponse<T> ->
                 response.error?.let { throw Exceptions.propagate(ApiException(it)) }
@@ -77,9 +78,10 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
                     if (throwable is HttpException) {
                         try {
                             val body = throwable.response()?.errorBody()
-                            val response = BASE_RESPONSE_GSON.fromJson(
-                                body?.string(), LoginResponse::class.java
-                            )
+                            val response: LoginResponse =
+                                BASE_RESPONSE_KSERIALIZER.decodeFromStream(
+                                    body?.byteStream()!!
+                                )
 
                             //{"error":"need_captcha","captcha_sid":"846773809328","captcha_img":"https:\/\/api.vk.com\/captcha.php?sid=846773809328"}
                             if ("need_captcha".equals(response.error, ignoreCase = true)) {

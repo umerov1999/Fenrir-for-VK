@@ -1,19 +1,16 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.*
 import dev.ragnarok.fenrir.api.model.GroupSettingsDto
-import dev.ragnarok.fenrir.api.model.GroupSettingsDto.PublicCategory
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.*
 
-class GroupSettingsAdapter : AbsAdapter(), JsonDeserializer<GroupSettingsDto> {
-    @Throws(JsonParseException::class)
+class GroupSettingsAdapter : AbsAdapter<GroupSettingsDto>("GroupSettingsDto") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): GroupSettingsDto {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = GroupSettingsDto()
         val root = json.asJsonObject
@@ -21,7 +18,9 @@ class GroupSettingsAdapter : AbsAdapter(), JsonDeserializer<GroupSettingsDto> {
         dto.description = optString(root, "description")
         dto.address = optString(root, "address")
         if (hasObject(root, "place")) {
-            dto.place = context.deserialize(root["place"], GroupSettingsDto.Place::class.java)
+            dto.place = root["place"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         dto.country_id = optInt(root, "country_id")
         dto.city_id = optInt(root, "city_id")
@@ -42,23 +41,22 @@ class GroupSettingsAdapter : AbsAdapter(), JsonDeserializer<GroupSettingsDto> {
         val publicCategoryJson = root["public_category"]
         if (publicCategoryJson is JsonPrimitive) {
             try {
-                dto.public_category = publicCategoryJson.getAsInt().toString()
+                dto.public_category = publicCategoryJson.jsonPrimitive.int.toString()
             } catch (e: Exception) {
-                dto.public_category = publicCategoryJson.getAsString()
+                dto.public_category = publicCategoryJson.jsonPrimitive.content
             }
         }
         val publicSubCategoryJson = root["public_subcategory"]
         if (publicSubCategoryJson is JsonPrimitive) {
             try {
-                dto.public_subcategory = publicSubCategoryJson.getAsInt().toString()
+                dto.public_subcategory = publicSubCategoryJson.jsonPrimitive.int.toString()
             } catch (e: Exception) {
-                dto.public_subcategory = publicSubCategoryJson.getAsString()
+                dto.public_subcategory = publicSubCategoryJson.jsonPrimitive.content
             }
         }
         if (hasArray(root, "public_category_list")) {
             dto.public_category_list = parseArray(
-                root.getAsJsonArray("public_category_list"),
-                PublicCategory::class.java, context, emptyList()
+                root.getAsJsonArray("public_category_list"), emptyList()
             )
         }
         dto.contacts = optInt(root, "contacts")
@@ -69,7 +67,9 @@ class GroupSettingsAdapter : AbsAdapter(), JsonDeserializer<GroupSettingsDto> {
         dto.website = optString(root, "website")
         dto.age_limits = optInt(root, "age_limits")
         if (hasObject(root, "market")) {
-            dto.market = context.deserialize(root["market"], GroupSettingsDto.Market::class.java)
+            dto.market = root["market"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         return dto
     }

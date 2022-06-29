@@ -1,34 +1,32 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent
 import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.Logger
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class LongpollUpdatesAdapter : AbsAdapter(), JsonDeserializer<VkApiLongpollUpdates> {
-    @Throws(JsonParseException::class)
+class LongpollUpdatesAdapter : AbsAdapter<VkApiLongpollUpdates>("VkApiLongpollUpdates") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VkApiLongpollUpdates {
         val updates = VkApiLongpollUpdates()
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val root = json.asJsonObject
         updates.failed = optInt(root, "failed")
         updates.ts = optLong(root, "ts")
         val array = root["updates"]
         if (checkArray(array)) {
-            for (i in 0 until array.asJsonArray.size()) {
+            for (i in 0 until array.asJsonArray.size) {
                 val updateArray = array.asJsonArray[i].asJsonArray
                 val event: AbsLongpollEvent? =
-                    context.deserialize(updateArray, AbsLongpollEvent::class.java)
+                    kJson.decodeFromJsonElement(
+                        updateArray
+                    )
                 if (event != null) {
                     updates.putUpdate(event)
                 } else {

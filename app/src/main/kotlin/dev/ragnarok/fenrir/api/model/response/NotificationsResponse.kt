@@ -1,26 +1,28 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.feedback.VKApiBaseFeedback
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class NotificationsResponse {
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("items")
+    @SerialName("items")
     var notifications: List<VKApiBaseFeedback>? = null
 
-    @SerializedName("profiles")
+    @SerialName("profiles")
     var profiles: List<VKApiUser>? = null
 
-    @SerializedName("groups")
+    @SerialName("groups")
     var groups: List<VKApiCommunity>? = null
 
-    @SerializedName("next_from")
+    @SerialName("next_from")
     var nextFrom: String? = null
 
-    @SerializedName("last_viewed")
+    @SerialName("last_viewed")
     var lastViewed: Long = 0
 }

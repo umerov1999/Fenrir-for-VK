@@ -1,10 +1,11 @@
 package dev.ragnarok.fenrir.crypt
 
 import android.util.Base64
-import com.google.gson.Gson
 import dev.ragnarok.fenrir.crypt.AESCrypt.decrypt
 import dev.ragnarok.fenrir.crypt.AESCrypt.encrypt
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import kotlinx.serialization.decodeFromString
 import java.security.*
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.X509EncodedKeySpec
@@ -42,7 +43,10 @@ object CryptHelper {
                 return false
             }
             val exchangeMessageBody = text.substring(3) // without RSA on start
-            val message = Gson().fromJson(exchangeMessageBody, ExchangeMessage::class.java)
+            val message: ExchangeMessage? =
+                kJson.decodeFromString(
+                    exchangeMessageBody
+                )
             message != null && 0 < message.sessionId && 0 < message.version && 0 < message.senderSessionState
         } catch (e: Exception) {
             false

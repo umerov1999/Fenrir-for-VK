@@ -1,8 +1,12 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.VideoAlbumDtoAdapter
+import kotlinx.serialization.Serializable
+
 /**
  * Describes a photo album
  */
+@Serializable(with = VideoAlbumDtoAdapter::class)
 class VKApiVideoAlbum {
     /**
      * Album ID.

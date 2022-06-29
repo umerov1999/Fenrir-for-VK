@@ -2,13 +2,15 @@ package dev.ragnarok.fenrir.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.gson.Gson
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.ProxyConfig
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 
 class ProxySettingsImpl(context: Context) : IProxySettings {
     private val preferences: SharedPreferences =
@@ -25,7 +27,7 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
     private fun put(config: ProxyConfig) {
         val set: MutableSet<String> =
             HashSet(preferences.getStringSet(KEY_LIST, HashSet(0)) ?: return)
-        set.add(GSON.toJson(config))
+        set.add(kJson.encodeToString(config))
         preferences.edit()
             .putStringSet(KEY_LIST, set)
             .apply()
@@ -57,22 +59,21 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
                 set.size
             )
             for (s in set) {
-                configs.add(GSON.fromJson(s, ProxyConfig::class.java))
+                configs.add(kJson.decodeFromString(s))
             }
             return configs
         }
     override val activeProxy: ProxyConfig?
         get() {
             val active = preferences.getString(KEY_ACTIVE, null)
-            return if (active.nonNullNoEmpty()) GSON.fromJson(
-                active,
-                ProxyConfig::class.java
+            return if (active.nonNullNoEmpty()) kJson.decodeFromString(
+                active
             ) else null
         }
 
     override fun setActive(config: ProxyConfig?) {
         preferences.edit()
-            .putString(KEY_ACTIVE, if (config == null) null else GSON.toJson(config))
+            .putString(KEY_ACTIVE, if (config == null) null else kJson.encodeToString(config))
             .apply()
         activePublisher.onNext(wrap(config))
     }
@@ -92,7 +93,7 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
     override fun delete(config: ProxyConfig) {
         val set: MutableSet<String> =
             HashSet(preferences.getStringSet(KEY_LIST, HashSet(0)) ?: return)
-        set.remove(GSON.toJson(config))
+        set.remove(kJson.encodeToString(config))
         preferences.edit()
             .putStringSet(KEY_LIST, set)
             .apply()
@@ -112,7 +113,6 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
         private const val KEY_NEXT_ID = "next_id"
         private const val KEY_LIST = "list"
         private const val KEY_ACTIVE = "active_proxy"
-        private val GSON = Gson()
     }
 
 }

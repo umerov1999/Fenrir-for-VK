@@ -1,22 +1,25 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class UploadChatPhotoResponse {
-    @SerializedName("message_id")
+    @SerialName("message_id")
     var message_id = 0
 
-    @SerializedName("chat")
+    @SerialName("chat")
     var chat: ChatPhoto? = null
 
+    @Serializable
     class ChatPhoto {
-        @SerializedName("photo_50")
+        @SerialName("photo_50")
         var photo_50: String? = null
 
-        @SerializedName("photo_100")
+        @SerialName("photo_100")
         var photo_100: String? = null
 
-        @SerializedName("photo_200")
+        @SerialName("photo_200")
         var photo_200: String? = null
     }
 }

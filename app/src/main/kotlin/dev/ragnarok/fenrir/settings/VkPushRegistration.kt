@@ -1,21 +1,23 @@
 package dev.ragnarok.fenrir.settings
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VkPushRegistration {
-    @SerializedName("userId")
+    @SerialName("userId")
     var userId = 0
         private set
 
-    @SerializedName("deviceId")
+    @SerialName("deviceId")
     lateinit var deviceId: String
         private set
 
-    @SerializedName("vkToken")
+    @SerialName("vkToken")
     lateinit var vkToken: String
         private set
 
-    @SerializedName("gmcToken")
+    @SerialName("gmcToken")
     lateinit var gmcToken: String
         private set
 

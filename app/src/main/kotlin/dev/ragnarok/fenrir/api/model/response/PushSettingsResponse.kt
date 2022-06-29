@@ -1,23 +1,27 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse.ConversationsPush.ConversationPushItem
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class PushSettingsResponse {
-    @SerializedName("conversations")
+    @SerialName("conversations")
     var conversations: ConversationsPush? = null
     val pushSettings: List<ConversationPushItem>
         get() = conversations?.items ?: emptyList()
 
+    @Serializable
     class ConversationsPush {
-        @SerializedName("items")
+        @SerialName("items")
         var items: List<ConversationPushItem>? = null
 
+        @Serializable
         class ConversationPushItem {
-            @SerializedName("disabled_until")
+            @SerialName("disabled_until")
             var disabled_until = 0
 
-            @SerializedName("peer_id")
+            @SerialName("peer_id")
             var peer_id = 0
         }
     }

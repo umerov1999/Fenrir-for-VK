@@ -23,7 +23,8 @@ android {
 dependencies {
     implementation("androidx.annotation:annotation:$annotationVersion")
     implementation("androidx.appcompat:appcompat:$appcompatVersion")
-    implementation("androidx.recyclerview:recyclerview:$recyclerviewVersion")
+    //implementation("androidx.recyclerview:recyclerview:$recyclerviewVersion")
+    implementation project(path: ":viewpager2")
     implementation("androidx.core:core:$coreVersion")
     implementation("androidx.activity:activity:$activityVersion")
     implementation("androidx.fragment:fragment:$fragmentVersion")

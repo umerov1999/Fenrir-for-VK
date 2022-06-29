@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.api
 
-import com.google.gson.Gson
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.settings.Settings
@@ -8,11 +7,10 @@ import dev.ragnarok.fenrir.settings.Settings
 internal class CustomTokenVkApiInterceptor(
     override val token: String?,
     v: String,
-    gson: Gson,
     @AccountType private val accountType: Int,
     private val account_id: Int?
 ) : AbsVkApiInterceptor(
-    v, gson
+    v
 ) {
 
     @AccountType

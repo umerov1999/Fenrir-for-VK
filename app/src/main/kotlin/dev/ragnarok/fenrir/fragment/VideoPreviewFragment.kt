@@ -182,11 +182,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
 
     private fun playWithExternalSoftware(url: String) {
         if (url.isEmpty()) {
-            Toast.makeText(
-                requireActivity(),
-                R.string.error_video_playback_is_not_possible,
-                Toast.LENGTH_SHORT
-            ).show()
+            CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+                .showToastError(R.string.error_video_playback_is_not_possible)
             return
         }
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -793,7 +790,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         intent.data = Uri.parse(outerLink)
         intent.action = Intent.ACTION_VIEW
         intent.component = ComponentName(
-            "com.vanced.android.youtube",
+            "app.revanced.android.youtube",
             "com.google.android.apps.youtube.app.application.Shell\$UrlActivity"
         )
         startActivity(intent)

@@ -1,33 +1,35 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiAudioMessage : VKApiAttachment {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("owner_id")
+    @SerialName("owner_id")
     var owner_id = 0
 
-    @SerializedName("duration")
+    @SerialName("duration")
     var duration = 0
 
-    @SerializedName("waveform")
+    @SerialName("waveform")
     var waveform: ByteArray? = null
 
-    @SerializedName("link_ogg")
+    @SerialName("link_ogg")
     var linkOgg: String? = null
 
-    @SerializedName("link_mp3")
+    @SerialName("link_mp3")
     var linkMp3: String? = null
 
-    @SerializedName("access_key")
+    @SerialName("access_key")
     var access_key: String? = null
 
-    @SerializedName("was_listened")
+    @SerialName("was_listened")
     var was_listened = false
 
-    @SerializedName("transcript")
+    @SerialName("transcript")
     var transcript: String? = null
     override fun getType(): String {
         return VKApiAttachment.TYPE_AUDIO_MESSAGE

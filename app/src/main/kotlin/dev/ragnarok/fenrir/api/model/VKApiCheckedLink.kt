@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiCheckedLink {
-    @SerializedName("status")
+    @SerialName("status")
     var status: String? = null
 
-    @SerializedName("link")
+    @SerialName("link")
     var link: String? = null
 }

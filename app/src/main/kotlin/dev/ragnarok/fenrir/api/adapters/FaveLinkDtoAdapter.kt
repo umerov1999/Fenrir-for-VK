@@ -1,31 +1,29 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.FaveLinkDto
-import dev.ragnarok.fenrir.api.model.VKApiPhoto
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class FaveLinkDtoAdapter : AbsAdapter(), JsonDeserializer<FaveLinkDto> {
-    @Throws(JsonParseException::class)
+class FaveLinkDtoAdapter : AbsAdapter<FaveLinkDto>("FaveLinkDto") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): FaveLinkDto {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val link = FaveLinkDto()
-        var root = json.asJsonObject
+        var root: JsonObject? = json.asJsonObject
         if (!hasObject(root, "link")) return link
-        root = root["link"].asJsonObject
+        root = root["link"]?.asJsonObject
         link.id = optString(root, "id")
         link.description = optString(root, "description")
         if (hasObject(root, "photo")) {
-            link.photo = context.deserialize(root["photo"], VKApiPhoto::class.java)
+            link.photo = root["photo"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         link.title = optString(root, "title")
         link.url = optString(root, "url")

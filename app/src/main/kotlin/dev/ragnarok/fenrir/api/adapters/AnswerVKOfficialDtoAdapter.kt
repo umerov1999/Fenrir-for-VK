@@ -1,85 +1,80 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.AnswerVKOfficial
 import dev.ragnarok.fenrir.model.AnswerVKOfficial.*
 import dev.ragnarok.fenrir.model.AnswerVKOfficialList
 import dev.ragnarok.fenrir.model.AnswerVKOfficialList.AnswerField
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.util.serializeble.json.*
 
-class AnswerVKOfficialDtoAdapter : AbsAdapter(), JsonDeserializer<AnswerVKOfficialList> {
-    @Throws(JsonParseException::class)
+class AnswerVKOfficialDtoAdapter : AbsAdapter<AnswerVKOfficialList>("AnswerVKOfficialList") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): AnswerVKOfficialList {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dtolist = AnswerVKOfficialList()
-        val root = json.asJsonObject
+        val root = json.jsonObject
         dtolist.items = ArrayList()
         dtolist.fields = ArrayList()
         val photos: MutableList<VKApiPhoto> = ArrayList()
         if (hasArray(root, "photos")) {
-            val temp = root.getAsJsonArray("photos")
-            for (i in temp) {
+            val temp = root["photos"]?.jsonArray
+            for (i in temp.orEmpty()) {
                 if (!checkObject(i)) {
                     continue
                 }
-                photos.add(context.deserialize(i, VKApiPhoto::class.java))
+                photos.add(kJson.decodeFromJsonElement(i))
             }
         }
         if (hasArray(root, "profiles")) {
-            val temp = root.getAsJsonArray("profiles")
-            for (i in temp) {
+            val temp = root["profiles"]?.jsonArray
+            for (i in temp.orEmpty()) {
                 if (!checkObject(i)) {
                     continue
                 }
-                val obj = i.asJsonObject
+                val obj = i.jsonObject
                 val id = optInt(obj, "id")
-                if (obj.has("photo_200")) {
+                if (obj.containsKey("photo_200")) {
                     val url = optString(obj, "photo_200")
                     url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
-                } else if (obj.has("photo_200_orig")) {
+                } else if (obj.containsKey("photo_200_orig")) {
                     val url = optString(obj, "photo_200_orig")
                     url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
                 }
             }
         }
         if (hasArray(root, "groups")) {
-            val temp = root.getAsJsonArray("groups")
-            for (i in temp) {
+            val temp = root["groups"]?.jsonArray
+            for (i in temp.orEmpty()) {
                 if (!checkObject(i)) {
                     continue
                 }
-                val obj = i.asJsonObject
+                val obj = i.jsonObject
                 val id = optInt(obj, "id") * -1
-                if (obj.has("photo_200")) {
+                if (obj.containsKey("photo_200")) {
                     val url = optString(obj, "photo_200")
                     url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
-                } else if (obj.has("photo_200_orig")) {
+                } else if (obj.containsKey("photo_200_orig")) {
                     val url = optString(obj, "photo_200_orig")
                     url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
                 }
             }
         }
         if (!hasArray(root, "items")) return dtolist
-        for (i in root.getAsJsonArray("items")) {
+        for (i in root["items"]?.jsonArray.orEmpty()) {
             if (!checkObject(i)) {
                 continue
             }
-            val root_item = i.asJsonObject
+            val root_item = i.jsonObject
             val dto = AnswerVKOfficial()
             if (hasObject(root_item, "action")) {
-                val action_item = root_item["action"].asJsonObject
+                val action_item = root_item["action"]?.jsonObject
                 if ("authorize" == optString(action_item, "type")) {
                     dto.action = ActionURL(optString(action_item, "url"))
                 } else if ("message_open" == optString(
@@ -87,7 +82,7 @@ class AnswerVKOfficialDtoAdapter : AbsAdapter(), JsonDeserializer<AnswerVKOffici
                         "type"
                     ) && hasObject(action_item, "context")
                 ) {
-                    val context_item = action_item["context"].asJsonObject
+                    val context_item = action_item["context"]?.jsonObject
                     dto.action = ActionMessage(
                         optInt(context_item, "peer_id", 0),
                         optInt(context_item, "id", 0)
@@ -96,20 +91,20 @@ class AnswerVKOfficialDtoAdapter : AbsAdapter(), JsonDeserializer<AnswerVKOffici
             }
             try {
                 if (hasObject(root_item, "action_buttons")) {
-                    val action_buttons = root_item["action_buttons"].asJsonObject
-                    for (ss1 in action_buttons.keySet()) {
-                        if (checkArray(action_buttons[ss1])) {
-                            for (ss2 in action_buttons.getAsJsonArray(ss1)) {
+                    val action_buttons = root_item["action_buttons"]?.jsonObject
+                    for (ss1 in action_buttons.orEmpty().keys) {
+                        if (checkArray(action_buttons?.get(ss1))) {
+                            for (ss2 in action_buttons?.get(ss1)?.jsonArray.orEmpty()) {
                                 if (checkObject(ss2)) {
-                                    val act = ss2.asJsonObject
+                                    val act = ss2.jsonObject
                                     if (hasObject(act, "action")) {
-                                        val actu = act.getAsJsonObject("action")
+                                        val actu = act["action"]?.jsonObject
                                         if ("hide_item" == optString(
                                                 actu,
                                                 "type"
                                             ) && hasObject(actu, "context")
                                         ) {
-                                            val actctx = actu.getAsJsonObject("context")
+                                            val actctx = actu["context"]?.jsonObject
                                             dto.hide_query = optString(actctx, "query")
                                             if (dto.hide_query.nonNullNoEmpty()) {
                                                 break
@@ -147,40 +142,41 @@ class AnswerVKOfficialDtoAdapter : AbsAdapter(), JsonDeserializer<AnswerVKOffici
             dto.iconURL = optString(root_item, "icon_url")
             val attachments: MutableList<Attachment> = ArrayList()
             if (hasObject(root_item, "main_item")) {
-                val main_item = root_item["main_item"].asJsonObject
+                val main_item = root_item["main_item"]?.jsonObject
                 if (hasArray(main_item, "image_object")) {
-                    val jsonPhotos2 = main_item["image_object"].asJsonArray
-                    dto.iconURL = jsonPhotos2[jsonPhotos2.size() - 1].asJsonObject["url"].asString
+                    val jsonPhotos2 = main_item["image_object"]?.jsonArray
+                    dto.iconURL =
+                        jsonPhotos2?.get(jsonPhotos2.size - 1)?.jsonObject?.get("url")?.jsonPrimitive?.content
                 }
                 if ("photo" == optString(main_item, "type")) {
-                    attachments.add(context.deserialize(main_item, Attachment::class.java))
+                    attachments.add(kJson.decodeFromJsonElement(main_item!!))
                 }
             }
             if (hasObject(root_item, "additional_item")) {
-                val additional_item = root_item["additional_item"].asJsonObject
+                val additional_item = root_item["additional_item"]?.jsonObject
                 if (hasArray(additional_item, "image_object")) {
-                    val arrt = additional_item.getAsJsonArray("image_object")
+                    val arrt = additional_item["image_object"]?.jsonArray
                     dto.images = ArrayList()
-                    for (s in arrt) {
+                    for (s in arrt.orEmpty()) {
                         if (!checkObject(s)) {
                             continue
                         }
                         val imgh: ImageAdditional =
-                            context.deserialize(s, ImageAdditional::class.java)
+                            kJson.decodeFromJsonElement(s)
                         dto.images?.add(imgh)
                     }
                 }
                 if ("photo" == optString(additional_item, "type")) {
-                    attachments.add(context.deserialize(additional_item, Attachment::class.java))
+                    attachments.add(kJson.decodeFromJsonElement(additional_item!!))
                 }
             }
             if (hasArray(root_item, "attachments")) {
-                val temp = root_item.getAsJsonArray("attachments")
-                for (a in temp) {
+                val temp = root_item["attachments"]?.jsonArray
+                for (a in temp.orEmpty()) {
                     if (!checkObject(a)) {
                         continue
                     }
-                    attachments.add(context.deserialize(a, Attachment::class.java))
+                    attachments.add(kJson.decodeFromJsonElement(a))
                 }
             }
             for (s in attachments) {

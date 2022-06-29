@@ -1,20 +1,22 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiComment
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiUser
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class DefaultCommentsResponse {
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("items")
+    @SerialName("items")
     var items: List<VKApiComment>? = null
 
-    @SerializedName("groups")
+    @SerialName("groups")
     var groups: List<VKApiCommunity>? = null
 
-    @SerializedName("profiles")
+    @SerialName("profiles")
     var profiles: List<VKApiUser>? = null
 }

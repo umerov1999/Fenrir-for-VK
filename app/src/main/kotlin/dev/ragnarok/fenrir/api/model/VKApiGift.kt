@@ -1,5 +1,8 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class VKApiGift {
     var id = 0
     var from_id = 0

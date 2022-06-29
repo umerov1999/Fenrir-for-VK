@@ -10,17 +10,12 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.*
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.SelectProfilesActivity.Companion.startFaveSelection
@@ -36,7 +31,6 @@ import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.FeedPresenter
 import dev.ragnarok.fenrir.mvp.view.IFeedView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getCommentsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getLikesCopiesPlace
@@ -51,7 +45,6 @@ import dev.ragnarok.fenrir.view.LoadMoreFooterHelper.Companion.createFrom
 class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedView,
     SwipeRefreshLayout.OnRefreshListener, FeedAdapter.ClickListener,
     HorizontalOptionsAdapter.Listener<FeedSource>, CustomListener<FeedSource>, MenuProvider {
-    private val mGson = Gson()
     private val requestProfileSelect = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
@@ -316,6 +309,7 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
     @SuppressLint("RestrictedApi")
     private fun restoreRecycleViewManagerState(state: String?) {
         if (state.nonNullNoEmpty()) {
+            /*
             if (mFeedLayoutManager is LinearLayoutManager) {
                 val savedState = gson().fromJson(state, LinearLayoutManager.SavedState::class.java)
                 mFeedLayoutManager?.onRestoreInstanceState(savedState)
@@ -324,16 +318,45 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
                     gson().fromJson(state, StaggeredGridLayoutManager.SavedState::class.java)
                 mFeedLayoutManager?.onRestoreInstanceState(savedState)
             }
-        }
-    }
+             */
 
-    private fun gson(): Gson {
-        return mGson
+            when (mFeedLayoutManager) {
+                is LinearLayoutManager -> {
+                    val savedState =
+                        kJson.decodeFromString(LinearLayoutManager_SavedState.serializer(), state)
+                    mFeedLayoutManager?.onRestoreInstanceState(savedState)
+                }
+                is StaggeredGridLayoutManager -> {
+                    val savedState = kJson.decodeFromString(
+                        StaggeredGridLayoutManager_SavedState.serializer(),
+                        state
+                    )
+                    mFeedLayoutManager?.onRestoreInstanceState(savedState)
+                }
+            }
+        }
     }
 
     override fun onPause() {
         val parcelable = mFeedLayoutManager?.onSaveInstanceState()
-        val json = gson().toJson(parcelable)
+        val json: String = when (mFeedLayoutManager) {
+            is LinearLayoutManager -> {
+                kJson.encodeToString(
+                    LinearLayoutManager_SavedState.serializer(),
+                    parcelable as LinearLayoutManager_SavedState
+                )
+            }
+            is StaggeredGridLayoutManager -> {
+                kJson.encodeToString(
+                    StaggeredGridLayoutManager_SavedState.serializer(),
+                    parcelable as StaggeredGridLayoutManager_SavedState
+                )
+            }
+            else -> {
+                super.onPause()
+                return
+            }
+        }
         presenter?.fireScrollStateOnPause(
             json
         )
@@ -404,7 +427,8 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
     }
 
     override fun showSuccessToast() {
-        Toast.makeText(context, R.string.success, Toast.LENGTH_SHORT).show()
+        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+            .showToastSuccessBottom(R.string.success)
     }
 
     override fun displayFeedSources(sources: MutableList<FeedSource>) {

@@ -1,5 +1,9 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.AudioPlaylistDtoAdapter
+import kotlinx.serialization.Serializable
+
+@Serializable(with = AudioPlaylistDtoAdapter::class)
 class VKApiAudioPlaylist : VKApiAttachment {
     var id = 0
     var owner_id = 0

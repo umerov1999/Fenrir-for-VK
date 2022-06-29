@@ -23,12 +23,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
-import com.google.gson.*
-import com.google.gson.reflect.TypeToken
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Constants.DEFAULT_ACCOUNT_TYPE
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.EnterPinActivity
 import dev.ragnarok.fenrir.activity.FileManagerSelectActivity
@@ -37,7 +34,9 @@ import dev.ragnarok.fenrir.activity.ProxyManagerActivity
 import dev.ragnarok.fenrir.adapter.AccountAdapter
 import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.api.Auth.scope
-import dev.ragnarok.fenrir.api.VkRetrofitProvider
+import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonArray
+import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonObject
+import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.has
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.db.DBHelper
@@ -71,12 +70,18 @@ import dev.ragnarok.fenrir.util.Utils.getAppVersionName
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.serializeble.json.*
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.exceptions.Exceptions
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import okhttp3.*
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -116,10 +121,11 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
-            val restore = Gson().fromJson(
-                Settings.get().accounts().getLogin(temp_to_show),
-                SaveAccount::class.java
-            )
+            val restore: SaveAccount =
+                kJson.decodeFromString(
+                    Settings.get().accounts().getLogin(temp_to_show)
+                        ?: return@registerForActivityResult
+                )
             val password = requireActivity().getString(
                 R.string.restore_login_info,
                 restore.login,
@@ -186,42 +192,38 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
     ) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK && result.data != null) {
             try {
-                val jbld = StringBuilder()
                 val file = File(
                     result.data?.getStringExtra(Extra.PATH) ?: return@registerForActivityResult
                 )
                 if (file.exists()) {
-                    val dataFromServerStream = FileInputStream(file)
-                    val d = BufferedReader(
-                        InputStreamReader(
-                            dataFromServerStream,
-                            StandardCharsets.UTF_8
-                        )
-                    )
-                    while (d.ready()) jbld.append(d.readLine())
-                    d.close()
-                    val obj = JsonParser.parseString(jbld.toString()).asJsonObject
-                    val reader = obj.getAsJsonArray("fenrir_accounts")
-                    for (i in reader) {
+                    val obj = kJson.parseToJsonElement(FileInputStream(file)).jsonObject
+                    val reader = obj["fenrir_accounts"]
+                    for (i in reader?.asJsonArray.orEmpty()) {
                         val elem = i.asJsonObject
-                        val id = elem["user_id"].asInt
+                        val id = elem["user_id"]?.jsonPrimitive?.intOrNull ?: continue
                         if (Settings.get().accounts().registered.contains(id)) continue
-                        val token = elem["access_token"].asString
-                        val Type = elem["type"].asInt
+                        val token = elem["access_token"]?.jsonPrimitive?.contentOrNull ?: continue
+                        val Type = elem["type"]?.jsonPrimitive?.intOrNull ?: continue
                         processNewAccount(
                             id, token, Type, null, null, "fenrir_app",
                             isCurrent = false,
                             needSave = false
                         )
                         if (elem.has("login")) {
-                            Settings.get().accounts().storeLogin(id, elem["login"].asString)
+                            Settings.get().accounts().storeLogin(
+                                id,
+                                elem["login"]?.jsonPrimitive?.contentOrNull ?: continue
+                            )
                         }
                         if (elem.has("device")) {
-                            Settings.get().accounts().storeDevice(id, elem["device"].asString)
+                            Settings.get().accounts().storeDevice(
+                                id,
+                                elem["device"]?.jsonPrimitive?.contentOrNull ?: continue
+                            )
                         }
                     }
                     if (obj.has("settings")) {
-                        SettingsBackup().doRestore(obj.getAsJsonObject("settings"))
+                        SettingsBackup().doRestore(obj["settings"]?.asJsonObject)
                         CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
                             .showToastSuccessBottom(
                                 R.string.need_restart
@@ -233,6 +235,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     file.absolutePath
                 )
             } catch (e: Exception) {
+                e.printStackTrace()
                 CreateCustomToast(requireActivity()).showToastError(e.localizedMessage)
             }
         }
@@ -254,11 +257,11 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 )
                     .fromIOToMain()
                     .subscribe({
-                        SaveAccounts(
+                        saveAccounts(
                             file,
                             it
                         )
-                    }) { SaveAccounts(file, null) })
+                    }) { saveAccounts(file, null) })
         }
     }
 
@@ -463,7 +466,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
             .accounts()
             .registerAccountId(uid, isCurrent)
         if (needSave) {
-            val json = Gson().toJson(SaveAccount().set(Login, Password, TwoFA))
+            val json = kJson.encodeToString(SaveAccount().set(Login, Password, TwoFA))
             Settings.get()
                 .accounts()
                 .storeLogin(uid, json)
@@ -643,38 +646,38 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
     }
 
     @Suppress("DEPRECATION")
-    private fun SaveAccounts(file: File, Users: IOwnersBundle?) {
+    private fun saveAccounts(file: File, Users: IOwnersBundle?) {
         var out: FileOutputStream? = null
         try {
-            val root = JsonObject()
-            val arr = JsonArray()
+            val root = JsonObjectBuilder()
+            val arr = JsonArrayBuilder()
             for (i in Settings.get().accounts().registered) {
-                val temp = JsonObject()
+                val temp = JsonObjectBuilder()
                 val owner = Users?.getById(i)
-                temp.addProperty("user_name", owner?.fullName)
-                temp.addProperty("user_id", i)
-                temp.addProperty("type", Settings.get().accounts().getType(i))
-                temp.addProperty("domain", owner?.domain)
-                temp.addProperty("access_token", Settings.get().accounts().getAccessToken(i))
-                temp.addProperty("avatar", owner?.maxSquareAvatar)
+                temp.put("user_name", owner?.fullName)
+                temp.put("user_id", i)
+                temp.put("type", Settings.get().accounts().getType(i))
+                temp.put("domain", owner?.domain)
+                temp.put("access_token", Settings.get().accounts().getAccessToken(i))
+                temp.put("avatar", owner?.maxSquareAvatar)
                 val login = Settings.get().accounts().getLogin(i)
                 val device = Settings.get().accounts().getDevice(i)
                 if (!login.isNullOrEmpty()) {
-                    temp.addProperty("login", login)
+                    temp.put("login", login)
                 }
                 if (!device.isNullOrEmpty()) {
-                    temp.addProperty("device", device)
+                    temp.put("device", device)
                 }
-                arr.add(temp)
+                arr.add(temp.build())
             }
-            val app = JsonObject()
-            app.addProperty("version", getAppVersionName(requireActivity()))
-            app.addProperty("api_type", DEFAULT_ACCOUNT_TYPE)
-            root.add("app", app)
-            root.add("fenrir_accounts", arr)
+            val app = JsonObjectBuilder()
+            app.put("version", getAppVersionName(requireActivity()))
+            app.put("api_type", DEFAULT_ACCOUNT_TYPE)
+            root.put("app", app.build())
+            root.put("fenrir_accounts", arr.build())
             val settings = SettingsBackup().doBackup()
-            if (settings != null) root.add("settings", settings)
-            val bytes = GsonBuilder().setPrettyPrinting().create().toJson(root).toByteArray(
+            root.put("settings", settings)
+            val bytes = Json { prettyPrint = true }.printJsonElement(root.build()).toByteArray(
                 StandardCharsets.UTF_8
             )
             out = FileOutputStream(file)
@@ -691,6 +694,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 file.absolutePath
             )
         } catch (e: Exception) {
+            e.printStackTrace()
             CreateCustomToast(requireActivity()).showToastError(e.localizedMessage)
         } finally {
             safelyClose(out)
@@ -741,10 +745,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 }
             }
             .map<BaseResponse<List<VKApiUser>>> {
-                VkRetrofitProvider.vkgson.fromJson(
-                    it.body.charStream(),
-                    object : TypeToken<BaseResponse<List<VKApiUser>>>() {}.type
-                )
+                Json.decodeFromStream(it.body.byteStream())
             }.map { it1 ->
                 it1.error.requireNonNull {
                     throw Exceptions.propagate(ApiException(it))
@@ -790,7 +791,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                                 AccountType.VK_ANDROID_HIDDEN,
                                 AccountType.KATE_HIDDEN
                             )
-                            if (access_token.isNotEmpty() && id != 0 && selected >= 0 && selected < 3) {
+                            if (access_token.isNotEmpty() && selected >= 0 && selected <= 3) {
                                 appendDisposable(
                                     getUserIdByAccessToken(
                                         types[selected],

@@ -1,8 +1,10 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiChatResponse {
-    @SerializedName("chat_id")
+    @SerialName("chat_id")
     var chat_id = 0
 }

@@ -1,7 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.AttachmentsDtoAdapter
+import dev.ragnarok.fenrir.api.adapters.AttachmentsEntryDtoAdapter
+import kotlinx.serialization.Serializable
 import java.util.*
 
+@Serializable(with = AttachmentsDtoAdapter::class)
 class VKApiAttachments {
     val entries: ArrayList<Entry>
 
@@ -42,5 +46,6 @@ class VKApiAttachments {
         return entries.size
     }
 
+    @Serializable(with = AttachmentsEntryDtoAdapter::class)
     class Entry(val type: String, val attachment: VKApiAttachment)
 }

@@ -1,17 +1,19 @@
 package dev.ragnarok.fenrir.model
 
 import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Keep
+@Serializable
 class SaveAccount {
-    @SerializedName("login")
+    @SerialName("login")
     var login: String? = null
 
-    @SerializedName("password")
+    @SerialName("password")
     var password: String? = null
 
-    @SerializedName("two_factor_auth")
+    @SerialName("two_factor_auth")
     var two_factor_auth: String? = null
     operator fun set(login: String?, password: String?, two_factor_auth: String?): SaveAccount {
         this.login = login

@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model.local_json
 
-import com.google.gson.annotations.SerializedName
+import dev.ragnarok.fenrir.api.adapters.ChatJsonResponseDtoAdapter
 import dev.ragnarok.fenrir.api.model.VKApiMessage
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable(with = ChatJsonResponseDtoAdapter::class)
 class ChatJsonResponse {
     var type: String? = null
     var messages: List<VKApiMessage>? = null
@@ -14,11 +17,12 @@ class ChatJsonResponse {
     var page_instagram: String? = null
     var page_site: String? = null
 
+    @Serializable
     class Version {
-        @SerializedName("float")
+        @SerialName("float")
         var floatValue = 0f
 
-        @SerializedName("string")
+        @SerialName("string")
         var stringValue = 0f
     }
 }

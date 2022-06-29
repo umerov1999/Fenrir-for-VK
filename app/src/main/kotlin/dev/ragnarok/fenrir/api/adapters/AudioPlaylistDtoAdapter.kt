@@ -1,24 +1,19 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiAudioPlaylist
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.jsonObject
 
-class AudioPlaylistDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudioPlaylist> {
-    @Throws(JsonParseException::class)
+class AudioPlaylistDtoAdapter : AbsAdapter<VKApiAudioPlaylist>("VKApiAudioPlaylist") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiAudioPlaylist {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val album = VKApiAudioPlaylist()
-        val root = json.asJsonObject
+        val root = json.jsonObject
         album.id = optInt(root, "id")
         album.count = optInt(root, "count")
         album.owner_id = optInt(root, "owner_id")
@@ -31,7 +26,7 @@ class AudioPlaylistDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudioPlaylis
             val build = StringBuilder()
             val gnr = root.getAsJsonArray("genres")
             var isFirst = true
-            for (i in gnr) {
+            for (i in gnr.orEmpty()) {
                 if (!checkObject(i)) {
                     continue
                 }
@@ -48,7 +43,7 @@ class AudioPlaylistDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudioPlaylis
             album.original_access_key = optString(orig, "access_key")
         }
         if (hasArray(root, "main_artists")) {
-            val artist = root.getAsJsonArray("main_artists")[0]
+            val artist = root.getAsJsonArray("main_artists")?.get(0)
             if (checkObject(artist)) {
                 album.artist_name = optString(artist.asJsonObject, "name")
             }
@@ -59,7 +54,7 @@ class AudioPlaylistDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudioPlaylis
                 optString(thmb, "photo_600") else if (thmb.has("photo_300")) album.thumb_image =
                 optString(thmb, "photo_300")
         } else if (hasArray(root, "thumbs")) {
-            val thmbc = root.getAsJsonArray("thumbs")[0]
+            val thmbc = root.getAsJsonArray("thumbs")?.get(0)
             if (checkObject(thmbc)) {
                 if (thmbc.asJsonObject.has("photo_600")) album.thumb_image = optString(
                     thmbc.asJsonObject,

@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * A city object describes a city.
  */
+@Serializable
 class VKApiCity {
     /**
      * City ID.

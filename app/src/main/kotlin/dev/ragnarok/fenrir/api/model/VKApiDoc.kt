@@ -1,80 +1,89 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import dev.ragnarok.fenrir.api.adapters.DocsEntryDtoAdapter
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiDoc : VKApiAttachment {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("owner_id")
+    @SerialName("owner_id")
     var ownerId = 0
 
-    @SerializedName("title")
+    @SerialName("title")
     var title: String? = null
 
-    @SerializedName("size")
+    @SerialName("size")
     var size: Long = 0
 
-    @SerializedName("ext")
+    @SerialName("ext")
     var ext: String? = null
 
-    @SerializedName("url")
+    @SerialName("url")
     var url: String? = null
 
-    @SerializedName("date")
+    @SerialName("date")
     var date: Long = 0
 
-    @SerializedName("type")
+    @SerialName("type")
     var type = 0
 
-    @SerializedName("preview")
+    @SerialName("preview")
     var preview: Preview? = null
 
-    @SerializedName("access_key")
+    @SerialName("access_key")
     var accessKey: String? = null
     override fun getType(): String {
         return VKApiAttachment.TYPE_DOC
     }
 
+    @Serializable(with = DocsEntryDtoAdapter::class)
     class Entry(val type: String, val doc: VKApiDoc)
+
+    @Serializable
     class Preview {
-        @SerializedName("photo")
+        @SerialName("photo")
         var photo: Photo? = null
 
-        @SerializedName("video")
+        @SerialName("video")
         var video: Video? = null
 
-        @SerializedName("graffiti")
+        @SerialName("graffiti")
         var graffiti: Graffiti? = null
     }
 
+    @Serializable
     class Graffiti {
-        @SerializedName("src")
+        @SerialName("src")
         var src: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
     }
 
+    @Serializable
     class Photo {
-        @SerializedName("sizes")
+        @SerialName("sizes")
         var sizes: List<PhotoSizeDto>? = null
     }
 
+    @Serializable
     class Video {
-        @SerializedName("src")
+        @SerialName("src")
         var src: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
 
-        @SerializedName("file_size")
+        @SerialName("file_size")
         var fileSize: Long = 0
     }
 }

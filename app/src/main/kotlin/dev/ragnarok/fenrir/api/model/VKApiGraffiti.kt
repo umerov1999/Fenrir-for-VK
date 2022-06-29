@@ -1,24 +1,26 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiGraffiti : VKApiAttachment {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("owner_id")
+    @SerialName("owner_id")
     var owner_id = 0
 
-    @SerializedName("url")
+    @SerialName("url")
     var url: String? = null
 
-    @SerializedName("width")
+    @SerialName("width")
     var width = 0
 
-    @SerializedName("height")
+    @SerialName("height")
     var height = 0
 
-    @SerializedName("access_key")
+    @SerialName("access_key")
     var access_key: String? = null
     override fun getType(): String {
         return VKApiAttachment.TYPE_GRAFFITI

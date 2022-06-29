@@ -23,7 +23,7 @@ import dev.ragnarok.fenrir.model.criteria.CommentsCriteria
 import dev.ragnarok.fenrir.util.Exestime.log
 import dev.ragnarok.fenrir.util.Unixtime.now
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
-import dev.ragnarok.fenrir.util.msgpack.MsgPack
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.serialization.builtins.ListSerializer

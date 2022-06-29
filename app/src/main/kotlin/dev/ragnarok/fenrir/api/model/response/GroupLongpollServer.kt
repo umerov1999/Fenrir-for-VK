@@ -1,14 +1,16 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class GroupLongpollServer {
-    @SerializedName("key")
+    @SerialName("key")
     var key: String? = null
 
-    @SerializedName("server")
+    @SerialName("server")
     var server: String? = null
 
-    @SerializedName("ts")
+    @SerialName("ts")
     var ts: String? = null
 }

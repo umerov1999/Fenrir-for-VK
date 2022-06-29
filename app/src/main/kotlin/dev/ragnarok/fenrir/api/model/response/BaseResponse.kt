@@ -1,12 +1,14 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.Error
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class BaseResponse<T> : VkResponse() {
-    @SerializedName("response")
+    @SerialName("response")
     var response: T? = null
 
-    @SerializedName("execute_errors")
+    @SerialName("execute_errors")
     var executeErrors: List<Error>? = null
 }

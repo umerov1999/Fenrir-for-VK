@@ -7,11 +7,10 @@ import android.content.Intent
 import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.getNewPostChannel
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.newPostChannelId
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -25,6 +24,9 @@ import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 
 class WallPostFCMMessage {
     //from_id=175895893, first_name=Руслан, from=376771982493, text=Тест push-уведомлений, type=wall_post, place=wall25651989_2509, collapse_key=wall_post, last_name=Колбаса
@@ -145,11 +147,12 @@ class WallPostFCMMessage {
         nManager?.notify(place, NotificationHelper.NOTIFICATION_WALL_POST_ID, notification)
     }
 
+    @Serializable
     private class PushContext {
-        @SerializedName("item_id")
+        @SerialName("item_id")
         var itemId = 0
 
-        @SerializedName("owner_id")
+        @SerialName("owner_id")
         var ownerId = 0
     }
 
@@ -179,7 +182,7 @@ class WallPostFCMMessage {
             message.body = data["body"]
             message.place = data["url"]
             message.title = data["title"]
-            val context = Gson().fromJson(data["context"], PushContext::class.java)
+            val context: PushContext = kJson.decodeFromString(data["context"] ?: return null)
             message.post_id = context.itemId
             message.owner_id = context.ownerId
             return message

@@ -1,23 +1,25 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.api.model.VKApiUser
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class NewsfeedSearchResponse {
-    @SerializedName("items")
+    @SerialName("items")
     var items: List<VKApiPost>? = null
 
-    @SerializedName("profiles")
+    @SerialName("profiles")
     var profiles: List<VKApiUser>? = null
 
-    @SerializedName("groups")
+    @SerialName("groups")
     var groups: List<VKApiCommunity>? = null
 
-    @SerializedName("next_from")
-    var nextFrom: String? = null //@SerializedName("count")
+    @SerialName("next_from")
+    var nextFrom: String? = null //@SerialName("count")
     //public Integer count;
-    //@SerializedName("total_count")
+    //@SerialName("total_count")
     //public Integer totalCount;
 }

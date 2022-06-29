@@ -6,11 +6,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.commentsChannelId
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.getCommentsChannel
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -25,6 +24,9 @@ import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 
 class CommentFCMMessage {
     /**
@@ -109,17 +111,18 @@ class CommentFCMMessage {
         nManager?.notify(tag, NotificationHelper.NOTIFICATION_COMMENT_ID, notification)
     }
 
+    @Serializable
     private class PushContext {
-        @SerializedName("reply_id")
+        @SerialName("reply_id")
         var reply_id = 0
 
-        @SerializedName("item_id")
+        @SerialName("item_id")
         var item_id = 0
 
-        @SerializedName("owner_id")
+        @SerialName("owner_id")
         var owner_id = 0
 
-        @SerializedName("type")
+        @SerialName("type")
         var type: String? = null
     }
 
@@ -130,7 +133,7 @@ class CommentFCMMessage {
             val message = CommentFCMMessage()
             message.from_id = remote.data["from_id"]?.toInt() ?: return null
             message.text = remote.data["body"]
-            val context = Gson().fromJson(remote.data["context"], PushContext::class.java)
+            val context: PushContext = kJson.decodeFromString(remote.data["context"] ?: return null)
             message.reply_id = context.reply_id
             message.type = context.type
             message.item_id = context.item_id

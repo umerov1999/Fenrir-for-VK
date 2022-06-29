@@ -1,31 +1,29 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.*
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.util.serializeble.json.*
 
-class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAttachments> {
-    @Throws(JsonParseException::class)
+class AttachmentsDtoAdapter : AbsAdapter<VKApiAttachments>("VKApiAttachments") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiAttachments {
         if (!checkArray(json)) {
             return VKApiAttachments()
         }
-        val array = json.asJsonArray
-        val dto = VKApiAttachments(array.size())
-        for (i in 0 until array.size()) {
+        val array = json.jsonArray
+        val dto = VKApiAttachments(array.size)
+        for (i in 0 until array.size) {
             if (!checkObject(array[i])) {
                 continue
             }
-            val o = array[i].asJsonObject
+            val o = array[i].jsonObject
             val type = optString(o, "type")
             val attachment: VKApiAttachment? = try {
-                parse(type, o, context)
+                parse(type, o)
             } catch (e: Exception) {
                 e.printStackTrace()
                 continue
@@ -38,11 +36,9 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAttachments> {
     }
 
     companion object {
-
         fun parse(
             type: String?,
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiAttachment? {
             type ?: return null
             val o = root[type]
@@ -50,16 +46,19 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAttachments> {
             //{"type":"photos_list","photos_list":["406536042_456239026"]}
             return when {
                 VKApiAttachment.TYPE_PHOTO == type -> {
-                    context.deserialize(o, VKApiPhoto::class.java)
+                    kJson.decodeFromJsonElement<VKApiPhoto>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_VIDEO == type -> {
-                    context.deserialize(o, VKApiVideo::class.java)
+                    kJson.decodeFromJsonElement<VKApiVideo>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_AUDIO == type -> {
-                    context.deserialize(o, VKApiAudio::class.java)
+                    kJson.decodeFromJsonElement<VKApiAudio>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_DOC == type -> {
-                    val doc: VKApiDoc = context.deserialize(o, VKApiDoc::class.java)
+                    val doc: VKApiDoc =
+                        kJson.decodeFromJsonElement(
+                            o ?: return null
+                        )
                     if ("lottie" == doc.ext) {
                         val sticker = VKApiSticker()
                         sticker.sticker_id = doc.id
@@ -69,64 +68,58 @@ class AttachmentsDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAttachments> {
                     doc
                 }
                 VKApiAttachment.TYPE_POST == type || VKApiAttachment.TYPE_FAVE_POST == type -> {
-                    context.deserialize(o, VKApiPost::class.java)
-                    //} else if (VKApiAttachments.TYPE_POSTED_PHOTO.equals(type)) {
-                    //    return context.deserialize(o, VKApiPostedPhoto.class);
+                    kJson.decodeFromJsonElement<VKApiPost>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_LINK == type -> {
-                    context.deserialize(o, VKApiLink::class.java)
-                    //} else if (VKApiAttachments.TYPE_NOTE.equals(type)) {
-                    //    return context.deserialize(o, VKApiNote.class);
-                    //} else if (VKApiAttachments.TYPE_APP.equals(type)) {
-                    //    return context.deserialize(o, VKApiApplicationContent.class);
+                    kJson.decodeFromJsonElement<VKApiLink>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_ARTICLE == type -> {
-                    context.deserialize(o, VKApiArticle::class.java)
+                    kJson.decodeFromJsonElement<VKApiArticle>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_POLL == type -> {
-                    context.deserialize(o, VKApiPoll::class.java)
+                    kJson.decodeFromJsonElement<VKApiPoll>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_WIKI_PAGE == type -> {
-                    context.deserialize(o, VKApiWikiPage::class.java)
+                    kJson.decodeFromJsonElement<VKApiWikiPage>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_ALBUM == type -> {
-                    context.deserialize(o, VKApiPhotoAlbum::class.java)
+                    kJson.decodeFromJsonElement<VKApiPhotoAlbum>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_STICKER == type -> {
-                    context.deserialize(o, VKApiSticker::class.java)
+                    kJson.decodeFromJsonElement<VKApiSticker>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_AUDIO_MESSAGE == type -> {
-                    context.deserialize(o, VKApiAudioMessage::class.java)
+                    kJson.decodeFromJsonElement<VKApiAudioMessage>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_GIFT == type -> {
-                    context.deserialize(o, VKApiGiftItem::class.java)
+                    kJson.decodeFromJsonElement<VKApiGiftItem>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_GRAFFITI == type -> {
-                    context.deserialize(o, VKApiGraffiti::class.java)
+                    kJson.decodeFromJsonElement<VKApiGraffiti>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_STORY == type -> {
-                    context.deserialize(o, VKApiStory::class.java)
+                    kJson.decodeFromJsonElement<VKApiStory>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_CALL == type -> {
-                    context.deserialize(o, VKApiCall::class.java)
+                    kJson.decodeFromJsonElement<VKApiCall>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_AUDIO_PLAYLIST == type -> {
-                    context.deserialize(o, VKApiAudioPlaylist::class.java)
+                    kJson.decodeFromJsonElement<VKApiAudioPlaylist>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_WALL_REPLY == type -> {
-                    context.deserialize(o, VKApiWallReply::class.java)
+                    kJson.decodeFromJsonElement<VKApiWallReply>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_EVENT == type -> {
-                    context.deserialize(o, VKApiEvent::class.java)
+                    kJson.decodeFromJsonElement<VKApiEvent>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_MARKET_ALBUM == type -> {
-                    context.deserialize(o, VKApiMarketAlbum::class.java)
+                    kJson.decodeFromJsonElement<VKApiMarketAlbum>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_ARTIST == type -> {
-                    context.deserialize(o, VKApiAudioArtist::class.java)
+                    kJson.decodeFromJsonElement<VKApiAudioArtist>(o ?: return null)
                 }
                 VKApiAttachment.TYPE_MARKET == type || VKApiAttachment.TYPE_PRODUCT == type -> {
-                    context.deserialize(o, VKApiMarket::class.java)
+                    kJson.decodeFromJsonElement<VKApiMarket>(o ?: return null)
                 }
                 !Utils.isValueAssigned(
                     type,

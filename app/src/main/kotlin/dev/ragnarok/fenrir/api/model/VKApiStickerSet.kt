@@ -1,67 +1,71 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.orZero
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiStickerSet : Identificable {
-    @SerializedName("background")
+    @SerialName("background")
     var background: String? = null
 
-    @SerializedName("description")
+    @SerialName("description")
     var description: String? = null
 
-    @SerializedName("author")
+    @SerialName("author")
     var author: String? = null
 
-    @SerializedName("free")
+    @SerialName("free")
     var free = false
 
-    @SerializedName("can_purchase")
+    @SerialName("can_purchase")
     var can_purchase = false
 
-    @SerializedName("payment_type")
+    @SerialName("payment_type")
     var payment_type: String? = null
 
-    @SerializedName("product")
+    @SerialName("product")
     var product: Product? = null
     override fun getObjectId(): Int {
         return product?.id.orZero()
     }
 
+    @Serializable
     class Image {
-        @SerializedName("url")
+        @SerialName("url")
         var url: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
     }
 
+    @Serializable
     class Product {
-        @SerializedName("id")
+        @SerialName("id")
         var id = 0
 
-        @SerializedName("purchased")
+        @SerialName("purchased")
         var purchased = false
 
-        @SerializedName("title")
+        @SerialName("title")
         var title: String? = null
 
-        @SerializedName("promoted")
+        @SerialName("promoted")
         var promoted = false
 
-        @SerializedName("active")
+        @SerialName("active")
         var active = false
 
-        @SerializedName("type")
+        @SerialName("type")
         var type: String? = null
 
-        @SerializedName("icon")
+        @SerialName("icon")
         var icon: List<Image>? = null
 
-        @SerializedName("stickers")
+        @SerialName("stickers")
         var stickers: List<VKApiSticker>? = null
     }
 }

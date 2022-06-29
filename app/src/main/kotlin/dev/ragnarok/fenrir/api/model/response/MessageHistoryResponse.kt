@@ -1,27 +1,29 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.model.VKApiUser
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class MessageHistoryResponse {
-    @SerializedName("items")
+    @SerialName("items")
     var messages: ArrayList<VKApiMessage>? = null
 
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("unread")
+    @SerialName("unread")
     var unread = 0
 
-    @SerializedName("conversations")
+    @SerialName("conversations")
     var conversations: List<VKApiConversation>? = null
 
-    @SerializedName("profiles")
+    @SerialName("profiles")
     var profiles: List<VKApiUser>? = null
 
-    @SerializedName("groups")
+    @SerialName("groups")
     var groups: List<VKApiCommunity>? = null
 }

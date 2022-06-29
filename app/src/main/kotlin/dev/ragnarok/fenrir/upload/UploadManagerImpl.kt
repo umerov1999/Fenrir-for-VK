@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.impl.*
+import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
@@ -226,9 +227,13 @@ class UploadManagerImpl(
                 } else {
                     firstNonEmptyString(cause.message, cause.toString())
                 }
+                t.printStackTrace()
                 compositeDisposable.add(Completable.complete()
                     .observeOn(provideMainThreadScheduler())
-                    .subscribe { Toast.makeText(context, message, Toast.LENGTH_SHORT).show() })
+                    .subscribe {
+                        CustomToast.CreateCustomToast(context).setDuration(Toast.LENGTH_SHORT)
+                            .showToastError(message)
+                    })
             }
             val errorMessage: String? = if (t is ApiException) {
                 localizeThrowable(context, t)

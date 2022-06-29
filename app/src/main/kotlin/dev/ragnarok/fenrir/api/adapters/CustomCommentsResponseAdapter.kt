@@ -1,39 +1,38 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.response.CustomCommentsResponse
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.*
 
-class CustomCommentsResponseAdapter : AbsAdapter(), JsonDeserializer<CustomCommentsResponse> {
-    @Throws(JsonParseException::class)
+class CustomCommentsResponseAdapter : AbsAdapter<CustomCommentsResponse>("CustomCommentsResponse") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): CustomCommentsResponse {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val response = CustomCommentsResponse()
         val root = json.asJsonObject
         val main = root["main"]
         if (checkObject(main)) {
-            response.main = context.deserialize(main, CustomCommentsResponse.Main::class.java)
+            response.main =
+                kJson.decodeFromJsonElement(main)
         } // "main": false (if has execute errors)
         if (root.has("first_id")) {
             val firstIdJson = root["first_id"]
-            response.firstId = if (firstIdJson.isJsonNull) null else firstIdJson.asInt
+            response.firstId =
+                if (firstIdJson is JsonPrimitive) firstIdJson.jsonPrimitive.intOrNull else null
         }
         if (root.has("last_id")) {
             val lastIdJson = root["last_id"]
-            response.lastId = if (lastIdJson.isJsonNull) null else lastIdJson.asInt
+            response.lastId =
+                if (lastIdJson is JsonPrimitive) lastIdJson.jsonPrimitive.intOrNull else null
         }
         if (root.has("admin_level")) {
             val adminLevelJson = root["admin_level"]
-            response.admin_level = if (adminLevelJson.isJsonNull) null else adminLevelJson.asInt
+            response.admin_level =
+                if (adminLevelJson is JsonPrimitive) adminLevelJson.jsonPrimitive.intOrNull else null
         }
         return response
     }

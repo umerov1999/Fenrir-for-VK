@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * Describes a Wiki page.
  */
+@Serializable
 class VKApiWikiPage : VKApiAttachment {
     /**
      * Wiki page ID;

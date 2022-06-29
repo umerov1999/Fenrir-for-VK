@@ -1,21 +1,23 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class GroupWallInfoResponse {
-    @SerializedName("group_info")
+    @SerialName("group_info")
     var groups: List<VKApiCommunity>? = null
 
-    @SerializedName("all_wall_count")
+    @SerialName("all_wall_count")
     var allWallCount: Int? = null
 
-    @SerializedName("owner_wall_count")
+    @SerialName("owner_wall_count")
     var ownerWallCount: Int? = null
 
-    @SerializedName("suggests_wall_count")
+    @SerialName("suggests_wall_count")
     var suggestsWallCount: Int? = null
 
-    @SerializedName("postponed_wall_count")
+    @SerialName("postponed_wall_count")
     var postponedWallCount: Int? = null
 }

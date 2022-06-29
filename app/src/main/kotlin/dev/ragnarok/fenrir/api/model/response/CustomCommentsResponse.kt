@@ -1,11 +1,14 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import dev.ragnarok.fenrir.api.adapters.CustomCommentsResponseAdapter
 import dev.ragnarok.fenrir.api.model.VKApiComment
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPoll
 import dev.ragnarok.fenrir.api.model.VKApiUser
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable(with = CustomCommentsResponseAdapter::class)
 class CustomCommentsResponse {
     // Parse manually in CustomCommentsResponseAdapter
     var main: Main? = null
@@ -13,20 +16,21 @@ class CustomCommentsResponse {
     var lastId: Int? = null
     var admin_level: Int? = null
 
+    @Serializable
     class Main {
-        @SerializedName("count")
+        @SerialName("count")
         var count = 0
 
-        @SerializedName("items")
+        @SerialName("items")
         var comments: List<VKApiComment>? = null
 
-        @SerializedName("profiles")
+        @SerialName("profiles")
         var profiles: List<VKApiUser>? = null
 
-        @SerializedName("groups")
+        @SerialName("groups")
         var groups: List<VKApiCommunity>? = null
 
-        @SerializedName("poll")
+        @SerialName("poll")
         var poll: VKApiPoll? = null
     }
 }

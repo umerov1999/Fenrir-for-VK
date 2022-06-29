@@ -1,47 +1,51 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Describes a photo object from VK.
  */
+@Serializable
 class VKApiSticker : VKApiAttachment {
     /**
      * Sticker ID, positive number
      */
     var sticker_id = 0
 
-    @SerializedName("images")
+    @SerialName("images")
     var images: List<Image>? = null
 
-    @SerializedName("images_with_background")
+    @SerialName("images_with_background")
     var images_with_background: List<Image>? = null
 
-    @SerializedName("animation_url")
+    @SerialName("animation_url")
     var animation_url: String? = null
 
-    @SerializedName("animations")
+    @SerialName("animations")
     var animations: List<VKApiAnimation>? = null
     override fun getType(): String {
         return VKApiAttachment.TYPE_STICKER
     }
 
+    @Serializable
     class Image {
-        @SerializedName("url")
+        @SerialName("url")
         var url: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
     }
 
+    @Serializable
     class VKApiAnimation {
-        @SerializedName("type")
+        @SerialName("type")
         var type: String? = null
 
-        @SerializedName("url")
+        @SerialName("url")
         var url: String? = null
     }
 }

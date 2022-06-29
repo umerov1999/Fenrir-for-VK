@@ -1,24 +1,22 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.ChatUserDto
 import dev.ragnarok.fenrir.api.model.VKApiChat
-import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonPrimitive
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.int
 
-class ChatDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiChat> {
-    @Throws(JsonParseException::class)
+class ChatDtoAdapter : AbsAdapter<VKApiChat>("VKApiChat") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiChat {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiChat()
         val root = json.asJsonObject
@@ -31,12 +29,12 @@ class ChatDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiChat> {
         dto.admin_id = optInt(root, "admin_id")
         if (hasArray(root, "users")) {
             val users = root.getAsJsonArray("users")
-            dto.users = ArrayList(users.size())
-            for (i in 0 until users.size()) {
-                val userElement = users[i]
-                if (userElement.isJsonPrimitive) {
+            dto.users = ArrayList(users?.size.orZero())
+            for (i in 0 until users?.size.orZero()) {
+                val userElement = users?.get(i)
+                if (userElement is JsonPrimitive) {
                     val user = VKApiUser()
-                    user.id = userElement.asInt
+                    user.id = userElement.int
                     val chatUserDto = ChatUserDto()
                     chatUserDto.user = user
                     dto.users?.add(chatUserDto)
@@ -50,10 +48,10 @@ class ChatDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiChat> {
                     chatUserDto.type = type
                     chatUserDto.invited_by = optInt(jsonObject, "invited_by", 0)
                     if ("profile" == type) {
-                        chatUserDto.user = context.deserialize(userElement, VKApiUser::class.java)
+                        chatUserDto.user = kJson.decodeFromJsonElement(userElement)
                     } else if ("group" == type) {
                         chatUserDto.user =
-                            context.deserialize(userElement, VKApiCommunity::class.java)
+                            kJson.decodeFromJsonElement(userElement)
                     } else {
                         //not supported
                         continue

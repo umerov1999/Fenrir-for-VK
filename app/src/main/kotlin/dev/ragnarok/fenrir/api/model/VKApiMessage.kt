@@ -1,10 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.MessageDtoAdapter
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
+import kotlinx.serialization.Serializable
 
 /**
  * A message object describes a private message
  */
+@Serializable(with = MessageDtoAdapter::class)
 class VKApiMessage
 /**
  * Creates empty Country instance.

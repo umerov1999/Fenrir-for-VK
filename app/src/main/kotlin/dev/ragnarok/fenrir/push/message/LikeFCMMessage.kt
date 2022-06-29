@@ -6,11 +6,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.getLikesChannel
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.likesChannelId
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -27,7 +26,9 @@ import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
-import java.util.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 
 class LikeFCMMessage {
     // key: id, value: like_216143660_photo280186075_456239045, class: class java.lang.String
@@ -173,20 +174,21 @@ class LikeFCMMessage {
         notifyImpl(context)
     }
 
+    @Serializable
     internal class LikeContext {
-        @SerializedName("feedback")
+        @SerialName("feedback")
         var feedback = 0
 
-        @SerializedName("item_id")
+        @SerialName("item_id")
         var item_id = 0
 
-        @SerializedName("owner_id")
+        @SerialName("owner_id")
         var owner_id = 0
 
-        @SerializedName("type")
+        @SerialName("type")
         var type: String? = null
 
-        @SerializedName("reply_id")
+        @SerialName("reply_id")
         var reply_id = 0
     }
 
@@ -199,11 +201,7 @@ class LikeFCMMessage {
             message.title = data["title"]
             message.from_id = data["from_id"]?.toInt() ?: return null
             message.badge = data["badge"]?.toInt() ?: 0
-            val context = Gson().fromJson(
-                Objects.requireNonNull(
-                    data["context"]
-                ), LikeContext::class.java
-            )
+            val context: LikeContext = kJson.decodeFromString(data["context"] ?: return null)
             message.item_id = context.item_id
             message.owner_id = context.owner_id
             message.like_type = context.type

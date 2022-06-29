@@ -19,11 +19,9 @@ object ScreenshotHelper {
             saveDir.mkdirs()
         }
         if (!saveDir.exists()) {
-            Toast.makeText(
-                activity,
-                activity.getText(R.string.error).toString() + " " + saveDir.absolutePath,
-                Toast.LENGTH_LONG
-            ).show()
+            CustomToast.CreateCustomToast(activity).setDuration(Toast.LENGTH_LONG).showToastError(
+                activity.getText(R.string.error).toString() + " " + saveDir.absolutePath
+            )
             return
         }
         val file = File(
@@ -49,12 +47,8 @@ object ScreenshotHelper {
             try {
                 createBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
                 fileOutputStream.flush()
-                Toast.makeText(
-                    activity, """
-     ${activity.getText(R.string.success)}
-     ${file.absolutePath}
-     """.trimIndent(), Toast.LENGTH_LONG
-                ).show()
+                CustomToast.CreateCustomToast(activity).setDuration(Toast.LENGTH_LONG)
+                    .showToastSuccessBottom(activity.getString(R.string.success) + " " + file.absolutePath)
                 activity.sendBroadcast(
                     Intent(
                         Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,

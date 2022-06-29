@@ -281,7 +281,8 @@ class QuickAnswerActivity : AppCompatActivity() {
     private fun send() {
         val trimmed_text = etText?.text.toString().trim { it <= ' ' }
         if (trimmed_text.isEmpty()) {
-            Toast.makeText(this, getString(R.string.text_hint), Toast.LENGTH_SHORT).show()
+            CreateCustomToast(this).setDuration(Toast.LENGTH_LONG)
+                .showToastError(R.string.text_hint)
             return
         }
         val requireEncryption = Settings.get()

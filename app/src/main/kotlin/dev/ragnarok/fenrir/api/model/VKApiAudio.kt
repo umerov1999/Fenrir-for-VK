@@ -2,10 +2,13 @@ package dev.ragnarok.fenrir.api.model
 
 import android.content.Context
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.api.adapters.AudioDtoAdapter
+import kotlinx.serialization.Serializable
 
 /**
  * An audio object describes an audio file and contains the following fields.
  */
+@Serializable(with = AudioDtoAdapter::class)
 class VKApiAudio
 /**
  * Creates empty Audio instance.

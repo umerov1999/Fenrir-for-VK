@@ -1,36 +1,34 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.VKApiAudioPlaylist
 import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class ServicePlaylistResponseDtoAdapter : AbsAdapter(), JsonDeserializer<ServicePlaylistResponse> {
-    @Throws(JsonParseException::class)
+class ServicePlaylistResponseDtoAdapter :
+    AbsAdapter<ServicePlaylistResponse>("ServicePlaylistResponse") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): ServicePlaylistResponse {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val root = json.asJsonObject
         val dto = ServicePlaylistResponse()
         dto.playlists = ArrayList()
         if (checkArray(root["response"])) {
             val response = root.getAsJsonArray("response")
-            for (i in response) {
+            for (i in response.orEmpty()) {
                 if (checkObject(i)) {
-                    dto.playlists?.add(context.deserialize(i, VKApiAudioPlaylist::class.java))
+                    dto.playlists?.add(
+                        kJson.decodeFromJsonElement(i)
+                    )
                 }
             }
         } else if (checkObject(root["response"])) {
-            val response = root.getAsJsonObject("response")
-            dto.playlists?.add(context.deserialize(response, VKApiAudioPlaylist::class.java))
+            val response = root["response"]
+            dto.playlists?.add(kJson.decodeFromJsonElement(response ?: return dto))
         }
         return dto
     }

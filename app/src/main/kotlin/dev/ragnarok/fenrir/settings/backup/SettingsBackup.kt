@@ -1,197 +1,206 @@
 package dev.ragnarok.fenrir.settings.backup
 
-import android.content.SharedPreferences
-import com.google.gson.Gson
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import androidx.annotation.Keep
 import de.maxr1998.modernpreferences.PreferenceScreen
 import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.fragment.PreferencesFragment
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.ShortcutStored
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
+import dev.ragnarok.fenrir.util.serializeble.json.JsonObjectBuilder
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.encodeToJsonElement
+import dev.ragnarok.fenrir.util.serializeble.prefs.Preferences
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 
 class SettingsBackup {
-    private val settings: Array<SettingCollector> = arrayOf(
+    @Keep
+    @Serializable
+    @Suppress("unused")
+    class AppPreferencesList {
         //Main
-        SettingCollector("send_by_enter", SettingTypes.TYPE_BOOL),
-        SettingCollector("theme_overlay", SettingTypes.TYPE_STRING),
-        SettingCollector("audio_round_icon", SettingTypes.TYPE_BOOL),
-        SettingCollector("use_long_click_download", SettingTypes.TYPE_BOOL),
-        SettingCollector("revert_play_audio", SettingTypes.TYPE_BOOL),
-        SettingCollector("is_player_support_volume", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_bot_keyboard", SettingTypes.TYPE_BOOL),
-        SettingCollector("my_message_no_color", SettingTypes.TYPE_BOOL),
-        SettingCollector("notification_bubbles", SettingTypes.TYPE_BOOL),
-        SettingCollector("messages_menu_down", SettingTypes.TYPE_BOOL),
-        SettingCollector("expand_voice_transcript", SettingTypes.TYPE_BOOL),
-        SettingCollector("image_size", SettingTypes.TYPE_STRING),
-        SettingCollector("start_news", SettingTypes.TYPE_STRING),
-        SettingCollector("crypt_version", SettingTypes.TYPE_STRING),
-        SettingCollector("photo_preview_size", SettingTypes.TYPE_STRING),
-        SettingCollector("viewpager_page_transform", SettingTypes.TYPE_STRING),
-        SettingCollector("player_cover_transform", SettingTypes.TYPE_STRING),
-        SettingCollector("pref_display_photo_size", SettingTypes.TYPE_INT),
-        SettingCollector("photo_rounded_view", SettingTypes.TYPE_STRING),
-        SettingCollector("font_size", SettingTypes.TYPE_STRING),
-        SettingCollector("is_open_url_internal", SettingTypes.TYPE_STRING),
-        SettingCollector("webview_night_mode", SettingTypes.TYPE_BOOL),
-        SettingCollector("load_history_notif", SettingTypes.TYPE_BOOL),
-        SettingCollector("snow_mode", SettingTypes.TYPE_BOOL),
-        SettingCollector("dont_write", SettingTypes.TYPE_BOOL),
-        SettingCollector("over_ten_attach", SettingTypes.TYPE_BOOL),
-        //UI
-        SettingCollector(PreferencesFragment.KEY_AVATAR_STYLE, SettingTypes.TYPE_INT),
-        SettingCollector("app_theme", SettingTypes.TYPE_STRING),
-        SettingCollector("night_switch", SettingTypes.TYPE_STRING),
-        SettingCollector(PreferencesFragment.KEY_DEFAULT_CATEGORY, SettingTypes.TYPE_STRING),
-        SettingCollector("last_closed_place_type", SettingTypes.TYPE_INT),
-        SettingCollector("emojis_type", SettingTypes.TYPE_BOOL),
-        SettingCollector("emojis_full_screen", SettingTypes.TYPE_BOOL),
-        SettingCollector("stickers_by_theme", SettingTypes.TYPE_BOOL),
-        SettingCollector("stickers_by_new", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_profile_in_additional_page", SettingTypes.TYPE_BOOL),
-        SettingCollector("swipes_for_chats", SettingTypes.TYPE_STRING),
-        SettingCollector("display_writing", SettingTypes.TYPE_BOOL),
-        //Other
-        SettingCollector("swipes_for_chats", SettingTypes.TYPE_STRING),
-        SettingCollector("broadcast", SettingTypes.TYPE_BOOL),
-        SettingCollector("comments_desc", SettingTypes.TYPE_BOOL),
-        SettingCollector("keep_longpoll", SettingTypes.TYPE_BOOL),
-        SettingCollector("disable_error_fcm", SettingTypes.TYPE_BOOL),
-        SettingCollector("settings_no_push", SettingTypes.TYPE_BOOL),
-        SettingCollector("videos_ext", SettingTypes.TYPE_STRING_SET),
-        SettingCollector("photo_ext", SettingTypes.TYPE_STRING_SET),
-        SettingCollector("audio_ext", SettingTypes.TYPE_STRING_SET),
-        SettingCollector("enable_dirs_files_count", SettingTypes.TYPE_BOOL),
-        SettingCollector("max_bitmap_resolution", SettingTypes.TYPE_STRING),
-        SettingCollector("max_thumb_resolution", SettingTypes.TYPE_STRING),
-        SettingCollector("ffmpeg_audio_codecs", SettingTypes.TYPE_STRING),
-        SettingCollector("lifecycle_music_service", SettingTypes.TYPE_STRING),
-        SettingCollector("autoplay_gif", SettingTypes.TYPE_BOOL),
-        SettingCollector("strip_news_repost", SettingTypes.TYPE_BOOL),
-        SettingCollector("ad_block_story_news", SettingTypes.TYPE_BOOL),
-        SettingCollector("block_news_by_words_set", SettingTypes.TYPE_STRING_SET),
-        SettingCollector("new_loading_dialog", SettingTypes.TYPE_BOOL),
-        SettingCollector("vk_api_domain", SettingTypes.TYPE_STRING),
-        SettingCollector("vk_auth_domain", SettingTypes.TYPE_STRING),
-        SettingCollector("developer_mode", SettingTypes.TYPE_BOOL),
-        SettingCollector("do_logs", SettingTypes.TYPE_BOOL),
-        SettingCollector("force_cache", SettingTypes.TYPE_BOOL),
-        SettingCollector("disable_history", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_wall_cover", SettingTypes.TYPE_BOOL),
-        SettingCollector("custom_chat_color", SettingTypes.TYPE_INT),
-        SettingCollector("custom_chat_color_second", SettingTypes.TYPE_INT),
-        SettingCollector("custom_chat_color_usage", SettingTypes.TYPE_BOOL),
-        SettingCollector("custom_message_color", SettingTypes.TYPE_INT),
-        SettingCollector("custom_second_message_color", SettingTypes.TYPE_INT),
-        SettingCollector("custom_message_color_usage", SettingTypes.TYPE_BOOL),
-        SettingCollector("info_reading", SettingTypes.TYPE_BOOL),
-        SettingCollector("auto_read", SettingTypes.TYPE_BOOL),
-        SettingCollector("mark_listened_voice", SettingTypes.TYPE_BOOL),
-        SettingCollector("not_update_dialogs", SettingTypes.TYPE_BOOL),
-        SettingCollector("be_online", SettingTypes.TYPE_BOOL),
-        SettingCollector("donate_anim_set", SettingTypes.TYPE_STRING),
-        SettingCollector("use_stop_audio", SettingTypes.TYPE_BOOL),
-        SettingCollector("player_has_background", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_mini_player", SettingTypes.TYPE_BOOL),
-        SettingCollector("enable_last_read", SettingTypes.TYPE_BOOL),
-        SettingCollector("not_read_show", SettingTypes.TYPE_BOOL),
-        SettingCollector("headers_in_dialog", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_recent_dialogs", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_audio_top", SettingTypes.TYPE_BOOL),
-        SettingCollector("use_internal_downloader", SettingTypes.TYPE_BOOL),
-        SettingCollector("music_dir", SettingTypes.TYPE_STRING),
-        SettingCollector("photo_dir", SettingTypes.TYPE_STRING),
-        SettingCollector("video_dir", SettingTypes.TYPE_STRING),
-        SettingCollector("docs_dir", SettingTypes.TYPE_STRING),
-        SettingCollector("sticker_dir", SettingTypes.TYPE_STRING),
-        SettingCollector("sticker_dir", SettingTypes.TYPE_STRING),
-        SettingCollector("photo_to_user_dir", SettingTypes.TYPE_BOOL),
-        SettingCollector("download_voice_ogg", SettingTypes.TYPE_BOOL),
-        SettingCollector("delete_cache_images", SettingTypes.TYPE_BOOL),
-        SettingCollector("compress_default_traffic", SettingTypes.TYPE_BOOL),
-        SettingCollector("limit_cache", SettingTypes.TYPE_BOOL),
-        SettingCollector("do_not_clear_back_stack", SettingTypes.TYPE_BOOL),
-        SettingCollector("mention_fave", SettingTypes.TYPE_BOOL),
-        SettingCollector("disable_encryption", SettingTypes.TYPE_BOOL),
-        SettingCollector("download_photo_tap", SettingTypes.TYPE_BOOL),
-        SettingCollector("audio_save_mode_button", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_mutual_count", SettingTypes.TYPE_BOOL),
-        SettingCollector("not_friend_show", SettingTypes.TYPE_BOOL),
-        SettingCollector("do_zoom_photo", SettingTypes.TYPE_BOOL),
-        SettingCollector("change_upload_size", SettingTypes.TYPE_BOOL),
-        SettingCollector("show_photos_line", SettingTypes.TYPE_BOOL),
-        SettingCollector("do_auto_play_video", SettingTypes.TYPE_BOOL),
-        SettingCollector("video_controller_to_decor", SettingTypes.TYPE_BOOL),
-        SettingCollector("video_swipes", SettingTypes.TYPE_BOOL),
-        SettingCollector("disable_likes", SettingTypes.TYPE_BOOL),
-        SettingCollector("disable_notifications", SettingTypes.TYPE_BOOL),
-        SettingCollector("native_parcel_photo", SettingTypes.TYPE_BOOL),
-        SettingCollector("native_parcel_story", SettingTypes.TYPE_BOOL),
-        SettingCollector("dump_fcm", SettingTypes.TYPE_BOOL),
-        SettingCollector("hint_stickers", SettingTypes.TYPE_BOOL),
-        SettingCollector("enable_native", SettingTypes.TYPE_BOOL),
-        SettingCollector("enable_cache_ui_anim", SettingTypes.TYPE_BOOL),
-        SettingCollector("disable_sensored_voice", SettingTypes.TYPE_BOOL),
-        SettingCollector("local_media_server", SettingTypes.TYPE_STRING),
-        SettingCollector("pagan_symbol", SettingTypes.TYPE_STRING),
-        SettingCollector("language_ui", SettingTypes.TYPE_STRING),
-        SettingCollector("end_list_anim", SettingTypes.TYPE_STRING),
-        SettingCollector("runes_show", SettingTypes.TYPE_BOOL),
-        SettingCollector("player_background_settings_json", SettingTypes.TYPE_STRING),
-        SettingCollector("slidr_settings_json", SettingTypes.TYPE_STRING),
-        SettingCollector("use_api_5_90_for_audio", SettingTypes.TYPE_BOOL),
-        SettingCollector("is_side_navigation", SettingTypes.TYPE_BOOL),
-        SettingCollector("is_side_no_stroke", SettingTypes.TYPE_BOOL),
-        SettingCollector("is_side_transition", SettingTypes.TYPE_BOOL),
-        SettingCollector("notification_force_link", SettingTypes.TYPE_BOOL),
-        SettingCollector("recording_to_opus", SettingTypes.TYPE_BOOL),
-        SettingCollector("service_playlists", SettingTypes.TYPE_STRING),
-        SettingCollector("rendering_mode", SettingTypes.TYPE_STRING),
-        SettingCollector("hidden_peers", SettingTypes.TYPE_STRING_SET),
-        SettingCollector("notif_peer_uids", SettingTypes.TYPE_STRING_SET),
-        SettingCollector("user_name_changes_uids", SettingTypes.TYPE_STRING_SET)
-    )
+        var send_by_enter: Boolean = false
+        var theme_overlay: String? = null
+        var audio_round_icon: Boolean = false
+        var use_long_click_download: Boolean = false
+        var revert_play_audio: Boolean = false
+        var is_player_support_volume: Boolean = false
+        var show_bot_keyboard: Boolean = false
+        var my_message_no_color: Boolean = false
+        var notification_bubbles: Boolean = false
+        var messages_menu_down: Boolean = false
+        var expand_voice_transcript: Boolean = false
+        var image_size: String? = null
+        var start_news: String? = null
+        var crypt_version: String? = null
+        var photo_preview_size: String? = null
+        var viewpager_page_transform: String? = null
+        var player_cover_transform: String? = null
+        var pref_display_photo_size: Int = 0
+        var photo_rounded_view: String? = null
+        var font_size: String? = null
+        var is_open_url_internal: String? = null
+        var webview_night_mode: Boolean = false
+        var load_history_notif: Boolean = false
+        var snow_mode: Boolean = false
+        var dont_write: Boolean = false
+        var over_ten_attach: Boolean = false
 
-    fun doBackup(): JsonObject? {
-        var has = false
-        val pref =
-            PreferenceScreen.getPreferences(Includes.provideApplicationContext())
-        val ret = JsonObject()
-        for (i in settings) {
-            val temp = i.requestSetting(pref)
-            if (temp != null) {
-                if (!has) has = true
-                ret.add(i.name, temp)
-            }
-        }
+        //UI
+        var avatar_style: Int = 0
+        var app_theme: String? = null
+        var night_switch: String? = null
+        var default_category: String? = null
+        var last_closed_place_type: Int = 0
+        var emojis_type: Boolean = false
+        var emojis_full_screen: Boolean = false
+        var stickers_by_theme: Boolean = false
+        var stickers_by_new: Boolean = false
+        var show_profile_in_additional_page: Boolean = false
+        var display_writing: Boolean = false
+
+        //Other
+        var swipes_for_chats: String? = null
+        var broadcast: Boolean = false
+        var comments_desc: Boolean = false
+        var keep_longpoll: Boolean = false
+        var disable_error_fcm: Boolean = false
+        var settings_no_push: Boolean = false
+        var videos_ext: Set<String>? = null
+        var photo_ext: Set<String>? = null
+        var audio_ext: Set<String>? = null
+        var enable_dirs_files_count: Boolean = false
+        var max_bitmap_resolution: String? = null
+        var max_thumb_resolution: String? = null
+        var ffmpeg_audio_codecs: String? = null
+        var lifecycle_music_service: String? = null
+        var autoplay_gif: Boolean = false
+        var strip_news_repost: Boolean = false
+        var ad_block_story_news: Boolean = false
+        var block_news_by_words_set: Set<String>? = null
+        var new_loading_dialog: Boolean = false
+        var vk_api_domain: String? = null
+        var vk_auth_domain: String? = null
+        var developer_mode: Boolean = false
+        var do_logs: Boolean = false
+        var force_cache: Boolean = false
+        var disable_history: Boolean = false
+        var show_wall_cover: Boolean = false
+        var custom_chat_color: Int = 0
+        var custom_chat_color_second: Int = 0
+        var custom_chat_color_usage: Boolean = false
+        var custom_message_color: Int = 0
+        var custom_second_message_color: Int = 0
+        var custom_message_color_usage: Boolean = false
+        var info_reading: Boolean = false
+        var auto_read: Boolean = false
+        var mark_listened_voice: Boolean = false
+        var not_update_dialogs: Boolean = false
+        var be_online: Boolean = false
+        var donate_anim_set: String? = null
+        var use_stop_audio: Boolean = false
+        var player_has_background: Boolean = false
+        var show_mini_player: Boolean = false
+        var enable_last_read: Boolean = false
+        var not_read_show: Boolean = false
+        var headers_in_dialog: Boolean = false
+        var show_recent_dialogs: Boolean = false
+        var show_audio_top: Boolean = false
+        var use_internal_downloader: Boolean = false
+        var music_dir: String? = null
+        var photo_dir: String? = null
+        var video_dir: String? = null
+        var docs_dir: String? = null
+        var sticker_dir: String? = null
+        var photo_to_user_dir: Boolean = false
+        var download_voice_ogg: Boolean = false
+        var delete_cache_images: Boolean = false
+        var compress_default_traffic: Boolean = false
+        var limit_cache: Boolean = false
+        var do_not_clear_back_stack: Boolean = false
+        var mention_fave: Boolean = false
+        var disable_encryption: Boolean = false
+        var download_photo_tap: Boolean = false
+        var audio_save_mode_button: Boolean = false
+        var show_mutual_count: Boolean = false
+        var not_friend_show: Boolean = false
+        var do_zoom_photo: Boolean = false
+        var change_upload_size: Boolean = false
+        var show_photos_line: Boolean = false
+        var do_auto_play_video: Boolean = false
+        var video_controller_to_decor: Boolean = false
+        var video_swipes: Boolean = false
+        var disable_likes: Boolean = false
+        var disable_notifications: Boolean = false
+        var native_parcel_photo: Boolean = false
+        var native_parcel_story: Boolean = false
+        var dump_fcm: Boolean = false
+        var hint_stickers: Boolean = false
+        var enable_native: Boolean = false
+        var enable_cache_ui_anim: Boolean = false
+        var disable_sensored_voice: Boolean = false
+        var local_media_server: String? = null
+        var pagan_symbol: String? = null
+        var language_ui: String? = null
+        var end_list_anim: String? = null
+        var runes_show: Boolean = false
+        var player_background_settings_json: String? = null
+        var slidr_settings_json: String? = null
+        var use_api_5_90_for_audio: Boolean = false
+        var is_side_navigation: Boolean = false
+        var is_side_no_stroke: Boolean = false
+        var is_side_transition: Boolean = false
+        var notification_force_link: Boolean = false
+        var recording_to_opus: Boolean = false
+        var service_playlists: String? = null
+        var rendering_mode: String? = null
+        var hidden_peers: Set<String>? = null
+        var notif_peer_uids: Set<String>? = null
+        var user_name_changes_uids: Set<String>? = null
+    }
+
+    fun doBackup(): JsonObject {
+        val pref = PreferenceScreen.getPreferences(Includes.provideApplicationContext())
+        val preferences = Preferences(pref)
+        val ret = JsonObjectBuilder()
+        ret.put(
+            "app",
+            kJson.encodeToJsonElement(
+                AppPreferencesList.serializer(),
+                preferences.decode(AppPreferencesList.serializer(), "")
+            )
+        )
+        val notificatios_pointers = HashMap<String, Int>()
         for ((key) in Settings.get().notifications().chatsNotif) {
-            val temp = SettingCollector(key, SettingTypes.TYPE_INT).requestSetting(pref)
-            if (temp != null) {
-                if (!has) has = true
-                ret.add(key, temp)
+            if (pref.contains(key)) {
+                notificatios_pointers[key] = pref.getInt(key, -1)
             }
         }
+        ret.put("notifications_values", kJson.encodeToJsonElement(notificatios_pointers))
+        val user_names_pointers = HashMap<String, String>()
         for ((key) in Settings.get().other().getUserNameChangesMap()) {
-            val temp = SettingCollector(key, SettingTypes.TYPE_STRING).requestSetting(pref)
-            if (temp != null) {
-                if (!has) has = true
-                ret.add(key, temp)
+            if (pref.contains(key)) {
+                user_names_pointers[key] = pref.getString(key, null) ?: continue
             }
         }
+        ret.put("user_names_values", kJson.encodeToJsonElement(user_names_pointers))
         val yu = Includes.stores.tempStore().getShortcutAll().blockingGet()
         if (yu.nonNullNoEmpty()) {
-            has = true
-            ret.add("shortcuts", Gson().toJsonTree(yu))
+            ret.put(
+                "shortcuts",
+                kJson.encodeToJsonElement(ListSerializer(ShortcutStored.serializer()), yu)
+            )
         }
-        return if (!has) null else ret
+        return ret.build()
     }
 
     fun doRestore(ret: JsonObject?) {
         ret ?: return
         val pref =
             PreferenceScreen.getPreferences(Includes.provideApplicationContext())
+        val preferences = Preferences(pref)
 
         for (i in Settings.get().notifications().chatsNotifKeys) {
             pref.edit().remove(i).apply()
@@ -201,90 +210,39 @@ class SettingsBackup {
             pref.edit().remove(i).apply()
         }
 
-        for (i in settings) {
-            i.restore(pref, ret)
+        ret["app"]?.let {
+            preferences.encode(
+                AppPreferencesList.serializer(),
+                "",
+                kJson.decodeFromJsonElement(AppPreferencesList.serializer(), it)
+            )
         }
+
         Settings.get().security().reloadHiddenDialogSettings()
         Settings.get().notifications().reloadNotifSettings(true)
-        for (i in Settings.get().notifications().chatsNotifKeys) {
-            SettingCollector(i, SettingTypes.TYPE_INT).restore(pref, ret)
+
+        ret["notifications_values"]?.let {
+            val notificatios_pointers: HashMap<String, Int> = kJson.decodeFromJsonElement(it)
+            for ((key, value) in notificatios_pointers) {
+                pref.edit().putInt(key, value).apply()
+            }
         }
         Settings.get().notifications().reloadNotifSettings(false)
-
         Settings.get().other().reloadUserNameChangesSettings(true)
-        for (i in Settings.get().other().userNameChangesKeys) {
-            SettingCollector(i, SettingTypes.TYPE_STRING).restore(pref, ret)
+
+        ret["user_names_values"]?.let {
+            val user_names_pointers: HashMap<String, String> = kJson.decodeFromJsonElement(it)
+            for ((key, value) in user_names_pointers) {
+                pref.edit().putString(key, value).apply()
+            }
         }
         Settings.get().other().reloadUserNameChangesSettings(false)
-        val yu = ret.get("shortcuts")?.asJsonArray
-        yu ?: return
-        val jp: ArrayList<ShortcutStored> = ArrayList()
-        for (i in yu) {
-            jp.add(Gson().fromJson(i, ShortcutStored::class.java))
-        }
-        if (jp.nonNullNoEmpty()) {
-            Includes.stores.tempStore().addShortcuts(jp).blockingAwait()
-        }
-    }
 
-    private class SettingCollector(
-        val name: String,
-        @SettingTypes val type: Int
-    ) {
-        fun restore(pref: SharedPreferences, ret: JsonObject?) {
-            try {
-                ret ?: return
-                pref.edit().remove(name).apply()
-                if (!ret.has(name)) return
-                val o = ret.getAsJsonObject(name)
-                if (o["type"].asInt != type) return
-                when (type) {
-                    SettingTypes.TYPE_BOOL -> pref.edit().putBoolean(name, o["value"].asBoolean)
-                        .apply()
-                    SettingTypes.TYPE_INT -> pref.edit().putInt(name, o["value"].asInt).apply()
-                    SettingTypes.TYPE_STRING -> pref.edit().putString(name, o["value"].asString)
-                        .apply()
-                    SettingTypes.TYPE_STRING_SET -> {
-                        val arr = o["array"].asJsonArray
-                        if (!arr.isEmpty) {
-                            val rt = HashSet<String>(arr.size())
-                            for (i in arr) {
-                                rt.add(i.asString)
-                            }
-                            pref.edit()
-                                .putStringSet(name, rt)
-                                .apply()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+        ret["shortcuts"]?.let {
+            val jp = kJson.decodeFromJsonElement(ListSerializer(ShortcutStored.serializer()), it)
+            if (jp.nonNullNoEmpty()) {
+                Includes.stores.tempStore().addShortcuts(jp.reversed()).blockingAwait()
             }
-        }
-
-        fun requestSetting(pref: SharedPreferences): JsonObject? {
-            if (!pref.contains(name)) {
-                return null
-            }
-            val temp = JsonObject()
-            temp.addProperty("type", type)
-            when (type) {
-                SettingTypes.TYPE_BOOL -> temp.addProperty("value", pref.getBoolean(name, false))
-                SettingTypes.TYPE_INT -> temp.addProperty("value", pref.getInt(name, 0))
-                SettingTypes.TYPE_STRING -> temp.addProperty("value", pref.getString(name, ""))
-                SettingTypes.TYPE_STRING_SET -> {
-                    val u = JsonArray()
-                    val prSet = pref.getStringSet(name, HashSet(0)) ?: return null
-                    if (prSet.isEmpty()) {
-                        return null
-                    }
-                    for (i in prSet) {
-                        u.add(i)
-                    }
-                    temp.add("array", u)
-                }
-            }
-            return temp
         }
     }
 }

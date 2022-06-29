@@ -1,8 +1,12 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.ChatDtoAdapter
+import kotlinx.serialization.Serializable
+
 /**
  * Chat object describes a user's chat.
  */
+@Serializable(with = ChatDtoAdapter::class)
 class VKApiChat
 /**
  * Creates empty Chat instance.

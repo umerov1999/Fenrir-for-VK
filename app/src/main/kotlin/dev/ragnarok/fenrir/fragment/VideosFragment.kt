@@ -496,7 +496,8 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
     }
 
     override fun showSuccessToast() {
-        Toast.makeText(context, R.string.success, Toast.LENGTH_SHORT).show()
+        CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+            .showToastSuccessBottom(R.string.success)
     }
 
     companion object {

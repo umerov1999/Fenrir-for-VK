@@ -2,20 +2,24 @@ package dev.ragnarok.fenrir.model.drawer
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
+import androidx.annotation.Keep
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Keep
+@Serializable
 class RecentChat : AbsMenuItem {
-    @SerializedName("aid")
+    @SerialName("aid")
     var aid = 0
         private set
 
-    @SerializedName("peerId")
+    @SerialName("peerId")
     var peerId = 0
 
-    @SerializedName("title")
+    @SerialName("title")
     var title: String? = null
 
-    @SerializedName("iconUrl")
+    @SerialName("iconUrl")
     var iconUrl: String? = null
 
     constructor() : super(TYPE_RECENT_CHAT)

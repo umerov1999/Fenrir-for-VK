@@ -33,8 +33,8 @@ object RefreshToken {
     }
      */
 
-    private fun upgradeTokenKate(account: Int, oldToken: String): Boolean {
-        if (Utils.isHiddenAccount(account)) {
+    private fun upgradeTokenKate(account: Int, oldToken: String, force: Boolean): Boolean {
+        if (Utils.isHiddenAccount(account) && !force) {
             return false
         }
         val gms = TokenModKate.requestToken() ?: return false
@@ -49,8 +49,8 @@ object RefreshToken {
         return true
     }
 
-    private fun upgradeTokenOfficial(account: Int, oldToken: String): Boolean {
-        if (Utils.isHiddenAccount(account)) {
+    private fun upgradeTokenOfficial(account: Int, oldToken: String, force: Boolean): Boolean {
+        if (Utils.isHiddenAccount(account) && !force) {
             return false
         }
         val gms = TokenModOfficialVK.requestToken() ?: return false
@@ -66,20 +66,19 @@ object RefreshToken {
         return true
     }
 
-    fun upgradeToken(account: Int, oldToken: String): Boolean {
+    fun upgradeToken(account: Int, oldToken: String, force: Boolean = false): Boolean {
         if (Constants.DEFAULT_ACCOUNT_TYPE == AccountType.KATE) {
-            return upgradeTokenKate(account, oldToken)
+            return upgradeTokenKate(account, oldToken, force)
         } else if (Constants.DEFAULT_ACCOUNT_TYPE == AccountType.VK_ANDROID) {
-            return upgradeTokenOfficial(account, oldToken)
+            return upgradeTokenOfficial(account, oldToken, force)
         }
         return false
     }
 
-    fun upgradeTokenRx(account: Int, oldToken: String): Single<Boolean> {
+    fun upgradeTokenRxPref(account: Int, oldToken: String): Single<Boolean> {
         return Single.create {
             try {
-                upgradeToken(account, oldToken)
-                it.onSuccess(true)
+                it.onSuccess(upgradeToken(account, oldToken, true))
             } catch (ignored: Exception) {
                 it.onSuccess(false)
             }

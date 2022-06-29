@@ -1,27 +1,29 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiMarketAlbum : VKApiAttachment {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("owner_id")
+    @SerialName("owner_id")
     var owner_id = 0
 
-    @SerializedName("access_key")
+    @SerialName("access_key")
     var access_key: String? = null
 
-    @SerializedName("title")
+    @SerialName("title")
     var title: String? = null
 
-    @SerializedName("photo")
+    @SerialName("photo")
     var photo: VKApiPhoto? = null
 
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("updated_time")
+    @SerialName("updated_time")
     var updated_time: Long = 0
     override fun getType(): String {
         return VKApiAttachment.TYPE_MARKET_ALBUM

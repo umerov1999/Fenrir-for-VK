@@ -1,21 +1,18 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.ChatUserDto
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class ChatUserDtoAdapter : AbsAdapter(), JsonDeserializer<ChatUserDto> {
-    @Throws(JsonParseException::class)
+class ChatUserDtoAdapter : AbsAdapter<ChatUserDto>("ChatUserDto") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): ChatUserDto {
-        val user: VKApiUser = context.deserialize(json, VKApiUser::class.java)
+        val user: VKApiUser =
+            kJson.decodeFromJsonElement(json)
         val dto = ChatUserDto()
         if (checkObject(json)) {
             val root = json.asJsonObject

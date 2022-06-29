@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.db.model.entity.PrivacyEntity
 import dev.ragnarok.fenrir.db.model.entity.VideoDboEntity
 import dev.ragnarok.fenrir.model.VideoCriteria
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
-import dev.ragnarok.fenrir.util.msgpack.MsgPack
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Single

@@ -1,26 +1,28 @@
 package dev.ragnarok.fenrir.model
 
 import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.Identificable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Keep
+@Serializable
 class ProxyConfig : Identificable {
     private var id = 0
 
-    @SerializedName("address")
+    @SerialName("address")
     private var address: String? = null
 
-    @SerializedName("port")
+    @SerialName("port")
     private var port = 0
 
-    @SerializedName("authEnabled")
+    @SerialName("authEnabled")
     private var authEnabled = false
 
-    @SerializedName("user")
+    @SerialName("user")
     private var user: String? = null
 
-    @SerializedName("pass")
+    @SerialName("pass")
     private var pass: String? = null
     operator fun set(id: Int, address: String?, port: Int): ProxyConfig {
         this.id = id

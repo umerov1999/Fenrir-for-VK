@@ -6,11 +6,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.birthdaysChannelId
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.getBirthdaysChannel
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -20,6 +19,9 @@ import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.settings.theme.ThemesController.toastColor
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 
 class BirthdayFCMMessage {
     private var user_id = 0
@@ -61,53 +63,17 @@ class BirthdayFCMMessage {
         nManager?.notify(user_id.toString(), NotificationHelper.NOTIFICATION_BIRTHDAY, notification)
     }
 
+    @Serializable
     private class BirthdayContext {
-        @SerializedName("user_id")
+        @SerialName("user_id")
         var user_id = 0
     }
 
     companion object {
-        private val GSON = Gson()
-
-        /*
-    public static class tst {
-        public Map<String, String> data;
-    }
-    public static void test(Context ctx) {
-        BirthdayFCMMessage message = new BirthdayFCMMessage();
-        Map<String, String> data = new ArrayMap<>();
-        data = new Gson().fromJson("{ \"data\": {\n" +
-                "  \"subtype\": \"birthday\",\n" +
-                "  \"image_type\": \"user\",\n" +
-                "  \"need_track_interaction\": \"1\",\n" +
-                "  \"from_id\": \"647737194\",\n" +
-                "  \"id\": \"friend_647737194\",\n" +
-                "  \"url\": \"https://vk.com/id647737194\",\n" +
-                "  \"body\": \"Отправьте подарок сейчас, чтобы точно не забыть поздравить\",\n" +
-                "  \"icon\": \"gift_24\",\n" +
-                "  \"stat\": \"time_sent\\u003d1626588192317\\u0026provider\\u003dfcm\\u0026is_feedback\\u003d1\\u0026subtype\\u003dbirthday\\u0026notify_sent_time\\u003d1626587947\",\n" +
-                "  \"time\": \"1626588192\",\n" +
-                "  \"type\": \"birthday\",\n" +
-                "  \"category\": \"birthday\",\n" +
-                "  \"image\": \"[{\\\"width\\\":200,\\\"url\\\":\\\"https:\\\\/\\\\/sun9-4.userapi.com\\\\/bz_33e8I8PLH1GiuInIZf1NNm11hYV5r4eWCzQ\\\\/3SypfdXM0-E.jpg\\\",\\\"height\\\":200},{\\\"width\\\":100,\\\"url\\\":\\\"https:\\\\/\\\\/sun9-74.userapi.com\\\\/rWpMl1okQy4AfL60WiGl_oIMmb-VGg1aCZOqNw\\\\/LEwSkGEPC1A.jpg\\\",\\\"height\\\":100},{\\\"width\\\":50,\\\"url\\\":\\\"https:\\\\/\\\\/sun9-72.userapi.com\\\\/SkPJ3NVl9pSDgEmC6QYvffqlOCsz8FeHF_Maiw\\\\/Vlt-jsdxha0.jpg\\\",\\\"height\\\":50}]\",\n" +
-                "  \"sound\": \"0\",\n" +
-                "  \"title\": \"День рождения у Бибы\",\n" +
-                "  \"to_id\": \"581662705\",\n" +
-                "  \"group_id\": \"birthdays\",\n" +
-                "  \"context\": \"{\\\"feedback\\\":true,\\\"user_id\\\":647737194}\",\n" +
-                "  \"notify_sent_time\": \"1626587947\"\n" +
-                "}}", tst.class).data;
-        BirthdayContext context = GSON.fromJson(data.get("context"), BirthdayContext.class);
-        message.user_id = context.user_id;
-        message.body = data.get("body");
-        message.title = data.get("title");
-        message.notify(ctx, Settings.get().accounts().getCurrent());
-    }
-     */
         fun fromRemoteMessage(remote: RemoteMessage): BirthdayFCMMessage? {
             val message = BirthdayFCMMessage()
             val data = remote.data
-            val context = GSON.fromJson(data["context"], BirthdayContext::class.java)
+            val context: BirthdayContext = kJson.decodeFromString(data["context"] ?: return null)
             message.user_id = context.user_id
             if (context.user_id == 0) {
                 return null

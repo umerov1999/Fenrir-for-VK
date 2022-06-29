@@ -1,36 +1,43 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.adapters.AttachmentsDtoAdapter.Companion.parse
 import dev.ragnarok.fenrir.api.model.VKApiAttachment
 import dev.ragnarok.fenrir.api.model.VKApiAttachments
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.api.model.VKApiNotSupported
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.jsonObject
 
-class AttachmentsEntryDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAttachments.Entry?> {
-    @Throws(JsonParseException::class)
+class AttachmentsEntryDtoAdapter : AbsAdapter<VKApiAttachments.Entry>("VKApiAttachments.Entry") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
-    ): VKApiAttachments.Entry? {
+        json: JsonElement
+    ): VKApiAttachments.Entry {
         if (!checkObject(json)) {
-            return null
+            return VKApiAttachments.Entry(
+                VKApiAttachment.TYPE_NOT_SUPPORT,
+                VKApiNotSupported("null", "null")
+            )
         }
-        val o = json.asJsonObject
-        val type = optString(o, "type") ?: return null
+        val o = json.jsonObject
+        val type = optString(o, "type") ?: return VKApiAttachments.Entry(
+            VKApiAttachment.TYPE_NOT_SUPPORT,
+            VKApiNotSupported("null", "null")
+        )
         val attachment: VKApiAttachment? = try {
-            parse(type, o, context)
+            parse(type, o)
         } catch (e: Exception) {
             e.printStackTrace()
-            return null
+            return VKApiAttachments.Entry(
+                VKApiAttachment.TYPE_NOT_SUPPORT,
+                VKApiNotSupported(type, "null")
+            )
         }
-        var entry: VKApiAttachments.Entry? = null
         if (attachment != null) {
-            entry = VKApiAttachments.Entry(type, attachment)
+            return VKApiAttachments.Entry(type, attachment)
         }
-        return entry
+        return VKApiAttachments.Entry(
+            VKApiAttachment.TYPE_NOT_SUPPORT,
+            VKApiNotSupported(type, "null")
+        )
     }
 }

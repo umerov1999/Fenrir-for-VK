@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiStickersKeywords {
-    @SerializedName("words_stickers")
+    @SerialName("words_stickers")
     var words_stickers: List<List<VKApiSticker>>? = null
 
-    @SerializedName("keywords")
+    @SerialName("keywords")
     var keywords: List<List<String>>? = null
 }

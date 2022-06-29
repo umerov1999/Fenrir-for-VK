@@ -6,14 +6,12 @@ import android.database.Cursor
 import android.provider.BaseColumns
 import android.provider.ContactsContract
 import androidx.annotation.Keep
-import com.google.gson.GsonBuilder
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
-import dev.ragnarok.fenrir.getBoolean
-import dev.ragnarok.fenrir.getLong
-import dev.ragnarok.fenrir.getString
-import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.*
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.encodeToString
 import kotlin.math.abs
 
 object ContactsUtils {
@@ -46,7 +44,8 @@ object ContactsUtils {
     }
 
     @Keep
-    open class ContactData {
+    @Serializable
+    class ContactData {
         @Suppress("UNUSED")
         constructor()
         constructor(cursor: Cursor) {
@@ -56,28 +55,22 @@ object ContactsUtils {
             is_favorite = cursor.getBoolean(ContactsContract.Contacts.STARRED)
         }
 
-        @SerializedName("contact_id")
-        @Expose(serialize = false, deserialize = false)
+        @Transient
         var contact_id: Long = 0
 
-        @SerializedName("device_local_id")
-        @Expose(serialize = true, deserialize = false)
+        @SerialName("device_local_id")
         var device_local_id: Int = 0
 
-        @SerializedName("name")
-        @Expose(serialize = true, deserialize = false)
+        @SerialName("name")
         var name: String? = null
 
-        @SerializedName("is_favorite")
-        @Expose(serialize = true, deserialize = false)
+        @SerialName("is_favorite")
         var is_favorite: Boolean = false
 
-        @SerializedName("phones")
-        @Expose(serialize = true, deserialize = false)
+        @SerialName("phones")
         var phones: ArrayList<String> = ArrayList()
 
-        @SerializedName("emails")
-        @Expose(serialize = true, deserialize = false)
+        @SerialName("emails")
         var emails: ArrayList<String> = ArrayList()
 
         fun findMails(cr: ContentResolver) {
@@ -147,7 +140,7 @@ object ContactsUtils {
                 it.onError(Throwable("Can't collect contact list!"))
             }
             it.onSuccess(
-                GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(contacts)
+                kJson.encodeToString(contacts)
             )
         }
     }

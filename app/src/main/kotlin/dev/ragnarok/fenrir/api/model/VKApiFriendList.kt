@@ -1,5 +1,8 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class VKApiFriendList {
     /**
      * идентификатор списка друзей

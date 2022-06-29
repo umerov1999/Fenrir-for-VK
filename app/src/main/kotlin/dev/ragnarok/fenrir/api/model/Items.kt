@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class Items<I> {
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("items")
+    @SerialName("items")
     var items: ArrayList<I>? = null
 }

@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * An university object describes an university.
  */
+@Serializable
 class VKApiUniversity : IUserActivityPoint {
     /**
      * University ID, positive number

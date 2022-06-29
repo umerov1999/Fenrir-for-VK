@@ -1,22 +1,17 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.CommentsDto
 import dev.ragnarok.fenrir.api.model.VKApiTopic
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.*
 
-class TopicDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiTopic> {
-    @Throws(JsonParseException::class)
+class TopicDtoAdapter : AbsAdapter<VKApiTopic>("VKApiTopic") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiTopic {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiTopic()
         val root = json.asJsonObject
@@ -31,11 +26,14 @@ class TopicDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiTopic> {
         dto.is_fixed = optBoolean(root, "is_fixed")
         if (root.has("comments")) {
             val commentsJson = root["comments"]
-            if (commentsJson.isJsonObject) {
-                dto.comments = context.deserialize(commentsJson, CommentsDto::class.java)
+            if (commentsJson is JsonObject) {
+                dto.comments =
+                    kJson.decodeFromJsonElement(
+                        commentsJson
+                    )
             } else {
                 dto.comments = CommentsDto()
-                dto.comments?.count = commentsJson.asInt
+                dto.comments?.count = commentsJson?.jsonPrimitive?.intOrNull ?: 0
             }
         }
         dto.first_comment = optString(root, "first_comment")

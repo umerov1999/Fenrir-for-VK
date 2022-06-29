@@ -1,11 +1,14 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.CommentDtoAdapter
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
+import kotlinx.serialization.Serializable
 
 /**
  * Comment object describes a comment.
  */
+@Serializable(with = CommentDtoAdapter::class)
 class VKApiComment
 /**
  * Creates empty Comment instance.

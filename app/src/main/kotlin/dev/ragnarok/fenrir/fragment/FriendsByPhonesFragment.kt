@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.gson.JsonParser
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
@@ -26,6 +25,7 @@ import dev.ragnarok.fenrir.activity.FileManagerSelectActivity
 import dev.ragnarok.fenrir.adapter.ContactsAdapter
 import dev.ragnarok.fenrir.adapter.VideoAlbumsNewAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.model.ContactConversation
 import dev.ragnarok.fenrir.model.Peer
@@ -39,12 +39,11 @@ import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
 import dev.ragnarok.fenrir.view.MySearchView
-import java.io.BufferedReader
+import kotlinx.serialization.builtins.ListSerializer
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStreamReader
-import java.nio.charset.StandardCharsets
 
 class FriendsByPhonesFragment : BaseMvpFragment<FriendsByPhonesPresenter, IFriendsByPhonesView>(),
     ContactsAdapter.ClickListener, IFriendsByPhonesView, MenuProvider {
@@ -94,23 +93,15 @@ class FriendsByPhonesFragment : BaseMvpFragment<FriendsByPhonesPresenter, IFrien
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
             try {
-                val jbld = StringBuilder()
                 val file = File(
                     result.data?.getStringExtra(Extra.PATH) ?: return@registerForActivityResult
                 )
                 if (file.exists()) {
-                    val dataFromServerStream = FileInputStream(file)
-                    val d = BufferedReader(
-                        InputStreamReader(
-                            dataFromServerStream,
-                            StandardCharsets.UTF_8
-                        )
+                    val contacts: List<ContactConversation> = kJson.decodeFromStream(
+                        ListSerializer(ContactConversation.serializer()),
+                        FileInputStream(file)
                     )
-                    while (d.ready()) jbld.append(d.readLine())
-                    d.close()
-                    val obj = JsonParser.parseString(jbld.toString()).asJsonObject
-                    val reader = obj.getAsJsonArray("contacts")
-                    presenter?.fireImport(reader)
+                    presenter?.fireImport(contacts)
                 }
             } catch (e: Exception) {
                 CustomToast.CreateCustomToast(requireActivity()).showToastError(e.localizedMessage)

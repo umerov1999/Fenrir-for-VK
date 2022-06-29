@@ -1,25 +1,27 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.orZero
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiWallReply : VKApiAttachment {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("from_id")
+    @SerialName("from_id")
     var from_id = 0
 
-    @SerializedName("post_id")
+    @SerialName("post_id")
     var post_id = 0
 
-    @SerializedName("owner_id")
+    @SerialName("owner_id")
     var owner_id = 0
 
-    @SerializedName("text")
+    @SerialName("text")
     var text: String? = null
 
-    @SerializedName("attachments")
+    @SerialName("attachments")
     var attachments: VKApiAttachments? = null
     val attachmentsCount: Int
         get() = attachments?.size().orZero()

@@ -1,8 +1,10 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class PostCreateResponse {
-    @SerializedName("post_id")
+    @SerialName("post_id")
     var postId = 0
 }

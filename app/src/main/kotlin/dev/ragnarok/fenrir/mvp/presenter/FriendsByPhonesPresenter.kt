@@ -4,9 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IAccountsInteractor
@@ -18,6 +15,8 @@ import dev.ragnarok.fenrir.mvp.view.IFriendsByPhonesView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.serializeble.json.Json
+import kotlinx.serialization.builtins.ListSerializer
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
@@ -38,17 +37,9 @@ class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceSt
         )
     }
 
-    fun fireImport(reader: JsonArray) {
+    fun fireImport(reader: List<ContactConversation>) {
         data.clear()
-        for (i in reader) {
-            val elem = i.asJsonObject
-            data.add(
-                ContactConversation(elem.get("peer_id").asInt).setIsContact(true)
-                    .setPhone(if (elem.has("number")) elem.get("number").asString else null)
-                    .setPhoto(if (elem.has("photo")) elem.get("photo").asString else null)
-                    .setTitle(if (elem.has("name")) elem.get("name").asString else null)
-            )
-        }
+        data.addAll(reader)
         view?.notifyDataSetChanged()
     }
 
@@ -69,23 +60,10 @@ class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceSt
     fun fireExport(context: Context, file: File) {
         var out: FileOutputStream? = null
         try {
-            val root = JsonObject()
-            val arr = JsonArray()
 
-            for (i in data) {
-                if (i.phone.isNullOrEmpty()) {
-                    continue
-                }
-                val temp = JsonObject()
-                temp.addProperty("name", i.title)
-                temp.addProperty("number", i.phone)
-                temp.addProperty("peer_id", i.id)
-                temp.addProperty("photo", i.photo)
-                arr.add(temp)
-            }
-
-            root.add("contacts", arr)
-            val bytes = GsonBuilder().setPrettyPrinting().create().toJson(root).toByteArray(
+            val bytes = Json {
+                prettyPrint = true
+            }.encodeToString(ListSerializer(ContactConversation.serializer()), data).toByteArray(
                 StandardCharsets.UTF_8
             )
             out = FileOutputStream(file)

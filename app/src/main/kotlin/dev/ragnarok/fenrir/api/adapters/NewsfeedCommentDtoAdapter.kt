@@ -1,34 +1,29 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.VKApiTopic
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse.*
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class NewsfeedCommentDtoAdapter : AbsAdapter(), JsonDeserializer<Dto?> {
-    @Throws(JsonParseException::class)
+class NewsfeedCommentDtoAdapter : AbsAdapter<Dto>("Dto") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
-    ): Dto? {
-        var dto: Dto? = null
+        json: JsonElement
+    ): Dto {
         if (!checkObject(json)) {
-            return null
+            throw UnsupportedOperationException()
         }
         val root = json.asJsonObject
         when (optString(root, "type", "post")) {
             "photo" -> {
-                dto = PhotoDto(context.deserialize(root, VKApiPhoto::class.java))
+                return PhotoDto(kJson.decodeFromJsonElement(root))
             }
             "post" -> {
-                dto = PostDto(context.deserialize(root, VKApiPost::class.java))
+                return PostDto(kJson.decodeFromJsonElement(root))
             }
             "video" -> {
-                dto = VideoDto(context.deserialize(root, VKApiVideo::class.java))
+                return VideoDto(kJson.decodeFromJsonElement(root))
             }
             "topic" -> {
                 val topic = VKApiTopic()
@@ -36,10 +31,13 @@ class NewsfeedCommentDtoAdapter : AbsAdapter(), JsonDeserializer<Dto?> {
                 if (root.has("to_id")) topic.owner_id = optInt(root, "to_id") else topic.owner_id =
                     optInt(root, "source_id")
                 topic.title = optString(root, "text")
-                topic.comments = context.deserialize(root["comments"], CommentsDto::class.java)
-                dto = TopicDto(topic)
+                topic.comments =
+                    root["comments"]?.let {
+                        kJson.decodeFromJsonElement(it)
+                    }
+                return TopicDto(topic)
             }
         }
-        return dto
+        throw UnsupportedOperationException()
     }
 }

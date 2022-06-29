@@ -28,6 +28,7 @@ import dev.ragnarok.fenrir.mvp.presenter.LocalPhotosPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalPhotosView
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
+import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 
 class LocalPhotosFragment : BaseMvpFragment<LocalPhotosPresenter, ILocalPhotosView>(),
@@ -133,7 +134,8 @@ class LocalPhotosFragment : BaseMvpFragment<LocalPhotosPresenter, ILocalPhotosVi
     }
 
     override fun showError(errorText: String?) {
-        if (isAdded) Toast.makeText(requireActivity(), errorText, Toast.LENGTH_LONG).show()
+        if (isAdded) CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+            .showToastError(errorText)
     }
 
     override fun showError(@StringRes titleTes: Int, vararg params: Any?) {

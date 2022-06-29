@@ -1,29 +1,37 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.Serializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.lang.reflect.Type
 
+@Serializable
 class Error {
-    @SerializedName("error_code")
+    @SerialName("error_code")
     var errorCode = 0
 
-    @SerializedName("error_msg")
+    @SerialName("error_msg")
     var errorMsg: String? = null
 
-    @SerializedName("captcha_sid")
+    @SerialName("captcha_sid")
     var captchaSid: String? = null
 
-    @SerializedName("captcha_img")
+    @SerialName("captcha_img")
     var captchaImg: String? = null
 
-    @SerializedName("redirect_uri")
+    @SerialName("redirect_uri")
     var redirectUri: String? = null
 
-    @SerializedName("request_params")
+    @SerialName("request_params")
     var requestParams: List<Params>? = null
 
+    @Transient
     var type: Type? = null
+
+    @Transient
+    var serializer: Serializer? = null
 
     fun requests(): HashMap<String, String> {
         val params: HashMap<String, String> = HashMap(requestParams?.size.orZero())
@@ -46,10 +54,11 @@ class Error {
     }
 }
 
+@Serializable
 class Params {
-    @SerializedName("key")
+    @SerialName("key")
     var key: String? = null
 
-    @SerializedName("value")
+    @SerialName("value")
     var value: String? = null
 }

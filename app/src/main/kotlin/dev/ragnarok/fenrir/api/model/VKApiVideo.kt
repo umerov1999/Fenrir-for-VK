@@ -1,8 +1,12 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.VideoDtoAdapter
+import kotlinx.serialization.Serializable
+
 /**
  * A video object describes an video file.
  */
+@Serializable(with = VideoDtoAdapter::class)
 class VKApiVideo : VKApiAttachment, Commentable, Likeable, Copyable {
     /**
      * Video ID.

@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * A school object describes a school.
  */
+@Serializable
 class VKApiMilitary
 /**
  * Creates empty School instance.

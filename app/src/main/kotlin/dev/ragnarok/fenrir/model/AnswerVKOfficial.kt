@@ -1,7 +1,8 @@
 package dev.ragnarok.fenrir.model
 
 import androidx.annotation.IntDef
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlin.math.abs
 
 class AnswerVKOfficial {
@@ -39,11 +40,13 @@ class AnswerVKOfficial {
         }
     }
 
+    @Serializable
     abstract class Action {
         @Action_Types
         abstract fun getType(): Int
     }
 
+    @Serializable
     class ActionMessage(private val peerId: Int, private val messageId: Int) : Action() {
         fun getPeerId(): Int {
             return peerId
@@ -58,6 +61,7 @@ class AnswerVKOfficial {
         }
     }
 
+    @Serializable
     class ActionURL(private val url: String?) : Action() {
         fun getUrl(): String? {
             return url
@@ -68,25 +72,27 @@ class AnswerVKOfficial {
         }
     }
 
+    @Serializable
     class ImageAdditional {
-        @SerializedName("url")
+        @SerialName("url")
         var url: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
         fun calcAverageSize(): Int {
             return (width + height) / 2
         }
     }
 
+    @Serializable
     class Attachment {
-        @SerializedName("type")
+        @SerialName("type")
         var type: String? = null
 
-        @SerializedName("object_id")
+        @SerialName("object_id")
         var object_id: String? = null
     }
 }

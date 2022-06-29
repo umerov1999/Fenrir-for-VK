@@ -1,17 +1,19 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.api.model.VKApiUser
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class PostsResponse {
-    @SerializedName("items")
+    @SerialName("items")
     var posts: List<VKApiPost>? = null
 
-    @SerializedName("profiles")
+    @SerialName("profiles")
     var profiles: List<VKApiUser>? = null
 
-    @SerializedName("groups")
+    @SerialName("groups")
     var groups: List<VKApiCommunity>? = null
 }

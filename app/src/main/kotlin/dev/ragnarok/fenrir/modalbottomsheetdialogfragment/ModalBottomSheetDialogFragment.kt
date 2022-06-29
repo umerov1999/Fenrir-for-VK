@@ -114,9 +114,9 @@ class ModalBottomSheetDialogFragment(listener: Listener) : BottomSheetDialogFrag
         list.adapter = adapter
         val columns = arguments.getInt(KEY_COLUMNS)
         if (columns == 1) {
-            list.layoutManager = LinearLayoutManager(context)
+            list.layoutManager = LinearLayoutManager(requireActivity())
         } else {
-            val layoutManager = GridLayoutManager(context, columns)
+            val layoutManager = GridLayoutManager(requireActivity(), columns)
             layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return if (adapter.header != null && position == 0) {

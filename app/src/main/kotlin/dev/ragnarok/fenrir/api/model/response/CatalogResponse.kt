@@ -1,24 +1,26 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.api.model.VKApiAudioPlaylist
 import dev.ragnarok.fenrir.api.model.VKApiCatalogLink
 import dev.ragnarok.fenrir.api.model.VKApiVideo
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class CatalogResponse {
-    @SerializedName("audios")
+    @SerialName("audios")
     var audios: List<VKApiAudio>? = null
 
-    @SerializedName("playlists")
+    @SerialName("playlists")
     var playlists: List<VKApiAudioPlaylist>? = null
 
-    @SerializedName("videos")
+    @SerialName("videos")
     var videos: List<VKApiVideo>? = null
 
-    @SerializedName("items")
+    @SerialName("items")
     var items: List<VKApiCatalogLink>? = null
 
-    @SerializedName("next_from")
+    @SerialName("next_from")
     var nextFrom: String? = null
 }

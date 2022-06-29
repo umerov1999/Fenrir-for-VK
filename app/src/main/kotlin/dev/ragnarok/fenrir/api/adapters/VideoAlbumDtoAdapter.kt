@@ -1,22 +1,20 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.api.model.VKApiVideoAlbum
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.intOrNull
+import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
-class VideoAlbumDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideoAlbum> {
-    @Throws(JsonParseException::class)
+class VideoAlbumDtoAdapter : AbsAdapter<VKApiVideoAlbum>("VKApiVideoAlbum") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiVideoAlbum {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val album = VKApiVideoAlbum()
         val root = json.asJsonObject
@@ -26,22 +24,26 @@ class VideoAlbumDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideoAlbum> {
         album.count = optInt(root, "count")
         album.updated_time = optInt(root, "updated_time").toLong()
         if (hasObject(root, "privacy_view")) {
-            album.privacy = context.deserialize(root["privacy_view"], VKApiPrivacy::class.java)
+            album.privacy =
+                root["privacy_view"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         if (hasArray(root, "image")) {
             val images = root.getAsJsonArray("image")
-            for (i in 0 until images.size()) {
-                if (!checkObject(images[i])) {
+            for (i in 0 until images?.size.orZero()) {
+                if (!checkObject(images?.get(i))) {
                     continue
                 }
-                if (images[i].asJsonObject["width"].asInt >= 800) {
-                    album.image = images[i].asJsonObject["url"].asString
+                if (images?.get(i)?.asJsonObject?.get("width")?.jsonPrimitive?.intOrNull.orZero() >= 800) {
+                    album.image = images?.get(i)?.asJsonObject?.get("url")?.jsonPrimitive?.content
                     break
                 }
             }
             if (album.image == null) {
-                if (checkObject(images[images.size() - 1])) {
-                    album.image = images[images.size() - 1].asJsonObject["url"].asString
+                if (checkObject(images?.get(images.size - 1))) {
+                    album.image =
+                        images?.get(images.size - 1)?.asJsonObject?.get("url")?.jsonPrimitive?.content
                 }
             }
         } else if (root.has("photo_800")) {

@@ -1,21 +1,18 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiNarratives
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.int
+import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
-class NarrativesDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiNarratives> {
-    @Throws(JsonParseException::class)
+class NarrativesDtoAdapter : AbsAdapter<VKApiNarratives>("VKApiNarratives") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiNarratives {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiNarratives()
         val root = json.asJsonObject
@@ -24,22 +21,23 @@ class NarrativesDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiNarratives> {
         dto.title = optString(root, "title")
         if (hasArray(root, "story_ids")) {
             val temp = root.getAsJsonArray("story_ids")
-            dto.story_ids = IntArray(temp.size()) { optInt(temp, it, 0) }
+            dto.story_ids = IntArray(temp?.size.orZero()) { optInt(temp, it, 0) }
         }
         if (hasObject(root, "cover") && hasArray(root.getAsJsonObject("cover"), "cropped_sizes")) {
             val images = root.getAsJsonObject("cover").getAsJsonArray("cropped_sizes")
-            for (i in 0 until images.size()) {
-                if (!checkObject(images[i])) {
+            for (i in 0 until images?.size.orZero()) {
+                if (!checkObject(images?.get(i))) {
                     continue
                 }
-                if (images[i].asJsonObject["width"].asInt >= 400) {
-                    dto.cover = images[i].asJsonObject["url"].asString
+                if (images?.get(i)?.asJsonObject?.get("width")?.jsonPrimitive?.int.orZero() >= 400) {
+                    dto.cover = images?.get(i)?.asJsonObject?.get("url")?.jsonPrimitive?.content
                     break
                 }
             }
             if (dto.cover == null) {
-                if (checkObject(images[images.size() - 1])) {
-                    dto.cover = images[images.size() - 1].asJsonObject["url"].asString
+                if (checkObject(images?.get(images.size - 1))) {
+                    dto.cover =
+                        images?.get(images.size - 1)?.asJsonObject?.get("url")?.jsonPrimitive?.content
                 }
             }
         }

@@ -1,10 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.UserDtoAdapter
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import kotlinx.serialization.Serializable
 
 /**
  * User object describes a user profile.
  */
+@Serializable(with = UserDtoAdapter::class)
 class VKApiUser
 /**
  * Creates empty User instance.
@@ -666,6 +669,7 @@ class VKApiUser
         const val WEB = 7
     }
 
+    @Serializable
     class Occupation {
         /**
          * может принимать значения work, school, university
@@ -683,6 +687,7 @@ class VKApiUser
         var name: String? = null
     }
 
+    @Serializable
     class Counters {
         var albums = NO_COUNTER
         var videos = NO_COUNTER
@@ -733,6 +738,7 @@ class VKApiUser
         const val PARENT = "parent"
     }
 
+    @Serializable
     class Relative {
         var type: String? = null
         var id = 0

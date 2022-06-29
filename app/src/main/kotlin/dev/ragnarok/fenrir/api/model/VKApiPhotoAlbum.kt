@@ -1,8 +1,12 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.PhotoAlbumDtoAdapter
+import kotlinx.serialization.Serializable
+
 /**
  * Describes a photo album
  */
+@Serializable(with = PhotoAlbumDtoAdapter::class)
 class VKApiPhotoAlbum
 /**
  * Creates empty PhotoAlbum instance.

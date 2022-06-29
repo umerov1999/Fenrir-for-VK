@@ -1,18 +1,23 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class PhotoSizeDto {
-    @SerializedName(value = "url", alternate = ["src"])
+    @SerialName(value = "url")
     var url: String? = null
 
-    @SerializedName("type")
+    @SerialName(value = "src")
+    var src: String? = null
+
+    @SerialName("type")
     var type: String? = null
 
-    @SerializedName("width")
+    @SerialName("width")
     var width = 0
 
-    @SerializedName("height")
+    @SerialName("height")
     var height = 0
 
     object Type {

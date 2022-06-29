@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.api
 
-import com.google.gson.Gson
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.BuildConfig
 import dev.ragnarok.fenrir.Constants
@@ -13,14 +12,12 @@ import java.util.concurrent.TimeUnit
 class VkMethodHttpClientFactory : IVkMethodHttpClientFactory {
     override fun createDefaultVkHttpClient(
         accountId: Int,
-        gson: Gson,
         config: ProxyConfig?
     ): OkHttpClient {
         return createDefaultVkApiOkHttpClient(
             DefaultVkApiInterceptor(
                 accountId,
-                Constants.API_VERSION,
-                gson
+                Constants.API_VERSION
             ), config
         )
     }
@@ -28,26 +25,23 @@ class VkMethodHttpClientFactory : IVkMethodHttpClientFactory {
     override fun createCustomVkHttpClient(
         accountId: Int,
         token: String,
-        gson: Gson,
         config: ProxyConfig?
     ): OkHttpClient {
         return createDefaultVkApiOkHttpClient(
             CustomTokenVkApiInterceptor(
                 token,
                 Constants.API_VERSION,
-                gson,
                 AccountType.BY_TYPE,
                 accountId
             ), config
         )
     }
 
-    override fun createServiceVkHttpClient(gson: Gson, config: ProxyConfig?): OkHttpClient {
+    override fun createServiceVkHttpClient(config: ProxyConfig?): OkHttpClient {
         return createDefaultVkApiOkHttpClient(
             CustomTokenVkApiInterceptor(
                 BuildConfig.SERVICE_TOKEN,
                 Constants.API_VERSION,
-                gson,
                 Constants.DEFAULT_ACCOUNT_TYPE,
                 null
             ), config

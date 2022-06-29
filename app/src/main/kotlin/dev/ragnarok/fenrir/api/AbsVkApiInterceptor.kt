@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.api
 
-import com.google.gson.Gson
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
@@ -13,7 +12,7 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 
-abstract class AbsVkApiInterceptor(private val version: String, private val gson: Gson) :
+abstract class AbsVkApiInterceptor(private val version: String) :
     Interceptor {
     protected abstract val token: String?
 

@@ -37,6 +37,7 @@ import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.SecuritySettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
+import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.view.MySearchView
 import io.reactivex.rxjava3.core.Single
@@ -337,7 +338,8 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
                 removeKeysFor(currentAccountId)
             }
         }
-        Toast.makeText(requireActivity(), R.string.deleted, Toast.LENGTH_LONG).show()
+        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+            .showToastSuccessBottom(R.string.deleted)
     }
 
     private fun removeKeysFor(accountId: Int) {

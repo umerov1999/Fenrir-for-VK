@@ -2,13 +2,15 @@ package dev.ragnarok.fenrir.api.model.server
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiWallUploadServer : Parcelable, UploadServer {
     /**
      * адрес для загрузки фотографий
      */
-    @SerializedName("upload_url")
+    @SerialName("upload_url")
     override var url: String? = null
 
     /**

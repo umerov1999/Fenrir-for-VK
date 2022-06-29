@@ -1,14 +1,17 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiMessage
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class LongpollHistoryResponse {
-    @SerializedName("messages")
+    @SerialName("messages")
     var messages: Messages? = null
 
+    @Serializable
     class Messages {
-        @SerializedName("items")
+        @SerialName("items")
         var items: List<VKApiMessage>? = null
     }
 }

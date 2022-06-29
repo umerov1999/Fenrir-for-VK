@@ -1,15 +1,16 @@
 package dev.ragnarok.fenrir.settings
 
 import android.content.Context
-import com.google.gson.Gson
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.drawer.RecentChat
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.IRecentChats
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 
 internal class RecentChatsSettings(app: Context) : IRecentChats {
     private val app: Context = app.applicationContext
-    private val gson: Gson = Gson()
     override fun get(acountid: Int): MutableList<RecentChat> {
         val recentChats: MutableList<RecentChat> = ArrayList()
         val stringSet = getPreferences(app)
@@ -17,7 +18,7 @@ internal class RecentChatsSettings(app: Context) : IRecentChats {
         if (stringSet.nonNullNoEmpty()) {
             for (s in stringSet) {
                 try {
-                    val recentChat = gson.fromJson(s, RecentChat::class.java)
+                    val recentChat: RecentChat = kJson.decodeFromString(s)
                     recentChats.add(recentChat)
                 } catch (ignored: Exception) {
                 }
@@ -30,7 +31,7 @@ internal class RecentChatsSettings(app: Context) : IRecentChats {
         val target: MutableSet<String> = LinkedHashSet()
         for (item in chats) {
             if (item.aid != accountid) continue
-            target.add(gson.toJson(item))
+            target.add(kJson.encodeToString(item))
         }
         getPreferences(app)
             .edit()

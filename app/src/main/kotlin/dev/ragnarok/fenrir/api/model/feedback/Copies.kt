@@ -1,19 +1,22 @@
 package dev.ragnarok.fenrir.api.model.feedback
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class Copies {
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("items")
+    @SerialName("items")
     var pairs: List<IdPair>? = null
 
+    @Serializable
     class IdPair {
-        @SerializedName("id")
+        @SerialName("id")
         var id = 0
 
-        @SerializedName("from_id")
+        @SerialName("from_id")
         var owner_id = 0
     }
 }

@@ -1,5 +1,8 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class AccessIdPair(val id: Int, val ownerId: Int, val accessKey: String?) {
     companion object {
 

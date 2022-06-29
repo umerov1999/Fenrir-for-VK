@@ -1,9 +1,11 @@
 package dev.ragnarok.fenrir.api.model.upload
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class UploadDocDto {
-    @SerializedName("file")
+    @SerialName("file")
     var file: String? = null
     override fun toString(): String {
         return "UploadDocDto{" +

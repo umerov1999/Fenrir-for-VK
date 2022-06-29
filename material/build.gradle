@@ -95,7 +95,7 @@ dependencies {
     api("androidx.cardview:cardview:1.0.0")
     api("androidx.dynamicanimation:dynamicanimation:1.1.0-alpha03")
     api("androidx.constraintlayout:constraintlayout:$constraintlayoutVersion")
-    api("androidx.recyclerview:recyclerview:$recyclerviewVersion")
+    //api("androidx.recyclerview:recyclerview:$recyclerviewVersion")
     api("androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayoutVersion")
     api("androidx.vectordrawable:vectordrawable:$vectordrawableVersion")
     api("androidx.transition:transition:1.4.1")

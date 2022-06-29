@@ -14,7 +14,6 @@ import android.util.LongSparseArray
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.gson.Gson
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.KeyExchangeCommitActivity.Companion.createIntent
@@ -30,9 +29,11 @@ import dev.ragnarok.fenrir.crypt.ver.Version.currentVersion
 import dev.ragnarok.fenrir.crypt.ver.Version.ofCurrent
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.push.OwnerInfo
+import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Logger.wtf
 import dev.ragnarok.fenrir.util.Unixtime.now
@@ -40,6 +41,7 @@ import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.serialization.decodeFromString
 import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
@@ -166,7 +168,8 @@ class KeyExchangeService : Service() {
     ) {
         val existsSession = findSessionFor(accountId, peerId)
         if (existsSession != null) {
-            Toast.makeText(this, R.string.session_already_created, Toast.LENGTH_LONG).show()
+            CustomToast.CreateCustomToast(this).setDuration(Toast.LENGTH_LONG)
+                .showToastInfo(R.string.session_already_created)
             return
         }
         mSessionIdGenerator.generateNextId()
@@ -454,8 +457,8 @@ class KeyExchangeService : Service() {
         if (withError) {
             showError(getString(R.string.key_exchange_failed))
         } else {
-            Toast.makeText(this, R.string.you_have_successfully_exchanged_keys, Toast.LENGTH_LONG)
-                .show()
+            CustomToast.CreateCustomToast(this).setDuration(Toast.LENGTH_LONG)
+                .showToastSuccessBottom(R.string.you_have_successfully_exchanged_keys)
         }
         d(TAG, "Session was released, id: " + session.id + ", withError: " + withError)
         toggleServiceLiveHandler()
@@ -471,7 +474,7 @@ class KeyExchangeService : Service() {
     }
 
     private fun showError(text: String) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+        CustomToast.CreateCustomToast(this).setDuration(Toast.LENGTH_LONG).showToastError(text)
     }
 
     private fun finishAllByTimeout() {
@@ -738,7 +741,10 @@ class KeyExchangeService : Service() {
             return if (type == MessageType.KEY_EXCHANGE) {
                 try {
                     val exchangeMessageBody = messageBody.substring(3) // without RSA on start
-                    val message = Gson().fromJson(exchangeMessageBody, ExchangeMessage::class.java)
+                    val message: ExchangeMessage =
+                        kJson.decodeFromString(
+                            exchangeMessageBody
+                        )
                     if (!out) {
                         processMessage(context, accountId, peerId, messageId, message)
                     }

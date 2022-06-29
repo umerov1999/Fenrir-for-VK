@@ -1,20 +1,23 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import dev.ragnarok.fenrir.api.adapters.NarrativesDtoAdapter
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable(with = NarrativesDtoAdapter::class)
 class VKApiNarratives {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("owner_id")
+    @SerialName("owner_id")
     var owner_id = 0
 
-    @SerializedName("title")
+    @SerialName("title")
     var title: String? = null
 
-    @SerializedName("story_ids")
+    @SerialName("story_ids")
     var story_ids: IntArray? = null
 
-    @SerializedName("cover")
+    @SerialName("cover")
     var cover: String? = null
 }

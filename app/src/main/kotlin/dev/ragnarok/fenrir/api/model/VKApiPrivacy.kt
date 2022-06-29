@@ -1,7 +1,10 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.PrivacyDtoAdapter
 import dev.ragnarok.fenrir.api.util.VKStringUtils.join
+import kotlinx.serialization.Serializable
 
+@Serializable(with = PrivacyDtoAdapter::class)
 class VKApiPrivacy(var category: String?) {
     var entries: ArrayList<Entry> = ArrayList()
     private fun putIfNotExist(entry: Entry) {
@@ -43,6 +46,7 @@ class VKApiPrivacy(var category: String?) {
         putIfNotExist(Entry.excludedFriendsList(id))
     }
 
+    @Serializable
     class Entry(var type: Int, var id: Int, var allowed: Boolean) {
         override fun toString(): String {
             return when (type) {

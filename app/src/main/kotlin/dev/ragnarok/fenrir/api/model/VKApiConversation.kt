@@ -1,64 +1,67 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiConversation {
-    @SerializedName("peer")
+    @SerialName("peer")
     var peer: Peer? = null
 
     /**
      * идентификатор последнего прочтенного входящего сообщения.
      */
-    @SerializedName("in_read")
+    @SerialName("in_read")
     var inRead = 0
 
     /**
      * идентификатор последнего прочтенного исходящего сообщения.
      */
-    @SerializedName("out_read")
+    @SerialName("out_read")
     var outRead = 0
 
-    @SerializedName("last_message_id")
+    @SerialName("last_message_id")
     var lastMessageId = 0
 
     /**
      * число непрочитанных сообщений.
      */
-    @SerializedName("unread_count")
+    @SerialName("unread_count")
     var unreadCount = 0
 
-    @SerializedName("sort_id")
+    @SerialName("sort_id")
     var sort_id: SortElement? = null
 
     /**
      * true, если диалог помечен как важный (только для сообщений сообществ).
      */
-    @SerializedName("important")
+    @SerialName("important")
     var important = false
 
-    @SerializedName("current_keyboard")
+    @SerialName("current_keyboard")
     var current_keyboard: CurrentKeyboard? = null
 
     /**
      * true, если диалог помечен как неотвеченный (только для сообщений сообществ).
      */
-    @SerializedName("unanswered")
+    @SerialName("unanswered")
     var unanswered = false
 
     /**
      * информация о том, может ли пользователь писать в диалог.
      */
-    @SerializedName("can_write")
+    @SerialName("can_write")
     var canWrite: CanWrite? = null
 
-    @SerializedName("chat_settings")
+    @SerialName("chat_settings")
     var settings: Settings? = null
 
+    @Serializable
     class CanWrite {
         /**
          * true, если пользователь может писать в диалог;
          */
-        @SerializedName("allowed")
+        @SerialName("allowed")
         var allowed = false
 
         /**
@@ -72,152 +75,161 @@ class VKApiConversation {
          * 918 — нет доступа к e-mail;
          * 203 — нет доступа к сообществу.
          */
-        @SerializedName("reason")
+        @SerialName("reason")
         var reason = 0
     }
 
+    @Serializable
     class Peer {
         /**
          * идентификатор назначения.
          */
-        @SerializedName("id")
+        @SerialName("id")
         var id = 0
 
         /**
          * local_id (integer) — локальный идентификатор назначения. Для чатов — id - 2000000000, для сообществ — -id, для e-mail — -(id+2000000000).
          * для контактов - (id-1900000000)
          */
-        @SerializedName("local_id")
+        @SerialName("local_id")
         var local_id = 0
 
-        @SerializedName("type")
+        @SerialName("type")
         var type: String? = null
     }
 
+    @Serializable
     class Settings {
-        @SerializedName("pinned_message")
+        @SerialName("pinned_message")
         var pinnedMesage: VKApiMessage? = null
 
-        @SerializedName("title")
+        @SerialName("title")
         var title: String? = null
 
-        @SerializedName("members_count")
+        @SerialName("members_count")
         var membersCount = 0
 
-        @SerializedName("photo")
+        @SerialName("photo")
         var photo: Photo? = null
 
-        @SerializedName("active_ids")
+        @SerialName("active_ids")
         var activeIds: IntArray? = null
 
-        @SerializedName("state")
+        @SerialName("state")
         var state: String? = null
 
-        @SerializedName("is_group_channel")
+        @SerialName("is_group_channel")
         var is_group_channel = false
 
-        @SerializedName("acl")
+        @SerialName("acl")
         var acl: Acl? = null
     }
 
+    @Serializable
     class Acl {
-        @SerializedName("can_invite")
+        @SerialName("can_invite")
         var can_invite = false
 
-        @SerializedName("can_change_info")
+        @SerialName("can_change_info")
         var can_change_info = false
 
-        @SerializedName("can_change_pin")
+        @SerialName("can_change_pin")
         var can_change_pin = false
 
-        @SerializedName("can_promote_users")
+        @SerialName("can_promote_users")
         var can_promote_users = false
 
-        @SerializedName("can_see_invite_link")
+        @SerialName("can_see_invite_link")
         var can_see_invite_link = false
 
-        @SerializedName("can_change_invite_link")
+        @SerialName("can_change_invite_link")
         var can_change_invite_link = false
     }
 
+    @Serializable
     class Photo {
-        @SerializedName("photo_50")
+        @SerialName("photo_50")
         var photo50: String? = null
 
-        @SerializedName("photo_100")
+        @SerialName("photo_100")
         var photo100: String? = null
 
-        @SerializedName("photo200")
+        @SerialName("photo200")
         var photo200: String? = null
     }
 
+    @Serializable
     class Keyboard_Action {
-        @SerializedName("type")
+        @SerialName("type")
         var type: String? = null
 
-        @SerializedName("label")
+        @SerialName("label")
         var label: String? = null
 
-        @SerializedName("link")
+        @SerialName("link")
         var link: String? = null
 
-        @SerializedName("payload")
+        @SerialName("payload")
         var payload: String? = null
     }
 
+    @Serializable
     class ButtonElement {
-        @SerializedName("action")
+        @SerialName("action")
         var action: Keyboard_Action? = null
 
-        @SerializedName("color")
+        @SerialName("color")
         var color: String? = null
     }
 
+    @Serializable
     class SortElement {
-        @SerializedName("major_id")
+        @SerialName("major_id")
         var major_id = 0
 
-        @SerializedName("minor_id")
+        @SerialName("minor_id")
         var minor_id = 0
     }
 
+    @Serializable
     class ContactElement {
-        @SerializedName("id")
+        @SerialName("id")
         var id = 0
 
-        @SerializedName("name")
+        @SerialName("name")
         var name: String? = null
 
-        @SerializedName("phone")
+        @SerialName("phone")
         var phone: String? = null
 
-        @SerializedName("photo_50")
+        @SerialName("photo_50")
         var photo_50: String? = null
 
-        @SerializedName("photo_100")
+        @SerialName("photo_100")
         var photo_100: String? = null
 
-        @SerializedName("photo_200")
+        @SerialName("photo_200")
         var photo_200: String? = null
 
-        @SerializedName("photo_max_orig")
+        @SerialName("photo_max_orig")
         var photo_max_orig: String? = null
 
-        @SerializedName("last_seen_status")
+        @SerialName("last_seen_status")
         var last_seen_status: String? = null
     }
 
+    @Serializable
     class CurrentKeyboard {
-        @SerializedName("one_time")
+        @SerialName("one_time")
         var one_time = false
 
-        @SerializedName("inline")
+        @SerialName("inline")
         var inline = false
 
-        @SerializedName("author_id")
+        @SerialName("author_id")
         var author_id = 0
 
-        @SerializedName("buttons")
+        @SerialName("buttons")
         var buttons: List<List<ButtonElement>>? = null
     }
 }

@@ -1,15 +1,17 @@
 package dev.ragnarok.fenrir.api.model.upload
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class UploadPhotoToMessageDto {
-    @SerializedName("server")
+    @SerialName("server")
     var server = 0
 
-    @SerializedName("photo")
+    @SerialName("photo")
     var photo: String? = null
 
-    @SerializedName("hash")
+    @SerialName("hash")
     var hash: String? = null
     override fun toString(): String {
         return "UploadPhotoToMessageDto{" +

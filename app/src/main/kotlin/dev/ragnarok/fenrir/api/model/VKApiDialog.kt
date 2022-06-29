@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiDialog {
-    @SerializedName("conversation")
+    @SerialName("conversation")
     var conversation: VKApiConversation? = null
 
-    @SerializedName("last_message")
+    @SerialName("last_message")
     var lastMessage: VKApiMessage? = null
 }

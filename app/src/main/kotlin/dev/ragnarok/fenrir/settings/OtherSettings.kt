@@ -3,17 +3,15 @@ package dev.ragnarok.fenrir.settings
 import android.content.Context
 import android.graphics.Color
 import android.os.Environment
-import com.google.gson.Gson
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
-import dev.ragnarok.fenrir.BuildConfig
-import dev.ragnarok.fenrir.Common
-import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.model.LocalServerSettings
 import dev.ragnarok.fenrir.api.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.model.Lang
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.IOtherSettings
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import java.io.File
 import java.util.*
 
@@ -436,11 +434,14 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             return if (ret == null) {
                 LocalServerSettings()
             } else {
-                Gson().fromJson(ret, LocalServerSettings::class.java)
+                kJson.decodeFromString(ret)
             }
         }
         set(settings) {
-            getPreferences(app).edit().putString("local_media_server", Gson().toJson(settings))
+            getPreferences(app).edit().putString(
+                "local_media_server",
+                kJson.encodeToString(settings)
+            )
                 .apply()
         }
     override var playerCoverBackgroundSettings: PlayerCoverBackgroundSettings
@@ -449,12 +450,15 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             return if (ret == null) {
                 PlayerCoverBackgroundSettings().set_default()
             } else {
-                Gson().fromJson(ret, PlayerCoverBackgroundSettings::class.java)
+                kJson.decodeFromString(ret)
             }
         }
         set(settings) {
             getPreferences(app).edit()
-                .putString("player_background_settings_json", Gson().toJson(settings)).apply()
+                .putString(
+                    "player_background_settings_json",
+                    kJson.encodeToString(settings)
+                ).apply()
         }
     override var slidrSettings: SlidrSettings
         get() {
@@ -462,11 +466,14 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             return if (ret == null) {
                 SlidrSettings().set_default()
             } else {
-                Gson().fromJson(ret, SlidrSettings::class.java)
+                kJson.decodeFromString(ret)
             }
         }
         set(settings) {
-            getPreferences(app).edit().putString("slidr_settings_json", Gson().toJson(settings))
+            getPreferences(app).edit().putString(
+                "slidr_settings_json",
+                kJson.encodeToString(settings)
+            )
                 .apply()
         }
 

@@ -1,22 +1,17 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiMarket
-import dev.ragnarok.fenrir.api.model.VKApiPhoto
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class MarketDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiMarket> {
-    @Throws(JsonParseException::class)
+class MarketDtoAdapter : AbsAdapter<VKApiMarket>("VKApiMarket") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiMarket {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiMarket()
         val root = json.asJsonObject
@@ -32,24 +27,24 @@ class MarketDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiMarket> {
         dto.access_key = optString(root, "access_key")
         dto.is_favorite = optBoolean(root, "is_favorite")
         if (hasObject(root, "dimensions")) {
-            val dimensions = root["dimensions"].asJsonObject
+            val dimensions = root["dimensions"]?.asJsonObject
             dto.dimensions = optInt(dimensions, "length").toString() + "x" + optInt(
                 dimensions,
                 "width"
             ) + "x" + optInt(dimensions, "height") + " mm"
         }
         if (hasObject(root, "price")) {
-            val price = root["price"].asJsonObject
+            val price = root["price"]?.asJsonObject
             dto.price = optString(price, "text")
         }
         if (hasArray(root, "photos")) {
             dto.photos = ArrayList()
             val temp = root.getAsJsonArray("photos")
-            for (i in temp) {
+            for (i in temp.orEmpty()) {
                 if (!checkObject(i)) {
                     continue
                 }
-                dto.photos?.add(context.deserialize(i, VKApiPhoto::class.java))
+                dto.photos?.add(kJson.decodeFromJsonElement(i))
             }
         }
         return dto

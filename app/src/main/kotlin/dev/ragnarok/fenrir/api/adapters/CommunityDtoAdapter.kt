@@ -1,25 +1,20 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.*
-import dev.ragnarok.fenrir.api.model.VKApiCommunity.Contact
+import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.util.VKStringUtils
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 import java.util.*
 import kotlin.math.abs
 
-class CommunityDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCommunity> {
-    @Throws(JsonParseException::class)
+class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiCommunity {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val root = json.asJsonObject
         val dto = VKApiCommunity()
@@ -50,11 +45,15 @@ class CommunityDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCommunity> {
             }
         }
         if (hasObject(root, VKApiCommunity.CITY)) {
-            dto.city = context.deserialize(root[VKApiCommunity.CITY], VKApiCity::class.java)
+            dto.city = root[VKApiCommunity.CITY]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, VKApiCommunity.COUNTRY)) {
             dto.country =
-                context.deserialize(root[VKApiCommunity.COUNTRY], VKApiCountry::class.java)
+                root[VKApiCommunity.COUNTRY]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         if (hasObject(root, VKApiCommunity.BAN_INFO)) {
             val banInfo = root.getAsJsonObject(VKApiCommunity.BAN_INFO)
@@ -63,14 +62,18 @@ class CommunityDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCommunity> {
             dto.ban_comment = optString(banInfo, "comment")
         }
         if (hasObject(root, VKApiCommunity.PLACE)) {
-            dto.place = context.deserialize(root[VKApiCommunity.PLACE], VKApiPlace::class.java)
+            dto.place = root[VKApiCommunity.PLACE]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         dto.description = optString(root, VKApiCommunity.DESCRIPTION)
         dto.wiki_page = optString(root, VKApiCommunity.WIKI_PAGE)
         dto.members_count = optInt(root, VKApiCommunity.MEMBERS_COUNT)
         if (hasObject(root, VKApiCommunity.COUNTERS)) {
             val counters = root.getAsJsonObject(VKApiCommunity.COUNTERS)
-            dto.counters = context.deserialize(counters, VKApiCommunity.Counters::class.java)
+            dto.counters = counters?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, "chats_status")) {
             if (dto.counters == null) {
@@ -93,18 +96,16 @@ class CommunityDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCommunity> {
         dto.is_subscribed = optBoolean(root, VKApiCommunity.IS_SUBSCRIBED)
         dto.status = VKStringUtils.unescape(optString(root, VKApiCommunity.STATUS))
         if (hasObject(root, "status_audio")) {
-            dto.status_audio = context.deserialize(root["status_audio"], VKApiAudio::class.java)
+            dto.status_audio = root["status_audio"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         dto.contacts = parseArray(
             root.getAsJsonArray(VKApiCommunity.CONTACTS),
-            Contact::class.java,
-            context,
             null
         )
         dto.links = parseArray(
             root.getAsJsonArray(VKApiCommunity.LINKS),
-            VKApiCommunity.Link::class.java,
-            context,
             null
         )
         dto.fixed_post = optInt(root, VKApiCommunity.FIXED_POST)
@@ -114,7 +115,9 @@ class CommunityDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCommunity> {
         dto.activity = optString(root, VKApiCommunity.ACTIVITY)
         dto.can_message = optBoolean(root, "can_message")
         if (hasObject(root, "cover")) {
-            dto.cover = context.deserialize(root["cover"], VKApiCover::class.java)
+            dto.cover = root["cover"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         return dto
     }

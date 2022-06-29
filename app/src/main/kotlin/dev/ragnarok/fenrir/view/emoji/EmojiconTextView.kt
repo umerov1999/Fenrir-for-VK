@@ -2,8 +2,11 @@ package dev.ragnarok.fenrir.view.emoji
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -12,9 +15,14 @@ import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.view.View
+import androidx.fragment.app.FragmentActivity
 import dev.ragnarok.fenrir.EmojiconHandler.addEmojis
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.link.LinkHelper
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
+import dev.ragnarok.fenrir.settings.AppPrefs
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ClickableForegroundColorSpan
 import dev.ragnarok.fenrir.view.WrapWidthTextView
@@ -152,7 +160,104 @@ class EmojiconTextView @JvmOverloads constructor(context: Context, attrs: Attrib
             val url = spannable.toString().substring(m.start(), m.end())
             val urlSpan: ClickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
-                    LinkHelper.openLinkInBrowser(context, url)
+                    if (URL_YOUTUBE_PATTERN.matcher(url).find()) {
+                        val menus = ModalBottomSheetDialogFragment.Builder()
+                        val hasVanced = AppPrefs.isVancedYoutubeInstalled(context)
+                        if (hasVanced) {
+                            menus.add(
+                                OptionRequest(
+                                    1,
+                                    context.getString(R.string.title_play_in_youtube_vanced),
+                                    R.drawable.ic_play_youtube,
+                                    true
+                                )
+                            )
+                        }
+                        menus.add(
+                            OptionRequest(
+                                2,
+                                context.getString(R.string.title_play_in_newpipe),
+                                R.drawable.ic_new_pipe,
+                                true
+                            )
+                        )
+                        if (!hasVanced && AppPrefs.isYoutubeInstalled(context)) {
+                            menus.add(
+                                OptionRequest(
+                                    3,
+                                    context.getString(R.string.title_play_in_youtube),
+                                    R.drawable.ic_play_youtube,
+                                    true
+                                )
+                            )
+                        }
+                        menus.add(
+                            OptionRequest(
+                                4,
+                                context.getString(R.string.title_play_in_another_software),
+                                R.drawable.ic_external,
+                                true
+                            )
+                        )
+                        menus.header(
+                            url,
+                            R.drawable.ic_play_youtube,
+                            null
+                        )
+                        menus.columns(1)
+                        menus.show(
+                            (context as FragmentActivity).supportFragmentManager,
+                            "url_options",
+                            object : ModalBottomSheetDialogFragment.Listener {
+                                override fun onModalOptionSelected(option: Option) {
+                                    when (option.id) {
+                                        1 -> {
+                                            val intent = Intent()
+                                            intent.data = Uri.parse(url)
+                                            intent.action = Intent.ACTION_VIEW
+                                            intent.component = ComponentName(
+                                                "app.revanced.android.youtube",
+                                                "com.google.android.apps.youtube.app.application.Shell\$UrlActivity"
+                                            )
+                                            context.startActivity(intent)
+                                        }
+                                        2 -> {
+                                            if (AppPrefs.isNewPipeInstalled(context)) {
+                                                val intent = Intent()
+                                                intent.data = Uri.parse(url)
+                                                intent.action = Intent.ACTION_VIEW
+                                                intent.component = ComponentName(
+                                                    "org.schabi.newpipe",
+                                                    "org.schabi.newpipe.RouterActivity"
+                                                )
+                                                context.startActivity(intent)
+                                            } else {
+                                                LinkHelper.openLinkInBrowser(
+                                                    context,
+                                                    "https://github.com/TeamNewPipe/NewPipe/releases"
+                                                )
+                                            }
+                                        }
+                                        3 -> {
+                                            val intent = Intent()
+                                            intent.data = Uri.parse(url)
+                                            intent.action = Intent.ACTION_VIEW
+                                            intent.component = ComponentName(
+                                                "com.google.android.youtube",
+                                                "com.google.android.apps.youtube.app.application.Shell\$UrlActivity"
+                                            )
+                                            context.startActivity(intent)
+                                        }
+                                        4 -> {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                            context.startActivity(intent)
+                                        }
+                                    }
+                                }
+                            })
+                    } else {
+                        LinkHelper.openLinkInBrowser(context, url)
+                    }
                 }
             }
             spannable.setSpan(urlSpan, m.start(), m.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -217,6 +322,8 @@ class EmojiconTextView @JvmOverloads constructor(context: Context, attrs: Attrib
     companion object {
         private val URL_VK_PATTERN =
             Pattern.compile("(((http|https|rstp)://)?(\\w+.)?vk\\.(com|me|cc)/\\S*)")
+        private val URL_YOUTUBE_PATTERN =
+            Pattern.compile("(((http|https|rstp)://)?(\\w+.)?(youtube\\.com|youtu\\.be)/\\S*)")
         private val URL_NON_VK_PATTERN =
             Pattern.compile("((http|https|rstp)://(?!(\\w+.)?vk\\.(com|me|cc)/)\\S*)")
     }

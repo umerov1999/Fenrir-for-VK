@@ -1,8 +1,12 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.PhotoDtoAdapter
+import kotlinx.serialization.Serializable
+
 /**
  * Describes a photo object from VK.
  */
+@Serializable(with = PhotoDtoAdapter::class)
 class VKApiPhoto
 /**
  * Creates empty Photo instance.

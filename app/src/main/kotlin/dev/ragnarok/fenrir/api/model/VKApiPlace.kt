@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * A place object describes a location.
  */
+@Serializable
 class VKApiPlace
 /**
  * Creates empty Place instance.

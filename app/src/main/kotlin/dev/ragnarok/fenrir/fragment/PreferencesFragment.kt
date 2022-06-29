@@ -527,7 +527,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onClick {
                     Settings.get().accounts().getAccessToken(accountId)?.let { ito ->
                         disposables.add(
-                            RefreshToken.upgradeTokenRx(
+                            RefreshToken.upgradeTokenRxPref(
                                 accountId, ito
                             )
                                 .fromIOToMain()

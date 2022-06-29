@@ -1,5 +1,8 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class AttachmentToken : IAttachmentToken {
     val type: String
     val id: Int

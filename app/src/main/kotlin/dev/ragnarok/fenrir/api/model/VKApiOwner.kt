@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * This class represents owner of some VK object.
  */
+@Serializable
 open class VKApiOwner
 /**
  * Creates an owner with empty ID.

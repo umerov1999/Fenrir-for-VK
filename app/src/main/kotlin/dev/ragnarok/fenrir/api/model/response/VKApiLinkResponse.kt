@@ -1,8 +1,10 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiLinkResponse {
-    @SerializedName("link")
+    @SerialName("link")
     var link: String? = null
 }

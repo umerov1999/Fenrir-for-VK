@@ -1,24 +1,20 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.CommentsDto
-import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.api.model.VKApiVideo
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class VideoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideo> {
-    @Throws(JsonParseException::class)
+class VideoDtoAdapter : AbsAdapter<VKApiVideo>("VKApiVideo") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiVideo {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val root = json.asJsonObject
         val dto = VKApiVideo()
@@ -33,7 +29,9 @@ class VideoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideo> {
         dto.views = optInt(root, "views")
         if (hasObject(root, "comments")) {
             //for example, newsfeed.getComment
-            dto.comments = context.deserialize(root["comments"], CommentsDto::class.java)
+            dto.comments = root["comments"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         } else {
             // video.get
             dto.comments = CommentsDto()
@@ -51,11 +49,16 @@ class VideoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideo> {
         dto.can_repost = optBoolean(root, "can_repost")
         dto.repeat = optBoolean(root, "repeat")
         if (hasObject(root, "privacy_view")) {
-            dto.privacy_view = context.deserialize(root["privacy_view"], VKApiPrivacy::class.java)
+            dto.privacy_view =
+                root["privacy_view"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         if (hasObject(root, "privacy_comment")) {
             dto.privacy_comment =
-                context.deserialize(root["privacy_comment"], VKApiPrivacy::class.java)
+                root["privacy_comment"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         if (hasObject(root, "files")) {
             val filesRoot = root.getAsJsonObject("files")
@@ -74,27 +77,27 @@ class VideoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiVideo> {
             if (dto.external.nonNullNoEmpty() && dto.external?.contains("youtube") == true) 320 else 800
         if (hasArray(root, "image")) {
             val images = root.getAsJsonArray("image")
-            if (images.size() > 0) {
-                for (i in 0 until images.size()) {
-                    if (optInt(images[i].asJsonObject, "width") >= sz) {
-                        dto.image = optString(images[i].asJsonObject, "url")
+            if (images?.size.orZero() > 0) {
+                for (i in 0 until images?.size.orZero()) {
+                    if (optInt(images?.get(i)?.asJsonObject, "width") >= sz) {
+                        dto.image = optString(images?.get(i)?.asJsonObject, "url")
                         break
                     }
                 }
                 if (dto.image == null) dto.image =
-                    optString(images[images.size() - 1].asJsonObject, "url")
+                    optString(images?.get(images.size - 1)?.asJsonObject, "url")
             }
         } else if (dto.image == null && hasArray(root, "first_frame")) {
             val images = root.getAsJsonArray("first_frame")
-            if (images.size() > 0) {
-                for (i in 0 until images.size()) {
-                    if (optInt(images[i].asJsonObject, "width") >= 800) {
-                        dto.image = optString(images[i].asJsonObject, "url")
+            if (images?.size.orZero() > 0) {
+                for (i in 0 until images?.size.orZero()) {
+                    if (optInt(images?.get(i)?.asJsonObject, "width") >= 800) {
+                        dto.image = optString(images?.get(i)?.asJsonObject, "url")
                         break
                     }
                 }
                 if (dto.image == null) dto.image =
-                    optString(images[images.size() - 1].asJsonObject, "url")
+                    optString(images?.get(images.size - 1)?.asJsonObject, "url")
             }
         } else if (dto.image == null) {
             if (root.has("photo_800")) {

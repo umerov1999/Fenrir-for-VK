@@ -1,21 +1,18 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.*
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.api.model.VKApiPost
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class PostDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPost> {
-    @Throws(JsonParseException::class)
+class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiPost {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiPost()
         val root = json.asJsonObject
@@ -62,7 +59,9 @@ class PostDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPost> {
         }
         dto.friends_only = optBoolean(root, "friends_only")
         if (hasObject(root, "comments")) {
-            dto.comments = context.deserialize(root["comments"], CommentsDto::class.java)
+            dto.comments = root["comments"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, "likes")) {
             val likes = root.getAsJsonObject("likes")
@@ -81,10 +80,15 @@ class PostDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPost> {
             dto.views = optInt(views, "count")
         }
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
+            dto.attachments =
+                root["attachments"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         if (hasObject(root, "geo")) {
-            dto.geo = context.deserialize(root["geo"], VKApiPlace::class.java)
+            dto.geo = root["geo"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         dto.can_edit = optBoolean(root, "can_edit")
         dto.is_favorite = optBoolean(root, "is_favorite")
@@ -94,20 +98,23 @@ class PostDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPost> {
         dto.is_pinned = optBoolean(root, "is_pinned")
         if (hasArray(root, "copy_history")) {
             val copyHistoryArray = root.getAsJsonArray("copy_history")
-            dto.copy_history = ArrayList(copyHistoryArray.size())
-            for (i in 0 until copyHistoryArray.size()) {
-                if (!checkObject(copyHistoryArray[i])) {
+            dto.copy_history = ArrayList(copyHistoryArray?.size.orZero())
+            for (i in 0 until copyHistoryArray?.size.orZero()) {
+                if (!checkObject(copyHistoryArray?.get(i))) {
                     continue
                 }
-                val copy = copyHistoryArray[i].asJsonObject
-                dto.copy_history?.add(deserialize(copy, VKApiPost::class.java, context))
+                val copy = copyHistoryArray?.get(i)?.asJsonObject
+                dto.copy_history?.add(deserialize(copy ?: continue))
             }
         } else {
             //empty list
             dto.copy_history = null
         }
         if (hasObject(root, "post_source")) {
-            dto.post_source = context.deserialize(root["post_source"], VKApiPostSource::class.java)
+            dto.post_source =
+                root["post_source"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         return dto
     }

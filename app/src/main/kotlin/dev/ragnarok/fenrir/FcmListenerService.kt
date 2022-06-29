@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.annotation.WorkerThread
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.GsonBuilder
 import dev.ragnarok.fenrir.Includes.pushRegistrationResolver
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.push.PushType
@@ -14,6 +13,8 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.serializeble.json.Json
+import kotlinx.serialization.encodeToString
 
 class FcmListenerService : FirebaseMessagingService() {
     @SuppressLint("CheckResult")
@@ -45,20 +46,19 @@ class FcmListenerService : FirebaseMessagingService() {
             return
         }
         if (Settings.get().other().isDump_fcm && PushType.ERASE != pushType) {
-            val gson = GsonBuilder()
-                .setPrettyPrinting()
-                .create()
             if (Constants.IS_DEBUG) {
                 Logger.d(
                     TAG,
-                    "onMessage, from: " + message.from + ", pushType: " + pushType + ", data: " + gson.toJson(
-                        message.data
-                    )
+                    "onMessage, from: " + message.from + ", pushType: " + pushType + ", data: " + Json {
+                        prettyPrint = true
+                    }.encodeToString(message.data)
                 )
             }
             PersistentLogger.logThrowable(
                 "Push received",
-                Exception("Key: " + pushType + ", Dump: " + gson.toJson(message.data))
+                Exception("Key: $pushType, Dump: " + Json {
+                    prettyPrint = true
+                }.encodeToString(message.data))
             )
         }
         try {

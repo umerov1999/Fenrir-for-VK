@@ -1,5 +1,9 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.PostSourceDtoAdapter
+import kotlinx.serialization.Serializable
+
+@Serializable(with = PostSourceDtoAdapter::class)
 class VKApiPostSource {
     /**
      * На данный момент поддерживаются следующие типы источников записи на стене, значение которых указываются в поле type:

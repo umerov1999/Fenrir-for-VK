@@ -1,28 +1,31 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiAudioArtist : VKApiAttachment {
-    @SerializedName("id")
+    @SerialName("id")
     var id: String? = null
 
-    @SerializedName("name")
+    @SerialName("name")
     var name: String? = null
 
-    @SerializedName("photo")
+    @SerialName("photo")
     var photo: List<Image>? = null
     override fun getType(): String {
         return VKApiAttachment.TYPE_ARTIST
     }
 
+    @Serializable
     class Image {
-        @SerializedName("url")
+        @SerialName("url")
         var url: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
     }
 }

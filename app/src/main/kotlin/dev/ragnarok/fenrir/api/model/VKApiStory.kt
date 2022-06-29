@@ -1,5 +1,9 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.StoryDtoAdapter
+import kotlinx.serialization.Serializable
+
+@Serializable(with = StoryDtoAdapter::class)
 class VKApiStory : VKApiAttachment {
     /**
      * Note ID, positive number

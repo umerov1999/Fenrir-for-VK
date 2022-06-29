@@ -1,13 +1,30 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.*
 import dev.ragnarok.fenrir.Constants
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlin.contracts.contract
 
-open class AbsAdapter {
-    companion object {
+abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(name)
 
+    override fun deserialize(decoder: Decoder): T {
+        require(decoder is JsonDecoder)
+        return deserialize(decoder.decodeJsonElement())
+    }
+
+    abstract fun deserialize(json: JsonElement): T
+
+    override fun serialize(encoder: Encoder, value: T) {
+        throw UnsupportedOperationException()
+    }
+
+    companion object {
         fun checkObject(element: JsonElement?): Boolean {
             contract {
                 returns(true) implies (element is JsonObject)
@@ -26,7 +43,7 @@ open class AbsAdapter {
             contract {
                 returns(true) implies (element is JsonArray)
             }
-            return element is JsonArray && element.size() > 0
+            return element is JsonArray && element.size > 0
         }
 
 
@@ -35,8 +52,8 @@ open class AbsAdapter {
                 returns(true) implies (obj != null)
             }
             obj ?: return false
-            if (obj.has(name)) {
-                return obj[name].isJsonPrimitive
+            if (obj.containsKey(name)) {
+                return obj[name] is JsonPrimitive
             }
             return false
         }
@@ -47,8 +64,8 @@ open class AbsAdapter {
                 returns(true) implies (obj != null)
             }
             obj ?: return false
-            if (obj.has(name)) {
-                return obj[name].isJsonObject
+            if (obj.containsKey(name)) {
+                return obj[name] is JsonObject
             }
             return false
         }
@@ -59,9 +76,9 @@ open class AbsAdapter {
                 returns(true) implies (obj != null)
             }
             obj ?: return false
-            if (obj.has(name)) {
+            if (obj.containsKey(name)) {
                 val element = obj[name]
-                return element.isJsonArray && element.asJsonArray.size() > 0
+                return element is JsonArray && element.jsonArray.size > 0
             }
             return false
         }
@@ -75,7 +92,7 @@ open class AbsAdapter {
             json ?: return fallback
             return try {
                 val element = json[name]
-                if (element is JsonPrimitive) element.getAsString() else fallback
+                if (element is JsonPrimitive) element.content else fallback
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -95,12 +112,8 @@ open class AbsAdapter {
                 if (!checkPrimitive(element)) {
                     return false
                 }
-                val prim = element.asJsonPrimitive
-                try {
-                    prim.isBoolean && prim.asBoolean || prim.asInt != 0
-                } catch (e: Exception) {
-                    prim.asBoolean
-                }
+                val prim = element.jsonPrimitive
+                prim.booleanOrNull ?: prim.intOrNull?.equals(1) ?: false
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -117,7 +130,7 @@ open class AbsAdapter {
             json ?: return fallback
             return try {
                 val element = json[name]
-                (element as? JsonPrimitive)?.asInt ?: fallback
+                (element as? JsonPrimitive)?.intOrNull ?: fallback
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -134,7 +147,7 @@ open class AbsAdapter {
             json ?: return fallback
             return try {
                 val element = json[name]
-                (element as? JsonPrimitive)?.asLong ?: fallback
+                (element as? JsonPrimitive)?.longOrNull ?: fallback
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -152,7 +165,7 @@ open class AbsAdapter {
                 for (name in names) {
                     val element = json[name]
                     if (element is JsonPrimitive) {
-                        return element.getAsInt()
+                        return element.intOrNull ?: fallback
                     }
                 }
                 fallback
@@ -173,7 +186,7 @@ open class AbsAdapter {
             array ?: return fallback
             return try {
                 val opt = opt(array, index)
-                (opt as? JsonPrimitive)?.asLong ?: fallback
+                (opt as? JsonPrimitive)?.longOrNull ?: fallback
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -191,7 +204,7 @@ open class AbsAdapter {
             array ?: return fallback
             return try {
                 val opt = opt(array, index)
-                (opt as? JsonPrimitive)?.asInt ?: fallback
+                (opt as? JsonPrimitive)?.intOrNull ?: fallback
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -206,7 +219,7 @@ open class AbsAdapter {
                 returns(true) implies (array != null)
             }
             array ?: return null
-            return if (index < 0 || index >= array.size()) {
+            return if (index < 0 || index >= array.size) {
                 null
             } else array[index]
         }
@@ -220,7 +233,7 @@ open class AbsAdapter {
             array ?: return fallback
             return try {
                 val opt = opt(array, index)
-                if (opt is JsonPrimitive) opt.getAsString() else fallback
+                if (opt is JsonPrimitive) opt.content else fallback
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -229,10 +242,8 @@ open class AbsAdapter {
             }
         }
 
-        fun <T> parseArray(
+        inline fun <reified T> parseArray(
             array: JsonElement?,
-            type: Type,
-            context: JsonDeserializationContext,
             fallback: List<T>?
         ): List<T>? {
             contract {
@@ -243,11 +254,11 @@ open class AbsAdapter {
                 fallback
             } else try {
                 val list: MutableList<T> = ArrayList()
-                for (i in 0 until array.asJsonArray.size()) {
-                    list.add(context.deserialize(array.asJsonArray[i], type))
+                for (i in 0 until array.jsonArray.size) {
+                    list.add(kJson.decodeFromJsonElement(array.jsonArray[i]))
                 }
                 list
-            } catch (e: JsonParseException) {
+            } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
                 }
@@ -255,10 +266,8 @@ open class AbsAdapter {
             }
         }
 
-        fun <T> parseArray(
+        inline fun <reified T> parseArray(
             array: JsonArray?,
-            type: Type,
-            context: JsonDeserializationContext,
             fallback: List<T>?
         ): List<T>? {
             contract {
@@ -267,11 +276,11 @@ open class AbsAdapter {
             array ?: return fallback
             return try {
                 val list: MutableList<T> = ArrayList()
-                for (i in 0 until array.size()) {
-                    list.add(context.deserialize(array[i], type))
+                for (i in 0 until array.size) {
+                    list.add(kJson.decodeFromJsonElement(array[i]))
                 }
                 list
-            } catch (e: JsonParseException) {
+            } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
                 }
@@ -292,7 +301,7 @@ open class AbsAdapter {
                 val element = root[name]
                 if (!checkArray(element)) {
                     fallback
-                } else parseStringArray(element.asJsonArray)
+                } else parseStringArray(element.jsonArray)
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -311,7 +320,7 @@ open class AbsAdapter {
                 val element = root[name]
                 if (!checkArray(element)) {
                     fallback
-                } else parseIntArray(element.asJsonArray)
+                } else parseIntArray(element.jsonArray)
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -327,13 +336,13 @@ open class AbsAdapter {
             }
             array ?: return fallback
             return try {
-                if (index < 0 || index >= array.size()) {
+                if (index < 0 || index >= array.size) {
                     return fallback
                 }
                 val array_r = array[index]
                 if (!checkArray(array_r)) {
                     fallback
-                } else parseIntArray(array_r.asJsonArray)
+                } else parseIntArray(array_r.jsonArray)
             } catch (e: Exception) {
                 if (Constants.IS_DEBUG) {
                     e.printStackTrace()
@@ -347,9 +356,9 @@ open class AbsAdapter {
                 returns(true) implies (array != null)
             }
             array ?: return IntArray(0)
-            val list = IntArray(array.size())
-            for (i in 0 until array.size()) {
-                list[i] = array[i].asInt
+            val list = IntArray(array.size)
+            for (i in 0 until array.size) {
+                list[i] = array[i].jsonPrimitive.int
             }
             return list
         }
@@ -359,7 +368,25 @@ open class AbsAdapter {
                 returns(true) implies (array != null)
             }
             array ?: return emptyArray()
-            return Array(array.size()) { optString(array, it) ?: "null" }
+            return Array(array.size) { optString(array, it) ?: "null" }
+        }
+
+        fun JsonObject?.getAsJsonArray(name: String): JsonArray? {
+            return this?.get(name)?.jsonArray
+        }
+
+        fun JsonObject?.getAsJsonObject(name: String): JsonObject? {
+            return this?.get(name)?.jsonObject
+        }
+
+        val JsonElement.asJsonObject: JsonObject
+            get() = this as? JsonObject ?: error("JsonObject")
+
+        val JsonElement.asJsonArray: JsonArray
+            get() = this as? JsonArray ?: error("JsonArray")
+
+        fun JsonObject?.has(name: String): Boolean {
+            return this?.containsKey(name) ?: false
         }
     }
 }

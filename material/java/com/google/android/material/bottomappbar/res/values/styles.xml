@@ -53,6 +53,7 @@
 
   <style name="Widget.Material3.BottomAppBar" parent="Widget.MaterialComponents.BottomAppBar">
     <item name="fabAnimationMode">slide</item>
+    <item name="fabAnchorMode">cradle</item>
     <item name="fabCradleMargin">@dimen/m3_bottomappbar_fab_cradle_margin</item>
     <item name="fabCradleRoundedCornerRadius">
       @dimen/m3_bottomappbar_fab_cradle_rounded_corner_radius
@@ -60,10 +61,9 @@
     <item name="fabCradleVerticalOffset">
       @dimen/m3_bottomappbar_fab_cradle_vertical_offset
     </item>
+    <item name="elevation">@dimen/m3_comp_bottom_app_bar_container_elevation</item>
 
-    <item name="elevation">@dimen/m3_sys_elevation_level2</item>
-
-    <item name="backgroundTint">?attr/colorSurface</item>
+    <item name="backgroundTint">@macro/m3_comp_bottom_app_bar_container_color</item>
     <item name="navigationIconTint">?attr/colorOnSurfaceVariant</item>
     <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.BottomAppBar</item>
   </style>

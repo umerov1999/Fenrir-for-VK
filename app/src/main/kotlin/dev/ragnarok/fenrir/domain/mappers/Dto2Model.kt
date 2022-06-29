@@ -24,6 +24,7 @@ import dev.ragnarok.fenrir.model.Document.VideoPreview
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 
 object Dto2Model {
@@ -640,7 +641,7 @@ object Dto2Model {
     }
 
     private fun dto2model(dto: PhotoSizeDto): PhotoSizes.Size {
-        return PhotoSizes.Size(dto.width, dto.height, dto.url)
+        return PhotoSizes.Size(dto.width, dto.height, Utils.firstNonEmptyString(dto.url, dto.src))
     }
 
 

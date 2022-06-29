@@ -1,12 +1,14 @@
 package dev.ragnarok.fenrir.api.model.longpoll
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VkApiGroupLongpollUpdates {
-    @SerializedName("failed")
+    @SerialName("failed")
     var failed = 0
 
-    @SerializedName("ts")
+    @SerialName("ts")
     var ts: String? = null
     val count: Int
         get() = 0

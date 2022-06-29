@@ -1,25 +1,21 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiArticle
-import dev.ragnarok.fenrir.api.model.VKApiPhoto
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.jsonObject
 
-class ArticleDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiArticle> {
-    @Throws(JsonParseException::class)
+class ArticleDtoAdapter : AbsAdapter<VKApiArticle>("VKApiArticle") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiArticle {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val article = VKApiArticle()
-        val root = json.asJsonObject
+        val root = json.jsonObject
         article.id = optInt(root, "id")
         article.owner_id = optInt(root, "owner_id")
         article.owner_name = optString(root, "owner_name")
@@ -28,11 +24,13 @@ class ArticleDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiArticle> {
         article.access_key = optString(root, "access_key")
         article.is_favorite = optBoolean(root, "is_favorite")
         if (hasObject(root, "photo")) {
-            article.photo = context.deserialize(root["photo"], VKApiPhoto::class.java)
+            article.photo = root["photo"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
-        if (root.has("view_url")) {
+        if (root.containsKey("view_url")) {
             article.url = optString(root, "view_url")
-        } else if (root.has("url")) {
+        } else if (root.containsKey("url")) {
             article.url = optString(root, "url")
         }
         return article

@@ -1,23 +1,20 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiDoc
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class DocsEntryDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiDoc.Entry> {
-    @Throws(JsonParseException::class)
+class DocsEntryDtoAdapter : AbsAdapter<VKApiDoc.Entry>("VKApiDoc.Entry") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiDoc.Entry {
         val o = json.asJsonObject
         val type = optString(o, "type") ?: throw NullPointerException("VKApiDoc.Entry type")
         val entry: VKApiDoc.Entry
-        val pp: VKApiDoc = context.deserialize(o[type], VKApiDoc::class.java)
+        val pp: VKApiDoc =
+            kJson.decodeFromJsonElement(o[type]!!)
         entry = VKApiDoc.Entry(type, pp)
         return entry
     }

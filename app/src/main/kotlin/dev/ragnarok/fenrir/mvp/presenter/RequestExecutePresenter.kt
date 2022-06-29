@@ -7,8 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.interfaces.INetworker
@@ -23,7 +21,9 @@ import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safelyClose
+import dev.ragnarok.fenrir.util.serializeble.json.Json
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.encodeToString
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
@@ -217,9 +217,10 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
          * Convert a JSON string to pretty print version
          */
         private fun toPrettyFormat(jsonString: String): String {
-            val json = JsonParser.parseString(jsonString).asJsonObject
-            val gson = GsonBuilder().setPrettyPrinting().create()
-            return gson.toJson(json)
+            val json = Json {
+                ignoreUnknownKeys = true; isLenient = true; prettyPrint = true
+            }
+            return json.encodeToString(json.parseToJsonElement(jsonString))
         }
     }
 

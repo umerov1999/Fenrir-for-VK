@@ -1,15 +1,17 @@
 package dev.ragnarok.fenrir.api.model.upload
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class UploadVideoDto {
-    @SerializedName("owner_id")
+    @SerialName("owner_id")
     var owner_id = 0
 
-    @SerializedName("video_id")
+    @SerialName("video_id")
     var video_id = 0
 
-    @SerializedName("video_hash")
+    @SerialName("video_hash")
     var video_hash: String? = null
     override fun toString(): String {
         return "UploadVideoDto{" +

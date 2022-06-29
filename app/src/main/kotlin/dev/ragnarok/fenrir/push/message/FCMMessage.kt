@@ -1,10 +1,12 @@
 package dev.ragnarok.fenrir.push.message
 
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.realtime.Processors.realtimeMessages
 import dev.ragnarok.fenrir.realtime.QueueContainsException
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 
 class FCMMessage {
     //public int sender_id;
@@ -45,14 +47,15 @@ class FCMMessage {
         NotificationHelper.notifyNewMessage(context, accountId, body, peerId, message_id, vk_time);*/
     }
 
+    @Serializable
     private class MessageContext {
-        @SerializedName("msg_id")
+        @SerialName("msg_id")
         var msg_id = 0
 
-        @SerializedName("sender_id")
+        @SerialName("sender_id")
         var sender_id = 0
 
-        @SerializedName("chat_id")
+        @SerialName("chat_id")
         var chat_id = 0
     }
 
@@ -67,7 +70,6 @@ class FCMMessage {
         // {"width":100,"url":"https:\/\/pp.userapi.com\/c837424\/v837424529\/5c2cc\/dRPyhRW_dvU.jpg","height":100},
         // {"width":50,"url":"https:\/\/pp.userapi.com\/c837424\/v837424529\/5c2cd\/BB6tk_bcJ3U.jpg","height":50}],
         // sound=1, title=Yevgeni Polkin, to_id=216143660, group_id=msg_280186075, context={"msg_id":828342,"sender_id":280186075}}
-        private val GSON = Gson()
         fun fromRemoteMessage(remote: RemoteMessage): FCMMessage {
             val message = FCMMessage()
             val data = remote.data
@@ -84,7 +86,7 @@ class FCMMessage {
             //message.title = data.get("title");
             //message.to_id = Integer.parseInt(data.get("to_id"));
             //message.group_id = data.get("group_id");
-            val context = GSON.fromJson(data["context"], MessageContext::class.java)
+            val context: MessageContext = kJson.decodeFromString(data["context"]!!)
             message.message_id = context.msg_id
             //message.sender_id = context.sender_id;
 

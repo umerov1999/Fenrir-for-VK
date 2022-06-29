@@ -1,23 +1,19 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.CommentsDto
 import dev.ragnarok.fenrir.api.model.PhotoSizeDto
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class PhotoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPhoto> {
-    @Throws(JsonParseException::class)
+class PhotoDtoAdapter : AbsAdapter<VKApiPhoto>("VKApiPhoto") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiPhoto {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val photo = VKApiPhoto()
         val root = json.asJsonObject
@@ -30,32 +26,36 @@ class PhotoDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiPhoto> {
         photo.text = optString(root, "text")
         photo.access_key = optString(root, "access_key")
         if (hasObject(root, "likes")) {
-            val likesRoot = root["likes"].asJsonObject
+            val likesRoot = root["likes"]?.asJsonObject
             photo.likes = optInt(likesRoot, "count")
             photo.user_likes = optBoolean(likesRoot, "user_likes")
         }
         if (hasObject(root, "comments")) {
-            photo.comments = context.deserialize(root["comments"], CommentsDto::class.java)
+            photo.comments = root["comments"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, "tags")) {
-            val tagsRoot = root["tags"].asJsonObject
+            val tagsRoot = root["tags"]?.asJsonObject
             photo.tags = optInt(tagsRoot, "count")
         }
         if (hasObject(root, "reposts")) {
-            val repostsRoot = root["reposts"].asJsonObject
+            val repostsRoot = root["reposts"]?.asJsonObject
             photo.reposts = optInt(repostsRoot, "count")
         }
         photo.can_comment = optBoolean(root, "can_comment")
         photo.post_id = optInt(root, "post_id")
         if (hasArray(root, "sizes")) {
             val sizesArray = root.getAsJsonArray("sizes")
-            photo.sizes = ArrayList(sizesArray.size())
-            for (i in 0 until sizesArray.size()) {
-                if (!checkObject(sizesArray[i])) {
+            photo.sizes = ArrayList(sizesArray?.size.orZero())
+            for (i in 0 until sizesArray?.size.orZero()) {
+                if (!checkObject(sizesArray?.get(i))) {
                     continue
                 }
                 val photoSizeDto: PhotoSizeDto =
-                    context.deserialize(sizesArray[i].asJsonObject, PhotoSizeDto::class.java)
+                    kJson.decodeFromJsonElement(
+                        sizesArray?.get(i) ?: continue
+                    )
                 photo.sizes?.add(photoSizeDto)
                 when (photoSizeDto.type) {
                     PhotoSizeDto.Type.O, PhotoSizeDto.Type.P, PhotoSizeDto.Type.Q, PhotoSizeDto.Type.R -> continue

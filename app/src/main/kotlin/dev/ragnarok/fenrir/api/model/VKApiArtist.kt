@@ -1,14 +1,16 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiArtist {
-    @SerializedName("domain")
+    @SerialName("domain")
     var domain: String? = null
 
-    @SerializedName("id")
+    @SerialName("id")
     var id: String? = null
 
-    @SerializedName("name")
+    @SerialName("name")
     var name: String? = null
 }

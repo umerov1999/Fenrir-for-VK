@@ -1,5 +1,8 @@
 package dev.ragnarok.fenrir.api.model.response
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class DeleteFriendResponse {
     /**
      * удалось успешно удалить друга

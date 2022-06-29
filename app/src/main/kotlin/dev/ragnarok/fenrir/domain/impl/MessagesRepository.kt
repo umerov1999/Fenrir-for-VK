@@ -8,7 +8,6 @@ import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
-import dev.ragnarok.fenrir.api.VkRetrofitProvider.Companion.vkgson
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.local_json.ChatJsonResponse
@@ -82,6 +81,8 @@ import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.WeakMainLooperHandler
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.safelyCloseAction
+import dev.ragnarok.fenrir.util.serializeble.json.Json
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
@@ -89,8 +90,10 @@ import io.reactivex.rxjava3.core.SingleTransformer
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.processors.PublishProcessor
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.io.*
-import java.nio.charset.StandardCharsets
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.InputStream
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -523,18 +526,17 @@ class MessagesRepository(
         context: Context
     ): Single<Pair<Peer, List<Message>>> {
         return Single.create { its ->
-            val gson = vkgson
-            val b = InputStreamReader(
+            val b =
                 (context as Activity).intent.data?.let {
                     context.contentResolver.openInputStream(
                         it
                     )
-                }, StandardCharsets.UTF_8
-            )
-            val resp = gson.fromJson(b, ChatJsonResponse::class.java)
-            b.close()
+                }
+            val resp = b?.let { Json.decodeFromStream(ChatJsonResponse.serializer(), it) }
+            b?.close()
             if (resp == null || resp.page_title.isNullOrEmpty()) {
                 its.onError(Throwable("parsing error"))
+                return@create
             }
             val ids = VKOwnIds().append(resp.messages)
             its.onSuccess(

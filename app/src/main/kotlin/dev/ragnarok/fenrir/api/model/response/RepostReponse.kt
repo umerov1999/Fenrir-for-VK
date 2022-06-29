@@ -1,14 +1,16 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class RepostReponse {
-    @SerializedName("post_id")
+    @SerialName("post_id")
     var postId: Int? = null
 
-    @SerializedName("reposts_count")
+    @SerialName("reposts_count")
     var repostsCount: Int? = null
 
-    @SerializedName("likes_count")
+    @SerialName("likes_count")
     var likesCount: Int? = null
 }

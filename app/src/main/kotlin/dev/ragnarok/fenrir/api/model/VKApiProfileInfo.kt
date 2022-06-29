@@ -1,26 +1,28 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiProfileInfo {
-    @SerializedName("first_name")
+    @SerialName("first_name")
     var first_name: String? = null
 
-    @SerializedName("last_name")
+    @SerialName("last_name")
     var last_name: String? = null
 
-    @SerializedName("maiden_name")
+    @SerialName("maiden_name")
     var maiden_name: String? = null
 
-    @SerializedName("screen_name")
+    @SerialName("screen_name")
     var screen_name: String? = null
 
-    @SerializedName("home_town")
+    @SerialName("home_town")
     var home_town: String? = null
 
-    @SerializedName("bdate")
+    @SerialName("bdate")
     var bdate: String? = null
 
-    @SerializedName("sex")
+    @SerialName("sex")
     var sex = 0
 }

@@ -1,31 +1,34 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiBanned {
-    @SerializedName("type")
+    @SerialName("type")
     var type: String? = null
 
-    @SerializedName("profile")
+    @SerialName("profile")
     var profile: VKApiUser? = null
 
-    @SerializedName("group")
+    @SerialName("group")
     var group: VKApiCommunity? = null
 
-    @SerializedName("ban_info")
+    @SerialName("ban_info")
     var banInfo: Info? = null
 
+    @Serializable
     class Info {
         /**
          * идентификатор администратора, который добавил пользователя в черный список.
          */
-        @SerializedName("admin_id")
+        @SerialName("admin_id")
         var adminId = 0
 
         /**
          * дата добавления пользователя в черный список в формате Unixtime.
          */
-        @SerializedName("date")
+        @SerialName("date")
         var date: Long = 0
 
         /**
@@ -36,22 +39,22 @@ class VKApiBanned {
          * 3 — нецензурные выражения;
          * 4 — сообщения не по теме.
          */
-        @SerializedName("reason")
+        @SerialName("reason")
         var reason = 0
 
         /**
          * текст комментария.
          */
-        @SerializedName("comment")
+        @SerialName("comment")
         var comment: String? = null
 
         /**
          * дата окончания блокировки (0 — блокировка вечная).
          */
-        @SerializedName("end_date")
+        @SerialName("end_date")
         var endDate: Long = 0
 
-        @SerializedName("comment_visible")
+        @SerialName("comment_visible")
         var commentVisible = false
     }
 }

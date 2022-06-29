@@ -1,24 +1,26 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class SlidrSettings {
-    @SerializedName("vertical_sensitive")
+    @SerialName("vertical_sensitive")
     var vertical_sensitive = 0f
 
-    @SerializedName("horizontal_sensitive")
+    @SerialName("horizontal_sensitive")
     var horizontal_sensitive = 0f
 
-    @SerializedName("vertical_velocity_threshold")
+    @SerialName("vertical_velocity_threshold")
     var vertical_velocity_threshold = 0f
 
-    @SerializedName("horizontal_velocity_threshold")
+    @SerialName("horizontal_velocity_threshold")
     var horizontal_velocity_threshold = 0f
 
-    @SerializedName("vertical_distance_threshold")
+    @SerialName("vertical_distance_threshold")
     var vertical_distance_threshold = 0f
 
-    @SerializedName("horizontal_distance_threshold")
+    @SerialName("horizontal_distance_threshold")
     var horizontal_distance_threshold = 0f
     fun set_default(): SlidrSettings {
         horizontal_sensitive = 0.5f

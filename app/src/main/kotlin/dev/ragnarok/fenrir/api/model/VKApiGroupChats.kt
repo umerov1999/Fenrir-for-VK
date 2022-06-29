@@ -1,26 +1,28 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiGroupChats {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("members_count")
+    @SerialName("members_count")
     var members_count = 0
 
-    @SerializedName("last_message_date")
+    @SerialName("last_message_date")
     var last_message_date: Long = 0
 
-    @SerializedName("is_closed")
+    @SerialName("is_closed")
     var is_closed = false
 
-    @SerializedName("invite_link")
+    @SerialName("invite_link")
     var invite_link: String? = null
 
-    @SerializedName("photo")
+    @SerialName("photo")
     var photo: String? = null
 
-    @SerializedName("title")
+    @SerialName("title")
     var title: String? = null
 }

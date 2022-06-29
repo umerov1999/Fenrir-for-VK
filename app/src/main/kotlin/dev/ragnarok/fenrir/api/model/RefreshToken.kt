@@ -1,8 +1,10 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class RefreshToken {
-    @SerializedName("token")
+    @SerialName("token")
     var token: String? = null
 }

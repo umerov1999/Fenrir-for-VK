@@ -1,27 +1,29 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.api.model.VKApiDialog
 import dev.ragnarok.fenrir.api.model.VKApiUser
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class DialogsResponse {
-    @SerializedName("items")
+    @SerialName("items")
     var dialogs: ArrayList<VKApiDialog>? = null
 
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("unread_count")
+    @SerialName("unread_count")
     var unreadCount = 0
 
-    @SerializedName("profiles")
+    @SerialName("profiles")
     var profiles: List<VKApiUser>? = null
 
-    @SerializedName("groups")
+    @SerialName("groups")
     var groups: List<VKApiCommunity>? = null
 
-    @SerializedName("contacts")
+    @SerialName("contacts")
     var contacts: List<VKApiConversation.ContactElement>? = null
 }

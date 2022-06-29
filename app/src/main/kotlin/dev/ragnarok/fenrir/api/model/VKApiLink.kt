@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * A link object describes a link attachment
  */
+@Serializable
 class VKApiLink : VKApiAttachment {
     /**
      * Link URL

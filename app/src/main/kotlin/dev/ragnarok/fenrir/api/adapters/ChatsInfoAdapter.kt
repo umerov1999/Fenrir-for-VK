@@ -1,30 +1,28 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiChat
 import dev.ragnarok.fenrir.api.model.response.ChatsInfoResponse
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class ChatsInfoAdapter : AbsAdapter(), JsonDeserializer<ChatsInfoResponse> {
-    @Throws(JsonParseException::class)
+class ChatsInfoAdapter : AbsAdapter<ChatsInfoResponse>("ChatsInfoResponse") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): ChatsInfoResponse {
         val chats: List<VKApiChat>? = when {
             checkObject(json) -> {
-                listOf(context.deserialize(json, VKApiChat::class.java))
+                listOf(
+                    kJson.decodeFromJsonElement(
+                        json
+                    )
+                )
             }
             checkArray(json) -> {
                 val array = json.asJsonArray
                 parseArray(
                     array,
-                    VKApiChat::class.java,
-                    context,
                     emptyList()
                 )
             }

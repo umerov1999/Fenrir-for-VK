@@ -1,25 +1,21 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.jsonObject
 
-class AudioDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudio> {
-    @Throws(JsonParseException::class)
+class AudioDtoAdapter : AbsAdapter<VKApiAudio>("VKApiAudio") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiAudio {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiAudio()
-        val root = json.asJsonObject
+        val root = json.jsonObject
         dto.id = optInt(root, "id")
         dto.owner_id = optInt(root, "owner_id")
         dto.artist = optString(root, "artist")
@@ -32,12 +28,12 @@ class AudioDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiAudio> {
         dto.isHq = optBoolean(root, "is_hq")
         if (hasArray(root, "main_artists")) {
             val arr = root.getAsJsonArray("main_artists")
-            val main_artists: HashMap<String, String> = HashMap(arr.size())
-            for (i in arr) {
+            val main_artists: HashMap<String, String> = HashMap(arr?.size.orZero())
+            for (i in arr.orEmpty()) {
                 if (!checkObject(i)) {
                     continue
                 }
-                val artist = i.asJsonObject
+                val artist = i.jsonObject
                 val name = optString(artist, "name")
                 val id = optString(artist, "id")
                 if (id.nonNullNoEmpty() && name.nonNullNoEmpty()) {

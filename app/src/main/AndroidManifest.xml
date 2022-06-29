@@ -8,7 +8,7 @@
         <package android:name="com.coub.android" />
         <package android:name="org.schabi.newpipe" />
         <package android:name="com.google.android.youtube" />
-        <package android:name="com.vanced.android.youtube" />
+        <package android:name="app.revanced.android.youtube" />
     </queries>
 
     <uses-permission android:name="android.permission.INTERNET" />

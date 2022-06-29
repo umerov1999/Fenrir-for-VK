@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiLyrics {
-    @SerializedName("lyrics_id")
+    @SerialName("lyrics_id")
     var lyrics_id = 0
 
-    @SerializedName("text")
+    @SerialName("text")
     var text: String? = null
 }

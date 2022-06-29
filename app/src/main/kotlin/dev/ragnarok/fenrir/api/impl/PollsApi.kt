@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.api.impl
 
-import com.google.gson.JsonArray
 import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IPollsApi
@@ -9,7 +8,9 @@ import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.services.IPollsService
 import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.serializeble.json.Json
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.encodeToString
 
 internal class PollsApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IPollsApi {
@@ -20,10 +21,6 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
         ownerId: Int,
         addAnswers: Collection<String>
     ): Single<VKApiPoll> {
-        val array = JsonArray()
-        for (answer in addAnswers) {
-            array.add(answer)
-        }
         return provideService(IPollsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service
@@ -32,7 +29,7 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
                         integerFromBoolean(isAnonymous),
                         integerFromBoolean(isMultiple),
                         ownerId,
-                        array.toString()
+                        Json.encodeToString(addAnswers)
                     )
                     .map(extractResponseWithErrorHandling())
             }

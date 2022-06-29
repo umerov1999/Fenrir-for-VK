@@ -2,28 +2,30 @@ package dev.ragnarok.fenrir.api.model.server
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Атрибуты сервера для аплоада фотографий в личное сообщение
  */
+@Serializable
 class VKApiPhotoMessageServer : Parcelable, UploadServer {
     /**
      * Адрес сервера
      */
-    @SerializedName("upload_url")
+    @SerialName("upload_url")
     override var url: String? = null
 
     /**
      * id альбома
      */
-    @SerializedName("album_id")
+    @SerialName("album_id")
     var album_id = 0
 
     /**
      * id текущего пользователя
      */
-    @SerializedName("user_id")
+    @SerialName("user_id")
     var user_id = 0
 
     @Suppress("UNUSED")

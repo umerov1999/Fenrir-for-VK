@@ -1,22 +1,18 @@
 package dev.ragnarok.fenrir.api
 
 import android.annotation.SuppressLint
-import com.google.gson.GsonBuilder
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Constants.USER_AGENT
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
-import dev.ragnarok.fenrir.api.adapters.LongpollUpdateAdapter
-import dev.ragnarok.fenrir.api.adapters.LongpollUpdatesAdapter
-import dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent
-import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.CompressDefaultInterceptor
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.retrofit.gson.GsonConverterFactory
-import dev.ragnarok.fenrir.util.retrofit.rxjava3.RxJava3CallAdapterFactory
+import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.asConverterFactory
+import dev.ragnarok.fenrir.util.serializeble.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.FormBody
 import okhttp3.Interceptor
@@ -63,10 +59,9 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
             ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
             HttpLogger.adjust(builder)
             HttpLogger.configureToIgnoreCertificates(builder)
-            val gson = GsonBuilder().create()
             val retrofit = Retrofit.Builder()
                 .baseUrl("https://" + Settings.get().other().get_Auth_Domain() + "/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(kJson.asConverterFactory())
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .client(builder.build())
                 .build()
@@ -92,10 +87,9 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
             ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
             HttpLogger.adjust(builder)
             HttpLogger.configureToIgnoreCertificates(builder)
-            val gson = GsonBuilder().create()
             val retrofit = Retrofit.Builder()
                 .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(kJson.asConverterFactory())
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .client(builder.build())
                 .build()
@@ -137,7 +131,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
         val url = Utils.firstNonEmptyString(localSettings.url, "https://debug.dev")!!
         return Retrofit.Builder()
             .baseUrl("$url/method/")
-            .addConverterFactory(GsonConverterFactory.create(VkRetrofitProvider.vkgson))
+            .addConverterFactory(kJson.asConverterFactory())
             .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .client(builder.build())
             .build()
@@ -159,13 +153,9 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
         HttpLogger.adjust(builder)
         HttpLogger.configureToIgnoreCertificates(builder)
-        val gson = GsonBuilder()
-            .registerTypeAdapter(VkApiLongpollUpdates::class.java, LongpollUpdatesAdapter())
-            .registerTypeAdapter(AbsLongpollEvent::class.java, LongpollUpdateAdapter())
-            .create()
         return Retrofit.Builder()
             .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/") // dummy
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(kJson.asConverterFactory())
             .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .client(builder.build())
             .build()

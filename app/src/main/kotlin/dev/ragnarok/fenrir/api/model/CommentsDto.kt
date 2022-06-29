@@ -1,14 +1,16 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class CommentsDto {
-    @SerializedName("count")
+    @SerialName("count")
     var count = 0
 
-    @SerializedName("can_post")
+    @SerialName("can_post")
     var canPost = false
 
-    @SerializedName("list")
+    @SerialName("list")
     var list: List<VKApiComment>? = null
 }

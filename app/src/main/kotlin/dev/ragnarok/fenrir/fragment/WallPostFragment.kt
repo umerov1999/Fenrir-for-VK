@@ -36,6 +36,7 @@ import dev.ragnarok.fenrir.place.PlaceUtil.goToPostEditor
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateFromUnixTime
+import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
@@ -67,19 +68,13 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
     }
 
     override fun displayPinComplete(pin: Boolean) {
-        Toast.makeText(
-            requireActivity(),
-            if (pin) R.string.pin_result else R.string.unpin_result,
-            Toast.LENGTH_SHORT
-        ).show()
+        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+            .showToastSuccessBottom(if (pin) R.string.pin_result else R.string.unpin_result)
     }
 
     override fun displayDeleteOrRestoreComplete(deleted: Boolean) {
-        Toast.makeText(
-            requireActivity(),
-            if (deleted) R.string.delete_result else R.string.restore_result,
-            Toast.LENGTH_SHORT
-        ).show()
+        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+            .showToastSuccessBottom(if (deleted) R.string.delete_result else R.string.restore_result)
     }
 
     override fun onResume() {
@@ -194,7 +189,8 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
     }
 
     override fun showSuccessToast() {
-        Toast.makeText(context, R.string.success, Toast.LENGTH_SHORT).show()
+        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+            .showToastSuccessBottom(R.string.success)
     }
 
     override fun copyLinkToClipboard(link: String?) {
@@ -414,11 +410,8 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
     }
 
     override fun showPostNotReadyToast() {
-        Toast.makeText(
-            requireActivity(),
-            R.string.wall_post_is_not_yet_initialized,
-            Toast.LENGTH_LONG
-        ).show()
+        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+            .showToastInfo(R.string.wall_post_is_not_yet_initialized)
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<WallPostPresenter> {

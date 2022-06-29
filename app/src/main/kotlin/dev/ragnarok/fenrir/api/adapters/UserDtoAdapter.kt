@@ -1,23 +1,19 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.*
-import dev.ragnarok.fenrir.api.model.VKApiUser.Occupation
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.util.VKStringUtils
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
-class UserDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiUser> {
-    @Throws(JsonParseException::class)
+class UserDtoAdapter : AbsAdapter<VKApiUser>("VKApiUser") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiUser {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiUser()
         val root = json.asJsonObject
@@ -40,29 +36,33 @@ class UserDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiUser> {
         dto.status = VKStringUtils.unescape(optString(root, VKApiUser.Field.STATUS))
         dto.bdate = optString(root, VKApiUser.Field.BDATE)
         if (hasObject(root, VKApiUser.Field.CITY)) {
-            dto.city = context.deserialize(root[VKApiUser.Field.CITY], VKApiCity::class.java)
+            dto.city = root[VKApiUser.Field.CITY]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, VKApiUser.Field.COUNTRY)) {
             dto.country =
-                context.deserialize(root[VKApiUser.Field.COUNTRY], VKApiCountry::class.java)
+                root[VKApiUser.Field.COUNTRY]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         dto.universities = parseArray(
             root[VKApiUser.Field.UNIVERSITIES],
-            VKApiUniversity::class.java,
-            context,
             null
         )
         dto.schools =
-            parseArray(root[VKApiUser.Field.SCHOOLS], VKApiSchool::class.java, context, null)
+            parseArray(root[VKApiUser.Field.SCHOOLS], null)
         dto.militaries =
-            parseArray(root[VKApiUser.Field.MILITARY], VKApiMilitary::class.java, context, null)
+            parseArray(root[VKApiUser.Field.MILITARY], null)
         dto.careers =
-            parseArray(root[VKApiUser.Field.CAREER], VKApiCareer::class.java, context, null)
+            parseArray(root[VKApiUser.Field.CAREER], null)
 
         // status
         dto.activity = optString(root, VKApiUser.Field.ACTIVITY)
         if (hasObject(root, "status_audio")) {
-            dto.status_audio = context.deserialize(root["status_audio"], VKApiAudio::class.java)
+            dto.status_audio = root["status_audio"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, VKApiUser.Field.PERSONAL)) {
             val personal = root.getAsJsonObject(VKApiUser.Field.PERSONAL)
@@ -74,8 +74,8 @@ class UserDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiUser> {
             dto.inspired_by = optString(personal, "inspired_by")
             dto.religion = optString(personal, "religion")
             if (hasArray(personal, "langs")) {
-                val langs = personal["langs"].asJsonArray
-                dto.langs = Array(langs.size()) { optString(langs, it) ?: "null" }
+                val langs = personal["langs"]?.asJsonArray
+                dto.langs = Array(langs?.size.orZero()) { optString(langs, it) ?: "null" }
             }
         }
 
@@ -121,12 +121,13 @@ class UserDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiUser> {
         dto.sex = optInt(root, VKApiUser.Field.SEX)
         if (hasObject(root, VKApiUser.Field.COUNTERS)) {
             dto.counters =
-                context.deserialize(root[VKApiUser.Field.COUNTERS], VKApiUser.Counters::class.java)
+                root[VKApiUser.Field.COUNTERS]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         dto.relation = optInt(root, VKApiUser.Field.RELATION)
         dto.relatives = parseArray(
-            root[VKApiUser.Field.RELATIVES], VKApiUser.Relative::class.java,
-            context, emptyList()
+            root[VKApiUser.Field.RELATIVES], emptyList()
         )
         dto.home_town = optString(root, VKApiUser.Field.HOME_TOWN)
         dto.photo_id = optString(root, "photo_id")
@@ -136,11 +137,13 @@ class UserDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiUser> {
         dto.photo_max = optString(root, "photo_max")
         dto.has_mobile = optBoolean(root, "has_mobile")
         if (hasObject(root, "occupation")) {
-            dto.occupation = context.deserialize(root["occupation"], Occupation::class.java)
+            dto.occupation = root["occupation"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (hasObject(root, "relation_partner")) {
             dto.relation_partner =
-                deserialize(root["relation_partner"], VKApiUser::class.java, context)
+                root["relation_partner"]?.let { deserialize(it) }
         }
         dto.music = optString(root, "music")
         dto.can_see_audio = optBoolean(root, "can_see_audio")

@@ -2,41 +2,44 @@ package dev.ragnarok.fenrir.crypt
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.ParcelUtils.readObjectInteger
 import dev.ragnarok.fenrir.util.ParcelUtils.writeObjectInteger
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
+@Serializable
 class ExchangeMessage : Parcelable {
-    @SerializedName("v")
+    @SerialName("v")
     var version = 0
         private set
 
-    @SerializedName("sid")
+    @SerialName("sid")
     var sessionId: Long = 0
         private set
 
-    @SerializedName("public_key")
+    @SerialName("public_key")
     var publicKey: String? = null
         private set
 
-    @SerializedName("aes_key")
+    @SerialName("aes_key")
     var aesKey: String? = null
         private set
 
     @get:SessionState
     @SessionState
-    @SerializedName("session_state")
+    @SerialName("session_state")
     var senderSessionState = 0
         private set
 
-    @SerializedName("error_code")
+    @SerialName("error_code")
     var errorCode = 0
         private set
 
     @KeyLocationPolicy
-    @SerializedName("klp")
+    @SerialName("klp")
     private var keyLocationPolicy: Int? = null
 
     @Suppress("UNUSED")
@@ -67,7 +70,7 @@ class ExchangeMessage : Parcelable {
         get() = errorCode != 0
 
     override fun toString(): String {
-        return "RSA" + Gson().toJson(this)
+        return "RSA" + kJson.encodeToString(this)
     }
 
     @KeyLocationPolicy

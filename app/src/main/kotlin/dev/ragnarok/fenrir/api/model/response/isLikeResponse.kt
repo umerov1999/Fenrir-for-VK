@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class isLikeResponse {
-    @SerializedName("liked")
+    @SerialName("liked")
     var liked = 0
 
-    @SerializedName("copied")
+    @SerialName("copied")
     var copied = 0
 }

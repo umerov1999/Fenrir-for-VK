@@ -1253,7 +1253,7 @@ public final class ViewPager2 extends ViewGroup {
 
         @Nullable
         @Override
-        public View findSnapView(RecyclerView.LayoutManager layoutManager) {
+        public View findSnapView(@NonNull RecyclerView.LayoutManager layoutManager) {
             // When interrupting a smooth scroll with a fake drag, we stop RecyclerView's scroll
             // animation, which fires a scroll state change to IDLE. PagerSnapHelper then kicks in
             // to snap to a page, which we need to prevent here.

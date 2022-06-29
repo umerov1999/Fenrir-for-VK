@@ -1,8 +1,12 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.TopicDtoAdapter
+import kotlinx.serialization.Serializable
+
 /**
  * An audio object describes an audio file and contains the following fields.
  */
+@Serializable(with = TopicDtoAdapter::class)
 class VKApiTopic : Commentable {
     var id = 0
     var owner_id = 0

@@ -1,7 +1,10 @@
 package dev.ragnarok.fenrir.api.model.longpoll
 
-open class AbsLongpollEvent(val action: Int) {
+import dev.ragnarok.fenrir.api.adapters.LongpollUpdateAdapter
+import kotlinx.serialization.Serializable
 
+@Serializable(with = LongpollUpdateAdapter::class)
+open class AbsLongpollEvent(val action: Int) {
     companion object {
         const val ACTION_MESSAGES_FLAGS_SET = 2
         const val ACTION_MESSAGES_FLAGS_RESET = 3

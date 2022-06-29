@@ -477,8 +477,11 @@ class UserDetailsPresenter(
                 )
                 if (details.getRelationPartner() != null) {
                     icon = Icon.fromUrl(details.getRelationPartner()?.get100photoOrSmaller())
-                    subtitle =
-                        Text("""${getString(relationRes)}${details.getRelationPartner()?.fullName}""".trimIndent())
+                    subtitle = Text(
+                        getString(relationRes) + details.getRelationPartner()?.fullName.nonNullNoEmpty(
+                            { " $it" },
+                            { "" })
+                    )
                 } else {
                     subtitle = Text(relationRes)
                     icon = Icon.fromResources(R.drawable.ic_relation)

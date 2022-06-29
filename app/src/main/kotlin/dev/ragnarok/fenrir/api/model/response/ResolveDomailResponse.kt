@@ -2,8 +2,10 @@ package dev.ragnarok.fenrir.api.model.response
 
 import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
+@Serializable
 class ResolveDomailResponse : Parcelable {
     var type: String? = null
     var object_id: String? = null

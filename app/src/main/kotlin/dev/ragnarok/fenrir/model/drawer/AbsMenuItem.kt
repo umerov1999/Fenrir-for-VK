@@ -2,13 +2,15 @@ package dev.ragnarok.fenrir.model.drawer
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 open class AbsMenuItem : Parcelable {
-    @SerializedName("type")
+    @SerialName("type")
     val type: Int
 
-    @SerializedName("selected")
+    @SerialName("selected")
     var isSelected = false
 
     constructor(type: Int) {

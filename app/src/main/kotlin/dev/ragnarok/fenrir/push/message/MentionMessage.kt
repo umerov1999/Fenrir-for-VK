@@ -6,11 +6,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.getMentionChannel
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.mentionChannelId
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -20,6 +19,9 @@ import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.settings.theme.ThemesController.toastColor
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 
 class MentionMessage {
     private var message_id = 0
@@ -66,23 +68,24 @@ class MentionMessage {
         )
     }
 
+    @Serializable
     private class MentionContext {
-        @SerializedName("msg_id")
+        @SerialName("msg_id")
         var msg_id = 0
 
-        @SerializedName("sender_id")
+        @SerialName("sender_id")
         var sender_id = 0
 
-        @SerializedName("chat_id")
+        @SerialName("chat_id")
         var chat_id = 0
     }
 
     companion object {
-        private val GSON = Gson()
+
         fun fromRemoteMessage(remote: RemoteMessage): MentionMessage {
             val message = MentionMessage()
             val data = remote.data
-            val context = GSON.fromJson(data["context"], MentionContext::class.java)
+            val context: MentionContext = kJson.decodeFromString(data["context"]!!)
             message.message_id = context.msg_id
             message.body = data["body"]
             message.title = data["title"]

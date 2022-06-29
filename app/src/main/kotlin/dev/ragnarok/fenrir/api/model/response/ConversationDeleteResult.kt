@@ -1,8 +1,10 @@
 package dev.ragnarok.fenrir.api.model.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class ConversationDeleteResult {
-    @SerializedName("last_deleted_id")
+    @SerialName("last_deleted_id")
     var lastDeletedId = 0
 }

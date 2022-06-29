@@ -42,6 +42,7 @@
   <color name="m3_sys_color_dark_on_surface_variant">@color/m3_ref_palette_neutral_variant80</color>
   <color name="m3_sys_color_dark_inverse_surface">@color/m3_ref_palette_neutral90</color>
   <color name="m3_sys_color_dark_inverse_on_surface">@color/m3_ref_palette_neutral20</color>
+  <macro name="m3_sys_color_dark_surface_tint">?attr/colorPrimary</macro>
   <!-- Background colors -->
   <color name="m3_sys_color_dark_background">@color/m3_ref_palette_neutral10</color>
   <color name="m3_sys_color_dark_on_background">@color/m3_ref_palette_neutral90</color>
@@ -52,6 +53,7 @@
   <color name="m3_sys_color_dark_error_container">@color/m3_ref_palette_error30</color>
   <color name="m3_sys_color_dark_on_error">@color/m3_ref_palette_error20</color>
   <color name="m3_sys_color_dark_on_error_container">@color/m3_ref_palette_error80</color>
+
   <!-- Generated from token set (md.sys.color) in context (theme=light). -->
   <!-- Primary colors -->
   <color name="m3_sys_color_light_primary">@color/m3_ref_palette_primary40</color>
@@ -76,6 +78,7 @@
   <color name="m3_sys_color_light_on_surface_variant">@color/m3_ref_palette_neutral_variant30</color>
   <color name="m3_sys_color_light_inverse_surface">@color/m3_ref_palette_neutral20</color>
   <color name="m3_sys_color_light_inverse_on_surface">@color/m3_ref_palette_neutral95</color>
+  <macro name="m3_sys_color_light_surface_tint">?attr/colorPrimary</macro>
   <!-- Background colors -->
   <color name="m3_sys_color_light_background">@color/m3_ref_palette_neutral99</color>
   <color name="m3_sys_color_light_on_background">@color/m3_ref_palette_neutral10</color>
@@ -86,6 +89,7 @@
   <color name="m3_sys_color_light_error_container">@color/m3_ref_palette_error90</color>
   <color name="m3_sys_color_light_on_error">@color/m3_ref_palette_error100</color>
   <color name="m3_sys_color_light_on_error_container">@color/m3_ref_palette_error10</color>
+
   <!-- Generated from token set (md.ref.palette) in default context. -->
   <!-- Baseline palette – Primary -->
   <color name="m3_ref_palette_primary100">#ffffffff</color>

@@ -2,7 +2,11 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.Keep
+import kotlinx.serialization.Serializable
 
+@Keep
+@Serializable
 class ContactConversation : Parcelable {
     val id: Int
     var title: String? = null

@@ -1,30 +1,25 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.feedback.UserArray
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 
-class FeedbackUserArrayDtoAdapter : AbsAdapter(), JsonDeserializer<UserArray> {
-    @Throws(JsonParseException::class)
+class FeedbackUserArrayDtoAdapter : AbsAdapter<UserArray>("UserArray") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): UserArray {
         val root = json.asJsonObject
         val dto = UserArray()
         dto.count = optInt(root, "count")
         if (hasArray(root, "items")) {
             val array = root.getAsJsonArray("items")
-            dto.ids = IntArray(array.size())
-            for (i in 0 until array.size()) {
-                if (!checkObject(array[i])) {
+            dto.ids = IntArray(array?.size.orZero())
+            for (i in 0 until array?.size.orZero()) {
+                if (!checkObject(array?.get(i))) {
                     continue
                 }
-                dto.ids?.set(i, array[i].asJsonObject["from_id"].asInt)
+                dto.ids?.set(i, optInt(array?.get(i)?.asJsonObject, "from_id", 0))
             }
         } else {
             dto.ids = IntArray(0)

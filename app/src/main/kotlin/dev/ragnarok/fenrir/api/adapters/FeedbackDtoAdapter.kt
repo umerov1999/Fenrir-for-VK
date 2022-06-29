@@ -1,51 +1,48 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.*
-import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.VKApiPhoto
+import dev.ragnarok.fenrir.api.model.VKApiPost
+import dev.ragnarok.fenrir.api.model.VKApiTopic
+import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.api.model.feedback.*
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElementOrNull
 
-class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
-    @Throws(JsonParseException::class)
+class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiBaseFeedback {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val root = json.asJsonObject
         return when (val type = optString(root, "type")) {
             "follow", "friend_accepted" -> USERS_PARSER.parse(
-                root,
-                context
+                root
             )
-            "mention" -> MENTION_WALL_PARSER.parse(root, context)
-            "wall", "wall_publish" -> WALL_PARSER.parse(root, context)
+            "mention" -> MENTION_WALL_PARSER.parse(root)
+            "wall", "wall_publish" -> WALL_PARSER.parse(root)
             "comment_photo", "comment_post", "comment_video" -> CREATE_COMMENT_PARSER.parse(
-                root,
-                context
+                root
             )
             "reply_comment", "reply_comment_photo", "reply_comment_video", "reply_topic" -> REPLY_COMMENT_PARSER.parse(
-                root,
-                context
+                root
             )
             "like_video", "like_photo", "like_post" -> LIKE_PARSER.parse(
-                root,
-                context
+                root
             )
             "like_comment_photo", "like_comment_video", "like_comment_topic", "like_comment" -> LIKE_COMMENT_PARSER.parse(
-                root,
-                context
+                root
             )
             "copy_post", "copy_photo", "copy_video" -> COPY_PARSER.parse(
-                root,
-                context
+                root
             )
             "mention_comment_photo", "mention_comment_video", "mention_comments" -> MENTION_COMMENT_PARSER.parse(
-                root,
-                context
+                root
             )
             else -> throw UnsupportedOperationException("unsupported type $type")
         }
@@ -53,12 +50,15 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
 
     private abstract class Parser<T : VKApiBaseFeedback?> {
         protected abstract fun createDto(): T
-        open fun parse(root: JsonObject, context: JsonDeserializationContext): T {
+        open fun parse(root: JsonObject): T {
             val dto = createDto()
             dto?.type = optString(root, "type")
             dto?.date = optLong(root, "date")
             if (root.has("reply")) {
-                dto?.reply = context.deserialize(root["reply"], VKApiComment::class.java)
+                dto?.reply =
+                    kJson.decodeFromJsonElementOrNull(
+                        root["reply"]
+                    )
             }
             return dto
         }
@@ -70,18 +70,16 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiCopyFeedback {
-            val dto = super.parse(root, context)
-            dto.copies = context.deserialize(root["feedback"], Copies::class.java)
-            val copyClass: Type = when (dto.type) {
-                "copy_post" -> VKApiPost::class.java
-                "copy_photo" -> VKApiPhoto::class.java
-                "copy_video" -> VKApiVideo::class.java
+            val dto = super.parse(root)
+            dto.copies = kJson.decodeFromJsonElementOrNull(root["feedback"])
+            dto.what = when (dto.type) {
+                "copy_post" -> kJson.decodeFromJsonElementOrNull<VKApiPost>(root["parent"])
+                "copy_photo" -> kJson.decodeFromJsonElementOrNull<VKApiPhoto>(root["parent"])
+                "copy_video" -> kJson.decodeFromJsonElementOrNull<VKApiVideo>(root["parent"])
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
-            dto.what = context.deserialize(root["parent"], copyClass)
             return dto
         }
     }
@@ -92,18 +90,30 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiCommentFeedback {
-            val dto = super.parse(root, context)
-            dto.comment = context.deserialize(root["feedback"], VKApiComment::class.java)
-            val commentableClass: Type = when (dto.type) {
-                "comment_post" -> VKApiPost::class.java
-                "comment_photo" -> VKApiPhoto::class.java
-                "comment_video" -> VKApiVideo::class.java
+            val dto = super.parse(root)
+            dto.comment = root["feedback"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
+            dto.comment_of = when (dto.type) {
+                "comment_post" -> root["parent"]?.let {
+                    kJson.decodeFromJsonElement<VKApiPost>(
+                        it
+                    )
+                }
+                "comment_photo" -> root["parent"]?.let {
+                    kJson.decodeFromJsonElement<VKApiPhoto>(
+                        it
+                    )
+                }
+                "comment_video" -> root["parent"]?.let {
+                    kJson.decodeFromJsonElement<VKApiVideo>(
+                        it
+                    )
+                }
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
-            dto.comment_of = context.deserialize(root["parent"], commentableClass)
             return dto
         }
     }
@@ -114,38 +124,47 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiReplyCommentFeedback {
-            val dto = super.parse(root, context)
-            dto.feedback_comment = context.deserialize(root["feedback"], VKApiComment::class.java)
+            val dto = super.parse(root)
+            dto.feedback_comment =
+                root["feedback"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
             if ("reply_topic" == dto.type) {
                 dto.own_comment = null
-                dto.comments_of = context.deserialize(root["parent"], VKApiTopic::class.java)
+                dto.comments_of = root["parent"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
                 return dto
             }
-            dto.own_comment = context.deserialize(root["parent"], VKApiComment::class.java)
-            val commentableClass: Type
-            val parentCommentableField: String
-            when (dto.type) {
+            dto.own_comment = root["parent"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
+            dto.comments_of = when (dto.type) {
                 "reply_comment" -> {
-                    commentableClass = VKApiPost::class.java
-                    parentCommentableField = "post"
+                    root.getAsJsonObject("parent")?.get("post")?.let {
+                        kJson.decodeFromJsonElement<VKApiPost>(
+                            it
+                        )
+                    }
                 }
                 "reply_comment_photo" -> {
-                    commentableClass = VKApiPhoto::class.java
-                    parentCommentableField = "photo"
+                    root.getAsJsonObject("parent")?.get("photo")?.let {
+                        kJson.decodeFromJsonElement<VKApiPhoto>(
+                            it
+                        )
+                    }
                 }
                 "reply_comment_video" -> {
-                    commentableClass = VKApiVideo::class.java
-                    parentCommentableField = "video"
+                    root.getAsJsonObject("parent")?.get("video")?.let {
+                        kJson.decodeFromJsonElement<VKApiVideo>(
+                            it
+                        )
+                    }
                 }
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
-            dto.comments_of = context.deserialize(
-                root.getAsJsonObject("parent")[parentCommentableField],
-                commentableClass
-            )
             return dto
         }
     }
@@ -156,11 +175,12 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiUsersFeedback {
-            val dto = super.parse(root, context)
-            dto.users = context.deserialize(root["feedback"], UserArray::class.java)
+            val dto = super.parse(root)
+            dto.users = root["feedback"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
             return dto
         }
     }
@@ -171,18 +191,24 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiLikeFeedback {
-            val dto = super.parse(root, context)
-            val likedClass: Type = when (dto.type) {
-                "like_photo" -> VKApiPhoto::class.java
-                "like_post" -> VKApiPost::class.java
-                "like_video" -> VKApiVideo::class.java
+            val dto = super.parse(root)
+            dto.liked = when (dto.type) {
+                "like_photo" -> root["parent"]?.let {
+                    kJson.decodeFromJsonElement<VKApiPhoto>(it)
+                }
+                "like_post" -> root["parent"]?.let {
+                    kJson.decodeFromJsonElement<VKApiPost>(it)
+                }
+                "like_video" -> root["parent"]?.let {
+                    kJson.decodeFromJsonElement<VKApiVideo>(it)
+                }
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
-            dto.liked = context.deserialize(root["parent"], likedClass)
-            dto.users = context.deserialize(root["feedback"], UserArray::class.java)
+            dto.users = root["feedback"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
             return dto
         }
     }
@@ -193,37 +219,46 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiLikeCommentFeedback {
-            val dto = super.parse(root, context)
-            val commentableClass: Type
-            val parentJsonField: String
-            when (dto.type) {
+            val dto = super.parse(root)
+            dto.commented = when (dto.type) {
                 "like_comment" -> {
-                    commentableClass = VKApiPost::class.java
-                    parentJsonField = "post"
+                    root.getAsJsonObject("parent")?.get("post")?.let {
+                        kJson.decodeFromJsonElement<VKApiPost>(
+                            it
+                        )
+                    }
                 }
                 "like_comment_photo" -> {
-                    commentableClass = VKApiPhoto::class.java
-                    parentJsonField = "photo"
+                    root.getAsJsonObject("parent")?.get("photo")?.let {
+                        kJson.decodeFromJsonElement<VKApiPhoto>(
+                            it
+                        )
+                    }
                 }
                 "like_comment_video" -> {
-                    commentableClass = VKApiVideo::class.java
-                    parentJsonField = "video"
+                    root.getAsJsonObject("parent")?.get("video")?.let {
+                        kJson.decodeFromJsonElement<VKApiVideo>(
+                            it
+                        )
+                    }
                 }
                 "like_comment_topic" -> {
-                    commentableClass = VKApiTopic::class.java
-                    parentJsonField = "topic"
+                    root.getAsJsonObject("parent")?.get("topic")?.let {
+                        kJson.decodeFromJsonElement<VKApiTopic>(
+                            it
+                        )
+                    }
                 }
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
-            dto.users = context.deserialize(root["feedback"], UserArray::class.java)
-            dto.comment = context.deserialize(root["parent"], VKApiComment::class.java)
-            dto.commented = context.deserialize(
-                root.getAsJsonObject("parent")[parentJsonField],
-                commentableClass
-            )
+            dto.users = root["feedback"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
+            dto.comment = root["parent"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
             return dto
         }
     }
@@ -234,11 +269,12 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiMentionWallFeedback {
-            val dto = super.parse(root, context)
-            dto.post = context.deserialize(root["feedback"], VKApiPost::class.java)
+            val dto = super.parse(root)
+            dto.post = root["feedback"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
             return dto
         }
     }
@@ -249,11 +285,12 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiWallFeedback {
-            val dto = super.parse(root, context)
-            dto.post = context.deserialize(root["feedback"], VKApiPost::class.java)
+            val dto = super.parse(root)
+            dto.post = root["feedback"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
             return dto
         }
     }
@@ -264,18 +301,27 @@ class FeedbackDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiBaseFeedback> {
         }
 
         override fun parse(
-            root: JsonObject,
-            context: JsonDeserializationContext
+            root: JsonObject
         ): VKApiMentionCommentFeedback {
-            val dto = super.parse(root, context)
-            dto.where = context.deserialize(root["feedback"], VKApiComment::class.java)
-            val commentableClass: Type = when (dto.type) {
-                "mention_comments" -> VKApiPost::class.java
-                "mention_comment_photo" -> VKApiPhoto::class.java
-                "mention_comment_video" -> VKApiVideo::class.java
+            val dto = super.parse(root)
+            dto.where = root["feedback"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
+            dto.comment_of = when (dto.type) {
+                "mention_comments" ->
+                    root["parent"]?.let {
+                        kJson.decodeFromJsonElement<VKApiPost>(it)
+                    }
+                "mention_comment_photo" ->
+                    root["parent"]?.let {
+                        kJson.decodeFromJsonElement<VKApiPhoto>(it)
+                    }
+                "mention_comment_video" ->
+                    root["parent"]?.let {
+                        kJson.decodeFromJsonElement<VKApiVideo>(it)
+                    }
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
-            dto.comment_of = context.deserialize(root["parent"], commentableClass)
             return dto
         }
     }

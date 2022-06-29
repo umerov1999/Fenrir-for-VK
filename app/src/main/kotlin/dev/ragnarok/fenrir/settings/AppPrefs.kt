@@ -17,7 +17,7 @@ object AppPrefs {
     }
 
     fun isVancedYoutubeInstalled(context: Context): Boolean {
-        return isPackageIntalled(context, "com.vanced.android.youtube")
+        return isPackageIntalled(context, "app.revanced.android.youtube")
     }
 
     private fun isPackageIntalled(context: Context, name: String): Boolean {

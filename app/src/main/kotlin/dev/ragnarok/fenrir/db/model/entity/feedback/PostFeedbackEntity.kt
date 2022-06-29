@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.db.model.entity.feedback
 
 import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
 import dev.ragnarok.fenrir.db.model.entity.PostDboEntity
 import dev.ragnarok.fenrir.model.feedback.FeedbackType
 import kotlinx.serialization.SerialName
@@ -11,7 +10,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("post")
 class PostFeedbackEntity : FeedbackEntity {
-    @SerializedName("post")
+    @SerialName("post")
     var post: PostDboEntity? = null
         private set
 

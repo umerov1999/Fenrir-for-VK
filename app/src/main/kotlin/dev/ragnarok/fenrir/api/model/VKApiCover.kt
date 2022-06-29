@@ -1,22 +1,25 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiCover {
-    @SerializedName("enabled")
+    @SerialName("enabled")
     var enabled = false
 
-    @SerializedName("images")
+    @SerialName("images")
     var images: List<Image>? = null
 
+    @Serializable
     class Image {
-        @SerializedName("url")
+        @SerialName("url")
         var url: String? = null
 
-        @SerializedName("width")
+        @SerialName("width")
         var width = 0
 
-        @SerializedName("height")
+        @SerialName("height")
         var height = 0
     }
 }

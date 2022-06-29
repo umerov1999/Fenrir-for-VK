@@ -1,23 +1,25 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiShortLink {
-    @SerializedName("short_url")
+    @SerialName("short_url")
     var short_url: String? = null
 
-    @SerializedName("url")
+    @SerialName("url")
     var url: String? = null
 
-    @SerializedName("timestamp")
+    @SerialName("timestamp")
     var timestamp: Long = 0
 
-    @SerializedName("access_key")
+    @SerialName("access_key")
     var access_key: String? = null
 
-    @SerializedName("key")
+    @SerialName("key")
     var key: String? = null
 
-    @SerializedName("views")
+    @SerialName("views")
     var views = 0
 }

@@ -1,17 +1,19 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiLongpollServer {
-    @SerializedName("key")
+    @SerialName("key")
     var key: String? = null
 
-    @SerializedName("server")
+    @SerialName("server")
     var server: String? = null
 
-    @SerializedName("ts")
+    @SerialName("ts")
     var ts: Long = 0
 
-    @SerializedName("pts")
+    @SerialName("pts")
     var pts: Long = 0
 }

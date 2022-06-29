@@ -1,21 +1,22 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import dev.ragnarok.fenrir.api.model.*
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.api.model.VKApiAttachments
+import dev.ragnarok.fenrir.api.model.VKApiNews
+import dev.ragnarok.fenrir.api.model.VKApiPhoto
+import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.int
+import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
-class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
-    @Throws(JsonParseException::class)
+class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiNews {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiNews()
         val root = json.asJsonObject
@@ -31,8 +32,6 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
         if (hasArray(root, "copy_history")) {
             dto.copy_history = parseArray(
                 root.getAsJsonArray("copy_history"),
-                VKApiPost::class.java,
-                context,
                 emptyList()
             )
         } else {
@@ -64,17 +63,22 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             dto.views = optInt(viewRoot, "count", 0)
         }
         if (hasArray(root, "attachments")) {
-            dto.attachments = context.deserialize(root["attachments"], VKApiAttachments::class.java)
+            dto.attachments =
+                root["attachments"]?.let {
+                    kJson.decodeFromJsonElement(it)
+                }
         }
         if (root.has("geo")) {
-            dto.geo = context.deserialize(root["geo"], VKApiPlace::class.java)
+            dto.geo = root["geo"]?.let {
+                kJson.decodeFromJsonElement(it)
+            }
         }
         if (root.has("photos")) {
             val photosArray = root.getAsJsonObject("photos").getAsJsonArray("items")
             if (dto.attachments == null) {
                 dto.attachments = VKApiAttachments()
             }
-            parseArray<VKApiPhoto>(photosArray, VKApiPhoto::class.java, context, null)?.let {
+            parseArray<VKApiPhoto>(photosArray, null)?.let {
                 dto.attachments?.append(it)
             }
         }
@@ -85,8 +89,6 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             }
             parseArray<VKApiPhoto>(
                 photosTagsArray,
-                VKApiPhoto::class.java,
-                context,
                 null
             )?.let {
                 dto.attachments?.append(it)
@@ -99,8 +101,6 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             }
             parseArray<VKApiPhoto>(
                 photosTagsArray,
-                VKApiAudio::class.java,
-                context,
                 null
             )?.let {
                 dto.attachments?.append(it)
@@ -113,8 +113,6 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
             }
             parseArray<VKApiPhoto>(
                 photosTagsArray,
-                VKApiVideo::class.java,
-                context,
                 null
             )?.let {
                 dto.attachments?.append(it)
@@ -122,10 +120,10 @@ class NewsAdapter : AbsAdapter(), JsonDeserializer<VKApiNews> {
         }
         if (root.has("friends")) {
             val friendsArray = root.getAsJsonObject("friends").getAsJsonArray("items")
-            dto.friends = ArrayList(friendsArray.size())
-            for (i in 0 until friendsArray.size()) {
-                val friendObj = friendsArray[i].asJsonObject
-                dto.friends?.add(friendObj["user_id"].asInt)
+            dto.friends = ArrayList(friendsArray?.size.orZero())
+            for (i in 0 until friendsArray?.size.orZero()) {
+                val friendObj = friendsArray?.get(i)?.asJsonObject
+                friendObj?.get("user_id")?.jsonPrimitive?.let { dto.friends?.add(it.int) }
             }
         }
         return dto

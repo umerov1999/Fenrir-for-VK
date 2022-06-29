@@ -1,5 +1,8 @@
 package dev.ragnarok.fenrir.api.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class VKApiPhotoTags {
     var id = 0
     var user_id = 0

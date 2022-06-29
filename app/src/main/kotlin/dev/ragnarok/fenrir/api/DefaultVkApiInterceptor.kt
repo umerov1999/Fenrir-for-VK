@@ -1,15 +1,13 @@
 package dev.ragnarok.fenrir.api
 
-import com.google.gson.Gson
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.settings.Settings
 
 class DefaultVkApiInterceptor internal constructor(
     override val accountId: Int,
-    v: String,
-    gson: Gson
+    v: String
 ) : AbsVkApiInterceptor(
-    v, gson
+    v
 ) {
     override val token: String?
         get() = Settings.get()

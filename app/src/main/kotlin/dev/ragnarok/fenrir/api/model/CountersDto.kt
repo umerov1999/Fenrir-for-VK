@@ -1,38 +1,40 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class CountersDto {
-    @SerializedName("friends")
+    @SerialName("friends")
     var friends = 0
 
-    @SerializedName("messages")
+    @SerialName("messages")
     var messages = 0
 
-    @SerializedName("photos")
+    @SerialName("photos")
     var photos = 0
 
-    @SerializedName("videos")
+    @SerialName("videos")
     var videos = 0
 
-    @SerializedName("notes")
+    @SerialName("notes")
     var notes = 0
 
-    @SerializedName("gifts")
+    @SerialName("gifts")
     var gifts = 0
 
-    @SerializedName("events")
+    @SerialName("events")
     var events = 0
 
-    @SerializedName("groups")
+    @SerialName("groups")
     var groups = 0
 
-    @SerializedName("notifications")
+    @SerialName("notifications")
     var notifications = 0
 
-    @SerializedName("sdk")
+    @SerialName("sdk")
     var sdk = 0
 
-    @SerializedName("app_requests")
+    @SerialName("app_requests")
     var app_requests = 0
 }

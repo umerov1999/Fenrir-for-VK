@@ -6,13 +6,17 @@ import dev.ragnarok.fenrir.api.*
 import dev.ragnarok.fenrir.api.model.Captcha
 import dev.ragnarok.fenrir.api.model.Error
 import dev.ragnarok.fenrir.api.model.IAttachmentToken
+import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.VkResponse
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nullOrEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.service.ApiErrorCodes
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.refresh.RefreshToken
+import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
+import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.Serializer
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
@@ -32,10 +36,11 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
         return retrofitProvider.provideService(accountId, serviceClass, *pTokenTypes)
     }
 
+    @Suppress("unchecked_cast")
     private fun <T : Any> rawVKRequest(
         method: String,
         postParams: Map<String, String>,
-        javaClass: Type
+        javaClass: Type, serializerType: Serializer
     ): Single<BaseResponse<T>> {
         val bodyBuilder = FormBody.Builder()
         for ((key, value) in postParams) {
@@ -63,8 +68,30 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                     })
                 }
             }
-            .map {
-                VkRetrofitProvider.vkgson.fromJson(it.body.charStream(), javaClass)
+            .map { response ->
+                val k = kJson.decodeFromStream(
+                    serializerType.serializer(
+                        javaClass
+                    ), response.body.byteStream()
+                ) as BaseResponse<T>
+                k.error?.let {
+                    it.type = javaClass
+                    it.serializer = serializerType
+
+                    val o = ArrayList<Params>()
+                    for ((key, value) in postParams) {
+                        val tmp = Params()
+                        tmp.key = key
+                        tmp.value = value
+                        o.add(tmp)
+                    }
+                    val tmp = Params()
+                    tmp.key = "post_url"
+                    tmp.value = method
+                    o.add(tmp)
+                    it.requestParams = o
+                }
+                k
             }
     }
 
@@ -99,7 +126,7 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                 }
             }
             .map {
-                VkRetrofitProvider.vkgson.fromJson(it.body.charStream(), VkResponse::class.java)
+                kJson.decodeFromStream(it.body.byteStream())
             }
     }
 
@@ -193,7 +220,8 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                     return@Function rawVKRequest<T>(
                         method,
                         params,
-                        it.type ?: throw UnsupportedOperationException()
+                        it.type ?: throw UnsupportedOperationException(),
+                        it.serializer ?: throw UnsupportedOperationException()
                     )
                         .map(extractResponseWithErrorHandling())
                         .blockingGet() as T

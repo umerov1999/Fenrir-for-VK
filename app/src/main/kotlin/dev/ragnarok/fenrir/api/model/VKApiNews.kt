@@ -1,8 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.NewsAdapter
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
+import kotlinx.serialization.Serializable
 
+@Serializable(with = NewsAdapter::class)
 class VKApiNews {
     var type //friends_recomm //post
             : String? = null

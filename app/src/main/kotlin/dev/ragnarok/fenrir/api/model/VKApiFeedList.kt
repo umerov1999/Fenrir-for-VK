@@ -1,17 +1,19 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiFeedList {
-    @SerializedName("id")
+    @SerialName("id")
     var id = 0
 
-    @SerializedName("title")
+    @SerialName("title")
     var title: String? = null
 
-    @SerializedName("no_reposts")
+    @SerialName("no_reposts")
     var no_reposts = false
 
-    @SerializedName("source_ids")
+    @SerialName("source_ids")
     var source_ids: IntArray? = null
 }

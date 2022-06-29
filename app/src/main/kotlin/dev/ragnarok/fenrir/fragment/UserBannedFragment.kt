@@ -33,6 +33,7 @@ import dev.ragnarok.fenrir.mvp.presenter.UserBannedPresenter
 import dev.ragnarok.fenrir.mvp.view.IUserBannedView
 import dev.ragnarok.fenrir.place.PlaceFactory.getFriendsFollowersPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
+import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 
 class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>(),
@@ -158,7 +159,8 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
     }
 
     override fun showSuccessToast() {
-        Toast.makeText(requireActivity(), R.string.success, Toast.LENGTH_SHORT).show()
+        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+            .showToastSuccessBottom(R.string.success)
     }
 
     override fun scrollToPosition(position: Int) {

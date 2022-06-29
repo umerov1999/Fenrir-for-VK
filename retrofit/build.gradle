@@ -31,5 +31,4 @@ dependencies {
     implementation("com.squareup.okio:okio:$okioVersion")
     implementation("com.squareup.okhttp3:okhttp-android:$okhttpLibraryVersion")
     implementation("androidx.annotation:annotation:$annotationVersion")
-    implementation project(path: ":gson")
 }

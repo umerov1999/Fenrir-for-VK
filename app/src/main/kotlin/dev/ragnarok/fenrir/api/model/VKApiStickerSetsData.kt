@@ -1,11 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class VKApiStickerSetsData {
-    @SerializedName("recent")
+    @SerialName("recent")
     var recent: Items<VKApiSticker>? = null
 
-    @SerializedName("sticker_pack")
+    @SerialName("sticker_pack")
     var sticker_pack: Items<VKApiStickerSet.Product>? = null
 }

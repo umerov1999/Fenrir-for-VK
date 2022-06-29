@@ -1,21 +1,15 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import dev.ragnarok.fenrir.api.model.VKApiCatalogLink
-import java.lang.reflect.Type
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 
-class VKApiCatalogLinkDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCatalogLink> {
-    @Throws(JsonParseException::class)
+class VKApiCatalogLinkDtoAdapter : AbsAdapter<VKApiCatalogLink>("VKApiCatalogLink") {
+    @Throws(Exception::class)
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
+        json: JsonElement
     ): VKApiCatalogLink {
         if (!checkObject(json)) {
-            throw JsonParseException("$TAG error parse object")
+            throw Exception("$TAG error parse object")
         }
         val dto = VKApiCatalogLink()
         val root = json.asJsonObject
@@ -25,7 +19,7 @@ class VKApiCatalogLinkDtoAdapter : AbsAdapter(), JsonDeserializer<VKApiCatalogLi
         if (hasArray(root, "image")) {
             val arr = root.getAsJsonArray("image")
             var max_res = 0
-            for (i in arr) {
+            for (i in arr.orEmpty()) {
                 if (!checkObject(i)) {
                     continue
                 }

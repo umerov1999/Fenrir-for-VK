@@ -25,6 +25,7 @@ import dev.ragnarok.fenrir.model.CommentedType
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.MessageStatus
 import dev.ragnarok.fenrir.model.feedback.FeedbackType
+import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 
@@ -1391,7 +1392,7 @@ object Dto2Entity {
         return PhotoSizeEntity.Size()
             .setH(dto.height)
             .setW(dto.width)
-            .setUrl(dto.url)
+            .setUrl(firstNonEmptyString(dto.url, dto.src))
     }
 
     private fun mapPhotoSizes(dtos: List<PhotoSizeDto>?): PhotoSizeEntity {

@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir
 import android.app.Application
 import android.os.Handler
 import androidx.appcompat.app.AppCompatDelegate
-import com.google.gson.internal.ConstructorConstructor
 import dev.ragnarok.fenrir.activity.crash.CrashUtils
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -48,7 +47,6 @@ class App : Application() {
                 return Utils.density
             }
         })
-        ConstructorConstructor.setLogUnsafe(Settings.get().other().isDeveloper_mode)
 
         if (FenrirNative.isNativeLoaded) {
             MusicPlaybackController.tracksExist = FileExistNative()

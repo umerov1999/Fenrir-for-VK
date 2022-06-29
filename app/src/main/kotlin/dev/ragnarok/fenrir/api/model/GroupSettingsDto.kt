@@ -1,7 +1,10 @@
 package dev.ragnarok.fenrir.api.model
 
-import com.google.gson.annotations.SerializedName
+import dev.ragnarok.fenrir.api.adapters.GroupSettingsAdapter
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable(with = GroupSettingsAdapter::class)
 class GroupSettingsDto {
     var title: String? = null
     var description: String? = null
@@ -54,63 +57,66 @@ class GroupSettingsDto {
     var age_limits = 0
     var market: Market? = null
 
+    @Serializable
     class Place {
-        @SerializedName("id")
+        @SerialName("id")
         var id = 0
 
-        @SerializedName("title")
+        @SerialName("title")
         var title: String? = null
 
-        @SerializedName("latitude")
+        @SerialName("latitude")
         var latitude = 0.0
 
-        @SerializedName("longitude")
+        @SerialName("longitude")
         var longitude = 0.0
 
-        @SerializedName("created")
+        @SerialName("created")
         var created: Long = 0
 
-        @SerializedName("icon")
+        @SerialName("icon")
         var icon: String? = null
 
-        @SerializedName("group_id")
+        @SerialName("group_id")
         var group_id = 0
 
-        @SerializedName("group_photo")
+        @SerialName("group_photo")
         var group_photo: String? = null
 
-        @SerializedName("checkins")
+        @SerialName("checkins")
         var checkins = 0
 
-        @SerializedName("type")
+        @SerialName("type")
         var type = 0
 
-        @SerializedName("country")
+        @SerialName("country")
         var country = 0
 
-        @SerializedName("city")
+        @SerialName("city")
         var city = 0
 
-        @SerializedName("address")
+        @SerialName("address")
         var address: String? = null
     }
 
+    @Serializable
     class PublicCategory {
-        @SerializedName("id")
+        @SerialName("id")
         var id = 0
 
-        @SerializedName("name")
+        @SerialName("name")
         var name: String? = null
 
-        @SerializedName("subtypes_list")
+        @SerialName("subtypes_list")
         var subtypes_list: List<PublicCategory>? = null
     }
 
+    @Serializable
     class Market {
-        @SerializedName("enabled")
+        @SerialName("enabled")
         var enabled = false
 
-        @SerializedName("comments_enabled")
+        @SerialName("comments_enabled")
         var comments_enabled = false
 
         /**
@@ -118,27 +124,28 @@ class GroupSettingsDto {
          * -2 Весь мир
          * -3 Страны СНГ
          */
-        @SerializedName("country_ids")
+        @SerialName("country_ids")
         var country_ids: IntArray? = null
 
-        @SerializedName("city_ids")
+        @SerialName("city_ids")
         var city_ids: IntArray? = null
 
         /**
          * Если в сообщения сообщества, то меньше ноля (напр. -72124992)
          */
-        @SerializedName("contact_id")
+        @SerialName("contact_id")
         var contact_id = 0
 
-        @SerializedName("currency")
+        @SerialName("currency")
         var currency: Currency? = null
     }
 
+    @Serializable
     class Currency {
-        @SerializedName("id")
+        @SerialName("id")
         var id = 0
 
-        @SerializedName("name")
+        @SerialName("name")
         var name: String? = null
     }
 }

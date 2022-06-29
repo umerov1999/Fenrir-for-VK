@@ -187,7 +187,8 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                    .showToastInfo(message)
             }
             DatabaseOption.TYPE_UNIVERSITY -> if (dependency is DatabaseOption && dependency.value != null) {
                 val countryId = (dependency.value ?: return).id
@@ -198,7 +199,8 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                    .showToastInfo(message)
             }
             DatabaseOption.TYPE_FACULTY -> if (dependency is DatabaseOption && dependency.value != null) {
                 val universityId = (dependency.value ?: return).id
@@ -209,7 +211,8 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                    .showToastInfo(message)
             }
             DatabaseOption.TYPE_CHAIR -> if (dependency is DatabaseOption && dependency.value != null) {
                 val facultyId = (dependency.value ?: return).id
@@ -220,7 +223,8 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                    .showToastInfo(message)
             }
             DatabaseOption.TYPE_SCHOOL -> if (dependency is DatabaseOption && dependency.value != null) {
                 val cityId = (dependency.value ?: return).id
@@ -231,7 +235,8 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                    .showToastInfo(message)
             }
             DatabaseOption.TYPE_SCHOOL_CLASS -> if (dependency is DatabaseOption && dependency.value != null) {
                 val countryId = (dependency.value ?: return).id
@@ -242,7 +247,8 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                    .showToastInfo(message)
             }
         }
     }

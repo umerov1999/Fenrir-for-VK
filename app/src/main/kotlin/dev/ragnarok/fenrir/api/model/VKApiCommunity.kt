@@ -1,10 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.adapters.CommunityDtoAdapter
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import kotlinx.serialization.Serializable
 
 /**
  * Community object describes a community.
  */
+@Serializable(with = CommunityDtoAdapter::class)
 class VKApiCommunity
 /**
  * Creates empty Community instance.
@@ -268,6 +271,7 @@ class VKApiCommunity
         const val EVENT = 2
     }
 
+    @Serializable
     class Counters {
         var photos = NO_COUNTER
         var albums = NO_COUNTER
@@ -293,6 +297,7 @@ class VKApiCommunity
         }
     }
 
+    @Serializable
     class Contact : Identificable {
         var user_id = 0
         var email: String? = null
@@ -303,6 +308,7 @@ class VKApiCommunity
         }
     }
 
+    @Serializable
     class Link {
         var id = 0
         var url: String? = null

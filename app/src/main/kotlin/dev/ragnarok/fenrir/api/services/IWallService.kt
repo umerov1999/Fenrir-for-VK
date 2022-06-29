@@ -37,7 +37,7 @@ interface IWallService {
         @Field("long") longitude: Double?,
         @Field("place_id") placeId: Int?,
         @Field("mark_as_ads") markAsAds: Int?
-    ): Single<BaseResponse<WallEditReponce>>
+    ): Single<BaseResponse<WallEditResponse>>
 
     //https://vk.com/dev/wall.pin
     @FormUrlEncoded
