@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.adapter
 
-import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.view.LayoutInflater
@@ -26,9 +25,9 @@ import dev.ragnarok.fenrir.model.menu.options.VideoLocalServerOption
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadVideo
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import io.reactivex.rxjava3.disposables.Disposable
 
 class LocalServerVideosAdapter(private val context: Context, private var data: List<Video>) :
@@ -142,13 +141,11 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                                 listDisposable =
                                     mVideoInteractor.update_time(hash).fromIOToMain().subscribe(
                                         {
-                                            CreateCustomToast(
+                                            createCustomToast(
                                                 context
                                             ).showToast(R.string.success)
                                         }) { t ->
-                                        Utils.showErrorInAdapter(
-                                            context as Activity, t
-                                        )
+                                        createCustomToast(context).showToastThrowable(t)
                                     }
                             }
                             VideoLocalServerOption.edit_item_video -> {
@@ -177,21 +174,19 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                                                                 .trim { it <= ' ' })
                                                             .fromIOToMain()
                                                             .subscribe({
-                                                                CreateCustomToast(
+                                                                createCustomToast(
                                                                     context
                                                                 ).showToast(R.string.success)
                                                             }) { o ->
-                                                                Utils.showErrorInAdapter(
-                                                                    context as Activity, o
+                                                                createCustomToast(context).showToastThrowable(
+                                                                    o
                                                                 )
                                                             }
                                                 }
                                                 .setNegativeButton(R.string.button_cancel, null)
                                                 .show()
                                         }) { t ->
-                                        Utils.showErrorInAdapter(
-                                            context as Activity, t
-                                        )
+                                        createCustomToast(context).showToastThrowable(t)
                                     }
                             }
                             VideoLocalServerOption.delete_item_video -> MaterialAlertDialogBuilder(
@@ -209,13 +204,11 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                                         mVideoInteractor.delete_media(hash1).fromIOToMain()
                                             .subscribe(
                                                 {
-                                                    CreateCustomToast(
+                                                    createCustomToast(
                                                         context
                                                     ).showToast(R.string.success)
                                                 }) { o ->
-                                                Utils.showErrorInAdapter(
-                                                    context as Activity, o
-                                                )
+                                                createCustomToast(context).showToastThrowable(o)
                                             }
                                 }
                                 .setNegativeButton(R.string.button_cancel, null)

@@ -43,7 +43,6 @@ object DialogsColumns : BaseColumns {
     const val FOREIGN_MESSAGE_ACTION = "message_action"
     const val FOREIGN_MESSAGE_ENCRYPTED = "message_encrypted"
 
-    @kotlin.jvm.JvmStatic
     fun getCV(chat: VKApiChat): ContentValues {
         val cv = ContentValues()
         cv.put(BaseColumns._ID, VKApiMessage.CHAT_PEER + chat.id)

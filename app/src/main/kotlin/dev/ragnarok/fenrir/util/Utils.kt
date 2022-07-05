@@ -19,12 +19,9 @@ import android.os.Parcel
 import android.util.SparseArray
 import android.util.TypedValue
 import android.view.Display
-import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
@@ -34,8 +31,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Constants.USER_AGENT
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
@@ -55,7 +50,6 @@ import dev.ragnarok.fenrir.module.StringHash
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
-import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils.updateDateLang
@@ -446,52 +440,6 @@ object Utils {
             } catch (ignored: IOException) {
             }
         }
-    }
-
-    @Suppress("DEPRECATION")
-
-    fun showRedTopToast(activity: Context, text: String?) {
-        val view = View.inflate(activity, R.layout.toast_error, null)
-        (view.findViewById<View>(R.id.text) as TextView).text = text
-        val toast = Toast.makeText(activity, text, Toast.LENGTH_SHORT)
-        toast.view = view
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.TOP, 0, 15)
-        toast.show()
-    }
-
-    @Suppress("DEPRECATION")
-
-    fun showRedTopToast(activity: Context, @StringRes text: Int, vararg params: Any?) {
-        val view = View.inflate(activity, R.layout.toast_error, null)
-        (view.findViewById<View>(R.id.text) as TextView).text =
-            activity.getString(text, *params)
-        val toast = Toast.makeText(activity, text, Toast.LENGTH_SHORT)
-        toast.view = view
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.TOP, 0, 15)
-        toast.show()
-    }
-
-    @Suppress("DEPRECATION")
-
-    fun showYellowTopToast(activity: Context, text: String?) {
-        val view = View.inflate(activity, R.layout.toast_warrning, null)
-        (view.findViewById<View>(R.id.text) as TextView).text = text
-        val toast = Toast.makeText(activity, text, Toast.LENGTH_SHORT)
-        toast.view = view
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.TOP, 0, 15)
-        toast.show()
-    }
-
-    @Suppress("DEPRECATION")
-
-    fun showYellowTopToast(activity: Context, @StringRes text: Int, vararg params: Any?) {
-        val view = View.inflate(activity, R.layout.toast_warrning, null)
-        (view.findViewById<View>(R.id.text) as TextView).text =
-            activity.getString(text, *params)
-        val toast = Toast.makeText(activity, text, Toast.LENGTH_SHORT)
-        toast.view = view
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.TOP, 0, 15)
-        toast.show()
     }
 
     fun safeCountOf(sparseArray: SparseArray<*>?): Int {
@@ -1015,6 +963,17 @@ object Utils {
         visual?.playAnimation()
     }
 
+    fun doWavesLottieBig(visual: RLottieImageView, Play: Boolean) {
+        visual.clearAnimationDrawable()
+        if (Play) {
+            visual.setAutoRepeat(true)
+            visual.fromRes(dev.ragnarok.fenrir_common.R.raw.s_waves, dp(128f), dp(128f))
+        } else {
+            visual.setAutoRepeat(false)
+            visual.fromRes(dev.ragnarok.fenrir_common.R.raw.s_waves_end, dp(128f), dp(128f))
+        }
+        visual.playAnimation()
+    }
 
     fun createGradientChatImage(width: Int, height: Int, owner_id: Int): Bitmap {
         val color1: String
@@ -1137,56 +1096,9 @@ object Utils {
         return str
     }
 
-
-    fun ThemedSnack(
-        view: View,
-        @StringRes resId: Int,
-        @BaseTransientBottomBar.Duration duration: Int
-    ): Snackbar {
-        return ThemedSnack(view, view.resources.getText(resId), duration)
-    }
-
-
-    fun ThemedSnack(
-        view: View,
-        text: CharSequence,
-        @BaseTransientBottomBar.Duration duration: Int
-    ): Snackbar {
-        val color = CurrentTheme.getColorPrimary(view.context)
-        val text_color =
-            if (isColorDark(color)) Color.parseColor("#ffffff") else Color.parseColor("#000000")
-        return Snackbar.make(view, text, duration).setBackgroundTint(color)
-            .setActionTextColor(text_color).setTextColor(text_color)
-    }
-
-
-    fun ColoredSnack(
-        view: View,
-        @StringRes resId: Int,
-        @BaseTransientBottomBar.Duration duration: Int,
-        @ColorInt color: Int
-    ): Snackbar {
-        return ColoredSnack(view, view.resources.getText(resId), duration, color)
-    }
-
-
-    fun ColoredSnack(
-        view: View,
-        text: CharSequence,
-        @BaseTransientBottomBar.Duration duration: Int,
-        @ColorInt color: Int
-    ): Snackbar {
-        val text_color =
-            if (isColorDark(color)) Color.parseColor("#ffffff") else Color.parseColor("#000000")
-        return Snackbar.make(view, text, duration).setBackgroundTint(color)
-            .setActionTextColor(text_color).setTextColor(text_color)
-    }
-
-
     fun getVerifiedColor(context: Context, verified: Boolean): Int {
         return if (!verified) CurrentTheme.getPrimaryTextColorCode(context) else Color.parseColor("#009900")
     }
-
 
     fun dp(value: Float): Int {
         return if (value == 0f) {
@@ -1373,19 +1285,6 @@ object Utils {
 
     val isKateDeault: Boolean
         get() = Constants.DEFAULT_ACCOUNT_TYPE == AccountType.KATE
-
-
-    fun showErrorInAdapter(context: Activity?, throwable: Throwable?) {
-        var pThrowable = throwable
-        if (context == null || context.isFinishing || context.isDestroyed || pThrowable == null) {
-            return
-        }
-        pThrowable = getCauseIfRuntime(pThrowable)
-        if (Constants.IS_DEBUG) {
-            pThrowable.printStackTrace()
-        }
-        showRedTopToast(context, localizeThrowable(context.applicationContext, pThrowable))
-    }
 
     /**
      * Returns the bitmap position inside an imageView.

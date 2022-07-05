@@ -13,7 +13,6 @@ import dev.ragnarok.fenrir.model.ContactConversation
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IFriendsByPhonesView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.serializeble.json.Json
 import kotlinx.serialization.builtins.ListSerializer
@@ -57,7 +56,7 @@ class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceSt
     }
 
     @Suppress("DEPRECATION")
-    fun fireExport(context: Context, file: File) {
+    fun fireExport(file: File) {
         var out: FileOutputStream? = null
         try {
 
@@ -75,12 +74,12 @@ class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceSt
                     Uri.fromFile(file)
                 )
             )
-            CustomToast.CreateCustomToast(context).showToast(
+            view?.customToast?.showToast(
                 R.string.saved_to_param_file_name,
                 file.absolutePath
             )
         } catch (e: Exception) {
-            CustomToast.CreateCustomToast(context).showToastError(e.localizedMessage)
+            view?.customToast?.showToastError(e.localizedMessage)
         } finally {
             Utils.safelyClose(out)
         }

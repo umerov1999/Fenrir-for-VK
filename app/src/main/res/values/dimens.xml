@@ -16,6 +16,7 @@
 
     <dimen name="max_single_image_height_in_messages">400dp</dimen>
 
+    <integer name="files_column_count">2</integer>
     <integer name="articles_column_count">1</integer>
     <integer name="videos_column_count">2</integer>
     <integer name="photos_column_count">3</integer>

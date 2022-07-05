@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace "androidx.viewpager2"
     compileSdk = appCompileSDK
     buildToolsVersion = appBuildTools
 

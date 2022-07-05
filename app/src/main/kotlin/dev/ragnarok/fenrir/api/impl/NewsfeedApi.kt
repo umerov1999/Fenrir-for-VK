@@ -1,10 +1,12 @@
 package dev.ragnarok.fenrir.api.impl
 
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.INewsfeedApi
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiFeedList
+import dev.ragnarok.fenrir.api.model.response.NewsfeedBanResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedSearchResponse
@@ -165,6 +167,35 @@ internal class NewsfeedApi(accountId: Int, provider: IServiceProvider) :
             .flatMap { service ->
                 service
                     .getFeedLikes(maxPhotoCount, startFrom, count, fields)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun deleteBan(listIds: Collection<Int>): Single<Int> {
+        val users: ArrayList<Int> = ArrayList()
+        val groups: ArrayList<Int> = ArrayList()
+        for (i in listIds) {
+            if (i < 0) {
+                groups.add(abs(i))
+            } else {
+                users.add(i)
+            }
+        }
+        return provideService(INewsfeedService::class.java, TokenType.USER)
+            .flatMap { service ->
+                service.deleteBan(join(users, ","), join(groups, ","))
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun getBanned(): Single<NewsfeedBanResponse> {
+        return provideService(INewsfeedService::class.java, TokenType.USER)
+            .flatMap { service ->
+                service
+                    .getBanned(
+                        1,
+                        Constants.MAIN_OWNER_FIELDS
+                    )
                     .map(extractResponseWithErrorHandling())
             }
     }

@@ -36,10 +36,10 @@ import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 import kotlinx.serialization.builtins.ListSerializer
 import java.io.File
@@ -104,7 +104,7 @@ class FriendsByPhonesFragment : BaseMvpFragment<FriendsByPhonesPresenter, IFrien
                     presenter?.fireImport(contacts)
                 }
             } catch (e: Exception) {
-                CustomToast.CreateCustomToast(requireActivity()).showToastError(e.localizedMessage)
+                CustomToast.createCustomToast(requireActivity()).showToastError(e.localizedMessage)
             }
         }
     }
@@ -116,7 +116,7 @@ class FriendsByPhonesFragment : BaseMvpFragment<FriendsByPhonesPresenter, IFrien
                     result.data?.getStringExtra(Extra.PATH),
                     "vk_phone_numbers.json"
                 )
-                presenter?.fireExport(requireActivity(), file)
+                presenter?.fireExport(file)
             }
         }
 
@@ -279,7 +279,7 @@ class FriendsByPhonesFragment : BaseMvpFragment<FriendsByPhonesPresenter, IFrien
             requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText("response", contact.phone)
         clipboard?.setPrimaryClip(clip)
-        CustomToast.CreateCustomToast(requireActivity()).showToast(R.string.copied)
+        CustomToast.createCustomToast(requireActivity()).showToast(R.string.copied)
         return true
     }
 

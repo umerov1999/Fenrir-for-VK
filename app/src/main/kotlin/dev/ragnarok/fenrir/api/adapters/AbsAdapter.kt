@@ -382,6 +382,12 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
         val JsonElement.asJsonObject: JsonObject
             get() = this as? JsonObject ?: error("JsonObject")
 
+        val JsonElement.asJsonObjectSafe: JsonObject?
+            get() = this as? JsonObject
+
+        val JsonElement.asPrimitiveSafe: JsonPrimitive?
+            get() = this as? JsonPrimitive
+
         val JsonElement.asJsonArray: JsonArray
             get() = this as? JsonArray ?: error("JsonArray")
 

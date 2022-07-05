@@ -2,10 +2,7 @@ package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiFeedList
-import dev.ragnarok.fenrir.api.model.response.BaseResponse
-import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse
-import dev.ragnarok.fenrir.api.model.response.NewsfeedResponse
-import dev.ragnarok.fenrir.api.model.response.NewsfeedSearchResponse
+import dev.ragnarok.fenrir.api.model.response.*
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -55,6 +52,22 @@ interface INewsfeedService {
     fun saveList(
         @Field("title") title: String?,
         @Field("source_ids") source_ids: String?
+    ): Single<BaseResponse<Int>>
+
+    //https://vk.com/dev/newsfeed.getBanned
+    @FormUrlEncoded
+    @POST("newsfeed.getBanned")
+    fun getBanned(
+        @Field("extended") extended: Int?,
+        @Field("fields") fields: String?
+    ): Single<BaseResponse<NewsfeedBanResponse>>
+
+    //https://vk.com/dev/newsfeed.deleteBan
+    @FormUrlEncoded
+    @POST("newsfeed.deleteBan")
+    fun deleteBan(
+        @Field("user_ids") user_ids: String?,
+        @Field("group_ids") group_ids: String?
     ): Single<BaseResponse<Int>>
 
     //https://vk.com/dev/newsfeed.addBan

@@ -52,7 +52,6 @@ object RelationshipColumns : BaseColumns {
     const val FOREIGN_SUBJECT_GROUP_MEMBER_STATUS = "subject_group_member_status"
     const val FOREIGN_SUBJECT_GROUP_TYPE = "subject_group_type"
 
-    @kotlin.jvm.JvmStatic
     fun getCV(objectId: Int, subjectId: Int, type: Int): ContentValues {
         val cv = ContentValues()
         cv.put(OBJECT_ID, objectId)

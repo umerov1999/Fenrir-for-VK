@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.*
@@ -36,6 +35,8 @@ import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.api.Auth.scope
 import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonArray
 import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonObject
+import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonObjectSafe
+import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asPrimitiveSafe
 import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.has
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
@@ -62,7 +63,6 @@ import dev.ragnarok.fenrir.settings.backup.SettingsBackup
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
 import dev.ragnarok.fenrir.util.ShortcutUtils.createAccountShortcutRx
 import dev.ragnarok.fenrir.util.Utils
@@ -71,6 +71,8 @@ import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.util.serializeble.json.*
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -143,7 +145,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     ) as ClipboardManager?
                     val clip = ClipData.newPlainText("response", password)
                     clipboard?.setPrimaryClip(clip)
-                    CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
+                    createCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
                 }
                 .setNegativeButton(R.string.copy_data) { _: DialogInterface?, _: Int ->
                     val clipboard = requireActivity().getSystemService(
@@ -152,7 +154,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     val clip =
                         ClipData.newPlainText("response", restore.login + " " + restore.password)
                     clipboard?.setPrimaryClip(clip)
-                    CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
+                    createCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
                 }
                 .setCancelable(true)
                 .show()
@@ -197,6 +199,14 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 )
                 if (file.exists()) {
                     val obj = kJson.parseToJsonElement(FileInputStream(file)).jsonObject
+                    if (obj["app"]?.asJsonObjectSafe?.get("settings_format")?.asPrimitiveSafe?.intOrNull != Constants.EXPORT_SETTINGS_FORMAT) {
+                        createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+                            .showToastError(R.string.wrong_settings_format)
+                        return@registerForActivityResult
+                    } else if (obj["app"]?.asJsonObjectSafe?.get("api_type")?.asPrimitiveSafe?.intOrNull != DEFAULT_ACCOUNT_TYPE) {
+                        createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+                            .showToastWarningBottom(R.string.settings_for_another_client)
+                    }
                     val reader = obj["fenrir_accounts"]
                     for (i in reader?.asJsonArray.orEmpty()) {
                         val elem = i.asJsonObject
@@ -224,20 +234,77 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     }
                     if (obj.has("settings")) {
                         SettingsBackup().doRestore(obj["settings"]?.asJsonObject)
-                        CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+                        createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
                             .showToastSuccessBottom(
                                 R.string.need_restart
                             )
                     }
                 }
-                CreateCustomToast(requireActivity()).showToast(
+                createCustomToast(requireActivity()).showToast(
                     R.string.accounts_restored,
                     file.absolutePath
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
-                CreateCustomToast(requireActivity()).showToastError(e.localizedMessage)
+                createCustomToast(requireActivity()).showToastError(e.localizedMessage)
             }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun saveAccounts(file: File, Users: IOwnersBundle?) {
+        var out: FileOutputStream? = null
+        try {
+            val root = JsonObjectBuilder()
+            val arr = JsonArrayBuilder()
+            for (i in Settings.get().accounts().registered) {
+                val temp = JsonObjectBuilder()
+                val owner = Users?.getById(i)
+                temp.put("user_name", owner?.fullName)
+                temp.put("user_id", i)
+                temp.put("type", Settings.get().accounts().getType(i))
+                temp.put("domain", owner?.domain)
+                temp.put("access_token", Settings.get().accounts().getAccessToken(i))
+                temp.put("avatar", owner?.maxSquareAvatar)
+                val login = Settings.get().accounts().getLogin(i)
+                val device = Settings.get().accounts().getDevice(i)
+                if (!login.isNullOrEmpty()) {
+                    temp.put("login", login)
+                }
+                if (!device.isNullOrEmpty()) {
+                    temp.put("device", device)
+                }
+                arr.add(temp.build())
+            }
+            val app = JsonObjectBuilder()
+            app.put("version", getAppVersionName(requireActivity()))
+            app.put("api_type", DEFAULT_ACCOUNT_TYPE)
+            app.put("settings_format", Constants.EXPORT_SETTINGS_FORMAT)
+            root.put("app", app.build())
+            root.put("fenrir_accounts", arr.build())
+            val settings = SettingsBackup().doBackup()
+            root.put("settings", settings)
+            val bytes = Json { prettyPrint = true }.printJsonElement(root.build()).toByteArray(
+                StandardCharsets.UTF_8
+            )
+            out = FileOutputStream(file)
+            out.write(bytes)
+            out.flush()
+            provideApplicationContext().sendBroadcast(
+                Intent(
+                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                    Uri.fromFile(file)
+                )
+            )
+            createCustomToast(requireActivity()).showToast(
+                R.string.saved_to_param_file_name,
+                file.absolutePath
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            createCustomToast(requireActivity()).showToastError(e.localizedMessage)
+        } finally {
+            safelyClose(out)
         }
     }
 
@@ -611,7 +678,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                         1 -> createShortcut(account)
                         2 -> setAsActive(account)
                         3 -> if (!Settings.get().security().isUsePinForSecurity) {
-                            CreateCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
+                            createCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
                         } else {
                             temp_to_show = account.getObjectId()
                             requestEnterPin.launch(
@@ -643,62 +710,6 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                     }
                 }
             })
-    }
-
-    @Suppress("DEPRECATION")
-    private fun saveAccounts(file: File, Users: IOwnersBundle?) {
-        var out: FileOutputStream? = null
-        try {
-            val root = JsonObjectBuilder()
-            val arr = JsonArrayBuilder()
-            for (i in Settings.get().accounts().registered) {
-                val temp = JsonObjectBuilder()
-                val owner = Users?.getById(i)
-                temp.put("user_name", owner?.fullName)
-                temp.put("user_id", i)
-                temp.put("type", Settings.get().accounts().getType(i))
-                temp.put("domain", owner?.domain)
-                temp.put("access_token", Settings.get().accounts().getAccessToken(i))
-                temp.put("avatar", owner?.maxSquareAvatar)
-                val login = Settings.get().accounts().getLogin(i)
-                val device = Settings.get().accounts().getDevice(i)
-                if (!login.isNullOrEmpty()) {
-                    temp.put("login", login)
-                }
-                if (!device.isNullOrEmpty()) {
-                    temp.put("device", device)
-                }
-                arr.add(temp.build())
-            }
-            val app = JsonObjectBuilder()
-            app.put("version", getAppVersionName(requireActivity()))
-            app.put("api_type", DEFAULT_ACCOUNT_TYPE)
-            root.put("app", app.build())
-            root.put("fenrir_accounts", arr.build())
-            val settings = SettingsBackup().doBackup()
-            root.put("settings", settings)
-            val bytes = Json { prettyPrint = true }.printJsonElement(root.build()).toByteArray(
-                StandardCharsets.UTF_8
-            )
-            out = FileOutputStream(file)
-            out.write(bytes)
-            out.flush()
-            provideApplicationContext().sendBroadcast(
-                Intent(
-                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-                    Uri.fromFile(file)
-                )
-            )
-            CreateCustomToast(requireActivity()).showToast(
-                R.string.saved_to_param_file_name,
-                file.absolutePath
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            CreateCustomToast(requireActivity()).showToastError(e.localizedMessage)
-        } finally {
-            safelyClose(out)
-        }
     }
 
     @Suppress("DEPRECATION")
@@ -745,7 +756,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 }
             }
             .map<BaseResponse<List<VKApiUser>>> {
-                Json.decodeFromStream(it.body.byteStream())
+                kJson.decodeFromStream(it.body.byteStream())
             }.map { it1 ->
                 it1.error.requireNonNull {
                     throw Exceptions.propagate(ApiException(it))
@@ -811,17 +822,15 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                                             )
                                         }, { it2 ->
                                             it2.localizedMessage?.let {
-                                                Snackbar.make(
-                                                    requireView(),
-                                                    it,
-                                                    BaseTransientBottomBar.LENGTH_LONG
+                                                CustomSnackbars.createCustomSnackbars(
+                                                    view,
+                                                    mRecyclerView
                                                 )
-                                                    .setTextColor(
-                                                        Color.WHITE
-                                                    )
-                                                    .setBackgroundTint(Color.parseColor("#eeff0000"))
-                                                    .setAnchorView(mRecyclerView)
-                                                    .show()
+                                                    ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                                                    ?.coloredSnack(
+                                                        it,
+                                                        Color.parseColor("#eeff0000")
+                                                    )?.show()
                                             }
                                         })
                                 )
@@ -883,20 +892,21 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 user.maxSquareAvatar ?: VKApiUser.CAMERA_50
             ).fromIOToMain().subscribe(
                 {
-                    Snackbar.make(
-                        requireView(),
-                        R.string.success,
-                        BaseTransientBottomBar.LENGTH_LONG
-                    ).setAnchorView(mRecyclerView).show()
+                    CustomSnackbars.createCustomSnackbars(view, mRecyclerView)
+                        ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                        ?.coloredSnack(R.string.success, Color.parseColor("#AA48BE2D"))?.show()
                 }
             ) { t ->
                 t.localizedMessage?.let {
-                    Snackbar.make(requireView(), it, BaseTransientBottomBar.LENGTH_LONG)
-                        .setTextColor(
-                            Color.WHITE
-                        ).setBackgroundTint(Color.parseColor("#eeff0000"))
-                        .setAnchorView(mRecyclerView)
-                        .show()
+                    CustomSnackbars.createCustomSnackbars(
+                        view,
+                        mRecyclerView
+                    )
+                        ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                        ?.coloredSnack(
+                            it,
+                            Color.parseColor("#eeff0000")
+                        )?.show()
                 }
             })
     }

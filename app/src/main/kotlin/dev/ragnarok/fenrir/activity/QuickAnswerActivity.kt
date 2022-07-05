@@ -35,11 +35,11 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemeOverlay
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.TextingNotifier
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.emoji.BotKeyboardView
 import dev.ragnarok.fenrir.view.emoji.BotKeyboardView.BotKeyboardViewDelegate
 import io.reactivex.rxjava3.core.Observable
@@ -55,7 +55,7 @@ class QuickAnswerActivity : AppCompatActivity() {
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(this@QuickAnswerActivity).showToast(R.string.permission_all_granted_text)
+        createCustomToast(this@QuickAnswerActivity).showToast(R.string.permission_all_granted_text)
     }
     private var etText: TextInputEditText? = null
     private var notifier: TextingNotifier? = null
@@ -281,7 +281,7 @@ class QuickAnswerActivity : AppCompatActivity() {
     private fun send() {
         val trimmed_text = etText?.text.toString().trim { it <= ' ' }
         if (trimmed_text.isEmpty()) {
-            CreateCustomToast(this).setDuration(Toast.LENGTH_LONG)
+            createCustomToast(this).setDuration(Toast.LENGTH_LONG)
                 .showToastError(R.string.text_hint)
             return
         }
@@ -310,7 +310,7 @@ class QuickAnswerActivity : AppCompatActivity() {
     }
 
     private fun onSavingError(throwable: Throwable) {
-        Utils.showRedTopToast(this, throwable.toString())
+        createCustomToast(this).showToastThrowable(throwable)
     }
 
     private fun onMessageSaved() {

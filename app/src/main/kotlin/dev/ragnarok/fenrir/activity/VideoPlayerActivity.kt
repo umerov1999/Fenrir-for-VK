@@ -42,6 +42,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.ExpandableSurfaceView
 import dev.ragnarok.fenrir.view.VideoControllerView
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -400,7 +401,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
             requestedOrientation =
                 if (isLandscape) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         } catch (e: Exception) {
-            Utils.showRedTopToast(this, R.string.not_supported)
+            CustomToast.createCustomToast(this).showToastError(R.string.not_supported)
         }
     }
 

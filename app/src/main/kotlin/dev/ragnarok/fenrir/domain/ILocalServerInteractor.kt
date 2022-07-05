@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.domain
 
 import dev.ragnarok.fenrir.model.Audio
+import dev.ragnarok.fenrir.model.FileRemote
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.Video
 import io.reactivex.rxjava3.core.Single
@@ -24,4 +25,6 @@ interface ILocalServerInteractor {
     fun delete_media(hash: String?): Single<Int>
     fun get_file_name(hash: String?): Single<String>
     fun update_file_name(hash: String?, name: String?): Single<Int>
+    fun rebootPC(type: String?): Single<Int>
+    fun fsGet(dir: String?): Single<List<FileRemote>>
 }

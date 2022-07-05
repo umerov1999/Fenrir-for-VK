@@ -50,10 +50,10 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getEditCommentPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getPostPreviewPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.CommentsInputViewController
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelperComment
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelperComment.Companion.createFrom
@@ -563,7 +563,7 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
                                 .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                             val clip = ClipData.newPlainText("comment", comment.text)
                             clipboard?.setPrimaryClip(clip)
-                            CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+                            createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
                                 .showToast(R.string.copied_to_clipboard)
                         }
                         CommentsOption.reply_item_comment -> presenter?.fireReplyToCommentClick(

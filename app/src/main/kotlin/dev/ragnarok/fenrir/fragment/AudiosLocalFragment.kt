@@ -28,8 +28,8 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.util.AppPerms.DoRequestPermissions
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsResultAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.MySearchView.OnAdditionalButtonClickListener
 
@@ -107,7 +107,7 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
             val curr = currentAudio
             if (curr != null) {
                 getPlayerPlace(Settings.get().accounts().current).tryOpenWith(requireActivity())
-            } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+            } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
             false
         }
         Goto.setOnClickListener {
@@ -117,8 +117,8 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
                     presenter?.getAudioPos(curr) ?: -1
                 if (index >= 0) {
                     recyclerView.scrollToPosition(index)
-                } else CreateCustomToast(requireActivity()).showToast(R.string.audio_not_found)
-            } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                } else createCustomToast(requireActivity()).showToast(R.string.audio_not_found)
+            } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
         }
         mAudioRecyclerAdapter = AudioLocalRecyclerAdapter(requireActivity(), emptyList())
         mAudioRecyclerAdapter?.setClickListener(this)

@@ -280,6 +280,14 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         return getPreferences(app).getBoolean("is_side_transition", true)
     }
 
+    override fun get_last_audio_sync(): Long {
+        return getPreferences(app).getLong("last_audio_sync", -1)
+    }
+
+    override fun set_last_audio_sync(time: Long) {
+        getPreferences(app).edit().putLong("last_audio_sync", time).apply()
+    }
+
     override fun is_notification_force_link(): Boolean {
         return getPreferences(app).getBoolean("notification_force_link", false)
     }

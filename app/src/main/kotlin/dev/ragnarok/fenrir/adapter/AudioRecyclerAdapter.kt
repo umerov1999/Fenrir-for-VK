@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.adapter
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -53,13 +52,14 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppTextUtils
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getBitrate
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getLength
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.hls.M3U8
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.disposables.Disposable
@@ -86,9 +86,9 @@ class AudioRecyclerAdapter(
         audioListDisposable = if (playlist_id == null) {
             mAudioInteractor.delete(accountId, audio.id, audio.ownerId).fromIOToMain().subscribe(
                 {
-                    CreateCustomToast(mContext).showToast(R.string.deleted)
+                    createCustomToast(mContext).showToast(R.string.deleted)
                     mClickListener?.onDelete(position)
-                }) { t -> Utils.showErrorInAdapter(mContext as Activity, t) }
+                }) { t -> createCustomToast(mContext).showToastThrowable(t) }
         } else {
             mAudioInteractor.removeFromPlaylist(
                 accountId, audio.ownerId, playlist_id, listOf(
@@ -99,20 +99,17 @@ class AudioRecyclerAdapter(
             ).fromIOToMain().subscribe(
                 { t: Int ->
                     if (t != 0) {
-                        CreateCustomToast(mContext).showToast(R.string.deleted)
+                        createCustomToast(mContext).showToast(R.string.deleted)
                         mClickListener?.onDelete(position)
                     }
-                }) { t -> Utils.showErrorInAdapter(mContext as Activity, t) }
+                }) { t -> createCustomToast(mContext).showToastThrowable(t) }
         }
     }
 
     private fun addTrack(accountId: Int, audio: Audio) {
         audioListDisposable = mAudioInteractor.add(accountId, audio, null).fromIOToMain().subscribe(
-            { CreateCustomToast(mContext).showToast(R.string.added) }) { t ->
-            Utils.showErrorInAdapter(
-                mContext as Activity,
-                t
-            )
+            { createCustomToast(mContext).showToast(R.string.added) }) { t ->
+            createCustomToast(mContext).showToastThrowable(t)
         }
     }
 
@@ -140,7 +137,7 @@ class AudioRecyclerAdapter(
             M3U8(pUrl).length.fromIOToMain()
                 .subscribe(
                     { r: Long ->
-                        CreateCustomToast(mContext).showToast(
+                        createCustomToast(mContext).showToast(
                             getBitrate(
                                 mContext,
                                 audio.duration,
@@ -148,12 +145,12 @@ class AudioRecyclerAdapter(
                             )
                         )
                     }
-                ) { e -> Utils.showErrorInAdapter(mContext as Activity, e) }
+                ) { e -> createCustomToast(mContext).showToastThrowable(e) }
         } else {
             getLength(pUrl).fromIOToMain()
                 .subscribe(
                     { r: Long ->
-                        CreateCustomToast(mContext).showToast(
+                        createCustomToast(mContext).showToast(
                             getBitrate(
                                 mContext,
                                 audio.duration,
@@ -161,7 +158,7 @@ class AudioRecyclerAdapter(
                             )
                         )
                     }
-                ) { e -> Utils.showErrorInAdapter(mContext as Activity, e) }
+                ) { e -> createCustomToast(mContext).showToastThrowable(e) }
         }
     }
 
@@ -178,7 +175,7 @@ class AudioRecyclerAdapter(
                         t,
                         audio
                     )
-                }) { t -> Utils.showErrorInAdapter(mContext as Activity, t) }
+                }) { t -> createCustomToast(mContext).showToastThrowable(t) }
     }
 
     private fun onAudioLyricsReceived(Text: String, audio: Audio) {
@@ -194,7 +191,7 @@ class AudioRecyclerAdapter(
                 ) as ClipboardManager?
                 val clip = ClipData.newPlainText("response", Text)
                 clipboard?.setPrimaryClip(clip)
-                CreateCustomToast(mContext).showToast(R.string.copied_to_clipboard)
+                createCustomToast(mContext).showToast(R.string.copied_to_clipboard)
             }
             .setCancelable(true)
             .show()
@@ -491,7 +488,7 @@ class AudioRecyclerAdapter(
                                 mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                             val clip = ClipData.newPlainText("response", audio.url)
                             clipboard?.setPrimaryClip(clip)
-                            CreateCustomToast(mContext).showToast(R.string.copied)
+                            createCustomToast(mContext).showToast(R.string.copied)
                         }
                         AudioOption.add_item_audio -> {
                             val myAudio = audio.ownerId == Settings.get().accounts().current
@@ -517,29 +514,28 @@ class AudioRecyclerAdapter(
                                 isLocal = false
                             )
                             when (ret) {
-                                0 -> CreateCustomToast(mContext).showToastBottom(R.string.saved_audio)
+                                0 -> createCustomToast(mContext).showToastBottom(R.string.saved_audio)
                                 1, 2 -> {
-                                    Utils.ThemedSnack(
-                                        view,
-                                        if (ret == 1) R.string.audio_force_download else R.string.audio_force_download_pc,
-                                        BaseTransientBottomBar.LENGTH_LONG
-                                    ).setAction(
-                                        R.string.button_yes
-                                    ) {
-                                        doDownloadAudio(
-                                            mContext,
-                                            audio,
-                                            Settings.get().accounts().current,
-                                            Force = true,
-                                            isLocal = false
-                                        )
-                                    }
-                                        .show()
+                                    CustomSnackbars.createCustomSnackbars(view)
+                                        ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                                        ?.themedSnack(if (ret == 1) R.string.audio_force_download else R.string.audio_force_download_pc)
+                                        ?.setAction(
+                                            R.string.button_yes
+                                        ) {
+                                            doDownloadAudio(
+                                                mContext,
+                                                audio,
+                                                Settings.get().accounts().current,
+                                                Force = true,
+                                                isLocal = false
+                                            )
+                                        }
+                                        ?.show()
                                 }
                                 else -> {
                                     audio.downloadIndicator = 0
                                     updateDownloadState(holder, audio)
-                                    CreateCustomToast(mContext).showToastBottom(R.string.error_audio)
+                                    createCustomToast(mContext).showToastBottom(R.string.error_audio)
                                 }
                             }
                         }
@@ -558,29 +554,28 @@ class AudioRecyclerAdapter(
                                 isLocal = false
                             )
                             when (ret) {
-                                0 -> CreateCustomToast(mContext).showToastBottom(R.string.saved_audio)
+                                0 -> createCustomToast(mContext).showToastBottom(R.string.saved_audio)
                                 1, 2 -> {
-                                    Utils.ThemedSnack(
-                                        view,
-                                        if (ret == 1) R.string.audio_force_download else R.string.audio_force_download_pc,
-                                        BaseTransientBottomBar.LENGTH_LONG
-                                    ).setAction(
-                                        R.string.button_yes
-                                    ) {
-                                        doDownloadAudio(
-                                            mContext,
-                                            audio,
-                                            Settings.get().accounts().current,
-                                            Force = true,
-                                            isLocal = false
-                                        )
-                                    }
-                                        .show()
+                                    CustomSnackbars.createCustomSnackbars(view)
+                                        ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                                        ?.themedSnack(if (ret == 1) R.string.audio_force_download else R.string.audio_force_download_pc)
+                                        ?.setAction(
+                                            R.string.button_yes
+                                        ) {
+                                            doDownloadAudio(
+                                                mContext,
+                                                audio,
+                                                Settings.get().accounts().current,
+                                                Force = true,
+                                                isLocal = false
+                                            )
+                                        }
+                                        ?.show()
                                 }
                                 else -> {
                                     audio.downloadIndicator = 0
                                     updateDownloadState(holder, audio)
-                                    CreateCustomToast(mContext).showToastBottom(R.string.error_audio)
+                                    createCustomToast(mContext).showToastBottom(R.string.error_audio)
                                 }
                             }
                         }
@@ -733,31 +728,30 @@ class AudioRecyclerAdapter(
                         isLocal = false
                     )
                     when (ret) {
-                        0 -> CreateCustomToast(mContext).showToastBottom(R.string.saved_audio)
+                        0 -> createCustomToast(mContext).showToastBottom(R.string.saved_audio)
                         1, 2 -> {
                             v?.let {
-                                Utils.ThemedSnack(
-                                    it,
-                                    if (ret == 1) R.string.audio_force_download else R.string.audio_force_download_pc,
-                                    BaseTransientBottomBar.LENGTH_LONG
-                                ).setAction(
-                                    R.string.button_yes
-                                ) {
-                                    doDownloadAudio(
-                                        mContext,
-                                        audio,
-                                        Settings.get().accounts().current,
-                                        Force = true,
-                                        isLocal = false
-                                    )
-                                }
-                                    .show()
+                                CustomSnackbars.createCustomSnackbars(it)
+                                    ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                                    ?.themedSnack(if (ret == 1) R.string.audio_force_download else R.string.audio_force_download_pc)
+                                    ?.setAction(
+                                        R.string.button_yes
+                                    ) {
+                                        doDownloadAudio(
+                                            mContext,
+                                            audio,
+                                            Settings.get().accounts().current,
+                                            Force = true,
+                                            isLocal = false
+                                        )
+                                    }
+                                    ?.show()
                             }
                         }
                         else -> {
                             audio.downloadIndicator = 0
                             updateDownloadState(viewHolder, audio)
-                            CreateCustomToast(mContext).showToastBottom(R.string.error_audio)
+                            createCustomToast(mContext).showToastBottom(R.string.error_audio)
                         }
                     }
                     true

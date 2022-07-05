@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace "com.retrofit2"
     compileSdk = appCompileSDK
     buildToolsVersion = appBuildTools
 

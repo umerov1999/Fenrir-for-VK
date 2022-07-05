@@ -29,9 +29,9 @@ import dev.ragnarok.fenrir.dialog.*
 import dev.ragnarok.fenrir.fragment.search.options.*
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.InputTextDialog
 import dev.ragnarok.fenrir.util.Utils.hasMarshmallow
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.DateTimePicker
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.*
@@ -44,7 +44,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
     private var mData: ArrayList<BaseOption>? = null
     private var mAdapter: SearchOptionsAdapter? = null
@@ -187,7 +187,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
                     .showToastInfo(message)
             }
             DatabaseOption.TYPE_UNIVERSITY -> if (dependency is DatabaseOption && dependency.value != null) {
@@ -199,7 +199,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
                     .showToastInfo(message)
             }
             DatabaseOption.TYPE_FACULTY -> if (dependency is DatabaseOption && dependency.value != null) {
@@ -211,7 +211,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
                     .showToastInfo(message)
             }
             DatabaseOption.TYPE_CHAIR -> if (dependency is DatabaseOption && dependency.value != null) {
@@ -223,7 +223,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
                     .showToastInfo(message)
             }
             DatabaseOption.TYPE_SCHOOL -> if (dependency is DatabaseOption && dependency.value != null) {
@@ -235,7 +235,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
                     .showToastInfo(message)
             }
             DatabaseOption.TYPE_SCHOOL_CLASS -> if (dependency is DatabaseOption && dependency.value != null) {
@@ -247,7 +247,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                         (dependency ?: return).title
                     )
                 )
-                CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+                createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
                     .showToastInfo(message)
             }
         }

@@ -18,10 +18,7 @@ import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillOwnerIds
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
 import dev.ragnarok.fenrir.fragment.search.options.SimpleDateOption
 import dev.ragnarok.fenrir.fragment.search.options.SimpleGPSOption
-import dev.ragnarok.fenrir.model.FeedList
-import dev.ragnarok.fenrir.model.FeedSourceCriteria
-import dev.ragnarok.fenrir.model.News
-import dev.ragnarok.fenrir.model.Post
+import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.FeedCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.IOtherSettings
@@ -273,6 +270,18 @@ class FeedInteractor(
     override fun addBan(accountId: Int, listIds: Collection<Int>): Single<Int> {
         return networker.vkDefault(accountId)
             .newsfeed().addBan(listIds).map { response -> response }
+    }
+
+    override fun deleteBan(accountId: Int, listIds: Collection<Int>): Single<Int> {
+        return networker.vkDefault(accountId)
+            .newsfeed().deleteBan(listIds).map { response -> response }
+    }
+
+    override fun getBanned(accountId: Int): Single<List<Owner>> {
+        return networker.vkDefault(accountId)
+            .newsfeed().getBanned().map { response ->
+                transformOwners(response.profiles, response.groups)
+            }
     }
 
     override fun deleteList(accountId: Int, list_id: Int?): Single<Int> {

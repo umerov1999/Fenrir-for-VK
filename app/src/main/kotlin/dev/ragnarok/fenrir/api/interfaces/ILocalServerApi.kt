@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.VKApiVideo
+import dev.ragnarok.fenrir.model.FileRemote
 import io.reactivex.rxjava3.core.Single
 
 interface ILocalServerApi {
@@ -63,4 +64,10 @@ interface ILocalServerApi {
 
     @CheckResult
     fun update_file_name(hash: String?, name: String?): Single<Int>
+
+    @CheckResult
+    fun rebootPC(type: String?): Single<Int>
+
+    @CheckResult
+    fun fsGet(dir: String?): Single<Items<FileRemote>>
 }

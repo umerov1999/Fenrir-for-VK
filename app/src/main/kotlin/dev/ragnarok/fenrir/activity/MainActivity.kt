@@ -30,7 +30,6 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
@@ -91,12 +90,14 @@ import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.settings.theme.ThemesController.nextRandom
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.*
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.HelperSimple.needHelp
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.getInstance
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.concurrent.TimeUnit
 
 open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSectionResumeCallback,
     AppStyleable, PlaceProvider, ServiceConnection, UpdatableNavigation,
@@ -143,7 +144,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         ) as ClipboardManager?
                         val clip = ClipData.newPlainText("response", scanner)
                         clipboard?.setPrimaryClip(clip)
-                        CreateCustomToast(this).showToast(R.string.copied_to_clipboard)
+                        createCustomToast(this).showToast(R.string.copied_to_clipboard)
                     }
                     .setCancelable(true)
                     .create().show()
@@ -343,9 +344,19 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         .fromIOToMain()
                         .subscribe(RxUtils.dummy()) { t ->
                             if (Settings.get().other().isDeveloper_mode) {
-                                Utils.showErrorInAdapter(this, t)
+                                createCustomToast(this).showToastThrowable(t)
                             }
                         })
+                    Settings.get().other().get_last_audio_sync().let {
+                        if (it > 0 && (System.currentTimeMillis() / 1000L) - it > 900) {
+                            Settings.get().other().set_last_audio_sync(-1)
+                            mCompositeDisposable.add(
+                                Includes.stores.tempStore().deleteAudios()
+                                    .fromIOToMain()
+                                    .subscribe(RxUtils.dummy(), RxUtils.ignore())
+                            )
+                        }
+                    }
                     if (!Settings.get().other().appStoredVersionEqual()) {
                         cleanUICache(this, false)
                     }
@@ -407,16 +418,13 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         if (!checkPlayServices(this)) {
             if (!Settings.get().other().isDisabledErrorFCM) {
                 mViewFragment?.let {
-                    Utils.ThemedSnack(
-                        it,
-                        getString(R.string.this_device_does_not_support_fcm),
-                        BaseTransientBottomBar.LENGTH_LONG
-                    )
-                        .setAnchorView(mBottomNavigationContainer)
-                        .setAction(R.string.button_access) {
+                    CustomSnackbars.createCustomSnackbars(mViewFragment, mBottomNavigationContainer)
+                        ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                        ?.themedSnack(R.string.this_device_does_not_support_fcm)
+                        ?.setAction(R.string.button_access) {
                             Settings.get().other().setDisableErrorFCM(true)
                         }
-                        .show()
+                        ?.show()
                 }
             }
             return
@@ -542,7 +550,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
     }
 
     private fun onSetOffline(success: Boolean) {
-        if (success) CreateCustomToast(this).showToast(R.string.succ_offline) else CreateCustomToast(
+        if (success) createCustomToast(this).showToast(R.string.succ_offline) else createCustomToast(
             this
         ).showToastError(R.string.err_offline)
     }
@@ -980,14 +988,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 return
             }
             mLastBackPressedTime = System.currentTimeMillis()
-            mViewFragment?.let {
-                val bar: Snackbar = Snackbar.make(
-                    it,
-                    getString(R.string.click_back_to_exit),
-                    BaseTransientBottomBar.LENGTH_SHORT
-                ).setAnchorView(mBottomNavigationContainer)
-                bar.setOnClickListener { bar.dismiss() }.show()
-            }
+            CustomSnackbars.createCustomSnackbars(mViewFragment, mBottomNavigationContainer)
+                ?.setDurationSnack(BaseTransientBottomBar.LENGTH_SHORT)
+                ?.defaultSnack(R.string.click_back_to_exit)?.show()
         } else {
             super.onBackPressed()
         }
@@ -1048,11 +1051,14 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         if (Utils.isHiddenAccount(mAccountId)) return
         mCompositeDisposable.add(
             InteractorFactory.createFeedbackInteractor()
-                .maskAaViewed(mAccountId)
+                .markAsViewed(mAccountId)
+                .delay(1, TimeUnit.SECONDS)
                 .fromIOToMain()
                 .subscribe({
-                    mBottomNavigation?.removeBadge(R.id.menu_feedback)
-                    navigationFragment?.onUnreadNotificationsCountChange(0)
+                    if (it) {
+                        mBottomNavigation?.removeBadge(R.id.menu_feedback)
+                        navigationFragment?.onUnreadNotificationsCountChange(0)
+                    }
                 }, RxUtils.ignore())
         )
     }
@@ -1207,6 +1213,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.FORWARD_MESSAGES -> attachToFront(FwdsFragment.newInstance(args))
             Place.TOPICS -> attachToFront(TopicsFragment.newInstance(args))
             Place.CHAT_MEMBERS -> attachToFront(ChatUsersFragment.newInstance(args))
+            Place.FEED_BAN -> attachToFront(FeedBannedFragment.newInstance(args))
+            Place.REMOTE_FILE_MANAGER -> attachToFront(FileManagerRemoteFragment())
             Place.COMMUNITIES -> {
                 val communitiesFragment = CommunitiesFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
@@ -1280,7 +1288,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         .getType(mAccountId) == AccountType.VK_ANDROID_HIDDEN
                 ) {
                     attachToFront(
-                        AnswerVKOfficialFragment.newInstance(
+                        FeedbackVKOfficialFragment.newInstance(
                             Settings.get().accounts().current
                         )
                     )

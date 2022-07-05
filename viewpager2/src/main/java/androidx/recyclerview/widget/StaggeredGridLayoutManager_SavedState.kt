@@ -149,7 +149,7 @@ class FullSpanItem : Parcelable {
         dest.writeInt(mGapDir)
         dest.writeInt(if (mHasUnwantedGapAfter) 1 else 0)
         if (mGapPerSpan?.isNotEmpty() == true) {
-            dest.writeInt(mGapPerSpan!!.size)
+            dest.writeInt(mGapPerSpan?.size ?: 0)
             dest.writeIntArray(mGapPerSpan)
         } else {
             dest.writeInt(0)

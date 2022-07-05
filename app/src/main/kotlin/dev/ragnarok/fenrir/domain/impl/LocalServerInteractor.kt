@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapVideo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.model.Audio
+import dev.ragnarok.fenrir.model.FileRemote
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
@@ -159,24 +160,30 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
     override fun update_time(hash: String?): Single<Int> {
         return networker.localServerApi()
             .update_time(hash)
-            .map { resultId -> resultId }
     }
 
     override fun delete_media(hash: String?): Single<Int> {
         return networker.localServerApi()
             .delete_media(hash)
-            .map { resultId -> resultId }
     }
 
     override fun get_file_name(hash: String?): Single<String> {
         return networker.localServerApi()
             .get_file_name(hash)
-            .map { resultId -> resultId }
     }
 
     override fun update_file_name(hash: String?, name: String?): Single<Int> {
         return networker.localServerApi()
             .update_file_name(hash, name)
-            .map { resultId -> resultId }
+    }
+
+    override fun rebootPC(type: String?): Single<Int> {
+        return networker.localServerApi().rebootPC(type)
+    }
+
+    override fun fsGet(dir: String?): Single<List<FileRemote>> {
+        return networker.localServerApi().fsGet(dir).map {
+            listEmptyIfNull(it.items)
+        }
     }
 }

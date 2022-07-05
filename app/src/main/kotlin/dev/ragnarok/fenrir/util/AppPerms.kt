@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.util.toast.CustomToast
 
 object AppPerms {
     fun hasReadWriteStoragePermission(context: Context): Boolean {
@@ -98,7 +99,8 @@ object AppPerms {
             if (Utils.checkValues(result.values)) {
                 granted.invoke()
             } else {
-                Utils.showRedTopToast(requireActivity(), R.string.not_permitted)
+                CustomToast.createCustomToast(requireActivity())
+                    .showToastError(R.string.not_permitted)
             }
         }
         return object : DoRequestPermissions {
@@ -118,7 +120,7 @@ object AppPerms {
             if (Utils.checkValues(result.values)) {
                 granted.invoke()
             } else {
-                Utils.showRedTopToast(this, R.string.not_permitted)
+                CustomToast.createCustomToast(this).showToastError(R.string.not_permitted)
             }
         }
         return object : DoRequestPermissions {
@@ -139,7 +141,7 @@ object AppPerms {
             if (Utils.checkValues(result.values)) {
                 granted.invoke()
             } else {
-                Utils.showRedTopToast(this, R.string.not_permitted)
+                CustomToast.createCustomToast(this).showToastError(R.string.not_permitted)
                 denied.invoke()
             }
         }
@@ -161,7 +163,8 @@ object AppPerms {
             if (Utils.checkValues(result.values)) {
                 granted.invoke()
             } else {
-                Utils.showRedTopToast(requireActivity(), R.string.not_permitted)
+                CustomToast.createCustomToast(requireActivity())
+                    .showToastError(R.string.not_permitted)
                 denied.invoke()
             }
         }

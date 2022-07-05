@@ -29,7 +29,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getVKPhotosAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
@@ -41,7 +41,7 @@ abstract class AccountDependencyDialogFragment : BaseDialogFragment(), OnAttachm
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
     protected var accountId = 0
         private set

@@ -127,6 +127,8 @@ interface ISettings {
         fun audioExt(): Set<String>
         fun getMaxThumbResolution(): Int
         fun isEnable_dirs_files_count(): Boolean
+        fun get_last_audio_sync(): Long
+        fun set_last_audio_sync(time: Long)
 
         @get:Lang
         val language: Int

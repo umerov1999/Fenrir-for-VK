@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
+import dev.ragnarok.fenrir.model.FileRemote
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.functions.Function
@@ -132,8 +133,24 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
             }
     }
 
+    override fun rebootPC(type: String?): Single<Int> {
+        return service.provideLocalServerService()
+            .flatMap { service ->
+                service.rebootPC(type)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun fsGet(dir: String?): Single<Items<FileRemote>> {
+        return service.provideLocalServerService()
+            .flatMap { service ->
+                service.fsGet(dir)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
     companion object {
-        fun <T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
+        inline fun <reified T : Any> extractResponseWithErrorHandling(): Function<BaseResponse<T>, T> {
             return Function { response: BaseResponse<T> ->
                 response.error?.let {
                     throw Exception(

@@ -17,8 +17,8 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.FaveLink
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class FaveLinksAdapter(private var data: List<FaveLink>, private val context: Context) :
     RecyclerView.Adapter<FaveLinksAdapter.Holder>() {
@@ -108,7 +108,7 @@ class FaveLinksAdapter(private var data: List<FaveLink>, private val context: Co
                     context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                 val clip = ClipData.newPlainText("response", faveLink.url)
                 clipboard?.setPrimaryClip(clip)
-                CreateCustomToast(context).showToast(R.string.copied)
+                createCustomToast(context).showToast(R.string.copied)
                 true
             }
         }

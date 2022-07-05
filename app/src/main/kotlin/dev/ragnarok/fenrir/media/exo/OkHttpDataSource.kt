@@ -33,7 +33,7 @@ class OkHttpDataSource private constructor(
     cacheControl: CacheControl?,
     defaultRequestProperties: RequestProperties?,
     contentTypePredicate: Predicate<String>?
-) : BaseDataSource( /* isNetwork= */true), HttpDataSource {
+) : BaseDataSource( /* isNetwork = */true), HttpDataSource {
     companion object {
         init {
             ExoPlayerLibraryInfo.registerModule("goog.exo.okhttp")

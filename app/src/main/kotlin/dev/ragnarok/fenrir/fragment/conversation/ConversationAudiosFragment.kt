@@ -12,7 +12,7 @@ import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.conversations.ChatAttachmentAudioPresenter
 import dev.ragnarok.fenrir.mvp.view.conversations.IChatAttachmentAudiosView
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class ConversationAudiosFragment :
     AbsChatAttachmentsFragment<Audio, ChatAttachmentAudioPresenter, IChatAttachmentAudiosView>(),
@@ -23,7 +23,7 @@ class ConversationAudiosFragment :
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
 
     override fun createLayoutManager(): RecyclerView.LayoutManager {

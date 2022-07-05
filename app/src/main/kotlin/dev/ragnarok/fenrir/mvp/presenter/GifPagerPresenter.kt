@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.model.VideoSize
 import dev.ragnarok.fenrir.mvp.view.IGifPagerView
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadDoc
-import dev.ragnarok.fenrir.util.Utils.ThemedSnack
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 
 class GifPagerPresenter(
     accountId: Int,
@@ -200,19 +200,16 @@ class GifPagerPresenter(
     private fun downloadImpl(context: Context, view: View?) {
         val document = mDocuments[mCurrentIndex]
         if (doDownloadDoc(context, document, false) == 1) {
-            view?.let {
-                ThemedSnack(
-                    it,
-                    R.string.audio_force_download,
-                    BaseTransientBottomBar.LENGTH_LONG
-                ).setAction(
+            CustomSnackbars.createCustomSnackbars(view)
+                ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                ?.themedSnack(R.string.audio_force_download)
+                ?.setAction(
                     R.string.button_yes
                 ) {
                     doDownloadDoc(
                         context, document, true
                     )
-                }.show()
-            }
+                }?.show()
         }
     }
 

@@ -37,7 +37,7 @@ internal class PreferenceEncoder(
     }
 
     override fun encodeTaggedNull(tag: String) {
-        // null is supported, so do not throw an exception
+        editor.remove(tag)
     }
 
     override fun encodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor, ordinal: Int) {

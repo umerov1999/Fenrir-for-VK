@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
+import dev.ragnarok.fenrir.model.FileRemote
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -96,5 +97,17 @@ interface ILocalServerService {
     fun update_file_name(
         @Field("hash") hash: String?,
         @Field("name") name: String?
+    ): Single<BaseResponse<Int>>
+
+    @FormUrlEncoded
+    @POST("fs.get")
+    fun fsGet(
+        @Field("dir") dir: String?
+    ): Single<BaseResponse<Items<FileRemote>>>
+
+    @FormUrlEncoded
+    @POST("rebootPC")
+    fun rebootPC(
+        @Field("type") type: String?
     ): Single<BaseResponse<Int>>
 }

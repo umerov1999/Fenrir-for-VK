@@ -22,6 +22,8 @@ class AudioDboEntity : DboEntity() {
         private set
     var lyricsId = 0
         private set
+    var date: Long = 0
+        private set
     var albumId = 0
         private set
     var album_owner_id = 0
@@ -31,8 +33,6 @@ class AudioDboEntity : DboEntity() {
     var genre = 0
         private set
     var accessKey: String? = null
-        private set
-    var isDeleted = false
         private set
     var thumb_image_little: String? = null
         private set
@@ -113,6 +113,11 @@ class AudioDboEntity : DboEntity() {
         return this
     }
 
+    fun setDate(date: Long): AudioDboEntity {
+        this.date = date
+        return this
+    }
+
     fun setAlbumId(albumId: Int): AudioDboEntity {
         this.albumId = albumId
         return this
@@ -125,11 +130,6 @@ class AudioDboEntity : DboEntity() {
 
     fun setAccessKey(accessKey: String?): AudioDboEntity {
         this.accessKey = accessKey
-        return this
-    }
-
-    fun setDeleted(deleted: Boolean): AudioDboEntity {
-        isDeleted = deleted
         return this
     }
 

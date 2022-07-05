@@ -32,13 +32,14 @@ import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.FeedPresenter
 import dev.ragnarok.fenrir.mvp.view.IFeedView
 import dev.ragnarok.fenrir.place.Place
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceFactory.getCommentsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getLikesCopiesPlace
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast
-import dev.ragnarok.fenrir.util.Utils.ThemedSnack
 import dev.ragnarok.fenrir.util.Utils.is600dp
 import dev.ragnarok.fenrir.util.Utils.isLandscape
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper.Companion.createFrom
 
@@ -74,14 +75,22 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        if (menuItem.itemId == R.id.refresh) {
-            presenter?.fireRefresh()
-            return true
-        } else if (menuItem.itemId == R.id.action_create_list) {
-            requestProfileSelect.launch(startFaveSelection(requireActivity()))
-            return true
+        return when (menuItem.itemId) {
+            R.id.refresh -> {
+                presenter?.fireRefresh()
+                true
+            }
+            R.id.action_create_list -> {
+                requestProfileSelect.launch(startFaveSelection(requireActivity()))
+                true
+            }
+            R.id.action_feed_ban -> {
+                PlaceFactory.getFeedBanPlace(Settings.get().accounts().current)
+                    .tryOpenWith(requireActivity())
+                true
+            }
+            else -> false
         }
-        return false
     }
 
     override fun scrollTo(pos: Int) {
@@ -238,7 +247,7 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
 
     override fun onCommentButtonClick(news: News) {
         if (!news.isCommentCanPost) {
-            CustomToast.CreateCustomToast(requireActivity())
+            CustomToast.createCustomToast(requireActivity())
                 .showToastError(R.string.comments_disabled_post)
         }
         presenter?.fireNewsCommentClick(
@@ -292,14 +301,12 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
     }
 
     override fun askToReload() {
-        if (view == null) {
-            return
-        }
-        Snackbar.make(requireView(), R.string.update_news, BaseTransientBottomBar.LENGTH_LONG)
-            .setAction(R.string.do_update) {
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)?.defaultSnack(R.string.update_news)
+            ?.setAction(R.string.do_update) {
                 mFeedLayoutManager?.scrollToPosition(0)
                 presenter?.fireRefresh()
-            }.show()
+            }?.show()
     }
 
     override fun onRefresh() {
@@ -412,22 +419,20 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
     }
 
     override fun onDeleteOptionClick(entry: FeedSource, position: Int) {
-        ThemedSnack(
-            requireView(),
-            R.string.do_delete,
-            BaseTransientBottomBar.LENGTH_LONG
-        ).setAction(
-            R.string.button_yes
-        ) {
-            mFeedSourceAdapter?.removeChild(position)
-            presenter?.fireFeedSourceDelete(
-                entry.getValue()?.replace("list", "")?.toInt()
-            )
-        }.show()
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)?.themedSnack(R.string.do_delete)
+            ?.setAction(
+                R.string.button_yes
+            ) {
+                mFeedSourceAdapter?.removeChild(position)
+                presenter?.fireFeedSourceDelete(
+                    entry.getValue()?.replace("list", "")?.toInt()
+                )
+            }?.show()
     }
 
     override fun showSuccessToast() {
-        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+        CustomToast.createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
             .showToastSuccessBottom(R.string.success)
     }
 

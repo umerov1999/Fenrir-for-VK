@@ -15,7 +15,7 @@ import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.textview.MaterialTextView
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
@@ -33,6 +33,7 @@ import dev.ragnarok.fenrir.mvp.view.IFileManagerSelectView
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.core.Completable
@@ -112,7 +113,7 @@ class FileManagerSelectFragment :
             }
         })
 
-        val columns = resources.getInteger(R.integer.videos_column_count)
+        val columns = resources.getInteger(R.integer.files_column_count)
         mLayoutManager = StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL)
         mRecyclerView?.layoutManager = mLayoutManager
         mRecyclerView?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
@@ -221,17 +222,17 @@ class FileManagerSelectFragment :
     }
 
     override fun onError(throwable: Throwable) {
-        mRecyclerView?.let {
-            Utils.ColoredSnack(it, throwable.stackTraceToString(), Snackbar.LENGTH_LONG, Color.RED)
-                .show()
-        }
+        CustomSnackbars.createCustomSnackbars(mRecyclerView)
+            ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+            ?.coloredSnack(throwable.stackTraceToString(), Color.RED)
+            ?.show()
     }
 
     override fun showMessage(@StringRes res: Int) {
-        mRecyclerView?.let {
-            Utils.ThemedSnack(it, res, Snackbar.LENGTH_LONG)
-                .show()
-        }
+        CustomSnackbars.createCustomSnackbars(mRecyclerView)
+            ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+            ?.defaultSnack(res)
+            ?.show()
     }
 
     override fun updateSelectVisibility(visible: Boolean) {

@@ -32,7 +32,7 @@ class VP2NestedRecyclerView @JvmOverloads constructor(
         parcelables[uid]?.let {
             try {
                 layoutManager?.onRestoreInstanceState(it)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
         }
     }

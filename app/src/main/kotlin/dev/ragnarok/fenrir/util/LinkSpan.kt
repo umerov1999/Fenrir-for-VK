@@ -15,7 +15,7 @@ import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class LinkSpan(
     private val context: Context,
@@ -60,7 +60,7 @@ class LinkSpan(
                             context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                         val clip = ClipData.newPlainText("response", link)
                         clipboard?.setPrimaryClip(clip)
-                        CreateCustomToast(context).showToast(R.string.copied_to_clipboard)
+                        createCustomToast(context).showToast(R.string.copied_to_clipboard)
                     }
                 }
             })

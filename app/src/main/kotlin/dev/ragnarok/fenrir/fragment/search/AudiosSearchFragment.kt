@@ -23,7 +23,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class AudiosSearchFragment :
     AbsSearchFragment<AudiosSearchPresenter, IAudioSearchView, Audio, AudioRecyclerAdapter>(),
@@ -34,7 +34,7 @@ class AudiosSearchFragment :
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
     private var isSelectMode = false
     override fun notifyDataAdded(position: Int, count: Int) {
@@ -63,7 +63,7 @@ class AudiosSearchFragment :
                 val curr = currentAudio
                 if (curr != null) {
                     getPlayerPlace(Settings.get().accounts().current).tryOpenWith(requireActivity())
-                } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
                 false
             }
         }
@@ -82,8 +82,8 @@ class AudiosSearchFragment :
                     val index = presenter?.getAudioPos(curr) ?: -1
                     if (index >= 0) {
                         recyclerView.scrollToPosition(index + (mAdapter?.headersCount ?: 0))
-                    } else CreateCustomToast(requireActivity()).showToast(R.string.audio_not_found)
-                } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                    } else createCustomToast(requireActivity()).showToast(R.string.audio_not_found)
+                } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
             }
         }
     }

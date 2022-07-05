@@ -19,9 +19,9 @@ import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.model.Token
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import java.io.UnsupportedEncodingException
 import java.util.regex.Pattern
 
@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
                 val url = Auth.getUrl(clientId, scope, groupIds)
                 webview.loadUrl(url)
             } catch (e: UnsupportedEncodingException) {
-                CreateCustomToast(this).showToastError(e.localizedMessage)
+                createCustomToast(this).showToastError(e.localizedMessage)
             }
         } else {
             TLogin = intent.getStringExtra(EXTRA_LOGIN)

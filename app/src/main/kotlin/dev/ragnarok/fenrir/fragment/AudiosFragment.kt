@@ -19,7 +19,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
@@ -43,12 +42,13 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.CheckDirectory
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeDownloadRequestAudio
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.HelperSimple.needHelp
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 
 class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosView,
@@ -59,7 +59,7 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAudioRecyclerAdapter: AudioRecyclerAdapter? = null
@@ -181,7 +181,7 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
                 if (curr != null) {
                     getPlayerPlace(Settings.get().accounts().current).tryOpenWith(requireActivity())
                 } else {
-                    CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                    createCustomToast(requireActivity()).showToastError(R.string.null_audio)
                 }
             } else {
                 presenter?.fireSelectAll()
@@ -236,8 +236,8 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
                             recyclerView.scrollToPosition(
                                 index + (mAudioRecyclerAdapter?.headersCount ?: 0)
                             )
-                        } else CreateCustomToast(requireActivity()).showToast(R.string.audio_not_found)
-                    } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                        } else createCustomToast(requireActivity()).showToast(R.string.audio_not_found)
+                    } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
                 }
             }
         }
@@ -297,14 +297,9 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
     }
 
     private fun showSnackbar(@StringRes res: Int, isLong: Boolean) {
-        val view = view
-        if (view != null) {
-            Snackbar.make(
-                view,
-                res,
-                if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT
-            ).show()
-        }
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT)
+            ?.defaultSnack(res)?.show()
     }
 
     override fun showAudioDeadHelper() {

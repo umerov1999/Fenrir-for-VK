@@ -1330,7 +1330,7 @@
     <string name="downloading">Скачивание"</string>
     <string name="recommendation">Рекомендации"</string>
     <string name="biometric">Приложите палец к сканеру отпечатков</string>
-    <string name="biometric_not_support">Данная функция не поддерживается"</string>
+    <string name="biometric_not_support">Вход по отпечатку пальца не поддерживается!</string>
     <string name="show_recent_dialogs">Отображать последние чаты</string>
     <string name="is_side_navigation">Навигация сбоку</string>
     <string name="show_mini_player">Показывать мини-плеер</string>
@@ -1664,4 +1664,10 @@
     <string name="voters">Проголосовали</string>
     <string name="validate_tls">Верификация сертификатов</string>
     <string name="validate_tls_summary">Отключение делает вас уязвимым</string>
+    <string name="feed_ban">Не получать новости</string>
+    <string name="blocked">Заблокированные</string>
+    <string name="root_dir">Корень</string>
+    <string name="reset_settings">Сброс настроек</string>
+    <string name="wrong_settings_format">Данный формат настроек не поддерживается!</string>
+    <string name="settings_for_another_client">Настройки для кейта не подходят для обычного клиента и наоборот!</string>
 </resources>

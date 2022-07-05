@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.*
 
 object MusicPlaybackController {
-    val Audios: LinkedHashMap<Int, ArrayList<Audio>> = LinkedHashMap()
     private val mConnectionMap: WeakHashMap<Context, ServiceBinder> = WeakHashMap()
     private val SERVICE_BIND_PUBLISHER = PublishSubject.create<Int>()
     private val TAG = MusicPlaybackController::class.java.simpleName

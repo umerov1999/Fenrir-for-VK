@@ -53,9 +53,9 @@ import dev.ragnarok.fenrir.place.PlaceUtil
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -783,7 +783,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                 loadImage(url)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
-                CreateCustomToast(this@PhotoPagerActivity).showToastError(R.string.empty_url)
+                createCustomToast(this@PhotoPagerActivity).showToastError(R.string.empty_url)
             }
         }
 

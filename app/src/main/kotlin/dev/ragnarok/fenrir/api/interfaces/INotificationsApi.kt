@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
-import dev.ragnarok.fenrir.model.AnswerVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
 import io.reactivex.rxjava3.core.Single
 
 interface INotificationsApi {
@@ -22,7 +22,7 @@ interface INotificationsApi {
         filters: String?,
         startTime: Long?,
         endTime: Long?
-    ): Single<AnswerVKOfficialList>
+    ): Single<FeedbackVKOfficialList>
 
     @CheckResult
     fun hide(query: String?): Single<Int>

@@ -12,11 +12,10 @@ import dev.ragnarok.fenrir.mvp.compat.AbsMvpActivity
 import dev.ragnarok.fenrir.mvp.core.AbsPresenter
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
-import dev.ragnarok.fenrir.util.CustomToast
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
+import dev.ragnarok.fenrir.util.toast.CustomToast
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 abstract class BaseMvpActivity<P : AbsPresenter<V>, V : IMvpView> : AbsMvpActivity<P, V>(),
     IMvpView {
@@ -30,7 +29,7 @@ abstract class BaseMvpActivity<P : AbsPresenter<V>, V : IMvpView> : AbsMvpActivi
 
     override fun showError(errorText: String?) {
         if (!isFinishing) {
-            Utils.showRedTopToast(this, errorText)
+            customToast.showToastError(errorText)
         }
     }
 
@@ -42,8 +41,8 @@ abstract class BaseMvpActivity<P : AbsPresenter<V>, V : IMvpView> : AbsMvpActivi
 
     override val customToast: CustomToast
         get() = if (!isFinishing) {
-            CreateCustomToast(this)
-        } else CreateCustomToast(null)
+            createCustomToast(this)
+        } else createCustomToast(null)
 
     override fun showError(@StringRes titleTes: Int, vararg params: Any?) {
         if (!isFinishing) {

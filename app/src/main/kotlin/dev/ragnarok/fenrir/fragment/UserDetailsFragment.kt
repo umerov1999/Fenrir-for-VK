@@ -33,8 +33,8 @@ import dev.ragnarok.fenrir.mvp.view.IUserDetailsView
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsView>(),
     IUserDetailsView, RecyclerMenuAdapter.ActionListener {
@@ -129,7 +129,7 @@ class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsVi
                     ClipData.newPlainText("Details", details)
                 }
             clipboard.setPrimaryClip(clip)
-            CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
+            createCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
         }
     }
 

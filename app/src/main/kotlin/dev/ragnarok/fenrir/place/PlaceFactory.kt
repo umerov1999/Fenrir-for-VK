@@ -550,6 +550,9 @@ object PlaceFactory {
         return Place(Place.IMPORTANT_MESSAGES).withIntExtra(Extra.ACCOUNT_ID, accountId)
     }
 
+    fun getRemoteFileManager(): Place {
+        return Place(Place.REMOTE_FILE_MANAGER)
+    }
 
     fun getOwnerArticles(accountId: Int, ownerId: Int): Place {
         return Place(Place.OWNER_ARTICLES).withIntExtra(Extra.ACCOUNT_ID, accountId).withIntExtra(
@@ -846,6 +849,10 @@ object PlaceFactory {
             .setArguments(CommentsFragment.buildArgs(accountId, commented, focusToCommentId, null))
     }
 
+    fun getFeedBanPlace(accountId: Int): Place {
+        return Place(Place.FEED_BAN)
+            .setArguments(FeedBannedFragment.buildArgs(accountId))
+    }
 
     fun getCommentsThreadPlace(
         accountId: Int,

@@ -12,7 +12,8 @@ import java.util.*
 object Constants {
     const val API_VERSION = "5.131"
     const val DATABASE_FENRIR_VERSION = 16
-    const val DATABASE_TEMPORARY_VERSION = 2
+    const val DATABASE_TEMPORARY_VERSION = 4
+    const val EXPORT_SETTINGS_FORMAT = 1
 
     @AccountType
     const val DEFAULT_ACCOUNT_TYPE: Int = BuildConfig.DEFAULT_ACCOUNT_TYPE

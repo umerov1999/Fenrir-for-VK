@@ -28,10 +28,9 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doSyncRemoteAudio
-import dev.ragnarok.fenrir.util.Utils.showErrorInAdapter
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.MySearchView.OnAdditionalButtonClickListener
 import java.io.IOException
@@ -46,7 +45,7 @@ class AudiosLocalServerFragment :
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAudioRecyclerAdapter: AudioLocalServerRecyclerAdapter? = null
@@ -95,7 +94,7 @@ class AudiosLocalServerFragment :
             val curr = currentAudio
             if (curr != null) {
                 getPlayerPlace(Settings.get().accounts().current).tryOpenWith(requireActivity())
-            } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+            } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
             false
         }
         Goto.setOnClickListener {
@@ -105,8 +104,8 @@ class AudiosLocalServerFragment :
                     presenter?.getAudioPos(curr) ?: -1
                 if (index >= 0) {
                     recyclerView.scrollToPosition(index)
-                } else CreateCustomToast(requireActivity()).showToast(R.string.audio_not_found)
-            } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                } else createCustomToast(requireActivity()).showToast(R.string.audio_not_found)
+            } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
         }
         mAudioRecyclerAdapter = AudioLocalServerRecyclerAdapter(requireActivity(), emptyList())
         mAudioRecyclerAdapter?.setClickListener(this)
@@ -155,9 +154,9 @@ class AudiosLocalServerFragment :
             override fun onRemoteSync() {
                 try {
                     MusicPlaybackController.tracksExist.findRemoteAudios(requireActivity())
-                    CreateCustomToast(requireActivity()).showToastSuccessBottom(R.string.success)
+                    createCustomToast(requireActivity()).showToastSuccessBottom(R.string.success)
                 } catch (e: IOException) {
-                    showErrorInAdapter(requireActivity(), e)
+                    createCustomToast(requireActivity()).showToastThrowable(e)
                 }
             }
 

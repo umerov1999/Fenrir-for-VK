@@ -35,8 +35,8 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -438,7 +438,7 @@ class NotificationPreferencesFragment : AbsPreferencesFragment(),
             r.play()
         }.setPositiveButton(R.string.button_ok) { _, _ ->
             if (selection == -1) {
-                CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+                CustomToast.createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
                     .showToastError(R.string.ringtone_not_selected)
             } else {
                 val title = array[selection]

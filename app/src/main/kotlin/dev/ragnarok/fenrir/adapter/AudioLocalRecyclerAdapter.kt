@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.adapter
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.media.MediaMetadataRetriever
@@ -19,7 +18,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso3.Transformation
 import dev.ragnarok.fenrir.*
@@ -44,9 +42,10 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.core.Single
@@ -105,7 +104,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
         audioListDisposable = doLocalBitrate(url).fromIOToMain()
             .subscribe(
                 { r: Pair<Int, Long> ->
-                    CreateCustomToast(mContext).showToast(
+                    createCustomToast(mContext).showToast(
                         mContext.resources.getString(
                             R.string.bitrate,
                             r.first,
@@ -113,7 +112,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                         )
                     )
                 }
-            ) { e -> Utils.showErrorInAdapter(mContext as Activity, e) }
+            ) { e -> createCustomToast(mContext).showToastThrowable(e) }
     }
 
     @get:DrawableRes
@@ -232,15 +231,14 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                             if (mContext.getContentResolver()
                                     .delete(Uri.parse(audio.url), null, null) == 1
                             ) {
-                                Snackbar.make(
-                                    view,
-                                    R.string.success,
-                                    BaseTransientBottomBar.LENGTH_LONG
-                                ).show()
+                                CustomSnackbars.createCustomSnackbars(view)
+                                    ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                                    ?.coloredSnack(R.string.success, Color.parseColor("#AA48BE2D"))
+                                    ?.show()
                                 mClickListener?.onDelete(position)
                             }
                         } catch (e: Exception) {
-                            CreateCustomToast(mContext).showToastError(e.localizedMessage)
+                            createCustomToast(mContext).showToastError(e.localizedMessage)
                         }
                         else -> {}
                     }

@@ -1543,7 +1543,7 @@
     <string name="downloading">Downloading"</string>
     <string name="recommendation">Recommendations"</string>
     <string name="biometric">Place your finger on the fingerprint reader</string>
-    <string name="biometric_not_support">This function is not supported"</string>
+    <string name="biometric_not_support">Fingerprint not supported!</string>
     <string name="show_recent_dialogs">Show recent chats</string>
     <string name="is_side_navigation">Side navigation menu</string>
     <string name="show_mini_player">Show mini player</string>
@@ -1878,4 +1878,10 @@
     <string name="voters">Voters</string>
     <string name="validate_tls">Certificate Verification</string>
     <string name="validate_tls_summary">Shutdown makes you vulnerable</string>
+    <string name="feed_ban">Feed ban</string>
+    <string name="blocked">Blocked</string>
+    <string name="root_dir">Root</string>
+    <string name="reset_settings">Reset Settings</string>
+    <string name="wrong_settings_format">This setting format is not supported!</string>
+    <string name="settings_for_another_client">The settings for a cat are not suitable for a regular client and vice versa!</string>
 </resources>

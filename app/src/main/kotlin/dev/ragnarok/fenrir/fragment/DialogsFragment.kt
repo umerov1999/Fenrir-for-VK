@@ -54,17 +54,17 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getSingleTabSearchPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.securitySettingsPlace
 import dev.ragnarok.fenrir.settings.ISettings.INotificationSettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.HelperSimple.needHelp
 import dev.ragnarok.fenrir.util.InputTextDialog
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
-import dev.ragnarok.fenrir.util.Utils.ThemedSnack
 import dev.ragnarok.fenrir.util.Utils.addFlagIf
 import dev.ragnarok.fenrir.util.Utils.hasFlag
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.removeFlag
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.UpEditFab
 
 class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDialogsView,
@@ -99,7 +99,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
         if (Settings.get().security().isUsePinForSecurity) {
             requestEnterPin.launch(Intent(requireActivity(), EnterPinActivity::class.java))
         } else {
-            CreateCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
+            createCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
             securitySettingsPlace.tryOpenWith(requireActivity())
         }
     }
@@ -312,18 +312,17 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
             object : ModalBottomSheetDialogFragment.Listener {
                 override fun onModalOptionSelected(option: Option) {
                     when (option.id) {
-                        1 -> ThemedSnack(
-                            requireView(),
-                            R.string.delete_chat_do,
-                            BaseTransientBottomBar.LENGTH_LONG
-                        ).setAction(
-                            R.string.button_yes
-                        ) {
-                            presenter?.fireRemoveDialogClick(
-                                dialog
-                            )
-                        }
-                            .show()
+                        1 -> CustomSnackbars.createCustomSnackbars(view)
+                            ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                            ?.themedSnack(R.string.delete_chat_do)
+                            ?.setAction(
+                                R.string.button_yes
+                            ) {
+                                presenter?.fireRemoveDialogClick(
+                                    dialog
+                                )
+                            }
+                            ?.show()
                         2 -> if (contextView.pIsPinned) {
                             presenter?.fireUnPin(
                                 dialog
@@ -359,7 +358,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
                             dialog
                         )
                         6 -> if (!Settings.get().security().isUsePinForSecurity) {
-                            CreateCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
+                            createCustomToast(requireActivity()).showToastError(R.string.not_supported_hide)
                             securitySettingsPlace.tryOpenWith(requireActivity())
                         } else {
                             Settings.get().security().addHiddenDialog(dialog.getObjectId())
@@ -384,14 +383,11 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
     }
 
     override fun askToReload() {
-        val view = view
-        if (view != null) {
-            Snackbar.make(view, R.string.update_dialogs, BaseTransientBottomBar.LENGTH_LONG)
-                .setAction(R.string.button_yes) {
-                    presenter?.fireRefresh()
-                }
-                .show()
-        }
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)?.defaultSnack(R.string.update_dialogs)
+            ?.setAction(R.string.button_yes) {
+                presenter?.fireRefresh()
+            }?.show()
     }
 
     override fun onAvatarClick(dialog: Dialog) {
@@ -492,14 +488,9 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
     }
 
     override fun showSnackbar(@StringRes res: Int, isLong: Boolean) {
-        val view = view
-        if (view != null) {
-            Snackbar.make(
-                view,
-                res,
-                if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT
-            ).show()
-        }
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT)
+            ?.defaultSnack(res)?.show()
     }
 
     override fun showEnterNewGroupChatTitle(users: List<User>) {

@@ -249,7 +249,14 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      * View.
      */
     private float mSelectedStartX;
-    private float mSelectedStartY;    /**
+    private float mSelectedStartY;
+    /**
+     * Current mode.
+     */
+    private int mActionState = ACTION_STATE_IDLE;
+    private int mSlop;
+    //re-used list for selecting a swap target
+    private List<ViewHolder> mSwapTargets;    /**
      * When user drags a view to the edge, we start scrolling the LayoutManager as long as View
      * is partially out of bounds.
      */
@@ -266,13 +273,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             }
         }
     };
-    /**
-     * Current mode.
-     */
-    private int mActionState = ACTION_STATE_IDLE;
-    private int mSlop;
-    //re-used list for selecting a swap target
-    private List<ViewHolder> mSwapTargets;
     //re used for for sorting swap targets
     private List<Integer> mDistances;
     /**
@@ -309,6 +309,89 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 && x <= left + child.getWidth()
                 && y >= top
                 && y <= top + child.getHeight();
+    }
+
+    /**
+     * Attaches the ItemTouchHelper to the provided RecyclerView. If TouchHelper is already
+     * attached to a RecyclerView, it will first detach from the previous one. You can call this
+     * method with {@code null} to detach it from the current RecyclerView.
+     *
+     * @param recyclerView The RecyclerView instance to which you want to add this helper or
+     *                     {@code null} if you want to remove ItemTouchHelper from the current
+     *                     RecyclerView.
+     */
+    public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
+        if (mRecyclerView == recyclerView) {
+            return; // nothing to do
+        }
+        if (mRecyclerView != null) {
+            destroyCallbacks();
+        }
+        mRecyclerView = recyclerView;
+        if (recyclerView != null) {
+            Resources resources = recyclerView.getResources();
+            mSwipeEscapeVelocity = resources
+                    .getDimension(R.dimen.item_touch_helper_swipe_escape_velocity);
+            mMaxSwipeVelocity = resources
+                    .getDimension(R.dimen.item_touch_helper_swipe_escape_max_velocity);
+            setupCallbacks();
+        }
+    }
+
+    private void setupCallbacks() {
+        ViewConfiguration vc = ViewConfiguration.get(mRecyclerView.getContext());
+        mSlop = vc.getScaledTouchSlop();
+        mRecyclerView.addItemDecoration(this);
+        mRecyclerView.addOnItemTouchListener(mOnItemTouchListener);
+        mRecyclerView.addOnChildAttachStateChangeListener(this);
+        startGestureDetection();
+    }
+
+    private void destroyCallbacks() {
+        mRecyclerView.removeItemDecoration(this);
+        mRecyclerView.removeOnItemTouchListener(mOnItemTouchListener);
+        mRecyclerView.removeOnChildAttachStateChangeListener(this);
+        // clean all attached
+        int recoverAnimSize = mRecoverAnimations.size();
+        for (int i = recoverAnimSize - 1; i >= 0; i--) {
+            RecoverAnimation recoverAnimation = mRecoverAnimations.get(0);
+            recoverAnimation.cancel();
+            mCallback.clearView(mRecyclerView, recoverAnimation.mViewHolder);
+        }
+        mRecoverAnimations.clear();
+        mOverdrawChild = null;
+        mOverdrawChildPosition = -1;
+        releaseVelocityTracker();
+        stopGestureDetection();
+    }
+
+    private void startGestureDetection() {
+        mItemTouchHelperGestureListener = new ItemTouchHelperGestureListener();
+        mGestureDetector = new GestureDetectorCompat(mRecyclerView.getContext(),
+                mItemTouchHelperGestureListener);
+    }
+
+    private void stopGestureDetection() {
+        if (mItemTouchHelperGestureListener != null) {
+            mItemTouchHelperGestureListener.doNotReactToLongPress();
+            mItemTouchHelperGestureListener = null;
+        }
+        if (mGestureDetector != null) {
+            mGestureDetector = null;
+        }
+    }
+
+    private void getSelectedDxDy(float[] outPosition) {
+        if ((mSelectedFlags & (LEFT | RIGHT)) != 0) {
+            outPosition[0] = mSelectedStartX + mDx - mSelected.itemView.getLeft();
+        } else {
+            outPosition[0] = mSelected.itemView.getTranslationX();
+        }
+        if ((mSelectedFlags & (UP | DOWN)) != 0) {
+            outPosition[1] = mSelectedStartY + mDy - mSelected.itemView.getTop();
+        } else {
+            outPosition[1] = mSelected.itemView.getTranslationY();
+        }
     }    private final OnItemTouchListener mOnItemTouchListener = new OnItemTouchListener() {
         @Override
         public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView,
@@ -422,89 +505,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             select(null, ACTION_STATE_IDLE);
         }
     };
-
-    /**
-     * Attaches the ItemTouchHelper to the provided RecyclerView. If TouchHelper is already
-     * attached to a RecyclerView, it will first detach from the previous one. You can call this
-     * method with {@code null} to detach it from the current RecyclerView.
-     *
-     * @param recyclerView The RecyclerView instance to which you want to add this helper or
-     *                     {@code null} if you want to remove ItemTouchHelper from the current
-     *                     RecyclerView.
-     */
-    public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
-        if (mRecyclerView == recyclerView) {
-            return; // nothing to do
-        }
-        if (mRecyclerView != null) {
-            destroyCallbacks();
-        }
-        mRecyclerView = recyclerView;
-        if (recyclerView != null) {
-            Resources resources = recyclerView.getResources();
-            mSwipeEscapeVelocity = resources
-                    .getDimension(R.dimen.item_touch_helper_swipe_escape_velocity);
-            mMaxSwipeVelocity = resources
-                    .getDimension(R.dimen.item_touch_helper_swipe_escape_max_velocity);
-            setupCallbacks();
-        }
-    }
-
-    private void setupCallbacks() {
-        ViewConfiguration vc = ViewConfiguration.get(mRecyclerView.getContext());
-        mSlop = vc.getScaledTouchSlop();
-        mRecyclerView.addItemDecoration(this);
-        mRecyclerView.addOnItemTouchListener(mOnItemTouchListener);
-        mRecyclerView.addOnChildAttachStateChangeListener(this);
-        startGestureDetection();
-    }
-
-    private void destroyCallbacks() {
-        mRecyclerView.removeItemDecoration(this);
-        mRecyclerView.removeOnItemTouchListener(mOnItemTouchListener);
-        mRecyclerView.removeOnChildAttachStateChangeListener(this);
-        // clean all attached
-        int recoverAnimSize = mRecoverAnimations.size();
-        for (int i = recoverAnimSize - 1; i >= 0; i--) {
-            RecoverAnimation recoverAnimation = mRecoverAnimations.get(0);
-            recoverAnimation.cancel();
-            mCallback.clearView(mRecyclerView, recoverAnimation.mViewHolder);
-        }
-        mRecoverAnimations.clear();
-        mOverdrawChild = null;
-        mOverdrawChildPosition = -1;
-        releaseVelocityTracker();
-        stopGestureDetection();
-    }
-
-    private void startGestureDetection() {
-        mItemTouchHelperGestureListener = new ItemTouchHelperGestureListener();
-        mGestureDetector = new GestureDetectorCompat(mRecyclerView.getContext(),
-                mItemTouchHelperGestureListener);
-    }
-
-    private void stopGestureDetection() {
-        if (mItemTouchHelperGestureListener != null) {
-            mItemTouchHelperGestureListener.doNotReactToLongPress();
-            mItemTouchHelperGestureListener = null;
-        }
-        if (mGestureDetector != null) {
-            mGestureDetector = null;
-        }
-    }
-
-    private void getSelectedDxDy(float[] outPosition) {
-        if ((mSelectedFlags & (LEFT | RIGHT)) != 0) {
-            outPosition[0] = mSelectedStartX + mDx - mSelected.itemView.getLeft();
-        } else {
-            outPosition[0] = mSelected.itemView.getTranslationX();
-        }
-        if ((mSelectedFlags & (UP | DOWN)) != 0) {
-            outPosition[1] = mSelectedStartY + mDy - mSelected.itemView.getTop();
-        } else {
-            outPosition[1] = mSelected.itemView.getTranslationY();
-        }
-    }
 
     @Override
     public void onDrawOver(

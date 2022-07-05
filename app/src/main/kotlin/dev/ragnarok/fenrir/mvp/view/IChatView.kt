@@ -6,7 +6,7 @@ import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.upload.UploadDestination
 
-interface IChatView : IBasicMessageListView, IErrorView {
+interface IChatView : IBasicMessageListView, IErrorView, IToastView {
 
     fun setupLoadUpHeaderState(@LoadMoreState state: Int)
     fun displayDraftMessageAttachmentsCount(count: Int)

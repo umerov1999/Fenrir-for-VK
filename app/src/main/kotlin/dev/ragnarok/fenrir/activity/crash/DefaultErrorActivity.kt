@@ -18,7 +18,7 @@ import dev.ragnarok.fenrir.activity.slidr.Slidr
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.util.CustomToast
+import dev.ragnarok.fenrir.util.toast.CustomToast
 
 class DefaultErrorActivity : AppCompatActivity() {
     @SuppressLint("PrivateResource")
@@ -84,7 +84,7 @@ class DefaultErrorActivity : AppCompatActivity() {
                 errorInformation
             )
             clipboard.setPrimaryClip(clip)
-            CustomToast.CreateCustomToast(this)
+            CustomToast.createCustomToast(this)
                 .showToastInfo(R.string.crash_error_activity_error_details_copied)
         }
     }

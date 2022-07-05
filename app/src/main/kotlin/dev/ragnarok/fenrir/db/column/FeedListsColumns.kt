@@ -14,7 +14,6 @@ object FeedListsColumns : BaseColumns {
     const val FULL_NO_REPOSTS = "$TABLENAME.$NO_REPOSTS"
     const val FULL_SOURCE_IDS = "$TABLENAME.$SOURCE_IDS"
 
-    @kotlin.jvm.JvmStatic
     fun getCV(entity: FeedListEntity): ContentValues {
         val cv = ContentValues()
         cv.put(BaseColumns._ID, entity.id)

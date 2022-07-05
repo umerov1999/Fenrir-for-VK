@@ -24,8 +24,8 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.ClickListener,
     BackPressCallback {
@@ -78,7 +78,7 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
             if (curr != null) {
                 PlaceFactory.getPlayerPlace(Settings.get().accounts().current)
                     .tryOpenWith(requireActivity())
-            } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+            } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
             false
         }
         Goto.setOnClickListener {
@@ -87,8 +87,8 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
                 val index = getAudioPos(curr)
                 if (index >= 0) {
                     mRecyclerView?.scrollToPosition(index)
-                } else CreateCustomToast(requireActivity()).showToast(R.string.audio_not_found)
-            } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                } else createCustomToast(requireActivity()).showToast(R.string.audio_not_found)
+            } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
         }
         ItemTouchHelper(MessagesReplyItemCallback {
             if (checkPosition(it)) {
@@ -162,7 +162,7 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
 
     override fun onRequestWritePermissions() {

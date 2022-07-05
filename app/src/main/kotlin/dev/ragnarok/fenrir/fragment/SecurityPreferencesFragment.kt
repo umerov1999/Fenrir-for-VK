@@ -37,8 +37,8 @@ import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.SecuritySettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -338,7 +338,7 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
                 removeKeysFor(currentAccountId)
             }
         }
-        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+        CustomToast.createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
             .showToastSuccessBottom(R.string.deleted)
     }
 

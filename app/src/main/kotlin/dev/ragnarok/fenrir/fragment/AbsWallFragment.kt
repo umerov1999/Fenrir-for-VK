@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.adapter.WallAdapter
@@ -50,12 +49,13 @@ import dev.ragnarok.fenrir.place.PlaceUtil.goToPostCreation
 import dev.ragnarok.fenrir.place.PlaceUtil.goToPostEditor
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils.getCounterWithK
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.FindAttachmentType
 import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.util.Utils.is600dp
 import dev.ragnarok.fenrir.util.Utils.isLandscape
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper.Companion.createFrom
 import dev.ragnarok.fenrir.view.UpEditFab
@@ -174,13 +174,9 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
     }
 
     override fun showSnackbar(res: Int, isLong: Boolean) {
-        view?.let {
-            Snackbar.make(
-                it,
-                res,
-                if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT
-            ).show()
-        }
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT)
+            ?.defaultSnack(res)?.show()
     }
 
     override fun openPhotoAlbum(
@@ -405,7 +401,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
 
     override fun onCommentsClick(post: Post) {
         if (!post.isCanPostComment) {
-            CustomToast.CreateCustomToast(requireActivity())
+            CustomToast.createCustomToast(requireActivity())
                 .showToastError(R.string.comments_disabled_post)
         }
         presenter?.fireCommentsClick(post)

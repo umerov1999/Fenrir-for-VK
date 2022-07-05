@@ -4,8 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import androidx.annotation.RequiresApi
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Logger
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import java.io.File
 import java.io.IOException
 
@@ -43,7 +43,7 @@ class AudioRecordWrapper private constructor(builder: Builder) {
             try {
                 mRecorder?.start()
             } catch (e: IllegalStateException) {
-                CreateCustomToast(mContext).showToastError(e.localizedMessage)
+                createCustomToast(mContext).showToastError(e.localizedMessage)
             }
         }
     }
@@ -65,7 +65,7 @@ class AudioRecordWrapper private constructor(builder: Builder) {
             try {
                 mRecorder?.pause()
             } catch (e: IllegalStateException) {
-                CreateCustomToast(mContext).showToastError(e.localizedMessage)
+                createCustomToast(mContext).showToastError(e.localizedMessage)
             }
         } else {
             Logger.wtf(TAG, "Recorder status is not RECORDING_NOW")
@@ -77,7 +77,7 @@ class AudioRecordWrapper private constructor(builder: Builder) {
         try {
             mRecorder?.stopAndRelease()
         } catch (e: IllegalStateException) {
-            CreateCustomToast(mContext).showToastError(e.localizedMessage)
+            createCustomToast(mContext).showToastError(e.localizedMessage)
         }
         mRecorder = null
     }

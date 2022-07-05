@@ -11,7 +11,7 @@ import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformOwners
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillCommentOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.FeedbackEntity2Model.buildFeedback
-import dev.ragnarok.fenrir.model.AnswerVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
 import dev.ragnarok.fenrir.model.criteria.NotificationsCriteria
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.util.Pair
@@ -35,7 +35,7 @@ class FeedbackInteractor(
         accountId: Int,
         count: Int?,
         startFrom: Int?
-    ): Single<AnswerVKOfficialList> {
+    ): Single<FeedbackVKOfficialList> {
         return networker.vkDefault(accountId)
             .notifications()
             .getOfficial(count, startFrom, null, null, null)
@@ -88,11 +88,11 @@ class FeedbackInteractor(
             }
     }
 
-    override fun maskAaViewed(accountId: Int): Completable {
+    override fun markAsViewed(accountId: Int): Single<Boolean> {
         return networker.vkDefault(accountId)
             .notifications()
             .markAsViewed()
-            .ignoreElement()
+            .map { it != 0 }
     }
 
     private fun getCachedFeedbacksByCriteria(criteria: NotificationsCriteria): Single<List<Feedback>> {

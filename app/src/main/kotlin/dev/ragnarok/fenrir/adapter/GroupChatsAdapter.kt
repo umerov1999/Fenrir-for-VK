@@ -16,8 +16,8 @@ import dev.ragnarok.fenrir.model.GroupChats
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.AppTextUtils
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import java.util.*
 
 class GroupChatsAdapter(
@@ -48,7 +48,7 @@ class GroupChatsAdapter(
                             item.getInvite_link()
                         )
                     clipboard?.setPrimaryClip(clip)
-                    CreateCustomToast(context).showToast(R.string.copied)
+                    createCustomToast(context).showToast(R.string.copied)
                     return@setOnMenuItemClickListener true
                 }
                 false

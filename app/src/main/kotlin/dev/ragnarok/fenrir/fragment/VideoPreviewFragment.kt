@@ -47,11 +47,11 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateFromUnixTime
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadVideo
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.shareLink
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.CircleCounterButton
 
 class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPreviewView>(),
@@ -70,7 +70,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
     private var mRootView: View? = null
     private var likeButton: CircleCounterButton? = null
@@ -182,7 +182,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
 
     private fun playWithExternalSoftware(url: String) {
         if (url.isEmpty()) {
-            CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+            createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
                 .showToastError(R.string.error_video_playback_is_not_possible)
             return
         }
@@ -286,7 +286,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
     }
 
     override fun showSuccessToast() {
-        CreateCustomToast(requireActivity()).showToastSuccessBottom(
+        createCustomToast(requireActivity()).showToastSuccessBottom(
             R.string.success,
             Toast.LENGTH_SHORT
         )
@@ -592,7 +592,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         } else if (video.player.nonNullNoEmpty()) {
             playWithExternalSoftware(video.player ?: return)
         } else {
-            CreateCustomToast(requireActivity()).showToastError(R.string.video_not_have_link)
+            createCustomToast(requireActivity()).showToastError(R.string.video_not_have_link)
         }
     }
 
@@ -654,7 +654,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                 val clip = ClipData.newPlainText("response", video.externalLink)
                 clipboard?.setPrimaryClip(clip)
-                CreateCustomToast(context).showToast(R.string.copied)
+                createCustomToast(context).showToast(R.string.copied)
             }
         }
     }

@@ -728,7 +728,7 @@ object Dto2Entity {
             }
         }
         if ("contact" == dto.peer?.type && contacts.nonNullNoEmpty()) {
-            for (i in contacts.orEmpty()) {
+            for (i in contacts) {
                 if (i.id == dto.peer?.local_id) {
                     entity.setTitle(i.name)
                     entity.setPhoto50(i.photo_50)
@@ -770,7 +770,7 @@ object Dto2Entity {
             }
         }
         if ("contact" == dto.conversation?.peer?.type && contacts.nonNullNoEmpty()) {
-            for (i in contacts.orEmpty()) {
+            for (i in contacts) {
                 if (i.id == dto.conversation?.peer?.local_id) {
                     entity.setTitle(i.name)
                     entity.setPhoto50(i.photo_50)
@@ -914,6 +914,7 @@ object Dto2Entity {
             .setDuration(dto.duration)
             .setUrl(dto.url)
             .setLyricsId(dto.lyrics_id)
+            .setDate(dto.date)
             .setAlbumId(dto.album_id)
             .setAlbum_owner_id(dto.album_owner_id)
             .setAlbum_access_key(dto.album_access_key)

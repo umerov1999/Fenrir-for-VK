@@ -28,7 +28,6 @@ import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateFromUnixTime
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.CheckDirectory
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
 import dev.ragnarok.fenrir.util.Utils.SafeCallInt
@@ -36,6 +35,7 @@ import dev.ragnarok.fenrir.util.Utils.appLocale
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.inMainThread
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -509,7 +509,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             )
             inMainThread(object : SafeCallInt {
                 override fun call() {
-                    CreateCustomToast(
+                    createCustomToast(
                         applicationContext
                     ).showToastSuccessBottom(
                         applicationContext.getString(R.string.success) + " " + applicationContext.getString(
@@ -522,7 +522,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             e.printStackTrace()
             inMainThread(object : SafeCallInt {
                 override fun call() {
-                    CreateCustomToast(
+                    createCustomToast(
                         applicationContext
                     ).showToastError(e.localizedMessage)
                 }
@@ -669,7 +669,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             )
             inMainThread(object : SafeCallInt {
                 override fun call() {
-                    CreateCustomToast(
+                    createCustomToast(
                         applicationContext
                     ).showToastSuccessBottom(
                         applicationContext.getString(R.string.success) + " " + applicationContext.getString(
@@ -682,7 +682,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             e.printStackTrace()
             inMainThread(object : SafeCallInt {
                 override fun call() {
-                    CreateCustomToast(
+                    createCustomToast(
                         applicationContext
                     ).showToastError(e.localizedMessage)
                 }
@@ -729,7 +729,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
         createForeground()
         inMainThread(object : SafeCallInt {
             override fun call() {
-                CreateCustomToast(
+                createCustomToast(
                     applicationContext
                 ).showToastBottom(applicationContext.getString(R.string.do_chat_download))
             }

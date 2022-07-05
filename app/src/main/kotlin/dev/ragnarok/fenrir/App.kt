@@ -13,12 +13,12 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.service.KeepLongpollService
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.existfile.FileExistJVM
 import dev.ragnarok.fenrir.util.existfile.FileExistNative
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import ealvatag.tag.TagOptionSingleton
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -92,7 +92,7 @@ class App : Application() {
                 .toMainThread()
                 .subscribe({ throwable ->
                     run {
-                        CreateCustomToast(this).showToastError(
+                        createCustomToast(this).showToastError(
                             ErrorLocalizer.localizeThrowable(this, throwable)
                         ); throwable.printStackTrace()
                     }
@@ -101,7 +101,7 @@ class App : Application() {
         RxJavaPlugins.setErrorHandler {
             Handler(mainLooper).post {
                 if (Settings.get().other().isDeveloper_mode) {
-                    CreateCustomToast(this).showToastError(
+                    createCustomToast(this).showToastError(
                         ErrorLocalizer.localizeThrowable(
                             this,
                             it

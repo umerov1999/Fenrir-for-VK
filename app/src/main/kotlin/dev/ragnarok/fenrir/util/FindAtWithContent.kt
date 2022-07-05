@@ -34,7 +34,7 @@ abstract class FindAtWithContent<T>(
 
     @JvmOverloads
     fun do_search(q: String? = this.q) {
-        if (q == null || q.isNullOrEmpty()) {
+        if (q.isNullOrEmpty()) {
             this.q = q
             return
         } else if (!q.equals(this.q, ignoreCase = true)) {

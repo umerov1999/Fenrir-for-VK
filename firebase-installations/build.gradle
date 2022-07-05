@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace "com.google.firebase.installations"
     compileSdk = appCompileSDK
     buildToolsVersion = appBuildTools
 
@@ -56,7 +57,7 @@ dependencies {
     implementation("com.google.firebase:firebase-common:20.1.1")
     implementation("com.google.firebase:firebase-installations-interop:17.0.1")
     implementation("com.google.firebase:firebase-components:17.0.0")
-    implementation("com.google.android.gms:play-services-tasks:18.0.1")
+    implementation("com.google.android.gms:play-services-tasks:18.0.2")
 
     compileOnly("com.google.auto.value:auto-value-annotations:1.9")
     annotationProcessor("com.google.auto.value:auto-value:1.9")

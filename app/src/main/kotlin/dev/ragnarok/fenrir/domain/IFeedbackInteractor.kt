@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.domain
 
-import dev.ragnarok.fenrir.model.AnswerVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.util.Pair
 import io.reactivex.rxjava3.core.Completable
@@ -14,7 +14,7 @@ interface IFeedbackInteractor {
         startFrom: String?
     ): Single<Pair<List<Feedback>, String?>>
 
-    fun getOfficial(accountId: Int, count: Int?, startFrom: Int?): Single<AnswerVKOfficialList>
-    fun maskAaViewed(accountId: Int): Completable
+    fun getOfficial(accountId: Int, count: Int?, startFrom: Int?): Single<FeedbackVKOfficialList>
+    fun markAsViewed(accountId: Int): Single<Boolean>
     fun hide(accountId: Int, query: String?): Completable
 }

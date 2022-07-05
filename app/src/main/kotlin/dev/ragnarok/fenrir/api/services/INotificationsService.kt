@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
-import dev.ragnarok.fenrir.model.AnswerVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -31,7 +31,7 @@ interface INotificationsService {
         @Field("start_time") startTime: Long?,
         @Field("end_time") endTime: Long?,
         @Field("fields") fields: String?
-    ): Single<BaseResponse<AnswerVKOfficialList>>
+    ): Single<BaseResponse<FeedbackVKOfficialList>>
 
     @FormUrlEncoded
     @POST("notifications.hide")

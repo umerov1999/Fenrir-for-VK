@@ -34,7 +34,6 @@ import dev.ragnarok.fenrir.mvp.view.IWallView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils.checkEditInfo
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
@@ -46,6 +45,7 @@ import dev.ragnarok.fenrir.util.Utils.intValueNotIn
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.io.File
 import java.io.FileOutputStream
@@ -330,9 +330,9 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                     .fromIOToMain()
                     .subscribe({ t ->
                         when (t) {
-                            0 -> CreateCustomToast(context).showToastError(R.string.not_changed)
-                            1 -> CreateCustomToast(context).showToastSuccessBottom(R.string.success)
-                            2 -> CreateCustomToast(context).showToastBottom(R.string.later)
+                            0 -> createCustomToast(context).showToastError(R.string.not_changed)
+                            1 -> createCustomToast(context).showToastSuccessBottom(R.string.success)
+                            2 -> createCustomToast(context).showToastBottom(R.string.later)
                         }
                     }) { t ->
                         showError(t)
@@ -401,10 +401,10 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                             Uri.fromFile(file)
                         )
                     )
-                    CreateCustomToast(context).showToast(R.string.success)
+                    createCustomToast(context).showToast(R.string.success)
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    CreateCustomToast(context).showToastError("Save Failed")
+                    createCustomToast(context).showToastError("Save Failed")
                 }
             }
             .setIcon(R.drawable.qr_code)

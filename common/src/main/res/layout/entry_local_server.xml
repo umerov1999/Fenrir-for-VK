@@ -70,5 +70,27 @@
             android:paddingEnd="8dp"
             android:text="@string/enabled_local_server"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reboot_pc_win"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:text="@string/reboot_pc_win" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reboot_pc_linux"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:text="@string/reboot_pc_linux" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

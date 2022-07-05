@@ -49,10 +49,10 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
 import dev.ragnarok.fenrir.place.PlaceUtil.goToPostCreation
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils.shareLink
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 
 class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), IVideosListView,
@@ -419,7 +419,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
                         "https://vk.com/video" + video.ownerId + "_" + video.id
                     )
                     clipboard?.setPrimaryClip(clip)
-                    CreateCustomToast(requireActivity()).showToast(R.string.copied_url)
+                    createCustomToast(requireActivity()).showToast(R.string.copied_url)
                 }
                 R.id.check_show_author -> {
                     getOwnerWallPlace(accountId, video.ownerId, null).tryOpenWith(requireActivity())
@@ -496,7 +496,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
     }
 
     override fun showSuccessToast() {
-        CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
+        createCustomToast(requireActivity()).setDuration(Toast.LENGTH_SHORT)
             .showToastSuccessBottom(R.string.success)
     }
 

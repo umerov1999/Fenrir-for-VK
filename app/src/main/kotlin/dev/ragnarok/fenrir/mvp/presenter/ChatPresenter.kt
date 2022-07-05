@@ -70,7 +70,6 @@ import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class ChatPresenter(
     accountId: Int, private val messagesOwnerId: Int,
     initialPeer: Peer, config: ChatConfig, savedInstanceState: Bundle?
@@ -1090,22 +1089,22 @@ class ChatPresenter(
     fun sendRecordingCustomMessageImpl(context: Context, file: String) {
         val to = File(AudioRecordWrapper.getRecordingDirectory(context), "converted.mp3")
         to.delete()
-        CustomToast.CreateCustomToast(context).showToastInfo(R.string.do_convert)
+        view?.customToast?.showToastInfo(R.string.do_convert)
         appendDisposable(
             Single.create {
                 it.onSuccess(ToMp4Audio.encodeToMp4Audio(file, to.absolutePath))
             }.fromIOToMain()
                 .subscribe({ o ->
                     if (o) {
-                        CustomToast.CreateCustomToast(context).showToastInfo(R.string.success)
+                        view?.customToast?.showToastInfo(R.string.success)
                         sendRecordingMessageImpl(to)
                     } else {
-                        CustomToast.CreateCustomToast(context).showToastError(R.string.error)
+                        view?.customToast?.showToastError(R.string.error)
                         sendRecordingMessageImpl(File(file))
                     }
                 }, {
                     run {
-                        CustomToast.CreateCustomToast(context).showToastError(R.string.error)
+                        view?.customToast?.showToastError(R.string.error)
                         sendRecordingMessageImpl(File(file))
                     }
                 })

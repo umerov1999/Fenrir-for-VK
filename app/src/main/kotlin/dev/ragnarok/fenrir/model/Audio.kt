@@ -31,6 +31,8 @@ class Audio : AbsModel {
         private set
     var lyricsId = 0
         private set
+    var date: Long = 0
+        private set
     var albumId = 0
         private set
     var album_owner_id = 0
@@ -72,6 +74,7 @@ class Audio : AbsModel {
         duration = `in`.readInt()
         url = `in`.readString()
         lyricsId = `in`.readInt()
+        date = `in`.readLong()
         albumId = `in`.readInt()
         album_owner_id = `in`.readInt()
         album_access_key = `in`.readString()
@@ -128,6 +131,7 @@ class Audio : AbsModel {
         parcel.writeInt(duration)
         parcel.writeString(url)
         parcel.writeInt(lyricsId)
+        parcel.writeLong(date)
         parcel.writeInt(albumId)
         parcel.writeInt(album_owner_id)
         parcel.writeString(album_access_key)
@@ -233,6 +237,11 @@ class Audio : AbsModel {
 
     fun setLyricsId(lyricsId: Int): Audio {
         this.lyricsId = lyricsId
+        return this
+    }
+
+    fun setDate(date: Long): Audio {
+        this.date = date
         return this
     }
 

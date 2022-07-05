@@ -7,6 +7,7 @@ import android.net.Uri
 import android.widget.Toast
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import java.io.File
 import java.io.FileOutputStream
 
@@ -19,7 +20,7 @@ object ScreenshotHelper {
             saveDir.mkdirs()
         }
         if (!saveDir.exists()) {
-            CustomToast.CreateCustomToast(activity).setDuration(Toast.LENGTH_LONG).showToastError(
+            CustomToast.createCustomToast(activity).setDuration(Toast.LENGTH_LONG).showToastError(
                 activity.getText(R.string.error).toString() + " " + saveDir.absolutePath
             )
             return
@@ -47,7 +48,7 @@ object ScreenshotHelper {
             try {
                 createBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
                 fileOutputStream.flush()
-                CustomToast.CreateCustomToast(activity).setDuration(Toast.LENGTH_LONG)
+                CustomToast.createCustomToast(activity).setDuration(Toast.LENGTH_LONG)
                     .showToastSuccessBottom(activity.getString(R.string.success) + " " + file.absolutePath)
                 activity.sendBroadcast(
                     Intent(
@@ -62,11 +63,11 @@ object ScreenshotHelper {
                     fileOutputStream.close()
                 } catch (th: Throwable) {
                     fileOutputStream.close()
-                    Utils.showErrorInAdapter(activity, th)
+                    CustomToast.createCustomToast(activity).showToastThrowable(th)
                 }
             } catch (th2: Throwable) {
                 fileOutputStream.close()
-                Utils.showErrorInAdapter(activity, th2)
+                CustomToast.createCustomToast(activity).showToastThrowable(th2)
             }
         } catch (e2: Exception) {
             e2.printStackTrace()

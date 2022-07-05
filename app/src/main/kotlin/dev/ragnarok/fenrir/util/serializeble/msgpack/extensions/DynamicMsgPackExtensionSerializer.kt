@@ -35,7 +35,7 @@ open class DynamicMsgPackExtensionSerializer : BaseMsgPackExtensionSerializer<An
 
     fun canSerialize(value: Any?): Boolean {
         if (value is MsgPackExtension) return true
-        for ((klass) in serializers.values) {
+        for ((klass, _) in serializers.values) {
             if (klass.isInstance(value)) {
                 return true
             }

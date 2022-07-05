@@ -22,8 +22,8 @@ import dev.ragnarok.fenrir.model.menu.AdvancedItem
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class PostPublishPrepareActivity : AppCompatActivity(), RecyclerMenuAdapter.ActionListener {
@@ -54,7 +54,7 @@ class PostPublishPrepareActivity : AppCompatActivity(), RecyclerMenuAdapter.Acti
         if (savedInstanceState == null) {
             accountId = Settings.get().accounts().current
             if (accountId == ISettings.IAccountsSettings.INVALID_ID) {
-                CustomToast.CreateCustomToast(this).setDuration(Toast.LENGTH_LONG)
+                CustomToast.createCustomToast(this).setDuration(Toast.LENGTH_LONG)
                     .showToastError(R.string.error_post_creation_no_auth)
                 finish()
             }
@@ -93,7 +93,7 @@ class PostPublishPrepareActivity : AppCompatActivity(), RecyclerMenuAdapter.Acti
 
     private fun onOwnersGetError(throwable: Throwable) {
         setLoading(false)
-        CustomToast.CreateCustomToast(this).setDuration(Toast.LENGTH_LONG)
+        CustomToast.createCustomToast(this).setDuration(Toast.LENGTH_LONG)
             .showToastError(Utils.firstNonEmptyString(throwable.message, throwable.toString()))
         finish()
     }

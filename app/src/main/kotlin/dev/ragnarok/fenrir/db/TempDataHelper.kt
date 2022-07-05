@@ -6,10 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.db.column.LogColumns
-import dev.ragnarok.fenrir.db.column.SearchRequestColumns
-import dev.ragnarok.fenrir.db.column.ShortcutColumns
-import dev.ragnarok.fenrir.db.column.TempDataColumns
+import dev.ragnarok.fenrir.db.column.*
 
 class TempDataHelper(context: Context) :
     SQLiteOpenHelper(context, "temp_app_data.sqlite", null, Constants.DATABASE_TEMPORARY_VERSION) {
@@ -18,6 +15,7 @@ class TempDataHelper(context: Context) :
         createSearchRequestTable(db)
         createLogsTable(db)
         createShortcutsColumn(db)
+        createAudiosTable(db)
     }
 
     private fun createTmpDataTable(db: SQLiteDatabase) {
@@ -60,10 +58,39 @@ class TempDataHelper(context: Context) :
         db.execSQL(sql)
     }
 
+    private fun createAudiosTable(db: SQLiteDatabase) {
+        val sql = "CREATE TABLE IF NOT EXISTS [" + AudioColumns.TABLENAME + "] (\n" +
+                "  [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "  [" + AudioColumns.SOURCE_OWNER_ID + "] INTEGER, " +
+                "  [" + AudioColumns.AUDIO_ID + "] INTEGER, " +
+                "  [" + AudioColumns.AUDIO_OWNER_ID + "] INTEGER, " +
+                "  [" + AudioColumns.ARTIST + "] TEXT, " +
+                "  [" + AudioColumns.TITLE + "] TEXT, " +
+                "  [" + AudioColumns.DURATION + "] INTEGER, " +
+                "  [" + AudioColumns.URL + "] TEXT, " +
+                "  [" + AudioColumns.LYRICS_ID + "] INTEGER, " +
+                "  [" + AudioColumns.DATE + "] INTEGER, " +
+                "  [" + AudioColumns.ALBUM_ID + "] INTEGER, " +
+                "  [" + AudioColumns.ALBUM_OWNER_ID + "] INTEGER, " +
+                "  [" + AudioColumns.ALBUM_ACCESS_KEY + "] TEXT, " +
+                "  [" + AudioColumns.GENRE + "] INTEGER, " +
+                "  [" + AudioColumns.DELETED + "] BOOLEAN, " +
+                "  [" + AudioColumns.ACCESS_KEY + "] TEXT, " +
+                "  [" + AudioColumns.THUMB_IMAGE_BIG + "] TEXT, " +
+                "  [" + AudioColumns.THUMB_IMAGE_VERY_BIG + "] TEXT, " +
+                "  [" + AudioColumns.THUMB_IMAGE_LITTLE + "] TEXT, " +
+                "  [" + AudioColumns.ALBUM_TITLE + "] TEXT, " +
+                "  [" + AudioColumns.MAIN_ARTISTS + "] BLOB, " +
+                "  [" + AudioColumns.IS_HQ + "] BOOLEAN, " +
+                "  CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+        db.execSQL(sql)
+    }
+
     fun clear() {
         val db = writableDatabase
         db.execSQL("DROP TABLE IF EXISTS " + TempDataColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + AudioColumns.TABLENAME)
         onCreate(db)
     }
 
@@ -79,6 +106,7 @@ class TempDataHelper(context: Context) :
             db.execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
             db.execSQL("DROP TABLE IF EXISTS " + LogColumns.TABLENAME)
             db.execSQL("DROP TABLE IF EXISTS " + ShortcutColumns.TABLENAME)
+            db.execSQL("DROP TABLE IF EXISTS " + AudioColumns.TABLENAME)
             onCreate(db)
         }
     }
@@ -89,6 +117,7 @@ class TempDataHelper(context: Context) :
             db.execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
             db.execSQL("DROP TABLE IF EXISTS " + LogColumns.TABLENAME)
             db.execSQL("DROP TABLE IF EXISTS " + ShortcutColumns.TABLENAME)
+            db.execSQL("DROP TABLE IF EXISTS " + AudioColumns.TABLENAME)
             onCreate(db)
         }
     }

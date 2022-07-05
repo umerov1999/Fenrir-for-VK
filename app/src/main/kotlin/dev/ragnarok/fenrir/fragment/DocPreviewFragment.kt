@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.fragment
 
 import android.Manifest
 import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
@@ -32,8 +33,8 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils.getSizeString
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadDoc
-import dev.ragnarok.fenrir.util.Utils.ThemedSnack
 import dev.ragnarok.fenrir.util.Utils.shareLink
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
 
@@ -62,14 +63,13 @@ class DocPreviewFragment : BaseFragment(), View.OnClickListener, MenuProvider {
     private fun doDownloadDoc() {
         document?.let { dc ->
             if (doDownloadDoc(requireActivity(), dc, false) == 1) {
-                ThemedSnack(
-                    requireView(),
-                    R.string.audio_force_download,
-                    BaseTransientBottomBar.LENGTH_LONG
-                ).setAction(
-                    R.string.button_yes
-                ) { doDownloadDoc(requireActivity(), dc, true) }
-                    .show()
+                CustomSnackbars.createCustomSnackbars(view)
+                    ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                    ?.themedSnack(R.string.audio_force_download)
+                    ?.setAction(
+                        R.string.button_yes
+                    ) { doDownloadDoc(requireActivity(), dc, true) }
+                    ?.show()
             }
         }
     }
@@ -264,9 +264,9 @@ class DocPreviewFragment : BaseFragment(), View.OnClickListener, MenuProvider {
     }
 
     private fun onDeleteSuccess() {
-        rootView?.let {
-            Snackbar.make(it, R.string.deleted, BaseTransientBottomBar.LENGTH_LONG).show()
-        }
+        CustomSnackbars.createCustomSnackbars(rootView)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.coloredSnack(R.string.deleted, Color.parseColor("#AA48BE2D"))?.show()
         deleted = true
         resolveButtons()
     }
@@ -346,9 +346,9 @@ class DocPreviewFragment : BaseFragment(), View.OnClickListener, MenuProvider {
     }
 
     private fun onDocumentAdded() {
-        rootView?.let {
-            Snackbar.make(it, R.string.added, BaseTransientBottomBar.LENGTH_LONG).show()
-        }
+        CustomSnackbars.createCustomSnackbars(rootView)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.coloredSnack(R.string.added, Color.parseColor("#AA48BE2D"))?.show()
         deleted = false
         resolveButtons()
     }

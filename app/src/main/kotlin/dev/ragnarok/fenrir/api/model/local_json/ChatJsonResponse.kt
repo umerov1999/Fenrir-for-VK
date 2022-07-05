@@ -17,6 +17,7 @@ class ChatJsonResponse {
     var page_instagram: String? = null
     var page_site: String? = null
 
+    @Suppress("unused")
     @Serializable
     class Version {
         @SerialName("float")

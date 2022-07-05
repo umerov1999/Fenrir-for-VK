@@ -29,13 +29,13 @@ import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forDocuments
 import dev.ragnarok.fenrir.upload.UploadUtils.createIntents
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DisposableHolder
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.shareLink
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class DocsListPresenter(
     accountId: Int,
@@ -168,7 +168,7 @@ class DocsListPresenter(
                             )
                                 .fromIOToMain()
                                 .subscribe({
-                                    CreateCustomToast(context).setDuration(
+                                    createCustomToast(context).setDuration(
                                         Toast.LENGTH_LONG
                                     ).showToastSuccessBottom(R.string.added)
                                 }) { t ->

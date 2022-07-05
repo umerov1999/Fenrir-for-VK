@@ -26,11 +26,11 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadPhoto
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilenameFromArg
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
@@ -125,7 +125,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
         if (!dir.isDirectory) {
             val created = dir.mkdirs()
             if (!created) {
-                CreateCustomToast(requireActivity()).showToastError("Can't create directory $dir")
+                createCustomToast(requireActivity()).showToastError("Can't create directory $dir")
                 return
             }
         } else dir.setLastModified(Calendar.getInstance().time.time)
@@ -134,7 +134,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
             if (!dir_final.isDirectory) {
                 val created = dir_final.mkdirs()
                 if (!created) {
-                    CreateCustomToast(requireActivity()).showToastError("Can't create directory $dir")
+                    createCustomToast(requireActivity()).showToastError("Can't create directory $dir")
                     return
                 }
             } else dir_final.setLastModified(Calendar.getInstance().time.time)
@@ -223,7 +223,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
                 loadImage(url)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
-                CreateCustomToast(requireActivity()).showToast(R.string.empty_url)
+                createCustomToast(requireActivity()).showToast(R.string.empty_url)
             }
         }
 

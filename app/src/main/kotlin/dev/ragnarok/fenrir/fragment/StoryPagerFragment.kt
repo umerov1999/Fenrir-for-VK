@@ -38,11 +38,11 @@ import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.ExpandableSurfaceView
 import dev.ragnarok.fenrir.view.TouchImageView
@@ -387,7 +387,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         override fun bindTo(story: Story) {
             photo.resetZoom()
             if (story.isIs_expired) {
-                CreateCustomToast(requireActivity()).showToastError(R.string.is_expired)
+                createCustomToast(requireActivity()).showToastError(R.string.is_expired)
                 mLoadingNow = false
                 resolveProgressVisibility(true)
                 return
@@ -404,7 +404,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                 loadImage(url)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
-                CreateCustomToast(requireActivity()).showToast(R.string.empty_url)
+                createCustomToast(requireActivity()).showToast(R.string.empty_url)
             }
         }
 

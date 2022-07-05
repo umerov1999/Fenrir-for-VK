@@ -33,10 +33,10 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.DoRequestPermissions
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.CheckDirectory
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeDownloadRequestAudio
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class AudiosRecommendationFragment :
     BaseMvpFragment<AudiosRecommendationPresenter, IAudiosRecommendationView>(),
@@ -45,7 +45,7 @@ class AudiosRecommendationFragment :
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
         )
-    ) { CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text) }
+    ) { createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text) }
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAudioRecyclerAdapter: AudioRecyclerAdapter? = null
     private var isSaveMode = false
@@ -96,7 +96,7 @@ class AudiosRecommendationFragment :
                 if (curr != null) {
                     getPlayerPlace(Settings.get().accounts().current).tryOpenWith(requireActivity())
                 } else {
-                    CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                    createCustomToast(requireActivity()).showToastError(R.string.null_audio)
                 }
             } else {
                 presenter?.fireSelectAll()
@@ -142,8 +142,8 @@ class AudiosRecommendationFragment :
                         recyclerView.scrollToPosition(
                             index + (mAudioRecyclerAdapter?.headersCount ?: 0)
                         )
-                    } else CreateCustomToast(requireActivity()).showToast(R.string.audio_not_found)
-                } else CreateCustomToast(requireActivity()).showToastError(R.string.null_audio)
+                    } else createCustomToast(requireActivity()).showToast(R.string.audio_not_found)
+                } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
             }
         }
         mAudioRecyclerAdapter =

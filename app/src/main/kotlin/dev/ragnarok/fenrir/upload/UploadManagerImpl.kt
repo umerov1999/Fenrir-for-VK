@@ -22,7 +22,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.impl.*
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
@@ -30,6 +29,7 @@ import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Scheduler
@@ -231,7 +231,7 @@ class UploadManagerImpl(
                 compositeDisposable.add(Completable.complete()
                     .observeOn(provideMainThreadScheduler())
                     .subscribe {
-                        CustomToast.CreateCustomToast(context).setDuration(Toast.LENGTH_SHORT)
+                        CustomToast.createCustomToast(context).setDuration(Toast.LENGTH_SHORT)
                             .showToastError(message)
                     })
             }

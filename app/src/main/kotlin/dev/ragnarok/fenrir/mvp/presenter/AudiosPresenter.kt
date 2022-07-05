@@ -6,11 +6,11 @@ import android.os.Bundle
 import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fromIOToMain
-import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.AudioPlaylist
@@ -26,6 +26,7 @@ import dev.ragnarok.fenrir.util.HelperSimple.hasHelp
 import dev.ragnarok.fenrir.util.Utils.SafeCallCheckInt
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCheck
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -80,14 +81,23 @@ class AudiosPresenter(
             true
         }
         if (audios.isEmpty()) {
-            if (!iSSelectMode && playlistId == null && MusicPlaybackController.Audios.containsKey(
-                    ownerId
+            if (!iSSelectMode && playlistId == null) {
+                appendDisposable(
+                    Includes.stores.tempStore().getAudiosAll(ownerId)
+                        .fromIOToMain()
+                        .subscribe({
+                            if (it.isNullOrEmpty()) {
+                                fireRefresh()
+                            } else {
+                                audios.addAll(it)
+                                actualReceived = true
+                                setLoadingNow(false)
+                                view?.notifyListChanged()
+                            }
+                        }, {
+                            fireRefresh()
+                        })
                 )
-            ) {
-                MusicPlaybackController.Audios[ownerId]?.let { audios.addAll(it) }
-                actualReceived = true
-                setLoadingNow(false)
-                view?.notifyListChanged()
             } else fireRefresh()
         }
     }
@@ -117,25 +127,18 @@ class AudiosPresenter(
     private fun onListReceived(offset: Int, data: List<Audio>) {
         endOfContent = data.isEmpty()
         actualReceived = true
+        if (playlistId == null && !iSSelectMode) {
+            appendDisposable(
+                Includes.stores.tempStore().addAudios(ownerId, data, offset == 0)
+                    .fromIOToMain()
+                    .subscribe(RxUtils.dummy(), ignore())
+            )
+        }
         if (offset == 0) {
-            if (playlistId == null && !iSSelectMode) {
-                if (MusicPlaybackController.Audios.containsKey(ownerId)) {
-                    MusicPlaybackController.Audios[ownerId]?.clear()
-                } else {
-                    MusicPlaybackController.Audios[ownerId] = ArrayList<Audio>(data.size)
-                }
-                MusicPlaybackController.Audios[ownerId]?.addAll(data)
-            }
             audios.clear()
             audios.addAll(data)
             view?.notifyListChanged()
         } else {
-            if (playlistId == null && !iSSelectMode && MusicPlaybackController.Audios.containsKey(
-                    ownerId
-                )
-            ) {
-                MusicPlaybackController.Audios[ownerId]?.addAll(data)
-            }
             val startOwnSize = audios.size
             audios.addAll(data)
             view?.notifyDataAdded(
@@ -445,7 +448,7 @@ class AudiosPresenter(
         }
 
         private fun checkArtists(data: Map<String, String>?, q: String): Boolean {
-            if (data == null || data.isNullOrEmpty()) {
+            if (data.isNullOrEmpty()) {
                 return false
             }
             for (i in data.values) {
@@ -522,12 +525,11 @@ class AudiosPresenter(
                 audios.clear()
                 audios.addAll(data)
                 if (playlistId == null && !iSSelectMode) {
-                    if (MusicPlaybackController.Audios.containsKey(ownerId)) {
-                        MusicPlaybackController.Audios[ownerId]?.clear()
-                    } else {
-                        MusicPlaybackController.Audios[ownerId] = ArrayList<Audio>(data.size)
-                    }
-                    MusicPlaybackController.Audios[ownerId]?.addAll(data)
+                    appendDisposable(
+                        Includes.stores.tempStore().addAudios(ownerId, data, true)
+                            .fromIOToMain()
+                            .subscribe(RxUtils.dummy(), ignore())
+                    )
                 }
                 view?.notifyListChanged()
             }

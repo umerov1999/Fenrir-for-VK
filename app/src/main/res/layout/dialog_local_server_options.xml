@@ -41,4 +41,12 @@
         android:layout_marginEnd="10dp"
         android:text="@string/go_discography"
         app:icon="@drawable/share" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/file_manager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:text="@string/files_tab_title"
+        app:icon="@drawable/file" />
 </LinearLayout>

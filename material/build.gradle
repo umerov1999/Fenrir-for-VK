@@ -59,8 +59,8 @@ def srcDirs = [
 ]
 
 android {
+    namespace "com.google.android.material"
     sourceSets {
-        main.manifest.srcFile 'java/com/google/android/material/AndroidManifest.xml'
         main.java.srcDir 'java'
         main.java.includes = srcDirs.collect { it + '/**/*.java' }
         main.java.excludes = [

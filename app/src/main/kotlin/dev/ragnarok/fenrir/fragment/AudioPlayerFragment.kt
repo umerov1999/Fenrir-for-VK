@@ -32,6 +32,7 @@ import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
+import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
@@ -49,11 +50,12 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.CustomSeekBar
 import dev.ragnarok.fenrir.view.media.*
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieShapeableImageView
@@ -65,6 +67,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.lang.ref.WeakReference
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -112,21 +116,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
     private val requestEqualizer = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        view?.let { it1 ->
-            Snackbar.make(it1, R.string.equalizer_closed, Snackbar.LENGTH_LONG)
-                .setBackgroundTint(CurrentTheme.getColorPrimary(requireActivity()))
-                .setAnchorView(mPlayPauseButton).setActionTextColor(
-                    if (Utils.isColorDark(
-                            CurrentTheme.getColorPrimary(requireActivity())
-                        )
-                    ) Color.parseColor("#ffffff") else Color.parseColor("#000000")
-                )
-                .setTextColor(
-                    if (Utils.isColorDark(CurrentTheme.getColorPrimary(requireActivity()))) Color.parseColor(
-                        "#ffffff"
-                    ) else Color.parseColor("#000000")
-                ).show()
-        }
+        CustomSnackbars.createCustomSnackbars(view, mPlayPauseButton)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)?.themedSnack(R.string.equalizer_closed)?.show()
     }
 
     /**
@@ -218,7 +209,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
+        createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text)
     }
 
     @Suppress("DEPRECATION")
@@ -249,10 +240,10 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                             Uri.fromFile(file)
                         )
                     )
-                    CreateCustomToast(requireActivity()).showToast(R.string.success)
+                    createCustomToast(requireActivity()).showToast(R.string.success)
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    CreateCustomToast(requireActivity()).showToastError("Save Failed")
+                    createCustomToast(requireActivity()).showToastError("Save Failed")
                 }
             }
         }
@@ -326,7 +317,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                             if (MusicPlaybackController.trackName != null) MusicPlaybackController.trackName else ""
                         val clip = ClipData.newPlainText("response", "$Artist - $Name")
                         clipboard?.setPrimaryClip(clip)
-                        CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
+                        createCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
                     }
                 }
                 item {
@@ -467,37 +458,13 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             isLocal = audio.isLocalServer
         )) {
             0 -> {
-                CreateCustomToast(requireActivity()).showToastBottom(R.string.saved_audio)
+                createCustomToast(requireActivity()).showToastBottom(R.string.saved_audio)
                 ivSave?.setImageResource(R.drawable.succ)
             }
             1 -> {
-                Snackbar.make(v, R.string.audio_force_download, Snackbar.LENGTH_LONG).setAction(
-                    R.string.button_yes
-                ) {
-                    doDownloadAudio(
-                        requireActivity(),
-                        audio,
-                        mAccountId,
-                        true,
-                        isLocal = audio.isLocalServer
-                    )
-                }
-                    .setBackgroundTint(CurrentTheme.getColorPrimary(requireActivity()))
-                    .setAnchorView(mPlayPauseButton).setActionTextColor(
-                        if (Utils.isColorDark(
-                                CurrentTheme.getColorPrimary(requireActivity())
-                            )
-                        ) Color.parseColor("#ffffff") else Color.parseColor("#000000")
-                    )
-                    .setTextColor(
-                        if (Utils.isColorDark(CurrentTheme.getColorPrimary(requireActivity()))) Color.parseColor(
-                            "#ffffff"
-                        ) else Color.parseColor("#000000")
-                    ).show()
-            }
-            2 -> {
-                Snackbar.make(v, R.string.audio_force_download_pc, Snackbar.LENGTH_LONG)
-                    .setAnchorView(mPlayPauseButton).setAction(
+                CustomSnackbars.createCustomSnackbars(v, mPlayPauseButton)
+                    ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                    ?.themedSnack(R.string.audio_force_download)?.setAction(
                         R.string.button_yes
                     ) {
                         doDownloadAudio(
@@ -507,29 +474,32 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                             true,
                             isLocal = audio.isLocalServer
                         )
-                    }
-                    .setBackgroundTint(CurrentTheme.getColorPrimary(requireActivity()))
-                    .setActionTextColor(
-                        if (Utils.isColorDark(
-                                CurrentTheme.getColorPrimary(requireActivity())
-                            )
-                        ) Color.parseColor("#ffffff") else Color.parseColor("#000000")
-                    )
-                    .setTextColor(
-                        if (Utils.isColorDark(CurrentTheme.getColorPrimary(requireActivity()))) Color.parseColor(
-                            "#ffffff"
-                        ) else Color.parseColor("#000000")
-                    ).show()
+                    }?.show()
+            }
+            2 -> {
+                CustomSnackbars.createCustomSnackbars(v, mPlayPauseButton)
+                    ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                    ?.themedSnack(R.string.audio_force_download_pc)?.setAction(
+                        R.string.button_yes
+                    ) {
+                        doDownloadAudio(
+                            requireActivity(),
+                            audio,
+                            mAccountId,
+                            true,
+                            isLocal = audio.isLocalServer
+                        )
+                    }?.show()
                 ivSave?.setImageResource(R.drawable.succ)
             }
-            else -> CreateCustomToast(requireActivity()).showToastBottom(R.string.error_audio)
+            else -> createCustomToast(requireActivity()).showToastBottom(R.string.error_audio)
         }
     }
 
     private fun onAddButtonClick() {
         val audio = MusicPlaybackController.currentAudio ?: return
         if (audio.isLocal || audio.isLocalServer) {
-            CreateCustomToast(requireActivity()).showToastError(R.string.not_supported)
+            createCustomToast(requireActivity()).showToastError(R.string.not_supported)
             return
         }
         if (audio.ownerId == mAccountId) {
@@ -547,37 +517,39 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         if (!isAdded || view == null) {
             return
         }
-        val caused = Utils.getCauseIfRuntime(throwable)
-        if (Constants.IS_DEBUG) {
-            caused.printStackTrace()
-        }
-        Snackbar.make(
-            requireView(),
-            ErrorLocalizer.localizeThrowable(Includes.provideApplicationContext(), caused),
-            BaseTransientBottomBar.LENGTH_LONG
-        ).setTextColor(Color.WHITE).setBackgroundTint(Color.parseColor("#eeff0000"))
-            .setAction(R.string.more_info) {
-                val Text = StringBuilder()
-                Text.append(
-                    ErrorLocalizer.localizeThrowable(
-                        Includes.provideApplicationContext(),
-                        throwable
+        CustomSnackbars.createCustomSnackbars(view)?.let {
+            val snack = it.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG).coloredSnack(
+                ErrorLocalizer.localizeThrowable(Includes.provideApplicationContext(), throwable),
+                Color.parseColor("#eeff0000")
+            )
+            if (throwable !is ApiException && throwable !is SocketTimeoutException && throwable !is UnknownHostException) {
+                snack.setAction(R.string.more_info) {
+                    val text = StringBuilder()
+                    text.append(
+                        ErrorLocalizer.localizeThrowable(
+                            Includes.provideApplicationContext(),
+                            throwable
+                        )
                     )
-                )
-                Text.append("\r\n")
-                for (stackTraceElement in throwable.stackTrace) {
-                    Text.append("    ")
-                    Text.append(stackTraceElement)
-                    Text.append("\r\n")
+                    text.append("\r\n")
+                    for (stackTraceElement in throwable.stackTrace) {
+                        text.append("    ")
+                        text.append(stackTraceElement)
+                        text.append("\r\n")
+                    }
+                    MaterialAlertDialogBuilder(requireActivity())
+                        .setIcon(R.drawable.ic_error)
+                        .setMessage(text)
+                        .setTitle(R.string.more_info)
+                        .setPositiveButton(R.string.button_ok, null)
+                        .setCancelable(true)
+                        .show()
                 }
-                val dlgAlert = MaterialAlertDialogBuilder(requireActivity())
-                dlgAlert.setIcon(R.drawable.ic_error)
-                dlgAlert.setMessage(Text)
-                dlgAlert.setTitle(R.string.more_info)
-                dlgAlert.setPositiveButton(R.string.button_ok, null)
-                dlgAlert.setCancelable(true)
-                dlgAlert.create().show()
-            }.setActionTextColor(Color.WHITE).show()
+            }
+            snack.show()
+        } ?: createCustomToast(requireActivity()).showToastThrowable(
+            throwable
+        )
     }
 
     private fun onLyrics() {
@@ -593,7 +565,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
     }
 
     private fun onAudioAdded() {
-        CreateCustomToast(requireActivity()).showToast(R.string.added)
+        createCustomToast(requireActivity()).showToast(R.string.added)
         resolveAddButton()
     }
 
@@ -648,7 +620,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                 requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
             val clip = ClipData.newPlainText("response", Text)
             clipboard?.setPrimaryClip(clip)
-            CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
+            createCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
         }
         dlgAlert.setCancelable(true)
         dlgAlert.create().show()
@@ -656,9 +628,9 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
 
     private fun onAudioDeletedOrRestored(id: Int, ownerId: Int, deleted: Boolean) {
         if (deleted) {
-            CreateCustomToast(requireActivity()).showToast(R.string.deleted)
+            createCustomToast(requireActivity()).showToast(R.string.deleted)
         } else {
-            CreateCustomToast(requireActivity()).showToast(R.string.restored)
+            createCustomToast(requireActivity()).showToast(R.string.restored)
         }
         val current = MusicPlaybackController.currentAudio
         if (current != null && current.id == id && current.ownerId == ownerId) {
@@ -863,11 +835,9 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             effects.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
             requestEqualizer.launch(effects)
         } catch (ignored: ActivityNotFoundException) {
-            view?.let {
-                Snackbar.make(it, R.string.no_system_equalizer, BaseTransientBottomBar.LENGTH_LONG)
-                    .setTextColor(Color.WHITE).setBackgroundTint(Color.parseColor("#eeff0000"))
-                    .setActionTextColor(Color.WHITE).show()
-            }
+            CustomSnackbars.createCustomSnackbars(view, mPlayPauseButton)
+                ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                ?.coloredSnack(R.string.no_system_equalizer, Color.parseColor("#eeff0000"))?.show()
         }
     }
 
@@ -882,7 +852,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
     private fun shareAudio() {
         val current = MusicPlaybackController.currentAudio ?: return
         if (current.isLocal || current.isLocalServer) {
-            CreateCustomToast(requireActivity()).showToastError(R.string.not_supported)
+            createCustomToast(requireActivity()).showToastError(R.string.not_supported)
             return
         }
         SendAttachmentsActivity.startForSendAttachments(requireActivity(), mAccountId, current)

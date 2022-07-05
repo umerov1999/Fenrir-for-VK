@@ -6,7 +6,7 @@ import dev.ragnarok.fenrir.api.interfaces.INotificationsApi
 import dev.ragnarok.fenrir.api.model.feedback.VKApiBaseFeedback
 import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
 import dev.ragnarok.fenrir.api.services.INotificationsService
-import dev.ragnarok.fenrir.model.AnswerVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import io.reactivex.rxjava3.core.Single
@@ -56,7 +56,7 @@ internal class NotificationsApi(accountId: Int, provider: IServiceProvider) :
         filters: String?,
         startTime: Long?,
         endTime: Long?
-    ): Single<AnswerVKOfficialList> {
+    ): Single<FeedbackVKOfficialList> {
         return provideService(INotificationsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getOfficial(

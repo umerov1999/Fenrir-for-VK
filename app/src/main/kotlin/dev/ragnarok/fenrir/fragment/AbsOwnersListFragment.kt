@@ -111,6 +111,13 @@ abstract class AbsOwnersListFragment<P : SimpleOwnersPresenter<V>, V : ISimpleOw
         }
     }
 
+    override fun notifyDataRemoved(position: Int, count: Int) {
+        if (mOwnersAdapter != null) {
+            mOwnersAdapter?.notifyItemRangeRemoved(position, count)
+            mCount?.text = getString(R.string.people_count, mOwnersAdapter?.itemCount ?: 0)
+        }
+    }
+
     override fun displayRefreshing(refreshing: Boolean) {
         mSwipeRefreshLayout?.isRefreshing = refreshing
     }

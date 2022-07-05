@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api.impl
 
+import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.interfaces.IAudioApi
 import dev.ragnarok.fenrir.api.model.*
@@ -91,7 +92,13 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
                 service
                     .delete(audioId, ownerId)
                     .map(extractResponseWithErrorHandling())
-                    .map { it == 1 }
+                    .map {
+                        if (it == 1) {
+                            Includes.stores.tempStore().deleteAudio(accountId, audioId, ownerId)
+                                .blockingAwait()
+                        }
+                        it == 1
+                    }
             }
     }
 

@@ -18,6 +18,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemeOverlay
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class CaptchaActivity : AppCompatActivity() {
@@ -95,7 +96,7 @@ class CaptchaActivity : AppCompatActivity() {
     private fun onOkButtonClick() {
         val text: CharSequence? = mTextField?.text
         if (text.isNullOrEmpty()) {
-            Utils.showRedTopToast(this, getString(R.string.enter_captcha_text))
+            CustomToast.createCustomToast(this).showToastError(R.string.enter_captcha_text)
             return
         }
         requestSid?.let { captchaProvider?.enterCode(it, text.toString()) }

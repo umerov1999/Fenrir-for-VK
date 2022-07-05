@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.db.interfaces
 
 import dev.ragnarok.fenrir.db.serialize.ISerializeAdapter
+import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.LogEvent
 import dev.ragnarok.fenrir.model.ShortcutStored
 import io.reactivex.rxjava3.core.Completable
@@ -39,4 +40,12 @@ interface ITempDataStorage {
     fun deleteShortcut(action: String): Completable
 
     fun getShortcutAll(): Single<List<ShortcutStored>>
+
+    fun getAudiosAll(sourceOwner: Int): Single<List<Audio>>
+
+    fun addAudios(sourceOwner: Int, list: List<Audio>, clear: Boolean): Completable
+
+    fun deleteAudios(): Completable
+
+    fun deleteAudio(sourceOwner: Int, id: Int, ownerId: Int): Completable
 }

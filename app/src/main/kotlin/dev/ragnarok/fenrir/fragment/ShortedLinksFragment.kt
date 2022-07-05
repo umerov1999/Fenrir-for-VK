@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Constants
@@ -34,9 +33,9 @@ import dev.ragnarok.fenrir.mvp.presenter.ShortedLinksPresenter
 import dev.ragnarok.fenrir.mvp.view.IShortedLinksView
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.Utils.isColorDark
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class ShortedLinksFragment : BaseMvpFragment<ShortedLinksPresenter, IShortedLinksView>(),
     IShortedLinksView, ShortedLinksAdapter.ClickListener {
@@ -170,13 +169,8 @@ class ShortedLinksFragment : BaseMvpFragment<ShortedLinksPresenter, IShortedLink
                 color = Color.parseColor("#cc0000aa")
             }
         }
-        val text_color =
-            if (isColorDark(color)) Color.parseColor("#ffffff") else Color.parseColor("#000000")
-        mLink?.let {
-            Snackbar.make(it, stat, BaseTransientBottomBar.LENGTH_LONG)
-                .setBackgroundTint(color).setTextColor(text_color).setAnchorView(R.id.recycler_view)
-                .show()
-        }
+        CustomSnackbars.createCustomSnackbars(mLink, view?.findViewById(R.id.recycler_view))
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)?.coloredSnack(stat, color)?.show()
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<ShortedLinksPresenter> {
@@ -195,7 +189,7 @@ class ShortedLinksFragment : BaseMvpFragment<ShortedLinksPresenter, IShortedLink
             requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText("response", link.short_url)
         clipboard?.setPrimaryClip(clip)
-        CreateCustomToast(context).showToast(R.string.copied)
+        createCustomToast(context).showToast(R.string.copied)
     }
 
     override fun onDelete(index: Int, link: ShortLink) {

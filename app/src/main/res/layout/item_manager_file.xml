@@ -29,6 +29,17 @@
             app:dominantMeasurement="width"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.MediumRoundedPictures" />
 
+        <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+            android:id="@+id/current"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignStart="@id/item_file_icon"
+            android:layout_alignTop="@id/item_file_icon"
+            android:layout_alignEnd="@id/item_file_icon"
+            android:layout_alignBottom="@id/item_file_icon"
+            android:visibility="gone"
+            app:loopAnimation="true" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -6,6 +6,12 @@ package dev.ragnarok.fenrir.util.serializeble.json.internal.lexer
 
 internal class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
 
+    init {
+        if (source.isNotEmpty() && source[0] == '\ufeff') {
+            currentPosition++
+        }
+    }
+
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 
     override fun consumeNextToken(): Byte {

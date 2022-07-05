@@ -9,6 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.place.PlaceFactory
 
 class DialogLocalServerOptionDialog : BottomSheetDialogFragment() {
     private var isDiscography = false
@@ -26,6 +27,10 @@ class DialogLocalServerOptionDialog : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = View.inflate(requireActivity(), R.layout.dialog_local_server_options, null)
+        root.findViewById<MaterialButton>(R.id.file_manager).setOnClickListener {
+            PlaceFactory.getRemoteFileManager().tryOpenWith(requireActivity())
+            dismiss()
+        }
         val scReverse: MaterialSwitch = root.findViewById(R.id.reverse_time)
         toggleDiscography = root.findViewById(R.id.go_discography)
         val sync: MaterialButton = root.findViewById(R.id.local_server_sync)

@@ -9,6 +9,7 @@ interface ISimpleOwnersView : IMvpView, IErrorView, IAccountDependencyView {
     fun displayOwnerList(owners: List<Owner>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)
+    fun notifyDataRemoved(position: Int, count: Int)
     fun displayRefreshing(refreshing: Boolean)
     fun showOwnerWall(accountId: Int, owner: Owner)
     fun updateTitle(@StringRes res: Int)

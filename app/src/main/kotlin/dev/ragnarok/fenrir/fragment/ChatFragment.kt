@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.*
-import android.graphics.Color
 import android.net.*
 import android.os.Build
 import android.os.Bundle
@@ -30,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.yalantis.ucrop.UCrop
 import dev.ragnarok.fenrir.Constants
@@ -69,6 +69,8 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.util.*
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.InputViewController
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
@@ -1167,13 +1169,9 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     @SuppressLint("ShowToast")
     override fun showSnackbar(@StringRes res: Int, isLong: Boolean) {
-        if (view != null) {
-            Snackbar.make(
-                requireView(),
-                res,
-                if (isLong) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT
-            ).setAnchorView(InputView).show()
-        }
+        CustomSnackbars.createCustomSnackbars(view, InputView)
+            ?.setDurationSnack(if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT)
+            ?.defaultSnack(res)?.show()
     }
 
     private class EditAttachmentsHolder(
@@ -1790,19 +1788,11 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 return true
             }
             R.id.delete_chat -> {
-                Snackbar.make(requireView(), R.string.delete_chat_do, Snackbar.LENGTH_LONG)
-                    .setAction(
+                CustomSnackbars.createCustomSnackbars(view, InputView)
+                    ?.setDurationSnack(Snackbar.LENGTH_LONG)?.themedSnack(R.string.delete_chat_do)
+                    ?.setAction(
                         R.string.button_yes
-                    ) { presenter?.removeDialog() }
-                    .setAnchorView(InputView)
-                    .setBackgroundTint(CurrentTheme.getColorPrimary(requireActivity()))
-                    .setActionTextColor(
-                        if (Utils.isColorDark(CurrentTheme.getColorPrimary(requireActivity())))
-                            Color.parseColor("#ffffff") else Color.parseColor("#000000")
-                    ).setTextColor(
-                        if (Utils.isColorDark(CurrentTheme.getColorPrimary(requireActivity())))
-                            Color.parseColor("#ffffff") else Color.parseColor("#000000")
-                    ).show()
+                    ) { presenter?.removeDialog() }?.show()
                 return true
             }
             R.id.action_edit_chat -> {
@@ -1932,7 +1922,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText("response", link)
         clipboard?.setPrimaryClip(clip)
-        CustomToast.CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
+        CustomToast.createCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
     }
 
     fun saveState() {

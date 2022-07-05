@@ -23,6 +23,7 @@ class AudioDtoAdapter : AbsAdapter<VKApiAudio>("VKApiAudio") {
         dto.duration = optInt(root, "duration")
         dto.url = optString(root, "url")
         dto.lyrics_id = optInt(root, "lyrics_id")
+        dto.date = optLong(root, "date")
         dto.genre_id = optInt(root, "genre_id")
         dto.access_key = optString(root, "access_key")
         dto.isHq = optBoolean(root, "is_hq")

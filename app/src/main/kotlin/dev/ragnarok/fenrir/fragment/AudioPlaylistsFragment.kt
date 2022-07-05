@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
@@ -41,6 +40,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.HelperSimple.needHelp
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.view.MySearchView
 
 class AudioPlaylistsFragment : BaseMvpFragment<AudioPlaylistsPresenter, IAudioPlaylistsView>(),
@@ -267,14 +267,9 @@ class AudioPlaylistsFragment : BaseMvpFragment<AudioPlaylistsPresenter, IAudioPl
     }
 
     private fun showSnackbar(@StringRes res: Int, isLong: Boolean) {
-        val view = view
-        if (view != null) {
-            Snackbar.make(
-                view,
-                res,
-                if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT
-            ).show()
-        }
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(if (isLong) BaseTransientBottomBar.LENGTH_LONG else BaseTransientBottomBar.LENGTH_SHORT)
+            ?.defaultSnack(res)?.show()
     }
 
     override fun onAdd(index: Int, album: AudioPlaylist, clone: Boolean) {

@@ -33,8 +33,8 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getVideosInCatalogBlock
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.DoRequestPermissions
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 
 class AudioCatalogFragment : BaseMvpFragment<AudioCatalogPresenter, IAudioCatalogView>(),
@@ -43,7 +43,7 @@ class AudioCatalogFragment : BaseMvpFragment<AudioCatalogPresenter, IAudioCatalo
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
         )
-    ) { CreateCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text) }
+    ) { createCustomToast(requireActivity()).showToast(R.string.permission_all_granted_text) }
     private var mEmpty: TextView? = null
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAdapter: AudioCatalogAdapter? = null

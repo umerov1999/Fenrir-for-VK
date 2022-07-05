@@ -49,6 +49,8 @@ class VKApiAudio
      */
     var lyrics_id = 0
 
+    var date: Long = 0
+
     /**
      * ID of the album containing the audio file (if assigned).
      */

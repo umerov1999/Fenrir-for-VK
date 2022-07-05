@@ -84,11 +84,14 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
         else
             mNotificationBuilder?.priority = Notification.PRIORITY_MAX
         if (isPlaying) {
+            mNotificationBuilder?.setOngoing(true)
             mService.goForeground(
                 FENRIR_MUSIC_SERVICE,
                 mNotificationBuilder?.build(),
                 mNotificationManager
             )
+        } else {
+            mNotificationBuilder?.setOngoing(false)
         }
     }
 

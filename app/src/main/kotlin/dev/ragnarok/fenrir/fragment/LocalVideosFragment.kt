@@ -27,8 +27,8 @@ import dev.ragnarok.fenrir.mvp.presenter.LocalVideosPresenter
 import dev.ragnarok.fenrir.mvp.view.ILocalVideosView
 import dev.ragnarok.fenrir.place.PlaceFactory.getVkInternalPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 
 class LocalVideosFragment : BaseMvpFragment<LocalVideosPresenter, ILocalVideosView>(),
@@ -136,7 +136,7 @@ class LocalVideosFragment : BaseMvpFragment<LocalVideosPresenter, ILocalVideosVi
     }
 
     override fun showError(errorText: String?) {
-        if (isAdded) CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+        if (isAdded) CustomToast.createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
             .showToastError(errorText)
     }
 

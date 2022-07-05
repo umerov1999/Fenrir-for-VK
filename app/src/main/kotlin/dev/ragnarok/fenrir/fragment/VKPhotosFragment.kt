@@ -39,8 +39,8 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast
 
 class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
     BigVkPhotosAdapter.PhotosActionListener, UploadActionListener, IVkPhotosView, MenuProvider {
@@ -335,7 +335,7 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
     }
 
     override fun showSelectPhotosToast() {
-        CustomToast.CreateCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
+        CustomToast.createCustomToast(requireActivity()).setDuration(Toast.LENGTH_LONG)
             .showToastInfo(R.string.select_attachments)
     }
 

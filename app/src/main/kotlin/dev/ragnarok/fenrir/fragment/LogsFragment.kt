@@ -23,9 +23,9 @@ import dev.ragnarok.fenrir.model.LogEventWrapper
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.LogsPresenter
 import dev.ragnarok.fenrir.mvp.view.ILogsView
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils.shareLink
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class LogsFragment : BaseMvpFragment<LogsPresenter, ILogsView>(), ILogsView,
     HorizontalOptionsAdapter.Listener<LogEventType>, LogsAdapter.ActionListener, MenuProvider {
@@ -134,7 +134,7 @@ class LogsFragment : BaseMvpFragment<LogsPresenter, ILogsView>(), ILogsView,
             requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText(event?.tag, event?.body)
         clipboard?.setPrimaryClip(clip)
-        CreateCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
+        createCustomToast(requireActivity()).showToast(R.string.copied_to_clipboard)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

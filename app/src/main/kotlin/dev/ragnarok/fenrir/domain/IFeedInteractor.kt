@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.domain
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
 import dev.ragnarok.fenrir.model.FeedList
 import dev.ragnarok.fenrir.model.News
+import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.util.Pair
 import io.reactivex.rxjava3.core.Single
@@ -31,4 +32,6 @@ interface IFeedInteractor {
     fun addBan(accountId: Int, listIds: Collection<Int>): Single<Int>
     fun deleteList(accountId: Int, list_id: Int?): Single<Int>
     fun ignoreItem(accountId: Int, type: String?, owner_id: Int?, item_id: Int?): Single<Int>
+    fun deleteBan(accountId: Int, listIds: Collection<Int>): Single<Int>
+    fun getBanned(accountId: Int): Single<List<Owner>>
 }

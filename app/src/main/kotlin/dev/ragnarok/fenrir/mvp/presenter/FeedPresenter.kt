@@ -14,12 +14,12 @@ import dev.ragnarok.fenrir.mvp.view.IFeedView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.DisposableHolder
 import dev.ragnarok.fenrir.util.InputTextDialog
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.needReloadNews
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
 class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     PlaceSupportPresenter<IFeedView>(accountId, savedInstanceState) {
@@ -339,7 +339,7 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
                     )
                         .fromIOToMain()
                         .subscribe({
-                            CreateCustomToast(context).showToastSuccessBottom(R.string.success)
+                            createCustomToast(context).showToastSuccessBottom(R.string.success)
                             requestActualFeedLists()
                         }) { i ->
                             showError(i)

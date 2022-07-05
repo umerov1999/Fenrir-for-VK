@@ -16,8 +16,8 @@ import dev.ragnarok.fenrir.model.Topic
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.AppTextUtils
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import java.util.*
 
 class TopicsAdapter(
@@ -47,7 +47,7 @@ class TopicsAdapter(
                         "vk.com/topic" + item.ownerId + "_" + item.id
                     )
                     clipboard?.setPrimaryClip(clip)
-                    CreateCustomToast(context).showToast(R.string.copied)
+                    createCustomToast(context).showToast(R.string.copied)
                     return@setOnMenuItemClickListener true
                 }
                 false

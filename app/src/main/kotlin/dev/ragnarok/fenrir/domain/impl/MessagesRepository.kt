@@ -64,7 +64,6 @@ import dev.ragnarok.fenrir.upload.IUploadManager
 import dev.ragnarok.fenrir.upload.Method
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forMessage
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
@@ -81,8 +80,8 @@ import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.WeakMainLooperHandler
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.safelyCloseAction
-import dev.ragnarok.fenrir.util.serializeble.json.Json
 import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
@@ -330,7 +329,7 @@ class MessagesRepository(
                         )
                             .fromIOToMain()
                             .subscribe({ userInfo ->
-                                CreateCustomToast(
+                                createCustomToast(
                                     provideApplicationContext()
                                 ).setBitmap(userInfo.avatar).showToastInfo(
                                     userInfo.owner.fullName + " " + provideApplicationContext().getString(
@@ -532,7 +531,7 @@ class MessagesRepository(
                         it
                     )
                 }
-            val resp = b?.let { Json.decodeFromStream(ChatJsonResponse.serializer(), it) }
+            val resp = b?.let { kJson.decodeFromStream(ChatJsonResponse.serializer(), it) }
             b?.close()
             if (resp == null || resp.page_title.isNullOrEmpty()) {
                 its.onError(Throwable("parsing error"))

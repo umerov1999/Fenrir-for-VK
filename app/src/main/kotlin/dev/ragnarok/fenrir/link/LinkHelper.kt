@@ -45,16 +45,14 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getVideoAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
-import dev.ragnarok.fenrir.util.Utils.showErrorInAdapter
-import dev.ragnarok.fenrir.util.Utils.showRedTopToast
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import kotlin.math.abs
 
 object LinkHelper {
     fun openUrl(context: Activity, accountId: Int, link: String?, isMain: Boolean) {
         if (link == null || link.isEmpty()) {
-            CreateCustomToast(context).showToastError(R.string.empty_clipboard_url)
+            createCustomToast(context).showToastError(R.string.empty_clipboard_url)
             return
         }
         if (link.contains("vk.cc")) {
@@ -62,7 +60,7 @@ object LinkHelper {
                 .fromIOToMain()
                 .subscribe({ t ->
                     if ("banned" == t.status) {
-                        showRedTopToast(context, R.string.link_banned)
+                        createCustomToast(context).showToastError(R.string.link_banned)
                     } else {
                         t.link?.let {
                             if (!openVKlink(context, accountId, it, isMain)) {
@@ -74,7 +72,7 @@ object LinkHelper {
                             }
                         }
                     }
-                }) { e -> showErrorInAdapter(context, e) }
+                }) { e -> createCustomToast(context).showToastThrowable(e) }
         } else if (link.contains("vk.me")) {
             InteractorFactory.createUtilsInteractor().joinChatByInviteLink(accountId, link)
                 .fromIOToMain()
@@ -84,7 +82,7 @@ object LinkHelper {
                         accountId,
                         Peer(Peer.fromChatId(t.chat_id))
                     ).tryOpenWith(context)
-                }) { e -> showErrorInAdapter(context, e) }
+                }) { e -> createCustomToast(context).showToastThrowable(e) }
         } else {
             if (!openVKlink(context, accountId, link, isMain)) {
                 if (Settings.get().main().isOpenUrlInternal > 0) {
@@ -97,7 +95,7 @@ object LinkHelper {
     }
 
 
-    fun openVKLink(activity: Activity, accountId: Int, link: AbsLink, isMain: Boolean): Boolean {
+    fun openVKLink(context: Context, accountId: Int, link: AbsLink, isMain: Boolean): Boolean {
         when (link.type) {
             AbsLink.PLAYLIST -> {
                 val plLink = link as AudioPlaylistLink
@@ -106,19 +104,19 @@ object LinkHelper {
                     plLink.ownerId,
                     plLink.playlistId,
                     plLink.access_key
-                ).tryOpenWith(activity)
+                ).tryOpenWith(context)
             }
             AbsLink.POLL -> {
                 val pollLink = link as PollLink
-                getPollPlace(accountId, Poll(pollLink.Id, pollLink.ownerId)).tryOpenWith(activity)
+                getPollPlace(accountId, Poll(pollLink.Id, pollLink.ownerId)).tryOpenWith(context)
             }
             AbsLink.APP_LINK -> {
                 val appLink = link as AppLink
-                getExternalLinkPlace(accountId, appLink.url).tryOpenWith(activity)
+                getExternalLinkPlace(accountId, appLink.url).tryOpenWith(context)
             }
             AbsLink.ARTICLE_LINK -> {
                 val articleLink = link as ArticleLink
-                getExternalLinkPlace(accountId, articleLink.url).tryOpenWith(activity)
+                getExternalLinkPlace(accountId, articleLink.url).tryOpenWith(context)
             }
             AbsLink.WALL_COMMENT_THREAD -> {
                 val wallCommentThreadLink = link as WallCommentThreadLink
@@ -128,7 +126,7 @@ object LinkHelper {
                     CommentedType.POST,
                     null
                 )
-                MaterialAlertDialogBuilder(activity)
+                MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.info)
                     .setMessage(R.string.open_branch)
                     .setPositiveButton(R.string.button_yes) { _: DialogInterface?, _: Int ->
@@ -137,14 +135,14 @@ object LinkHelper {
                             commentedThread,
                             wallCommentThreadLink.commentId,
                             wallCommentThreadLink.threadId
-                        ).tryOpenWith(activity)
+                        ).tryOpenWith(context)
                     }
                     .setNegativeButton(R.string.button_no) { _: DialogInterface?, _: Int ->
                         getCommentsPlace(
                             accountId,
                             commentedThread,
                             wallCommentThreadLink.threadId
-                        ).tryOpenWith(activity)
+                        ).tryOpenWith(context)
                     }
                     .show()
             }
@@ -157,10 +155,10 @@ object LinkHelper {
                     null
                 )
                 getCommentsPlace(accountId, commented, wallCommentLink.commentId).tryOpenWith(
-                    activity
+                    context
                 )
             }
-            AbsLink.DIALOGS -> getDialogsPlace(accountId, accountId, null).tryOpenWith(activity)
+            AbsLink.DIALOGS -> getDialogsPlace(accountId, accountId, null).tryOpenWith(context)
             AbsLink.PHOTO -> {
                 val photoLink = link as PhotoLink
                 val photo = Photo()
@@ -172,14 +170,14 @@ object LinkHelper {
                     singletonArrayList(photo),
                     0,
                     true
-                ).setNeedFinishMain(isMain).tryOpenWith(activity)
+                ).setNeedFinishMain(isMain).tryOpenWith(context)
             }
             AbsLink.PHOTO_ALBUM -> {
                 val photoAlbumLink = link as PhotoAlbumLink
                 getVKPhotosAlbumPlace(
                     accountId, photoAlbumLink.ownerId,
                     photoAlbumLink.albumId, null
-                ).tryOpenWith(activity)
+                ).tryOpenWith(context)
             }
             AbsLink.PROFILE, AbsLink.GROUP -> {
                 val ownerLink = link as OwnerLink
@@ -187,7 +185,7 @@ object LinkHelper {
                 if (ownId == 0) {
                     ownId = Settings.get().accounts().current
                 }
-                getOwnerWallPlace(accountId, ownId, null).tryOpenWith(activity)
+                getOwnerWallPlace(accountId, ownId, null).tryOpenWith(context)
             }
             AbsLink.TOPIC -> {
                 val topicLink = link as TopicLink
@@ -196,12 +194,12 @@ object LinkHelper {
                         topicLink.topicId, topicLink.ownerId,
                         CommentedType.TOPIC, null
                     ), null
-                ).tryOpenWith(activity)
+                ).tryOpenWith(context)
             }
             AbsLink.WALL_POST -> {
                 val wallPostLink = link as WallPostLink
                 getPostPreviewPlace(accountId, wallPostLink.postId, wallPostLink.ownerId)
-                    .tryOpenWith(activity)
+                    .tryOpenWith(context)
             }
             AbsLink.ALBUMS -> {
                 val photoAlbumsLink = link as PhotoAlbumsLink
@@ -210,17 +208,17 @@ object LinkHelper {
                     photoAlbumsLink.ownerId,
                     IVkPhotosView.ACTION_SHOW_PHOTOS,
                     null
-                ).tryOpenWith(activity)
+                ).tryOpenWith(context)
             }
             AbsLink.DIALOG -> {
                 val dialogLink = link as DialogLink
                 val peer = Peer(dialogLink.peerId)
                 getChatPlace(accountId, accountId, peer).setNeedFinishMain(isMain)
-                    .tryOpenWith(activity)
+                    .tryOpenWith(context)
             }
             AbsLink.WALL -> {
                 val wallLink = link as WallLink
-                getOwnerWallPlace(accountId, wallLink.ownerId, null).tryOpenWith(activity)
+                getOwnerWallPlace(accountId, wallLink.ownerId, null).tryOpenWith(context)
             }
             AbsLink.VIDEO -> {
                 val videoLink = link as VideoLink
@@ -231,7 +229,7 @@ object LinkHelper {
                     videoLink.access_key,
                     null
                 )
-                    .tryOpenWith(activity)
+                    .tryOpenWith(context)
             }
             AbsLink.VIDEO_ALBUM -> {
                 val videoAlbumLink = link as VideoAlbumLink
@@ -242,19 +240,19 @@ object LinkHelper {
                     null,
                     null
                 )
-                    .tryOpenWith(activity)
+                    .tryOpenWith(context)
             }
             AbsLink.AUDIOS -> {
                 val audiosLink = link as AudiosLink
-                getAudiosPlace(accountId, audiosLink.ownerId).tryOpenWith(activity)
+                getAudiosPlace(accountId, audiosLink.ownerId).tryOpenWith(context)
             }
             AbsLink.DOMAIN -> {
                 val domainLink = link as DomainLink
                 getResolveDomainPlace(accountId, domainLink.fullLink, domainLink.domain)
-                    .tryOpenWith(activity)
+                    .tryOpenWith(context)
             }
             AbsLink.PAGE -> getExternalLinkPlace(accountId, (link as PageLink).link).tryOpenWith(
-                activity
+                context
             )
             AbsLink.DOC -> {
                 val docLink = link as DocLink
@@ -264,7 +262,7 @@ object LinkHelper {
                     docLink.ownerId,
                     docLink.access_key,
                     null
-                ).setNeedFinishMain(isMain).tryOpenWith(activity)
+                ).setNeedFinishMain(isMain).tryOpenWith(context)
             }
             AbsLink.FAVE -> {
                 val faveLink = link as FaveLink
@@ -272,22 +270,22 @@ object LinkHelper {
                 if (targetTab == FaveTabsFragment.TAB_UNKNOWN) {
                     return false
                 }
-                getBookmarksPlace(accountId, targetTab).tryOpenWith(activity)
+                getBookmarksPlace(accountId, targetTab).tryOpenWith(context)
             }
             AbsLink.BOARD -> {
                 val boardLink = link as BoardLink
-                getTopicsPlace(accountId, -abs(boardLink.groupId)).tryOpenWith(activity)
+                getTopicsPlace(accountId, -abs(boardLink.groupId)).tryOpenWith(context)
             }
             AbsLink.FEED_SEARCH -> {
                 val feedSearchLink = link as FeedSearchLink
                 val criteria = NewsFeedCriteria(feedSearchLink.q)
                 getSingleTabSearchPlace(accountId, SearchContentType.NEWS, criteria).tryOpenWith(
-                    activity
+                    context
                 )
             }
             AbsLink.ARTISTS -> {
                 val artistSearchLink = link as ArtistsLink
-                getArtistPlace(accountId, artistSearchLink.Id, false).tryOpenWith(activity)
+                getArtistPlace(accountId, artistSearchLink.Id, false).tryOpenWith(context)
             }
             AbsLink.AUDIO_TRACK -> {
                 val audioLink = link as AudioTrackLink
@@ -297,9 +295,9 @@ object LinkHelper {
                 )
                     .fromIOToMain()
                     .subscribe({
-                        startForPlayList(activity, ArrayList(it), 0, false)
-                        getPlayerPlace(Settings.get().accounts().current).tryOpenWith(activity)
-                    }) { e -> showErrorInAdapter(activity, e) }
+                        startForPlayList(context, ArrayList(it), 0, false)
+                        getPlayerPlace(Settings.get().accounts().current).tryOpenWith(context)
+                    }) { e -> createCustomToast(context).showToastThrowable(e) }
             }
             else -> return false
         }

@@ -18,7 +18,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.R
@@ -27,6 +26,7 @@ import dev.ragnarok.fenrir.activity.AudioSelectActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.DualTabPhotoActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.VideoSelectActivity
 import dev.ragnarok.fenrir.adapter.AttachmentsBottomSheetAdapter
+import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.db.model.AttachmentsTypes
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.selection.*
@@ -37,13 +37,15 @@ import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
-import dev.ragnarok.fenrir.util.CustomToast
-import dev.ragnarok.fenrir.util.CustomToast.Companion.CreateCustomToast
 import dev.ragnarok.fenrir.util.Utils.hasScopedStorage
 import dev.ragnarok.fenrir.util.Utils.isLandscape
-import dev.ragnarok.fenrir.util.Utils.showRedTopToast
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.util.toast.CustomToast
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import me.minetsh.imaging.IMGEditActivity
 import java.io.File
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class MessageAttachmentsFragment :
     AbsPresenterBottomSheetFragment<MessageAttachmentsPresenter, IMessageAttachmentsView>(),
@@ -336,45 +338,43 @@ class MessageAttachmentsFragment :
 
     override fun showError(errorText: String?) {
         if (isAdded) {
-            showRedTopToast(requireActivity(), errorText)
+            customToast.showToastError(errorText)
         }
     }
 
     override fun showThrowable(throwable: Throwable?) {
         if (isAdded) {
-            if (view == null) {
-                showError(localizeThrowable(provideApplicationContext(), throwable))
-                return
-            }
-            Snackbar.make(
-                requireView(),
-                localizeThrowable(provideApplicationContext(), throwable),
-                BaseTransientBottomBar.LENGTH_LONG
-            ).setTextColor(
-                Color.WHITE
-            ).setBackgroundTint(Color.parseColor("#eeff0000"))
-                .setAction(R.string.more_info) {
-                    val Text = StringBuilder()
-                    Text.append(
-                        localizeThrowable(
-                            provideApplicationContext(),
-                            throwable
+            CustomSnackbars.createCustomSnackbars(view)?.let {
+                val snack = it.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG).coloredSnack(
+                    localizeThrowable(provideApplicationContext(), throwable),
+                    Color.parseColor("#eeff0000")
+                )
+                if (throwable !is ApiException && throwable !is SocketTimeoutException && throwable !is UnknownHostException) {
+                    snack.setAction(R.string.more_info) {
+                        val text = StringBuilder()
+                        text.append(
+                            localizeThrowable(
+                                provideApplicationContext(),
+                                throwable
+                            )
                         )
-                    )
-                    Text.append("\r\n")
-                    for (stackTraceElement in (throwable ?: return@setAction).stackTrace) {
-                        Text.append("    ")
-                        Text.append(stackTraceElement)
-                        Text.append("\r\n")
+                        text.append("\r\n")
+                        for (stackTraceElement in (throwable ?: return@setAction).stackTrace) {
+                            text.append("    ")
+                            text.append(stackTraceElement)
+                            text.append("\r\n")
+                        }
+                        MaterialAlertDialogBuilder(requireActivity())
+                            .setIcon(R.drawable.ic_error)
+                            .setMessage(text)
+                            .setTitle(R.string.more_info)
+                            .setPositiveButton(R.string.button_ok, null)
+                            .setCancelable(true)
+                            .show()
                     }
-                    MaterialAlertDialogBuilder(requireActivity())
-                        .setIcon(R.drawable.ic_error)
-                        .setMessage(Text)
-                        .setTitle(R.string.more_info)
-                        .setPositiveButton(R.string.button_ok, null)
-                        .setCancelable(true)
-                        .show()
-                }.setActionTextColor(Color.WHITE).show()
+                }
+                snack.show()
+            } ?: showError(localizeThrowable(provideApplicationContext(), throwable))
         }
     }
 
@@ -386,8 +386,8 @@ class MessageAttachmentsFragment :
 
     override val customToast: CustomToast
         get() = if (isAdded) {
-            CreateCustomToast(requireActivity())
-        } else CreateCustomToast(null)
+            createCustomToast(requireActivity())
+        } else createCustomToast(null)
 
     companion object {
         const val MESSAGE_CLOSE_ONLY = "message_attachments_close_only"
