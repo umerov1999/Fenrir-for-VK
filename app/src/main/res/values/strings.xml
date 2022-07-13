@@ -1706,8 +1706,6 @@
     <string name="new_communities">New communities:</string>
     <string name="not_communities">No longer consists:</string>
     <string name="keyboard">Keyboard</string>
-    <string name="not_friend_show">No longer friends</string>
-    <string name="not_friend_show_summary">Show who has removed you from the friends list</string>
     <string name="show_bot_keyboard">Bot keyboard</string>
     <string name="do_zoom_photo">Instagram-like photo zooming</string>
     <string name="do_auto_play_video">Auto select video quality</string>
@@ -1884,4 +1882,14 @@
     <string name="reset_settings">Reset Settings</string>
     <string name="wrong_settings_format">This setting format is not supported!</string>
     <string name="settings_for_another_client">The settings for a cat are not suitable for a regular client and vice versa!</string>
+    <string name="ongoing_player_notification">Continuous notification</string>
+    <string name="group_members">Group Members</string>
+    <string name="donut">Donut</string>
+    <string name="all">All</string>
+    <string name="unsure">Unsure</string>
+    <string name="managers">Managers</string>
+    <string name="filter">Filter</string>
+    <string name="toggle_monitor_on">Changes</string>
+    <string name="toggle_monitor_off">Stop Changes</string>
+    <string name="toggle_monitor_info">Shows changes in the number of friends, members, etc. Works if quantity is less than 1000</string>
 </resources>

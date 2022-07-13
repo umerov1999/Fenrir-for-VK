@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.builtins.ListSerializer
 import kotlin.math.abs
 
 object ContactsUtils {
@@ -140,7 +140,7 @@ object ContactsUtils {
                 it.onError(Throwable("Can't collect contact list!"))
             }
             it.onSuccess(
-                kJson.encodeToString(contacts)
+                kJson.encodeToString(ListSerializer(ContactData.serializer()), contacts)
             )
         }
     }

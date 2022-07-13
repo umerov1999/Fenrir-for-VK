@@ -41,7 +41,6 @@ import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.toast.CustomToast
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import kotlinx.serialization.decodeFromString
 import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
@@ -743,6 +742,7 @@ class KeyExchangeService : Service() {
                     val exchangeMessageBody = messageBody.substring(3) // without RSA on start
                     val message: ExchangeMessage =
                         kJson.decodeFromString(
+                            ExchangeMessage.serializer(),
                             exchangeMessageBody
                         )
                     if (!out) {

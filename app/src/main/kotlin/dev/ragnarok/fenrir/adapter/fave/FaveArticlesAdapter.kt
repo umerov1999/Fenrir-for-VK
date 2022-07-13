@@ -35,7 +35,7 @@ class FaveArticlesAdapter(private var data: List<Article>, private val context: 
             holder.ivButton.visibility = View.VISIBLE
             holder.ivButton.setOnClickListener {
                 article.uRL.nonNullNoEmpty {
-                    clickListener?.onUrlClick(it)
+                    clickListener?.onArticleClick(article)
                 }
             }
         } else holder.ivButton.visibility = View.GONE
@@ -81,7 +81,7 @@ class FaveArticlesAdapter(private var data: List<Article>, private val context: 
     }
 
     interface ClickListener {
-        fun onUrlClick(url: String)
+        fun onArticleClick(article: Article)
         fun onPhotosOpen(photo: Photo)
         fun onDelete(index: Int, article: Article)
         fun onShare(article: Article)

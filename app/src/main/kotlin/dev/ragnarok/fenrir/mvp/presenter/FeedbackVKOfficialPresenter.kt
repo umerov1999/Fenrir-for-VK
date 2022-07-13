@@ -63,14 +63,11 @@ class FeedbackVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
         actualDataReceived = true
         if (offset == 0) {
             pages.items?.clear()
-            pages.fields?.clear()
             data.items?.let { pages.items?.addAll(it) }
-            data.fields?.let { pages.fields?.addAll(it) }
             view?.notifyFirstListReceived()
         } else {
             val startSize = pages.items?.size.orZero()
             data.items?.let { pages.items?.addAll(it) }
-            data.fields?.let { pages.fields?.addAll(it) }
             view?.notifyDataAdded(
                 startSize,
                 data.items?.size.orZero()
@@ -110,7 +107,6 @@ class FeedbackVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     init {
-        pages.fields = ArrayList()
         pages.items = ArrayList()
         fInteractor = InteractorFactory.createFeedbackInteractor()
         loadActualData(0)

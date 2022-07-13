@@ -33,6 +33,7 @@ interface IWallView : IAttachmentsPlacesView, IAccountDependencyView, IMvpView, 
     fun goToConversationAttachments(accountId: Int, ownerId: Int)
     fun goNarratives(accountId: Int, ownerId: Int)
     interface IOptionView {
+        fun typeOwnerId(id: Int)
         fun setIsMy(my: Boolean)
         fun setIsBlacklistedByMe(blocked: Boolean)
         fun setIsFavorite(favorite: Boolean)

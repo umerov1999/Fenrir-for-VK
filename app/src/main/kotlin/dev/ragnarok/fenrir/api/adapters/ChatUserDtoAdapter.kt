@@ -4,7 +4,6 @@ import dev.ragnarok.fenrir.api.model.ChatUserDto
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class ChatUserDtoAdapter : AbsAdapter<ChatUserDto>("ChatUserDto") {
     @Throws(Exception::class)
@@ -12,7 +11,7 @@ class ChatUserDtoAdapter : AbsAdapter<ChatUserDto>("ChatUserDto") {
         json: JsonElement
     ): ChatUserDto {
         val user: VKApiUser =
-            kJson.decodeFromJsonElement(json)
+            kJson.decodeFromJsonElement(VKApiUser.serializer(), json)
         val dto = ChatUserDto()
         if (checkObject(json)) {
             val root = json.asJsonObject

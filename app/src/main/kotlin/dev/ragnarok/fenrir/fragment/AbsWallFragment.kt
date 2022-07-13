@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -48,8 +49,11 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getWallAttachmentsPlace
 import dev.ragnarok.fenrir.place.PlaceUtil.goToPostCreation
 import dev.ragnarok.fenrir.place.PlaceUtil.goToPostEditor
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.AppPerms
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils.getCounterWithK
 import dev.ragnarok.fenrir.util.FindAttachmentType
+import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.util.Utils.is600dp
 import dev.ragnarok.fenrir.util.Utils.isLandscape
@@ -250,10 +254,38 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
         menuInflater.inflate(R.menu.menu_wall, menu)
     }
 
+    private val requestWriteQRPermission = requestPermissionsAbs(
+        arrayOf(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+    ) {
+        lazyPresenter {
+            fireShowQR(requireActivity())
+        }
+    }
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
+            R.id.action_toggle_monitor -> {
+                if (HelperSimple.needHelp(HelperSimple.MONITOR_CHANGES, 2)) {
+                    showSnackbar(R.string.toggle_monitor_info, true)
+                }
+                presenter?.fireToggleMonitor()
+                return true
+            }
             R.id.action_refresh -> {
                 presenter?.fireRefresh()
+                return true
+            }
+            R.id.action_show_qr -> {
+                if (!AppPerms.hasReadWriteStoragePermission(requireActivity())) {
+                    requestWriteQRPermission.launch()
+                } else {
+                    presenter?.fireShowQR(
+                        requireActivity()
+                    )
+                }
                 return true
             }
             R.id.action_edit -> {
@@ -337,6 +369,11 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
         menu.findItem(R.id.search_stories).isVisible = isDebug
         menu.findItem(R.id.action_edit).isVisible = view.isMy
         menu.findItem(R.id.action_add_to_shortcut).isVisible = !view.isMy
+        menu.findItem(R.id.action_toggle_monitor).setTitle(
+            if (Settings.get().other()
+                    .isOwnerInChangesMonitor(view.ownerId)
+            ) R.string.toggle_monitor_off else R.string.toggle_monitor_on
+        )
     }
 
     override fun copyToClipboard(label: String?, body: String?) {
@@ -477,8 +514,13 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
         var isBlacklistedByMe = false
         var isFavorite = false
         var isSubscribed = false
+        var ownerId = 0
         override fun setIsBlacklistedByMe(blocked: Boolean) {
             isBlacklistedByMe = blocked
+        }
+
+        override fun typeOwnerId(id: Int) {
+            ownerId = id
         }
 
         override fun setIsMy(my: Boolean) {

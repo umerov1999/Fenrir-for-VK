@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.VKApiMarket
+import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class MarketDtoAdapter : AbsAdapter<VKApiMarket>("VKApiMarket") {
     @Throws(Exception::class)
@@ -44,7 +44,7 @@ class MarketDtoAdapter : AbsAdapter<VKApiMarket>("VKApiMarket") {
                 if (!checkObject(i)) {
                     continue
                 }
-                dto.photos?.add(kJson.decodeFromJsonElement(i))
+                dto.photos?.add(kJson.decodeFromJsonElement(VKApiPhoto.serializer(), i))
             }
         }
         return dto

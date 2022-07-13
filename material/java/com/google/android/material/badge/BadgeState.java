@@ -136,7 +136,7 @@ public final class BadgeState {
 
     currentState.backgroundColor =
             (storedState.backgroundColor == null || storedState.notSaveColor)
-            ? readColorFromAttributes(context, a, R.styleable.Badge_badgeBackgroundColor)
+            ? readColorFromAttributes(context, a, R.styleable.Badge_backgroundColor)
             : storedState.backgroundColor;
 
     // Only set the badge text color if this attribute has explicitly been set, otherwise use the

@@ -1,16 +1,13 @@
 package dev.ragnarok.fenrir.domain.impl
 
-import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.db.column.GroupColumns
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapCommunities
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformCommunities
-import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformOwners
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildCommunitiesFromDbos
 import dev.ragnarok.fenrir.model.Community
-import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -39,18 +36,6 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
                 stores.relativeship()
                     .storeComminities(accountId, dbos, userId, offset == 0)
                     .andThen(Single.just(buildCommunitiesFromDbos(dbos)))
-            }
-    }
-
-    override fun getGroupFriends(accountId: Int, groupId: Int): Single<List<Owner>> {
-        return networker.vkDefault(accountId)
-            .groups()
-            .getMembers(groupId.toString(), null, 0, 1000, Constants.MAIN_OWNER_FIELDS, "friends")
-            .map { items ->
-                val dtos = listEmptyIfNull(
-                    items.items
-                )
-                transformOwners(dtos, null)
             }
     }
 

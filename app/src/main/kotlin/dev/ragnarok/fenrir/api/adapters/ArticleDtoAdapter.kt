@@ -1,9 +1,10 @@
 package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.VKApiArticle
+import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+
 import dev.ragnarok.fenrir.util.serializeble.json.jsonObject
 
 class ArticleDtoAdapter : AbsAdapter<VKApiArticle>("VKApiArticle") {
@@ -25,7 +26,7 @@ class ArticleDtoAdapter : AbsAdapter<VKApiArticle>("VKApiArticle") {
         article.is_favorite = optBoolean(root, "is_favorite")
         if (hasObject(root, "photo")) {
             article.photo = root["photo"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPhoto.serializer(), it)
             }
         }
         if (root.containsKey("view_url")) {

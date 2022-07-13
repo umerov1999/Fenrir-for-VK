@@ -555,8 +555,8 @@ public class UCropFragment extends Fragment {
 
     public static class UCropResult {
 
-        public int mResultCode;
-        public Intent mResultData;
+        public final int mResultCode;
+        public final Intent mResultData;
 
         public UCropResult(int resultCode, Intent data) {
             mResultCode = resultCode;

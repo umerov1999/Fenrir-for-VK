@@ -57,9 +57,11 @@ class LocalPhotosAdapter(private val context: Context, private val data: List<Lo
 
     fun updateHoldersSelectionAndIndexes() {
         for (holder in holders) {
-            val photo = holder.itemView.tag as LocalPhoto
-            resolveSelectionVisibility(photo, holder)
-            resolveIndexText(photo, holder)
+            val photo = holder.itemView.tag as LocalPhoto?
+            if (photo != null) {
+                resolveSelectionVisibility(photo, holder)
+                resolveIndexText(photo, holder)
+            }
         }
     }
 

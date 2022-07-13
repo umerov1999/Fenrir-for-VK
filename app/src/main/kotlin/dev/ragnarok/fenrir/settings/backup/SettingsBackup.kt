@@ -9,11 +9,11 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
 import dev.ragnarok.fenrir.util.serializeble.json.JsonObjectBuilder
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.encodeToJsonElement
 import dev.ragnarok.fenrir.util.serializeble.prefs.Preferences
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 
 class SettingsBackup {
     @Keep
@@ -125,7 +125,6 @@ class SettingsBackup {
         var download_photo_tap: Boolean? = null
         var audio_save_mode_button: Boolean? = null
         var show_mutual_count: Boolean? = null
-        var not_friend_show: Boolean? = null
         var do_zoom_photo: Boolean? = null
         var change_upload_size: Boolean? = null
         var show_photos_line: Boolean? = null
@@ -159,6 +158,8 @@ class SettingsBackup {
         var hidden_peers: Set<String>? = null
         var notif_peer_uids: Set<String>? = null
         var user_name_changes_uids: Set<String>? = null
+        var ongoing_player_notification: Boolean? = null
+        var owner_changes_monitor_uids: Set<String>? = null
     }
 
     fun doBackup(): JsonObject {
@@ -178,14 +179,26 @@ class SettingsBackup {
                 notificatios_pointers[key] = pref.getInt(key, -1)
             }
         }
-        ret.put("notifications_values", kJson.encodeToJsonElement(notificatios_pointers))
+        ret.put(
+            "notifications_values",
+            kJson.encodeToJsonElement(
+                MapSerializer(String.serializer(), Int.serializer()),
+                notificatios_pointers
+            )
+        )
         val user_names_pointers = HashMap<String, String>()
         for ((key) in Settings.get().other().getUserNameChangesMap()) {
             if (pref.contains(key)) {
                 user_names_pointers[key] = pref.getString(key, null) ?: continue
             }
         }
-        ret.put("user_names_values", kJson.encodeToJsonElement(user_names_pointers))
+        ret.put(
+            "user_names_values",
+            kJson.encodeToJsonElement(
+                MapSerializer(String.serializer(), String.serializer()),
+                user_names_pointers
+            )
+        )
         val yu = Includes.stores.tempStore().getShortcutAll().blockingGet()
         if (yu.nonNullNoEmpty()) {
             ret.put(
@@ -220,9 +233,13 @@ class SettingsBackup {
 
         Settings.get().security().reloadHiddenDialogSettings()
         Settings.get().notifications().reloadNotifSettings(true)
+        Settings.get().other().reloadOwnerChangesMonitor()
 
         ret["notifications_values"]?.let {
-            val notificatios_pointers: HashMap<String, Int> = kJson.decodeFromJsonElement(it)
+            val notificatios_pointers: Map<String, Int> = kJson.decodeFromJsonElement(
+                MapSerializer(String.serializer(), Int.serializer()),
+                it
+            )
             for ((key, value) in notificatios_pointers) {
                 pref.edit().putInt(key, value).apply()
             }
@@ -231,7 +248,9 @@ class SettingsBackup {
         Settings.get().other().reloadUserNameChangesSettings(true)
 
         ret["user_names_values"]?.let {
-            val user_names_pointers: HashMap<String, String> = kJson.decodeFromJsonElement(it)
+            val user_names_pointers: Map<String, String> = kJson.decodeFromJsonElement(
+                MapSerializer(String.serializer(), String.serializer()), it
+            )
             for ((key, value) in user_names_pointers) {
                 pref.edit().putString(key, value).apply()
             }

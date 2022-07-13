@@ -6,7 +6,7 @@ import android.provider.BaseColumns
 object RelationshipColumns : BaseColumns {
     const val TYPE_FRIEND = 1
     const val TYPE_FOLLOWER = 2
-    const val TYPE_BLACK_LIST = 3
+    const val TYPE_GROUP_MEMBER = 3
     const val TYPE_MEMBER = 4
     const val TYPE_REQUESTS = 5
     const val TABLENAME = "relationship"

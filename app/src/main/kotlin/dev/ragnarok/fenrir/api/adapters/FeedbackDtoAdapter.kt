@@ -1,14 +1,10 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import dev.ragnarok.fenrir.api.model.VKApiPhoto
-import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.api.model.VKApiTopic
-import dev.ragnarok.fenrir.api.model.VKApiVideo
+import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.feedback.*
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElementOrNull
 
 class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
@@ -57,6 +53,7 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
             if (root.has("reply")) {
                 dto?.reply =
                     kJson.decodeFromJsonElementOrNull(
+                        VKApiComment.serializer(),
                         root["reply"]
                     )
             }
@@ -73,11 +70,20 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
             root: JsonObject
         ): VKApiCopyFeedback {
             val dto = super.parse(root)
-            dto.copies = kJson.decodeFromJsonElementOrNull(root["feedback"])
+            dto.copies = kJson.decodeFromJsonElementOrNull(Copies.serializer(), root["feedback"])
             dto.what = when (dto.type) {
-                "copy_post" -> kJson.decodeFromJsonElementOrNull<VKApiPost>(root["parent"])
-                "copy_photo" -> kJson.decodeFromJsonElementOrNull<VKApiPhoto>(root["parent"])
-                "copy_video" -> kJson.decodeFromJsonElementOrNull<VKApiVideo>(root["parent"])
+                "copy_post" -> kJson.decodeFromJsonElementOrNull(
+                    VKApiPost.serializer(),
+                    root["parent"]
+                )
+                "copy_photo" -> kJson.decodeFromJsonElementOrNull(
+                    VKApiPhoto.serializer(),
+                    root["parent"]
+                )
+                "copy_video" -> kJson.decodeFromJsonElementOrNull(
+                    VKApiVideo.serializer(),
+                    root["parent"]
+                )
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
             return dto
@@ -94,21 +100,24 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
         ): VKApiCommentFeedback {
             val dto = super.parse(root)
             dto.comment = root["feedback"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiComment.serializer(), it)
             }
             dto.comment_of = when (dto.type) {
                 "comment_post" -> root["parent"]?.let {
-                    kJson.decodeFromJsonElement<VKApiPost>(
+                    kJson.decodeFromJsonElement(
+                        VKApiPost.serializer(),
                         it
                     )
                 }
                 "comment_photo" -> root["parent"]?.let {
-                    kJson.decodeFromJsonElement<VKApiPhoto>(
+                    kJson.decodeFromJsonElement(
+                        VKApiPhoto.serializer(),
                         it
                     )
                 }
                 "comment_video" -> root["parent"]?.let {
-                    kJson.decodeFromJsonElement<VKApiVideo>(
+                    kJson.decodeFromJsonElement(
+                        VKApiVideo.serializer(),
                         it
                     )
                 }
@@ -129,36 +138,39 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
             val dto = super.parse(root)
             dto.feedback_comment =
                 root["feedback"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiComment.serializer(), it)
                 }
             if ("reply_topic" == dto.type) {
                 dto.own_comment = null
                 dto.comments_of = root["parent"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiTopic.serializer(), it)
                 }
                 return dto
             }
             dto.own_comment = root["parent"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiComment.serializer(), it)
             }
             dto.comments_of = when (dto.type) {
                 "reply_comment" -> {
                     root.getAsJsonObject("parent")?.get("post")?.let {
-                        kJson.decodeFromJsonElement<VKApiPost>(
+                        kJson.decodeFromJsonElement(
+                            VKApiPost.serializer(),
                             it
                         )
                     }
                 }
                 "reply_comment_photo" -> {
                     root.getAsJsonObject("parent")?.get("photo")?.let {
-                        kJson.decodeFromJsonElement<VKApiPhoto>(
+                        kJson.decodeFromJsonElement(
+                            VKApiPhoto.serializer(),
                             it
                         )
                     }
                 }
                 "reply_comment_video" -> {
                     root.getAsJsonObject("parent")?.get("video")?.let {
-                        kJson.decodeFromJsonElement<VKApiVideo>(
+                        kJson.decodeFromJsonElement(
+                            VKApiVideo.serializer(),
                             it
                         )
                     }
@@ -179,7 +191,7 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
         ): VKApiUsersFeedback {
             val dto = super.parse(root)
             dto.users = root["feedback"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(UserArray.serializer(), it)
             }
             return dto
         }
@@ -196,18 +208,18 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
             val dto = super.parse(root)
             dto.liked = when (dto.type) {
                 "like_photo" -> root["parent"]?.let {
-                    kJson.decodeFromJsonElement<VKApiPhoto>(it)
+                    kJson.decodeFromJsonElement(VKApiPhoto.serializer(), it)
                 }
                 "like_post" -> root["parent"]?.let {
-                    kJson.decodeFromJsonElement<VKApiPost>(it)
+                    kJson.decodeFromJsonElement(VKApiPost.serializer(), it)
                 }
                 "like_video" -> root["parent"]?.let {
-                    kJson.decodeFromJsonElement<VKApiVideo>(it)
+                    kJson.decodeFromJsonElement(VKApiVideo.serializer(), it)
                 }
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
             dto.users = root["feedback"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(UserArray.serializer(), it)
             }
             return dto
         }
@@ -225,28 +237,32 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
             dto.commented = when (dto.type) {
                 "like_comment" -> {
                     root.getAsJsonObject("parent")?.get("post")?.let {
-                        kJson.decodeFromJsonElement<VKApiPost>(
+                        kJson.decodeFromJsonElement(
+                            VKApiPost.serializer(),
                             it
                         )
                     }
                 }
                 "like_comment_photo" -> {
                     root.getAsJsonObject("parent")?.get("photo")?.let {
-                        kJson.decodeFromJsonElement<VKApiPhoto>(
+                        kJson.decodeFromJsonElement(
+                            VKApiPhoto.serializer(),
                             it
                         )
                     }
                 }
                 "like_comment_video" -> {
                     root.getAsJsonObject("parent")?.get("video")?.let {
-                        kJson.decodeFromJsonElement<VKApiVideo>(
+                        kJson.decodeFromJsonElement(
+                            VKApiVideo.serializer(),
                             it
                         )
                     }
                 }
                 "like_comment_topic" -> {
                     root.getAsJsonObject("parent")?.get("topic")?.let {
-                        kJson.decodeFromJsonElement<VKApiTopic>(
+                        kJson.decodeFromJsonElement(
+                            VKApiTopic.serializer(),
                             it
                         )
                     }
@@ -254,10 +270,10 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }
             dto.users = root["feedback"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(UserArray.serializer(), it)
             }
             dto.comment = root["parent"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiComment.serializer(), it)
             }
             return dto
         }
@@ -273,7 +289,7 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
         ): VKApiMentionWallFeedback {
             val dto = super.parse(root)
             dto.post = root["feedback"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPost.serializer(), it)
             }
             return dto
         }
@@ -289,7 +305,7 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
         ): VKApiWallFeedback {
             val dto = super.parse(root)
             dto.post = root["feedback"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPost.serializer(), it)
             }
             return dto
         }
@@ -305,20 +321,20 @@ class FeedbackDtoAdapter : AbsAdapter<VKApiBaseFeedback>("VKApiBaseFeedback") {
         ): VKApiMentionCommentFeedback {
             val dto = super.parse(root)
             dto.where = root["feedback"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiComment.serializer(), it)
             }
             dto.comment_of = when (dto.type) {
                 "mention_comments" ->
                     root["parent"]?.let {
-                        kJson.decodeFromJsonElement<VKApiPost>(it)
+                        kJson.decodeFromJsonElement(VKApiPost.serializer(), it)
                     }
                 "mention_comment_photo" ->
                     root["parent"]?.let {
-                        kJson.decodeFromJsonElement<VKApiPhoto>(it)
+                        kJson.decodeFromJsonElement(VKApiPhoto.serializer(), it)
                     }
                 "mention_comment_video" ->
                     root["parent"]?.let {
-                        kJson.decodeFromJsonElement<VKApiVideo>(it)
+                        kJson.decodeFromJsonElement(VKApiVideo.serializer(), it)
                     }
                 else -> throw UnsupportedOperationException("Unsupported feedback type: " + dto.type)
             }

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment
 
-import android.Manifest
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
@@ -23,8 +22,6 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.extractGroupTokens
 import dev.ragnarok.fenrir.adapter.horizontal.HorizontalOptionsAdapter
-import dev.ragnarok.fenrir.fragment.search.SearchContentType
-import dev.ragnarok.fenrir.fragment.search.criteria.PeopleSearchCriteria
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.*
@@ -35,6 +32,7 @@ import dev.ragnarok.fenrir.mvp.view.IGroupWallView
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView.IOptionMenuView
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceFactory.getCommunityControlPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getDialogsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getDocumentsPlace
@@ -43,13 +41,10 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getMarketAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getMarketPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getShowComunityInfoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getShowComunityLinksInfoPlace
-import dev.ragnarok.fenrir.place.PlaceFactory.getSingleTabSearchPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getTopicsPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
-import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.util.Utils.getVerifiedColor
 import dev.ragnarok.fenrir.util.Utils.setBackgroundTint
@@ -68,14 +63,6 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                 fireGroupTokensReceived(tokens ?: return@lazyPresenter)
             }
         }
-    }
-    private val requestWritePermission = requestPermissionsAbs(
-        arrayOf(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-    ) {
-        presenter?.fireShowQR(requireActivity())
     }
     private val ownerLinkAdapter: OwnerLinkSpanFactory.ActionListener =
         object : LinkActionAdapter() {
@@ -277,11 +264,7 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
     }
 
     override fun openCommunityMembers(accountId: Int, groupId: Int) {
-        val criteria = PeopleSearchCriteria("")
-            .setGroupId(groupId)
-        getSingleTabSearchPlace(accountId, SearchContentType.PEOPLE, criteria).tryOpenWith(
-            requireActivity()
-        )
+        PlaceFactory.getCommunityMembersPlace(accountId, groupId).tryOpenWith(requireActivity())
     }
 
     override fun openDocuments(accountId: Int, ownerId: Int, owner: Owner?) {
@@ -301,10 +284,6 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         presenter?.fireOptionMenuViewCreated(
             optionMenuView
         )
-        menu.add(R.string.mutual_friends).setOnMenuItemClickListener {
-            presenter?.fireMutualFriends()
-            true
-        }
         if (!optionMenuView.pIsSubscribed) {
             menu.add(R.string.notify_wall_added).setOnMenuItemClickListener {
                 presenter?.fireSubscribe()
@@ -340,16 +319,6 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         }
         if (menuItem.itemId == R.id.action_community_messages) {
             presenter?.fireCommunityMessagesClick()
-            return true
-        }
-        if (menuItem.itemId == R.id.action_show_qr) {
-            if (!hasReadWriteStoragePermission(requireActivity())) {
-                requestWritePermission.launch()
-            } else {
-                presenter?.fireShowQR(
-                    requireActivity()
-                )
-            }
             return true
         }
         return super.onMenuItemSelected(menuItem)
@@ -405,11 +374,6 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
 
     override fun goToGroupChats(accountId: Int, community: Community) {
         getGroupChatsPlace(accountId, abs(community.id)).tryOpenWith(requireActivity())
-    }
-
-    override fun goToMutualFriends(accountId: Int, community: Community) {
-        CommunityFriendsFragment.newInstance(accountId, community.id)
-            .show(childFragmentManager, "community_friends")
     }
 
     override fun startLoginCommunityActivity(groupId: Int) {

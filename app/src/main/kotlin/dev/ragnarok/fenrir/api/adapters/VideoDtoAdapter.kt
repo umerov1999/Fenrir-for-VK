@@ -1,12 +1,12 @@
 package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.CommentsDto
+import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class VideoDtoAdapter : AbsAdapter<VKApiVideo>("VKApiVideo") {
     @Throws(Exception::class)
@@ -30,7 +30,7 @@ class VideoDtoAdapter : AbsAdapter<VKApiVideo>("VKApiVideo") {
         if (hasObject(root, "comments")) {
             //for example, newsfeed.getComment
             dto.comments = root["comments"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(CommentsDto.serializer(), it)
             }
         } else {
             // video.get
@@ -51,13 +51,13 @@ class VideoDtoAdapter : AbsAdapter<VKApiVideo>("VKApiVideo") {
         if (hasObject(root, "privacy_view")) {
             dto.privacy_view =
                 root["privacy_view"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiPrivacy.serializer(), it)
                 }
         }
         if (hasObject(root, "privacy_comment")) {
             dto.privacy_comment =
                 root["privacy_comment"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiPrivacy.serializer(), it)
                 }
         }
         if (hasObject(root, "files")) {

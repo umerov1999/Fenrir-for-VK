@@ -4,15 +4,13 @@ import android.content.Context
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.settings.ISettings.IPushSettings
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 internal class PushSettings(context: Context) : IPushSettings {
     private val app: Context = context.applicationContext
     override fun savePushRegistations(data: Collection<VkPushRegistration>) {
         val target: MutableSet<String> = HashSet(data.size)
         for (registration in data) {
-            target.add(kJson.encodeToString(registration))
+            target.add(kJson.encodeToString(VkPushRegistration.serializer(), registration))
         }
         getPreferences(app)
             .edit()
@@ -29,7 +27,8 @@ internal class PushSettings(context: Context) : IPushSettings {
             )
             if (set != null) {
                 for (s in set) {
-                    val registration: VkPushRegistration = kJson.decodeFromString(s)
+                    val registration: VkPushRegistration =
+                        kJson.decodeFromString(VkPushRegistration.serializer(), s)
                     result.add(registration)
                 }
             }

@@ -77,8 +77,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.exceptions.Exceptions
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import okhttp3.*
 import java.io.File
 import java.io.FileInputStream
@@ -125,6 +123,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         if (result.resultCode == RESULT_OK) {
             val restore: SaveAccount =
                 kJson.decodeFromString(
+                    SaveAccount.serializer(),
                     Settings.get().accounts().getLogin(temp_to_show)
                         ?: return@registerForActivityResult
                 )
@@ -288,6 +287,8 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 StandardCharsets.UTF_8
             )
             out = FileOutputStream(file)
+            val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+            out.write(bom)
             out.write(bytes)
             out.flush()
             provideApplicationContext().sendBroadcast(
@@ -533,7 +534,10 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
             .accounts()
             .registerAccountId(uid, isCurrent)
         if (needSave) {
-            val json = kJson.encodeToString(SaveAccount().set(Login, Password, TwoFA))
+            val json = kJson.encodeToString(
+                SaveAccount.serializer(),
+                SaveAccount().set(Login, Password, TwoFA)
+            )
             Settings.get()
                 .accounts()
                 .storeLogin(uid, json)

@@ -19,7 +19,6 @@ interface IGroupWallView : IWallView {
     fun goToShowCommunityLinksInfo(accountId: Int, community: Community)
     fun goToShowCommunityAboutInfo(accountId: Int, details: CommunityDetails)
     fun goToGroupChats(accountId: Int, community: Community)
-    fun goToMutualFriends(accountId: Int, community: Community)
     fun startLoginCommunityActivity(groupId: Int)
     fun openCommunityDialogs(accountId: Int, groupId: Int, subtitle: String?)
     fun displayCounters(

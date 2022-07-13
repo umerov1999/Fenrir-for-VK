@@ -28,7 +28,6 @@ import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 
 class LikeFCMMessage {
     // key: id, value: like_216143660_photo280186075_456239045, class: class java.lang.String
@@ -201,7 +200,8 @@ class LikeFCMMessage {
             message.title = data["title"]
             message.from_id = data["from_id"]?.toInt() ?: return null
             message.badge = data["badge"]?.toInt() ?: 0
-            val context: LikeContext = kJson.decodeFromString(data["context"] ?: return null)
+            val context: LikeContext =
+                kJson.decodeFromString(LikeContext.serializer(), data["context"] ?: return null)
             message.item_id = context.item_id
             message.owner_id = context.owner_id
             message.like_type = context.type

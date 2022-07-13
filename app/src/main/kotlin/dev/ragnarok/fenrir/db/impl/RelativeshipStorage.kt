@@ -124,6 +124,25 @@ internal class RelativeshipStorage(base: AppStorages) : AbsStorage(base), IRelat
         )
     }
 
+    override fun storeGroupMembers(
+        accountId: Int,
+        users: List<UserEntity>,
+        objectId: Int,
+        clearBeforeStore: Boolean
+    ): Completable {
+        return completableStoreForType(
+            accountId,
+            users,
+            objectId,
+            RelationshipColumns.TYPE_GROUP_MEMBER,
+            clearBeforeStore
+        )
+    }
+
+    override fun getGroupMembers(accountId: Int, groupId: Int): Single<List<UserEntity>> {
+        return getUsersForType(accountId, groupId, RelationshipColumns.TYPE_GROUP_MEMBER)
+    }
+
     override fun getFriends(accountId: Int, objectId: Int): Single<List<UserEntity>> {
         return getUsersForType(accountId, objectId, RelationshipColumns.TYPE_FRIEND)
     }

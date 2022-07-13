@@ -4,10 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class SimpleGPSOption : BaseOption {
-    @JvmField
     var lat_gps = 0.0
-
-    @JvmField
     var long_gps = 0.0
 
     constructor(key: Int, title: Int, active: Boolean) : super(GPS, key, title, active)

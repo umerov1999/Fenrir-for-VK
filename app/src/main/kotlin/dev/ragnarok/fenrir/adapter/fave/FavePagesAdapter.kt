@@ -60,6 +60,25 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
         )
         holder.ivVerified.visibility =
             if (favePage.owner?.isVerified == true) View.VISIBLE else View.GONE
+
+        if (Settings.get().other().isOwnerInChangesMonitor(favePage.getObjectId())) {
+            holder.ivMonitor.visibility = View.VISIBLE
+            holder.ivMonitor.fromRes(
+                dev.ragnarok.fenrir_common.R.raw.eye,
+                Utils.dp(48f),
+                Utils.dp(48f),
+                intArrayOf(
+                    0x333333,
+                    Color.parseColor("#ffffff"),
+                    0x777777,
+                    Color.parseColor("#000000")
+                )
+            )
+            holder.ivMonitor.playAnimation()
+        } else {
+            holder.ivMonitor.visibility = View.GONE
+            holder.ivMonitor.clearAnimationDrawable()
+        }
         if (favePage.type == FavePageType.USER) {
             val user = favePage.user
             displayAvatar(
@@ -186,6 +205,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
         val description: TextView
         val ivOnline: OnlineView
         val ivVerified: ImageView
+        val ivMonitor: RLottieImageView
         override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo?) {
             val position = recyclerView?.getChildAdapterPosition(v) ?: 0
             val favePage = data[position]
@@ -212,6 +232,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
             blacklisted = itemView.findViewById(R.id.item_blacklisted)
             ivVerified = itemView.findViewById(R.id.item_verified)
             avatar_root = itemView.findViewById(R.id.avatar_root)
+            ivMonitor = itemView.findViewById(R.id.item_monitor)
         }
     }
 

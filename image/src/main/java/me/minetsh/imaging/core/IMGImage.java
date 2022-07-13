@@ -675,12 +675,6 @@ public class IMGImage {
         M.mapRect(mFrame);
         M.mapRect(mClipFrame);
 
-        // 修正clip 窗口
-        if (!mFrame.contains(mClipFrame)) {
-            // TODO
-//            mClipFrame.intersect(mFrame);
-        }
-
         for (IMGSticker sticker : mBackStickers) {
             M.mapRect(sticker.getFrame());
             float tPivotX = sticker.getX() + sticker.getPivotX();

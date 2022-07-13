@@ -5,11 +5,19 @@ apply {
 
 buildscript {
     repositories {
+        maven {url = "https://www.jetbrains.com/intellij-repository/releases/"}
+        maven {url = "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies"}
+
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
     dependencies {
         classpath("gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:latest.release")
+        classpath 'com.jetbrains.intellij.platform:util:221.5921.27'
+        classpath 'com.jetbrains.intellij.platform:util-rt:221.5921.27'
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.4.0"
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
     }
 }
 
@@ -21,6 +29,6 @@ group = "dev.ragnarok"
 version = "1.0"
 
 intellij {
-    version = "2021.2.1"
-    type = "IU"
+    version = "2022.1.1"
+    type = "IC"
 }

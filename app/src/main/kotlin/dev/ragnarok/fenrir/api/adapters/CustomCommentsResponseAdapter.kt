@@ -2,7 +2,10 @@ package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.response.CustomCommentsResponse
 import dev.ragnarok.fenrir.kJson
-import dev.ragnarok.fenrir.util.serializeble.json.*
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonPrimitive
+import dev.ragnarok.fenrir.util.serializeble.json.intOrNull
+import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
 class CustomCommentsResponseAdapter : AbsAdapter<CustomCommentsResponse>("CustomCommentsResponse") {
     @Throws(Exception::class)
@@ -17,7 +20,7 @@ class CustomCommentsResponseAdapter : AbsAdapter<CustomCommentsResponse>("Custom
         val main = root["main"]
         if (checkObject(main)) {
             response.main =
-                kJson.decodeFromJsonElement(main)
+                kJson.decodeFromJsonElement(CustomCommentsResponse.Main.serializer(), main)
         } // "main": false (if has execute errors)
         if (root.has("first_id")) {
             val firstIdJson = root["first_id"]

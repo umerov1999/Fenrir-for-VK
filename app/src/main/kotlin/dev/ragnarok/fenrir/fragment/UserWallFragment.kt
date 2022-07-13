@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.DialogInterface
@@ -51,8 +50,6 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getUserDetailsPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.Upload
-import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
-import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.InputTextDialog
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.dp
@@ -100,18 +97,6 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                 }
             }
         }
-    private val requestWritePermission = requestPermissionsAbs(
-        arrayOf(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-    ) {
-        lazyPresenter {
-            fireShowQR(
-                requireActivity()
-            )
-        }
-    }
     private val openRequestPhoto =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.data != null && result.resultCode == Activity.RESULT_OK) {
@@ -639,16 +624,6 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                         true
                     }
             }
-        }
-        menu.add(R.string.show_qr).setOnMenuItemClickListener {
-            if (!hasReadWriteStoragePermission(requireActivity())) {
-                requestWritePermission.launch()
-            } else {
-                presenter?.fireShowQR(
-                    requireActivity()
-                )
-            }
-            true
         }
         menu.add(R.string.mentions).setOnMenuItemClickListener {
             presenter?.fireMentions()

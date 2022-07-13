@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.realtime.Processors.realtimeMessages
 import dev.ragnarok.fenrir.realtime.QueueContainsException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 
 class FCMMessage {
     //public int sender_id;
@@ -86,7 +85,8 @@ class FCMMessage {
             //message.title = data.get("title");
             //message.to_id = Integer.parseInt(data.get("to_id"));
             //message.group_id = data.get("group_id");
-            val context: MessageContext = kJson.decodeFromString(data["context"]!!)
+            val context: MessageContext =
+                kJson.decodeFromString(MessageContext.serializer(), data["context"]!!)
             message.message_id = context.msg_id
             //message.sender_id = context.sender_id;
 

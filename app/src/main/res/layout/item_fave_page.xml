@@ -66,6 +66,17 @@
                 android:visibility="gone"
                 app:loopAnimation="true"
                 tools:src="@drawable/audio_died" />
+
+            <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+                android:id="@+id/item_monitor"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end|top"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@null"
+                android:visibility="gone"
+                app:loopAnimation="true" />
         </FrameLayout>
 
         <LinearLayout

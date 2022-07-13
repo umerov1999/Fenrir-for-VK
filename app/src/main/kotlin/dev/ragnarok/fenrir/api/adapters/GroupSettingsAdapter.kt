@@ -2,7 +2,10 @@ package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.GroupSettingsDto
 import dev.ragnarok.fenrir.kJson
-import dev.ragnarok.fenrir.util.serializeble.json.*
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonPrimitive
+import dev.ragnarok.fenrir.util.serializeble.json.int
+import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
 class GroupSettingsAdapter : AbsAdapter<GroupSettingsDto>("GroupSettingsDto") {
     @Throws(Exception::class)
@@ -19,7 +22,7 @@ class GroupSettingsAdapter : AbsAdapter<GroupSettingsDto>("GroupSettingsDto") {
         dto.address = optString(root, "address")
         if (hasObject(root, "place")) {
             dto.place = root["place"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(GroupSettingsDto.Place.serializer(), it)
             }
         }
         dto.country_id = optInt(root, "country_id")
@@ -56,7 +59,8 @@ class GroupSettingsAdapter : AbsAdapter<GroupSettingsDto>("GroupSettingsDto") {
         }
         if (hasArray(root, "public_category_list")) {
             dto.public_category_list = parseArray(
-                root.getAsJsonArray("public_category_list"), emptyList()
+                root.getAsJsonArray("public_category_list"), emptyList(),
+                GroupSettingsDto.PublicCategory.serializer()
             )
         }
         dto.contacts = optInt(root, "contacts")
@@ -68,7 +72,7 @@ class GroupSettingsAdapter : AbsAdapter<GroupSettingsDto>("GroupSettingsDto") {
         dto.age_limits = optInt(root, "age_limits")
         if (hasObject(root, "market")) {
             dto.market = root["market"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(GroupSettingsDto.Market.serializer(), it)
             }
         }
         return dto

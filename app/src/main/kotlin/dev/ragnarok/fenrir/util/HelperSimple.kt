@@ -10,6 +10,7 @@ object HelperSimple {
     const val LOLLIPOP_21 = "lollipop21"
     const val AUDIO_DEAD = "audio_dead"
     const val HIDDEN_DIALOGS = "hidden_dialogs"
+    const val MONITOR_CHANGES = "monitor_changes"
     fun needHelp(key: String, count: Int): Boolean {
         val app = Includes.provideApplicationContext()
         val ret = PreferenceScreen.getPreferences(app).getInt(key, 0)

@@ -9,6 +9,13 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_show_qr"
+        android:icon="@drawable/qr_code"
+        android:title="@string/search"
+        app:iconTint="?colorOnSurface"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_refresh"
         android:title="@string/refresh" />
 
@@ -39,4 +46,8 @@
     <item
         android:id="@+id/wall_attachments"
         android:title="@string/wall_attachments" />
+
+    <item
+        android:id="@+id/action_toggle_monitor"
+        android:title="@string/toggle_monitor_on" />
 </menu>

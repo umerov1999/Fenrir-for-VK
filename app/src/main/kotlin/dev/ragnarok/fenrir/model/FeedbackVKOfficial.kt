@@ -8,6 +8,8 @@ import kotlin.math.abs
 class FeedbackVKOfficial {
     var footer: String? = null
     var header: String? = null
+    var header_owner_avatar_url: String? = null
+    var header_owner_id: Int? = null
     var text: String? = null
     var iconURL: String? = null
     var iconType: String? = null

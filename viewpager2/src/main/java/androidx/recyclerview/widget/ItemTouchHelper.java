@@ -256,7 +256,9 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     private int mActionState = ACTION_STATE_IDLE;
     private int mSlop;
     //re-used list for selecting a swap target
-    private List<ViewHolder> mSwapTargets;    /**
+    private List<ViewHolder> mSwapTargets;
+    //re used for for sorting swap targets
+    private List<Integer> mDistances;    /**
      * When user drags a view to the edge, we start scrolling the LayoutManager as long as View
      * is partially out of bounds.
      */
@@ -273,8 +275,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             }
         }
     };
-    //re used for for sorting swap targets
-    private List<Integer> mDistances;
     /**
      * If drag & drop is supported, we use child drawing order to bring them to front.
      */
@@ -392,6 +392,37 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         } else {
             outPosition[1] = mSelected.itemView.getTranslationY();
         }
+    }
+
+    @Override
+    public void onDrawOver(
+            @NonNull Canvas c,
+            @NonNull RecyclerView parent,
+            @NonNull RecyclerView.State state
+    ) {
+        float dx = 0, dy = 0;
+        if (mSelected != null) {
+            getSelectedDxDy(mTmpPosition);
+            dx = mTmpPosition[0];
+            dy = mTmpPosition[1];
+        }
+        mCallback.onDrawOver(c, parent, mSelected,
+                mRecoverAnimations, mActionState, dx, dy);
+    }
+
+    @Override
+    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent,
+                       @NonNull RecyclerView.State state) {
+        // we don't know if RV changed something so we should invalidate this index.
+        mOverdrawChildPosition = -1;
+        float dx = 0, dy = 0;
+        if (mSelected != null) {
+            getSelectedDxDy(mTmpPosition);
+            dx = mTmpPosition[0];
+            dy = mTmpPosition[1];
+        }
+        mCallback.onDraw(c, parent, mSelected,
+                mRecoverAnimations, mActionState, dx, dy);
     }    private final OnItemTouchListener mOnItemTouchListener = new OnItemTouchListener() {
         @Override
         public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView,
@@ -505,37 +536,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             select(null, ACTION_STATE_IDLE);
         }
     };
-
-    @Override
-    public void onDrawOver(
-            @NonNull Canvas c,
-            @NonNull RecyclerView parent,
-            @NonNull RecyclerView.State state
-    ) {
-        float dx = 0, dy = 0;
-        if (mSelected != null) {
-            getSelectedDxDy(mTmpPosition);
-            dx = mTmpPosition[0];
-            dy = mTmpPosition[1];
-        }
-        mCallback.onDrawOver(c, parent, mSelected,
-                mRecoverAnimations, mActionState, dx, dy);
-    }
-
-    @Override
-    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent,
-                       @NonNull RecyclerView.State state) {
-        // we don't know if RV changed something so we should invalidate this index.
-        mOverdrawChildPosition = -1;
-        float dx = 0, dy = 0;
-        if (mSelected != null) {
-            getSelectedDxDy(mTmpPosition);
-            dx = mTmpPosition[0];
-            dy = mTmpPosition[1];
-        }
-        mCallback.onDraw(c, parent, mSelected,
-                mRecoverAnimations, mActionState, dx, dy);
-    }
 
     /**
      * Starts dragging or swiping the given View. Call with null if you want to clear it.

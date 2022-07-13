@@ -9,8 +9,6 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 class ProxySettingsImpl(context: Context) : IProxySettings {
     private val preferences: SharedPreferences =
@@ -27,7 +25,7 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
     private fun put(config: ProxyConfig) {
         val set: MutableSet<String> =
             HashSet(preferences.getStringSet(KEY_LIST, HashSet(0)) ?: return)
-        set.add(kJson.encodeToString(config))
+        set.add(kJson.encodeToString(ProxyConfig.serializer(), config))
         preferences.edit()
             .putStringSet(KEY_LIST, set)
             .apply()
@@ -59,7 +57,7 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
                 set.size
             )
             for (s in set) {
-                configs.add(kJson.decodeFromString(s))
+                configs.add(kJson.decodeFromString(ProxyConfig.serializer(), s))
             }
             return configs
         }
@@ -67,13 +65,17 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
         get() {
             val active = preferences.getString(KEY_ACTIVE, null)
             return if (active.nonNullNoEmpty()) kJson.decodeFromString(
+                ProxyConfig.serializer(),
                 active
             ) else null
         }
 
     override fun setActive(config: ProxyConfig?) {
         preferences.edit()
-            .putString(KEY_ACTIVE, if (config == null) null else kJson.encodeToString(config))
+            .putString(
+                KEY_ACTIVE,
+                if (config == null) null else kJson.encodeToString(ProxyConfig.serializer(), config)
+            )
             .apply()
         activePublisher.onNext(wrap(config))
     }
@@ -93,7 +95,7 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
     override fun delete(config: ProxyConfig) {
         val set: MutableSet<String> =
             HashSet(preferences.getStringSet(KEY_LIST, HashSet(0)) ?: return)
-        set.remove(kJson.encodeToString(config))
+        set.remove(kJson.encodeToString(ProxyConfig.serializer(), config))
         preferences.edit()
             .putStringSet(KEY_LIST, set)
             .apply()

@@ -2,12 +2,12 @@ package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.ChatUserDto
 import dev.ragnarok.fenrir.api.model.VKApiChat
+import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.JsonPrimitive
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.int
 
 class ChatDtoAdapter : AbsAdapter<VKApiChat>("VKApiChat") {
@@ -48,10 +48,11 @@ class ChatDtoAdapter : AbsAdapter<VKApiChat>("VKApiChat") {
                     chatUserDto.type = type
                     chatUserDto.invited_by = optInt(jsonObject, "invited_by", 0)
                     if ("profile" == type) {
-                        chatUserDto.user = kJson.decodeFromJsonElement(userElement)
+                        chatUserDto.user =
+                            kJson.decodeFromJsonElement(VKApiUser.serializer(), userElement)
                     } else if ("group" == type) {
                         chatUserDto.user =
-                            kJson.decodeFromJsonElement(userElement)
+                            kJson.decodeFromJsonElement(VKApiCommunity.serializer(), userElement)
                     } else {
                         //not supported
                         continue

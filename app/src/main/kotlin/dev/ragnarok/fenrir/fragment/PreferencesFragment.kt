@@ -1143,12 +1143,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.show_mutual_count
             }
 
-            switch("not_friend_show") {
-                defaultValue = false
-                summaryRes = R.string.not_friend_show_summary
-                titleRes = R.string.not_friend_show
-            }
-
             switch("be_online") {
                 defaultValue = false
                 titleRes = R.string.be_online
@@ -1166,6 +1160,10 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onCheckedChange {
                     requireActivity().recreate()
                 }
+            }
+
+            switch("ongoing_player_notification") {
+                titleRes = R.string.ongoing_player_notification
             }
 
             switch("force_cache") {

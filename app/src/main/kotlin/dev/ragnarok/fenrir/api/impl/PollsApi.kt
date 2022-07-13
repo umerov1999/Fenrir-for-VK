@@ -10,7 +10,8 @@ import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.serializeble.json.Json
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 
 internal class PollsApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IPollsApi {
@@ -19,7 +20,7 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
         isAnonymous: Boolean?,
         isMultiple: Boolean?,
         ownerId: Int,
-        addAnswers: Collection<String>
+        addAnswers: List<String>
     ): Single<VKApiPoll> {
         return provideService(IPollsService::class.java, TokenType.USER)
             .flatMap { service ->
@@ -29,7 +30,7 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
                         integerFromBoolean(isAnonymous),
                         integerFromBoolean(isMultiple),
                         ownerId,
-                        Json.encodeToString(addAnswers)
+                        Json.encodeToString(ListSerializer(String.serializer()), addAnswers)
                     )
                     .map(extractResponseWithErrorHandling())
             }

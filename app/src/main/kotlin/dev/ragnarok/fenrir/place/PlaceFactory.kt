@@ -484,16 +484,25 @@ object PlaceFactory {
             .withParcelableExtra(Extra.OWNER, ownerWrapper)
     }
 
-
-    fun getExternalLinkPlace(accountId: Int, url: String): Place {
-        return Place(Place.EXTERNAL_LINK).setArguments(BrowserFragment.buildArgs(accountId, url))
+    fun getExternalLinkPlace(
+        accountId: Int,
+        url: String,
+        owner: String? = null,
+        type: String? = null
+    ): Place {
+        return Place(Place.EXTERNAL_LINK).setArguments(
+            BrowserFragment.buildArgs(
+                accountId,
+                url,
+                owner,
+                type
+            )
+        )
     }
-
 
     fun getRepostPlace(accountId: Int, gid: Int?, post: Post?): Place {
         return Place(Place.REPOST).setArguments(RepostFragment.buildArgs(accountId, gid, post))
     }
-
 
     fun getEditCommentPlace(accountId: Int, comment: Comment?, commemtId: Int?): Place {
         val ret = Place(Place.EDIT_COMMENT)
@@ -788,6 +797,10 @@ object PlaceFactory {
             .setArguments(WallPostFragment.buildArgs(accountId, postId, ownerId, post))
     }
 
+    fun getCommunityMembersPlace(accountId: Int, groupId: Int): Place {
+        return Place(Place.COMMUNITY_MEMBERS)
+            .setArguments(CommunityMembersFragment.buildArgs(accountId, groupId))
+    }
 
     fun getAlbumsByVideoPlace(
         accountId: Int,

@@ -14,7 +14,8 @@ import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.util.serializeble.json.Json
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 
 class FcmListenerService : FirebaseMessagingService() {
     @SuppressLint("CheckResult")
@@ -51,14 +52,22 @@ class FcmListenerService : FirebaseMessagingService() {
                     TAG,
                     "onMessage, from: " + message.from + ", pushType: " + pushType + ", data: " + Json {
                         prettyPrint = true
-                    }.encodeToString(message.data)
+                    }.encodeToString(
+                        MapSerializer(String.serializer(), String.serializer()),
+                        message.data
+                    )
                 )
             }
             PersistentLogger.logThrowable(
                 "Push received",
-                Exception("Key: $pushType, Dump: " + Json {
-                    prettyPrint = true
-                }.encodeToString(message.data))
+                Exception(
+                    "Key: $pushType, Dump: " + Json {
+                        prettyPrint = true
+                    }.encodeToString(
+                        MapSerializer(String.serializer(), String.serializer()),
+                        message.data
+                    )
+                )
             )
         }
         try {

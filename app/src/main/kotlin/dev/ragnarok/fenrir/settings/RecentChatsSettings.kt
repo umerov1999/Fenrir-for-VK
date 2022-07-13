@@ -6,8 +6,6 @@ import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.drawer.RecentChat
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.IRecentChats
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 internal class RecentChatsSettings(app: Context) : IRecentChats {
     private val app: Context = app.applicationContext
@@ -18,7 +16,7 @@ internal class RecentChatsSettings(app: Context) : IRecentChats {
         if (stringSet.nonNullNoEmpty()) {
             for (s in stringSet) {
                 try {
-                    val recentChat: RecentChat = kJson.decodeFromString(s)
+                    val recentChat: RecentChat = kJson.decodeFromString(RecentChat.serializer(), s)
                     recentChats.add(recentChat)
                 } catch (ignored: Exception) {
                 }
@@ -31,7 +29,7 @@ internal class RecentChatsSettings(app: Context) : IRecentChats {
         val target: MutableSet<String> = LinkedHashSet()
         for (item in chats) {
             if (item.aid != accountid) continue
-            target.add(kJson.encodeToString(item))
+            target.add(kJson.encodeToString(RecentChat.serializer(), item))
         }
         getPreferences(app)
             .edit()

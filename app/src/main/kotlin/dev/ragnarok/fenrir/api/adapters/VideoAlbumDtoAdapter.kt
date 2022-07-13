@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.api.model.VKApiVideoAlbum
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.intOrNull
 import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
@@ -26,7 +26,7 @@ class VideoAlbumDtoAdapter : AbsAdapter<VKApiVideoAlbum>("VKApiVideoAlbum") {
         if (hasObject(root, "privacy_view")) {
             album.privacy =
                 root["privacy_view"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiPrivacy.serializer(), it)
                 }
         }
         if (hasArray(root, "image")) {

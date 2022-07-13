@@ -46,7 +46,6 @@ class DialogsSearchFragment :
     }
 
     companion object {
-
         fun newInstance(accountId: Int, criteria: DialogsSearchCriteria?): DialogsSearchFragment {
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, accountId)

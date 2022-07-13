@@ -10,8 +10,6 @@ import dev.ragnarok.fenrir.api.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.model.Lang
 import dev.ragnarok.fenrir.settings.ISettings.IOtherSettings
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import java.io.File
 import java.util.*
 
@@ -19,8 +17,21 @@ internal class OtherSettings(context: Context) : IOtherSettings {
     private val app: Context = context.applicationContext
     private val userNameChanges: MutableSet<String> = Collections.synchronizedSet(HashSet(1))
     private val types: MutableMap<String, String> = Collections.synchronizedMap(HashMap(1))
+    private val ownerChangesMonitor: MutableSet<Int> = Collections.synchronizedSet(HashSet(1))
     override fun getUserNameChangesMap(): Map<String, String> {
         return HashMap(types)
+    }
+
+    override fun isOwnerInChangesMonitor(ownerId: Int): Boolean {
+        return ownerChangesMonitor.contains(ownerId)
+    }
+
+    override fun reloadOwnerChangesMonitor() {
+        val preferences = getPreferences(app)
+        ownerChangesMonitor.clear()
+        for (i in preferences.getStringSet("owner_changes_monitor_uids", HashSet(1)) ?: return) {
+            ownerChangesMonitor.add(i.toInt())
+        }
     }
 
     override val userNameChangesKeys: Set<String>
@@ -40,6 +51,30 @@ internal class OtherSettings(context: Context) : IOtherSettings {
                 types[i] = rs
             }
         }
+    }
+
+    override fun putOwnerInChangesMonitor(ownerId: Int) {
+        val preferences = getPreferences(app)
+        ownerChangesMonitor.add(ownerId)
+        val ownerChangesMonitorSet = HashSet<String>()
+        for (i in ownerChangesMonitor) {
+            ownerChangesMonitorSet.add(i.toString())
+        }
+        preferences.edit()
+            .putStringSet("owner_changes_monitor_uids", ownerChangesMonitorSet)
+            .apply()
+    }
+
+    override fun removeOwnerInChangesMonitor(ownerId: Int) {
+        val preferences = getPreferences(app)
+        ownerChangesMonitor.remove(ownerId)
+        val ownerChangesMonitorSet = HashSet<String>()
+        for (i in ownerChangesMonitor) {
+            ownerChangesMonitorSet.add(i.toString())
+        }
+        preferences.edit()
+            .putStringSet("owner_changes_monitor_uids", ownerChangesMonitorSet)
+            .apply()
     }
 
     override fun setUserNameChanges(userId: Int, name: String?) {
@@ -387,8 +422,6 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("audio_save_mode_button", true)
     override val isShow_mutual_count: Boolean
         get() = getPreferences(app).getBoolean("show_mutual_count", false)
-    override val isNot_friend_show: Boolean
-        get() = getPreferences(app).getBoolean("not_friend_show", false)
     override val isDo_zoom_photo: Boolean
         get() = getPreferences(app).getBoolean("do_zoom_photo", true)
     override val isChange_upload_size: Boolean
@@ -431,6 +464,8 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("recording_to_opus", false)
     override val isDisable_sensored_voice: Boolean
         get() = getPreferences(app).getBoolean("disable_sensored_voice", false)
+    override val isOngoing_player_notification: Boolean
+        get() = getPreferences(app).getBoolean("ongoing_player_notification", false)
     override var isInvertPhotoRev: Boolean
         get() = getPreferences(app).getBoolean("invert_photo_rev", false)
         set(rev) {
@@ -442,13 +477,13 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             return if (ret == null) {
                 LocalServerSettings()
             } else {
-                kJson.decodeFromString(ret)
+                kJson.decodeFromString(LocalServerSettings.serializer(), ret)
             }
         }
         set(settings) {
             getPreferences(app).edit().putString(
                 "local_media_server",
-                kJson.encodeToString(settings)
+                kJson.encodeToString(LocalServerSettings.serializer(), settings)
             )
                 .apply()
         }
@@ -458,14 +493,14 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             return if (ret == null) {
                 PlayerCoverBackgroundSettings().set_default()
             } else {
-                kJson.decodeFromString(ret)
+                kJson.decodeFromString(PlayerCoverBackgroundSettings.serializer(), ret)
             }
         }
         set(settings) {
             getPreferences(app).edit()
                 .putString(
                     "player_background_settings_json",
-                    kJson.encodeToString(settings)
+                    kJson.encodeToString(PlayerCoverBackgroundSettings.serializer(), settings)
                 ).apply()
         }
     override var slidrSettings: SlidrSettings
@@ -474,13 +509,13 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             return if (ret == null) {
                 SlidrSettings().set_default()
             } else {
-                kJson.decodeFromString(ret)
+                kJson.decodeFromString(SlidrSettings.serializer(), ret)
             }
         }
         set(settings) {
             getPreferences(app).edit().putString(
                 "slidr_settings_json",
-                kJson.encodeToString(settings)
+                kJson.encodeToString(SlidrSettings.serializer(), settings)
             )
                 .apply()
         }
@@ -562,5 +597,6 @@ internal class OtherSettings(context: Context) : IOtherSettings {
 
     init {
         reloadUserNameChangesSettings(false)
+        reloadOwnerChangesMonitor()
     }
 }

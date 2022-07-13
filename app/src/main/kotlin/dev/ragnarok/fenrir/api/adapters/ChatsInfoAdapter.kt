@@ -4,7 +4,6 @@ import dev.ragnarok.fenrir.api.model.VKApiChat
 import dev.ragnarok.fenrir.api.model.response.ChatsInfoResponse
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class ChatsInfoAdapter : AbsAdapter<ChatsInfoResponse>("ChatsInfoResponse") {
     @Throws(Exception::class)
@@ -15,6 +14,7 @@ class ChatsInfoAdapter : AbsAdapter<ChatsInfoResponse>("ChatsInfoResponse") {
             checkObject(json) -> {
                 listOf(
                     kJson.decodeFromJsonElement(
+                        VKApiChat.serializer(),
                         json
                     )
                 )
@@ -23,7 +23,8 @@ class ChatsInfoAdapter : AbsAdapter<ChatsInfoResponse>("ChatsInfoResponse") {
                 val array = json.asJsonArray
                 parseArray(
                     array,
-                    emptyList()
+                    emptyList(),
+                    VKApiChat.serializer()
                 )
             }
             else -> {

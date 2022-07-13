@@ -94,6 +94,8 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
             file.delete()
             val bytes = fullResponseBody?.toByteArray(StandardCharsets.UTF_8) ?: return
             out = FileOutputStream(file)
+            val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+            out.write(bom)
             out.write(bytes)
             out.flush()
             applicationContext.sendBroadcast(

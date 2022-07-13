@@ -272,6 +272,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     open fun fireOptionViewCreated(view: IWallView.IOptionView) {
         view.setIsMy(accountId == ownerId)
+        view.typeOwnerId(ownerId)
     }
 
     fun fireCreateClick() {
@@ -346,6 +347,14 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         appendDisposable(InteractorFactory.createAccountInteractor().getProfileInfo(accountId)
             .fromIOToMain()
             .subscribe({ t -> fireEdit(context, t) }) { })
+    }
+
+    fun fireToggleMonitor() {
+        if (Settings.get().other().isOwnerInChangesMonitor(ownerId)) {
+            Settings.get().other().removeOwnerInChangesMonitor(ownerId)
+        } else {
+            Settings.get().other().putOwnerInChangesMonitor(ownerId)
+        }
     }
 
     fun fireRefresh() {

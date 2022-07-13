@@ -15,15 +15,15 @@ public class IMGStickerX {
 
     private final static float SIZE_ANCHOR = 60;
     private final static float STROKE_FRAME = 6f;
-    private final RectF mRemoveFrame = new RectF();
-    private final RectF mAdjustFrame = new RectF();
-    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    protected float[] mPivotXY = {0, 0};
+    protected final float[] mPivotXY = {0, 0};
     /**
      * isActivated 为true时，其坐标相对于屏幕左上角
      * isActivated 为false时，其坐标相对Image，切为单位坐标
      */
-    protected RectF mFrame = new RectF();
+    protected final RectF mFrame = new RectF();
+    private final RectF mRemoveFrame = new RectF();
+    private final RectF mAdjustFrame = new RectF();
+    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private float mRotate;
     private float mX, mY;
     private StickerEvent mTouchEvent;

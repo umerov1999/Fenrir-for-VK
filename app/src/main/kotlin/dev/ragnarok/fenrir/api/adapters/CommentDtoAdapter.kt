@@ -1,9 +1,10 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.VKApiAttachments
 import dev.ragnarok.fenrir.api.model.VKApiComment
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
+import kotlinx.serialization.builtins.ListSerializer
 
 class CommentDtoAdapter : AbsAdapter<VKApiComment>("VKApiComment") {
     @Throws(Exception::class)
@@ -26,7 +27,7 @@ class CommentDtoAdapter : AbsAdapter<VKApiComment>("VKApiComment") {
         dto.reply_to_comment = optInt(root, "reply_to_comment")
         if (hasArray(root, "attachments")) {
             dto.attachments = root["attachments"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiAttachments.serializer(), it)
             }
         }
         if (hasObject(root, "thread")) {
@@ -34,7 +35,7 @@ class CommentDtoAdapter : AbsAdapter<VKApiComment>("VKApiComment") {
             dto.threads_count = optInt(threadRoot, "count")
             if (hasArray(threadRoot, "items")) {
                 dto.threads = threadRoot["items"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(ListSerializer(VKApiComment.serializer()), it)
                 }
             }
         }

@@ -23,7 +23,7 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
         InteractorFactory.createAccountInteractor()
     private val actualDataDisposable = CompositeDisposable()
     private val cacheDisposable = CompositeDisposable()
-    private val isNotFriendShow: Boolean = Settings.get().other().isNot_friend_show
+    private val isNotFriendShow: Boolean = Settings.get().other().isOwnerInChangesMonitor(userId)
     private var actualDataLoading = false
     private var actualDataReceived = false
     private var endOfContent = false

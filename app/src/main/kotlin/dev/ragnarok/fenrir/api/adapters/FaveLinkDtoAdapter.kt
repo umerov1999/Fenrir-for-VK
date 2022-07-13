@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.FaveLinkDto
+import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class FaveLinkDtoAdapter : AbsAdapter<FaveLinkDto>("FaveLinkDto") {
     @Throws(Exception::class)
@@ -22,7 +22,7 @@ class FaveLinkDtoAdapter : AbsAdapter<FaveLinkDto>("FaveLinkDto") {
         link.description = optString(root, "description")
         if (hasObject(root, "photo")) {
             link.photo = root["photo"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPhoto.serializer(), it)
             }
         }
         link.title = optString(root, "title")

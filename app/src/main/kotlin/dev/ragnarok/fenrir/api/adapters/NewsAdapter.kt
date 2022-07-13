@@ -1,12 +1,9 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import dev.ragnarok.fenrir.api.model.VKApiAttachments
-import dev.ragnarok.fenrir.api.model.VKApiNews
-import dev.ragnarok.fenrir.api.model.VKApiPhoto
+import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.int
 import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
@@ -32,7 +29,8 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
         if (hasArray(root, "copy_history")) {
             dto.copy_history = parseArray(
                 root.getAsJsonArray("copy_history"),
-                emptyList()
+                emptyList(),
+                VKApiPost.serializer()
             )
         } else {
             dto.copy_history = emptyList()
@@ -65,12 +63,12 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
         if (hasArray(root, "attachments")) {
             dto.attachments =
                 root["attachments"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiAttachments.serializer(), it)
                 }
         }
         if (root.has("geo")) {
             dto.geo = root["geo"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPlace.serializer(), it)
             }
         }
         if (root.has("photos")) {
@@ -78,7 +76,7 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
             if (dto.attachments == null) {
                 dto.attachments = VKApiAttachments()
             }
-            parseArray<VKApiPhoto>(photosArray, null)?.let {
+            parseArray(photosArray, null, VKApiPhoto.serializer())?.let {
                 dto.attachments?.append(it)
             }
         }
@@ -87,9 +85,9 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
             if (dto.attachments == null) {
                 dto.attachments = VKApiAttachments()
             }
-            parseArray<VKApiPhoto>(
+            parseArray(
                 photosTagsArray,
-                null
+                null, VKApiPhoto.serializer()
             )?.let {
                 dto.attachments?.append(it)
             }
@@ -99,9 +97,10 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
             if (dto.attachments == null) {
                 dto.attachments = VKApiAttachments()
             }
-            parseArray<VKApiPhoto>(
+            parseArray(
                 photosTagsArray,
-                null
+                null,
+                VKApiPhoto.serializer()
             )?.let {
                 dto.attachments?.append(it)
             }
@@ -111,9 +110,9 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
             if (dto.attachments == null) {
                 dto.attachments = VKApiAttachments()
             }
-            parseArray<VKApiPhoto>(
+            parseArray(
                 photosTagsArray,
-                null
+                null, VKApiPhoto.serializer()
             )?.let {
                 dto.attachments?.append(it)
             }

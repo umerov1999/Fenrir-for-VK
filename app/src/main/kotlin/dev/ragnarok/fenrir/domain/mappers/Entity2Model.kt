@@ -144,6 +144,13 @@ object Entity2Model {
         return users
     }
 
+    fun buildOwnerUsersFromDbo(dbos: List<UserEntity>): List<Owner> {
+        val users: MutableList<Owner> = ArrayList(dbos.size)
+        for (dbo in dbos) {
+            map(dbo)?.let { users.add(it) }
+        }
+        return users
+    }
 
     fun buildFaveUsersFromDbo(dbos: List<FavePageEntity>): List<FavePage> {
         val users: MutableList<FavePage> = ArrayList(dbos.size)

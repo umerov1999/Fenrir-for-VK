@@ -395,18 +395,18 @@ open class PhotoPagerPresenter internal constructor(
             if (ndx != -1) {
                 path = path?.substring(0, ndx)
             }
-            DownloadResult(fixStart(path), dir, photo)
+            downloadResult(fixStart(path), dir, photo)
         } else {
             appendDisposable(OwnerInfo.getRx(context, accountId, photo.ownerId)
                 .fromIOToMain()
                 .subscribe({
-                    DownloadResult(
+                    downloadResult(
                         makeLegalFilename(
                             fixStart(it.owner.fullName) ?: ("id" + photo.ownerId),
                             null
                         ), dir, photo
                     )
-                }) { DownloadResult(null, dir, photo) })
+                }) { downloadResult(null, dir, photo) })
         }
     }
 
@@ -414,7 +414,7 @@ open class PhotoPagerPresenter internal constructor(
         return if (owner_id < 0) "club" + abs(owner_id) else "id$owner_id"
     }
 
-    private fun DownloadResult(Prefix: String?, dirL: File, photo: Photo) {
+    private fun downloadResult(Prefix: String?, dirL: File, photo: Photo) {
         var dir = dirL
         if (Prefix != null && Settings.get().other().isPhoto_to_user_dir) {
             val dir_final = File(dir.absolutePath + "/" + Prefix)

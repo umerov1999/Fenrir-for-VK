@@ -26,7 +26,6 @@ import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 
 class CommentFCMMessage {
     /**
@@ -133,7 +132,10 @@ class CommentFCMMessage {
             val message = CommentFCMMessage()
             message.from_id = remote.data["from_id"]?.toInt() ?: return null
             message.text = remote.data["body"]
-            val context: PushContext = kJson.decodeFromString(remote.data["context"] ?: return null)
+            val context: PushContext = kJson.decodeFromString(
+                PushContext.serializer(),
+                remote.data["context"] ?: return null
+            )
             message.reply_id = context.reply_id
             message.type = context.type
             message.item_id = context.item_id

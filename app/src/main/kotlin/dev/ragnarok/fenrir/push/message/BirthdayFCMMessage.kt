@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 
 class BirthdayFCMMessage {
     private var user_id = 0
@@ -73,7 +72,8 @@ class BirthdayFCMMessage {
         fun fromRemoteMessage(remote: RemoteMessage): BirthdayFCMMessage? {
             val message = BirthdayFCMMessage()
             val data = remote.data
-            val context: BirthdayContext = kJson.decodeFromString(data["context"] ?: return null)
+            val context: BirthdayContext =
+                kJson.decodeFromString(BirthdayContext.serializer(), data["context"] ?: return null)
             message.user_id = context.user_id
             if (context.user_id == 0) {
                 return null

@@ -12,7 +12,7 @@ interface IPollsApi {
         isAnonymous: Boolean?,
         isMultiple: Boolean?,
         ownerId: Int,
-        addAnswers: Collection<String>
+        addAnswers: List<String>
     ): Single<VKApiPoll>
 
     @CheckResult

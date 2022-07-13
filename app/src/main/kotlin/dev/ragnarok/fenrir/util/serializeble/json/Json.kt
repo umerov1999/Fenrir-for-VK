@@ -177,6 +177,12 @@ inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
 inline fun <reified T> Json.decodeFromJsonElementOrNull(json: JsonElement?): T? =
     json?.let { decodeFromJsonElement(serializersModule.serializer(), it) }
 
+inline fun <reified T> Json.decodeFromJsonElementOrNull(
+    serializer: KSerializer<T>,
+    json: JsonElement?
+): T? =
+    json?.let { decodeFromJsonElement(serializer, it) }
+
 /**
  * Builder of the [Json] instance provided by `Json { ... }` factory function.
  */

@@ -116,10 +116,10 @@ class OwnerArticlesPresenter(
             }) { t -> onNetDataGetError(t) })
     }
 
-    fun fireArticleClick(url: String) {
+    fun fireArticleClick(article: Article) {
         view?.goToArticle(
             accountId,
-            url
+            article
         )
     }
 

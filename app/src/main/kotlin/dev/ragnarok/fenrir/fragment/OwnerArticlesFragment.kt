@@ -100,8 +100,15 @@ class OwnerArticlesFragment : BaseMvpFragment<OwnerArticlesPresenter, IOwnerArti
         mSwipeRefreshLayout?.post { mSwipeRefreshLayout?.isRefreshing = refreshing }
     }
 
-    override fun goToArticle(accountId: Int, url: String) {
-        getExternalLinkPlace(accountId, url).tryOpenWith(requireActivity())
+    override fun goToArticle(accountId: Int, article: Article) {
+        article.uRL?.let {
+            getExternalLinkPlace(
+                accountId,
+                it,
+                article.ownerName,
+                "article_" + article.ownerId + "_" + article.id
+            ).tryOpenWith(requireActivity())
+        }
     }
 
     override fun goToPhoto(accountId: Int, photo: Photo) {
@@ -139,9 +146,9 @@ class OwnerArticlesFragment : BaseMvpFragment<OwnerArticlesPresenter, IOwnerArti
             .apply(requireActivity())
     }
 
-    override fun onUrlClick(url: String) {
+    override fun onArticleClick(article: Article) {
         presenter?.fireArticleClick(
-            url
+            article
         )
     }
 

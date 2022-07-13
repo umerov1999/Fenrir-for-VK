@@ -254,7 +254,7 @@ class StoryPagerPresenter(
             }
         } else dir.setLastModified(Calendar.getInstance().time.time)
         photo.photo?.let {
-            DownloadResult(photo.owner?.fullName?.let { it1 ->
+            downloadResult(photo.owner?.fullName?.let { it1 ->
                 makeLegalFilename(
                     it1,
                     null
@@ -267,7 +267,7 @@ class StoryPagerPresenter(
         return if (owner_id < 0) "club" + abs(owner_id) else "id$owner_id"
     }
 
-    private fun DownloadResult(Prefix: String?, dirF: File, photo: Photo) {
+    private fun downloadResult(Prefix: String?, dirF: File, photo: Photo) {
         var dir = dirF
         if (Prefix != null && Settings.get().other().isPhoto_to_user_dir) {
             val dir_final = File(dir.absolutePath + "/" + Prefix)

@@ -27,7 +27,7 @@
     <attr name="badgeWidePadding" format="dimension"/>
     <!-- Radius of a badge with text. -->
     <attr name="badgeWithTextRadius" format="dimension"/>
-    <attr name="badgeBackgroundColor" format="color"/>
+    <attr name="backgroundColor" format="color"/>
     <attr name="badgeTextColor" format="color"/>
     <attr name="maxCharacterCount" format="integer"/>
     <attr name="number" format="integer"/>

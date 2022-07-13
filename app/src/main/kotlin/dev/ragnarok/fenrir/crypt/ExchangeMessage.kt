@@ -8,7 +8,6 @@ import dev.ragnarok.fenrir.util.ParcelUtils.readObjectInteger
 import dev.ragnarok.fenrir.util.ParcelUtils.writeObjectInteger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 
 @Serializable
 class ExchangeMessage : Parcelable {
@@ -70,7 +69,7 @@ class ExchangeMessage : Parcelable {
         get() = errorCode != 0
 
     override fun toString(): String {
-        return "RSA" + kJson.encodeToString(this)
+        return "RSA" + kJson.encodeToString(serializer(), this)
     }
 
     @KeyLocationPolicy

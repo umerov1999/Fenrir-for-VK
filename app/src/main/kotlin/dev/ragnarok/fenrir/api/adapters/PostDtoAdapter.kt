@@ -1,10 +1,9 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import dev.ragnarok.fenrir.api.model.VKApiPost
+import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
     @Throws(Exception::class)
@@ -60,7 +59,7 @@ class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
         dto.friends_only = optBoolean(root, "friends_only")
         if (hasObject(root, "comments")) {
             dto.comments = root["comments"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(CommentsDto.serializer(), it)
             }
         }
         if (hasObject(root, "likes")) {
@@ -82,12 +81,12 @@ class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
         if (hasArray(root, "attachments")) {
             dto.attachments =
                 root["attachments"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiAttachments.serializer(), it)
                 }
         }
         if (hasObject(root, "geo")) {
             dto.geo = root["geo"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPlace.serializer(), it)
             }
         }
         dto.can_edit = optBoolean(root, "can_edit")
@@ -113,7 +112,7 @@ class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
         if (hasObject(root, "post_source")) {
             dto.post_source =
                 root["post_source"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiPostSource.serializer(), it)
                 }
         }
         return dto

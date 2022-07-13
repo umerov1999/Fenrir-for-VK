@@ -105,7 +105,6 @@ interface ISettings {
         var isInvertPhotoRev: Boolean
         val isAudio_save_mode_button: Boolean
         val isShow_mutual_count: Boolean
-        val isNot_friend_show: Boolean
         val isDo_zoom_photo: Boolean
         val isChange_upload_size: Boolean
         val isShow_photos_line: Boolean
@@ -129,6 +128,11 @@ interface ISettings {
         fun isEnable_dirs_files_count(): Boolean
         fun get_last_audio_sync(): Long
         fun set_last_audio_sync(time: Long)
+        val isOngoing_player_notification: Boolean
+        fun reloadOwnerChangesMonitor()
+        fun isOwnerInChangesMonitor(ownerId: Int): Boolean
+        fun putOwnerInChangesMonitor(ownerId: Int)
+        fun removeOwnerInChangesMonitor(ownerId: Int)
 
         @get:Lang
         val language: Int

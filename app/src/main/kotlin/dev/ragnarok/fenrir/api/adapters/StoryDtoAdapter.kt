@@ -1,9 +1,10 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.VKApiStory
+import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class StoryDtoAdapter : AbsAdapter<VKApiStory>("VKApiStory") {
     @Throws(Exception::class)
@@ -23,18 +24,18 @@ class StoryDtoAdapter : AbsAdapter<VKApiStory>("VKApiStory") {
         story.is_ads = optBoolean(root, "is_ads")
         if (hasObject(root, "photo")) {
             story.photo = root["photo"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPhoto.serializer(), it)
             }
         }
         if (hasObject(root, "video")) {
             story.video = root["video"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiVideo.serializer(), it)
             }
         }
         if (hasObject(root, "parent_story")) {
             story.parent_story =
                 root["parent_story"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiStory.serializer(), it)
                 }
         }
         if (hasObject(root, "link")) {

@@ -1318,6 +1318,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     args
                 )
             )
+            Place.COMMUNITY_MEMBERS -> attachToFront(
+                CommunityMembersFragment.newInstance(args)
+            )
             Place.UNREAD_MESSAGES -> attachToFront(NotReadMessagesFragment.newInstance(args))
             Place.SECURITY -> attachToFront(SecurityPreferencesFragment())
             Place.CREATE_POLL -> {

@@ -1,10 +1,9 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import dev.ragnarok.fenrir.api.model.VKApiCommunity
+import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 import java.util.*
 import kotlin.math.abs
 
@@ -46,13 +45,13 @@ class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
         }
         if (hasObject(root, VKApiCommunity.CITY)) {
             dto.city = root[VKApiCommunity.CITY]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiCity.serializer(), it)
             }
         }
         if (hasObject(root, VKApiCommunity.COUNTRY)) {
             dto.country =
                 root[VKApiCommunity.COUNTRY]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiCountry.serializer(), it)
                 }
         }
         if (hasObject(root, VKApiCommunity.BAN_INFO)) {
@@ -63,7 +62,7 @@ class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
         }
         if (hasObject(root, VKApiCommunity.PLACE)) {
             dto.place = root[VKApiCommunity.PLACE]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiPlace.serializer(), it)
             }
         }
         dto.description = optString(root, VKApiCommunity.DESCRIPTION)
@@ -72,7 +71,7 @@ class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
         if (hasObject(root, VKApiCommunity.COUNTERS)) {
             val counters = root.getAsJsonObject(VKApiCommunity.COUNTERS)
             dto.counters = counters?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiCommunity.Counters.serializer(), it)
             }
         }
         if (hasObject(root, "chats_status")) {
@@ -97,16 +96,18 @@ class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
         dto.status = VKStringUtils.unescape(optString(root, VKApiCommunity.STATUS))
         if (hasObject(root, "status_audio")) {
             dto.status_audio = root["status_audio"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiAudio.serializer(), it)
             }
         }
         dto.contacts = parseArray(
             root.getAsJsonArray(VKApiCommunity.CONTACTS),
-            null
+            null,
+            VKApiCommunity.Contact.serializer()
         )
         dto.links = parseArray(
             root.getAsJsonArray(VKApiCommunity.LINKS),
-            null
+            null,
+            VKApiCommunity.Link.serializer()
         )
         dto.fixed_post = optInt(root, VKApiCommunity.FIXED_POST)
         dto.main_album_id = optInt(root, VKApiCommunity.MAIN_ALBUM_ID)
@@ -116,7 +117,7 @@ class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
         dto.can_message = optBoolean(root, "can_message")
         if (hasObject(root, "cover")) {
             dto.cover = root["cover"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiCover.serializer(), it)
             }
         }
         return dto

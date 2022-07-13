@@ -1,10 +1,9 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import dev.ragnarok.fenrir.api.model.VKApiTopic
+import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse.*
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class NewsfeedCommentDtoAdapter : AbsAdapter<Dto>("Dto") {
     @Throws(Exception::class)
@@ -17,13 +16,13 @@ class NewsfeedCommentDtoAdapter : AbsAdapter<Dto>("Dto") {
         val root = json.asJsonObject
         when (optString(root, "type", "post")) {
             "photo" -> {
-                return PhotoDto(kJson.decodeFromJsonElement(root))
+                return PhotoDto(kJson.decodeFromJsonElement(VKApiPhoto.serializer(), root))
             }
             "post" -> {
-                return PostDto(kJson.decodeFromJsonElement(root))
+                return PostDto(kJson.decodeFromJsonElement(VKApiPost.serializer(), root))
             }
             "video" -> {
-                return VideoDto(kJson.decodeFromJsonElement(root))
+                return VideoDto(kJson.decodeFromJsonElement(VKApiVideo.serializer(), root))
             }
             "topic" -> {
                 val topic = VKApiTopic()
@@ -33,7 +32,7 @@ class NewsfeedCommentDtoAdapter : AbsAdapter<Dto>("Dto") {
                 topic.title = optString(root, "text")
                 topic.comments =
                     root["comments"]?.let {
-                        kJson.decodeFromJsonElement(it)
+                        kJson.decodeFromJsonElement(CommentsDto.serializer(), it)
                     }
                 return TopicDto(topic)
             }

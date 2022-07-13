@@ -2,10 +2,10 @@ package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.PhotoSizeDto
 import dev.ragnarok.fenrir.api.model.VKApiPhotoAlbum
+import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class PhotoAlbumDtoAdapter : AbsAdapter<VKApiPhotoAlbum>("VKApiPhotoAlbum") {
     @Throws(Exception::class)
@@ -30,13 +30,13 @@ class PhotoAlbumDtoAdapter : AbsAdapter<VKApiPhotoAlbum>("VKApiPhotoAlbum") {
         if (hasObject(root, "privacy_view")) {
             album.privacy_view =
                 root["privacy_view"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiPrivacy.serializer(), it)
                 }
         }
         if (hasObject(root, "privacy_comment")) {
             album.privacy_comment =
                 root["privacy_comment"]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiPrivacy.serializer(), it)
                 }
         }
         if (hasArray(root, "sizes")) {
@@ -45,6 +45,7 @@ class PhotoAlbumDtoAdapter : AbsAdapter<VKApiPhotoAlbum>("VKApiPhotoAlbum") {
             for (i in 0 until sizesArray?.size.orZero()) {
                 album.photo?.add(
                     kJson.decodeFromJsonElement(
+                        PhotoSizeDto.serializer(),
                         sizesArray?.get(i) ?: continue
                     )
                 )
@@ -57,6 +58,7 @@ class PhotoAlbumDtoAdapter : AbsAdapter<VKApiPhotoAlbum>("VKApiPhotoAlbum") {
                 for (i in 0 until sizesArray?.size.orZero()) {
                     album.photo?.add(
                         kJson.decodeFromJsonElement(
+                            PhotoSizeDto.serializer(),
                             sizesArray?.get(i) ?: continue
                         )
                     )

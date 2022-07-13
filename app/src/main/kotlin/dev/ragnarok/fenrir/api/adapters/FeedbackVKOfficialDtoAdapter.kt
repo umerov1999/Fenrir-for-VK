@@ -1,14 +1,19 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial.*
 import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
-import dev.ragnarok.fenrir.model.FeedbackVKOfficialList.AnswerField
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.LinkParser
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.serializeble.json.*
+import kotlinx.serialization.builtins.ListSerializer
 
 class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("FeedbackVKOfficialList") {
     @Throws(Exception::class)
@@ -21,7 +26,16 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
         val dtolist = FeedbackVKOfficialList()
         val root = json.jsonObject
         dtolist.items = ArrayList()
-        dtolist.fields = ArrayList()
+
+        val profiles: List<VKApiUser> =
+            if (hasArray(root, "profiles")) kJson.decodeFromJsonElementOrNull(
+                ListSerializer(VKApiUser.serializer()), root["profiles"]
+            ).orEmpty() else emptyList()
+        val groups: List<VKApiCommunity> =
+            if (hasArray(root, "groups")) kJson.decodeFromJsonElementOrNull(
+                ListSerializer(VKApiCommunity.serializer()), root["groups"]
+            ).orEmpty() else emptyList()
+
         val photos: MutableList<VKApiPhoto> = ArrayList()
         if (hasArray(root, "photos")) {
             val temp = root["photos"]?.jsonArray
@@ -29,41 +43,7 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
                 if (!checkObject(i)) {
                     continue
                 }
-                photos.add(kJson.decodeFromJsonElement(i))
-            }
-        }
-        if (hasArray(root, "profiles")) {
-            val temp = root["profiles"]?.jsonArray
-            for (i in temp.orEmpty()) {
-                if (!checkObject(i)) {
-                    continue
-                }
-                val obj = i.jsonObject
-                val id = optInt(obj, "id")
-                if (obj.containsKey("photo_200")) {
-                    val url = optString(obj, "photo_200")
-                    url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
-                } else if (obj.containsKey("photo_200_orig")) {
-                    val url = optString(obj, "photo_200_orig")
-                    url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
-                }
-            }
-        }
-        if (hasArray(root, "groups")) {
-            val temp = root["groups"]?.jsonArray
-            for (i in temp.orEmpty()) {
-                if (!checkObject(i)) {
-                    continue
-                }
-                val obj = i.jsonObject
-                val id = optInt(obj, "id") * -1
-                if (obj.containsKey("photo_200")) {
-                    val url = optString(obj, "photo_200")
-                    url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
-                } else if (obj.containsKey("photo_200_orig")) {
-                    val url = optString(obj, "photo_200_orig")
-                    url?.let { AnswerField(id, it) }?.let { dtolist.fields?.add(it) }
-                }
+                photos.add(kJson.decodeFromJsonElement(VKApiPhoto.serializer(), i))
             }
         }
         if (!hasArray(root, "items")) return dtolist
@@ -124,7 +104,34 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
                 dto.header = it.replace("{date}", "")
                     .replace("'''(((?!''').)*)'''".toRegex(), "<b>$1</b>")
                     .replace("\\[vk(ontakte)?://[A-Za-z0-9/?=]+\\|([^]]+)]".toRegex(), "$2")
+
+                val matcher = LinkParser.MENTIONS_AVATAR_PATTERN.matcher(it)
+                if (matcher.find()) {
+                    val Type = matcher.group(1)
+                    matcher.group(2)?.toInt()?.let { lit ->
+                        dto.header_owner_id =
+                            if (Type == "event" || Type == "club" || Type == "public") -lit else lit
+                        if (dto.header_owner_id.orZero() >= 0) {
+                            for (n in profiles) {
+                                if (n.id == dto.header_owner_id) {
+                                    dto.header_owner_avatar_url =
+                                        Utils.firstNonEmptyString(n.photo_200, n.photo_100)
+                                    break
+                                }
+                            }
+                        } else {
+                            for (n in groups) {
+                                if (-n.id == dto.header_owner_id) {
+                                    dto.header_owner_avatar_url =
+                                        Utils.firstNonEmptyString(n.photo_200, n.photo_100)
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
             }
+
             dto.text = optString(root_item, "text")
             dto.text.nonNullNoEmpty {
                 dto.text =
@@ -149,7 +156,12 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
                         jsonPhotos2?.get(jsonPhotos2.size - 1)?.jsonObject?.get("url")?.jsonPrimitive?.content
                 }
                 if ("photo" == optString(main_item, "type")) {
-                    attachments.add(kJson.decodeFromJsonElement(main_item!!))
+                    attachments.add(
+                        kJson.decodeFromJsonElement(
+                            Attachment.serializer(),
+                            main_item!!
+                        )
+                    )
                 }
             }
             if (hasObject(root_item, "additional_item")) {
@@ -162,12 +174,17 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
                             continue
                         }
                         val imgh: ImageAdditional =
-                            kJson.decodeFromJsonElement(s)
+                            kJson.decodeFromJsonElement(ImageAdditional.serializer(), s)
                         dto.images?.add(imgh)
                     }
                 }
                 if ("photo" == optString(additional_item, "type")) {
-                    attachments.add(kJson.decodeFromJsonElement(additional_item!!))
+                    attachments.add(
+                        kJson.decodeFromJsonElement(
+                            Attachment.serializer(),
+                            additional_item!!
+                        )
+                    )
                 }
             }
             if (hasArray(root_item, "attachments")) {
@@ -176,7 +193,7 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
                     if (!checkObject(a)) {
                         continue
                     }
-                    attachments.add(kJson.decodeFromJsonElement(a))
+                    attachments.add(kJson.decodeFromJsonElement(Attachment.serializer(), a))
                 }
             }
             for (s in attachments) {

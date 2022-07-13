@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 
 class MentionMessage {
     private var message_id = 0
@@ -85,7 +84,8 @@ class MentionMessage {
         fun fromRemoteMessage(remote: RemoteMessage): MentionMessage {
             val message = MentionMessage()
             val data = remote.data
-            val context: MentionContext = kJson.decodeFromString(data["context"]!!)
+            val context: MentionContext =
+                kJson.decodeFromString(MentionContext.serializer(), data["context"]!!)
             message.message_id = context.msg_id
             message.body = data["body"]
             message.title = data["title"]

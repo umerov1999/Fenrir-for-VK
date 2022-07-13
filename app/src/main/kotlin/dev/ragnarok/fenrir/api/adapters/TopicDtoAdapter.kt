@@ -3,7 +3,10 @@ package dev.ragnarok.fenrir.api.adapters
 import dev.ragnarok.fenrir.api.model.CommentsDto
 import dev.ragnarok.fenrir.api.model.VKApiTopic
 import dev.ragnarok.fenrir.kJson
-import dev.ragnarok.fenrir.util.serializeble.json.*
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
+import dev.ragnarok.fenrir.util.serializeble.json.intOrNull
+import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
 
 class TopicDtoAdapter : AbsAdapter<VKApiTopic>("VKApiTopic") {
     @Throws(Exception::class)
@@ -29,6 +32,7 @@ class TopicDtoAdapter : AbsAdapter<VKApiTopic>("VKApiTopic") {
             if (commentsJson is JsonObject) {
                 dto.comments =
                     kJson.decodeFromJsonElement(
+                        CommentsDto.serializer(),
                         commentsJson
                     )
             } else {

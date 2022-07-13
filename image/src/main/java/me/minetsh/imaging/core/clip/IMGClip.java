@@ -82,7 +82,7 @@ public interface IMGClip {
         final static int P = 0, N = 1;
         final static int H = 0, V = 2;
         final static int[] PN = {1, -1};
-        int v;
+        final int v;
 
         Anchor(int v) {
             this.v = v;

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.model.longpoll.*
 import dev.ragnarok.fenrir.api.util.VKStringUtils
@@ -118,7 +119,10 @@ class LongpollUpdateAdapter : AbsAdapter<AbsLongpollEvent?>("AbsLongpollEvent?")
             if (extra.has("keyboard")) {
                 update.keyboard =
                     extra["keyboard"]?.let {
-                        kJson.decodeFromJsonElement(it)
+                        kJson.decodeFromJsonElement(
+                            VKApiConversation.CurrentKeyboard.serializer(),
+                            it
+                        )
                     }
             }
         }

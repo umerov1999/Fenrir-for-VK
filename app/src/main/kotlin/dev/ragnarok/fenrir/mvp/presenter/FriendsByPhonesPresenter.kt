@@ -66,6 +66,8 @@ class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceSt
                 StandardCharsets.UTF_8
             )
             out = FileOutputStream(file)
+            val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+            out.write(bom)
             out.write(bytes)
             out.flush()
             Includes.provideApplicationContext().sendBroadcast(

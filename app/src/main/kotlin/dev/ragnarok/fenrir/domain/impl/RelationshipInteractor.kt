@@ -1,16 +1,20 @@
 package dev.ragnarok.fenrir.domain.impl
 
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.IRelationshipInteractor.DeletedCodes
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapUsers
+import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUsers
+import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildOwnerUsersFromDbo
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildUsersFromDbo
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.exception.UnepectedResultException
 import dev.ragnarok.fenrir.model.FriendsCounters
+import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.Pair
@@ -22,6 +26,44 @@ class RelationshipInteractor(
     private val repositories: IStorages,
     private val networker: INetworker
 ) : IRelationshipInteractor {
+    override fun getCachedGroupMembers(accountId: Int, groupId: Int): Single<List<Owner>> {
+        return repositories.relativeship()
+            .getGroupMembers(accountId, groupId)
+            .map { obj -> buildOwnerUsersFromDbo(obj) }
+    }
+
+    override fun getGroupMembers(
+        accountId: Int,
+        groupId: Int,
+        offset: Int,
+        count: Int,
+        filter: String?
+    ): Single<List<Owner>> {
+        return networker.vkDefault(accountId)
+            .groups()
+            .getMembers(
+                groupId.toString(),
+                null,
+                offset,
+                count,
+                Constants.MAIN_OWNER_FIELDS,
+                filter
+            )
+            .flatMap { items ->
+                val dtos = listEmptyIfNull(
+                    items.items
+                )
+                if (filter.isNullOrEmpty()) {
+                    val dbos = mapUsers(dtos)
+                    repositories.relativeship()
+                        .storeGroupMembers(accountId, dbos, groupId, offset == 0)
+                        .andThen(Single.just(Dto2Model.transformOwners(dtos, null)))
+                } else {
+                    Single.just(Dto2Model.transformOwners(dtos, null))
+                }
+            }
+    }
+
     override fun getCachedFriends(accountId: Int, objectId: Int): Single<List<User>> {
         return repositories.relativeship()
             .getFriends(accountId, objectId)

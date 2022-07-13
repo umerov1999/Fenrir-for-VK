@@ -140,10 +140,10 @@ class FaveArticlesPresenter(accountId: Int, savedInstanceState: Bundle?) :
             }) { t -> onNetDataGetError(t) })
     }
 
-    fun fireArticleClick(url: String) {
+    fun fireArticleClick(article: Article) {
         view?.goToArticle(
             accountId,
-            url
+            article
         )
     }
 

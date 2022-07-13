@@ -36,10 +36,8 @@ public class TransformImageView extends AppCompatImageView {
 
     protected final float[] mCurrentImageCorners = new float[RECT_CORNER_POINTS_COORDS];
     protected final float[] mCurrentImageCenter = new float[RECT_CENTER_POINT_COORDS];
-
+    protected final Matrix mCurrentImageMatrix = new Matrix();
     private final float[] mMatrixValues = new float[MATRIX_VALUES_COUNT];
-
-    protected Matrix mCurrentImageMatrix = new Matrix();
     protected int mThisWidth, mThisHeight;
 
     protected TransformImageListener mTransformImageListener;

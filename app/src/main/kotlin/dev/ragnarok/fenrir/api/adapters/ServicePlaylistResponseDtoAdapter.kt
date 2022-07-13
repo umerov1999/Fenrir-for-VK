@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.VKApiAudioPlaylist
 import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class ServicePlaylistResponseDtoAdapter :
     AbsAdapter<ServicePlaylistResponse>("ServicePlaylistResponse") {
@@ -22,13 +22,18 @@ class ServicePlaylistResponseDtoAdapter :
             for (i in response.orEmpty()) {
                 if (checkObject(i)) {
                     dto.playlists?.add(
-                        kJson.decodeFromJsonElement(i)
+                        kJson.decodeFromJsonElement(VKApiAudioPlaylist.serializer(), i)
                     )
                 }
             }
         } else if (checkObject(root["response"])) {
             val response = root["response"]
-            dto.playlists?.add(kJson.decodeFromJsonElement(response ?: return dto))
+            dto.playlists?.add(
+                kJson.decodeFromJsonElement(
+                    VKApiAudioPlaylist.serializer(),
+                    response ?: return dto
+                )
+            )
         }
         return dto
     }

@@ -1,11 +1,21 @@
 package dev.ragnarok.fenrir.domain
 
 import dev.ragnarok.fenrir.model.FriendsCounters
+import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.util.Pair
 import io.reactivex.rxjava3.core.Single
 
 interface IRelationshipInteractor {
+    fun getCachedGroupMembers(accountId: Int, groupId: Int): Single<List<Owner>>
+    fun getGroupMembers(
+        accountId: Int,
+        groupId: Int,
+        offset: Int,
+        count: Int,
+        filter: String?
+    ): Single<List<Owner>>
+
     fun getCachedFriends(accountId: Int, objectId: Int): Single<List<User>>
     fun getCachedFollowers(accountId: Int, objectId: Int): Single<List<User>>
     fun getCachedRequests(accountId: Int): Single<List<User>>

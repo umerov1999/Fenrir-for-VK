@@ -143,7 +143,6 @@ class FeedbackVKOfficialAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val items = data?.items ?: return
-        val dt = data ?: return
         val Page = items[position]
         val previous = if (position == 0) null else items[position - 1]
         val lastMessageJavaTime = Page.time * 1000
@@ -177,24 +176,18 @@ class FeedbackVKOfficialAdapter(
                 LinkParser.parseLinks(context, replace),
                 TextView.BufferType.SPANNABLE
             )
-            val matcher = LinkParser.MENTIONS_AVATAR_PATTERN.matcher(lit)
-            if (matcher.find()) {
-                val Type = matcher.group(1)
-                var Id = matcher.group(2)?.toInt() ?: 0
-                if (Type == "event" || Type == "club" || Type == "public") Id *= -1
-                val icn = dt.getAvatar(Id)
-                if (icn != null) {
+            if (Page.header_owner_id != null) {
+                if (Page.header_owner_avatar_url.nonNullNoEmpty()) {
                     with()
-                        .load(icn)
+                        .load(Page.header_owner_avatar_url)
                         .tag(Constants.PICASSO_TAG)
                         .placeholder(R.drawable.background_gray)
                         .transform(transformation)
                         .into(holder.avatar)
-                    val finalId = Id
                     holder.avatar.setOnClickListener {
-                        clickListener?.openOwnerWall(
-                            finalId
-                        )
+                        Page.header_owner_id?.let { vit ->
+                            clickListener?.openOwnerWall(vit)
+                        }
                     }
                     LoadIcon(holder, Page, true)
                 } else {

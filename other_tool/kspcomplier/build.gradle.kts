@@ -1,6 +1,5 @@
 val kspVersion: String by project
 plugins {
-    // 这其实就是个java 的plugin
     kotlin("jvm")
 }
 

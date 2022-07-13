@@ -378,6 +378,6 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
         data.add(ALL, UsersPart(R.string.all_friends, ArrayList(), true))
         data.add(SEARCH_CACHE, UsersPart(R.string.results_in_the_cache, ArrayList(), false))
         data.add(SEARCH_WEB, UsersPart(R.string.results_in_a_network, ArrayList(), false))
-        isNotFriendShow = Settings.get().other().isNot_friend_show
+        isNotFriendShow = Settings.get().other().isOwnerInChangesMonitor(userId)
     }
 }

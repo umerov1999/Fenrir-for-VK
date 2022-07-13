@@ -468,13 +468,6 @@ class GroupWallPresenter(
         }
     }
 
-    fun fireMutualFriends() {
-        view?.goToMutualFriends(
-            accountId,
-            community
-        )
-    }
-
     fun fireSubscribe() {
         val accountId = accountId
         appendDisposable(wallsRepository.subscribe(accountId, ownerId)

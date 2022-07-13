@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.crypt.AESCrypt.decrypt
 import dev.ragnarok.fenrir.crypt.AESCrypt.encrypt
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import kotlinx.serialization.decodeFromString
 import java.security.*
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.X509EncodedKeySpec
@@ -43,11 +42,12 @@ object CryptHelper {
                 return false
             }
             val exchangeMessageBody = text.substring(3) // without RSA on start
-            val message: ExchangeMessage? =
+            val message: ExchangeMessage =
                 kJson.decodeFromString(
+                    ExchangeMessage.serializer(),
                     exchangeMessageBody
                 )
-            message != null && 0 < message.sessionId && 0 < message.version && 0 < message.senderSessionState
+            0 < message.sessionId && 0 < message.version && 0 < message.senderSessionState
         } catch (e: Exception) {
             false
         }

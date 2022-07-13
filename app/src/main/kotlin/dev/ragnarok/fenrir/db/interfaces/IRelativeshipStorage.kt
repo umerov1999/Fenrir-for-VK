@@ -34,7 +34,15 @@ interface IRelativeshipStorage : IStorage {
         clearBeforeStore: Boolean
     ): Completable
 
+    fun storeGroupMembers(
+        accountId: Int,
+        users: List<UserEntity>,
+        objectId: Int,
+        clearBeforeStore: Boolean
+    ): Completable
+
     fun getFriends(accountId: Int, objectId: Int): Single<List<UserEntity>>
+    fun getGroupMembers(accountId: Int, groupId: Int): Single<List<UserEntity>>
     fun getFollowers(accountId: Int, objectId: Int): Single<List<UserEntity>>
     fun getRequests(accountId: Int): Single<List<UserEntity>>
     fun getCommunities(accountId: Int, ownerId: Int): Single<List<CommunityEntity>>

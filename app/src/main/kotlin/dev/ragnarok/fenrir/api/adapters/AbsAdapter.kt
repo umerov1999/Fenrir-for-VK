@@ -244,7 +244,7 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
 
         inline fun <reified T> parseArray(
             array: JsonElement?,
-            fallback: List<T>?
+            fallback: List<T>?, serializer: KSerializer<T>
         ): List<T>? {
             contract {
                 returns(true) implies (array != null)
@@ -255,7 +255,7 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
             } else try {
                 val list: MutableList<T> = ArrayList()
                 for (i in 0 until array.jsonArray.size) {
-                    list.add(kJson.decodeFromJsonElement(array.jsonArray[i]))
+                    list.add(kJson.decodeFromJsonElement(serializer, array[i]))
                 }
                 list
             } catch (e: Exception) {
@@ -268,7 +268,7 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
 
         inline fun <reified T> parseArray(
             array: JsonArray?,
-            fallback: List<T>?
+            fallback: List<T>?, serializer: KSerializer<T>
         ): List<T>? {
             contract {
                 returns(true) implies (array != null)
@@ -277,7 +277,7 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
             return try {
                 val list: MutableList<T> = ArrayList()
                 for (i in 0 until array.size) {
-                    list.add(kJson.decodeFromJsonElement(array[i]))
+                    list.add(kJson.decodeFromJsonElement(serializer, array[i]))
                 }
                 list
             } catch (e: Exception) {
@@ -387,6 +387,9 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
 
         val JsonElement.asPrimitiveSafe: JsonPrimitive?
             get() = this as? JsonPrimitive
+
+        val JsonElement.asJsonArraySafe: JsonArray?
+            get() = this as? JsonArray
 
         val JsonElement.asJsonArray: JsonArray
             get() = this as? JsonArray ?: error("JsonArray")

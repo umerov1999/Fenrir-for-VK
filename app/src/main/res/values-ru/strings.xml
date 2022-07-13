@@ -1492,8 +1492,6 @@
     <string name="new_communities">Новые сообщества:</string>
     <string name="not_communities">Больше не состоит:</string>
     <string name="keyboard">Клавиатура</string>
-    <string name="not_friend_show">Больше не друзья</string>
-    <string name="not_friend_show_summary">Показывать, кто убрался из друзей</string>
     <string name="show_bot_keyboard">Клавиатура ботов</string>
     <string name="do_zoom_photo">Зумировать фото как в Instagram</string>
     <string name="do_auto_play_video">Автовыбор качества видео</string>
@@ -1670,4 +1668,14 @@
     <string name="reset_settings">Сброс настроек</string>
     <string name="wrong_settings_format">Данный формат настроек не поддерживается!</string>
     <string name="settings_for_another_client">Настройки для кейта не подходят для обычного клиента и наоборот!</string>
+    <string name="ongoing_player_notification">Непрерывное уведомление</string>
+    <string name="group_members">Участники сообщества</string>
+    <string name="donut">Доны</string>
+    <string name="all">Все</string>
+    <string name="unsure">Возможно пойду</string>
+    <string name="managers">Менеджеры</string>
+    <string name="filter">Фильтр</string>
+    <string name="toggle_monitor_on">Изменения</string>
+    <string name="toggle_monitor_off">Отключить изменения</string>
+    <string name="toggle_monitor_info">Работает, если количество друзей не более 1000</string>
 </resources>

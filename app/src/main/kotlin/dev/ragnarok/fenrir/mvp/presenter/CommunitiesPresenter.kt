@@ -35,7 +35,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     private val netSearchDisposable = CompositeDisposable()
     private val filterDisposable = CompositeDisposable()
     private val isNotFriendShow: Boolean =
-        Settings.get().other().isNot_friend_show && userId != accountId
+        Settings.get().other().isOwnerInChangesMonitor(userId) && userId != accountId
     private var actualEndOfContent = false
     private var netSearchEndOfContent = false
     private var actualLoadingNow = false
@@ -51,7 +51,12 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         //this.actualLoadingOffset = offset;
         val accountId = accountId
         resolveRefreshing()
-        actualDisposable.add(communitiesInteractor.getActual(accountId, userId, 1000, offset)
+        actualDisposable.add(communitiesInteractor.getActual(
+            accountId,
+            userId,
+            if (isNotFriendShow) 1000 else 200,
+            offset
+        )
             .fromIOToMain()
             .subscribe({ communities ->
                 onActualDataReceived(

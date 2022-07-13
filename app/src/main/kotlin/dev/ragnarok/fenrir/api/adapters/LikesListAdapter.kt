@@ -8,7 +8,6 @@ import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class LikesListAdapter : AbsAdapter<LikesListResponse>("LikesListResponse") {
     @Throws(Exception::class)
@@ -33,11 +32,11 @@ class LikesListAdapter : AbsAdapter<LikesListResponse>("LikesListResponse") {
                 var owner: VKApiOwner? = null
                 if ("profile" == type) {
                     owner = itemRoot?.let {
-                        kJson.decodeFromJsonElement<VKApiUser>(it)
+                        kJson.decodeFromJsonElement(VKApiUser.serializer(), it)
                     }
                 } else if ("group" == type || "page" == type) {
                     owner = itemRoot?.let {
-                        kJson.decodeFromJsonElement<VKApiCommunity>(it)
+                        kJson.decodeFromJsonElement(VKApiCommunity.serializer(), it)
                     }
                 }
                 owner.requireNonNull {

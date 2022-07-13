@@ -1,11 +1,11 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.CommentsDto
 import dev.ragnarok.fenrir.api.model.PhotoSizeDto
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class PhotoDtoAdapter : AbsAdapter<VKApiPhoto>("VKApiPhoto") {
     @Throws(Exception::class)
@@ -32,7 +32,7 @@ class PhotoDtoAdapter : AbsAdapter<VKApiPhoto>("VKApiPhoto") {
         }
         if (hasObject(root, "comments")) {
             photo.comments = root["comments"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(CommentsDto.serializer(), it)
             }
         }
         if (hasObject(root, "tags")) {
@@ -54,6 +54,7 @@ class PhotoDtoAdapter : AbsAdapter<VKApiPhoto>("VKApiPhoto") {
                 }
                 val photoSizeDto: PhotoSizeDto =
                     kJson.decodeFromJsonElement(
+                        PhotoSizeDto.serializer(),
                         sizesArray?.get(i) ?: continue
                     )
                 photo.sizes?.add(photoSizeDto)

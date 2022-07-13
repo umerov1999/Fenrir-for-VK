@@ -14,11 +14,13 @@ import androidx.core.app.NotificationCompat
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
 
 class NotificationHelper(private val mService: MusicPlaybackService) {
     private val mNotificationManager: NotificationManager?
     private var mNotificationBuilder: NotificationCompat.Builder? = null
+    private val onGoing = Settings.get().other().isOngoing_player_notification
 
     @Suppress("DEPRECATION")
     fun buildNotification(
@@ -67,16 +69,14 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
                         context.resources.getString(R.string.next),
                         retreivePlaybackActions(ACTION_NEXT)
                     )
+                ).addAction(
+                    NotificationCompat.Action(
+                        R.drawable.close,
+                        context.resources.getString(R.string.close),
+                        retreivePlaybackActions(SWIPE_DISMISS_ACTION)
+                    )
                 )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mNotificationBuilder?.addAction(
-                NotificationCompat.Action(
-                    R.drawable.close,
-                    context.resources.getString(R.string.close),
-                    retreivePlaybackActions(SWIPE_DISMISS_ACTION)
-                )
-            )
-        } else {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             mNotificationBuilder?.setDeleteIntent(retreivePlaybackActions(SWIPE_DISMISS_ACTION))
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
@@ -84,15 +84,18 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
         else
             mNotificationBuilder?.priority = Notification.PRIORITY_MAX
         if (isPlaying) {
-            mNotificationBuilder?.setOngoing(true)
+            if (onGoing) {
+                mNotificationBuilder?.setOngoing(true)
+            }
             mService.goForeground(
                 FENRIR_MUSIC_SERVICE,
                 mNotificationBuilder?.build(),
                 mNotificationManager
             )
-        } else {
+        } else if (onGoing) {
             mNotificationBuilder?.setOngoing(false)
         }
+        mNotificationBuilder?.setVisibility(Notification.VISIBILITY_PUBLIC)
     }
 
     fun killNotification() {

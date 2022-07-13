@@ -4,7 +4,10 @@ import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.serializeble.json.*
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
+import dev.ragnarok.fenrir.util.serializeble.json.JsonObject
+import dev.ragnarok.fenrir.util.serializeble.json.jsonArray
+import dev.ragnarok.fenrir.util.serializeble.json.jsonObject
 
 class AttachmentsDtoAdapter : AbsAdapter<VKApiAttachments>("VKApiAttachments") {
     @Throws(Exception::class)
@@ -46,19 +49,17 @@ class AttachmentsDtoAdapter : AbsAdapter<VKApiAttachments>("VKApiAttachments") {
             //{"type":"photos_list","photos_list":["406536042_456239026"]}
             return when {
                 VKApiAttachment.TYPE_PHOTO == type -> {
-                    kJson.decodeFromJsonElement<VKApiPhoto>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiPhoto.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_VIDEO == type -> {
-                    kJson.decodeFromJsonElement<VKApiVideo>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiVideo.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_AUDIO == type -> {
-                    kJson.decodeFromJsonElement<VKApiAudio>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiAudio.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_DOC == type -> {
                     val doc: VKApiDoc =
-                        kJson.decodeFromJsonElement(
-                            o ?: return null
-                        )
+                        kJson.decodeFromJsonElement(VKApiDoc.serializer(), o ?: return null)
                     if ("lottie" == doc.ext) {
                         val sticker = VKApiSticker()
                         sticker.sticker_id = doc.id
@@ -68,58 +69,58 @@ class AttachmentsDtoAdapter : AbsAdapter<VKApiAttachments>("VKApiAttachments") {
                     doc
                 }
                 VKApiAttachment.TYPE_POST == type || VKApiAttachment.TYPE_FAVE_POST == type -> {
-                    kJson.decodeFromJsonElement<VKApiPost>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiPost.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_LINK == type -> {
-                    kJson.decodeFromJsonElement<VKApiLink>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiLink.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_ARTICLE == type -> {
-                    kJson.decodeFromJsonElement<VKApiArticle>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiArticle.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_POLL == type -> {
-                    kJson.decodeFromJsonElement<VKApiPoll>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiPoll.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_WIKI_PAGE == type -> {
-                    kJson.decodeFromJsonElement<VKApiWikiPage>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiWikiPage.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_ALBUM == type -> {
-                    kJson.decodeFromJsonElement<VKApiPhotoAlbum>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiPhotoAlbum.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_STICKER == type -> {
-                    kJson.decodeFromJsonElement<VKApiSticker>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiSticker.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_AUDIO_MESSAGE == type -> {
-                    kJson.decodeFromJsonElement<VKApiAudioMessage>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiAudioMessage.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_GIFT == type -> {
-                    kJson.decodeFromJsonElement<VKApiGiftItem>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiGiftItem.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_GRAFFITI == type -> {
-                    kJson.decodeFromJsonElement<VKApiGraffiti>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiGraffiti.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_STORY == type -> {
-                    kJson.decodeFromJsonElement<VKApiStory>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiStory.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_CALL == type -> {
-                    kJson.decodeFromJsonElement<VKApiCall>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiCall.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_AUDIO_PLAYLIST == type -> {
-                    kJson.decodeFromJsonElement<VKApiAudioPlaylist>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiAudioPlaylist.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_WALL_REPLY == type -> {
-                    kJson.decodeFromJsonElement<VKApiWallReply>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiWallReply.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_EVENT == type -> {
-                    kJson.decodeFromJsonElement<VKApiEvent>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiEvent.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_MARKET_ALBUM == type -> {
-                    kJson.decodeFromJsonElement<VKApiMarketAlbum>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiMarketAlbum.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_ARTIST == type -> {
-                    kJson.decodeFromJsonElement<VKApiAudioArtist>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiAudioArtist.serializer(), o ?: return null)
                 }
                 VKApiAttachment.TYPE_MARKET == type || VKApiAttachment.TYPE_PRODUCT == type -> {
-                    kJson.decodeFromJsonElement<VKApiMarket>(o ?: return null)
+                    kJson.decodeFromJsonElement(VKApiMarket.serializer(), o ?: return null)
                 }
                 !Utils.isValueAssigned(
                     type,

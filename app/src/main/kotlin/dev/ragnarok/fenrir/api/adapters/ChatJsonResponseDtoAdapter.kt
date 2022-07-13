@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.adapters
 
+import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.model.local_json.ChatJsonResponse
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class ChatJsonResponseDtoAdapter : AbsAdapter<ChatJsonResponse>("ChatJsonResponse") {
     @Throws(Exception::class)
@@ -23,11 +23,11 @@ class ChatJsonResponseDtoAdapter : AbsAdapter<ChatJsonResponse>("ChatJsonRespons
         story.page_site = optString(root, "page_site")
         story.page_title = optString(root, "page_title")
         story.version = root["version"]?.let {
-            kJson.decodeFromJsonElement(it)
+            kJson.decodeFromJsonElement(ChatJsonResponse.Version.serializer(), it)
         }
         story.messages = parseArray(
             story.type?.let { root.getAsJsonArray(it) },
-            emptyList()
+            emptyList(), VKApiMessage.serializer()
         )
         return story
     }

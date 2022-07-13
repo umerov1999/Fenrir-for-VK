@@ -470,6 +470,8 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
                 )
             )
             val output: OutputStream = FileOutputStream(html)
+            val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+            output.write(bom)
             output.write(main.toByteArray(StandardCharsets.UTF_8))
             output.flush()
             output.close()
@@ -575,6 +577,8 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
                 )
             )
             val output = OutputStreamWriter(FileOutputStream(html), StandardCharsets.UTF_8)
+            val bom = charArrayOf('\ufeff')
+            output.write(bom)
             var offset = 0
             var isFirst = true
             if (owner_id >= VKApiMessage.CHAT_PEER) {

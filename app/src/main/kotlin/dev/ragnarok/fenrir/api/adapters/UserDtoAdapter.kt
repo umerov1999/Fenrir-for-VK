@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.api.adapters
 
-import dev.ragnarok.fenrir.api.model.VKApiUser
+import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class UserDtoAdapter : AbsAdapter<VKApiUser>("VKApiUser") {
     @Throws(Exception::class)
@@ -37,31 +36,32 @@ class UserDtoAdapter : AbsAdapter<VKApiUser>("VKApiUser") {
         dto.bdate = optString(root, VKApiUser.Field.BDATE)
         if (hasObject(root, VKApiUser.Field.CITY)) {
             dto.city = root[VKApiUser.Field.CITY]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiCity.serializer(), it)
             }
         }
         if (hasObject(root, VKApiUser.Field.COUNTRY)) {
             dto.country =
                 root[VKApiUser.Field.COUNTRY]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiCountry.serializer(), it)
                 }
         }
         dto.universities = parseArray(
             root[VKApiUser.Field.UNIVERSITIES],
-            null
+            null,
+            VKApiUniversity.serializer()
         )
         dto.schools =
-            parseArray(root[VKApiUser.Field.SCHOOLS], null)
+            parseArray(root[VKApiUser.Field.SCHOOLS], null, VKApiSchool.serializer())
         dto.militaries =
-            parseArray(root[VKApiUser.Field.MILITARY], null)
+            parseArray(root[VKApiUser.Field.MILITARY], null, VKApiMilitary.serializer())
         dto.careers =
-            parseArray(root[VKApiUser.Field.CAREER], null)
+            parseArray(root[VKApiUser.Field.CAREER], null, VKApiCareer.serializer())
 
         // status
         dto.activity = optString(root, VKApiUser.Field.ACTIVITY)
         if (hasObject(root, "status_audio")) {
             dto.status_audio = root["status_audio"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiAudio.serializer(), it)
             }
         }
         if (hasObject(root, VKApiUser.Field.PERSONAL)) {
@@ -122,12 +122,12 @@ class UserDtoAdapter : AbsAdapter<VKApiUser>("VKApiUser") {
         if (hasObject(root, VKApiUser.Field.COUNTERS)) {
             dto.counters =
                 root[VKApiUser.Field.COUNTERS]?.let {
-                    kJson.decodeFromJsonElement(it)
+                    kJson.decodeFromJsonElement(VKApiUser.Counters.serializer(), it)
                 }
         }
         dto.relation = optInt(root, VKApiUser.Field.RELATION)
         dto.relatives = parseArray(
-            root[VKApiUser.Field.RELATIVES], emptyList()
+            root[VKApiUser.Field.RELATIVES], emptyList(), VKApiUser.Relative.serializer()
         )
         dto.home_town = optString(root, VKApiUser.Field.HOME_TOWN)
         dto.photo_id = optString(root, "photo_id")
@@ -138,7 +138,7 @@ class UserDtoAdapter : AbsAdapter<VKApiUser>("VKApiUser") {
         dto.has_mobile = optBoolean(root, "has_mobile")
         if (hasObject(root, "occupation")) {
             dto.occupation = root["occupation"]?.let {
-                kJson.decodeFromJsonElement(it)
+                kJson.decodeFromJsonElement(VKApiUser.Occupation.serializer(), it)
             }
         }
         if (hasObject(root, "relation_partner")) {

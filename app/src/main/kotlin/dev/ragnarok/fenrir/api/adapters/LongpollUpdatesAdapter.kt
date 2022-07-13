@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.api.model.longpoll.VkApiLongpollUpdates
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
-import dev.ragnarok.fenrir.util.serializeble.json.decodeFromJsonElement
 
 class LongpollUpdatesAdapter : AbsAdapter<VkApiLongpollUpdates>("VkApiLongpollUpdates") {
     @Throws(Exception::class)
@@ -22,11 +21,14 @@ class LongpollUpdatesAdapter : AbsAdapter<VkApiLongpollUpdates>("VkApiLongpollUp
         val array = root["updates"]
         if (checkArray(array)) {
             for (i in 0 until array.asJsonArray.size) {
-                val updateArray = array.asJsonArray[i].asJsonArray
+                val updateArray = array.asJsonArraySafe?.get(i)?.asJsonArraySafe
                 val event: AbsLongpollEvent? =
-                    kJson.decodeFromJsonElement(
-                        updateArray
-                    )
+                    updateArray?.let {
+                        kJson.decodeFromJsonElement(
+                            AbsLongpollEvent.serializer(),
+                            it
+                        )
+                    }
                 if (event != null) {
                     updates.putUpdate(event)
                 } else {
