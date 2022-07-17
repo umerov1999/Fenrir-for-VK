@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
 import android.os.Parcel
+import android.os.Parcelable
 import android.util.SparseArray
 import android.util.TypedValue
 import android.view.Display
@@ -1086,6 +1087,34 @@ object Utils {
         return map
     }
 
+    inline fun <reified T : Parcelable> writeParcelableMap(
+        parcel: Parcel,
+        flags: Int,
+        map: Map<String, T>?
+    ) {
+        if (map.isNullOrEmpty()) {
+            parcel.writeInt(0)
+            return
+        }
+        parcel.writeInt(map.size)
+        for ((key, value) in map) {
+            parcel.writeString(key)
+            parcel.writeParcelable(value, flags)
+        }
+    }
+
+    inline fun <reified T : Parcelable> readParcelableMap(
+        parcel: Parcel,
+        loader: ClassLoader
+    ): Map<String, T>? {
+        val size = parcel.readInt()
+        if (size == 0) return null
+        val map: MutableMap<String, T> = HashMap(size)
+        for (i in 0 until size) {
+            map[parcel.readString() ?: continue] = parcel.readParcelable(loader) ?: continue
+        }
+        return map
+    }
 
     fun getArrayFromHash(data: Map<String, String>?): Array<Array<String?>> {
         data ?: return emptyArray()

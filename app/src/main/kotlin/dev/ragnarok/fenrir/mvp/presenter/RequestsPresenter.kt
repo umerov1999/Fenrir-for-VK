@@ -38,7 +38,6 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
     private var cacheLoadingNow = false
     private var searchRunNow = false
     private var doLoadTabs = false
-    private var not_requests: MutableList<Owner>? = null
     private var offset = 0
     private fun requestActualData(do_scan: Boolean) {
         val accountId = accountId
@@ -73,7 +72,6 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
         super.onGuiCreated(viewHost)
         viewHost.displayData(data, isSearchNow)
         resolveSwipeRefreshAvailability()
-        checkAndShowModificationRequests()
     }
 
     private fun resolveRefreshingView() {
@@ -94,31 +92,20 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
         }
     }
 
-    private fun checkAndShowModificationRequests() {
-        if (not_requests.nonNullNoEmpty()) {
-            view?.showNotRequests(
-                not_requests ?: Collections.emptyList(),
-                accountId
-            )
-        }
-    }
-
-    fun clearModificationRequests() {
-        if (!not_requests.isNullOrEmpty()) {
-            not_requests?.clear()
-            not_requests = null
-        }
-    }
-
     private fun onActualDataReceived(users: List<User>, do_scan: Boolean) {
         if (do_scan && isNotFriendShow) {
-            not_requests = ArrayList()
+            val not_requests = ArrayList<Owner>()
             for (i in allData) {
                 if (indexOf(users, i.getObjectId()) == -1) {
-                    not_requests?.add(i)
+                    not_requests.add(i)
                 }
             }
-            checkAndShowModificationRequests()
+            if (not_requests.nonNullNoEmpty()) {
+                view?.showNotRequests(
+                    not_requests,
+                    accountId, userId
+                )
+            }
         }
         // reset cache loading
         cacheDisposable.clear()

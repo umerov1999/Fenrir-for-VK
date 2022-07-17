@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.math.abs
 
+@Serializable
 class FeedbackVKOfficial {
     var footer: String? = null
     var header: String? = null

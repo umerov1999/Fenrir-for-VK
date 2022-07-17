@@ -44,8 +44,6 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     private var cacheLoadingNow = false
     private var netSearchNow = false
     private var filter: String? = null
-    private var not_communities: MutableList<Owner>? = null
-    private var add_communities: MutableList<Owner>? = null
     private fun requestActualData(offset: Int, do_scan: Boolean) {
         actualLoadingNow = true
         //this.actualLoadingOffset = offset;
@@ -88,28 +86,6 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     override fun onGuiCreated(viewHost: ICommunitiesView) {
         super.onGuiCreated(viewHost)
         viewHost.displayData(own, filtered, search)
-        checkAndShowModificationCommunities()
-    }
-
-    private fun checkAndShowModificationCommunities() {
-        if (add_communities.nonNullNoEmpty() || !not_communities.nonNullNoEmpty()) {
-            view?.showModCommunities(
-                add_communities,
-                not_communities,
-                accountId
-            )
-        }
-    }
-
-    fun clearModificationCommunities(add: Boolean, not: Boolean) {
-        if (add && !add_communities.isNullOrEmpty()) {
-            add_communities?.clear()
-            add_communities = null
-        }
-        if (not && !not_communities.isNullOrEmpty()) {
-            not_communities?.clear()
-            not_communities = null
-        }
     }
 
     private fun onActualDataReceived(offset: Int, communities: List<Community>, do_scan: Boolean) {
@@ -119,19 +95,25 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         actualLoadingNow = false
         actualEndOfContent = communities.isEmpty()
         if (do_scan && isNotFriendShow) {
-            not_communities = ArrayList()
+            val not_communities = ArrayList<Owner>()
             for (i in own.get()) {
                 if (indexOfOwner(communities, i.ownerId) == -1) {
-                    not_communities?.add(i)
+                    not_communities.add(i)
                 }
             }
-            add_communities = ArrayList()
+            val add_communities = ArrayList<Owner>()
             for (i in communities) {
                 if (indexOfOwner(own.get(), i.ownerId) == -1) {
-                    add_communities?.add(i)
+                    add_communities.add(i)
                 }
             }
-            checkAndShowModificationCommunities()
+            if (add_communities.isNotEmpty() || not_communities.isNotEmpty()) {
+                view?.showModCommunities(
+                    add_communities,
+                    not_communities,
+                    accountId, userId
+                )
+            }
         }
         if (offset == 0) {
             own.get().clear()

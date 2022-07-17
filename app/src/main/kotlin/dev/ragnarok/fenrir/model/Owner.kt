@@ -2,20 +2,22 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import kotlinx.serialization.Serializable
 
-abstract class Owner : AbsModel, ParcelNative.ParcelableNative {
+@Serializable
+sealed class Owner : AbsModel, ParcelNative.ParcelableNative {
     @OwnerType
     val ownerType: Int
 
-    protected constructor(ownerType: Int) {
+    constructor(ownerType: Int) {
         this.ownerType = ownerType
     }
 
-    protected constructor(`in`: Parcel) : super(`in`) {
+    constructor(`in`: Parcel) : super(`in`) {
         ownerType = `in`.readInt()
     }
 
-    protected constructor(`in`: ParcelNative) {
+    constructor(`in`: ParcelNative) {
         ownerType = `in`.readInt()
     }
 

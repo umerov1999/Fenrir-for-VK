@@ -12,6 +12,7 @@ interface IVkPhotosView : IMvpView, IAccountDependencyView, IErrorView, IToolbar
     fun displayData(photos: List<SelectablePhotoWrapper>, uploads: List<Upload>)
     fun notifyDataSetChanged()
     fun notifyPhotosAdded(position: Int, count: Int)
+    fun notifyPhotosChanged(position: Int, count: Int)
     fun displayRefreshing(refreshing: Boolean)
     fun notifyUploadAdded(position: Int, count: Int)
     fun notifyUploadRemoved(index: Int)

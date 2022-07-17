@@ -1892,4 +1892,5 @@
     <string name="toggle_monitor_on">Changes</string>
     <string name="toggle_monitor_off">Stop Changes</string>
     <string name="toggle_monitor_info">Shows changes in the number of friends, members, etc. Works if quantity is less than 1000</string>
+    <string name="delta">Delta</string>
 </resources>

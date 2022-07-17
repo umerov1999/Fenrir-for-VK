@@ -29,8 +29,6 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
     private var endOfContent = false
     private var cacheLoadingNow = false
     private var doLoadTabs = false
-    private var not_followers: MutableList<Owner>? = null
-    private var add_followers: MutableList<Owner>? = null
     private var offset = 0
     private fun requestActualData(do_scan: Boolean) {
         actualDataLoading = true
@@ -67,11 +65,6 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
         )
     }
 
-    override fun onGuiCreated(viewHost: IFollowersView) {
-        super.onGuiCreated(viewHost)
-        checkAndShowModificationFriends()
-    }
-
     public override fun onGuiResumed() {
         super.onGuiResumed()
         resolveRefreshingView()
@@ -99,42 +92,27 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
         resolveRefreshingView()
     }
 
-    private fun checkAndShowModificationFriends() {
-        if (!add_followers.isNullOrEmpty() || !not_followers.isNullOrEmpty()) {
-            view?.showModFollowers(
-                add_followers,
-                not_followers,
-                accountId
-            )
-        }
-    }
-
-    fun clearModificationFollowers(add: Boolean, not: Boolean) {
-        if (add && !add_followers.isNullOrEmpty()) {
-            add_followers?.clear()
-            add_followers = null
-        }
-        if (not && !not_followers.isNullOrEmpty()) {
-            not_followers?.clear()
-            not_followers = null
-        }
-    }
-
     private fun onActualDataReceived(users: List<User>, do_scan: Boolean) {
         if (do_scan && isNotFriendShow) {
-            not_followers = ArrayList()
+            val not_followers = ArrayList<Owner>()
             for (i in data) {
                 if (indexOf(users, i.ownerId) == -1) {
-                    not_followers?.add(i)
+                    not_followers.add(i)
                 }
             }
-            add_followers = ArrayList()
+            val add_followers = ArrayList<Owner>()
             for (i in users) {
                 if (indexOfOwner(data, i.getObjectId()) == -1) {
-                    add_followers?.add(i)
+                    add_followers.add(i)
                 }
             }
-            checkAndShowModificationFriends()
+            if (add_followers.isNotEmpty() || not_followers.isNotEmpty()) {
+                view?.showModFollowers(
+                    add_followers,
+                    not_followers,
+                    accountId, userId
+                )
+            }
         }
         actualDataLoading = false
         cacheDisposable.clear()

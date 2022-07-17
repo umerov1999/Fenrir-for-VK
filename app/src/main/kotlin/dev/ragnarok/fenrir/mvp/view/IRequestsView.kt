@@ -13,5 +13,5 @@ interface IRequestsView : IMvpView, IErrorView, IAccountDependencyView {
     fun notifyItemRangeInserted(position: Int, count: Int)
     fun showUserWall(accountId: Int, user: User)
     fun showRefreshing(refreshing: Boolean)
-    fun showNotRequests(data: List<Owner>, accountId: Int)
+    fun showNotRequests(data: List<Owner>, accountId: Int, ownerId: Int)
 }

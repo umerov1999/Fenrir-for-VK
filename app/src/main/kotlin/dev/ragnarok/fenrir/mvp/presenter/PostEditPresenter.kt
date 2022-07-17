@@ -164,9 +164,9 @@ class PostEditPresenter(
     }
 
     private val isGroup: Boolean
-        get() = owner is Community && (owner as Community).type == VKApiCommunity.Type.GROUP
+        get() = owner is Community && (owner as Community).communityType == VKApiCommunity.Type.GROUP
     private val isCommunity: Boolean
-        get() = owner is Community && (owner as Community).type == VKApiCommunity.Type.PAGE
+        get() = owner is Community && (owner as Community).communityType == VKApiCommunity.Type.PAGE
 
     private fun canAddSignature(): Boolean {
         if (!isEditorOrHigher) {

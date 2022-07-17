@@ -155,12 +155,12 @@ class PostCreatePresenter(
     private val isGroup: Boolean
         get() {
             val owner = owner
-            return owner is Community && owner.type == VKApiCommunity.Type.GROUP
+            return owner is Community && owner.communityType == VKApiCommunity.Type.GROUP
         }
     private val isCommunity: Boolean
         get() {
             val owner = owner
-            return owner is Community && owner.type == VKApiCommunity.Type.PAGE
+            return owner is Community && owner.communityType == VKApiCommunity.Type.PAGE
         }
 
     // сохраняем только те, что не лежат в базе

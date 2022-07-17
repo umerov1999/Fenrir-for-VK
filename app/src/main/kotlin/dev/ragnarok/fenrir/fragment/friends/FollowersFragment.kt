@@ -1,20 +1,15 @@
 package dev.ragnarok.fenrir.fragment.friends
 
-import android.content.DialogInterface
 import android.os.Bundle
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.adapter.OwnersAdapter
+import dev.ragnarok.fenrir.activity.DeltaOwnerActivity
 import dev.ragnarok.fenrir.fragment.AbsOwnersListFragment
+import dev.ragnarok.fenrir.model.DeltaOwner
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.FollowersPresenter
 import dev.ragnarok.fenrir.mvp.view.IFollowersView
-import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
-import dev.ragnarok.fenrir.util.Utils.createAlertRecycleFrame
-import dev.ragnarok.fenrir.util.Utils.openPlaceWithSwipebleActivity
-import java.util.*
 
 class FollowersFragment : AbsOwnersListFragment<FollowersPresenter, IFollowersView>(),
     IFollowersView {
@@ -43,60 +38,28 @@ class FollowersFragment : AbsOwnersListFragment<FollowersPresenter, IFollowersVi
         return true
     }
 
-    private fun showNotFollowers(data: List<Owner>, accountId: Int) {
-        val adapter = OwnersAdapter(requireActivity(), data)
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.not_follower))
-            .setView(createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationFollowers(
-                    add = false,
-                    not = true
-                )
-            }
-            .setCancelable(false)
-            .show()
-    }
-
-    override fun showModFollowers(add: List<Owner>?, remove: List<Owner>?, accountId: Int) {
-        if (add.isNullOrEmpty() && remove.isNullOrEmpty()) {
+    override fun showModFollowers(
+        add: List<Owner>,
+        remove: List<Owner>,
+        accountId: Int,
+        ownerId: Int
+    ) {
+        if (add.isEmpty() && remove.isEmpty()) {
             return
         }
-        if (add.isNullOrEmpty() && !remove.isNullOrEmpty()) {
-            showNotFollowers(remove, accountId)
-            return
-        }
-        val adapter = OwnersAdapter(requireActivity(), add ?: Collections.emptyList())
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.new_follower))
-            .setView(createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationFollowers(
-                    add = true,
-                    not = false
-                )
-                if (!remove.isNullOrEmpty()) {
-                    showNotFollowers(remove, accountId)
-                }
-            }
-            .setCancelable(false)
-            .show()
+        DeltaOwnerActivity.showDeltaActivity(
+            requireActivity(),
+            accountId,
+            DeltaOwner().setOwner(ownerId).appendToList(
+                requireActivity(),
+                R.string.new_follower,
+                add
+            ).appendToList(
+                requireActivity(),
+                R.string.not_follower,
+                remove
+            )
+        )
     }
 
     override fun hasToolbar(): Boolean {

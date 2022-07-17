@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.domain.mappers.FeedbackEntity2Model.buildFeedback
 import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
 import dev.ragnarok.fenrir.model.criteria.NotificationsCriteria
 import dev.ragnarok.fenrir.model.feedback.Feedback
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
@@ -28,10 +29,40 @@ class FeedbackInteractor(
 ) : IFeedbackInteractor {
     override fun getCachedFeedbacks(accountId: Int): Single<List<Feedback>> {
         val criteria = NotificationsCriteria(accountId)
-        return getCachedFeedbacksByCriteria(criteria)
+        return cache.notifications()
+            .findByCriteria(criteria)
+            .flatMap { dbos ->
+                val ownIds = VKOwnIds()
+                for (dbo in dbos) {
+                    populateOwnerIds(ownIds, dbo)
+                }
+                ownersRepository.findBaseOwnersDataAsBundle(
+                    criteria.accountId,
+                    ownIds.all,
+                    IOwnersRepository.MODE_ANY
+                )
+                    .map<List<Feedback>> {
+                        val feedbacks: MutableList<Feedback> = ArrayList(dbos.size)
+                        for (dbo in dbos) {
+                            feedbacks.add(buildFeedback(dbo, it))
+                        }
+                        feedbacks
+                    }
+            }
     }
 
-    override fun getOfficial(
+    override fun getCachedFeedbacksOfficial(accountId: Int): Single<FeedbackVKOfficialList> {
+        val criteria = NotificationsCriteria(accountId)
+        return cache.notifications()
+            .findByCriteriaOfficial(criteria)
+            .flatMap { dbos ->
+                val ret = FeedbackVKOfficialList()
+                ret.items = ArrayList(dbos)
+                Single.just(ret)
+            }
+    }
+
+    override fun getActualFeedbacksOfficial(
         accountId: Int,
         count: Int?,
         startFrom: Int?
@@ -39,7 +70,13 @@ class FeedbackInteractor(
         return networker.vkDefault(accountId)
             .notifications()
             .getOfficial(count, startFrom, null, null, null)
-            .map { response -> response }
+            .flatMap { uit ->
+                cache.notifications()
+                    .insertOfficial(accountId, uit.items.orEmpty(), startFrom?.orZero() == 0)
+                    .map {
+                        uit
+                    }
+            }
     }
 
     override fun hide(accountId: Int, query: String?): Completable {
@@ -93,29 +130,6 @@ class FeedbackInteractor(
             .notifications()
             .markAsViewed()
             .map { it != 0 }
-    }
-
-    private fun getCachedFeedbacksByCriteria(criteria: NotificationsCriteria): Single<List<Feedback>> {
-        return cache.notifications()
-            .findByCriteria(criteria)
-            .flatMap { dbos ->
-                val ownIds = VKOwnIds()
-                for (dbo in dbos) {
-                    populateOwnerIds(ownIds, dbo)
-                }
-                ownersRepository.findBaseOwnersDataAsBundle(
-                    criteria.accountId,
-                    ownIds.all,
-                    IOwnersRepository.MODE_ANY
-                )
-                    .map<List<Feedback>> {
-                        val feedbacks: MutableList<Feedback> = ArrayList(dbos.size)
-                        for (dbo in dbos) {
-                            feedbacks.add(buildFeedback(dbo, it))
-                        }
-                        feedbacks
-                    }
-            }
     }
 
     companion object {

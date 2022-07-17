@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -9,13 +8,12 @@ import androidx.core.view.MenuProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils
-import dev.ragnarok.fenrir.adapter.OwnersAdapter
+import dev.ragnarok.fenrir.activity.DeltaOwnerActivity
 import dev.ragnarok.fenrir.adapter.PeopleAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
@@ -25,6 +23,7 @@ import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
+import dev.ragnarok.fenrir.model.DeltaOwner
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.CommunityMembersPresenter
@@ -32,9 +31,7 @@ import dev.ragnarok.fenrir.mvp.view.ICommunityMembersView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
-import java.util.*
 
 class CommunityMembersFragment :
     BaseMvpFragment<CommunityMembersPresenter, ICommunityMembersView>(),
@@ -88,60 +85,28 @@ class CommunityMembersFragment :
         return false
     }
 
-    private fun showNotMembers(data: List<Owner>, accountId: Int) {
-        val adapter = OwnersAdapter(requireActivity(), data)
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                Utils.openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.not_follower))
-            .setView(Utils.createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationMembers(
-                    add = false,
-                    not = true
-                )
-            }
-            .setCancelable(false)
-            .show()
-    }
-
-    override fun showModMembers(add: List<Owner>?, remove: List<Owner>?, accountId: Int) {
-        if (add.isNullOrEmpty() && remove.isNullOrEmpty()) {
+    override fun showModMembers(
+        add: List<Owner>,
+        remove: List<Owner>,
+        accountId: Int,
+        ownerId: Int
+    ) {
+        if (add.isEmpty() && remove.isEmpty()) {
             return
         }
-        if (add.isNullOrEmpty() && !remove.isNullOrEmpty()) {
-            showNotMembers(remove, accountId)
-            return
-        }
-        val adapter = OwnersAdapter(requireActivity(), add ?: Collections.emptyList())
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                Utils.openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.new_follower))
-            .setView(Utils.createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationMembers(
-                    add = true,
-                    not = false
-                )
-                if (!remove.isNullOrEmpty()) {
-                    showNotMembers(remove, accountId)
-                }
-            }
-            .setCancelable(false)
-            .show()
+        DeltaOwnerActivity.showDeltaActivity(
+            requireActivity(),
+            accountId,
+            DeltaOwner().setOwner(ownerId).appendToList(
+                requireActivity(),
+                R.string.new_follower,
+                add
+            ).appendToList(
+                requireActivity(),
+                R.string.not_follower,
+                remove
+            )
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -16,14 +16,15 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
+import dev.ragnarok.fenrir.activity.DeltaOwnerActivity
 import dev.ragnarok.fenrir.adapter.CommunitiesAdapter
-import dev.ragnarok.fenrir.adapter.OwnersAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.DataWrapper
+import dev.ragnarok.fenrir.model.DeltaOwner
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.CommunitiesPresenter
@@ -31,12 +32,9 @@ import dev.ragnarok.fenrir.mvp.view.ICommunitiesView
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Utils.createAlertRecycleFrame
-import dev.ragnarok.fenrir.util.Utils.openPlaceWithSwipebleActivity
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.MySearchView.OnBackButtonClickListener
-import java.util.*
 
 class CommunitiesFragment : BaseMvpFragment<CommunitiesPresenter, ICommunitiesView>(),
     ICommunitiesView, MySearchView.OnQueryTextListener, CommunitiesAdapter.ActionListener,
@@ -122,60 +120,28 @@ class CommunitiesFragment : BaseMvpFragment<CommunitiesPresenter, ICommunitiesVi
         mAdapter?.notifyItemRangeInserted(2, position, count)
     }
 
-    private fun showNotCommunities(data: List<Owner>, accountId: Int) {
-        val adapter = OwnersAdapter(requireActivity(), data)
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.not_communities))
-            .setView(createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationCommunities(
-                    add = false,
-                    not = true
-                )
-            }
-            .setCancelable(false)
-            .show()
-    }
-
-    override fun showModCommunities(add: List<Owner>?, remove: List<Owner>?, accountId: Int) {
-        if (add.isNullOrEmpty() && remove.isNullOrEmpty()) {
+    override fun showModCommunities(
+        add: List<Owner>,
+        remove: List<Owner>,
+        accountId: Int,
+        ownerId: Int
+    ) {
+        if (add.isEmpty() && remove.isEmpty()) {
             return
         }
-        if (add.isNullOrEmpty() && !remove.isNullOrEmpty()) {
-            showNotCommunities(remove, accountId)
-            return
-        }
-        val adapter = OwnersAdapter(requireActivity(), add ?: Collections.emptyList())
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.new_communities))
-            .setView(createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationCommunities(
-                    add = true,
-                    not = false
-                )
-                if (!remove.isNullOrEmpty()) {
-                    showNotCommunities(remove, accountId)
-                }
-            }
-            .setCancelable(false)
-            .show()
+        DeltaOwnerActivity.showDeltaActivity(
+            requireActivity(),
+            accountId,
+            DeltaOwner().setOwner(ownerId).appendToList(
+                requireActivity(),
+                R.string.new_communities,
+                add
+            ).appendToList(
+                requireActivity(),
+                R.string.not_communities,
+                remove
+            )
+        )
     }
 
     override fun showCommunityMenu(community: Community) {

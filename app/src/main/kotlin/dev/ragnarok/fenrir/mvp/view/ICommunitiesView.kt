@@ -19,5 +19,5 @@ interface ICommunitiesView : IAccountDependencyView, IMvpView, IErrorView {
     fun showCommunityWall(accountId: Int, community: Community)
     fun notifySearchDataAdded(position: Int, count: Int)
     fun showCommunityMenu(community: Community)
-    fun showModCommunities(add: List<Owner>?, remove: List<Owner>?, accountId: Int)
+    fun showModCommunities(add: List<Owner>, remove: List<Owner>, accountId: Int, ownerId: Int)
 }

@@ -213,7 +213,13 @@ open class PhotoPagerPresenter internal constructor(
         buttons.add(FunctionSource(
             album_info, R.drawable.photo_album
         ) {
-            PlaceFactory.getVKPhotosAlbumPlace(accountId, photo.ownerId, photo.albumId, null)
+            PlaceFactory.getVKPhotosAlbumPlace(
+                accountId,
+                photo.ownerId,
+                photo.albumId,
+                null,
+                photo.getObjectId()
+            )
                 .tryOpenWith(context)
         })
         buttons.add(FunctionSource(

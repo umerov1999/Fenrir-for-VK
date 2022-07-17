@@ -2,12 +2,18 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.Keep
 import dev.ragnarok.fenrir.CheckDonate
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.isValueAssigned
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlin.math.abs
 
+@Keep
+@Serializable
+@SerialName("community")
 class Community : Owner {
     val id: Int
     override var fullName: String? = null
@@ -27,7 +33,7 @@ class Community : Owner {
         private set
     var memberStatus = 0
         private set
-    var type = 0
+    var communityType = 0
         private set
     var photo50: String? = null
         private set
@@ -51,7 +57,7 @@ class Community : Owner {
         isMember = `in`.readByte().toInt() != 0
         membersCount = `in`.readInt()
         memberStatus = `in`.readInt()
-        type = `in`.readInt()
+        communityType = `in`.readInt()
         photo50 = `in`.readString()
         photo100 = `in`.readString()
         photo200 = `in`.readString()
@@ -68,7 +74,7 @@ class Community : Owner {
         isMember = `in`.readBoolean()
         membersCount = `in`.readInt()
         memberStatus = `in`.readInt()
-        type = `in`.readInt()
+        communityType = `in`.readInt()
         photo50 = `in`.readString()
         photo100 = `in`.readString()
         photo200 = `in`.readString()
@@ -89,7 +95,7 @@ class Community : Owner {
         parcel.writeByte((if (isMember) 1 else 0).toByte())
         parcel.writeInt(membersCount)
         parcel.writeInt(memberStatus)
-        parcel.writeInt(type)
+        parcel.writeInt(communityType)
         parcel.writeString(photo50)
         parcel.writeString(photo100)
         parcel.writeString(photo200)
@@ -107,7 +113,7 @@ class Community : Owner {
         dest.writeBoolean(isMember)
         dest.writeInt(membersCount)
         dest.writeInt(memberStatus)
-        dest.writeInt(type)
+        dest.writeInt(communityType)
         dest.writeString(photo50)
         dest.writeString(photo100)
         dest.writeString(photo200)
@@ -154,8 +160,8 @@ class Community : Owner {
         return this
     }
 
-    fun setType(type: Int): Community {
-        this.type = type
+    fun setCommunityType(type: Int): Community {
+        this.communityType = type
         return this
     }
 

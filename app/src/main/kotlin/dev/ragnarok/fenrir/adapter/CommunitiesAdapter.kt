@@ -86,7 +86,7 @@ class CommunitiesAdapter(
 
 
         fun getCommunityType(context: Context, community: Community): String {
-            when (community.type) {
+            when (community.communityType) {
                 VKApiCommunity.Type.EVENT -> return context.getString(
                     if (community.closed == VKApiCommunity.Status.OPEN) R.string.type_opened else R.string.type_closed,
                     context.getString(R.string.type_event)

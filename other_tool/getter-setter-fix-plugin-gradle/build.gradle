@@ -1,34 +1,27 @@
-apply {
-    plugin("kotlin")
-    plugin("org.jetbrains.intellij")
+plugins {
+    id("java")
+    id("kotlin")
+    id("org.jetbrains.intellij") version "1.7.0"
 }
 
-buildscript {
-    repositories {
-        maven {url = "https://www.jetbrains.com/intellij-repository/releases/"}
-        maven {url = "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies"}
+group = "dev.ragnarok"
+version = "1.0"
 
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath("gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:latest.release")
-        classpath 'com.jetbrains.intellij.platform:util:221.5921.27'
-        classpath 'com.jetbrains.intellij.platform:util-rt:221.5921.27'
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.4.0"
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
-    }
+repositories {
+    mavenCentral()
+}
+
+intellij {
+    version = "2022.1.1"
+    type = "IC"
+    plugins = ['android']
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
 }
 
-group = "dev.ragnarok"
-version = "1.0"
-
-intellij {
-    version = "2022.1.1"
-    type = "IC"
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }

@@ -38,8 +38,6 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
     private var cacheLoadingNow = false
     private var searchRunNow = false
     private var doLoadTabs = false
-    private var not_friends: MutableList<Owner>? = null
-    private var add_friends: MutableList<Owner>? = null
     private var offset = 0
     public override fun onGuiResumed() {
         super.onGuiResumed()
@@ -84,51 +82,35 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
         super.onGuiCreated(viewHost)
         viewHost.displayData(data, isSearchNow)
         resolveSwipeRefreshAvailability()
-        checkAndShowModificationFriends()
     }
 
     private fun resolveRefreshingView() {
         view?.showRefreshing(!isSearchNow && actualDataLoadingNow)
     }
 
-    private fun checkAndShowModificationFriends() {
-        if (!add_friends.isNullOrEmpty() || !not_friends.isNullOrEmpty()) {
-            view?.showModFriends(
-                add_friends,
-                not_friends,
-                accountId
-            )
-        }
-    }
-
-    fun clearModificationFriends(add: Boolean, not: Boolean) {
-        if (add && add_friends.nonNullNoEmpty()) {
-            add_friends?.clear()
-            add_friends = null
-        }
-        if (not && not_friends.nonNullNoEmpty()) {
-            not_friends?.clear()
-            not_friends = null
-        }
-    }
-
     private fun onActualDataReceived(users: List<User>, do_scan: Boolean) {
         if (do_scan && isNotFriendShow) {
-            not_friends = ArrayList()
+            val not_friends = ArrayList<Owner>()
+            val add_friends = ArrayList<Owner>()
             for (i in allData) {
                 if (indexOf(users, i.getObjectId()) == -1) {
-                    not_friends?.add(i)
+                    not_friends.add(i)
                 }
             }
             if (userId != accountId) {
-                add_friends = ArrayList()
                 for (i in users) {
                     if (indexOf(allData, i.getObjectId()) == -1) {
-                        add_friends?.add(i)
+                        add_friends.add(i)
                     }
                 }
             }
-            checkAndShowModificationFriends()
+            if (add_friends.isNotEmpty() || not_friends.isNotEmpty()) {
+                view?.showModFriends(
+                    add_friends,
+                    not_friends,
+                    accountId, userId
+                )
+            }
         }
         // reset cache loading
         cacheDisposable.clear()

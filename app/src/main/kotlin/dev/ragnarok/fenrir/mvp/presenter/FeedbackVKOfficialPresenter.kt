@@ -28,8 +28,7 @@ class FeedbackVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun loadActualData(offset: Int) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
-        actualDataDisposable.add(fInteractor.getOfficial(accountId, 100, offset)
+        actualDataDisposable.add(fInteractor.getActualFeedbacksOfficial(accountId, 100, offset)
             .fromIOToMain()
             .subscribe({ data ->
                 onActualDataReceived(
@@ -37,6 +36,24 @@ class FeedbackVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
                     data
                 )
             }) { t -> onActualDataGetError(t) })
+    }
+
+    private fun loadCachedData() {
+        actualDataLoading = true
+        resolveRefreshingView()
+        actualDataDisposable.add(fInteractor.getCachedFeedbacksOfficial(accountId)
+            .fromIOToMain()
+            .subscribe({ data ->
+                onCachedDataReceived(
+                    data
+                )
+                loadActualData(0)
+            }) {
+                actualDataLoading = false
+                resolveRefreshingView()
+                it.printStackTrace()
+                loadActualData(0)
+            })
     }
 
     fun hideNotification(position: Int, query: String?) {
@@ -76,6 +93,15 @@ class FeedbackVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveRefreshingView()
     }
 
+    private fun onCachedDataReceived(data: FeedbackVKOfficialList) {
+        actualDataLoading = false
+        actualDataReceived = true
+        pages.items?.clear()
+        data.items?.let { pages.items?.addAll(it) }
+        view?.notifyFirstListReceived()
+        resolveRefreshingView()
+    }
+
     public override fun onGuiResumed() {
         super.onGuiResumed()
         resolveRefreshingView()
@@ -109,6 +135,6 @@ class FeedbackVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
     init {
         pages.items = ArrayList()
         fInteractor = InteractorFactory.createFeedbackInteractor()
-        loadActualData(0)
+        loadCachedData()
     }
 }

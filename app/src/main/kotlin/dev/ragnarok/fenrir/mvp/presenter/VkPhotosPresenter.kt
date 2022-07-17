@@ -35,7 +35,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class VkPhotosPresenter(
     accountId: Int, private val ownerId: Int, private val albumId: Int, private val action: String,
-    owner: Owner?, album: PhotoAlbum?, savedInstanceState: Bundle?
+    owner: Owner?, album: PhotoAlbum?, private val loadedIdPhoto: Int, savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IVkPhotosView>(accountId, savedInstanceState) {
     private val interactor: IPhotosInteractor
     private val ownersRepository: IOwnersRepository
@@ -279,6 +279,17 @@ class VkPhotosPresenter(
                 startSize,
                 data.size
             )
+        }
+        if (loadedIdPhoto > 0) {
+            var opt = 0
+            for (i in photos) {
+                if (i.photo.getObjectId() == loadedIdPhoto) {
+                    i.current = true
+                    view?.notifyPhotosChanged(opt, 1)
+                    break
+                }
+                opt++
+            }
         }
         resolveToolbarView()
     }

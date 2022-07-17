@@ -13,5 +13,5 @@ interface ICommunityMembersView : IAccountDependencyView, IMvpView, IErrorView {
     fun showRefreshing(refreshing: Boolean)
     fun onSearch(accountId: Int, groupId: Int)
     fun onOptions(filter: String?)
-    fun showModMembers(add: List<Owner>?, remove: List<Owner>?, accountId: Int)
+    fun showModMembers(add: List<Owner>, remove: List<Owner>, accountId: Int, ownerId: Int)
 }

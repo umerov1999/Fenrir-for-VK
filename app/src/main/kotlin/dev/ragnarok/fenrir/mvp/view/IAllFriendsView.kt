@@ -13,5 +13,5 @@ interface IAllFriendsView : IMvpView, IErrorView, IAccountDependencyView {
     fun notifyItemRangeInserted(position: Int, count: Int)
     fun showUserWall(accountId: Int, user: User)
     fun showRefreshing(refreshing: Boolean)
-    fun showModFriends(add: List<Owner>?, remove: List<Owner>?, accountId: Int)
+    fun showModFriends(add: List<Owner>, remove: List<Owner>, accountId: Int, ownerId: Int)
 }

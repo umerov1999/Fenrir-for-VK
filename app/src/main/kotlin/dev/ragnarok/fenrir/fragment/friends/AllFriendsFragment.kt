@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.friends
 
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,15 +10,15 @@ import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.activity.DeltaOwnerActivity
 import dev.ragnarok.fenrir.adapter.FriendsRecycleAdapter
-import dev.ragnarok.fenrir.adapter.OwnersAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
+import dev.ragnarok.fenrir.model.DeltaOwner
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.model.UsersPart
@@ -27,11 +26,8 @@ import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.AllFriendsPresenter
 import dev.ragnarok.fenrir.mvp.view.IAllFriendsView
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
-import dev.ragnarok.fenrir.util.Utils.createAlertRecycleFrame
-import dev.ragnarok.fenrir.util.Utils.openPlaceWithSwipebleActivity
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.view.MySearchView
-import java.util.*
 
 class AllFriendsFragment : BaseMvpFragment<AllFriendsPresenter, IAllFriendsView>(),
     FriendsRecycleAdapter.Listener, IAllFriendsView {
@@ -121,60 +117,28 @@ class AllFriendsFragment : BaseMvpFragment<AllFriendsPresenter, IAllFriendsView>
         mSwipeRefreshLayout?.isRefreshing = refreshing
     }
 
-    private fun showNotFriends(data: List<Owner>, accountId: Int) {
-        val adapter = OwnersAdapter(requireActivity(), data)
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.not_friend))
-            .setView(createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationFriends(
-                    add = false,
-                    not = true
-                )
-            }
-            .setCancelable(false)
-            .show()
-    }
-
-    override fun showModFriends(add: List<Owner>?, remove: List<Owner>?, accountId: Int) {
-        if (add.isNullOrEmpty() && remove.isNullOrEmpty()) {
+    override fun showModFriends(
+        add: List<Owner>,
+        remove: List<Owner>,
+        accountId: Int,
+        ownerId: Int
+    ) {
+        if (add.isEmpty() && remove.isEmpty()) {
             return
         }
-        if (add.isNullOrEmpty() && !remove.isNullOrEmpty()) {
-            showNotFriends(remove, accountId)
-            return
-        }
-        val adapter = OwnersAdapter(requireActivity(), add ?: Collections.emptyList())
-        adapter.setClickListener(object : OwnersAdapter.ClickListener {
-            override fun onOwnerClick(owner: Owner) {
-                openPlaceWithSwipebleActivity(
-                    requireActivity(),
-                    getOwnerWallPlace(accountId, owner.ownerId, null)
-                )
-            }
-        })
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.new_friend))
-            .setView(createAlertRecycleFrame(requireActivity(), adapter, null, accountId))
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.clearModificationFriends(
-                    add = true,
-                    not = false
-                )
-                if (!remove.isNullOrEmpty()) {
-                    showNotFriends(remove, accountId)
-                }
-            }
-            .setCancelable(false)
-            .show()
+        DeltaOwnerActivity.showDeltaActivity(
+            requireActivity(),
+            accountId,
+            DeltaOwner().setOwner(ownerId).appendToList(
+                requireActivity(),
+                R.string.new_friend,
+                add
+            ).appendToList(
+                requireActivity(),
+                R.string.not_friend,
+                remove
+            )
+        )
     }
 
     override fun onUserClick(user: User) {

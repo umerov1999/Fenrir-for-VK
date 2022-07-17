@@ -70,7 +70,7 @@ object Entity2Model {
             .setAdminLevel(dbo.adminLevel)
             .setMember(dbo.isMember)
             .setMemberStatus(dbo.memberStatus)
-            .setType(dbo.type)
+            .setCommunityType(dbo.type)
             .setPhoto50(dbo.photo50)
             .setPhoto100(dbo.photo100)
             .setPhoto200(dbo.photo200)
@@ -349,7 +349,7 @@ object Entity2Model {
             .setMember(entity.isMember)
             .setMemberStatus(entity.memberStatus)
             .setMembersCount(entity.membersCount)
-            .setType(entity.type)
+            .setCommunityType(entity.type)
     }
 
 

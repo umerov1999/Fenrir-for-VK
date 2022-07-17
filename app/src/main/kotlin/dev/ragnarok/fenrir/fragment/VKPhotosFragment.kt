@@ -233,6 +233,13 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
         }
     }
 
+    override fun notifyPhotosChanged(position: Int, count: Int) {
+        if (mAdapter != null) {
+            mAdapter?.notifyItemRangeChanged(position, count)
+            resolveEmptyTextVisibility()
+        }
+    }
+
     override fun displayRefreshing(refreshing: Boolean) {
         mSwipeRefreshLayout?.isRefreshing = refreshing
     }
@@ -416,6 +423,7 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
                     requireArguments().getString(Extra.ACTION, IVkPhotosView.ACTION_SHOW_PHOTOS),
                     owner,
                     album,
+                    requireArguments().getInt(Extra.SELECTED),
                     saveInstanceState
                 )
             }
@@ -424,11 +432,18 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
 
     companion object {
         private val TAG = VKPhotosFragment::class.java.simpleName
-        fun buildArgs(accountId: Int, ownerId: Int, albumId: Int, action: String?): Bundle {
+        fun buildArgs(
+            accountId: Int,
+            ownerId: Int,
+            albumId: Int,
+            action: String?,
+            selected: Int
+        ): Bundle {
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, accountId)
             args.putInt(Extra.OWNER_ID, ownerId)
             args.putInt(Extra.ALBUM_ID, albumId)
+            args.putInt(Extra.SELECTED, selected)
             args.putString(Extra.ACTION, action)
             return args
         }
@@ -445,7 +460,7 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
             albumId: Int,
             action: String?
         ): VKPhotosFragment {
-            return newInstance(buildArgs(accountId, ownerId, albumId, action))
+            return newInstance(buildArgs(accountId, ownerId, albumId, action, -1))
         }
     }
 }

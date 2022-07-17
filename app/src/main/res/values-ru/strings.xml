@@ -1678,4 +1678,5 @@
     <string name="toggle_monitor_on">Изменения</string>
     <string name="toggle_monitor_off">Отключить изменения</string>
     <string name="toggle_monitor_info">Работает, если количество друзей не более 1000</string>
+    <string name="delta">Разница</string>
 </resources>

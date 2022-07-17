@@ -235,7 +235,7 @@ object Dto2Model {
             .setAdminLevel(community.admin_level)
             .setMember(community.is_member)
             .setMemberStatus(community.member_status)
-            .setType(community.type)
+            .setCommunityType(community.type)
             .setPhoto50(community.photo_50)
             .setPhoto100(community.photo_100)
             .setPhoto200(community.photo_200)

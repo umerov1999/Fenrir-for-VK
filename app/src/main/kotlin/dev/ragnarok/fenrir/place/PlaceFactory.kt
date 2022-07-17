@@ -460,13 +460,20 @@ object PlaceFactory {
     }
 
 
-    fun getVKPhotosAlbumPlace(accountId: Int, ownerId: Int, albumId: Int, action: String?): Place {
+    fun getVKPhotosAlbumPlace(
+        accountId: Int,
+        ownerId: Int,
+        albumId: Int,
+        action: String?,
+        selected: Int = -1
+    ): Place {
         return Place(Place.VK_PHOTO_ALBUM).setArguments(
             VKPhotosFragment.buildArgs(
                 accountId,
                 ownerId,
                 albumId,
-                action
+                action,
+                selected
             )
         )
     }

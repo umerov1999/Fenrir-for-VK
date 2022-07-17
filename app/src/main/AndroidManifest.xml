@@ -178,9 +178,13 @@
             android:launchMode="singleTask"
             android:theme="@style/SplashTheme"
             android:windowSoftInputMode="adjustResize|stateHidden">
-            <intent-filter tools:ignore="AppLinkUrlError">
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:host="*" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
                 <data android:mimeType="audio/*" />
             </intent-filter>
             <intent-filter>
@@ -406,10 +410,13 @@
             android:exported="true"
             android:label="@string/chat_json"
             android:windowSoftInputMode="adjustResize|stateHidden">
-
-            <intent-filter tools:ignore="AppLinkUrlError">
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:host="*" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
 
                 <data android:mimeType="application/javascript" />
                 <data android:mimeType="application/json" />
@@ -419,7 +426,6 @@
                 <data android:mimeType="application/xml" />
                 <data android:mimeType="text/*" />
             </intent-filter>
-
         </activity>
 
         <activity
@@ -431,9 +437,13 @@
             android:windowSoftInputMode="adjustResize|stateHidden"
             tools:ignore="LockedOrientationActivity">
 
-            <intent-filter tools:ignore="AppLinkUrlError">
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:host="*" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
 
                 <data android:mimeType="application/javascript" />
                 <data android:mimeType="application/json" />
@@ -502,6 +512,28 @@
         <activity
             android:name="dev.ragnarok.fenrir.activity.FileManagerSelectActivity"
             android:theme="@style/App.DayNight.Swipes" />
+
+        <activity
+            android:name="dev.ragnarok.fenrir.activity.DeltaOwnerActivity"
+            android:exported="true"
+            android:label="@string/delta"
+            android:theme="@style/App.DayNight.Swipes">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:host="*" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/javascript" />
+                <data android:mimeType="application/json" />
+                <data android:mimeType="application/typescript" />
+                <data android:mimeType="application/x-sh" />
+                <data android:mimeType="application/x-shellscript" />
+                <data android:mimeType="application/xml" />
+                <data android:mimeType="text/*" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="dev.ragnarok.fenrir.activity.PhotoAlbumsActivity"

@@ -113,4 +113,5 @@ object Extra {
     const val IS_OUT_OF_MEMORY = "is_out_of_memory"
     const val IS_BOARD = "is_board"
     const val ANSWER = "answer"
+    const val SELECTED = "selected"
 }

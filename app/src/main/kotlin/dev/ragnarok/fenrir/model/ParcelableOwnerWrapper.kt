@@ -108,7 +108,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         }
 
         fun readOwners(`in`: Parcel): List<Owner>? {
-            val isNull = `in`.readInt() == 1
+            val isNull = `in`.readByte() == 1.toByte()
             if (isNull) {
                 return null
             }
@@ -122,9 +122,10 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
 
         fun writeOwners(dest: Parcel, flags: Int, owners: List<Owner>?) {
             if (owners == null) {
-                dest.writeInt(1)
+                dest.writeByte(1.toByte())
                 return
             }
+            dest.writeByte(0.toByte())
             dest.writeInt(owners.size)
             for (owner in owners) {
                 writeOwner(dest, flags, owner)
@@ -132,7 +133,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         }
 
         fun readOwners(`in`: ParcelNative): List<Owner>? {
-            val isNull = `in`.readInt() == 1
+            val isNull = `in`.readByte() == 1.toByte()
             if (isNull) {
                 return null
             }
@@ -146,9 +147,10 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
 
         fun writeOwners(dest: ParcelNative, owners: List<Owner>?) {
             if (owners == null) {
-                dest.writeInt(1)
+                dest.writeByte(1.toByte())
                 return
             }
+            dest.writeByte(0.toByte())
             dest.writeInt(owners.size)
             for (owner in owners) {
                 writeOwner(dest, owner)

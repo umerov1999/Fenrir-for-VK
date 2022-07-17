@@ -301,7 +301,7 @@ class GroupWallPresenter(
         @StringRes var primaryText: Int? = null
         @StringRes var secondaryText: Int? = null
         when (community.memberStatus) {
-            VKApiCommunity.MemberStatus.IS_NOT_MEMBER -> when (community.type) {
+            VKApiCommunity.MemberStatus.IS_NOT_MEMBER -> when (community.communityType) {
                 VKApiCommunity.Type.GROUP -> when (community.closed) {
                     VKApiCommunity.Status.CLOSED -> primaryText = R.string.community_send_request
                     VKApiCommunity.Status.OPEN -> primaryText = R.string.community_join
@@ -309,7 +309,7 @@ class GroupWallPresenter(
                 VKApiCommunity.Type.PAGE -> primaryText = R.string.community_follow
                 VKApiCommunity.Type.EVENT -> primaryText = R.string.community_to_go
             }
-            VKApiCommunity.MemberStatus.IS_MEMBER -> when (community.type) {
+            VKApiCommunity.MemberStatus.IS_MEMBER -> when (community.communityType) {
                 VKApiCommunity.Type.GROUP -> primaryText = R.string.community_leave
                 VKApiCommunity.Type.PAGE -> primaryText = R.string.community_unsubscribe_from_news
                 VKApiCommunity.Type.EVENT -> primaryText = R.string.community_not_to_go
@@ -337,19 +337,19 @@ class GroupWallPresenter(
             VKApiCommunity.MemberStatus.IS_MEMBER -> {
                 community.setMemberStatus(VKApiCommunity.MemberStatus.IS_NOT_MEMBER)
                 community.setMember(false)
-                when (community.type) {
+                when (community.communityType) {
                     VKApiCommunity.Type.GROUP, VKApiCommunity.Type.EVENT -> resultMessage =
                         R.string.community_leave_success
                     VKApiCommunity.Type.PAGE -> resultMessage =
                         R.string.community_unsubscribe_from_news_success
                 }
             }
-            VKApiCommunity.MemberStatus.SENT_REQUEST -> if (community.type == VKApiCommunity.Type.GROUP) {
+            VKApiCommunity.MemberStatus.SENT_REQUEST -> if (community.communityType == VKApiCommunity.Type.GROUP) {
                 community.setMemberStatus(VKApiCommunity.MemberStatus.IS_NOT_MEMBER)
                 community.setMember(false)
                 resultMessage = R.string.request_canceled
             }
-            VKApiCommunity.MemberStatus.INVITED -> if (community.type == VKApiCommunity.Type.GROUP) {
+            VKApiCommunity.MemberStatus.INVITED -> if (community.communityType == VKApiCommunity.Type.GROUP) {
                 community.setMember(false)
                 community.setMemberStatus(VKApiCommunity.MemberStatus.IS_NOT_MEMBER)
                 resultMessage = R.string.invitation_has_been_declined
@@ -368,7 +368,7 @@ class GroupWallPresenter(
     private fun onJoinResult() {
         var resultMessage: Int? = null
         when (community.memberStatus) {
-            VKApiCommunity.MemberStatus.IS_NOT_MEMBER -> when (community.type) {
+            VKApiCommunity.MemberStatus.IS_NOT_MEMBER -> when (community.communityType) {
                 VKApiCommunity.Type.GROUP -> when (community.closed) {
                     VKApiCommunity.Status.CLOSED -> {
                         community.setMember(false)
@@ -387,12 +387,12 @@ class GroupWallPresenter(
                     resultMessage = R.string.community_follow_success
                 }
             }
-            VKApiCommunity.MemberStatus.DECLINED_INVITATION -> if (community.type == VKApiCommunity.Type.GROUP) {
+            VKApiCommunity.MemberStatus.DECLINED_INVITATION -> if (community.communityType == VKApiCommunity.Type.GROUP) {
                 community.setMember(false)
                 community.setMemberStatus(VKApiCommunity.MemberStatus.SENT_REQUEST)
                 resultMessage = R.string.community_send_request_success
             }
-            VKApiCommunity.MemberStatus.INVITED -> if (community.type == VKApiCommunity.Type.GROUP) {
+            VKApiCommunity.MemberStatus.INVITED -> if (community.communityType == VKApiCommunity.Type.GROUP) {
                 community.setMember(true)
                 community.setMemberStatus(VKApiCommunity.MemberStatus.IS_MEMBER)
                 resultMessage = R.string.community_join_success

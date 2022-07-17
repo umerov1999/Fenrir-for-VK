@@ -14,7 +14,13 @@ interface IFeedbackInteractor {
         startFrom: String?
     ): Single<Pair<List<Feedback>, String?>>
 
-    fun getOfficial(accountId: Int, count: Int?, startFrom: Int?): Single<FeedbackVKOfficialList>
+    fun getActualFeedbacksOfficial(
+        accountId: Int,
+        count: Int?,
+        startFrom: Int?
+    ): Single<FeedbackVKOfficialList>
+
+    fun getCachedFeedbacksOfficial(accountId: Int): Single<FeedbackVKOfficialList>
     fun markAsViewed(accountId: Int): Single<Boolean>
     fun hide(accountId: Int, query: String?): Completable
 }
