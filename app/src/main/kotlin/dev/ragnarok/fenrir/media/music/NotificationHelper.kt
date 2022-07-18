@@ -11,6 +11,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
@@ -39,6 +40,7 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
         mNotificationBuilder =
             NotificationCompat.Builder(mService, AppNotificationChannels.AUDIO_CHANNEL_ID)
                 .setShowWhen(false)
+                .setVisibility(VISIBILITY_PUBLIC)
                 .setSmallIcon(R.drawable.song)
                 .setContentTitle(artistName)
                 .setContentText(trackName)
