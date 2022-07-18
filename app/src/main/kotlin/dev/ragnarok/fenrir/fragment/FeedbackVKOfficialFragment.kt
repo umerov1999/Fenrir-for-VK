@@ -156,9 +156,9 @@ class FeedbackVKOfficialFragment :
     }
 
     override fun openAction(action: FeedbackVKOfficial.Action) {
-        if (action.getType() == FeedbackVKOfficial.Action_Types.URL) {
+        if (action.getActionType() == FeedbackVKOfficial.Action_Types.URL) {
             LinkHelper.openLinkInBrowser(requireActivity(), (action as ActionURL).getUrl())
-        } else if (action.getType() == FeedbackVKOfficial.Action_Types.MESSAGE) {
+        } else if (action.getActionType() == FeedbackVKOfficial.Action_Types.MESSAGE) {
             val msg = action as ActionMessage
             getMessagesLookupPlace(
                 Settings.get().accounts().current,

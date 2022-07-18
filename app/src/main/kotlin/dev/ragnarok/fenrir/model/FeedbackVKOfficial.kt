@@ -1,10 +1,12 @@
 package dev.ragnarok.fenrir.model
 
 import androidx.annotation.IntDef
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.math.abs
 
+@Keep
 @Serializable
 class FeedbackVKOfficial {
     var footer: String? = null
@@ -43,13 +45,16 @@ class FeedbackVKOfficial {
         }
     }
 
+    @Keep
     @Serializable
-    abstract class Action {
+    sealed class Action {
         @Action_Types
-        abstract fun getType(): Int
+        abstract fun getActionType(): Int
     }
 
+    @Keep
     @Serializable
+    @SerialName("action_message")
     class ActionMessage(private val peerId: Int, private val messageId: Int) : Action() {
         fun getPeerId(): Int {
             return peerId
@@ -59,22 +64,25 @@ class FeedbackVKOfficial {
             return messageId
         }
 
-        override fun getType(): Int {
+        override fun getActionType(): Int {
             return Action_Types.MESSAGE
         }
     }
 
+    @Keep
     @Serializable
+    @SerialName("action_url")
     class ActionURL(private val url: String?) : Action() {
         fun getUrl(): String? {
             return url
         }
 
-        override fun getType(): Int {
+        override fun getActionType(): Int {
             return Action_Types.URL
         }
     }
 
+    @Keep
     @Serializable
     class ImageAdditional {
         @SerialName("url")
@@ -90,6 +98,7 @@ class FeedbackVKOfficial {
         }
     }
 
+    @Keep
     @Serializable
     class Attachment {
         @SerialName("type")

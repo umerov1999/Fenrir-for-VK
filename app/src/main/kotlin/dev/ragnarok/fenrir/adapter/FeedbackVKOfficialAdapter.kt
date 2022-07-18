@@ -285,7 +285,7 @@ class FeedbackVKOfficialAdapter(
             }
         }
         Page.action.ifNonNull({
-            if (it.getType() == FeedbackVKOfficial.Action_Types.URL) {
+            if (it.getActionType() == FeedbackVKOfficial.Action_Types.URL) {
                 holder.actionButton.setText(R.string.more_info)
             } else {
                 holder.actionButton.setText(R.string.open)

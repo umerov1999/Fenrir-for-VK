@@ -97,7 +97,6 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
         } else if (onGoing) {
             mNotificationBuilder?.setOngoing(false)
         }
-        mNotificationBuilder?.setVisibility(Notification.VISIBILITY_PUBLIC)
     }
 
     fun killNotification() {
