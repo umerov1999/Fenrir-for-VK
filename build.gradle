@@ -5,17 +5,19 @@ buildscript {
     ext.appNdk = "25.0.8775105"
     ext.appMinSDK = 21
     ext.appTargetSDK = 31
-    ext.appVersionCode = 192
-    ext.appVersionName = "2.92-Kotlin"
+    ext.appFenrirVersionCode = 194
+    ext.appFenrirVersionName = "2.94-Kotlin"
+    ext.appFileGalleryVersionCode = 14
+    ext.appFileGalleryVersionName = "1.14-Kotlin"
 
     ext.kotlin_version = "1.7.10"
     ext.kotlin_coroutines = "1.6.4"
-    ext.kotlin_serializer = "1.3.3"
+    ext.kotlin_serializer = "1.4.0-RC"
     ext.okhttpLibraryVersion = "5.0.0-alpha.10"
     ext.okioVersion = "3.2.0"
     ext.rxJavaVersion = "3.1.5"
     ext.guavaVersion = "31.1-android"
-    ext.exoLibraryVersion = "2.18.0"
+    ext.exoLibraryVersion = "2.18.1"
     ext.annotationVersion = "1.4.0"
     ext.coreVersion = "1.8.0"
     ext.appcompatVersion = "1.5.0-beta01"

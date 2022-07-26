@@ -4,7 +4,7 @@
 <b>Языки: Русский, английский</b>
 
 <b>Скриншоты:</b>
-<img src="Screenshots.jpg"/>
+<img src="Fenrir_VK.jpg"/>
 
 <b>Инструкция по сборке:</b>
 Требуется:
@@ -27,3 +27,11 @@
 
   1) https://github.com/umerov1999/Old_Fenrir-for-VK Release 1
   2) https://github.com/umerov1999/Old2_Fenrir-for-VK Release 2
+
+# FileGallery
+Просмотр фото, видео, аудио, тэги
+
+<b>Языки: Русский</b>
+
+<b>Скриншот:</b>
+<img src="FileGallery.jpg"/>

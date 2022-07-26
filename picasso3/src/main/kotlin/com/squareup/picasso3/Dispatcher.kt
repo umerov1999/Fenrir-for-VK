@@ -105,9 +105,7 @@ internal class Dispatcher internal constructor(
             val actNw = connectivityManager.getNetworkCapabilities(nw)
             actNw != null && (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || actNw.hasTransport(
                 NetworkCapabilities.TRANSPORT_CELLULAR
-            ) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) || actNw.hasTransport(
-                NetworkCapabilities.TRANSPORT_BLUETOOTH
-            ))
+            ) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
         } else {
             connectivityManager?.activeNetworkInfo?.isConnected == true
         }
@@ -527,7 +525,6 @@ internal class Dispatcher internal constructor(
                     NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                         .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
                         .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-                        .addTransportType(NetworkCapabilities.TRANSPORT_BLUETOOTH)
                 connectivityManager?.registerNetworkCallback(
                     networkRequest.build(),
                     networkCallback!!

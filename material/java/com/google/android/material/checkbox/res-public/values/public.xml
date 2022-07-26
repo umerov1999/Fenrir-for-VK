@@ -19,6 +19,9 @@
 <resources>
   <public name="Widget.Material3.CompoundButton.CheckBox" type="style"/>
 
+  <public name="buttonIcon" type="attr"/>
+  <public name="buttonIconTint" type="attr"/>
+  <public name="buttonIconTintMode" type="attr"/>
   <public name="centerIfNoTextEnabled" type="attr"/>
   <public name="errorShown" type="attr"/>
   <public name="errorAccessibilityLabel" type="attr"/>
