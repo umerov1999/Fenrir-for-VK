@@ -37,9 +37,10 @@ android {
         buildConfigField("String", "FAKE_DEVICE", asStringVar(fake_device))
         buildConfigField("String", "FCM_SESSION_ID_GEN_URL", asStringVar(fcm_session_id_gen_url))
         buildConfigField("boolean", "MANAGE_SCOPED_STORAGE", "true")
+        buildConfigField("boolean", "FORCE_DEVELOPER_MODE", force_developer_mode)
 
         ndk {
-            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+            abiFilters = targetAbi
         }
         resConfigs "en", "ru"
     }
@@ -86,14 +87,14 @@ android {
             applicationId = "dev.ragnarok.fenrir"
             dimension = "type"
             buildConfigField("int", "VK_API_APP_ID", vk_app_id)
-            buildConfigField("int", "DEFAULT_ACCOUNT_TYPE", "AccountType.VK_ANDROID")
+            buildConfigField("int", "DEFAULT_ACCOUNT_TYPE", "1") //VK_ANDROID
             buildConfigField("String", "VK_CLIENT_SECRET", asStringVar(vk_client_secret))
         }
         kate {
             applicationId = "dev.ragnarok.fenrir_kate"
             dimension = "type"
             buildConfigField("int", "VK_API_APP_ID", kate_app_id)
-            buildConfigField("int", "DEFAULT_ACCOUNT_TYPE", "AccountType.KATE")
+            buildConfigField("int", "DEFAULT_ACCOUNT_TYPE", "3") //KATE
             buildConfigField("String", "VK_CLIENT_SECRET", asStringVar(kate_client_secret))
         }
     }
@@ -119,7 +120,7 @@ dependencies {
     implementation("androidx.vectordrawable:vectordrawable:$vectordrawableVersion")
     implementation("androidx.appcompat:appcompat:$appcompatVersion")
     implementation("androidx.customview:customview:1.2.0-alpha01")
-    implementation("androidx.customview:customview-poolingcontainer:1.0.0-rc01")
+    implementation("androidx.customview:customview-poolingcontainer:1.0.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     implementation("androidx.browser:browser:1.4.0")
     implementation("androidx.webkit:webkit:1.5.0-beta01")

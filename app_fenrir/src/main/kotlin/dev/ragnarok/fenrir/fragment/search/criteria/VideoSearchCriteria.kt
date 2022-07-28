@@ -39,7 +39,7 @@ class VideoSearchCriteria : BaseSearchCriteria {
         appendOption(SimpleNumberOption(KEY_DURATION_TO, R.string.max_duration, true))
     }
 
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     override fun describeContents(): Int {
         return 0

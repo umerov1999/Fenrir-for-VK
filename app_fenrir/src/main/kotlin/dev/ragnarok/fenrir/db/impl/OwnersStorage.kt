@@ -548,7 +548,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
             return cv
         }
 
-        private fun mapCommunityDbo(cursor: Cursor): CommunityEntity {
+        internal fun mapCommunityDbo(cursor: Cursor): CommunityEntity {
             return CommunityEntity(cursor.getInt(BaseColumns._ID))
                 .setName(cursor.getString(GroupColumns.NAME))
                 .setScreenName(cursor.getString(GroupColumns.SCREEN_NAME))
@@ -565,7 +565,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 .setPhoto200(cursor.getString(GroupColumns.PHOTO_200))
         }
 
-        private fun mapUserDbo(cursor: Cursor): UserEntity {
+        internal fun mapUserDbo(cursor: Cursor): UserEntity {
             return UserEntity(cursor.getInt(BaseColumns._ID))
                 .setFirstName(cursor.getString(UserColumns.FIRST_NAME))
                 .setLastName(cursor.getString(UserColumns.LAST_NAME))

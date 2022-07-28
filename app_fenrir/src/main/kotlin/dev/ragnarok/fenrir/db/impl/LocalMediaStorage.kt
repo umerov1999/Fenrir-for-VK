@@ -264,7 +264,7 @@ internal class LocalMediaStorage(mRepositoryContext: AppStorages) : AbsStorage(m
             MediaStore.MediaColumns.DISPLAY_NAME
         )
 
-        private fun mapVideo(cursor: Cursor): LocalVideo {
+        internal fun mapVideo(cursor: Cursor): LocalVideo {
             return LocalVideo(
                 cursor.getLong(BaseColumns._ID),
                 buildUriForPicassoNew(
@@ -277,7 +277,7 @@ internal class LocalMediaStorage(mRepositoryContext: AppStorages) : AbsStorage(m
                 .setTitle(cursor.getString(MediaStore.MediaColumns.DISPLAY_NAME))
         }
 
-        private fun mapAudio(accountId: Int, cursor: Cursor): Audio? {
+        internal fun mapAudio(accountId: Int, cursor: Cursor): Audio? {
             val id = cursor.getLong(BaseColumns._ID)
             val data = buildUriForPicassoNew(Content_Local.AUDIO, id).toString()
             if (cursor.getString(MediaStore.MediaColumns.DISPLAY_NAME)

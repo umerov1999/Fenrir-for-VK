@@ -36,7 +36,7 @@ class ModalBottomSheetDialogFragment(listener: Listener) : BottomSheetDialogFrag
         private const val KEY_DRAWABLE_RES = "resource"
         private const val KEY_IMAGE_URL = "url"
 
-        private fun newInstance(
+        internal fun newInstance(
             listener: Listener,
             builder: Builder
         ): ModalBottomSheetDialogFragment {

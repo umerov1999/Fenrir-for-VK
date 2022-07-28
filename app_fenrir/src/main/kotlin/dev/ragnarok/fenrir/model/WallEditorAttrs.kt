@@ -12,7 +12,7 @@ class WallEditorAttrs : Parcelable {
         this.editor = ParcelableOwnerWrapper(editor)
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         owner = `in`.readParcelable(ParcelableOwnerWrapper::class.java.classLoader)!!
         editor = `in`.readParcelable(ParcelableOwnerWrapper::class.java.classLoader)!!
     }

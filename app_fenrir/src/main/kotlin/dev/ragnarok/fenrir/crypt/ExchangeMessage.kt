@@ -43,7 +43,7 @@ class ExchangeMessage : Parcelable {
 
     @Suppress("UNUSED")
     constructor()
-    private constructor(builder: Builder) {
+    internal constructor(builder: Builder) {
         publicKey = builder.publicKey
         version = builder.version
         sessionId = builder.sessionId
@@ -53,7 +53,7 @@ class ExchangeMessage : Parcelable {
         keyLocationPolicy = builder.keyLocationPolicy
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         version = `in`.readInt()
         sessionId = `in`.readLong()
         publicKey = `in`.readString()

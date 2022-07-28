@@ -1,5 +1,6 @@
 package dev.ragnarok.filegallery.fragment
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -62,7 +63,6 @@ import dev.ragnarok.filegallery.picasso.PicassoInstance.Companion.clear_cache
 import dev.ragnarok.filegallery.place.PlaceFactory
 import dev.ragnarok.filegallery.settings.CurrentTheme.getColorPrimary
 import dev.ragnarok.filegallery.settings.CurrentTheme.getColorSecondary
-import dev.ragnarok.filegallery.settings.NightMode
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.settings.backup.SettingsBackup
 import dev.ragnarok.filegallery.util.Utils
@@ -331,14 +331,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.night_mode_title
                 iconRes = R.drawable.night_mode_pref
                 onSelectionChange {
-                    when (it.toInt()) {
-                        NightMode.DISABLE -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        NightMode.ENABLE -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                        NightMode.AUTO -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                        NightMode.FOLLOW_SYSTEM -> AppCompatDelegate.setDefaultNightMode(
-                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        )
-                    }
+                    AppCompatDelegate.setDefaultNightMode(it.toInt())
                 }
             }
 
@@ -951,6 +944,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     }
 
     class LocalMediaServerDialog : DialogFragment() {
+        @SuppressLint("CheckResult")
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val view = View.inflate(requireActivity(), R.layout.entry_local_server, null)
             val url: TextInputEditText = view.findViewById(R.id.edit_url)

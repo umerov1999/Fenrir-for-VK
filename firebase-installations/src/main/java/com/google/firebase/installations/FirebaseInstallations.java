@@ -98,6 +98,8 @@ public class FirebaseInstallations implements FirebaseInstallationsApi {
             "Installation ID could not be validated with the Firebase servers (maybe it was deleted). "
                     + "Firebase Installations will need to create a new Installation ID and auth token. "
                     + "Please retry your last request.";
+    @GuardedBy("FirebaseInstallations.this")
+    final Set<FidListener> fidListeners = new HashSet<>();
     private final FirebaseApp firebaseApp;
     private final FirebaseInstallationServiceClient serviceClient;
     private final PersistedInstallation persistedInstallation;
@@ -107,8 +109,6 @@ public class FirebaseInstallations implements FirebaseInstallationsApi {
     private final Object lock = new Object();
     private final ExecutorService backgroundExecutor;
     private final ExecutorService networkExecutor;
-    @GuardedBy("FirebaseInstallations.this")
-    private final Set<FidListener> fidListeners = new HashSet<>();
     @GuardedBy("lock")
     private final List<StateListener> listeners = new ArrayList<>();
     /* FID of this Firebase Installations instance. Cached after successfully registering and

@@ -10,7 +10,7 @@ class WallSearchCriteria : BaseSearchCriteria {
         this.ownerId = ownerId
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         ownerId = `in`.readInt()
     }
 

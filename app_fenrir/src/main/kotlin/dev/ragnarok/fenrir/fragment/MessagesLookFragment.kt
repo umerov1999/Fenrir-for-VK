@@ -90,11 +90,11 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
         return root
     }
 
-    private fun onFooterLoadMoreClick() {
+    internal fun onFooterLoadMoreClick() {
         presenter?.fireFooterLoadMoreClick()
     }
 
-    private fun onHeaderLoadMoreClick() {
+    internal fun onHeaderLoadMoreClick() {
         presenter?.fireHeaderLoadMoreClick()
     }
 

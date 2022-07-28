@@ -1491,7 +1491,7 @@ object Utils {
     }
 
 
-    private fun parseResponse(str: String, pattern: Pattern): String? {
+    internal fun parseResponse(str: String, pattern: Pattern): String? {
         val matcher = pattern.matcher(str)
         return if (matcher.find()) {
             matcher.group(1)

@@ -158,7 +158,7 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
     }
 
     companion object {
-        private fun wrapPercentageListener(listener: PercentagePublisher?): ProgressRequestBody.UploadCallbacks {
+        internal fun wrapPercentageListener(listener: PercentagePublisher?): ProgressRequestBody.UploadCallbacks {
             return object : ProgressRequestBody.UploadCallbacks {
                 override fun onProgressUpdate(percentage: Int) {
                     listener?.onProgressChanged(percentage)

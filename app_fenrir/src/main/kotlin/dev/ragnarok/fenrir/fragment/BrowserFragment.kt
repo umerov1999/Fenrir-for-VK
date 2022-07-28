@@ -104,7 +104,7 @@ class BrowserFragment : BaseFragment(), BackPressCallback, View.OnCreateContextM
         return root
     }
 
-    private fun downloadResult(Prefix: String?, dirL: File, url: String, type: String) {
+    internal fun downloadResult(Prefix: String?, dirL: File, url: String, type: String) {
         var dir = dirL
         if (Prefix != null && Settings.get().other().isPhoto_to_user_dir) {
             val dir_final = File(dir.absolutePath + "/" + Prefix)
@@ -209,7 +209,7 @@ class BrowserFragment : BaseFragment(), BackPressCallback, View.OnCreateContextM
         }
     }
 
-    private fun refreshActionBar() {
+    internal fun refreshActionBar() {
         if (!isAdded) {
             return
         }
@@ -265,7 +265,9 @@ class BrowserFragment : BaseFragment(), BackPressCallback, View.OnCreateContextM
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val url = request.url.toString()
-            if (url.contains("github.com") || url.contains("vk.com/@") || url.contains("vk.com/activation") || url.contains(
+            if (url == "vk.com" || url == "m.vk.com" || url.contains("github.com") || url.contains("vk.com/@") || url.contains(
+                    "vk.com/activation"
+                ) || url.contains("vk.com/login") || url.contains("login.vk.com") || url.contains(
                     "vk.com/app"
                 )
             ) {

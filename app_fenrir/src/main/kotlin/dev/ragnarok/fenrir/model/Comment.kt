@@ -91,7 +91,7 @@ class Comment : AbsModel, Identificable {
         this.commented = commented
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         fromId = `in`.readInt()
         date = `in`.readLong()

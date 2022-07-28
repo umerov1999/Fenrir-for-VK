@@ -80,7 +80,6 @@ import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.service.KeepLongpollService
 import dev.ragnarok.fenrir.settings.AvatarStyle
 import dev.ragnarok.fenrir.settings.ISettings
-import dev.ragnarok.fenrir.settings.NightMode
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.backup.SettingsBackup
 import dev.ragnarok.fenrir.util.AppPerms
@@ -580,14 +579,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.night_mode_title
                 iconRes = R.drawable.night_mode_pref
                 onSelectionChange {
-                    when (it.toInt()) {
-                        NightMode.DISABLE -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        NightMode.ENABLE -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                        NightMode.AUTO -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                        NightMode.FOLLOW_SYSTEM -> AppCompatDelegate.setDefaultNightMode(
-                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        )
-                    }
+                    AppCompatDelegate.setDefaultNightMode(it.toInt())
                 }
             }
 
@@ -1486,7 +1478,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             iconRes = R.drawable.developer_mode
             titleRes = R.string.dev_settings
             switch("developer_mode") {
-                defaultValue = Common.forceDeveloperMode
+                defaultValue = Constants.forceDeveloperMode
                 titleRes = R.string.developer_mode
                 iconRes = R.drawable.developer_mode
             }
@@ -2747,7 +2739,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             }
         }
 
-        private fun checkBitmap(bitmap: Bitmap?): Bitmap? {
+        internal fun checkBitmap(bitmap: Bitmap?): Bitmap? {
             bitmap ?: return null
             if (bitmap.width <= 0 || bitmap.height <= 0 || bitmap.width <= 4000 && bitmap.height <= 4000) {
                 return bitmap

@@ -24,7 +24,7 @@ class Privacy : Parcelable, Cloneable {
         disallowedLists = ArrayList()
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         type = `in`.readString()!!
         allowedUsers = `in`.createTypedArrayList(User.CREATOR)!!
         disallowedUsers = `in`.createTypedArrayList(User.CREATOR)!!

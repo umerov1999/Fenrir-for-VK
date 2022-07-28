@@ -21,7 +21,7 @@ class GroupSettings : Parcelable {
         availableCategories = emptyList()
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         title = `in`.readString()
         description = `in`.readString()
         address = `in`.readString()

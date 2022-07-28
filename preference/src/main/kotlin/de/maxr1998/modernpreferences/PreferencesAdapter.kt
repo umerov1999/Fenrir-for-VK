@@ -52,7 +52,7 @@ class PreferencesAdapter @VisibleForTesting constructor(
 ) : RecyclerView.Adapter<PreferencesAdapter.ViewHolder>() {
 
     private companion object {
-        private val emptyScreen: PreferenceScreen by lazy {
+        val emptyScreen: PreferenceScreen by lazy {
             PreferenceScreen.Builder(null).build()
         }
     }

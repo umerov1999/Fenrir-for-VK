@@ -747,7 +747,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
     }
 
     companion object {
-        private fun getFileExtension(file: File?): String {
+        internal fun getFileExtension(file: File?): String {
             var extension = ""
             try {
                 if (file != null && file.exists()) {

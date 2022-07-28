@@ -21,7 +21,9 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.extractGroupTokens
+import dev.ragnarok.fenrir.adapter.horizontal.HorizontalMenuAdapter
 import dev.ragnarok.fenrir.adapter.horizontal.HorizontalOptionsAdapter
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.*
@@ -179,18 +181,24 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
             }
         }
         mHeaderHolder?.ivAvatar?.setOnClickListener {
-            val cmt = presenter?.community
-                ?: return@setOnClickListener
-            getSingleURLPhotoPlace(
-                cmt.originalAvatar,
-                cmt.fullName,
-                "club" + abs(cmt.id)
-            ).tryOpenWith(requireActivity())
+            presenter?.fireAvatarPhotoClick(null, null)
         }
         mHeaderHolder?.ivAvatar?.setOnLongClickListener {
             presenter?.fireMentions()
             true
         }
+    }
+
+    override fun onSinglePhoto(ava: String, prefix: String?, community: Community) {
+        getSingleURLPhotoPlace(
+            ava,
+            community.fullName,
+            prefix.orEmpty() + "club" + abs(community.id)
+        ).tryOpenWith(requireActivity())
+    }
+
+    override fun openVKURL(accountId: Int, link: String) {
+        LinkHelper.openUrl(requireActivity(), accountId, link, false)
     }
 
     private fun displayCommunityCover(resource: String?) {
@@ -277,6 +285,20 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         mHeaderHolder?.mFiltersAdapter?.setItems(filters)
     }
 
+    override fun notifyWallFiltersChanged() {
+        mHeaderHolder?.mFiltersAdapter?.notifyDataSetChanged()
+    }
+
+    override fun displayWallMenus(menus: MutableList<CommunityDetails.Menu>) {
+        mHeaderHolder?.mMenuAdapter?.setItems(menus)
+        mHeaderHolder?.menuList?.visibility = if (menus.isEmpty()) View.GONE else View.VISIBLE
+    }
+
+    override fun notifyWallMenusChanged(hidden: Boolean) {
+        mHeaderHolder?.mMenuAdapter?.notifyDataSetChanged()
+        mHeaderHolder?.menuList?.visibility = if (hidden) View.GONE else View.VISIBLE
+    }
+
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         super.onCreateMenu(menu, menuInflater)
         menuInflater.inflate(R.menu.menu_community_wall, menu)
@@ -322,10 +344,6 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
             return true
         }
         return super.onMenuItemSelected(menuItem)
-    }
-
-    override fun notifyWallFiltersChanged() {
-        mHeaderHolder?.mFiltersAdapter?.notifyDataSetChanged()
     }
 
     override fun onResume() {
@@ -478,6 +496,8 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
             root.findViewById(R.id.header_group_secondary_button)
         val fabMessage: FloatingActionButton = root.findViewById(R.id.header_group_fab_message)
         val mFiltersAdapter: HorizontalOptionsAdapter<PostFilter>
+        val mMenuAdapter: HorizontalMenuAdapter
+        val menuList: RecyclerView = root.findViewById(R.id.menu_recyclerview)
         val paganSymbol: RLottieImageView = root.findViewById(R.id.pagan_symbol)
         val Runes: View = root.findViewById(R.id.runes_container)
 
@@ -492,6 +512,20 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                 }
             })
             filterList.adapter = mFiltersAdapter
+
+            menuList.layoutManager =
+                LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)
+            mMenuAdapter = HorizontalMenuAdapter(mutableListOf())
+            mMenuAdapter.setListener(object : HorizontalMenuAdapter.Listener {
+                override fun onWallMenuClick(item: CommunityDetails.Menu, pos: Int) {
+                    presenter?.fireMenuClick(item)
+                }
+
+                override fun onWallMenuLongClick(item: CommunityDetails.Menu, pos: Int) {
+                    presenter?.fireAvatarPhotoClick(item.cover, "menu_")
+                }
+            })
+            menuList.adapter = mMenuAdapter
             tvStatus.setOnClickListener {
                 presenter?.fireHeaderStatusClick()
             }

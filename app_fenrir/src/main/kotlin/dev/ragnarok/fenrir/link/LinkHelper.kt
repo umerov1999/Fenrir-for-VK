@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.link
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
@@ -50,6 +51,7 @@ import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import kotlin.math.abs
 
 object LinkHelper {
+    @SuppressLint("CheckResult")
     fun openUrl(context: Activity, accountId: Int, link: String?, isMain: Boolean) {
         if (link == null || link.isEmpty()) {
             createCustomToast(context).showToastError(R.string.empty_clipboard_url)

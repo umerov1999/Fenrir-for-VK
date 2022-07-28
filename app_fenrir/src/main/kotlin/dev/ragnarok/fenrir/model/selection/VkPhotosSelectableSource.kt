@@ -16,7 +16,7 @@ class VkPhotosSelectableSource : AbsSelectableSource {
         this.ownerId = ownerId
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         accountId = `in`.readInt()
         ownerId = `in`.readInt()
     }

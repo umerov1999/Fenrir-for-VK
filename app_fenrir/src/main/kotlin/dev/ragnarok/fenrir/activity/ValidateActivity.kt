@@ -95,7 +95,7 @@ class ValidateActivity : AppCompatActivity() {
         webview.loadUrl(urlVal ?: "")
     }
 
-    private fun cancel() {
+    internal fun cancel() {
         urlVal?.let { validateProvider?.cancel(it) }
         finish()
     }
@@ -117,7 +117,7 @@ class ValidateActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun parseUrl(url: String?) {
+    internal fun parseUrl(url: String?) {
         try {
             if (url == null) {
                 return
@@ -163,11 +163,11 @@ class ValidateActivity : AppCompatActivity() {
                 .putExtra(EXTRA_VALIDATE, validate_url)
         }
 
-        private fun tryExtractAccessToken(url: String): String? {
+        internal fun tryExtractAccessToken(url: String): String? {
             return VKStringUtils.extractPattern(url, "access_token=(.*?)&")
         }
 
-        private fun tryExtractUserId(url: String): String? {
+        internal fun tryExtractUserId(url: String): String? {
             return VKStringUtils.extractPattern(url, "user_id=(\\d*)")
         }
     }

@@ -152,7 +152,7 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
     }
 
     companion object {
-        private fun arrayToSet(ids: IntArray?): MutableSet<Int> {
+        internal fun arrayToSet(ids: IntArray?): MutableSet<Int> {
             ids ?: return HashSet(0)
             val set: MutableSet<Int> = HashSet(ids.size)
             for (id in ids) {

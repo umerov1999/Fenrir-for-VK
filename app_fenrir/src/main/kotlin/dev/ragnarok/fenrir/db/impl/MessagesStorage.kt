@@ -828,7 +828,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             return index
         }
 
-        private fun baseMapDbo(cursor: Cursor): MessageDboEntity {
+        internal fun baseMapDbo(cursor: Cursor): MessageDboEntity {
             @MessageStatus val status =
                 cursor.getInt(MessageColumns.STATUS)
             @ChatAction val action =

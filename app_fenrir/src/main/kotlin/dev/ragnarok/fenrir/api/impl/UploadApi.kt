@@ -165,7 +165,7 @@ class UploadApi internal constructor(private val provider: IUploadRetrofitProvid
     }
 
     companion object {
-        private fun wrapPercentageListener(listener: PercentagePublisher?): UploadCallbacks {
+        internal fun wrapPercentageListener(listener: PercentagePublisher?): UploadCallbacks {
             return object : UploadCallbacks {
                 override fun onProgressUpdate(percentage: Int) {
                     listener?.onProgressChanged(percentage)

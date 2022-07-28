@@ -7,7 +7,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.Upload
 
-class ImageSizeAlertDialog private constructor(builder: Builder) {
+class ImageSizeAlertDialog internal constructor(builder: Builder) {
     private val mActivity: Activity = builder.mActivity
     private val mOnSelectedCallback: OnSelectedCallback?
     private val mOnCancelCallback: OnCancelCallback?

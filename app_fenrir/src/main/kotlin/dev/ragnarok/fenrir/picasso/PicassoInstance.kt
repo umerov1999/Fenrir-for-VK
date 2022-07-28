@@ -169,7 +169,7 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
         }
 
         // from picasso sources
-        private fun calculateDiskCacheSize(dir: File): Long {
+        internal fun calculateDiskCacheSize(dir: File): Long {
             var size = 5242880L
             try {
                 val statFs = StatFs(dir.absolutePath)

@@ -30,7 +30,7 @@ class FileItem : Parcelable {
         this.modification = modification
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         isDir = `in`.readByte().toInt() != 0
         file_name = `in`.readString()!!
         file_path = `in`.readString()!!

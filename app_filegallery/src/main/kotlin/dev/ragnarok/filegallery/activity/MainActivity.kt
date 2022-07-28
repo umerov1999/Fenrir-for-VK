@@ -45,7 +45,6 @@ import dev.ragnarok.filegallery.place.PlaceFactory.getPreferencesPlace
 import dev.ragnarok.filegallery.place.PlaceFactory.getTagsPlace
 import dev.ragnarok.filegallery.place.PlaceProvider
 import dev.ragnarok.filegallery.settings.CurrentTheme
-import dev.ragnarok.filegallery.settings.NightMode
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.filegallery.settings.theme.ThemesController.nextRandom
@@ -58,7 +57,6 @@ import dev.ragnarok.filegallery.util.rxutils.RxUtils
 import dev.ragnarok.filegallery.util.toast.CustomToast
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.io.File
-
 
 class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable, PlaceProvider,
     NavigationBarView.OnItemSelectedListener, UpdatableNavigation, ServiceConnection {
@@ -179,14 +177,16 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
         } else {
             mToolbar?.setNavigationIcon(R.drawable.client_round)
             mToolbar?.setNavigationOnClickListener {
-                if (Settings.get().main().getNightMode() == NightMode.ENABLE || Settings.get()
-                        .main().getNightMode() == NightMode.AUTO || Settings.get()
-                        .main().getNightMode() == NightMode.FOLLOW_SYSTEM
+                if (Settings.get().main()
+                        .getNightMode() == AppCompatDelegate.MODE_NIGHT_YES || Settings.get()
+                        .main()
+                        .getNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY || Settings.get()
+                        .main().getNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 ) {
-                    Settings.get().main().switchNightMode(NightMode.DISABLE)
+                    Settings.get().main().switchNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 } else {
-                    Settings.get().main().switchNightMode(NightMode.ENABLE)
+                    Settings.get().main().switchNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 }
             }

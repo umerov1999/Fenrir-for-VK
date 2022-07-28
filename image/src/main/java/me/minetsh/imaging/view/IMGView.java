@@ -562,7 +562,7 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         // empty implementation.
     }
 
-    private boolean onScroll(float dx, float dy) {
+    boolean onScroll(float dx, float dy) {
         IMGHoming homing = mImage.onScroll(getScrollX(), getScrollY(), -dx, -dy);
         if (homing != null) {
             toApplyHoming(homing);
@@ -571,7 +571,7 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         return onScrollTo(getScrollX() + Math.round(dx), getScrollY() + Math.round(dy));
     }
 
-    private static class Pen extends IMGPath {
+    static class Pen extends IMGPath {
 
         private int identity = Integer.MIN_VALUE;
 
@@ -607,7 +607,7 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         }
     }
 
-    private class MoveAdapter extends GestureDetector.SimpleOnGestureListener {
+    class MoveAdapter extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onDown(MotionEvent e) {

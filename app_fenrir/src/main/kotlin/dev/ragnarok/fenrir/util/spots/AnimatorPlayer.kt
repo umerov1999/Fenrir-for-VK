@@ -7,8 +7,8 @@ import android.animation.AnimatorSet
 internal class AnimatorPlayer(private val animators: ArrayList<Animator>) :
     AnimatorListenerAdapter() {
     private var interrupted = false
-    override fun onAnimationEnd(animation: Animator?) {
-        if (!interrupted) animation?.start()
+    override fun onAnimationEnd(animation: Animator) {
+        if (!interrupted) animation.start()
     }
 
     fun play() {

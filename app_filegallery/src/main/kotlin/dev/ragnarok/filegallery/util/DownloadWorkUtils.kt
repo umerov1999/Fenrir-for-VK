@@ -35,7 +35,7 @@ object DownloadWorkUtils {
     private val DOWNLOAD_DATE_FORMAT: DateFormat =
         SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
 
-    private fun createNotification(
+    internal fun createNotification(
         context: Context,
         Title: String?,
         Text: String?,
@@ -54,7 +54,7 @@ object DownloadWorkUtils {
             .setOnlyAlertOnce(true)
     }
 
-    private fun createNotificationManager(context: Context): NotificationManagerCompat {
+    internal fun createNotificationManager(context: Context): NotificationManagerCompat {
         val mNotifyManager = NotificationManagerCompat.from(context)
         if (Utils.hasOreo()) {
             mNotifyManager.createNotificationChannel(

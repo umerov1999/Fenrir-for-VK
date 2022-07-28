@@ -12,7 +12,7 @@ class FriendList : Parcelable {
         this.name = name
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         name = `in`.readString()
     }

@@ -455,7 +455,7 @@ class FaveInteractor(
     }
 
     companion object {
-        private fun createLinkFromEntity(entity: FaveLinkEntity): FaveLink {
+        internal fun createLinkFromEntity(entity: FaveLinkEntity): FaveLink {
             return FaveLink(entity.id)
                 .setDescription(entity.description)
                 .setPhoto(entity.photo?.let { map(it) })
@@ -463,7 +463,7 @@ class FaveInteractor(
                 .setUrl(entity.url)
         }
 
-        private fun createLinkEntityFromDto(dto: FaveLinkDto): FaveLinkEntity {
+        internal fun createLinkEntityFromDto(dto: FaveLinkDto): FaveLinkEntity {
             return FaveLinkEntity(dto.id, dto.url)
                 .setDescription(dto.description)
                 .setTitle(dto.title)

@@ -549,7 +549,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         }
     }
 
-    private fun onSetOffline(success: Boolean) {
+    internal fun onSetOffline(success: Boolean) {
         if (success) createCustomToast(this).showToast(R.string.succ_offline) else createCustomToast(
             this
         ).showToastError(R.string.err_offline)
@@ -760,7 +760,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         )
     }
 
-    private fun openTargetPage() {
+    internal fun openTargetPage() {
         if (mTargetPage == null) {
             return
         }

@@ -19,7 +19,7 @@ class SimpleNumberOption : BaseOption {
         this.value = value
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         value = readObjectInteger(`in`)
     }
 

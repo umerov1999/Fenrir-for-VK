@@ -225,6 +225,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         isInPictureInPictureMode: Boolean,
         newConfig: Configuration
     ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         val actionBar = supportActionBar ?: return
         if (isInPictureInPictureMode) {
             actionBar.hide()

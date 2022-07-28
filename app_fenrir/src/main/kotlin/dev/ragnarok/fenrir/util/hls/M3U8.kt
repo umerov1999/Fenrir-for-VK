@@ -287,7 +287,7 @@ class M3U8 {
 
         companion object {
             private const val TS_PACKET_SIZE = 188
-            private fun closeQuietly(closeable: Closeable?) {
+            internal fun closeQuietly(closeable: Closeable?) {
                 try {
                     closeable?.close()
                 } catch (e: IOException) {
@@ -301,7 +301,7 @@ class M3U8 {
                 InvalidAlgorithmParameterException::class,
                 InvalidKeyException::class
             )
-            private fun getAesCp(key: ByteArray, iv: ByteArray): Cipher {
+            internal fun getAesCp(key: ByteArray, iv: ByteArray): Cipher {
                 val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
                 val skey: Key = SecretKeySpec(key, "AES")
                 val param = IvParameterSpec(iv)
@@ -312,7 +312,7 @@ class M3U8 {
 
     }
 
-    private class Property {
+    class Property {
         var type: String? = null
         var properties: MutableMap<String, String?>? = null
         var values: Array<String>? = null
@@ -347,7 +347,7 @@ class M3U8 {
     }
 
     companion object {
-        private fun getStream(client: OkHttpClient, url: URL): InputStream? {
+        internal fun getStream(client: OkHttpClient, url: URL): InputStream? {
             val request: Request = Request.Builder()
                 .url(url)
                 .build()
@@ -361,7 +361,7 @@ class M3U8 {
             }
         }
 
-        private fun checkProperty(line: String): Property? {
+        internal fun checkProperty(line: String): Property? {
             val property = parseLine(line)
             if (property.type == "FILE") return property
             if (property.type == "EXT-X-STREAM-INF" && property.properties != null) {

@@ -148,7 +148,7 @@ open class PhotoPagerPresenter internal constructor(
         return false
     }
 
-    private fun decodeFromBitmap(gen: Bitmap?): String? {
+    internal fun decodeFromBitmap(gen: Bitmap?): String? {
         if (gen == null) {
             return "error"
         }
@@ -195,7 +195,7 @@ open class PhotoPagerPresenter internal constructor(
         return packagesSupportingCustomTabs
     }
 
-    private fun openLinkInBrowser(context: Context, url: String?) {
+    internal fun openLinkInBrowser(context: Context, url: String?) {
         val intentBuilder = CustomTabsIntent.Builder()
         intentBuilder.setDefaultColorSchemeParams(
             CustomTabColorSchemeParams.Builder()

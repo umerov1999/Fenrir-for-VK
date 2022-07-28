@@ -18,7 +18,7 @@ class Graffiti : AbsModel {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         owner_id = `in`.readInt()
         url = `in`.readString()

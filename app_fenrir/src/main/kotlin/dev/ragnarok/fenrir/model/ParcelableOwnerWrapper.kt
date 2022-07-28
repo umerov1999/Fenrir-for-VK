@@ -16,7 +16,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         isNull = owner == null
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         type = `in`.readInt()
         isNull = `in`.readByte().toInt() != 0
         owner = if (!isNull) {
@@ -26,7 +26,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         }
     }
 
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         type = `in`.readInt()
         isNull = `in`.readBoolean()
         owner = if (!isNull) {

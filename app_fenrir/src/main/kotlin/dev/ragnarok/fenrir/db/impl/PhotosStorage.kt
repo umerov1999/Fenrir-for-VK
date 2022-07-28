@@ -124,7 +124,7 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
     }
 
     companion object {
-        private fun getCV(dbo: PhotoDboEntity): ContentValues {
+        internal fun getCV(dbo: PhotoDboEntity): ContentValues {
             val cv = ContentValues()
             cv.put(PhotosColumns.PHOTO_ID, dbo.id)
             cv.put(PhotosColumns.ALBUM_ID, dbo.albumId)
@@ -152,7 +152,7 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
             return cv
         }
 
-        private fun getSelectionForCriteria(criteria: PhotoCriteria): String {
+        internal fun getSelectionForCriteria(criteria: PhotoCriteria): String {
             var selection = "1 = 1"
             selection = selection + " AND " + PhotosColumns.OWNER_ID + " = " + criteria.ownerId
             selection = selection + " AND " + PhotosColumns.ALBUM_ID + " = " + criteria.albumId

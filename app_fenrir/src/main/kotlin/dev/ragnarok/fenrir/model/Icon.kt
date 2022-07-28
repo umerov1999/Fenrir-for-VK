@@ -16,7 +16,7 @@ class Icon : Parcelable {
         this.url = url
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         res = readObjectInteger(`in`)
         url = `in`.readString()
     }

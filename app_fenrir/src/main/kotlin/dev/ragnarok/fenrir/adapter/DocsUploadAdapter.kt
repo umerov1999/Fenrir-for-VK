@@ -97,7 +97,7 @@ class DocsUploadAdapter(
     companion object {
         private val ERROR_COLOR = Color.parseColor("#ff0000")
         private var idGenerator = 0
-        private fun generateNextHolderId(): Int {
+        internal fun generateNextHolderId(): Int {
             idGenerator++
             return idGenerator
         }

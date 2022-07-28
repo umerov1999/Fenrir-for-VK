@@ -8,7 +8,7 @@ class SimpleTextOption : BaseOption {
     var value: String? = null
 
     constructor(key: Int, title: Int, active: Boolean) : super(SIMPLE_TEXT, key, title, active)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         value = `in`.readString()
     }
 

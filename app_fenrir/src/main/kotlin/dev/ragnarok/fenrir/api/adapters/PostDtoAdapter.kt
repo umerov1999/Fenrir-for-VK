@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.VKApiPost.Type.DONUT
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
@@ -17,6 +18,12 @@ class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
         val root = json.asJsonObject
         dto.id = getFirstInt(root, 0, "post_id", "id")
         dto.post_type = VKApiPost.Type.parse(optString(root, "post_type"))
+        if (hasObject(root, "donut")) {
+            val donut = root.getAsJsonObject("donut")
+            if (optBoolean(donut, "is_donut")) {
+                dto.post_type = DONUT
+            }
+        }
         dto.owner_id = getFirstInt(root, 0, "owner_id", "to_id", "source_id")
         dto.from_id = optInt(root, "from_id")
         if (dto.from_id == 0) {

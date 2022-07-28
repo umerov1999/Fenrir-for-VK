@@ -39,7 +39,7 @@ public class CropImageView extends TransformImageView {
     public static final float SOURCE_IMAGE_ASPECT_RATIO = 0f;
     public static final float DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO;
 
-    private final RectF mCropRect = new RectF();
+    final RectF mCropRect = new RectF();
 
     private final Matrix mTempMatrix = new Matrix();
 

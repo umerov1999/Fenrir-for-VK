@@ -177,7 +177,7 @@ class AudiosPresenter(
         super.onDestroyed()
     }
 
-    private fun onListGetError(t: Throwable) {
+    internal fun onListGetError(t: Throwable) {
         setLoadingNow(false)
         showError(getCauseIfRuntime(t))
     }

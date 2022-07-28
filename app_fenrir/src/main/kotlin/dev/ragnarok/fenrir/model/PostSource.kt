@@ -16,7 +16,7 @@ class PostSource : Parcelable {
         this.url = url
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         type = `in`.readInt()
         platform = `in`.readString()
         data = `in`.readInt()

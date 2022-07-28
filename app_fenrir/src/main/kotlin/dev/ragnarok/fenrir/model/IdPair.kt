@@ -12,7 +12,7 @@ class IdPair : Parcelable {
         this.ownerId = ownerId
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
     }

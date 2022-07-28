@@ -274,7 +274,7 @@ class BigVkPhotosAdapter(
         private const val VIEW_TYPE_PHOTO = 0
         private const val VIEW_TYPE_UPLOAD = 1
         private var holderIdGenerator = 0
-        private fun generateNextHolderId(): Int {
+        internal fun generateNextHolderId(): Int {
             holderIdGenerator++
             return holderIdGenerator
         }

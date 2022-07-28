@@ -37,7 +37,7 @@ class ParcelableFeedbackWrapper : Parcelable {
         this.feedback = feedback
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         val index = `in`.readInt()
         val classLoader = TYPES[index].classLoader
         feedback = `in`.readParcelable(classLoader)

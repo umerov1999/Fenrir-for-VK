@@ -47,7 +47,7 @@ class Community : Owner {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         fullName = `in`.readString()
         screenName = `in`.readString()
@@ -64,7 +64,7 @@ class Community : Owner {
         verified = `in`.readByte().toInt() != 0
     }
 
-    private constructor(`in`: ParcelNative) : super(`in`) {
+    internal constructor(`in`: ParcelNative) : super(`in`) {
         id = `in`.readInt()
         fullName = `in`.readString()
         screenName = `in`.readString()

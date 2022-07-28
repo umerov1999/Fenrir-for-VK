@@ -570,5 +570,12 @@
         android:layout_height="wrap_content"
         android:scrollbars="none" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/menu_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:visibility="gone" />
+
 </LinearLayout>
 

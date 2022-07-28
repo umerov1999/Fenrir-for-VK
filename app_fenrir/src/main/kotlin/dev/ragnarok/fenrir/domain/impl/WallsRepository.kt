@@ -480,7 +480,7 @@ class WallsRepository(
     }
 
     companion object {
-        private fun update2patch(data: PostUpdate): PostPatch {
+        internal fun update2patch(data: PostUpdate): PostPatch {
             val patch = PostPatch()
             data.deleteUpdate.requireNonNull {
                 patch.withDeletion(it.isDeleted)
@@ -494,17 +494,18 @@ class WallsRepository(
             return patch
         }
 
-        private fun convertToApiFilter(filter: Int): String {
+        internal fun convertToApiFilter(filter: Int): String {
             return when (filter) {
                 WallCriteria.MODE_ALL -> "all"
                 WallCriteria.MODE_OWNER -> "owner"
                 WallCriteria.MODE_SCHEDULED -> "postponed"
                 WallCriteria.MODE_SUGGEST -> "suggests"
+                WallCriteria.MODE_DONUT -> "donut"
                 else -> throw IllegalArgumentException("Invalid wall filter")
             }
         }
 
-        private fun singlePair(
+        internal fun singlePair(
             postId: Int,
             postOwnerId: Int
         ): Collection<dev.ragnarok.fenrir.api.model.IdPair> {

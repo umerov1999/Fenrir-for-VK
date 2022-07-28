@@ -16,7 +16,7 @@ class ReplyCommentFeedback : Feedback {
         private set
 
     constructor(@FeedbackType type: Int) : super(type)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         commentsOf = readModel(`in`)
         ownComment = `in`.readParcelable(Comment::class.java.classLoader)
         feedbackComment = `in`.readParcelable(Comment::class.java.classLoader)

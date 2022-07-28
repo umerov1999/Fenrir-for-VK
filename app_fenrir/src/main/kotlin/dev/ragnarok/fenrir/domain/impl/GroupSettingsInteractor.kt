@@ -252,14 +252,14 @@ class GroupSettingsInteractor(
     }
 
     companion object {
-        private fun transform(contact: Contact): ContactInfo {
+        internal fun transform(contact: Contact): ContactInfo {
             return ContactInfo(contact.user_id)
                 .setDescription(contact.desc)
                 .setEmail(contact.email)
                 .setPhone(contact.phone)
         }
 
-        private fun parseDateCreated(text: String?): Day? {
+        internal fun parseDateCreated(text: String?): Day? {
             if (text.isNullOrEmpty()) {
                 return null
             }

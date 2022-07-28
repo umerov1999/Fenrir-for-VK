@@ -69,7 +69,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
         return true
     }
 
-    private fun RegisterCallBack() {
+    internal fun RegisterCallBack() {
         if (Registered) return
         try {
             Registered = true
@@ -92,7 +92,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
         }
     }
 
-    private fun UnRegisterCallBack() {
+    internal fun UnRegisterCallBack() {
         if (!Registered) return
         try {
             Registered = false
@@ -177,11 +177,11 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
         exoPlayer?.prepare()
     }
 
-    private fun onExoPlayerException(e: PlaybackException) {
+    internal fun onExoPlayerException(e: PlaybackException) {
         errorListener?.onPlayError(e)
     }
 
-    private fun onInternalPlayerStateChanged(state: @Player.State Int) {
+    internal fun onInternalPlayerStateChanged(state: @Player.State Int) {
         d("ExoVoicePlayer", "onInternalPlayerStateChanged, state: $state")
         when (state) {
             Player.STATE_READY -> setStatus(IVoicePlayer.STATUS_PREPARED)
@@ -327,7 +327,7 @@ class ExoVoicePlayerSensored(context: Context, config: ProxyConfig?) : IVoicePla
     }
 
     companion object {
-        private val isOpusSupported: Boolean
+        internal val isOpusSupported: Boolean
             get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || Settings.get()
                 .other().isEnable_native || Settings.get().other().fFmpegPlugin != 0
     }

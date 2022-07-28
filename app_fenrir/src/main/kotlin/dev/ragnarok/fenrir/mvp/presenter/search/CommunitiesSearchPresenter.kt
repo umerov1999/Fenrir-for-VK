@@ -74,7 +74,7 @@ class CommunitiesSearchPresenter(
     }
 
     companion object {
-        private fun extractTypeFromCriteria(criteria: GroupSearchCriteria): String? {
+        internal fun extractTypeFromCriteria(criteria: GroupSearchCriteria): String? {
             val option: SpinnerOption? = criteria.findOptionByKey(GroupSearchCriteria.KEY_TYPE)
             if (option?.value != null) {
                 when ((option.value ?: return null).id) {

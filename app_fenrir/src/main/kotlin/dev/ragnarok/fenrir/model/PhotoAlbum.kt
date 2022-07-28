@@ -26,7 +26,7 @@ class PhotoAlbum : AbsModel, ISomeones {
         this.ownerId = ownerId
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         size = `in`.readInt()

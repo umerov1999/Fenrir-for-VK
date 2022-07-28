@@ -487,7 +487,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
     }
 
     companion object {
-        private fun unreadKeyFor(accountId: Int): String {
+        internal fun unreadKeyFor(accountId: Int): String {
             return "unread$accountId"
         }
     }

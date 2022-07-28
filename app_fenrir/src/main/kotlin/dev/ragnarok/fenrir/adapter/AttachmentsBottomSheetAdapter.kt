@@ -368,7 +368,7 @@ class AttachmentsBottomSheetAdapter(
         return data.size + 1
     }
 
-    private fun generateHolderId(): Int {
+    internal fun generateHolderId(): Int {
         nextHolderId++
         return nextHolderId
     }

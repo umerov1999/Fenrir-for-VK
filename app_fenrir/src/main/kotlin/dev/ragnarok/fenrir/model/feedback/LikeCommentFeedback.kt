@@ -20,7 +20,7 @@ class LikeCommentFeedback : Feedback {
 
     // one of FeedbackType.LIKE_COMMENT, FeedbackType.LIKE_COMMENT_PHOTO, FeedbackType.LIKE_COMMENT_TOPIC, FeedbackType.LIKE_COMMENT_VIDEO
     constructor(@FeedbackType type: Int) : super(type)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         liked = `in`.readParcelable(Comment::class.java.classLoader)
         commented = readModel(`in`)
         owners = readOwners(`in`)

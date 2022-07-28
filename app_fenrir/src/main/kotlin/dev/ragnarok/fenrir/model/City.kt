@@ -18,7 +18,7 @@ class City : Parcelable {
         this.title = title
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         title = `in`.readString()
         isImportant = `in`.readByte().toInt() != 0

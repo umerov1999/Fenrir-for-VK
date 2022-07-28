@@ -9,7 +9,7 @@ import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import java.io.File
 import java.io.IOException
 
-class AudioRecordWrapper private constructor(builder: Builder) {
+class AudioRecordWrapper internal constructor(builder: Builder) {
     private val mContext: Context = builder.mContext
     private val mFileExt: String = builder.mFileExt
     private var mRecorder: Recorder? = null

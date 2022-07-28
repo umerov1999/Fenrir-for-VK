@@ -11,7 +11,7 @@ class BooleanValue : Parcelable {
         value = initialValue
     }
 
-    private constructor(p: Parcel) {
+    internal constructor(p: Parcel) {
         value = p.readByte().toInt() != 0
     }
 

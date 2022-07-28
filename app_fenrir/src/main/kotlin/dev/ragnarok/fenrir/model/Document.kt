@@ -39,7 +39,7 @@ class Document : AbsModel {
         this.ownerId = ownerId
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         title = `in`.readString()
@@ -169,7 +169,7 @@ class Document : AbsModel {
             private set
 
         constructor()
-        private constructor(`in`: Parcel) : super(`in`) {
+        internal constructor(`in`: Parcel) : super(`in`) {
             src = `in`.readString()
             width = `in`.readInt()
             height = `in`.readInt()
@@ -223,7 +223,7 @@ class Document : AbsModel {
             private set
 
         constructor()
-        private constructor(`in`: Parcel) : super(`in`) {
+        internal constructor(`in`: Parcel) : super(`in`) {
             src = `in`.readString()
             width = `in`.readInt()
             height = `in`.readInt()

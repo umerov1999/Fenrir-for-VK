@@ -5,7 +5,7 @@ import android.os.Parcelable
 
 class DividerMenuItem : AbsMenuItem {
     constructor() : super(TYPE_DIVIDER)
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     override fun describeContents(): Int {
         return 0

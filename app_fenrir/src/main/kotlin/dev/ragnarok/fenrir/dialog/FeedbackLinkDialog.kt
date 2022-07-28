@@ -122,14 +122,14 @@ class FeedbackLinkDialog : DialogFragment(), FeedbackLinkAdapter.ActionListener 
             return feedbackLinkDialog
         }
 
-        private fun fillClassFields(fields: MutableList<Field>, type: Class<*>) {
+        internal fun fillClassFields(fields: MutableList<Field>, type: Class<*>) {
             fields.addAll(listOf(*type.declaredFields))
             if (type.superclass != null) {
                 fillClassFields(fields, type.superclass)
             }
         }
 
-        private fun isSupport(o: Any?): Boolean {
+        internal fun isSupport(o: Any?): Boolean {
             return o is User ||
                     o is Post ||
                     o is Photo ||

@@ -19,7 +19,7 @@ class Chat : AbsModel {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         title = `in`.readString()
         photo50 = `in`.readString()

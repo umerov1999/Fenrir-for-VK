@@ -125,7 +125,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
         }
     }
 
-    private fun mergeGPSOptionValue(value: SimpleGPSOption) {
+    internal fun mergeGPSOptionValue(value: SimpleGPSOption) {
         val hData = mData
         hData ?: return
         for (option in hData) {
@@ -138,7 +138,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
         }
     }
 
-    private fun mergeDateOptionValue(value: SimpleDateOption) {
+    internal fun mergeDateOptionValue(value: SimpleDateOption) {
         val hData = mData
         hData ?: return
         for (option in hData) {
@@ -268,7 +268,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
             .show()
     }
 
-    private fun getIntFromEditable(line: String?): Int? {
+    internal fun getIntFromEditable(line: String?): Int? {
         return if (line == null || line.trimmedIsNullOrEmpty()) {
             null
         } else try {

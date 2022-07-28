@@ -16,7 +16,7 @@ class Manager : Parcelable {
         this.role = role
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         user = `in`.readParcelable(User::class.java.classLoader)
         isDisplayAsContact = `in`.readByte().toInt() != 0
         role = `in`.readString()

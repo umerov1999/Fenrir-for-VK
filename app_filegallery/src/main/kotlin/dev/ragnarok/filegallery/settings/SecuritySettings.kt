@@ -97,7 +97,7 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
         const val KEY_USE_PIN_FOR_ENTRANCE = "use_pin_for_entrance"
         private const val pinHistoryDepth = 3
 
-        private fun extractPinEnterHistrory(preferences: SharedPreferences): ArrayList<Long> {
+        internal fun extractPinEnterHistrory(preferences: SharedPreferences): ArrayList<Long> {
             val set = preferences.getStringSet(KEY_PIN_ENTER_HISTORY, null)
             val result = ArrayList<Long>(safeCountOf(set))
             if (set != null) {
@@ -109,7 +109,7 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
             return result
         }
 
-        private fun calculateHash(value: String): String {
+        internal fun calculateHash(value: String): String {
             return try {
                 StringHash.calculateSha1(value)
             } catch (e: NoSuchAlgorithmException) {

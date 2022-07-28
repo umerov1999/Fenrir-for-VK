@@ -29,7 +29,7 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         date = `in`.readLong()
@@ -42,7 +42,7 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         owner = readOwner(`in`)
     }
 
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         date = `in`.readLong()

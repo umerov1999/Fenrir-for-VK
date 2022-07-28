@@ -76,7 +76,7 @@ class AudiosTabsFragment : BaseFragment(), MenuProvider {
         }.attach()
     }
 
-    private fun CreateAudiosFragment(option_menu: Int): Fragment {
+    internal fun CreateAudiosFragment(option_menu: Int): Fragment {
         return when (option_menu) {
             PLAYLISTS -> {
                 val fragment = AudioPlaylistsFragment.newInstance(accountId, ownerId)

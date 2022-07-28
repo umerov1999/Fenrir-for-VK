@@ -244,7 +244,7 @@ internal class OtherSettings(context: Context) : IOtherSettings {
     }
 
     override val isDeveloper_mode: Boolean
-        get() = getPreferences(app).getBoolean("developer_mode", Common.forceDeveloperMode)
+        get() = getPreferences(app).getBoolean("developer_mode", Constants.forceDeveloperMode)
     override val isForce_cache: Boolean
         get() = getPreferences(app).getBoolean("force_cache", false)
     override val isUse_api_5_90_for_audio: Boolean
@@ -590,7 +590,7 @@ internal class OtherSettings(context: Context) : IOtherSettings {
     companion object {
         private const val KEY_JSON_STATE = "json_list_state"
         private const val KEY_USERNAME_UIDS = "user_name_changes_uids"
-        private fun keyForUserNameChanges(userId: Int): String {
+        internal fun keyForUserNameChanges(userId: Int): String {
             return "custom_user_name_$userId"
         }
     }

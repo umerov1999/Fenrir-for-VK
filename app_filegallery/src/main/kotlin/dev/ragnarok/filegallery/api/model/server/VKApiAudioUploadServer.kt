@@ -16,7 +16,7 @@ class VKApiAudioUploadServer : Parcelable, UploadServer {
         this.url = url
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         url = `in`.readString()
     }
 

@@ -97,7 +97,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
         }
     }
 
-    private fun getLocalBitrate(url: String?) {
+    internal fun getLocalBitrate(url: String?) {
         if (url.isNullOrEmpty()) {
             return
         }

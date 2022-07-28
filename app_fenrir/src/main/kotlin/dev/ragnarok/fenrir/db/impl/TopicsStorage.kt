@@ -147,7 +147,7 @@ internal class TopicsStorage(base: AppStorages) : AbsStorage(base), ITopicsStore
             return cv
         }
 
-        private fun mapDbo(cursor: Cursor): TopicDboEntity {
+        internal fun mapDbo(cursor: Cursor): TopicDboEntity {
             val id = cursor.getInt(TopicsColumns.TOPIC_ID)
             val ownerId = cursor.getInt(TopicsColumns.OWNER_ID)
             val dbo = TopicDboEntity().set(id, ownerId)

@@ -8,7 +8,7 @@ import dev.ragnarok.fenrir.settings.Settings.get
  * This class contains the configuration information for all the options available in
  * this library
  */
-class SlidrConfig private constructor() {
+class SlidrConfig internal constructor() {
     private var fromUnColoredToColoredStatusBar = false
     private var sensitivity = 0.5f
     private var scrimColor = -1

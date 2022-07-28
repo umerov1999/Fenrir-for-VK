@@ -18,7 +18,7 @@ class ShortLink : AbsModel {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         short_url = `in`.readString()
         url = `in`.readString()
         timestamp = `in`.readLong()

@@ -12,7 +12,7 @@ class VKApiVideosUploadServer : UploadServer, Parcelable {
 
     @Suppress("UNUSED")
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         url = `in`.readString()
     }
 

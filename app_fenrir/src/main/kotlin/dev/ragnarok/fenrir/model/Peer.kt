@@ -17,7 +17,7 @@ class Peer : Parcelable {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         title = `in`.readString()
         avaUrl = `in`.readString()

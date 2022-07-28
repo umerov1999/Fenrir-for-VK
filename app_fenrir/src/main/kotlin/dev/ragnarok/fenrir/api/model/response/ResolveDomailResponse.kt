@@ -12,7 +12,7 @@ class ResolveDomailResponse : Parcelable {
 
     @Suppress("UNUSED")
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         type = `in`.readString()
         object_id = `in`.readString()
     }

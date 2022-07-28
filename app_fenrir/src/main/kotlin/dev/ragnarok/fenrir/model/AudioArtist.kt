@@ -12,7 +12,7 @@ class AudioArtist : AbsModel {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readString()
         name = `in`.readString()
         photo = `in`.createTypedArrayList(AudioArtistImage.CREATOR)

@@ -8,7 +8,7 @@ class NotSupported : AbsModel {
     private var body: String? = null
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         type = `in`.readString()
         body = `in`.readString()
     }

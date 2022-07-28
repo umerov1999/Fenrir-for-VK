@@ -17,7 +17,7 @@ class IconMenuItem : SectionMenuItem {
         this.icon = icon
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         icon = `in`.readInt()
     }
 

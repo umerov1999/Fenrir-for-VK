@@ -9,7 +9,7 @@ class PostPublishFeedback : Feedback {
         private set
 
     constructor(@FeedbackType type: Int) : super(type)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         post = `in`.readParcelable(Post::class.java.classLoader)
     }
 

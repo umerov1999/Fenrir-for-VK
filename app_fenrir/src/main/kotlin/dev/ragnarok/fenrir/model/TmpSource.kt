@@ -12,7 +12,7 @@ class TmpSource : Parcelable {
         this.sourceId = sourceId
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         ownerId = `in`.readInt()
         sourceId = `in`.readInt()
     }

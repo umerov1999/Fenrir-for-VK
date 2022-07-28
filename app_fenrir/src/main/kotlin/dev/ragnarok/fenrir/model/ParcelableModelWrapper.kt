@@ -75,7 +75,7 @@ class ParcelableModelWrapper : Parcelable {
         this.model = model
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         val index = `in`.readInt()
         val classLoader = TYPES[index].classLoader
         model = `in`.readParcelable(classLoader)!!

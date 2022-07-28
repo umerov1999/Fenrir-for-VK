@@ -16,7 +16,7 @@ class Event : AbsModel {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         button_text = `in`.readString()
         text = `in`.readString()

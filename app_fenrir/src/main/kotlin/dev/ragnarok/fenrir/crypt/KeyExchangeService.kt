@@ -757,7 +757,7 @@ class KeyExchangeService : Service() {
         }
 
         @Throws(InvalidSessionStateException::class)
-        private fun assertSessionState(
+        internal fun assertSessionState(
             session: KeyExchangeSession,
             @SessionState requiredState: Int
         ) {
@@ -766,7 +766,7 @@ class KeyExchangeService : Service() {
             }
         }
 
-        private fun sendMessageImpl(
+        internal fun sendMessageImpl(
             accountId: Int,
             peerId: Int,
             message: ExchangeMessage

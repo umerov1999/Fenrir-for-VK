@@ -18,12 +18,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
-import dev.ragnarok.filegallery.Constants
-import dev.ragnarok.filegallery.Extra
-import dev.ragnarok.filegallery.R
+import dev.ragnarok.filegallery.*
 import dev.ragnarok.filegallery.adapter.FileManagerRemoteAdapter
 import dev.ragnarok.filegallery.fragment.base.BaseMvpFragment
-import dev.ragnarok.filegallery.fromIOToMain
 import dev.ragnarok.filegallery.listener.BackPressCallback
 import dev.ragnarok.filegallery.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.filegallery.listener.UpdatableNavigation
@@ -175,23 +172,17 @@ class FileManagerRemoteFragment :
         if (mAnimationLoaded && !visible) {
             mAnimationLoaded = false
             val k = ObjectAnimator.ofFloat(loading, View.ALPHA, 0.0f).setDuration(1000)
-            k.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator?) {
-                }
-
-                override fun onAnimationEnd(animation: Animator?) {
+            k.addListener(object : StubAnimatorListener() {
+                override fun onAnimationEnd(animation: Animator) {
                     loading?.clearAnimationDrawable()
                     loading?.visibility = View.GONE
                     loading?.alpha = 1f
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                     loading?.clearAnimationDrawable()
                     loading?.visibility = View.GONE
                     loading?.alpha = 1f
-                }
-
-                override fun onAnimationRepeat(animation: Animator?) {
                 }
             })
             k.start()

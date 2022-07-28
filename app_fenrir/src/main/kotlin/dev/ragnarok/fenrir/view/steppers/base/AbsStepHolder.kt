@@ -41,7 +41,7 @@ abstract class AbsStepHolder<T : AbsStepsHost<*>>(
 
     companion object {
         private var nextHolderId = 0
-        private fun createVerticalMainHolderView(parent: ViewGroup): View {
+        internal fun createVerticalMainHolderView(parent: ViewGroup): View {
             val itemView =
                 LayoutInflater.from(parent.context).inflate(R.layout.item_step, parent, false)
             itemView.tag = generateHolderId()

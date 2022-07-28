@@ -41,4 +41,9 @@ interface IGroupWallView : IWallView {
         fun setIsSubscribed(subscribed: Boolean)
         fun setIsFavorite(favorite: Boolean)
     }
+
+    fun displayWallMenus(menus: MutableList<CommunityDetails.Menu>)
+    fun notifyWallMenusChanged(hidden: Boolean)
+    fun onSinglePhoto(ava: String, prefix: String?, community: Community)
+    fun openVKURL(accountId: Int, link: String)
 }

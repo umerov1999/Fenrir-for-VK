@@ -17,7 +17,7 @@ class DrawerCategory : Parcelable {
         this.key = key
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         title = `in`.readInt()
         key = `in`.readInt()
         checked = `in`.readInt() == 1

@@ -50,7 +50,7 @@ class AudiosLocalServerFragment :
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAudioRecyclerAdapter: AudioLocalServerRecyclerAdapter? = null
     private var searchView: MySearchView? = null
-    private fun clearSearch() {
+    internal fun clearSearch() {
         searchView?.setOnQueryTextListener(null)
         searchView?.clear()
         searchView?.setOnQueryTextListener(this)

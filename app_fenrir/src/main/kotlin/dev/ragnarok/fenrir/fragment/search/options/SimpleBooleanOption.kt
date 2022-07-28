@@ -22,7 +22,7 @@ class SimpleBooleanOption : BaseOption {
         this.checked = checked
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         checked = `in`.readByte().toInt() != 0
     }
 

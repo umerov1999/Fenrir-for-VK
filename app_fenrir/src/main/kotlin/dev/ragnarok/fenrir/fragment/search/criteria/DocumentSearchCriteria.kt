@@ -5,7 +5,7 @@ import android.os.Parcelable
 
 class DocumentSearchCriteria : BaseSearchCriteria {
     constructor(query: String?) : super(query)
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     override fun describeContents(): Int {
         return 0

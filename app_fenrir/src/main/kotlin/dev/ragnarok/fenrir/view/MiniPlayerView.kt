@@ -99,7 +99,7 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
         mProgress.setCustomSeekBarListener(this)
     }
 
-    private fun queueNextRefresh(delay: Long) {
+    internal fun queueNextRefresh(delay: Long) {
         mTimeHandler?.let {
             val message = it.obtainMessage(REFRESH_TIME)
             it.removeMessages(REFRESH_TIME)
@@ -195,7 +195,7 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
         //mProgress.setIndeterminate(preparing);
     }
 
-    private fun refreshCurrentTime(): Long {
+    internal fun refreshCurrentTime(): Long {
         if (!MusicPlaybackController.isInitialized) {
             mProgress.updateFullState(-1, -1, -1)
             return 500

@@ -20,7 +20,7 @@ class AudioPlaylist : AbsModel {
     private var original_owner_id = 0
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         owner_id = `in`.readInt()
         count = `in`.readInt()

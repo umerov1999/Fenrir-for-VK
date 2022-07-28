@@ -26,11 +26,11 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
     AppCompatImageView(context, attrs) {
     private val cache: RLottieNetworkCache = RLottieNetworkCache(context)
     private var layerColors: HashMap<String, Int>? = null
-    var animatedDrawable: RLottieDrawable? = null
+    private var animatedDrawable: RLottieDrawable? = null
     private var autoRepeat: Boolean
     private var attachedToWindow = false
     private var playing = false
-    private var mDisposable = Disposable.disposed()
+    private var mDisposable: Disposable? = null
     fun clearLayerColors() {
         layerColors?.clear()
     }
@@ -181,7 +181,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun clearAnimationDrawable() {
-        mDisposable.dispose()
+        mDisposable?.dispose()
         animatedDrawable?.let {
             it.stop()
             it.callback = null
@@ -202,7 +202,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        mDisposable.dispose()
+        mDisposable?.dispose()
         attachedToWindow = false
         animatedDrawable?.stop()
         animatedDrawable?.setCurrentParentView(null)
@@ -223,7 +223,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
     override fun setImageDrawable(dr: Drawable?) {
         super.setImageDrawable(dr)
         if (dr !is RLottieDrawable) {
-            mDisposable.dispose()
+            mDisposable?.dispose()
             animatedDrawable?.let {
                 it.stop()
                 it.callback = null
@@ -235,7 +235,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun setImageBitmap(bm: Bitmap?) {
         super.setImageBitmap(bm)
-        mDisposable.dispose()
+        mDisposable?.dispose()
         animatedDrawable?.let {
             it.stop()
             it.callback = null
@@ -246,7 +246,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun setImageResource(resId: Int) {
         super.setImageResource(resId)
-        mDisposable.dispose()
+        mDisposable?.dispose()
         animatedDrawable?.let {
             it.stop()
             it.callback = null

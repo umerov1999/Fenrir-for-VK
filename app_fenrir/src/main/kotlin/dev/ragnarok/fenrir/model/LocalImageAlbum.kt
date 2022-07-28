@@ -10,7 +10,7 @@ class LocalImageAlbum : Parcelable {
     private var photoCount = 0
 
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         name = `in`.readString()
         coverImageId = `in`.readLong()

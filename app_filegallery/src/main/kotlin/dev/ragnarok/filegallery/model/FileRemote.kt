@@ -49,7 +49,7 @@ class FileRemote : Parcelable, ParcelNative.ParcelableNative {
 
     @Suppress("UNUSED")
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         owner_Id = `in`.readInt()
         file_name = `in`.readString()
@@ -61,7 +61,7 @@ class FileRemote : Parcelable, ParcelNative.ParcelableNative {
         isSelected = `in`.readByte() != 0.toByte()
     }
 
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         id = `in`.readInt()
         owner_Id = `in`.readInt()
         file_name = `in`.readString()

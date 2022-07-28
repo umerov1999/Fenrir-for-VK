@@ -582,7 +582,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
     }
 
     companion object {
-        private fun createFaveCv(dbo: FavePageEntity): ContentValues {
+        internal fun createFaveCv(dbo: FavePageEntity): ContentValues {
             val cv = ContentValues()
             cv.put(BaseColumns._ID, dbo.id)
             cv.put(FavePageColumns.DESCRIPTION, dbo.description)
@@ -599,7 +599,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
             return stores.owners().findCommunityDboById(accountId, abs(id)).blockingGet().get()
         }
 
-        private fun mapFaveUserDbo(cursor: Cursor, accountId: Int): FavePageEntity {
+        internal fun mapFaveUserDbo(cursor: Cursor, accountId: Int): FavePageEntity {
             return FavePageEntity(cursor.getInt(BaseColumns._ID))
                 .setDescription(cursor.getString(FavePageColumns.DESCRIPTION))
                 .setUpdateDate(cursor.getLong(FavePageColumns.UPDATED_TIME))
@@ -612,7 +612,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 )
         }
 
-        private fun mapFaveGroupDbo(cursor: Cursor, accountId: Int): FavePageEntity {
+        internal fun mapFaveGroupDbo(cursor: Cursor, accountId: Int): FavePageEntity {
             return FavePageEntity(cursor.getInt(BaseColumns._ID))
                 .setDescription(cursor.getString(FavePageColumns.DESCRIPTION))
                 .setUpdateDate(cursor.getLong(FavePageColumns.UPDATED_TIME))
@@ -625,12 +625,12 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 )
         }
 
-        private fun mapFavePhoto(cursor: Cursor): PhotoDboEntity {
+        internal fun mapFavePhoto(cursor: Cursor): PhotoDboEntity {
             val json = cursor.getBlob(FavePhotosColumns.PHOTO)!!
             return MsgPack.decodeFromByteArray(PhotoDboEntity.serializer(), json)
         }
 
-        private fun mapFaveLinkPhoto(cursor: Cursor): PhotoDboEntity {
+        internal fun mapFaveLinkPhoto(cursor: Cursor): PhotoDboEntity {
             val json = cursor.getBlob(FaveLinksColumns.PHOTO)!!
             return MsgPack.decodeFromByteArray(PhotoDboEntity.serializer(), json)
         }

@@ -11,7 +11,7 @@ class LocalPhoto : Parcelable, Comparable<LocalPhoto>, ISelectable {
     private var index = 0
 
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         imageId = `in`.readLong()
         fullImageUri = Uri.parse(`in`.readString())
         selected = `in`.readInt() == 1

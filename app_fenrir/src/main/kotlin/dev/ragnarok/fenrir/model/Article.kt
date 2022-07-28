@@ -26,7 +26,7 @@ class Article : AbsModel {
         ownerId = owner_id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         ownerName = `in`.readString()

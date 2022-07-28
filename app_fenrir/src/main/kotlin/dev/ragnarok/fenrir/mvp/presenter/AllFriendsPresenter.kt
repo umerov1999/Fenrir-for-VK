@@ -350,7 +350,7 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
         private const val SEARCH_WEB = 2
         private const val WEB_SEARCH_DELAY = 1000
         private const val WEB_SEARCH_COUNT_PER_LOAD = 100
-        private fun allow(user: User, preparedQ: String): Boolean {
+        internal fun allow(user: User, preparedQ: String): Boolean {
             val full = user.fullName.lowercase(Locale.getDefault())
             return full.contains(preparedQ)
         }

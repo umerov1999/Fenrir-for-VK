@@ -31,7 +31,7 @@ class TextingNotifier(private val accountId: Int) {
     }
 
     companion object {
-        private fun createNotifier(accountId: Int, peerId: Int): Completable {
+        internal fun createNotifier(accountId: Int, peerId: Int): Completable {
             return get()
                 .vkDefault(accountId)
                 .messages()

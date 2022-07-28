@@ -23,6 +23,7 @@ import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Rotatable
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
+import dev.ragnarok.filegallery.StubAnimatorListener
 import dev.ragnarok.filegallery.activity.slidr.Slidr
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrConfig
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrListener
@@ -421,23 +422,17 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             if (mAnimationLoaded && !mLoadingNow && !forceStop) {
                 mAnimationLoaded = false
                 val k = ObjectAnimator.ofFloat(progress, View.ALPHA, 0.0f).setDuration(1000)
-                k.addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationStart(animation: Animator?) {
-                    }
-
-                    override fun onAnimationEnd(animation: Animator?) {
+                k.addListener(object : StubAnimatorListener() {
+                    override fun onAnimationEnd(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
                     }
 
-                    override fun onAnimationCancel(animation: Animator?) {
+                    override fun onAnimationCancel(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
-                    }
-
-                    override fun onAnimationRepeat(animation: Animator?) {
                     }
                 })
                 k.start()

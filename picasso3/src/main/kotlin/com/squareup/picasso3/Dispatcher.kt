@@ -97,7 +97,7 @@ internal class Dispatcher internal constructor(
     }
 
     @Suppress("DEPRECATION")
-    private fun isNetworkAvailable(context: Context): Boolean {
+    internal fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

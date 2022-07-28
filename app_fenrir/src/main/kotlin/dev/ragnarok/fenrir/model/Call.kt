@@ -16,7 +16,7 @@ class Call : AbsModel {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         initiator_id = `in`.readInt()
         receiver_id = `in`.readInt()
         time = `in`.readLong()

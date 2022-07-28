@@ -63,7 +63,7 @@ class UserDetails : Parcelable {
     private var isClosed: Boolean = false
 
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         photoId = `in`.readParcelable(IdPair::class.java.classLoader)
         statusAudio = `in`.readParcelable(Audio::class.java.classLoader)
         friendsCount = `in`.readInt()

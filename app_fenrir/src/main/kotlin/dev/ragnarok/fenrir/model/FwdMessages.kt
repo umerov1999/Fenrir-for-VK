@@ -10,7 +10,7 @@ class FwdMessages : AbsModel {
         this.fwds = fwds
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         fwds = `in`.createTypedArrayList(Message.CREATOR)!!
     }
 

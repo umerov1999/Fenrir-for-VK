@@ -23,7 +23,7 @@ class Sticker : AbsModel {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         images = `in`.createTypedArrayList(Image.CREATOR)
         imagesWithBackground = `in`.createTypedArrayList(Image.CREATOR)

@@ -844,7 +844,15 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             "member_status",
             "can_message",
             "cover",
-            "chats_status"
+            "chats_status",
+            "is_closed",
+            "is_member",
+            "type",
+            "photo_50",
+            "photo_100",
+            "photo_200",
+            "admin_level",
+            "menu"
         )
         private val TO_BUNDLE_FUNCTION =
             BiFunction<List<User>, List<Community>, IOwnersBundle> { users: List<User>, communities: List<Community> ->

@@ -35,7 +35,7 @@ class WaveFormView @JvmOverloads constructor(context: Context, attrs: AttributeS
                 }
             }
 
-        private fun calculateMaxValue(values: ByteArray): Byte {
+        internal fun calculateMaxValue(values: ByteArray): Byte {
             var max = if (values.isNotEmpty()) values[0] else 0
             for (value in values) if (value > max) max = value
             return max

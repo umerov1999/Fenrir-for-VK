@@ -16,7 +16,7 @@ class PostFilter : Entry, Parcelable {
         this.title = title
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         mode = `in`.readInt()
         title = `in`.readString()!!
         active = `in`.readByte().toInt() != 0

@@ -55,7 +55,7 @@ class GroupSearchCriteria : BaseSearchCriteria {
         appendOption(futureOnly)
     }
 
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     override fun describeContents(): Int {
         return 0

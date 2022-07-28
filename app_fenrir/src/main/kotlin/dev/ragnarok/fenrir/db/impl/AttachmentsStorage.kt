@@ -146,7 +146,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     }
 
     companion object {
-        private fun uriForType(@AttachToType type: Int, accountId: Int): Uri {
+        internal fun uriForType(@AttachToType type: Int, accountId: Int): Uri {
             return when (type) {
                 AttachToType.COMMENT -> getCommentsAttachmentsContentUriFor(
                     accountId
@@ -193,14 +193,14 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             )
         }
 
-        private fun idColumnFor(@AttachToType type: Int): String {
+        internal fun idColumnFor(@AttachToType type: Int): String {
             when (type) {
                 AttachToType.COMMENT, AttachToType.MESSAGE, AttachToType.POST -> return BaseColumns._ID
             }
             throw IllegalArgumentException()
         }
 
-        private fun attachToIdColumnFor(@AttachToType type: Int): String {
+        internal fun attachToIdColumnFor(@AttachToType type: Int): String {
             when (type) {
                 AttachToType.COMMENT -> return CommentsAttachmentsColumns.C_ID
                 AttachToType.MESSAGE -> return MessagesAttachmentsColumns.M_ID
@@ -209,7 +209,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             throw IllegalArgumentException()
         }
 
-        private fun dataColumnFor(@AttachToType type: Int): String {
+        internal fun dataColumnFor(@AttachToType type: Int): String {
             when (type) {
                 AttachToType.COMMENT -> return CommentsAttachmentsColumns.DATA
                 AttachToType.MESSAGE -> return MessagesAttachmentsColumns.DATA
@@ -222,7 +222,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             return MsgPack.encodeToByteArray(DboEntity.serializer(), dboEntity)
         }
 
-        private fun deserializeDbo(json: ByteArray): DboEntity {
+        internal fun deserializeDbo(json: ByteArray): DboEntity {
             return MsgPack.decodeFromByteArray(DboEntity.serializer(), json)
         }
     }

@@ -181,6 +181,7 @@ object Dto2Model {
                 .setPostponedWallCount(it.postponed_wall)
                 .setSuggestedWallCount(it.suggest_wall)
                 .setTopicsCount(it.topics)
+                .setDonutWallCount(it.donuts)
                 .setDocsCount(it.docs)
                 .setPhotosCount(it.photos)
                 .setAudiosCount(it.audios)
@@ -189,6 +190,13 @@ object Dto2Model {
                 .setProductServicesCount(it.market_services)
                 .setNarrativesCount(it.narratives)
                 .setArticlesCount(it.articles).setChatsCount(it.chats)
+        }
+        dto.menu?.nonNullNoEmpty {
+            val o = ArrayList<CommunityDetails.Menu>(it.size)
+            for (i in it) {
+                o.add(CommunityDetails.Menu(i.id, i.url, i.title, i.type, i.cover))
+            }
+            details.setMenu(o)
         }
         details.setCover(dto.cover.requireNonNull({
             val cover = CommunityDetails.Cover()

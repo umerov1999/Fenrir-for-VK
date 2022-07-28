@@ -60,7 +60,7 @@ class MatrixCalculator(private val count: Int, private val libra: Libra) {
     }
 
     companion object {
-        private fun getMaxDiff(libra: Libra, variant: Array<IntArray>): Float {
+        internal fun getMaxDiff(libra: Libra, variant: Array<IntArray>): Float {
             //float[][] realRows = new float[variant.length][variant[0].length];
 
             //for (int i = 0; i < variant.length; i++) {
@@ -124,7 +124,7 @@ class MatrixCalculator(private val count: Int, private val libra: Libra) {
          * @param src
          * @return a new clone of the provided array
          */
-        private fun cloneArray(src: Array<IntArray>): Array<IntArray> {
+        internal fun cloneArray(src: Array<IntArray>): Array<IntArray> {
             val length = src.size
             val target = Array(length) { IntArray(src[0].size) }
             for (i in 0 until length) {
@@ -140,7 +140,7 @@ class MatrixCalculator(private val count: Int, private val libra: Libra) {
          * @param data
          * @return
          */
-        private fun canMoveToNext(row: Int, data: Array<IntArray>): Boolean {
+        internal fun canMoveToNext(row: Int, data: Array<IntArray>): Boolean {
             // можно только в том случае, если в строке есть хотябы 2 валидных значения
             // и с главном массиве есть следующая строка после row
             return data[row][1] != -1 && data.size > row + 1
@@ -149,7 +149,7 @@ class MatrixCalculator(private val count: Int, private val libra: Libra) {
         /**
          * Переместить последний елемент из строки с индексом row на следующую
          */
-        private fun move(row: Int, data: Array<IntArray>) {
+        internal fun move(row: Int, data: Array<IntArray>) {
             //if(data.length < row){
             //    throw new IllegalArgumentException();
             //}

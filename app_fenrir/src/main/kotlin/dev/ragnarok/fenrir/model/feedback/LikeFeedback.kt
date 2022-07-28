@@ -17,7 +17,7 @@ class LikeFeedback : Feedback {
 
     // one of FeedbackType.LIKE_PHOTO, FeedbackType.LIKE_POST, FeedbackType.LIKE_VIDEO
     constructor(@FeedbackType type: Int) : super(type)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         liked = readModel(`in`)
         owners = readOwners(`in`)
     }

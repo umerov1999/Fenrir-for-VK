@@ -1,6 +1,7 @@
 package dev.ragnarok.filegallery.settings
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatDelegate
 import dev.ragnarok.filegallery.model.LocalServerSettings
 import dev.ragnarok.filegallery.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.filegallery.model.SlidrSettings
@@ -17,10 +18,10 @@ interface ISettings {
         fun getThemeOverlay(): Int
         fun getMainThemeKey(): String
         fun setMainTheme(key: String)
-        fun switchNightMode(@NightMode key: Int)
+        fun switchNightMode(@AppCompatDelegate.NightMode key: Int)
         fun isDarkModeEnabled(context: Context): Boolean
 
-        @NightMode
+        @AppCompatDelegate.NightMode
         fun getNightMode(): Int
         fun isDeveloper_mode(): Boolean
         fun isEnable_cache_ui_anim(): Boolean

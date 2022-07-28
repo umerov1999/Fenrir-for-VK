@@ -1241,7 +1241,7 @@ class FeedbackViewBinder(
         }
     }
 
-    private fun openOwner(userId: Int) {
+    internal fun openOwner(userId: Int) {
         attachmentsActionCallback.onOpenOwner(userId)
     }
 

@@ -17,7 +17,7 @@ class MarketAlbum : AbsModel {
         this.owner_id = owner_id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         owner_id = `in`.readInt()
         access_key = `in`.readString()

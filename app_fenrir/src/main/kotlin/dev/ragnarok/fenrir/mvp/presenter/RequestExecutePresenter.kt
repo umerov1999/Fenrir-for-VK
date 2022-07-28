@@ -218,7 +218,7 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
         /**
          * Convert a JSON string to pretty print version
          */
-        private fun toPrettyFormat(jsonString: String): String {
+        internal fun toPrettyFormat(jsonString: String): String {
             val json = Json {
                 ignoreUnknownKeys = true; isLenient = true; prettyPrint = true
             }

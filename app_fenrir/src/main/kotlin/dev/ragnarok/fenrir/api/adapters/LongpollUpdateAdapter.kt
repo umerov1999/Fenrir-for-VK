@@ -147,7 +147,7 @@ class LongpollUpdateAdapter : AbsAdapter<AbsLongpollEvent?>("AbsLongpollEvent?")
     }
 
     companion object {
-        private fun parseLineWithSeparators(line: String?, separator: String): ArrayList<String>? {
+        internal fun parseLineWithSeparators(line: String?, separator: String): ArrayList<String>? {
             if (line == null || line.isEmpty()) {
                 return null
             }

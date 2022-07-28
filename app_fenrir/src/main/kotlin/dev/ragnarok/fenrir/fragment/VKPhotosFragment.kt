@@ -166,7 +166,7 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
             })
     }
 
-    private fun doUploadPhotosToAlbum(photos: List<LocalPhoto>, size: Int) {
+    internal fun doUploadPhotosToAlbum(photos: List<LocalPhoto>, size: Int) {
         presenter?.firePhotosForUploadSelected(
             photos,
             size

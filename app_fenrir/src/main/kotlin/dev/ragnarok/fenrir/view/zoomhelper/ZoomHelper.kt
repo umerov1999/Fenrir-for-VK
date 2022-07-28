@@ -385,7 +385,7 @@ class ZoomHelper {
 
     }
 
-    private fun updateZoomableView(
+    internal fun updateZoomableView(
         animatedFraction: Float, scaleYStart: Float, scaleXStart: Float,
         leftMarginStart: Int, topMarginStart: Int, scaleXEnd: Float, scaleYEnd: Float,
         leftMarginEnd: Int, topMarginEnd: Int
@@ -408,7 +408,7 @@ class ZoomHelper {
         }
     }
 
-    private fun dismissDialogAndViews() {
+    internal fun dismissDialogAndViews() {
         if (zoomableView != null && (zoomableView ?: return).parent != null) {
             zoomableView?.visibility = View.VISIBLE
             if (placeHolderEnabled) {

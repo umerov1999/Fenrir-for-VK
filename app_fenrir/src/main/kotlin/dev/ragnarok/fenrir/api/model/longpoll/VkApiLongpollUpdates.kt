@@ -75,7 +75,7 @@ class VkApiLongpollUpdates {
             return data
         }
 
-        private fun <T : AbsLongpollEvent> addAndReturn(
+        internal fun <T : AbsLongpollEvent> addAndReturn(
             data: MutableList<T>?,
             item: T
         ): MutableList<T> {

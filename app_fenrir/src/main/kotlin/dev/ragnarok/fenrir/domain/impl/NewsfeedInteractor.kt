@@ -133,7 +133,7 @@ class NewsfeedInteractor(
             }
         }
 
-        private fun createFrom(dto: Dto, bundle: IOwnersBundle): NewsfeedComment? {
+        internal fun createFrom(dto: Dto, bundle: IOwnersBundle): NewsfeedComment? {
             if (dto is PhotoDto) {
                 val photoDto = dto.photo
                 val photo = transform(photoDto ?: return null)

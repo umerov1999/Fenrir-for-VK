@@ -353,11 +353,11 @@ inline fun View.fadeOut(duration: Long, crossinline onEnd: () -> Unit = {}) {
     ).apply {
         this.duration = duration
         addListener(object : StubAnimatorListener() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 onEnd()
             }
 
-            override fun onAnimationEnd(animation: Animator?, isReverse: Boolean) {
+            override fun onAnimationEnd(animation: Animator, isReverse: Boolean) {
                 onEnd()
             }
         })
@@ -380,11 +380,11 @@ inline fun View.fadeIn(duration: Long, crossinline onEnd: () -> Unit = {}) {
     ).apply {
         this.duration = duration
         addListener(object : StubAnimatorListener() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 onEnd()
             }
 
-            override fun onAnimationEnd(animation: Animator?, isReverse: Boolean) {
+            override fun onAnimationEnd(animation: Animator, isReverse: Boolean) {
                 onEnd()
             }
         })
@@ -423,23 +423,13 @@ fun Context.getSignature(): Signature? {
 }
 
 open class StubAnimatorListener : Animator.AnimatorListener {
-    override fun onAnimationRepeat(animation: Animator?) {
+    override fun onAnimationRepeat(animation: Animator) {}
 
-    }
+    override fun onAnimationEnd(animation: Animator, isReverse: Boolean) {}
 
-    override fun onAnimationEnd(animation: Animator?, isReverse: Boolean) {
+    override fun onAnimationEnd(animation: Animator) {}
 
-    }
+    override fun onAnimationCancel(animation: Animator) {}
 
-    override fun onAnimationEnd(animation: Animator?) {
-
-    }
-
-    override fun onAnimationCancel(animation: Animator?) {
-
-    }
-
-    override fun onAnimationStart(animation: Animator?) {
-
-    }
+    override fun onAnimationStart(animation: Animator) {}
 }

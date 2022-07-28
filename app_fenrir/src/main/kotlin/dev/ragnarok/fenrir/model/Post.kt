@@ -68,7 +68,7 @@ class Post : AbsModel, Cloneable {
     var isFavorite = false
         private set
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         dbid = `in`.readInt()
         vkid = `in`.readInt()
         ownerId = `in`.readInt()

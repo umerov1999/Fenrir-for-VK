@@ -417,7 +417,7 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
         }
     }
 
-    private fun resolveEmptyTextVisibility() {
+    internal fun resolveEmptyTextVisibility() {
         mEmptyText?.visibility =
             if (mAdapter?.realItemCount == 0) View.VISIBLE else View.GONE
     }

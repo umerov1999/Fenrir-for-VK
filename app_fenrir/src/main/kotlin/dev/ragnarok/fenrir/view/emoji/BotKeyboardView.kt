@@ -239,7 +239,7 @@ class BotKeyboardView : ScrollView {
             return (if (size < 0) size.toInt() else Utils.dp(size))
         }
 
-        private fun createLinear(
+        internal fun createLinear(
             width: Int,
             height: Int,
             leftMargin: Float,
@@ -258,7 +258,7 @@ class BotKeyboardView : ScrollView {
             return layoutParams
         }
 
-        private fun createLinear(
+        internal fun createLinear(
             width: Int,
             height: Int,
             weight: Float,

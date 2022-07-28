@@ -27,7 +27,7 @@ class Photo : Parcelable, ParcelNative.ParcelableNative {
     private var isLocal = false
 
     constructor()
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         photo_url = `in`.readString()
@@ -38,7 +38,7 @@ class Photo : Parcelable, ParcelNative.ParcelableNative {
         isGif = `in`.readBoolean()
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         photo_url = `in`.readString()

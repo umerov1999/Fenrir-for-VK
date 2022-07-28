@@ -40,7 +40,7 @@ class Dialog : Identificable, Parcelable {
     private var minor_id = 0
 
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         peerId = `in`.readInt()
         title = `in`.readString()
         unreadCount = `in`.readInt()

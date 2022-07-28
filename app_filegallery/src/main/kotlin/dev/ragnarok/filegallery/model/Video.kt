@@ -28,7 +28,7 @@ class Video : Parcelable, ParcelNative.ParcelableNative {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         title = `in`.readString()
@@ -40,7 +40,7 @@ class Video : Parcelable, ParcelNative.ParcelableNative {
         duration = `in`.readInt()
     }
 
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         title = `in`.readString()

@@ -438,7 +438,7 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
             AudioColumns.IS_HQ
         )
 
-        private fun mapAudio(cursor: Cursor): Audio {
+        internal fun mapAudio(cursor: Cursor): Audio {
             val v = Audio()
                 .setId(cursor.getInt(AudioColumns.AUDIO_ID))
                 .setOwnerId(cursor.getInt(AudioColumns.AUDIO_OWNER_ID))
@@ -468,7 +468,7 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
             return v
         }
 
-        private fun mapLog(cursor: Cursor): LogEvent {
+        internal fun mapLog(cursor: Cursor): LogEvent {
             return LogEvent(cursor.getInt(BaseColumns._ID))
                 .setType(cursor.getInt(LogColumns.TYPE))
                 .setDate(cursor.getLong(LogColumns.DATE))
@@ -476,7 +476,7 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
                 .setBody(cursor.getString(LogColumns.BODY))
         }
 
-        private fun mapShortcut(cursor: Cursor): ShortcutStored {
+        internal fun mapShortcut(cursor: Cursor): ShortcutStored {
             return ShortcutStored()
                 .setAction(cursor.getString(ShortcutColumns.ACTION)!!)
                 .setName(cursor.getString(ShortcutColumns.NAME)!!)

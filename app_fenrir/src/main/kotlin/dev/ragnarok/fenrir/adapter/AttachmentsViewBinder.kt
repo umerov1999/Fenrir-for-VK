@@ -1060,11 +1060,11 @@ class AttachmentsViewBinder(
         private const val PREFFERED_STICKER_SIZE = 120
         private val DEFAUL_WAVEFORM = byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         private var sHolderIdCounter = 0
-        private fun safeSetVisibitity(view: View?, visibility: Int) {
+        internal fun safeSetVisibitity(view: View?, visibility: Int) {
             if (view != null) view.visibility = visibility
         }
 
-        private fun generateHolderId(): Int {
+        internal fun generateHolderId(): Int {
             sHolderIdCounter++
             return sHolderIdCounter
         }

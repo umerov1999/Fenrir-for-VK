@@ -575,7 +575,7 @@ class UserDetailsPresenter(
     }
 
     companion object {
-        private fun addPersonalInfo(
+        internal fun addPersonalInfo(
             items: MutableList<AdvancedItem>,
             @DrawableRes icon: Int,
             key: Int,
@@ -593,7 +593,7 @@ class UserDetailsPresenter(
             }
         }
 
-        private fun getPolitivalViewRes(political: Int): Int? {
+        internal fun getPolitivalViewRes(political: Int): Int? {
             return when (political) {
                 1 -> R.string.political_views_communist
                 2 -> R.string.political_views_socialist
@@ -608,7 +608,7 @@ class UserDetailsPresenter(
             }
         }
 
-        private fun getPeopleMainRes(peopleMain: Int): Int? {
+        internal fun getPeopleMainRes(peopleMain: Int): Int? {
             return when (peopleMain) {
                 1 -> R.string.important_in_others_intellect_and_creativity
                 2 -> R.string.important_in_others_kindness_and_honesty
@@ -620,7 +620,7 @@ class UserDetailsPresenter(
             }
         }
 
-        private fun getLifeMainRes(lifeMain: Int): Int? {
+        internal fun getLifeMainRes(lifeMain: Int): Int? {
             return when (lifeMain) {
                 1 -> R.string.personal_priority_family_and_children
                 2 -> R.string.personal_priority_career_and_money
@@ -634,7 +634,7 @@ class UserDetailsPresenter(
             }
         }
 
-        private fun getAlcoholOrSmokingViewRes(value: Int): Int? {
+        internal fun getAlcoholOrSmokingViewRes(value: Int): Int? {
             return when (value) {
                 1 -> R.string.views_very_negative
                 2 -> R.string.views_negative

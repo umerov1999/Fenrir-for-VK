@@ -22,7 +22,7 @@ import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.util.Utils.hasMarshmallow
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 
-class SpotsDialog private constructor(
+class SpotsDialog internal constructor(
     context: Context,
     private var message: String?,
     cancelable: Boolean,
@@ -94,11 +94,11 @@ class SpotsDialog private constructor(
             move.interpolator = HesitateInterpolator()
             move.startDelay = DELAY.toLong() * i
             move.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     animatedView.visibility = View.INVISIBLE
                 }
 
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     animatedView.visibility = View.VISIBLE
                 }
             })

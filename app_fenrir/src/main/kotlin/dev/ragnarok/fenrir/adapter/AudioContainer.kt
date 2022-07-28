@@ -116,7 +116,7 @@ class AudioContainer : LinearLayout {
         }
     }
 
-    private fun deleteTrack(accountId: Int, audio: Audio) {
+    internal fun deleteTrack(accountId: Int, audio: Audio) {
         audioListDisposable =
             mAudioInteractor.delete(accountId, audio.id, audio.ownerId).fromIOToMain().subscribe(
                 { createCustomToast(context).showToast(R.string.deleted) }) { t ->
@@ -124,14 +124,14 @@ class AudioContainer : LinearLayout {
             }
     }
 
-    private fun addTrack(accountId: Int, audio: Audio) {
+    internal fun addTrack(accountId: Int, audio: Audio) {
         audioListDisposable = mAudioInteractor.add(accountId, audio, null).fromIOToMain().subscribe(
             { createCustomToast(context).showToast(R.string.added) }) { t ->
             createCustomToast(context).showToastThrowable(t)
         }
     }
 
-    private fun getMp3AndBitrate(accountId: Int, audio: Audio) {
+    internal fun getMp3AndBitrate(accountId: Int, audio: Audio) {
         val mode = audio.needRefresh()
         if (mode.first) {
             audioListDisposable =
@@ -180,7 +180,7 @@ class AudioContainer : LinearLayout {
         }
     }
 
-    private fun get_lyrics(audio: Audio) {
+    internal fun get_lyrics(audio: Audio) {
         audioListDisposable =
             mAudioInteractor.getLyrics(Settings.get().accounts().current, audio.lyricsId)
                 .fromIOToMain()
@@ -213,7 +213,7 @@ class AudioContainer : LinearLayout {
         audios = emptyList()
     }
 
-    private fun updateDownloadState(holder: AudioHolder, audio: Audio) {
+    internal fun updateDownloadState(holder: AudioHolder, audio: Audio) {
         if (audio.downloadIndicator == 2) {
             holder.saved.setImageResource(R.drawable.remote_cloud)
             Utils.setColorFilter(
@@ -742,7 +742,7 @@ class AudioContainer : LinearLayout {
         audioListDisposable.dispose()
     }
 
-    private inner class AudioHolder(root: View) {
+    inner class AudioHolder(root: View) {
         val tvTitle: TextView = root.findViewById(R.id.dialog_title)
         val tvSubtitle: TextView = root.findViewById(R.id.dialog_message)
         val ibPlay: View = root.findViewById(R.id.item_audio_play)

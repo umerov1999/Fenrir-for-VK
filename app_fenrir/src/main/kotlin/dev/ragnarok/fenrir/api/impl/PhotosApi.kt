@@ -433,7 +433,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider) :
     }
 
     companion object {
-        private fun findAccessKey(data: Collection<AccessIdPair>, id: Int, ownerId: Int): String? {
+        internal fun findAccessKey(data: Collection<AccessIdPair>, id: Int, ownerId: Int): String? {
             for (pair in data) {
                 if (pair.id == id && pair.ownerId == ownerId) {
                     return pair.accessKey

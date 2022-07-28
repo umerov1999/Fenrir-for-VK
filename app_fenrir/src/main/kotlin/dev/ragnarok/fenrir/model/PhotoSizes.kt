@@ -22,7 +22,7 @@ class PhotoSizes : Parcelable, ParcelNative.ParcelableNative {
     private var w: Size? = null
 
     constructor()
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         s = `in`.readParcelable(Size.NativeCreator)
         m = `in`.readParcelable(Size.NativeCreator)
         x = `in`.readParcelable(Size.NativeCreator)
@@ -35,7 +35,7 @@ class PhotoSizes : Parcelable, ParcelNative.ParcelableNative {
         w = `in`.readParcelable(Size.NativeCreator)
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         s = `in`.readParcelable(Size::class.java.classLoader)
         m = `in`.readParcelable(Size::class.java.classLoader)
         x = `in`.readParcelable(Size::class.java.classLoader)

@@ -283,6 +283,8 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 where + " AND " + PostsColumns.POST_TYPE + " = " + VKApiPost.Type.POSTPONE
             WallCriteria.MODE_SUGGEST -> where =
                 where + " AND " + PostsColumns.POST_TYPE + " = " + VKApiPost.Type.SUGGEST
+            WallCriteria.MODE_DONUT -> where =
+                where + " AND " + PostsColumns.POST_TYPE + " = " + VKApiPost.Type.DONUT
         }
         return contentResolver.query(
             getPostsContentUriFor(criteria.accountId), null, where, null,
@@ -378,7 +380,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
          * Идентификатор для сохранения временных постов, репостов, шаринга и прочего
          */
         private const val TEMP_POST_ID = -2
-        private fun appendDboAttachmentsAndCopies(
+        internal fun appendDboAttachmentsAndCopies(
             dbo: PostDboEntity, operations: MutableList<ContentProviderOperation>,
             accountId: Int, mainPostHeaderIndex: Int
         ) {
@@ -406,7 +408,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             }
         }
 
-        private fun createCv(dbo: PostDboEntity): ContentValues {
+        internal fun createCv(dbo: PostDboEntity): ContentValues {
             val cv = ContentValues()
             cv.put(PostsColumns.POST_ID, dbo.id)
             cv.put(PostsColumns.OWNER_ID, dbo.ownerId)
@@ -447,7 +449,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             return cv
         }
 
-        private fun getVkPostIdForEditingType(@EditingPostType type: Int): Int {
+        internal fun getVkPostIdForEditingType(@EditingPostType type: Int): Int {
             return when (type) {
                 EditingPostType.DRAFT -> DRAFT_POST_ID
                 EditingPostType.TEMP -> TEMP_POST_ID

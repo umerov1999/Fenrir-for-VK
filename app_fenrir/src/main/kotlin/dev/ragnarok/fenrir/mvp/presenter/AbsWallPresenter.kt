@@ -564,7 +564,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
             compare(lhs.isPinned, rhs.isPinned)
         }
 
-        private fun isMatchFilter(post: Post, filter: Int): Boolean {
+        internal fun isMatchFilter(post: Post, filter: Int): Boolean {
             when (filter) {
                 WallCriteria.MODE_ALL -> return intValueNotIn(
                     post.postType,

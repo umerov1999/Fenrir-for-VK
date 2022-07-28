@@ -10,7 +10,7 @@ class Sources : Parcelable {
         sources = ArrayList(2)
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         val size = `in`.readInt()
         sources = ArrayList(size)
         for (i in 0 until size) {

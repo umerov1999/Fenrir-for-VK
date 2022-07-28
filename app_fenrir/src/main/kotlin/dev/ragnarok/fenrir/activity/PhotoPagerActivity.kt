@@ -26,8 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Rotatable
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.slidr.Slidr
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
@@ -35,7 +34,6 @@ import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
 import dev.ragnarok.fenrir.adapter.horizontal.ImageListAdapter
 import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -44,7 +42,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.photo.*
 import dev.ragnarok.fenrir.mvp.view.IPhotoPagerView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
@@ -185,12 +182,12 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return ph
         }
 
-        private fun addPhotoSizeToMenu(menu: PopupMenu, id: Int, size: Int, selectedItem: Int) {
+        internal fun addPhotoSizeToMenu(menu: PopupMenu, id: Int, size: Int, selectedItem: Int) {
             menu.menu
                 .add(0, id, 0, getTitleForPhotoSize(size)).isChecked = selectedItem == size
         }
 
-        private fun getTitleForPhotoSize(size: Int): String {
+        internal fun getTitleForPhotoSize(size: Int): String {
             return when (size) {
                 PhotoSize.X -> 604.toString() + "px"
                 PhotoSize.Y -> 807.toString() + "px"
@@ -792,23 +789,17 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             if (mAnimationLoaded && !mLoadingNow && !forceStop) {
                 mAnimationLoaded = false
                 val k = ObjectAnimator.ofFloat(progress, View.ALPHA, 0.0f).setDuration(1000)
-                k.addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationStart(animation: Animator?) {
-                    }
-
-                    override fun onAnimationEnd(animation: Animator?) {
+                k.addListener(object : StubAnimatorListener() {
+                    override fun onAnimationEnd(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
                     }
 
-                    override fun onAnimationCancel(animation: Animator?) {
+                    override fun onAnimationCancel(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
-                    }
-
-                    override fun onAnimationRepeat(animation: Animator?) {
                     }
                 })
                 k.start()

@@ -66,7 +66,7 @@ class Audio : AbsModel {
     var downloadIndicator = 0
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         artist = `in`.readString()

@@ -14,7 +14,7 @@ class Banned : Parcelable {
         this.info = info
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         val wrapper = `in`.readParcelable<ParcelableOwnerWrapper>(
             ParcelableOwnerWrapper::class.java.classLoader
         )
@@ -45,7 +45,7 @@ class Banned : Parcelable {
         var isCommentVisible = false
             private set
 
-        private constructor(`in`: Parcel) {
+        internal constructor(`in`: Parcel) {
             date = `in`.readLong()
             reason = `in`.readInt()
             comment = `in`.readString()

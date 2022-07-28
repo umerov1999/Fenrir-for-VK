@@ -7,7 +7,7 @@ class SimpleDateOption : BaseOption {
     var timeUnix: Long = 0
 
     constructor(key: Int, title: Int, active: Boolean) : super(DATE_TIME, key, title, active)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         timeUnix = `in`.readLong()
     }
 

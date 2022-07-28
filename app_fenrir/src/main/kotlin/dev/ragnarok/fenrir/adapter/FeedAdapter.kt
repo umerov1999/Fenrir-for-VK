@@ -141,7 +141,7 @@ class FeedAdapter(
         return R.layout.item_feed
     }
 
-    private fun genereateHolderId(): Int {
+    internal fun genereateHolderId(): Int {
         nextHolderId++
         return nextHolderId
     }

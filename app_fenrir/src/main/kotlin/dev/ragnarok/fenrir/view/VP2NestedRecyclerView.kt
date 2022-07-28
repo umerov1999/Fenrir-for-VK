@@ -46,7 +46,7 @@ class VP2NestedRecyclerView @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
-    private fun handleChild(ev: MotionEvent): Boolean {
+    internal fun handleChild(ev: MotionEvent): Boolean {
         if (viewPager2 == null) {
             findViewPager2()
             if (viewPager2 == null) {

@@ -635,7 +635,7 @@ class DialogsPresenter(
         private const val COUNT = 30
         private const val SAVE_DIALOGS_OWNER_ID = "save-dialogs-owner-id"
         private val COMPARATOR: Comparator<Dialog> = DialogByIdMajorID()
-        private fun getTitleIfEmpty(users: Collection<User>): String? {
+        internal fun getTitleIfEmpty(users: Collection<User>): String? {
             return join(
                 users,
                 ", ",

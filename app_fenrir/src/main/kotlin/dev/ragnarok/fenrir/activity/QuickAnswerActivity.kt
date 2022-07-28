@@ -260,7 +260,7 @@ class QuickAnswerActivity : AppCompatActivity() {
                 .subscribe { finish() })
     }
 
-    private fun cancelFinishWithDelay() {
+    internal fun cancelFinishWithDelay() {
         mLiveSubscription.dispose()
     }
 
@@ -309,17 +309,17 @@ class QuickAnswerActivity : AppCompatActivity() {
                 })
     }
 
-    private fun onSavingError(throwable: Throwable) {
+    internal fun onSavingError(throwable: Throwable) {
         createCustomToast(this).showToastThrowable(throwable)
     }
 
-    private fun onMessageSaved() {
+    internal fun onMessageSaved() {
         NotificationHelper.tryCancelNotificationForPeer(this, accountId, msg.peerId)
         messagesRepository.runSendingQueue()
         finish()
     }
 
-    private fun setMessageAsRead() {
+    internal fun setMessageAsRead() {
         compositeDisposable.add(
             messagesRepository.markAsRead(accountId, msg.peerId, msg.getObjectId())
                 .fromIOToMain()

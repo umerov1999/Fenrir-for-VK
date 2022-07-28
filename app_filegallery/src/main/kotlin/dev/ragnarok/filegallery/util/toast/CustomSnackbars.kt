@@ -84,7 +84,7 @@ class CustomSnackbars private constructor(private val view: View, private var an
             return view?.let { CustomSnackbars(it, anchorView) }
         }
 
-        private fun isColorDark(color: Int): Boolean {
+        internal fun isColorDark(color: Int): Boolean {
             return ColorUtils.calculateLuminance(color) < 0.5
         }
     }

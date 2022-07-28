@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.domain.mappers
 
-import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiSticker.VKApiAnimation
@@ -25,6 +24,10 @@ import dev.ragnarok.fenrir.model.CommentedType
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.MessageStatus
 import dev.ragnarok.fenrir.model.feedback.FeedbackType
+import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.requireNonNull
+import dev.ragnarok.fenrir.transformNonNullNullable
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
@@ -411,6 +414,13 @@ object Dto2Entity {
             .setStatusAudio(dto.status_audio?.let { mapAudio(it) })
             .setFavorite(dto.is_favorite)
             .setSubscribed(dto.is_subscribed)
+        dto.menu?.nonNullNoEmpty {
+            val o = ArrayList<CommunityDetailsEntity.Menu>(it.size)
+            for (i in it) {
+                o.add(CommunityDetailsEntity.Menu().set(i.id, i.url, i.title, i.type, i.cover))
+            }
+            details.setMenu(o)
+        }
         dto.counters.requireNonNull {
             details.setAllWallCount(it.all_wall)
                 .setOwnerWallCount(it.owner_wall)
@@ -418,6 +428,7 @@ object Dto2Entity {
                 .setSuggestedWallCount(it.suggest_wall)
                 .setTopicsCount(it.topics)
                 .setDocsCount(it.docs)
+                .setDonutWallCount(it.donuts)
                 .setPhotosCount(it.photos)
                 .setAudiosCount(it.audios)
                 .setVideosCount(it.videos)

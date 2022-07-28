@@ -153,7 +153,7 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
     }
 
     companion object {
-        private fun createCv(dbo: PhotoAlbumDboEntity): ContentValues {
+        internal fun createCv(dbo: PhotoAlbumDboEntity): ContentValues {
             val cv = ContentValues()
             cv.put(PhotoAlbumsColumns.ALBUM_ID, dbo.id)
             cv.put(PhotoAlbumsColumns.OWNER_ID, dbo.ownerId)

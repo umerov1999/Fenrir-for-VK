@@ -9,7 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.R
 
-class InputTextDialog private constructor(val context: Context) {
+class InputTextDialog internal constructor(val context: Context) {
     private var inputType = 0
     private var titleRes = 0
     private var value: String? = null

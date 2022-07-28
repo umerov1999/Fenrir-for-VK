@@ -117,7 +117,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
             .apply(requireActivity())
     }
 
-    private fun toggleFullscreen() {
+    internal fun toggleFullscreen() {
         mFullscreen = !mFullscreen
         resolveFullscreenViews()
     }
@@ -192,7 +192,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
         }
     }
 
-    private fun fireHolderCreate(holder: Holder) {
+    internal fun fireHolderCreate(holder: Holder) {
         presenter?.fireHolderCreate(
             holder.bindingAdapterPosition
         )

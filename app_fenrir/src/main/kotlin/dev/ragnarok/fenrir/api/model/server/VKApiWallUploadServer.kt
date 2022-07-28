@@ -25,7 +25,7 @@ class VKApiWallUploadServer : Parcelable, UploadServer {
 
     @Suppress("UNUSED")
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         url = `in`.readString()
         album_id = `in`.readInt()
         user_id = `in`.readInt()

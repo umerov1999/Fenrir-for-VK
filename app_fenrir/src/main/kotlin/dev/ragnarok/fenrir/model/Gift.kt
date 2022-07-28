@@ -17,7 +17,7 @@ class Gift : AbsModel {
     var privacy = 0
         private set
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         fromId = `in`.readInt()
         message = `in`.readString()

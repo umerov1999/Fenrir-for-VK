@@ -156,7 +156,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             .apply(requireActivity())
     }
 
-    private fun toggleFullscreen() {
+    internal fun toggleFullscreen() {
         mFullscreen = !mFullscreen
         resolveFullscreenViews()
     }
@@ -305,7 +305,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         }
     }
 
-    private fun fireHolderCreate(holder: MultiHolder) {
+    internal fun fireHolderCreate(holder: MultiHolder) {
         presenter?.fireHolderCreate(holder.bindingAdapterPosition)
     }
 
@@ -413,23 +413,17 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             if (mAnimationLoaded && !mLoadingNow && !forceStop) {
                 mAnimationLoaded = false
                 val k = ObjectAnimator.ofFloat(progress, View.ALPHA, 0.0f).setDuration(1000)
-                k.addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationStart(animation: Animator?) {
-                    }
-
-                    override fun onAnimationEnd(animation: Animator?) {
+                k.addListener(object : StubAnimatorListener() {
+                    override fun onAnimationEnd(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
                     }
 
-                    override fun onAnimationCancel(animation: Animator?) {
+                    override fun onAnimationCancel(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
-                    }
-
-                    override fun onAnimationRepeat(animation: Animator?) {
                     }
                 })
                 k.start()

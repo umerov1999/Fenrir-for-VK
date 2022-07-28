@@ -156,7 +156,7 @@ class News : AbsModel {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         type = `in`.readString()
         sourceId = `in`.readInt()
         source =

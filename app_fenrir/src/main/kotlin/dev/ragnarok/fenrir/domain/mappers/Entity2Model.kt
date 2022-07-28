@@ -89,6 +89,7 @@ object Entity2Model {
             .setOwnerWallCount(dbo.ownerWallCount)
             .setPostponedWallCount(dbo.postponedWallCount)
             .setSuggestedWallCount(dbo.suggestedWallCount)
+            .setDonutWallCount(dbo.donutWallCount)
             .setTopicsCount(dbo.topicsCount)
             .setDocsCount(dbo.docsCount)
             .setPhotosCount(dbo.photosCount)
@@ -99,6 +100,13 @@ object Entity2Model {
             .setNarrativesCount(dbo.narrativesCount)
             .setArticlesCount(dbo.articlesCount)
             .setChatsCount(dbo.chatsCount)
+        dbo.menu?.nonNullNoEmpty {
+            val o = ArrayList<CommunityDetails.Menu>(it.size)
+            for (i in it) {
+                o.add(CommunityDetails.Menu(i.id, i.url, i.title, i.type, i.cover))
+            }
+            details.setMenu(o)
+        }
         details.setCover(dbo.cover.requireNonNull({
             val cover = CommunityDetails.Cover()
                 .setEnabled(it.isEnabled)

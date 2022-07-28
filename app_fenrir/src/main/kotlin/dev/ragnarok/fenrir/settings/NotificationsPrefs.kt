@@ -225,11 +225,11 @@ class NotificationsPrefs internal constructor(context: Context) : INotificationS
         private const val KEY_NOTIFICATION_RINGTONE = "notification_ringtone"
         private const val KEY_VIBRO_LENGTH = "vibration_length"
         private const val KEY_PEERS_UIDS = "notif_peer_uids"
-        private fun keyFor(aid: Int, peerId: Int): String {
+        internal fun keyFor(aid: Int, peerId: Int): String {
             return "notif_peer_" + aid + "_" + peerId
         }
 
-        private fun keyForAccount(aid: Int): String {
+        internal fun keyForAccount(aid: Int): String {
             return "notif_peer_$aid"
         }
     }

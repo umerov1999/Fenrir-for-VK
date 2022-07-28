@@ -30,7 +30,7 @@ class WikiPage : AbsModel {
         this.ownerId = ownerId
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         creatorId = `in`.readInt()

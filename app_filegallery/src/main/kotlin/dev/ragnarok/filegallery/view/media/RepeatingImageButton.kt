@@ -93,7 +93,7 @@ class RepeatingImageButton(context: Context, attrs: AttributeSet?) : AppCompatIm
      * @param shouldRepeat If True the repeat count stops at -1, false if to add
      * incrementally add the repeat count
      */
-    private fun doRepeat(shouldRepeat: Boolean) {
+    internal fun doRepeat(shouldRepeat: Boolean) {
         val now = SystemClock.elapsedRealtime()
         mListener?.onRepeat(this, now - mStartTime, if (shouldRepeat) -1 else mRepeatCount++)
     }

@@ -21,7 +21,7 @@ object GroupColumns : BaseColumns {
     const val TOPICS_ORDER = "topics_order"
     const val API_FIELDS =
         "name,screen_name,is_closed,verified,members_count,is_admin,admin_level," +
-                "is_member,member_status,type,photo_50,photo_100,photo_200"
+                "is_member,member_status,type,photo_50,photo_100,photo_200,menu"
     const val FULL_ID = TABLENAME + "." + BaseColumns._ID
     const val FULL_NAME = "$TABLENAME.$NAME"
     const val FULL_SCREEN_NAME = "$TABLENAME.$SCREEN_NAME"

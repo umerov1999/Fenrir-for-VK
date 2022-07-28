@@ -483,7 +483,7 @@ open class Preference(key: String) : AbstractPreference(key) {
  * - Even though you can change the [enabled] or the [persistent] state, it doesn't have any effect in this instance
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
-class PreferenceScreen private constructor(builder: Builder) : Preference(builder.key) {
+class PreferenceScreen internal constructor(builder: Builder) : Preference(builder.key) {
     internal val prefs = builder.prefs
     private val keyMap: Map<String, Preference> = builder.keyMap
     private val preferences: List<Preference> = builder.preferences

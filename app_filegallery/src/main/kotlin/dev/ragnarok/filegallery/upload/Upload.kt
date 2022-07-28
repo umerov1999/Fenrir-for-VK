@@ -48,7 +48,7 @@ open class Upload : Parcelable {
         id = incrementedUploadId
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         fileUri = `in`.readParcelable(Uri::class.java.classLoader)
         destination = `in`.readParcelable(UploadDestination::class.java.classLoader)!!

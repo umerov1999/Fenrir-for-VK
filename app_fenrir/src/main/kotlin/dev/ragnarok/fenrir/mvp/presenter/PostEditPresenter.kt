@@ -376,7 +376,7 @@ class PostEditPresenter(
     companion object {
         private val TAG = PostEditPresenter::class.java.simpleName
         private const val SAVE_POST = "save_post"
-        private fun safelyClone(post: Post): Post {
+        internal fun safelyClone(post: Post): Post {
             return try {
                 post.clone()
             } catch (e: CloneNotSupportedException) {
@@ -384,7 +384,7 @@ class PostEditPresenter(
             }
         }
 
-        private fun validatePublishDate(unixtime: Long): Boolean {
+        internal fun validatePublishDate(unixtime: Long): Boolean {
             return now() < unixtime
         }
     }

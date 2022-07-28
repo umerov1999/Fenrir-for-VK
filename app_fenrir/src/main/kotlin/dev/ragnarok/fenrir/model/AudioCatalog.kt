@@ -19,7 +19,7 @@ class AudioCatalog : AbsModel {
     private var artist: ArtistBlock? = null
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readString()
         source = `in`.readString()
         next_from = `in`.readString()
@@ -176,7 +176,7 @@ class AudioCatalog : AbsModel {
         private var photo: String? = null
 
         constructor()
-        private constructor(`in`: Parcel) : super(`in`) {
+        internal constructor(`in`: Parcel) : super(`in`) {
             name = `in`.readString()
             photo = `in`.readString()
         }

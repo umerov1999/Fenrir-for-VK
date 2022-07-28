@@ -86,7 +86,7 @@ class AudioLocalServerRecyclerAdapter(
         }
     }
 
-    private fun getBitrate(url: String?, size: Int) {
+    internal fun getBitrate(url: String?, size: Int) {
         if (url.isNullOrEmpty()) {
             return
         }
@@ -134,7 +134,7 @@ class AudioLocalServerRecyclerAdapter(
         }
     }
 
-    private fun updateDownloadState(holder: AudioHolder, audio: Audio) {
+    internal fun updateDownloadState(holder: AudioHolder, audio: Audio) {
         if (audio.downloadIndicator == 2) {
             holder.saved.setImageResource(R.drawable.remote_cloud)
             Utils.setColorFilter(holder.saved, CurrentTheme.getColorSecondary(mContext))

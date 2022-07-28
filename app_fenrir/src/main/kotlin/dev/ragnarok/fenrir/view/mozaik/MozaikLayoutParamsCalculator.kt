@@ -55,7 +55,7 @@ class MozaikLayoutParamsCalculator(
     }
 
     companion object {
-        private fun getRowNumberForIndex(array: Array<IntArray>, index: Int): Int {
+        internal fun getRowNumberForIndex(array: Array<IntArray>, index: Int): Int {
             for (i in array.indices) {
                 val inner = array[i]
                 for (a in inner) {
@@ -67,7 +67,7 @@ class MozaikLayoutParamsCalculator(
             throw IllegalStateException("Value does not exist")
         }
 
-        private fun getColumnNumberForIndex(array: Array<IntArray>, index: Int): Int {
+        internal fun getColumnNumberForIndex(array: Array<IntArray>, index: Int): Int {
             for (inner in array) {
                 for (i in inner.indices) {
                     if (inner[i] == index) {

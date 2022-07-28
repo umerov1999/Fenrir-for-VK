@@ -23,7 +23,7 @@ class WallReply : AbsModel, Identificable {
     var attachments: Attachments? = null
         private set
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         fromId = `in`.readInt()
         postId = `in`.readInt()

@@ -15,7 +15,7 @@ class MentionCommentFeedback : Feedback {
 
     // one of FeedbackType.MENTION_COMMENT_POST, FeedbackType.MENTION_COMMENT_PHOTO, FeedbackType.MENTION_COMMENT_VIDEO
     constructor(@FeedbackType type: Int) : super(type)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         where = `in`.readParcelable(Comment::class.java.classLoader)
         commentOf = readModel(`in`)
     }

@@ -223,7 +223,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
         mVoicePlayer?.togglePlaybackSpeed()
     }
 
-    private fun resolveVoiceMessagePlayingState(anim: Boolean = false) {
+    internal fun resolveVoiceMessagePlayingState(anim: Boolean = false) {
         val player = mVoicePlayer ?: return
         val optionalVoiceMessageId = player.playingVoiceId
         if (optionalVoiceMessageId.isEmpty) {

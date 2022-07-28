@@ -132,7 +132,7 @@ class ExoVideoPlayer(
         player?.setVideoSurfaceHolder(holder)
     }
 
-    private fun onVideoSizeChanged(w: Int, h: Int) {
+    internal fun onVideoSizeChanged(w: Int, h: Int) {
         for (listener in videoSizeChangeListeners) {
             listener.onVideoSizeChanged(this, dev.ragnarok.fenrir.model.VideoSize(w, h))
         }
@@ -159,7 +159,7 @@ class ExoVideoPlayer(
     }
 
     companion object {
-        private fun createMediaSource(
+        internal fun createMediaSource(
             context: Context,
             url: String?,
             proxyConfig: ProxyConfig?,

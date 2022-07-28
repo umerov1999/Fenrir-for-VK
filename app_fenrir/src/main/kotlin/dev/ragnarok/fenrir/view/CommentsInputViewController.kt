@@ -65,7 +65,7 @@ class CommentsInputViewController(
         }
     }
 
-    private fun showEmoji(visible: Boolean) {
+    internal fun showEmoji(visible: Boolean) {
         if (emojiOnScreen == visible) {
             return
         }

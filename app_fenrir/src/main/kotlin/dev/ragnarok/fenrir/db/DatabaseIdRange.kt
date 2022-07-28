@@ -12,7 +12,7 @@ class DatabaseIdRange : Parcelable {
         this.last = last
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         first = `in`.readInt()
         last = `in`.readInt()
     }

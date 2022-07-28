@@ -11,7 +11,7 @@ class CatalogBlock : AbsModel {
     private var links: List<Link>? = null
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         next_from = `in`.readString()
         audios = `in`.createTypedArrayList(Audio.CREATOR)
         playlists = `in`.createTypedArrayList(AudioPlaylist.CREATOR)

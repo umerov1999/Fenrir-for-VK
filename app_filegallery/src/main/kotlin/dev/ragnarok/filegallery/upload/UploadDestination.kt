@@ -16,7 +16,7 @@ open class UploadDestination : Parcelable {
         this.method = method
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         method = `in`.readInt()

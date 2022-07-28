@@ -24,7 +24,7 @@ class FeedSource : Entry, Parcelable {
         this.custom = custom
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         value = `in`.readString()
         title = `in`.readParcelable(Text::class.java.classLoader)
         active = `in`.readByte().toInt() != 0

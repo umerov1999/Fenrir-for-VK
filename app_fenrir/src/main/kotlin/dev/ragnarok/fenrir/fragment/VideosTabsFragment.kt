@@ -121,7 +121,7 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
         return false
     }
 
-    private fun CreateVideosFragment(option_menu: Int): Fragment {
+    internal fun CreateVideosFragment(option_menu: Int): Fragment {
         when (option_menu) {
             LOCAL_SERVER -> return VideosLocalServerFragment.newInstance(
                 accountId

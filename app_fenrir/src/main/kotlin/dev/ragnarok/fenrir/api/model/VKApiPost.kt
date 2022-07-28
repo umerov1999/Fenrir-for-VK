@@ -145,6 +145,7 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
         const val REPLY = 3
         const val POSTPONE = 4
         const val SUGGEST = 5
+        const val DONUT = 6
         fun parse(type: String?): Int {
             return if (type == null) 0 else when (type) {
                 "post" -> POST
@@ -152,6 +153,7 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
                 "reply" -> REPLY
                 "postpone" -> POSTPONE
                 "suggest" -> SUGGEST
+                "donut" -> DONUT
                 else -> 0
             }
         }

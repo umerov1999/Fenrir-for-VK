@@ -71,7 +71,7 @@ class User : Owner, Identificable {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         firstName = `in`.readString()
         lastName = `in`.readString()
@@ -97,7 +97,7 @@ class User : Owner, Identificable {
         isCan_access_closed = `in`.readByte().toInt() != 0
     }
 
-    private constructor(`in`: ParcelNative) : super(`in`) {
+    internal constructor(`in`: ParcelNative) : super(`in`) {
         id = `in`.readInt()
         firstName = `in`.readString()
         lastName = `in`.readString()

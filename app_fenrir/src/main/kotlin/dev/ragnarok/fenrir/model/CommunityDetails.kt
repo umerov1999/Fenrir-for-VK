@@ -5,6 +5,7 @@ class CommunityDetails {
     private var ownerWallCount = 0
     private var postponedWallCount = 0
     private var suggestedWallCount = 0
+    private var donutWallCount = 0
     private var canMessage = false
     private var isFavorite = false
     private var isSubscribed = false
@@ -22,9 +23,15 @@ class CommunityDetails {
     private var statusAudio: Audio? = null
     private var cover: Cover? = null
     private var description: String? = null
+    private var menu: List<Menu>? = null
 
     fun setProductServicesCount(productServicesCount: Int): CommunityDetails {
         this.productServicesCount = productServicesCount
+        return this
+    }
+
+    fun setMenu(menu: List<Menu>?): CommunityDetails {
+        this.menu = menu
         return this
     }
 
@@ -43,6 +50,10 @@ class CommunityDetails {
 
     fun getCover(): Cover? {
         return cover
+    }
+
+    fun getMenu(): List<Menu>? {
+        return menu
     }
 
     fun setCover(cover: Cover?): CommunityDetails {
@@ -108,8 +119,17 @@ class CommunityDetails {
         return suggestedWallCount
     }
 
+    fun getDonutWallCount(): Int {
+        return donutWallCount
+    }
+
     fun setSuggestedWallCount(suggestedWallCount: Int): CommunityDetails {
         this.suggestedWallCount = suggestedWallCount
+        return this
+    }
+
+    fun setDonutWallCount(donutWallCount: Int): CommunityDetails {
+        this.donutWallCount = donutWallCount
         return this
     }
 
@@ -247,4 +267,12 @@ class CommunityDetails {
             return url
         }
     }
+
+    class Menu(
+        val id: Int,
+        val url: String?,
+        val title: String?,
+        val type: String?,
+        val cover: String?
+    )
 }

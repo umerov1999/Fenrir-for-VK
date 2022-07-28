@@ -62,7 +62,7 @@ class SideDrawerEditPresenter(savedInstanceState: Bundle?) :
 
     companion object {
         @StringRes
-        private fun getTitleResCategory(@SideSwitchableCategory type: Int): Int {
+        internal fun getTitleResCategory(@SideSwitchableCategory type: Int): Int {
             when (type) {
                 SideSwitchableCategory.FRIENDS -> return R.string.friends
                 SideSwitchableCategory.NEWSFEED_COMMENTS -> return R.string.drawer_newsfeed_comments

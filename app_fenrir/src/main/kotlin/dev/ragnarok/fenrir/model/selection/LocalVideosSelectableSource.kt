@@ -5,7 +5,7 @@ import android.os.Parcelable
 
 class LocalVideosSelectableSource : AbsSelectableSource {
     constructor() : super(Types.VIDEOS)
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     override fun describeContents(): Int {
         return 0

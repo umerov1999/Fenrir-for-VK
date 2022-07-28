@@ -76,7 +76,7 @@ class CreatePhotoAlbumFragment : BaseMvpFragment<EditPhotoAlbumPresenter, IEditP
         mRecyclerView?.adapter = mAdapter
     }
 
-    private fun createHolder(
+    internal fun createHolder(
         step: Int,
         parent: ViewGroup
     ): AbsStepHolder<CreatePhotoAlbumStepsHost> {

@@ -58,7 +58,7 @@ class Attachments : Parcelable, Cloneable {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         audios = `in`.createTypedArrayList(Audio.CREATOR)
         stickers = `in`.createTypedArrayList(Sticker.CREATOR)
         photos = `in`.createTypedArrayList(Photo.CREATOR)

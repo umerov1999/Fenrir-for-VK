@@ -18,7 +18,7 @@ class LocalVideo : Parcelable, Comparable<LocalVideo>, ISelectable {
         this.data = data
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readLong()
         data = Uri.parse(`in`.readString())
         selected = `in`.readInt() == 1

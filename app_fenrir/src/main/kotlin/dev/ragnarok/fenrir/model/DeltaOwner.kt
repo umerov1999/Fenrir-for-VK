@@ -36,7 +36,7 @@ class DeltaOwner : Parcelable {
         return this
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         time = `in`.readLong()
         ownerId = `in`.readInt()
         content = `in`.createTypedArrayList(DeltaOwnerList.CREATOR) ?: ArrayList()
@@ -71,7 +71,7 @@ class DeltaOwner : Parcelable {
         @Suppress("unused")
         constructor()
 
-        private constructor(`in`: Parcel) {
+        internal constructor(`in`: Parcel) {
             name = `in`.readString()
             ownerList = ParcelableOwnerWrapper.readOwners(`in`) ?: ArrayList()
         }

@@ -136,7 +136,7 @@ class MessagesRepository(
      * Отправить первое неотправленное сообщение
      */
     @MainThread
-    private fun send() {
+    internal fun send() {
         if (nowSending) {
             return
         }
@@ -1698,7 +1698,7 @@ class MessagesRepository(
                 }
         }
 
-        private fun entity2Model(
+        internal fun entity2Model(
             accountId: Int,
             entity: SimpleDialogEntity,
             owners: IOwnersBundle
@@ -1733,7 +1733,7 @@ class MessagesRepository(
                 .setMinor_id(entity.minor_id)
         }
 
-        private fun patch2Update(accountId: Int, patch: MessagePatch): MessageUpdate {
+        internal fun patch2Update(accountId: Int, patch: MessagePatch): MessageUpdate {
             val update = MessageUpdate(accountId, patch.messageId)
             patch.deletion.requireNonNull {
                 update.setDeleteUpdate(MessageUpdate.DeleteUpdate(it.deleted, it.deletedForAll))

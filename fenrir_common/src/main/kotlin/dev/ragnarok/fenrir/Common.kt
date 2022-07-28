@@ -5,11 +5,9 @@ import android.graphics.Color
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir_common.BuildConfig
 import dev.ragnarok.fenrir_common.R
 
 object Common {
-    const val forceDeveloperMode = BuildConfig.FORCE_DEVELOPER_MODE
     private const val RANDOM_PAGAN_SYMBOL_NUMBER = 19
     private var randomPaganSymbol = -1
 

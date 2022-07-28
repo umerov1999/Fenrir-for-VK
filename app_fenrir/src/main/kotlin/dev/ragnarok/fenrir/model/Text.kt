@@ -20,7 +20,7 @@ class Text : Parcelable {
         this.text = text
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         res = readObjectInteger(`in`)
         text = `in`.readString()
     }

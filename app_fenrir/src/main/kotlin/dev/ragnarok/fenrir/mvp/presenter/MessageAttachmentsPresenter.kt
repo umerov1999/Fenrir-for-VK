@@ -540,7 +540,7 @@ class MessageAttachmentsPresenter(
     companion object {
         private const val SAVE_CAMERA_FILE_URI = "save_camera_file_uri"
         private const val SAVE_ACCOMPANYING_ENTRIES = "save_accompanying_entries"
-        private fun entities2entries(pairs: List<Pair<Int, AbsModel>>): List<AttachmentEntry> {
+        internal fun entities2entries(pairs: List<Pair<Int, AbsModel>>): List<AttachmentEntry> {
             val entries: MutableList<AttachmentEntry> = ArrayList(pairs.size)
             for (pair in pairs) {
                 entries.add(

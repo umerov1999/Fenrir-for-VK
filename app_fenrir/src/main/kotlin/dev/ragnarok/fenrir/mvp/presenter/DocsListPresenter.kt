@@ -196,7 +196,7 @@ class DocsListPresenter(
             })
     }
 
-    private fun doRemove(doc: Document, index: Int) {
+    internal fun doRemove(doc: Document, index: Int) {
         appendDisposable(docsInteractor.delete(accountId, doc.id, doc.ownerId)
             .fromIOToMain()
             .subscribe({
@@ -205,7 +205,7 @@ class DocsListPresenter(
             }) { })
     }
 
-    private fun share(context: Context, document: Document) {
+    internal fun share(context: Context, document: Document) {
         val items = arrayOf(
             getString(R.string.share_link),
             getString(R.string.repost_send_message),

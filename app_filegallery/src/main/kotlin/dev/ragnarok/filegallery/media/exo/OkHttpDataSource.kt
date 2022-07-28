@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException
  * priority) the `dataSpec`, [.setRequestProperty] and the default parameters used to
  * construct the instance.
  */
-class OkHttpDataSource private constructor(
+class OkHttpDataSource internal constructor(
     callFactory: OkHttpClient,
     userAgent: String?,
     cacheControl: CacheControl?,

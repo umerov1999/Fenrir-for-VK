@@ -141,7 +141,7 @@ class PeopleSearchCriteria : BaseSearchCriteria {
         appendOption(fromListOption)
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         groupId = readObjectInteger(`in`)
     }
 

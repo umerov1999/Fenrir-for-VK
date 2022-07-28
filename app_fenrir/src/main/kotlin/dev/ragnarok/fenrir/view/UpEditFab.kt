@@ -30,7 +30,7 @@ open class UpEditFab : FloatingActionButton {
         updateIcon()
     }
 
-    private fun updateIcon() {
+    internal fun updateIcon() {
         setImageResource(if (isEdit) R.drawable.pencil else R.drawable.ic_outline_keyboard_arrow_up)
     }
 

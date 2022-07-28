@@ -15,13 +15,10 @@ import com.yalantis.ucrop.util.RotationGestureDetector;
 public class GestureCropImageView extends CropImageView {
 
     private static final int DOUBLE_TAP_ZOOM_DURATION = 200;
-
+    float mMidPntX, mMidPntY;
     private ScaleGestureDetector mScaleDetector;
     private RotationGestureDetector mRotateDetector;
     private GestureDetector mGestureDetector;
-
-    private float mMidPntX, mMidPntY;
-
     private boolean mIsRotateEnabled = true, mIsScaleEnabled = true;
     private int mDoubleTapScaleSteps = 5;
 
@@ -116,7 +113,7 @@ public class GestureCropImageView extends CropImageView {
         mRotateDetector = new RotationGestureDetector(new RotateListener());
     }
 
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -125,7 +122,7 @@ public class GestureCropImageView extends CropImageView {
         }
     }
 
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+    class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
@@ -141,7 +138,7 @@ public class GestureCropImageView extends CropImageView {
 
     }
 
-    private class RotateListener extends RotationGestureDetector.SimpleOnRotationGestureListener {
+    class RotateListener extends RotationGestureDetector.SimpleOnRotationGestureListener {
 
         @Override
         public boolean onRotation(RotationGestureDetector rotationDetector) {

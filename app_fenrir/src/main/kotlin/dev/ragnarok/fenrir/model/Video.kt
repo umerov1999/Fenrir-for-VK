@@ -83,7 +83,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         albumId = `in`.readInt()
@@ -124,7 +124,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         msgPeerId = `in`.readInt()
     }
 
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         albumId = `in`.readInt()

@@ -265,7 +265,7 @@ internal class RelativeshipStorage(base: AppStorages) : AbsStorage(base), IRelat
     }
 
     companion object {
-        private fun mapCommunity(cursor: Cursor): CommunityEntity {
+        internal fun mapCommunity(cursor: Cursor): CommunityEntity {
             return CommunityEntity(cursor.getInt(RelationshipColumns.SUBJECT_ID))
                 .setName(cursor.getString(RelationshipColumns.FOREIGN_SUBJECT_GROUP_NAME))
                 .setScreenName(cursor.getString(RelationshipColumns.FOREIGN_SUBJECT_GROUP_SCREEN_NAME))
@@ -282,7 +282,7 @@ internal class RelativeshipStorage(base: AppStorages) : AbsStorage(base), IRelat
                 .setPhoto200(cursor.getString(RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_200))
         }
 
-        private fun mapDbo(cursor: Cursor): UserEntity {
+        internal fun mapDbo(cursor: Cursor): UserEntity {
             val gid =
                 abs(cursor.getInt(RelationshipColumns.SUBJECT_ID))
             return UserEntity(gid)

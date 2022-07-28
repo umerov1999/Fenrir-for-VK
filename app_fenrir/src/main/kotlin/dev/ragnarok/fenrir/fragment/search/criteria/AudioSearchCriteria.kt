@@ -20,7 +20,7 @@ class AudioSearchCriteria : BaseSearchCriteria {
         appendOption(SimpleBooleanOption(KEY_SEARCH_WITH_LYRICS, R.string.with_lyrics, true))
     }
 
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): AudioSearchCriteria {

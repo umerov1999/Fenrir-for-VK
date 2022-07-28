@@ -1132,7 +1132,7 @@ class CommentsPresenter(
     companion object {
         private const val COUNT = 20
         private const val REPLY_PATTERN = "[post%s|%s], "
-        private fun buildReplyTextFor(comment: Comment): String {
+        internal fun buildReplyTextFor(comment: Comment): String {
             val name =
                 if (comment.fromId > 0) (comment.author as User).firstName else (comment.author as Community).fullName
             return String.format(REPLY_PATTERN, comment.getObjectId(), name)

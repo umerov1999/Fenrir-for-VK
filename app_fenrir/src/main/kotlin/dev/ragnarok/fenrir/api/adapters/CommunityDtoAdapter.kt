@@ -24,6 +24,39 @@ class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
             "screen_name",
             String.format(Locale.getDefault(), "club%d", abs(dto.id))
         )
+        if (hasObject(root, "menu")) {
+            val pMenu = root.getAsJsonObject("menu")
+            if (hasArray(pMenu, "items")) {
+                dto.menu = ArrayList()
+                for (i in pMenu.getAsJsonArray("items").orEmpty()) {
+                    if (!checkObject(i)) {
+                        continue
+                    }
+                    val p = i.asJsonObject
+                    val o = VKApiCommunity.Menu()
+                    o.id = optInt(p, "id")
+                    o.title = optString(p, "title")
+                    o.url = optString(p, "url")
+                    o.type = optString(p, "type")
+                    if (hasArray(p, "cover")) {
+                        var wd = 0
+                        var hd = 0
+                        for (s in p.getAsJsonArray("cover").orEmpty()) {
+                            if (!checkObject(s)) {
+                                continue
+                            }
+                            val f = s.asJsonObject
+                            if (optInt(f, "width") > wd || optInt(f, "height") > hd) {
+                                wd = optInt(f, "width")
+                                hd = optInt(f, "height")
+                                o.cover = optString(f, "url")
+                            }
+                        }
+                    }
+                    dto.menu?.add(o)
+                }
+            }
+        }
         dto.is_closed = optInt(root, "is_closed")
         dto.is_admin = optBoolean(root, "is_admin")
         dto.admin_level = optInt(root, "admin_level")

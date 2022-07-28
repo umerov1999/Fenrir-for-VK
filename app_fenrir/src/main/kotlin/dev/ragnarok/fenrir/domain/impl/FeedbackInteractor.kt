@@ -133,7 +133,7 @@ class FeedbackInteractor(
     }
 
     companion object {
-        private fun populateOwnerIds(ids: VKOwnIds, dbo: FeedbackEntity) {
+        internal fun populateOwnerIds(ids: VKOwnIds, dbo: FeedbackEntity) {
             fillCommentOwnerIds(ids, dbo.reply)
             when (dbo) {
                 is CopyEntity -> {

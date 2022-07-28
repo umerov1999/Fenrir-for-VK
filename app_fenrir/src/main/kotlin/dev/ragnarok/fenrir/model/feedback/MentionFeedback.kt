@@ -16,7 +16,7 @@ class MentionFeedback : Feedback {
 
     // one of FeedbackType.MENTION
     constructor(@FeedbackType type: Int) : super(type)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         where = readModel(`in`)
     }
 

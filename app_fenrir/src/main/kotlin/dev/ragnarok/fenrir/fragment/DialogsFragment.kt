@@ -104,7 +104,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
         }
     }
 
-    private fun ReconfigureOptionsHide(isShowHidden: Boolean) {
+    internal fun ReconfigureOptionsHide(isShowHidden: Boolean) {
         mAdapter?.updateShowHidden(isShowHidden)
         if (!Settings.get().security().hasHiddenDialogs()) {
             mFab?.setImageResource(R.drawable.pencil)

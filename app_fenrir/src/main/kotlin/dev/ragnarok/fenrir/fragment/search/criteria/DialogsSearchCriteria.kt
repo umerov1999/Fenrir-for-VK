@@ -5,7 +5,7 @@ import android.os.Parcelable
 
 class DialogsSearchCriteria : BaseSearchCriteria {
     constructor(query: String?) : super(query)
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     companion object CREATOR : Parcelable.Creator<DialogsSearchCriteria> {
         override fun createFromParcel(parcel: Parcel): DialogsSearchCriteria {

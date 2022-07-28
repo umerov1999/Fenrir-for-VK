@@ -90,7 +90,7 @@ class LocalServerTabsFragment : BaseFragment(), BackPressCallback {
         }.attach()
     }
 
-    private fun dCreateFragment(option_menu: Int): Fragment {
+    internal fun dCreateFragment(option_menu: Int): Fragment {
         return when (option_menu) {
             LOCAL_SERVER_AUDIO -> {
                 AudiosLocalServerFragment()

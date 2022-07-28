@@ -13,7 +13,7 @@ class NewsFeedCriteria : BaseSearchCriteria {
         appendOption(SimpleDateOption(KEY_END_TIME, R.string.date_to, true))
     }
 
-    private constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`)
 
     override fun describeContents(): Int {
         return 0

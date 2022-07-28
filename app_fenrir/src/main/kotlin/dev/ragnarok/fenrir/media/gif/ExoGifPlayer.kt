@@ -75,7 +75,7 @@ class ExoGifPlayer(
         internalPlayer?.prepare()
     }
 
-    private fun onInternalPlayerStateChanged(state: @Player.State Int) {
+    internal fun onInternalPlayerStateChanged(state: @Player.State Int) {
         if (state == Player.STATE_READY) {
             setStatus(IStatus.PREPARED)
         } else if (state == Player.STATE_ENDED && !isRepeat) {
@@ -83,7 +83,7 @@ class ExoGifPlayer(
         }
     }
 
-    private fun onVideoSizeChanged() {
+    internal fun onVideoSizeChanged() {
         for (listener in videoSizeChangeListeners) {
             listener.onVideoSizeChanged(this, videoSize ?: VideoSize(1, 1))
         }
@@ -144,12 +144,12 @@ class ExoGifPlayer(
     }
 
     companion object {
-        private fun pausePlayer(internalPlayer: ExoPlayer) {
+        internal fun pausePlayer(internalPlayer: ExoPlayer) {
             internalPlayer.playWhenReady = false
             internalPlayer.playbackState
         }
 
-        private fun startPlayer(internalPlayer: ExoPlayer?) {
+        internal fun startPlayer(internalPlayer: ExoPlayer?) {
             internalPlayer?.playWhenReady = true
             internalPlayer?.playbackState
         }

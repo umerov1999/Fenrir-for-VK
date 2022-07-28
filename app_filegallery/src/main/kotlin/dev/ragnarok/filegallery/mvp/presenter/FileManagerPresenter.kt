@@ -1,5 +1,6 @@
 package dev.ragnarok.filegallery.mvp.presenter
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -421,6 +422,7 @@ class FileManagerPresenter(
         }
     }
 
+    @SuppressLint("CheckResult")
     fun fireFixDirTime(dir: String) {
         if (isLoading) {
             return
@@ -593,6 +595,7 @@ class FileManagerPresenter(
         }
     }
 
+    @SuppressLint("CheckResult")
     fun fireDelete(item: FileItem) {
         isLoading = true
         view?.resolveLoading(isLoading)

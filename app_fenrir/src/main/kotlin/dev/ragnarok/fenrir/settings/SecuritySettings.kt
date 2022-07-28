@@ -196,7 +196,7 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
         private const val KEY_HIDDEN_PEERS = "hidden_peers"
         private const val pinHistoryDepth = 3
 
-        private fun extractPinEnterHistrory(preferences: SharedPreferences): ArrayList<Long> {
+        internal fun extractPinEnterHistrory(preferences: SharedPreferences): ArrayList<Long> {
             val set = preferences.getStringSet(KEY_PIN_ENTER_HISTORY, null)
             val result = ArrayList<Long>(safeCountOf(set))
             if (set != null) {
@@ -208,11 +208,11 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
             return result
         }
 
-        private fun encryptionKeyFor(accountId: Int, peerId: Int): String {
+        internal fun encryptionKeyFor(accountId: Int, peerId: Int): String {
             return "encryptionkeypolicy" + accountId + "_" + peerId
         }
 
-        private fun calculateHash(value: String): String {
+        internal fun calculateHash(value: String): String {
             return try {
                 StringHash.calculateSha1(value)
             } catch (e: NoSuchAlgorithmException) {

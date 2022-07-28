@@ -280,7 +280,7 @@ class ColorPickerDialogBuilder private constructor(context: Context, theme: Int 
             return ColorPickerDialogBuilder(context, theme)
         }
 
-        private fun getDimensionAsPx(context: Context, rid: Int): Int {
+        internal fun getDimensionAsPx(context: Context, rid: Int): Int {
             return (context.resources.getDimension(rid) + .5f).toInt()
         }
     }

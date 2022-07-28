@@ -95,11 +95,11 @@ class ExoVoicePlayer(context: Context, config: ProxyConfig?) : IVoicePlayer {
         exoPlayer?.prepare()
     }
 
-    private fun onExoPlayerException(e: PlaybackException) {
+    internal fun onExoPlayerException(e: PlaybackException) {
         errorListener?.onPlayError(e)
     }
 
-    private fun onInternalPlayerStateChanged(state: @Player.State Int) {
+    internal fun onInternalPlayerStateChanged(state: @Player.State Int) {
         d("ExoVoicePlayer", "onInternalPlayerStateChanged, state: $state")
         when (state) {
             Player.STATE_READY -> setStatus(IVoicePlayer.STATUS_PREPARED)
@@ -172,7 +172,7 @@ class ExoVoicePlayer(context: Context, config: ProxyConfig?) : IVoicePlayer {
     }
 
     companion object {
-        private val isOpusSupported: Boolean
+        internal val isOpusSupported: Boolean
             get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || Settings.get()
                 .other().isEnable_native || Settings.get().other().fFmpegPlugin != 0
     }

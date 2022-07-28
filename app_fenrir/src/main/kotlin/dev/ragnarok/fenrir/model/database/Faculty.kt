@@ -12,7 +12,7 @@ class Faculty : Parcelable {
         this.title = title
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         title = `in`.readString()
     }

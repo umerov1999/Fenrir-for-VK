@@ -187,7 +187,7 @@ class DocLink(val attachment: AbsModel) {
         private const val W = "WIKI"
 
         @AttachmentsTypes
-        private fun typeOf(model: AbsModel): Int {
+        internal fun typeOf(model: AbsModel): Int {
             if (model is Document) {
                 return AttachmentsTypes.DOC
             }

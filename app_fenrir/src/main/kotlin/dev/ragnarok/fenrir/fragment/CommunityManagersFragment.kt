@@ -78,7 +78,7 @@ class CommunityManagersFragment :
         return root
     }
 
-    private fun showManagerContextMenu(manager: Manager) {
+    internal fun showManagerContextMenu(manager: Manager) {
         val items = arrayOf(getString(R.string.delete))
         MaterialAlertDialogBuilder(requireActivity())
             .setTitle(manager.user?.fullName)

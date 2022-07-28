@@ -10,7 +10,7 @@ class IntNextFrom : AbsNextFrom {
         offset = initValue
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         offset = `in`.readInt()
     }
 

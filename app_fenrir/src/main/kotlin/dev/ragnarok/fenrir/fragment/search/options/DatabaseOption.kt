@@ -24,7 +24,7 @@ class DatabaseOption : BaseOption {
         this.type = type
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         type = `in`.readInt()
         value = `in`.readParcelable(Entry::class.java.classLoader)
     }
@@ -75,7 +75,7 @@ class DatabaseOption : BaseOption {
             this.title = title
         }
 
-        private constructor(`in`: Parcel) {
+        internal constructor(`in`: Parcel) {
             id = `in`.readInt()
             title = `in`.readString()
         }

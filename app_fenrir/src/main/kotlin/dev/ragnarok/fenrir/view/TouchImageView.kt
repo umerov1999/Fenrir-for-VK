@@ -59,7 +59,7 @@ open class TouchImageView @JvmOverloads constructor(
     private var viewSizeChangeFixedPixel: FixedPixel? = FixedPixel.CENTER
     private var orientationJustChanged = false
 
-    private enum class ImageActionState {
+    internal enum class ImageActionState {
         NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM
     }
 
@@ -460,7 +460,7 @@ open class TouchImageView @JvmOverloads constructor(
             return point
         }
 
-    private fun orientationMismatch(drawable: Drawable?): Boolean {
+    internal fun orientationMismatch(drawable: Drawable?): Boolean {
         return viewWidth > viewHeight != drawable!!.intrinsicWidth > drawable.intrinsicHeight
     }
 
@@ -490,7 +490,7 @@ open class TouchImageView @JvmOverloads constructor(
      * Performs boundary checking and fixes the image matrix if it
      * is out of bounds.
      */
-    private fun fixTrans() {
+    internal fun fixTrans() {
         touchMatrix.getValues(floatMatrix)
         val transX = floatMatrix[Matrix.MTRANS_X]
         val transY = floatMatrix[Matrix.MTRANS_Y]
@@ -510,7 +510,7 @@ open class TouchImageView @JvmOverloads constructor(
      * be centered incorrectly within the view. fixScaleTrans first calls fixTrans() and
      * then makes sure the image is centered correctly within the view.
      */
-    private fun fixScaleTrans() {
+    internal fun fixScaleTrans() {
         fixTrans()
         touchMatrix.getValues(floatMatrix)
         if (imageWidth < viewWidth) {
@@ -545,17 +545,17 @@ open class TouchImageView @JvmOverloads constructor(
         return if (trans > maxTrans) -trans + maxTrans else 0f
     }
 
-    private fun getFixDragTrans(delta: Float, viewSize: Float, contentSize: Float): Float {
+    internal fun getFixDragTrans(delta: Float, viewSize: Float, contentSize: Float): Float {
         return if (contentSize <= viewSize) {
             0f
         } else
             delta
     }
 
-    private val imageWidth: Float
+    internal val imageWidth: Float
         get() = matchViewWidth * currentZoom
 
-    private val imageHeight: Float
+    internal val imageHeight: Float
         get() = matchViewHeight * currentZoom
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -808,7 +808,7 @@ open class TouchImageView @JvmOverloads constructor(
         }
     }
 
-    private fun setState(imageActionState: ImageActionState) {
+    internal fun setState(imageActionState: ImageActionState) {
         this.imageActionState = imageActionState
     }
 
@@ -841,18 +841,18 @@ open class TouchImageView @JvmOverloads constructor(
      * to the view's listener.
      */
     private inner class GestureListener : SimpleOnGestureListener() {
-        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             // Pass on to the OnDoubleTapListener if it is present, otherwise let the View handle the click.
             return doubleTapListener?.onSingleTapConfirmed(e) ?: performClick()
         }
 
-        override fun onLongPress(e: MotionEvent?) {
+        override fun onLongPress(e: MotionEvent) {
             performLongClick()
         }
 
         override fun onFling(
-            e1: MotionEvent?,
-            e2: MotionEvent?,
+            e1: MotionEvent,
+            e2: MotionEvent,
             velocityX: Float,
             velocityY: Float
         ): Boolean {
@@ -863,9 +863,9 @@ open class TouchImageView @JvmOverloads constructor(
             return super.onFling(e1, e2, velocityX, velocityY)
         }
 
-        override fun onDoubleTap(e: MotionEvent?): Boolean {
+        override fun onDoubleTap(e: MotionEvent): Boolean {
             var consumed = false
-            if (e != null && isZoomEnabled) {
+            if (isZoomEnabled) {
                 doubleTapListener?.let {
                     consumed = it.onDoubleTap(e)
                 }
@@ -882,7 +882,7 @@ open class TouchImageView @JvmOverloads constructor(
             return consumed
         }
 
-        override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
+        override fun onDoubleTapEvent(e: MotionEvent): Boolean {
             return doubleTapListener?.onDoubleTapEvent(e) ?: false
         }
     }
@@ -988,7 +988,7 @@ open class TouchImageView @JvmOverloads constructor(
         }
     }
 
-    private fun scaleImage(
+    internal fun scaleImage(
         deltaScale: Double,
         focusX: Float,
         focusY: Float,
@@ -1256,7 +1256,7 @@ open class TouchImageView @JvmOverloads constructor(
 
     }
 
-    private fun compatPostOnAnimation(runnable: Runnable) {
+    internal fun compatPostOnAnimation(runnable: Runnable) {
         postOnAnimation(runnable)
     }
 

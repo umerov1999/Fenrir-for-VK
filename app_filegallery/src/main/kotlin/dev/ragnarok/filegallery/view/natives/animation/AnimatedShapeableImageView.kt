@@ -36,7 +36,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
     private var attachedToWindow = false
     private var playing = false
     private var decoderCallback: OnDecoderInit? = null
-    private var mDisposable = Disposable.disposed()
+    private var mDisposable: Disposable? = null
     fun setDecoderCallback(decoderCallback: OnDecoderInit?) {
         this.decoderCallback = decoderCallback
     }
@@ -204,7 +204,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
     }
 
     fun clearAnimationDrawable() {
-        mDisposable.dispose()
+        mDisposable?.dispose()
         animatedDrawable?.let {
             it.stop()
             it.callback = null
@@ -225,7 +225,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        mDisposable.dispose()
+        mDisposable?.dispose()
         attachedToWindow = false
         animatedDrawable?.stop()
         animatedDrawable?.callback = null
@@ -238,7 +238,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
     override fun setImageDrawable(dr: Drawable?) {
         super.setImageDrawable(dr)
         if (dr !is AnimatedFileDrawable) {
-            mDisposable.dispose()
+            mDisposable?.dispose()
             animatedDrawable?.let {
                 it.stop()
                 it.callback = null
@@ -250,7 +250,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
 
     override fun setImageBitmap(bm: Bitmap?) {
         super.setImageBitmap(bm)
-        mDisposable.dispose()
+        mDisposable?.dispose()
         animatedDrawable?.let {
             it.stop()
             it.callback = null
@@ -261,7 +261,7 @@ class AnimatedShapeableImageView @JvmOverloads constructor(
 
     override fun setImageResource(resId: Int) {
         super.setImageResource(resId)
-        mDisposable.dispose()
+        mDisposable?.dispose()
         animatedDrawable?.let {
             it.stop()
             it.callback = null

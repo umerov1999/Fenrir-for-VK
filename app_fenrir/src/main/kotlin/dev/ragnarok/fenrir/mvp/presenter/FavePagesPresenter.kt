@@ -79,7 +79,7 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
             }) { t -> onActualDataGetError(t) })
     }
 
-    private fun onActualDataGetError(t: Throwable) {
+    internal fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
         showError(getCauseIfRuntime(t))
         resolveRefreshingView()
@@ -117,7 +117,7 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
         loadActualData(0)
     }
 
-    private fun resolveRefreshingView() {
+    internal fun resolveRefreshingView() {
         resumedView?.showRefreshing(
             actualDataLoading
         )

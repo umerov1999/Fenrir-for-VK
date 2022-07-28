@@ -71,20 +71,20 @@ public class UCropFragment extends Fragment {
     }
 
     private final List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
-    private UCropFragmentCallback callback;
+    UCropFragmentCallback callback;
+    UCropView mUCropView;
+    GestureCropImageView mGestureCropImageView;
+    View mBlockingView;
     private int mActiveControlsWidgetColor;
     @ColorInt
     private int mRootViewBackgroundColor;
     private int mLogoColor;
     private boolean mShowBottomControls;
     private Transition mControlsTransition;
-    private UCropView mUCropView;
-    private GestureCropImageView mGestureCropImageView;
     private OverlayView mOverlayView;
     private ViewGroup mWrapperStateAspectRatio, mWrapperStateRotate, mWrapperStateScale;
     private ViewGroup mLayoutAspectRatio, mLayoutRotate, mLayoutScale;
     private TextView mTextViewRotateAngle, mTextViewScalePercent;
-    private View mBlockingView;
     private final TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
         @Override
         public void onRotate(float currentAngle) {
@@ -416,7 +416,7 @@ public class UCropFragment extends Fragment {
         setScaleTextColor(mActiveControlsWidgetColor);
     }
 
-    private void setAngleText(float angle) {
+    void setAngleText(float angle) {
         if (mTextViewRotateAngle != null) {
             mTextViewRotateAngle.setText(String.format(Locale.getDefault(), "%.1f°", angle));
         }
@@ -428,7 +428,7 @@ public class UCropFragment extends Fragment {
         }
     }
 
-    private void setScaleText(float scale) {
+    void setScaleText(float scale) {
         if (mTextViewScalePercent != null) {
             mTextViewScalePercent.setText(String.format(Locale.getDefault(), "%d%%", (int) (scale * 100)));
         }

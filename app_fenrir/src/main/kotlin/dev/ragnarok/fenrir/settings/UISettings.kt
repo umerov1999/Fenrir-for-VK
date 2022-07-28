@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.settings
 
 import android.content.Context
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.fragment.PreferencesFragment
 import dev.ragnarok.fenrir.fragment.fave.FaveTabsFragment
@@ -49,7 +50,7 @@ internal class UISettings(context: Context) : IUISettings {
         preferences.edit().putString("app_theme", key).apply()
     }
 
-    override fun switchNightMode(@NightMode key: Int) {
+    override fun switchNightMode(@AppCompatDelegate.NightMode key: Int) {
         val preferences = getPreferences(app)
         preferences.edit().putString("night_switch", key.toString()).apply()
     }
@@ -60,14 +61,15 @@ internal class UISettings(context: Context) : IUISettings {
         return nightMode == Configuration.UI_MODE_NIGHT_YES
     }
 
-    @get:NightMode
+    @get:AppCompatDelegate.NightMode
     override val nightMode: Int
         get() = try {
             getPreferences(app)
-                .getString("night_switch", NightMode.ENABLE.toString())!!.trim { it <= ' ' }
+                .getString("night_switch", AppCompatDelegate.MODE_NIGHT_YES.toString())!!
+                .trim { it <= ' ' }
                 .toInt()
         } catch (e: Exception) {
-            NightMode.ENABLE
+            AppCompatDelegate.MODE_NIGHT_YES
         }
 
     override fun getDefaultPage(accountId: Int): Place {

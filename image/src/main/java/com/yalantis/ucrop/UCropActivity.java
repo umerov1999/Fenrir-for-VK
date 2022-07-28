@@ -79,6 +79,10 @@ public class UCropActivity extends AppCompatActivity implements MenuProvider {
     }
 
     private final List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
+    boolean mShowLoader = true;
+    UCropView mUCropView;
+    GestureCropImageView mGestureCropImageView;
+    View mBlockingView;
     private String mToolbarTitle;
     // Enables dynamic coloring
     private int mToolbarColor;
@@ -93,14 +97,10 @@ public class UCropActivity extends AppCompatActivity implements MenuProvider {
     private int mToolbarCropDrawable;
     private int mLogoColor;
     private boolean mShowBottomControls;
-    private boolean mShowLoader = true;
-    private UCropView mUCropView;
-    private GestureCropImageView mGestureCropImageView;
     private OverlayView mOverlayView;
     private ViewGroup mWrapperStateAspectRatio, mWrapperStateRotate, mWrapperStateScale;
     private ViewGroup mLayoutAspectRatio, mLayoutRotate, mLayoutScale;
     private TextView mTextViewRotateAngle, mTextViewScalePercent;
-    private View mBlockingView;
     private final TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
         @Override
         public void onRotate(float currentAngle) {
@@ -525,7 +525,7 @@ public class UCropActivity extends AppCompatActivity implements MenuProvider {
         setScaleTextColor(mActiveControlsWidgetColor);
     }
 
-    private void setAngleText(float angle) {
+    void setAngleText(float angle) {
         if (mTextViewRotateAngle != null) {
             mTextViewRotateAngle.setText(String.format(Locale.getDefault(), "%.1f°", angle));
         }
@@ -537,7 +537,7 @@ public class UCropActivity extends AppCompatActivity implements MenuProvider {
         }
     }
 
-    private void setScaleText(float scale) {
+    void setScaleText(float scale) {
         if (mTextViewScalePercent != null) {
             mTextViewScalePercent.setText(String.format(Locale.getDefault(), "%d%%", (int) (scale * 100)));
         }

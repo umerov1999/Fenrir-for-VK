@@ -13,7 +13,7 @@ class GiftItem : AbsModel {
     var thumb48: String? = null
         private set
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         thumb256 = `in`.readString()
         thumb96 = `in`.readString()

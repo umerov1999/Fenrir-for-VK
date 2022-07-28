@@ -263,7 +263,7 @@ class VideosInteractor(private val networker: INetworker, private val cache: ISt
     }
 
     companion object {
-        private fun buildFiltersByCriteria(criteria: VideoSearchCriteria): String? {
+        internal fun buildFiltersByCriteria(criteria: VideoSearchCriteria): String? {
             val youtube = criteria.extractBoleanValueFromOption(VideoSearchCriteria.KEY_YOUTUBE)
             val vimeo = criteria.extractBoleanValueFromOption(VideoSearchCriteria.KEY_VIMEO)
             val shortVideos = criteria.extractBoleanValueFromOption(VideoSearchCriteria.KEY_SHORT)

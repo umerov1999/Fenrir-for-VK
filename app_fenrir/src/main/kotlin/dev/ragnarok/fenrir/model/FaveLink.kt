@@ -18,7 +18,7 @@ class FaveLink : AbsModel {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readString()
         url = `in`.readString()
         title = `in`.readString()

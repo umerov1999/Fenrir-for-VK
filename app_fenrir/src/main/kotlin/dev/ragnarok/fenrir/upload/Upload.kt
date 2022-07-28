@@ -53,7 +53,7 @@ open class Upload : AbsModel, Identificable {
         id = incrementedUploadId
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         accountId = `in`.readInt()
         id = `in`.readInt()
         fileUri = `in`.readParcelable(Uri::class.java.classLoader)

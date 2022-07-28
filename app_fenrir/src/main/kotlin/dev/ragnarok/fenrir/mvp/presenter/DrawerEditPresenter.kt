@@ -62,7 +62,7 @@ class DrawerEditPresenter(savedInstanceState: Bundle?) :
 
     companion object {
         @StringRes
-        private fun getTitleResCategory(@SwitchableCategory type: Int): Int {
+        internal fun getTitleResCategory(@SwitchableCategory type: Int): Int {
             when (type) {
                 SwitchableCategory.FRIENDS -> return R.string.friends
                 SwitchableCategory.NEWSFEED_COMMENTS -> return R.string.drawer_newsfeed_comments

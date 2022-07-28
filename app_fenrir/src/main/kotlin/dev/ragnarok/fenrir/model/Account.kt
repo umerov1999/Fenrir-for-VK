@@ -13,7 +13,7 @@ class Account : Parcelable, Identificable {
         this.owner = owner
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         val wrapper = `in`.readParcelable<ParcelableOwnerWrapper>(
             ParcelableOwnerWrapper::class.java.classLoader

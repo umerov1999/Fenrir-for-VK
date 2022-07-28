@@ -26,6 +26,8 @@ class VKApiCommunity
      */
     var screen_name: String? = null
 
+    var menu: ArrayList<Menu>? = null
+
     /**
      * Whether the community is closed
      */
@@ -278,6 +280,7 @@ class VKApiCommunity
         var audios = NO_COUNTER
         var videos = NO_COUNTER
         var topics = NO_COUNTER
+        var donuts = NO_COUNTER
         var docs = NO_COUNTER
         var articles = NO_COUNTER
         var market = NO_COUNTER
@@ -316,6 +319,14 @@ class VKApiCommunity
         var desc: String? = null
         var photo_50: String? = null
         var photo_100: String? = null
+    }
+
+    class Menu {
+        var id = 0
+        var url: String? = null
+        var title: String? = null
+        var type: String? = null
+        var cover: String? = null
     }
 
     companion object {

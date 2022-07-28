@@ -92,7 +92,7 @@ class MusicPlaybackService : Service() {
 
     fun outForeground(removeNotification: Boolean) {
         inForeground = false
-        stopForeground(removeNotification)
+        stopForeground(if (removeNotification) STOP_FOREGROUND_REMOVE else 0)
     }
 
     override fun onUnbind(intent: Intent): Boolean {
@@ -246,7 +246,7 @@ class MusicPlaybackService : Service() {
     }
 
     @Suppress("DEPRECATION")
-    private fun releaseServiceUiAndStop() {
+    internal fun releaseServiceUiAndStop() {
         if (isPlaying) {
             return
         }
@@ -257,7 +257,7 @@ class MusicPlaybackService : Service() {
         }
     }
 
-    private fun handleCommandIntent(intent: Intent) {
+    internal fun handleCommandIntent(intent: Intent) {
         val action = intent.action
         val command = if (SERVICECMD == action) intent.getStringExtra(CMDNAME) else null
         if (Constants.IS_DEBUG) Logger.d(
@@ -362,17 +362,17 @@ class MusicPlaybackService : Service() {
         }
     }
 
-    private val isInitialized: Boolean
+    internal val isInitialized: Boolean
         get() = mPlayer?.isInitialized == true
 
-    private val isPreparing: Boolean
+    internal val isPreparing: Boolean
         get() = mPlayer?.isPreparing == true
 
     /**
      * Called to open a new file as the current track and prepare the next for
      * playback
      */
-    private fun playCurrentTrack(UpdateMeta: Boolean) {
+    internal fun playCurrentTrack(UpdateMeta: Boolean) {
         synchronized(this) {
             Logger.d(TAG, "playCurrentTrack, mPlayListLen: " + Utils.safeCountOf(mPlayList))
             if (mPlayList.isNullOrEmpty()) {
@@ -413,7 +413,7 @@ class MusicPlaybackService : Service() {
     /**
      * Notify the change-receivers that something has changed.
      */
-    private fun notifyChange(what: String) {
+    internal fun notifyChange(what: String) {
         if (Constants.IS_DEBUG) Logger.d(TAG, "notifyChange: what = $what")
         updateRemoteControlClient(what)
         if (what == POSITION_CHANGED) {
@@ -474,7 +474,7 @@ class MusicPlaybackService : Service() {
             })
     }
 
-    private fun updateMetadata() {
+    internal fun updateMetadata() {
         updateNotification()
         mMediaMetadataCompat = MediaMetadataCompat.Builder()
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artistName)
@@ -609,7 +609,7 @@ class MusicPlaybackService : Service() {
      * @return url
      */
 
-    private val albumCover: String?
+    internal val albumCover: String?
         get() {
             synchronized(this) {
                 return if (currentTrack == null) {

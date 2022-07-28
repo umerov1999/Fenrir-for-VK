@@ -12,7 +12,7 @@ class Token : Parcelable {
         this.accessToken = accessToken
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         ownerId = `in`.readInt()
         accessToken = `in`.readString()
     }

@@ -9,11 +9,11 @@ import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.Unixtime
 import java.util.*
 
-class DateTimePicker private constructor(builder: Builder) {
+class DateTimePicker internal constructor(builder: Builder) {
     private val time: Long = builder.pTime
     private val context: Context = builder.context
     private val callback: Callback? = builder.pCallback
-    private fun show() {
+    internal fun show() {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = time
         val year = calendar[Calendar.YEAR]

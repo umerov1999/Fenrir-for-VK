@@ -20,4 +20,7 @@ class GroupWallInfoResponse {
 
     @SerialName("postponed_wall_count")
     var postponedWallCount: Int? = null
+
+    @SerialName("donut_wall_count")
+    var donutWallCount: Int? = null
 }

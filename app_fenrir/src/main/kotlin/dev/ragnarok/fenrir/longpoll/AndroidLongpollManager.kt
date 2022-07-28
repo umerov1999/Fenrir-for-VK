@@ -63,12 +63,12 @@ class AndroidLongpollManager internal constructor(
         }
     }
 
-    private fun notifyDestroy(entry: LongpollEntry) {
+    internal fun notifyDestroy(entry: LongpollEntry) {
         d(TAG, "destroyed, accountId: " + entry.accountId)
         synchronized(lock) { map.remove(entry.accountId) }
     }
 
-    private fun notifyPreDestroy(entry: LongpollEntry) {
+    internal fun notifyPreDestroy(entry: LongpollEntry) {
         d(TAG, "pre-destroy, accountId: " + entry.accountId)
         keepAlivePublisher.onNext(entry.accountId)
     }
@@ -92,7 +92,7 @@ class AndroidLongpollManager internal constructor(
     }
 
     override fun onUpdates(groupId: Int, updates: VkApiGroupLongpollUpdates) {}
-    private class LongpollEntry(
+    class LongpollEntry(
         val longpoll: ILongpoll,
         manager: AndroidLongpollManager
     ) {
@@ -124,7 +124,7 @@ class AndroidLongpollManager internal constructor(
 
     }
 
-    private class SocketHandler(holder: LongpollEntry) :
+    class SocketHandler(holder: LongpollEntry) :
         Handler(Looper.getMainLooper()) {
         val reference: WeakReference<LongpollEntry> = WeakReference(holder)
         fun restartPreDestroy() {

@@ -13,12 +13,12 @@ class SimplePrivacy : Parcelable, ParcelNative.ParcelableNative {
         this.entries = entries
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         type = `in`.readString()
         entries = `in`.createTypedArrayList(Entry.CREATOR)
     }
 
-    private constructor(`in`: ParcelNative) {
+    internal constructor(`in`: ParcelNative) {
         type = `in`.readString()
         entries = `in`.readParcelableList(Entry.NativeCreator)
     }
@@ -56,13 +56,13 @@ class SimplePrivacy : Parcelable, ParcelNative.ParcelableNative {
             this.allowed = allowed
         }
 
-        private constructor(`in`: Parcel) {
+        internal constructor(`in`: Parcel) {
             type = `in`.readInt()
             id = `in`.readInt()
             allowed = `in`.readByte().toInt() != 0
         }
 
-        private constructor(`in`: ParcelNative) {
+        internal constructor(`in`: ParcelNative) {
             type = `in`.readInt()
             id = `in`.readInt()
             allowed = `in`.readByte().toInt() != 0

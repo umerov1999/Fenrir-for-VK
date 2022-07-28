@@ -38,7 +38,7 @@ internal class RecentChatsSettings(app: Context) : IRecentChats {
     }
 
     companion object {
-        private fun recentChatKeyFor(aid: Int): String {
+        internal fun recentChatKeyFor(aid: Int): String {
             return "recent$aid"
         }
     }

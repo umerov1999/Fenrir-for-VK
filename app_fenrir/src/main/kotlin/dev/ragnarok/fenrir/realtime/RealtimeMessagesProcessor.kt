@@ -340,7 +340,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
     companion object {
         private const val TAG = "RealtimeMessagesProcessor"
         private val ID_GENERATOR = AtomicInteger()
-        private fun getChatIds(result: TmpResult): Set<Int>? {
+        internal fun getChatIds(result: TmpResult): Set<Int>? {
             var peersIds: MutableSet<Int>? = null
             for (msg in result.data) {
                 val dto = msg.dto ?: continue
@@ -354,7 +354,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
             return peersIds
         }
 
-        private fun getOwnIds(result: TmpResult): VKOwnIds {
+        internal fun getOwnIds(result: TmpResult): VKOwnIds {
             val vkOwnIds = VKOwnIds()
             for (msg in result.data) {
                 msg.dto.requireNonNull {
@@ -364,7 +364,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
             return vkOwnIds
         }
 
-        private fun init(single: Single<Entry>): Single<TmpResult> {
+        internal fun init(single: Single<Entry>): Single<TmpResult> {
             return single.map {
                 val result = TmpResult(
                     it.id, it.accountId, it.count()

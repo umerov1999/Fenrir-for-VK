@@ -363,7 +363,7 @@ class FeedInteractor(
     }
 
     companion object {
-        private fun createFeedListFromEntity(entity: FeedListEntity): FeedList {
+        internal fun createFeedListFromEntity(entity: FeedListEntity): FeedList {
             return FeedList(entity.id, entity.title)
         }
     }

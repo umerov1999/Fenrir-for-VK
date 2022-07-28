@@ -43,12 +43,11 @@ public class TransformImageView extends AppCompatImageView {
     protected TransformImageListener mTransformImageListener;
     protected boolean mBitmapDecoded;
     protected boolean mBitmapLaidOut;
+    String mImageInputPath, mImageOutputPath;
+    ExifInfo mExifInfo;
     private float[] mInitialImageCorners;
     private float[] mInitialImageCenter;
     private int mMaxBitmapSize;
-
-    private String mImageInputPath, mImageOutputPath;
-    private ExifInfo mExifInfo;
 
     public TransformImageView(Context context) {
         this(context, null);

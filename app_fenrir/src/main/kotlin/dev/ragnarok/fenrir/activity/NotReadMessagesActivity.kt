@@ -33,7 +33,7 @@ class NotReadMessagesActivity : NoMainActivity(), PlaceProvider, AppStyleable {
     //resolveToolbarNavigationIcon();
     private val mOnBackStackChangedListener =
         FragmentManager.OnBackStackChangedListener { keyboardHide() }
-    private val frontFragment: Fragment?
+    internal val frontFragment: Fragment?
         get() = supportFragmentManager.findFragmentById(R.id.fragment)
 
     public override fun onCreate(savedInstanceState: Bundle?) {

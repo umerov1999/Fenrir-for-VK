@@ -98,7 +98,7 @@ class LottieActivity : AppCompatActivity() {
 
     private var lottie: RLottieImageView? = null
     private var lg: TextView? = null
-    private fun log(log: String?) {
+    internal fun log(log: String?) {
         lg?.post { lg?.text = log?.trim { it <= ' ' } }
     }
 

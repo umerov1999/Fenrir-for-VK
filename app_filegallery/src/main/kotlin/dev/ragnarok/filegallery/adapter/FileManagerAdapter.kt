@@ -197,7 +197,7 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         }
     }
 
-    private fun getLocalBitrate(url: String?) {
+    internal fun getLocalBitrate(url: String?) {
         if (url.isNullOrEmpty()) {
             return
         }

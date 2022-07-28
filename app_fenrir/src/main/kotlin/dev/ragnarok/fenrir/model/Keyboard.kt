@@ -15,7 +15,7 @@ class Keyboard : Parcelable {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         one_time = `in`.readByte().toInt() != 0
         inline = `in`.readByte().toInt() != 0
         author_id = `in`.readInt()
@@ -77,7 +77,7 @@ class Keyboard : Parcelable {
             private set
 
         constructor()
-        private constructor(`in`: Parcel) {
+        internal constructor(`in`: Parcel) {
             color = `in`.readString()
             type = `in`.readString()
             label = `in`.readString()

@@ -15,7 +15,7 @@ class ChatConfig : Parcelable {
         models = ModelsBundle()
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         closeOnSend = `in`.readByte().toInt() != 0
         models = `in`.readParcelable(ModelsBundle::class.java.classLoader)!!
         initialText = `in`.readString()

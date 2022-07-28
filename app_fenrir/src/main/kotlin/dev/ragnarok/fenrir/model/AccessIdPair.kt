@@ -14,7 +14,7 @@ class AccessIdPair : Parcelable {
         this.accessKey = accessKey
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         accessKey = `in`.readString()

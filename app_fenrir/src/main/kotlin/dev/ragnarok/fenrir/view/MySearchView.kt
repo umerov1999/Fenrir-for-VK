@@ -147,7 +147,7 @@ class MySearchView : LinearLayout {
             if (visible) VISIBLE else GONE
     }
 
-    private fun resolveCloseButton() {
+    internal fun resolveCloseButton() {
         val empty = mQuery.isNullOrEmpty()
         Logger.d(TAG, "resolveCloseButton, empty: $empty")
         mButtonClear?.visibility =

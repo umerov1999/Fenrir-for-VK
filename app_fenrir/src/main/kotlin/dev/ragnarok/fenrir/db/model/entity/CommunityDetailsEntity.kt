@@ -14,6 +14,8 @@ class CommunityDetailsEntity {
         private set
     var suggestedWallCount = 0
         private set
+    var donutWallCount = 0
+        private set
     var isCanMessage = false
         private set
     var isSetFavorite = false
@@ -46,6 +48,8 @@ class CommunityDetailsEntity {
         private set
     var cover: Cover? = null
         private set
+    var menu: List<Menu>? = null
+        private set
     var description: String? = null
         private set
 
@@ -59,6 +63,11 @@ class CommunityDetailsEntity {
         return this
     }
 
+    fun setMenu(menu: List<Menu>?): CommunityDetailsEntity {
+        this.menu = menu
+        return this
+    }
+
     fun setCover(cover: Cover?): CommunityDetailsEntity {
         this.cover = cover
         return this
@@ -66,6 +75,11 @@ class CommunityDetailsEntity {
 
     fun setChatsCount(chatsCount: Int): CommunityDetailsEntity {
         this.chatsCount = chatsCount
+        return this
+    }
+
+    fun setDonutWallCount(donutWallCount: Int): CommunityDetailsEntity {
+        this.donutWallCount = donutWallCount
         return this
     }
 
@@ -187,6 +201,36 @@ class CommunityDetailsEntity {
             this.url = url
             this.height = height
             this.width = width
+            return this
+        }
+    }
+
+    @Keep
+    @Serializable
+    class Menu {
+        var id = 0
+            private set
+        var url: String? = null
+            private set
+        var title: String? = null
+            private set
+        var type: String? = null
+            private set
+        var cover: String? = null
+            private set
+
+        operator fun set(
+            id: Int,
+            url: String?,
+            title: String?,
+            type: String?,
+            cover: String?
+        ): Menu {
+            this.id = id
+            this.url = url
+            this.title = title
+            this.type = type
+            this.cover = cover
             return this
         }
     }

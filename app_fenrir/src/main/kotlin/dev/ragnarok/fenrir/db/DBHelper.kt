@@ -789,7 +789,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
             context.deleteDatabase(getDatabaseFileName(aid))
         }
 
-        private fun getDatabaseFileName(aid: Int): String {
+        internal fun getDatabaseFileName(aid: Int): String {
             return "fenrir_$aid.sqlite"
         }
     }

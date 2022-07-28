@@ -72,7 +72,7 @@ class AuthApi(private val service: IDirectLoginSeviceProvider) : IAuthApi {
             }
         }
 
-        private fun <T : Any> withHttpErrorHandling(): SingleTransformer<T, T> {
+        internal fun <T : Any> withHttpErrorHandling(): SingleTransformer<T, T> {
             return SingleTransformer { single: Single<T> ->
                 single.onErrorResumeNext { throwable ->
                     if (throwable is HttpException) {

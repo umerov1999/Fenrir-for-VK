@@ -133,7 +133,7 @@ internal class DocsStorage(base: AppStorages) : AbsStorage(base), IDocsStorage {
     }
 
     companion object {
-        private fun map(cursor: Cursor): DocumentDboEntity {
+        internal fun map(cursor: Cursor): DocumentDboEntity {
             val id = cursor.getInt(DocColumns.DOC_ID)
             val ownerId = cursor.getInt(DocColumns.OWNER_ID)
             val document = DocumentDboEntity().set(id, ownerId)

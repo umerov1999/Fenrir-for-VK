@@ -316,7 +316,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     }
 
     companion object {
-        private fun filter(orig: List<Community>, filter: String?): Single<List<Community>> {
+        internal fun filter(orig: List<Community>, filter: String?): Single<List<Community>> {
             return Single.create { emitter: SingleEmitter<List<Community>> ->
                 val result: MutableList<Community> = ArrayList(5)
                 for (community in orig) {
@@ -361,7 +361,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
                 ?.contains(lower) == true
         }
 
-        private fun exist(data: DataWrapper<Community>?, `in`: Community?): Boolean {
+        internal fun exist(data: DataWrapper<Community>?, `in`: Community?): Boolean {
             if (data == null || `in` == null) {
                 return false
             }

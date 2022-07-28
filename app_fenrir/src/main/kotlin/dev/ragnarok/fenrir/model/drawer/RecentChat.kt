@@ -35,7 +35,7 @@ class RecentChat : AbsMenuItem {
         this.iconUrl = iconUrl
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         aid = `in`.readInt()
         peerId = `in`.readInt()
         title = `in`.readString()

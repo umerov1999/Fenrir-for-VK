@@ -31,7 +31,6 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.settingsThemePlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.ISettings
-import dev.ragnarok.fenrir.settings.NightMode
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
@@ -112,14 +111,14 @@ class AdditionalNavigationFragment : AbsNavigationFragment(), MenuListAdapter.Ac
         val ivHeaderNotifications =
             root.findViewById<ImageView>(R.id.header_navi_menu_notifications)
         ivHeaderDayNight.setOnClickListener {
-            if (Settings.get().ui().nightMode == NightMode.ENABLE || Settings.get()
-                    .ui().nightMode == NightMode.AUTO || Settings.get()
-                    .ui().nightMode == NightMode.FOLLOW_SYSTEM
+            if (Settings.get().ui().nightMode == AppCompatDelegate.MODE_NIGHT_YES || Settings.get()
+                    .ui().nightMode == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY || Settings.get()
+                    .ui().nightMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             ) {
-                Settings.get().ui().switchNightMode(NightMode.DISABLE)
+                Settings.get().ui().switchNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             } else {
-                Settings.get().ui().switchNightMode(NightMode.ENABLE)
+                Settings.get().ui().switchNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
         }
@@ -138,9 +137,9 @@ class AdditionalNavigationFragment : AbsNavigationFragment(), MenuListAdapter.Ac
             true
         }
         ivHeaderDayNight.setImageResource(
-            if (Settings.get().ui().nightMode == NightMode.ENABLE || Settings.get()
-                    .ui().nightMode == NightMode.AUTO || Settings.get()
-                    .ui().nightMode == NightMode.FOLLOW_SYSTEM
+            if (Settings.get().ui().nightMode == AppCompatDelegate.MODE_NIGHT_YES || Settings.get()
+                    .ui().nightMode == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY || Settings.get()
+                    .ui().nightMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             ) R.drawable.ic_outline_nights_stay else R.drawable.ic_outline_wb_sunny
         )
         mAdapter = MenuListAdapter(requireActivity(), mDrawerItems ?: mutableListOf(), this, true)

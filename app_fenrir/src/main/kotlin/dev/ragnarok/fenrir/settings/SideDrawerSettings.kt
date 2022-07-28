@@ -82,7 +82,10 @@ internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
     }
 
     companion object {
-        private fun findCategoryIndex(array: IntArray, @SideSwitchableCategory category: Int): Int {
+        internal fun findCategoryIndex(
+            array: IntArray,
+            @SideSwitchableCategory category: Int
+        ): Int {
             for (i in array.indices) {
                 if (array[i] == category) {
                     return i
@@ -91,7 +94,7 @@ internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
             throw IllegalStateException("Invalid category $category")
         }
 
-        private fun keyForCategory(@SideSwitchableCategory category: Int): String {
+        internal fun keyForCategory(@SideSwitchableCategory category: Int): String {
             return "side_drawer_category_$category"
         }
     }

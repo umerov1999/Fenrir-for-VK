@@ -1198,7 +1198,7 @@ class ChatPresenter(
         }
     }
 
-    private fun resolveRecordingTimeView() {
+    internal fun resolveRecordingTimeView() {
         if (isRecordingNow) {
             view?.displayRecordingDuration(audioRecordWrapper.currentRecordDuration)
         }
@@ -1455,7 +1455,7 @@ class ChatPresenter(
         view?.displayToolbarSubtitle(subtitle)
     }
 
-    private fun hideWriting() {
+    internal fun hideWriting() {
         view?.hideWriting()
     }
 

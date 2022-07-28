@@ -17,7 +17,7 @@ class SelectablePhotoWrapper : Parcelable, Comparable<SelectablePhotoWrapper>, I
         this.photo = photo
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         photo = `in`.readParcelable(Photo::class.java.classLoader)!!
         isSelected = `in`.readByte().toInt() != 0
         index = `in`.readInt()

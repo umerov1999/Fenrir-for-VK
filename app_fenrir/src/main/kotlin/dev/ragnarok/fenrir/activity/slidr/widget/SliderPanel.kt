@@ -649,12 +649,12 @@ class SliderPanel : FrameLayout {
          */post { screenHeight = height }
     }
 
-    private fun lock() {
+    internal fun lock() {
         dragHelper?.abort()
         isLocked = true
     }
 
-    private fun unlock() {
+    internal fun unlock() {
         dragHelper?.abort()
         isLocked = false
     }
@@ -676,7 +676,7 @@ class SliderPanel : FrameLayout {
         }
     }
 
-    private fun applyScrim(percent: Float) {
+    internal fun applyScrim(percent: Float) {
         if (config.getScrimColor() < 0) {
             return
         }
@@ -700,11 +700,11 @@ class SliderPanel : FrameLayout {
 
     companion object {
         private const val MIN_FLING_VELOCITY = 400 // dips per second
-        private fun clamp(value: Int, min: Int, max: Int): Int {
+        internal fun clamp(value: Int, min: Int, max: Int): Int {
             return min.coerceAtLeast(max.coerceAtMost(value))
         }
 
-        private fun toAlpha(percentage: Float): Int {
+        internal fun toAlpha(percentage: Float): Int {
             return (percentage * 255).toInt()
         }
     }

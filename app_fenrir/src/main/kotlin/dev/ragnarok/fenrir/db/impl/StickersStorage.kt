@@ -147,7 +147,7 @@ internal class StickersStorage(base: AppStorages) : AbsStorage(base), IStickersS
             lhs.position.compareTo(rhs.position)
         }
 
-        private fun createCv(entity: StickerSetEntity, pos: Int): ContentValues {
+        internal fun createCv(entity: StickerSetEntity, pos: Int): ContentValues {
             val cv = ContentValues()
             cv.put(BaseColumns._ID, entity.id)
             cv.put(StikerSetColumns.POSITION, pos)
@@ -175,7 +175,7 @@ internal class StickersStorage(base: AppStorages) : AbsStorage(base), IStickersS
             return cv
         }
 
-        private fun createCvStickersKeywords(
+        internal fun createCvStickersKeywords(
             entity: StickersKeywordsEntity,
             id: Int
         ): ContentValues {
@@ -200,7 +200,7 @@ internal class StickersStorage(base: AppStorages) : AbsStorage(base), IStickersS
             return cv
         }
 
-        private fun map(cursor: Cursor): StickerSetEntity {
+        internal fun map(cursor: Cursor): StickerSetEntity {
             val stickersJson = cursor.getBlob(StikerSetColumns.STICKERS)
             val iconJson = cursor.getBlob(StikerSetColumns.ICON)
             return StickerSetEntity(cursor.getInt(BaseColumns._ID))
@@ -224,7 +224,7 @@ internal class StickersStorage(base: AppStorages) : AbsStorage(base), IStickersS
                 .setTitle(cursor.getString(StikerSetColumns.TITLE))
         }
 
-        private fun mapStickersKeywords(cursor: Cursor): StickersKeywordsEntity {
+        internal fun mapStickersKeywords(cursor: Cursor): StickersKeywordsEntity {
             val stickersJson =
                 cursor.getBlob(StickersKeywordsColumns.STICKERS)
             val keywordsJson =

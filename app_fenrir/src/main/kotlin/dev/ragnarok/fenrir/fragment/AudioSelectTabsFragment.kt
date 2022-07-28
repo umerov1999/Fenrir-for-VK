@@ -63,7 +63,7 @@ class AudioSelectTabsFragment : BaseFragment(), MenuProvider {
         }.attach()
     }
 
-    private fun CreateAudiosFragment(option_menu: Int): Fragment {
+    internal fun CreateAudiosFragment(option_menu: Int): Fragment {
         return if (option_menu == PLAYLISTS) {
             val fragment = AudioPlaylistsFragment.newInstanceSelect(
                 accountId

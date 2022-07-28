@@ -544,7 +544,7 @@ class VkPhotosPresenter(
         private const val SAVE_ALBUM = "save-album"
         private const val SAVE_OWNER = "save-owner"
         private const val COUNT = 100
-        private fun wrappersOf(photos: List<Photo>): List<SelectablePhotoWrapper> {
+        internal fun wrappersOf(photos: List<Photo>): List<SelectablePhotoWrapper> {
             val wrappers: MutableList<SelectablePhotoWrapper> = ArrayList(photos.size)
             for (photo in photos) {
                 wrappers.add(SelectablePhotoWrapper(photo))

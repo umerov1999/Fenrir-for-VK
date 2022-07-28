@@ -61,7 +61,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
             }) { t -> onActualDataGetError(t) })
     }
 
-    private fun onActualDataGetError(t: Throwable) {
+    internal fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
         showError(
             getCauseIfRuntime(t)
@@ -150,7 +150,7 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
         }
     }
 
-    private fun resolveRefreshingView() {
+    internal fun resolveRefreshingView() {
         resumedView?.showRefreshing(
             actualDataLoading
         )

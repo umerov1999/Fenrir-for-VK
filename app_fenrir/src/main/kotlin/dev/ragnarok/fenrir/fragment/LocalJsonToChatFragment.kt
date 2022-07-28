@@ -219,23 +219,17 @@ class LocalJsonToChatFragment :
         if (mLoadingProgressBarLoaded && !refreshing) {
             mLoadingProgressBarLoaded = false
             val k = ObjectAnimator.ofFloat(mLoadingProgressBar, View.ALPHA, 0.0f).setDuration(1000)
-            k.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator?) {
-                }
-
-                override fun onAnimationEnd(animation: Animator?) {
+            k.addListener(object : StubAnimatorListener() {
+                override fun onAnimationEnd(animation: Animator) {
                     mLoadingProgressBar?.clearAnimationDrawable()
                     mLoadingProgressBar?.visibility = View.GONE
                     mLoadingProgressBar?.alpha = 1f
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                     mLoadingProgressBar?.clearAnimationDrawable()
                     mLoadingProgressBar?.visibility = View.GONE
                     mLoadingProgressBar?.alpha = 1f
-                }
-
-                override fun onAnimationRepeat(animation: Animator?) {
                 }
             })
             k.start()

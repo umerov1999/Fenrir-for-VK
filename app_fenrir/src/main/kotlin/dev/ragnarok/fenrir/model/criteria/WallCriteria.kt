@@ -32,6 +32,7 @@ class WallCriteria(val accountId: Int, val ownerId: Int) : Criteria() {
         const val MODE_OWNER = 1
         const val MODE_SCHEDULED = 2
         const val MODE_SUGGEST = 3
+        const val MODE_DONUT = 4
     }
 
     init {

@@ -72,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun parseUrl(url: String?) {
+    internal fun parseUrl(url: String?) {
         try {
             if (url == null) {
                 return
@@ -160,12 +160,12 @@ class LoginActivity : AppCompatActivity() {
                 .putExtra(EXTRA_GROUP_IDS, ids)
         }
 
-        private fun tryExtractAccessToken(url: String): String? {
+        internal fun tryExtractAccessToken(url: String): String? {
             return VKStringUtils.extractPattern(url, "access_token=(.*?)&")
         }
 
         @Throws(Exception::class)
-        private fun tryExtractAccessTokens(url: String): ArrayList<Token> {
+        internal fun tryExtractAccessTokens(url: String): ArrayList<Token> {
             val p = Pattern.compile("access_token_(\\d*)=(.*?)(&|$)")
             val tokens = ArrayList<Token>()
             val matcher = p.matcher(url)
@@ -182,7 +182,7 @@ class LoginActivity : AppCompatActivity() {
             return tokens
         }
 
-        private fun tryExtractUserId(url: String): String? {
+        internal fun tryExtractUserId(url: String): String? {
             return VKStringUtils.extractPattern(url, "user_id=(\\d*)")
         }
 

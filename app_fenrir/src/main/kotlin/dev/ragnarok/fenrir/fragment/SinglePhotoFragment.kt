@@ -13,14 +13,11 @@ import android.view.ViewGroup
 import androidx.annotation.IdRes
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.Callback
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.App.Companion.instance
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.BackPressCallback
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
@@ -199,7 +196,7 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
         mDownload?.visibility = if (mFullscreen) View.GONE else View.VISIBLE
     }
 
-    private fun toggleFullscreen() {
+    internal fun toggleFullscreen() {
         mFullscreen = !mFullscreen
         resolveFullscreenViews()
     }
@@ -232,23 +229,17 @@ class SinglePhotoFragment : BaseFragment(), GoBackCallback, BackPressCallback {
             if (mAnimationLoaded && !mLoadingNow && !forceStop) {
                 mAnimationLoaded = false
                 val k = ObjectAnimator.ofFloat(progress, View.ALPHA, 0.0f).setDuration(1000)
-                k.addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationStart(animation: Animator?) {
-                    }
-
-                    override fun onAnimationEnd(animation: Animator?) {
+                k.addListener(object : StubAnimatorListener() {
+                    override fun onAnimationEnd(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
                     }
 
-                    override fun onAnimationCancel(animation: Animator?) {
+                    override fun onAnimationCancel(animation: Animator) {
                         progress.clearAnimationDrawable()
                         progress.visibility = View.GONE
                         progress.alpha = 1f
-                    }
-
-                    override fun onAnimationRepeat(animation: Animator?) {
                     }
                 })
                 k.start()

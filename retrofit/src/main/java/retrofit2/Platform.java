@@ -61,7 +61,7 @@ abstract class Platform {
     Object invokeDefaultMethod(
             Method method, Class<?> declaringClass, Object proxy, Object... args) throws Throwable;
 
-    private static final class Android21 extends Platform {
+    static final class Android21 extends Platform {
         @Override
         boolean isDefaultMethod(Method method) {
             return false;
@@ -93,7 +93,7 @@ abstract class Platform {
 
     // Only used on Android API 24+
     @TargetApi(24)
-    private static final class Android24 extends Platform {
+    static final class Android24 extends Platform {
         private @Nullable
         Constructor<Lookup> lookupConstructor;
 

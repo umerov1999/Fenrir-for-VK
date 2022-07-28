@@ -110,7 +110,7 @@ class LogsPresenter(savedInstanceState: Bundle?) :
     }
 
     companion object {
-        private fun createTypes(): MutableList<LogEventType> {
+        internal fun createTypes(): MutableList<LogEventType> {
             val types: MutableList<LogEventType> = ArrayList()
             types.add(LogEventType(LogEvent.Type.ERROR, R.string.log_type_error).setActive(true))
             return types

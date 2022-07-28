@@ -280,7 +280,7 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
     }
 
     companion object {
-        private fun convertRoleToAdminLevel(role: String): Int {
+        internal fun convertRoleToAdminLevel(role: String): Int {
             return when {
                 "moderator".equals(role, ignoreCase = true) -> {
                     VKApiCommunity.AdminLevel.MODERATOR
@@ -295,7 +295,7 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
             }
         }
 
-        private fun convertAdminLevelToRole(adminLevel: Int): String {
+        internal fun convertAdminLevelToRole(adminLevel: Int): String {
             when (adminLevel) {
                 VKApiCommunity.AdminLevel.MODERATOR -> return "moderator"
                 VKApiCommunity.AdminLevel.EDITOR -> return "editor"

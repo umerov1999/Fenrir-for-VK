@@ -3,6 +3,7 @@ package dev.ragnarok.filegallery.settings
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Environment
+import androidx.appcompat.app.AppCompatDelegate
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Constants.forceDeveloperMode
@@ -51,7 +52,7 @@ internal class MainSettings(context: Context) : IMainSettings {
         preferences.edit().putString("app_theme", key).apply()
     }
 
-    override fun switchNightMode(@NightMode key: Int) {
+    override fun switchNightMode(@AppCompatDelegate.NightMode key: Int) {
         val preferences = getPreferences(app)
         preferences.edit().putString("night_switch", key.toString()).apply()
     }
@@ -62,13 +63,14 @@ internal class MainSettings(context: Context) : IMainSettings {
         return nightMode == Configuration.UI_MODE_NIGHT_YES
     }
 
-    @NightMode
+    @AppCompatDelegate.NightMode
     override fun getNightMode(): Int {
         return try {
             getPreferences(app)
-                .getString("night_switch", NightMode.FOLLOW_SYSTEM.toString())!!.trim().toInt()
+                .getString("night_switch", AppCompatDelegate.MODE_NIGHT_YES.toString())!!.trim()
+                .toInt()
         } catch (e: Exception) {
-            NightMode.FOLLOW_SYSTEM
+            AppCompatDelegate.MODE_NIGHT_YES
         }
     }
 

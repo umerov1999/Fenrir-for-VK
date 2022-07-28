@@ -10,7 +10,7 @@ class StringNextFrom : AbsNextFrom {
         this.nextFrom = nextFrom
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         nextFrom = `in`.readString()
     }
 

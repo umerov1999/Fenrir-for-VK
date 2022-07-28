@@ -21,7 +21,7 @@ class AttachmentEntry : Parcelable {
         id = ID_GEN.incrementAndGet()
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         if (id > ID_GEN.toInt()) {
             ID_GEN.set(id)

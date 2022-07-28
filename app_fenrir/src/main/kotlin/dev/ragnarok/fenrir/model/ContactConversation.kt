@@ -26,7 +26,7 @@ class ContactConversation : Parcelable {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         title = `in`.readString()
         isContact = `in`.readByte().toInt() != 0

@@ -289,7 +289,7 @@ internal class UsersApi(accountId: Int, provider: IServiceProvider) :
     }
 
     companion object {
-        private fun createFrom(response: UserWallInfoResponse): VKApiUser {
+        internal fun createFrom(response: UserWallInfoResponse): VKApiUser {
             val user = response.users?.get(0) ?: throw NotFoundException()
             if (user.counters == null) {
                 user.counters = VKApiUser.Counters()

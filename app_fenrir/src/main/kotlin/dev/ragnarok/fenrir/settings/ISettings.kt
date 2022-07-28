@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.settings
 
 import android.content.Context
 import android.net.Uri
+import androidx.appcompat.app.AppCompatDelegate
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.api.model.LocalServerSettings
 import dev.ragnarok.fenrir.api.model.PlayerCoverBackgroundSettings
@@ -316,7 +317,7 @@ interface ISettings {
 
     interface IUISettings {
         fun setMainTheme(key: String)
-        fun switchNightMode(@NightMode key: Int)
+        fun switchNightMode(@AppCompatDelegate.NightMode key: Int)
         val mainThemeKey: String
 
         @get:AvatarStyle

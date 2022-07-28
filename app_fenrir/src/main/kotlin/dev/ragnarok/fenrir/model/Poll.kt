@@ -39,7 +39,7 @@ class Poll : AbsModel {
     var photo: String? = null
         private set
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         creationTime = `in`.readLong()
@@ -184,7 +184,7 @@ class Poll : AbsModel {
             this.id = id
         }
 
-        private constructor(`in`: Parcel) : super(`in`) {
+        internal constructor(`in`: Parcel) : super(`in`) {
             id = `in`.readInt()
             text = `in`.readString()
             voteCount = `in`.readInt()

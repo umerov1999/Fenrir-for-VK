@@ -82,7 +82,7 @@ class AudioRecyclerAdapter(
     private var iSSelectMode: Boolean
     private var mClickListener: ClickListener? = null
     private var currAudio: Audio?
-    private fun deleteTrack(accountId: Int, audio: Audio, position: Int) {
+    internal fun deleteTrack(accountId: Int, audio: Audio, position: Int) {
         audioListDisposable = if (playlist_id == null) {
             mAudioInteractor.delete(accountId, audio.id, audio.ownerId).fromIOToMain().subscribe(
                 {
@@ -106,14 +106,14 @@ class AudioRecyclerAdapter(
         }
     }
 
-    private fun addTrack(accountId: Int, audio: Audio) {
+    internal fun addTrack(accountId: Int, audio: Audio) {
         audioListDisposable = mAudioInteractor.add(accountId, audio, null).fromIOToMain().subscribe(
             { createCustomToast(mContext).showToast(R.string.added) }) { t ->
             createCustomToast(mContext).showToastThrowable(t)
         }
     }
 
-    private fun getMp3AndBitrate(accountId: Int, audio: Audio) {
+    internal fun getMp3AndBitrate(accountId: Int, audio: Audio) {
         val mode = audio.needRefresh()
         if (mode.first) {
             audioListDisposable =
@@ -166,7 +166,7 @@ class AudioRecyclerAdapter(
         this.iSSelectMode = iSSelectMode
     }
 
-    private fun get_lyrics(audio: Audio) {
+    internal fun get_lyrics(audio: Audio) {
         audioListDisposable =
             mAudioInteractor.getLyrics(Settings.get().accounts().current, audio.lyricsId)
                 .fromIOToMain()
@@ -287,7 +287,7 @@ class AudioRecyclerAdapter(
         }
     }
 
-    private fun updateDownloadState(holder: AudioHolder, audio: Audio) {
+    internal fun updateDownloadState(holder: AudioHolder, audio: Audio) {
         if (audio.downloadIndicator == 2) {
             holder.saved.setImageResource(R.drawable.remote_cloud)
             Utils.setColorFilter(holder.saved, CurrentTheme.getColorSecondary(mContext))

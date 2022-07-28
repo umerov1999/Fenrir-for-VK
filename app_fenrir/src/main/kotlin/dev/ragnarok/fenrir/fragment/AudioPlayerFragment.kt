@@ -888,7 +888,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
     /**
      * @param delay When to update
      */
-    private fun queueNextRefresh(delay: Long) {
+    internal fun queueNextRefresh(delay: Long) {
         val message = mTimeHandler?.obtainMessage(REFRESH_TIME)
         mTimeHandler?.removeMessages(REFRESH_TIME)
         if (message != null) {
@@ -910,7 +910,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
      * @param repcnt The repeat count
      * @param deltal  The long press duration
      */
-    private fun scanBackward(repcnt: Int, deltal: Long) {
+    internal fun scanBackward(repcnt: Int, deltal: Long) {
         var delta = deltal
         if (MusicPlaybackController.mService == null) {
             return
@@ -948,7 +948,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
      * @param repcnt The repeat count
      * @param deltal  The long press duration
      */
-    private fun scanForward(repcnt: Int, deltal: Long) {
+    internal fun scanForward(repcnt: Int, deltal: Long) {
         var delta = deltal
         if (MusicPlaybackController.mService == null) {
             return
@@ -984,7 +984,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         mCurrentTime?.text = MusicPlaybackController.makeTimeString(requireActivity(), pos / 1000)
     }
 
-    private fun refreshCurrentTime(): Long {
+    internal fun refreshCurrentTime(): Long {
         if (!MusicPlaybackController.isInitialized) {
             mCurrentTime?.text = "--:--"
             mTotalTime?.text = "--:--"

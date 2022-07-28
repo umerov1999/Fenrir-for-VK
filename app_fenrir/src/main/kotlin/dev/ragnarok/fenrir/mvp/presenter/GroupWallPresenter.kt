@@ -27,13 +27,14 @@ class GroupWallPresenter(
     private val context: Context,
     savedInstanceState: Bundle?
 ) : AbsWallPresenter<IGroupWallView>(accountId, ownerId, savedInstanceState) {
-    var community: Community
+    private var community: Community
     private val settings: IAccountsSettings
     private val faveInteractor: IFaveInteractor
     private val ownersRepository: IOwnersRepository
     private val communitiesInteractor: ICommunitiesInteractor
     private val wallsRepository: IWallsRepository
     private val filters: MutableList<PostFilter>
+    private val menus: MutableList<CommunityDetails.Menu>
     private var details: CommunityDetails
     private fun resolveBaseCommunityViews() {
         view?.displayBaseCommunityData(
@@ -100,6 +101,9 @@ class GroupWallPresenter(
         if (details != null) {
             this.details = details
         }
+        menus.clear()
+        menus.addAll(details?.getMenu().orEmpty())
+        view?.notifyWallMenusChanged(menus.isEmpty())
         filters.clear()
         filters.addAll(createPostFilters())
         syncFiltersWithSelectedMode()
@@ -120,6 +124,7 @@ class GroupWallPresenter(
         filters.add(PostFilter(WallCriteria.MODE_ALL, getString(R.string.all_posts)))
         filters.add(PostFilter(WallCriteria.MODE_OWNER, getString(R.string.owner_s_posts)))
         filters.add(PostFilter(WallCriteria.MODE_SUGGEST, getString(R.string.suggests)))
+        filters.add(PostFilter(WallCriteria.MODE_DONUT, getString(R.string.donut)))
         if (isAdmin) {
             filters.add(PostFilter(WallCriteria.MODE_SCHEDULED, getString(R.string.scheduled)))
         }
@@ -142,6 +147,7 @@ class GroupWallPresenter(
                 WallCriteria.MODE_OWNER -> filter.setCount(details.getOwnerWallCount())
                 WallCriteria.MODE_SCHEDULED -> filter.setCount(details.getPostponedWallCount())
                 WallCriteria.MODE_SUGGEST -> filter.setCount(details.getSuggestedWallCount())
+                WallCriteria.MODE_DONUT -> filter.setCount(details.getDonutWallCount())
             }
         }
     }
@@ -149,10 +155,19 @@ class GroupWallPresenter(
     override fun onGuiCreated(viewHost: IGroupWallView) {
         super.onGuiCreated(viewHost)
         viewHost.displayWallFilters(filters)
+        viewHost.displayWallMenus(menus)
         resolveBaseCommunityViews()
         resolveMenu()
         resolveCounters()
         resolveActionButtons()
+    }
+
+    fun fireMenuClick(menu: CommunityDetails.Menu) {
+        menu.url?.let { view?.openVKURL(accountId, it) }
+    }
+
+    fun fireAvatarPhotoClick(url: String?, prefix: String?) {
+        view?.onSinglePhoto(url ?: (community.originalAvatar ?: return), prefix, community)
     }
 
     fun firePrimaryButtonClick() {
@@ -577,6 +592,7 @@ class GroupWallPresenter(
         settings = Includes.settings.accounts()
         wallsRepository = walls
         filters = ArrayList()
+        menus = ArrayList()
         filters.addAll(createPostFilters())
         syncFiltersWithSelectedMode()
         syncFilterCounters()

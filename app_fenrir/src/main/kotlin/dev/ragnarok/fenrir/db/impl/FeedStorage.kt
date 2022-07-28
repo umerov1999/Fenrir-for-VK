@@ -270,7 +270,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             return cv
         }
 
-        private fun mapList(cursor: Cursor): FeedListEntity {
+        internal fun mapList(cursor: Cursor): FeedListEntity {
             val id = cursor.getInt(BaseColumns._ID)
             val title = cursor.getString(FeedListsColumns.TITLE)
             val entity = FeedListEntity(id).setTitle(title)

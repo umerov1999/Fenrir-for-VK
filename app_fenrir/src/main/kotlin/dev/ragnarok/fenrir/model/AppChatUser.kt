@@ -18,7 +18,7 @@ class AppChatUser : Parcelable, Identificable {
         this.invitedBy = invitedBy
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         inviter =
             `in`.readParcelable<ParcelableOwnerWrapper>(ParcelableOwnerWrapper::class.java.classLoader)!!
                 .get()

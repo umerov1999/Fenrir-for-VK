@@ -9,7 +9,7 @@ class SpinnerOption : BaseOption {
     lateinit var available: ArrayList<Entry>
 
     constructor(key: Int, title: Int, active: Boolean) : super(SPINNER, key, title, active)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         value = `in`.readParcelable(Entry::class.java.classLoader)
         available = `in`.createTypedArrayList(Entry.CREATOR)!!
     }
@@ -63,7 +63,7 @@ class SpinnerOption : BaseOption {
             this.name = name
         }
 
-        private constructor(`in`: Parcel) {
+        internal constructor(`in`: Parcel) {
             id = `in`.readInt()
             name = `in`.readInt()
         }

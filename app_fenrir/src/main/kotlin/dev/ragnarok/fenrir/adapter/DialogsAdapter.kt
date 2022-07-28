@@ -51,7 +51,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         this.showHidden = showHidden
     }
 
-    private fun initStartOfTodayDate() {
+    internal fun initStartOfTodayDate() {
         // А - Аптемезация
         mStartOfToday = Utils.startOfTodayMillis()
     }

@@ -78,7 +78,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
     }
 
     companion object {
-        private fun findCategoryIndex(array: IntArray, @SwitchableCategory category: Int): Int {
+        internal fun findCategoryIndex(array: IntArray, @SwitchableCategory category: Int): Int {
             for (i in array.indices) {
                 if (array[i] == category) {
                     return i
@@ -87,7 +87,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
             throw IllegalStateException("Invalid category $category")
         }
 
-        private fun keyForCategory(@SwitchableCategory category: Int): String {
+        internal fun keyForCategory(@SwitchableCategory category: Int): String {
             return "drawer_category_$category"
         }
     }

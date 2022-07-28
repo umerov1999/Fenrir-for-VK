@@ -167,7 +167,7 @@ class VideosListPresenter(
         resolveRefreshingView()
     }
 
-    private fun setRequestNow(requestNow: Boolean) {
+    internal fun setRequestNow(requestNow: Boolean) {
         this.requestNow = requestNow
         resolveRefreshingView()
     }
@@ -207,7 +207,7 @@ class VideosListPresenter(
             }) { throwable -> onListGetError(throwable) })
     }
 
-    private fun onListGetError(throwable: Throwable) {
+    internal fun onListGetError(throwable: Throwable) {
         setRequestNow(false)
         showError(throwable)
     }

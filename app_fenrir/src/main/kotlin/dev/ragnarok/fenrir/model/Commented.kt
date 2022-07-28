@@ -24,7 +24,7 @@ class Commented : Parcelable {
         this.accessKey = accessKey
     }
 
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         sourceId = `in`.readInt()
         sourceOwnerId = `in`.readInt()
         sourceType = `in`.readInt()

@@ -80,12 +80,18 @@ object VkLinkParser {
         }
     }
 
-    private val patterns: Patterns by lazy {
+    internal val patterns: Patterns by lazy {
         Patterns()
     }
 
     fun parse(string: String): AbsLink? {
         if (!string.contains("vk.com")) {
+            return null
+        }
+        if (string == "vk.com" || string == "m.vk.com" || string.contains("login.vk.com") || string.contains(
+                "vk.com/login"
+            )
+        ) {
             return null
         }
         var vkLink = parseWallCommentThreadLink(string)

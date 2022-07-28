@@ -93,7 +93,7 @@ class Message : AbsModel, Identificable, ISelectable {
         this.id = id
     }
 
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         accountId = `in`.readInt()
         id = `in`.readInt()
         body = `in`.readString()

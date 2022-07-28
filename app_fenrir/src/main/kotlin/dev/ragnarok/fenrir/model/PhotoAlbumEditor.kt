@@ -12,7 +12,7 @@ class PhotoAlbumEditor : Parcelable {
     private var uploadByAdminsOnly = false
 
     private constructor()
-    private constructor(`in`: Parcel) {
+    internal constructor(`in`: Parcel) {
         title = `in`.readString()
         description = `in`.readString()
         privacyView = `in`.readParcelable(Privacy::class.java.classLoader)

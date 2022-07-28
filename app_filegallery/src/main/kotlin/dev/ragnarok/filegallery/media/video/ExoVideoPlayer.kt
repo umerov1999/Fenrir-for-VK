@@ -121,7 +121,7 @@ class ExoVideoPlayer(
         player?.setVideoSurfaceHolder(holder)
     }
 
-    private fun onVideoSizeChanged(w: Int, h: Int) {
+    internal fun onVideoSizeChanged(w: Int, h: Int) {
         for (listener in videoSizeChangeListeners) {
             listener.onVideoSizeChanged(this, w, h)
         }
@@ -148,7 +148,7 @@ class ExoVideoPlayer(
     }
 
     companion object {
-        private fun createMediaSource(context: Context, url: String?): MediaSource {
+        internal fun createMediaSource(context: Context, url: String?): MediaSource {
             val userAgent: String = Constants.USER_AGENT
             return if (url?.contains("file://") == true || url?.contains("content://") == true) {
                 ProgressiveMediaSource.Factory(DefaultDataSource.Factory(context))

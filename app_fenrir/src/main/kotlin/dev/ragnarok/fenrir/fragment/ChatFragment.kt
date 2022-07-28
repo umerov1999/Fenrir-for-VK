@@ -618,7 +618,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             }
         }
 
-    private fun createStartConfig(): ChatConfig {
+    internal fun createStartConfig(): ChatConfig {
         val config = ChatConfig()
 
         config.setCloseOnSend(requireActivity() is SendAttachmentsActivity)
@@ -1137,7 +1137,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         openRequestAudioVideoDoc.launch(intent)
     }
 
-    private fun onEditCameraClick() {
+    internal fun onEditCameraClick() {
         if (AppPerms.hasCameraPermission(requireContext())) {
             presenter?.fireEditCameraClick()
         } else {
@@ -1261,12 +1261,12 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         editAttachmentsHolder?.notifyAttachmentRemoved(index)
     }
 
-    private fun onEditAttachmentSaveClick() {
+    internal fun onEditAttachmentSaveClick() {
         hideEditAttachmentsDialog()
         presenter?.fireEditMessageSaveClick()
     }
 
-    private fun hideEditAttachmentsDialog() {
+    internal fun hideEditAttachmentsDialog() {
         editAttachmentsDialog?.dismiss()
     }
 
@@ -1430,7 +1430,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
     }
 
-    private fun insertDomain(owner: Owner) {
+    internal fun insertDomain(owner: Owner) {
         if (owner.domain.nonNullNoEmpty()) {
             appendMessageText("@" + owner.domain + ",")
         } else {
@@ -1473,7 +1473,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             })
     }
 
-    private fun showConversationAttachments(accountId: Int, peerId: Int, type: String) {
+    internal fun showConversationAttachments(accountId: Int, peerId: Int, type: String) {
         PlaceFactory.getConversationAttachmentsPlace(accountId, peerId, type)
             .tryOpenWith(requireActivity())
     }
@@ -1932,7 +1932,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     @SuppressLint("MissingPermission")
     @Suppress("DEPRECATION")
-    private fun isNetworkAvailable(context: Context): Boolean {
+    internal fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

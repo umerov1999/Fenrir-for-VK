@@ -16,7 +16,7 @@ class CopyFeedback : Feedback {
         private set
 
     constructor(@FeedbackType type: Int) : super(type)
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         what = readModel(`in`)
         owners = readOwners(`in`)
     }

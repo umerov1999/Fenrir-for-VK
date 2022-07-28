@@ -17,12 +17,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.textview.MaterialTextView
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.adapter.FileManagerSelectAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.listener.UpdatableNavigation
@@ -175,23 +172,17 @@ class FileManagerSelectFragment :
         if (mAnimationLoaded && !visible) {
             mAnimationLoaded = false
             val k = ObjectAnimator.ofFloat(loading, View.ALPHA, 0.0f).setDuration(1000)
-            k.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator?) {
-                }
-
-                override fun onAnimationEnd(animation: Animator?) {
+            k.addListener(object : StubAnimatorListener() {
+                override fun onAnimationEnd(animation: Animator) {
                     loading?.clearAnimationDrawable()
                     loading?.visibility = View.GONE
                     loading?.alpha = 1f
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                     loading?.clearAnimationDrawable()
                     loading?.visibility = View.GONE
                     loading?.alpha = 1f
-                }
-
-                override fun onAnimationRepeat(animation: Animator?) {
                 }
             })
             k.start()

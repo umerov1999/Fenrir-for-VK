@@ -576,7 +576,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         }
     }
 
-    private fun delete(account: Account) {
+    internal fun delete(account: Account) {
         Settings.get()
             .accounts()
             .removeAccessToken(account.getObjectId())
@@ -599,7 +599,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         resolveEmptyText()
     }
 
-    private fun setAsActive(account: Account) {
+    internal fun setAsActive(account: Account) {
         Settings.get()
             .accounts().current = account.getObjectId()
         mAdapter?.notifyDataSetChanged()
@@ -883,7 +883,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         menu.findItem(R.id.export_accounts).isVisible = ((mData?.size ?: 0) > 0)
     }
 
-    private fun createShortcut(account: Account) {
+    internal fun createShortcut(account: Account) {
         if (account.getObjectId() < 0) {
             return  // this is community
         }

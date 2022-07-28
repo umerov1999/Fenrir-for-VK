@@ -46,7 +46,7 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
             }) { requestActualFeedLists() })
     }
 
-    private fun requestActualFeedLists() {
+    internal fun requestActualFeedLists() {
         val accountId = accountId
         appendDisposable(
             feedInteractor.getActualFeedLists(accountId)
@@ -464,7 +464,7 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     companion object {
-        private fun createDefaultFeedSources(): List<FeedSource> {
+        internal fun createDefaultFeedSources(): List<FeedSource> {
             val data: MutableList<FeedSource> = ArrayList(8)
             data.add(FeedSource(null, R.string.news_feed, false))
             data.add(FeedSource("likes", R.string.likes_posts, false))

@@ -22,7 +22,7 @@ class Link : AbsModel {
         private set
 
     constructor()
-    private constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) : super(`in`) {
         url = `in`.readString()
         title = `in`.readString()
         caption = `in`.readString()
