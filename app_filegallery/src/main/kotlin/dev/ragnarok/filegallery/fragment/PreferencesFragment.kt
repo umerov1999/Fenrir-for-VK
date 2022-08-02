@@ -579,6 +579,12 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 iconRes = R.drawable.developer_mode
             }
 
+            switch("open_folder_new_window") {
+                defaultValue = false
+                titleRes = R.string.open_folder_new_window
+                dependency = "developer_mode"
+            }
+
             multiLineText("videos_ext", parentFragmentManager) {
                 titleRes = R.string.video_ext
                 defaultValue = setOf("gif", "mp4", "avi", "mpeg")

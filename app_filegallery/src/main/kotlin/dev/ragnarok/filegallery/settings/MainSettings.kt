@@ -67,10 +67,11 @@ internal class MainSettings(context: Context) : IMainSettings {
     override fun getNightMode(): Int {
         return try {
             getPreferences(app)
-                .getString("night_switch", AppCompatDelegate.MODE_NIGHT_YES.toString())!!.trim()
+                .getString("night_switch", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())!!
+                .trim()
                 .toInt()
         } catch (e: Exception) {
-            AppCompatDelegate.MODE_NIGHT_YES
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
     }
 
@@ -319,4 +320,7 @@ internal class MainSettings(context: Context) : IMainSettings {
             Transformers_Types.DEPTH_TRANSFORMER
         }
     }
+
+    override val isOpen_folder_new_window: Boolean
+        get() = getPreferences(app).getBoolean("open_folder_new_window", false)
 }

@@ -110,4 +110,12 @@ interface ILocalServerService {
     fun rebootPC(
         @Field("type") type: String?
     ): Single<BaseResponse<Int>>
+
+    @FormUrlEncoded
+    @POST("audio.upload")
+    fun uploadAudio(
+        @Field("hash") hash: String?,
+        @Field("access_token") access_token: String?,
+        @Field("user_agent") user_agent: String?
+    ): Single<BaseResponse<Int>>
 }

@@ -127,7 +127,7 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:$exifinterfaceVersion")
     implementation("io.reactivex.rxjava3:rxjava:$rxJavaVersion")
     implementation("com.google.firebase:firebase-database:20.0.5")
-    implementation("com.google.firebase:firebase-datatransport:18.1.5")
+    implementation("com.google.firebase:firebase-datatransport:18.1.6")
     implementation("com.google.firebase:firebase-messaging:23.0.6") {
         exclude group: "com.google.firebase", module: "firebase-installations"
     }

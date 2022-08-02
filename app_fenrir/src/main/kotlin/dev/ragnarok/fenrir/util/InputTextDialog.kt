@@ -57,10 +57,12 @@ class InputTextDialog internal constructor(val context: Context) {
         }
         alertDialog.setOnDismissListener(onDismissListener)
         alertDialog.show()
-        input.post {
-            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-            imm?.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
-        }
+        input.requestFocus()
+        input.postDelayed({
+            val inputMethodManager =
+                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            inputMethodManager?.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
+        }, 500)
     }
 
     interface Callback {

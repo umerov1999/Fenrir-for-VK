@@ -27,4 +27,5 @@ interface ILocalServerInteractor {
     fun update_file_name(hash: String?, name: String?): Single<Int>
     fun rebootPC(type: String?): Single<Int>
     fun fsGet(dir: String?): Single<List<FileRemote>>
+    fun uploadAudio(hash: String?): Single<Int>
 }

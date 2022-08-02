@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:theme="@style/Theme.Toolbar.Surface"
+            android:theme="@style/Theme.Toolbar.Colored"
             app:layout_scrollFlags="scroll|enterAlways|snap" />
 
         <RelativeLayout
@@ -72,6 +72,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
                     android:gravity="end"
+                    android:textColor="?white_color"
                     android:textSize="@dimen/font_size_big_title"
                     tools:text="Алексей Иванов" />
 
@@ -81,6 +82,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
                     android:gravity="end"
+                    android:textColor="?white_color"
                     android:textSize="@dimen/font_size_subtitle"
                     tools:text="id90456655" />
 
@@ -91,9 +93,10 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif-light"
                     android:gravity="end"
+                    android:textColor="?white_color"
                     android:textColorLink="?android:textColorPrimary"
                     android:textSize="@dimen/font_size_subtitle"
-                    tools:text="Заблокирован Русланом Колбасой 20 мая 2017 в 16:13" />
+                    tools:text="Заблокирован 20 мая 2022 в 16:13" />
 
             </LinearLayout>
 

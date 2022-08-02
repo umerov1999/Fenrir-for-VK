@@ -15,14 +15,14 @@
     <string-array name="night_mode_values" translatable="false">
         <item>1</item>
         <item>2</item>
-        <item>0</item>
+        <item>3</item>
         <item>-1</item>
     </string-array>
 
     <string-array name="night_mode_names">
         <item>Выкл</item>
         <item>Вкл</item>
-        <item>Автоматически (по времени)</item>
+        <item>Автоматически</item>
         <item>Как в системе</item>
     </string-array>
 
@@ -325,4 +325,5 @@
     <string name="ongoing_player_notification">Непрерывное уведомление</string>
     <string name="files_uploading_notification_title">Загрузка файлов</string>
     <string name="play_remote">Играть через сервер</string>
+    <string name="open_folder_new_window">Открывать директории в новом окне</string>
 </resources>

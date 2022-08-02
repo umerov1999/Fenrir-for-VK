@@ -35,6 +35,7 @@ import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.menu.options.AudioLocalOption
+import dev.ragnarok.fenrir.module.FileUtils
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
@@ -48,6 +49,7 @@ import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.disposables.Disposable
@@ -93,6 +95,40 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                 }
             } catch (e: RuntimeException) {
                 v.onError(e)
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun stripMetadata(url: String): Completable {
+        return Completable.create {
+            try {
+                val cursor = mContext.contentResolver.query(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    arrayOf(MediaStore.MediaColumns.DATA),
+                    BaseColumns._ID + "=? ",
+                    arrayOf(Uri.parse(url).lastPathSegment),
+                    null
+                )
+                if (cursor != null && cursor.moveToFirst()) {
+                    val fl =
+                        cursor.getString(MediaStore.MediaColumns.DATA)
+                    cursor.close()
+                    if (fl.nonNullNoEmpty()) {
+                        if (FileUtils.audioTagStrip(fl)) {
+                            it.onComplete()
+                            return@create
+                        } else {
+                            it.onError(Throwable("Can't strip metadata"))
+                        }
+                    } else {
+                        it.onError(Throwable("Can't find file"))
+                    }
+                } else {
+                    it.onError(Throwable("Can't find file"))
+                }
+            } catch (e: RuntimeException) {
+                it.onError(e)
             }
         }
     }
@@ -199,6 +235,14 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                 true
             )
         )
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.strip_metadata_item_audio,
+                mContext.getString(R.string.strip_metadata),
+                R.drawable.ic_outline_delete,
+                true
+            )
+        )
         menus.header(
             Utils.firstNonEmptyString(audio.artist, " ") + " - " + audio.title,
             R.drawable.song,
@@ -227,6 +271,22 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                             audio
                         )
                         AudioLocalOption.bitrate_item_audio -> getLocalBitrate(audio.url)
+                        AudioLocalOption.strip_metadata_item_audio -> {
+                            audio.url?.let { it ->
+                                audioListDisposable = stripMetadata(it).fromIOToMain().subscribe(
+                                    {
+                                        CustomSnackbars.createCustomSnackbars(view)
+                                            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                                            ?.coloredSnack(
+                                                R.string.success,
+                                                Color.parseColor("#AA48BE2D")
+                                            )
+                                            ?.show()
+                                    },
+                                    { createCustomToast(mContext).showToastError(it.localizedMessage) }
+                                )
+                            }
+                        }
                         AudioLocalOption.delete_item_audio -> try {
                             if (mContext.getContentResolver()
                                     .delete(Uri.parse(audio.url), null, null) == 1

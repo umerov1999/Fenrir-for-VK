@@ -19,6 +19,7 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.ColorInt
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import dev.ragnarok.filegallery.R
@@ -221,6 +222,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
                 or View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onPictureInPictureModeChanged(
         isInPictureInPictureMode: Boolean,
         newConfig: Configuration

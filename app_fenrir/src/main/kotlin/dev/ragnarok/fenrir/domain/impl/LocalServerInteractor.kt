@@ -186,4 +186,8 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             listEmptyIfNull(it.items)
         }
     }
+
+    override fun uploadAudio(hash: String?): Single<Int> {
+        return networker.localServerApi().uploadAudio(hash)
+    }
 }

@@ -34,9 +34,10 @@
         android:elevation="2dp"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <FrameLayout
+            android:id="@+id/fragment_user_profile_avatar_container"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="40dp"
             android:layout_marginEnd="16dp"
@@ -44,44 +45,36 @@
             android:elevation="2dp"
             android:fitsSystemWindows="true">
 
-            <FrameLayout
-                android:id="@+id/fragment_user_profile_avatar_container"
+            <ImageView
+                android:id="@+id/header_navi_menu_avatar"
                 android:layout_width="72dp"
                 android:layout_height="72dp"
-                android:layout_centerInParent="true">
+                android:background="@drawable/sel_button_round_5_white"
+                android:contentDescription="@string/open_avatar"
+                android:padding="1.5dp" />
 
-                <ImageView
-                    android:id="@+id/header_navi_menu_avatar"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:background="@drawable/sel_button_round_5_white"
-                    android:contentDescription="@string/open_avatar"
-                    android:padding="1.5dp" />
+            <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+                android:id="@+id/donated_anim"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:visibility="gone" />
 
-                <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
-                    android:id="@+id/donated_anim"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/item_verified"
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
-                    android:layout_gravity="top|end"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/sel_button_round_5_white"
-                    android:backgroundTint="#009900"
-                    android:backgroundTintMode="add"
-                    android:contentDescription="@null"
-                    android:padding="4dp"
-                    android:src="@drawable/verified"
-                    android:visibility="gone"
-                    app:tint="?white_color" />
-            </FrameLayout>
-
-        </RelativeLayout>
+            <ImageView
+                android:id="@+id/item_verified"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_gravity="top|end"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/sel_button_round_5_white"
+                android:backgroundTint="#009900"
+                android:backgroundTintMode="add"
+                android:contentDescription="@null"
+                android:padding="4dp"
+                android:src="@drawable/verified"
+                android:visibility="gone"
+                app:tint="?white_color" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

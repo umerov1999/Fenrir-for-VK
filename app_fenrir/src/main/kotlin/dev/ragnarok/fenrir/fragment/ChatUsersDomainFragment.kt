@@ -60,6 +60,7 @@ class ChatUsersDomainFragment :
                 return false
             }
         })
+        mySearchView.activateKeyboard()
         mAdapter = ChatMembersListDomainAdapter(requireActivity(), emptyList())
         mAdapter?.setActionListener(this)
         recyclerView.adapter = mAdapter

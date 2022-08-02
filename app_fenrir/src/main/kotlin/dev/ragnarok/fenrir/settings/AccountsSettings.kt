@@ -53,6 +53,7 @@ internal class AccountsSettings @SuppressLint("UseSparseArrays") constructor(con
             return ids
         }
 
+    @SuppressLint("CheckResult")
     private fun fireAccountChange() {
         val registrationResolver = pushRegistrationResolver
         registrationResolver.resolvePushRegistration()

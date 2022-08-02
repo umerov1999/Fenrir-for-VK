@@ -5,6 +5,9 @@
 #include <fcntl.h>
 #include "lz4.h"
 #include <cstdio>
+#ifndef WINDOWS_PLATFORM
+#include <unistd.h>
+#endif
 
 using namespace std;
 
@@ -30,7 +33,11 @@ static string get_content(const string& file) {
 		return jsonS;
 	}
 	cout << "can't open " << file << endl;
+#ifdef WINDOWS_PLATFORM
 	_exit(1);
+#else
+	exit(1);
+#endif
 }
 
 static void write_content(const string& file, const string& data, int size) {
@@ -42,7 +49,11 @@ static void write_content(const string& file, const string& data, int size) {
 		return;
 	}
 	cout << "can't open " << file << endl;
+#ifdef WINDOWS_PLATFORM
 	_exit(1);
+#else
+	exit(1);
+#endif
 }
 
 int main(int argc, char* argv[]) {

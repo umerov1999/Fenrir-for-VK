@@ -147,6 +147,15 @@ class MySearchView : LinearLayout {
             if (visible) VISIBLE else GONE
     }
 
+    fun activateKeyboard() {
+        mInput?.requestFocus()
+        mInput?.postDelayed({
+            val inputMethodManager =
+                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            inputMethodManager?.showSoftInput(mInput, InputMethodManager.SHOW_IMPLICIT)
+        }, 500)
+    }
+
     internal fun resolveCloseButton() {
         val empty = mQuery.isNullOrEmpty()
         Logger.d(TAG, "resolveCloseButton, empty: $empty")

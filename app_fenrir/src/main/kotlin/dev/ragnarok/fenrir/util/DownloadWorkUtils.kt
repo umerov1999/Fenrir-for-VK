@@ -23,6 +23,7 @@ import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.module.FenrirNative
+import dev.ragnarok.fenrir.module.FileUtils
 import dev.ragnarok.fenrir.module.hls.TSDemuxer
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.service.QuickReplyService
@@ -33,12 +34,6 @@ import dev.ragnarok.fenrir.util.hls.M3U8
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import dev.ragnarok.fenrir.util.toast.CustomToast
-import ealvatag.audio.AudioFileIO
-import ealvatag.tag.FieldKey
-import ealvatag.tag.Tag
-import ealvatag.tag.id3.ID3v11Tag
-import ealvatag.tag.id3.ID3v1Tag
-import ealvatag.tag.images.ArtworkFactory
 import okhttp3.Request
 import java.io.BufferedInputStream
 import java.io.File
@@ -888,48 +883,37 @@ object DownloadWorkUtils {
                     val cover_file = DownloadInfo(file_v.file, file_v.path, "jpg")
                     if (doDownload(cover, cover_file, false)) {
                         try {
-                            val audioFile = AudioFileIO.read(File(file_v.build()))
-                            var tag: Tag = audioFile.convertedTagOrSetNewDefault
-                            if (tag is ID3v1Tag || tag is ID3v11Tag) {
-                                tag = audioFile.setNewDefaultTag(); }
-
-                            val Cover = File(cover_file.build())
-                            val newartwork = ArtworkFactory.createArtworkFromFile(Cover)
-                            tag.setArtwork(newartwork)
-                            if (audio.artist.nonNullNoEmpty())
-                                tag.setField(FieldKey.ARTIST, audio.artist)
-                            if (audio.title.nonNullNoEmpty())
-                                tag.setField(FieldKey.TITLE, audio.title)
-                            if (audio.album_title.nonNullNoEmpty())
-                                tag.setField(FieldKey.ALBUM, audio.album_title)
-                            if (!tag.getValue(FieldKey.GENRE).isPresent && audio.genreByID3 != 0) {
-                                tag.setField(FieldKey.GENRE, audio.genreByID3.toString())
-                            }
-                            if (audio.lyricsId != 0) {
+                            val pathAudio = file_v.build()
+                            val pathCover = cover_file.build()
+                            var ifGenre: String? = null
+                            val commentText = if (audio.lyricsId != 0) {
                                 val LyricString: String? = RxUtils.blockingGetSingle(
                                     InteractorFactory.createAudioInteractor()
                                         .getLyrics(account_id, audio.lyricsId), null
                                 )
                                 if (LyricString.isNullOrEmpty()) {
-                                    tag.setField(
-                                        FieldKey.COMMENT,
-                                        "{owner_id=" + audio.ownerId + "_id=" + audio.id + "}"
-                                    )
+                                    Audio.AudioCommentTag(audio.ownerId, audio.id).toText()
                                 } else {
-                                    tag.setField(
-                                        FieldKey.COMMENT,
-                                        "{owner_id=" + audio.ownerId + "_id=" + audio.id + "} " + LyricString
-                                    )
+                                    Audio.AudioCommentTag(audio.ownerId, audio.id, LyricString)
+                                        .toText()
                                 }
                             } else {
-                                tag.setField(
-                                    FieldKey.COMMENT,
-                                    "{owner_id=" + audio.ownerId + "_id=" + audio.id + "}"
-                                )
+                                Audio.AudioCommentTag(audio.ownerId, audio.id).toText()
                             }
-                            audioFile.save()
-                            Cover.delete()
-                            updated_tag = true
+                            if (audio.genreByID3 != 0) {
+                                ifGenre = audio.genreByID3.toString()
+                            }
+                            updated_tag = FileUtils.audioTagModify(
+                                pathAudio,
+                                pathCover,
+                                "image/jpg",
+                                audio.title,
+                                audio.artist,
+                                audio.album_title,
+                                ifGenre,
+                                commentText
+                            )
+                            File(pathCover).delete()
                             applicationContext.sendBroadcast(
                                 Intent(
                                     Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,

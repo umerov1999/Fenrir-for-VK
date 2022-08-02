@@ -139,8 +139,7 @@ class CommunityManagerEditFragment :
             override fun create(): CommunityManagerEditPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val groupId = requireArguments().getInt(Extra.GROUP_ID)
-                val users: ArrayList<User> =
-                    requireArguments().getParcelableArrayList(Extra.USERS)!!
+                val users: List<User>? = requireArguments().getParcelableArrayList(Extra.USERS)
                 val manager: Manager? = requireArguments().getParcelable(Extra.MANAGER)
                 return manager?.let {
                     CommunityManagerEditPresenter(
@@ -150,7 +149,12 @@ class CommunityManagerEditFragment :
                         saveInstanceState
                     )
                 }
-                    ?: CommunityManagerEditPresenter(accountId, groupId, users, saveInstanceState)
+                    ?: CommunityManagerEditPresenter(
+                        accountId,
+                        groupId,
+                        users.orEmpty(),
+                        saveInstanceState
+                    )
             }
         }
     }

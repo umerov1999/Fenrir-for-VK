@@ -19,7 +19,6 @@ import dev.ragnarok.fenrir.util.existfile.FileExistJVM
 import dev.ragnarok.fenrir.util.existfile.FileExistNative
 import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
-import ealvatag.tag.TagOptionSingleton
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
@@ -56,7 +55,6 @@ class App : Application() {
 
         Utils.isCompressTraffic = Settings.get().other().isCompress_traffic
         RLottieDrawable.setCacheResourceAnimation(Settings.get().other().isEnable_cache_ui_anim)
-        TagOptionSingleton.getInstance().isAndroid = true
         MusicPlaybackController.registerBroadcast(this)
         PicassoInstance.init(this, Includes.proxySettings)
         if (Settings.get().other().isKeepLongpoll) {

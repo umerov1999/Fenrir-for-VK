@@ -25,6 +25,7 @@ import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.rxutils.RxUtils
 import io.reactivex.rxjava3.disposables.Disposable
 
+
 class MySearchView : LinearLayout {
     private var mQuery: String? = null
     private var mInput: MaterialAutoCompleteTextView? = null
@@ -145,6 +146,15 @@ class MySearchView : LinearLayout {
     fun setRightButtonVisibility(visible: Boolean) {
         mButtonAdditional?.visibility =
             if (visible) VISIBLE else GONE
+    }
+
+    fun activateKeyboard() {
+        mInput?.requestFocus()
+        mInput?.postDelayed({
+            val inputMethodManager =
+                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            inputMethodManager?.showSoftInput(mInput, InputMethodManager.SHOW_IMPLICIT)
+        }, 500)
     }
 
     internal fun resolveCloseButton() {

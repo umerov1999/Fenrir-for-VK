@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.impl
 
+import dev.ragnarok.fenrir.AccountType
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.ILocalServerServiceProvider
 import dev.ragnarok.fenrir.api.interfaces.ILocalServerApi
 import dev.ragnarok.fenrir.api.model.Items
@@ -8,6 +10,7 @@ import dev.ragnarok.fenrir.api.model.VKApiPhoto
 import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.model.FileRemote
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.functions.Function
@@ -145,6 +148,18 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
         return service.provideLocalServerService()
             .flatMap { service ->
                 service.fsGet(dir)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun uploadAudio(hash: String?): Single<Int> {
+        return service.provideLocalServerService()
+            .flatMap { service ->
+                service.uploadAudio(
+                    hash, Settings.get().accounts().currentAccessToken, Constants.USER_AGENT(
+                        AccountType.BY_TYPE
+                    )
+                )
                     .map(extractResponseWithErrorHandling())
             }
     }

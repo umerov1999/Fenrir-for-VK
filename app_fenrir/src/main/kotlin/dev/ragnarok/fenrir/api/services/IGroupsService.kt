@@ -18,8 +18,8 @@ interface IGroupsService {
         @Field("role") role: String?,
         @Field("is_contact") isContact: Int?,
         @Field("contact_position") contactPosition: String?,
-        @Field("contact_phone") contactPhone: String?,
-        @Field("contact_email") contactEmail: String?
+        @Field("contact_email") contactEmail: String?,
+        @Field("contact_phone") contactPhone: String?
     ): Single<BaseResponse<Int>>
 
     @FormUrlEncoded

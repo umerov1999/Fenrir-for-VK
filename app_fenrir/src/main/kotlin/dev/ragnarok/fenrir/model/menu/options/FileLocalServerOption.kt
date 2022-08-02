@@ -8,7 +8,8 @@ import androidx.annotation.IntDef
     FileLocalServerOption.play_item_after_current_audio,
     FileLocalServerOption.delete_item,
     FileLocalServerOption.update_time_item,
-    FileLocalServerOption.edit_item
+    FileLocalServerOption.edit_item,
+    FileLocalServerOption.upload_item_audio
 )
 @Retention(
     AnnotationRetention.SOURCE
@@ -21,5 +22,6 @@ annotation class FileLocalServerOption {
         const val delete_item = 4
         const val update_time_item = 5
         const val edit_item = 6
+        const val upload_item_audio = 7
     }
 }

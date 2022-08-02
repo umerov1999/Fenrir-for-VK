@@ -168,6 +168,12 @@ class FileManagerPresenter(
 
     fun loadUp() {
         if (isLoading) {
+            if (Settings.get().main().isOpen_folder_new_window && q == null) {
+                val parent = path.parentFile
+                if (parent != null && parent.canRead()) {
+                    view?.onBusy(parent.absolutePath)
+                }
+            }
             return
         }
         if (q != null) {
@@ -181,18 +187,21 @@ class FileManagerPresenter(
         if (parent != null && parent.canRead()) {
             path = parent
             view?.updatePathString(path.absolutePath)
-            loadFiles(true, caches = true)
+            loadFiles(true, caches = true, false)
         }
     }
 
     fun setCurrent(file: File) {
         if (isLoading) {
+            if (Settings.get().main().isOpen_folder_new_window && file.canRead()) {
+                view?.onBusy(file.absolutePath)
+            }
             return
         }
         if (file.canRead()) {
             path = file
             view?.updatePathString(path.absolutePath)
-            loadFiles(back = false, caches = true)
+            loadFiles(back = false, caches = true, false)
         }
     }
 
@@ -216,37 +225,38 @@ class FileManagerPresenter(
                 .subscribe({
                     fileList.clear()
                     fileList.addAll(it)
-                    isLoading = false
                     view?.resolveEmptyText(fileList.isEmpty())
-                    view?.resolveLoading(isLoading)
                     view?.notifyAllChanged()
                     val k = directoryScrollPositions.remove(path.absolutePath)
                     if (k != null) {
                         view?.restoreScroll(k)
                     }
                     if (back && fileList.isEmpty() || !back) {
-                        loadFiles(back = false, caches = false)
+                        loadFiles(back = false, caches = false, true)
+                    } else {
+                        isLoading = false
+                        view?.resolveLoading(isLoading)
                     }
                 }, {
                     view?.showThrowable(it)
-                    isLoading = false
-                    view?.resolveLoading(isLoading)
-                    loadFiles(back = false, caches = false)
+                    loadFiles(back = false, caches = false, true)
                 })
         )
     }
 
-    fun loadFiles(back: Boolean, caches: Boolean) {
-        if (isLoading) {
+    fun loadFiles(back: Boolean, caches: Boolean, fromCache: Boolean) {
+        if (isLoading && !fromCache) {
             return
         }
         if (caches) {
             loadCache(back)
             return
         }
-        isLoading = true
         view?.resolveEmptyText(false)
-        view?.resolveLoading(isLoading)
+        if (!fromCache) {
+            isLoading = true
+            view?.resolveLoading(isLoading)
+        }
         appendDisposable(rxLoadFileList().fromIOToMain().subscribe({
             fileList.clear()
             fileList.addAll(it)
@@ -432,7 +442,7 @@ class FileManagerPresenter(
         fixDirTimeRx(dir).fromIOToMain().subscribe({
             view?.showMessage(R.string.success)
             isLoading = false
-            loadFiles(back = false, caches = false)
+            loadFiles(back = false, caches = false, false)
         }, { view?.showThrowable(it) })
     }
 
@@ -619,7 +629,7 @@ class FileManagerPresenter(
                 isLoading = false
                 view?.resolveLoading(isLoading)
                 view?.showMessage(R.string.success)
-                loadFiles(back = false, caches = false)
+                loadFiles(back = false, caches = false, false)
             }, {
                 view?.showThrowable(it)
             })
@@ -656,6 +666,6 @@ class FileManagerPresenter(
     }
 
     init {
-        loadFiles(back = false, caches = true)
+        loadFiles(back = false, caches = true, false)
     }
 }

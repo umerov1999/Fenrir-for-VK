@@ -356,14 +356,14 @@
     <string-array name="night_mode_names">
         <item>Off</item>
         <item>On</item>
-        <item>Automatic (timed)</item>
+        <item>Automatic</item>
         <item>Follow system</item>
     </string-array>
 
     <string-array name="night_mode_values" translatable="false">
         <item>1</item>
         <item>2</item>
-        <item>0</item>
+        <item>3</item>
         <item>-1</item>
     </string-array>
 
@@ -1893,4 +1893,5 @@
     <string name="toggle_monitor_off">Stop Changes</string>
     <string name="toggle_monitor_info">Shows changes in the number of friends, members, etc. Works if quantity is less than 1000</string>
     <string name="delta">Delta</string>
+    <string name="strip_metadata">Strip metadata</string>
 </resources>

@@ -14,13 +14,14 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            android:theme="@style/Theme.Toolbar.Surface" />
+            android:theme="@style/Theme.Toolbar.Colored" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tablayout"
-            style="@style/Theme.Toolbar.Surface"
+            style="@style/Theme.Tablayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             app:tabMode="scrollable" />
 
     </com.google.android.material.appbar.AppBarLayout>

@@ -819,6 +819,19 @@
         <item name="android:textColorSecondary">?colorOnSurface</item>
     </style>
 
+    <style name="Toolbar.Button.Navigation.TintedColored" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="tint">?white_color</item>
+    </style>
+
+    <style name="Theme.Toolbar.Colored" parent="ThemeOverlay.Material3.Toolbar.Surface">
+        <item name="toolbarNavigationButtonStyle">@style/Toolbar.Button.Navigation.TintedColored
+        </item>
+        <item name="actionMenuTextColor">?white_color</item>
+        <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:textColorPrimary">?white_color</item>
+        <item name="colorControlNormal">?white_color</item>
+    </style>
+
     <style name="Toolbar.Button.Navigation.Tinted" parent="Widget.AppCompat.Toolbar.Button.Navigation">
         <item name="tint">?colorPrimary</item>
     </style>

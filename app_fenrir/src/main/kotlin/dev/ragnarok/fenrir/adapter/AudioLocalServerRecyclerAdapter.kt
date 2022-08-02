@@ -206,6 +206,14 @@ class AudioLocalServerRecyclerAdapter(
                 true
             )
         )
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.upload_item_audio,
+                mContext.getString(R.string.upload),
+                R.drawable.web,
+                true
+            )
+        )
         menus.header(
             Utils.firstNonEmptyString(audio.artist, " ") + " - " + audio.title,
             R.drawable.song,
@@ -341,6 +349,17 @@ class AudioLocalServerRecyclerAdapter(
                             }
                             .setNegativeButton(R.string.button_cancel, null)
                             .show()
+                        AudioLocalServerOption.upload_item_audio -> {
+                            val hash1 = VkLinkParser.parseLocalServerURL(audio.url)
+                            if (hash1.isNullOrEmpty()) {
+                                return
+                            }
+                            audioListDisposable =
+                                mAudioInteractor.uploadAudio(hash1).fromIOToMain().subscribe(
+                                    { createCustomToast(mContext).showToast(R.string.success) }) { o ->
+                                    createCustomToast(mContext).showToastThrowable(o)
+                                }
+                        }
                         else -> {}
                     }
                 }

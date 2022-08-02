@@ -14,8 +14,8 @@ interface IGroupsApi {
         role: String?,
         isContact: Boolean?,
         contactPosition: String?,
-        contactPhone: String?,
-        contactEmail: String?
+        contactEmail: String?,
+        contactPhone: String?
     ): Completable
 
     @CheckResult

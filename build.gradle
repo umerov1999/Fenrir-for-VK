@@ -5,10 +5,10 @@ buildscript {
     ext.appNdk = "25.0.8775105"
     ext.appMinSDK = 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 194
-    ext.appFenrirVersionName = "2.94-Kotlin"
-    ext.appFileGalleryVersionCode = 14
-    ext.appFileGalleryVersionName = "1.14-Kotlin"
+    ext.appFenrirVersionCode = 195
+    ext.appFenrirVersionName = "2.95-Kotlin"
+    ext.appFileGalleryVersionCode = 15
+    ext.appFileGalleryVersionName = "1.15-Kotlin"
 
     ext.kotlin_version = "1.7.10"
     ext.kotlin_coroutines = "1.6.4"

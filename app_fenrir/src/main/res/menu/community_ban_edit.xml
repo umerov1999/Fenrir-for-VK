@@ -6,7 +6,7 @@
         android:id="@+id/action_save"
         android:icon="@drawable/check"
         android:title="@string/save"
-        app:iconTint="?colorOnSurface"
+        app:iconTint="?white_color"
         app:showAsAction="always" />
 
 </menu>

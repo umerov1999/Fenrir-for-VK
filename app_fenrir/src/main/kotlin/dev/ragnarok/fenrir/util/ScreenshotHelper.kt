@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.util
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -74,6 +75,7 @@ object ScreenshotHelper {
         }
     }
 
+    @SuppressLint("InternalInsetResource")
     private fun getStatusBarHeight(activity: Activity): Int {
         val identifier = activity.resources.getIdentifier("status_bar_height", "dimen", "android")
         return if (identifier > 0) {

@@ -6,6 +6,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiAudio
+import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.Pair
@@ -321,6 +322,32 @@ class Audio : AbsModel {
         var result = id
         result = 31 * result + ownerId
         return result
+    }
+
+    @Keep
+    @Serializable
+    class AudioCommentTag {
+        constructor(owner_id: Int, id: Int, lyricText: String?) {
+            this.owner_id = owner_id
+            this.id = id
+            this.lyricText = lyricText
+            this.lyricText?.let {
+                this.lyricText = it.replace('\"', '_')
+                this.lyricText = it.replace('\'', '_')
+            }
+        }
+
+        constructor(owner_id: Int, id: Int) {
+            this.owner_id = owner_id
+            this.id = id
+        }
+
+        var owner_id: Int = 0
+        var id: Int = 0
+        var lyricText: String? = null
+        fun toText(): String {
+            return kJson.encodeToString(serializer(), this)
+        }
     }
 
     companion object CREATOR : Parcelable.Creator<Audio> {

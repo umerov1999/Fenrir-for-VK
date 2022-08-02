@@ -6,12 +6,10 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import com.squareup.picasso3.Transformation
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
-import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.picasso.transforms.EllipseTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
@@ -162,7 +160,7 @@ object CurrentTheme {
         }
         return String.format("#%02x%02x%02x%02x", a, r, g, b).uppercase()
     }
-
+/*
     fun dumpDynamicColors(context: Context) {
         if (!Constants.IS_DEBUG || "dynamic" != Settings.get().ui().mainThemeKey) {
             return
@@ -268,6 +266,7 @@ object CurrentTheme {
             )
         )
     }
+ */
 
     fun getColorOnPrimary(context: Context): Int {
         return getColorFromAttrs(

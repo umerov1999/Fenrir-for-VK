@@ -15,6 +15,12 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
 import androidx.core.net.toFile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.ChecksumException
+import com.google.zxing.NotFoundException
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.qrcode.QRCodeReader
 import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.filegallery.R
@@ -29,7 +35,6 @@ import dev.ragnarok.filegallery.settings.CurrentTheme.getColorSecondary
 import dev.ragnarok.filegallery.settings.Settings.get
 import dev.ragnarok.filegallery.util.AssertUtils
 import dev.ragnarok.filegallery.util.DownloadWorkUtils.doDownloadPhoto
-import dev.ragnarok.filegallery.util.qr.*
 import java.io.File
 import java.util.*
 
@@ -166,7 +171,7 @@ open class PhotoPagerPresenter internal constructor(
         val source = RGBLuminanceSource(width, height, pixels)
         val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
         val reader = QRCodeReader()
-        val result: Result = try {
+        val result = try {
             reader.decode(binaryBitmap)
         } catch (e: NotFoundException) {
             return e.localizedMessage

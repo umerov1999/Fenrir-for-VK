@@ -10,7 +10,8 @@ import androidx.annotation.IntDef
     AudioLocalServerOption.bitrate_item_audio,
     AudioLocalServerOption.delete_item_audio,
     AudioLocalServerOption.update_time_item_audio,
-    AudioLocalServerOption.edit_item_audio
+    AudioLocalServerOption.edit_item_audio,
+    AudioLocalServerOption.upload_item_audio
 )
 @Retention(
     AnnotationRetention.SOURCE
@@ -25,5 +26,6 @@ annotation class AudioLocalServerOption {
         const val delete_item_audio = 6
         const val update_time_item_audio = 7
         const val edit_item_audio = 8
+        const val upload_item_audio = 9
     }
 }

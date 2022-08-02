@@ -22,8 +22,8 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         role: String?,
         isContact: Boolean?,
         contactPosition: String?,
+        contactEmail: String?,
         contactPhone: String?,
-        contactEmail: String?
     ): Completable {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMapCompletable { service ->
@@ -34,8 +34,8 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
                         role,
                         integerFromBoolean(isContact),
                         contactPosition,
-                        contactPhone,
-                        contactEmail
+                        contactEmail,
+                        contactPhone
                     )
                     .map(extractResponseWithErrorHandling())
                     .ignoreElement()

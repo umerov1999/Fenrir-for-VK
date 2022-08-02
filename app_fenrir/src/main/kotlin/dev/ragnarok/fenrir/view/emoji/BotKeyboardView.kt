@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.view.emoji
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
@@ -25,6 +26,8 @@ class BotKeyboardView : ScrollView {
     private var delegate: BotKeyboardViewDelegate? = null
     private var panelHeight = 0
     private var buttonHeight = 0
+
+    @SuppressLint("InternalInsetResource")
     private val onGlobalLayoutListener = OnGlobalLayoutListener {
         val r = Rect()
         getWindowVisibleDisplayFrame(r)

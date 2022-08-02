@@ -243,6 +243,14 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                 false
             )
         )
+        menus.add(
+            OptionRequest(
+                FileLocalServerOption.upload_item_audio,
+                context.getString(R.string.upload),
+                R.drawable.web,
+                true
+            )
+        )
         menus.header(
             audio.file_name,
             R.drawable.song,
@@ -283,6 +291,18 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                     createCustomToast(context).showToastBottom(R.string.error_audio)
                                 }
                             }
+                        }
+
+                        FileLocalServerOption.upload_item_audio -> {
+                            val hash1 = VkLinkParser.parseLocalServerURL(audio.url)
+                            if (hash1.isNullOrEmpty()) {
+                                return
+                            }
+                            audioListDisposable =
+                                factory.uploadAudio(hash1).fromIOToMain().subscribe(
+                                    { createCustomToast(context).showToast(R.string.success) }) { o ->
+                                    createCustomToast(context).showToastThrowable(o)
+                                }
                         }
                         FileLocalServerOption.delete_item -> {
                             MaterialAlertDialogBuilder(

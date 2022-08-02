@@ -54,6 +54,7 @@ class FileManagerSelectFragment :
 
     private var animationDispose = Disposable.disposed()
     private var mAnimationLoaded = false
+    private var animLoad: ObjectAnimator? = null
 
     override fun onBackPressed(): Boolean {
         if (presenter?.canLoadUp() == true) {
@@ -116,6 +117,22 @@ class FileManagerSelectFragment :
         mRecyclerView?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
         tvCurrentDir = root.findViewById(R.id.current_path)
         loading = root.findViewById(R.id.loading)
+
+        animLoad = ObjectAnimator.ofFloat(loading, View.ALPHA, 0.0f).setDuration(1000)
+        animLoad?.addListener(object : StubAnimatorListener() {
+            override fun onAnimationEnd(animation: Animator) {
+                loading?.clearAnimationDrawable()
+                loading?.visibility = View.GONE
+                loading?.alpha = 1f
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                loading?.clearAnimationDrawable()
+                loading?.visibility = View.GONE
+                loading?.alpha = 1f
+            }
+        })
+
         mHeader = root.findViewById(R.id.select_header)
         mHeader?.visibility =
             if (arguments?.getBoolean(Extra.HIDE_TITLE, false) == true) View.GONE else View.VISIBLE
@@ -171,31 +188,15 @@ class FileManagerSelectFragment :
         animationDispose.dispose()
         if (mAnimationLoaded && !visible) {
             mAnimationLoaded = false
-            val k = ObjectAnimator.ofFloat(loading, View.ALPHA, 0.0f).setDuration(1000)
-            k.addListener(object : StubAnimatorListener() {
-                override fun onAnimationEnd(animation: Animator) {
-                    loading?.clearAnimationDrawable()
-                    loading?.visibility = View.GONE
-                    loading?.alpha = 1f
-                }
-
-                override fun onAnimationCancel(animation: Animator) {
-                    loading?.clearAnimationDrawable()
-                    loading?.visibility = View.GONE
-                    loading?.alpha = 1f
-                }
-            })
-            k.start()
-        } else if (mAnimationLoaded && !visible) {
-            mAnimationLoaded = false
-            loading?.clearAnimationDrawable()
-            loading?.visibility = View.GONE
-        } else if (visible) {
+            animLoad?.start()
+        } else if (!mAnimationLoaded && visible) {
+            animLoad?.end()
             animationDispose = Completable.create {
                 it.onComplete()
             }.delay(300, TimeUnit.MILLISECONDS).fromIOToMain().subscribe({
                 mAnimationLoaded = true
                 loading?.visibility = View.VISIBLE
+                loading?.alpha = 1f
                 loading?.fromRes(
                     dev.ragnarok.fenrir_common.R.raw.s_loading,
                     Utils.dp(180f),

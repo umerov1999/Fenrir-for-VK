@@ -90,9 +90,14 @@ class MusicPlaybackService : Service() {
         }
     }
 
+    @Suppress("deprecation")
     fun outForeground(removeNotification: Boolean) {
         inForeground = false
-        stopForeground(if (removeNotification) STOP_FOREGROUND_REMOVE else 0)
+        if (Utils.hasNougat()) {
+            stopForeground(if (removeNotification) STOP_FOREGROUND_REMOVE else 0)
+        } else {
+            stopForeground(removeNotification)
+        }
     }
 
     override fun onUnbind(intent: Intent): Boolean {

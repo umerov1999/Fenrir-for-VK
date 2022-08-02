@@ -23,4 +23,5 @@ interface IFileManagerView : IMvpView, IErrorView {
     fun showMessage(@StringRes res: Int)
 
     fun updateSelectedMode(show: Boolean)
+    fun onBusy(path: String)
 }

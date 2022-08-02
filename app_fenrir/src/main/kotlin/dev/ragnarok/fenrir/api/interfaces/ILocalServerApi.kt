@@ -70,4 +70,7 @@ interface ILocalServerApi {
 
     @CheckResult
     fun fsGet(dir: String?): Single<Items<FileRemote>>
+
+    @CheckResult
+    fun uploadAudio(hash: String?): Single<Int>
 }

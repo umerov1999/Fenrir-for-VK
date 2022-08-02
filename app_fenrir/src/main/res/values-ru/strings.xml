@@ -225,7 +225,7 @@
     <string-array name="night_mode_names">
         <item>Выкл</item>
         <item>Вкл</item>
-        <item>Автоматически (по времени)</item>
+        <item>Автоматически</item>
         <item>Как в системе</item>
     </string-array>
 
@@ -1679,4 +1679,5 @@
     <string name="toggle_monitor_off">Отключить изменения</string>
     <string name="toggle_monitor_info">Работает, если количество друзей не более 1000</string>
     <string name="delta">Разница</string>
+    <string name="strip_metadata">Удалить метаданные</string>
 </resources>

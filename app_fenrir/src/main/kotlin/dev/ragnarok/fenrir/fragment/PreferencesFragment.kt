@@ -575,7 +575,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 selItems(R.array.night_mode_names, R.array.night_mode_values),
                 parentFragmentManager
             ) {
-                initialSelection = "2"
+                initialSelection = "1"
                 titleRes = R.string.night_mode_title
                 iconRes = R.drawable.night_mode_pref
                 onSelectionChange {
