@@ -574,6 +574,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 " [" + UserColumns.SEX + "] INTEGER, " +
                 " [" + UserColumns.DOMAIN + "] TEXT, " +
                 " [" + UserColumns.MAIDEN_NAME + "] TEXT, " +
+                " [" + UserColumns.BDATE + "] TEXT, " +
                 " [" + UserColumns.IS_FRIEND + "] BOOLEAN, " +
                 " [" + UserColumns.FRIEND_STATUS + "] INTEGER, " +
                 " [" + UserColumns.WRITE_MESSAGE_STATUS + "] BOOLEAN, " +
@@ -678,6 +679,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 " [" + GroupColumns.PHOTO_200 + "] TEXT, " +
                 " [" + GroupColumns.CAN_ADD_TOPICS + "] BOOLEAN, " +
                 " [" + GroupColumns.TOPICS_ORDER + "] BOOLEAN, " +
+                " [" + GroupColumns.IS_BLACK_LISTED + "] BOOLEAN, " +
                 " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }

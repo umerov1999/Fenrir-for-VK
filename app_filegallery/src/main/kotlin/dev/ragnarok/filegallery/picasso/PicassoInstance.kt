@@ -62,7 +62,7 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
         return Picasso.Builder(app)
             .defaultBitmapConfig(Bitmap.Config.ARGB_8888)
             .client(builder.build())
-            .addRequestHandler(PicassoMediaMetadataHandler(app))
+            .addRequestHandler(PicassoFileManagerHandler(app))
             .build()
     }
 

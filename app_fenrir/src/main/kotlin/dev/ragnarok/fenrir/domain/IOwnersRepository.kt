@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 
 interface IOwnersRepository {
+    fun findFriendBirtday(accountId: Int): Single<List<User>>
     fun findBaseOwnersDataAsList(
         accountId: Int,
         ids: Collection<Int>,

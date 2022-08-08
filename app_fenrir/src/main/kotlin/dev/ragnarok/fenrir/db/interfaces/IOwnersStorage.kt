@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.db.model.BanAction
 import dev.ragnarok.fenrir.db.model.UserPatch
 import dev.ragnarok.fenrir.db.model.entity.*
 import dev.ragnarok.fenrir.model.Manager
+import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Pair
 import io.reactivex.rxjava3.core.Completable
@@ -45,4 +46,5 @@ interface IOwnersStorage : IStorage {
     fun getUserDetails(accountId: Int, userId: Int): Single<Optional<UserDetailsEntity>>
     fun storeUserDetails(accountId: Int, userId: Int, dbo: UserDetailsEntity): Completable
     fun applyPathes(accountId: Int, patches: List<UserPatch>): Completable
+    fun findFriendBirtday(accountId: Int): Single<List<User>>
 }

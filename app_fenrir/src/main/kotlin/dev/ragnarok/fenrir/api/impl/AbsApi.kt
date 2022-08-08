@@ -10,12 +10,14 @@ import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.VkResponse
 import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.nullOrEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.service.ApiErrorCodes
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.refresh.RefreshToken
 import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.Serializer
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -69,7 +71,13 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                 }
             }
             .map { response ->
-                val k = kJson.decodeFromStream(
+                val k = if (Settings.get()
+                        .other().currentParser == ParserType.MSGPACK
+                ) MsgPack().decodeFromOkioStream(
+                    serializerType.serializer(
+                        javaClass
+                    ), response.body.source()
+                ) as BaseResponse<T> else kJson.decodeFromStream(
                     serializerType.serializer(
                         javaClass
                     ), response.body.byteStream()
@@ -126,7 +134,12 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                 }
             }
             .map {
-                kJson.decodeFromStream(it.body.byteStream())
+                if (Settings.get()
+                        .other().currentParser == ParserType.MSGPACK
+                ) MsgPack().decodeFromOkioStream(
+                    VkResponse.serializer(),
+                    it.body.source()
+                ) else kJson.decodeFromStream(VkResponse.serializer(), it.body.byteStream())
             }
     }
 

@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.api.model.CountersDto
 import dev.ragnarok.fenrir.api.model.RefreshToken
 import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
 import dev.ragnarok.fenrir.api.model.VKApiProfileInfoResponse
-import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponce
+import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponse
 import dev.ragnarok.fenrir.api.model.response.ContactsResponse
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse
 import io.reactivex.rxjava3.core.Completable
@@ -13,11 +13,11 @@ import io.reactivex.rxjava3.core.Single
 
 interface IAccountApi {
     @CheckResult
-    fun banUser(userId: Int): Single<Int>
+    fun ban(ownerId: Int): Single<Int>
 
     @CheckResult
-    fun unbanUser(userId: Int): Single<Int>
-    fun getBanned(count: Int?, offset: Int?, fields: String?): Single<AccountsBannedResponce>
+    fun unban(ownerId: Int): Single<Int>
+    fun getBanned(count: Int?, offset: Int?, fields: String?): Single<AccountsBannedResponse>
 
     @CheckResult
     fun unregisterDevice(deviceId: String?): Single<Boolean>

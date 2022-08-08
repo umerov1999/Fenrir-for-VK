@@ -8,6 +8,22 @@ import io.reactivex.rxjava3.core.Single
 
 interface IGroupSettingsInteractor {
     fun getGroupSettings(accountId: Int, groupId: Int): Single<GroupSettings>
+    fun edit(
+        accountId: Int,
+        groupId: Int,
+        title: String?,
+        description: String?,
+        screen_name: String?,
+        access: Int?,
+        website: String?,
+        public_category: Int?,
+        public_date: String?,
+        age_limits: Int?,
+        obscene_filter: Int?,
+        obscene_stopwords: Int?,
+        obscene_words: String?
+    ): Completable
+
     fun ban(
         accountId: Int,
         groupId: Int,

@@ -87,6 +87,18 @@
                         android:visibility="gone"
                         app:tint="?white_color" />
 
+                    <dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+                        android:id="@+id/item_blacklisted"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:contentDescription="@null"
+                        android:visibility="gone"
+                        app:loopAnimation="true"
+                        tools:src="@drawable/audio_died" />
+
                 </FrameLayout>
 
                 <LinearLayout

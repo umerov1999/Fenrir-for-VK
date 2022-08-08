@@ -1,5 +1,9 @@
 package dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization
 
+import dev.ragnarok.fenrir.util.serializeble.json.Json
+import dev.ragnarok.fenrir.util.serializeble.json.internal.JavaStreamSerialReader
+import dev.ragnarok.fenrir.util.serializeble.json.internal.decodeByReader
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import kotlinx.serialization.*
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -36,6 +40,42 @@ sealed class Serializer {
         ): RequestBody {
             val string = format.encodeToString(saver, value)
             return string.toRequestBody(contentType)
+        }
+    }
+
+    class FromJson(override val format: Json) : Serializer() {
+        override fun <T> fromResponseBody(
+            loader: DeserializationStrategy<T>,
+            body: ResponseBody
+        ): T {
+            return format.decodeByReader(loader, JavaStreamSerialReader(body.byteStream()))
+        }
+
+        override fun <T> toRequestBody(
+            contentType: MediaType,
+            saver: SerializationStrategy<T>,
+            value: T
+        ): RequestBody {
+            val string = format.encodeToString(saver, value)
+            return string.toRequestBody(contentType)
+        }
+    }
+
+    class FromMsgPack(override val format: MsgPack) : Serializer() {
+        override fun <T> fromResponseBody(
+            loader: DeserializationStrategy<T>,
+            body: ResponseBody
+        ): T {
+            return format.decodeFromOkioStream(loader, body.source())
+        }
+
+        override fun <T> toRequestBody(
+            contentType: MediaType,
+            saver: SerializationStrategy<T>,
+            value: T
+        ): RequestBody {
+            val bytes = format.encodeToByteArray(saver, value)
+            return bytes.toRequestBody(contentType, 0, bytes.size)
         }
     }
 

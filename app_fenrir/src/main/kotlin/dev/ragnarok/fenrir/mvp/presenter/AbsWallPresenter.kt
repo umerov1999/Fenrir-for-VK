@@ -24,10 +24,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.fromIOToMain
-import dev.ragnarok.fenrir.model.EditingPostType
-import dev.ragnarok.fenrir.model.LoadMoreState
-import dev.ragnarok.fenrir.model.Post
-import dev.ragnarok.fenrir.model.Story
+import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IWallView
@@ -132,6 +129,33 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         viewHost.displayWallData(wall)
         viewHost.updateStory(stories)
         resolveLoadMoreFooterView()
+    }
+
+    internal fun onExecuteComplete() {
+        onRefresh()
+        view?.customToast?.showToast(R.string.success)
+    }
+
+    internal fun onExecuteError(t: Throwable) {
+        showError(getCauseIfRuntime(t))
+    }
+
+    internal abstract fun getOwner(): Owner
+
+    fun fireAddToBlacklistClick() {
+        val accountId = accountId
+        appendDisposable(InteractorFactory.createAccountInteractor()
+            .banOwners(accountId, listOf(getOwner()))
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
+    }
+
+    fun fireRemoveBlacklistClick() {
+        val accountId = accountId
+        appendDisposable(InteractorFactory.createAccountInteractor()
+            .unbanOwner(accountId, ownerId)
+            .fromIOToMain()
+            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     private fun loadWallCachedData() {

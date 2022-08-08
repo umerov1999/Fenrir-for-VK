@@ -387,6 +387,10 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return Single.error(Exception("Not yet implemented"))
     }
 
+    override fun findFriendBirtday(accountId: Int): Single<List<User>> {
+        return cache.findFriendBirtday(accountId)
+    }
+
     override fun cacheActualOwnersData(accountId: Int, ids: Collection<Int>): Completable {
         var completable = Completable.complete()
         val dividedIds = DividedIds(ids)

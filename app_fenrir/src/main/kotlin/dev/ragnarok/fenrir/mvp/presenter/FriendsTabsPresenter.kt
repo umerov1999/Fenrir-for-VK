@@ -33,6 +33,14 @@ class FriendsTabsPresenter(
             .subscribe({ owner -> onOwnerInfoReceived(owner) }) { })
     }
 
+    fun fireFriendsBirthday() {
+        view?.onFriendsBirthday(accountId, userId)
+    }
+
+    fun isMe(): Boolean {
+        return accountId == userId
+    }
+
     private fun onOwnerInfoReceived(owner: Owner) {
         this.owner = owner
         view?.displayUserNameAtToolbar(

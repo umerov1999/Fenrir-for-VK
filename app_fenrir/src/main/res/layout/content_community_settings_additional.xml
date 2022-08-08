@@ -38,40 +38,6 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/subject_root"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/community_options_community_subject_title"
-            android:textColor="?android:textColorSecondary" />
-
-        <dev.ragnarok.fenrir.view.MySpinnerView
-            android:id="@+id/subject_0"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:spinner_hint="@string/select_category_hint"
-            app:spinner_hint_color="?android:textColorSecondary"
-            app:spinner_icon_color="?attr/colorAccent"
-            app:spinner_text_color="?android:textColorPrimary" />
-
-        <dev.ragnarok.fenrir.view.MySpinnerView
-            android:id="@+id/subject_1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:spinner_hint="@string/select_category_hint"
-            app:spinner_hint_color="?android:textColorSecondary"
-            app:spinner_icon_color="?attr/colorAccent"
-            app:spinner_text_color="?android:textColorPrimary" />
-
-    </LinearLayout>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -81,22 +47,26 @@
         android:textColor="?android:textColorSecondary" />
 
     <RadioGroup
+        android:id="@+id/category_age"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:orientation="vertical">
 
         <RadioButton
+            android:id="@+id/age_under16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/age_restriction_under_16_years" />
 
         <RadioButton
+            android:id="@+id/age_16_to_18"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/age_restriction_16_years_and_over" />
 
         <RadioButton
+            android:id="@+id/age_after_18"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/age_restriction_18_years_and_over" />

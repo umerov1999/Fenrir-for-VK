@@ -23,6 +23,24 @@ interface IGroupsService {
     ): Single<BaseResponse<Int>>
 
     @FormUrlEncoded
+    @POST("groups.edit")
+    fun edit(
+        @Field("group_id") groupId: Int,
+        @Field("title") title: String?,
+        @Field("description") description: String?,
+        @Field("screen_name") screen_name: String?,
+        @Field("access") access: Int?,
+        @Field("website") website: String?,
+        //@Field("public_category") public_category: Int?,
+        //@Field("public_subcategory") public_subcategory: Int?,
+        @Field("public_date") public_date: String?,
+        @Field("age_limits") age_limits: Int?,
+        @Field("obscene_filter") obscene_filter: Int?,
+        @Field("obscene_stopwords") obscene_stopwords: Int?,
+        @Field("obscene_words") obscene_words: String?
+    ): Single<BaseResponse<Int>>
+
+    @FormUrlEncoded
     @POST("groups.unban")
     fun unban(
         @Field("group_id") groupId: Int,

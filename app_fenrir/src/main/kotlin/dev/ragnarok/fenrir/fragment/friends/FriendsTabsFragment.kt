@@ -2,11 +2,9 @@ package dev.ragnarok.fenrir.fragment.friends
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -27,14 +25,33 @@ import dev.ragnarok.fenrir.mvp.view.IFriendsTabsView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.place.Place
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
 
 class FriendsTabsFragment : BaseMvpFragment<FriendsTabsPresenter, IFriendsTabsView>(),
-    IFriendsTabsView {
+    IFriendsTabsView, MenuProvider {
     private var adapter: Adapter? = null
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager2? = null
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_friends_tab, menu)
+        menu.findItem(R.id.action_birthdays).isVisible = (presenter?.isMe() == true)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.action_birthdays) {
+            presenter?.fireFriendsBirthday()
+            return true
+        }
+        return false
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -143,6 +160,10 @@ class FriendsTabsFragment : BaseMvpFragment<FriendsTabsPresenter, IFriendsTabsVi
                 (requireActivity() as OnSectionResumeCallback).onClearSelection()
             }
         }
+    }
+
+    override fun onFriendsBirthday(accountId: Int, ownerId: Int) {
+        PlaceFactory.getFriendsBirthdaysPlace(accountId, ownerId).tryOpenWith(requireActivity())
     }
 
     private interface CreateFriendsFragment {

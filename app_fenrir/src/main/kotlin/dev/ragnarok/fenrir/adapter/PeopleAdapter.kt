@@ -68,6 +68,9 @@ class PeopleAdapter(private val mContext: Context, private var mData: List<Owner
         holder.itemView.setOnClickListener {
             mClickListener?.onOwnerClick(community)
         }
+        holder.itemView.setOnLongClickListener {
+            longClickListener?.onOwnerLongClick(community) == true
+        }
     }
 
     private fun bindUserHolder(holder: PeopleHolder, user: User) {

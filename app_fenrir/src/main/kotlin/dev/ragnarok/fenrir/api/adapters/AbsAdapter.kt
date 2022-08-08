@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.api.adapters
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.util.serializeble.json.*
+import dev.ragnarok.fenrir.util.serializeble.msgpack.internal.BasicMsgPackDecoder
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -14,8 +15,8 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor(name)
 
     override fun deserialize(decoder: Decoder): T {
-        require(decoder is JsonDecoder)
-        return deserialize(decoder.decodeJsonElement())
+        require(decoder is JsonDecoder || decoder is BasicMsgPackDecoder)
+        return deserialize(if (decoder is JsonDecoder) decoder.decodeJsonElement() else (decoder as BasicMsgPackDecoder).decodeMsgPackElement())
     }
 
     abstract fun deserialize(json: JsonElement): T

@@ -23,10 +23,10 @@ import android.provider.ContactsContract
 import android.provider.ContactsContract.Contacts
 import com.squareup.picasso3.BitmapUtils.decodeStream
 import com.squareup.picasso3.Picasso.LoadedFrom.DISK
-import okio.Source
 import okio.source
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.io.InputStream
 
 internal class ContactsPhotoRequestHandler(private val context: Context) : RequestHandler() {
     companion object {
@@ -71,7 +71,8 @@ internal class ContactsPhotoRequestHandler(private val context: Context) : Reque
         try {
             val requestUri = checkNotNull(request.uri)
             val source = getSource(requestUri)
-            val bitmap = decodeStream(source, request)
+            val bitmap = decodeStream(source.source(), request)
+            source.close()
             signaledCallback = true
             callback.onSuccess(Result.Bitmap(bitmap, DISK))
         } catch (e: Exception) {
@@ -81,7 +82,7 @@ internal class ContactsPhotoRequestHandler(private val context: Context) : Reque
         }
     }
 
-    private fun getSource(uri: Uri): Source {
+    private fun getSource(uri: Uri): InputStream {
         val contentResolver = context.contentResolver
         val input = when (matcher.match(uri)) {
             ID_LOOKUP -> {
@@ -95,6 +96,6 @@ internal class ContactsPhotoRequestHandler(private val context: Context) : Reque
             else -> throw IllegalStateException("Invalid uri: $uri")
         } ?: throw FileNotFoundException("can't open input stream, uri: $uri")
 
-        return input.source()
+        return input
     }
 }

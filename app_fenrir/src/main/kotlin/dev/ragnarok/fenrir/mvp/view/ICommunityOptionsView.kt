@@ -5,7 +5,8 @@ import dev.ragnarok.fenrir.model.IdOption
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 
-interface ICommunityOptionsView : IMvpView, IAccountDependencyView, IErrorView, IProgressView {
+interface ICommunityOptionsView : IMvpView, IAccountDependencyView, IErrorView, IProgressView,
+    IToastView {
     fun displayName(name: String?)
     fun displayDescription(description: String?)
     fun setCommunityTypeVisible(visible: Boolean)
@@ -13,9 +14,6 @@ interface ICommunityOptionsView : IMvpView, IAccountDependencyView, IErrorView, 
     fun setCategoryVisible(visible: Boolean)
     fun displayCategory(categoryText: String?)
     fun showSelectOptionDialog(requestCode: Int, data: List<IdOption>)
-    fun setSubjectRootVisible(visible: Boolean)
-    fun setSubjectVisible(index: Int, visible: Boolean)
-    fun displaySubjectValue(index: Int, value: String?)
     fun displayWebsite(website: String?)
     fun setPublicDateVisible(visible: Boolean)
     fun dislayPublicDate(day: Day)
@@ -25,4 +23,6 @@ interface ICommunityOptionsView : IMvpView, IAccountDependencyView, IErrorView, 
     fun setObsceneStopWordsChecked(checked: Boolean)
     fun setObsceneStopWordsVisible(visible: Boolean)
     fun displayObsceneStopWords(words: String?)
+    fun setGroupType(type: Int)
+    fun resolveEdge(age: Int)
 }

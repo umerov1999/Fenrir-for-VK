@@ -35,7 +35,7 @@ data class MsgPackConfiguration(
      * Useful when only parts of data are of interest
      * false by default
      */
-    val ignoreUnknownKeys: Boolean = false
+    val ignoreUnknownKeys: Boolean = true
 ) {
     companion object {
         val default: MsgPackConfiguration = MsgPackConfiguration()

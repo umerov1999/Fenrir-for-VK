@@ -39,6 +39,8 @@ class User : Owner, Identificable {
         private set
     var lastSeen: Long = 0
         private set
+    var bdate: String? = null
+        private set
 
     @UserPlatform
     var platform = 0
@@ -95,6 +97,7 @@ class User : Owner, Identificable {
         blacklisted = `in`.readByte().toInt() != 0
         verified = `in`.readByte().toInt() != 0
         isCan_access_closed = `in`.readByte().toInt() != 0
+        bdate = `in`.readString()
     }
 
     internal constructor(`in`: ParcelNative) : super(`in`) {
@@ -121,6 +124,7 @@ class User : Owner, Identificable {
         blacklisted = `in`.readBoolean()
         verified = `in`.readBoolean()
         isCan_access_closed = `in`.readBoolean()
+        bdate = `in`.readString()
     }
 
     override val fullName: String
@@ -206,6 +210,11 @@ class User : Owner, Identificable {
         return this
     }
 
+    fun setBdate(bdate: String?): User {
+        this.bdate = bdate
+        return this
+    }
+
     fun setFriendStatus(friendStatus: Int): User {
         this.friendStatus = friendStatus
         return this
@@ -267,6 +276,7 @@ class User : Owner, Identificable {
         parcel.writeByte((if (blacklisted) 1 else 0).toByte())
         parcel.writeByte((if (verified) 1 else 0).toByte())
         parcel.writeByte((if (isCan_access_closed) 1 else 0).toByte())
+        parcel.writeString(bdate)
     }
 
     override fun writeToParcelNative(dest: ParcelNative) {
@@ -294,6 +304,7 @@ class User : Owner, Identificable {
         dest.writeBoolean(blacklisted)
         dest.writeBoolean(verified)
         dest.writeBoolean(isCan_access_closed)
+        dest.writeString(bdate)
     }
 
     override val ownerId: Int

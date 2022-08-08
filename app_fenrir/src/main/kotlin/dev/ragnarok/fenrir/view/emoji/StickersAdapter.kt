@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso3.Callback
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.StickerSet
@@ -16,7 +15,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnStickerClickedListener
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
-import java.lang.ref.WeakReference
 
 class StickersAdapter(private val context: Context, private val stickers: StickerSet) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -96,7 +94,7 @@ class StickersAdapter(private val context: Context, private val stickers: Sticke
                     with()
                         .load(url) //.networkPolicy(NetworkPolicy.OFFLINE)
                         .tag(Constants.PICASSO_TAG)
-                        .into(normalHolder.image, LoadOnErrorCallback(normalHolder.image, url))
+                        .into(normalHolder.image)
                     normalHolder.root.setOnClickListener {
                         stickerClickedListener?.onStickerClick(
                             item
@@ -136,26 +134,6 @@ class StickersAdapter(private val context: Context, private val stickers: Sticke
 
     override fun getItemCount(): Int {
         return stickers.getStickers()?.size.orZero()
-    }
-
-    private class LoadOnErrorCallback(view: ImageView, private val link: String) : Callback {
-        val ref: WeakReference<ImageView> = WeakReference(view)
-        override fun onSuccess() {
-            // do nothink
-        }
-
-        override fun onError(t: Throwable) {
-            val view = ref.get()
-            try {
-                if (view != null) {
-                    with()
-                        .load(link)
-                        .into(view)
-                }
-            } catch (ignored: Exception) {
-            }
-        }
-
     }
 
     internal class StickerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

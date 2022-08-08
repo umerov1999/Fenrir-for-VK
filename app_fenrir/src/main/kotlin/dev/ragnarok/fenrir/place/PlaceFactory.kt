@@ -809,6 +809,11 @@ object PlaceFactory {
             .setArguments(CommunityMembersFragment.buildArgs(accountId, groupId))
     }
 
+    fun getFriendsBirthdaysPlace(accountId: Int, ownerId: Int): Place {
+        return Place(Place.FRIENDS_BIRTHDAYS)
+            .setArguments(BirthDayFragment.buildArgs(accountId, ownerId))
+    }
+
     fun getAlbumsByVideoPlace(
         accountId: Int,
         ownerId: Int,

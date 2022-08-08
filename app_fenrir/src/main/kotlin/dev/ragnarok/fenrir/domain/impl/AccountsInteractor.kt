@@ -1,17 +1,17 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import android.content.Context
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse.ConversationsPush.ConversationPushItem
-import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.db.impl.ContactsUtils
 import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.IBlacklistRepository
 import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUsers
+import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
 import dev.ragnarok.fenrir.util.Utils
@@ -30,36 +30,43 @@ class AccountsInteractor(
     override fun getBanned(accountId: Int, count: Int, offset: Int): Single<BannedPart> {
         return networker.vkDefault(accountId)
             .account()
-            .getBanned(count, offset, UserColumns.API_FIELDS)
+            .getBanned(count, offset, Constants.MAIN_OWNER_FIELDS)
             .map { items ->
-                val dtos = listEmptyIfNull(items.profiles)
-                val users = transformUsers(dtos)
-                BannedPart(users)
+                val owners = Dto2Model.transformOwners(items.profiles, items.groups)
+                val result = ArrayList<Owner>(owners.size)
+                for (i in items.items.orEmpty()) {
+                    val ip = Utils.findOwnerIndexById(owners, i)
+                    if (ip < 0) {
+                        continue
+                    }
+                    result.add(owners[ip])
+                }
+                BannedPart(result)
             }
     }
 
-    override fun banUsers(accountId: Int, users: Collection<User>): Completable {
+    override fun banOwners(accountId: Int, owners: Collection<Owner>): Completable {
         var completable = Completable.complete()
-        for (user in users) {
+        for (owner in owners) {
             completable = completable.andThen(
                 networker.vkDefault(accountId)
                     .account()
-                    .banUser(user.getObjectId())
+                    .ban(owner.ownerId)
             )
                 .delay(1, TimeUnit.SECONDS) // чтобы не дергало UI
                 .ignoreElement()
-                .andThen(blacklistRepository.fireAdd(accountId, user))
+                .andThen(blacklistRepository.fireAdd(accountId, owner))
         }
         return completable
     }
 
-    override fun unbanUser(accountId: Int, userId: Int): Completable {
+    override fun unbanOwner(accountId: Int, ownerId: Int): Completable {
         return networker.vkDefault(accountId)
             .account()
-            .unbanUser(userId)
+            .unban(ownerId)
             .delay(1, TimeUnit.SECONDS) // чтобы не дергало UI
             .ignoreElement()
-            .andThen(blacklistRepository.fireRemove(accountId, userId))
+            .andThen(blacklistRepository.fireRemove(accountId, ownerId))
     }
 
     override fun changeStatus(accountId: Int, status: String?): Completable {

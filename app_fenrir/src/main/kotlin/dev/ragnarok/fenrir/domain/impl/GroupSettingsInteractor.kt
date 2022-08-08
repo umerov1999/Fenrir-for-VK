@@ -53,6 +53,39 @@ class GroupSettingsInteractor(
             .andThen(repository.fireBanAction(BanAction(groupId, ownerId, true)))
     }
 
+    override fun edit(
+        accountId: Int,
+        groupId: Int,
+        title: String?,
+        description: String?,
+        screen_name: String?,
+        access: Int?,
+        website: String?,
+        public_category: Int?,
+        public_date: String?,
+        age_limits: Int?,
+        obscene_filter: Int?,
+        obscene_stopwords: Int?,
+        obscene_words: String?
+    ): Completable {
+        return networker.vkDefault(accountId)
+            .groups()
+            .edit(
+                groupId,
+                title,
+                description,
+                screen_name,
+                access,
+                website,
+                public_category,
+                public_date,
+                age_limits,
+                obscene_filter,
+                obscene_stopwords,
+                obscene_words
+            )
+    }
+
     override fun editManager(
         accountId: Int,
         groupId: Int,
@@ -229,6 +262,8 @@ class GroupSettingsInteractor(
         }
         return GroupSettings()
             .setTitle(dto.title)
+            .setAge(dto.age_limits)
+            .setAccess(dto.access)
             .setDescription(dto.description)
             .setAddress(dto.address)
             .setAvailableCategories(categories)

@@ -11,9 +11,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IRequestExecuteView
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
 import dev.ragnarok.fenrir.util.Pair
@@ -22,8 +24,10 @@ import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.serializeble.json.Json
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.encodeToString
+import okio.BufferedSource
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
@@ -67,7 +71,13 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
             }
         }
         setLoadingNow(true)
-        appendDisposable(executeSingle(accountId, trimmedMethod, params)
+        appendDisposable((if (Settings.get()
+                .other().currentParser == ParserType.MSGPACK
+        ) executeSingleMsgPack(
+            accountId,
+            trimmedMethod,
+            params
+        ) else executeSingleJson(accountId, trimmedMethod, params))
             .fromIOToMain()
             .subscribe({ onRequestResponse(it) }) { throwable ->
                 onRequestError(
@@ -152,14 +162,43 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
         }
     }
 
-    private fun executeSingle(
+    private fun executeSingleJson(
         accountId: Int,
         method: String,
         params: Map<String, String>
     ): Single<Pair<String?, String?>> {
         return networker.vkDefault(accountId)
             .other()
-            .rawRequest(method, params)
+            .rawRequestJson(method, params)
+            .map { optional ->
+                val responseString = optional.get()
+                val fullJson = if (responseString == null) null else toPrettyFormat(responseString)
+                var trimmedJson: String? = null
+                if (fullJson.nonNullNoEmpty()) {
+                    val lines = fullJson.split(Regex("\\r?\\n")).toTypedArray()
+                    val trimmed: MutableList<String> = ArrayList()
+                    for (line in lines) {
+                        if (trimmed.size > 1500) {
+                            trimmed.add("\n")
+                            trimmed.add("... and more " + (lines.size - 1500) + " lines")
+                            break
+                        }
+                        trimmed.add(line)
+                    }
+                    trimmedJson = join("\n", trimmed)
+                }
+                create(fullJson, trimmedJson)
+            }
+    }
+
+    private fun executeSingleMsgPack(
+        accountId: Int,
+        method: String,
+        params: Map<String, String>
+    ): Single<Pair<String?, String?>> {
+        return networker.vkDefault(accountId)
+            .other()
+            .rawRequestMsgPack(method, params)
             .map { optional ->
                 val responseString = optional.get()
                 val fullJson = if (responseString == null) null else toPrettyFormat(responseString)
@@ -223,6 +262,13 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
                 ignoreUnknownKeys = true; isLenient = true; prettyPrint = true
             }
             return json.encodeToString(json.parseToJsonElement(jsonString))
+        }
+
+        internal fun toPrettyFormat(bytes: BufferedSource): String {
+            val json = Json {
+                ignoreUnknownKeys = true; isLenient = true; prettyPrint = true
+            }
+            return json.encodeToString(MsgPack.parseToJsonElement(bytes))
         }
     }
 

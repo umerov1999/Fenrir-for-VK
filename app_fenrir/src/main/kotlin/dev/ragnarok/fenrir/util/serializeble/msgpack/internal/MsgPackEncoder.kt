@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.util.serializeble.msgpack.internal
 
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPackConfiguration
 import dev.ragnarok.fenrir.util.serializeble.msgpack.exceptions.MsgPackSerializationException
+import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataOutputArrayBuffer
 import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataOutputBuffer
 import dev.ragnarok.fenrir.util.serializeble.msgpack.types.MsgPackType
 import dev.ragnarok.fenrir.util.serializeble.msgpack.utils.splitToByteArray
@@ -21,7 +22,7 @@ internal class BasicMsgPackEncoder(
     private val packer: MsgPacker = BasicMsgPacker(),
     val inlineEncoders: Map<SerialDescriptor, (InlineEncoderHelper) -> Encoder> = mapOf()
 ) : AbstractEncoder() {
-    val result = MsgPackDataOutputBuffer()
+    val result = MsgPackDataOutputArrayBuffer()
 
     override fun encodeBoolean(value: Boolean) {
         result.addAll(packer.packBoolean(value))

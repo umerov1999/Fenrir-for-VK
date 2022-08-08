@@ -45,6 +45,7 @@
     <dimen name="content_medium_margin">8dp</dimen>
 
     <dimen name="keyboard_height">250dp</dimen>
+    <dimen name="keyboard_max_height">512dp</dimen>
 
     <dimen name="pincode_row_height">64dp</dimen>
     <dimen name="pincode_button_subtitle_text_size">8dp</dimen>

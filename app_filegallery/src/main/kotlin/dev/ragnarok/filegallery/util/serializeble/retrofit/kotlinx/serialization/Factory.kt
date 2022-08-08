@@ -2,6 +2,7 @@
 
 package dev.ragnarok.filegallery.util.serializeble.retrofit.kotlinx.serialization
 
+import dev.ragnarok.filegallery.util.serializeble.json.Json
 import dev.ragnarok.filegallery.util.serializeble.retrofit.kotlinx.serialization.Serializer.FromBytes
 import dev.ragnarok.filegallery.util.serializeble.retrofit.kotlinx.serialization.Serializer.FromString
 import kotlinx.serialization.BinaryFormat
@@ -59,6 +60,12 @@ fun StringFormat.asConverterFactory(contentType: MediaType): Converter.Factory {
 @JvmName("create")
 fun StringFormat.asConverterFactory(): Converter.Factory {
     return Factory("application/json; charset=UTF-8".toMediaType(), FromString(this))
+}
+
+@ExperimentalSerializationApi
+@JvmName("create")
+fun Json.asConverterFactory(): Converter.Factory {
+    return Factory("application/json; charset=UTF-8".toMediaType(), Serializer.FromJson(this))
 }
 
 /**

@@ -47,8 +47,6 @@ class UserDetailsEntity {
         private set
     var giftCount = 0
         private set
-    var bdate: String? = null
-        private set
     var city: CityEntity? = null
         private set
     var country: CountryDboEntity? = null
@@ -312,11 +310,6 @@ class UserDetailsEntity {
 
     fun setCity(city: CityEntity?): UserDetailsEntity {
         this.city = city
-        return this
-    }
-
-    fun setBdate(bdate: String?): UserDetailsEntity {
-        this.bdate = bdate
         return this
     }
 

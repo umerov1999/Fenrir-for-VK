@@ -27,7 +27,6 @@ import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.SelectProfileCriteria
-import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.UserBannedPresenter
 import dev.ragnarok.fenrir.mvp.view.IUserBannedView
@@ -42,9 +41,9 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val users: ArrayList<Owner>? = result.data?.getParcelableArrayListExtra(Extra.OWNERS)
+            val owners: ArrayList<Owner>? = result.data?.getParcelableArrayListExtra(Extra.OWNERS)
             lazyPresenter {
-                users?.let { u -> fireUsersSelected(u) }
+                owners?.let { u -> fireOwnersSelected(u) }
             }
         }
     }
@@ -75,9 +74,7 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
         mPeopleAdapter?.setLongClickListener(this)
         mPeopleAdapter?.setClickListener(object : PeopleAdapter.ClickListener {
             override fun onOwnerClick(owner: Owner) {
-                presenter?.fireUserClick(
-                    (owner as User)
-                )
+                presenter?.fireOwnerClick(owner)
             }
         })
         mRecyclerView?.adapter = mPeopleAdapter
@@ -96,9 +93,9 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
         }
     }
 
-    override fun displayUserList(users: List<User>) {
+    override fun displayOwnerList(owners: List<Owner>) {
         if (mPeopleAdapter != null) {
-            mPeopleAdapter?.setItems(users)
+            mPeopleAdapter?.setItems(owners)
             resolveEmptyTextVisibility()
         }
     }
@@ -167,8 +164,8 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
         mRecyclerView?.smoothScrollToPosition(position)
     }
 
-    override fun showUserProfile(accountId: Int, user: User) {
-        getOwnerWallPlace(accountId, user).tryOpenWith(requireActivity())
+    override fun showOwnerProfile(accountId: Int, owner: Owner) {
+        getOwnerWallPlace(accountId, owner).tryOpenWith(requireActivity())
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<UserBannedPresenter> {
@@ -186,9 +183,7 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
         MaterialAlertDialogBuilder(requireActivity())
             .setTitle(owner.fullName)
             .setItems(arrayOf(getString(R.string.delete))) { _: DialogInterface?, _: Int ->
-                presenter?.fireRemoveClick(
-                    (owner as User)
-                )
+                presenter?.fireRemoveClick(owner)
             }
             .setNegativeButton(R.string.button_cancel, null)
             .show()

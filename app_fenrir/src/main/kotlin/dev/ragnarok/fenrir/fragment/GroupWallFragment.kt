@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.fragment
 
 import android.app.Activity
+import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
@@ -16,24 +17,29 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
-import dev.ragnarok.fenrir.*
+import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.extractGroupTokens
 import dev.ragnarok.fenrir.adapter.horizontal.HorizontalMenuAdapter
 import dev.ragnarok.fenrir.adapter.horizontal.HorizontalOptionsAdapter
+import dev.ragnarok.fenrir.ifNonNullNoEmpty
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.*
+import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.DocsListPresenter
 import dev.ragnarok.fenrir.mvp.presenter.GroupWallPresenter
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView.IOptionMenuView
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
+import dev.ragnarok.fenrir.picasso.transforms.MonochromeTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceFactory.getCommunityControlPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getDialogsPlace
@@ -47,6 +53,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getTopicsPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.util.Utils.getVerifiedColor
 import dev.ragnarok.fenrir.util.Utils.setBackgroundTint
@@ -87,9 +94,9 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                     url = i.getUrl()
                 }
             }
-            displayCommunityCover(url)
+            displayCommunityCover(community.isBlacklisted, url)
         }, {
-            displayCommunityCover(community.maxSquareAvatar)
+            displayCommunityCover(community.isBlacklisted, community.maxSquareAvatar)
         })
         val statusText: String? = if (details.getStatusAudio() != null) {
             details.getStatusAudio()?.artistAndTitle
@@ -174,10 +181,13 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         val photoUrl = community.maxSquareAvatar
         if (photoUrl.nonNullNoEmpty()) {
             mHeaderHolder?.ivAvatar?.let {
-                with()
-                    .load(photoUrl).transform(CurrentTheme.createTransformationForAvatar())
-                    .tag(Constants.PICASSO_TAG)
-                    .into(it)
+                val sks = with()
+                    .load(photoUrl)
+                    .transform(CurrentTheme.createTransformationForAvatar())
+                if (community.isBlacklisted) {
+                    sks.transform(MonochromeTransformation())
+                }
+                sks.into(it)
             }
         }
         mHeaderHolder?.ivAvatar?.setOnClickListener {
@@ -187,6 +197,26 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
             presenter?.fireMentions()
             true
         }
+        if (community.isBlacklisted) {
+            mHeaderHolder?.blacklisted?.visibility = View.VISIBLE
+            if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
+                mHeaderHolder?.blacklisted?.fromRes(
+                    dev.ragnarok.fenrir_common.R.raw.skull,
+                    dp(48f),
+                    dp(48f),
+                    null
+                )
+                mHeaderHolder?.blacklisted?.playAnimation()
+            } else {
+                mHeaderHolder?.blacklisted?.setImageResource(R.drawable.audio_died)
+                mHeaderHolder?.blacklisted?.setColorFilter(Color.parseColor("#AAFF0000"))
+            }
+        } else {
+            mHeaderHolder?.blacklisted?.visibility = View.GONE
+            mHeaderHolder?.blacklisted?.clearAnimationDrawable()
+        }
+        mHeaderHolder?.blacklisted?.visibility =
+            if (community.isBlacklisted) View.VISIBLE else View.GONE
     }
 
     override fun onSinglePhoto(ava: String, prefix: String?, community: Community) {
@@ -201,14 +231,17 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         LinkHelper.openUrl(requireActivity(), accountId, link, false)
     }
 
-    private fun displayCommunityCover(resource: String?) {
+    private fun displayCommunityCover(blacklisted: Boolean, resource: String?) {
         if (!Settings.get().other().isShow_wall_cover) return
         if (resource.nonNullNoEmpty()) {
             mHeaderHolder?.vgCover?.let {
-                with()
+                val sks = with()
                     .load(resource)
                     .transform(BlurTransformation(6f, requireActivity()))
-                    .into(it)
+                if (blacklisted) {
+                    sks.transform(MonochromeTransformation())
+                }
+                sks.into(it)
             }
         }
     }
@@ -306,6 +339,16 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         presenter?.fireOptionMenuViewCreated(
             optionMenuView
         )
+        menu.add(R.string.add_to_blacklist).setOnMenuItemClickListener {
+            MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(R.string.add_to_blacklist)
+                .setPositiveButton(R.string.button_yes) { _: DialogInterface?, _: Int ->
+                    presenter?.fireAddToBlacklistClick()
+                }
+                .setNegativeButton(R.string.cancel) { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
+                .show()
+            true
+        }
         if (!optionMenuView.pIsSubscribed) {
             menu.add(R.string.notify_wall_added).setOnMenuItemClickListener {
                 presenter?.fireSubscribe()
@@ -470,6 +513,7 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
     }
 
     private inner class GroupHeaderHolder(root: View) {
+        val blacklisted: RLottieImageView = root.findViewById(R.id.item_blacklisted)
         val vgCover: ImageView = root.findViewById(R.id.cover)
         val ivAvatar: ImageView = root.findViewById(R.id.header_group_avatar)
         val ivVerified: ImageView = root.findViewById(R.id.item_verified)

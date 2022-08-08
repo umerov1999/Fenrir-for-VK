@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.model
 
-class BannedPart(val users: List<User>) {
+class BannedPart(val owners: List<Owner>) {
     fun getTotalCount(): Int {
-        return users.size
+        return owners.size
     }
 }

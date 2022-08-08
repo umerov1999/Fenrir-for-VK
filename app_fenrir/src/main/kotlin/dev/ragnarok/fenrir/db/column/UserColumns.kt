@@ -4,7 +4,7 @@ import android.provider.BaseColumns
 
 object UserColumns : BaseColumns {
     const val API_FIELDS =
-        "blacklisted,blacklisted_by_me,can_access_closed,can_post,can_see_all_posts,can_see_audio,can_write_private_message,domain,first_name,friend_status,is_closed,is_favorite,is_friend,is_subscribed,last_name,last_seen,maiden_name,online,online_app,online_mobile,photo_100,photo_200,photo_50,photo_max_orig,platform,screen_name,sex,status,verified"
+        "bdate,blacklisted,blacklisted_by_me,can_access_closed,can_post,can_see_all_posts,can_see_audio,can_write_private_message,domain,first_name,friend_status,is_closed,is_favorite,is_friend,is_subscribed,last_name,last_seen,maiden_name,online,online_app,online_mobile,photo_100,photo_200,photo_50,photo_max_orig,platform,screen_name,sex,status,verified"
 
     /**
      * The table name of books = "books"
@@ -29,6 +29,7 @@ object UserColumns : BaseColumns {
     const val IS_FRIEND = "is_friend"
     const val FRIEND_STATUS = "friend_status"
     const val WRITE_MESSAGE_STATUS = "write_message_status"
+    const val BDATE = "bdate"
     const val IS_USER_BLACK_LIST = "is_user_in_black_list"
     const val IS_BLACK_LISTED = "is_black_listed"
     const val IS_CAN_ACCESS_CLOSED = "is_can_access_closed"
@@ -62,4 +63,5 @@ object UserColumns : BaseColumns {
     const val FULL_IS_CAN_ACCESS_CLOSED = "$TABLENAME.$IS_CAN_ACCESS_CLOSED"
     const val FULL_IS_VERIFIED = "$TABLENAME.$IS_VERIFIED"
     const val FULL_MAIDEN_NAME = "$TABLENAME.$MAIDEN_NAME"
+    const val FULL_BDATE = "$TABLENAME.$BDATE"
 }

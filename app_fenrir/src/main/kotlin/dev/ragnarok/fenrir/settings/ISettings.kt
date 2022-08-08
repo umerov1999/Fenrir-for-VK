@@ -109,6 +109,7 @@ interface ISettings {
         val isDo_zoom_photo: Boolean
         val isChange_upload_size: Boolean
         val isShow_photos_line: Boolean
+        val isShow_photos_date: Boolean
         var isDisable_likes: Boolean
         var isDisable_notifications: Boolean
         val isDo_auto_play_video: Boolean
@@ -150,6 +151,7 @@ interface ISettings {
         val userNameChangesKeys: Set<String>
         val customChannelNotif: Int
         fun nextCustomChannelNotif()
+        val currentParser: Int
     }
 
     interface IAccountsSettings {

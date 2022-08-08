@@ -37,7 +37,7 @@ class CommunityManagerEditFragment :
     private var mButtonEditor: RadioButton? = null
     private var mButtonAdmin: RadioButton? = null
     private var mShowAsContact: MaterialCheckBox? = null
-    private var mContactInfoRoot: View? = null
+    private var mContactInfoRoot: ViewGroup? = null
     private var mPosition: TextInputEditText? = null
     private var mEmail: TextInputEditText? = null
     private var mPhone: TextInputEditText? = null

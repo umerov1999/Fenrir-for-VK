@@ -24,6 +24,7 @@ import com.squareup.picasso3.BitmapUtils.calculateInSampleSize
 import com.squareup.picasso3.BitmapUtils.createBitmapOptions
 import com.squareup.picasso3.BitmapUtils.decodeStream
 import com.squareup.picasso3.Picasso.LoadedFrom
+import okio.source
 
 @Suppress("DEPRECATION")
 internal class MediaStoreRequestHandler(context: Context) : ContentStreamRequestHandler(context) {
@@ -48,7 +49,8 @@ internal class MediaStoreRequestHandler(context: Context) : ContentStreamRequest
                 val picassoKind = getPicassoKind(request.targetWidth, request.targetHeight)
                 if (!isVideo && picassoKind == PicassoKind.FULL) {
                     val source = getSource(requestUri)
-                    val bitmap = decodeStream(source, request)
+                    val bitmap = decodeStream(source.source(), request)
+                    source.close()
                     signaledCallback = true
                     callback.onSuccess(Result.Bitmap(bitmap, LoadedFrom.DISK, exifOrientation))
                     return
@@ -87,7 +89,8 @@ internal class MediaStoreRequestHandler(context: Context) : ContentStreamRequest
             }
 
             val source = getSource(requestUri)
-            val bitmap = decodeStream(source, request)
+            val bitmap = decodeStream(source.source(), request)
+            source.close()
             signaledCallback = true
             callback.onSuccess(Result.Bitmap(bitmap, LoadedFrom.DISK, exifOrientation))
         } catch (e: Exception) {

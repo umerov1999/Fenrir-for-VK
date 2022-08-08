@@ -666,14 +666,6 @@ class UserWallPresenter(
         prepareUserAvatarsAndShow()
     }
 
-    fun fireAddToBlacklistClick() {
-        val accountId = accountId
-        appendDisposable(InteractorFactory.createAccountInteractor()
-            .banUsers(accountId, listOf(user))
-            .fromIOToMain()
-            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
-    }
-
     fun fireMentions() {
         getMentionsPlace(accountId, ownerId).tryOpenWith(context)
     }
@@ -721,23 +713,6 @@ class UserWallPresenter(
                 dialog.dismiss()
             }
             .show()
-    }
-
-    fun fireRemoveBlacklistClick() {
-        val accountId = accountId
-        appendDisposable(InteractorFactory.createAccountInteractor()
-            .unbanUser(accountId, user.getObjectId())
-            .fromIOToMain()
-            .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
-    }
-
-    private fun onExecuteError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
-    }
-
-    private fun onExecuteComplete() {
-        onRefresh()
-        view?.customToast?.showToast(R.string.success)
     }
 
     fun fireChatClick() {
@@ -795,6 +770,10 @@ class UserWallPresenter(
                     )
                 }
             }) { })
+    }
+
+    override fun getOwner(): Owner {
+        return user
     }
 
     init {

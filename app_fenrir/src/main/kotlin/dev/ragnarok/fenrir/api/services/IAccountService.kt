@@ -12,13 +12,13 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface IAccountService {
-    @POST("account.banUser")
+    @POST("account.ban")
     @FormUrlEncoded
-    fun banUser(@Field("user_id") userId: Int): Single<BaseResponse<Int>>
+    fun ban(@Field("owner_id") owner_id: Int): Single<BaseResponse<Int>>
 
-    @POST("account.unbanUser")
+    @POST("account.unban")
     @FormUrlEncoded
-    fun unbanUser(@Field("user_id") userId: Int): Single<BaseResponse<Int>>
+    fun unban(@Field("owner_id") owner_id: Int): Single<BaseResponse<Int>>
 
     @POST("account.getBanned")
     @FormUrlEncoded
@@ -26,7 +26,7 @@ interface IAccountService {
         @Field("count") count: Int?,
         @Field("offset") offset: Int?,
         @Field("fields") fields: String?
-    ): Single<BaseResponse<AccountsBannedResponce>>
+    ): Single<BaseResponse<AccountsBannedResponse>>
     //https://vk.com/dev/account.getCounters
     /**
      * @param filter friends — новые заявки в друзья;

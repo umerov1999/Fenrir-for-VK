@@ -350,6 +350,7 @@ object Dto2Entity {
             .setName(community.fullName)
             .setScreenName(community.screen_name)
             .setClosed(community.is_closed)
+            .setBlacklisted(community.blacklisted)
             .setVerified(community.verified)
             .setAdmin(community.is_admin)
             .setAdminLevel(community.admin_level)
@@ -404,6 +405,7 @@ object Dto2Entity {
             .setCan_access_closed(user.can_access_closed)
             .setVerified(user.verified)
             .setMaiden_name(user.maiden_name)
+            .setBdate(user.bdate)
     }
 
 
@@ -471,7 +473,6 @@ object Dto2Entity {
         } catch (ignored: Exception) {
         }
         dbo.setStatusAudio(user.status_audio?.let { mapAudio(it) })
-        dbo.setBdate(user.bdate)
         dbo.setClosed(user.is_closed)
         dbo.setCity(user.city?.let { mapCity(it) })
         dbo.setCountry(user.country?.let { mapCountry(it) })

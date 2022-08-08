@@ -6,14 +6,14 @@ import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse.Conversations
 import dev.ragnarok.fenrir.model.Account
 import dev.ragnarok.fenrir.model.BannedPart
 import dev.ragnarok.fenrir.model.ContactConversation
-import dev.ragnarok.fenrir.model.User
+import dev.ragnarok.fenrir.model.Owner
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 interface IAccountsInteractor {
     fun getBanned(accountId: Int, count: Int, offset: Int): Single<BannedPart>
-    fun banUsers(accountId: Int, users: Collection<User>): Completable
-    fun unbanUser(accountId: Int, userId: Int): Completable
+    fun banOwners(accountId: Int, owners: Collection<Owner>): Completable
+    fun unbanOwner(accountId: Int, ownerId: Int): Completable
     fun changeStatus(accountId: Int, status: String?): Completable
     fun setOffline(accountId: Int): Single<Boolean>
     fun getProfileInfo(accountId: Int): Single<VKApiProfileInfo>

@@ -61,7 +61,9 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
         holder.ivVerified.visibility =
             if (favePage.owner?.isVerified == true) View.VISIBLE else View.GONE
 
-        if (Settings.get().other().isOwnerInChangesMonitor(favePage.getObjectId())) {
+        if (Settings.get().other()
+                .isOwnerInChangesMonitor(favePage.owner?.ownerId ?: favePage.getObjectId())
+        ) {
             holder.ivMonitor.visibility = View.VISIBLE
             holder.ivMonitor.fromRes(
                 dev.ragnarok.fenrir_common.R.raw.eye,
@@ -145,6 +147,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
                 holder.ivOnline.setIcon(onlineIcon)
             }
         } else {
+            val group = favePage.group
             displayAvatar(
                 holder.avatar,
                 transformation,
@@ -153,7 +156,24 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
             )
             holder.name.setTextColor(Utils.getVerifiedColor(context, false))
             holder.ivOnline.visibility = View.GONE
-            holder.blacklisted.visibility = View.GONE
+            if (group?.isBlacklisted == true) {
+                holder.blacklisted.visibility = View.VISIBLE
+                if (Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
+                    holder.blacklisted.fromRes(
+                        dev.ragnarok.fenrir_common.R.raw.skull,
+                        Utils.dp(48f),
+                        Utils.dp(48f),
+                        null
+                    )
+                    holder.blacklisted.playAnimation()
+                } else {
+                    holder.blacklisted.setImageResource(R.drawable.audio_died)
+                    holder.blacklisted.setColorFilter(Color.parseColor("#AAFF0000"))
+                }
+            } else {
+                holder.blacklisted.visibility = View.GONE
+                holder.blacklisted.clearAnimationDrawable()
+            }
         }
         addSelectionProfileSupport(context, holder.avatar_root, favePage)
         holder.itemView.setOnClickListener {

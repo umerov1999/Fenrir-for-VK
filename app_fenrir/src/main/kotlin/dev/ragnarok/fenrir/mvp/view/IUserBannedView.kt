@@ -1,11 +1,11 @@
 package dev.ragnarok.fenrir.mvp.view
 
-import dev.ragnarok.fenrir.model.User
+import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.core.IMvpView
 import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
 
 interface IUserBannedView : IAccountDependencyView, IMvpView, IErrorView {
-    fun displayUserList(users: List<User>)
+    fun displayOwnerList(owners: List<Owner>)
     fun notifyItemsAdded(position: Int, count: Int)
     fun notifyDataSetChanged()
     fun notifyItemRemoved(position: Int)
@@ -13,5 +13,5 @@ interface IUserBannedView : IAccountDependencyView, IMvpView, IErrorView {
     fun startUserSelection(accountId: Int)
     fun showSuccessToast()
     fun scrollToPosition(position: Int)
-    fun showUserProfile(accountId: Int, user: User)
+    fun showOwnerProfile(accountId: Int, owner: Owner)
 }

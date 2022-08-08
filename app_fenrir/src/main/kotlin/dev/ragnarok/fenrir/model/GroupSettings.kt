@@ -7,6 +7,8 @@ class GroupSettings : Parcelable {
     private var title: String? = null
     private var description: String? = null
     private var address: String? = null
+    private var access: Int = 0
+    private var age: Int = 1
     private var category: IdOption? = null
     private var subcategory: IdOption? = null
     private var availableCategories: List<IdOption>?
@@ -33,6 +35,8 @@ class GroupSettings : Parcelable {
         obsceneFilterEnabled = `in`.readByte().toInt() != 0
         obsceneStopwordsEnabled = `in`.readByte().toInt() != 0
         obsceneWords = `in`.readString()
+        access = `in`.readInt()
+        age = `in`.readInt()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -47,6 +51,8 @@ class GroupSettings : Parcelable {
         dest.writeByte((if (obsceneFilterEnabled) 1 else 0).toByte())
         dest.writeByte((if (obsceneStopwordsEnabled) 1 else 0).toByte())
         dest.writeString(obsceneWords)
+        dest.writeInt(access)
+        dest.writeInt(age)
     }
 
     override fun describeContents(): Int {
@@ -59,6 +65,32 @@ class GroupSettings : Parcelable {
 
     fun setTitle(title: String?): GroupSettings {
         this.title = title
+        return this
+    }
+
+    fun getAge(): Int {
+        return age
+    }
+
+    fun setAge(age: Int): GroupSettings {
+        this.age = age
+        return this
+    }
+
+    fun getAccess(): Int {
+        return access
+    }
+
+    fun setAccess(access: Int): GroupSettings {
+        this.access = access
+        return this
+    }
+
+    fun incAccess(): GroupSettings {
+        access++
+        if (access > 2) {
+            access = 0
+        }
         return this
     }
 

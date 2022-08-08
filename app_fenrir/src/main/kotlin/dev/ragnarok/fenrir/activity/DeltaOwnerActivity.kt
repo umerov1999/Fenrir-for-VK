@@ -82,7 +82,11 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
                 intent.data?.let { uri ->
                     contentResolver.openInputStream(
                         uri
-                    )?.let { kJson.decodeFromStream(DeltaOwner.serializer(), it) }
+                    )?.let {
+                        val s = kJson.decodeFromStream(DeltaOwner.serializer(), it)
+                        it.close()
+                        s
+                    }
                 } ?: DeltaOwner()
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -21,12 +21,11 @@ import dev.ragnarok.filegallery.fragment.FileManagerFragment.Companion.isExtensi
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.CoverSafeResize
 import dev.ragnarok.filegallery.util.Utils
-import okio.Source
 import okio.source
 import java.io.*
 import java.util.*
 
-class PicassoMediaMetadataHandler(val context: Context) : RequestHandler() {
+class PicassoFileManagerHandler(val context: Context) : RequestHandler() {
     companion object {
         fun toSha1(str: String): String {
             return StringHash.calculateSha1(str)
@@ -50,11 +49,10 @@ class PicassoMediaMetadataHandler(val context: Context) : RequestHandler() {
     }
 
     @Throws(FileNotFoundException::class)
-    fun getSource(uri: Uri): Source {
+    fun getSource(uri: Uri): InputStream {
         val contentResolver = context.contentResolver
-        val inputStream = contentResolver.openInputStream(uri)
+        return contentResolver.openInputStream(uri)
             ?: throw FileNotFoundException("can't open input stream, uri: $uri")
-        return inputStream.source()
     }
 
     private val filter: FilenameFilter = FilenameFilter { dir: File, filename: String ->
@@ -110,12 +108,15 @@ class PicassoMediaMetadataHandler(val context: Context) : RequestHandler() {
                 return
             }
             try {
+                val s = getSource(Uri.fromFile(dir))
+                val bs = BitmapUtils.decodeStream(
+                    s.source(),
+                    request
+                )
+                s.close()
                 callback.onSuccess(
                     Result.Bitmap(
-                        BitmapUtils.decodeStream(
-                            getSource(Uri.fromFile(dir)),
-                            request
-                        ), Picasso.LoadedFrom.DISK
+                        bs, Picasso.LoadedFrom.DISK
                     )
                 )
             } catch (e: Exception) {
@@ -171,9 +172,11 @@ class PicassoMediaMetadataHandler(val context: Context) : RequestHandler() {
                 return
             }
             isExtension(requestUri.toString(), Settings.get().main().photoExt()) -> {
+                val s = getSource(requestUri)
                 var target: Bitmap
                 try {
-                    target = BitmapUtils.decodeStream(getSource(requestUri), request)
+                    target = BitmapUtils.decodeStream(s.source(), request)
+                    s.close()
                 } catch (e: Exception) {
                     dir.createNewFile()
                     callback.onError(Throwable("Thumb work error"))
@@ -233,14 +236,16 @@ class PicassoMediaMetadataHandler(val context: Context) : RequestHandler() {
                 return true
             }
             try {
+                val s = getSource(Uri.fromFile(dir))
                 callback.onSuccess(
                     Result.Bitmap(
                         BitmapUtils.decodeStream(
-                            getSource(Uri.fromFile(dir)),
+                            s.source(),
                             request
                         ), Picasso.LoadedFrom.DISK
                     )
                 )
+                s.close()
             } catch (e: Exception) {
                 callback.onError(e)
             }

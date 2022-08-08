@@ -66,11 +66,11 @@ class CommunityBanEditFragment :
         mDomain = root.findViewById(R.id.domain)
         mBanStatus = root.findViewById(R.id.status)
         mBlockFor = root.findViewById(R.id.spinner_block_for)
-        mBlockFor?.setIconOnClickListener {
+        mBlockFor?.setOnClickListener {
             presenter?.fireBlockForClick()
         }
         mReason = root.findViewById(R.id.spinner_reason)
-        mReason?.setIconOnClickListener {
+        mReason?.setOnClickListener {
             presenter?.fireResonClick()
         }
         mComment = root.findViewById(R.id.community_ban_comment)

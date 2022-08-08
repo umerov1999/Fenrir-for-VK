@@ -18,8 +18,10 @@ import dev.ragnarok.fenrir.db.interfaces.IOwnersStorage
 import dev.ragnarok.fenrir.db.model.BanAction
 import dev.ragnarok.fenrir.db.model.UserPatch
 import dev.ragnarok.fenrir.db.model.entity.*
+import dev.ragnarok.fenrir.domain.mappers.Entity2Model
 import dev.ragnarok.fenrir.fragment.UserInfoResolveUtil.getUserActivityLine
 import dev.ragnarok.fenrir.model.Manager
+import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
@@ -269,6 +271,20 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
         }
     }
 
+    override fun findFriendBirtday(accountId: Int): Single<List<User>> {
+        return Single.create {
+            val uri = getUserContentUriFor(accountId)
+            val where = UserColumns.BDATE + " IS NOT NULL AND " + UserColumns.IS_FRIEND + " = 1"
+            val cursor = contentResolver.query(uri, null, where, null, UserColumns.BDATE + " DESC")
+            val listEntity: ArrayList<User> = ArrayList()
+            while (cursor?.moveToNext() == true) {
+                Entity2Model.map(mapUserDbo(cursor))?.let { it1 -> listEntity.add(it1) }
+            }
+            cursor?.close()
+            it.onSuccess(listEntity)
+        }
+    }
+
     override fun findCommunityByDomain(
         accountId: Int,
         domain: String?
@@ -507,6 +523,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
             cv.put(GroupColumns.NAME, dbo.name)
             cv.put(GroupColumns.SCREEN_NAME, dbo.screenName)
             cv.put(GroupColumns.IS_CLOSED, dbo.closed)
+            cv.put(GroupColumns.IS_BLACK_LISTED, dbo.isBlacklisted)
             cv.put(GroupColumns.IS_VERIFIED, dbo.isVerified)
             cv.put(GroupColumns.IS_ADMIN, dbo.isAdmin)
             cv.put(GroupColumns.ADMIN_LEVEL, dbo.adminLevel)
@@ -540,6 +557,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
             cv.put(UserColumns.IS_FRIEND, dbo.isFriend)
             cv.put(UserColumns.FRIEND_STATUS, dbo.friendStatus)
             cv.put(UserColumns.WRITE_MESSAGE_STATUS, dbo.canWritePrivateMessage)
+            cv.put(UserColumns.BDATE, dbo.bdate)
             cv.put(UserColumns.IS_USER_BLACK_LIST, dbo.blacklisted_by_me)
             cv.put(UserColumns.IS_BLACK_LISTED, dbo.blacklisted)
             cv.put(UserColumns.IS_VERIFIED, dbo.isVerified)
@@ -554,6 +572,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 .setScreenName(cursor.getString(GroupColumns.SCREEN_NAME))
                 .setClosed(cursor.getInt(GroupColumns.IS_CLOSED))
                 .setVerified(cursor.getBoolean(GroupColumns.IS_VERIFIED))
+                .setBlacklisted(cursor.getBoolean(GroupColumns.IS_BLACK_LISTED))
                 .setAdmin(cursor.getBoolean(GroupColumns.IS_ADMIN))
                 .setAdminLevel(cursor.getInt(GroupColumns.ADMIN_LEVEL))
                 .setMember(cursor.getBoolean(GroupColumns.IS_MEMBER))
@@ -584,6 +603,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 .setFriend(cursor.getBoolean(UserColumns.IS_FRIEND))
                 .setFriendStatus(cursor.getInt(UserColumns.FRIEND_STATUS))
                 .setCanWritePrivateMessage(cursor.getBoolean(UserColumns.WRITE_MESSAGE_STATUS))
+                .setBdate(cursor.getString(UserColumns.BDATE))
                 .setBlacklisted_by_me(cursor.getBoolean(UserColumns.IS_USER_BLACK_LIST))
                 .setBlacklisted(cursor.getBoolean(UserColumns.IS_BLACK_LISTED))
                 .setVerified(cursor.getBoolean(UserColumns.IS_VERIFIED))

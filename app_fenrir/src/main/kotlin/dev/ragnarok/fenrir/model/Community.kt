@@ -41,7 +41,10 @@ class Community : Owner {
         private set
     var photo200: String? = null
         private set
-    private var verified = false
+    var verified = false
+        private set
+    var isBlacklisted = false
+        private set
 
     constructor(id: Int) : super(OwnerType.COMMUNITY) {
         this.id = id
@@ -62,6 +65,7 @@ class Community : Owner {
         photo100 = `in`.readString()
         photo200 = `in`.readString()
         verified = `in`.readByte().toInt() != 0
+        isBlacklisted = `in`.readByte().toInt() != 0
     }
 
     internal constructor(`in`: ParcelNative) : super(`in`) {
@@ -79,6 +83,7 @@ class Community : Owner {
         photo100 = `in`.readString()
         photo200 = `in`.readString()
         verified = `in`.readBoolean()
+        isBlacklisted = `in`.readBoolean()
     }
 
     override val ownerId: Int
@@ -100,6 +105,7 @@ class Community : Owner {
         parcel.writeString(photo100)
         parcel.writeString(photo200)
         parcel.writeByte((if (verified) 1 else 0).toByte())
+        parcel.writeByte((if (isBlacklisted) 1 else 0).toByte())
     }
 
     override fun writeToParcelNative(dest: ParcelNative) {
@@ -118,6 +124,7 @@ class Community : Owner {
         dest.writeString(photo100)
         dest.writeString(photo200)
         dest.writeBoolean(verified)
+        dest.writeBoolean(isBlacklisted)
     }
 
     fun setName(name: String?): Community {
@@ -127,6 +134,11 @@ class Community : Owner {
 
     fun setScreenName(screenName: String?): Community {
         this.screenName = screenName
+        return this
+    }
+
+    fun setBlacklisted(isBlacklisted: Boolean): Community {
+        this.isBlacklisted = isBlacklisted
         return this
     }
 

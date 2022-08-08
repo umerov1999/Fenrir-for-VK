@@ -1,14 +1,16 @@
 package dev.ragnarok.fenrir.util.serializeble.msgpack
 
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 import dev.ragnarok.fenrir.util.serializeble.msgpack.internal.*
-import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.toMsgPackBuffer
-import kotlinx.serialization.BinaryFormat
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerializationStrategy
+import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.toMsgPackArrayBuffer
+import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.toMsgPackBufferedSource
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
+import okio.BufferedSource
 
 /**
  * Main entry point of library
@@ -37,6 +39,25 @@ open class MsgPack @JvmOverloads constructor(
 ) : BinaryFormat {
     companion object Default : MsgPack()
 
+    @Serializable(with = InternalJsonElementAdapter::class)
+    internal class InternalJsonElement(jsonElement: JsonElement) {
+        var element: JsonElement = jsonElement
+    }
+
+    internal class InternalJsonElementAdapter : KSerializer<InternalJsonElement> {
+        override val descriptor: SerialDescriptor =
+            buildClassSerialDescriptor("InternalJsonElement")
+
+        override fun deserialize(decoder: Decoder): InternalJsonElement {
+            require(decoder is BasicMsgPackDecoder)
+            return InternalJsonElement(decoder.decodeMsgPackElement())
+        }
+
+        override fun serialize(encoder: Encoder, value: InternalJsonElement) {
+            throw UnsupportedOperationException()
+        }
+    }
+
     final override fun <T> decodeFromByteArray(
         deserializer: DeserializationStrategy<T>,
         bytes: ByteArray
@@ -45,7 +66,34 @@ open class MsgPack @JvmOverloads constructor(
             BasicMsgPackDecoder(
                 configuration,
                 serializersModule,
-                bytes.toMsgPackBuffer(),
+                bytes.toMsgPackArrayBuffer(),
+                inlineDecoders = inlineDecoders
+            )
+        )
+        return decoder.decodeSerializableValue(deserializer)
+    }
+
+    fun parseToJsonElement(bytes: ByteArray): JsonElement {
+        return decodeFromByteArray(InternalJsonElement.serializer(), bytes).element
+    }
+
+    fun parseToJsonElement(bytes: BufferedSource): JsonElement {
+        return decodeFromOkioStream(InternalJsonElement.serializer(), bytes).element
+    }
+
+    @ExperimentalSerializationApi
+    inline fun <reified T> decodeFromOkioStream(bytes: BufferedSource): T =
+        decodeFromOkioStream(serializersModule.serializer(), bytes)
+
+    fun <T> decodeFromOkioStream(
+        deserializer: DeserializationStrategy<T>,
+        bytes: BufferedSource
+    ): T {
+        val decoder = MsgPackDecoder(
+            BasicMsgPackDecoder(
+                configuration,
+                serializersModule,
+                bytes.toMsgPackBufferedSource(),
                 inlineDecoders = inlineDecoders
             )
         )

@@ -53,10 +53,7 @@ import dev.ragnarok.fenrir.longpoll.LongpollInstance.longpollManager
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.Option
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
-import dev.ragnarok.fenrir.model.Account
-import dev.ragnarok.fenrir.model.IOwnersBundle
-import dev.ragnarok.fenrir.model.SaveAccount
-import dev.ragnarok.fenrir.model.User
+import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.place.PlaceFactory.getPreferencesPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.backup.SettingsBackup
@@ -71,6 +68,7 @@ import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.util.serializeble.json.*
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import io.reactivex.rxjava3.core.Single
@@ -78,6 +76,7 @@ import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.exceptions.Exceptions
 import okhttp3.*
+import okhttp3.Call
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -760,7 +759,9 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 }
             }
             .map<BaseResponse<List<VKApiUser>>> {
-                kJson.decodeFromStream(it.body.byteStream())
+                if (Settings.get()
+                        .other().currentParser == ParserType.MSGPACK
+                ) MsgPack.decodeFromOkioStream(it.body.source()) else kJson.decodeFromStream(it.body.byteStream())
             }.map { it1 ->
                 it1.error.requireNonNull {
                     throw Exceptions.propagate(ApiException(it))

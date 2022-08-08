@@ -13,6 +13,7 @@ object GroupColumns : BaseColumns {
     const val MEMBER_STATUS = "member_status"
     const val MEMBERS_COUNT = "members_count"
     const val IS_VERIFIED = "is_verified"
+    const val IS_BLACK_LISTED = "is_black_listed"
     const val TYPE = "type"
     const val PHOTO_50 = "photo_50"
     const val PHOTO_100 = "photo_100"
@@ -21,7 +22,7 @@ object GroupColumns : BaseColumns {
     const val TOPICS_ORDER = "topics_order"
     const val API_FIELDS =
         "name,screen_name,is_closed,verified,members_count,is_admin,admin_level," +
-                "is_member,member_status,type,photo_50,photo_100,photo_200,menu"
+                "is_member,member_status,type,photo_50,photo_100,photo_200,menu,ban_info"
     const val FULL_ID = TABLENAME + "." + BaseColumns._ID
     const val FULL_NAME = "$TABLENAME.$NAME"
     const val FULL_SCREEN_NAME = "$TABLENAME.$SCREEN_NAME"
@@ -38,4 +39,5 @@ object GroupColumns : BaseColumns {
     const val FULL_PHOTO_200 = "$TABLENAME.$PHOTO_200"
     const val FULL_CAN_ADD_TOPICS = "$TABLENAME.$CAN_ADD_TOPICS"
     const val FULL_TOPICS_ORDER = "$TABLENAME.$TOPICS_ORDER"
+    const val FULL_IS_BLACK_LISTED = "$TABLENAME.$IS_BLACK_LISTED"
 }

@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.api
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.BuildConfig
 import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.model.ProxyConfig
 import dev.ragnarok.fenrir.util.CompressDefaultInterceptor
 import okhttp3.Interceptor
@@ -58,13 +59,13 @@ class VkMethodHttpClientFactory : IVkMethodHttpClientFactory {
             .connectTimeout(40, TimeUnit.SECONDS)
             .writeTimeout(40, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
-                val request = chain.request().newBuilder().addHeader("X-VK-Android-Client", "new")
+                val request = chain.request().newBuilder().vkHeader(false)
                     .addHeader("User-Agent", Constants.USER_AGENT(interceptor.type)).build()
                 chain.proceed(request)
             }).addInterceptor(CompressDefaultInterceptor)
         ProxyUtil.applyProxyConfig(builder, config)
-        HttpLogger.adjust(builder)
-        HttpLogger.configureToIgnoreCertificates(builder)
+        HttpLoggerAndParser.adjust(builder)
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         return builder.build()
     }
 
@@ -77,13 +78,13 @@ class VkMethodHttpClientFactory : IVkMethodHttpClientFactory {
             .connectTimeout(40, TimeUnit.SECONDS)
             .writeTimeout(40, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
-                val request = chain.request().newBuilder().addHeader("X-VK-Android-Client", "new")
+                val request = chain.request().newBuilder().vkHeader(false)
                     .addHeader("User-Agent", Constants.USER_AGENT(type)).build()
                 chain.proceed(request)
             }).addInterceptor(CompressDefaultInterceptor)
         ProxyUtil.applyProxyConfig(builder, config)
-        HttpLogger.adjust(builder)
-        HttpLogger.configureToIgnoreCertificates(builder)
+        HttpLoggerAndParser.adjust(builder)
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         return builder.build()
     }
 }

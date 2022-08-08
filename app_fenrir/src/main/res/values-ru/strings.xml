@@ -89,6 +89,21 @@
         <item>Мужской</item>
     </string-array>
 
+    <string-array name="array_month_items">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
+
     <string name="crash_error_activity_error_occurred_explanation">Необрабатываемое исключение.</string>
     <string name="crash_error_activity_restart_app">Перезапуск</string>
     <string name="crash_error_activity_error_details">Детали</string>
@@ -1089,7 +1104,6 @@
     <string name="age_restriction_16_years_and_over">16 лет и старше</string>
     <string name="age_restriction_18_years_and_over">18 лет и старше</string>
     <string name="community_options_date_created_title">Дата создания</string>
-    <string name="community_options_community_subject_title">Тематика сообщества</string>
     <string name="select_category_hint">Выберите категорию</string>
     <string name="community_options_comments_title">Комментарии</string>
     <string name="community_options_feedback_title">Обратная связь</string>
@@ -1674,10 +1688,13 @@
     <string name="all">Все</string>
     <string name="unsure">Возможно пойду</string>
     <string name="managers">Менеджеры</string>
-    <string name="filter">Фильтр</string>
     <string name="toggle_monitor_on">Изменения</string>
     <string name="toggle_monitor_off">Отключить изменения</string>
     <string name="toggle_monitor_info">Работает, если количество друзей не более 1000</string>
     <string name="delta">Разница</string>
-    <string name="strip_metadata">Удалить метаданные</string>
+    <string name="strip_metadata">Метаданные</string>
+    <string name="parser_type">Парсер</string>
+    <string name="privated">Частный</string>
+    <string name="birthdays_title">Дни рождения</string>
+    <string name="show_photos_date">Показывать дату фото</string>
 </resources>

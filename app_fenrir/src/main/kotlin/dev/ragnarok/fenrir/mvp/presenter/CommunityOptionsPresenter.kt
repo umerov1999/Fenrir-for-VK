@@ -3,16 +3,20 @@ package dev.ragnarok.fenrir.mvp.presenter
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
+import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.GroupSettings
 import dev.ragnarok.fenrir.model.IdOption
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityOptionsView
-import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.util.Utils
+import java.text.SimpleDateFormat
 import java.util.*
 
 class CommunityOptionsPresenter(
     accountId: Int,
-    private val community: VKApiCommunity,
+    private val community: Community,
     private val settings: GroupSettings,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<ICommunityOptionsView>(accountId, savedInstanceState) {
@@ -20,18 +24,64 @@ class CommunityOptionsPresenter(
         super.onGuiCreated(viewHost)
         viewHost.displayName(settings.getTitle())
         viewHost.displayDescription(settings.getDescription())
-        viewHost.setCommunityTypeVisible(community.type == VKApiCommunity.Type.GROUP)
+        viewHost.setCommunityTypeVisible(true)
         viewHost.displayAddress(settings.getAddress())
         viewHost.displayWebsite(settings.getWebsite())
-        viewHost.setFeedbackCommentsRootVisible(community.type == VKApiCommunity.Type.PAGE)
+        viewHost.setFeedbackCommentsRootVisible(community.communityType == VKApiCommunity.Type.PAGE)
         viewHost.setFeedbackCommentsChecked(settings.isFeedbackCommentsEnabled())
         viewHost.setObsceneFilterChecked(settings.isObsceneFilterEnabled())
         viewHost.setObsceneStopWordsChecked(settings.isObsceneStopwordsEnabled())
         viewHost.displayObsceneStopWords(settings.getObsceneWords())
+        viewHost.setGroupType(settings.getAccess())
+        viewHost.resolveEdge(settings.getAge())
         resolveObsceneWordsEditorVisibility()
         resolvePublicDateView()
         resolveCategoryView()
-        resolveSubjectView()
+    }
+
+    fun fireButtonSaveClick(
+        name: String?,
+        description: String?,
+        address: String?,
+        website: String?,
+        mObsceneFilter: Int?,
+        mObsceneStopWords: Int?,
+        mObsceneStopWordsText: String?
+    ) {
+        appendDisposable(InteractorFactory.createGroupSettingsInteractor().edit(
+            accountId,
+            community.id,
+            name,
+            description,
+            address,
+            settings.getAccess(),
+            website,
+            if (community.communityType != VKApiCommunity.Type.PAGE) settings.getCategory()
+                ?.getObjectId() else null,
+            if (community.communityType == VKApiCommunity.Type.PAGE) settings.getDateCreated()
+                ?.let { SimpleDateFormat("dd.mm.yyyy", Utils.appLocale).format(it) } else null,
+            settings.getAge(), mObsceneFilter, mObsceneStopWords, mObsceneStopWordsText
+        )
+            .fromIOToMain()
+            .subscribe({ onEditComplete() }, {
+                onEditError(Utils.getCauseIfRuntime(it))
+            })
+        )
+    }
+
+    fun fireAge(age: Int) {
+        settings.setAge(age)
+    }
+
+    private fun onEditComplete() {
+        view?.customToast?.showToastSuccessBottom(
+            R.string.success
+        )
+    }
+
+    private fun onEditError(throwable: Throwable) {
+        throwable.printStackTrace()
+        showError(throwable)
     }
 
     private fun resolveObsceneWordsEditorVisibility() {
@@ -40,15 +90,20 @@ class CommunityOptionsPresenter(
         )
     }
 
+    fun fireAccessClick() {
+        settings.incAccess()
+        view?.setGroupType(settings.getAccess())
+    }
+
     private fun resolvePublicDateView() {
         view?.let {
-            it.setPublicDateVisible(community.type == VKApiCommunity.Type.PAGE)
+            it.setPublicDateVisible(community.communityType == VKApiCommunity.Type.PAGE)
             settings.getDateCreated()?.let { it1 -> it.dislayPublicDate(it1) }
         }
     }
 
     private fun resolveCategoryView() {
-        val available = community.type == VKApiCommunity.Type.PAGE
+        val available = community.communityType != VKApiCommunity.Type.PAGE
         view?.setCategoryVisible(
             available
         )
@@ -56,32 +111,6 @@ class CommunityOptionsPresenter(
             view?.displayCategory(
                 settings.getCategory()?.title
             )
-        }
-    }
-
-    private fun resolveSubjectView() {
-        val available = community.type == VKApiCommunity.Type.GROUP
-        view?.setSubjectRootVisible(
-            available
-        )
-        if (available) {
-            val category = settings.getCategory()
-            view?.displaySubjectValue(
-                0,
-                category?.title
-            )
-            val subAvailable = category != null && category.childs.nonNullNoEmpty()
-            view?.setSubjectVisible(
-                1,
-                subAvailable
-            )
-            if (subAvailable) {
-                val sub = settings.getSubcategory()
-                view?.displaySubjectValue(
-                    1,
-                    sub?.title
-                )
-            }
         }
     }
 

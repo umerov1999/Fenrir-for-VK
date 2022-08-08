@@ -1,7 +1,9 @@
 package dev.ragnarok.fenrir.util.serializeble.msgpack.internal
 
+import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPackConfiguration
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPackNullableDynamicSerializer
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPackTreeReader
 import dev.ragnarok.fenrir.util.serializeble.msgpack.exceptions.MsgPackSerializationException
 import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataInputBuffer
 import dev.ragnarok.fenrir.util.serializeble.msgpack.types.MsgPackType
@@ -20,12 +22,13 @@ interface MsgPackTypeDecoder {
 }
 
 internal class BasicMsgPackDecoder(
-    private val configuration: MsgPackConfiguration,
+    val configuration: MsgPackConfiguration,
     override val serializersModule: SerializersModule,
     val dataBuffer: MsgPackDataInputBuffer,
     private val msgUnpacker: MsgUnpacker = BasicMsgUnpacker(dataBuffer),
     val inlineDecoders: Map<SerialDescriptor, (InlineDecoderHelper) -> Decoder> = mapOf()
 ) : AbstractDecoder(), MsgPackTypeDecoder {
+    fun decodeMsgPackElement(): JsonElement = MsgPackTreeReader(this).read()
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         if (descriptor.kind in arrayOf(StructureKind.CLASS, StructureKind.OBJECT)) {
@@ -60,6 +63,13 @@ internal class BasicMsgPackDecoder(
     }
 
     override fun decodeBoolean(): Boolean {
+        val token = dataBuffer.peek()
+        if (MsgPackType.Int.isInt(token) || MsgPackType.Int.POSITIVE_FIXNUM_MASK.test(token) or MsgPackType.Int.NEGATIVE_FIXNUM_MASK.test(
+                token
+            )
+        ) {
+            return decodeInt() > 0
+        }
         return msgUnpacker.unpackBoolean()
     }
 
@@ -88,7 +98,11 @@ internal class BasicMsgPackDecoder(
     }
 
     override fun decodeString(): String {
-        return msgUnpacker.unpackString()
+        val token = dataBuffer.peek()
+        if (MsgPackType.String.isString(token)) {
+            return msgUnpacker.unpackString()
+        }
+        return decodeLong().toString()
     }
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
@@ -226,12 +240,35 @@ internal class ClassMsgPackDecoder(
 ) : Decoder by basicMsgPackDecoder, CompositeDecoder by basicMsgPackDecoder,
     MsgPackTypeDecoder by basicMsgPackDecoder {
     override val serializersModule: SerializersModule = basicMsgPackDecoder.serializersModule
+    private fun decodeElemIndex(descriptor: SerialDescriptor, size: Int): Int {
+        if (descriptor.kind in arrayOf(StructureKind.CLASS, StructureKind.OBJECT)) {
+            val next = basicMsgPackDecoder.dataBuffer.peekSafely()
+            if (next != null && MsgPackType.String.isString(next)) {
+                val fieldName = kotlin.runCatching { decodeString() }.getOrNull()
+                    ?: return CompositeDecoder.UNKNOWN_NAME
+                val index = descriptor.getElementIndex(fieldName)
+                return if (index == CompositeDecoder.UNKNOWN_NAME && basicMsgPackDecoder.configuration.ignoreUnknownKeys) {
+                    MsgPackNullableDynamicSerializer.deserialize(this)
+                    decodedElements++
+                    if (decodedElements >= size) CompositeDecoder.DECODE_DONE else decodeElemIndex(
+                        descriptor,
+                        size
+                    )
+                } else {
+                    index
+                }
+            } else {
+                return CompositeDecoder.DECODE_DONE
+            }
+        }
+        return 0
+    }
 
     private var decodedElements = 0
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         if (decodedElements >= size) return CompositeDecoder.DECODE_DONE
-        val result = basicMsgPackDecoder.decodeElementIndex(descriptor)
+        val result = decodeElemIndex(descriptor, size)
         if (result != CompositeDecoder.DECODE_DONE) decodedElements++
         return result
     }

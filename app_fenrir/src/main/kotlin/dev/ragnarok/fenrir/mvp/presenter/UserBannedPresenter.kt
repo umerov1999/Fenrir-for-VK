@@ -8,32 +8,31 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.BannedPart
 import dev.ragnarok.fenrir.model.Owner
-import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IUserBannedView
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Utils.findIndexById
+import dev.ragnarok.fenrir.util.Utils.findOwnerIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
 class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IUserBannedView>(accountId, savedInstanceState) {
     private val interactor: IAccountsInteractor = InteractorFactory.createAccountInteractor()
-    private val users: MutableList<User>
+    private val owners: MutableList<Owner>
     private var endOfContent = false
     private var loadinNow = false
-    private fun onUserRemoved(id: Int) {
-        val index = findIndexById(users, id)
+    private fun onOwnerRemoved(id: Int) {
+        val index = findOwnerIndexById(owners, id)
         if (index != -1) {
-            users.removeAt(index)
+            owners.removeAt(index)
             view?.notifyItemRemoved(
                 index
             )
         }
     }
 
-    private fun onUserAdded(user: User) {
-        users.add(0, user)
+    private fun onOwnerAdded(owner: Owner) {
+        owners.add(0, owner)
         view?.let {
             it.notifyItemsAdded(0, 1)
             it.scrollToPosition(0)
@@ -42,25 +41,25 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     override fun onGuiCreated(viewHost: IUserBannedView) {
         super.onGuiCreated(viewHost)
-        viewHost.displayUserList(users)
+        viewHost.displayOwnerList(owners)
     }
 
     private fun onBannedPartReceived(offset: Int, part: BannedPart) {
         setLoadinNow(false)
-        endOfContent = part.users.isEmpty()
+        endOfContent = part.owners.isEmpty()
         if (offset == 0) {
-            users.clear()
-            users.addAll(part.users)
+            owners.clear()
+            owners.addAll(part.owners)
             view?.notifyDataSetChanged()
         } else {
-            val startSize = users.size
-            users.addAll(part.users)
+            val startSize = owners.size
+            owners.addAll(part.owners)
             view?.notifyItemsAdded(
                 startSize,
-                part.users.size
+                part.owners.size
             )
         }
-        endOfContent = endOfContent || part.getTotalCount() == users.size
+        endOfContent = endOfContent || part.getTotalCount() == owners.size
     }
 
     private fun onBannedPartGetError(throwable: Throwable) {
@@ -111,16 +110,10 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         showError(throwable)
     }
 
-    fun fireUsersSelected(owners: ArrayList<Owner>) {
+    fun fireOwnersSelected(owners: ArrayList<Owner>) {
         val accountId = accountId
-        val users = ArrayList<User>()
-        for (i in owners) {
-            if (i is User) {
-                users.add(i)
-            }
-        }
-        if (users.nonNullNoEmpty()) {
-            appendDisposable(interactor.banUsers(accountId, users)
+        if (owners.nonNullNoEmpty()) {
+            appendDisposable(interactor.banOwners(accountId, owners)
                 .fromIOToMain()
                 .subscribe({ onAddingComplete() }) { throwable ->
                     onAddError(
@@ -132,7 +125,7 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     fun fireScrollToEnd() {
         if (!loadinNow && !endOfContent) {
-            loadNextPart(users.size)
+            loadNextPart(owners.size)
         }
     }
 
@@ -144,9 +137,9 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         showError(throwable)
     }
 
-    fun fireRemoveClick(user: User) {
+    fun fireRemoveClick(owner: Owner) {
         val accountId = accountId
-        appendDisposable(interactor.unbanUser(accountId, user.getObjectId())
+        appendDisposable(interactor.unbanOwner(accountId, owner.ownerId)
             .fromIOToMain()
             .subscribe({ onRemoveComplete() }) { throwable ->
                 onRemoveError(
@@ -155,26 +148,26 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
             })
     }
 
-    fun fireUserClick(user: User) {
-        view?.showUserProfile(
+    fun fireOwnerClick(owner: Owner) {
+        view?.showOwnerProfile(
             accountId,
-            user
+            owner
         )
     }
 
     init {
-        users = ArrayList()
+        owners = ArrayList()
         loadNextPart(0)
         val repository = blacklistRepository
         appendDisposable(repository.observeAdding()
             .filter { it.first == accountId }
-            .map(Pair<Int, User>::second)
+            .map(Pair<Int, Owner>::second)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { onUserAdded(it) })
+            .subscribe { onOwnerAdded(it) })
         appendDisposable(repository.observeRemoving()
             .filter { it.first == accountId }
             .map(Pair<Int, Int>::second)
             .observeOn(provideMainThreadScheduler())
-            .subscribe { onUserRemoved(it) })
+            .subscribe { onOwnerRemoved(it) })
     }
 }

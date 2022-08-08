@@ -2,9 +2,12 @@ package dev.ragnarok.fenrir.api
 
 import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.settings.Settings
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
@@ -13,7 +16,26 @@ import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-object HttpLogger {
+object HttpLoggerAndParser {
+    fun selectConverterFactory(
+        json: Converter.Factory,
+        msgpack: Converter.Factory
+    ): Converter.Factory {
+        return if (Settings.get().other().currentParser == ParserType.MSGPACK) {
+            msgpack
+        } else {
+            json
+        }
+    }
+
+    fun Request.Builder.vkHeader(onlyJson: Boolean): Request.Builder {
+        addHeader("X-VK-Android-Client", "new")
+        if (!onlyJson && Settings.get().other().currentParser == ParserType.MSGPACK) {
+            addHeader("X-Response-Format", "msgpack")
+        }
+        return this
+    }
+
     val DEFAULT_LOGGING_INTERCEPTOR: HttpLoggingInterceptor by lazy {
         HttpLoggingInterceptor().setLevel(if (Constants.IS_DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE)
     }
@@ -24,7 +46,11 @@ object HttpLogger {
 
     fun adjust(builder: OkHttpClient.Builder) {
         if (Constants.IS_DEBUG) {
-            builder.addInterceptor(DEFAULT_LOGGING_INTERCEPTOR)
+            if (Settings.get().other().currentParser == ParserType.JSON) {
+                builder.addInterceptor(DEFAULT_LOGGING_INTERCEPTOR)
+            } else {
+                builder.addInterceptor(UPLOAD_LOGGING_INTERCEPTOR)
+            }
         }
     }
 

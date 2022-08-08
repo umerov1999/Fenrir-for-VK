@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.fragment.base
 
 import android.graphics.Color
 import android.view.View
+import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.TextView
 import androidx.annotation.StringRes
@@ -154,7 +155,11 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
         }
 
 
-        fun safelySetVisibleOrGone(target: View?, visible: Boolean) {
+        fun safelySetVisibleOrGone(target: ViewGroup?, visible: Boolean) {
+            target?.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+
+        fun safelySetVisibleOrGoneView(target: View?, visible: Boolean) {
             target?.visibility = if (visible) View.VISIBLE else View.GONE
         }
     }

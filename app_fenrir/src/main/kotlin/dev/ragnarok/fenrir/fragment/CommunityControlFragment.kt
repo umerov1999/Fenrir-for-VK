@@ -26,11 +26,11 @@ import dev.ragnarok.fenrir.util.Utils.createPageTransform
 class CommunityControlFragment : Fragment() {
     private lateinit var mCommunity: Community
 
-    //private GroupSettings mSettings;
+    private var mSettings: GroupSettings? = null
     private var mAccountId = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //this.mSettings = requireArguments().getParcelable(Extra.SETTINGS);
+        mSettings = requireArguments().getParcelable(Extra.SETTINGS)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
         mCommunity = (requireArguments().getParcelable(Extra.OWNER) ?: return)
     }
@@ -81,6 +81,21 @@ class CommunityControlFragment : Fragment() {
                     }
                 })
         )
+        if (mSettings != null) {
+            tabs.add(
+                Tab(
+                    getString(R.string.settings),
+                    object : IFragmentCreator {
+                        override fun create(): Fragment {
+                            return CommunityOptionsFragment.newInstance(
+                                mAccountId,
+                                mCommunity,
+                                mSettings!!
+                            )
+                        }
+                    })
+            )
+        }
         val tab_set = Adapter(tabs, this)
         pager.adapter = tab_set
         TabLayoutMediator(

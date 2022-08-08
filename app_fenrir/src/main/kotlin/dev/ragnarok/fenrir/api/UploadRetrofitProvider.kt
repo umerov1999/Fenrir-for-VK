@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api
 
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants.USER_AGENT
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.settings.IProxySettings
@@ -48,7 +49,7 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
             .writeTimeout(40, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
-                    chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader(
+                    chain.request().newBuilder().vkHeader(true).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )
@@ -56,8 +57,8 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
                 chain.proceed(request)
             })
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
-        HttpLogger.adjustUpload(builder)
-        HttpLogger.configureToIgnoreCertificates(builder)
+        HttpLoggerAndParser.adjustUpload(builder)
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         return Retrofit.Builder()
             .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/") // dummy
             .addConverterFactory(kJson.asConverterFactory())

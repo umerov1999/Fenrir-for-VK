@@ -163,7 +163,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             val strArray = friendString.split(Regex(",")).toTypedArray()
             val intArray = ArrayList<Int>(strArray.size)
             for (i in strArray.indices) {
-                intArray[i] = strArray[i].toInt()
+                intArray.add(strArray[i].toInt())
             }
             dbo.setFriendsTags(intArray)
         } else {

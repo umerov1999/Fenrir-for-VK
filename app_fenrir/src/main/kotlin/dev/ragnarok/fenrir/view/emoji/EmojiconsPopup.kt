@@ -43,6 +43,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
     var onEmojiconBackspaceClickedListener: OnEmojiconBackspaceClickedListener? = null
     var onSoftKeyboardOpenCloseListener: OnSoftKeyboardOpenCloseListener? = null
     private var emojiContainer: View? = null
+    private var keyboardTmpHeight: Int = 0
     private val onGlobalLayoutListener: OnGlobalLayoutListener = object : OnGlobalLayoutListener {
         @SuppressLint("InternalInsetResource")
         override fun onGlobalLayout() {
@@ -67,9 +68,11 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
                 keyBoardHeight = heightDifference
                 if (emojiContainer != null && !Settings.get().ui().isEmojis_full_screen) {
                     val layoutParams = emojiContainer?.layoutParams
-                    layoutParams?.height = keyBoardHeight
-                    layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
-                    emojiContainer?.layoutParams = layoutParams
+                    if (keyboardTmpHeight != layoutParams?.height) {
+                        keyboardTmpHeight = keyBoardHeight
+                        layoutParams?.height = keyBoardHeight
+                        emojiContainer?.layoutParams = layoutParams
+                    }
                 }
                 if (!isKeyBoardOpen) {
                     onSoftKeyboardOpenCloseListener?.onKeyboardOpen()
@@ -104,16 +107,19 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
             emojiContainer = createCustomView(emojiParentView)
             val finalKeyboardHeight = when {
                 Settings.get()
-                    .ui().isEmojis_full_screen -> ViewGroup.LayoutParams.MATCH_PARENT
+                    .ui().isEmojis_full_screen -> mContext.resources.getDimension(
+                    R.dimen.keyboard_max_height
+                ).toInt()
                 keyBoardHeight > 0 -> keyBoardHeight
                 else -> mContext.resources.getDimension(
                     R.dimen.keyboard_height
-                )
-                    .toInt()
+                ).toInt()
             }
             val layoutParams = emojiContainer?.layoutParams
-            layoutParams?.height = finalKeyboardHeight
-            layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
+            if (keyboardTmpHeight != layoutParams?.height) {
+                keyboardTmpHeight = finalKeyboardHeight
+                layoutParams?.height = finalKeyboardHeight
+            }
             emojiContainer?.layoutParams = layoutParams
         }
         return emojiContainer
@@ -185,10 +191,6 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
         val recyclerView: RecyclerView = view.findViewById(R.id.recycleView)
         val manager = LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.layoutManager = manager
-        recyclerView.itemAnimator?.changeDuration = 0
-        recyclerView.itemAnimator?.addDuration = 0
-        recyclerView.itemAnimator?.moveDuration = 0
-        recyclerView.itemAnimator?.removeDuration = 0
         sections[emojisPager?.currentItem ?: 0].active = true
         val topSectionAdapter = SectionsAdapter(sections, mContext)
         recyclerView.adapter = topSectionAdapter

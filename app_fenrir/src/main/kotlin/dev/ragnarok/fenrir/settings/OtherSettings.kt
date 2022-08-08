@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.api.model.LocalServerSettings
 import dev.ragnarok.fenrir.api.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.model.Lang
+import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.settings.ISettings.IOtherSettings
 import java.io.File
 import java.util.*
@@ -400,6 +401,15 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             }
             return ret
         }
+
+    @get:ParserType
+    override val currentParser: Int
+        get() = try {
+            getPreferences(app).getString("current_parser", "0")!!
+                .trim { it <= ' ' }.toInt()
+        } catch (e: Exception) {
+            ParserType.JSON
+        }
     override val isPhoto_to_user_dir: Boolean
         get() = getPreferences(app).getBoolean("photo_to_user_dir", true)
     override val isDownload_voice_ogg: Boolean
@@ -428,6 +438,8 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("change_upload_size", false)
     override val isShow_photos_line: Boolean
         get() = getPreferences(app).getBoolean("show_photos_line", true)
+    override val isShow_photos_date: Boolean
+        get() = getPreferences(app).getBoolean("show_photos_date", false)
     override val isDo_auto_play_video: Boolean
         get() = getPreferences(app).getBoolean("do_auto_play_video", false)
     override val isVideo_controller_to_decor: Boolean

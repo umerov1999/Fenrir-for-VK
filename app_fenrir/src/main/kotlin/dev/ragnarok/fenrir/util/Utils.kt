@@ -40,6 +40,7 @@ import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity.Companion.start
 import dev.ragnarok.fenrir.activity.qr.CustomQRCodeWriter
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
 import dev.ragnarok.fenrir.api.model.Identificable
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
@@ -498,6 +499,15 @@ object Utils {
         return -1
     }
 
+    fun findOwnerIndexById(data: List<Owner>?, id: Int): Int {
+        data ?: return -1
+        for (i in data.indices) {
+            if (data[i].ownerId == id) {
+                return i
+            }
+        }
+        return -1
+    }
 
     fun <T : ISomeones> findIndexById(data: List<T?>?, id: Int, ownerId: Int): Int {
         data ?: return -1
@@ -1294,7 +1304,7 @@ object Utils {
             .writeTimeout(timeouts.toLong(), TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 chain.proceed(
-                    chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader(
+                    chain.request().newBuilder().vkHeader(true).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )
@@ -1504,7 +1514,7 @@ object Utils {
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
-                    chain.request().newBuilder().addHeader("X-VK-Android-Client", "new").addHeader(
+                    chain.request().newBuilder().vkHeader(true).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )

@@ -4,7 +4,7 @@ import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IAccountApi
 import dev.ragnarok.fenrir.api.model.*
-import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponce
+import dev.ragnarok.fenrir.api.model.response.AccountsBannedResponse
 import dev.ragnarok.fenrir.api.model.response.ContactsResponse
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse
 import dev.ragnarok.fenrir.api.services.IAccountService
@@ -13,20 +13,20 @@ import io.reactivex.rxjava3.core.Single
 
 internal class AccountApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IAccountApi {
-    override fun banUser(userId: Int): Single<Int> {
-        return provideService(IAccountService::class.java, TokenType.USER)
+    override fun ban(ownerId: Int): Single<Int> {
+        return provideService(IAccountService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
-                    .banUser(userId)
+                    .ban(ownerId)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override fun unbanUser(userId: Int): Single<Int> {
-        return provideService(IAccountService::class.java, TokenType.USER)
+    override fun unban(ownerId: Int): Single<Int> {
+        return provideService(IAccountService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
-                    .unbanUser(userId)
+                    .unban(ownerId)
                     .map(extractResponseWithErrorHandling())
             }
     }
@@ -35,8 +35,8 @@ internal class AccountApi(accountId: Int, provider: IServiceProvider) :
         count: Int?,
         offset: Int?,
         fields: String?
-    ): Single<AccountsBannedResponce> {
-        return provideService(IAccountService::class.java, TokenType.USER)
+    ): Single<AccountsBannedResponse> {
+        return provideService(IAccountService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
                     .getBanned(count, offset, fields)

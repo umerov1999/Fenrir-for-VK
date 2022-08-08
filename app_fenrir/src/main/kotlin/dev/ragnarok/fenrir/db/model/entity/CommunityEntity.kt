@@ -27,6 +27,8 @@ class CommunityEntity(val id: Int) {
         private set
     var isVerified = false
         private set
+    var isBlacklisted = false
+        private set
 
     fun setName(name: String?): CommunityEntity {
         this.name = name
@@ -40,6 +42,11 @@ class CommunityEntity(val id: Int) {
 
     fun setClosed(closed: Int): CommunityEntity {
         this.closed = closed
+        return this
+    }
+
+    fun setBlacklisted(isBlacklisted: Boolean): CommunityEntity {
+        this.isBlacklisted = isBlacklisted
         return this
     }
 

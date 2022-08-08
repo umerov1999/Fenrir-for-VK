@@ -22,9 +22,9 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
 import androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION
 import com.squareup.picasso3.Picasso.LoadedFrom.DISK
-import okio.Source
 import okio.source
 import java.io.FileNotFoundException
+import java.io.InputStream
 
 internal open class ContentStreamRequestHandler(val context: Context) : RequestHandler() {
     override fun canHandleRequest(data: Request): Boolean =
@@ -40,7 +40,8 @@ internal open class ContentStreamRequestHandler(val context: Context) : RequestH
         try {
             val requestUri = checkNotNull(request.uri)
             val source = getSource(requestUri)
-            val bitmap = BitmapUtils.decodeStream(source, request)
+            val bitmap = BitmapUtils.decodeStream(source.source(), request)
+            source.close()
             val exifRotation = getExifOrientation(requestUri)
             signaledCallback = true
             callback.onSuccess(Result.Bitmap(bitmap, DISK, exifRotation))
@@ -51,11 +52,10 @@ internal open class ContentStreamRequestHandler(val context: Context) : RequestH
         }
     }
 
-    fun getSource(uri: Uri): Source {
+    fun getSource(uri: Uri): InputStream {
         val contentResolver = context.contentResolver
-        val inputStream = contentResolver.openInputStream(uri)
+        return contentResolver.openInputStream(uri)
             ?: throw FileNotFoundException("can't open input stream, uri: $uri")
-        return inputStream.source()
     }
 
     protected open fun getExifOrientation(uri: Uri): Int {

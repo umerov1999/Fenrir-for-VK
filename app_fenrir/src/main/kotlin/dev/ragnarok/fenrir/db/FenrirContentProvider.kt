@@ -535,6 +535,7 @@ class FenrirContentProvider : ContentProvider() {
                 UserColumns.FULL_IS_CAN_ACCESS_CLOSED
             sUsersProjectionMap[UserColumns.IS_VERIFIED] = UserColumns.FULL_IS_VERIFIED
             sUsersProjectionMap[UserColumns.MAIDEN_NAME] = UserColumns.FULL_MAIDEN_NAME
+            sUsersProjectionMap[UserColumns.BDATE] = UserColumns.FULL_BDATE
             sRelativeshipProjectionMap = HashMap()
             sRelativeshipProjectionMap[BaseColumns._ID] = RelationshipColumns.FULL_ID
             sRelativeshipProjectionMap[RelationshipColumns.OBJECT_ID] =
@@ -584,6 +585,8 @@ class FenrirContentProvider : ContentProvider() {
                 UserColumns.FULL_IS_VERIFIED + " AS " + RelationshipColumns.FOREIGN_SUBJECT_IS_VERIFIED
             sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_MAIDEN_NAME] =
                 UserColumns.FULL_MAIDEN_NAME + " AS " + RelationshipColumns.FOREIGN_SUBJECT_MAIDEN_NAME
+            sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_BDATE] =
+                UserColumns.FULL_BDATE + " AS " + RelationshipColumns.FOREIGN_SUBJECT_BDATE
             sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_GROUP_NAME] =
                 GroupColumns.FULL_NAME + " AS " + RelationshipColumns.FOREIGN_SUBJECT_GROUP_NAME
             sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_GROUP_SCREEN_NAME] =
@@ -596,6 +599,8 @@ class FenrirContentProvider : ContentProvider() {
                 GroupColumns.FULL_PHOTO_200 + " AS " + RelationshipColumns.FOREIGN_SUBJECT_GROUP_PHOTO_200
             sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_CLOSED] =
                 GroupColumns.FULL_IS_CLOSED + " AS " + RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_CLOSED
+            sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_BLACK_LISTED] =
+                GroupColumns.FULL_IS_BLACK_LISTED + " AS " + RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_BLACK_LISTED
             sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_VERIFIED] =
                 GroupColumns.FULL_IS_VERIFIED + " AS " + RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_VERIFIED
             sRelativeshipProjectionMap[RelationshipColumns.FOREIGN_SUBJECT_GROUP_IS_ADMIN] =
@@ -891,6 +896,7 @@ class FenrirContentProvider : ContentProvider() {
             sGroupsProjectionMap[GroupColumns.CAN_ADD_TOPICS] =
                 GroupColumns.FULL_CAN_ADD_TOPICS
             sGroupsProjectionMap[GroupColumns.TOPICS_ORDER] = GroupColumns.FULL_TOPICS_ORDER
+            sGroupsProjectionMap[GroupColumns.IS_BLACK_LISTED] = GroupColumns.FULL_IS_BLACK_LISTED
             sCommentsProjectionMap = HashMap()
             sCommentsProjectionMap[BaseColumns._ID] = CommentsColumns.FULL_ID
             sCommentsProjectionMap[CommentsColumns.COMMENT_ID] = CommentsColumns.FULL_COMMENT_ID

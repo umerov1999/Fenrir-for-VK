@@ -128,6 +128,7 @@ class SettingsBackup {
         var do_zoom_photo: Boolean? = null
         var change_upload_size: Boolean? = null
         var show_photos_line: Boolean? = null
+        var show_photos_date: Boolean? = null
         var do_auto_play_video: Boolean? = null
         var video_controller_to_decor: Boolean? = null
         var video_swipes: Boolean? = null
@@ -160,6 +161,7 @@ class SettingsBackup {
         var user_name_changes_uids: Set<String>? = null
         var ongoing_player_notification: Boolean? = null
         var owner_changes_monitor_uids: Set<String>? = null
+        var current_parser: String? = null
     }
 
     fun doBackup(): JsonObject {

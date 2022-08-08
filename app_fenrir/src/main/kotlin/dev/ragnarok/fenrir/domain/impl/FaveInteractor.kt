@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.domain.impl
 
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.FaveLinkDto
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.db.column.UserColumns
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.*
 import dev.ragnarok.fenrir.domain.IFaveInteractor
@@ -262,7 +262,7 @@ class FaveInteractor(
     ): Single<List<FavePage>> {
         return networker.vkDefault(accountId)
             .fave()
-            .getPages(offset, count, UserColumns.API_FIELDS, if (isUser) "users" else "groups")
+            .getPages(offset, count, Constants.MAIN_OWNER_FIELDS, if (isUser) "users" else "groups")
             .flatMap { items ->
                 val dtos = listEmptyIfNull(
                     items.items

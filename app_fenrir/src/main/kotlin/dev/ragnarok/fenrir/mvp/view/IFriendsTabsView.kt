@@ -9,4 +9,5 @@ interface IFriendsTabsView : IMvpView, IAccountDependencyView, IErrorView {
     fun configTabs(accountId: Int, userId: Int, isNotMyPage: Boolean)
     fun displayUserNameAtToolbar(userName: String?)
     fun setDrawerFriendsSectionSelected(selected: Boolean)
+    fun onFriendsBirthday(accountId: Int, ownerId: Int)
 }

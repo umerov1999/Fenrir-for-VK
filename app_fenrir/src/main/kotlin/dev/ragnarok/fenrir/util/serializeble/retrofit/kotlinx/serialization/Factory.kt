@@ -2,6 +2,8 @@
 
 package dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization
 
+import dev.ragnarok.fenrir.util.serializeble.json.Json
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.Serializer.FromBytes
 import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.Serializer.FromString
 import kotlinx.serialization.BinaryFormat
@@ -59,6 +61,21 @@ fun StringFormat.asConverterFactory(contentType: MediaType): Converter.Factory {
 @JvmName("create")
 fun StringFormat.asConverterFactory(): Converter.Factory {
     return Factory("application/json; charset=UTF-8".toMediaType(), FromString(this))
+}
+
+@ExperimentalSerializationApi
+@JvmName("create")
+fun Json.asConverterFactory(): Converter.Factory {
+    return Factory("application/json; charset=UTF-8".toMediaType(), Serializer.FromJson(this))
+}
+
+@ExperimentalSerializationApi
+@JvmName("create")
+fun MsgPack.asConverterFactory(): Converter.Factory {
+    return Factory(
+        "application/x-msgpack; charset=utf-8".toMediaType(),
+        Serializer.FromMsgPack(this)
+    )
 }
 
 /**

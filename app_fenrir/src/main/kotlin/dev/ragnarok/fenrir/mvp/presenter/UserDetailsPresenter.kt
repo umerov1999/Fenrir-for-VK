@@ -109,8 +109,8 @@ class UserDetailsPresenter(
                 .setIcon(Icon.fromResources(R.drawable.gender))
                 .setSection(mainSection)
         )
-        if (details.getBdate().nonNullNoEmpty()) {
-            val formatted = getDateWithZeros(details.getBdate())
+        if (user.bdate.nonNullNoEmpty()) {
+            val formatted = getDateWithZeros(user.bdate)
             items.add(
                 AdvancedItem(3, Text(R.string.birthday))
                     .setSubtitle(Text(formatted))

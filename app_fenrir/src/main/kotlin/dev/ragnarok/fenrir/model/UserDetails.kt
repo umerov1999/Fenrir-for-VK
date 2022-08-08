@@ -25,7 +25,6 @@ class UserDetails : Parcelable {
     private var GiftCount = 0
     private var productServicesCount = 0
     private var narrativesCount = 0
-    private var bdate: String? = null
     private var city: City? = null
     private var country: Country? = null
     private var hometown: String? = null
@@ -82,7 +81,6 @@ class UserDetails : Parcelable {
         ownWallCount = `in`.readInt()
         postponedWallCount = `in`.readInt()
         GiftCount = `in`.readInt()
-        bdate = `in`.readString()
         isFavorite = `in`.readByte().toInt() == 1
         isSubscribed = `in`.readByte().toInt() == 1
         isClosed = `in`.readByte().toInt() == 1
@@ -453,7 +451,6 @@ class UserDetails : Parcelable {
         parcel.writeInt(ownWallCount)
         parcel.writeInt(postponedWallCount)
         parcel.writeInt(GiftCount)
-        parcel.writeString(bdate)
         parcel.writeByte(if (isFavorite) 1.toByte() else 0.toByte())
         parcel.writeByte(if (isSubscribed) 1.toByte() else 0.toByte())
         parcel.writeByte(if (isClosed) 1.toByte() else 0.toByte())
@@ -465,15 +462,6 @@ class UserDetails : Parcelable {
 
     fun setClosed(closed: Boolean): UserDetails {
         this.isClosed = closed
-        return this
-    }
-
-    fun getBdate(): String? {
-        return bdate
-    }
-
-    fun setBdate(bdate: String?): UserDetails {
-        this.bdate = bdate
         return this
     }
 

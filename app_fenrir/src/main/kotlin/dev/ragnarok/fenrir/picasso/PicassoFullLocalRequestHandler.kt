@@ -26,6 +26,7 @@ class PicassoFullLocalRequestHandler(val context: Context) : RequestHandler() {
             val exifOrientation = getExifOrientation(context, requestUri)
             val i = context.contentResolver.openInputStream(requestUri) ?: return
             val bitmap = decodeStream(i.source(), request)
+            i.close()
             callback.onSuccess(Result.Bitmap(bitmap, Picasso.LoadedFrom.DISK, exifOrientation))
         } catch (e: IOException) {
             callback.onError(e)

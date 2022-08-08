@@ -237,6 +237,7 @@ object Dto2Model {
         return Community(community.id)
             .setName(community.fullName)
             .setScreenName(community.screen_name)
+            .setBlacklisted(community.blacklisted)
             .setClosed(community.is_closed)
             .setVerified(community.verified)
             .setAdmin(community.is_admin)
@@ -371,6 +372,7 @@ object Dto2Model {
             .setBlacklisted(user.blacklisted)
             .setBlacklisted_by_me(user.blacklisted_by_me)
             .setCan_access_closed(user.can_access_closed)
+            .setBdate(user.bdate)
             .setVerified(user.verified)
             .setMaiden_name(user.maiden_name)
     }

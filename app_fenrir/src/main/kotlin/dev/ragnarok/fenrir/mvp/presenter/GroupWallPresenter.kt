@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.domain.*
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.domain.impl.GroupSettingsInteractor
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView
@@ -431,26 +432,24 @@ class GroupWallPresenter(
     }
 
     fun fireCommunityControlClick() {
-        view?.goToCommunityControl(
-            accountId,
-            community,
-            null
+        val groupId = abs(ownerId)
+        val interactor =
+            GroupSettingsInteractor(Includes.networkInterfaces, Includes.stores.owners(), owners)
+        appendDisposable(
+            interactor.getGroupSettings(accountId, groupId)
+                .fromIOToMain()
+                .subscribe({
+                    view?.goToCommunityControl(accountId, community, it)
+                }, {
+                    view?.goToCommunityControl(
+                        accountId,
+                        community,
+                        null
+                    )
+                })
         )
-
-        /*final int accountId = super.getAccountId();
-        final int grouId = Math.abs(ownerId);
-
-        IGroupSettingsInteractor interactor = new GroupSettingsInteractor(Includes.getNetworkInterfaces(), Includes.getStores().owners());
-        appendDisposable(interactor.getGroupSettings(accountId, grouId)
-               .fromIOToMain()
-                .subscribe(this::onSettingsReceived, throwable -> {
-                    callView(v -> showError(v, getCauseIfRuntime(throwable)));
-                }));*/
     }
 
-    //private void onSettingsReceived(GroupSettings settings) {
-    //    callView(view -> view.goToCommunityControl(getAccountId(), owner, settings));
-    //}
     fun fireCommunityMessagesClick() {
         if (settings.getAccessToken(ownerId).nonNullNoEmpty()) {
             openCommunityMessages()
@@ -515,15 +514,6 @@ class GroupWallPresenter(
         getMentionsPlace(accountId, ownerId).tryOpenWith(context)
     }
 
-    private fun onExecuteError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
-    }
-
-    private fun onExecuteComplete() {
-        onRefresh()
-        view?.customToast?.showToast(R.string.success)
-    }
-
     override fun onRefresh() {
         requestActualFullInfo()
     }
@@ -581,6 +571,10 @@ class GroupWallPresenter(
                     )
                 }
             }) { })
+    }
+
+    override fun getOwner(): Owner {
+        return community
     }
 
     init {

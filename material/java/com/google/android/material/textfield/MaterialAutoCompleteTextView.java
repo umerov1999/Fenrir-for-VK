@@ -101,7 +101,7 @@ public class MaterialAutoCompleteTextView extends AppCompatAutoCompleteTextView 
             attributeSet,
             R.styleable.MaterialAutoCompleteTextView,
             defStyleAttr,
-                androidx.appcompat.R.style.Widget_AppCompat_AutoCompleteTextView);
+            androidx.appcompat.R.style.Widget_AppCompat_AutoCompleteTextView);
 
     // Due to a framework bug, setting android:inputType="none" on xml has no effect. Therefore,
     // we check it here in case the autoCompleteTextView should be non-editable.

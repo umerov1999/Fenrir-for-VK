@@ -24,6 +24,8 @@ class UserEntity(val id: Int) {
         private set
     var lastSeen: Long = 0
         private set
+    var bdate: String? = null
+        private set
 
     @get:UserPlatform
     @UserPlatform
@@ -54,6 +56,11 @@ class UserEntity(val id: Int) {
         private set
     var isCan_access_closed = false
         private set
+
+    fun setBdate(bdate: String?): UserEntity {
+        this.bdate = bdate
+        return this
+    }
 
     fun setFirstName(firstName: String?): UserEntity {
         this.firstName = firstName

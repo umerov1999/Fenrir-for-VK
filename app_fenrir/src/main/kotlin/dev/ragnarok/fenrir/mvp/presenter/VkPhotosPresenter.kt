@@ -48,7 +48,7 @@ class VkPhotosPresenter(
     private var owner: Owner? = null
     private var requestNow = false
     private var endOfContent = false
-    var isShowBDate = false
+    var isShowBDate = Settings.get().other().isShow_photos_date
         private set
     private var invertPhotoRev: Boolean
     fun togglePhotoInvert() {

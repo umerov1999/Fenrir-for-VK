@@ -64,6 +64,7 @@ object Entity2Model {
         return Community(dbo.id)
             .setName(dbo.name)
             .setScreenName(dbo.screenName)
+            .setBlacklisted(dbo.isBlacklisted)
             .setClosed(dbo.closed)
             .setVerified(dbo.isVerified)
             .setAdmin(dbo.isAdmin)
@@ -196,7 +197,6 @@ object Entity2Model {
             .setAllWallCount(dbo.allWallCount)
             .setOwnWallCount(dbo.ownWallCount)
             .setPostponedWallCount(dbo.postponedWallCount)
-            .setBdate(dbo.bdate)
             .setClosed(dbo.isClosed)
             .setCity(dbo.city?.let { map(it) })
             .setCountry(dbo.country?.let { map(it) })
@@ -329,6 +329,7 @@ object Entity2Model {
             .setVerified(entity.isVerified)
             .setCan_access_closed(entity.isCan_access_closed)
             .setMaiden_name(entity.maiden_name)
+            .setBdate(entity.bdate)
     }
 
     fun map(entity: FavePageEntity): FavePage {
@@ -347,6 +348,7 @@ object Entity2Model {
         } else Community(entity.id)
             .setName(entity.name)
             .setScreenName(entity.screenName)
+            .setBlacklisted(entity.isBlacklisted)
             .setPhoto50(entity.photo50)
             .setPhoto100(entity.photo100)
             .setPhoto200(entity.photo200)

@@ -64,6 +64,7 @@
             android:text="@string/community_options_type_title" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/type_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

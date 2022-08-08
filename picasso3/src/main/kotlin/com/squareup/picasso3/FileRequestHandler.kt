@@ -21,6 +21,7 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import com.squareup.picasso3.BitmapUtils.decodeStream
 import com.squareup.picasso3.Picasso.LoadedFrom.DISK
+import okio.source
 import java.io.FileNotFoundException
 
 internal class FileRequestHandler(context: Context) : ContentStreamRequestHandler(context) {
@@ -38,7 +39,8 @@ internal class FileRequestHandler(context: Context) : ContentStreamRequestHandle
         try {
             val requestUri = checkNotNull(request.uri)
             val source = getSource(requestUri)
-            val bitmap = decodeStream(source, request)
+            val bitmap = decodeStream(source.source(), request)
+            source.close()
             val exifRotation = getExifOrientation(requestUri)
             signaledCallback = true
             callback.onSuccess(Result.Bitmap(bitmap, DISK, exifRotation))

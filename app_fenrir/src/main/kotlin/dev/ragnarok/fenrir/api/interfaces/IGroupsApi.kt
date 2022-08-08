@@ -19,6 +19,22 @@ interface IGroupsApi {
     ): Completable
 
     @CheckResult
+    fun edit(
+        groupId: Int,
+        title: String?,
+        description: String?,
+        screen_name: String?,
+        access: Int?,
+        website: String?,
+        public_category: Int?,
+        public_date: String?,
+        age_limits: Int?,
+        obscene_filter: Int?,
+        obscene_stopwords: Int?,
+        obscene_words: String?
+    ): Completable
+
+    @CheckResult
     fun unban(groupId: Int, ownerId: Int): Completable
 
     @CheckResult

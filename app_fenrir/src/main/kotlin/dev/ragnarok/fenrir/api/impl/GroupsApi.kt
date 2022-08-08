@@ -42,6 +42,37 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
+    override fun edit(
+        groupId: Int,
+        title: String?,
+        description: String?,
+        screen_name: String?,
+        access: Int?,
+        website: String?,
+        public_category: Int?,
+        public_date: String?,
+        age_limits: Int?,
+        obscene_filter: Int?,
+        obscene_stopwords: Int?,
+        obscene_words: String?
+    ): Completable {
+        return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
+            .flatMapCompletable { service ->
+                service
+                    .edit(
+                        groupId,
+                        title,
+                        description,
+                        screen_name,
+                        access,
+                        website,
+                        public_date, age_limits, obscene_filter, obscene_stopwords, obscene_words
+                    )
+                    .map(extractResponseWithErrorHandling())
+                    .ignoreElement()
+            }
+    }
+
     override fun unban(groupId: Int, ownerId: Int): Completable {
         return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMapCompletable { service ->

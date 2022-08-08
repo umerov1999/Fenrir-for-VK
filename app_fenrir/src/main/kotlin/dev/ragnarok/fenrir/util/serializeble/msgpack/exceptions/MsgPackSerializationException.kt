@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.util.serializeble.msgpack.exceptions
 import dev.ragnarok.fenrir.util.serializeble.msgpack.extensions.MsgPackExtension
 import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataBuffer
 import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataInputBuffer
+import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataInputOkio
 import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataOutputBuffer
 import kotlinx.serialization.SerializationException
 
@@ -15,19 +16,23 @@ class MsgPackSerializationException private constructor(
     override val message: String
 ) : SerializationException() {
     companion object {
-        private fun MsgPackDataInputBuffer.locationInfo() =
-            toByteArray().toList().let {
+        private fun MsgPackDataInputBuffer.locationInfo(): String {
+            if (this is MsgPackDataInputOkio) {
+                return currentIndex().toString() + " pos"
+            }
+            return toByteArray().toList().let {
                 """
                 ${
-                    it.subList(0, index).toByteArray().toHex()
-                }[${peekSafely()}]${it.subList((index + 1).coerceAtMost(it.size), it.size)}
-                ${(0 until index).joinToString(separator = "") { "  " }}} ^^ ${
-                    ((index + 1) until it.size).joinToString(
+                    it.subList(0, currentIndex()).toByteArray().toHex()
+                }[${peekSafely()}]${it.subList((currentIndex() + 1).coerceAtMost(it.size), it.size)}
+                ${(0 until currentIndex()).joinToString(separator = "") { "  " }}} ^^ ${
+                    ((currentIndex() + 1) until it.size).joinToString(
                         separator = ""
                     ) { "  " }
                 }
                 """.trimIndent()
             }
+        }
 
         private fun MsgPackDataOutputBuffer.locationInfo() =
             "Written so far: ${toByteArray().toHex()}\nSize: ${toByteArray().size} bytes"
@@ -37,9 +42,11 @@ class MsgPackSerializationException private constructor(
             locationInfo: String,
             reason: String? = null
         ): MsgPackSerializationException {
+            val buf = (if (buffer is MsgPackDataInputOkio) buffer.currentIndex()
+                .toString() + " pos" else buffer.toByteArray().toHex())
             return MsgPackSerializationException(
                 "MsgPack Serialization failure while serializing: ${
-                    buffer.toByteArray().toHex()
+                    buf
                 }\nReason: $reason\nCurrent position:\n\n$locationInfo"
             )
         }

@@ -1409,6 +1409,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 )
             )
             Place.USER_BLACKLIST -> attachToFront(UserBannedFragment.newInstance(args.getInt(Extra.ACCOUNT_ID)))
+            Place.FRIENDS_BIRTHDAYS -> attachToFront(BirthDayFragment.newInstance(args))
             Place.DRAWER_EDIT -> attachToFront(DrawerEditFragment.newInstance())
             Place.SIDE_DRAWER_EDIT -> attachToFront(SideDrawerEditFragment.newInstance())
             Place.ARTIST -> {

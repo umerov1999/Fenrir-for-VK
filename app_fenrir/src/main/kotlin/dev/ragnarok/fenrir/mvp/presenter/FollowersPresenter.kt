@@ -51,7 +51,7 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
 
     fun removeFollower(owner: Owner) {
         appendDisposable(
-            accountsInteractor.banUsers(accountId, listOf(owner as User))
+            accountsInteractor.banOwners(accountId, listOf(owner))
                 .fromIOToMain()
                 .subscribe({
                     val pos = indexOfOwner(data, owner)

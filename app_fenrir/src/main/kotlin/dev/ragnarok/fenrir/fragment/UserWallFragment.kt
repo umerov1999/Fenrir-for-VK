@@ -596,7 +596,13 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
             }
             if (!view.isBlacklistedByMe) {
                 menu.add(R.string.add_to_blacklist).setOnMenuItemClickListener {
-                    presenter?.fireAddToBlacklistClick()
+                    MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(R.string.add_to_blacklist)
+                        .setPositiveButton(R.string.button_yes) { _: DialogInterface?, _: Int ->
+                            presenter?.fireAddToBlacklistClick()
+                        }
+                        .setNegativeButton(R.string.cancel) { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
+                        .show()
                     true
                 }
             }

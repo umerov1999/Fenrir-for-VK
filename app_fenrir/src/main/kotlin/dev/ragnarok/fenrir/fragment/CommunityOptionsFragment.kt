@@ -2,16 +2,17 @@ package dev.ragnarok.fenrir.fragment
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.core.view.MenuProvider
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Day
@@ -24,25 +25,52 @@ import dev.ragnarok.fenrir.util.Month.getMonthTitle
 import dev.ragnarok.fenrir.view.MySpinnerView
 
 class CommunityOptionsFragment :
-    BaseMvpFragment<CommunityOptionsPresenter, ICommunityOptionsView>(), ICommunityOptionsView {
+    BaseMvpFragment<CommunityOptionsPresenter, ICommunityOptionsView>(), ICommunityOptionsView,
+    MenuProvider {
     private var mName: TextInputEditText? = null
     private var mDescription: TextInputEditText? = null
-    private var mCommunityTypeRoot: View? = null
+    private var mCommunityTypeRoot: ViewGroup? = null
     private var mAddress: TextInputEditText? = null
-    private var mCategoryRoot: View? = null
+    private var mCategoryRoot: ViewGroup? = null
     private var mCategory: MySpinnerView? = null
-    private var mSubjectRoot: View? = null
-    private var mSubjects: Array<MySpinnerView?> = arrayOfNulls(2)
     private var mWebsite: TextInputEditText? = null
-    private var mPublicDateRoot: View? = null
+    private var mPublicDateRoot: ViewGroup? = null
     private var mDay: TextView? = null
     private var mMonth: TextView? = null
     private var mYear: TextView? = null
-    private var mFeedbackCommentsRoot: View? = null
+    private var mType: MaterialButton? = null
+    private var mFeedbackCommentsRoot: ViewGroup? = null
     private var mFeedbackComments: MaterialCheckBox? = null
     private var mObsceneFilter: MaterialCheckBox? = null
     private var mObsceneStopWords: MaterialCheckBox? = null
     private var mObsceneStopWordsEditText: TextInputEditText? = null
+    private var rAge: RadioGroup? = null
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.community_option_edit, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.action_save) {
+            presenter?.fireButtonSaveClick(
+                mName?.editableText.toString().trim(),
+                mDescription?.editableText.toString().trim(),
+                mAddress?.editableText.toString().trim(),
+                mWebsite?.editableText.toString().trim(),
+                if (mObsceneFilter?.isChecked == true) 1 else 0,
+                if (mObsceneStopWords?.isChecked == true) 1 else 0,
+                mObsceneStopWordsEditText?.editableText.toString().trim()
+            )
+            return true
+        }
+        return false
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -55,13 +83,9 @@ class CommunityOptionsFragment :
         mAddress = root.findViewById(R.id.link)
         mCategoryRoot = root.findViewById(R.id.category_root)
         mCategory = root.findViewById(R.id.spinner_category)
-        mCategory?.setIconOnClickListener {
+        mCategory?.setOnClickListener {
             presenter?.onCategoryClick()
         }
-        mSubjectRoot = root.findViewById(R.id.subject_root)
-        mSubjects = arrayOfNulls(2)
-        mSubjects[0] = root.findViewById(R.id.subject_0)
-        mSubjects[1] = root.findViewById(R.id.subject_1)
         mWebsite = root.findViewById(R.id.website)
         mPublicDateRoot = root.findViewById(R.id.public_date_root)
         mDay = root.findViewById(R.id.day)
@@ -76,6 +100,18 @@ class CommunityOptionsFragment :
         mYear?.setOnClickListener {
             presenter?.fireYearClick()
         }
+        mType = root.findViewById(R.id.type_group)
+        mType?.setOnClickListener {
+            presenter?.fireAccessClick()
+        }
+        rAge = root.findViewById(R.id.category_age)
+        rAge?.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.age_under16 -> presenter?.fireAge(1)
+                R.id.age_16_to_18 -> presenter?.fireAge(2)
+                R.id.age_after_18 -> presenter?.fireAge(3)
+            }
+        }
         mFeedbackCommentsRoot = root.findViewById(R.id.feedback_comments_root)
         mFeedbackComments = root.findViewById(R.id.feedback_comments)
         mObsceneFilter = root.findViewById(R.id.obscene_filter)
@@ -84,11 +120,31 @@ class CommunityOptionsFragment :
         return root
     }
 
+    override fun resolveEdge(age: Int) {
+        when (age) {
+            1 -> {
+                view?.findViewById<MaterialRadioButton>(R.id.age_after_18)?.isChecked = false
+                view?.findViewById<MaterialRadioButton>(R.id.age_16_to_18)?.isChecked = false
+                view?.findViewById<MaterialRadioButton>(R.id.age_under16)?.isChecked = true
+            }
+            2 -> {
+                view?.findViewById<MaterialRadioButton>(R.id.age_after_18)?.isChecked = false
+                view?.findViewById<MaterialRadioButton>(R.id.age_16_to_18)?.isChecked = true
+                view?.findViewById<MaterialRadioButton>(R.id.age_under16)?.isChecked = false
+            }
+            3 -> {
+                view?.findViewById<MaterialRadioButton>(R.id.age_after_18)?.isChecked = true
+                view?.findViewById<MaterialRadioButton>(R.id.age_16_to_18)?.isChecked = false
+                view?.findViewById<MaterialRadioButton>(R.id.age_under16)?.isChecked = false
+            }
+        }
+    }
+
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<CommunityOptionsPresenter> {
         return object : IPresenterFactory<CommunityOptionsPresenter> {
             override fun create(): CommunityOptionsPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val community: VKApiCommunity = requireArguments().getParcelable(Extra.GROUP)!!
+                val community: Community = requireArguments().getParcelable(Extra.GROUP)!!
                 val settings: GroupSettings = requireArguments().getParcelable(Extra.SETTINGS)!!
                 return CommunityOptionsPresenter(accountId, community, settings, saveInstanceState)
             }
@@ -134,18 +190,6 @@ class CommunityOptionsFragment :
             }
             .setNegativeButton(R.string.button_cancel, null)
             .show()
-    }
-
-    override fun setSubjectRootVisible(visible: Boolean) {
-        safelySetVisibleOrGone(mSubjectRoot, visible)
-    }
-
-    override fun setSubjectVisible(index: Int, visible: Boolean) {
-        safelySetVisibleOrGone(mSubjects[index], visible)
-    }
-
-    override fun displaySubjectValue(index: Int, value: String?) {
-        mSubjects[index]?.setValue(value)
     }
 
     override fun displayWebsite(website: String?) {
@@ -195,18 +239,26 @@ class CommunityOptionsFragment :
     }
 
     override fun setObsceneStopWordsVisible(visible: Boolean) {
-        safelySetVisibleOrGone(mObsceneStopWordsEditText, visible)
+        safelySetVisibleOrGoneView(mObsceneStopWordsEditText, visible)
     }
 
     override fun displayObsceneStopWords(words: String?) {
         safelySetText(mObsceneStopWordsEditText, words)
     }
 
+    override fun setGroupType(type: Int) {
+        when (type) {
+            0 -> mType?.setText(R.string.opened)
+            1 -> mType?.setText(R.string.closed)
+            2 -> mType?.setText(R.string.privated)
+        }
+    }
+
     companion object {
         fun newInstance(
             accountId: Int,
-            community: Community?,
-            settings: GroupSettings?
+            community: Community,
+            settings: GroupSettings
         ): CommunityOptionsFragment {
             val args = Bundle()
             args.putParcelable(Extra.GROUP, community)

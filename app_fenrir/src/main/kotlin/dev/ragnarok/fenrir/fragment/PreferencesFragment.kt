@@ -853,6 +853,11 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.show_photos_line
             }
 
+            switch("show_photos_date") {
+                defaultValue = false
+                titleRes = R.string.show_photos_date
+            }
+
             switch("disable_likes") {
                 defaultValue = false
                 titleRes = R.string.disable_likes
@@ -1518,6 +1523,18 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         commitString("oauth.vk.com")
                         reload()
                     }
+                    Includes.proxySettings.broadcastUpdate(null)
+                }
+            }
+
+            singleChoice(
+                "current_parser",
+                selItems(R.array.array_parser_names, R.array.array_parser_items),
+                parentFragmentManager
+            ) {
+                initialSelection = "0"
+                titleRes = R.string.parser_type
+                onSelectionChange {
                     Includes.proxySettings.broadcastUpdate(null)
                 }
             }

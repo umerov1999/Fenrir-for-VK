@@ -5,7 +5,7 @@ import android.util.Base64
 import dev.ragnarok.fenrir.Constants.KATE_APP_VERSION_CODE
 import dev.ragnarok.fenrir.Constants.KATE_APP_VERSION_NAME
 import dev.ragnarok.fenrir.Includes.proxySettings
-import dev.ragnarok.fenrir.api.HttpLogger
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
 import okhttp3.FormBody
 import okhttp3.Interceptor
@@ -147,8 +147,8 @@ object TokenModKate {
                 )
             })
         applyProxyConfig(builder, proxySettings.activeProxy)
-        HttpLogger.adjust(builder)
-        HttpLogger.configureToIgnoreCertificates(builder)
+        HttpLoggerAndParser.adjust(builder)
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         val formBody = FormBody.Builder()
         for (i in list) {
             val v = i.split(Regex("=")).toTypedArray()

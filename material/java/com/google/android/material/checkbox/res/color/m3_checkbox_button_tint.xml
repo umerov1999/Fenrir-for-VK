@@ -22,6 +22,9 @@
   <!-- Error -->
   <item android:color="?attr/colorError" app:state_error="true"/>
 
+  <!-- Indeterminate -->
+  <item android:color="?attr/colorPrimary" app:state_indeterminate="true"/>
+
   <!-- Checked -->
   <item android:color="?attr/colorPrimary" android:state_checked="true"/>
 
