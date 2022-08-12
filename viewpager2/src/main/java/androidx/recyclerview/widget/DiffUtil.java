@@ -1000,17 +1000,15 @@ public class DiffUtil {
         /**
          * position in the list that owns this item
          */
-        int posInOwnerList;
-
+        final int posInOwnerList;
+        /**
+         * true if this is a removal, false otherwise
+         */
+        final boolean removal;
         /**
          * position wrt to the end of the list
          */
         int currentPos;
-
-        /**
-         * true if this is a removal, false otherwise
-         */
-        boolean removal;
 
         PostponedUpdate(int posInOwnerList, int currentPos, boolean removal) {
             this.posInOwnerList = posInOwnerList;

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.util.serializeble.retrofit.rxjava3
 
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser
 import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.api.model.response.VkResponse
 import io.reactivex.rxjava3.core.Observable
@@ -31,14 +32,24 @@ internal class BodyObservable<T : Any>(private val upstream: Observable<Response
             if (response.isSuccessful && body != null) {
                 if (body is VkResponse) {
                     body.error?.let {
-                        val o = ArrayList<Params>()
-                        if (response.raw().request.body is FormBody) {
-                            val bd = response.raw().request.body as FormBody
-                            for (i in 0 until bd.size) {
-                                val tmp = Params()
-                                tmp.key = bd.name(i)
-                                tmp.value = bd.value(i)
-                                o.add(tmp)
+                        val o: ArrayList<Params> = when (val stmp = response.raw().request.body) {
+                            is FormBody -> {
+                                val f = ArrayList<Params>(stmp.size)
+                                for (i in 0 until stmp.size) {
+                                    val tmp = Params()
+                                    tmp.key = stmp.name(i)
+                                    tmp.value = stmp.value(i)
+                                    f.add(tmp)
+                                }
+                                f
+                            }
+                            is HttpLoggerAndParser.GzipFormBody -> {
+                                val f = ArrayList<Params>(stmp.original.size)
+                                f.addAll(stmp.original)
+                                f
+                            }
+                            else -> {
+                                ArrayList()
                             }
                         }
                         val tmp = Params()

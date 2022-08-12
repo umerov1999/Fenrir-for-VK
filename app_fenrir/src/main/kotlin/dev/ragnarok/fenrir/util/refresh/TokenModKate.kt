@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.Constants.KATE_APP_VERSION_CODE
 import dev.ragnarok.fenrir.Constants.KATE_APP_VERSION_NAME
 import dev.ragnarok.fenrir.Includes.proxySettings
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
 import okhttp3.FormBody
 import okhttp3.Interceptor
@@ -137,7 +138,7 @@ object TokenModKate {
             .writeTimeout(40, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 chain.proceed(
-                    chain.request().newBuilder()
+                    chain.toRequestBuilder(false)
                         .addHeader("User-Agent", userAgent())
                         .addHeader("Authorization", str3)
                         .addHeader("app", "com.perm.kate_new_6")

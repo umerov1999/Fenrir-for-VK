@@ -35,12 +35,11 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class VideosListPresenter(
-    accountId: Int, ownerId: Int, albumId: Int, action: String?,
+    accountId: Int, ownerId: Int, albumId: Int, private val action: String?,
     albumTitle: String?, context: Context, savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IVideosListView>(accountId, savedInstanceState) {
     val ownerId: Int
     val albumId: Int
-    private val action: String?
     private val data: MutableList<Video>
     private val interactor: IVideosInteractor = InteractorFactory.createVideosInteractor()
     private val uploadManager: IUploadManager = Includes.uploadManager
@@ -467,7 +466,6 @@ class VideosListPresenter(
         searcher = FindVideo(netDisposable)
         this.ownerId = ownerId
         this.albumId = albumId
-        this.action = action
         this.albumTitle = albumTitle
         intNextFrom = IntNextFrom(0)
         data = ArrayList()

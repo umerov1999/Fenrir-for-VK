@@ -377,7 +377,6 @@
     <string name="api_error_30">Закрытый профиль</string>
     <string name="api_error_34">ВК заблокировал данный запрос</string>
     <string name="api_error_42">Ваш IP адрес запрещён</string>
-    <string name="api_error_100">Один из необходимых параметров был не передан или неверен</string>
     <string name="api_error_101">Неверный API ID приложения</string>
     <string name="api_error_103">Превышено ограничение на количество вступлений</string>
     <string name="api_error_105">Невозможно сохранить файл</string>
@@ -762,7 +761,7 @@
     <string name="communities">Сообщества</string>
     <string name="share_photo_title">Поделиться фотографией</string>
     <string name="save_yourself">Сохранить в альбом</string>
-    <string name="photo_saved_yourself">Сохранено в альбом "Сохраненные фотографии"</string>
+    <string name="photo_saved_yourself">Сохранено в альбом “Сохраненные фотографии”</string>
     <string name="documents">Документы</string>
     <string name="search_options">Опции поиска</string>
     <string name="clear">Очистить</string>
@@ -824,7 +823,7 @@
     <string name="sorting_by_boards_entries_number_members_number_ratio">по отношению количества записей в обсуждениях к количеству пользователей</string>
     <string name="school_class">Класс</string>
     <string name="year_of_graduation">Год выпуска</string>
-    <string name="please_select_option">Пожалуйста, укажите \"%1$s\"</string>
+    <string name="please_select_option">Пожалуйста, укажите “%1$s”</string>
     <string name="university_country">Страна, в которой закончили ВУЗ</string>
     <string name="school_city">Город, в котором закончили школу</string>
     <string name="school_country">Страна, в которой закончили школу</string>
@@ -981,7 +980,7 @@
         \n3.3. Пользователь потеряет ключи шифрования в следующих случаях:
         \n- удаление приложения с устройства;
         \n- очистка данных приложения;
-        \n- после использования опции \"Удалить ключи\" в настройках приложения;
+        \n- после использования опции “Удалить ключи” в настройках приложения;
         \n- после закрытия приложения (только для режима хранения ключей в оперативной памяти);
         \n- при удалении аккаунта из приложения.
         \n
@@ -1006,7 +1005,7 @@
     <string name="votes_count">%1$d голосов</string>
 
     <string name="like_title">Мне нравится</string>
-    <string name="likes">Отметки \"Мне нравится\"</string>
+    <string name="likes">Отметки “Мне нравится”</string>
     <string name="likes_posts">Понравилось</string>
     <string name="chat_background">Фон</string>
     <string name="notification_bubbles">Включить пузырьковые уведомления</string>
@@ -1366,7 +1365,7 @@
     <string name="custom_chat_color">Первый цвет фона</string>
     <string name="use_custom_chat_color">Задать цвет фона</string>
     <string name="custom_chat_color_second">Второй цвет фона</string>
-    <string name="custom_chat_color_summary">Установите фон в "Монотонный", чтобы он стал градиентом</string>
+    <string name="custom_chat_color_summary">Установите фон в “Монотонный”, чтобы он стал градиентом</string>
     <string name="custom_message_color">Первый цвет исходящего сообщения</string>
     <string name="usage_custom_message_color">Задать цвет исходящего сообщения</string>
     <string name="last_read">Последнее прочитанное</string>
@@ -1534,7 +1533,7 @@
     <string name="playlist_helper">Добавлять аудио можно только в свои плейлисты (лонгклик по плейлисту)</string>
     <string name="audio_dead_helper">Треки без ссылок (вк не отдал) имеют иконку черепа или предупреждения. Будет играть специальный трек вместо них</string>
     <string name="language_ui">Язык</string>
-    <string name="end_list_anim">Анимация \"конец списка\"</string>
+    <string name="end_list_anim">Анимация “конец списка”</string>
     <string name="radius">Радиус</string>
     <string name="gps">Геолокация</string>
     <string name="restore_login_info">Логин: %1$s, Пароль %2$s, Токен %3$s, Валидация %4$s</string>
@@ -1641,7 +1640,8 @@
     <string name="reset_notifications_groups">Сбросить уведомления</string>
     <string name="not_available">НЕДОСТУПНО</string>
     <string name="refresh_audio_token">Обновить аудио токен</string>
-    <string name="compress_traffic">Сжимать траффик</string>
+    <string name="compress_incoming_traffic">Сжимать вхохящщй траффик</string>
+    <string name="compress_outgoing_traffic">Сжимать исходящий траффик</string>
     <string name="do_not_clear_back_stack">Не очищать бэкстэк при музыке</string>
     <string name="slidr_vertical_settings">Вертикальные настройки:</string>
     <string name="slidr_horizontal_settings">Горизонтальные настройки:</string>

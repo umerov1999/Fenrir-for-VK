@@ -82,7 +82,7 @@ class CommentCreateFragment :
     }
 
     override fun goBack() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     companion object {

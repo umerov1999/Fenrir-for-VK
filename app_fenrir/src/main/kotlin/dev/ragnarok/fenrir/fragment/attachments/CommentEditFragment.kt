@@ -71,7 +71,7 @@ class CommentEditFragment : AbsAttachmentsEditFragment<CommentEditPresenter, ICo
         val data = Bundle()
         data.putParcelable(Extra.COMMENT, comment)
         parentFragmentManager.setFragmentResult(REQUEST_COMMENT_EDIT, data)
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun showConfirmWithoutSavingDialog() {
@@ -89,7 +89,7 @@ class CommentEditFragment : AbsAttachmentsEditFragment<CommentEditPresenter, ICo
     }
 
     override fun goBack() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onResult() {

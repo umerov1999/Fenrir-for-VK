@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api
 
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants.USER_AGENT
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.kJson
@@ -49,7 +50,7 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
             .writeTimeout(40, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
-                    chain.request().newBuilder().vkHeader(true).addHeader(
+                    chain.toRequestBuilder(false).vkHeader(true).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )

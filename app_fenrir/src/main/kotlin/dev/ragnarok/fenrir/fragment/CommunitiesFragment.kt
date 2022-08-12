@@ -211,7 +211,7 @@ class CommunitiesFragment : BaseMvpFragment<CommunitiesPresenter, ICommunitiesVi
         if (requireActivity().supportFragmentManager.backStackEntryCount == 1 && requireActivity() is AppStyleable) {
             (requireActivity() as AppStyleable).openMenu(true)
         } else {
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 

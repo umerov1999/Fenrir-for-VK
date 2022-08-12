@@ -399,6 +399,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     @VisibleForTesting
     final List<ViewHolder> mPendingAccessibilityImportanceChange = new ArrayList<>();
+    final boolean mEnableFastScroller;
+    final GapWorker.LayoutPrefetchRegistryImpl mPrefetchRegistry =
+            ALLOW_THREAD_GAP_WORK ? new GapWorker.LayoutPrefetchRegistryImpl() : null;
     private final float mPhysicalCoef;
     private final RecyclerViewDataObserver mObserver = new RecyclerViewDataObserver();
     private final Rect mTempRect2 = new Rect();
@@ -438,7 +441,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     RecyclerListener mRecyclerListener;
     boolean mIsAttached;
     boolean mHasFixedSize;
-    boolean mEnableFastScroller;
     @VisibleForTesting
     boolean mFirstLayoutComplete;
     /**
@@ -447,9 +449,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     boolean mLayoutWasDefered;
     boolean mLayoutSuppressed;
-    boolean mAdapterUpdateDuringMeasure;
 
     // Touch/scrolling handling
+    boolean mAdapterUpdateDuringMeasure;
     /**
      * True after an event occurs that signals that the entire data set has changed. In that case,
      * we cannot run any animations since we don't know what happened until layout.
@@ -473,8 +475,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     boolean mDispatchItemsChangedEvent;
     ItemAnimator mItemAnimator = new DefaultItemAnimator();
     GapWorker mGapWorker;
-    GapWorker.LayoutPrefetchRegistryImpl mPrefetchRegistry =
-            ALLOW_THREAD_GAP_WORK ? new GapWorker.LayoutPrefetchRegistryImpl() : null;
     // For use in item animations
     boolean mItemsAddedOrRemoved;
     boolean mItemsChanged;
@@ -6080,7 +6080,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     public static class RecycledViewPool {
         private static final int DEFAULT_MAX_SCRAP = 5;
-        SparseArray<ScrapData> mScrap = new SparseArray<>();
+        final SparseArray<ScrapData> mScrap = new SparseArray<>();
+        /**
+         * The set of adapters for PoolingContainer release purposes
+         *
+         * @see #mAttachCountForClearing
+         */
+        final Set<Adapter<?>> mAttachedAdaptersForPoolingContainer =
+                Collections.newSetFromMap(new IdentityHashMap<>());
         /**
          * Attach counts for clearing (that is, emptying the pool when there are no adapters
          * attached) and for PoolingContainer release are tracked separately to maintain the
@@ -6100,13 +6107,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * only unexpected behavior that doing so might provoke, so this should be acceptable.
          */
         int mAttachCountForClearing;
-        /**
-         * The set of adapters for PoolingContainer release purposes
-         *
-         * @see #mAttachCountForClearing
-         */
-        Set<Adapter<?>> mAttachedAdaptersForPoolingContainer =
-                Collections.newSetFromMap(new IdentityHashMap<>());
 
         /**
          * Discard all ViewHolders.
@@ -7100,7 +7100,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         return getDecoratedBottom(view) + params.bottomMargin;
                     }
                 };
-        ViewBoundsCheck mVerticalBoundCheck = new ViewBoundsCheck(mVerticalBoundCheckCallback);
+        final ViewBoundsCheck mVerticalBoundCheck = new ViewBoundsCheck(mVerticalBoundCheckCallback);
         @Nullable
         SmoothScroller mSmoothScroller;
         boolean mRequestedSimpleAnimations;
@@ -7187,7 +7187,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * {@link LinearLayoutManager#findOneVisibleChild(int, int, boolean, boolean)},
          * and {@link LinearLayoutManager#findOnePartiallyOrCompletelyInvisibleChild(int, int)}.
          */
-        ViewBoundsCheck mHorizontalBoundCheck = new ViewBoundsCheck(mHorizontalBoundCheckCallback);
+        final ViewBoundsCheck mHorizontalBoundCheck = new ViewBoundsCheck(mHorizontalBoundCheckCallback);
 
         /**
          * Chooses a size from the given specs and parameters that is closest to the desired size
@@ -7485,7 +7485,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param message The message for the exception. Can be null.
          * @see #assertInLayoutOrScroll(String)
          */
-        public void assertNotInLayoutOrScroll(@Nullable String message) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public void assertNotInLayoutOrScroll(String message) {
             if (mRecyclerView != null) {
                 mRecyclerView.assertNotInLayoutOrScroll(message);
             }
@@ -7664,8 +7665,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #isItemPrefetchEnabled()
          * @see #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
          */
-        public void collectAdjacentPrefetchPositions(int dx, int dy, @NonNull State state,
-                                                     @NonNull LayoutPrefetchRegistry layoutPrefetchRegistry) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public void collectAdjacentPrefetchPositions(int dx, int dy, State state,
+                                                     LayoutPrefetchRegistry layoutPrefetchRegistry) {
         }
 
         /**
@@ -7692,8 +7694,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #isItemPrefetchEnabled()
          * @see #collectAdjacentPrefetchPositions(int, int, State, LayoutPrefetchRegistry)
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void collectInitialPrefetchPositions(int adapterItemCount,
-                                                    @NonNull LayoutPrefetchRegistry layoutPrefetchRegistry) {
+                                                    LayoutPrefetchRegistry layoutPrefetchRegistry) {
         }
 
         void dispatchAttachedToWindow(RecyclerView view) {
@@ -7799,7 +7802,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #onAttachedToWindow(RecyclerView)
          */
         @CallSuper
-        public void onDetachedFromWindow(@NonNull RecyclerView view, @NonNull Recycler recycler) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {
             onDetachedFromWindow(view);
         }
 
@@ -7863,7 +7867,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *                 position
          * @param state    Transient state of RecyclerView
          */
-        public void onLayoutChildren(@NonNull Recycler recycler, @NonNull State state) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public void onLayoutChildren(Recycler recycler, State state) {
             Log.e(TAG, "You must override onLayoutChildren(Recycler recycler, State state) ");
         }
 
@@ -7878,7 +7883,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param state Transient state of RecyclerView
          */
-        public void onLayoutCompleted(@NonNull State state) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public void onLayoutCompleted(State state) {
         }
 
         /**
@@ -7896,7 +7902,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @return A new LayoutParams for a child view
          */
-        @NonNull
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public abstract LayoutParams generateDefaultLayoutParams();
 
         /**
@@ -7926,6 +7932,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param lp Source LayoutParams object to copy values from
          * @return a new LayoutParams object
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {
             if (lp instanceof LayoutParams) {
                 return new LayoutParams((LayoutParams) lp);
@@ -7950,6 +7957,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param attrs AttributeSet describing the supplied arguments
          * @return a new LayoutParams object
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {
             return new LayoutParams(c, attrs);
         }
@@ -7967,7 +7975,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dx if a boundary was reached.
          */
-        public int scrollHorizontallyBy(int dx, @NonNull Recycler recycler, @NonNull State state) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public int scrollHorizontallyBy(int dx, Recycler recycler, State state) {
             return 0;
         }
 
@@ -7984,7 +7993,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dy if a boundary was reached.
          */
-        public int scrollVerticallyBy(int dy, @NonNull Recycler recycler, @NonNull State state) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public int scrollVerticallyBy(int dy, Recycler recycler, State state) {
             return 0;
         }
 
@@ -8031,11 +8041,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param state        Current State of RecyclerView
          * @param position     Scroll to this adapter position.
          */
-        public void smoothScrollToPosition(
-                @NonNull RecyclerView recyclerView,
-                @NonNull State state,
-                int position
-        ) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public void smoothScrollToPosition(RecyclerView recyclerView, State state,
+                                           int position) {
             Log.e(TAG, "You must override smoothScrollToPosition to support smooth scrolling");
         }
 
@@ -8049,6 +8057,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param smoothScroller Instance which defines how smooth scroll should be animated
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void startSmoothScroll(SmoothScroller smoothScroller) {
             if (mSmoothScroller != null && smoothScroller != mSmoothScroller
                     && mSmoothScroller.isRunning()) {
@@ -8083,6 +8092,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param view The View for which the animations should be ended.
          * @see RecyclerView.ItemAnimator#endAnimations()
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void endAnimation(View view) {
             if (mRecyclerView.mItemAnimator != null) {
                 mRecyclerView.mItemAnimator.endAnimation(getChildViewHolderInt(view));
@@ -8102,6 +8112,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param child View to add and then remove with animation.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addDisappearingView(View child) {
             addDisappearingView(child, -1);
         }
@@ -8120,6 +8131,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param child View to add and then remove with animation.
          * @param index Index of the view.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addDisappearingView(View child, int index) {
             addViewInt(child, index, true);
         }
@@ -8131,6 +8143,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param child View to add
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addView(View child) {
             addView(child, -1);
         }
@@ -8143,6 +8156,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param child View to add
          * @param index Index to add child at
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addView(View child, int index) {
             addViewInt(child, index, false);
         }
@@ -8209,6 +8223,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param child View to remove
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void removeView(View child) {
             mChildHelper.removeView(child);
         }
@@ -9747,7 +9762,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param state The parcelable that was returned by the previous LayoutManager's
          *              {@link #onSaveInstanceState()} method.
          */
-        public void onRestoreInstanceState(@NonNull Parcelable state) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public void onRestoreInstanceState(Parcelable state) {
 
         }
 
@@ -10899,7 +10915,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         // invalidation is populated through the View hierarchy
         boolean mPendingInvalidate;
 
-        public LayoutParams(Context c, AttributeSet attrs) {
+        public LayoutParams(@SuppressLint("UnknownNullness") Context c, @SuppressLint("UnknownNullness") AttributeSet attrs) {
             super(c, attrs);
         }
 
@@ -10907,15 +10923,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             super(width, height);
         }
 
-        public LayoutParams(MarginLayoutParams source) {
+        public LayoutParams(@SuppressLint("UnknownNullness") MarginLayoutParams source) {
             super(source);
         }
 
-        public LayoutParams(ViewGroup.LayoutParams source) {
+        public LayoutParams(@SuppressLint("UnknownNullness") ViewGroup.LayoutParams source) {
             super(source);
         }
 
-        public LayoutParams(LayoutParams source) {
+        public LayoutParams(@SuppressLint("UnknownNullness") LayoutParams source) {
             super((ViewGroup.LayoutParams) source);
         }
 

@@ -8,7 +8,10 @@ import dev.ragnarok.fenrir.fragment.search.options.SimpleNumberOption
 import dev.ragnarok.fenrir.fragment.search.options.SpinnerOption
 
 class VideoSearchCriteria : BaseSearchCriteria {
-    constructor(query: String?, in_main_page: Boolean) : super(query) {
+    var action: String? = null
+
+    constructor(query: String?, in_main_page: Boolean, action: String?) : super(query) {
+        this.action = action
         val sort = SpinnerOption(KEY_SORT, R.string.sorting, true)
         sort.available = ArrayList(3)
         sort.available.add(SpinnerOption.Entry(0, R.string.by_date_added))
@@ -39,7 +42,9 @@ class VideoSearchCriteria : BaseSearchCriteria {
         appendOption(SimpleNumberOption(KEY_DURATION_TO, R.string.max_duration, true))
     }
 
-    internal constructor(`in`: Parcel) : super(`in`)
+    internal constructor(`in`: Parcel) : super(`in`) {
+        action = `in`.readString()
+    }
 
     override fun describeContents(): Int {
         return 0
@@ -47,7 +52,14 @@ class VideoSearchCriteria : BaseSearchCriteria {
 
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): VideoSearchCriteria {
-        return super.clone() as VideoSearchCriteria
+        val o = super.clone() as VideoSearchCriteria
+        o.action = action
+        return o
+    }
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+        dest.writeString(action)
     }
 
     companion object {

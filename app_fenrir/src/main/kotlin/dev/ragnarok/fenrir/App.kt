@@ -53,7 +53,9 @@ class App : Application() {
             MusicPlaybackController.tracksExist = FileExistJVM()
         }
 
-        Utils.isCompressTraffic = Settings.get().other().isCompress_traffic
+        Utils.isCompressIncomingTraffic = Settings.get().other().isCompress_incoming_traffic
+        Utils.isCompressOutgoingTraffic = Settings.get().other().isCompress_outgoing_traffic
+        Utils.currentParser = Settings.get().other().currentParser
         RLottieDrawable.setCacheResourceAnimation(Settings.get().other().isEnable_cache_ui_anim)
         MusicPlaybackController.registerBroadcast(this)
         PicassoInstance.init(this, Includes.proxySettings)

@@ -96,7 +96,8 @@ interface ISettings {
         val isPhoto_to_user_dir: Boolean
         val isDownload_voice_ogg: Boolean
         val isDelete_cache_images: Boolean
-        val isCompress_traffic: Boolean
+        val isCompress_incoming_traffic: Boolean
+        val isCompress_outgoing_traffic: Boolean
         val isLimit_cache: Boolean
         val isDo_not_clear_back_stack: Boolean
         val isMention_fave: Boolean

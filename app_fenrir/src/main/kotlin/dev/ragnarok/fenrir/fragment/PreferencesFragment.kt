@@ -375,7 +375,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
         } else {
-            TODO("VERSION.SDK_INT < R")
+            throw UnsupportedOperationException("VERSION.SDK_INT < R")
         }
         val uri = Uri.fromParts("package", requireActivity().packageName, null)
         intent.data = uri
@@ -1535,6 +1535,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 initialSelection = "0"
                 titleRes = R.string.parser_type
                 onSelectionChange {
+                    Utils.currentParser = it.toInt()
                     Includes.proxySettings.broadcastUpdate(null)
                 }
             }
@@ -1738,11 +1739,20 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.delete_cache_images
             }
 
-            switch("compress_default_traffic") {
+            switch("compress_incoming_traffic") {
                 defaultValue = true
-                titleRes = R.string.compress_traffic
+                titleRes = R.string.compress_incoming_traffic
                 onCheckedChange {
-                    Utils.isCompressTraffic = it
+                    Utils.isCompressIncomingTraffic = it
+                    Includes.proxySettings.broadcastUpdate(null)
+                }
+            }
+
+            switch("compress_outgoing_traffic") {
+                defaultValue = false
+                titleRes = R.string.compress_outgoing_traffic
+                onCheckedChange {
+                    Utils.isCompressOutgoingTraffic = it
                     Includes.proxySettings.broadcastUpdate(null)
                 }
             }

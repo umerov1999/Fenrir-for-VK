@@ -1401,7 +1401,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     private fun resolveToolbarNavigationIcon() {
         toolbar?.setNavigationIcon(R.drawable.arrow_left)
-        toolbar?.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        toolbar?.setNavigationOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
     }
 
     private fun resolveLeftButton(peerId: Int) {

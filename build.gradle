@@ -1,15 +1,58 @@
 buildscript {
     //APP
     ext.appCompileSDK = 32
-    ext.appBuildTools = "33.0.0"
+    ext.appBuildTools = "32.0.0"
     ext.appNdk = "25.0.8775105"
     ext.appMinSDK = 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 196
-    ext.appFenrirVersionName = "2.96-Kotlin"
-    ext.appFileGalleryVersionCode = 16
-    ext.appFileGalleryVersionName = "1.16-Kotlin"
+    ext.appFenrirVersionCode = 197
+    ext.appFenrirVersionName = "2.97-Kotlin"
+    ext.appFileGalleryVersionCode = 17
+    ext.appFileGalleryVersionName = "1.17-Kotlin"
 
+    //androidx libraries
+    ext.activityVersion = "1.5.1"
+    ext.appcompatVersion = "1.5.0"
+    ext.annotationVersion = "1.4.0"
+    ext.biometricVersion = "1.2.0-alpha04"
+    ext.browserVersion = "1.4.0"
+    ext.cameraVersion = "1.2.0-alpha04"
+    ext.cardviewVersion = "1.0.0"
+    ext.collectionVersion = "1.3.0-alpha02"
+    ext.constraintlayoutVersion = "2.1.4"
+    ext.coordinatorlayoutVersion = "1.2.0"
+    ext.coreVersion = "1.8.0"
+    ext.customviewVersion = "1.2.0-alpha01"
+    ext.customviewPoolingcontainerVersion = "1.0.0"
+    ext.dynamicanimationVersion = "1.1.0-alpha03"
+    ext.drawerlayoutVersion = "1.1.1"
+    ext.exifinterfaceVersion = "1.3.3"
+    ext.fragmentVersion = "1.5.2"
+    ext.lifecycleVersion = "2.5.1"
+    ext.loaderVersion = "1.1.0"
+    ext.mediaVersion = "1.6.0"
+    ext.recyclerviewVersion = "1.3.0-beta02"
+    ext.savedStateVersion = "1.2.0"
+    ext.swiperefreshlayoutVersion = "1.2.0-alpha01"
+    ext.tracingVersion = "1.1.0"
+    ext.transitionVersion = "1.4.1"
+    ext.vectordrawableVersion = "1.2.0-beta01"
+    ext.webkitVersion = "1.5.0-rc01"
+    ext.workVersion = "2.8.0-alpha02"
+
+    //firebase libraries
+    ext.firebaseDatabaseVersion = "20.0.5"
+    ext.firebaseDatatransportVersion = "18.1.6"
+    ext.firebaseMessagingVersion = "23.0.7"
+
+    //firebase common libraries
+    ext.firebaseCommonVersion = "20.1.1"
+    ext.firebaseInstallationsInteropVersion = "17.0.1"
+    ext.firebaseComponentsVersion = "17.0.0"
+    ext.playServicesTasksVersion = "18.0.2"
+    ext.autoValueVersion = "1.9"
+
+    //common libraries
     ext.kotlin_version = "1.7.20-Beta"
     ext.kotlin_coroutines = "1.6.4"
     ext.kotlin_serializer = "1.4.0-RC"
@@ -18,22 +61,9 @@ buildscript {
     ext.rxJavaVersion = "3.1.5"
     ext.guavaVersion = "31.1-android"
     ext.exoLibraryVersion = "2.18.1"
-    ext.annotationVersion = "1.4.0"
-    ext.coreVersion = "1.8.0"
-    ext.appcompatVersion = "1.5.0-rc01"
-    ext.activityVersion = "1.5.1"
-    ext.fragmentVersion = "1.5.1"
-    ext.coordinatorlayoutVersion = "1.2.0"
-    ext.recyclerviewVersion = "1.3.0-beta01"
-    ext.vectordrawableVersion = "1.2.0-beta01"
-    ext.exifinterfaceVersion = "1.3.3"
-    ext.constraintlayoutVersion = "2.1.4"
-    ext.drawerlayoutVersion = "1.1.1"
-    ext.collectionVersion = "1.3.0-alpha02"
-    ext.lifecycleVersion = "2.5.1"
-    ext.cameraVersion = "1.1.0"
-    ext.savedStateVersion = "1.2.0"
-    //PROPS
+    ext.desugarLibraryVersion = "1.2.0"
+
+    //APP_PROPS
     ext.force_developer_mode = "false"
     ext.targetAbi = ["arm64-v8a", "armeabi-v7a", "x86_64"]
     ext.vk_app_id = "2274003"
@@ -45,7 +75,7 @@ buildscript {
     ext.fake_device = "SAMSUNG SM-G980F"
     ext.fcm_session_id_gen_url = "https://fenrir-vk-main-default-rtdb.firebaseio.com/"
 
-    //FIREBASE
+    //FIREBASE_PROPS
     ext.vk_app_package = "com.vkontakte.android"
     ext.vk_app_finger_print = "48761EEF50EE53AFC4CC9C5F10E6BDE7F8F5B82F"
     ext.kate_app_package = "com.perm.kate_new_6"

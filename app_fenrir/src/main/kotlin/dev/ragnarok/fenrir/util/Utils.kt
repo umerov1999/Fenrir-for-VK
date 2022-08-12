@@ -40,6 +40,7 @@ import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity.Companion.start
 import dev.ragnarok.fenrir.activity.qr.CustomQRCodeWriter
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
 import dev.ragnarok.fenrir.api.model.Identificable
@@ -88,7 +89,9 @@ object Utils {
     private var device_id: String? = null
     var density = 1f
         private set
-    var isCompressTraffic = true
+    var isCompressIncomingTraffic = true
+    var isCompressOutgoingTraffic = false
+    var currentParser = 0
 
     fun getCachedMyStickers(): MutableList<LocalSticker> {
         return cachedMyStickers
@@ -1304,7 +1307,7 @@ object Utils {
             .writeTimeout(timeouts.toLong(), TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 chain.proceed(
-                    chain.request().newBuilder().vkHeader(true).addHeader(
+                    chain.toRequestBuilder(false).vkHeader(true).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )
@@ -1312,7 +1315,7 @@ object Utils {
                 )
             })
         if (compressIntercept) {
-            builder.addInterceptor(CompressDefaultInterceptor)
+            builder.addInterceptor(UncompressDefaultInterceptor)
         }
         applyProxyConfig(builder, proxySettings.activeProxy)
         return builder
@@ -1514,7 +1517,7 @@ object Utils {
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
-                    chain.request().newBuilder().vkHeader(true).addHeader(
+                    chain.toRequestBuilder(false).vkHeader(true).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )

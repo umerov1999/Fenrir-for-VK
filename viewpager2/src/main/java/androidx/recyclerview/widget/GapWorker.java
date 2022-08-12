@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 final class GapWorker implements Runnable {
 
     static final ThreadLocal<GapWorker> sGapWorker = new ThreadLocal<>();
-    static Comparator<Task> sTaskComparator = (lhs, rhs) -> {
+    static final Comparator<Task> sTaskComparator = (lhs, rhs) -> {
         // first, prioritize non-cleared tasks
         if ((lhs.view == null) != (rhs.view == null)) {
             return lhs.view == null ? 1 : -1;
@@ -48,13 +48,13 @@ final class GapWorker implements Runnable {
         // then prioritize _lowest_ distance to item
         return lhs.distanceToItem - rhs.distanceToItem;
     };
+    final ArrayList<RecyclerView> mRecyclerViews = new ArrayList<>();
     /**
      * Temporary storage for prefetch Tasks that execute in {@link #prefetch(long)}. Task objects
      * are pooled in the ArrayList, and never removed to avoid allocations, but always cleared
      * in between calls.
      */
     private final ArrayList<Task> mTasks = new ArrayList<>();
-    ArrayList<RecyclerView> mRecyclerViews = new ArrayList<>();
     long mPostTimeNs;
     long mFrameIntervalNs;
 

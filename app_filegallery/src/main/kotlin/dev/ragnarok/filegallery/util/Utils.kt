@@ -36,6 +36,8 @@ import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 object Utils {
+    var isCompressIncomingTraffic = true
+    var currentParser = 0
     private val displaySize = Point()
     var density = 1f
         private set

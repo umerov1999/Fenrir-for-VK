@@ -34,6 +34,7 @@ interface ISettings {
 
         fun getLocalServer(): LocalServerSettings
         fun setLocalServer(settings: LocalServerSettings)
+        fun updateLocalServer()
         fun getPlayerCoverBackgroundSettings(): PlayerCoverBackgroundSettings
         fun setPlayerCoverBackgroundSettings(settings: PlayerCoverBackgroundSettings)
         fun getSlidrSettings(): SlidrSettings
@@ -69,6 +70,8 @@ interface ISettings {
         fun isDeleteDisabled(): Boolean
         val isValidate_tls: Boolean
         val isOngoing_player_notification: Boolean
+        val isCompress_incoming_traffic: Boolean
+        val currentParser: Int
     }
 
     interface ISecuritySettings {

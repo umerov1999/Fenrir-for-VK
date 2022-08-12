@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -42,7 +43,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
                 boolean mScrolled;
 
                 @Override
-                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
                     if (newState == RecyclerView.SCROLL_STATE_IDLE && mScrolled) {
                         mScrolled = false;
@@ -51,7 +52,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
                 }
 
                 @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     if (dx != 0 || dy != 0) {
                         mScrolled = true;
                     }
@@ -129,7 +130,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return array holding the calculated distances in x and y directions
      * respectively.
      */
-    @NonNull
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int[] calculateScrollDistance(int velocityX, int velocityY) {
         int[] outDist = new int[2];
         mGravityScroller.fling(0, 0, velocityX, velocityY,
@@ -222,7 +223,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
         }
         return new LinearSmoothScroller(mRecyclerView.getContext()) {
             @Override
-            protected void onTargetFound(@NonNull View targetView, @NonNull RecyclerView.State state, @NonNull Action action) {
+            protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
                 if (mRecyclerView == null) {
                     // The associated RecyclerView has been removed so there is no action to take.
                     return;
@@ -238,7 +239,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
             }
 
             @Override
-            protected float calculateSpeedPerPixel(@NonNull DisplayMetrics displayMetrics) {
+            protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
                 return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
             }
         };
@@ -278,7 +279,8 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      */
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    public abstract View findSnapView(@NonNull RecyclerView.LayoutManager layoutManager);
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public abstract View findSnapView(RecyclerView.LayoutManager layoutManager);
 
     /**
      * Override to provide a particular adapter target position for snapping.
@@ -290,7 +292,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return the target adapter position to you want to snap or {@link RecyclerView#NO_POSITION}
      * if no snapping should happen
      */
-    public abstract int findTargetSnapPosition(@NonNull RecyclerView.LayoutManager layoutManager,
-                                               int velocityX,
-                                               int velocityY);
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public abstract int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager,
+                                               int velocityX, int velocityY);
 }

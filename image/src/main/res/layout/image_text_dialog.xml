@@ -39,6 +39,7 @@
         android:layout_weight="1"
         android:background="@null"
         android:gravity="top"
+        android:importantForAutofill="no"
         android:inputType="textMultiLine"
         android:padding="16dp"
         android:textColor="@color/image_color_primary"

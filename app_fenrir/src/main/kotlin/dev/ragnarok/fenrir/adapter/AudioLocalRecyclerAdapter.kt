@@ -100,7 +100,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
     }
 
     @Suppress("DEPRECATION")
-    private fun stripMetadata(url: String): Completable {
+    internal fun stripMetadata(url: String): Completable {
         return Completable.create {
             try {
                 val cursor = mContext.contentResolver.query(

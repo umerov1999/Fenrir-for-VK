@@ -89,6 +89,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * height minus padding, if layout is horizontal, total space is the width minus padding.
      */
     private static final float MAX_SCROLL_FACTOR = 1 / 3f;
+    /**
+     * Keeps the mapping between the adapter positions and spans. This is necessary to provide
+     * a consistent experience when user scrolls the list.
+     */
+    final LazySpanLookup mLazySpanLookup = new LazySpanLookup();
     @NonNull
     private final LayoutState mLayoutState;
     /**
@@ -114,7 +119,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     @NonNull
     OrientationHelper mSecondaryOrientation;
     boolean mReverseLayout;
-
     /**
      * Aggregated reverse layout value that takes RTL into account.
      */
@@ -129,11 +133,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * called.
      */
     int mPendingScrollPositionOffset = INVALID_OFFSET;
-    /**
-     * Keeps the mapping between the adapter positions and spans. This is necessary to provide
-     * a consistent experience when user scrolls the list.
-     */
-    LazySpanLookup mLazySpanLookup = new LazySpanLookup();
     /**
      * Number of spans
      */
@@ -2681,7 +2680,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
         static final int INVALID_LINE = Integer.MIN_VALUE;
         final int mIndex;
-        ArrayList<View> mViews = new ArrayList<>();
+        final ArrayList<View> mViews = new ArrayList<>();
         int mCachedStart = INVALID_LINE;
         int mCachedEnd = INVALID_LINE;
         int mDeletedSize;

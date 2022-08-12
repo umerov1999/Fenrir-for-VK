@@ -94,7 +94,6 @@
             app:tint="#AAFF0000" />
 
         <androidx.constraintlayout.helper.widget.Layer
-            android:id="@+id/dialog_content"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:constraint_referenced_ids="dialog_type,dialog_title,dialog_silent,unread_ticks,item_chat_date,dialog_message,item_chat_unread_count"

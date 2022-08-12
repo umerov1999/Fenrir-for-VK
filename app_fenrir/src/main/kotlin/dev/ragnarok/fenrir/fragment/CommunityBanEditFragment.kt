@@ -198,7 +198,7 @@ class CommunityBanEditFragment :
     }
 
     override fun goBack() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun displaySelectOptionDialog(requestCode: Int, options: List<IdOption>) {

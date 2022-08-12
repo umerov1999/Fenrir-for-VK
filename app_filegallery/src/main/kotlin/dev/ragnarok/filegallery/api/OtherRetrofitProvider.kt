@@ -2,10 +2,13 @@ package dev.ragnarok.filegallery.api
 
 import android.annotation.SuppressLint
 import dev.ragnarok.filegallery.Constants
+import dev.ragnarok.filegallery.api.HttpLoggerAndParser.serverHeader
 import dev.ragnarok.filegallery.kJson
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.settings.ISettings.IMainSettings
+import dev.ragnarok.filegallery.util.UncompressDefaultInterceptor
 import dev.ragnarok.filegallery.util.Utils.firstNonEmptyString
+import dev.ragnarok.filegallery.util.serializeble.msgpack.MsgPack
 import dev.ragnarok.filegallery.util.serializeble.retrofit.kotlinx.serialization.asConverterFactory
 import dev.ragnarok.filegallery.util.serializeble.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
@@ -33,7 +36,8 @@ class OtherRetrofitProvider @SuppressLint("CheckResult") constructor(private val
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
-                    chain.request().newBuilder().addHeader("User-Agent", Constants.USER_AGENT)
+                    chain.request().newBuilder().serverHeader(false)
+                        .addHeader("User-Agent", Constants.USER_AGENT)
                         .build()
                 chain.proceed(request)
             }).addInterceptor(Interceptor { chain: Interceptor.Chain ->
@@ -56,13 +60,19 @@ class OtherRetrofitProvider @SuppressLint("CheckResult") constructor(private val
                     .build()
                 chain.proceed(request)
             })
-        HttpLogger.adjust(builder)
-        HttpLogger.configureToIgnoreCertificates(builder)
+            .addInterceptor(UncompressDefaultInterceptor)
+        HttpLoggerAndParser.adjust(builder)
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         val url = firstNonEmptyString(localSettings.url, "https://debug.dev")!!
         return Retrofit.Builder()
             .baseUrl("$url/method/")
-            .addConverterFactory(kJson.asConverterFactory())
-            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+            .addConverterFactory(
+                HttpLoggerAndParser.selectConverterFactory(
+                    KJSON_FACTORY,
+                    KMSGPACK_FACTORY
+                )
+            )
+            .addCallAdapterFactory(RX_ADAPTER_FACTORY)
             .client(builder.build())
             .build()
     }
@@ -79,6 +89,12 @@ class OtherRetrofitProvider @SuppressLint("CheckResult") constructor(private val
             }
             localServerRetrofitInstance
         }
+    }
+
+    companion object {
+        private val KJSON_FACTORY = kJson.asConverterFactory()
+        private val KMSGPACK_FACTORY = MsgPack().asConverterFactory()
+        private val RX_ADAPTER_FACTORY = RxJava3CallAdapterFactory.create()
     }
 
     init {

@@ -108,7 +108,7 @@ class DrawerEditFragment : AbsMvpFragment<DrawerEditPresenter, IDrawerEditView>(
     }
 
     override fun goBackAndApplyChanges() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     companion object {

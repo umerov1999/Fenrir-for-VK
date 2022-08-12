@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment.search
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
@@ -12,10 +14,11 @@ import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.VideosSearchPresenter
 import dev.ragnarok.fenrir.mvp.view.search.IVideosSearchView
+import dev.ragnarok.fenrir.util.Utils
 
 class VideoSearchFragment :
     AbsSearchFragment<VideosSearchPresenter, IVideosSearchView, Video, VideosAdapter>(),
-    VideosAdapter.VideoOnClickListener {
+    VideosAdapter.VideoOnClickListener, IVideosSearchView {
     override fun setAdapterData(adapter: VideosAdapter, data: MutableList<Video>) {
         adapter.setData(data)
     }
@@ -32,8 +35,15 @@ class VideoSearchFragment :
         return StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL)
     }
 
+    override fun returnSelectionToParent(video: Video) {
+        val intent = Intent()
+        intent.putParcelableArrayListExtra(Extra.ATTACHMENTS, Utils.singletonArrayList(video))
+        requireActivity().setResult(Activity.RESULT_OK, intent)
+        requireActivity().finish()
+    }
+
     override fun onVideoClick(position: Int, video: Video) {
-        presenter?.fireVideoClick(
+        presenter?.fireVideoClicked(
             video
         )
     }
@@ -48,6 +58,7 @@ class VideoSearchFragment :
                 return VideosSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getString(Extra.ACTION),
                     saveInstanceState
                 )
             }

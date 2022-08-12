@@ -416,8 +416,10 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("download_voice_ogg", true)
     override val isDelete_cache_images: Boolean
         get() = getPreferences(app).getBoolean("delete_cache_images", false)
-    override val isCompress_traffic: Boolean
-        get() = getPreferences(app).getBoolean("compress_default_traffic", true)
+    override val isCompress_incoming_traffic: Boolean
+        get() = getPreferences(app).getBoolean("compress_incoming_traffic", true)
+    override val isCompress_outgoing_traffic: Boolean
+        get() = getPreferences(app).getBoolean("compress_outgoing_traffic", false)
     override val isLimit_cache: Boolean
         get() = getPreferences(app).getBoolean("limit_cache", false)
     override val isDo_not_clear_back_stack: Boolean

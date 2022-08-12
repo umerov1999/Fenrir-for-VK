@@ -3,6 +3,7 @@ package dev.ragnarok.filegallery.util.serializeble.retrofit.kotlinx.serializatio
 import dev.ragnarok.filegallery.util.serializeble.json.Json
 import dev.ragnarok.filegallery.util.serializeble.json.internal.JavaStreamSerialReader
 import dev.ragnarok.filegallery.util.serializeble.json.internal.decodeByReader
+import dev.ragnarok.filegallery.util.serializeble.msgpack.MsgPack
 import kotlinx.serialization.*
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -57,6 +58,24 @@ sealed class Serializer {
         ): RequestBody {
             val string = format.encodeToString(saver, value)
             return string.toRequestBody(contentType)
+        }
+    }
+
+    class FromMsgPack(override val format: MsgPack) : Serializer() {
+        override fun <T> fromResponseBody(
+            loader: DeserializationStrategy<T>,
+            body: ResponseBody
+        ): T {
+            return format.decodeFromOkioStream(loader, body.source())
+        }
+
+        override fun <T> toRequestBody(
+            contentType: MediaType,
+            saver: SerializationStrategy<T>,
+            value: T
+        ): RequestBody {
+            val bytes = format.encodeToByteArray(saver, value)
+            return bytes.toRequestBody(contentType, 0, bytes.size)
         }
     }
 

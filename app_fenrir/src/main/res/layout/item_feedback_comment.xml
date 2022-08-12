@@ -165,7 +165,6 @@
                 android:contentDescription="@null" />
 
             <dev.ragnarok.fenrir.view.OnlineView
-                android:id="@+id/item_circle_reply"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:background="@drawable/online"

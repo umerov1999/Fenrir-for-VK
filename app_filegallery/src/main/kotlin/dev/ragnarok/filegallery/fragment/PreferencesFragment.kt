@@ -696,6 +696,28 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.enable_dirs_files_count
             }
 
+            switch("compress_incoming_traffic") {
+                defaultValue = true
+                titleRes = R.string.compress_incoming_traffic
+                onCheckedChange {
+                    Utils.isCompressIncomingTraffic = it
+                    Settings.get().main().updateLocalServer()
+                }
+            }
+
+            singleChoice(
+                "current_parser",
+                selItems(R.array.array_parser_names, R.array.array_parser_items),
+                parentFragmentManager
+            ) {
+                initialSelection = "0"
+                titleRes = R.string.parser_type
+                onSelectionChange {
+                    Utils.currentParser = it.toInt()
+                    Settings.get().main().updateLocalServer()
+                }
+            }
+
             accentButtonPref("cache_cleaner") {
                 titleRes = R.string.cache_cleaner
                 onClick {

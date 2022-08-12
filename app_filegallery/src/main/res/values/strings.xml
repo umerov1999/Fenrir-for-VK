@@ -128,6 +128,16 @@
         <item>8</item>
     </string-array>
 
+    <string-array name="array_parser_names" translatable="false">
+        <item>Json</item>
+        <item>MessagePack</item>
+    </string-array>
+
+    <string-array name="array_parser_items" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
     <string name="files">Файлы</string>
     <string name="button_back">Назад</string>
     <string name="search_hint">Найти</string>
@@ -326,4 +336,6 @@
     <string name="files_uploading_notification_title">Загрузка файлов</string>
     <string name="play_remote">Играть через сервер</string>
     <string name="open_folder_new_window">Открывать директории в новом окне</string>
+    <string name="compress_incoming_traffic">Сжимать вхохящщй траффик</string>
+    <string name="parser_type">Парсер</string>
 </resources>

@@ -233,7 +233,7 @@ class CommunityManagerEditFragment :
     }
 
     override fun goBack() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun setDeleteOptionVisible(visible: Boolean) {

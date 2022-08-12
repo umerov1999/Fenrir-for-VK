@@ -17,7 +17,6 @@
         tools:text="Answer title" />
 
     <LinearLayout
-        android:id="@+id/voted_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"

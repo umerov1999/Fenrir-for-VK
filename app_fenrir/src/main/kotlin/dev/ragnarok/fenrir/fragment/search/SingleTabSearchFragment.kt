@@ -57,7 +57,7 @@ class SingleTabSearchFragment : Fragment(), MySearchView.OnQueryTextListener,
                 ) {
                     (requireActivity() as AppStyleable).openMenu(true)
                 } else {
-                    requireActivity().onBackPressed()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
             }
         })

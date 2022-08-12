@@ -2,12 +2,17 @@ package dev.ragnarok.fenrir.api
 
 import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.settings.Settings
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import dev.ragnarok.fenrir.util.Utils
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
+import okio.BufferedSink
+import okio.GzipSink
+import okio.buffer
 import retrofit2.Converter
+import java.io.IOException
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
@@ -28,9 +33,53 @@ object HttpLoggerAndParser {
         }
     }
 
+    abstract class GzipFormBody(val original: List<Params>) : RequestBody()
+
+    fun FormBody.gzipFormBody(): GzipFormBody {
+        val o = ArrayList<Params>(size)
+        for (i in 0 until size) {
+            val tmp = Params()
+            tmp.key = name(i)
+            tmp.value = value(i)
+            o.add(tmp)
+        }
+        return object : GzipFormBody(o) {
+            override fun contentType(): MediaType {
+                return this@gzipFormBody.contentType()
+            }
+
+            override fun contentLength(): Long {
+                return -1
+            }
+
+            @Throws(IOException::class)
+            override fun writeTo(sink: BufferedSink) {
+                val gzipSink = GzipSink(sink).buffer()
+                this@gzipFormBody.writeTo(gzipSink)
+                gzipSink.close()
+            }
+
+            override fun isOneShot(): Boolean {
+                return this@gzipFormBody.isOneShot()
+            }
+        }
+    }
+
+    fun Interceptor.Chain.toRequestBuilder(supportCompressGzip: Boolean): Request.Builder {
+        val request = request()
+        val o = request.newBuilder()
+        if (supportCompressGzip && request.body is FormBody && Utils.isCompressOutgoingTraffic) {
+            (request.body as FormBody).gzipFormBody().let {
+                o.addHeader("Content-Encoding", "gzip")
+                o.post(it)
+            }
+        }
+        return o
+    }
+
     fun Request.Builder.vkHeader(onlyJson: Boolean): Request.Builder {
         addHeader("X-VK-Android-Client", "new")
-        if (!onlyJson && Settings.get().other().currentParser == ParserType.MSGPACK) {
+        if (!onlyJson && Utils.currentParser == ParserType.MSGPACK) {
             addHeader("X-Response-Format", "msgpack")
         }
         return this

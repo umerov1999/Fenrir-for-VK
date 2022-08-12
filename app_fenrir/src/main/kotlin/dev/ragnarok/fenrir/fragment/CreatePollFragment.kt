@@ -184,7 +184,7 @@ class CreatePollFragment : BaseMvpFragment<CreatePollPresenter, ICreatePollView>
         val intent = Bundle()
         intent.putParcelable(Extra.POLL, poll)
         parentFragmentManager.setFragmentResult(REQUEST_CREATE_POLL, intent)
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     companion object {

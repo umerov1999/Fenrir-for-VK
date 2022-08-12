@@ -95,7 +95,7 @@ class PostCreateFragment : AbsPostEditFragment<PostCreatePresenter, IPostCreateV
     }
 
     override fun goBack() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onResult() {

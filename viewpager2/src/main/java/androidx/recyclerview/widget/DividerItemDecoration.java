@@ -61,7 +61,8 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
      * @param context     Current context, it will be used to access resources.
      * @param orientation Divider orientation. Should be {@link #HORIZONTAL} or {@link #VERTICAL}.
      */
-    public DividerItemDecoration(@NonNull Context context, int orientation) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public DividerItemDecoration(Context context, int orientation) {
         @SuppressLint("ResourceType") TypedArray a = context.obtainStyledAttributes(ATTRS);
         mDivider = a.getDrawable(0);
         if (mDivider == null) {
@@ -107,8 +108,8 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     @Override
-    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent,
-                       @NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
         if (parent.getLayoutManager() == null || mDivider == null) {
             return;
         }
@@ -174,8 +175,9 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     @Override
-    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                               @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                               RecyclerView.State state) {
         if (mDivider == null) {
             outRect.set(0, 0, 0, 0);
             return;

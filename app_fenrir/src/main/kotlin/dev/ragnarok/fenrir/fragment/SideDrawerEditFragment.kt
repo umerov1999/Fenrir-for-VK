@@ -110,7 +110,7 @@ class SideDrawerEditFragment : AbsMvpFragment<SideDrawerEditPresenter, ISideDraw
     }
 
     override fun goBackAndApplyChanges() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     companion object {

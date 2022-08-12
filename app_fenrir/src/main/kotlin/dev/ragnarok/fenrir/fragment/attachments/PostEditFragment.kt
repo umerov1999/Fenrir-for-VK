@@ -63,7 +63,7 @@ class PostEditFragment : AbsPostEditFragment<PostEditPresenter, IPostEditView>()
     }
 
     override fun closeAsSuccess() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun showConfirmExitDialog() {

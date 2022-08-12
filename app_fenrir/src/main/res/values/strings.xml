@@ -550,7 +550,6 @@
     <string name="api_error_30">Closed profile</string>
     <string name="api_error_34">VK blocked this request</string>
     <string name="api_error_42">IP is not allowed</string>
-    <string name="api_error_100">One of the required parameters was not passed or was incorrect</string>
     <string name="api_error_101">Invalid API Application ID</string>
     <string name="api_error_103">Limit on number of arrivals exceeded</string>
     <string name="api_error_105">Unable to save file</string>
@@ -948,7 +947,7 @@
     <string name="communities">Communities</string>
     <string name="share_photo_title">Share photo</string>
     <string name="save_yourself">Save in album</string>
-    <string name="photo_saved_yourself">Save in album "Saved photos"</string>
+    <string name="photo_saved_yourself">Save in album “Saved photos”</string>
     <string name="documents">Documents</string>
     <string name="search_options">Options search</string>
     <string name="clear">Clear</string>
@@ -1012,7 +1011,7 @@
     <string name="sorting_by_boards_entries_number_members_number_ratio">in relation to the number of records in relation to the number of posts in discussions to the number of users in discussions to the number of users</string>
     <string name="school_class">Class</string>
     <string name="year_of_graduation">Year of issue</string>
-    <string name="please_select_option">Please, indicate \"%1$s\"</string>
+    <string name="please_select_option">Please, indicate “%1$s”</string>
     <string name="university_country">Country where you graduated from the university</string>
     <string name="school_city">The city where they graduated from school</string>
     <string name="school_country">Country where you graduated from school</string>
@@ -1179,7 +1178,7 @@
         \n3.3. The user will lose encryption keys in the following cases:
         \n- remove the application from the device;
         \n- clearing application data;
-        \n- after using the \ "Delete keys \" option in the application settings;
+        \n- after using the “Delete keys” option in the application settings;
         \n- after closing the application (only for key storage mode in RAM);
         \n- when deleting an account from the application.
         \n
@@ -1204,7 +1203,7 @@
     <string name="votes_count">%1$d of votes</string>
 
     <string name="like_title">Liked</string>
-    <string name="likes">Marks \"I like\"</string>
+    <string name="likes">Marks “I like”</string>
     <string name="likes_posts">Liked</string>
     <string name="chat_background">Background</string>
     <string name="notification_bubbles">Enable Bubbles notifications</string>
@@ -1589,7 +1588,7 @@
     <string name="custom_chat_color">First background color</string>
     <string name="use_custom_chat_color">Set background color</string>
     <string name="custom_chat_color_second">Second background color</string>
-    <string name="custom_chat_color_summary">Set the background to "Monotone" so that it becomes a gradient</string>
+    <string name="custom_chat_color_summary">Set the background to “Monotone” so that it becomes a gradient</string>
     <string name="custom_message_color">First color of outgoing message</string>
     <string name="usage_custom_message_color">Set the color of the outgoing message</string>
     <string name="last_read">Last read</string>
@@ -1865,7 +1864,8 @@
     <string name="reset_notifications_groups">Reset notifications</string>
     <string name="not_available">NOT AVAILABLE</string>
     <string name="refresh_audio_token">Refresh Audio Token</string>
-    <string name="compress_traffic">Compress Traffic</string>
+    <string name="compress_incoming_traffic">Compress incoming Traffic</string>
+    <string name="compress_outgoing_traffic">Compress outgoing Traffic</string>
     <string name="do_not_clear_back_stack">Don\'t clear backstack when music</string>
     <string name="slidr_vertical_settings">Vertical settings:</string>
     <string name="slidr_horizontal_settings">Horizontal settings:</string>

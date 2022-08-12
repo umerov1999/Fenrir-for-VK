@@ -57,6 +57,8 @@ class SettingsBackup {
         var player_cover_transform: String? = null
         var ongoing_player_notification: Boolean? = null
         var open_folder_new_window: Boolean? = null
+        var current_parser: String? = null
+        var compress_incoming_traffic: Boolean? = null
     }
 
     fun doBackup(): JsonObject {

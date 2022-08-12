@@ -64,7 +64,6 @@
             app:layout_constraintWidth_percent="0.25" />
 
         <androidx.constraintlayout.helper.widget.Flow
-            android:id="@+id/everything"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginBottom="6dp"

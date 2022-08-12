@@ -4,13 +4,14 @@ import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Constants.USER_AGENT
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.CompressDefaultInterceptor
+import dev.ragnarok.fenrir.util.UncompressDefaultInterceptor
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.asConverterFactory
@@ -49,7 +50,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                     val request =
-                        chain.request().newBuilder().vkHeader(true)
+                        chain.toRequestBuilder(false).vkHeader(true)
                             .addHeader(
                                 "User-Agent", USER_AGENT(
                                     Constants.DEFAULT_ACCOUNT_TYPE
@@ -57,7 +58,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                             ).build()
                     chain.proceed(request)
                 })
-                .addInterceptor(CompressDefaultInterceptor)
+                .addInterceptor(UncompressDefaultInterceptor)
             ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
             HttpLoggerAndParser.adjust(builder)
             HttpLoggerAndParser.configureToIgnoreCertificates(builder)
@@ -77,7 +78,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                     val request =
-                        chain.request().newBuilder().vkHeader(true)
+                        chain.toRequestBuilder(false).vkHeader(true)
                             .addHeader(
                                 "User-Agent", USER_AGENT(
                                     AccountType.BY_TYPE
@@ -85,7 +86,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                             ).build()
                     chain.proceed(request)
                 })
-                .addInterceptor(CompressDefaultInterceptor)
+                .addInterceptor(UncompressDefaultInterceptor)
             ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
             HttpLoggerAndParser.adjust(builder)
             HttpLoggerAndParser.configureToIgnoreCertificates(builder)
@@ -105,7 +106,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
-                    chain.request().newBuilder().addHeader(
+                    chain.toRequestBuilder(false).vkHeader(false).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )
@@ -127,13 +128,18 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                     .method("POST", formBuilder.build())
                     .build()
                 chain.proceed(request)
-            }).addInterceptor(CompressDefaultInterceptor)
+            }).addInterceptor(UncompressDefaultInterceptor)
         HttpLoggerAndParser.adjust(builder)
         HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         val url = Utils.firstNonEmptyString(localSettings.url, "https://debug.dev")!!
         return Retrofit.Builder()
             .baseUrl("$url/method/")
-            .addConverterFactory(KJSON_FACTORY)
+            .addConverterFactory(
+                HttpLoggerAndParser.selectConverterFactory(
+                    KJSON_FACTORY,
+                    KMSGPACK_FACTORY
+                )
+            )
             .addCallAdapterFactory(RX_ADAPTER_FACTORY)
             .client(builder.build())
             .build()
@@ -144,14 +150,14 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val request =
-                    chain.request().newBuilder().vkHeader(true).addHeader(
+                    chain.toRequestBuilder(false).vkHeader(true).addHeader(
                         "User-Agent", USER_AGENT(
                             AccountType.BY_TYPE
                         )
                     ).build()
                 chain.proceed(request)
             })
-            .addInterceptor(CompressDefaultInterceptor)
+            .addInterceptor(UncompressDefaultInterceptor)
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
         HttpLoggerAndParser.adjust(builder)
         HttpLoggerAndParser.configureToIgnoreCertificates(builder)

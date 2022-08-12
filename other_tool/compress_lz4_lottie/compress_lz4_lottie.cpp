@@ -56,13 +56,8 @@ static void write_content(const string& file, const string& data, int size) {
 #endif
 }
 
-int main(int argc, char* argv[]) {
-	locale::global(locale("ru_RU.UTF-8"));
-	if (argc < 2) {
-		cout << "\ncompress_lz4_lottie - usage is: \n\n      compress_lz4_lottie <source>\n\n";
-		return 1;
-	}
-	string fl = argv[1];
+void work(const string& flarg) {
+	string fl = flarg;
 	size_t ps;
 	if ((ps = fl.find(".json")) != string::npos) {
 		string in = get_content(fl);
@@ -101,10 +96,21 @@ int main(int argc, char* argv[]) {
 		write_content(fl, out, (int)out.length());
 	}
 	else {
-		cout << "\ncompress_lz4_lottie - usage is: \n\n      compress_lz4_lottie <source>\n\n";
-		return 1;
+		cout << "\nError: Require .json or .lz4\n\n";
+		return;
 	}
 	cout << fl << endl;
+}
+
+int main(int argc, char* argv[]) {
+	locale::global(locale("ru_RU.UTF-8"));
+	if (argc < 2) {
+		cout << "\ncompress_lz4_lottie - usage is: \n\n      compress_lz4_lottie <sources>\n\n";
+		return 1;
+	}
+	for (int i = 1; i < argc; i++) {
+		work(argv[i]);
+	}
 	cout << "Copyright (c) Umerov Artem, 2022" << endl;
 	return 0;
 }

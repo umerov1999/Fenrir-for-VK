@@ -23,7 +23,7 @@ class RepostFragment : AbsAttachmentsEditFragment<RepostPresenter, IRepostView>(
     }
 
     override fun goBack() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onResult() {

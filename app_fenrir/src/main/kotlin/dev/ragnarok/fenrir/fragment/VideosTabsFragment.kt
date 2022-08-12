@@ -112,7 +112,7 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.action_search) {
-            val criteria = VideoSearchCriteria("", true)
+            val criteria = VideoSearchCriteria("", true, action)
             getSingleTabSearchPlace(accountId, SearchContentType.VIDEOS, criteria).tryOpenWith(
                 requireActivity()
             )
@@ -134,12 +134,6 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
             ALBUMS -> return VideoAlbumsFragment.newInstance(accountId, ownerId, action)
         }
         throw UnsupportedOperationException()
-    }
-
-    override fun onPrepareMenu(menu: Menu) {
-        super.onPrepareMenu(menu)
-        menu.findItem(R.id.action_search).isVisible =
-            !IVideosListView.ACTION_SELECT.equals(action, ignoreCase = true)
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

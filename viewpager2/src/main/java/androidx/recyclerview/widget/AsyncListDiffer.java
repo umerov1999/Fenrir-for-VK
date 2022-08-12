@@ -116,9 +116,9 @@ public class AsyncListDiffer<T> {
     private static final Executor sMainThreadExecutor = new MainThreadExecutor();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final AsyncDifferConfig<T> mConfig;
+    final Executor mMainThreadExecutor;
     private final ListUpdateCallback mUpdateCallback;
     private final List<ListListener<T>> mListeners = new CopyOnWriteArrayList<>();
-    Executor mMainThreadExecutor;
     // Max generation of currently scheduled runnable
     @SuppressWarnings("WeakerAccess") /* synthetic access */
             int mMaxScheduledGeneration;

@@ -79,7 +79,7 @@ class AddProxyFragment : BaseMvpFragment<AddProxyPresenter, IAddProxyView>(), IA
     }
 
     override fun goBack() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<AddProxyPresenter> {

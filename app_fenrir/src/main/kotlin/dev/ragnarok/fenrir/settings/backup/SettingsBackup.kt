@@ -117,7 +117,8 @@ class SettingsBackup {
         var photo_to_user_dir: Boolean? = null
         var download_voice_ogg: Boolean? = null
         var delete_cache_images: Boolean? = null
-        var compress_default_traffic: Boolean? = null
+        var compress_incoming_traffic: Boolean? = null
+        var compress_outgoing_traffic: Boolean? = null
         var limit_cache: Boolean? = null
         var do_not_clear_back_stack: Boolean? = null
         var mention_fave: Boolean? = null

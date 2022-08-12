@@ -86,10 +86,11 @@ public abstract class FragmentStateAdapter extends
     // Fragment bookkeeping
     @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
     final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
+    @SuppressWarnings("WeakerAccess")
+    final // to avoid creation of a synthetic accessor
+    FragmentEventDispatcher mFragmentEventDispatcher = new FragmentEventDispatcher();
     private final LongSparseArray<Fragment.SavedState> mSavedStates = new LongSparseArray<>();
     private final LongSparseArray<Integer> mItemIdToViewHolder = new LongSparseArray<>();
-    @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
-    FragmentEventDispatcher mFragmentEventDispatcher = new FragmentEventDispatcher();
     // Fragment GC
     @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
             boolean mIsInGracePeriod;
@@ -129,8 +130,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     // Helper function for dealing with save / restore state
-    private static @NonNull
-    String createKey(@NonNull String prefix, long id) {
+    private static @NonNull String createKey(@NonNull String prefix, long id) {
         return prefix + id;
     }
 
@@ -173,8 +173,7 @@ public abstract class FragmentStateAdapter extends
      *
      * @see ViewPager2#setOffscreenPageLimit
      */
-    public abstract @NonNull
-    Fragment createFragment(int position);
+    public abstract @NonNull Fragment createFragment(int position);
 
     @NonNull
     @Override
@@ -556,8 +555,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public final @NonNull
-    Parcelable saveState() {
+    public final @NonNull Parcelable saveState() {
         /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
         Bundle savedState = new Bundle(mFragments.size() + mSavedStates.size());
 
@@ -592,6 +590,7 @@ public abstract class FragmentStateAdapter extends
 
         Bundle bundle = (Bundle) savedState;
         if (bundle.getClassLoader() == null) {
+            /** TODO(b/133752041): pass the class loader from {@link ViewPager2.SavedState } */
             bundle.setClassLoader(getClass().getClassLoader());
         }
 

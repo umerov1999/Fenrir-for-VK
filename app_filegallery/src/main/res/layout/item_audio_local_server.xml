@@ -119,7 +119,6 @@
         app:contentPadding="0dp" />
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/item_audio_select_add"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignTop="@id/item_audio_play"

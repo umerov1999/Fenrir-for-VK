@@ -42,6 +42,7 @@
                 android:lines="2"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="?colorPrimary"
+                android:textIsSelectable="true"
                 android:textSize="14sp"
                 tools:text="Name" />
 
@@ -53,6 +54,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textIsSelectable="true"
                 android:textSize="12sp"
                 tools:text="Artist" />
 

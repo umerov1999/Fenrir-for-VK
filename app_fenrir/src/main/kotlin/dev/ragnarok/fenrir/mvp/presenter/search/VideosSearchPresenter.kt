@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.VideoSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.model.Video
+import dev.ragnarok.fenrir.mvp.view.IVideosListView
 import dev.ragnarok.fenrir.mvp.view.search.IVideosSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
@@ -15,6 +16,7 @@ import io.reactivex.rxjava3.core.Single
 class VideosSearchPresenter(
     accountId: Int,
     criteria: VideoSearchCriteria?,
+    private val action: String?,
     savedInstanceState: Bundle?
 ) : AbsSearchPresenter<IVideosSearchView, VideoSearchCriteria, Video, IntNextFrom>(
     accountId,
@@ -41,11 +43,20 @@ class VideosSearchPresenter(
     }
 
     override fun instantiateEmptyCriteria(): VideoSearchCriteria {
-        return VideoSearchCriteria("", false)
+        return VideoSearchCriteria("", false, null)
     }
 
     override fun canSearch(criteria: VideoSearchCriteria?): Boolean {
         return criteria?.query.trimmedNonNullNoEmpty()
     }
 
+    fun fireVideoClicked(apiVideo: Video) {
+        if (IVideosListView.ACTION_SELECT.equals(action, ignoreCase = true)) {
+            view?.returnSelectionToParent(
+                apiVideo
+            )
+        } else {
+            view?.openVideo(accountId, apiVideo)
+        }
+    }
 }

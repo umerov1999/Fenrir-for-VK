@@ -1730,7 +1730,7 @@ class ChatPresenter(
                     hasChanged = true
                 }
                 MessageStatus.EDITING -> {
-                    TODO()
+
                 }
             }
         }

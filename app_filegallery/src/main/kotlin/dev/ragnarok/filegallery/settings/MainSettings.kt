@@ -9,6 +9,7 @@ import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Constants.forceDeveloperMode
 import dev.ragnarok.filegallery.kJson
 import dev.ragnarok.filegallery.model.LocalServerSettings
+import dev.ragnarok.filegallery.model.ParserType
 import dev.ragnarok.filegallery.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.filegallery.model.SlidrSettings
 import dev.ragnarok.filegallery.settings.ISettings.IMainSettings
@@ -140,6 +141,10 @@ internal class MainSettings(context: Context) : IMainSettings {
                 kJson.encodeToString(LocalServerSettings.serializer(), settings)
             ).apply()
         localServerPublisher.onNext(settings)
+    }
+
+    override fun updateLocalServer() {
+        localServerPublisher.onNext(getLocalServer())
     }
 
     override fun getPlayerCoverBackgroundSettings(): PlayerCoverBackgroundSettings {
@@ -295,6 +300,18 @@ internal class MainSettings(context: Context) : IMainSettings {
 
     override val isOngoing_player_notification: Boolean
         get() = getPreferences(app).getBoolean("ongoing_player_notification", false)
+
+    @get:ParserType
+    override val currentParser: Int
+        get() = try {
+            getPreferences(app).getString("current_parser", "0")!!
+                .trim { it <= ' ' }.toInt()
+        } catch (e: Exception) {
+            ParserType.JSON
+        }
+
+    override val isCompress_incoming_traffic: Boolean
+        get() = getPreferences(app).getBoolean("compress_incoming_traffic", true)
 
     @Transformers_Types
     override fun getViewpager_page_transform(): Int {

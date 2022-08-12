@@ -101,7 +101,7 @@ public final class ViewPager2 extends ViewGroup {
     /**
      * Feature flag while stabilizing enhanced a11y
      */
-    static boolean sFeatureEnhancedA11yEnabled = true;
+    static final boolean sFeatureEnhancedA11yEnabled = true;
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
     private final Rect mTmpChildRect = new Rect();
@@ -130,8 +130,7 @@ public final class ViewPager2 extends ViewGroup {
     private RecyclerView.ItemAnimator mSavedItemAnimator;
     private boolean mSavedItemAnimatorPresent;
     private boolean mUserInputEnabled = true;
-    private @OffscreenPageLimit
-    int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
+    private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
 
     public ViewPager2(@NonNull Context context) {
         super(context);
@@ -149,6 +148,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @RequiresApi(21)
+    @SuppressLint("ClassVerificationFailure")
     public ViewPager2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
                       int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -367,8 +367,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @SuppressWarnings("rawtypes")
-    public @Nullable
-    Adapter getAdapter() {
+    public @Nullable Adapter getAdapter() {
         return mRecyclerView.getAdapter();
     }
 
@@ -487,9 +486,9 @@ public final class ViewPager2 extends ViewGroup {
                 : rv.getHeight() - rv.getPaddingTop() - rv.getPaddingBottom();
     }
 
-    public @Orientation
-    int getOrientation() {
-        return mLayoutManager.getOrientation();
+    public @Orientation int getOrientation() {
+        return mLayoutManager.getOrientation() == LinearLayoutManager.VERTICAL
+                ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL;
     }
 
     /**
@@ -1043,6 +1042,7 @@ public final class ViewPager2 extends ViewGroup {
         Parcelable mAdapterState;
 
         @RequiresApi(24)
+        @SuppressLint("ClassVerificationFailure")
         SavedState(Parcel source, ClassLoader loader) {
             super(source, loader);
             readValues(source, loader);
@@ -1253,7 +1253,7 @@ public final class ViewPager2 extends ViewGroup {
 
         @Nullable
         @Override
-        public View findSnapView(@NonNull RecyclerView.LayoutManager layoutManager) {
+        public View findSnapView(RecyclerView.LayoutManager layoutManager) {
             // When interrupting a smooth scroll with a fake drag, we stop RecyclerView's scroll
             // animation, which fires a scroll state change to IDLE. PagerSnapHelper then kicks in
             // to snap to a page, which we need to prevent here.

@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
 }
 
-//1.7.0-alpha03
+//1.7.0-beta01
 
 def srcDirs = [
         'com/google/android/material/animation',
@@ -87,18 +87,18 @@ android {
 }
 
 dependencies {
-    api("androidx.appcompat:appcompat:$appcompatVersion")
     api("androidx.annotation:annotation:$annotationVersion")
+    api("androidx.appcompat:appcompat:$appcompatVersion")
     api("androidx.core:core:$coreVersion")
     api("androidx.activity:activity:$activityVersion")
     api("androidx.fragment:fragment:$fragmentVersion")
-    api("androidx.cardview:cardview:1.0.0")
-    api("androidx.dynamicanimation:dynamicanimation:1.1.0-alpha03")
+    api("androidx.cardview:cardview:$cardviewVersion")
+    api("androidx.dynamicanimation:dynamicanimation:$dynamicanimationVersion")
     api("androidx.constraintlayout:constraintlayout:$constraintlayoutVersion")
     //api("androidx.recyclerview:recyclerview:$recyclerviewVersion")
     api("androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayoutVersion")
     api("androidx.vectordrawable:vectordrawable:$vectordrawableVersion")
-    api("androidx.transition:transition:1.4.1")
+    api("androidx.transition:transition:$transitionVersion")
     api("androidx.lifecycle:lifecycle-runtime:$lifecycleVersion")
     api("androidx.drawerlayout:drawerlayout:$drawerlayoutVersion")
     api project(path: ":viewpager2")

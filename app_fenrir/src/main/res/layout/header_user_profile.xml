@@ -53,7 +53,6 @@
                 android:layout_height="wrap_content">
 
                 <FrameLayout
-                    android:id="@+id/fragment_user_profile_avatar_container"
                     android:layout_width="@dimen/avatar_size_big"
                     android:layout_height="@dimen/avatar_size_big">
 

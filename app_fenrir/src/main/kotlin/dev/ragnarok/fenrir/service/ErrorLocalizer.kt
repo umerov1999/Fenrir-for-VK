@@ -93,7 +93,6 @@ object ErrorLocalizer {
                 30 -> context.getString(R.string.api_error_30)
                 34 -> context.getString(R.string.api_error_34)
                 42 -> context.getString(R.string.api_error_42)
-                100 -> context.getString(R.string.api_error_100)
                 101 -> context.getString(R.string.api_error_101)
                 103 -> context.getString(R.string.api_error_103)
                 105 -> context.getString(R.string.api_error_105)

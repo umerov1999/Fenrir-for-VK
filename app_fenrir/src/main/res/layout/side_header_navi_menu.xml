@@ -35,7 +35,6 @@
         android:orientation="vertical">
 
         <FrameLayout
-            android:id="@+id/fragment_user_profile_avatar_container"
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_marginStart="16dp"

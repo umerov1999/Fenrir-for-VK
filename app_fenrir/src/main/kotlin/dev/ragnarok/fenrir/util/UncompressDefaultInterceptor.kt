@@ -10,7 +10,7 @@ import okio.GzipSource
 import okio.buffer
 import okio.source
 
-object CompressDefaultInterceptor : Interceptor {
+object UncompressDefaultInterceptor : Interceptor {
     private fun uncompress(response: Response): Response {
         if (!response.promisesBody()) {
             return response
@@ -35,7 +35,7 @@ object CompressDefaultInterceptor : Interceptor {
     }
 
     override fun intercept(chain: Interceptor.Chain): Response =
-        if (!Utils.isCompressTraffic) {
+        if (!Utils.isCompressIncomingTraffic) {
             val request = chain.request().newBuilder()
                 .header("Accept-Encoding", "none")
                 .build()

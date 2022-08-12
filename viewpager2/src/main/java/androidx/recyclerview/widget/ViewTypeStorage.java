@@ -50,7 +50,7 @@ interface ViewTypeStorage {
     class SharedIdRangeViewTypeStorage implements ViewTypeStorage {
         // we keep a list of nested wrappers here even though we only need 1 to create because
         // they might be removed.
-        SparseArray<List<NestedAdapterWrapper>> mGlobalTypeToWrapper = new SparseArray<>();
+        final SparseArray<List<NestedAdapterWrapper>> mGlobalTypeToWrapper = new SparseArray<>();
 
         @NonNull
         @Override
@@ -118,7 +118,7 @@ interface ViewTypeStorage {
     }
 
     class IsolatedViewTypeStorage implements ViewTypeStorage {
-        SparseArray<NestedAdapterWrapper> mGlobalTypeToWrapper = new SparseArray<>();
+        final SparseArray<NestedAdapterWrapper> mGlobalTypeToWrapper = new SparseArray<>();
 
         int mNextViewType;
 

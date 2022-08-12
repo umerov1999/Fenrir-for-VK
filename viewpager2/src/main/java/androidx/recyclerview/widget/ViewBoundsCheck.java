@@ -108,7 +108,7 @@ class ViewBoundsCheck {
     static final int MASK = GT | EQ | LT;
 
     final Callback mCallback;
-    BoundFlags mBoundFlags;
+    final BoundFlags mBoundFlags;
 
     ViewBoundsCheck(Callback callback) {
         mCallback = callback;

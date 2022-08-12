@@ -19,11 +19,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
@@ -40,20 +40,17 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     private static final boolean DEBUG = false;
 
     private static TimeInterpolator sDefaultInterpolator;
-
+    final ArrayList<ArrayList<RecyclerView.ViewHolder>> mAdditionsList = new ArrayList<>();
+    final ArrayList<ArrayList<MoveInfo>> mMovesList = new ArrayList<>();
+    final ArrayList<ArrayList<ChangeInfo>> mChangesList = new ArrayList<>();
+    final ArrayList<RecyclerView.ViewHolder> mAddAnimations = new ArrayList<>();
+    final ArrayList<RecyclerView.ViewHolder> mMoveAnimations = new ArrayList<>();
+    final ArrayList<RecyclerView.ViewHolder> mRemoveAnimations = new ArrayList<>();
+    final ArrayList<RecyclerView.ViewHolder> mChangeAnimations = new ArrayList<>();
     private final ArrayList<RecyclerView.ViewHolder> mPendingRemovals = new ArrayList<>();
     private final ArrayList<RecyclerView.ViewHolder> mPendingAdditions = new ArrayList<>();
     private final ArrayList<MoveInfo> mPendingMoves = new ArrayList<>();
     private final ArrayList<ChangeInfo> mPendingChanges = new ArrayList<>();
-
-    ArrayList<ArrayList<RecyclerView.ViewHolder>> mAdditionsList = new ArrayList<>();
-    ArrayList<ArrayList<MoveInfo>> mMovesList = new ArrayList<>();
-    ArrayList<ArrayList<ChangeInfo>> mChangesList = new ArrayList<>();
-
-    ArrayList<RecyclerView.ViewHolder> mAddAnimations = new ArrayList<>();
-    ArrayList<RecyclerView.ViewHolder> mMoveAnimations = new ArrayList<>();
-    ArrayList<RecyclerView.ViewHolder> mRemoveAnimations = new ArrayList<>();
-    ArrayList<RecyclerView.ViewHolder> mChangeAnimations = new ArrayList<>();
 
     @Override
     public void runPendingAnimations() {
@@ -135,7 +132,8 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public boolean animateRemove(RecyclerView.ViewHolder holder) {
         resetAnimation(holder);
         mPendingRemovals.add(holder);
         return true;
@@ -164,7 +162,8 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateAdd(@NonNull RecyclerView.ViewHolder holder) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public boolean animateAdd(RecyclerView.ViewHolder holder) {
         resetAnimation(holder);
         holder.itemView.setAlpha(0);
         mPendingAdditions.add(holder);
@@ -198,7 +197,8 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX, int fromY,
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY,
                                int toX, int toY) {
         View view = holder.itemView;
         fromX += (int) holder.itemView.getTranslationX();
@@ -262,9 +262,9 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
-                                 @Nullable RecyclerView.ViewHolder newHolder,
-                                 int fromLeft, int fromTop, int toLeft, int toTop) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public boolean animateChange(RecyclerView.ViewHolder oldHolder,
+                                 RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
         if (oldHolder == newHolder) {
             // Don't know how to run change animations when the same view holder is re-used.
             // run a move animation to handle position changes.
@@ -382,7 +382,8 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void endAnimation(RecyclerView.ViewHolder item) {
         View view = item.itemView;
         // this will trigger end callback which should set properties to their target values.
         view.animate().cancel();
@@ -611,8 +612,11 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     private static class MoveInfo {
-        public RecyclerView.ViewHolder holder;
-        public int fromX, fromY, toX, toY;
+        public final RecyclerView.ViewHolder holder;
+        public final int fromX;
+        public final int fromY;
+        public final int toX;
+        public final int toY;
 
         MoveInfo(RecyclerView.ViewHolder holder, int fromX, int fromY, int toX, int toY) {
             this.holder = holder;
@@ -641,8 +645,8 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
             this.toY = toY;
         }
 
-        @NonNull
         @Override
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public String toString() {
             return "ChangeInfo{"
                     + "oldHolder=" + oldHolder

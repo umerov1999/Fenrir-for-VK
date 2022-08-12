@@ -113,7 +113,7 @@
                     android:id="@+id/item_message_encrypted"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:layout_marginStart="-2dp"
+                    android:layout_marginStart="0dp"
                     android:layout_marginEnd="2dp"
                     android:contentDescription="@null"
                     android:scaleType="fitXY"

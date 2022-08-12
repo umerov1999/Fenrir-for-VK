@@ -27,7 +27,6 @@
                 android:scaleType="centerCrop" />
 
             <ImageView
-                android:id="@+id/tint"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#9b000000"
