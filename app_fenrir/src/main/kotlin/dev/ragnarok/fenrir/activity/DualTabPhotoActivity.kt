@@ -9,6 +9,8 @@ import dev.ragnarok.fenrir.fragment.DualTabPhotosFragment
 import dev.ragnarok.fenrir.fragment.LocalPhotosFragment
 import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.VKPhotosFragment
+import dev.ragnarok.fenrir.getParcelableCompat
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.model.selection.Sources
 import dev.ragnarok.fenrir.mvp.view.IVkPhotosView
@@ -22,11 +24,11 @@ class DualTabPhotoActivity : NoMainActivity(), PlaceProvider {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             mMaxSelectionCount = intent.getIntExtra(Extra.MAX_COUNT, 10)
-            mSources = intent.getParcelableExtra(Extra.SOURCES)
+            mSources = intent.getParcelableExtraCompat(Extra.SOURCES)
             attachStartFragment()
         } else {
             mMaxSelectionCount = savedInstanceState.getInt("mMaxSelectionCount")
-            mSources = savedInstanceState.getParcelable("mSources")
+            mSources = savedInstanceState.getParcelableCompat("mSources")
         }
     }
 
@@ -81,7 +83,7 @@ class DualTabPhotoActivity : NoMainActivity(), PlaceProvider {
                     .commit()
             }
             Place.LOCAL_IMAGE_ALBUM -> {
-                val album: LocalImageAlbum? = args.getParcelable(Extra.ALBUM)
+                val album: LocalImageAlbum? = args.getParcelableCompat(Extra.ALBUM)
                 val localPhotosFragment =
                     LocalPhotosFragment.newInstance(mMaxSelectionCount, album, false)
                 supportFragmentManager

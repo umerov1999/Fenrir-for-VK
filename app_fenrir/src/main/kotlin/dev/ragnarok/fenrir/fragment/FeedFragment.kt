@@ -50,7 +50,8 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val owners: ArrayList<Owner>? = result.data?.getParcelableArrayListExtra(Extra.OWNERS)
+            val owners: ArrayList<Owner>? =
+                result.data?.getParcelableArrayListExtraCompat(Extra.OWNERS)
             lazyPresenter {
                 presenter?.fireAddToFaveList(requireActivity(), owners)
             }

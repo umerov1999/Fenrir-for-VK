@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.api.model.Identificable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Account : Parcelable, Identificable {
     private val id: Int
@@ -15,8 +17,8 @@ class Account : Parcelable, Identificable {
 
     internal constructor(`in`: Parcel) {
         id = `in`.readInt()
-        val wrapper = `in`.readParcelable<ParcelableOwnerWrapper>(
-            ParcelableOwnerWrapper::class.java.classLoader
+        val wrapper = `in`.readTypedObjectCompat(
+            ParcelableOwnerWrapper.CREATOR
         )
         owner = wrapper!!.get()
     }
@@ -27,7 +29,7 @@ class Account : Parcelable, Identificable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(id)
-        dest.writeParcelable(ParcelableOwnerWrapper(owner), flags)
+        dest.writeTypedObjectCompat(ParcelableOwnerWrapper(owner), flags)
     }
 
     override fun equals(other: Any?): Boolean {

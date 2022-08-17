@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.GroupSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.fragment.search.options.SpinnerOption
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.mvp.view.search.ICommunitiesSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
@@ -26,6 +27,10 @@ class CommunitiesSearchPresenter(
         InteractorFactory.createCommunitiesInteractor()
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): GroupSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     override fun isAtLast(startFrom: IntNextFrom): Boolean {
         return startFrom.offset == 0

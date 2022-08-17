@@ -22,13 +22,11 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.proxySettings
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SwipebleActivity.Companion.applyIntent
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.media.video.ExoVideoPlayer
 import dev.ragnarok.fenrir.media.video.IVideoPlayer
@@ -96,7 +94,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         if (intent == null) {
             return
         }
-        video = intent.getParcelableExtra(EXTRA_VIDEO)
+        video = intent.getParcelableExtraCompat(EXTRA_VIDEO)
         size = intent.getIntExtra(EXTRA_SIZE, InternalVideoSize.SIZE_240)
         isLocal = intent.getBooleanExtra(EXTRA_LOCAL, false)
         val actionBar = supportActionBar
@@ -167,7 +165,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
             handleIntent(intent, false)
         } else {
             size = savedInstanceState.getInt("size")
-            video = savedInstanceState.getParcelable("video")
+            video = savedInstanceState.getParcelableCompat("video")
             isLocal = savedInstanceState.getBoolean("isLocal")
             seekSave = savedInstanceState.getLong("seek")
             val actionBar = supportActionBar

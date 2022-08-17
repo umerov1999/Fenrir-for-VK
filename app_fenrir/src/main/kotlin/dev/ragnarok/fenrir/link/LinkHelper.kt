@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -46,6 +47,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getVideoAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import kotlin.math.abs
@@ -316,16 +318,24 @@ object LinkHelper {
         return link != null && openVKLink(activity, accountId, link, isMain)
     }
 
+    @Suppress("deprecation")
     private fun getCustomTabsPackages(context: Context): ArrayList<ResolveInfo> {
         val pm = context.packageManager
         val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
-        val resolvedActivityList = pm.queryIntentActivities(activityIntent, 0)
+        val resolvedActivityList = if (Utils.hasTiramisu()) pm.queryIntentActivities(
+            activityIntent,
+            PackageManager.ResolveInfoFlags.of(0)
+        ) else pm.queryIntentActivities(activityIntent, 0)
         val packagesSupportingCustomTabs = ArrayList<ResolveInfo>()
         for (info in resolvedActivityList) {
             val serviceIntent = Intent()
             serviceIntent.action = CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
             serviceIntent.setPackage(info.activityInfo.packageName)
-            if (pm.resolveService(serviceIntent, 0) != null) {
+            if ((if (Utils.hasTiramisu()) pm.resolveService(
+                    serviceIntent,
+                    PackageManager.ResolveInfoFlags.of(0)
+                ) else pm.resolveService(serviceIntent, 0)) != null
+            ) {
                 packagesSupportingCustomTabs.add(info)
             }
         }

@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder
 import dev.ragnarok.fenrir.adapter.MessagesAdapter
 import dev.ragnarok.fenrir.adapter.MessagesAdapter.OnMessageActionListener
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.model.*
@@ -222,7 +223,7 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
                 val peerId = requireArguments().getInt(Extra.PEER_ID)
                 val focusTo = requireArguments().getInt(Extra.FOCUS_TO)
                 val message: Message? =
-                    if (requireArguments().containsKey(Extra.MESSAGE)) requireArguments().getParcelable(
+                    if (requireArguments().containsKey(Extra.MESSAGE)) requireArguments().getParcelableCompat(
                         Extra.MESSAGE
                     ) else null
                 return MessagesLookPresenter(aid, peerId, focusTo, message, saveInstanceState)

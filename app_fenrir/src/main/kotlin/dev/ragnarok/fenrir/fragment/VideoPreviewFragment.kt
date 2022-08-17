@@ -14,9 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
@@ -34,7 +32,6 @@ import dev.ragnarok.fenrir.model.menu.Section
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.VideoPreviewPresenter
 import dev.ragnarok.fenrir.mvp.view.IVideoPreviewView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.place.PlaceFactory.getCommentsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getLikesCopiesPlace
@@ -203,7 +200,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     requireArguments().getInt(EXTRA_VIDEO_ID),
                     requireArguments().getInt(Extra.OWNER_ID),
                     finalDocumentAccessKey,
-                    requireArguments().getParcelable(Extra.VIDEO),
+                    requireArguments().getParcelableCompat(Extra.VIDEO),
                     saveInstanceState
                 )
             }

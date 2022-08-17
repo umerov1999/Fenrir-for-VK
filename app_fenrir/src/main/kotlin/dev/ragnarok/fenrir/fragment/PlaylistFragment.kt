@@ -16,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.AudioRecyclerAdapter
+import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
@@ -36,7 +37,7 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mData.clear()
-        val tmp: List<Audio>? = requireArguments().getParcelableArrayList(Extra.AUDIOS)
+        val tmp: List<Audio>? = requireArguments().getParcelableArrayListCompat(Extra.AUDIOS)
         if (tmp.nonNullNoEmpty()) {
             mData.addAll(tmp)
         }

@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Document : AbsModel {
     val id: Int
@@ -49,9 +51,9 @@ class Document : AbsModel {
         date = `in`.readLong()
         type = `in`.readInt()
         accessKey = `in`.readString()
-        photoPreview = `in`.readParcelable(PhotoSizes::class.java.classLoader)
-        videoPreview = `in`.readParcelable(VideoPreview::class.java.classLoader)
-        graffiti = `in`.readParcelable(Graffiti::class.java.classLoader)
+        photoPreview = `in`.readTypedObjectCompat(PhotoSizes.CREATOR)
+        videoPreview = `in`.readTypedObjectCompat(VideoPreview.CREATOR)
+        graffiti = `in`.readTypedObjectCompat(Graffiti.CREATOR)
         msgId = `in`.readInt()
         msgPeerId = `in`.readInt()
     }
@@ -88,9 +90,9 @@ class Document : AbsModel {
         parcel.writeLong(date)
         parcel.writeInt(type)
         parcel.writeString(accessKey)
-        parcel.writeParcelable(photoPreview, i)
-        parcel.writeParcelable(videoPreview, i)
-        parcel.writeParcelable(graffiti, i)
+        parcel.writeTypedObjectCompat(photoPreview, i)
+        parcel.writeTypedObjectCompat(videoPreview, i)
+        parcel.writeTypedObjectCompat(graffiti, i)
         parcel.writeInt(msgId)
         parcel.writeInt(msgPeerId)
     }

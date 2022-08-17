@@ -23,6 +23,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getSimpleGalleryPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
 import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.settings.Settings.get
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
@@ -160,7 +161,9 @@ class LikeFCMMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager?.notify(id, NotificationHelper.NOTIFICATION_LIKE, notification)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager?.notify(id, NotificationHelper.NOTIFICATION_LIKE, notification)
+        }
     }
 
     fun notifyIfNeed(context: Context) {

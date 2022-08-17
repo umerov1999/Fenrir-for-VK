@@ -27,6 +27,7 @@ import dev.ragnarok.fenrir.adapter.SearchOptionsAdapter
 import dev.ragnarok.fenrir.adapter.SearchOptionsAdapter.OptionClickListener
 import dev.ragnarok.fenrir.dialog.*
 import dev.ragnarok.fenrir.fragment.search.options.*
+import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.InputTextDialog
@@ -53,7 +54,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-        mData = requireArguments().getParcelableArrayList(Extra.LIST)
+        mData = requireArguments().getParcelableArrayListCompat(Extra.LIST)
     }
 
     private fun resolveEmptyTextVisibility() {

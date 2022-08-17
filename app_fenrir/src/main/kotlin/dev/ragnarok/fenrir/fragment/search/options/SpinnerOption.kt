@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.fragment.search.options
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class SpinnerOption : BaseOption {
     var value: Entry? = null
@@ -10,7 +12,7 @@ class SpinnerOption : BaseOption {
 
     constructor(key: Int, title: Int, active: Boolean) : super(SPINNER, key, title, active)
     internal constructor(`in`: Parcel) : super(`in`) {
-        value = `in`.readParcelable(Entry::class.java.classLoader)
+        value = `in`.readTypedObjectCompat(Entry.CREATOR)
         available = `in`.createTypedArrayList(Entry.CREATOR)!!
     }
 
@@ -23,7 +25,7 @@ class SpinnerOption : BaseOption {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
-        dest.writeParcelable(value, flags)
+        dest.writeTypedObjectCompat(value, flags)
         dest.writeTypedList(available)
     }
 

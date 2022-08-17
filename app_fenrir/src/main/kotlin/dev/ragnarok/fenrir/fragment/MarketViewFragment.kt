@@ -16,6 +16,7 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachmentsFor
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory.withSpans
 import dev.ragnarok.fenrir.model.Market
@@ -185,7 +186,7 @@ class MarketViewFragment : BaseMvpFragment<MarketViewPresenter, IMarketViewView>
         return object : IPresenterFactory<MarketViewPresenter> {
             override fun create(): MarketViewPresenter {
                 val aid = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val market: Market = requireArguments().getParcelable(Extra.MARKET)!!
+                val market: Market = requireArguments().getParcelableCompat(Extra.MARKET)!!
                 return MarketViewPresenter(aid, market, saveInstanceState)
             }
         }

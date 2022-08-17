@@ -28,6 +28,7 @@ import dev.ragnarok.fenrir.adapter.OwnersListAdapter
 import dev.ragnarok.fenrir.fragment.attachments.CommentCreateFragment
 import dev.ragnarok.fenrir.fragment.attachments.CommentEditFragment
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
@@ -173,7 +174,7 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
         return object : IPresenterFactory<CommentsPresenter> {
             override fun create(): CommentsPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val commented: Commented = requireArguments().getParcelable(Extra.COMMENTED)!!
+                val commented: Commented = requireArguments().getParcelableCompat(Extra.COMMENTED)!!
                 var focusTo: Int? = null
                 var ThreadComment: Int? = null
                 if (requireArguments().containsKey(EXTRA_AT_COMMENT_OBJECT)) {
@@ -291,7 +292,7 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
     override fun goToCommentEdit(accountId: Int, comment: Comment, commemtId: Int?) {
         getEditCommentPlace(accountId, comment, commemtId)
             .setFragmentListener(CommentEditFragment.REQUEST_COMMENT_EDIT) { _: String?, result: Bundle ->
-                val comment1: Comment? = result.getParcelable(
+                val comment1: Comment? = result.getParcelableCompat(
                     Extra.COMMENT
                 )
                 if (comment1 != null) {

@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Day
 import dev.ragnarok.fenrir.model.GroupSettings
@@ -144,8 +145,9 @@ class CommunityOptionsFragment :
         return object : IPresenterFactory<CommunityOptionsPresenter> {
             override fun create(): CommunityOptionsPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val community: Community = requireArguments().getParcelable(Extra.GROUP)!!
-                val settings: GroupSettings = requireArguments().getParcelable(Extra.SETTINGS)!!
+                val community: Community = requireArguments().getParcelableCompat(Extra.GROUP)!!
+                val settings: GroupSettings =
+                    requireArguments().getParcelableCompat(Extra.SETTINGS)!!
                 return CommunityOptionsPresenter(accountId, community, settings, saveInstanceState)
             }
         }

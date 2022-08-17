@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getMessagesLookupPlace
 import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.settings.theme.ThemesController.toastColor
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import kotlinx.serialization.SerialName
@@ -60,11 +61,13 @@ class MentionMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager?.notify(
-            message_id.toString(),
-            NotificationHelper.NOTIFICATION_MENTION,
-            notification
-        )
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager?.notify(
+                message_id.toString(),
+                NotificationHelper.NOTIFICATION_MENTION,
+                notification
+            )
+        }
     }
 
     @Serializable

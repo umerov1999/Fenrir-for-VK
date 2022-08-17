@@ -2,7 +2,9 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.util.Objects.safeEquals
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class AudioCatalog : AbsModel {
     private var id: String? = null
@@ -31,7 +33,7 @@ class AudioCatalog : AbsModel {
         playlists = `in`.createTypedArrayList(AudioPlaylist.CREATOR)
         videos = `in`.createTypedArrayList(Video.CREATOR)
         links = `in`.createTypedArrayList(Link.CREATOR)
-        artist = `in`.readParcelable(ArtistBlock::class.java.classLoader)
+        artist = `in`.readTypedObjectCompat(ArtistBlock.CREATOR)
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
@@ -47,7 +49,7 @@ class AudioCatalog : AbsModel {
         parcel.writeTypedList(playlists)
         parcel.writeTypedList(videos)
         parcel.writeTypedList(links)
-        parcel.writeParcelable(artist, i)
+        parcel.writeTypedObjectCompat(artist, i)
     }
 
     fun getId(): String? {

@@ -130,7 +130,8 @@ public final class ViewPager2 extends ViewGroup {
     private RecyclerView.ItemAnimator mSavedItemAnimator;
     private boolean mSavedItemAnimatorPresent;
     private boolean mUserInputEnabled = true;
-    private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
+    private @OffscreenPageLimit
+    int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
 
     public ViewPager2(@NonNull Context context) {
         super(context);
@@ -367,7 +368,8 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @SuppressWarnings("rawtypes")
-    public @Nullable Adapter getAdapter() {
+    public @Nullable
+    Adapter getAdapter() {
         return mRecyclerView.getAdapter();
     }
 
@@ -486,7 +488,8 @@ public final class ViewPager2 extends ViewGroup {
                 : rv.getHeight() - rv.getPaddingTop() - rv.getPaddingBottom();
     }
 
-    public @Orientation int getOrientation() {
+    public @Orientation
+    int getOrientation() {
         return mLayoutManager.getOrientation() == LinearLayoutManager.VERTICAL
                 ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL;
     }
@@ -1057,6 +1060,7 @@ public final class ViewPager2 extends ViewGroup {
             super(superState);
         }
 
+        @SuppressWarnings("deprecation")
         private void readValues(Parcel source, ClassLoader loader) {
             mRecyclerViewId = source.readInt();
             mCurrentItem = source.readInt();

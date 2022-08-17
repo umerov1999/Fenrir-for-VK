@@ -16,6 +16,7 @@ import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.adapter.TagOwnerAdapter
 import dev.ragnarok.filegallery.fragment.base.BaseMvpBottomSheetDialogFragment
+import dev.ragnarok.filegallery.getParcelableCompat
 import dev.ragnarok.filegallery.model.FileItem
 import dev.ragnarok.filegallery.model.tags.TagOwner
 import dev.ragnarok.filegallery.mvp.core.IPresenterFactory
@@ -99,7 +100,7 @@ class TagOwnerBottomSheet : BaseMvpBottomSheetDialogFragment<TagOwnerPresenter, 
     override fun onTagOwnerClick(index: Int, owner: TagOwner) {
         presenter?.addDir(
             owner,
-            requireArguments().getParcelable(Extra.PATH) ?: return,
+            requireArguments().getParcelableCompat(Extra.PATH) ?: return,
         )
     }
 

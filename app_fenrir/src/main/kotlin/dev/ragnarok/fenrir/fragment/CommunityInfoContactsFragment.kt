@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.CommunityInfoContactsAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
@@ -56,7 +57,7 @@ class CommunityInfoContactsFragment :
             override fun create(): CommunityInfoContactsPresenter {
                 return CommunityInfoContactsPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.GROUP_ID)!!,
+                    requireArguments().getParcelableCompat(Extra.GROUP_ID)!!,
                     saveInstanceState
                 )
             }

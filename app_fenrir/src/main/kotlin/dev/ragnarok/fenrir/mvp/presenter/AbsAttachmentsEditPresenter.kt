@@ -2,12 +2,10 @@ package dev.ragnarok.fenrir.mvp.presenter
 
 import android.net.Uri
 import android.os.Bundle
-import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IBaseAttachmentsEditView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.IUploadManager
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
@@ -414,7 +412,8 @@ abstract class AbsAttachmentsEditPresenter<V : IBaseAttachmentsEditView> interna
 
     init {
         if (savedInstanceState != null) {
-            currentPhotoCameraUri = savedInstanceState.getParcelable(SAVE_CURRENT_PHOTO_CAMERA_URI)
+            currentPhotoCameraUri =
+                savedInstanceState.getParcelableCompat(SAVE_CURRENT_PHOTO_CAMERA_URI)
             textBody = savedInstanceState.getString(SAVE_BODY)
             timerValue = if (savedInstanceState.containsKey(SAVE_TIMER)) savedInstanceState.getLong(
                 SAVE_TIMER
@@ -423,7 +422,7 @@ abstract class AbsAttachmentsEditPresenter<V : IBaseAttachmentsEditView> interna
         data = ArrayList()
         if (savedInstanceState != null) {
             val savedEntries: ArrayList<AttachmentEntry>? =
-                savedInstanceState.getParcelableArrayList(
+                savedInstanceState.getParcelableArrayListCompat(
                     SAVE_DATA
                 )
             if (savedEntries.nonNullNoEmpty()) {

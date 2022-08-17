@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.api.model.Identificable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class AppChatUser : Parcelable, Identificable {
     private val member: Owner?
@@ -20,10 +22,10 @@ class AppChatUser : Parcelable, Identificable {
 
     internal constructor(`in`: Parcel) {
         inviter =
-            `in`.readParcelable<ParcelableOwnerWrapper>(ParcelableOwnerWrapper::class.java.classLoader)!!
+            `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)!!
                 .get()
         member =
-            `in`.readParcelable<ParcelableOwnerWrapper>(ParcelableOwnerWrapper::class.java.classLoader)!!
+            `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)!!
                 .get()
         invitedBy = `in`.readInt()
         canRemove = `in`.readByte().toInt() != 0
@@ -33,8 +35,8 @@ class AppChatUser : Parcelable, Identificable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(ParcelableOwnerWrapper(inviter), flags)
-        dest.writeParcelable(ParcelableOwnerWrapper(member), flags)
+        dest.writeTypedObjectCompat(ParcelableOwnerWrapper(inviter), flags)
+        dest.writeTypedObjectCompat(ParcelableOwnerWrapper(member), flags)
         dest.writeInt(invitedBy)
         dest.writeByte((if (canRemove) 1 else 0).toByte())
         dest.writeLong(join_date)

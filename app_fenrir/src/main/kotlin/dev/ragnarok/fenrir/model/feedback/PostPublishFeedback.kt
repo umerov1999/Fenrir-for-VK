@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model.feedback
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.model.Post
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class PostPublishFeedback : Feedback {
     var post: Post? = null
@@ -10,12 +12,12 @@ class PostPublishFeedback : Feedback {
 
     constructor(@FeedbackType type: Int) : super(type)
     internal constructor(`in`: Parcel) : super(`in`) {
-        post = `in`.readParcelable(Post::class.java.classLoader)
+        post = `in`.readTypedObjectCompat(Post.CREATOR)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
-        dest.writeParcelable(post, flags)
+        dest.writeTypedObjectCompat(post, flags)
     }
 
     override fun describeContents(): Int {

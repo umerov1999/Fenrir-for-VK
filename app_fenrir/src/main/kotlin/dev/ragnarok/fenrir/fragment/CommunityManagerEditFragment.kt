@@ -7,8 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
@@ -19,7 +18,6 @@ import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.CommunityManagerEditPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityManagerEditView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
@@ -139,8 +137,9 @@ class CommunityManagerEditFragment :
             override fun create(): CommunityManagerEditPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val groupId = requireArguments().getInt(Extra.GROUP_ID)
-                val users: List<User>? = requireArguments().getParcelableArrayList(Extra.USERS)
-                val manager: Manager? = requireArguments().getParcelable(Extra.MANAGER)
+                val users: List<User>? =
+                    requireArguments().getParcelableArrayListCompat(Extra.USERS)
+                val manager: Manager? = requireArguments().getParcelableCompat(Extra.MANAGER)
                 return manager?.let {
                     CommunityManagerEditPresenter(
                         accountId,

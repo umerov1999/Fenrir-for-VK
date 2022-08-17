@@ -7,4 +7,5 @@ package dev.ragnarok.fenrir.util.serializeble.json
 import dev.ragnarok.fenrir.util.serializeble.json.internal.DescriptorSchemaCache
 
 @Suppress("DEPRECATION_ERROR")
-internal val Json.schemaCache: DescriptorSchemaCache get() = this._schemaCache
+internal val Json.schemaCache: DescriptorSchemaCache
+    get() = this._schemaCache

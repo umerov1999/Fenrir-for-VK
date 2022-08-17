@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.fragment.search.criteria.DialogsSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.mvp.view.search.IDialogsSearchView
@@ -25,6 +26,10 @@ class DialogsSearchPresenter(
     private val messagesInteractor: IMessagesRepository = messages
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): DialogsSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     override fun isAtLast(startFrom: IntNextFrom): Boolean {
         return startFrom.offset == 0

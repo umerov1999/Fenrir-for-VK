@@ -1,6 +1,8 @@
 package de.maxr1998.modernpreferences
 
+import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import androidx.annotation.ArrayRes
 import androidx.fragment.app.Fragment
@@ -15,9 +17,18 @@ abstract class AbsPreferencesFragment : Fragment() {
     protected abstract val keyInstanceState: String
     private var currentSaved: PreferencesAdapter.SavedState? = null
 
+    @Suppress("deprecation")
+    private inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getParcelable(key, T::class.java)
+        } else {
+            getParcelable(key)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        currentSaved = savedInstanceState?.getParcelable(keyInstanceState)
+        currentSaved = savedInstanceState?.getParcelableCompat(keyInstanceState)
 
         parentFragmentManager.setFragmentResultListener(
             PreferencesExtra.EDIT_DIALOG_REQUEST, this
@@ -87,7 +98,7 @@ abstract class AbsPreferencesFragment : Fragment() {
                     ?: return@setFragmentResultListener
             ) {
                 (it as SingleChoiceDialogPreference).persistSelection(
-                    result.getParcelable(
+                    result.getParcelableCompat(
                         PreferencesExtra.RESULT_VALUE
                     )
                 )

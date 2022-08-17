@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.*
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Animatable
@@ -841,11 +842,15 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         }
     }
 
+    @Suppress("deprecation")
     private val isEqualizerAvailable: Boolean
         get() {
             val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
             val manager = requireActivity().packageManager
-            val info = manager.queryIntentActivities(intent, 0)
+            val info = if (Utils.hasTiramisu()) manager.queryIntentActivities(
+                intent,
+                PackageManager.ResolveInfoFlags.of(0)
+            ) else manager.queryIntentActivities(intent, 0)
             return info.size > 0
         }
 

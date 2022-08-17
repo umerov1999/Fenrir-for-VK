@@ -42,6 +42,7 @@ import dev.ragnarok.fenrir.service.QuickReplyService.Companion.intentForReadMess
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.toastColor
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.ShortcutUtils.chatOpenIntent
 import dev.ragnarok.fenrir.util.Utils.createOkHttp
 import dev.ragnarok.fenrir.util.Utils.declOfNum
@@ -88,7 +89,9 @@ object NotificationHelper {
     fun resetBubbleOpened(context: Context, force: Boolean) {
         synchronized(bubbleLock) {
             if (!force) {
-                getService(context).cancel(bubbleOpened, NOTIFICATION_MESSAGE)
+                if (AppPerms.hasNotificationPermissionSimple(context)) {
+                    getService(context).cancel(bubbleOpened, NOTIFICATION_MESSAGE)
+                }
             }
             bubbleOpened = null
         }
@@ -478,11 +481,13 @@ object NotificationHelper {
                     .setKey(message.senderId.toString()).build(), peer, accountId
             )
         }
-        nManager.notify(
-            createPeerTagFor(accountId, message.peerId),
-            NOTIFICATION_MESSAGE,
-            builder.build()
-        )
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager.notify(
+                createPeerTagFor(accountId, message.peerId),
+                NOTIFICATION_MESSAGE,
+                builder.build()
+            )
+        }
         if (Settings.get().notifications().isQuickReplyImmediately) {
             val startQuickReply = forStart(
                 context,
@@ -543,11 +548,13 @@ object NotificationHelper {
             builder.setContentIntent(contentIntent)
         }
         val notification = builder.build()
-        nManager.notify(
-            "simple " + Settings.get().accounts().current,
-            NOTIFICATION_MESSAGE,
-            notification
-        )
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager.notify(
+                "simple " + Settings.get().accounts().current,
+                NOTIFICATION_MESSAGE,
+                notification
+            )
+        }
     }
 
     private fun createPeerTagFor(aid: Int, peerId: Int): String {
@@ -583,7 +590,9 @@ object NotificationHelper {
         //if (hasFlag(mask, ISettings.INotificationSettings.FLAG_SHOW_NOTIF)) {
         val peer = createPeerTagFor(accountId, peerId)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || peer != getBubbleOpened()) {
-            getService(context).cancel(peer, NOTIFICATION_MESSAGE)
+            if (AppPerms.hasNotificationPermissionSimple(context)) {
+                getService(context).cancel(peer, NOTIFICATION_MESSAGE)
+            }
         }
         //}
     }

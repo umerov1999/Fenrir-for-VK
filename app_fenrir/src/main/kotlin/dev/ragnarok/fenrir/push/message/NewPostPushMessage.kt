@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.settings.theme.ThemesController.toastColor
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Logger.wtf
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
@@ -91,7 +92,9 @@ class NewPostPushMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager.notify(url, NotificationHelper.NOTIFICATION_NEW_POSTS_ID, notification)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager.notify(url, NotificationHelper.NOTIFICATION_NEW_POSTS_ID, notification)
+        }
     }
 
     companion object {

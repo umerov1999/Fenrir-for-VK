@@ -338,7 +338,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
-            mData = savedInstanceState.getParcelableArrayList(SAVE_DATA)
+            mData = savedInstanceState.getParcelableArrayListCompat(SAVE_DATA)
         }
     }
 

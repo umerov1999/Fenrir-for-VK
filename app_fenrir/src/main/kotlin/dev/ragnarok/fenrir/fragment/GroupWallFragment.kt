@@ -17,15 +17,13 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.extractGroupTokens
 import dev.ragnarok.fenrir.adapter.horizontal.HorizontalMenuAdapter
 import dev.ragnarok.fenrir.adapter.horizontal.HorizontalOptionsAdapter
-import dev.ragnarok.fenrir.ifNonNullNoEmpty
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
@@ -36,7 +34,6 @@ import dev.ragnarok.fenrir.mvp.presenter.DocsListPresenter
 import dev.ragnarok.fenrir.mvp.presenter.GroupWallPresenter
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView
 import dev.ragnarok.fenrir.mvp.view.IGroupWallView.IOptionMenuView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
 import dev.ragnarok.fenrir.picasso.transforms.MonochromeTransformation
@@ -255,7 +252,8 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
             override fun create(): GroupWallPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val ownerId = requireArguments().getInt(Extra.OWNER_ID)
-                val wrapper: ParcelableOwnerWrapper? = requireArguments().getParcelable(Extra.OWNER)
+                val wrapper: ParcelableOwnerWrapper? =
+                    requireArguments().getParcelableCompat(Extra.OWNER)
                 return GroupWallPresenter(
                     accountId,
                     ownerId,

@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.model.database.Country
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class UserDetails : Parcelable {
     private var photoId: IdPair? = null
@@ -63,8 +65,8 @@ class UserDetails : Parcelable {
 
     constructor()
     internal constructor(`in`: Parcel) {
-        photoId = `in`.readParcelable(IdPair::class.java.classLoader)
-        statusAudio = `in`.readParcelable(Audio::class.java.classLoader)
+        photoId = `in`.readTypedObjectCompat(IdPair.CREATOR)
+        statusAudio = `in`.readTypedObjectCompat(Audio.CREATOR)
         friendsCount = `in`.readInt()
         onlineFriendsCount = `in`.readInt()
         mutualFriendsCount = `in`.readInt()
@@ -433,8 +435,8 @@ class UserDetails : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
-        parcel.writeParcelable(photoId, i)
-        parcel.writeParcelable(statusAudio, i)
+        parcel.writeTypedObjectCompat(photoId, i)
+        parcel.writeTypedObjectCompat(statusAudio, i)
         parcel.writeInt(friendsCount)
         parcel.writeInt(onlineFriendsCount)
         parcel.writeInt(mutualFriendsCount)

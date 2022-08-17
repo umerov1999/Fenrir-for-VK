@@ -16,6 +16,7 @@ import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.GifPagerFragment
 import dev.ragnarok.fenrir.fragment.SinglePhotoFragment
 import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.buildArgs
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
@@ -43,7 +44,7 @@ class PhotoFullScreenActivity : NoMainActivity(), PlaceProvider, AppStyleable {
         }
         val action = intent.action
         if (ACTION_OPEN_PLACE == action) {
-            val place: Place? = intent.getParcelableExtra(Extra.PLACE)
+            val place: Place? = intent.getParcelableExtraCompat(Extra.PLACE)
             if (place == null) {
                 finish()
                 return

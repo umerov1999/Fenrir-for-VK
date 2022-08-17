@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.settings.Settings.get
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 
@@ -76,7 +77,13 @@ class FriendFCMMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager.notify(from_id.toString(), NotificationHelper.NOTIFICATION_FRIEND_ID, notification)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager.notify(
+                from_id.toString(),
+                NotificationHelper.NOTIFICATION_FRIEND_ID,
+                notification
+            )
+        }
     }
 
     companion object {

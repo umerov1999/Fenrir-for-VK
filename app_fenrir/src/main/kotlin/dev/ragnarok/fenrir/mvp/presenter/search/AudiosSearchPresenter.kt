@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.mvp.view.search.IAudioSearchView
@@ -29,6 +30,10 @@ class AudiosSearchPresenter(
     private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): AudioSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     override fun isAtLast(startFrom: IntNextFrom): Boolean {
         return startFrom.offset == 0

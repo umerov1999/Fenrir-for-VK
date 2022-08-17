@@ -50,6 +50,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -241,24 +242,17 @@ public class FirebaseInstallationServiceClient {
         if (errorStream == null) {
             return null;
         }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, UTF_8));
-        try {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, UTF_8))) {
             StringBuilder response = new StringBuilder();
             for (String input = reader.readLine(); input != null; input = reader.readLine()) {
                 response.append(input).append('\n');
             }
-            return String.format(
+            return String.format(Locale.getDefault(),
                     "Error when communicating with the Firebase Installations server API. HTTP response: [%d"
                             + " %s: %s]",
                     conn.getResponseCode(), conn.getResponseMessage(), response);
         } catch (IOException ignored) {
             return null;
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException ignored) {
-
-            }
         }
     }
 

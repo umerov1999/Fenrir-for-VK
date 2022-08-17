@@ -10,8 +10,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
@@ -22,8 +21,6 @@ import dev.ragnarok.fenrir.model.FriendsCounters
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.FriendsTabsPresenter
 import dev.ragnarok.fenrir.mvp.view.IFriendsTabsView
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
@@ -97,7 +94,7 @@ class FriendsTabsFragment : BaseMvpFragment<FriendsTabsPresenter, IFriendsTabsVi
                 return FriendsTabsPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     requireArguments().getInt(Extra.USER_ID),
-                    requireArguments().getParcelable(Extra.COUNTERS),
+                    requireArguments().getParcelableCompat(Extra.COUNTERS),
                     saveInstanceState
                 )
             }

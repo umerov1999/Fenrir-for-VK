@@ -15,6 +15,7 @@ import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder.VoiceActionListener
 import dev.ragnarok.fenrir.adapter.MessagesAdapter
 import dev.ragnarok.fenrir.adapter.MessagesAdapter.OnMessageActionListener
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
+import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.model.Keyboard
 import dev.ragnarok.fenrir.model.LastReadId
@@ -151,7 +152,7 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
         return object : IPresenterFactory<FwdsPresenter> {
             override fun create(): FwdsPresenter {
                 val messages: ArrayList<Message> =
-                    requireArguments().getParcelableArrayList(Extra.MESSAGES)!!
+                    requireArguments().getParcelableArrayListCompat(Extra.MESSAGES)!!
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 return FwdsPresenter(accountId, messages, saveInstanceState)
             }

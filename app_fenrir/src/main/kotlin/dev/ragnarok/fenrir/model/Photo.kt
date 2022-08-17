@@ -4,6 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 import kotlinx.serialization.Serializable
 
 @Keep
@@ -76,7 +78,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         albumId = `in`.readInt()
         width = `in`.readInt()
         height = `in`.readInt()
-        sizes = `in`.readParcelable(PhotoSizes::class.java.classLoader)
+        sizes = `in`.readTypedObjectCompat(PhotoSizes.CREATOR)
         text = `in`.readString()
         date = `in`.readLong()
         isUserLikes = `in`.readByte().toInt() != 0
@@ -206,7 +208,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         parcel.writeInt(albumId)
         parcel.writeInt(width)
         parcel.writeInt(height)
-        parcel.writeParcelable(sizes, i)
+        parcel.writeTypedObjectCompat(sizes, i)
         parcel.writeString(text)
         parcel.writeLong(date)
         parcel.writeByte((if (isUserLikes) 1 else 0).toByte())

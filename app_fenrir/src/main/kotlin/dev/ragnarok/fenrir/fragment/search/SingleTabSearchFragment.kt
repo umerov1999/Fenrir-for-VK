@@ -10,6 +10,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.fragment.search.SearchFragmentFactory.create
 import dev.ragnarok.fenrir.fragment.search.criteria.BaseSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.settings.CurrentTheme
@@ -28,7 +29,7 @@ class SingleTabSearchFragment : Fragment(), MySearchView.OnQueryTextListener,
         super.onCreate(savedInstanceState)
         mContentType = requireArguments().getInt(Extra.TYPE)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-        mInitialCriteria = requireArguments().getParcelable(Extra.CRITERIA)
+        mInitialCriteria = requireArguments().getParcelableCompat(Extra.CRITERIA)
         if (savedInstanceState != null) {
             attachedChild = savedInstanceState.getBoolean("attachedChild")
         }

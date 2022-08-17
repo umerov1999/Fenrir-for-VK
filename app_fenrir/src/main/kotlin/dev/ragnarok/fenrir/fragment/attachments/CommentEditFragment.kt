@@ -13,6 +13,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.CommentEditPresenter
@@ -28,7 +29,7 @@ class CommentEditFragment : AbsAttachmentsEditFragment<CommentEditPresenter, ICo
                     if (requireArguments().containsKey(Extra.COMMENT_ID)) requireArguments().getInt(
                         Extra.COMMENT_ID
                     ) else null
-                val comment: Comment = requireArguments().getParcelable(Extra.COMMENT)!!
+                val comment: Comment = requireArguments().getParcelableCompat(Extra.COMMENT)!!
                 return CommentEditPresenter(comment, aid, CommentThread, saveInstanceState)
             }
         }

@@ -15,6 +15,7 @@ import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.fragment.base.BaseMvpFragment
+import dev.ragnarok.filegallery.getParcelableExtraCompat
 import dev.ragnarok.filegallery.model.FileItem
 import dev.ragnarok.filegallery.mvp.core.IPresenterFactory
 import dev.ragnarok.filegallery.mvp.presenter.EnterPinPresenter
@@ -98,7 +99,7 @@ class EnterPinFragment : BaseMvpFragment<EnterPinPresenter, IEnterPinView>(), IE
             Settings.get().security().updateLastPinTime()
             val o = Intent().putExtra(
                 Extra.PATH,
-                requireActivity().intent.getParcelableExtra<FileItem>(Extra.PATH)
+                requireActivity().intent.getParcelableExtraCompat<FileItem>(Extra.PATH)
             )
             requireActivity().setResult(Activity.RESULT_OK, o)
             requireActivity().finish()

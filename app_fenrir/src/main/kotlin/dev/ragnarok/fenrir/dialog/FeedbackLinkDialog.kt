@@ -10,6 +10,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.FeedbackLinkAdapter
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.model.feedback.ParcelableFeedbackWrapper
@@ -26,7 +27,7 @@ class FeedbackLinkDialog : DialogFragment(), FeedbackLinkAdapter.ActionListener 
     private var mFeedback: Feedback? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val wrapper: ParcelableFeedbackWrapper? = requireArguments().getParcelable("feedback")
+        val wrapper: ParcelableFeedbackWrapper? = requireArguments().getParcelableCompat("feedback")
         mFeedback = wrapper?.get()
     }
 

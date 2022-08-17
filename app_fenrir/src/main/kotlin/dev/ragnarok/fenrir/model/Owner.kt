@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -63,4 +65,24 @@ sealed class Owner : AbsModel, ParcelNative.ParcelableNative {
         get() {
             throw UnsupportedOperationException()
         }
+
+    companion object {
+        fun readOwnerFromParcel(`in`: Parcel): Owner? {
+            val ownerType = `in`.readInt()
+            return if (ownerType == OwnerType.COMMUNITY) `in`.readTypedObjectCompat(Community.CREATOR) else `in`.readTypedObjectCompat(
+                User.CREATOR
+            )
+        }
+
+        fun readOwnerFromParcel(id: Int, `in`: Parcel): Owner? {
+            return if (id <= 0) `in`.readTypedObjectCompat(Community.CREATOR) else `in`.readTypedObjectCompat(
+                User.CREATOR
+            )
+        }
+
+        fun writeOwnerToParcel(owner: Owner, dest: Parcel, flags: Int) {
+            dest.writeInt(owner.ownerType)
+            dest.writeTypedObjectCompat(owner, flags)
+        }
+    }
 }

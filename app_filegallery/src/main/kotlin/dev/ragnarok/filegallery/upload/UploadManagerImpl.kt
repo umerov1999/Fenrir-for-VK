@@ -16,6 +16,7 @@ import dev.ragnarok.filegallery.media.music.NotificationHelper
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.filegallery.upload.impl.RemoteAudioPlayUploadable
+import dev.ragnarok.filegallery.util.AppPerms
 import dev.ragnarok.filegallery.util.Optional
 import dev.ragnarok.filegallery.util.Optional.Companion.wrap
 import dev.ragnarok.filegallery.util.Pair
@@ -108,7 +109,9 @@ class UploadManagerImpl(
                 .setOngoing(true)
                 .setProgress(100, progress, false)
                 .build()
-            notificationManager.notify(NotificationHelper.NOTIFICATION_UPLOAD, builder.build())
+            if (AppPerms.hasNotificationPermissionSimple(context)) {
+                notificationManager.notify(NotificationHelper.NOTIFICATION_UPLOAD, builder.build())
+            }
         }
     }
 
@@ -116,7 +119,9 @@ class UploadManagerImpl(
         notificationUpdateDisposable.clear()
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-        notificationManager?.cancel(NotificationHelper.NOTIFICATION_UPLOAD)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            notificationManager?.cancel(NotificationHelper.NOTIFICATION_UPLOAD)
+        }
     }
 
     override fun enqueue(intents: List<UploadIntent>) {

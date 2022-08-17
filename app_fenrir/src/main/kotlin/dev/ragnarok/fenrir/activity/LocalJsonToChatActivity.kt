@@ -15,6 +15,7 @@ import dev.ragnarok.fenrir.activity.PhotoPagerActivity.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.AudioPlayerFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.LocalJsonToChatFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.place.Place
@@ -99,7 +100,7 @@ class LocalJsonToChatActivity : NoMainActivity(), PlaceProvider, AppStyleable {
                 startActivity(ph)
             }
             Place.DOC_PREVIEW -> {
-                val document: Document? = args.getParcelable(Extra.DOC)
+                val document: Document? = args.getParcelableCompat(Extra.DOC)
                 if (document != null && document.hasValidGifVideoLink()) {
                     val aid = args.getInt(Extra.ACCOUNT_ID)
                     val documents = ArrayList(listOf(document))

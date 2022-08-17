@@ -80,7 +80,7 @@ class QuickAnswerActivity : AppCompatActivity() {
         if (!focusToField) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         }
-        msg = (intent.extras?.getParcelable(Extra.MESSAGE) ?: return)
+        msg = (intent.extras?.getParcelableCompat(Extra.MESSAGE) ?: return)
         accountId = (intent.extras ?: return).getInt(Extra.ACCOUNT_ID)
         notifier = TextingNotifier(accountId)
         setContentView(R.layout.activity_quick_answer)

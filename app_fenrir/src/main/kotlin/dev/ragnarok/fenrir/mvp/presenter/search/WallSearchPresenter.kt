@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.fragment.search.criteria.WallSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.view.search.IWallSearchView
 import dev.ragnarok.fenrir.requireNonNull
@@ -27,6 +28,10 @@ class WallSearchPresenter(
     criteria,
     savedInstanceState
 ) {
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): WallSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
+
     private val walls: IWallsRepository = Repository.walls
     private fun onPostMinorUpdates(update: PostUpdate) {
         for (i in data.indices) {

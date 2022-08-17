@@ -1,9 +1,8 @@
 package dev.ragnarok.fenrir.mvp.presenter
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.Includes
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
@@ -11,7 +10,6 @@ import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.IPhotosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper
@@ -20,7 +18,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.mvp.view.IVkPhotosView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
@@ -565,8 +562,8 @@ class VkPhotosPresenter(
             this.album = album
             this.owner = owner
         } else {
-            this.album = savedInstanceState.getParcelable(SAVE_ALBUM)
-            val ownerWrapper: ParcelableOwnerWrapper? = savedInstanceState.getParcelable(
+            this.album = savedInstanceState.getParcelableCompat(SAVE_ALBUM)
+            val ownerWrapper: ParcelableOwnerWrapper? = savedInstanceState.getParcelableCompat(
                 SAVE_OWNER
             )
             this.owner = ownerWrapper?.get()

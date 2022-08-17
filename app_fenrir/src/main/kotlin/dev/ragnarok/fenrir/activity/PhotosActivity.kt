@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.LocalImageAlbumsFragment
 import dev.ragnarok.fenrir.fragment.LocalPhotosFragment
 import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.newInstance
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
@@ -32,7 +33,7 @@ class PhotosActivity : NoMainActivity(), PlaceProvider {
     override fun openPlace(place: Place) {
         if (place.type == Place.LOCAL_IMAGE_ALBUM) {
             val maxSelectionCount = intent.getIntExtra(EXTRA_MAX_SELECTION_COUNT, 10)
-            val album: LocalImageAlbum? = place.safeArguments().getParcelable(Extra.ALBUM)
+            val album: LocalImageAlbum? = place.safeArguments().getParcelableCompat(Extra.ALBUM)
             val localPhotosFragment =
                 LocalPhotosFragment.newInstance(maxSelectionCount, album, false)
             supportFragmentManager

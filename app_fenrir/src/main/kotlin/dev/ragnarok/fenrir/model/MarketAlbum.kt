@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class MarketAlbum : AbsModel {
     private val id: Int
@@ -24,7 +26,7 @@ class MarketAlbum : AbsModel {
         count = `in`.readInt()
         updated_time = `in`.readLong()
         title = `in`.readString()
-        photo = `in`.readParcelable(Photo::class.java.classLoader)
+        photo = `in`.readTypedObjectCompat(Photo.CREATOR)
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
@@ -35,7 +37,7 @@ class MarketAlbum : AbsModel {
         parcel.writeInt(count)
         parcel.writeLong(updated_time)
         parcel.writeString(title)
-        parcel.writeParcelable(photo, i)
+        parcel.writeTypedObjectCompat(photo, i)
     }
 
     fun getId(): Int {

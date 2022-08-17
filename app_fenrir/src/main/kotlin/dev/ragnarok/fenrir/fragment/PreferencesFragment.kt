@@ -1952,7 +1952,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     }
 
     private fun changeDrawerBackground(isDark: Boolean, data: Intent?) {
-        val photos: ArrayList<LocalPhoto>? = data?.getParcelableArrayListExtra(PHOTOS)
+        val photos: ArrayList<LocalPhoto>? = data?.getParcelableArrayListExtraCompat(PHOTOS)
         if (photos.isNullOrEmpty()) {
             return
         }

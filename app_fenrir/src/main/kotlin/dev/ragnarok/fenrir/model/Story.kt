@@ -5,6 +5,8 @@ import android.os.Parcelable
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.readOwner
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.writeOwner
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Story : AbsModel, ParcelNative.ParcelableNative {
     var id = 0
@@ -37,8 +39,8 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         isIs_expired = `in`.readByte().toInt() != 0
         accessKey = `in`.readString()
         target_url = `in`.readString()
-        video = `in`.readParcelable(Video::class.java.classLoader)
-        photo = `in`.readParcelable(Photo::class.java.classLoader)
+        video = `in`.readTypedObjectCompat(Video.CREATOR)
+        photo = `in`.readTypedObjectCompat(Photo.CREATOR)
         owner = readOwner(`in`)
     }
 
@@ -64,8 +66,8 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         parcel.writeByte((if (isIs_expired) 1 else 0).toByte())
         parcel.writeString(accessKey)
         parcel.writeString(target_url)
-        parcel.writeParcelable(video, i)
-        parcel.writeParcelable(photo, i)
+        parcel.writeTypedObjectCompat(video, i)
+        parcel.writeTypedObjectCompat(photo, i)
         writeOwner(parcel, i, owner)
     }
 

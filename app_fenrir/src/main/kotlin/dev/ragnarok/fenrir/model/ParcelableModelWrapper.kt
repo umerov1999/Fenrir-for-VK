@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class ParcelableModelWrapper : Parcelable {
     companion object {
@@ -16,7 +18,8 @@ class ParcelableModelWrapper : Parcelable {
                     return arrayOfNulls(size)
                 }
             }
-        private val TYPES: MutableList<Class<*>> = ArrayList()
+        private val TYPES: MutableList<Class<*>> = ArrayList(25)
+        private val LOADERS: MutableList<(`in`: Parcel) -> AbsModel?> = ArrayList(25)
 
         fun wrap(model: AbsModel): ParcelableModelWrapper {
             return ParcelableModelWrapper(model)
@@ -27,7 +30,7 @@ class ParcelableModelWrapper : Parcelable {
             if (!ex) {
                 return null
             }
-            return `in`.readParcelable<ParcelableModelWrapper>(ParcelableModelWrapper::class.java.classLoader)
+            return `in`.readTypedObjectCompat(CREATOR)
                 ?.get()
         }
 
@@ -36,11 +39,12 @@ class ParcelableModelWrapper : Parcelable {
                 dest.writeByte(0)
             } else {
                 dest.writeByte(1)
-                dest.writeParcelable(ParcelableModelWrapper(owner), flags)
+                dest.writeTypedObjectCompat(ParcelableModelWrapper(owner), flags)
             }
         }
 
         init {
+            //Types
             TYPES.add(Photo::class.java)
             TYPES.add(Post::class.java)
             TYPES.add(Video::class.java)
@@ -66,6 +70,33 @@ class ParcelableModelWrapper : Parcelable {
             TYPES.add(Market::class.java)
             TYPES.add(MarketAlbum::class.java)
             TYPES.add(AudioArtist::class.java)
+
+            //Loaders
+            LOADERS.add { it.readTypedObjectCompat(Photo.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Post.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Video.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(FwdMessages.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(VoiceMessage.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Document.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Audio.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Chat.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Poll.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Link.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Article.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Story.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Call.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(NotSupported.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(WallReply.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(PhotoAlbum.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(AudioPlaylist.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Graffiti.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Gift.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(GiftItem.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Comment.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Event.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(Market.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(MarketAlbum.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(AudioArtist.CREATOR) }
         }
     }
 
@@ -77,8 +108,7 @@ class ParcelableModelWrapper : Parcelable {
 
     internal constructor(`in`: Parcel) {
         val index = `in`.readInt()
-        val classLoader = TYPES[index].classLoader
-        model = `in`.readParcelable(classLoader)!!
+        model = LOADERS[index].invoke(`in`)!!
     }
 
     override fun describeContents(): Int {
@@ -91,7 +121,7 @@ class ParcelableModelWrapper : Parcelable {
             throw UnsupportedOperationException("Unsupported class: " + model.javaClass)
         }
         dest.writeInt(index)
-        dest.writeParcelable(model, flags)
+        dest.writeTypedObjectCompat(model, flags)
     }
 
     fun get(): AbsModel {

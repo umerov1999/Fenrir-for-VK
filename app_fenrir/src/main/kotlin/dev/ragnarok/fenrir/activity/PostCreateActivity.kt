@@ -7,6 +7,8 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.attachments.PostCreateFragment
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.model.EditingPostType
 import dev.ragnarok.fenrir.model.WallEditorAttrs
 
@@ -15,8 +17,8 @@ class PostCreateActivity : NoMainActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             val accountId = (intent.extras ?: return).getInt(Extra.ACCOUNT_ID)
-            val streams = intent.getParcelableArrayListExtra<Uri>("streams")
-            val attrs: WallEditorAttrs = intent.getParcelableExtra("attrs") ?: return
+            val streams = intent.getParcelableArrayListExtraCompat<Uri>("streams")
+            val attrs: WallEditorAttrs = intent.getParcelableExtraCompat("attrs") ?: return
             val links = intent.getStringExtra("links")
             val mime = intent.getStringExtra(Extra.TYPE)
             val args = PostCreateFragment.buildArgs(

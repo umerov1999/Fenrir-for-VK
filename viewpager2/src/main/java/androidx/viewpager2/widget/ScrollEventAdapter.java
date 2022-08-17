@@ -48,14 +48,19 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private static final int STATE_IN_PROGRESS_IMMEDIATE_SCROLL = 3;
     private static final int STATE_IN_PROGRESS_FAKE_DRAG = 4;
     private static final int NO_POSITION = -1;
-    private final @NonNull ViewPager2 mViewPager;
-    private final @NonNull RecyclerView mRecyclerView;
-    private final @NonNull LinearLayoutManager mLayoutManager;
+    private final @NonNull
+    ViewPager2 mViewPager;
+    private final @NonNull
+    RecyclerView mRecyclerView;
+    private final @NonNull
+    LinearLayoutManager mLayoutManager;
     private final ScrollEventValues mScrollValues;
     private OnPageChangeCallback mCallback;
     // state related fields
-    private @AdapterState int mAdapterState;
-    private @ScrollState int mScrollState;
+    private @AdapterState
+    int mAdapterState;
+    private @ScrollState
+    int mScrollState;
     private int mDragStartPosition;
     private int mTarget;
     private boolean mDispatchSelected;

@@ -15,9 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.DualTabPhotoActivity.Companion.createIntent
@@ -38,7 +36,6 @@ import dev.ragnarok.fenrir.model.selection.Sources
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.DocsListPresenter
 import dev.ragnarok.fenrir.mvp.view.IDocListView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getDocPreviewPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getGifPagerPlace
@@ -56,7 +53,7 @@ class DocsFragment : BaseMvpFragment<DocsListPresenter, IDocListView>(), IDocLis
         if (result.resultCode == Activity.RESULT_OK) {
             val file = result.data?.getStringExtra(Extra.PATH)
             val photos: ArrayList<LocalPhoto>? =
-                result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
+                result.data?.getParcelableArrayListExtraCompat(Extra.PHOTOS)
             if (file.nonNullNoEmpty()) {
                 lazyPresenter {
                     fireFileForUploadSelected(file)

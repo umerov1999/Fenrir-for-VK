@@ -1,12 +1,12 @@
 package dev.ragnarok.filegallery.activity
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
@@ -14,11 +14,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
@@ -49,12 +51,15 @@ import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.filegallery.settings.theme.ThemesController.nextRandom
 import dev.ragnarok.filegallery.util.AppPerms
+import dev.ragnarok.filegallery.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.filegallery.util.AppPerms.requestPermissionsResultAbs
+import dev.ragnarok.filegallery.util.HelperSimple.NOTIFICATION_PERMISSION
+import dev.ragnarok.filegallery.util.HelperSimple.needHelp
 import dev.ragnarok.filegallery.util.Logger
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.ViewUtils.keyboardHide
 import dev.ragnarok.filegallery.util.rxutils.RxUtils
-import dev.ragnarok.filegallery.util.toast.CustomToast
+import dev.ragnarok.filegallery.util.toast.CustomToast.Companion.createCustomToast
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.io.File
 
@@ -81,6 +86,15 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
         }, {
             finish()
         })
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val requestNPermission = requestPermissionsAbs(
+        arrayOf(
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+    ) {
+        createCustomToast(this, mViewFragment)?.showToast(R.string.success)
+    }
 
     private val mOnBackStackChangedListener =
         FragmentManager.OnBackStackChangedListener {
@@ -138,7 +152,7 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
                         RxUtils.dummy()
                     ) { t: Throwable? ->
                         if (Settings.get().main().isDeveloper_mode()) {
-                            CustomToast.createCustomToast(
+                            createCustomToast(
                                 this,
                                 mViewFragment,
                                 mBottomNavigation
@@ -152,11 +166,37 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
                     RxUtils.dummy()
                 ) { t: Throwable? ->
                     if (Settings.get().main().isDeveloper_mode()) {
-                        CustomToast.createCustomToast(this, mViewFragment, mBottomNavigation)
+                        createCustomToast(this, mViewFragment, mBottomNavigation)
                             ?.showToastThrowable(t)
                     }
                 })
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val front: Fragment? = frontFragment
+                if (front is BackPressCallback) {
+                    if (!(front as BackPressCallback).onBackPressed()) {
+                        return
+                    }
+                }
+                if (supportFragmentManager.backStackEntryCount == 1) {
+                    if (mLastBackPressedTime < 0
+                        || mLastBackPressedTime + DOUBLE_BACK_PRESSED_TIMEOUT > System.currentTimeMillis()
+                    ) {
+                        supportFinishAfterTransition()
+                        return
+                    }
+                    mLastBackPressedTime = System.currentTimeMillis()
+                    mViewFragment?.let {
+                        createCustomToast(it.context, mViewFragment, mBottomNavigation)
+                            ?.setDuration(Toast.LENGTH_SHORT)
+                            ?.showToast(R.string.click_back_to_exit)
+                    }
+                } else {
+                    supportFragmentManager.popBackStack()
+                }
+            }
+        })
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -173,7 +213,7 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
         val manager: FragmentManager = supportFragmentManager
         if (manager.backStackEntryCount > 1 || frontFragment is CanBackPressedCallback && (frontFragment as CanBackPressedCallback).canBackPressed()) {
             mToolbar?.setNavigationIcon(R.drawable.arrow_left)
-            mToolbar?.setNavigationOnClickListener { onBackPressed() }
+            mToolbar?.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         } else {
             mToolbar?.setNavigationIcon(R.drawable.client_round)
             mToolbar?.setNavigationOnClickListener {
@@ -198,31 +238,6 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
         get() = R.layout.activity_main
     private val frontFragment: Fragment?
         get() = supportFragmentManager.findFragmentById(R.id.fragment)
-
-    @SuppressLint("ShowToast")
-    override fun onBackPressed() {
-        val front: Fragment? = frontFragment
-        if (front is BackPressCallback) {
-            if (!(front as BackPressCallback).onBackPressed()) {
-                return
-            }
-        }
-        if (supportFragmentManager.backStackEntryCount == 1) {
-            if (mLastBackPressedTime < 0
-                || mLastBackPressedTime + DOUBLE_BACK_PRESSED_TIMEOUT > System.currentTimeMillis()
-            ) {
-                supportFinishAfterTransition()
-                return
-            }
-            mLastBackPressedTime = System.currentTimeMillis()
-            mViewFragment?.let {
-                CustomToast.createCustomToast(this, mViewFragment, mBottomNavigation)
-                    ?.setDuration(Toast.LENGTH_SHORT)?.showToast(R.string.click_back_to_exit)
-            }
-        } else {
-            super.onBackPressed()
-        }
-    }
 
     override fun onSectionResume(@SectionItem section: Int) {
         mCurrentFrontSection = section
@@ -289,6 +304,13 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
 
     private fun handleIntent(action: String?, main: Boolean) {
         if (main) {
+            if (Utils.hasTiramisu() && needHelp(
+                    NOTIFICATION_PERMISSION,
+                    1
+                ) && !AppPerms.hasNotificationPermissionSimple(this)
+            ) {
+                requestNPermission.launch()
+            }
             if (!AppPerms.hasReadWriteStoragePermission(this)) {
                 requestReadWritePermission.launch()
                 return
@@ -448,7 +470,7 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
             }
             SectionItem.LOCAL_SERVER -> {
                 if (!Settings.get().main().getLocalServer().enabled) {
-                    CustomToast.createCustomToast(this, mViewFragment, mBottomNavigation)
+                    createCustomToast(this, mViewFragment, mBottomNavigation)
                         ?.setDuration(Toast.LENGTH_SHORT)
                         ?.showToastError(R.string.local_server_need_enable)
                     openPlace(getPreferencesPlace())

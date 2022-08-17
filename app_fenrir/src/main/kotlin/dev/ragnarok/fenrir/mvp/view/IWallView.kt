@@ -39,4 +39,6 @@ interface IWallView : IAttachmentsPlacesView, IAccountDependencyView, IMvpView, 
         fun setIsFavorite(favorite: Boolean)
         fun setIsSubscribed(subscribed: Boolean)
     }
+
+    fun onRequestSkipOffset(accountId: Int, ownerId: Int, wallFilter: Int, currentPos: Int)
 }

@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.view.IPostEditView
 import dev.ragnarok.fenrir.requireNonNull
@@ -390,7 +391,7 @@ class PostEditPresenter(
     }
 
     init {
-        if (savedInstanceState?.getParcelable<Post>(SAVE_POST) == null) {
+        if (savedInstanceState?.getParcelableCompat<Post>(SAVE_POST) == null) {
             this.post = safelyClone(post)
             setTextBody(post.text)
             if (post.postType == VKApiPost.Type.POSTPONE) {
@@ -407,7 +408,7 @@ class PostEditPresenter(
                     ?.let { data.add(0, it) }
             }
         } else {
-            this.post = savedInstanceState.getParcelable(SAVE_POST)!!
+            this.post = savedInstanceState.getParcelableCompat(SAVE_POST)!!
         }
         val owner = owner
         setFriendsOnlyOptionAvailable(owner.ownerId > 0 && owner.ownerId == accountId)

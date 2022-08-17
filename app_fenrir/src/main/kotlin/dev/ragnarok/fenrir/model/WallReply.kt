@@ -7,6 +7,8 @@ import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.readOwner
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.writeOwner
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class WallReply : AbsModel, Identificable {
     private var id = 0
@@ -29,7 +31,7 @@ class WallReply : AbsModel, Identificable {
         postId = `in`.readInt()
         ownerId = `in`.readInt()
         text = `in`.readString()
-        attachments = `in`.readParcelable(Attachments::class.java.classLoader)
+        attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         author = readOwner(`in`)
     }
 
@@ -42,7 +44,7 @@ class WallReply : AbsModel, Identificable {
         parcel.writeInt(postId)
         parcel.writeInt(ownerId)
         parcel.writeString(text)
-        parcel.writeParcelable(attachments, i)
+        parcel.writeTypedObjectCompat(attachments, i)
         writeOwner(parcel, i, author)
     }
 

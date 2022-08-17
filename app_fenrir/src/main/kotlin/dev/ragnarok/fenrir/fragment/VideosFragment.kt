@@ -19,9 +19,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.DualTabPhotoActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
@@ -42,7 +40,6 @@ import dev.ragnarok.fenrir.model.selection.Sources
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.VideosListPresenter
 import dev.ragnarok.fenrir.mvp.view.IVideosListView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory.getAlbumsByVideoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
@@ -62,7 +59,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val file = result.data?.getStringExtra(Extra.PATH)
-            val vid: LocalVideo? = result.data?.getParcelableExtra(Extra.VIDEO)
+            val vid: LocalVideo? = result.data?.getParcelableExtraCompat(Extra.VIDEO)
             if (file.nonNullNoEmpty()) {
                 lazyPresenter {
                     fireFileForUploadSelected(file)

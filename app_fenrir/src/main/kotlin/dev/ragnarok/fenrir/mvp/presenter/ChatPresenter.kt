@@ -150,9 +150,9 @@ class ChatPresenter(
                 draftMessageText = config.getInitialText()
             }
         } else {
-            peer = savedInstanceState.getParcelable(SAVE_PEER)!!
-            outConfig = savedInstanceState.getParcelable(SAVE_CONFIG)!!
-            currentPhotoCameraUri = savedInstanceState.getParcelable(SAVE_CAMERA_FILE_URI)
+            peer = savedInstanceState.getParcelableCompat(SAVE_PEER)!!
+            outConfig = savedInstanceState.getParcelableCompat(SAVE_CONFIG)!!
+            currentPhotoCameraUri = savedInstanceState.getParcelableCompat(SAVE_CAMERA_FILE_URI)
             restoreFromInstanceState(savedInstanceState)
         }
 

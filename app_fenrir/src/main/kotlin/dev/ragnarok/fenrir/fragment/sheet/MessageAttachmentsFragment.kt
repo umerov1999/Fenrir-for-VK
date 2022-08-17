@@ -18,9 +18,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.AttachmentsActivity
 import dev.ragnarok.fenrir.activity.AudioSelectActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.DualTabPhotoActivity.Companion.createIntent
@@ -77,7 +76,8 @@ class MessageAttachmentsFragment :
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.data != null && result.resultCode == Activity.RESULT_OK) {
                 val attachments: ArrayList<AbsModel> =
-                    (result.data ?: return@registerForActivityResult).getParcelableArrayListExtra(
+                    (result.data
+                        ?: return@registerForActivityResult).getParcelableArrayListExtraCompat(
                         Extra.ATTACHMENTS
                     )
                         ?: return@registerForActivityResult
@@ -90,11 +90,11 @@ class MessageAttachmentsFragment :
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.data != null && result.resultCode == Activity.RESULT_OK) {
                 val vkphotos: ArrayList<Photo>? =
-                    result.data?.getParcelableArrayListExtra(Extra.ATTACHMENTS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.ATTACHMENTS)
                 val localPhotos: ArrayList<LocalPhoto>? =
-                    result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.PHOTOS)
                 val file = result.data?.getStringExtra(Extra.PATH)
-                val video: LocalVideo? = result.data?.getParcelableExtra(Extra.VIDEO)
+                val video: LocalVideo? = result.data?.getParcelableExtraCompat(Extra.VIDEO)
                 lazyPresenter {
                     firePhotosSelected(vkphotos, localPhotos, file, video)
                 }
@@ -176,7 +176,7 @@ class MessageAttachmentsFragment :
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val messageId = requireArguments().getInt(Extra.MESSAGE_ID)
                 val messageOwnerId = requireArguments().getInt(Extra.OWNER_ID)
-                val bundle: ModelsBundle = requireArguments().getParcelable(Extra.BUNDLE)!!
+                val bundle: ModelsBundle = requireArguments().getParcelableCompat(Extra.BUNDLE)!!
                 return MessageAttachmentsPresenter(
                     accountId,
                     messageOwnerId,

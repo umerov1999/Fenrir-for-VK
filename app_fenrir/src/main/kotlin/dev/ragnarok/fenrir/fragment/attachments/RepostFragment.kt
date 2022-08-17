@@ -9,6 +9,7 @@ import androidx.core.view.MenuProvider
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.RepostPresenter
@@ -42,7 +43,7 @@ class RepostFragment : AbsAttachmentsEditFragment<RepostPresenter, IRepostView>(
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<RepostPresenter> {
         return object : IPresenterFactory<RepostPresenter> {
             override fun create(): RepostPresenter {
-                val post: Post = requireArguments().getParcelable(EXTRA_POST)!!
+                val post: Post = requireArguments().getParcelableCompat(EXTRA_POST)!!
                 val groupId =
                     if (requireArguments().containsKey(EXTRA_GROUP_ID)) requireArguments().getInt(
                         EXTRA_GROUP_ID

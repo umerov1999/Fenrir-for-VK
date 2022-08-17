@@ -3,8 +3,13 @@ package dev.ragnarok.filegallery
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.content.Intent
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.view.View
 import dev.ragnarok.filegallery.util.rxutils.RxUtils
 import dev.ragnarok.filegallery.util.rxutils.io.AndroidSchedulers
@@ -13,6 +18,7 @@ import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.io.Serializable
 import kotlin.contracts.contract
 
 val kJson: Json by lazy { Json { ignoreUnknownKeys = true; isLenient = true } }
@@ -410,4 +416,66 @@ open class StubAnimatorListener : Animator.AnimatorListener {
     override fun onAnimationCancel(animation: Animator) {}
 
     override fun onAnimationStart(animation: Animator) {}
+}
+
+inline fun <reified T : Parcelable> Parcel.readTypedObjectCompat(c: Parcelable.Creator<T>): T? {
+    return if (readInt() != 0) {
+        c.createFromParcel(this)
+    } else {
+        null
+    }
+}
+
+inline fun <reified T : Parcelable> Parcel.writeTypedObjectCompat(`val`: T?, parcelableFlags: Int) {
+    if (`val` != null) {
+        writeInt(1)
+        `val`.writeToParcel(this, parcelableFlags)
+    } else {
+        writeInt(0)
+    }
+}
+
+@Suppress("deprecation")
+inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelable(key, T::class.java)
+    } else {
+        getParcelable(key)
+    }
+}
+
+@Suppress("deprecation")
+inline fun <reified T : Serializable> Bundle.getSerializableCompat(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getSerializable(key, T::class.java)
+    } else {
+        getSerializable(key) as T
+    }
+}
+
+@Suppress("deprecation")
+inline fun <reified T : Parcelable> Bundle.getParcelableArrayListCompat(key: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableArrayList(key, T::class.java)
+    } else {
+        getParcelableArrayList(key)
+    }
+}
+
+@Suppress("deprecation")
+inline fun <reified T : Parcelable> Intent.getParcelableExtraCompat(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(key, T::class.java)
+    } else {
+        getParcelableExtra(key)
+    }
+}
+
+@Suppress("deprecation")
+inline fun <reified T : Parcelable> Intent.getParcelableArrayListExtraCompat(key: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableArrayListExtra(key, T::class.java)
+    } else {
+        getParcelableArrayListExtra(key)
+    }
 }

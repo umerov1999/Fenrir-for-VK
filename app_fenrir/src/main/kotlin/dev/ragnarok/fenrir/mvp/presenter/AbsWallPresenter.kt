@@ -71,8 +71,14 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     private var nowRequestOffset = 0
     private var nextOffset = 0
     private var actualDataReady = false
+
+    private var skipWallOffset = 0
     open fun searchStory(ByName: Boolean) {
         throw IllegalArgumentException("Unknown story search")
+    }
+
+    fun fireRequestSkipOffset() {
+        view?.onRequestSkipOffset(accountId, ownerId, wallFilter, nextOffset + skipWallOffset)
     }
 
     fun fireNarrativesClick() {
@@ -206,7 +212,14 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         val accountId = accountId
         val nextOffset = offset + COUNT
         val append = offset > 0
-        netCompositeDisposable.add(walls.getWall(accountId, ownerId, offset, COUNT, wallFilter)
+        netCompositeDisposable.add(walls.getWall(
+            accountId,
+            ownerId,
+            offset + skipWallOffset,
+            COUNT,
+            wallFilter,
+            skipWallOffset <= 0
+        )
             .fromIOToMain()
             .subscribe({
                 onActualDataReceived(
@@ -379,6 +392,19 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         } else {
             Settings.get().other().putOwnerInChangesMonitor(ownerId)
         }
+    }
+
+    fun canLoadUp(): Boolean {
+        return skipWallOffset > 0
+    }
+
+    fun fireSkipOffset(skip: Int) {
+        skipWallOffset = skip
+        netCompositeDisposable.clear()
+        cacheCompositeDisposable.clear()
+        wall.clear()
+        view?.notifyWallDataSetChanged()
+        requestWall(0)
     }
 
     fun fireRefresh() {

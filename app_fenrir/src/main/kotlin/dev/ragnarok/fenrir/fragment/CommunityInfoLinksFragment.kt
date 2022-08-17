@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.CommunityInfoLinksAdapter
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.CommunityInfoLinksPresenter
@@ -50,7 +51,7 @@ class CommunityInfoLinksFragment :
             override fun create(): CommunityInfoLinksPresenter {
                 return CommunityInfoLinksPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.GROUP_ID)!!,
+                    requireArguments().getParcelableCompat(Extra.GROUP_ID)!!,
                     saveInstanceState
                 )
             }

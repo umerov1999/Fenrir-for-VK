@@ -32,9 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.yalantis.ucrop.UCrop
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.*
 import dev.ragnarok.fenrir.adapter.AttachmentsBottomSheetAdapter
 import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder
@@ -59,7 +57,6 @@ import dev.ragnarok.fenrir.model.selection.*
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.ChatPresenter
 import dev.ragnarok.fenrir.mvp.view.IChatView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
@@ -216,7 +213,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         ) { _, bundle ->
             run {
                 if (bundle.containsKey(Extra.BUNDLE)) {
-                    val modelBundle = bundle.getParcelable<ModelsBundle>(Extra.BUNDLE)
+                    val modelBundle = bundle.getParcelableCompat<ModelsBundle>(Extra.BUNDLE)
                     if (modelBundle != null)
                         presenter?.fireEditMessageResult(modelBundle)
                 }
@@ -607,7 +604,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             override fun create(): ChatPresenter {
                 val aid = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val messagesOwnerId = requireArguments().getInt(Extra.OWNER_ID)
-                val peer = requireArguments().getParcelable<Peer>(Extra.PEER)!!
+                val peer = requireArguments().getParcelableCompat<Peer>(Extra.PEER)!!
                 return ChatPresenter(
                     aid,
                     messagesOwnerId,
@@ -632,7 +629,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         config.setUploadFilesMimeType(inputStreams?.mime)
 
         val models =
-            requireActivity().intent.getParcelableExtra<ModelsBundle>(MainActivity.EXTRA_INPUT_ATTACHMENTS)
+            requireActivity().intent.getParcelableExtraCompat<ModelsBundle>(MainActivity.EXTRA_INPUT_ATTACHMENTS)
 
         models?.run {
             config.appendAll(this)
@@ -1077,13 +1074,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         registerForActivityResult(StartActivityForResult()) { result ->
             if (result.data != null && result.resultCode == RESULT_OK) {
                 val vkphotos: List<Photo> =
-                    result.data?.getParcelableArrayListExtra(Extra.ATTACHMENTS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.ATTACHMENTS)
                         ?: Collections.emptyList()
                 val localPhotos: List<LocalPhoto> =
-                    result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.PHOTOS)
                         ?: Collections.emptyList()
 
-                val vid: LocalVideo? = result.data?.getParcelableExtra(Extra.VIDEO)
+                val vid: LocalVideo? = result.data?.getParcelableExtraCompat(Extra.VIDEO)
 
                 val file = result.data?.getStringExtra(Extra.PATH)
 
@@ -1115,7 +1112,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         registerForActivityResult(StartActivityForResult()) { result ->
             if (result.data != null && result.resultCode == RESULT_OK) {
                 val attachments: List<AbsModel> =
-                    result.data?.getParcelableArrayListExtra(Extra.ATTACHMENTS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.ATTACHMENTS)
                         ?: Collections.emptyList()
                 presenter?.fireEditAttachmentsSelected(attachments)
             }
@@ -1497,7 +1494,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         registerForActivityResult(StartActivityForResult()) { result ->
             if (result.data != null && result.resultCode == RESULT_OK) {
                 val photos: ArrayList<LocalPhoto>? =
-                    result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.PHOTOS)
                 if (photos.nonNullNoEmpty()) {
                     var to_up = photos[0].getFullImageUri()
                     if (File(to_up?.path ?: return@registerForActivityResult).isFile) {

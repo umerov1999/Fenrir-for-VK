@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.media.voice.IVoicePlayer
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.VoiceMessage
@@ -34,6 +35,10 @@ class MessagesSearchPresenter(
     private val messagesInteractor: IMessagesRepository = messages
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): MessageSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     private fun syncVoiceLookupState() {
         val needLookup = mVoicePlayer?.isSupposedToPlay == true && guiIsReady

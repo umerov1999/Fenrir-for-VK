@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.SearchPhotosAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.PhotoSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.PhotoSearchPresenter
@@ -56,7 +57,7 @@ class PhotoSearchFragment :
             override fun create(): PhotoSearchPresenter {
                 return PhotoSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     saveInstanceState
                 )
             }

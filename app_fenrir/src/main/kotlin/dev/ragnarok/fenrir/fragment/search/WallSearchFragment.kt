@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.adapter.WallAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.WallSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.WallSearchPresenter
@@ -22,7 +23,7 @@ class WallSearchFragment :
         return object : IPresenterFactory<WallSearchPresenter> {
             override fun create(): WallSearchPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val c: WallSearchCriteria? = requireArguments().getParcelable(Extra.CRITERIA)
+                val c: WallSearchCriteria? = requireArguments().getParcelableCompat(Extra.CRITERIA)
                 return WallSearchPresenter(accountId, c, saveInstanceState)
             }
         }

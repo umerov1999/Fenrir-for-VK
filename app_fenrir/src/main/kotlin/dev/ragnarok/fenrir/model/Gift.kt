@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Gift : AbsModel {
     var id: Int
@@ -22,7 +24,7 @@ class Gift : AbsModel {
         fromId = `in`.readInt()
         message = `in`.readString()
         date = `in`.readLong()
-        giftItem = `in`.readParcelable(GiftItem::class.java.classLoader)
+        giftItem = `in`.readTypedObjectCompat(GiftItem.CREATOR)
         privacy = `in`.readInt()
     }
 
@@ -73,7 +75,7 @@ class Gift : AbsModel {
         parcel.writeInt(fromId)
         parcel.writeString(message)
         parcel.writeLong(date)
-        parcel.writeParcelable(giftItem, i)
+        parcel.writeTypedObjectCompat(giftItem, i)
         parcel.writeInt(privacy)
     }
 

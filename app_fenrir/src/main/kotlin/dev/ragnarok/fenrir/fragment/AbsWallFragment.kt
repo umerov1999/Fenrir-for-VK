@@ -26,6 +26,7 @@ import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.WallSearchCriteria
 import dev.ragnarok.fenrir.link.LinkHelper
+import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
@@ -54,6 +55,7 @@ import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils.getCounterWithK
 import dev.ragnarok.fenrir.util.FindAttachmentType
 import dev.ragnarok.fenrir.util.HelperSimple
+import dev.ragnarok.fenrir.util.InputWallOffsetDialog
 import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.util.Utils.is600dp
 import dev.ragnarok.fenrir.util.Utils.isLandscape
@@ -67,7 +69,7 @@ import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 
 abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
     PlaceSupportMvpFragment<P, V>(), IWallView, WallAdapter.ClickListener,
-    NonPublishedPostActionListener, MenuProvider {
+    NonPublishedPostActionListener, MenuProvider, BackPressCallback {
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mWallAdapter: WallAdapter? = null
     private var mLoadMoreFooterHelper: LoadMoreFooterHelper? = null
@@ -94,6 +96,29 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
         } else {
             paganSymbol?.setImageResource(pic.iconRes)
         }
+    }
+
+    override fun onRequestSkipOffset(
+        accountId: Int,
+        ownerId: Int,
+        wallFilter: Int,
+        currentPos: Int
+    ) {
+        InputWallOffsetDialog.Builder(requireActivity(), accountId, ownerId, wallFilter)
+            .setTitleRes(R.string.action_jump_offset).setValue(currentPos)
+            .setCallback(object : InputWallOffsetDialog.Callback {
+                override fun onChanged(newValue: Int) {
+                    presenter?.fireSkipOffset(newValue)
+                }
+            }).show()
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (presenter?.canLoadUp() == true) {
+            presenter?.fireSkipOffset(0)
+            return false
+        }
+        return true
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -357,6 +382,10 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                 }
                 return true
             }
+            R.id.action_jump_offset -> {
+                presenter?.fireRequestSkipOffset()
+                return true
+            }
             else -> return false
         }
     }
@@ -366,7 +395,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
         presenter?.fireOptionViewCreated(view)
         val isDebug = Settings.get().other().isDeveloper_mode
         menu.findItem(R.id.action_open_url).isVisible = view.isMy
-        menu.findItem(R.id.search_stories).isVisible = isDebug
+        menu.findItem(R.id.search_stories).isVisible = view.isMy && isDebug
         menu.findItem(R.id.action_edit).isVisible = view.isMy
         menu.findItem(R.id.action_add_to_shortcut).isVisible = !view.isMy
         menu.findItem(R.id.action_toggle_monitor).setTitle(

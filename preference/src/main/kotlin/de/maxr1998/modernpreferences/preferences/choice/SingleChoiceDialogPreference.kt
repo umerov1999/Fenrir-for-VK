@@ -1,7 +1,9 @@
 package de.maxr1998.modernpreferences.preferences.choice
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.fragment.app.FragmentManager
 import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
@@ -69,6 +71,15 @@ class SingleChoiceDialogPreference(
     }
 
     class SingleChooseDialog : AbsChooseDialog() {
+        @Suppress("deprecation")
+        private inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                getParcelable(key, T::class.java)
+            } else {
+                getParcelable(key)
+            }
+        }
+
         private var currentSelection: SelectionItem? = null
 
         companion object {
@@ -82,10 +93,11 @@ class SingleChoiceDialogPreference(
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            savedInstanceState?.getParcelable<SelectionItem?>("single_selections")?.let {
+            savedInstanceState?.getParcelableCompat<SelectionItem>("single_selections")?.let {
                 currentSelection = it
             } ?: run {
-                currentSelection = requireArguments().getParcelable(PreferencesExtra.DEFAULT_VALUE)
+                currentSelection =
+                    requireArguments().getParcelableCompat(PreferencesExtra.DEFAULT_VALUE)
             }
         }
 

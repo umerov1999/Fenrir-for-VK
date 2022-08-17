@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.model.selection.*
 import dev.ragnarok.fenrir.settings.Settings
@@ -28,7 +29,7 @@ class DualTabPhotosFragment : BaseFragment(), BackPressCallback {
     private var mCurrentTab = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mSources = (requireArguments().getParcelable(Extra.SOURCES) ?: return)
+        mSources = (requireArguments().getParcelableCompat(Extra.SOURCES) ?: return)
         if (savedInstanceState != null) {
             mCurrentTab = savedInstanceState.getInt("mCurrentTab")
         }

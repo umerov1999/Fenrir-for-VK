@@ -1,5 +1,6 @@
 package dev.ragnarok.filegallery.media.music
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -10,6 +11,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.media.audiofx.AudioEffect
 import android.os.IBinder
+import android.os.PowerManager
 import android.os.SystemClock
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -27,14 +29,12 @@ import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.upstream.RawResourceDataSource
 import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso.LoadedFrom
-import dev.ragnarok.filegallery.Constants
-import dev.ragnarok.filegallery.Extra
-import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.insertAfter
+import dev.ragnarok.filegallery.*
 import dev.ragnarok.filegallery.media.exo.ExoUtil
 import dev.ragnarok.filegallery.model.Audio
 import dev.ragnarok.filegallery.picasso.PicassoInstance
 import dev.ragnarok.filegallery.settings.Settings
+import dev.ragnarok.filegallery.util.AppPerms
 import dev.ragnarok.filegallery.util.Logger
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.Utils.makeMediaItem
@@ -69,6 +69,7 @@ class MusicPlaybackService : Service() {
     private var mNotificationHelper: NotificationHelper? = null
     private var mMediaMetadataCompat: MediaMetadataCompat? = null
     private var inForeground: Boolean = false
+    private var wakeLock: PowerManager.WakeLock? = null
     override fun onBind(intent: Intent): IBinder {
         if (Constants.IS_DEBUG) Logger.d(TAG, "Service bound, intent = $intent")
         cancelShutdown()
@@ -80,7 +81,7 @@ class MusicPlaybackService : Service() {
             return
         }
         try {
-            if (inForeground) {
+            if (inForeground && AppPerms.hasNotificationPermissionSimple(this)) {
                 mManager.notify(id, notification)
                 return
             }
@@ -90,6 +91,7 @@ class MusicPlaybackService : Service() {
         }
     }
 
+    @SuppressLint("WrongConstant")
     @Suppress("deprecation")
     fun outForeground(removeNotification: Boolean) {
         inForeground = false
@@ -121,6 +123,11 @@ class MusicPlaybackService : Service() {
     override fun onCreate() {
         if (Constants.IS_DEBUG) Logger.d(TAG, "Creating service")
         super.onCreate()
+        if (wakeLock == null) {
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager?
+            wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, javaClass.name)
+            wakeLock?.setReferenceCounted(false)
+        }
         mNotificationHelper = NotificationHelper(this)
         setUpRemoteControlClient()
 
@@ -214,6 +221,7 @@ class MusicPlaybackService : Service() {
 
     @Suppress("DEPRECATION")
     override fun onDestroy() {
+        wakeLock?.release()
         if (Constants.IS_DEBUG) Logger.d(TAG, "Destroying service")
         super.onDestroy()
         val audioEffectsIntent = Intent(AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION)
@@ -303,7 +311,8 @@ class MusicPlaybackService : Service() {
             cycleShuffle()
         }
         if (CMDPLAYLIST == action) {
-            val apiAudios: ArrayList<Audio>? = intent.getParcelableArrayListExtra(Extra.AUDIOS)
+            val apiAudios: ArrayList<Audio>? =
+                intent.getParcelableArrayListExtraCompat(Extra.AUDIOS)
             val position = intent.getIntExtra(Extra.POSITION, 0)
             val forceShuffle = intent.getIntExtra(Extra.SHUFFLE_MODE, SHUFFLE_NONE)
             shuffleMode = forceShuffle

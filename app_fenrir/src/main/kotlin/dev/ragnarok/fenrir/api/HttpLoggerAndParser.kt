@@ -54,6 +54,7 @@ object HttpLoggerAndParser {
 
             @Throws(IOException::class)
             override fun writeTo(sink: BufferedSink) {
+                //ZstdOutputStream(sink.outputStream()).sink().buffer()
                 val gzipSink = GzipSink(sink).buffer()
                 this@gzipFormBody.writeTo(gzipSink)
                 gzipSink.close()

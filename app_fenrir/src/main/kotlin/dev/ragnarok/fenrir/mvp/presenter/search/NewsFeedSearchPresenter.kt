@@ -10,6 +10,7 @@ import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.StringNextFrom
 import dev.ragnarok.fenrir.fragment.search.options.SimpleGPSOption
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.view.search.INewsFeedSearchView
@@ -30,6 +31,10 @@ class NewsFeedSearchPresenter(
 ) {
     private val feedInteractor: IFeedInteractor = InteractorFactory.createFeedInteractor()
     private val walls: IWallsRepository = Repository.walls
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): NewsFeedCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     override val initialNextFrom: StringNextFrom
         get() = StringNextFrom(null)

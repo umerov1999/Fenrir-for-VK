@@ -21,6 +21,7 @@ import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.adapter.VkPhotoAlbumsAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
@@ -264,7 +265,8 @@ class VKPhotoAlbumsFragment : BaseMvpFragment<PhotoAlbumsPresenter, IPhotoAlbums
             override fun create(): PhotoAlbumsPresenter {
                 val ownerId = requireArguments().getInt(Extra.OWNER_ID)
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val wrapper: ParcelableOwnerWrapper? = requireArguments().getParcelable(Extra.OWNER)
+                val wrapper: ParcelableOwnerWrapper? =
+                    requireArguments().getParcelableCompat(Extra.OWNER)
                 val owner = wrapper?.get()
                 val action = requireArguments().getString(Extra.ACTION)
                 return PhotoAlbumsPresenter(

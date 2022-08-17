@@ -67,6 +67,7 @@ class ThemeFragment : AbsMvpFragment<ThemePresenter, IThemeView>(), IThemeView,
             return
         }
         get().ui().setMainTheme(value.id)
+        mAdapter?.updateCurrentId(value.id)
         requireActivity().recreate()
         mAdapter?.notifyDataSetChanged()
     }

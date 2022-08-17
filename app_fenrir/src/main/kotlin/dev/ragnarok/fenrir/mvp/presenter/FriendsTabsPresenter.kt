@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.FriendsCounters
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.presenter.base.AccountDependencyPresenter
@@ -92,7 +93,7 @@ class FriendsTabsPresenter(
 
     init {
         if (savedInstanceState != null) {
-            this.counters = savedInstanceState.getParcelable(SAVE_COUNTERS)
+            this.counters = savedInstanceState.getParcelableCompat(SAVE_COUNTERS)
         } else {
             this.counters = counters
         }

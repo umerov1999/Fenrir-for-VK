@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.adapter.AudioPlaylistsAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioPlaylistSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.AudioPlaylistSearchPresenter
@@ -48,7 +49,7 @@ class AudioPlaylistSearchFragment :
             override fun create(): AudioPlaylistSearchPresenter {
                 return AudioPlaylistSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     saveInstanceState
                 )
             }

@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class VideoAlbum : AbsModel {
     private val id: Int
@@ -24,7 +26,7 @@ class VideoAlbum : AbsModel {
         count = `in`.readInt()
         updatedTime = `in`.readLong()
         image = `in`.readString()
-        privacy = `in`.readParcelable(SimplePrivacy::class.java.classLoader)
+        privacy = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
@@ -35,7 +37,7 @@ class VideoAlbum : AbsModel {
         parcel.writeInt(count)
         parcel.writeLong(updatedTime)
         parcel.writeString(image)
-        parcel.writeParcelable(privacy, i)
+        parcel.writeTypedObjectCompat(privacy, i)
     }
 
     fun getId(): Int {

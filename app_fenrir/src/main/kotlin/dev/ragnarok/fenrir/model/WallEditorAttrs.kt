@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class WallEditorAttrs : Parcelable {
     private val owner: ParcelableOwnerWrapper
@@ -13,8 +15,8 @@ class WallEditorAttrs : Parcelable {
     }
 
     internal constructor(`in`: Parcel) {
-        owner = `in`.readParcelable(ParcelableOwnerWrapper::class.java.classLoader)!!
-        editor = `in`.readParcelable(ParcelableOwnerWrapper::class.java.classLoader)!!
+        owner = `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)!!
+        editor = `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)!!
     }
 
     fun getOwner(): Owner {
@@ -30,8 +32,8 @@ class WallEditorAttrs : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(owner, flags)
-        dest.writeParcelable(editor, flags)
+        dest.writeTypedObjectCompat(owner, flags)
+        dest.writeTypedObjectCompat(editor, flags)
     }
 
     companion object CREATOR : Parcelable.Creator<WallEditorAttrs> {

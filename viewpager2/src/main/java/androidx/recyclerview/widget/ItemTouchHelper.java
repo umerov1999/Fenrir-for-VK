@@ -273,23 +273,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * When user started to drag scroll. Reset when we don't scroll
      */
-    private long mDragScrollStartTimeInMs;    /**
-     * When user drags a view to the edge, we start scrolling the LayoutManager as long as View
-     * is partially out of bounds.
-     */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Runnable mScrollRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mSelected != null && scrollIfNecessary()) {
-                if (mSelected != null) { //it might be lost during scrolling
-                    moveIfNecessary(mSelected);
-                }
-                mRecyclerView.removeCallbacks(mScrollRunnable);
-                ViewCompat.postOnAnimation(mRecyclerView, this);
-            }
-        }
-    };
+    private long mDragScrollStartTimeInMs;
+
     /**
      * Creates an ItemTouchHelper that will work with the given Callback.
      * <p>
@@ -335,7 +320,23 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                     .getDimension(R.dimen.item_touch_helper_swipe_escape_max_velocity);
             setupCallbacks();
         }
-    }
+    }    /**
+     * When user drags a view to the edge, we start scrolling the LayoutManager as long as View
+     * is partially out of bounds.
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Runnable mScrollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mSelected != null && scrollIfNecessary()) {
+                if (mSelected != null) { //it might be lost during scrolling
+                    moveIfNecessary(mSelected);
+                }
+                mRecyclerView.removeCallbacks(mScrollRunnable);
+                ViewCompat.postOnAnimation(mRecyclerView, this);
+            }
+        }
+    };
 
     private void setupCallbacks() {
         ViewConfiguration vc = ViewConfiguration.get(mRecyclerView.getContext());
@@ -767,119 +768,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 mCallback.clearView(mRecyclerView, holder);
             }
         }
-    }    private final OnItemTouchListener mOnItemTouchListener = new OnItemTouchListener() {
-        @Override
-        public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView,
-                                             @NonNull MotionEvent event) {
-            mGestureDetector.onTouchEvent(event);
-            if (DEBUG) {
-                Log.d(TAG, "intercept: x:" + event.getX() + ",y:" + event.getY() + ", " + event);
-            }
-            int action = event.getActionMasked();
-            if (action == MotionEvent.ACTION_DOWN) {
-                mActivePointerId = event.getPointerId(0);
-                mInitialTouchX = event.getX();
-                mInitialTouchY = event.getY();
-                obtainVelocityTracker();
-                if (mSelected == null) {
-                    RecoverAnimation animation = findAnimation(event);
-                    if (animation != null) {
-                        mInitialTouchX -= animation.mX;
-                        mInitialTouchY -= animation.mY;
-                        endRecoverAnimation(animation.mViewHolder, true);
-                        if (mPendingCleanup.remove(animation.mViewHolder.itemView)) {
-                            mCallback.clearView(mRecyclerView, animation.mViewHolder);
-                        }
-                        select(animation.mViewHolder, animation.mActionState);
-                        updateDxDy(event, mSelectedFlags, 0);
-                    }
-                }
-            } else if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-                mActivePointerId = ACTIVE_POINTER_ID_NONE;
-                select(null, ACTION_STATE_IDLE);
-            } else if (mActivePointerId != ACTIVE_POINTER_ID_NONE) {
-                // in a non scroll orientation, if distance change is above threshold, we
-                // can select the item
-                int index = event.findPointerIndex(mActivePointerId);
-                if (DEBUG) {
-                    Log.d(TAG, "pointer index " + index);
-                }
-                if (index >= 0) {
-                    checkSelectForSwipe(action, event, index);
-                }
-            }
-            if (mVelocityTracker != null) {
-                mVelocityTracker.addMovement(event);
-            }
-            return mSelected != null;
-        }
-
-        @Override
-        public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent event) {
-            mGestureDetector.onTouchEvent(event);
-            if (DEBUG) {
-                Log.d(TAG,
-                        "on touch: x:" + mInitialTouchX + ",y:" + mInitialTouchY + ", :" + event);
-            }
-            if (mVelocityTracker != null) {
-                mVelocityTracker.addMovement(event);
-            }
-            if (mActivePointerId == ACTIVE_POINTER_ID_NONE) {
-                return;
-            }
-            int action = event.getActionMasked();
-            int activePointerIndex = event.findPointerIndex(mActivePointerId);
-            if (activePointerIndex >= 0) {
-                checkSelectForSwipe(action, event, activePointerIndex);
-            }
-            ViewHolder viewHolder = mSelected;
-            if (viewHolder == null) {
-                return;
-            }
-            switch (action) {
-                case MotionEvent.ACTION_MOVE: {
-                    // Find the index of the active pointer and fetch its position
-                    if (activePointerIndex >= 0) {
-                        updateDxDy(event, mSelectedFlags, activePointerIndex);
-                        moveIfNecessary(viewHolder);
-                        mRecyclerView.removeCallbacks(mScrollRunnable);
-                        mScrollRunnable.run();
-                        mRecyclerView.invalidate();
-                    }
-                    break;
-                }
-                case MotionEvent.ACTION_CANCEL:
-                    if (mVelocityTracker != null) {
-                        mVelocityTracker.clear();
-                    }
-                    // fall through
-                case MotionEvent.ACTION_UP:
-                    select(null, ACTION_STATE_IDLE);
-                    mActivePointerId = ACTIVE_POINTER_ID_NONE;
-                    break;
-                case MotionEvent.ACTION_POINTER_UP: {
-                    int pointerIndex = event.getActionIndex();
-                    int pointerId = event.getPointerId(pointerIndex);
-                    if (pointerId == mActivePointerId) {
-                        // This was our active pointer going up. Choose a new
-                        // active pointer and adjust accordingly.
-                        int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-                        mActivePointerId = event.getPointerId(newPointerIndex);
-                        updateDxDy(event, mSelectedFlags, pointerIndex);
-                    }
-                    break;
-                }
-            }
-        }
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-            if (!disallowIntercept) {
-                return;
-            }
-            select(null, ACTION_STATE_IDLE);
-        }
-    };
+    }
 
     /**
      * Returns the animation type or 0 if cannot be found.
@@ -1007,7 +896,119 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         mDx = mDy = 0f;
         mActivePointerId = motionEvent.getPointerId(0);
         select(vh, ACTION_STATE_SWIPE);
-    }
+    }    private final OnItemTouchListener mOnItemTouchListener = new OnItemTouchListener() {
+        @Override
+        public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView,
+                                             @NonNull MotionEvent event) {
+            mGestureDetector.onTouchEvent(event);
+            if (DEBUG) {
+                Log.d(TAG, "intercept: x:" + event.getX() + ",y:" + event.getY() + ", " + event);
+            }
+            int action = event.getActionMasked();
+            if (action == MotionEvent.ACTION_DOWN) {
+                mActivePointerId = event.getPointerId(0);
+                mInitialTouchX = event.getX();
+                mInitialTouchY = event.getY();
+                obtainVelocityTracker();
+                if (mSelected == null) {
+                    RecoverAnimation animation = findAnimation(event);
+                    if (animation != null) {
+                        mInitialTouchX -= animation.mX;
+                        mInitialTouchY -= animation.mY;
+                        endRecoverAnimation(animation.mViewHolder, true);
+                        if (mPendingCleanup.remove(animation.mViewHolder.itemView)) {
+                            mCallback.clearView(mRecyclerView, animation.mViewHolder);
+                        }
+                        select(animation.mViewHolder, animation.mActionState);
+                        updateDxDy(event, mSelectedFlags, 0);
+                    }
+                }
+            } else if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+                mActivePointerId = ACTIVE_POINTER_ID_NONE;
+                select(null, ACTION_STATE_IDLE);
+            } else if (mActivePointerId != ACTIVE_POINTER_ID_NONE) {
+                // in a non scroll orientation, if distance change is above threshold, we
+                // can select the item
+                int index = event.findPointerIndex(mActivePointerId);
+                if (DEBUG) {
+                    Log.d(TAG, "pointer index " + index);
+                }
+                if (index >= 0) {
+                    checkSelectForSwipe(action, event, index);
+                }
+            }
+            if (mVelocityTracker != null) {
+                mVelocityTracker.addMovement(event);
+            }
+            return mSelected != null;
+        }
+
+        @Override
+        public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent event) {
+            mGestureDetector.onTouchEvent(event);
+            if (DEBUG) {
+                Log.d(TAG,
+                        "on touch: x:" + mInitialTouchX + ",y:" + mInitialTouchY + ", :" + event);
+            }
+            if (mVelocityTracker != null) {
+                mVelocityTracker.addMovement(event);
+            }
+            if (mActivePointerId == ACTIVE_POINTER_ID_NONE) {
+                return;
+            }
+            int action = event.getActionMasked();
+            int activePointerIndex = event.findPointerIndex(mActivePointerId);
+            if (activePointerIndex >= 0) {
+                checkSelectForSwipe(action, event, activePointerIndex);
+            }
+            ViewHolder viewHolder = mSelected;
+            if (viewHolder == null) {
+                return;
+            }
+            switch (action) {
+                case MotionEvent.ACTION_MOVE: {
+                    // Find the index of the active pointer and fetch its position
+                    if (activePointerIndex >= 0) {
+                        updateDxDy(event, mSelectedFlags, activePointerIndex);
+                        moveIfNecessary(viewHolder);
+                        mRecyclerView.removeCallbacks(mScrollRunnable);
+                        mScrollRunnable.run();
+                        mRecyclerView.invalidate();
+                    }
+                    break;
+                }
+                case MotionEvent.ACTION_CANCEL:
+                    if (mVelocityTracker != null) {
+                        mVelocityTracker.clear();
+                    }
+                    // fall through
+                case MotionEvent.ACTION_UP:
+                    select(null, ACTION_STATE_IDLE);
+                    mActivePointerId = ACTIVE_POINTER_ID_NONE;
+                    break;
+                case MotionEvent.ACTION_POINTER_UP: {
+                    int pointerIndex = event.getActionIndex();
+                    int pointerId = event.getPointerId(pointerIndex);
+                    if (pointerId == mActivePointerId) {
+                        // This was our active pointer going up. Choose a new
+                        // active pointer and adjust accordingly.
+                        int newPointerIndex = pointerIndex == 0 ? 1 : 0;
+                        mActivePointerId = event.getPointerId(newPointerIndex);
+                        updateDxDy(event, mSelectedFlags, pointerIndex);
+                    }
+                    break;
+                }
+            }
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+            if (!disallowIntercept) {
+                return;
+            }
+            select(null, ACTION_STATE_IDLE);
+        }
+    };
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     View findChildView(MotionEvent event) {
@@ -2067,7 +2068,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          */
         public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                                     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
-                                    ViewHolder viewHolder,
+                                            ViewHolder viewHolder,
                                     float dX, float dY, int actionState, boolean isCurrentlyActive) {
             ItemTouchUIUtilImpl.INSTANCE.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY,
                     actionState, isCurrentlyActive);

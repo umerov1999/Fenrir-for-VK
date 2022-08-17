@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
@@ -417,12 +418,13 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<WallPostPresenter> {
         return object : IPresenterFactory<WallPostPresenter> {
             override fun create(): WallPostPresenter {
-                val wrapper: ParcelableOwnerWrapper? = requireArguments().getParcelable(Extra.OWNER)
+                val wrapper: ParcelableOwnerWrapper? =
+                    requireArguments().getParcelableCompat(Extra.OWNER)
                 return WallPostPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     requireArguments().getInt(Extra.POST_ID),
                     requireArguments().getInt(Extra.OWNER_ID),
-                    requireArguments().getParcelable(Extra.POST),
+                    requireArguments().getParcelableCompat(Extra.POST),
                     wrapper?.get(),
                     requireActivity(),
                     saveInstanceState

@@ -352,6 +352,9 @@ class PreferencesAdapter @VisibleForTesting constructor(
             if (scrollPosition != 0 || scrollOffset != 0) {
                 val layoutManager = preferenceView.layoutManager as LinearLayoutManager?
                 layoutManager?.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+            } else {
+                val layoutManager = preferenceView.layoutManager as LinearLayoutManager?
+                layoutManager?.scrollToPositionWithOffset(0, 0)
             }
         }
         preferenceView.addOnScrollListener(scrollListener)

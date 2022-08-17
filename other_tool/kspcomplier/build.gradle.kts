@@ -14,7 +14,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("androidx.annotation:annotation:1.4.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.0-RC")
 
     implementation("com.google.devtools.ksp:symbol-processing-api:1.7.0-1.0.6")
 }

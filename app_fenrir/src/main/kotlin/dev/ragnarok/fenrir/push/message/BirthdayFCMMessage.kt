@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.settings.theme.ThemesController.toastColor
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import kotlinx.serialization.SerialName
@@ -59,7 +60,13 @@ class BirthdayFCMMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager?.notify(user_id.toString(), NotificationHelper.NOTIFICATION_BIRTHDAY, notification)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager?.notify(
+                user_id.toString(),
+                NotificationHelper.NOTIFICATION_BIRTHDAY,
+                notification
+            )
+        }
     }
 
     @Serializable

@@ -7,6 +7,8 @@ import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.readOwner
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.writeOwner
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Comment : AbsModel, Identificable {
     val commented: Commented
@@ -102,8 +104,8 @@ class Comment : AbsModel, Identificable {
         isUserLikes = `in`.readByte().toInt() != 0
         isCanLike = `in`.readByte().toInt() != 0
         isCanEdit = `in`.readByte().toInt() != 0
-        attachments = `in`.readParcelable(Attachments::class.java.classLoader)
-        commented = `in`.readParcelable(Commented::class.java.classLoader)!!
+        attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
+        commented = `in`.readTypedObjectCompat(Commented.CREATOR)!!
         author = readOwner(`in`)
         dbid = `in`.readInt()
         isDeleted = `in`.readByte().toInt() != 0
@@ -230,8 +232,8 @@ class Comment : AbsModel, Identificable {
         parcel.writeByte((if (isUserLikes) 1 else 0).toByte())
         parcel.writeByte((if (isCanLike) 1 else 0).toByte())
         parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
-        parcel.writeParcelable(attachments, i)
-        parcel.writeParcelable(commented, i)
+        parcel.writeTypedObjectCompat(attachments, i)
+        parcel.writeTypedObjectCompat(commented, i)
         writeOwner(parcel, i, author)
         parcel.writeInt(dbid)
         parcel.writeByte((if (isDeleted) 1 else 0).toByte())

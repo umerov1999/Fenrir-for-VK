@@ -22,8 +22,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yalantis.ucrop.UCrop
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.activity.DualTabPhotoActivity.Companion.createIntent
@@ -35,7 +34,6 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.UserWallPresenter
 import dev.ragnarok.fenrir.mvp.view.IUserWallView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
 import dev.ragnarok.fenrir.picasso.transforms.MonochromeTransformation
@@ -80,7 +78,7 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val photos: ArrayList<LocalPhoto>? =
-                    result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.PHOTOS)
                 if (photos != null && photos.nonNullNoEmpty()) {
                     var to_up = photos[0].getFullImageUri() ?: return@registerForActivityResult
                     if (to_up.path?.let { File(it).isFile } == true) {
@@ -101,9 +99,9 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.data != null && result.resultCode == Activity.RESULT_OK) {
                 val localPhotos: ArrayList<LocalPhoto>? =
-                    result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
+                    result.data?.getParcelableArrayListExtraCompat(Extra.PHOTOS)
                 val file = result.data?.getStringExtra(Extra.PATH)
-                val video: LocalVideo? = result.data?.getParcelableExtra(Extra.VIDEO)
+                val video: LocalVideo? = result.data?.getParcelableExtraCompat(Extra.VIDEO)
                 lazyPresenter {
                     firePhotosSelected(localPhotos, file, video)
                 }
@@ -408,7 +406,7 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val ownerId = requireArguments().getInt(Extra.OWNER_ID)
                 val wrapper: ParcelableOwnerWrapper? =
-                    requireArguments().getParcelable(Extra.OWNER)
+                    requireArguments().getParcelableCompat(Extra.OWNER)
                 return UserWallPresenter(
                     accountId,
                     ownerId,

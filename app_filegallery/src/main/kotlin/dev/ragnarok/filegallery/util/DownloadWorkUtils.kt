@@ -281,20 +281,26 @@ object DownloadWorkUtils {
 
     open class DefaultDownloadWorker(val context: Context, workerParams: WorkerParameters) :
         Worker(context, workerParams) {
+        @SuppressLint("MissingPermission")
         protected fun show_notification(
             notification: NotificationCompat.Builder,
             id: Int,
             cancel_id: Int?
         ) {
             if (cancel_id != null) {
-                mNotifyManager.cancel(getId().toString(), cancel_id)
+                if (AppPerms.hasNotificationPermissionSimple(context)) {
+                    mNotifyManager.cancel(getId().toString(), cancel_id)
+                }
             }
             if (id == NotificationHelper.NOTIFICATION_DOWNLOAD) {
                 createGroupNotification()
             }
-            mNotifyManager.notify(getId().toString(), id, notification.build())
+            if (AppPerms.hasNotificationPermissionSimple(context)) {
+                mNotifyManager.notify(getId().toString(), id, notification.build())
+            }
         }
 
+        @SuppressLint("MissingPermission")
         private fun createGroupNotification() {
             if (!Utils.hasNougat()) {
                 return
@@ -308,13 +314,15 @@ object DownloadWorkUtils {
                     return
                 }
             }
-            mNotifyManager.notify(
-                NotificationHelper.NOTIFICATION_DOWNLOADING_GROUP,
-                NotificationCompat.Builder(context, AppNotificationChannels.DOWNLOAD_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.save)
-                    .setCategory(NotificationCompat.CATEGORY_EVENT)
-                    .setGroup("DOWNLOADING_OPERATION").setGroupSummary(true).build()
-            )
+            if (AppPerms.hasNotificationPermissionSimple(context)) {
+                mNotifyManager.notify(
+                    NotificationHelper.NOTIFICATION_DOWNLOADING_GROUP,
+                    NotificationCompat.Builder(context, AppNotificationChannels.DOWNLOAD_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.save)
+                        .setCategory(NotificationCompat.CATEGORY_EVENT)
+                        .setGroup("DOWNLOADING_OPERATION").setGroupSummary(true).build()
+                )
+            }
         }
 
         @Suppress("DEPRECATION")

@@ -9,6 +9,8 @@ abstract class AbsStepsHost<T : AbsState>(var state: T) {
     var currentStep = 0
     abstract val stepsCount: Int
 
+    abstract fun readParcelState(saveInstanceState: Bundle, key: String): T?
+
     @StringRes
     abstract fun getStepTitle(index: Int): Int
     abstract fun canMoveNext(index: Int, state: T): Boolean
@@ -28,7 +30,7 @@ abstract class AbsStepsHost<T : AbsState>(var state: T) {
 
     fun restoreState(saveInstanceState: Bundle) {
         currentStep = saveInstanceState.getInt("host_current")
-        saveInstanceState.getParcelable<T>("host_state")?.let {
+        readParcelState(saveInstanceState, "host_state")?.let {
             state = it
         }
     }

@@ -7,8 +7,10 @@ import dev.ragnarok.fenrir.api.model.Identificable
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.picasso.Content_Local
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.buildUriForPicasso
+import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.util.ParcelUtils.readObjectLong
 import dev.ragnarok.fenrir.util.ParcelUtils.writeObjectLong
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -56,8 +58,8 @@ open class Upload : AbsModel, Identificable {
     internal constructor(`in`: Parcel) : super(`in`) {
         accountId = `in`.readInt()
         id = `in`.readInt()
-        fileUri = `in`.readParcelable(Uri::class.java.classLoader)
-        destination = `in`.readParcelable(UploadDestination::class.java.classLoader)!!
+        fileUri = `in`.readTypedObjectCompat(Uri.CREATOR)
+        destination = `in`.readTypedObjectCompat(UploadDestination.CREATOR)!!
         size = `in`.readInt()
         status = `in`.readInt()
         progress = `in`.readInt()
@@ -106,8 +108,8 @@ open class Upload : AbsModel, Identificable {
         super.writeToParcel(parcel, i)
         parcel.writeInt(accountId)
         parcel.writeInt(id)
-        parcel.writeParcelable(fileUri, i)
-        parcel.writeParcelable(destination, i)
+        parcel.writeTypedObjectCompat(fileUri, i)
+        parcel.writeTypedObjectCompat(destination, i)
         parcel.writeInt(size)
         parcel.writeInt(status)
         parcel.writeInt(progress)

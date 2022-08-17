@@ -6,6 +6,8 @@ import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.ParcelableModelWrapper.Companion.readModel
 import dev.ragnarok.fenrir.model.ParcelableModelWrapper.Companion.writeModel
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class CommentFeedback : Feedback {
     var commentOf: AbsModel? = null
@@ -16,13 +18,13 @@ class CommentFeedback : Feedback {
     constructor(@FeedbackType type: Int) : super(type)
     internal constructor(`in`: Parcel) : super(`in`) {
         commentOf = readModel(`in`)
-        comment = `in`.readParcelable(Comment::class.java.classLoader)
+        comment = `in`.readTypedObjectCompat(Comment.CREATOR)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
         writeModel(dest, flags, commentOf)
-        dest.writeParcelable(comment, flags)
+        dest.writeTypedObjectCompat(comment, flags)
     }
 
     override fun describeContents(): Int {

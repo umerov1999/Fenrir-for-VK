@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.util.SparseIntArray
 import android.view.*
 import android.widget.RelativeLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -346,6 +347,11 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         }
 
         addMenuProvider(this, this)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                presenter?.close()
+            }
+        })
     }
 
     override fun openPlace(place: Place) {
@@ -363,10 +369,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                 SwipebleActivity.start(this, intent)
             }
         }
-    }
-
-    override fun onBackPressed() {
-        presenter?.close()
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -443,7 +445,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                         val index = requireArguments().getInt(Extra.INDEX)
                         val needUpdate = requireArguments().getBoolean(EXTRA_NEED_UPDATE)
                         val photos: ArrayList<Photo> =
-                            requireArguments().getParcelableArrayList(EXTRA_PHOTOS)!!
+                            requireArguments().getParcelableArrayListCompat(EXTRA_PHOTOS)!!
                         return SimplePhotoPresenter(
                             photos,
                             index,
@@ -459,7 +461,8 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                         val albumId = requireArguments().getInt(Extra.ALBUM_ID)
                         val readOnly = requireArguments().getBoolean(Extra.READONLY)
                         val invert = requireArguments().getBoolean(Extra.INVERT)
-                        val source: TmpSource = requireArguments().getParcelable(Extra.SOURCE)!!
+                        val source: TmpSource =
+                            requireArguments().getParcelableCompat(Extra.SOURCE)!!
                         return PhotoAlbumPagerPresenter(
                             indexx,
                             aid,
@@ -485,7 +488,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                                 requireArguments().getLong(
                                     EXTRA_PHOTOS
                                 ), Photo.NativeCreator, ParcelFlags.MUTABLE_LIST
-                            )!! else requireArguments().getParcelableArrayList(EXTRA_PHOTOS)!!
+                            )!! else requireArguments().getParcelableArrayListCompat(EXTRA_PHOTOS)!!
                         if (FenrirNative.isNativeLoaded && Settings.get()
                                 .other().isNative_parcel_photo
                         ) {
@@ -506,7 +509,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                     Place.FAVE_PHOTOS_GALLERY -> {
                         val findex = requireArguments().getInt(Extra.INDEX)
                         val favePhotos: ArrayList<Photo> =
-                            requireArguments().getParcelableArrayList(EXTRA_PHOTOS)!!
+                            requireArguments().getParcelableArrayListCompat(EXTRA_PHOTOS)!!
                         return FavePhotoPagerPresenter(
                             favePhotos,
                             findex,
@@ -519,7 +522,8 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                         if (!FenrirNative.isNativeLoaded || !Settings.get()
                                 .other().isNative_parcel_photo
                         ) {
-                            val source: TmpSource = requireArguments().getParcelable(Extra.SOURCE)!!
+                            val source: TmpSource =
+                                requireArguments().getParcelableCompat(Extra.SOURCE)!!
                             return TmpGalleryPagerPresenter(
                                 aid,
                                 source,

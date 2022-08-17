@@ -1,11 +1,15 @@
 package dev.ragnarok.fenrir.view.steppers.impl
 
+import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Privacy
+import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.view.steppers.base.AbsStepsHost
 import dev.ragnarok.fenrir.view.steppers.impl.CreatePhotoAlbumStepsHost.PhotoAlbumState
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState()) {
     var isAdditionalOptionsEnable = false
@@ -13,6 +17,10 @@ class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState(
         private set
     override val stepsCount: Int
         get() = 4
+
+    override fun readParcelState(saveInstanceState: Bundle, key: String): PhotoAlbumState? {
+        return saveInstanceState.getParcelableCompat(key)
+    }
 
     override fun getStepTitle(index: Int): Int {
         return when (index) {
@@ -63,8 +71,8 @@ class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState(
         constructor(p: Parcel) : super() {
             title = p.readString()
             description = p.readString()
-            privacyView = p.readParcelable(Privacy::class.java.classLoader)
-            privacyComment = p.readParcelable(Privacy::class.java.classLoader)
+            privacyView = p.readTypedObjectCompat(Privacy.CREATOR)
+            privacyComment = p.readTypedObjectCompat(Privacy.CREATOR)
             isUploadByAdminsOnly = p.readByte().toInt() != 0
             isCommentsDisabled = p.readByte().toInt() != 0
         }
@@ -77,8 +85,8 @@ class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState(
         override fun writeToParcel(dest: Parcel, flags: Int) {
             dest.writeString(title)
             dest.writeString(description)
-            dest.writeParcelable(privacyView, flags)
-            dest.writeParcelable(privacyComment, flags)
+            dest.writeTypedObjectCompat(privacyView, flags)
+            dest.writeTypedObjectCompat(privacyComment, flags)
             dest.writeByte((if (isUploadByAdminsOnly) 1 else 0).toByte())
             dest.writeByte((if (isCommentsDisabled) 1 else 0).toByte())
         }

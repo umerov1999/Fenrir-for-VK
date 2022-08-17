@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.adapter.ArtistSearchAdapter
 import dev.ragnarok.fenrir.api.model.VKApiArtist
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.AudioArtist
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.ArtistSearchPresenter
@@ -36,7 +37,7 @@ class ArtistSearchFragment :
             override fun create(): ArtistSearchPresenter {
                 return ArtistSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     saveInstanceState
                 )
             }

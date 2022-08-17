@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.LocalPhotosAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.model.LocalPhoto
@@ -147,7 +148,7 @@ class LocalPhotosFragment : BaseMvpFragment<LocalPhotosPresenter, ILocalPhotosVi
             override fun create(): LocalPhotosPresenter {
                 val maxSelectionItemCount1 =
                     requireArguments().getInt(EXTRA_MAX_SELECTION_COUNT, 10)
-                val album: LocalImageAlbum? = requireArguments().getParcelable(Extra.ALBUM)
+                val album: LocalImageAlbum? = requireArguments().getParcelableCompat(Extra.ALBUM)
                 return LocalPhotosPresenter(album, maxSelectionItemCount1, saveInstanceState)
             }
         }

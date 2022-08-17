@@ -87,6 +87,10 @@ object Utils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     }
 
+    fun hasTiramisu(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    }
+
     fun firstNonEmptyString(vararg array: String?): String? {
         for (s in array) {
             if (!s.isNullOrEmpty()) {
@@ -96,9 +100,13 @@ object Utils {
         return null
     }
 
+    @Suppress("deprecation")
     fun getAppVersionName(context: Context): String? {
         return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = if (hasTiramisu()) context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(0)
+            ) else context.packageManager.getPackageInfo(context.packageName, 0)
             packageInfo.versionName
         } catch (ignored: PackageManager.NameNotFoundException) {
             null

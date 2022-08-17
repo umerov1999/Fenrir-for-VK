@@ -10,6 +10,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.MenuAdapter
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.Text
 import dev.ragnarok.fenrir.model.menu.Item
@@ -25,7 +26,7 @@ class PostShareDialog : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-        mPost = requireArguments().getParcelable(Extra.POST)
+        mPost = requireArguments().getParcelableCompat(Extra.POST)
     }
 
     override fun onDestroy() {
@@ -130,7 +131,7 @@ class PostShareDialog : DialogFragment() {
         }
 
         fun extractPost(data: Bundle): Post? {
-            return data.getParcelable(Extra.POST)
+            return data.getParcelableCompat(Extra.POST)
         }
 
         fun extractAccountId(data: Bundle): Int {

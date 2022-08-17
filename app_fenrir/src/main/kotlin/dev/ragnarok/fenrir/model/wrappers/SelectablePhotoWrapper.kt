@@ -4,6 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.model.ISelectable
 import dev.ragnarok.fenrir.model.Photo
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class SelectablePhotoWrapper : Parcelable, Comparable<SelectablePhotoWrapper>, ISelectable {
     val photo: Photo
@@ -18,7 +20,7 @@ class SelectablePhotoWrapper : Parcelable, Comparable<SelectablePhotoWrapper>, I
     }
 
     internal constructor(`in`: Parcel) {
-        photo = `in`.readParcelable(Photo::class.java.classLoader)!!
+        photo = `in`.readTypedObjectCompat(Photo.CREATOR)!!
         isSelected = `in`.readByte().toInt() != 0
         index = `in`.readInt()
         current = `in`.readByte().toInt() != 0
@@ -31,7 +33,7 @@ class SelectablePhotoWrapper : Parcelable, Comparable<SelectablePhotoWrapper>, I
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(photo, flags)
+        dest.writeTypedObjectCompat(photo, flags)
         dest.writeByte((if (isSelected) 1 else 0).toByte())
         dest.writeInt(index)
         dest.writeByte((if (current) 1 else 0).toByte())

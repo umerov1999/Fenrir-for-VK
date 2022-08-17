@@ -4,6 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Post : AbsModel, Cloneable {
     var dbid = 0
@@ -72,9 +74,8 @@ class Post : AbsModel, Cloneable {
         dbid = `in`.readInt()
         vkid = `in`.readInt()
         ownerId = `in`.readInt()
-        author =
-            `in`.readParcelable(if (authorId > 0) User::class.java.classLoader else Community::class.java.classLoader)
         authorId = `in`.readInt()
+        author = Owner.readOwnerFromParcel(authorId, `in`)
         date = `in`.readLong()
         text = `in`.readString()
         replyOwnerId = `in`.readInt()
@@ -88,15 +89,15 @@ class Post : AbsModel, Cloneable {
         isCanRepost = `in`.readByte().toInt() != 0
         isUserReposted = `in`.readByte().toInt() != 0
         postType = `in`.readInt()
-        attachments = `in`.readParcelable(Attachments::class.java.classLoader)
+        attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         signerId = `in`.readInt()
         creatorId = `in`.readInt()
-        creator = `in`.readParcelable(User::class.java.classLoader)
+        creator = `in`.readTypedObjectCompat(User.CREATOR)
         isCanPin = `in`.readByte().toInt() != 0
         isPinned = `in`.readByte().toInt() != 0
         copyHierarchy = `in`.createTypedArrayList(CREATOR)
         isDeleted = `in`.readByte().toInt() != 0
-        source = `in`.readParcelable(PostSource::class.java.classLoader)
+        source = `in`.readTypedObjectCompat(PostSource.CREATOR)
         viewCount = `in`.readInt()
         isCanEdit = `in`.readByte().toInt() != 0
         isFavorite = `in`.readByte().toInt() != 0
@@ -273,8 +274,8 @@ class Post : AbsModel, Cloneable {
         parcel.writeInt(dbid)
         parcel.writeInt(vkid)
         parcel.writeInt(ownerId)
-        parcel.writeParcelable(author, i)
         parcel.writeInt(authorId)
+        parcel.writeTypedObjectCompat(author, i)
         parcel.writeLong(date)
         parcel.writeString(text)
         parcel.writeInt(replyOwnerId)
@@ -288,15 +289,15 @@ class Post : AbsModel, Cloneable {
         parcel.writeByte((if (isCanRepost) 1 else 0).toByte())
         parcel.writeByte((if (isUserReposted) 1 else 0).toByte())
         parcel.writeInt(postType)
-        parcel.writeParcelable(attachments, i)
+        parcel.writeTypedObjectCompat(attachments, i)
         parcel.writeInt(signerId)
         parcel.writeInt(creatorId)
-        parcel.writeParcelable(creator, i)
+        parcel.writeTypedObjectCompat(creator, i)
         parcel.writeByte((if (isCanPin) 1 else 0).toByte())
         parcel.writeByte((if (isPinned) 1 else 0).toByte())
         parcel.writeTypedList(copyHierarchy)
         parcel.writeByte((if (isDeleted) 1 else 0).toByte())
-        parcel.writeParcelable(source, i)
+        parcel.writeTypedObjectCompat(source, i)
         parcel.writeInt(viewCount)
         parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
         parcel.writeByte((if (isFavorite) 1 else 0).toByte())

@@ -12,6 +12,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.crypt.ExchangeMessage
 import dev.ragnarok.fenrir.crypt.KeyExchangeService
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
@@ -36,9 +37,9 @@ class KeyExchangeCommitActivity : AppCompatActivity() {
         setContentView(R.layout.activity_key_exchange_commit)
         val accountId = (intent.extras ?: return).getInt(Extra.ACCOUNT_ID)
         val peerId = (intent.extras ?: return).getInt(Extra.PEER_ID)
-        val user: User = intent.getParcelableExtra(Extra.OWNER) ?: return
+        val user: User = intent.getParcelableExtraCompat(Extra.OWNER) ?: return
         val messageId = (intent.extras ?: return).getInt(Extra.MESSAGE_ID)
-        val message: ExchangeMessage = intent.getParcelableExtra(Extra.MESSAGE) ?: return
+        val message: ExchangeMessage = intent.getParcelableExtraCompat(Extra.MESSAGE) ?: return
         val avatar = findViewById<ImageView>(R.id.avatar)
         ViewUtils.displayAvatar(
             avatar,

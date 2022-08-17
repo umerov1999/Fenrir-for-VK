@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.fragment.search.criteria
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.fragment.search.options.*
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 open class BaseSearchCriteria : Parcelable, Cloneable {
     var query: String?
@@ -20,17 +22,16 @@ open class BaseSearchCriteria : Parcelable, Cloneable {
         val optionsSize = `in`.readInt()
         options = ArrayList(optionsSize)
         for (i in 0 until optionsSize) {
-            val classLoader: ClassLoader? = when (`in`.readInt()) {
-                BaseOption.DATABASE -> DatabaseOption::class.java.classLoader
-                BaseOption.SIMPLE_BOOLEAN -> SimpleBooleanOption::class.java.classLoader
-                BaseOption.SIMPLE_TEXT -> SimpleTextOption::class.java.classLoader
-                BaseOption.SIMPLE_NUMBER -> SimpleNumberOption::class.java.classLoader
-                BaseOption.SPINNER -> SpinnerOption::class.java.classLoader
-                BaseOption.GPS -> SimpleGPSOption::class.java.classLoader
-                BaseOption.DATE_TIME -> SimpleDateOption::class.java.classLoader
+            when (`in`.readInt()) {
+                BaseOption.DATABASE -> `in`.readTypedObjectCompat(DatabaseOption.CREATOR)
+                BaseOption.SIMPLE_BOOLEAN -> `in`.readTypedObjectCompat(SimpleBooleanOption.CREATOR)
+                BaseOption.SIMPLE_TEXT -> `in`.readTypedObjectCompat(SimpleTextOption.CREATOR)
+                BaseOption.SIMPLE_NUMBER -> `in`.readTypedObjectCompat(SimpleNumberOption.CREATOR)
+                BaseOption.SPINNER -> `in`.readTypedObjectCompat(SpinnerOption.CREATOR)
+                BaseOption.GPS -> `in`.readTypedObjectCompat(SimpleGPSOption.CREATOR)
+                BaseOption.DATE_TIME -> `in`.readTypedObjectCompat(SimpleDateOption.CREATOR)
                 else -> throw IllegalArgumentException("Unknown option type !!!")
-            }
-            `in`.readParcelable<BaseOption>(classLoader)?.let { options.add(it) }
+            }?.let { options.add(it) }
         }
     }
 
@@ -79,7 +80,7 @@ open class BaseSearchCriteria : Parcelable, Cloneable {
         dest.writeInt(options.size)
         for (option in options) {
             dest.writeInt(option.optionType)
-            dest.writeParcelable(option, flags)
+            dest.writeTypedObjectCompat(option, flags)
         }
     }
 

@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.RelativeLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -201,6 +202,11 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         } else {
             mPreviewsRecycler?.visibility = View.GONE
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                presenter?.close()
+            }
+        })
     }
 
     override fun openPlace(place: Place) {
@@ -217,10 +223,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                 startActivity(intent)
             }
         }
-    }
-
-    override fun onBackPressed() {
-        presenter?.close()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPostSource
 import dev.ragnarok.fenrir.db.model.PostUpdate
 import dev.ragnarok.fenrir.domain.IFaveInteractor
@@ -15,12 +15,9 @@ import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IWallPostView
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 
@@ -441,9 +438,10 @@ class WallPostPresenter(
     }
 
     init {
-        if (savedInstanceState?.getParcelable<ParcelableOwnerWrapper>(SAVE_OWNER) != null) {
-            val wrapper: ParcelableOwnerWrapper = savedInstanceState.getParcelable(SAVE_OWNER)!!
-            this.post = savedInstanceState.getParcelable(SAVE_POST)
+        if (savedInstanceState?.getParcelableCompat<ParcelableOwnerWrapper>(SAVE_OWNER) != null) {
+            val wrapper: ParcelableOwnerWrapper =
+                savedInstanceState.getParcelableCompat(SAVE_OWNER)!!
+            this.post = savedInstanceState.getParcelableCompat(SAVE_POST)
             this.owner = wrapper.get()
         } else {
             this.post = post

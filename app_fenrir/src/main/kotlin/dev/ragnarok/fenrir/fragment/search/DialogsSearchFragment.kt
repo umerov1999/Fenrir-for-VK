@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.adapter.DialogPreviewAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.DialogsSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.DialogsSearchPresenter
@@ -20,7 +21,7 @@ class DialogsSearchFragment :
             override fun create(): DialogsSearchPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val criteria: DialogsSearchCriteria? =
-                    requireArguments().getParcelable(Extra.CRITERIA)
+                    requireArguments().getParcelableCompat(Extra.CRITERIA)
                 return DialogsSearchPresenter(accountId, criteria, saveInstanceState)
             }
         }

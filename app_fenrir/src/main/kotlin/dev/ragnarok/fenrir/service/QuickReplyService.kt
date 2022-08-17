@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import java.io.File
@@ -30,10 +31,12 @@ class QuickReplyService : android.app.IntentService(QuickReplyService::class.jav
             val msgId = (intent.extras ?: return).getInt(Extra.MESSAGE_ID)
             messages.markAsRead(accountId, peerId, msgId).blockingSubscribe(dummy(), ignore())
         } else if (intent != null && ACTION_DELETE_FILE == intent.action && intent.extras != null) {
-            NotificationManagerCompat.from(this).cancel(
-                (intent.extras ?: return).getString(Extra.TYPE), (intent.extras ?: return)
-                    .getInt(Extra.ID)
-            )
+            if (AppPerms.hasNotificationPermissionSimple(this)) {
+                NotificationManagerCompat.from(this).cancel(
+                    (intent.extras ?: return).getString(Extra.TYPE), (intent.extras ?: return)
+                        .getInt(Extra.ID)
+                )
+            }
             File((intent.extras ?: return).getString(Extra.DOC) ?: return).delete()
         }
     }

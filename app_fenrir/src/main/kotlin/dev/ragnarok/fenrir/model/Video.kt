@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Video : AbsModel, ParcelNative.ParcelableNative {
     var id = 0
@@ -114,8 +116,8 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         platform = `in`.readString()
         isRepeat = `in`.readByte().toInt() != 0
         duration = `in`.readInt()
-        privacyView = `in`.readParcelable(SimplePrivacy::class.java.classLoader)
-        privacyComment = `in`.readParcelable(SimplePrivacy::class.java.classLoader)
+        privacyView = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
+        privacyComment = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
         isCanEdit = `in`.readByte().toInt() != 0
         isCanAdd = `in`.readByte().toInt() != 0
         private = `in`.readByte().toInt() != 0
@@ -207,8 +209,8 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         parcel.writeString(platform)
         parcel.writeByte((if (isRepeat) 1 else 0).toByte())
         parcel.writeInt(duration)
-        parcel.writeParcelable(privacyView, i)
-        parcel.writeParcelable(privacyComment, i)
+        parcel.writeTypedObjectCompat(privacyView, i)
+        parcel.writeTypedObjectCompat(privacyComment, i)
         parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
         parcel.writeByte((if (isCanAdd) 1 else 0).toByte())
         parcel.writeByte((if (private) 1 else 0).toByte())

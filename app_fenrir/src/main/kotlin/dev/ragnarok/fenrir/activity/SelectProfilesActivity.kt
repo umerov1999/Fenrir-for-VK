@@ -10,6 +10,8 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.SelectedProfilesAdapter
 import dev.ragnarok.fenrir.fragment.fave.FaveTabsFragment
 import dev.ragnarok.fenrir.fragment.friends.FriendsTabsFragment
+import dev.ragnarok.fenrir.getParcelableArrayListCompat
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.SelectProfileCriteria
 import dev.ragnarok.fenrir.place.Place
@@ -38,9 +40,9 @@ class SelectProfilesActivity : MainActivity(), SelectedProfilesAdapter.ActionLis
         ) R.layout.activity_main_with_profiles_selection_side else R.layout.activity_main_with_profiles_selection
         super.onCreate(savedInstanceState)
         mLastBackPressedTime = Long.MAX_VALUE - DOUBLE_BACK_PRESSED_TIMEOUT
-        acceptableCriteria = intent.getParcelableExtra(Extra.CRITERIA)
+        acceptableCriteria = intent.getParcelableExtraCompat(Extra.CRITERIA)
         if (savedInstanceState != null) {
-            mSelectedOwners = savedInstanceState.getParcelableArrayList(SAVE_SELECTED_OWNERS)
+            mSelectedOwners = savedInstanceState.getParcelableArrayListCompat(SAVE_SELECTED_OWNERS)
         }
         if (mSelectedOwners == null) {
             mSelectedOwners = ArrayList()

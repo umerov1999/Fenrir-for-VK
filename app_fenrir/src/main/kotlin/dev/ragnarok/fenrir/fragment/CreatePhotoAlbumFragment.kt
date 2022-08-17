@@ -13,6 +13,7 @@ import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.hideSoftKeyboard
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.model.PhotoAlbum
 import dev.ragnarok.fenrir.model.PhotoAlbumEditor
@@ -135,8 +136,9 @@ class CreatePhotoAlbumFragment : BaseMvpFragment<EditPhotoAlbumPresenter, IEditP
             override fun create(): EditPhotoAlbumPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 if (requireArguments().containsKey(Extra.ALBUM)) {
-                    val abum: PhotoAlbum = requireArguments().getParcelable(Extra.ALBUM)!!
-                    val editor: PhotoAlbumEditor = requireArguments().getParcelable(EXTRA_EDITOR)!!
+                    val abum: PhotoAlbum = requireArguments().getParcelableCompat(Extra.ALBUM)!!
+                    val editor: PhotoAlbumEditor =
+                        requireArguments().getParcelableCompat(EXTRA_EDITOR)!!
                     return EditPhotoAlbumPresenter(
                         accountId,
                         abum,

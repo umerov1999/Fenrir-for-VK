@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.PhotoSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.fragment.search.options.SimpleGPSOption
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.mvp.view.search.IPhotoSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
@@ -25,6 +26,10 @@ class PhotoSearchPresenter(
     private val photoInteractor: IPhotosInteractor = InteractorFactory.createPhotosInteractor()
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): PhotoSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     override fun isAtLast(startFrom: IntNextFrom): Boolean {
         return startFrom.offset == 0

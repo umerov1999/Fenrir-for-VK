@@ -19,6 +19,7 @@ import dev.ragnarok.fenrir.adapter.CommunityBannedAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.PeopleSearchCriteria
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.model.Banned
 import dev.ragnarok.fenrir.model.Owner
@@ -40,7 +41,7 @@ class CommunityBlacklistFragment :
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val users: ArrayList<Owner> = (result.data
-                ?: return@registerForActivityResult).getParcelableArrayListExtra(Extra.OWNERS)
+                ?: return@registerForActivityResult).getParcelableArrayListExtraCompat(Extra.OWNERS)
                 ?: return@registerForActivityResult
             lazyPresenter {
                 fireAddToBanUsersSelected(users)

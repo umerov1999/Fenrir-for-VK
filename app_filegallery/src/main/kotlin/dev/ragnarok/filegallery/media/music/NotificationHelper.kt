@@ -16,6 +16,7 @@ import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.activity.MainActivity
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.AppNotificationChannels
+import dev.ragnarok.filegallery.util.AppPerms
 import dev.ragnarok.filegallery.util.Utils
 
 class NotificationHelper(private val mService: MusicPlaybackService) {
@@ -123,7 +124,9 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
                 retreivePlaybackActions(ACTION_PLAY_PAUSE)
             )
         )
-        mNotificationManager.notify(FILE_GALLERY_MUSIC_SERVICE, mNotificationBuilder?.build())
+        if (AppPerms.hasNotificationPermissionSimple(mService)) {
+            mNotificationManager.notify(FILE_GALLERY_MUSIC_SERVICE, mNotificationBuilder?.build())
+        }
     }
 
     private fun getOpenIntent(context: Context): PendingIntent {

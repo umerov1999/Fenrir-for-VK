@@ -13,9 +13,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder
@@ -28,7 +26,6 @@ import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.NotReadMessagesPresenter
 import dev.ragnarok.fenrir.mvp.view.INotReadMessagesView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
@@ -250,7 +247,7 @@ class NotReadMessagesFragment :
                 val focusTo = requireArguments().getInt(Extra.FOCUS_TO)
                 val incoming = requireArguments().getInt(Extra.INCOMING)
                 val outgoing = requireArguments().getInt(Extra.OUTGOING)
-                val peer: Peer = requireArguments().getParcelable(Extra.PEER)!!
+                val peer: Peer = requireArguments().getParcelableCompat(Extra.PEER)!!
                 val unreadCount = requireArguments().getInt(Extra.COUNT)
                 return NotReadMessagesPresenter(
                     aid,

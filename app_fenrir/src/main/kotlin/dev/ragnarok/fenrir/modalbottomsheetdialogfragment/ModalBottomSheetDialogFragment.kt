@@ -19,6 +19,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.imageview.ShapeableImageView
 import com.squareup.picasso3.Callback
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.PolyTransformation
@@ -80,7 +81,8 @@ class ModalBottomSheetDialogFragment(listener: Listener) : BottomSheetDialogFrag
         val arguments = arguments
             ?: throw IllegalStateException("You need to create this via the builder")
 
-        val optionHolders = arguments.getParcelableArrayList<OptionHolder>(KEY_OPTIONS) ?: return
+        val optionHolders =
+            arguments.getParcelableArrayListCompat<OptionHolder>(KEY_OPTIONS) ?: return
         val excludes = arguments.getIntegerArrayList(KEY_EXCLUDES) ?: return
 
         val options = mutableListOf<Option>()

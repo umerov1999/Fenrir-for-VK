@@ -19,6 +19,8 @@ import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.AudioPlayerFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.ChatFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.NotReadMessagesFragment
+import dev.ragnarok.fenrir.getParcelableCompat
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.Peer
@@ -65,7 +67,7 @@ class NotReadMessagesActivity : NoMainActivity(), PlaceProvider, AppStyleable {
         }
         val action = intent.action
         if (ACTION_OPEN_PLACE == action) {
-            val place: Place? = intent.getParcelableExtra(Extra.PLACE)
+            val place: Place? = intent.getParcelableExtraCompat(Extra.PLACE)
             if (place == null) {
                 finish()
                 return
@@ -89,7 +91,7 @@ class NotReadMessagesActivity : NoMainActivity(), PlaceProvider, AppStyleable {
         val args = place.safeArguments()
         when (place.type) {
             Place.CHAT -> {
-                val peer: Peer = args.getParcelable(Extra.PEER) ?: return
+                val peer: Peer = args.getParcelableCompat(Extra.PEER) ?: return
                 val chatFragment =
                     newInstance(args.getInt(Extra.ACCOUNT_ID), args.getInt(Extra.OWNER_ID), peer)
                 attachToFront(chatFragment)
@@ -112,7 +114,7 @@ class NotReadMessagesActivity : NoMainActivity(), PlaceProvider, AppStyleable {
                 startActivity(ph)
             }
             Place.DOC_PREVIEW -> {
-                val document: Document? = args.getParcelable(Extra.DOC)
+                val document: Document? = args.getParcelableCompat(Extra.DOC)
                 if (document != null && document.hasValidGifVideoLink()) {
                     val aid = args.getInt(Extra.ACCOUNT_ID)
                     val documents = ArrayList(listOf(document))

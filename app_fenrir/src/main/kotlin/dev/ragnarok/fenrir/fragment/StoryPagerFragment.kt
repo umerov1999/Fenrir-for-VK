@@ -180,7 +180,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                         Extra.STORY
                     ), Story.NativeCreator, ParcelFlags.EMPTY_LIST
                 )!! else
-                    requireArguments().getParcelableArrayList(Extra.STORY)!!
+                    requireArguments().getParcelableArrayListCompat(Extra.STORY)!!
                 if (FenrirNative.isNativeLoaded && Settings.get()
                         .other().isNative_parcel_story
                 ) {

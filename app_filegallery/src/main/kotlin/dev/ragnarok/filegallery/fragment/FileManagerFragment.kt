@@ -119,7 +119,7 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
             TagOwnerBottomSheetSelected.SELECTED_OWNER_KEY, this
         ) { _: String?, result: Bundle ->
             presenter?.setSelectedOwner(
-                result.getParcelable(Extra.NAME) ?: return@setFragmentResultListener
+                result.getParcelableCompat(Extra.NAME) ?: return@setFragmentResultListener
             )
         }
     }
@@ -287,7 +287,8 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
-            result.data?.getParcelableExtra<FileItem>(Extra.PATH)?.let { presenter?.fireDelete(it) }
+            result.data?.getParcelableExtraCompat<FileItem>(Extra.PATH)
+                ?.let { presenter?.fireDelete(it) }
         }
     }
 

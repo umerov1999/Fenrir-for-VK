@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
@@ -69,6 +70,10 @@ class CaptchaActivity : AppCompatActivity() {
                     .subscribe({ onRequestCancelled() }, RxUtils.ignore())
             )
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+            }
+        })
     }
 
     private fun cancel() {
@@ -87,10 +92,6 @@ class CaptchaActivity : AppCompatActivity() {
     override fun onDestroy() {
         mCompositeDisposable.dispose()
         super.onDestroy()
-    }
-
-    override fun onBackPressed() {
-
     }
 
     private fun onOkButtonClick() {

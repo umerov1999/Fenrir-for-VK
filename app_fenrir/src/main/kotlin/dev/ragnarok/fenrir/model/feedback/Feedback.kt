@@ -4,6 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.CallSuper
 import dev.ragnarok.fenrir.model.Comment
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 abstract class Feedback : Parcelable {
     @FeedbackType
@@ -20,7 +22,7 @@ abstract class Feedback : Parcelable {
     protected constructor(`in`: Parcel) {
         type = `in`.readInt()
         date = `in`.readLong()
-        reply = `in`.readParcelable(Comment::class.java.classLoader)
+        reply = `in`.readTypedObjectCompat(Comment.CREATOR)
     }
 
     fun setDate(date: Long): Feedback {
@@ -41,6 +43,6 @@ abstract class Feedback : Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(type)
         dest.writeLong(date)
-        dest.writeParcelable(reply, flags)
+        dest.writeTypedObjectCompat(reply, flags)
     }
 }

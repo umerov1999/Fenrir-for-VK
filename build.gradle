@@ -1,27 +1,27 @@
 buildscript {
     //APP
-    ext.appCompileSDK = 32
-    ext.appBuildTools = "32.0.0"
+    ext.appCompileSDK = 33
+    ext.appBuildTools = "33.0.0"
     ext.appNdk = "25.0.8775105"
     ext.appMinSDK = 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 197
-    ext.appFenrirVersionName = "2.97-Kotlin"
-    ext.appFileGalleryVersionCode = 17
-    ext.appFileGalleryVersionName = "1.17-Kotlin"
+    ext.appFenrirVersionCode = 200
+    ext.appFenrirVersionName = "2.100-Kotlin"
+    ext.appFileGalleryVersionCode = 20
+    ext.appFileGalleryVersionName = "1.20-Kotlin"
 
     //androidx libraries
-    ext.activityVersion = "1.5.1"
-    ext.appcompatVersion = "1.5.0"
+    ext.activityVersion = "1.6.0-beta01"
+    ext.appcompatVersion = "1.6.0-beta01"
     ext.annotationVersion = "1.4.0"
     ext.biometricVersion = "1.2.0-alpha04"
     ext.browserVersion = "1.4.0"
     ext.cameraVersion = "1.2.0-alpha04"
     ext.cardviewVersion = "1.0.0"
     ext.collectionVersion = "1.3.0-alpha02"
-    ext.constraintlayoutVersion = "2.1.4"
+    ext.constraintlayoutVersion = "2.2.0-alpha03"
     ext.coordinatorlayoutVersion = "1.2.0"
-    ext.coreVersion = "1.8.0"
+    ext.coreVersion = "1.9.0-beta01"
     ext.customviewVersion = "1.2.0-alpha01"
     ext.customviewPoolingcontainerVersion = "1.0.0"
     ext.dynamicanimationVersion = "1.1.0-alpha03"
@@ -38,7 +38,7 @@ buildscript {
     ext.transitionVersion = "1.4.1"
     ext.vectordrawableVersion = "1.2.0-beta01"
     ext.webkitVersion = "1.5.0-rc01"
-    ext.workVersion = "2.8.0-alpha02"
+    ext.workVersion = "2.8.0-alpha03"
 
     //firebase libraries
     ext.firebaseDatabaseVersion = "20.0.5"
@@ -53,7 +53,7 @@ buildscript {
     ext.autoValueVersion = "1.9"
 
     //common libraries
-    ext.kotlin_version = "1.7.20-Beta"
+    ext.kotlin_version = "1.7.10"
     ext.kotlin_coroutines = "1.6.4"
     ext.kotlin_serializer = "1.4.0-RC"
     ext.okhttpLibraryVersion = "5.0.0-alpha.10"
@@ -86,7 +86,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.4.0-alpha09"
+        classpath "com.android.tools.build:gradle:7.3.0-rc01"
         classpath "com.google.gms:google-services:4.3.13"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"

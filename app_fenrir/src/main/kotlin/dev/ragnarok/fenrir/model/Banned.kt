@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Banned : Parcelable {
     val banned: Owner
@@ -15,12 +17,10 @@ class Banned : Parcelable {
     }
 
     internal constructor(`in`: Parcel) {
-        val wrapper = `in`.readParcelable<ParcelableOwnerWrapper>(
-            ParcelableOwnerWrapper::class.java.classLoader
-        )
+        val wrapper = `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)
         banned = wrapper?.get()!!
-        admin = `in`.readParcelable(User::class.java.classLoader)!!
-        info = `in`.readParcelable(Info::class.java.classLoader)!!
+        admin = `in`.readTypedObjectCompat(User.CREATOR)!!
+        info = `in`.readTypedObjectCompat(Info.CREATOR)!!
     }
 
     override fun describeContents(): Int {
@@ -28,9 +28,9 @@ class Banned : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(ParcelableOwnerWrapper(banned), flags)
-        dest.writeParcelable(admin, flags)
-        dest.writeParcelable(info, flags)
+        dest.writeTypedObjectCompat(ParcelableOwnerWrapper(banned), flags)
+        dest.writeTypedObjectCompat(admin, flags)
+        dest.writeTypedObjectCompat(info, flags)
     }
 
     class Info : Parcelable {

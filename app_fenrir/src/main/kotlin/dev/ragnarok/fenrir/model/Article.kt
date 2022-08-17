@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Article : AbsModel {
     val id: Int
@@ -34,7 +36,7 @@ class Article : AbsModel {
         title = `in`.readString()
         subTitle = `in`.readString()
         accessKey = `in`.readString()
-        photo = `in`.readParcelable(Photo::class.java.classLoader)
+        photo = `in`.readTypedObjectCompat(Photo.CREATOR)
         isFavorite = `in`.readByte().toInt() != 0
     }
 
@@ -47,7 +49,7 @@ class Article : AbsModel {
         parcel.writeString(title)
         parcel.writeString(subTitle)
         parcel.writeString(accessKey)
-        parcel.writeParcelable(photo, i)
+        parcel.writeTypedObjectCompat(photo, i)
         parcel.writeByte((if (isFavorite) 1 else 0).toByte())
     }
 

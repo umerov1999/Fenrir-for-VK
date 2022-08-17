@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.mvp.view.search.IArtistSearchView
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
@@ -74,4 +75,7 @@ class ArtistSearchPresenter(
         return ArtistSearchCriteria("")
     }
 
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): ArtistSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 }

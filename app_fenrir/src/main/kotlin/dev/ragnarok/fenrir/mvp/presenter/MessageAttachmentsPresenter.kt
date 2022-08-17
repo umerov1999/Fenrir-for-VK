@@ -6,17 +6,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dev.ragnarok.fenrir.Includes
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.presenter.base.RxSupportPresenter
 import dev.ragnarok.fenrir.mvp.view.IMessageAttachmentsView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.*
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
@@ -557,9 +554,9 @@ class MessageAttachmentsPresenter(
         attachmentsRepository = Includes.attachmentsRepository
         uploadManager = Includes.uploadManager
         if (savedInstanceState != null) {
-            currentPhotoCameraUri = savedInstanceState.getParcelable(SAVE_CAMERA_FILE_URI)
+            currentPhotoCameraUri = savedInstanceState.getParcelableCompat(SAVE_CAMERA_FILE_URI)
             val accompanying: ArrayList<AttachmentEntry>? =
-                savedInstanceState.getParcelableArrayList(
+                savedInstanceState.getParcelableArrayListCompat(
                     SAVE_ACCOMPANYING_ENTRIES
                 )
             if (accompanying != null) {

@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.VideosFragment
 import dev.ragnarok.fenrir.fragment.VideosTabsFragment
 import dev.ragnarok.fenrir.fragment.search.SingleTabSearchFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.mvp.view.IVideosListView
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
@@ -60,7 +61,7 @@ class VideoSelectActivity : NoMainActivity(), PlaceProvider {
                 setResult(
                     RESULT_OK, Intent().putParcelableArrayListExtra(
                         Extra.ATTACHMENTS, Utils.singletonArrayList(
-                            place.safeArguments().getParcelable(
+                            place.safeArguments().getParcelableCompat(
                                 Extra.VIDEO
                             )
                         )

@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.fragment.search.options
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class DatabaseOption : BaseOption {
     /**
@@ -26,13 +28,13 @@ class DatabaseOption : BaseOption {
 
     internal constructor(`in`: Parcel) : super(`in`) {
         type = `in`.readInt()
-        value = `in`.readParcelable(Entry::class.java.classLoader)
+        value = `in`.readTypedObjectCompat(Entry.CREATOR)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
         dest.writeInt(type)
-        dest.writeParcelable(value, flags)
+        dest.writeTypedObjectCompat(value, flags)
     }
 
     override fun describeContents(): Int {

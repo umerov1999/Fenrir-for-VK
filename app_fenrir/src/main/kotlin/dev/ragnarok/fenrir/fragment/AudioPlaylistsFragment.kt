@@ -26,6 +26,7 @@ import dev.ragnarok.fenrir.activity.AudioSelectActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.adapter.AudioPlaylistsAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
@@ -49,7 +50,8 @@ class AudioPlaylistsFragment : BaseMvpFragment<AudioPlaylistsPresenter, IAudioPl
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val audios: ArrayList<Audio>? = result.data?.getParcelableArrayListExtra("attachments")
+            val audios: ArrayList<Audio>? =
+                result.data?.getParcelableArrayListExtraCompat("attachments")
             lazyPresenter {
                 if (audios != null) {
                     fireAudiosSelected(audios)

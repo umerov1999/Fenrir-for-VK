@@ -3,12 +3,14 @@ package dev.ragnarok.fenrir.activity.crash
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
 import android.util.Log
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.util.PersistentLogger
+import dev.ragnarok.fenrir.util.Utils
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.DateFormat
@@ -122,9 +124,13 @@ object CrashUtils {
         return false
     }
 
+    @Suppress("deprecation")
     private fun getVersionName(context: Context): String {
         return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = if (Utils.hasTiramisu()) context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(0)
+            ) else context.packageManager.getPackageInfo(context.packageName, 0)
             packageInfo.versionName
         } catch (e: Exception) {
             "Unknown"

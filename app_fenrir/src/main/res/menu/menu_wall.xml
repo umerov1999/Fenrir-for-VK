@@ -36,6 +36,10 @@
         android:title="@string/open_clipboard_url" />
 
     <item
+        android:id="@+id/action_jump_offset"
+        android:title="@string/action_jump_offset" />
+
+    <item
         android:id="@+id/search_stories"
         android:title="@string/search_stories" />
 

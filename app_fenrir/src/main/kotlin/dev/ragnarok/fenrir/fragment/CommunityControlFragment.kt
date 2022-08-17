@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.fragment.CommunityBlacklistFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.CommunityManagersFragment.Companion.newInstance
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.GroupSettings
@@ -30,9 +31,9 @@ class CommunityControlFragment : Fragment() {
     private var mAccountId = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mSettings = requireArguments().getParcelable(Extra.SETTINGS)
+        mSettings = requireArguments().getParcelableCompat(Extra.SETTINGS)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-        mCommunity = (requireArguments().getParcelable(Extra.OWNER) ?: return)
+        mCommunity = (requireArguments().getParcelableCompat(Extra.OWNER) ?: return)
     }
 
     override fun onCreateView(

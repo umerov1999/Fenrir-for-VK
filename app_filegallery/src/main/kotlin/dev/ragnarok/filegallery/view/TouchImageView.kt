@@ -23,6 +23,8 @@ import androidx.appcompat.widget.AppCompatImageView
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.animation.AnimatedFileDrawable
 import dev.ragnarok.filegallery.R
+import dev.ragnarok.filegallery.getParcelableCompat
+import dev.ragnarok.filegallery.getSerializableCompat
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.max
@@ -334,14 +336,14 @@ open class TouchImageView @JvmOverloads constructor(
             prevViewWidth = state.getInt("viewWidth")
             imageRenderedAtLeastOnce = state.getBoolean("imageRendered")
             viewSizeChangeFixedPixel =
-                state.getSerializable("viewSizeChangeFixedPixel") as FixedPixel?
+                state.getSerializableCompat("viewSizeChangeFixedPixel") as FixedPixel?
             orientationChangeFixedPixel =
-                state.getSerializable("orientationChangeFixedPixel") as FixedPixel?
+                state.getSerializableCompat("orientationChangeFixedPixel") as FixedPixel?
             val oldOrientation = state.getInt("orientation")
             if (orientation != oldOrientation) {
                 orientationJustChanged = true
             }
-            super.onRestoreInstanceState(state.getParcelable("instanceState"))
+            super.onRestoreInstanceState(state.getParcelableCompat("instanceState"))
             return
         }
         super.onRestoreInstanceState(state)

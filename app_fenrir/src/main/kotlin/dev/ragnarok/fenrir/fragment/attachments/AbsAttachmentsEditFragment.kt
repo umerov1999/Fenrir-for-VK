@@ -30,6 +30,8 @@ import dev.ragnarok.fenrir.adapter.AttchmentsEditorAdapter
 import dev.ragnarok.fenrir.db.model.AttachmentsTypes
 import dev.ragnarok.fenrir.fragment.CreatePollFragment
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.*
@@ -88,7 +90,8 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.data != null && result.resultCode == Activity.RESULT_OK) {
                 val attachments: ArrayList<AbsModel> =
-                    (result.data ?: return@registerForActivityResult).getParcelableArrayListExtra(
+                    (result.data
+                        ?: return@registerForActivityResult).getParcelableArrayListExtraCompat(
                         Extra.ATTACHMENTS
                     )
                         ?: return@registerForActivityResult
@@ -102,7 +105,7 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
             if (result.data != null && result.resultCode == Activity.RESULT_OK) {
                 val photos: ArrayList<Photo> =
                     (result.data
-                        ?: return@registerForActivityResult).getParcelableArrayListExtra("attachments")
+                        ?: return@registerForActivityResult).getParcelableArrayListExtraCompat("attachments")
                         ?: return@registerForActivityResult
                 lazyPresenter {
                     fireVkPhotosSelected(photos)
@@ -113,7 +116,8 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.data != null && result.resultCode == Activity.RESULT_OK) {
                 val photos: ArrayList<LocalPhoto> =
-                    (result.data ?: return@registerForActivityResult).getParcelableArrayListExtra(
+                    (result.data
+                        ?: return@registerForActivityResult).getParcelableArrayListExtraCompat(
                         Extra.PHOTOS
                     )
                         ?: return@registerForActivityResult
@@ -344,7 +348,7 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
     override fun openPollCreationWindow(accountId: Int, ownerId: Int) {
         getCreatePollPlace(accountId, ownerId)
             .setFragmentListener(CreatePollFragment.REQUEST_CREATE_POLL) { _: String?, result: Bundle ->
-                val poll: Poll = result.getParcelable("poll") ?: return@setFragmentListener
+                val poll: Poll = result.getParcelableCompat("poll") ?: return@setFragmentListener
                 presenter?.firePollCreated(poll)
             }
             .tryOpenWith(requireActivity())

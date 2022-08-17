@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment
 
+import android.Manifest
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
@@ -9,6 +10,7 @@ import android.text.InputType
 import android.view.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
@@ -32,6 +34,8 @@ import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.DialogsSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
@@ -54,10 +58,10 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getSingleTabSearchPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.securitySettingsPlace
 import dev.ragnarok.fenrir.settings.ISettings.INotificationSettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.HelperSimple
+import dev.ragnarok.fenrir.util.*
+import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
+import dev.ragnarok.fenrir.util.HelperSimple.NOTIFICATION_PERMISSION
 import dev.ragnarok.fenrir.util.HelperSimple.needHelp
-import dev.ragnarok.fenrir.util.InputTextDialog
-import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
 import dev.ragnarok.fenrir.util.Utils.addFlagIf
 import dev.ragnarok.fenrir.util.Utils.hasFlag
 import dev.ragnarok.fenrir.util.Utils.hasOreo
@@ -74,7 +78,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val users: ArrayList<Owner> = (result.data
-                ?: return@registerForActivityResult).getParcelableArrayListExtra(Extra.OWNERS)
+                ?: return@registerForActivityResult).getParcelableArrayListExtraCompat(Extra.OWNERS)
                 ?: return@registerForActivityResult
             lazyPresenter {
                 fireUsersForChatSelected(users)
@@ -114,9 +118,23 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
         mFab?.setImageResource(if (isShowHidden) R.drawable.offline else R.drawable.pencil)
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val requestNPermission = requestPermissionsAbs(
+        arrayOf(
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+    ) {}
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().addMenuProvider(this, viewLifecycleOwner)
+        if (Utils.hasTiramisu() && needHelp(
+                NOTIFICATION_PERMISSION,
+                1
+            ) && !AppPerms.hasNotificationPermissionSimple(requireActivity())
+        ) {
+            requestNPermission.launch()
+        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -533,7 +551,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
                 return DialogsPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     requireArguments().getInt(Extra.OWNER_ID),
-                    requireActivity().intent.getParcelableExtra(MainActivity.EXTRA_INPUT_ATTACHMENTS),
+                    requireActivity().intent.getParcelableExtraCompat(MainActivity.EXTRA_INPUT_ATTACHMENTS),
                     saveInstanceState
                 )
             }

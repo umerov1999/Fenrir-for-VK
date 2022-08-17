@@ -52,17 +52,13 @@ class CameraScanActivity : NoMainActivity() {
         hints[DecodeHintType.NEED_RESULT_POINT_CALLBACK] = DecoderResultPointCallback()
         hints[DecodeHintType.POSSIBLE_FORMATS] = EnumSet.of(
             BarcodeFormat.QR_CODE,
-            BarcodeFormat.UPC_A,
-            BarcodeFormat.UPC_E,
             BarcodeFormat.EAN_13,
             BarcodeFormat.EAN_8,
             BarcodeFormat.RSS_14,
-            BarcodeFormat.RSS_EXPANDED,
             BarcodeFormat.CODE_39,
             BarcodeFormat.CODE_93,
             BarcodeFormat.CODE_128,
-            BarcodeFormat.ITF,
-            BarcodeFormat.CODABAR
+            BarcodeFormat.ITF
         )
         reader.setHints(hints)
     }
@@ -446,17 +442,13 @@ class CameraScanActivity : NoMainActivity() {
             val hints: MutableMap<DecodeHintType, Any> = EnumMap(DecodeHintType::class.java)
             hints[DecodeHintType.POSSIBLE_FORMATS] = EnumSet.of(
                 BarcodeFormat.QR_CODE,
-                BarcodeFormat.UPC_A,
-                BarcodeFormat.UPC_E,
                 BarcodeFormat.EAN_13,
                 BarcodeFormat.EAN_8,
                 BarcodeFormat.RSS_14,
-                BarcodeFormat.RSS_EXPANDED,
                 BarcodeFormat.CODE_39,
                 BarcodeFormat.CODE_93,
                 BarcodeFormat.CODE_128,
-                BarcodeFormat.ITF,
-                BarcodeFormat.CODABAR
+                BarcodeFormat.ITF
             )
             reader.setHints(hints)
 

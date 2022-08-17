@@ -4,7 +4,9 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.util.Utils.firstNonNull
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 import kotlinx.serialization.Serializable
 
 @Keep
@@ -36,16 +38,16 @@ class PhotoSizes : Parcelable, ParcelNative.ParcelableNative {
     }
 
     internal constructor(`in`: Parcel) {
-        s = `in`.readParcelable(Size::class.java.classLoader)
-        m = `in`.readParcelable(Size::class.java.classLoader)
-        x = `in`.readParcelable(Size::class.java.classLoader)
-        o = `in`.readParcelable(Size::class.java.classLoader)
-        p = `in`.readParcelable(Size::class.java.classLoader)
-        q = `in`.readParcelable(Size::class.java.classLoader)
-        r = `in`.readParcelable(Size::class.java.classLoader)
-        y = `in`.readParcelable(Size::class.java.classLoader)
-        z = `in`.readParcelable(Size::class.java.classLoader)
-        w = `in`.readParcelable(Size::class.java.classLoader)
+        s = `in`.readTypedObjectCompat(Size.CREATOR)
+        m = `in`.readTypedObjectCompat(Size.CREATOR)
+        x = `in`.readTypedObjectCompat(Size.CREATOR)
+        o = `in`.readTypedObjectCompat(Size.CREATOR)
+        p = `in`.readTypedObjectCompat(Size.CREATOR)
+        q = `in`.readTypedObjectCompat(Size.CREATOR)
+        r = `in`.readTypedObjectCompat(Size.CREATOR)
+        y = `in`.readTypedObjectCompat(Size.CREATOR)
+        z = `in`.readTypedObjectCompat(Size.CREATOR)
+        w = `in`.readTypedObjectCompat(Size.CREATOR)
     }
 
     fun getS(): Size? {
@@ -209,16 +211,16 @@ class PhotoSizes : Parcelable, ParcelNative.ParcelableNative {
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
-        parcel.writeParcelable(s, i)
-        parcel.writeParcelable(m, i)
-        parcel.writeParcelable(x, i)
-        parcel.writeParcelable(o, i)
-        parcel.writeParcelable(p, i)
-        parcel.writeParcelable(q, i)
-        parcel.writeParcelable(r, i)
-        parcel.writeParcelable(y, i)
-        parcel.writeParcelable(z, i)
-        parcel.writeParcelable(w, i)
+        parcel.writeTypedObjectCompat(s, i)
+        parcel.writeTypedObjectCompat(m, i)
+        parcel.writeTypedObjectCompat(x, i)
+        parcel.writeTypedObjectCompat(o, i)
+        parcel.writeTypedObjectCompat(p, i)
+        parcel.writeTypedObjectCompat(q, i)
+        parcel.writeTypedObjectCompat(r, i)
+        parcel.writeTypedObjectCompat(y, i)
+        parcel.writeTypedObjectCompat(z, i)
+        parcel.writeTypedObjectCompat(w, i)
     }
 
     fun isEmpty(): Boolean {

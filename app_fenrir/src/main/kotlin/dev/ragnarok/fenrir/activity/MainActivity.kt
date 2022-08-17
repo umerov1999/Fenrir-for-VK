@@ -9,10 +9,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.os.Parcelable
 import android.view.*
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
@@ -381,6 +381,44 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 }
             }
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (navigationFragment?.isSheetOpen == true) {
+                    navigationFragment?.closeSheet()
+                    return
+                }
+                val front = frontFragment
+                if (front is BackPressCallback) {
+                    if (!(front as BackPressCallback).onBackPressed()) {
+                        return
+                    }
+                }
+                if (supportFragmentManager.backStackEntryCount == 1) {
+                    if (getMainActivityTransform() != MainActivityTransforms.SWIPEBLE) {
+                        if (isFragmentWithoutNavigation) {
+                            openNavigationPage(AbsNavigationFragment.SECTION_ITEM_FEED, false)
+                            return
+                        }
+                        if (isChatFragment) {
+                            openNavigationPage(AbsNavigationFragment.SECTION_ITEM_DIALOGS, false)
+                            return
+                        }
+                    }
+                    if (mLastBackPressedTime < 0
+                        || mLastBackPressedTime + DOUBLE_BACK_PRESSED_TIMEOUT > System.currentTimeMillis()
+                    ) {
+                        supportFinishAfterTransition()
+                        return
+                    }
+                    mLastBackPressedTime = System.currentTimeMillis()
+                    CustomSnackbars.createCustomSnackbars(mViewFragment, mBottomNavigationContainer)
+                        ?.setDurationSnack(BaseTransientBottomBar.LENGTH_SHORT)
+                        ?.defaultSnack(R.string.click_back_to_exit)?.show()
+                } else {
+                    supportFragmentManager.popBackStack()
+                }
+            }
+        })
         //CurrentTheme.dumpDynamicColors(this)
     }
 
@@ -452,7 +490,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         val manager = supportFragmentManager
         if (manager.backStackEntryCount > 1 || frontFragment is CanBackPressedCallback && (frontFragment as CanBackPressedCallback?)?.canBackPressed() == true) {
             mToolbar?.setNavigationIcon(R.drawable.arrow_left)
-            mToolbar?.setNavigationOnClickListener { onBackPressed() }
+            mToolbar?.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         } else {
             if (!isFragmentWithoutNavigation) {
                 mToolbar?.setNavigationIcon(R.drawable.client_round)
@@ -543,7 +581,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         )
                     }
                 } else {
-                    mToolbar?.setNavigationOnClickListener { onBackPressed() }
+                    mToolbar?.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
                 }
             }
         }
@@ -609,7 +647,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     mime
                 ) && extras.containsKey(Intent.EXTRA_STREAM)
             ) {
-                val uris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+                val uris = intent.getParcelableArrayListExtraCompat<Uri>(Intent.EXTRA_STREAM)
                 if (uris.nonNullNoEmpty()) {
                     val playlist = ArrayList<Audio>(
                         uris.size
@@ -647,7 +685,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             return true
         }
         if (ACTION_OPEN_PLACE == action) {
-            val place: Place = intent.getParcelableExtra(Extra.PLACE) ?: return false
+            val place: Place = intent.getParcelableExtraCompat(Extra.PLACE) ?: return false
             openPlace(place)
             return if (place.type == Place.CHAT) {
                 Settings.get().ui().swipes_chat_mode != SwipesChatMode.SLIDR || Settings.get()
@@ -959,43 +997,6 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
     private val frontFragment: Fragment?
         get() = supportFragmentManager.findFragmentById(R.id.fragment)
 
-    override fun onBackPressed() {
-        if (navigationFragment?.isSheetOpen == true) {
-            navigationFragment?.closeSheet()
-            return
-        }
-        val front = frontFragment
-        if (front is BackPressCallback) {
-            if (!(front as BackPressCallback).onBackPressed()) {
-                return
-            }
-        }
-        if (supportFragmentManager.backStackEntryCount == 1) {
-            if (getMainActivityTransform() != MainActivityTransforms.SWIPEBLE) {
-                if (isFragmentWithoutNavigation) {
-                    openNavigationPage(AbsNavigationFragment.SECTION_ITEM_FEED, false)
-                    return
-                }
-                if (isChatFragment) {
-                    openNavigationPage(AbsNavigationFragment.SECTION_ITEM_DIALOGS, false)
-                    return
-                }
-            }
-            if (mLastBackPressedTime < 0
-                || mLastBackPressedTime + DOUBLE_BACK_PRESSED_TIMEOUT > System.currentTimeMillis()
-            ) {
-                supportFinishAfterTransition()
-                return
-            }
-            mLastBackPressedTime = System.currentTimeMillis()
-            CustomSnackbars.createCustomSnackbars(mViewFragment, mBottomNavigationContainer)
-                ?.setDurationSnack(BaseTransientBottomBar.LENGTH_SHORT)
-                ?.defaultSnack(R.string.click_back_to_exit)?.show()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     private val isChatFragment: Boolean
         get() = frontFragment is ChatFragment
     private val isFragmentWithoutNavigation: Boolean
@@ -1145,7 +1146,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.FRIENDS_AND_FOLLOWERS -> attachToFront(FriendsTabsFragment.newInstance(args))
             Place.EXTERNAL_LINK -> attachToFront(BrowserFragment.newInstance(args))
             Place.DOC_PREVIEW -> {
-                val document: Document? = args.getParcelable(Extra.DOC)
+                val document: Document? = args.getParcelableCompat(Extra.DOC)
                 if (document != null && document.hasValidGifVideoLink()) {
                     val aid = args.getInt(Extra.ACCOUNT_ID)
                     val documents = ArrayList(listOf(document))
@@ -1171,7 +1172,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 AudioPlayerFragment.newInstance(args).show(supportFragmentManager, "audio_player")
             }
             Place.CHAT -> {
-                val peer: Peer = args.getParcelable(Extra.PEER) ?: return
+                val peer: Peer = args.getParcelableCompat(Extra.PEER) ?: return
                 openChat(
                     args.getInt(Extra.ACCOUNT_ID),
                     args.getInt(Extra.OWNER_ID),
@@ -1187,7 +1188,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 attachToFront(postCreateFragment)
             }
             Place.EDIT_COMMENT -> {
-                val comment: Comment? = args.getParcelable(Extra.COMMENT)
+                val comment: Comment? = args.getParcelableCompat(Extra.COMMENT)
                 val accountId = args.getInt(Extra.ACCOUNT_ID)
                 val commemtId = args.getInt(Extra.COMMENT_ID)
                 val commentEditFragment =
@@ -1258,7 +1259,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     args.getInt(Extra.ACCOUNT_ID),
                     args.getInt(Extra.OWNER_ID),
                     args.getString(Extra.ACTION),
-                    args.getParcelable(Extra.OWNER), false
+                    args.getParcelableCompat(Extra.OWNER), false
                 )
             )
             Place.VK_PHOTO_ALBUM -> attachToFront(VKPhotosFragment.newInstance(args))
@@ -1345,22 +1346,22 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.COMMUNITY_CONTROL -> {
                 val communityControlFragment = CommunityControlFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
-                    args.getParcelable(Extra.OWNER),
-                    args.getParcelable(Extra.SETTINGS)
+                    args.getParcelableCompat(Extra.OWNER),
+                    args.getParcelableCompat(Extra.SETTINGS)
                 )
                 attachToFront(communityControlFragment)
             }
             Place.COMMUNITY_INFO -> {
                 val communityInfoFragment = CommunityInfoContactsFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
-                    args.getParcelable(Extra.OWNER)
+                    args.getParcelableCompat(Extra.OWNER)
                 )
                 attachToFront(communityInfoFragment)
             }
             Place.COMMUNITY_INFO_LINKS -> {
                 val communityLinksFragment = CommunityInfoLinksFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
-                    args.getParcelable(Extra.OWNER)
+                    args.getParcelableCompat(Extra.OWNER)
                 )
                 attachToFront(communityLinksFragment)
             }
@@ -1376,7 +1377,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 val communityBanEditFragment = CommunityBanEditFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
                     args.getInt(Extra.GROUP_ID),
-                    args.getParcelable<Parcelable>(Extra.BANNED) as Banned?
+                    args.getParcelableCompat<Banned>(Extra.BANNED)
                 )
                 attachToFront(communityBanEditFragment)
             }
@@ -1384,21 +1385,21 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 CommunityBanEditFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
                     args.getInt(Extra.GROUP_ID),
-                    args.getParcelableArrayList(Extra.USERS)
+                    args.getParcelableArrayListCompat(Extra.USERS)
                 )
             )
             Place.COMMUNITY_MANAGER_ADD -> attachToFront(
                 CommunityManagerEditFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
                     args.getInt(Extra.GROUP_ID),
-                    args.getParcelableArrayList(Extra.USERS)
+                    args.getParcelableArrayListCompat(Extra.USERS)
                 )
             )
             Place.COMMUNITY_MANAGER_EDIT -> attachToFront(
                 CommunityManagerEditFragment.newInstance(
                     args.getInt(Extra.ACCOUNT_ID),
                     args.getInt(Extra.GROUP_ID),
-                    args.getParcelable<Parcelable>(Extra.MANAGER) as Manager?
+                    args.getParcelableCompat<Manager>(Extra.MANAGER)
                 )
             )
             Place.REQUEST_EXECUTOR -> attachToFront(
@@ -1469,8 +1470,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             )
             Place.USER_DETAILS -> {
                 val accountId = args.getInt(Extra.ACCOUNT_ID)
-                val user: User = args.getParcelable(Extra.USER) ?: return
-                val details: UserDetails = args.getParcelable("details") ?: return
+                val user: User = args.getParcelableCompat(Extra.USER) ?: return
+                val details: UserDetails = args.getParcelableCompat("details") ?: return
                 attachToFront(newInstance(accountId, user, details))
             }
             Place.WALL_ATTACHMENTS -> {

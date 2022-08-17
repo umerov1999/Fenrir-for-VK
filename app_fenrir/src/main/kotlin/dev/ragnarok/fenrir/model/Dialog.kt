@@ -3,11 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.model.Identificable
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.orZero
-import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 
@@ -47,12 +44,10 @@ class Dialog : Identificable, Parcelable {
         photo50 = `in`.readString()
         photo100 = `in`.readString()
         photo200 = `in`.readString()
-        message = `in`.readParcelable(Message::class.java.classLoader)
+        message = `in`.readTypedObjectCompat(Message.CREATOR)
         val interlocutorIsNull = `in`.readInt() == 1
         if (!interlocutorIsNull) {
-            val ownerType = `in`.readInt()
-            interlocutor =
-                `in`.readParcelable(if (ownerType == OwnerType.COMMUNITY) Community::class.java.classLoader else User::class.java.classLoader)
+            interlocutor = Owner.readOwnerFromParcel(`in`)
         }
         lastMessageId = `in`.readInt()
         inRead = `in`.readInt()
@@ -255,11 +250,10 @@ class Dialog : Identificable, Parcelable {
         dest.writeString(photo50)
         dest.writeString(photo100)
         dest.writeString(photo200)
-        dest.writeParcelable(message, flags)
+        dest.writeTypedObjectCompat(message, flags)
         dest.writeInt(if (interlocutor == null) 1 else 0)
         interlocutor.requireNonNull {
-            dest.writeInt(it.ownerType)
-            dest.writeParcelable(it, flags)
+            Owner.writeOwnerToParcel(it, dest, flags)
         }
         dest.writeInt(lastMessageId)
         dest.writeInt(inRead)

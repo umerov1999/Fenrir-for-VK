@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.impl.*
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
@@ -121,7 +122,9 @@ class UploadManagerImpl(
                 .setOngoing(true)
                 .setProgress(100, progress, false)
                 .build()
-            notificationManager.notify(NotificationHelper.NOTIFICATION_UPLOAD, builder.build())
+            if (AppPerms.hasNotificationPermissionSimple(context)) {
+                notificationManager.notify(NotificationHelper.NOTIFICATION_UPLOAD, builder.build())
+            }
         }
     }
 
@@ -129,7 +132,9 @@ class UploadManagerImpl(
         notificationUpdateDisposable.clear()
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-        notificationManager?.cancel(NotificationHelper.NOTIFICATION_UPLOAD)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            notificationManager?.cancel(NotificationHelper.NOTIFICATION_UPLOAD)
+        }
     }
 
     override fun enqueue(intents: List<UploadIntent>) {

@@ -9,6 +9,7 @@ import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes
@@ -93,6 +94,10 @@ class ValidateActivity : AppCompatActivity() {
             )
         }
         webview.loadUrl(urlVal ?: "")
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+            }
+        })
     }
 
     internal fun cancel() {
@@ -106,10 +111,6 @@ class ValidateActivity : AppCompatActivity() {
 
     private fun onWaitingRequestReceived() {
         urlVal?.let { validateProvider?.notifyThatValidateEntryActive(it) }
-    }
-
-    override fun onBackPressed() {
-
     }
 
     override fun onDestroy() {

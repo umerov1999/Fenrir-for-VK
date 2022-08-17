@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class ChatConfig : Parcelable {
     private var models: ModelsBundle
@@ -17,7 +19,7 @@ class ChatConfig : Parcelable {
 
     internal constructor(`in`: Parcel) {
         closeOnSend = `in`.readByte().toInt() != 0
-        models = `in`.readParcelable(ModelsBundle::class.java.classLoader)!!
+        models = `in`.readTypedObjectCompat(ModelsBundle.CREATOR)!!
         initialText = `in`.readString()
         uploadFiles = `in`.createTypedArrayList(Uri.CREATOR)
         uploadFilesMimeType = `in`.readString()
@@ -69,7 +71,7 @@ class ChatConfig : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeByte((if (closeOnSend) 1 else 0).toByte())
-        dest.writeParcelable(models, flags)
+        dest.writeTypedObjectCompat(models, flags)
         dest.writeString(initialText)
         dest.writeTypedList(uploadFiles)
         dest.writeString(uploadFilesMimeType)

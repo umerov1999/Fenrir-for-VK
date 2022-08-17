@@ -25,6 +25,8 @@ import androidx.appcompat.widget.Toolbar
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.activity.slidr.Slidr
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrConfig
+import dev.ragnarok.filegallery.getParcelableCompat
+import dev.ragnarok.filegallery.getParcelableExtraCompat
 import dev.ragnarok.filegallery.listener.AppStyleable
 import dev.ragnarok.filegallery.media.video.ExoVideoPlayer
 import dev.ragnarok.filegallery.media.video.IVideoPlayer
@@ -73,7 +75,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         if (intent == null) {
             return
         }
-        video = intent.getParcelableExtra(EXTRA_VIDEO)
+        video = intent.getParcelableExtraCompat(EXTRA_VIDEO)
         val actionBar = supportActionBar
         actionBar?.title = video?.title
         actionBar?.subtitle = video?.description
@@ -117,7 +119,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         if (savedInstanceState == null) {
             handleIntent(intent, false)
         } else {
-            video = savedInstanceState.getParcelable("video")
+            video = savedInstanceState.getParcelableCompat("video")
             seekSave = savedInstanceState.getLong("seek")
             val actionBar = supportActionBar
             actionBar?.title = video?.title

@@ -12,8 +12,7 @@ import androidx.core.view.MenuProvider
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
@@ -23,7 +22,6 @@ import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.CommunityBanEditPresenter
 import dev.ragnarok.fenrir.mvp.view.ICommunityBanEditView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.util.FormatUtil.formatCommunityBanInfo
@@ -119,7 +117,7 @@ class CommunityBanEditFragment :
             override fun create(): CommunityBanEditPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val groupId = requireArguments().getInt(Extra.GROUP_ID)
-                val banned: Banned? = requireArguments().getParcelable(Extra.BANNED)
+                val banned: Banned? = requireArguments().getParcelableCompat(Extra.BANNED)
                 if (banned != null) {
                     return CommunityBanEditPresenter(
                         accountId,
@@ -128,7 +126,8 @@ class CommunityBanEditFragment :
                         saveInstanceState
                     )
                 }
-                val users: ArrayList<User>? = requireArguments().getParcelableArrayList(Extra.USERS)
+                val users: ArrayList<User>? =
+                    requireArguments().getParcelableArrayListCompat(Extra.USERS)
                 val owners = ArrayList<Owner>()
                 if (users.nonNullNoEmpty()) {
                     owners.addAll(users)

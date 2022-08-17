@@ -199,8 +199,8 @@ class AudioDuplicateDialog :
             override fun create(): AudioDuplicatePresenter {
                 return AudioDuplicatePresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.NEW)!!,
-                    requireArguments().getParcelable(Extra.OLD)!!,
+                    requireArguments().getParcelableCompat(Extra.NEW)!!,
+                    requireArguments().getParcelableCompat(Extra.OLD)!!,
                     saveInstanceState
                 )
             }

@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.search.criteria.VideoSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.mvp.view.IVideosListView
 import dev.ragnarok.fenrir.mvp.view.search.IVideosSearchView
@@ -26,6 +27,10 @@ class VideosSearchPresenter(
     private val videosInteractor: IVideosInteractor = InteractorFactory.createVideosInteractor()
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): VideoSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     override fun isAtLast(startFrom: IntNextFrom): Boolean {
         return startFrom.offset == 0

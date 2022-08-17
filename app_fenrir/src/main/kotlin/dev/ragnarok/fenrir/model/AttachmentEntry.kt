@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -30,7 +32,7 @@ class AttachmentEntry : Parcelable {
         isCanDelete = `in`.readByte().toInt() != 0
         isAccompanying = `in`.readByte().toInt() != 0
         val wrapper: ParcelableModelWrapper =
-            `in`.readParcelable(ParcelableModelWrapper::class.java.classLoader)!!
+            `in`.readTypedObjectCompat(ParcelableModelWrapper.CREATOR)!!
         attachment = wrapper.get()
     }
 
@@ -58,8 +60,7 @@ class AttachmentEntry : Parcelable {
         dest.writeInt(optionalId)
         dest.writeByte((if (isCanDelete) 1 else 0).toByte())
         dest.writeByte((if (isAccompanying) 1 else 0).toByte())
-        val wrapper = ParcelableModelWrapper.wrap(attachment)
-        dest.writeParcelable(wrapper, flags)
+        dest.writeTypedObjectCompat(ParcelableModelWrapper.wrap(attachment), flags)
     }
 
     companion object {

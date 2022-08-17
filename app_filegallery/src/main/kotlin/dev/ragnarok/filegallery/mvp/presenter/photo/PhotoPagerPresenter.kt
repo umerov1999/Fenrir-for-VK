@@ -1,13 +1,12 @@
 package dev.ragnarok.filegallery.mvp.presenter.photo
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
+import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.nfc.FormatException
 import android.os.Build
 import android.os.Bundle
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -15,12 +14,8 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
 import androidx.core.net.toFile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.zxing.BinaryBitmap
-import com.google.zxing.ChecksumException
-import com.google.zxing.NotFoundException
-import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.*
 import com.google.zxing.common.HybridBinarizer
-import com.google.zxing.qrcode.QRCodeReader
 import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.filegallery.R
@@ -35,6 +30,7 @@ import dev.ragnarok.filegallery.settings.CurrentTheme.getColorSecondary
 import dev.ragnarok.filegallery.settings.Settings.get
 import dev.ragnarok.filegallery.util.AssertUtils
 import dev.ragnarok.filegallery.util.DownloadWorkUtils.doDownloadPhoto
+import dev.ragnarok.filegallery.util.Utils
 import java.io.File
 import java.util.*
 
@@ -170,30 +166,47 @@ open class PhotoPagerPresenter internal constructor(
         generatedQRCode.getPixels(pixels, 0, width, 0, 0, width, height)
         val source = RGBLuminanceSource(width, height, pixels)
         val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-        val reader = QRCodeReader()
-        val result = try {
-            reader.decode(binaryBitmap)
-        } catch (e: NotFoundException) {
+        val reader = MultiFormatReader()
+        val hints: MutableMap<DecodeHintType, Any> = EnumMap(DecodeHintType::class.java)
+        hints[DecodeHintType.POSSIBLE_FORMATS] = EnumSet.of(
+            BarcodeFormat.QR_CODE,
+            BarcodeFormat.EAN_13,
+            BarcodeFormat.EAN_8,
+            BarcodeFormat.RSS_14,
+            BarcodeFormat.CODE_39,
+            BarcodeFormat.CODE_93,
+            BarcodeFormat.CODE_128,
+            BarcodeFormat.ITF
+        )
+        reader.setHints(hints)
+        val result: Result = try {
+            reader.decodeWithState(binaryBitmap)
+        } catch (e: Exception) {
             return e.localizedMessage
-        } catch (e: ChecksumException) {
-            return e.localizedMessage
-        } catch (e: FormatException) {
-            return e.localizedMessage
+        } ?: run {
+            return "error"
         }
         return result.text
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
+    @Suppress("deprecation")
     private fun getCustomTabsPackages(context: Context): ArrayList<ResolveInfo> {
         val pm = context.packageManager
         val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
-        val resolvedActivityList = pm.queryIntentActivities(activityIntent, 0)
-        val packagesSupportingCustomTabs: ArrayList<ResolveInfo> = ArrayList()
+        val resolvedActivityList = if (Utils.hasTiramisu()) pm.queryIntentActivities(
+            activityIntent,
+            PackageManager.ResolveInfoFlags.of(0)
+        ) else pm.queryIntentActivities(activityIntent, 0)
+        val packagesSupportingCustomTabs = ArrayList<ResolveInfo>()
         for (info in resolvedActivityList) {
             val serviceIntent = Intent()
             serviceIntent.action = ACTION_CUSTOM_TABS_CONNECTION
             serviceIntent.setPackage(info.activityInfo.packageName)
-            if (pm.resolveService(serviceIntent, 0) != null) {
+            if ((if (Utils.hasTiramisu()) pm.resolveService(
+                    serviceIntent,
+                    PackageManager.ResolveInfoFlags.of(0)
+                ) else pm.resolveService(serviceIntent, 0)) != null
+            ) {
                 packagesSupportingCustomTabs.add(info)
             }
         }

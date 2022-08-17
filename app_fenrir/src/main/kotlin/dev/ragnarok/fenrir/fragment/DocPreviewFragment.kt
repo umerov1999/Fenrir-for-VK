@@ -12,20 +12,17 @@ import androidx.core.view.MenuProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.domain.IDocsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.EditingPostType
 import dev.ragnarok.fenrir.model.PhotoSize
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.place.PlaceUtil.goToPostCreation
@@ -81,7 +78,7 @@ class DocPreviewFragment : BaseFragment(), View.OnClickListener, MenuProvider {
         ownerId = requireArguments().getInt(Extra.OWNER_ID)
         documentId = requireArguments().getInt(Extra.DOC_ID)
         if (requireArguments().containsKey(Extra.DOC)) {
-            document = requireArguments().getParcelable(Extra.DOC)
+            document = requireArguments().getParcelableCompat(Extra.DOC)
         }
         if (requireArguments().containsKey(Extra.ACCESS_KEY)) {
             documentAccessKey = requireArguments().getString(Extra.ACCESS_KEY)

@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.adapter.DocsAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.DocumentSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.DocsSearchPresenter
@@ -45,7 +46,7 @@ class DocsSearchFragment :
             override fun create(): DocsSearchPresenter {
                 return DocsSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     saveInstanceState
                 )
             }

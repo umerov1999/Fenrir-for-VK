@@ -6,13 +6,16 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.longpoll.ILongpollManager
 import dev.ragnarok.fenrir.longpoll.LongpollInstance
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -20,8 +23,14 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 class KeepLongpollService : Service() {
     private val compositeDisposable = CompositeDisposable()
     private lateinit var longpollManager: ILongpollManager
+    private var wakeLock: PowerManager.WakeLock? = null
     override fun onCreate() {
         super.onCreate()
+        if (wakeLock == null) {
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager?
+            wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, javaClass.name)
+            wakeLock?.setReferenceCounted(false)
+        }
         startWithNotification()
         longpollManager = LongpollInstance.longpollManager
         sendKeepAlive()
@@ -53,11 +62,13 @@ class KeepLongpollService : Service() {
     }
 
     private fun cancelNotification() {
-        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
-        manager?.cancel(FOREGROUND_SERVICE)
+        if (AppPerms.hasNotificationPermissionSimple(this)) {
+            NotificationManagerCompat.from(this).cancel(FOREGROUND_SERVICE)
+        }
     }
 
     override fun onDestroy() {
+        wakeLock?.release()
         compositeDisposable.dispose()
         cancelNotification()
         super.onDestroy()
@@ -82,8 +93,8 @@ class KeepLongpollService : Service() {
                     NotificationManager.IMPORTANCE_NONE
                 )
                 val nManager =
-                    getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
-                nManager?.createNotificationChannel(channel)
+                    NotificationManagerCompat.from(this)
+                nManager.createNotificationChannel(channel)
                 NotificationCompat.Builder(this, channel.id)
             } else {
                 NotificationCompat.Builder(

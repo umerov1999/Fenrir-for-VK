@@ -43,7 +43,8 @@ interface IWallsRepository {
         ownerId: Int,
         offset: Int,
         count: Int,
-        wallFilter: Int
+        wallFilter: Int,
+        needStore: Boolean
     ): Single<List<Post>>
 
     fun getWallNoCache(

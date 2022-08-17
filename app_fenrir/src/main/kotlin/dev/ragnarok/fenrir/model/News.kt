@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class News : AbsModel {
     /**
@@ -159,8 +161,7 @@ class News : AbsModel {
     internal constructor(`in`: Parcel) : super(`in`) {
         type = `in`.readString()
         sourceId = `in`.readInt()
-        source =
-            `in`.readParcelable(if (sourceId > 0) User::class.java.classLoader else Community::class.java.classLoader)
+        source = Owner.readOwnerFromParcel(sourceId, `in`)
         postType = `in`.readString()
         isFinalPost = `in`.readByte().toInt() != 0
         copyOwnerId = `in`.readInt()
@@ -180,7 +181,7 @@ class News : AbsModel {
         isCanPublish = `in`.readByte().toInt() != 0
         repostsCount = `in`.readInt()
         isUserReposted = `in`.readByte().toInt() != 0
-        attachments = `in`.readParcelable(Attachments::class.java.classLoader)
+        attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         friends = `in`.createTypedArrayList(User.CREATOR)
         viewCount = `in`.readInt()
     }
@@ -351,7 +352,7 @@ class News : AbsModel {
         super.writeToParcel(parcel, i)
         parcel.writeString(type)
         parcel.writeInt(sourceId)
-        parcel.writeParcelable(source, i)
+        parcel.writeTypedObjectCompat(source, i)
         parcel.writeString(postType)
         parcel.writeByte((if (isFinalPost) 1 else 0).toByte())
         parcel.writeInt(copyOwnerId)
@@ -371,7 +372,7 @@ class News : AbsModel {
         parcel.writeByte((if (isCanPublish) 1 else 0).toByte())
         parcel.writeInt(repostsCount)
         parcel.writeByte((if (isUserReposted) 1 else 0).toByte())
-        parcel.writeParcelable(attachments, i)
+        parcel.writeTypedObjectCompat(attachments, i)
         parcel.writeTypedList(friends)
         parcel.writeInt(viewCount)
     }

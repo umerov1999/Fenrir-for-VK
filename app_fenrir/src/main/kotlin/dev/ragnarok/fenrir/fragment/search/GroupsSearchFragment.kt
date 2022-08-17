@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.adapter.PeopleAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.GroupSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
@@ -37,7 +38,7 @@ class GroupsSearchFragment :
             override fun create(): CommunitiesSearchPresenter {
                 return CommunitiesSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     saveInstanceState
                 )
             }

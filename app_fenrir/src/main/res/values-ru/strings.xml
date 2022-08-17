@@ -1697,4 +1697,5 @@
     <string name="privated">Частный</string>
     <string name="birthdays_title">Дни рождения</string>
     <string name="show_photos_date">Показывать дату фото</string>
+    <string name="action_jump_offset">Прыжок</string>
 </resources>

@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.adapter.WallAdapter
 import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.NewsFeedSearchPresenter
@@ -94,7 +95,7 @@ class NewsFeedSearchFragment :
             override fun create(): NewsFeedSearchPresenter {
                 return NewsFeedSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     saveInstanceState
                 )
             }

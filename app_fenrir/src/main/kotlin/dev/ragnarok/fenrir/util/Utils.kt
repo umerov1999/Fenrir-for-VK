@@ -16,7 +16,6 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
 import android.os.Parcel
-import android.os.Parcelable
 import android.util.SparseArray
 import android.util.TypedValue
 import android.view.Display
@@ -67,7 +66,6 @@ import okhttp3.*
 import okhttp3.Call
 import java.io.Closeable
 import java.io.IOException
-import java.math.BigDecimal
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -659,6 +657,10 @@ object Utils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     }
 
+    fun hasTiramisu(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    }
+
     fun indexOf(data: List<Identificable>?, id: Int): Int {
         data ?: return -1
         for (i in data.indices) {
@@ -710,19 +712,6 @@ object Utils {
         }
         return null
     }
-
-    /**
-     * Округление числа
-     *
-     * @param value  число
-     * @param digits количество знаков после запятой
-     * @return округленное число
-     */
-
-    fun roundUp(value: Double, digits: Int): BigDecimal {
-        return BigDecimal("" + value).setScale(digits, BigDecimal.ROUND_HALF_UP)
-    }
-
 
     fun <T> createSingleElementList(element: T): ArrayList<T> {
         val list = ArrayList<T>()
@@ -848,9 +837,13 @@ object Utils {
      * @return Application's version code from the `PackageManager`.
      */
 
+    @Suppress("deprecation")
     fun getAppVersionName(context: Context): String? {
         return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = if (hasTiramisu()) context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(0)
+            ) else context.packageManager.getPackageInfo(context.packageName, 0)
             packageInfo.versionName
         } catch (ignored: PackageManager.NameNotFoundException) {
             null
@@ -1096,35 +1089,6 @@ object Utils {
         val map: MutableMap<String, String> = HashMap(size)
         for (i in 0 until size) {
             map[parcel.readString() ?: continue] = parcel.readString() ?: continue
-        }
-        return map
-    }
-
-    inline fun <reified T : Parcelable> writeParcelableMap(
-        parcel: Parcel,
-        flags: Int,
-        map: Map<String, T>?
-    ) {
-        if (map.isNullOrEmpty()) {
-            parcel.writeInt(0)
-            return
-        }
-        parcel.writeInt(map.size)
-        for ((key, value) in map) {
-            parcel.writeString(key)
-            parcel.writeParcelable(value, flags)
-        }
-    }
-
-    inline fun <reified T : Parcelable> readParcelableMap(
-        parcel: Parcel,
-        loader: ClassLoader
-    ): Map<String, T>? {
-        val size = parcel.readInt()
-        if (size == 0) return null
-        val map: MutableMap<String, T> = HashMap(size)
-        for (i in 0 until size) {
-            map[parcel.readString() ?: continue] = parcel.readParcelable(loader) ?: continue
         }
         return map
     }

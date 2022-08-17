@@ -3,6 +3,7 @@ package dev.ragnarok.filegallery.activity
 import android.content.Context
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +34,25 @@ abstract class NoMainActivity : AppCompatActivity() {
         w.statusBarColor = getStatusBarColor(this)
         w.navigationBarColor = getNavigationBarColor(this)
         supportFragmentManager.addOnBackStackChangedListener(mBackStackListener)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val fm = supportFragmentManager
+                val front = fm.findFragmentById(
+                    mainContainerViewId
+                )
+                if (front is BackPressCallback) {
+                    if (!(front as BackPressCallback).onBackPressed()) {
+                        return
+                    }
+                }
+                if (fm.backStackEntryCount <= 1) {
+                    supportFinishAfterTransition()
+                } else {
+                    supportFragmentManager.popBackStack()
+                }
+            }
+        })
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -60,24 +80,7 @@ abstract class NoMainActivity : AppCompatActivity() {
         } else {
             mToolbar?.setNavigationIcon(R.drawable.close)
         }
-        mToolbar?.setNavigationOnClickListener { onBackPressed() }
-    }
-
-    override fun onBackPressed() {
-        val fm = supportFragmentManager
-        val front = fm.findFragmentById(
-            mainContainerViewId
-        )
-        if (front is BackPressCallback) {
-            if (!(front as BackPressCallback).onBackPressed()) {
-                return
-            }
-        }
-        if (fm.backStackEntryCount > 1) {
-            super.onBackPressed()
-        } else {
-            supportFinishAfterTransition()
-        }
+        mToolbar?.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     override fun onDestroy() {

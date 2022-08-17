@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Event : AbsModel {
     val id: Int
@@ -17,11 +18,12 @@ class Event : AbsModel {
     }
 
     internal constructor(`in`: Parcel) : super(`in`) {
+        Owner
         id = `in`.readInt()
         button_text = `in`.readString()
         text = `in`.readString()
         subject =
-            `in`.readParcelable(if (id > 0) User::class.java.classLoader else Community::class.java.classLoader)
+            Owner.readOwnerFromParcel(id, `in`)
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
@@ -29,7 +31,7 @@ class Event : AbsModel {
         parcel.writeInt(id)
         parcel.writeString(button_text)
         parcel.writeString(text)
-        parcel.writeParcelable(subject, i)
+        parcel.writeTypedObjectCompat(subject, i)
     }
 
     fun setText(text: String?): Event {

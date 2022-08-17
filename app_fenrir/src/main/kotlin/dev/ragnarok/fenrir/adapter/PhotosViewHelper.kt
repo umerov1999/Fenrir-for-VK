@@ -48,7 +48,8 @@ class PhotosViewHelper internal constructor(
         }
         for (g in 0 until container.childCount) {
             val tmpV = container.getChildAt(g)
-            var holder = tmpV.tag as VideoHolder?
+            var holder: VideoHolder? =
+                if (tmpV.tag is VideoHolder) tmpV.tag as VideoHolder else null
             if (holder == null) {
                 holder = VideoHolder(tmpV)
                 tmpV.tag = holder
@@ -140,7 +141,7 @@ class PhotosViewHelper internal constructor(
         }
         for (g in 0 until container.childCount) {
             val tmpV = container.getChildAt(g)
-            var holder = tmpV.tag as Holder?
+            var holder: Holder? = if (tmpV.tag is Holder) tmpV.tag as Holder else null
             if (holder == null) {
                 holder = Holder(tmpV)
                 tmpV.tag = holder

@@ -16,6 +16,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils
 
 class NotificationHelper(private val mService: MusicPlaybackService) {
@@ -121,7 +122,9 @@ class NotificationHelper(private val mService: MusicPlaybackService) {
                 retreivePlaybackActions(ACTION_PLAY_PAUSE)
             )
         )
-        mNotificationManager.notify(FENRIR_MUSIC_SERVICE, mNotificationBuilder?.build())
+        if (AppPerms.hasNotificationPermissionSimple(mService)) {
+            mNotificationManager.notify(FENRIR_MUSIC_SERVICE, mNotificationBuilder?.build())
+        }
     }
 
     private fun getOpenIntent(context: Context): PendingIntent {

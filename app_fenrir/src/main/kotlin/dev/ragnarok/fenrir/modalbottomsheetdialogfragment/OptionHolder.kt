@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.modalbottomsheetdialogfragment
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 /**
  * Holds either the resource options or the custom option
@@ -10,14 +12,14 @@ internal class OptionHolder(val resource: Int?, val optionRequest: OptionRequest
 
     constructor(source: Parcel) : this(
         source.readValue(Int::class.java.classLoader) as Int?,
-        source.readParcelable(OptionRequest::class.java.classLoader)
+        source.readTypedObjectCompat(OptionRequest.CREATOR)
     )
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
         writeValue(resource)
-        writeParcelable(optionRequest, 0)
+        writeTypedObjectCompat(optionRequest, 0)
     }
 
     companion object CREATOR : Parcelable.Creator<OptionHolder> {

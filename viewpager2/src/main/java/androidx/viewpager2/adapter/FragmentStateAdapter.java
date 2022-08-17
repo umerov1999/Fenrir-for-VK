@@ -130,7 +130,8 @@ public abstract class FragmentStateAdapter extends
     }
 
     // Helper function for dealing with save / restore state
-    private static @NonNull String createKey(@NonNull String prefix, long id) {
+    private static @NonNull
+    String createKey(@NonNull String prefix, long id) {
         return prefix + id;
     }
 
@@ -173,7 +174,8 @@ public abstract class FragmentStateAdapter extends
      *
      * @see ViewPager2#setOffscreenPageLimit
      */
-    public abstract @NonNull Fragment createFragment(int position);
+    public abstract @NonNull
+    Fragment createFragment(int position);
 
     @NonNull
     @Override
@@ -555,7 +557,8 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public final @NonNull Parcelable saveState() {
+    public final @NonNull
+    Parcelable saveState() {
         /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
         Bundle savedState = new Bundle(mFragments.size() + mSavedStates.size());
 
@@ -581,6 +584,7 @@ public abstract class FragmentStateAdapter extends
         return savedState;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public final void restoreState(@NonNull Parcelable savedState) {
         if (!mSavedStates.isEmpty() || !mFragments.isEmpty()) {
@@ -604,7 +608,12 @@ public abstract class FragmentStateAdapter extends
 
             if (isValidKey(key, KEY_PREFIX_STATE)) {
                 long itemId = parseIdFromKey(key, KEY_PREFIX_STATE);
-                Fragment.SavedState state = bundle.getParcelable(key);
+                Fragment.SavedState state;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    state = bundle.getParcelable(key, Fragment.SavedState.class);
+                } else {
+                    state = bundle.getParcelable(key);
+                }
                 if (containsItem(itemId)) {
                     mSavedStates.put(itemId, state);
                 }

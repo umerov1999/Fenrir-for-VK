@@ -21,6 +21,7 @@ import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.settings.Settings.get
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import io.reactivex.rxjava3.core.Single
@@ -98,11 +99,13 @@ class GroupInviteFCMMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager?.notify(
-            group_id.toString(),
-            NotificationHelper.NOTIFICATION_GROUP_INVITE_ID,
-            notification
-        )
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager?.notify(
+                group_id.toString(),
+                NotificationHelper.NOTIFICATION_GROUP_INVITE_ID,
+                notification
+            )
+        }
     }
 
     companion object {

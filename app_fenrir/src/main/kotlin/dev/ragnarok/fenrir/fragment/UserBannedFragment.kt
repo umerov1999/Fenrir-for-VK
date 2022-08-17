@@ -23,6 +23,7 @@ import dev.ragnarok.fenrir.activity.SelectProfilesActivity.Companion.createInten
 import dev.ragnarok.fenrir.adapter.PeopleAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.friends.FriendsTabsFragment
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.model.Owner
@@ -41,7 +42,8 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val owners: ArrayList<Owner>? = result.data?.getParcelableArrayListExtra(Extra.OWNERS)
+            val owners: ArrayList<Owner>? =
+                result.data?.getParcelableArrayListExtraCompat(Extra.OWNERS)
             lazyPresenter {
                 owners?.let { u -> fireOwnersSelected(u) }
             }

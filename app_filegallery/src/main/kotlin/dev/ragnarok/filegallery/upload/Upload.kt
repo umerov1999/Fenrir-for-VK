@@ -3,8 +3,10 @@ package dev.ragnarok.filegallery.upload
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.filegallery.readTypedObjectCompat
 import dev.ragnarok.filegallery.util.ParcelUtils.readObjectLong
 import dev.ragnarok.filegallery.util.ParcelUtils.writeObjectLong
+import dev.ragnarok.filegallery.writeTypedObjectCompat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -50,8 +52,8 @@ open class Upload : Parcelable {
 
     internal constructor(`in`: Parcel) {
         id = `in`.readInt()
-        fileUri = `in`.readParcelable(Uri::class.java.classLoader)
-        destination = `in`.readParcelable(UploadDestination::class.java.classLoader)!!
+        fileUri = `in`.readTypedObjectCompat(Uri.CREATOR)
+        destination = `in`.readTypedObjectCompat(UploadDestination.CREATOR)!!
         size = `in`.readInt()
         status = `in`.readInt()
         progress = `in`.readInt()
@@ -86,8 +88,8 @@ open class Upload : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeInt(id)
-        parcel.writeParcelable(fileUri, i)
-        parcel.writeParcelable(destination, i)
+        parcel.writeTypedObjectCompat(fileUri, i)
+        parcel.writeTypedObjectCompat(destination, i)
         parcel.writeInt(size)
         parcel.writeInt(status)
         parcel.writeInt(progress)

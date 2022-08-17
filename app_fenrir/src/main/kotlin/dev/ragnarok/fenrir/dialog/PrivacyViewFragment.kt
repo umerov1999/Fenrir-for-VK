@@ -15,6 +15,8 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SelectProfilesActivity.Companion.startFriendsSelection
 import dev.ragnarok.fenrir.adapter.PrivacyAdapter
 import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.FriendList
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Privacy
@@ -27,7 +29,8 @@ class PrivacyViewFragment : AccountDependencyDialogFragment(), PrivacyAdapter.Ac
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            val users: ArrayList<Owner>? = result.data?.getParcelableArrayListExtra(Extra.OWNERS)
+            val users: ArrayList<Owner>? =
+                result.data?.getParcelableArrayListExtraCompat(Extra.OWNERS)
             users ?: return@registerForActivityResult
             for (user in users) {
                 if (user is User) {
@@ -41,7 +44,8 @@ class PrivacyViewFragment : AccountDependencyDialogFragment(), PrivacyAdapter.Ac
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            val users: ArrayList<Owner>? = result.data?.getParcelableArrayListExtra(Extra.OWNERS)
+            val users: ArrayList<Owner>? =
+                result.data?.getParcelableArrayListExtraCompat(Extra.OWNERS)
             users ?: return@registerForActivityResult
             for (user in users) {
                 if (user is User) {
@@ -55,7 +59,7 @@ class PrivacyViewFragment : AccountDependencyDialogFragment(), PrivacyAdapter.Ac
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
-            mPrivacy = savedInstanceState.getParcelable(SAVE_PRIVACY)
+            mPrivacy = savedInstanceState.getParcelableCompat(SAVE_PRIVACY)
         }
         if (mPrivacy == null) {
             mPrivacy = clonePrivacyFromArgs()
@@ -142,7 +146,7 @@ class PrivacyViewFragment : AccountDependencyDialogFragment(), PrivacyAdapter.Ac
     }
 
     private fun clonePrivacyFromArgs(): Privacy {
-        val privacy: Privacy = requireArguments().getParcelable(Extra.PRIVACY)
+        val privacy: Privacy = requireArguments().getParcelableCompat(Extra.PRIVACY)
             ?: throw IllegalArgumentException("Args do not contain Privacy extra")
         return try {
             privacy.clone()

@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class PhotoAlbum : AbsModel, ISomeones {
     private val id: Int
@@ -35,11 +37,11 @@ class PhotoAlbum : AbsModel, ISomeones {
         canUpload = `in`.readByte().toInt() != 0
         updatedTime = `in`.readLong()
         createdTime = `in`.readLong()
-        sizes = `in`.readParcelable(PhotoSizes::class.java.classLoader)
+        sizes = `in`.readTypedObjectCompat(PhotoSizes.CREATOR)
         uploadByAdminsOnly = `in`.readByte().toInt() != 0
         commentsDisabled = `in`.readByte().toInt() != 0
-        privacyView = `in`.readParcelable(SimplePrivacy::class.java.classLoader)
-        privacyComment = `in`.readParcelable(SimplePrivacy::class.java.classLoader)
+        privacyView = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
+        privacyComment = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
@@ -52,11 +54,11 @@ class PhotoAlbum : AbsModel, ISomeones {
         parcel.writeByte((if (canUpload) 1 else 0).toByte())
         parcel.writeLong(updatedTime)
         parcel.writeLong(createdTime)
-        parcel.writeParcelable(sizes, i)
+        parcel.writeTypedObjectCompat(sizes, i)
         parcel.writeByte((if (uploadByAdminsOnly) 1 else 0).toByte())
         parcel.writeByte((if (commentsDisabled) 1 else 0).toByte())
-        parcel.writeParcelable(privacyView, i)
-        parcel.writeParcelable(privacyComment, i)
+        parcel.writeTypedObjectCompat(privacyView, i)
+        parcel.writeTypedObjectCompat(privacyComment, i)
     }
 
     override fun getObjectId(): Int {

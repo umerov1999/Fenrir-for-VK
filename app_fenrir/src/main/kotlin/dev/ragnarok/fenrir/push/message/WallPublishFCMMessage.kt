@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.settings.Settings.get
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
@@ -96,7 +97,9 @@ class WallPublishFCMMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager?.notify(place, NotificationHelper.NOTIFICATION_WALL_PUBLISH_ID, notification)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager?.notify(place, NotificationHelper.NOTIFICATION_WALL_PUBLISH_ID, notification)
+        }
     }
 
     companion object {

@@ -5,6 +5,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.adapter.horizontal.Entry
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class FeedSource : Entry, Parcelable {
     private val value: String?
@@ -26,7 +28,7 @@ class FeedSource : Entry, Parcelable {
 
     internal constructor(`in`: Parcel) {
         value = `in`.readString()
-        title = `in`.readParcelable(Text::class.java.classLoader)
+        title = `in`.readTypedObjectCompat(Text.CREATOR)
         active = `in`.readByte().toInt() != 0
         custom = `in`.readByte().toInt() != 0
     }
@@ -41,7 +43,7 @@ class FeedSource : Entry, Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(value)
-        dest.writeParcelable(title, flags)
+        dest.writeTypedObjectCompat(title, flags)
         dest.writeByte((if (active) 1 else 0).toByte())
         dest.writeByte((if (custom) 1 else 0).toByte())
     }

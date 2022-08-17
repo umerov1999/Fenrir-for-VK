@@ -15,6 +15,7 @@ import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Video
@@ -347,7 +348,7 @@ class VideoPreviewPresenter(
         if (savedInstanceState == null) {
             this.video = video
         } else {
-            this.video = savedInstanceState.getParcelable("video")
+            this.video = savedInstanceState.getParcelableCompat("video")
         }
         refreshVideoInfo()
     }

@@ -4072,11 +4072,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         return mAccessibilityManager != null && mAccessibilityManager.isEnabled();
     }
 
+    @SuppressWarnings("deprecation")
     private void dispatchContentChangedIfNecessary() {
         int flags = mEatenAccessibilityChangeFlags;
         mEatenAccessibilityChangeFlags = 0;
         if (flags != 0 && isAccessibilityEnabled()) {
-            AccessibilityEvent event = AccessibilityEvent.obtain();
+            AccessibilityEvent event;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                event = new AccessibilityEvent();
+            } else {
+                event = AccessibilityEvent.obtain();
+            }
             event.setEventType(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
             AccessibilityEventCompat.setContentChangeTypes(event, flags);
             sendAccessibilityEventUnchecked(event);
@@ -11658,6 +11664,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         /**
          * called by CREATOR
          */
+        @SuppressWarnings("deprecation")
         SavedState(Parcel in, ClassLoader loader) {
             super(in, loader);
             mLayoutState = in.readParcelable(

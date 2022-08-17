@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder
 import dev.ragnarok.fenrir.adapter.MessagesAdapter
 import dev.ragnarok.fenrir.adapter.MessagesAdapter.OnMessageActionListener
 import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Keyboard
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.VoiceMessage
@@ -72,7 +73,8 @@ class MessagesSearchFragment :
         return object : IPresenterFactory<MessagesSearchPresenter> {
             override fun create(): MessagesSearchPresenter {
                 val accountId = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val c: MessageSearchCriteria? = requireArguments().getParcelable(Extra.CRITERIA)
+                val c: MessageSearchCriteria? =
+                    requireArguments().getParcelableCompat(Extra.CRITERIA)
                 return MessagesSearchPresenter(accountId, c, saveInstanceState)
             }
         }

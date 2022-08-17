@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 
 class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
@@ -18,9 +20,13 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
 
     internal constructor(`in`: Parcel) {
         type = `in`.readInt()
-        isNull = `in`.readByte().toInt() != 0
+        isNull = `in`.readInt() != 0
         owner = if (!isNull) {
-            `in`.readParcelable(if (type == OwnerType.USER) User::class.java.classLoader else Community::class.java.classLoader)
+            if (type == OwnerType.USER) {
+                `in`.readTypedObjectCompat(User.CREATOR)
+            } else {
+                `in`.readTypedObjectCompat(Community.CREATOR)
+            }
         } else {
             null
         }
@@ -48,7 +54,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         dest.writeInt(type)
         dest.writeByte((if (isNull) 1 else 0).toByte())
         if (!isNull) {
-            dest.writeParcelable(owner, flags)
+            dest.writeTypedObjectCompat(owner, flags)
         }
     }
 
@@ -99,12 +105,12 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         }
 
         fun readOwner(`in`: Parcel): Owner? {
-            return `in`.readParcelable<ParcelableOwnerWrapper>(ParcelableOwnerWrapper::class.java.classLoader)
+            return `in`.readTypedObjectCompat(CREATOR)
                 ?.get()
         }
 
         fun writeOwner(dest: Parcel, flags: Int, owner: Owner?) {
-            dest.writeParcelable(ParcelableOwnerWrapper(owner), flags)
+            dest.writeTypedObjectCompat(ParcelableOwnerWrapper(owner), flags)
         }
 
         fun readOwners(`in`: Parcel): List<Owner>? {

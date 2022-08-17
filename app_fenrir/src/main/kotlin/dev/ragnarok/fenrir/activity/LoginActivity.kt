@@ -10,14 +10,11 @@ import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Constants.USER_AGENT
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Auth
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.model.Token
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.Utils
@@ -188,7 +185,7 @@ class LoginActivity : AppCompatActivity() {
 
 
         fun extractGroupTokens(data: Intent): ArrayList<Token>? {
-            return data.getParcelableArrayListExtra("group_tokens")
+            return data.getParcelableArrayListExtraCompat("group_tokens")
         }
     }
 }

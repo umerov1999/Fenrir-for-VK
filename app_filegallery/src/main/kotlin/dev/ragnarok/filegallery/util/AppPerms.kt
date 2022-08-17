@@ -42,6 +42,15 @@ object AppPerms {
         return hasWritePermission == PackageManager.PERMISSION_GRANTED && hasReadPermission == PackageManager.PERMISSION_GRANTED
     }
 
+    fun hasNotificationPermissionSimple(context: Context): Boolean {
+        if (!Utils.hasTiramisu()) return true
+        val hasNPermission = PermissionChecker.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+        return hasNPermission == PackageManager.PERMISSION_GRANTED
+    }
+
     inline fun <reified T : Fragment> T.requestPermissionsAbs(
         permissions: Array<String>,
         crossinline granted: () -> Unit

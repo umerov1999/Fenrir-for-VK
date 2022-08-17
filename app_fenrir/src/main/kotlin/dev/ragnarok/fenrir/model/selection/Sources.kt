@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model.selection
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Sources : Parcelable {
     val sources: ArrayList<AbsSelectableSource>
@@ -16,28 +18,28 @@ class Sources : Parcelable {
         for (i in 0 until size) {
             when (@Types val type = `in`.readInt()) {
                 Types.FILES -> sources.add(
-                    `in`.readParcelable(
-                        FileManagerSelectableSource::class.java.classLoader
+                    `in`.readTypedObjectCompat(
+                        FileManagerSelectableSource.CREATOR
                     )!!
                 )
                 Types.LOCAL_PHOTOS -> sources.add(
-                    `in`.readParcelable(
-                        LocalPhotosSelectableSource::class.java.classLoader
+                    `in`.readTypedObjectCompat(
+                        LocalPhotosSelectableSource.CREATOR
                     )!!
                 )
                 Types.LOCAL_GALLERY -> sources.add(
-                    `in`.readParcelable(
-                        LocalGallerySelectableSource::class.java.classLoader
+                    `in`.readTypedObjectCompat(
+                        LocalGallerySelectableSource.CREATOR
                     )!!
                 )
                 Types.VIDEOS -> sources.add(
-                    `in`.readParcelable(
-                        LocalVideosSelectableSource::class.java.classLoader
+                    `in`.readTypedObjectCompat(
+                        LocalVideosSelectableSource.CREATOR
                     )!!
                 )
                 Types.VK_PHOTOS -> sources.add(
-                    `in`.readParcelable(
-                        VkPhotosSelectableSource::class.java.classLoader
+                    `in`.readTypedObjectCompat(
+                        VkPhotosSelectableSource.CREATOR
                     )!!
                 )
                 else -> throw UnsupportedOperationException("Invalid type $type")
@@ -62,7 +64,7 @@ class Sources : Parcelable {
         parcel.writeInt(sources.size)
         for (source in sources) {
             parcel.writeInt(source.type)
-            parcel.writeParcelable(source, flags)
+            parcel.writeTypedObjectCompat(source, flags)
         }
     }
 

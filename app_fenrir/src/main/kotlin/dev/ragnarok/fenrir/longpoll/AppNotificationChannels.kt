@@ -17,7 +17,7 @@ object AppNotificationChannels {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private val ATTRIBUTES = AudioAttributes.Builder()
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-        .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
         .build()
 
     val chatMessageChannelId: String

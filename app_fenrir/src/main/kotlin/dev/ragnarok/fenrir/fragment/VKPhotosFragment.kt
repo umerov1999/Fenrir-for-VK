@@ -15,8 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.PhotosActivity
 import dev.ragnarok.fenrir.adapter.BigVkPhotosAdapter
@@ -32,7 +31,6 @@ import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.VkPhotosPresenter
 import dev.ragnarok.fenrir.mvp.view.IVkPhotosView
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory.getPhotoAlbumGalleryPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.Upload
@@ -49,7 +47,7 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val photos: ArrayList<LocalPhoto>? =
-                result.data?.getParcelableArrayListExtra(Extra.PHOTOS)
+                result.data?.getParcelableArrayListExtraCompat(Extra.PHOTOS)
             if (photos.nonNullNoEmpty()) {
                 onPhotosForUploadSelected(photos)
             }
@@ -413,9 +411,9 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
         return object : IPresenterFactory<VkPhotosPresenter> {
             override fun create(): VkPhotosPresenter {
                 val ownerWrapper: ParcelableOwnerWrapper? =
-                    requireArguments().getParcelable(Extra.OWNER)
+                    requireArguments().getParcelableCompat(Extra.OWNER)
                 val owner = ownerWrapper?.get()
-                val album: PhotoAlbum? = requireArguments().getParcelable(Extra.ALBUM)
+                val album: PhotoAlbum? = requireArguments().getParcelableCompat(Extra.ALBUM)
                 return VkPhotosPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     requireArguments().getInt(Extra.OWNER_ID),

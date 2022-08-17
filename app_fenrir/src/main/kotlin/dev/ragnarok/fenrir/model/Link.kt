@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Link : AbsModel {
     var url: String? = null
@@ -28,7 +30,7 @@ class Link : AbsModel {
         caption = `in`.readString()
         description = `in`.readString()
         previewPhoto = `in`.readString()
-        photo = `in`.readParcelable(Photo::class.java.classLoader)
+        photo = `in`.readTypedObjectCompat(Photo.CREATOR)
         msgId = `in`.readInt()
         msgPeerId = `in`.readInt()
     }
@@ -40,7 +42,7 @@ class Link : AbsModel {
         parcel.writeString(caption)
         parcel.writeString(description)
         parcel.writeString(previewPhoto)
-        parcel.writeParcelable(photo, i)
+        parcel.writeTypedObjectCompat(photo, i)
         parcel.writeInt(msgId)
         parcel.writeInt(msgPeerId)
     }

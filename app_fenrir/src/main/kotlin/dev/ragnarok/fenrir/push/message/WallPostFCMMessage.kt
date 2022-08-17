@@ -21,6 +21,7 @@ import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.settings.Settings.get
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Utils.hasOreo
 import dev.ragnarok.fenrir.util.Utils.makeMutablePendingIntent
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
@@ -105,11 +106,13 @@ class WallPostFCMMessage {
                 builder.setContentIntent(contentIntent)
                 val notification = builder.build()
                 configOtherPushNotification(notification)
-                manager?.notify(
-                    "new_post" + owner_id + "_" + post_id,
-                    NotificationHelper.NOTIFICATION_NEW_POSTS_ID,
-                    notification
-                )
+                if (AppPerms.hasNotificationPermissionSimple(context)) {
+                    manager?.notify(
+                        "new_post" + owner_id + "_" + post_id,
+                        NotificationHelper.NOTIFICATION_NEW_POSTS_ID,
+                        notification
+                    )
+                }
             }, ignore())
     }
 
@@ -143,7 +146,9 @@ class WallPostFCMMessage {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         configOtherPushNotification(notification)
-        nManager?.notify(place, NotificationHelper.NOTIFICATION_WALL_POST_ID, notification)
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            nManager?.notify(place, NotificationHelper.NOTIFICATION_WALL_POST_ID, notification)
+        }
     }
 
     @Serializable

@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Topic : AbsModel {
     val id: Int
@@ -49,10 +51,8 @@ class Topic : AbsModel {
         commentsCount = `in`.readInt()
         firstCommentBody = `in`.readString()
         lastCommentBody = `in`.readString()
-        creator =
-            (`in`.readParcelable<Parcelable>(ParcelableOwnerWrapper::class.java.classLoader) as ParcelableOwnerWrapper?)!!.get()
-        updater =
-            (`in`.readParcelable<Parcelable>(ParcelableOwnerWrapper::class.java.classLoader) as ParcelableOwnerWrapper?)!!.get()
+        creator = `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)?.get()
+        updater = `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)?.get()
     }
 
     fun setTitle(title: String?): Topic {
@@ -129,8 +129,8 @@ class Topic : AbsModel {
         parcel.writeInt(commentsCount)
         parcel.writeString(firstCommentBody)
         parcel.writeString(lastCommentBody)
-        parcel.writeParcelable(ParcelableOwnerWrapper(creator), i)
-        parcel.writeParcelable(ParcelableOwnerWrapper(updater), i)
+        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(creator), i)
+        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(updater), i)
     }
 
     override fun describeContents(): Int {

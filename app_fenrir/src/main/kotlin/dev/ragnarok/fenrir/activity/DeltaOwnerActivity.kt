@@ -95,7 +95,7 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
             }
         } else {
             Export.visibility = View.VISIBLE
-            intent.extras?.getParcelable(Extra.LIST) ?: DeltaOwner()
+            intent.extras?.getParcelableCompat(Extra.LIST) ?: DeltaOwner()
         }
 
         val accountId = intent.extras?.getInt(Extra.ACCOUNT_ID, Settings.get().accounts().current)
@@ -262,7 +262,7 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
 
     private fun resolveToolbarNavigationIcon() {
         mToolbar?.setNavigationIcon(R.drawable.close)
-        mToolbar?.setNavigationOnClickListener { onBackPressed() }
+        mToolbar?.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     override fun onDestroy() {

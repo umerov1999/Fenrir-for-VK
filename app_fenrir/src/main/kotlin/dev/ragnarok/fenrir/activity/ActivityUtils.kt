@@ -10,6 +10,8 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
+import dev.ragnarok.fenrir.getParcelableExtraCompat
 
 object ActivityUtils {
     fun isMimeVideo(mime: String?): Boolean {
@@ -30,12 +32,15 @@ object ActivityUtils {
         }
         if (Intent.ACTION_SEND_MULTIPLE == action) {
             if (extras.containsKey(Intent.EXTRA_STREAM)) {
-                return StreamData(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM), mime)
+                return StreamData(
+                    intent.getParcelableArrayListExtraCompat(Intent.EXTRA_STREAM),
+                    mime
+                )
             }
         }
         if (Intent.ACTION_SEND == action) {
             if (extras.containsKey(Intent.EXTRA_STREAM)) {
-                val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                val uri = intent.getParcelableExtraCompat<Uri>(Intent.EXTRA_STREAM)
                 if (uri != null) {
                     val streams = ArrayList<Uri>(1)
                     streams.add(uri)

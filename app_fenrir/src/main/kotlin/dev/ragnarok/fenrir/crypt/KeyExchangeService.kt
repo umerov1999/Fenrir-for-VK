@@ -1,21 +1,18 @@
 package dev.ragnarok.fenrir.crypt
 
-import android.app.NotificationManager
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.os.Message
+import android.os.*
 import android.util.Base64
 import android.util.LongSparseArray
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.KeyExchangeCommitActivity.Companion.createIntent
 import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiMessage
@@ -28,11 +25,10 @@ import dev.ragnarok.fenrir.crypt.CryptHelper.generateRsaKeyPair
 import dev.ragnarok.fenrir.crypt.ver.Version.currentVersion
 import dev.ragnarok.fenrir.crypt.ver.Version.ofCurrent
 import dev.ragnarok.fenrir.db.Stores
-import dev.ragnarok.fenrir.fromIOToMain
-import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.push.OwnerInfo
+import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Logger.wtf
 import dev.ragnarok.fenrir.util.Unixtime.now
@@ -57,7 +53,7 @@ class KeyExchangeService : Service() {
     private var mCurrentActiveNotifications: LongSparseArray<NotificationCompat.Builder> =
         LongSparseArray(1)
     private var mFinishedSessionsIds: MutableSet<Long> = HashSet(1)
-    private var mNotificationManager: NotificationManager? = null
+    private var mNotificationManager: NotificationManagerCompat? = null
     private val mStopServiceHandler = Handler(Looper.getMainLooper()) { msg: Message ->
         if (msg.what == WHAT_STOP_SERVICE) {
             finishAllByTimeout()
@@ -65,10 +61,16 @@ class KeyExchangeService : Service() {
         }
         false
     }
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate() {
         super.onCreate()
-        mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
+        if (wakeLock == null) {
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager?
+            wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, javaClass.name)
+            wakeLock?.setReferenceCounted(false)
+        }
+        mNotificationManager = NotificationManagerCompat.from(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -77,7 +79,7 @@ class KeyExchangeService : Service() {
                 val accountId = intent.extras!!.getInt(Extra.ACCOUNT_ID)
                 val peerId = intent.extras!!.getInt(Extra.PEER_ID)
                 val messageId = intent.extras!!.getInt(Extra.MESSAGE_ID)
-                val message: ExchangeMessage = intent.getParcelableExtra(Extra.MESSAGE)!!
+                val message: ExchangeMessage = intent.getParcelableExtraCompat(Extra.MESSAGE)!!
                 processNewKeyExchangeMessage(accountId, peerId, messageId, message)
             }
             ACTION_INICIATE_KEY_EXCHANGE -> {
@@ -92,17 +94,19 @@ class KeyExchangeService : Service() {
                 val accountId = intent.extras!!.getInt(Extra.ACCOUNT_ID)
                 val peerId = intent.extras!!.getInt(Extra.PEER_ID)
                 val messageId = intent.extras!!.getInt(Extra.MESSAGE_ID)
-                val message: ExchangeMessage = intent.getParcelableExtra(Extra.MESSAGE)!!
-                mNotificationManager?.cancel(
-                    message.sessionId.toString(),
-                    NOTIFICATION_KEY_EXCHANGE_REQUEST
-                )
+                val message: ExchangeMessage = intent.getParcelableExtraCompat(Extra.MESSAGE)!!
+                if (AppPerms.hasNotificationPermissionSimple(this)) {
+                    mNotificationManager?.cancel(
+                        message.sessionId.toString(),
+                        NOTIFICATION_KEY_EXCHANGE_REQUEST
+                    )
+                }
                 processKeyExchangeMessage(accountId, peerId, messageId, message, false)
             }
             ACTION_DECLINE -> {
                 val accountId = intent.extras!!.getInt(Extra.ACCOUNT_ID)
                 val peerId = intent.extras!!.getInt(Extra.PEER_ID)
-                val message: ExchangeMessage = intent.getParcelableExtra(Extra.MESSAGE)!!
+                val message: ExchangeMessage = intent.getParcelableExtraCompat(Extra.MESSAGE)!!
                 declineInputSession(accountId, peerId, message)
             }
         }
@@ -253,6 +257,7 @@ class KeyExchangeService : Service() {
     }
 
     override fun onDestroy() {
+        wakeLock?.release()
         mCompositeSubscription.dispose()
         super.onDestroy()
     }
@@ -290,6 +295,7 @@ class KeyExchangeService : Service() {
         refreshSessionNotification(session)
     }
 
+    @SuppressLint("MissingPermission")
     private fun displayUserConfirmNotificationImpl(
         accountId: Int,
         peerId: Int,
@@ -338,11 +344,13 @@ class KeyExchangeService : Service() {
         builder.priority = NotificationCompat.PRIORITY_HIGH
         builder.setDefaults(NotificationCompat.DEFAULT_ALL)
         val notification = builder.build()
-        mNotificationManager?.notify(
-            message.sessionId.toString(),
-            NOTIFICATION_KEY_EXCHANGE_REQUEST,
-            notification
-        )
+        if (AppPerms.hasNotificationPermissionSimple(this)) {
+            mNotificationManager?.notify(
+                message.sessionId.toString(),
+                NOTIFICATION_KEY_EXCHANGE_REQUEST,
+                notification
+            )
+        }
     }
 
     private fun processKeyExchangeMessage(
@@ -438,7 +446,9 @@ class KeyExchangeService : Service() {
         mCurrentActiveSessions.remove(session.id)
         mFinishedSessionsIds.add(session.id)
         mCurrentActiveNotifications.remove(session.id)
-        mNotificationManager?.cancel(session.id.toString(), NOTIFICATION_KEY_EXCHANGE)
+        if (AppPerms.hasNotificationPermissionSimple(this)) {
+            mNotificationManager?.cancel(session.id.toString(), NOTIFICATION_KEY_EXCHANGE)
+        }
         showError(localizeError(message.errorCode))
         d(
             TAG,
@@ -452,7 +462,9 @@ class KeyExchangeService : Service() {
         mCurrentActiveSessions.remove(session.id)
         mFinishedSessionsIds.add(session.id)
         mCurrentActiveNotifications.remove(session.id)
-        mNotificationManager?.cancel(session.id.toString(), NOTIFICATION_KEY_EXCHANGE)
+        if (AppPerms.hasNotificationPermissionSimple(this)) {
+            mNotificationManager?.cancel(session.id.toString(), NOTIFICATION_KEY_EXCHANGE)
+        }
         if (withError) {
             showError(getString(R.string.key_exchange_failed))
         } else {
@@ -661,6 +673,7 @@ class KeyExchangeService : Service() {
             }
     }
 
+    @SuppressLint("MissingPermission")
     private fun refreshSessionNotification(session: KeyExchangeSession) {
         if (hasOreo()) {
             mNotificationManager?.createNotificationChannel(
@@ -675,11 +688,13 @@ class KeyExchangeService : Service() {
         val state = localState.coerceAtLeast(opponentState)
         builder?.let {
             it.setProgress(SessionState.CLOSED, state, false)
-            mNotificationManager?.notify(
-                session.id.toString(),
-                NOTIFICATION_KEY_EXCHANGE,
-                it.build()
-            )
+            if (AppPerms.hasNotificationPermissionSimple(this)) {
+                mNotificationManager?.notify(
+                    session.id.toString(),
+                    NOTIFICATION_KEY_EXCHANGE,
+                    it.build()
+                )
+            }
         }
     }
 

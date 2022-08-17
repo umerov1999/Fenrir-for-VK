@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.fragment.search.criteria.PeopleSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.mvp.view.search.IPeopleSearchView
 import dev.ragnarok.fenrir.util.Pair
@@ -23,6 +24,10 @@ class PeopleSearchPresenter(
     private val ownersRepository: IOwnersRepository = owners
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
+
+    override fun readParcelSaved(savedInstanceState: Bundle, key: String): PeopleSearchCriteria? {
+        return savedInstanceState.getParcelableCompat(key)
+    }
 
     override fun isAtLast(startFrom: IntNextFrom): Boolean {
         return startFrom.offset == 0

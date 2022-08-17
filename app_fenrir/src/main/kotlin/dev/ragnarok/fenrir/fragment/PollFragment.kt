@@ -16,6 +16,7 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.adapter.PollAnswersAdapter
 import dev.ragnarok.fenrir.adapter.PollAnswersAdapter.OnAnswerChangedCallback
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.PollPresenter
@@ -144,7 +145,7 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
         return object : IPresenterFactory<PollPresenter> {
             override fun create(): PollPresenter {
                 val aid = requireArguments().getInt(Extra.ACCOUNT_ID)
-                val poll: Poll = requireArguments().getParcelable(Extra.POLL)!!
+                val poll: Poll = requireArguments().getParcelableCompat(Extra.POLL)!!
                 return PollPresenter(aid, poll, saveInstanceState)
             }
         }

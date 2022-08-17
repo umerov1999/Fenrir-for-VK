@@ -19,6 +19,8 @@ import dev.ragnarok.fenrir.adapter.CommunityManagersAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.PeopleSearchCriteria
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.CommunityManagersPresenter
@@ -37,7 +39,7 @@ class CommunityManagersFragment :
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val users: ArrayList<Owner> = (result.data
-                ?: return@registerForActivityResult).getParcelableArrayListExtra(Extra.OWNERS)
+                ?: return@registerForActivityResult).getParcelableArrayListExtraCompat(Extra.OWNERS)
                 ?: return@registerForActivityResult
             lazyPresenter {
                 fireProfilesSelected(users)
@@ -96,7 +98,7 @@ class CommunityManagersFragment :
             override fun create(): CommunityManagersPresenter {
                 return CommunityManagersPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.GROUP_ID)!!,
+                    requireArguments().getParcelableCompat(Extra.GROUP_ID)!!,
                     saveInstanceState
                 )
             }

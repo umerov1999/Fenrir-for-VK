@@ -18,6 +18,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Logger
@@ -173,7 +174,7 @@ class MySearchView : LinearLayout {
 
     override fun onRestoreInstanceState(state: Parcelable) {
         val savedState = state as Bundle
-        val superState = savedState.getParcelable<Parcelable>("PARENT")
+        val superState = savedState.getParcelableCompat<Parcelable>("PARENT")
         super.onRestoreInstanceState(superState)
         mQuery = savedState.getString("query")
         mInput?.setText(mQuery)

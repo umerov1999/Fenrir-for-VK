@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.AudioRecyclerAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
@@ -125,7 +126,7 @@ class AudiosSearchFragment :
             override fun create(): AudiosSearchPresenter {
                 return AudiosSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     saveInstanceState
                 )
             }

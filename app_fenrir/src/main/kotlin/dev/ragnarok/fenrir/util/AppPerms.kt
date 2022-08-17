@@ -62,6 +62,14 @@ object AppPerms {
         return hasWritePermission == PackageManager.PERMISSION_GRANTED
     }
 
+    fun hasNotificationPermissionSimple(context: Context): Boolean {
+        if (!Utils.hasTiramisu()) return true
+        val hasNPermission = PermissionChecker.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+        return hasNPermission == PackageManager.PERMISSION_GRANTED
+    }
 
     fun hasReadStoragePermissionSimple(context: Context): Boolean {
         if (!Utils.hasMarshmallow()) return true

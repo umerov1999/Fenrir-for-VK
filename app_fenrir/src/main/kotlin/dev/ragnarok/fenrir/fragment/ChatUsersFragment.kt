@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.activity.SelectProfilesActivity.Companion.createInten
 import dev.ragnarok.fenrir.adapter.ChatMembersListAdapter
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.friends.FriendsTabsFragment
+import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.SelectProfileCriteria
@@ -38,7 +39,8 @@ class ChatUsersFragment : BaseMvpFragment<ChatMembersPresenter, IChatMembersView
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            val users: ArrayList<Owner>? = result.data?.getParcelableArrayListExtra(Extra.OWNERS)
+            val users: ArrayList<Owner>? =
+                result.data?.getParcelableArrayListExtraCompat(Extra.OWNERS)
             lazyPresenter {
                 fireUserSelected(users)
             }

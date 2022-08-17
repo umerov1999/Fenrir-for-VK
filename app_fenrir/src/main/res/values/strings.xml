@@ -1921,4 +1921,5 @@
     <string name="privated">Private</string>
     <string name="birthdays_title">Birth Days</string>
     <string name="show_photos_date">Show photos date</string>
+    <string name="action_jump_offset">Jump</string>
 </resources>

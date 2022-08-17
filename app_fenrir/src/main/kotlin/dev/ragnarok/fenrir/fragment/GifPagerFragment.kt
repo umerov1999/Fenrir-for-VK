@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils
+import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.media.gif.IGifPlayer
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
@@ -133,7 +134,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
                 val aid = requireArguments().getInt(Extra.ACCOUNT_ID)
                 val index = requireArguments().getInt(Extra.INDEX)
                 val documents: ArrayList<Document> =
-                    requireArguments().getParcelableArrayList(Extra.DOCS)!!
+                    requireArguments().getParcelableArrayListCompat(Extra.DOCS)!!
                 return GifPagerPresenter(aid, documents, index, saveInstanceState)
             }
         }

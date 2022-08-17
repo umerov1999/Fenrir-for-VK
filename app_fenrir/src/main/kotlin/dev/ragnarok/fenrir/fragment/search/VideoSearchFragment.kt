@@ -10,6 +10,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.adapter.VideosAdapter
 import dev.ragnarok.fenrir.fragment.search.criteria.VideoSearchCriteria
+import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
 import dev.ragnarok.fenrir.mvp.presenter.search.VideosSearchPresenter
@@ -57,7 +58,7 @@ class VideoSearchFragment :
             override fun create(): VideosSearchPresenter {
                 return VideosSearchPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.CRITERIA),
+                    requireArguments().getParcelableCompat(Extra.CRITERIA),
                     requireArguments().getString(Extra.ACTION),
                     saveInstanceState
                 )

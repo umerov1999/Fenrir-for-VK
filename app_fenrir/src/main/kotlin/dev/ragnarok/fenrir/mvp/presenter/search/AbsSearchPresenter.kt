@@ -173,11 +173,13 @@ abstract class AbsSearchPresenter<V : IBaseSearchView<T>, C : BaseSearchCriteria
         private const val SEARCH_DELAY = 1500
     }
 
+    abstract fun readParcelSaved(savedInstanceState: Bundle, key: String): C?
+
     private fun create(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
             this.criteria = criteria ?: instantiateEmptyCriteria()
         } else {
-            this.criteria = savedInstanceState.getParcelable(SAVE_CRITERIA)
+            this.criteria = readParcelSaved(savedInstanceState, SAVE_CRITERIA)
         }
         nextFrom = initialNextFrom
         actionHandler = WeakActionHandler(this)

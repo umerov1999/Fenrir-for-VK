@@ -178,7 +178,8 @@ class WallsRepository(
         ownerId: Int,
         offset: Int,
         count: Int,
-        wallFilter: Int
+        wallFilter: Int,
+        needStore: Boolean
     ): Single<List<Post>> {
         return networker.vkDefault(accountId)
             .wall()[ownerId, null, offset, count, convertToApiFilter(wallFilter), true, Constants.MAIN_OWNER_FIELDS]
@@ -203,16 +204,20 @@ class WallsRepository(
                         for (dto in dtos) {
                             dbos.add(mapPost(dto))
                         }
-                        storages.wall()
-                            .storeWallEntities(
-                                accountId,
-                                dbos,
-                                ownerEntities,
-                                if (offset == 0) object : IClearWallTask {
-                                    override val ownerId: Int
-                                        get() = ownerId
-                                } else null)
-                            .map { posts }
+                        if (needStore) {
+                            storages.wall()
+                                .storeWallEntities(
+                                    accountId,
+                                    dbos,
+                                    ownerEntities,
+                                    if (offset == 0) object : IClearWallTask {
+                                        override val ownerId: Int
+                                            get() = ownerId
+                                    } else null)
+                                .map { posts }
+                        } else {
+                            Single.just(posts)
+                        }
                     }
             }
     }

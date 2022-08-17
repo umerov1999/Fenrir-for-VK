@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class FaveLink : AbsModel {
     val id: String?
@@ -23,7 +25,7 @@ class FaveLink : AbsModel {
         url = `in`.readString()
         title = `in`.readString()
         description = `in`.readString()
-        photo = `in`.readParcelable(Photo::class.java.classLoader)
+        photo = `in`.readTypedObjectCompat(Photo.CREATOR)
     }
 
     fun setUrl(url: String?): FaveLink {
@@ -52,7 +54,7 @@ class FaveLink : AbsModel {
         parcel.writeString(url)
         parcel.writeString(title)
         parcel.writeString(description)
-        parcel.writeParcelable(photo, i)
+        parcel.writeTypedObjectCompat(photo, i)
     }
 
     override fun describeContents(): Int {

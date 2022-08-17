@@ -108,8 +108,8 @@ class UserDetailsFragment : BaseMvpFragment<UserDetailsPresenter, IUserDetailsVi
             override fun create(): UserDetailsPresenter {
                 return UserDetailsPresenter(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
-                    requireArguments().getParcelable(Extra.USER)!!,
-                    requireArguments().getParcelable("details")!!,
+                    requireArguments().getParcelableCompat(Extra.USER)!!,
+                    requireArguments().getParcelableCompat("details")!!,
                     saveInstanceState
                 )
             }

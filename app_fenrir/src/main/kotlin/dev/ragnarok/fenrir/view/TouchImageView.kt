@@ -21,6 +21,8 @@ import android.view.animation.LinearInterpolator
 import android.widget.OverScroller
 import androidx.appcompat.widget.AppCompatImageView
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.getParcelableCompat
+import dev.ragnarok.fenrir.getSerializableCompat
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -270,14 +272,14 @@ open class TouchImageView @JvmOverloads constructor(
             prevViewWidth = state.getInt("viewWidth")
             imageRenderedAtLeastOnce = state.getBoolean("imageRendered")
             viewSizeChangeFixedPixel =
-                state.getSerializable("viewSizeChangeFixedPixel") as FixedPixel?
+                state.getSerializableCompat("viewSizeChangeFixedPixel") as FixedPixel?
             orientationChangeFixedPixel =
-                state.getSerializable("orientationChangeFixedPixel") as FixedPixel?
+                state.getSerializableCompat("orientationChangeFixedPixel") as FixedPixel?
             val oldOrientation = state.getInt("orientation")
             if (orientation != oldOrientation) {
                 orientationJustChanged = true
             }
-            super.onRestoreInstanceState(state.getParcelable("instanceState"))
+            super.onRestoreInstanceState(state.getParcelableCompat("instanceState"))
             return
         }
         super.onRestoreInstanceState(state)

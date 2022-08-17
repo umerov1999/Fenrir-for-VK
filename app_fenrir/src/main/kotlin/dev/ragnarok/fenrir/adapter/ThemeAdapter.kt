@@ -94,7 +94,6 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
             }
         }
         holder.clicked.setOnClickListener {
-            currentId = category.id
             clickListener?.onClick(position, category)
         }
     }
@@ -133,7 +132,6 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
             }
         }
         holder.clicked.setOnClickListener {
-            currentId = category.id
             clickListener?.onClick(position, category)
         }
         holder.gradient.background = GradientDrawable(
@@ -143,6 +141,10 @@ class ThemeAdapter(private var data: List<ThemeValue>, context: Context) :
                 if (isDark) category.colorNightSecondary else category.colorDaySecondary
             )
         )
+    }
+
+    fun updateCurrentId(id: String) {
+        currentId = id
     }
 
     fun setClickListener(clickListener: ClickListener?) {

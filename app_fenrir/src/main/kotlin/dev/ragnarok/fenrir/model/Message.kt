@@ -6,9 +6,11 @@ import android.os.Parcelable
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.Identificable
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.util.ParcelUtils.readIntStringMap
 import dev.ragnarok.fenrir.util.ParcelUtils.writeIntStringMap
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Message : AbsModel, Identificable, ISelectable {
     var accountId = 0
@@ -111,7 +113,7 @@ class Message : AbsModel, Identificable, ISelectable {
         isSelected = `in`.readInt() == 1
         isDeleted = `in`.readInt() == 1
         isDeletedForAll = `in`.readInt() == 1
-        attachments = `in`.readParcelable(Attachments::class.java.classLoader)
+        attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         fwd = `in`.createTypedArrayList(CREATOR)
         originalId = `in`.readInt()
         @ChatAction val tmpChatAction = `in`.readInt()
@@ -123,17 +125,16 @@ class Message : AbsModel, Identificable, ISelectable {
         photo100 = `in`.readString()
         photo200 = `in`.readString()
         actionUser =
-            `in`.readParcelable<ParcelableOwnerWrapper>(ParcelableOwnerWrapper::class.java.classLoader)!!
+            `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)!!
                 .get()
-        sender =
-            `in`.readParcelable(if (senderId > 0) User::class.java.classLoader else Community::class.java.classLoader)
+        sender = Owner.readOwnerFromParcel(senderId, `in`)
         randomId = `in`.readLong()
         extras = readIntStringMap(`in`)
         forwardMessagesCount = `in`.readInt()
         isHasAttachments = `in`.readInt() == 1
         updateTime = `in`.readLong()
         payload = `in`.readString()
-        keyboard = `in`.readParcelable(Keyboard::class.java.classLoader)
+        keyboard = `in`.readTypedObjectCompat(Keyboard.CREATOR)
     }
 
     fun setHasAttachments(hasAttachments: Boolean): Message {
@@ -353,7 +354,7 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeInt(if (isSelected) 1 else 0)
         parcel.writeInt(if (isDeleted) 1 else 0)
         parcel.writeInt(if (isDeletedForAll) 1 else 0)
-        parcel.writeParcelable(attachments, i)
+        parcel.writeTypedObjectCompat(attachments, i)
         parcel.writeTypedList(fwd)
         parcel.writeInt(originalId)
         parcel.writeInt(action)
@@ -363,15 +364,15 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeString(photo50)
         parcel.writeString(photo100)
         parcel.writeString(photo200)
-        parcel.writeParcelable(ParcelableOwnerWrapper(actionUser), i)
-        parcel.writeParcelable(sender, i)
+        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(actionUser), i)
+        parcel.writeTypedObjectCompat(sender, i)
         parcel.writeLong(randomId)
         writeIntStringMap(parcel, extras)
         parcel.writeInt(forwardMessagesCount)
         parcel.writeInt(if (isHasAttachments) 1 else 0)
         parcel.writeLong(updateTime)
         parcel.writeString(payload)
-        parcel.writeParcelable(keyboard, i)
+        parcel.writeTypedObjectCompat(keyboard, i)
     }
 
     fun setUpdateTime(updateTime: Long): Message {

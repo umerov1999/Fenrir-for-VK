@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class GroupSettings : Parcelable {
     private var title: String? = null
@@ -27,8 +29,8 @@ class GroupSettings : Parcelable {
         title = `in`.readString()
         description = `in`.readString()
         address = `in`.readString()
-        category = `in`.readParcelable(IdOption::class.java.classLoader)
-        subcategory = `in`.readParcelable(IdOption::class.java.classLoader)
+        category = `in`.readTypedObjectCompat(IdOption.CREATOR)
+        subcategory = `in`.readTypedObjectCompat(IdOption.CREATOR)
         availableCategories = `in`.createTypedArrayList(IdOption.CREATOR)
         website = `in`.readString()
         feedbackCommentsEnabled = `in`.readByte().toInt() != 0
@@ -43,8 +45,8 @@ class GroupSettings : Parcelable {
         dest.writeString(title)
         dest.writeString(description)
         dest.writeString(address)
-        dest.writeParcelable(category, flags)
-        dest.writeParcelable(subcategory, flags)
+        dest.writeTypedObjectCompat(category, flags)
+        dest.writeTypedObjectCompat(subcategory, flags)
         dest.writeTypedList(availableCategories)
         dest.writeString(website)
         dest.writeByte((if (feedbackCommentsEnabled) 1 else 0).toByte())
