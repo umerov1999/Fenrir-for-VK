@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.view.mozaik
 
 import android.util.SparseIntArray
-import dev.ragnarok.fenrir.adapter.PostImage
+import dev.ragnarok.fenrir.fragment.base.PostImage
 
 class MozaikLayoutParamsCalculator(
     private val matrix: Array<IntArray>,

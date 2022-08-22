@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.fragment.search.SearchFragmentFactory.create
+import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchFragment
 import dev.ragnarok.fenrir.fragment.search.criteria.BaseSearchCriteria
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.AppStyleable

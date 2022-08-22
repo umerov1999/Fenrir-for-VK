@@ -328,7 +328,7 @@
         </activity-alias>
 
         <activity
-            android:name="dev.ragnarok.fenrir.activity.SelectProfilesActivity"
+            android:name="dev.ragnarok.fenrir.activity.selectprofiles.SelectProfilesActivity"
             android:configChanges="keyboardHidden|orientation"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
@@ -380,7 +380,7 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name="dev.ragnarok.fenrir.activity.PhotoPagerActivity"
+            android:name="dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/photos"
             android:theme="@style/App.DayNight.Swipes"

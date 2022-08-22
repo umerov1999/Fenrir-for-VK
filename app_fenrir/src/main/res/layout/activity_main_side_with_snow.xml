@@ -52,7 +52,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/additional_navigation_menu"
-        android:name="dev.ragnarok.fenrir.fragment.SideNavigationFragment"
+        android:name="dev.ragnarok.fenrir.fragment.navigation.SideNavigationFragment"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"

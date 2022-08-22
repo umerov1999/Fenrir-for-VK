@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.activity
 import android.graphics.Color
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.fragment.AccountsFragment
 import dev.ragnarok.fenrir.fragment.PreferencesFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.ShortcutsViewFragment
-import dev.ragnarok.fenrir.fragment.ThemeFragment
+import dev.ragnarok.fenrir.fragment.accounts.AccountsFragment
+import dev.ragnarok.fenrir.fragment.shortcutsview.ShortcutsViewFragment
+import dev.ragnarok.fenrir.fragment.theme.ThemeFragment
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars

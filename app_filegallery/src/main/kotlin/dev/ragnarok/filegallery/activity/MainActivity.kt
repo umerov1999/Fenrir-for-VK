@@ -32,7 +32,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.activity.EnterPinActivity.Companion.getClass
-import dev.ragnarok.filegallery.fragment.*
+import dev.ragnarok.filegallery.activity.photopager.PhotoPagerActivity
+import dev.ragnarok.filegallery.fragment.AudioPlayerFragment
+import dev.ragnarok.filegallery.fragment.PreferencesFragment
+import dev.ragnarok.filegallery.fragment.SecurityPreferencesFragment
+import dev.ragnarok.filegallery.fragment.filemanager.FileManagerFragment
+import dev.ragnarok.filegallery.fragment.localserver.LocalServerTabsFragment
+import dev.ragnarok.filegallery.fragment.tagdir.TagDirFragment
+import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerFragment
+import dev.ragnarok.filegallery.fragment.theme.ThemeFragment
 import dev.ragnarok.filegallery.fromIOToMain
 import dev.ragnarok.filegallery.listener.*
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController

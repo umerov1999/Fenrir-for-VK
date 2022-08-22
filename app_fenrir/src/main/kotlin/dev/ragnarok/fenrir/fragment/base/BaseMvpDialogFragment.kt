@@ -7,12 +7,11 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.ApiException
-import dev.ragnarok.fenrir.mvp.compat.AbsMvpDialogFragment
-import dev.ragnarok.fenrir.mvp.core.AbsPresenter
-import dev.ragnarok.fenrir.mvp.core.IMvpView
-import dev.ragnarok.fenrir.mvp.view.IErrorView
-import dev.ragnarok.fenrir.mvp.view.IToastView
-import dev.ragnarok.fenrir.mvp.view.base.IAccountDependencyView
+import dev.ragnarok.fenrir.fragment.base.compat.AbsMvpDialogFragment
+import dev.ragnarok.fenrir.fragment.base.core.AbsPresenter
+import dev.ragnarok.fenrir.fragment.base.core.IErrorView
+import dev.ragnarok.fenrir.fragment.base.core.IMvpView
+import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast

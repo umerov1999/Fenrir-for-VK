@@ -1,18 +1,20 @@
 package dev.ragnarok.fenrir.fragment.search
 
 import androidx.fragment.app.Fragment
-import dev.ragnarok.fenrir.fragment.search.ArtistSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.AudioPlaylistSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.AudiosSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.AudiosSearchFragment.Companion.newInstanceSelect
-import dev.ragnarok.fenrir.fragment.search.DialogsSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.DocsSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.GroupsSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.MessagesSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.NewsFeedSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.PeopleSearchFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.search.PhotoSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.artistsearch.ArtistSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.audioplaylistsearch.AudioPlaylistSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.audiossearch.AudiosSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.audiossearch.AudiosSearchFragment.Companion.newInstanceSelect
+import dev.ragnarok.fenrir.fragment.search.communitiessearch.CommunitiesSearchFragment
 import dev.ragnarok.fenrir.fragment.search.criteria.*
+import dev.ragnarok.fenrir.fragment.search.dialogssearch.DialogsSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.docssearch.DocsSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.messagessearch.MessagesSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.newsfeedsearch.NewsFeedSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.peoplesearch.PeopleSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.photosearch.PhotoSearchFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.search.videosearch.VideoSearchFragment
+import dev.ragnarok.fenrir.fragment.search.wallsearch.WallSearchFragment
 
 object SearchFragmentFactory {
 
@@ -26,7 +28,7 @@ object SearchFragmentFactory {
                 accountId,
                 if (criteria is PeopleSearchCriteria) criteria else null
             )
-            SearchContentType.COMMUNITIES -> newInstance(
+            SearchContentType.COMMUNITIES -> CommunitiesSearchFragment.newInstance(
                 accountId,
                 if (criteria is GroupSearchCriteria) criteria else null
             )

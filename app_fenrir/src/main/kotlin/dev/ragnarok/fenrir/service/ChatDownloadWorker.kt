@@ -100,18 +100,18 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             it.maxSquareAvatar.nonNullNoEmpty { kk ->
                 if (!Avatars.containsKey(it.ownerId)) {
                     Avatars[it.ownerId] = kk
-                    var avatar_data = """.chat ul li a.user .<#AVATAR_NAME#> {
-        background-image: url("<#AVATAR_URL#>");
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        background-color: #f3f3f3;
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-        display: inline-block;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    }"""
+                    var avatar_data = ".chat ul li a.user .<#AVATAR_NAME#> {\n" +
+                            "        background-image: url(\"<#AVATAR_URL#>\");\n" +
+                            "        width: 70px;\n" +
+                            "        height: 70px;\n" +
+                            "        border-radius: 50%;\n" +
+                            "        background-color: #f3f3f3;\n" +
+                            "        background-size: cover;\n" +
+                            "        background-position: center center;\n" +
+                            "        background-repeat: no-repeat;\n" +
+                            "        display: inline-block;\n" +
+                            "        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);\n" +
+                            "    }"
                     avatar_data =
                         Apply("<#AVATAR_NAME#>", getAvatarTag(it.ownerId), avatar_data)
                     avatar_data = Apply("<#AVATAR_URL#>", kk, avatar_data)
@@ -120,15 +120,15 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             }
         }
         var msg_html = StringBuilder(
-            """<li class="<#MSG_TYPE#>">
-    <a class="user" href="<#PAGE_LINK#>"><div class="<#AVATAR_NAME#>"></div></a>
-    <div class="<#CLASS_USERNAME#>"><#USER_NAME#></div>
-    <div class="<#CLASS_DATE#>"><#DATE_TIME#></div>
-    <div class="message">
-        <p class="text_message"><#MESSAGE_CONTENT#></p>
-	<#SUB_CONTENT#>
-    </div>
-</li>"""
+            "<li class=\"<#MSG_TYPE#>\">\n" +
+                    "    <a class=\"user\" href=\"<#PAGE_LINK#>\"><div class=\"<#AVATAR_NAME#>\"></div></a>\n" +
+                    "    <div class=\"<#CLASS_USERNAME#>\"><#USER_NAME#></div>\n" +
+                    "    <div class=\"<#CLASS_DATE#>\"><#DATE_TIME#></div>\n" +
+                    "    <div class=\"message\">\n" +
+                    "        <p class=\"text_message\"><#MESSAGE_CONTENT#></p>\n" +
+                    "\t<#SUB_CONTENT#>\n" +
+                    "    </div>\n" +
+                    "</li>"
         )
         msg_html = StringBuilder(
             Apply(

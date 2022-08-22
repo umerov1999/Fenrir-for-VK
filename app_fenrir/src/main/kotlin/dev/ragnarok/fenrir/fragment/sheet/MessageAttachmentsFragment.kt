@@ -24,14 +24,11 @@ import dev.ragnarok.fenrir.activity.AttachmentsActivity
 import dev.ragnarok.fenrir.activity.AudioSelectActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.DualTabPhotoActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.VideoSelectActivity
-import dev.ragnarok.fenrir.adapter.AttachmentsBottomSheetAdapter
 import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.db.model.AttachmentsTypes
+import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.selection.*
-import dev.ragnarok.fenrir.mvp.core.IPresenterFactory
-import dev.ragnarok.fenrir.mvp.presenter.MessageAttachmentsPresenter
-import dev.ragnarok.fenrir.mvp.view.IMessageAttachmentsView
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.Upload

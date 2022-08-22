@@ -14,9 +14,15 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
-import dev.ragnarok.fenrir.fragment.AbsNavigationFragment
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
-import dev.ragnarok.fenrir.fragment.fave.FavePagesFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.fave.favearticles.FaveArticlesFragment
+import dev.ragnarok.fenrir.fragment.fave.favelinks.FaveLinksFragment
+import dev.ragnarok.fenrir.fragment.fave.favepages.FavePagesFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.fave.favephotos.FavePhotosFragment
+import dev.ragnarok.fenrir.fragment.fave.faveposts.FavePostsFragment
+import dev.ragnarok.fenrir.fragment.fave.faveproducts.FaveProductsFragment
+import dev.ragnarok.fenrir.fragment.fave.favevideos.FaveVideosFragment
+import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.link.types.FaveLink
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.place.Place

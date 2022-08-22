@@ -26,6 +26,7 @@ import de.maxr1998.modernpreferences.helpers.*
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils
+import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback

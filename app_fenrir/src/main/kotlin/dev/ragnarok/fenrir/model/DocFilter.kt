@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.model
 
 import android.content.Context
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir.adapter.horizontal.Entry
+import dev.ragnarok.fenrir.fragment.base.horizontal.Entry
 
 class DocFilter(val type: Int, @field:StringRes @param:StringRes val title: Int) : Entry {
 

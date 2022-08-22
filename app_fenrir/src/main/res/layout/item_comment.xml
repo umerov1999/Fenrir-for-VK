@@ -130,7 +130,7 @@
             app:icon="@drawable/comment_thread"
             tools:text="open 45" />
 
-        <dev.ragnarok.fenrir.adapter.CommentContainer
+        <dev.ragnarok.fenrir.view.CommentContainer
             android:id="@+id/item_comment_threads"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

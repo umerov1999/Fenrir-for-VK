@@ -1,6 +1,14 @@
 package dev.ragnarok.fenrir.fragment.wallattachments
 
 import androidx.fragment.app.Fragment
+import dev.ragnarok.fenrir.fragment.wallattachments.wallaudiosattachments.WallAudiosAttachmentsFragment
+import dev.ragnarok.fenrir.fragment.wallattachments.walldocsattachments.WallDocsAttachmentsFragment
+import dev.ragnarok.fenrir.fragment.wallattachments.walllinksattachments.WallLinksAttachmentsFragment
+import dev.ragnarok.fenrir.fragment.wallattachments.wallphotoalbumattachments.WallPhotoAlbumAttachmentsFragment
+import dev.ragnarok.fenrir.fragment.wallattachments.wallphotosattachments.WallPhotosAttachmentsFragment
+import dev.ragnarok.fenrir.fragment.wallattachments.wallpostcommentattachments.WallPostCommentAttachmentsFragment
+import dev.ragnarok.fenrir.fragment.wallattachments.wallpostqueryattachments.WallPostQueryAttachmentsFragment
+import dev.ragnarok.fenrir.fragment.wallattachments.wallvideosattachments.WallVideosAttachmentsFragment
 import dev.ragnarok.fenrir.util.FindAttachmentType
 
 object WallAttachmentsFragmentFactory {

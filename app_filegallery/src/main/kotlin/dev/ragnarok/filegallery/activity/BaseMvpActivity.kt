@@ -7,9 +7,9 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dev.ragnarok.filegallery.Includes.provideApplicationContext
-import dev.ragnarok.filegallery.mvp.compat.AbsMvpActivity
-import dev.ragnarok.filegallery.mvp.core.AbsPresenter
-import dev.ragnarok.filegallery.mvp.core.IMvpView
+import dev.ragnarok.filegallery.fragment.base.compat.AbsMvpActivity
+import dev.ragnarok.filegallery.fragment.base.core.AbsPresenter
+import dev.ragnarok.filegallery.fragment.base.core.IMvpView
 import dev.ragnarok.filegallery.util.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.filegallery.util.ViewUtils
 import dev.ragnarok.filegallery.util.toast.AbsCustomToast

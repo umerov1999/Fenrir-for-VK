@@ -42,6 +42,10 @@
         android:title="@string/copy_text" />
 
     <item
+        android:id="@+id/action_export"
+        android:title="@string/save" />
+
+    <item
         android:id="@+id/action_allow_text_selection"
         android:title="@string/allow_text_selection" />
 

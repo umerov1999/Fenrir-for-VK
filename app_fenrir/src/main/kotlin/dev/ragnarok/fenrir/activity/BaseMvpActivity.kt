@@ -8,9 +8,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
-import dev.ragnarok.fenrir.mvp.compat.AbsMvpActivity
-import dev.ragnarok.fenrir.mvp.core.AbsPresenter
-import dev.ragnarok.fenrir.mvp.core.IMvpView
+import dev.ragnarok.fenrir.fragment.base.compat.AbsMvpActivity
+import dev.ragnarok.fenrir.fragment.base.core.AbsPresenter
+import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.util.spots.SpotsDialog

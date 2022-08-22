@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.widget.RelativeLayout
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.adapter.PostImage
+import dev.ragnarok.fenrir.fragment.base.PostImage
 import dev.ragnarok.fenrir.view.mozaik.MatrixCalculator.Libra
 import kotlin.math.roundToInt
 

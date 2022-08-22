@@ -17,6 +17,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.fragment.filemanagerselect.FileManagerSelectFragment
+import dev.ragnarok.fenrir.fragment.localimagealbums.LocalImageAlbumsFragment
+import dev.ragnarok.fenrir.fragment.localphotos.LocalPhotosFragment
+import dev.ragnarok.fenrir.fragment.localvideos.LocalVideosFragment
+import dev.ragnarok.fenrir.fragment.vkphotoalbums.VKPhotoAlbumsFragment
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.model.selection.*

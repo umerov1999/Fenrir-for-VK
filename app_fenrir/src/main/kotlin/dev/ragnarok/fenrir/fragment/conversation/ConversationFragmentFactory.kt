@@ -3,6 +3,12 @@ package dev.ragnarok.fenrir.fragment.conversation
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.fragment.conversation.conversationaudios.ConversationAudiosFragment
+import dev.ragnarok.fenrir.fragment.conversation.conversationdocs.ConversationDocsFragment
+import dev.ragnarok.fenrir.fragment.conversation.conversationlinks.ConversationLinksFragment
+import dev.ragnarok.fenrir.fragment.conversation.conversationphotos.ConversationPhotosFragment
+import dev.ragnarok.fenrir.fragment.conversation.conversationposts.ConversationPostsFragment
+import dev.ragnarok.fenrir.fragment.conversation.conversationvideos.ConversationVideosFragment
 import dev.ragnarok.fenrir.util.FindAttachmentType
 
 object ConversationFragmentFactory {

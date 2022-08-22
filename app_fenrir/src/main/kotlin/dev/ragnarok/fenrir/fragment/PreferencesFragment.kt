@@ -62,6 +62,7 @@ import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.db.DBHelper
 import dev.ragnarok.fenrir.db.TempDataHelper
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback

@@ -7,11 +7,11 @@ import androidx.fragment.app.Fragment
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.model.AttachmentsTypes
-import dev.ragnarok.fenrir.fragment.DocsFragment
-import dev.ragnarok.fenrir.fragment.VideosFragment
-import dev.ragnarok.fenrir.fragment.VideosTabsFragment
-import dev.ragnarok.fenrir.mvp.presenter.DocsListPresenter
-import dev.ragnarok.fenrir.mvp.view.IVideosListView
+import dev.ragnarok.fenrir.fragment.docs.DocsFragment
+import dev.ragnarok.fenrir.fragment.docs.DocsListPresenter
+import dev.ragnarok.fenrir.fragment.videos.IVideosListView
+import dev.ragnarok.fenrir.fragment.videos.VideosFragment
+import dev.ragnarok.fenrir.fragment.videos.VideosTabsFragment
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
 

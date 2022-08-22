@@ -16,7 +16,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/additional_navigation_menu"
-        android:name="dev.ragnarok.fenrir.fragment.AdditionalNavigationFragment"
+        android:name="dev.ragnarok.fenrir.fragment.navigation.AdditionalNavigationFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/bottom_navigation_menu_container"

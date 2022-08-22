@@ -101,5 +101,6 @@ dependencies {
     api("androidx.transition:transition:$transitionVersion")
     api("androidx.lifecycle:lifecycle-runtime:$lifecycleVersion")
     api("androidx.drawerlayout:drawerlayout:$drawerlayoutVersion")
+    implementation("com.google.errorprone:error_prone_annotations:${errorproneVersion}")
     api project(path: ":viewpager2")
 }

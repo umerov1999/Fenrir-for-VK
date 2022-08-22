@@ -17,7 +17,7 @@ import dev.ragnarok.fenrir.module.StringHash
 import dev.ragnarok.fenrir.module.animation.AnimatedFileFrame
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Includes
-import dev.ragnarok.filegallery.fragment.FileManagerFragment.Companion.isExtension
+import dev.ragnarok.filegallery.fragment.filemanager.FileManagerFragment.Companion.isExtension
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.CoverSafeResize
 import dev.ragnarok.filegallery.util.Utils

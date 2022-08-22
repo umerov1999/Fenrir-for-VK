@@ -17,12 +17,12 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.fave.FaveTabsFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
+import dev.ragnarok.fenrir.fragment.vkphotos.IVkPhotosView
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.link.types.*
 import dev.ragnarok.fenrir.link.types.FaveLink
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.*
-import dev.ragnarok.fenrir.mvp.view.IVkPhotosView
 import dev.ragnarok.fenrir.place.PlaceFactory.getArtistPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getAudiosInAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getAudiosPlace

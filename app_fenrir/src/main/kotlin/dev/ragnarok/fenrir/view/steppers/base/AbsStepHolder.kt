@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.adapter.holder.IdentificableHolder
+import dev.ragnarok.fenrir.fragment.base.holder.IdentificableHolder
 
 abstract class AbsStepHolder<T : AbsStepsHost<*>>(
     parent: ViewGroup,

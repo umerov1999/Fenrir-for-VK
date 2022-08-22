@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
-    <dev.ragnarok.fenrir.adapter.AudioContainer
+    <dev.ragnarok.fenrir.view.AudioContainer
         android:id="@+id/audio_attachments"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -6,7 +6,7 @@ import android.graphics.Typeface
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import dev.ragnarok.fenrir.adapter.holder.SharedHolders
+import dev.ragnarok.fenrir.fragment.base.holder.SharedHolders
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.Utils
 

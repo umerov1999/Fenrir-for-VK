@@ -25,6 +25,7 @@ import static androidx.viewpager.widget.ViewPager.SCROLL_STATE_SETTLING;
 import static com.google.android.material.animation.AnimationUtils.FAST_OUT_SLOW_IN_INTERPOLATOR;
 import static com.google.android.material.theme.overlay.MaterialThemeOverlay.wrap;
 
+import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -94,10 +95,12 @@ import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.drawable.DrawableUtils;
 import com.google.android.material.internal.ThemeEnforcement;
 import com.google.android.material.internal.ViewUtils;
+import com.google.android.material.motion.MotionUtils;
 import com.google.android.material.resources.MaterialResources;
 import com.google.android.material.ripple.RippleUtils;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.MaterialShapeUtils;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -480,6 +483,7 @@ public class TabLayout extends HorizontalScrollView {
   boolean unboundedRipple;
 
   private TabIndicatorInterpolator tabIndicatorInterpolator;
+  private final TimeInterpolator tabIndicatorTimeInterpolator;
 
   @Nullable private BaseOnTabSelectedListener selectedListener;
 
@@ -607,6 +611,9 @@ public class TabLayout extends HorizontalScrollView {
 
     tabIndicatorAnimationDuration =
         a.getInt(R.styleable.TabLayout_tabIndicatorAnimationDuration, ANIMATION_DURATION);
+    tabIndicatorTimeInterpolator =
+        MotionUtils.resolveThemeInterpolator(
+            context, R.attr.motionEasingEmphasizedInterpolator, FAST_OUT_SLOW_IN_INTERPOLATOR);
 
     requestedTabMinWidth =
         a.getDimensionPixelSize(R.styleable.TabLayout_tabMinWidth, INVALID_WIDTH);
@@ -1818,7 +1825,7 @@ public class TabLayout extends HorizontalScrollView {
   private void ensureScrollAnimator() {
     if (scrollAnimator == null) {
       scrollAnimator = new ValueAnimator();
-      scrollAnimator.setInterpolator(FAST_OUT_SLOW_IN_INTERPOLATOR);
+      scrollAnimator.setInterpolator(tabIndicatorTimeInterpolator);
       scrollAnimator.setDuration(tabIndicatorAnimationDuration);
       scrollAnimator.addUpdateListener(
           new ValueAnimator.AnimatorUpdateListener() {
@@ -2049,6 +2056,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setTag(@Nullable Object tag) {
       this.tag = tag;
       return this;
@@ -2062,6 +2070,7 @@ public class TabLayout extends HorizontalScrollView {
      * @param id, unique id for this tab
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setId(int id) {
       this.id = id;
       if (view != null) {
@@ -2098,6 +2107,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setCustomView(@Nullable View view) {
       customView = view;
       updateView();
@@ -2117,6 +2127,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setCustomView(@LayoutRes int resId) {
       final LayoutInflater inflater = LayoutInflater.from(view.getContext());
       return setCustomView(inflater.inflate(resId, view, false));
@@ -2163,6 +2174,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setIcon(@Nullable Drawable icon) {
       this.icon = icon;
       if ((parent.tabGravity == GRAVITY_CENTER) || parent.mode == MODE_AUTO) {
@@ -2185,6 +2197,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setIcon(@DrawableRes int resId) {
       if (parent == null) {
         throw new IllegalArgumentException("Tab not attached to a TabLayout");
@@ -2200,6 +2213,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setText(@Nullable CharSequence text) {
       if (TextUtils.isEmpty(contentDesc) && !TextUtils.isEmpty(text)) {
         // If no content description has been set, use the text as the content description of the
@@ -2220,6 +2234,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setText(@StringRes int resId) {
       if (parent == null) {
         throw new IllegalArgumentException("Tab not attached to a TabLayout");
@@ -2269,6 +2284,7 @@ public class TabLayout extends HorizontalScrollView {
      * @return The current instance for call chaining.
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setTabLabelVisibility(@LabelVisibility int mode) {
       this.labelVisibilityMode = mode;
       if ((parent.tabGravity == GRAVITY_CENTER) || parent.mode == MODE_AUTO) {
@@ -2323,6 +2339,7 @@ public class TabLayout extends HorizontalScrollView {
      * @see #getContentDescription()
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setContentDescription(@StringRes int resId) {
       if (parent == null) {
         throw new IllegalArgumentException("Tab not attached to a TabLayout");
@@ -2340,6 +2357,7 @@ public class TabLayout extends HorizontalScrollView {
      * @see #getContentDescription()
      */
     @NonNull
+    @CanIgnoreReturnValue
     public Tab setContentDescription(@Nullable CharSequence contentDesc) {
       this.contentDesc = contentDesc;
       updateView();
@@ -3227,7 +3245,7 @@ public class TabLayout extends HorizontalScrollView {
       if (recreateAnimation) {
         // Create & start a new indicatorAnimator.
         ValueAnimator animator = indicatorAnimator = new ValueAnimator();
-        animator.setInterpolator(FAST_OUT_SLOW_IN_INTERPOLATOR);
+        animator.setInterpolator(tabIndicatorTimeInterpolator);
         animator.setDuration(duration);
         animator.setFloatValues(0F, 1F);
         animator.addUpdateListener(updateListener);

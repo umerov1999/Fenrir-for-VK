@@ -12,10 +12,10 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
-import dev.ragnarok.fenrir.fragment.GifPagerFragment
 import dev.ragnarok.fenrir.fragment.SinglePhotoFragment
 import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.buildArgs
+import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
+import dev.ragnarok.fenrir.fragment.gifpager.GifPagerFragment
 import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.place.Place

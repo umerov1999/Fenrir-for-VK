@@ -1,10 +1,10 @@
 package dev.ragnarok.filegallery.place
 
-import dev.ragnarok.filegallery.activity.PhotoPagerActivity
 import dev.ragnarok.filegallery.activity.VideoPlayerActivity
-import dev.ragnarok.filegallery.fragment.FileManagerFragment
-import dev.ragnarok.filegallery.fragment.TagDirFragment
-import dev.ragnarok.filegallery.fragment.TagOwnerFragment
+import dev.ragnarok.filegallery.activity.photopager.PhotoPagerActivity
+import dev.ragnarok.filegallery.fragment.filemanager.FileManagerFragment
+import dev.ragnarok.filegallery.fragment.tagdir.TagDirFragment
+import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerFragment
 import dev.ragnarok.filegallery.model.Video
 
 

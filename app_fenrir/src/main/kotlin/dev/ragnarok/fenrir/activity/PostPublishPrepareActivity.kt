@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.StreamData
 import dev.ragnarok.fenrir.activity.PostCreateActivity.Companion.newIntent
-import dev.ragnarok.fenrir.adapter.RecyclerMenuAdapter
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.fragment.base.RecyclerMenuAdapter
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.Icon
 import dev.ragnarok.fenrir.model.Owner

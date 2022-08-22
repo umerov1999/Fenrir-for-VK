@@ -75,12 +75,11 @@ class LottieActivity : AppCompatActivity() {
                         }
 
                         override fun onFinished() {
-                            logs = """
-                    GIF created (${System.currentTimeMillis() - start}ms)
-                    Resolution : 500x500
-                    Path : $file
-                    File Size : ${file.length() / 1024}kb
-                    """.trimIndent()
+                            logs =
+                                "GIF created (" + (System.currentTimeMillis() - start) + "ms)\r\n" +
+                                        "Resolution : " + 500 + "x" + 500 + "\r\n" +
+                                        "Path : " + file + "\r\n" +
+                                        "File Size : " + file.length() / 1024 + "kb"
                             log(logs)
                             toGif?.post { toGif?.isEnabled = true }
                             lottie?.post { lottie?.playAnimation() }

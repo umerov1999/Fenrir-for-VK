@@ -46,10 +46,7 @@ class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
             }
             val name = optString(cop, "name")
             val link = optString(cop, "link")
-            dto.text = """
-                [$link|©$name]
-                ${dto.text}
-                """.trimIndent()
+            dto.text = ("[$link|©$name]\r\n") + dto.text
         }
         dto.reply_owner_id = optInt(root, "reply_owner_id", 0)
         if (dto.reply_owner_id == 0) {

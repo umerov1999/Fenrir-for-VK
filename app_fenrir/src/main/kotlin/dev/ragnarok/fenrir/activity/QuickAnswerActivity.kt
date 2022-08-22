@@ -17,13 +17,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.*
-import dev.ragnarok.fenrir.adapter.AttachmentsHolder
-import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder
-import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder.OnAttachmentsActionCallback
-import dev.ragnarok.fenrir.adapter.AttachmentsViewBinder.VoiceActionListener
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.fragment.base.AttachmentsHolder
+import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder
+import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
+import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.VoiceActionListener
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.longpoll.NotificationHelper

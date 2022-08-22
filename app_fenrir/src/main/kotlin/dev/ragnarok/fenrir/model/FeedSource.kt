@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir.adapter.horizontal.Entry
+import dev.ragnarok.fenrir.fragment.base.horizontal.Entry
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 

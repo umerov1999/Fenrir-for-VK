@@ -6,14 +6,14 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.DualTabPhotosFragment
-import dev.ragnarok.fenrir.fragment.LocalPhotosFragment
 import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.VKPhotosFragment
+import dev.ragnarok.fenrir.fragment.localphotos.LocalPhotosFragment
+import dev.ragnarok.fenrir.fragment.vkphotos.IVkPhotosView
+import dev.ragnarok.fenrir.fragment.vkphotos.VKPhotosFragment
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.model.selection.Sources
-import dev.ragnarok.fenrir.mvp.view.IVkPhotosView
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
 

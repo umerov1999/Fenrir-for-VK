@@ -2,7 +2,7 @@ package dev.ragnarok.filegallery.activity
 
 import android.os.Bundle
 import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.fragment.CreatePinFragment
+import dev.ragnarok.filegallery.fragment.createpin.CreatePinFragment
 
 class CreatePinActivity : NoMainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

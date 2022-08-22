@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import dev.ragnarok.fenrir.adapter.DocLink
-import dev.ragnarok.fenrir.adapter.PostImage
+import dev.ragnarok.fenrir.fragment.base.DocLink
+import dev.ragnarok.fenrir.fragment.base.PostImage
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.cloneListAsArrayList
 import dev.ragnarok.fenrir.util.Utils.safeCountOf

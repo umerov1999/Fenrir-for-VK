@@ -7,7 +7,7 @@ import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.activity.slidr.Slidr
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrConfig
-import dev.ragnarok.filegallery.fragment.FileManagerSelectFragment
+import dev.ragnarok.filegallery.fragment.filemanagerselect.FileManagerSelectFragment
 import dev.ragnarok.filegallery.settings.CurrentTheme
 
 class FileManagerSelectActivity : NoMainActivity() {

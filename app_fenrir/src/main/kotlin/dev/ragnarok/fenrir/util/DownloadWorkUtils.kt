@@ -16,7 +16,7 @@ import androidx.work.*
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.dialog.AudioDuplicateDialog
+import dev.ragnarok.fenrir.dialog.audioduplicate.AudioDuplicateDialog
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.longpoll.NotificationHelper

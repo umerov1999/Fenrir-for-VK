@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.fragment.attachments.PostCreateFragment
+import dev.ragnarok.fenrir.fragment.attachments.postcreate.PostCreateFragment
 import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.model.EditingPostType

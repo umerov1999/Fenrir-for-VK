@@ -55,12 +55,13 @@ buildscript {
     //common libraries
     ext.kotlin_version = "1.7.10"
     ext.kotlin_coroutines = "1.6.4"
-    ext.kotlin_serializer = "1.4.0-RC"
+    ext.kotlin_serializer = "1.4.0"
     ext.okhttpLibraryVersion = "5.0.0-alpha.10"
     ext.okioVersion = "3.2.0"
     ext.rxJavaVersion = "3.1.5"
     ext.guavaVersion = "31.1-android"
     ext.exoLibraryVersion = "2.18.1"
+    ext.errorproneVersion = "2.15.0"
     ext.desugarLibraryVersion = "1.2.0"
 
     //APP_PROPS

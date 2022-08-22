@@ -19,12 +19,12 @@ import dev.ragnarok.fenrir.db.model.BanAction
 import dev.ragnarok.fenrir.db.model.UserPatch
 import dev.ragnarok.fenrir.db.model.entity.*
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model
-import dev.ragnarok.fenrir.fragment.UserInfoResolveUtil.getUserActivityLine
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
+import dev.ragnarok.fenrir.util.UserInfoResolveUtil.getUserActivityLine
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack

@@ -84,7 +84,7 @@
             android:theme="@style/App.DayNight.Swipes" />
 
         <activity
-            android:name="dev.ragnarok.filegallery.activity.PhotoPagerActivity"
+            android:name="dev.ragnarok.filegallery.activity.photopager.PhotoPagerActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/local_server_photo"
             android:theme="@style/App.DayNight.Swipes"

@@ -7,7 +7,7 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.slidr.Slidr
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
-import dev.ragnarok.fenrir.fragment.FileManagerSelectFragment
+import dev.ragnarok.fenrir.fragment.filemanagerselect.FileManagerSelectFragment
 import dev.ragnarok.fenrir.settings.CurrentTheme
 
 class FileManagerSelectActivity : NoMainActivity() {

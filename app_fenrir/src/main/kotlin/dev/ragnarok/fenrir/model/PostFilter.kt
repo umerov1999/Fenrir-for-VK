@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.model
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
-import dev.ragnarok.fenrir.adapter.horizontal.Entry
+import dev.ragnarok.fenrir.fragment.base.horizontal.Entry
 
 class PostFilter : Entry, Parcelable {
     private val mode: Int

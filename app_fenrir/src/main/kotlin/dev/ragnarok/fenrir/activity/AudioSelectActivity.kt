@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.fragment.AudioSelectTabsFragment
-import dev.ragnarok.fenrir.fragment.AudiosFragment
+import dev.ragnarok.fenrir.fragment.audio.AudioSelectTabsFragment
+import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
 import dev.ragnarok.fenrir.fragment.search.SingleTabSearchFragment
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider

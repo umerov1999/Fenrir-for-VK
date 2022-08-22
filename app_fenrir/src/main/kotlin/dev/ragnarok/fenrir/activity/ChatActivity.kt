@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.activity.PhotoPagerActivity.Companion.newInstance
+import dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity.Companion.newInstance
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
-import dev.ragnarok.fenrir.fragment.AudioPlayerFragment
-import dev.ragnarok.fenrir.fragment.AudioPlayerFragment.Companion.newInstance
-import dev.ragnarok.fenrir.fragment.ChatFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
+import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.messages.chat.ChatFragment.Companion.newInstance
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.listener.AppStyleable

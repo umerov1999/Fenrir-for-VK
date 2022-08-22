@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.loader.app.LoaderManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import dev.ragnarok.fenrir.mvp.compat.ViewHostDelegate
-import dev.ragnarok.fenrir.mvp.compat.ViewHostDelegate.IFactoryProvider
-import dev.ragnarok.fenrir.mvp.core.IMvpView
-import dev.ragnarok.fenrir.mvp.core.IPresenter
+import dev.ragnarok.fenrir.fragment.base.compat.ViewHostDelegate
+import dev.ragnarok.fenrir.fragment.base.compat.ViewHostDelegate.IFactoryProvider
+import dev.ragnarok.fenrir.fragment.base.core.IMvpView
+import dev.ragnarok.fenrir.fragment.base.core.IPresenter
 
 abstract class AbsPresenterBottomSheetFragment<P : IPresenter<V>, V : IMvpView> :
     BottomSheetDialogFragment(), IFactoryProvider<P, V> {

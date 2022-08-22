@@ -6,11 +6,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import dev.ragnarok.filegallery.Includes.provideApplicationContext
 import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.mvp.compat.AbsMvpDialogFragment
-import dev.ragnarok.filegallery.mvp.core.AbsPresenter
-import dev.ragnarok.filegallery.mvp.core.IMvpView
-import dev.ragnarok.filegallery.mvp.view.IErrorView
-import dev.ragnarok.filegallery.mvp.view.IToastView
+import dev.ragnarok.filegallery.fragment.base.compat.AbsMvpDialogFragment
+import dev.ragnarok.filegallery.fragment.base.core.AbsPresenter
+import dev.ragnarok.filegallery.fragment.base.core.IErrorView
+import dev.ragnarok.filegallery.fragment.base.core.IMvpView
+import dev.ragnarok.filegallery.fragment.base.core.IToastView
 import dev.ragnarok.filegallery.util.ErrorLocalizer
 import dev.ragnarok.filegallery.util.toast.AbsCustomToast
 import dev.ragnarok.filegallery.util.toast.CustomSnackbars

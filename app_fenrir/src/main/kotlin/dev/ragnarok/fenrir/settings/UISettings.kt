@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.fragment.PreferencesFragment
 import dev.ragnarok.fenrir.fragment.fave.FaveTabsFragment
-import dev.ragnarok.fenrir.fragment.friends.FriendsTabsFragment
+import dev.ragnarok.fenrir.fragment.friends.friendstabs.FriendsTabsFragment
 import dev.ragnarok.fenrir.fragment.search.SearchTabsFragment
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getAudiosPlace

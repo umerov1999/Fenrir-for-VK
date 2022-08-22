@@ -36,7 +36,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".fragment.FeedFragment">
+        tools:context=".fragment.feed.FeedFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fragment_feeds_list"

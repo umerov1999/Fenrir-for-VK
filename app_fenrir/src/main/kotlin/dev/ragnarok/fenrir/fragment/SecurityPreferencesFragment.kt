@@ -26,6 +26,8 @@ import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.activity.CreatePinActivity
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.db.Stores
+import dev.ragnarok.fenrir.fragment.createpin.CreatePinFragment
+import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback

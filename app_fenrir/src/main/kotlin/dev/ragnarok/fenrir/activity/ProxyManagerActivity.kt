@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.activity
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.fragment.AddProxyFragment
-import dev.ragnarok.fenrir.fragment.ProxyManagerFrgament
+import dev.ragnarok.fenrir.fragment.addproxy.AddProxyFragment
+import dev.ragnarok.fenrir.fragment.proxymanager.ProxyManagerFrgament
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
 
