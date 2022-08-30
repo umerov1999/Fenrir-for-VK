@@ -45,7 +45,7 @@ class Dialog : Identificable, Parcelable {
         photo100 = `in`.readString()
         photo200 = `in`.readString()
         message = `in`.readTypedObjectCompat(Message.CREATOR)
-        val interlocutorIsNull = `in`.readInt() == 1
+        val interlocutorIsNull = `in`.getBoolean()
         if (!interlocutorIsNull) {
             interlocutor = Owner.readOwnerFromParcel(`in`)
         }
@@ -54,7 +54,7 @@ class Dialog : Identificable, Parcelable {
         outRead = `in`.readInt()
         major_id = `in`.readInt()
         minor_id = `in`.readInt()
-        isGroupChannel = `in`.readInt() == 1
+        isGroupChannel = `in`.getBoolean()
     }
 
     fun setPeerId(peerId: Int): Dialog {
@@ -260,7 +260,7 @@ class Dialog : Identificable, Parcelable {
         dest.writeInt(outRead)
         dest.writeInt(major_id)
         dest.writeInt(minor_id)
-        dest.writeInt(if (isGroupChannel) 1 else 0)
+        dest.putBoolean(isGroupChannel)
     }
 
     companion object CREATOR : Parcelable.Creator<Dialog> {

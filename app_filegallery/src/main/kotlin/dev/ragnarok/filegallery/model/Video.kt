@@ -4,6 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.filegallery.api.adapters.VideoDtoAdapter
+import dev.ragnarok.filegallery.getBoolean
+import dev.ragnarok.filegallery.putBoolean
 import kotlinx.serialization.Serializable
 
 @Serializable(with = VideoDtoAdapter::class)
@@ -36,7 +38,7 @@ class Video : Parcelable, ParcelNative.ParcelableNative {
         link = `in`.readString()
         date = `in`.readLong()
         image = `in`.readString()
-        isRepeat = `in`.readByte().toInt() != 0
+        isRepeat = `in`.getBoolean()
         duration = `in`.readInt()
     }
 
@@ -60,7 +62,7 @@ class Video : Parcelable, ParcelNative.ParcelableNative {
         dest.writeString(link)
         dest.writeLong(date)
         dest.writeString(image)
-        dest.writeByte((if (isRepeat) 1 else 0).toByte())
+        dest.putBoolean(isRepeat)
         dest.writeInt(duration)
     }
 

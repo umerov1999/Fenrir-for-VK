@@ -3,13 +3,10 @@ package dev.ragnarok.fenrir.view.steppers.impl
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.getParcelableCompat
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.model.Privacy
-import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.view.steppers.base.AbsStepsHost
 import dev.ragnarok.fenrir.view.steppers.impl.CreatePhotoAlbumStepsHost.PhotoAlbumState
-import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState()) {
     var isAdditionalOptionsEnable = false
@@ -73,8 +70,8 @@ class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState(
             description = p.readString()
             privacyView = p.readTypedObjectCompat(Privacy.CREATOR)
             privacyComment = p.readTypedObjectCompat(Privacy.CREATOR)
-            isUploadByAdminsOnly = p.readByte().toInt() != 0
-            isCommentsDisabled = p.readByte().toInt() != 0
+            isUploadByAdminsOnly = p.getBoolean()
+            isCommentsDisabled = p.getBoolean()
         }
 
         constructor() {
@@ -87,8 +84,8 @@ class CreatePhotoAlbumStepsHost : AbsStepsHost<PhotoAlbumState>(PhotoAlbumState(
             dest.writeString(description)
             dest.writeTypedObjectCompat(privacyView, flags)
             dest.writeTypedObjectCompat(privacyComment, flags)
-            dest.writeByte((if (isUploadByAdminsOnly) 1 else 0).toByte())
-            dest.writeByte((if (isCommentsDisabled) 1 else 0).toByte())
+            dest.putBoolean(isUploadByAdminsOnly)
+            dest.putBoolean(isCommentsDisabled)
         }
 
         override fun describeContents(): Int {

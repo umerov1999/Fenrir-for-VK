@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model.drawer
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,7 +21,7 @@ open class AbsMenuItem : Parcelable {
 
     protected constructor(`in`: Parcel) {
         type = `in`.readInt()
-        isSelected = `in`.readInt() == 1
+        isSelected = `in`.getBoolean()
     }
 
     override fun describeContents(): Int {
@@ -28,7 +30,7 @@ open class AbsMenuItem : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(type)
-        dest.writeInt(if (isSelected) 1 else 0)
+        dest.putBoolean(isSelected)
     }
 
     override fun equals(other: Any?): Boolean {

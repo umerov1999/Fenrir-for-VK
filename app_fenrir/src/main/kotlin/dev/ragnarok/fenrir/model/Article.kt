@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -37,7 +39,7 @@ class Article : AbsModel {
         subTitle = `in`.readString()
         accessKey = `in`.readString()
         photo = `in`.readTypedObjectCompat(Photo.CREATOR)
-        isFavorite = `in`.readByte().toInt() != 0
+        isFavorite = `in`.getBoolean()
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
@@ -50,7 +52,7 @@ class Article : AbsModel {
         parcel.writeString(subTitle)
         parcel.writeString(accessKey)
         parcel.writeTypedObjectCompat(photo, i)
-        parcel.writeByte((if (isFavorite) 1 else 0).toByte())
+        parcel.putBoolean(isFavorite)
     }
 
     fun setOwnerName(owner_name: String?): Article {

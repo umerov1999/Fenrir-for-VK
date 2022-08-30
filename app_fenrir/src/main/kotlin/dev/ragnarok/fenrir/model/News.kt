@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -163,7 +165,7 @@ class News : AbsModel {
         sourceId = `in`.readInt()
         source = Owner.readOwnerFromParcel(sourceId, `in`)
         postType = `in`.readString()
-        isFinalPost = `in`.readByte().toInt() != 0
+        isFinalPost = `in`.getBoolean()
         copyOwnerId = `in`.readInt()
         copyPostId = `in`.readInt()
         copyPostDate = `in`.readLong()
@@ -171,16 +173,16 @@ class News : AbsModel {
         postId = `in`.readInt()
         copyHistory = `in`.createTypedArrayList(Post.CREATOR)
         text = `in`.readString()
-        isCanEdit = `in`.readByte().toInt() != 0
-        isCanDelete = `in`.readByte().toInt() != 0
+        isCanEdit = `in`.getBoolean()
+        isCanDelete = `in`.getBoolean()
         commentCount = `in`.readInt()
-        isCommentCanPost = `in`.readByte().toInt() != 0
+        isCommentCanPost = `in`.getBoolean()
         likeCount = `in`.readInt()
-        isUserLike = `in`.readByte().toInt() != 0
-        isCanLike = `in`.readByte().toInt() != 0
-        isCanPublish = `in`.readByte().toInt() != 0
+        isUserLike = `in`.getBoolean()
+        isCanLike = `in`.getBoolean()
+        isCanPublish = `in`.getBoolean()
         repostsCount = `in`.readInt()
-        isUserReposted = `in`.readByte().toInt() != 0
+        isUserReposted = `in`.getBoolean()
         attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         friends = `in`.createTypedArrayList(User.CREATOR)
         viewCount = `in`.readInt()
@@ -354,7 +356,7 @@ class News : AbsModel {
         parcel.writeInt(sourceId)
         parcel.writeTypedObjectCompat(source, i)
         parcel.writeString(postType)
-        parcel.writeByte((if (isFinalPost) 1 else 0).toByte())
+        parcel.putBoolean(isFinalPost)
         parcel.writeInt(copyOwnerId)
         parcel.writeInt(copyPostId)
         parcel.writeLong(copyPostDate)
@@ -362,16 +364,16 @@ class News : AbsModel {
         parcel.writeInt(postId)
         parcel.writeTypedList(copyHistory)
         parcel.writeString(text)
-        parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
-        parcel.writeByte((if (isCanDelete) 1 else 0).toByte())
+        parcel.putBoolean(isCanEdit)
+        parcel.putBoolean(isCanDelete)
         parcel.writeInt(commentCount)
-        parcel.writeByte((if (isCommentCanPost) 1 else 0).toByte())
+        parcel.putBoolean(isCommentCanPost)
         parcel.writeInt(likeCount)
-        parcel.writeByte((if (isUserLike) 1 else 0).toByte())
-        parcel.writeByte((if (isCanLike) 1 else 0).toByte())
-        parcel.writeByte((if (isCanPublish) 1 else 0).toByte())
+        parcel.putBoolean(isUserLike)
+        parcel.putBoolean(isCanLike)
+        parcel.putBoolean(isCanPublish)
         parcel.writeInt(repostsCount)
-        parcel.writeByte((if (isUserReposted) 1 else 0).toByte())
+        parcel.putBoolean(isUserReposted)
         parcel.writeTypedObjectCompat(attachments, i)
         parcel.writeTypedList(friends)
         parcel.writeInt(viewCount)

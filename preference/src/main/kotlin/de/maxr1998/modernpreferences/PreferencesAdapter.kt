@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
@@ -41,7 +42,6 @@ import de.maxr1998.modernpreferences.helpers.DEFAULT_RES_ID
 import de.maxr1998.modernpreferences.helpers.categoryHeader
 import de.maxr1998.modernpreferences.helpers.onLongClick
 import de.maxr1998.modernpreferences.preferences.*
-import kotlinx.parcelize.Parcelize
 import java.util.*
 import kotlin.math.max
 
@@ -544,19 +544,50 @@ class PreferencesAdapter @VisibleForTesting constructor(
         return true
     }
 
-    @Parcelize
     data class ScreenInfo(
         val key: String,
         val searchQuery: String?,
         val scrollPosition: Int,
         val scrollOffset: Int
-    ) : Parcelable
+    ) : Parcelable {
+        constructor(parcel: Parcel) : this(
+            parcel.readString()!!,
+            parcel.readString(),
+            parcel.readInt(),
+            parcel.readInt()
+        )
 
-    @Parcelize
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
+            parcel.writeString(key)
+            parcel.writeString(searchQuery)
+            parcel.writeInt(scrollPosition)
+            parcel.writeInt(scrollOffset)
+        }
+
+        override fun describeContents(): Int {
+            return 0
+        }
+
+        companion object CREATOR : Parcelable.Creator<ScreenInfo> {
+            override fun createFromParcel(parcel: Parcel): ScreenInfo {
+                return ScreenInfo(parcel)
+            }
+
+            override fun newArray(size: Int): Array<ScreenInfo?> {
+                return arrayOfNulls(size)
+            }
+        }
+    }
+
     data class ExpandInfo(
         val screenKey: String,
         val key: String,
     ) : Parcelable {
+        constructor(parcel: Parcel) : this(
+            parcel.readString()!!,
+            parcel.readString()!!
+        )
+
         override fun equals(other: Any?): Boolean {
             return other is ExpandInfo && other.screenKey == screenKey && other.key == key
         }
@@ -564,9 +595,58 @@ class PreferencesAdapter @VisibleForTesting constructor(
         override fun hashCode(): Int {
             return screenKey.hashCode() + key.hashCode()
         }
+
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
+            parcel.writeString(screenKey)
+            parcel.writeString(key)
+        }
+
+        override fun describeContents(): Int {
+            return 0
+        }
+
+        companion object CREATOR : Parcelable.Creator<ExpandInfo> {
+            override fun createFromParcel(parcel: Parcel): ExpandInfo {
+                return ExpandInfo(parcel)
+            }
+
+            override fun newArray(size: Int): Array<ExpandInfo?> {
+                return arrayOfNulls(size)
+            }
+        }
     }
 
-    @Parcelize
-    data class SavedState(val screens: ArrayList<ScreenInfo>, val expends: ArrayList<ExpandInfo>) :
-        Parcelable
+    class SavedState : Parcelable {
+        val screens: ArrayList<ScreenInfo>
+        val expends: ArrayList<ExpandInfo>
+
+        constructor(screens: ArrayList<ScreenInfo>, expends: ArrayList<ExpandInfo>) {
+            this.screens = screens
+            this.expends = expends
+        }
+
+        constructor(parcel: Parcel) {
+            screens = parcel.createTypedArrayList(ScreenInfo.CREATOR)!!
+            expends = parcel.createTypedArrayList(ExpandInfo.CREATOR)!!
+        }
+
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
+            parcel.writeTypedList(screens)
+            parcel.writeTypedList(expends)
+        }
+
+        override fun describeContents(): Int {
+            return 0
+        }
+
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(parcel: Parcel): SavedState {
+                return SavedState(parcel)
+            }
+
+            override fun newArray(size: Int): Array<SavedState?> {
+                return arrayOfNulls(size)
+            }
+        }
+    }
 }

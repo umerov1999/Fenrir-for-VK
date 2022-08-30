@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 import java.util.*
@@ -29,8 +31,8 @@ class AttachmentEntry : Parcelable {
             ID_GEN.set(id)
         }
         optionalId = `in`.readInt()
-        isCanDelete = `in`.readByte().toInt() != 0
-        isAccompanying = `in`.readByte().toInt() != 0
+        isCanDelete = `in`.getBoolean()
+        isAccompanying = `in`.getBoolean()
         val wrapper: ParcelableModelWrapper =
             `in`.readTypedObjectCompat(ParcelableModelWrapper.CREATOR)!!
         attachment = wrapper.get()
@@ -58,8 +60,8 @@ class AttachmentEntry : Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(id)
         dest.writeInt(optionalId)
-        dest.writeByte((if (isCanDelete) 1 else 0).toByte())
-        dest.writeByte((if (isAccompanying) 1 else 0).toByte())
+        dest.putBoolean(isCanDelete)
+        dest.putBoolean(isAccompanying)
         dest.writeTypedObjectCompat(ParcelableModelWrapper.wrap(attachment), flags)
     }
 

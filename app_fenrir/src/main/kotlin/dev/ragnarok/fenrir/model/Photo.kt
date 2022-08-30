@@ -3,7 +3,9 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 import kotlinx.serialization.Serializable
@@ -81,13 +83,13 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         sizes = `in`.readTypedObjectCompat(PhotoSizes.CREATOR)
         text = `in`.readString()
         date = `in`.readLong()
-        isUserLikes = `in`.readByte().toInt() != 0
-        isCanComment = `in`.readByte().toInt() != 0
+        isUserLikes = `in`.getBoolean()
+        isCanComment = `in`.getBoolean()
         likesCount = `in`.readInt()
         commentsCount = `in`.readInt()
         tagsCount = `in`.readInt()
         accessKey = `in`.readString()
-        isDeleted = `in`.readByte().toInt() != 0
+        isDeleted = `in`.getBoolean()
         postId = `in`.readInt()
         repostsCount = `in`.readInt()
         msgId = `in`.readInt()
@@ -211,13 +213,13 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         parcel.writeTypedObjectCompat(sizes, i)
         parcel.writeString(text)
         parcel.writeLong(date)
-        parcel.writeByte((if (isUserLikes) 1 else 0).toByte())
-        parcel.writeByte((if (isCanComment) 1 else 0).toByte())
+        parcel.putBoolean(isUserLikes)
+        parcel.putBoolean(isCanComment)
         parcel.writeInt(likesCount)
         parcel.writeInt(commentsCount)
         parcel.writeInt(tagsCount)
         parcel.writeString(accessKey)
-        parcel.writeByte((if (isDeleted) 1 else 0).toByte())
+        parcel.putBoolean(isDeleted)
         parcel.writeInt(postId)
         parcel.writeInt(repostsCount)
         parcel.writeInt(msgId)

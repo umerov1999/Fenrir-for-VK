@@ -162,5 +162,6 @@ dependencies {
     implementation("androidx.camera:camera-view:$cameraVersion")
     implementation("androidx.camera:camera-camera2:$cameraVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlin_serializer")
+    implementation("com.google.errorprone:error_prone_annotations:${errorproneVersion}")
 }
 apply plugin: "com.google.gms.google-services"

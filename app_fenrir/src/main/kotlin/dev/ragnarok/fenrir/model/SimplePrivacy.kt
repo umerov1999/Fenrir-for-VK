@@ -2,7 +2,9 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.putBoolean
 
 class SimplePrivacy : Parcelable, ParcelNative.ParcelableNative {
     private val type: String?
@@ -59,13 +61,13 @@ class SimplePrivacy : Parcelable, ParcelNative.ParcelableNative {
         internal constructor(`in`: Parcel) {
             type = `in`.readInt()
             id = `in`.readInt()
-            allowed = `in`.readByte().toInt() != 0
+            allowed = `in`.getBoolean()
         }
 
         internal constructor(`in`: ParcelNative) {
             type = `in`.readInt()
             id = `in`.readInt()
-            allowed = `in`.readByte().toInt() != 0
+            allowed = `in`.readBoolean()
         }
 
         fun getType(): Int {
@@ -87,13 +89,13 @@ class SimplePrivacy : Parcelable, ParcelNative.ParcelableNative {
         override fun writeToParcel(dest: Parcel, flags: Int) {
             dest.writeInt(type)
             dest.writeInt(id)
-            dest.writeByte((if (allowed) 1 else 0).toByte())
+            dest.putBoolean(allowed)
         }
 
         override fun writeToParcelNative(dest: ParcelNative) {
             dest.writeInt(type)
             dest.writeInt(id)
-            dest.writeByte((if (allowed) 1 else 0).toByte())
+            dest.writeBoolean(allowed)
         }
 
         override fun equals(other: Any?): Boolean {

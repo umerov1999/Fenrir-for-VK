@@ -2,7 +2,9 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.model.database.Country
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -83,9 +85,9 @@ class UserDetails : Parcelable {
         ownWallCount = `in`.readInt()
         postponedWallCount = `in`.readInt()
         GiftCount = `in`.readInt()
-        isFavorite = `in`.readByte().toInt() == 1
-        isSubscribed = `in`.readByte().toInt() == 1
-        isClosed = `in`.readByte().toInt() == 1
+        isFavorite = `in`.getBoolean()
+        isSubscribed = `in`.getBoolean()
+        isClosed = `in`.getBoolean()
     }
 
     fun setProductServicesCount(productServicesCount: Int): UserDetails {
@@ -453,9 +455,9 @@ class UserDetails : Parcelable {
         parcel.writeInt(ownWallCount)
         parcel.writeInt(postponedWallCount)
         parcel.writeInt(GiftCount)
-        parcel.writeByte(if (isFavorite) 1.toByte() else 0.toByte())
-        parcel.writeByte(if (isSubscribed) 1.toByte() else 0.toByte())
-        parcel.writeByte(if (isClosed) 1.toByte() else 0.toByte())
+        parcel.putBoolean(isFavorite)
+        parcel.putBoolean(isSubscribed)
+        parcel.putBoolean(isClosed)
     }
 
     fun isClosed(): Boolean {

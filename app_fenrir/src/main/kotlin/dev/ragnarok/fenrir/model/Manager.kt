@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -20,7 +22,7 @@ class Manager : Parcelable {
 
     internal constructor(`in`: Parcel) {
         user = `in`.readTypedObjectCompat(User.CREATOR)
-        isDisplayAsContact = `in`.readByte().toInt() != 0
+        isDisplayAsContact = `in`.getBoolean()
         role = `in`.readString()
     }
 
@@ -40,7 +42,7 @@ class Manager : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeTypedObjectCompat(user, flags)
-        dest.writeByte((if (isDisplayAsContact) 1 else 0).toByte())
+        dest.putBoolean(isDisplayAsContact)
         dest.writeString(role)
     }
 

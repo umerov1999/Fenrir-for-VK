@@ -3,7 +3,9 @@ package dev.ragnarok.filegallery.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.module.StringHash.calculateCRC32
+import dev.ragnarok.filegallery.getBoolean
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController
+import dev.ragnarok.filegallery.putBoolean
 
 class FileItem : Parcelable {
     @FileType
@@ -47,9 +49,9 @@ class FileItem : Parcelable {
         parent_path = `in`.readString()
         modification = `in`.readLong()
         size = `in`.readLong()
-        isCanRead = `in`.readByte().toInt() != 0
-        isSelected = `in`.readByte().toInt() != 0
-        isHasTag = `in`.readByte().toInt() != 0
+        isCanRead = `in`.getBoolean()
+        isSelected = `in`.getBoolean()
+        isHasTag = `in`.getBoolean()
     }
 
     fun checkTag(): FileItem {
@@ -83,9 +85,9 @@ class FileItem : Parcelable {
         dest.writeString(parent_path)
         dest.writeLong(modification)
         dest.writeLong(size)
-        dest.writeByte((if (isCanRead) 1 else 0).toByte())
-        dest.writeByte((if (isSelected) 1 else 0).toByte())
-        dest.writeByte((if (isHasTag) 1 else 0).toByte())
+        dest.putBoolean(isCanRead)
+        dest.putBoolean(isSelected)
+        dest.putBoolean(isHasTag)
     }
 
     companion object CREATOR : Parcelable.Creator<FileItem> {

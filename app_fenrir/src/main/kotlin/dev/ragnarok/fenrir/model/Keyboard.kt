@@ -2,7 +2,9 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.putBoolean
 
 class Keyboard : Parcelable {
     var one_time = false
@@ -16,8 +18,8 @@ class Keyboard : Parcelable {
 
     constructor()
     internal constructor(`in`: Parcel) {
-        one_time = `in`.readByte().toInt() != 0
-        inline = `in`.readByte().toInt() != 0
+        one_time = `in`.getBoolean()
+        inline = `in`.getBoolean()
         author_id = `in`.readInt()
         val size = `in`.readInt()
         buttons = ArrayList(size)
@@ -51,8 +53,8 @@ class Keyboard : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeByte((if (one_time) 1 else 0).toByte())
-        dest.writeByte((if (inline) 1 else 0).toByte())
+        dest.putBoolean(one_time)
+        dest.putBoolean(inline)
         dest.writeInt(author_id)
         if (buttons == null) {
             dest.writeInt(0)

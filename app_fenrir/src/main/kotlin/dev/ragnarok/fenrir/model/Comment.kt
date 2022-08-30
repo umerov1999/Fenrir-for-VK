@@ -2,13 +2,10 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.model.Identificable
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.readOwner
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.writeOwner
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.orZero
-import dev.ragnarok.fenrir.readTypedObjectCompat
-import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Comment : AbsModel, Identificable {
     val commented: Commented
@@ -101,14 +98,14 @@ class Comment : AbsModel, Identificable {
         replyToUser = `in`.readInt()
         replyToComment = `in`.readInt()
         likesCount = `in`.readInt()
-        isUserLikes = `in`.readByte().toInt() != 0
-        isCanLike = `in`.readByte().toInt() != 0
-        isCanEdit = `in`.readByte().toInt() != 0
+        isUserLikes = `in`.getBoolean()
+        isCanLike = `in`.getBoolean()
+        isCanEdit = `in`.getBoolean()
         attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         commented = `in`.readTypedObjectCompat(Commented.CREATOR)!!
         author = readOwner(`in`)
         dbid = `in`.readInt()
-        isDeleted = `in`.readByte().toInt() != 0
+        isDeleted = `in`.getBoolean()
         threadsCount = `in`.readInt()
         threads = `in`.createTypedArrayList(CREATOR)
         pid = `in`.readInt()
@@ -229,14 +226,14 @@ class Comment : AbsModel, Identificable {
         parcel.writeInt(replyToUser)
         parcel.writeInt(replyToComment)
         parcel.writeInt(likesCount)
-        parcel.writeByte((if (isUserLikes) 1 else 0).toByte())
-        parcel.writeByte((if (isCanLike) 1 else 0).toByte())
-        parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
+        parcel.putBoolean(isUserLikes)
+        parcel.putBoolean(isCanLike)
+        parcel.putBoolean(isCanEdit)
         parcel.writeTypedObjectCompat(attachments, i)
         parcel.writeTypedObjectCompat(commented, i)
         writeOwner(parcel, i, author)
         parcel.writeInt(dbid)
-        parcel.writeByte((if (isDeleted) 1 else 0).toByte())
+        parcel.putBoolean(isDeleted)
         parcel.writeInt(threadsCount)
         parcel.writeTypedList(threads)
         parcel.writeInt(pid)

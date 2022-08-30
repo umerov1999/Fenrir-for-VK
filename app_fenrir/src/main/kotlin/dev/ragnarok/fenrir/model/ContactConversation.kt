@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import kotlinx.serialization.Serializable
 
 @Keep
@@ -29,7 +31,7 @@ class ContactConversation : Parcelable {
     internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         title = `in`.readString()
-        isContact = `in`.readByte().toInt() != 0
+        isContact = `in`.getBoolean()
         photo = `in`.readString()
         phone = `in`.readString()
         lastSeen = `in`.readLong()
@@ -73,7 +75,7 @@ class ContactConversation : Parcelable {
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeInt(id)
         parcel.writeString(title)
-        parcel.writeByte((if (isContact) 1 else 0).toByte())
+        parcel.putBoolean(isContact)
         parcel.writeString(photo)
         parcel.writeString(phone)
         parcel.writeLong(lastSeen)

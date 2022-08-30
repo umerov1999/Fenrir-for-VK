@@ -26,6 +26,7 @@ class InputWallOffsetDialog internal constructor(
     private var value: Int = 0
     private var callback: Callback? = null
     private var disposable: Disposable = Disposable.disposed()
+    private var onHasResult: Boolean = false
     fun show() {
         val builder = MaterialAlertDialogBuilder(context)
         builder.setTitle(titleRes)
@@ -35,36 +36,42 @@ class InputWallOffsetDialog internal constructor(
         input.setText(value.toString())
         input.setSelection(input.text?.length ?: 0)
         builder.setView(view)
-        builder.setPositiveButton(R.string.button_ok, null)
-        builder.setNegativeButton(R.string.button_cancel) { dialog: DialogInterface, _: Int -> dialog.cancel() }
-        val alertDialog = builder.create()
-        alertDialog.setOnShowListener {
-            val b = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)
-            b.setOnClickListener {
-                input.error = null
-                var newValue: Int = -1
+        builder.setPositiveButton(R.string.button_ok) { dialog: DialogInterface, _: Int ->
+            input.error = null
+            var newValue: Int = -1
+            try {
+                newValue = input.text.toString().trim { it <= ' ' }.toInt()
+            } catch (e: Exception) {
+                input.error = e.localizedMessage
+                input.requestFocus()
+            }
+            if (newValue < 0) {
+                input.error = context.getString(R.string.field_is_required)
+                input.requestFocus()
+            } else {
                 try {
-                    newValue = input.text.toString().trim { it <= ' ' }.toInt()
-                } catch (e: Exception) {
-                    input.error = e.localizedMessage
+                    callback?.onChanged(newValue)
+                    disposable.dispose()
+                    onHasResult = true
+                    dialog.dismiss()
+                } catch (e: IllegalArgumentException) {
+                    input.error = e.message
                     input.requestFocus()
-                }
-                if (newValue < 0) {
-                    input.error = context.getString(R.string.field_is_required)
-                    input.requestFocus()
-                } else {
-                    try {
-                        callback?.onChanged(newValue)
-                        disposable.dispose()
-                        alertDialog.dismiss()
-                    } catch (e: IllegalArgumentException) {
-                        input.error = e.message
-                        input.requestFocus()
-                    }
                 }
             }
         }
-        alertDialog.show()
+        builder.setNegativeButton(R.string.button_cancel) { dialog: DialogInterface, _: Int ->
+            callback?.onCanceled()
+            dialog.dismiss()
+        }
+
+        builder.setOnDismissListener {
+            if (!onHasResult) {
+                callback?.onCanceled()
+            }
+        }
+
+        builder.show()
         input.requestFocus()
         input.postDelayed({
             val inputMethodManager =
@@ -103,6 +110,7 @@ class InputWallOffsetDialog internal constructor(
 
     interface Callback {
         fun onChanged(newValue: Int)
+        fun onCanceled()
     }
 
     class Builder(

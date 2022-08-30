@@ -21,7 +21,6 @@ abstract class NoMainActivity : AppCompatActivity() {
     private val mBackStackListener =
         FragmentManager.OnBackStackChangedListener { resolveToolbarNavigationIcon() }
 
-
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(currentStyle())

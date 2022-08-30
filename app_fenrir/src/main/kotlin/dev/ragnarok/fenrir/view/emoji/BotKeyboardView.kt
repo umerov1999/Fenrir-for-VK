@@ -27,7 +27,7 @@ class BotKeyboardView : ScrollView {
     private var panelHeight = 0
     private var buttonHeight = 0
 
-    @SuppressLint("InternalInsetResource")
+    @SuppressLint("InternalInsetResource", "DiscouragedApi")
     private val onGlobalLayoutListener = OnGlobalLayoutListener {
         val r = Rect()
         getWindowVisibleDisplayFrame(r)

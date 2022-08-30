@@ -2,8 +2,10 @@ package dev.ragnarok.fenrir.model.wrappers
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.model.ISelectable
 import dev.ragnarok.fenrir.model.Photo
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -21,10 +23,10 @@ class SelectablePhotoWrapper : Parcelable, Comparable<SelectablePhotoWrapper>, I
 
     internal constructor(`in`: Parcel) {
         photo = `in`.readTypedObjectCompat(Photo.CREATOR)!!
-        isSelected = `in`.readByte().toInt() != 0
+        isSelected = `in`.getBoolean()
         index = `in`.readInt()
-        current = `in`.readByte().toInt() != 0
-        isDownloaded = `in`.readByte().toInt() != 0
+        current = `in`.getBoolean()
+        isDownloaded = `in`.getBoolean()
     }
 
     fun setDownloaded(downloaded: Boolean): SelectablePhotoWrapper {
@@ -34,10 +36,10 @@ class SelectablePhotoWrapper : Parcelable, Comparable<SelectablePhotoWrapper>, I
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeTypedObjectCompat(photo, flags)
-        dest.writeByte((if (isSelected) 1 else 0).toByte())
+        dest.putBoolean(isSelected)
         dest.writeInt(index)
-        dest.writeByte((if (current) 1 else 0).toByte())
-        dest.writeByte((if (isDownloaded) 1 else 0).toByte())
+        dest.putBoolean(current)
+        dest.putBoolean(isDownloaded)
     }
 
     override fun describeContents(): Int {

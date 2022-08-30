@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.fragment.search.options
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class SimpleBooleanOption : BaseOption {
     var checked = false
@@ -23,12 +25,12 @@ class SimpleBooleanOption : BaseOption {
     }
 
     internal constructor(`in`: Parcel) : super(`in`) {
-        checked = `in`.readByte().toInt() != 0
+        checked = `in`.getBoolean()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
-        dest.writeByte((if (checked) 1 else 0).toByte())
+        dest.putBoolean(checked)
     }
 
     override fun equals(other: Any?): Boolean {

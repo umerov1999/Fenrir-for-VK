@@ -5,8 +5,10 @@ import android.os.Parcelable
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.CheckDonate
 import dev.ragnarok.fenrir.api.model.Identificable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.isValueAssigned
@@ -77,8 +79,8 @@ class User : Owner, Identificable {
         id = `in`.readInt()
         firstName = `in`.readString()
         lastName = `in`.readString()
-        isOnline = `in`.readByte().toInt() != 0
-        isOnlineMobile = `in`.readByte().toInt() != 0
+        isOnline = `in`.getBoolean()
+        isOnlineMobile = `in`.getBoolean()
         onlineApp = `in`.readInt()
         photo50 = `in`.readString()
         photo100 = `in`.readString()
@@ -90,13 +92,13 @@ class User : Owner, Identificable {
         sex = `in`.readInt()
         domain = `in`.readString()
         maiden_name = `in`.readString()
-        isFriend = `in`.readByte().toInt() != 0
+        isFriend = `in`.getBoolean()
         friendStatus = `in`.readInt()
-        canWritePrivateMessage = `in`.readByte().toInt() != 0
-        blacklisted_by_me = `in`.readByte().toInt() != 0
-        blacklisted = `in`.readByte().toInt() != 0
-        verified = `in`.readByte().toInt() != 0
-        isCan_access_closed = `in`.readByte().toInt() != 0
+        canWritePrivateMessage = `in`.getBoolean()
+        blacklisted_by_me = `in`.getBoolean()
+        blacklisted = `in`.getBoolean()
+        verified = `in`.getBoolean()
+        isCan_access_closed = `in`.getBoolean()
         bdate = `in`.readString()
     }
 
@@ -256,8 +258,8 @@ class User : Owner, Identificable {
         parcel.writeInt(id)
         parcel.writeString(firstName)
         parcel.writeString(lastName)
-        parcel.writeByte((if (isOnline) 1 else 0).toByte())
-        parcel.writeByte((if (isOnlineMobile) 1 else 0).toByte())
+        parcel.putBoolean(isOnline)
+        parcel.putBoolean(isOnlineMobile)
         parcel.writeInt(onlineApp)
         parcel.writeString(photo50)
         parcel.writeString(photo100)
@@ -269,13 +271,13 @@ class User : Owner, Identificable {
         parcel.writeInt(sex)
         parcel.writeString(domain)
         parcel.writeString(maiden_name)
-        parcel.writeByte((if (isFriend) 1 else 0).toByte())
+        parcel.putBoolean(isFriend)
         parcel.writeInt(friendStatus)
-        parcel.writeByte((if (canWritePrivateMessage) 1 else 0).toByte())
-        parcel.writeByte((if (blacklisted_by_me) 1 else 0).toByte())
-        parcel.writeByte((if (blacklisted) 1 else 0).toByte())
-        parcel.writeByte((if (verified) 1 else 0).toByte())
-        parcel.writeByte((if (isCan_access_closed) 1 else 0).toByte())
+        parcel.putBoolean(canWritePrivateMessage)
+        parcel.putBoolean(blacklisted_by_me)
+        parcel.putBoolean(blacklisted)
+        parcel.putBoolean(verified)
+        parcel.putBoolean(isCan_access_closed)
         parcel.writeString(bdate)
     }
 

@@ -18,7 +18,7 @@ class InputTextDialog internal constructor(val context: Context) {
     private var callback: Callback? = null
     private var validator: Validator? = null
     private var hint: Int? = null
-    private var onDismissListener: DialogInterface.OnDismissListener? = null
+    private var onHasResult: Boolean = false
     fun show() {
         val builder = MaterialAlertDialogBuilder(context)
         builder.setTitle(titleRes)
@@ -31,32 +31,36 @@ class InputTextDialog internal constructor(val context: Context) {
         }
         input.inputType = inputType
         builder.setView(view)
-        builder.setPositiveButton(R.string.button_ok, null)
-        builder.setNegativeButton(R.string.button_cancel) { dialog: DialogInterface, _: Int -> dialog.cancel() }
-        val alertDialog = builder.create()
-        alertDialog.setOnShowListener {
-            val b = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)
-            b.setOnClickListener {
-                input.error = null
-                val newValue = input.text.toString().trim { it <= ' ' }
-                if (newValue.isEmpty() && !allowEmpty) {
-                    input.error = context.getString(R.string.field_is_required)
+        builder.setPositiveButton(R.string.button_ok) { dialog: DialogInterface, _: Int ->
+            input.error = null
+            val newValue = input.text.toString().trim { it <= ' ' }
+            if (newValue.isEmpty() && !allowEmpty) {
+                input.error = context.getString(R.string.field_is_required)
+                input.requestFocus()
+            } else {
+                try {
+                    validator?.validate(newValue)
+                    callback?.onChanged(newValue)
+                    target?.text = newValue
+                    onHasResult = true
+                    dialog.dismiss()
+                } catch (e: IllegalArgumentException) {
+                    input.error = e.message
                     input.requestFocus()
-                } else {
-                    try {
-                        validator?.validate(newValue)
-                        callback?.onChanged(newValue)
-                        target?.text = newValue
-                        alertDialog.dismiss()
-                    } catch (e: IllegalArgumentException) {
-                        input.error = e.message
-                        input.requestFocus()
-                    }
                 }
             }
         }
-        alertDialog.setOnDismissListener(onDismissListener)
-        alertDialog.show()
+        builder.setNegativeButton(R.string.button_cancel) { dialog: DialogInterface, _: Int ->
+            callback?.onCanceled()
+            dialog.dismiss()
+        }
+        builder.setOnDismissListener {
+            if (!onHasResult) {
+                callback?.onCanceled()
+            }
+        }
+
+        builder.show()
         input.requestFocus()
         input.postDelayed({
             val inputMethodManager =
@@ -67,6 +71,7 @@ class InputTextDialog internal constructor(val context: Context) {
 
     interface Callback {
         fun onChanged(newValue: String?)
+        fun onCanceled()
     }
 
     interface Validator {
@@ -83,7 +88,6 @@ class InputTextDialog internal constructor(val context: Context) {
         private var callback: Callback? = null
         private var validator: Validator? = null
         private var hint: Int? = null
-        private var onDismissListener: DialogInterface.OnDismissListener? = null
         fun setInputType(inputType: Int): Builder {
             this.inputType = inputType
             return this
@@ -129,17 +133,11 @@ class InputTextDialog internal constructor(val context: Context) {
             inputTextDialog.callback = callback
             inputTextDialog.validator = validator
             inputTextDialog.hint = hint
-            inputTextDialog.onDismissListener = onDismissListener
             return inputTextDialog
         }
 
         fun setHint(hint: Int?): Builder {
             this.hint = hint
-            return this
-        }
-
-        fun setOnDismissListener(onDismissListener: DialogInterface.OnDismissListener?): Builder {
-            this.onDismissListener = onDismissListener
             return this
         }
 

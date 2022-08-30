@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -50,7 +52,7 @@ class Banned : Parcelable {
             reason = `in`.readInt()
             comment = `in`.readString()
             endDate = `in`.readLong()
-            isCommentVisible = `in`.readByte().toInt() != 0
+            isCommentVisible = `in`.getBoolean()
         }
 
         constructor()
@@ -64,7 +66,7 @@ class Banned : Parcelable {
             parcel.writeInt(reason)
             parcel.writeString(comment)
             parcel.writeLong(endDate)
-            parcel.writeByte((if (isCommentVisible) 1 else 0).toByte())
+            parcel.putBoolean(isCommentVisible)
         }
 
         fun setDate(date: Long): Info {

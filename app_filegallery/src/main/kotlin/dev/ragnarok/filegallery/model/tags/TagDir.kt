@@ -3,7 +3,9 @@ package dev.ragnarok.filegallery.model.tags
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.module.StringHash.calculateCRC32
+import dev.ragnarok.filegallery.getBoolean
 import dev.ragnarok.filegallery.model.FileType
+import dev.ragnarok.filegallery.putBoolean
 
 class TagDir : Parcelable {
     var id = 0
@@ -31,7 +33,7 @@ class TagDir : Parcelable {
         path = `in`.readString()
         type = `in`.readInt()
         size = `in`.readLong()
-        isSelected = `in`.readByte().toInt() != 0
+        isSelected = `in`.getBoolean()
     }
 
     override fun describeContents(): Int {
@@ -45,7 +47,7 @@ class TagDir : Parcelable {
         parcel.writeString(path)
         parcel.writeInt(type)
         parcel.writeLong(size)
-        parcel.writeByte((if (isSelected) 1 else 0).toByte())
+        parcel.putBoolean(isSelected)
     }
 
     fun setSelected(selected: Boolean): TagDir {

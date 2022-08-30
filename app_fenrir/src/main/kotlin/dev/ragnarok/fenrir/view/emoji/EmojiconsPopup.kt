@@ -45,7 +45,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
     private var emojiContainer: View? = null
     private var keyboardTmpHeight: Int = 0
     private val onGlobalLayoutListener: OnGlobalLayoutListener = object : OnGlobalLayoutListener {
-        @SuppressLint("InternalInsetResource")
+        @SuppressLint("InternalInsetResource", "DiscouragedApi")
         override fun onGlobalLayout() {
             val r = Rect()
             if (rootView == null) {

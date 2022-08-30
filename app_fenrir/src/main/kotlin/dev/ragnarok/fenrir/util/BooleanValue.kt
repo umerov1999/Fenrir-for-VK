@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.util
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class BooleanValue : Parcelable {
     private var value: Boolean
@@ -12,7 +14,7 @@ class BooleanValue : Parcelable {
     }
 
     internal constructor(p: Parcel) {
-        value = p.readByte().toInt() != 0
+        value = p.getBoolean()
     }
 
     /**
@@ -36,7 +38,7 @@ class BooleanValue : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeByte((if (value) 1 else 0).toByte())
+        dest.putBoolean(value)
     }
 
     companion object CREATOR : Parcelable.Creator<BooleanValue> {

@@ -2,9 +2,11 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.readOwner
 import dev.ragnarok.fenrir.model.ParcelableOwnerWrapper.Companion.writeOwner
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -36,7 +38,7 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         ownerId = `in`.readInt()
         date = `in`.readLong()
         expires = `in`.readLong()
-        isIs_expired = `in`.readByte().toInt() != 0
+        isIs_expired = `in`.getBoolean()
         accessKey = `in`.readString()
         target_url = `in`.readString()
         video = `in`.readTypedObjectCompat(Video.CREATOR)
@@ -63,7 +65,7 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         parcel.writeInt(ownerId)
         parcel.writeLong(date)
         parcel.writeLong(expires)
-        parcel.writeByte((if (isIs_expired) 1 else 0).toByte())
+        parcel.putBoolean(isIs_expired)
         parcel.writeString(accessKey)
         parcel.writeString(target_url)
         parcel.writeTypedObjectCompat(video, i)

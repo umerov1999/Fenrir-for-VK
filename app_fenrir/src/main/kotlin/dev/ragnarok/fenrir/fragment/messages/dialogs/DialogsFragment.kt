@@ -521,6 +521,10 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
                         newValue
                     )
                 }
+
+                override fun onCanceled() {
+
+                }
             })
             .show()
     }

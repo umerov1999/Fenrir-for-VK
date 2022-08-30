@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class City : Parcelable {
     val id: Int
@@ -21,7 +23,7 @@ class City : Parcelable {
     internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         title = `in`.readString()
-        isImportant = `in`.readByte().toInt() != 0
+        isImportant = `in`.getBoolean()
         area = `in`.readString()
         region = `in`.readString()
     }
@@ -48,7 +50,7 @@ class City : Parcelable {
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeInt(id)
         parcel.writeString(title)
-        parcel.writeByte((if (isImportant) 1 else 0).toByte())
+        parcel.putBoolean(isImportant)
         parcel.writeString(area)
         parcel.writeString(region)
     }

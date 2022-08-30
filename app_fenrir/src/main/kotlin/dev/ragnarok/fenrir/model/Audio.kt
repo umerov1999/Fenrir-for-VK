@@ -6,7 +6,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiAudio
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.Pair
@@ -81,17 +83,17 @@ class Audio : AbsModel {
         album_access_key = `in`.readString()
         genre = `in`.readInt()
         accessKey = `in`.readString()
-        isDeleted = `in`.readByte().toInt() != 0
+        isDeleted = `in`.getBoolean()
         thumb_image_big = `in`.readString()
         thumb_image_very_big = `in`.readString()
         thumb_image_little = `in`.readString()
         album_title = `in`.readString()
-        isAnimationNow = `in`.readByte().toInt() != 0
-        isSelected = `in`.readByte().toInt() != 0
-        isHq = `in`.readByte().toInt() != 0
+        isAnimationNow = `in`.getBoolean()
+        isSelected = `in`.getBoolean()
+        isHq = `in`.getBoolean()
         main_artists = readStringMap(`in`)
-        isLocal = `in`.readByte().toInt() != 0
-        isLocalServer = `in`.readByte().toInt() != 0
+        isLocal = `in`.getBoolean()
+        isLocalServer = `in`.getBoolean()
         downloadIndicator = `in`.readInt()
     }
 
@@ -138,17 +140,17 @@ class Audio : AbsModel {
         parcel.writeString(album_access_key)
         parcel.writeInt(genre)
         parcel.writeString(accessKey)
-        parcel.writeByte((if (isDeleted) 1 else 0).toByte())
+        parcel.putBoolean(isDeleted)
         parcel.writeString(thumb_image_big)
         parcel.writeString(thumb_image_very_big)
         parcel.writeString(thumb_image_little)
         parcel.writeString(album_title)
-        parcel.writeByte((if (isAnimationNow) 1 else 0).toByte())
-        parcel.writeByte((if (isSelected) 1 else 0).toByte())
-        parcel.writeByte((if (isHq) 1 else 0).toByte())
+        parcel.putBoolean(isAnimationNow)
+        parcel.putBoolean(isSelected)
+        parcel.putBoolean(isHq)
         writeStringMap(parcel, main_artists)
-        parcel.writeByte((if (isLocal) 1 else 0).toByte())
-        parcel.writeByte((if (isLocalServer) 1 else 0).toByte())
+        parcel.putBoolean(isLocal)
+        parcel.putBoolean(isLocalServer)
         parcel.writeInt(downloadIndicator)
     }
 

@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -19,8 +21,8 @@ class PhotoAlbumEditor : Parcelable {
         description = `in`.readString()
         privacyView = `in`.readTypedObjectCompat(Privacy.CREATOR)
         privacyComment = `in`.readTypedObjectCompat(Privacy.CREATOR)
-        commentsDisabled = `in`.readByte().toInt() != 0
-        uploadByAdminsOnly = `in`.readByte().toInt() != 0
+        commentsDisabled = `in`.getBoolean()
+        uploadByAdminsOnly = `in`.getBoolean()
     }
 
     fun getTitle(): String? {
@@ -86,8 +88,8 @@ class PhotoAlbumEditor : Parcelable {
         parcel.writeString(description)
         parcel.writeTypedObjectCompat(privacyView, i)
         parcel.writeTypedObjectCompat(privacyComment, i)
-        parcel.writeByte((if (commentsDisabled) 1 else 0).toByte())
-        parcel.writeByte((if (uploadByAdminsOnly) 1 else 0).toByte())
+        parcel.putBoolean(commentsDisabled)
+        parcel.putBoolean(uploadByAdminsOnly)
     }
 
     companion object {

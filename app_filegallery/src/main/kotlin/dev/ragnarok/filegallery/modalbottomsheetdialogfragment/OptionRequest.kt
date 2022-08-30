@@ -6,6 +6,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.core.content.res.ResourcesCompat
+import dev.ragnarok.filegallery.getBoolean
+import dev.ragnarok.filegallery.putBoolean
 
 /**
  * Request for an option you can select within the modal
@@ -29,8 +31,8 @@ class OptionRequest(
     constructor(source: Parcel) : this(
         source.readInt(),
         source.readString(),
-        source.readValue(Int::class.java.classLoader) as Int?,
-        source.readByte() == 1.toByte()
+        if (!source.getBoolean()) source.readInt() else null,
+        source.getBoolean()
     )
 
     override fun describeContents() = 0
@@ -38,8 +40,11 @@ class OptionRequest(
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
         writeInt(id)
         writeString(title)
-        writeValue(icon)
-        writeByte(if (singleLine) 1.toByte() else 0.toByte())
+        putBoolean(icon == null)
+        icon?.let {
+            writeInt(it)
+        }
+        putBoolean(singleLine)
     }
 
     companion object CREATOR : Parcelable.Creator<OptionRequest> {

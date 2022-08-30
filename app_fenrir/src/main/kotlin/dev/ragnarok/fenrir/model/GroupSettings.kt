@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -33,9 +35,9 @@ class GroupSettings : Parcelable {
         subcategory = `in`.readTypedObjectCompat(IdOption.CREATOR)
         availableCategories = `in`.createTypedArrayList(IdOption.CREATOR)
         website = `in`.readString()
-        feedbackCommentsEnabled = `in`.readByte().toInt() != 0
-        obsceneFilterEnabled = `in`.readByte().toInt() != 0
-        obsceneStopwordsEnabled = `in`.readByte().toInt() != 0
+        feedbackCommentsEnabled = `in`.getBoolean()
+        obsceneFilterEnabled = `in`.getBoolean()
+        obsceneStopwordsEnabled = `in`.getBoolean()
         obsceneWords = `in`.readString()
         access = `in`.readInt()
         age = `in`.readInt()
@@ -49,9 +51,9 @@ class GroupSettings : Parcelable {
         dest.writeTypedObjectCompat(subcategory, flags)
         dest.writeTypedList(availableCategories)
         dest.writeString(website)
-        dest.writeByte((if (feedbackCommentsEnabled) 1 else 0).toByte())
-        dest.writeByte((if (obsceneFilterEnabled) 1 else 0).toByte())
-        dest.writeByte((if (obsceneStopwordsEnabled) 1 else 0).toByte())
+        dest.putBoolean(feedbackCommentsEnabled)
+        dest.putBoolean(obsceneFilterEnabled)
+        dest.putBoolean(obsceneStopwordsEnabled)
         dest.writeString(obsceneWords)
         dest.writeInt(access)
         dest.writeInt(age)

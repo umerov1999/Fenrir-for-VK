@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.StringRes
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class SideDrawerCategory : Parcelable {
     @StringRes
@@ -20,7 +22,7 @@ class SideDrawerCategory : Parcelable {
     internal constructor(`in`: Parcel) {
         title = `in`.readInt()
         key = `in`.readInt()
-        checked = `in`.readInt() == 1
+        checked = `in`.getBoolean()
     }
 
     @StringRes
@@ -49,7 +51,7 @@ class SideDrawerCategory : Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(title)
         dest.writeInt(key)
-        dest.writeInt(if (checked) 1 else 0)
+        dest.putBoolean(checked)
     }
 
     companion object CREATOR : Parcelable.Creator<SideDrawerCategory> {

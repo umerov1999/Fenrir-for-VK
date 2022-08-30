@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.fragment.base.horizontal.Entry
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class PostFilter : Entry, Parcelable {
     private val mode: Int
@@ -19,7 +21,7 @@ class PostFilter : Entry, Parcelable {
     internal constructor(`in`: Parcel) {
         mode = `in`.readInt()
         title = `in`.readString()!!
-        active = `in`.readByte().toInt() != 0
+        active = `in`.getBoolean()
         count = `in`.readInt()
     }
 
@@ -45,7 +47,7 @@ class PostFilter : Entry, Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(mode)
         dest.writeString(title)
-        dest.writeByte((if (active) 1 else 0).toByte())
+        dest.putBoolean(active)
         dest.writeInt(count)
     }
 

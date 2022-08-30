@@ -1,0 +1,7 @@
+/home/umerov/Open/OpenFenrir-for-VK/libfenrir/.cxx/Release/384d6f4o/arm64-v8a/CMakeFiles/rlottie.dir
+/home/umerov/Open/OpenFenrir-for-VK/libfenrir/.cxx/Release/384d6f4o/arm64-v8a/CMakeFiles/libyuv.dir
+/home/umerov/Open/OpenFenrir-for-VK/libfenrir/.cxx/Release/384d6f4o/arm64-v8a/CMakeFiles/opus.dir
+/home/umerov/Open/OpenFenrir-for-VK/libfenrir/.cxx/Release/384d6f4o/arm64-v8a/CMakeFiles/common.dir
+/home/umerov/Open/OpenFenrir-for-VK/libfenrir/.cxx/Release/384d6f4o/arm64-v8a/CMakeFiles/fenrir_jni.dir
+/home/umerov/Open/OpenFenrir-for-VK/libfenrir/.cxx/Release/384d6f4o/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/umerov/Open/OpenFenrir-for-VK/libfenrir/.cxx/Release/384d6f4o/arm64-v8a/CMakeFiles/rebuild_cache.dir

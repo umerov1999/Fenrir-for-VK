@@ -15,7 +15,7 @@ class TagOwner : Parcelable {
     constructor(`in`: Parcel) {
         id = `in`.readInt()
         name = `in`.readString()
-        count = `in`.readByte().toInt()
+        count = `in`.readInt()
     }
 
     override fun describeContents(): Int {

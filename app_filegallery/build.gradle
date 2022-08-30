@@ -123,4 +123,5 @@ dependencies {
     implementation("androidx.collection:collection-ktx:$collectionVersion")
     implementation("androidx.savedstate:savedstate-ktx:$savedStateVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlin_serializer")
+    implementation("com.google.errorprone:error_prone_annotations:${errorproneVersion}")
 }

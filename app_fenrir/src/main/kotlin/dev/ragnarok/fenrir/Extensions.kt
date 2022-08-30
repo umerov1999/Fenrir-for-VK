@@ -500,3 +500,11 @@ inline fun <reified T : Parcelable> Intent.getParcelableArrayListExtraCompat(key
         getParcelableArrayListExtra(key)
     }
 }
+
+fun Parcel.putBoolean(value: Boolean) {
+    writeInt(if (value) 1 else 0)
+}
+
+fun Parcel.getBoolean(): Boolean {
+    return readInt() != 0
+}

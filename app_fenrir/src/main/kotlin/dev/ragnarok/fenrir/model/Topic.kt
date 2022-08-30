@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -46,8 +48,8 @@ class Topic : AbsModel {
         createdByOwnerId = `in`.readInt()
         lastUpdateTime = `in`.readLong()
         updatedByOwnerId = `in`.readInt()
-        isClosed = `in`.readByte().toInt() != 0
-        isFixed = `in`.readByte().toInt() != 0
+        isClosed = `in`.getBoolean()
+        isFixed = `in`.getBoolean()
         commentsCount = `in`.readInt()
         firstCommentBody = `in`.readString()
         lastCommentBody = `in`.readString()
@@ -124,8 +126,8 @@ class Topic : AbsModel {
         parcel.writeInt(createdByOwnerId)
         parcel.writeLong(lastUpdateTime)
         parcel.writeInt(updatedByOwnerId)
-        parcel.writeByte((if (isClosed) 1 else 0).toByte())
-        parcel.writeByte((if (isFixed) 1 else 0).toByte())
+        parcel.putBoolean(isClosed)
+        parcel.putBoolean(isFixed)
         parcel.writeInt(commentsCount)
         parcel.writeString(firstCommentBody)
         parcel.writeString(lastCommentBody)

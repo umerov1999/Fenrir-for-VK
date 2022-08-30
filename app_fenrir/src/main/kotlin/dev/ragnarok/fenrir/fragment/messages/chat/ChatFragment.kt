@@ -1530,6 +1530,9 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                                     presenter?.fireChatTitleTyped(newValue)
                                 }
                             }
+
+                            override fun onCanceled() {
+                            }
                         })
                         .show()
                 }

@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -26,7 +27,7 @@ class ParcelableModelWrapper : Parcelable {
         }
 
         fun readModel(`in`: Parcel): AbsModel? {
-            val ex = `in`.readByte() != 0.toByte()
+            val ex = `in`.getBoolean()
             if (!ex) {
                 return null
             }
@@ -36,9 +37,9 @@ class ParcelableModelWrapper : Parcelable {
 
         fun writeModel(dest: Parcel, flags: Int, owner: AbsModel?) {
             if (owner == null) {
-                dest.writeByte(0)
+                dest.writeInt(0)
             } else {
-                dest.writeByte(1)
+                dest.writeInt(1)
                 dest.writeTypedObjectCompat(ParcelableModelWrapper(owner), flags)
             }
         }
@@ -47,6 +48,7 @@ class ParcelableModelWrapper : Parcelable {
             //Types
             TYPES.add(Photo::class.java)
             TYPES.add(Post::class.java)
+            TYPES.add(News::class.java)
             TYPES.add(Video::class.java)
             TYPES.add(FwdMessages::class.java)
             TYPES.add(VoiceMessage::class.java)
@@ -74,6 +76,7 @@ class ParcelableModelWrapper : Parcelable {
             //Loaders
             LOADERS.add { it.readTypedObjectCompat(Photo.CREATOR) }
             LOADERS.add { it.readTypedObjectCompat(Post.CREATOR) }
+            LOADERS.add { it.readTypedObjectCompat(News.CREATOR) }
             LOADERS.add { it.readTypedObjectCompat(Video.CREATOR) }
             LOADERS.add { it.readTypedObjectCompat(FwdMessages.CREATOR) }
             LOADERS.add { it.readTypedObjectCompat(VoiceMessage.CREATOR) }

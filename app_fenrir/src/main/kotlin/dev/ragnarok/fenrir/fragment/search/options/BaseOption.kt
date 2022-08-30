@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.fragment.search.options
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 open class BaseOption : Parcelable, Cloneable {
     val key: Int
@@ -22,7 +24,7 @@ open class BaseOption : Parcelable, Cloneable {
     protected constructor(`in`: Parcel) {
         optionType = `in`.readInt()
         key = `in`.readInt()
-        active = `in`.readByte().toInt() != 0
+        active = `in`.getBoolean()
         title = `in`.readInt()
         parentDependencyKey = `in`.readInt()
         childDependencies = `in`.createIntArray()
@@ -47,7 +49,7 @@ open class BaseOption : Parcelable, Cloneable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(optionType)
         dest.writeInt(key)
-        dest.writeByte((if (active) 1 else 0).toByte())
+        dest.putBoolean(active)
         dest.writeInt(title)
         dest.writeInt(parentDependencyKey)
         dest.writeIntArray(childDependencies)

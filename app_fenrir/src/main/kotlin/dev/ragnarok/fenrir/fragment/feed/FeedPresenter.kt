@@ -344,6 +344,10 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
                             showError(i)
                         })
                 }
+
+                override fun onCanceled() {
+
+                }
             })
             .show()
     }

@@ -13,7 +13,6 @@ import dev.ragnarok.filegallery.Includes
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.settings.CurrentTheme
 import dev.ragnarok.filegallery.util.ErrorLocalizer
-import dev.ragnarok.filegallery.util.Utils
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -73,7 +72,7 @@ class CustomSnackbars private constructor(private val view: View, private var an
     ): Snackbar {
         val color = CurrentTheme.getColorPrimary(view.context)
         val text_color =
-            if (Utils.isColorDark(color)) Color.parseColor("#ffffff") else Color.parseColor("#000000")
+            if (isColorDark(color)) Color.parseColor("#ffffff") else Color.parseColor("#000000")
         val ret = Snackbar.make(view, text.orEmpty(), duration).setBackgroundTint(color)
             .setActionTextColor(text_color).setTextColor(text_color).setAnchorView(anchorView)
         return ret.setOnClickListener { ret.dismiss() }

@@ -4,7 +4,9 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.CheckDonate
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.isValueAssigned
 import kotlinx.serialization.SerialName
@@ -55,17 +57,17 @@ class Community : Owner {
         fullName = `in`.readString()
         screenName = `in`.readString()
         closed = `in`.readInt()
-        isAdmin = `in`.readByte().toInt() != 0
+        isAdmin = `in`.getBoolean()
         adminLevel = `in`.readInt()
-        isMember = `in`.readByte().toInt() != 0
+        isMember = `in`.getBoolean()
         membersCount = `in`.readInt()
         memberStatus = `in`.readInt()
         communityType = `in`.readInt()
         photo50 = `in`.readString()
         photo100 = `in`.readString()
         photo200 = `in`.readString()
-        verified = `in`.readByte().toInt() != 0
-        isBlacklisted = `in`.readByte().toInt() != 0
+        verified = `in`.getBoolean()
+        isBlacklisted = `in`.getBoolean()
     }
 
     internal constructor(`in`: ParcelNative) : super(`in`) {
@@ -95,17 +97,17 @@ class Community : Owner {
         parcel.writeString(fullName)
         parcel.writeString(screenName)
         parcel.writeInt(closed)
-        parcel.writeByte((if (isAdmin) 1 else 0).toByte())
+        parcel.putBoolean(isAdmin)
         parcel.writeInt(adminLevel)
-        parcel.writeByte((if (isMember) 1 else 0).toByte())
+        parcel.putBoolean(isMember)
         parcel.writeInt(membersCount)
         parcel.writeInt(memberStatus)
         parcel.writeInt(communityType)
         parcel.writeString(photo50)
         parcel.writeString(photo100)
         parcel.writeString(photo200)
-        parcel.writeByte((if (verified) 1 else 0).toByte())
-        parcel.writeByte((if (isBlacklisted) 1 else 0).toByte())
+        parcel.putBoolean(verified)
+        parcel.putBoolean(isBlacklisted)
     }
 
     override fun writeToParcelNative(dest: ParcelNative) {

@@ -3,6 +3,8 @@ package dev.ragnarok.filegallery.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.module.StringHash.calculateCRC32
+import dev.ragnarok.filegallery.getBoolean
+import dev.ragnarok.filegallery.putBoolean
 
 class FileItemSelect : Parcelable {
     val isDir: Boolean
@@ -32,7 +34,7 @@ class FileItemSelect : Parcelable {
     }
 
     constructor(`in`: Parcel) {
-        isDir = `in`.readByte().toInt() != 0
+        isDir = `in`.getBoolean()
         file_name = `in`.readString()
         file_path = `in`.readString()
         parent_name = `in`.readString()
@@ -55,7 +57,7 @@ class FileItemSelect : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeByte((if (isDir) 1 else 0).toByte())
+        dest.putBoolean(isDir)
         dest.writeString(file_name)
         dest.writeString(file_path)
         dest.writeString(parent_name)

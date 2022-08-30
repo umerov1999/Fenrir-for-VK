@@ -2,10 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.readTypedObjectCompat
-import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Post : AbsModel, Cloneable {
     var dbid = 0
@@ -80,27 +78,27 @@ class Post : AbsModel, Cloneable {
         text = `in`.readString()
         replyOwnerId = `in`.readInt()
         replyPostId = `in`.readInt()
-        isFriendsOnly = `in`.readByte().toInt() != 0
+        isFriendsOnly = `in`.getBoolean()
         commentsCount = `in`.readInt()
-        isCanPostComment = `in`.readByte().toInt() != 0
+        isCanPostComment = `in`.getBoolean()
         likesCount = `in`.readInt()
-        isCanLike = `in`.readByte().toInt() != 0
+        isCanLike = `in`.getBoolean()
         repostCount = `in`.readInt()
-        isCanRepost = `in`.readByte().toInt() != 0
-        isUserReposted = `in`.readByte().toInt() != 0
+        isCanRepost = `in`.getBoolean()
+        isUserReposted = `in`.getBoolean()
         postType = `in`.readInt()
         attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         signerId = `in`.readInt()
         creatorId = `in`.readInt()
         creator = `in`.readTypedObjectCompat(User.CREATOR)
-        isCanPin = `in`.readByte().toInt() != 0
-        isPinned = `in`.readByte().toInt() != 0
+        isCanPin = `in`.getBoolean()
+        isPinned = `in`.getBoolean()
         copyHierarchy = `in`.createTypedArrayList(CREATOR)
-        isDeleted = `in`.readByte().toInt() != 0
+        isDeleted = `in`.getBoolean()
         source = `in`.readTypedObjectCompat(PostSource.CREATOR)
         viewCount = `in`.readInt()
-        isCanEdit = `in`.readByte().toInt() != 0
-        isFavorite = `in`.readByte().toInt() != 0
+        isCanEdit = `in`.getBoolean()
+        isFavorite = `in`.getBoolean()
     }
 
     constructor()
@@ -280,27 +278,27 @@ class Post : AbsModel, Cloneable {
         parcel.writeString(text)
         parcel.writeInt(replyOwnerId)
         parcel.writeInt(replyPostId)
-        parcel.writeByte((if (isFriendsOnly) 1 else 0).toByte())
+        parcel.putBoolean(isFriendsOnly)
         parcel.writeInt(commentsCount)
-        parcel.writeByte((if (isCanPostComment) 1 else 0).toByte())
+        parcel.putBoolean(isCanPostComment)
         parcel.writeInt(likesCount)
-        parcel.writeByte((if (isCanLike) 1 else 0).toByte())
+        parcel.putBoolean(isCanLike)
         parcel.writeInt(repostCount)
-        parcel.writeByte((if (isCanRepost) 1 else 0).toByte())
-        parcel.writeByte((if (isUserReposted) 1 else 0).toByte())
+        parcel.putBoolean(isCanRepost)
+        parcel.putBoolean(isUserReposted)
         parcel.writeInt(postType)
         parcel.writeTypedObjectCompat(attachments, i)
         parcel.writeInt(signerId)
         parcel.writeInt(creatorId)
         parcel.writeTypedObjectCompat(creator, i)
-        parcel.writeByte((if (isCanPin) 1 else 0).toByte())
-        parcel.writeByte((if (isPinned) 1 else 0).toByte())
+        parcel.putBoolean(isCanPin)
+        parcel.putBoolean(isPinned)
         parcel.writeTypedList(copyHierarchy)
-        parcel.writeByte((if (isDeleted) 1 else 0).toByte())
+        parcel.putBoolean(isDeleted)
         parcel.writeTypedObjectCompat(source, i)
         parcel.writeInt(viewCount)
-        parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
-        parcel.writeByte((if (isFavorite) 1 else 0).toByte())
+        parcel.putBoolean(isCanEdit)
+        parcel.putBoolean(isFavorite)
     }
 
     /**

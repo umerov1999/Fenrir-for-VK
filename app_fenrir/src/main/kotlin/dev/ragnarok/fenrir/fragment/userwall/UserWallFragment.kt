@@ -467,6 +467,9 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                         newValue
                     )
                 }
+
+                override fun onCanceled() {
+                }
             })
             .show()
     }
@@ -482,6 +485,9 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                     presenter?.fireAddToFrindsClick(
                         newValue
                     )
+                }
+
+                override fun onCanceled() {
                 }
             })
             .show()
@@ -582,6 +588,9 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
                         presenter?.renameLocal(
                             newValue
                         )
+                    }
+
+                    override fun onCanceled() {
                     }
                 })
                 .show()

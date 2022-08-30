@@ -5,6 +5,8 @@ import android.os.Parcelable
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.filegallery.api.adapters.PhotoDtoAdapter
+import dev.ragnarok.filegallery.getBoolean
+import dev.ragnarok.filegallery.putBoolean
 import kotlinx.serialization.Serializable
 
 @Keep
@@ -45,8 +47,8 @@ class Photo : Parcelable, ParcelNative.ParcelableNative {
         preview_url = `in`.readString()
         text = `in`.readString()
         date = `in`.readLong()
-        isLocal = `in`.readByte().toInt() != 0
-        isGif = `in`.readByte().toInt() != 0
+        isLocal = `in`.getBoolean()
+        isGif = `in`.getBoolean()
     }
 
     fun setGif(gif: Boolean): Photo {
@@ -104,8 +106,8 @@ class Photo : Parcelable, ParcelNative.ParcelableNative {
         parcel.writeString(preview_url)
         parcel.writeString(text)
         parcel.writeLong(date)
-        parcel.writeByte((if (isLocal) 1 else 0).toByte())
-        parcel.writeByte((if (isGif) 1 else 0).toByte())
+        parcel.putBoolean(isLocal)
+        parcel.putBoolean(isGif)
     }
 
     override fun equals(other: Any?): Boolean {

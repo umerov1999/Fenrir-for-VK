@@ -11,6 +11,7 @@ import com.google.android.exoplayer2.util.Util
 import com.google.common.base.Predicate
 import com.google.common.net.HttpHeaders
 import com.google.common.util.concurrent.SettableFuture
+import com.google.errorprone.annotations.CanIgnoreReturnValue
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -356,6 +357,8 @@ class OkHttpDataSource internal constructor(
         private var transferListener: TransferListener? = null
         private var cacheControl: CacheControl? = null
         private var contentTypePredicate: Predicate<String>? = null
+
+        @CanIgnoreReturnValue
         override fun setDefaultRequestProperties(defaultRequestProperties: Map<String, String>): Factory {
             this.defaultRequestProperties.clearAndSet(defaultRequestProperties)
             return this
@@ -371,6 +374,7 @@ class OkHttpDataSource internal constructor(
          * agent of the underlying [OkHttpClient].
          * @return This factory.
          */
+        @CanIgnoreReturnValue
         fun setUserAgent(userAgent: String?): Factory {
             this.userAgent = userAgent
             return this
@@ -385,6 +389,7 @@ class OkHttpDataSource internal constructor(
          * @param cacheControl The cache control that will be used.
          * @return This factory.
          */
+        @CanIgnoreReturnValue
         fun setCacheControl(cacheControl: CacheControl?): Factory {
             this.cacheControl = cacheControl
             return this
@@ -401,6 +406,7 @@ class OkHttpDataSource internal constructor(
          * predicate that was previously set.
          * @return This factory.
          */
+        @CanIgnoreReturnValue
         fun setContentTypePredicate(contentTypePredicate: Predicate<String>?): Factory {
             this.contentTypePredicate = contentTypePredicate
             return this
@@ -418,6 +424,7 @@ class OkHttpDataSource internal constructor(
          * @param transferListener The listener that will be used.
          * @return This factory.
          */
+        @CanIgnoreReturnValue
         fun setTransferListener(transferListener: TransferListener?): Factory {
             this.transferListener = transferListener
             return this

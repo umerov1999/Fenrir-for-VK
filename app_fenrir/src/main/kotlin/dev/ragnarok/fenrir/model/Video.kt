@@ -2,7 +2,9 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -99,9 +101,9 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         image = `in`.readString()
         accessKey = `in`.readString()
         commentsCount = `in`.readInt()
-        isCanComment = `in`.readByte().toInt() != 0
-        isCanRepost = `in`.readByte().toInt() != 0
-        isUserLikes = `in`.readByte().toInt() != 0
+        isCanComment = `in`.getBoolean()
+        isCanRepost = `in`.getBoolean()
+        isUserLikes = `in`.getBoolean()
         likesCount = `in`.readInt()
         mp4link240 = `in`.readString()
         mp4link360 = `in`.readString()
@@ -114,14 +116,14 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         hls = `in`.readString()
         live = `in`.readString()
         platform = `in`.readString()
-        isRepeat = `in`.readByte().toInt() != 0
+        isRepeat = `in`.getBoolean()
         duration = `in`.readInt()
         privacyView = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
         privacyComment = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
-        isCanEdit = `in`.readByte().toInt() != 0
-        isCanAdd = `in`.readByte().toInt() != 0
-        private = `in`.readByte().toInt() != 0
-        isFavorite = `in`.readByte().toInt() != 0
+        isCanEdit = `in`.getBoolean()
+        isCanAdd = `in`.getBoolean()
+        private = `in`.getBoolean()
+        isFavorite = `in`.getBoolean()
         msgId = `in`.readInt()
         msgPeerId = `in`.readInt()
     }
@@ -162,7 +164,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         isCanEdit = `in`.readBoolean()
         isCanAdd = `in`.readBoolean()
         private = `in`.readBoolean()
-        isFavorite = `in`.readByte().toInt() != 0
+        isFavorite = `in`.readBoolean()
         msgId = `in`.readInt()
         msgPeerId = `in`.readInt()
     }
@@ -192,9 +194,9 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         parcel.writeString(image)
         parcel.writeString(accessKey)
         parcel.writeInt(commentsCount)
-        parcel.writeByte((if (isCanComment) 1 else 0).toByte())
-        parcel.writeByte((if (isCanRepost) 1 else 0).toByte())
-        parcel.writeByte((if (isUserLikes) 1 else 0).toByte())
+        parcel.putBoolean(isCanComment)
+        parcel.putBoolean(isCanRepost)
+        parcel.putBoolean(isUserLikes)
         parcel.writeInt(likesCount)
         parcel.writeString(mp4link240)
         parcel.writeString(mp4link360)
@@ -207,14 +209,14 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         parcel.writeString(hls)
         parcel.writeString(live)
         parcel.writeString(platform)
-        parcel.writeByte((if (isRepeat) 1 else 0).toByte())
+        parcel.putBoolean(isRepeat)
         parcel.writeInt(duration)
         parcel.writeTypedObjectCompat(privacyView, i)
         parcel.writeTypedObjectCompat(privacyComment, i)
-        parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
-        parcel.writeByte((if (isCanAdd) 1 else 0).toByte())
-        parcel.writeByte((if (private) 1 else 0).toByte())
-        parcel.writeByte((if (isFavorite) 1 else 0).toByte())
+        parcel.putBoolean(isCanEdit)
+        parcel.putBoolean(isCanAdd)
+        parcel.putBoolean(private)
+        parcel.putBoolean(isFavorite)
         parcel.writeInt(msgId)
         parcel.writeInt(msgPeerId)
     }
@@ -255,7 +257,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         dest.writeBoolean(isCanEdit)
         dest.writeBoolean(isCanAdd)
         dest.writeBoolean(private)
-        dest.writeByte((if (isFavorite) 1 else 0).toByte())
+        dest.writeBoolean(isFavorite)
         dest.writeInt(msgId)
         dest.writeInt(msgPeerId)
     }

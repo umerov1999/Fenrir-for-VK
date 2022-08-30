@@ -18,7 +18,7 @@ class LinearLayoutManager_SavedState : Parcelable {
     internal constructor(`in`: Parcel) {
         mAnchorPosition = `in`.readInt()
         mAnchorOffset = `in`.readInt()
-        mAnchorLayoutFromEnd = `in`.readInt() == 1
+        mAnchorLayoutFromEnd = `in`.readInt() != 0
     }
 
     constructor(other: LinearLayoutManager_SavedState) {

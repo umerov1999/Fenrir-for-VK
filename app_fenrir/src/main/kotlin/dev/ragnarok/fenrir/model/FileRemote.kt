@@ -3,7 +3,9 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.putBoolean
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -58,7 +60,7 @@ class FileRemote : Parcelable, ParcelNative.ParcelableNative {
         size = `in`.readLong()
         url = `in`.readString()
         preview_url = `in`.readString()
-        isSelected = `in`.readByte() != 0.toByte()
+        isSelected = `in`.getBoolean()
     }
 
     internal constructor(`in`: ParcelNative) {
@@ -82,7 +84,7 @@ class FileRemote : Parcelable, ParcelNative.ParcelableNative {
         dest.writeLong(size)
         dest.writeString(url)
         dest.writeString(preview_url)
-        dest.writeByte(if (isSelected) 1.toByte() else 0.toByte())
+        dest.putBoolean(isSelected)
     }
 
     override fun writeToParcelNative(dest: ParcelNative) {

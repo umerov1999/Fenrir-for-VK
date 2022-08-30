@@ -2,7 +2,9 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -20,7 +22,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
 
     internal constructor(`in`: Parcel) {
         type = `in`.readInt()
-        isNull = `in`.readInt() != 0
+        isNull = `in`.getBoolean()
         owner = if (!isNull) {
             if (type == OwnerType.USER) {
                 `in`.readTypedObjectCompat(User.CREATOR)
@@ -52,7 +54,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(type)
-        dest.writeByte((if (isNull) 1 else 0).toByte())
+        dest.putBoolean(isNull)
         if (!isNull) {
             dest.writeTypedObjectCompat(owner, flags)
         }
@@ -114,7 +116,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         }
 
         fun readOwners(`in`: Parcel): List<Owner>? {
-            val isNull = `in`.readByte() == 1.toByte()
+            val isNull = `in`.getBoolean()
             if (isNull) {
                 return null
             }
@@ -128,10 +130,10 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
 
         fun writeOwners(dest: Parcel, flags: Int, owners: List<Owner>?) {
             if (owners == null) {
-                dest.writeByte(1.toByte())
+                dest.writeInt(1)
                 return
             }
-            dest.writeByte(0.toByte())
+            dest.writeInt(0)
             dest.writeInt(owners.size)
             for (owner in owners) {
                 writeOwner(dest, flags, owner)
@@ -139,7 +141,7 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
         }
 
         fun readOwners(`in`: ParcelNative): List<Owner>? {
-            val isNull = `in`.readByte() == 1.toByte()
+            val isNull = `in`.readBoolean()
             if (isNull) {
                 return null
             }
@@ -153,10 +155,10 @@ class ParcelableOwnerWrapper : Parcelable, ParcelNative.ParcelableNative {
 
         fun writeOwners(dest: ParcelNative, owners: List<Owner>?) {
             if (owners == null) {
-                dest.writeByte(1.toByte())
+                dest.writeBoolean(true)
                 return
             }
-            dest.writeByte(0.toByte())
+            dest.writeBoolean(false)
             dest.writeInt(owners.size)
             for (owner in owners) {
                 writeOwner(dest, owner)

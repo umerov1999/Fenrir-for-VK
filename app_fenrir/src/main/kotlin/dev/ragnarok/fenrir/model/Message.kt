@@ -3,14 +3,11 @@ package dev.ragnarok.fenrir.model
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.model.Identificable
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.util.ParcelUtils.readIntStringMap
 import dev.ragnarok.fenrir.util.ParcelUtils.writeIntStringMap
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
-import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Message : AbsModel, Identificable, ISelectable {
     var accountId = 0
@@ -103,16 +100,16 @@ class Message : AbsModel, Identificable, ISelectable {
         //this.title = in.readString();
         peerId = `in`.readInt()
         senderId = `in`.readInt()
-        isOut = `in`.readInt() == 1
-        isImportant = `in`.readInt() == 1
+        isOut = `in`.getBoolean()
+        isImportant = `in`.getBoolean()
         @MessageStatus val tStatus = `in`.readInt()
         status = tStatus
         @CryptStatus val cs = `in`.readInt()
         cryptStatus = cs
         date = `in`.readLong()
-        isSelected = `in`.readInt() == 1
-        isDeleted = `in`.readInt() == 1
-        isDeletedForAll = `in`.readInt() == 1
+        isSelected = `in`.getBoolean()
+        isDeleted = `in`.getBoolean()
+        isDeletedForAll = `in`.getBoolean()
         attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         fwd = `in`.createTypedArrayList(CREATOR)
         originalId = `in`.readInt()
@@ -131,7 +128,7 @@ class Message : AbsModel, Identificable, ISelectable {
         randomId = `in`.readLong()
         extras = readIntStringMap(`in`)
         forwardMessagesCount = `in`.readInt()
-        isHasAttachments = `in`.readInt() == 1
+        isHasAttachments = `in`.getBoolean()
         updateTime = `in`.readLong()
         payload = `in`.readString()
         keyboard = `in`.readTypedObjectCompat(Keyboard.CREATOR)
@@ -346,14 +343,14 @@ class Message : AbsModel, Identificable, ISelectable {
         //dest.writeString(title);
         parcel.writeInt(peerId)
         parcel.writeInt(senderId)
-        parcel.writeInt(if (isOut) 1 else 0)
-        parcel.writeInt(if (isImportant) 1 else 0)
+        parcel.putBoolean(isOut)
+        parcel.putBoolean(isImportant)
         parcel.writeInt(status)
         parcel.writeInt(cryptStatus)
         parcel.writeLong(date)
-        parcel.writeInt(if (isSelected) 1 else 0)
-        parcel.writeInt(if (isDeleted) 1 else 0)
-        parcel.writeInt(if (isDeletedForAll) 1 else 0)
+        parcel.putBoolean(isSelected)
+        parcel.putBoolean(isDeleted)
+        parcel.putBoolean(isDeletedForAll)
         parcel.writeTypedObjectCompat(attachments, i)
         parcel.writeTypedList(fwd)
         parcel.writeInt(originalId)
@@ -369,7 +366,7 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeLong(randomId)
         writeIntStringMap(parcel, extras)
         parcel.writeInt(forwardMessagesCount)
-        parcel.writeInt(if (isHasAttachments) 1 else 0)
+        parcel.putBoolean(isHasAttachments)
         parcel.writeLong(updateTime)
         parcel.writeString(payload)
         parcel.writeTypedObjectCompat(keyboard, i)

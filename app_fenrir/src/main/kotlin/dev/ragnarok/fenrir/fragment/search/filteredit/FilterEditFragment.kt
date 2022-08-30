@@ -270,6 +270,9 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                     option.value = getIntFromEditable(newValue)
                     mAdapter?.notifyDataSetChanged()
                 }
+
+                override fun onCanceled() {
+                }
             })
             .show()
     }
@@ -294,6 +297,9 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
                 override fun onChanged(newValue: String?) {
                     option.value = newValue
                     mAdapter?.notifyDataSetChanged()
+                }
+
+                override fun onCanceled() {
                 }
             })
             .show()

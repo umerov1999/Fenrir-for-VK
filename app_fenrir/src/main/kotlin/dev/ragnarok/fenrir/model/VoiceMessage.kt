@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class VoiceMessage : AbsModel {
     private val id: Int
@@ -29,7 +31,7 @@ class VoiceMessage : AbsModel {
         linkMp3 = `in`.readString()
         accessKey = `in`.readString()
         transcript = `in`.readString()
-        showTranscript = `in`.readByte().toInt() != 0
+        showTranscript = `in`.getBoolean()
     }
 
     fun setWasListened(listened: Boolean): VoiceMessage {
@@ -126,7 +128,7 @@ class VoiceMessage : AbsModel {
         parcel.writeString(linkMp3)
         parcel.writeString(accessKey)
         parcel.writeString(transcript)
-        parcel.writeByte((if (showTranscript) 1 else 0).toByte())
+        parcel.putBoolean(showTranscript)
     }
 
     companion object CREATOR : Parcelable.Creator<VoiceMessage> {

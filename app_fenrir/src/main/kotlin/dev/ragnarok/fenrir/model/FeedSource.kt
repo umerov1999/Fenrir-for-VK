@@ -5,6 +5,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.fragment.base.horizontal.Entry
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -29,8 +31,8 @@ class FeedSource : Entry, Parcelable {
     internal constructor(`in`: Parcel) {
         value = `in`.readString()
         title = `in`.readTypedObjectCompat(Text.CREATOR)
-        active = `in`.readByte().toInt() != 0
-        custom = `in`.readByte().toInt() != 0
+        active = `in`.getBoolean()
+        custom = `in`.getBoolean()
     }
 
     fun getValue(): String? {
@@ -44,8 +46,8 @@ class FeedSource : Entry, Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(value)
         dest.writeTypedObjectCompat(title, flags)
-        dest.writeByte((if (active) 1 else 0).toByte())
-        dest.writeByte((if (custom) 1 else 0).toByte())
+        dest.putBoolean(active)
+        dest.putBoolean(custom)
     }
 
     override fun getTitle(context: Context): String? {

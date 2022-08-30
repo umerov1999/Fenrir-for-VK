@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class Market : AbsModel {
     val id: Int
@@ -40,7 +42,7 @@ class Market : AbsModel {
         id = `in`.readInt()
         owner_id = `in`.readInt()
         access_key = `in`.readString()
-        isIs_favorite = `in`.readByte().toInt() != 0
+        isIs_favorite = `in`.getBoolean()
         weight = `in`.readInt()
         availability = `in`.readInt()
         date = `in`.readLong()
@@ -58,7 +60,7 @@ class Market : AbsModel {
         parcel.writeInt(id)
         parcel.writeInt(owner_id)
         parcel.writeString(access_key)
-        parcel.writeByte(if (isIs_favorite) 1.toByte() else 0.toByte())
+        parcel.putBoolean(isIs_favorite)
         parcel.writeInt(weight)
         parcel.writeInt(availability)
         parcel.writeLong(date)

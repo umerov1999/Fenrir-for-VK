@@ -4,6 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
 import dev.ragnarok.filegallery.api.adapters.AudioDtoAdapter
+import dev.ragnarok.filegallery.getBoolean
+import dev.ragnarok.filegallery.putBoolean
 import dev.ragnarok.filegallery.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.filegallery.util.Utils.stringEmptyIfNull
 import kotlinx.serialization.Serializable
@@ -41,11 +43,11 @@ class Audio : Parcelable {
         title = `in`.readString()
         duration = `in`.readInt()
         url = `in`.readString()
-        isAnimationNow = `in`.readByte().toInt() != 0
-        isSelected = `in`.readByte().toInt() != 0
-        isLocal = `in`.readByte().toInt() != 0
-        isLocalServer = `in`.readByte().toInt() != 0
-        downloadIndicator = `in`.readByte().toInt() != 0
+        isAnimationNow = `in`.getBoolean()
+        isSelected = `in`.getBoolean()
+        isLocal = `in`.getBoolean()
+        isLocalServer = `in`.getBoolean()
+        downloadIndicator = `in`.getBoolean()
         thumb_image = `in`.readString()
     }
 
@@ -56,11 +58,11 @@ class Audio : Parcelable {
         dest.writeString(title)
         dest.writeInt(duration)
         dest.writeString(url)
-        dest.writeByte((if (isAnimationNow) 1 else 0).toByte())
-        dest.writeByte((if (isSelected) 1 else 0).toByte())
-        dest.writeByte((if (isLocal) 1 else 0).toByte())
-        dest.writeByte((if (isLocalServer) 1 else 0).toByte())
-        dest.writeByte((if (downloadIndicator) 1 else 0).toByte())
+        dest.putBoolean(isAnimationNow)
+        dest.putBoolean(isSelected)
+        dest.putBoolean(isLocal)
+        dest.putBoolean(isLocalServer)
+        dest.putBoolean(downloadIndicator)
         dest.writeString(thumb_image)
     }
 

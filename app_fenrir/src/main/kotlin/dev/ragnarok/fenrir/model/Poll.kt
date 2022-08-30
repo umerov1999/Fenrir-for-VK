@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 
 class Poll : AbsModel {
     val id: Int
@@ -46,17 +48,17 @@ class Poll : AbsModel {
         question = `in`.readString()
         voteCount = `in`.readInt()
         myAnswerIds = `in`.createIntArray()
-        isAnonymous = `in`.readByte().toInt() != 0
+        isAnonymous = `in`.getBoolean()
         answers = `in`.createTypedArrayList(Answer.CREATOR)
-        isBoard = `in`.readByte().toInt() != 0
-        isClosed = `in`.readByte().toInt() != 0
+        isBoard = `in`.getBoolean()
+        isClosed = `in`.getBoolean()
         authorId = `in`.readInt()
-        isCanVote = `in`.readByte().toInt() != 0
-        isCanEdit = `in`.readByte().toInt() != 0
-        isCanReport = `in`.readByte().toInt() != 0
-        isCanShare = `in`.readByte().toInt() != 0
+        isCanVote = `in`.getBoolean()
+        isCanEdit = `in`.getBoolean()
+        isCanReport = `in`.getBoolean()
+        isCanShare = `in`.getBoolean()
         endDate = `in`.readLong()
-        isMultiple = `in`.readByte().toInt() != 0
+        isMultiple = `in`.getBoolean()
         photo = `in`.readString()
     }
 
@@ -73,17 +75,17 @@ class Poll : AbsModel {
         parcel.writeString(question)
         parcel.writeInt(voteCount)
         parcel.writeIntArray(myAnswerIds)
-        parcel.writeByte((if (isAnonymous) 1 else 0).toByte())
+        parcel.putBoolean(isAnonymous)
         parcel.writeTypedList(answers)
-        parcel.writeByte((if (isBoard) 1 else 0).toByte())
-        parcel.writeByte((if (isClosed) 1 else 0).toByte())
+        parcel.putBoolean(isBoard)
+        parcel.putBoolean(isClosed)
         parcel.writeInt(authorId)
-        parcel.writeByte((if (isCanVote) 1 else 0).toByte())
-        parcel.writeByte((if (isCanEdit) 1 else 0).toByte())
-        parcel.writeByte((if (isCanReport) 1 else 0).toByte())
-        parcel.writeByte((if (isCanShare) 1 else 0).toByte())
+        parcel.putBoolean(isCanVote)
+        parcel.putBoolean(isCanEdit)
+        parcel.putBoolean(isCanReport)
+        parcel.putBoolean(isCanShare)
         parcel.writeLong(endDate)
-        parcel.writeByte((if (isMultiple) 1 else 0).toByte())
+        parcel.putBoolean(isMultiple)
         parcel.writeString(photo)
     }
 

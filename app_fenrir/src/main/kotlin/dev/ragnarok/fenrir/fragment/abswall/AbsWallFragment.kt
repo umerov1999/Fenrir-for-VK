@@ -109,6 +109,10 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                 override fun onChanged(newValue: Int) {
                     presenter?.fireSkipOffset(newValue)
                 }
+
+                override fun onCanceled() {
+
+                }
             }).show()
     }
 

@@ -3,6 +3,8 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.api.model.Identificable
+import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
@@ -28,20 +30,20 @@ class AppChatUser : Parcelable, Identificable {
             `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)!!
                 .get()
         invitedBy = `in`.readInt()
-        canRemove = `in`.readByte().toInt() != 0
+        canRemove = `in`.getBoolean()
         join_date = `in`.readLong()
-        isAdmin = `in`.readByte().toInt() != 0
-        isOwner = `in`.readByte().toInt() != 0
+        isAdmin = `in`.getBoolean()
+        isOwner = `in`.getBoolean()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeTypedObjectCompat(ParcelableOwnerWrapper(inviter), flags)
         dest.writeTypedObjectCompat(ParcelableOwnerWrapper(member), flags)
         dest.writeInt(invitedBy)
-        dest.writeByte((if (canRemove) 1 else 0).toByte())
+        dest.putBoolean(canRemove)
         dest.writeLong(join_date)
-        dest.writeByte((if (isAdmin) 1 else 0).toByte())
-        dest.writeByte((if (isOwner) 1 else 0).toByte())
+        dest.putBoolean(isAdmin)
+        dest.putBoolean(isOwner)
     }
 
     override fun describeContents(): Int {

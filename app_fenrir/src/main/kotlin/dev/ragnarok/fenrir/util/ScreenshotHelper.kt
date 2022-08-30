@@ -75,7 +75,7 @@ object ScreenshotHelper {
         }
     }
 
-    @SuppressLint("InternalInsetResource")
+    @SuppressLint("InternalInsetResource", "DiscouragedApi")
     private fun getStatusBarHeight(activity: Activity): Int {
         val identifier = activity.resources.getIdentifier("status_bar_height", "dimen", "android")
         return if (identifier > 0) {

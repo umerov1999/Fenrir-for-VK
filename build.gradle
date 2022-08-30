@@ -2,26 +2,26 @@ buildscript {
     //APP
     ext.appCompileSDK = 33
     ext.appBuildTools = "33.0.0"
-    ext.appNdk = "25.0.8775105"
+    ext.appNdk = "25.1.8937393"
     ext.appMinSDK = 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 200
-    ext.appFenrirVersionName = "2.100-Kotlin"
-    ext.appFileGalleryVersionCode = 20
-    ext.appFileGalleryVersionName = "1.20-Kotlin"
+    ext.appFenrirVersionCode = 201
+    ext.appFenrirVersionName = "2.101-Kotlin"
+    ext.appFileGalleryVersionCode = 21
+    ext.appFileGalleryVersionName = "1.21-Kotlin"
 
     //androidx libraries
-    ext.activityVersion = "1.6.0-beta01"
+    ext.activityVersion = "1.6.0-rc01"
     ext.appcompatVersion = "1.6.0-beta01"
-    ext.annotationVersion = "1.4.0"
+    ext.annotationVersion = "1.5.0-beta01"
     ext.biometricVersion = "1.2.0-alpha04"
     ext.browserVersion = "1.4.0"
-    ext.cameraVersion = "1.2.0-alpha04"
+    ext.cameraVersion = "1.2.0-beta01"
     ext.cardviewVersion = "1.0.0"
     ext.collectionVersion = "1.3.0-alpha02"
     ext.constraintlayoutVersion = "2.2.0-alpha03"
     ext.coordinatorlayoutVersion = "1.2.0"
-    ext.coreVersion = "1.9.0-beta01"
+    ext.coreVersion = "1.9.0-rc01"
     ext.customviewVersion = "1.2.0-alpha01"
     ext.customviewPoolingcontainerVersion = "1.0.0"
     ext.dynamicanimationVersion = "1.1.0-alpha03"
@@ -37,7 +37,7 @@ buildscript {
     ext.tracingVersion = "1.1.0"
     ext.transitionVersion = "1.4.1"
     ext.vectordrawableVersion = "1.2.0-beta01"
-    ext.webkitVersion = "1.5.0-rc01"
+    ext.webkitVersion = "1.5.0"
     ext.workVersion = "2.8.0-alpha03"
 
     //firebase libraries

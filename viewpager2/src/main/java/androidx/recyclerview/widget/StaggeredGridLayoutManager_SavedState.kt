@@ -36,9 +36,9 @@ class StaggeredGridLayoutManager_SavedState : Parcelable {
             mSpanLookup = IntArray(mSpanLookupSize)
             `in`.readIntArray(mSpanLookup!!)
         }
-        mReverseLayout = `in`.readInt() == 1
-        mAnchorLayoutFromEnd = `in`.readInt() == 1
-        mLastLayoutRTL = `in`.readInt() == 1
+        mReverseLayout = `in`.readInt() != 0
+        mAnchorLayoutFromEnd = `in`.readInt() != 0
+        mLastLayoutRTL = `in`.readInt() != 0
         val fullSpanItems: ArrayList<FullSpanItem>? =
             `in`.createTypedArrayList(FullSpanItem.CREATOR)
         mFullSpanItems = fullSpanItems
@@ -125,7 +125,7 @@ class FullSpanItem : Parcelable {
     constructor(`in`: Parcel) {
         mPosition = `in`.readInt()
         mGapDir = `in`.readInt()
-        mHasUnwantedGapAfter = `in`.readInt() == 1
+        mHasUnwantedGapAfter = `in`.readInt() != 0
         val spanCount = `in`.readInt()
         if (spanCount > 0) {
             mGapPerSpan = IntArray(spanCount)
