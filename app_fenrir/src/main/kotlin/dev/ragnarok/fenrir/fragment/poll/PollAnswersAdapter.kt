@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.view.View
 import android.widget.CompoundButton
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.model.Poll
@@ -97,7 +97,8 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
         val tvCount: TextView = itemView.findViewById(R.id.item_poll_answer_count)
         val rbButton: MaterialCheckBox = itemView.findViewById(R.id.item_poll_answer_radio)
         val tvTitle: TextView = itemView.findViewById(R.id.item_poll_answer_title)
-        val pbRate: ProgressBar = itemView.findViewById(R.id.item_poll_answer_progress)
+        val pbRate: CircularProgressIndicator =
+            itemView.findViewById(R.id.item_poll_answer_progress)
     }
 
     init {

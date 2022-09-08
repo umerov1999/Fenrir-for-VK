@@ -60,7 +60,7 @@ class CatalogLinksAdapter(data: MutableList<Link>) :
     }
 
     override fun layoutId(type: Int): Int {
-        return R.layout.item_catalog_link_v1
+        return R.layout.item_catalog_v1_link
     }
 
     interface ActionListener : EventListener {

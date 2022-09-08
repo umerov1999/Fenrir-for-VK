@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    card_view:cardCornerRadius="0dp"
-    card_view:cardUseCompatPadding="true">
+    app:cardCornerRadius="0dp"
+    app:cardUseCompatPadding="true">
 
     <dev.ragnarok.fenrir.view.square.SquareFrameLayout
         android:layout_width="match_parent"
@@ -47,18 +46,18 @@
                     android:padding="8dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/close"
-                    custom:tint="?white_color" />
+                    app:tint="?white_color" />
 
                 <dev.ragnarok.fenrir.view.CircleRoadProgress
                     android:id="@+id/progress"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_gravity="center"
-                    custom:arcLoadingColor="?attr/icon_color_active"
-                    custom:arcLoadingStartAngle="270"
-                    custom:arcLoadingStrokeWidth="4dp"
-                    custom:roadColor="#ffffff"
-                    custom:roadStrokeWidth="8dp" />
+                    app:arcLoadingColor="?attr/icon_color_active"
+                    app:arcLoadingStartAngle="270"
+                    app:arcLoadingStrokeWidth="4dp"
+                    app:roadColor="#ffffff"
+                    app:roadStrokeWidth="8dp" />
 
             </FrameLayout>
 

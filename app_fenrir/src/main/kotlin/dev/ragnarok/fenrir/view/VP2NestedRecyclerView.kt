@@ -199,7 +199,7 @@ class VP2NestedRecyclerView @JvmOverloads constructor(
     }
 
     init {
-
+        setHasFixedSize(false)
         orientation = if (attrs != null) {
             val a =
                 context.obtainStyledAttributes(

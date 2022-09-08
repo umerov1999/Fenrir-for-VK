@@ -29,6 +29,7 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.settingsThemePlace
+import dev.ragnarok.fenrir.settings.AvatarStyle
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
@@ -105,6 +106,11 @@ class SideNavigationFragment : AbsNavigationFragment(), MenuListAdapter.ActionLi
             View.GONE else vHeader.visibility = View.VISIBLE
         backgroundImage = vHeader.findViewById(R.id.header_navi_menu_background)
         ivHeaderAvatar = vHeader.findViewById(R.id.header_navi_menu_avatar)
+        ivHeaderAvatar?.setBackgroundResource(
+            if (Settings.get()
+                    .ui().avatarStyle == AvatarStyle.OVAL
+            ) R.drawable.sel_button_square_small_white else R.drawable.sel_button_round_5_white
+        )
         tvUserName = vHeader.findViewById(R.id.header_navi_menu_username)
         tvDomain = vHeader.findViewById(R.id.header_navi_menu_usernick)
         ivVerified = vHeader.findViewById(R.id.item_verified)

@@ -44,10 +44,10 @@ class AudioCatalogAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return if (viewType == 0) ViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_audio_catalog_v1, parent, false)
+                .inflate(R.layout.item_catalog_v1_audio, parent, false)
         ) else ViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_audio_catalog_artist_v1, parent, false)
+                .inflate(R.layout.item_catalog_v1_audio_artist, parent, false)
         )
     }
 
@@ -148,6 +148,21 @@ class AudioCatalogAdapter(
                 })
             })
         })
+        /*
+        holder.itemView.post {
+            val wMeasureSpec =
+                View.MeasureSpec.makeMeasureSpec(holder.itemView.width, View.MeasureSpec.EXACTLY)
+            val hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            holder.itemView.measure(wMeasureSpec, hMeasureSpec)
+            if (holder.itemView.measuredHeight > holder.itemView.height) {
+                holder.itemView.layoutParams =
+                    (holder.itemView.layoutParams as ViewGroup.LayoutParams)
+                        .apply {
+                            height = holder.itemView.measuredHeight
+                        }
+            }
+        }
+         */
     }
 
     fun setClickListener(clickListener: ClickListener?) {

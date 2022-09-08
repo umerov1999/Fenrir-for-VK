@@ -727,7 +727,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       }
     } else if (dy < 0) { // Downward
       if (!target.canScrollVertically(-1)) {
-        if (newTop <= collapsedOffset || hideable) {
+        if (newTop <= collapsedOffset || canBeHiddenByDragging()) {
           if (!draggable) {
             // Prevent dragging
             return;
@@ -1468,6 +1468,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     if (skipCollapsed) {
       return true;
     }
+    if (!isHideableWhenDragging()) {
+      return false;
+    }
     if (child.getTop() < collapsedOffset) {
       // It should not hide, but collapse.
       return false;
@@ -1831,7 +1834,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         @Override
         public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
           return MathUtils.clamp(
-              top, getExpandedOffset(), hideable ? parentHeight : collapsedOffset);
+              top,
+              getExpandedOffset(),
+              getViewVerticalDragRange(child));
         }
 
         @Override
@@ -1841,7 +1846,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
         @Override
         public int getViewVerticalDragRange(@NonNull View child) {
-          if (hideable) {
+          if (canBeHiddenByDragging()) {
             return parentHeight;
           } else {
             return collapsedOffset;
@@ -1908,6 +1913,20 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   @RestrictTo(LIBRARY_GROUP)
   public boolean shouldSkipSmoothAnimation() {
     return true;
+  }
+
+  /**
+   * Checks whether hiding gestures should be enabled while {@code isHideable} is set to true.
+   *
+   * @hide
+   */
+  @RestrictTo(LIBRARY_GROUP)
+  public boolean isHideableWhenDragging() {
+    return true;
+  }
+
+  private boolean canBeHiddenByDragging() {
+    return isHideable() && isHideableWhenDragging();
   }
 
   /**
@@ -2164,7 +2183,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
               child, R.string.bottomsheet_action_expand_halfway, STATE_HALF_EXPANDED);
     }
 
-    if (hideable && state != STATE_HIDDEN) {
+    if ((hideable && isHideableWhenDragging()) && state != STATE_HIDDEN) {
       replaceAccessibilityActionForState(
           child, AccessibilityActionCompat.ACTION_DISMISS, STATE_HIDDEN);
     }

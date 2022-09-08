@@ -98,6 +98,8 @@ import com.google.android.material.internal.ThemeEnforcement;
 import com.google.android.material.internal.ViewUtils;
 import com.google.android.material.motion.MotionUtils;
 import com.google.android.material.resources.MaterialResources;
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.CornerTreatment;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import java.lang.annotation.Retention;
@@ -196,8 +198,8 @@ public class TextInputLayout extends LinearLayout {
   /** Duration for the label's scale up and down animations. */
   private static final int LABEL_SCALE_ANIMATION_DURATION = 167;
 
-  private static final long PLACEHOLDER_FADE_DURATION = 87;
-  private static final long PLACEHOLDER_START_DELAY = 67;
+  private static final int DEFAULT_PLACEHOLDER_FADE_DURATION = 87;
+  private static final int PLACEHOLDER_START_DELAY = 67;
 
   private static final int INVALID_MAX_LENGTH = -1;
   private static final int NO_WIDTH = -1;
@@ -1221,6 +1223,46 @@ public class TextInputLayout extends LinearLayout {
   }
 
   /**
+   * Sets the {@link ShapeAppearanceModel} of the text field's box background.
+   *
+   * @param shapeAppearanceModel the desired shape appearance model.
+   * @see #getShapeAppearanceModel()
+   */
+  public void setShapeAppearanceModel(@NonNull ShapeAppearanceModel shapeAppearanceModel) {
+    if (boxBackground != null && boxBackground.getShapeAppearanceModel() != shapeAppearanceModel) {
+      this.shapeAppearanceModel = shapeAppearanceModel;
+      applyBoxAttributes();
+    }
+  }
+
+  /**
+   * Returns the {@link ShapeAppearanceModel} of the text field's box background.
+   *
+   * @see #setShapeAppearanceModel(ShapeAppearanceModel)
+   */
+  @NonNull
+  public ShapeAppearanceModel getShapeAppearanceModel() {
+    return shapeAppearanceModel;
+  }
+
+  /**
+   * Sets the box's corner family for all corners of the text field.
+   *
+   * @param cornerFamily the {@link CornerFamily} to be used. May be one of {@link
+   *     CornerFamily#ROUNDED} or {@link CornerFamily#CUT}.
+   */
+  public void setBoxCornerFamily(@CornerFamily int cornerFamily) {
+    shapeAppearanceModel =
+        shapeAppearanceModel.toBuilder()
+            .setTopLeftCorner(cornerFamily, shapeAppearanceModel.getTopLeftCornerSize())
+            .setTopRightCorner(cornerFamily, shapeAppearanceModel.getTopRightCornerSize())
+            .setBottomLeftCorner(cornerFamily, shapeAppearanceModel.getBottomLeftCornerSize())
+            .setBottomRightCorner(cornerFamily, shapeAppearanceModel.getBottomRightCornerSize())
+            .build();
+    applyBoxAttributes();
+  }
+
+  /**
    * Set the resources used for the box's corner radii.
    *
    * @param boxCornerRadiusTopStartId the resource to use for the box's top start corner radius
@@ -1551,8 +1593,7 @@ public class TextInputLayout extends LinearLayout {
 
     // Set the expanded and collapsed labels to the default text color.
     if (defaultHintTextColor != null) {
-      collapsingTextHelper.setCollapsedTextColor(defaultHintTextColor);
-      collapsingTextHelper.setExpandedTextColor(defaultHintTextColor);
+      collapsingTextHelper.setCollapsedAndExpandedTextColor(defaultHintTextColor);
     }
 
     // Set the collapsed and expanded label text colors based on the current state.
@@ -1562,12 +1603,13 @@ public class TextInputLayout extends LinearLayout {
               ? defaultHintTextColor.getColorForState(
                   new int[] {-android.R.attr.state_enabled}, disabledColor)
               : disabledColor;
-      collapsingTextHelper.setCollapsedTextColor(ColorStateList.valueOf(disabledHintColor));
-      collapsingTextHelper.setExpandedTextColor(ColorStateList.valueOf(disabledHintColor));
+      collapsingTextHelper.setCollapsedAndExpandedTextColor(
+          ColorStateList.valueOf(disabledHintColor));
     } else if (shouldShowError()) {
-      collapsingTextHelper.setCollapsedTextColor(indicatorViewController.getErrorViewTextColors());
+      collapsingTextHelper.setCollapsedAndExpandedTextColor(
+          indicatorViewController.getErrorViewTextColors());
     } else if (counterOverflowed && counterView != null) {
-      collapsingTextHelper.setCollapsedTextColor(counterView.getTextColors());
+      collapsingTextHelper.setCollapsedAndExpandedTextColor(counterView.getTextColors());
     } else if (hasFocus && focusedTextColor != null) {
       collapsingTextHelper.setCollapsedTextColor(focusedTextColor);
     } // If none of these states apply, leave the expanded and collapsed colors as they are.
@@ -2364,8 +2406,10 @@ public class TextInputLayout extends LinearLayout {
 
   private Fade createPlaceholderFadeTransition() {
     Fade placeholderFadeTransition = new Fade();
-    placeholderFadeTransition.setDuration(PLACEHOLDER_FADE_DURATION);
-    placeholderFadeTransition.setInterpolator(AnimationUtils.LINEAR_INTERPOLATOR);
+    placeholderFadeTransition.setDuration(MotionUtils.resolveThemeDuration(getContext(),
+        R.attr.motionDurationShort2, DEFAULT_PLACEHOLDER_FADE_DURATION));
+    placeholderFadeTransition.setInterpolator(MotionUtils.resolveThemeInterpolator(getContext(),
+        R.attr.motionEasingLinearInterpolator, AnimationUtils.LINEAR_INTERPOLATOR));
     return placeholderFadeTransition;
   }
 
@@ -3040,9 +3084,8 @@ public class TextInputLayout extends LinearLayout {
   public void onRtlPropertiesChanged(int layoutDirection) {
     super.onRtlPropertiesChanged(layoutDirection);
     boolean isLayoutDirectionRtl = layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL;
-    if (isLayoutDirectionRtl != areCornerRadiiRtl) {
+   if (isLayoutDirectionRtl != areCornerRadiiRtl) {
       // Switch corner radius values from LTR to RTL or vice versa.
-      boolean shouldCornersBeRtl = isLayoutDirectionRtl && !areCornerRadiiRtl;
       float boxCornerRadiusTopLeft =
           shapeAppearanceModel.getTopLeftCornerSize().getCornerSize(tmpRectF);
       float boxCornerRadiusTopRight =
@@ -3051,12 +3094,29 @@ public class TextInputLayout extends LinearLayout {
           shapeAppearanceModel.getBottomLeftCornerSize().getCornerSize(tmpRectF);
       float boxCornerRadiusBottomRight =
           shapeAppearanceModel.getBottomRightCornerSize().getCornerSize(tmpRectF);
-      setBoxCornerRadii(
-          shouldCornersBeRtl ? boxCornerRadiusTopLeft : boxCornerRadiusTopRight,
-          shouldCornersBeRtl ? boxCornerRadiusTopRight : boxCornerRadiusTopLeft,
-          shouldCornersBeRtl ? boxCornerRadiusBottomLeft : boxCornerRadiusBottomRight,
-          shouldCornersBeRtl ? boxCornerRadiusBottomRight : boxCornerRadiusBottomLeft);
-    }
+      CornerTreatment topLeftTreatment =
+          shapeAppearanceModel.getTopLeftCorner();
+      CornerTreatment topRightTreatment =
+          shapeAppearanceModel.getTopRightCorner();
+      CornerTreatment bottomLeftTreatment =
+          shapeAppearanceModel.getBottomLeftCorner();
+      CornerTreatment bottomRightTreatment =
+          shapeAppearanceModel.getBottomRightCorner();
+
+      ShapeAppearanceModel newShapeAppearanceModel =
+          ShapeAppearanceModel.builder()
+              .setTopLeftCorner(topRightTreatment)
+              .setTopRightCorner(topLeftTreatment)
+              .setBottomLeftCorner(bottomRightTreatment)
+              .setBottomRightCorner(bottomLeftTreatment)
+              .setTopLeftCornerSize(boxCornerRadiusTopRight)
+              .setTopRightCornerSize(boxCornerRadiusTopLeft)
+              .setBottomLeftCornerSize(boxCornerRadiusBottomRight)
+              .setBottomRightCornerSize(boxCornerRadiusBottomLeft)
+              .build();
+     areCornerRadiiRtl = isLayoutDirectionRtl;
+     setShapeAppearanceModel(newShapeAppearanceModel);
+   }
   }
 
   @Override
@@ -4146,6 +4206,7 @@ public class TextInputLayout extends LinearLayout {
 
     final boolean hasFocus = isFocused() || (editText != null && editText.hasFocus());
     final boolean isHovered = isHovered() || (editText != null && editText.isHovered());
+    final boolean isOnError = shouldShowError() || (counterView != null && counterOverflowed);
 
     // Update the text box's stroke color based on the current state.
     if (!isEnabled()) {
@@ -4168,6 +4229,10 @@ public class TextInputLayout extends LinearLayout {
       boxStrokeColor = hoveredStrokeColor;
     } else {
       boxStrokeColor = defaultStrokeColor;
+    }
+
+    if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+      updateCursorColor(isOnError);
     }
 
     endLayout.onTextInputBoxStateUpdated();
@@ -4224,6 +4289,25 @@ public class TextInputLayout extends LinearLayout {
     } else {
       boxStrokeColor = defaultStrokeErrorColor;
     }
+  }
+
+  @TargetApi(VERSION_CODES.Q)
+  private void updateCursorColor(boolean isOnError) {
+    ColorStateList cursorColor =
+        MaterialColors.getColorStateListOrNull(getContext(), androidx.appcompat.R.attr.colorControlActivated);
+    if (editText == null || editText.getTextCursorDrawable() == null || cursorColor == null) {
+      // If there's no cursor or if its color is null, return.
+      return;
+    }
+
+    Drawable cursorDrawable = editText.getTextCursorDrawable();
+    if (isOnError) {
+      // Use the stroke error color for the cursor error color, or the box stroke color if
+      // strokeErrorColor is null.
+      cursorColor =
+          strokeErrorColor != null ? strokeErrorColor : ColorStateList.valueOf(boxStrokeColor);
+    }
+    DrawableCompat.setTintList(cursorDrawable, cursorColor);
   }
 
   private void expandHint(boolean animate) {

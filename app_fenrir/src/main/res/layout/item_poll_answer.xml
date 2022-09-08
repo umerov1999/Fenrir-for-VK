@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp">
 
-            <ProgressBar
+            <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/item_poll_answer_progress"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"

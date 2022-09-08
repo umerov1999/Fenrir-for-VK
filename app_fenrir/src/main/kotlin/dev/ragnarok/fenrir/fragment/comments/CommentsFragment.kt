@@ -7,7 +7,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
@@ -19,6 +18,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
@@ -70,7 +70,7 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
     private var upHelper: LoadMoreFooterHelperComment? = null
     private var downhelper: LoadMoreFooterHelperComment? = null
     private var mAdapter: CommentsAdapter? = null
-    private var mCenterProgressBar: ProgressBar? = null
+    private var mCenterProgressBar: CircularProgressIndicator? = null
     private var mEmptyView: View? = null
     private var mAuthorAvatar: ImageView? = null
     private var mDeepLookingProgressDialog: AlertDialog? = null

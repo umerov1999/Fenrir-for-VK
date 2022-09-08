@@ -35,11 +35,13 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.appcompat.content.res.AppCompatResources;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
@@ -165,6 +167,7 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
    */
   // TODO(b/76413401): update this interface after the widget migration
   public interface OnOffsetChangedListener extends BaseOnOffsetChangedListener<AppBarLayout> {
+    @Override
     void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset);
   }
 
@@ -476,6 +479,7 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
           // For UNSPECIFIED we can use any height so just add the top inset
           newHeight += getTopInset();
           break;
+        case MeasureSpec.EXACTLY:
         default: // fall out
       }
       setMeasuredDimension(getMeasuredWidth(), newHeight);
@@ -1199,14 +1203,24 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
      * No effect should be placed on this view. It will scroll 1:1 with the AppBarLayout/scrolling
      * content.
      */
-    private static final int SCROLL_EFFECT_NONE = 0;
+    public static final int SCROLL_EFFECT_NONE = 0;
 
     /**
      * An effect that will "compress" this view as it hits the scroll ceiling (typically the top of
      * the screen). This is a parallax effect that masks this view and decreases its scroll ratio
      * in relation to the AppBarLayout's offset.
      */
-    private static final int SCROLL_EFFECT_COMPRESS = 1;
+    public static final int SCROLL_EFFECT_COMPRESS = 1;
+
+    /**
+     * The scroll effect to be applied when the AppBarLayout's offset changes.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({SCROLL_EFFECT_NONE, SCROLL_EFFECT_COMPRESS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ScrollEffect {}
 
     private ChildScrollEffect scrollEffect;
 
@@ -1219,7 +1233,7 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
 
       int scrollEffectInt =
           a.getInt(R.styleable.AppBarLayout_Layout_layout_scrollEffect, SCROLL_EFFECT_NONE);
-      setScrollEffect(createScrollEffectFromInt(scrollEffectInt));
+      setScrollEffect(scrollEffectInt);
 
       if (a.hasValue(R.styleable.AppBarLayout_Layout_layout_scrollInterpolator)) {
         int resId = a.getResourceId(R.styleable.AppBarLayout_Layout_layout_scrollInterpolator, 0);
@@ -1314,6 +1328,17 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
     }
 
     /**
+     * Set the scroll effect to be applied when the AppBarLayout's offset changes.
+     *
+     * @param scrollEffect An {@code AppBarLayoutChildScrollEffect} implementation. If
+     * {@link #SCROLL_EFFECT_NONE} is passed, the scroll effect will be cleared and no
+     * effect will be applied.
+     */
+    public void setScrollEffect(@ScrollEffect int scrollEffect) {
+      this.scrollEffect = createScrollEffectFromInt(scrollEffect);
+    }
+
+    /**
      * Set the interpolator to when scrolling the view associated with this {@link LayoutParams}.
      *
      * @param interpolator the interpolator to use, or null to use normal 1-to-1 scrolling.
@@ -1370,6 +1395,7 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
   // TODO(b/76413401): remove this base class and generic type after the widget migration is done
   protected static class BaseBehavior<T extends AppBarLayout> extends HeaderBehavior<T> {
     private static final int MAX_OFFSET_ANIMATION_DURATION = 600; // ms
+    private static final double EXPAND_BY_KEY_EVENT_THRESHOLD_PERCENTAGE = 0.1;
 
     /** Callback to allow control over any {@link AppBarLayout} dragging. */
     // TODO(b/76413401): remove this base class and generic type after the widget migration
@@ -1751,7 +1777,54 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
       abl.onOffsetChanged(getTopAndBottomOffset());
 
       updateAccessibilityActions(parent, abl);
+      // TODO(b/243555083): Until CoordinatorLayout fixes triggering scroll events with physical
+      //  keyboard scrolling, we have this hack in place.
+      View v = findFirstScrollingChild(parent);
+      if (v != null) {
+        if (VERSION.SDK_INT >= VERSION_CODES.P) {
+          v.addOnUnhandledKeyEventListener(
+              (v1, event) -> {
+                controlExpansionOnKeyPress(event, v, abl);
+                return false;
+              });
+        } else {
+          // Unfortunately if not using >= API 28, we don't have access to the unhandled key event
+          // handler. Using setOnKeyListener is less ideal since it will replace any listener
+          // already on the scrollable child. Furthermore, the 'scrolling' may be occurring due to
+          // switching focus between children of the scrollable child, which will not trigger this
+          // listener.
+          v.setOnKeyListener(
+              (v1, keyCode, event) -> {
+                controlExpansionOnKeyPress(event, v, abl);
+                return false;
+              });
+        }
+      }
       return handled;
+    }
+
+    // TODO(b/243555083): Until CoordinatorLayout fixes triggering scroll events with physical
+    //  keyboard scrolling, we have this hack in place.
+    private void controlExpansionOnKeyPress(
+        KeyEvent event, View scrollableChild, AppBarLayout abl) {
+      if (event.getAction() == KeyEvent.ACTION_DOWN || event.getAction() == KeyEvent.ACTION_UP) {
+        int keyCode = event.getKeyCode();
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP
+            || keyCode == KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP
+            || keyCode == KeyEvent.KEYCODE_PAGE_UP) {
+          // If within height threshold, we expand.
+          if (scrollableChild.getScrollY()
+              < scrollableChild.getMeasuredHeight() * EXPAND_BY_KEY_EVENT_THRESHOLD_PERCENTAGE) {
+            abl.setExpanded(true);
+          }
+        } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN
+            || keyCode == KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN
+            || keyCode == KeyEvent.KEYCODE_PAGE_DOWN) {
+          if (scrollableChild.getScrollY() > 0) {
+            abl.setExpanded(false);
+          }
+        }
+      }
     }
 
     private void updateAccessibilityActions(

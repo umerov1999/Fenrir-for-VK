@@ -47,6 +47,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getShowComunityInfoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getShowComunityLinksInfoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getTopicsPlace
+import dev.ragnarok.fenrir.settings.AvatarStyle
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
@@ -543,6 +544,11 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         val Runes: View = root.findViewById(R.id.runes_container)
 
         init {
+            ivAvatar.setBackgroundResource(
+                if (Settings.get()
+                        .ui().avatarStyle == AvatarStyle.OVAL
+                ) R.drawable.sel_button_square_5_white else R.drawable.sel_button_round_5_white
+            )
             val filterList: RecyclerView = root.findViewById(R.id.post_filter_recyclerview)
             filterList.layoutManager =
                 LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)

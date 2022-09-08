@@ -43,7 +43,6 @@
                 android:gravity="center"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="?colorPrimary"
-                android:textIsSelectable="true"
                 tools:text="Name" />
 
             <TextView
@@ -54,7 +53,6 @@
                 android:gravity="center"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="?colorSecondary"
-                android:textIsSelectable="true"
                 tools:text="Artist" />
 
             <TextView
@@ -64,7 +62,6 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:textIsSelectable="true"
                 android:textSize="12sp"
                 tools:text="Description" />
 

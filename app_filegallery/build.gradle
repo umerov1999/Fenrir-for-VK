@@ -32,7 +32,7 @@ android {
         versionCode = appFileGalleryVersionCode
         versionName = appFileGalleryVersionName
         buildConfigField("boolean", "MANAGE_SCOPED_STORAGE", "true")
-        buildConfigField("boolean", "FORCE_DEVELOPER_MODE", force_developer_mode)
+        buildConfigField("boolean", "FORCE_DEVELOPER_MODE", is_developer_build ? "true" : "false")
 
         applicationId = "dev.ragnarok.filegallery"
 

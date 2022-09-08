@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.view
 
 import android.view.View
-import android.widget.ProgressBar
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.settings.CurrentTheme
@@ -91,7 +91,7 @@ class LoadMoreFooterHelper {
 
     class Holder(root: View) {
         val container: View = root.findViewById(R.id.footer_load_more_root)
-        val progress: ProgressBar = root.findViewById(R.id.footer_load_more_progress)
+        val progress: CircularProgressIndicator = root.findViewById(R.id.footer_load_more_progress)
         val bLoadMore: View = root.findViewById(R.id.footer_load_more_run)
         val tvEndOfList: RLottieImageView = root.findViewById(R.id.footer_load_more_end_of_list)
 

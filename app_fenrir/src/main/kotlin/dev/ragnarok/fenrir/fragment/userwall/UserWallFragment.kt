@@ -44,6 +44,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getMentionsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getPostPreviewPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getUserDetailsPlace
+import dev.ragnarok.fenrir.settings.AvatarStyle
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.Upload
@@ -673,6 +674,11 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
         val mPostFilterAdapter: HorizontalOptionsAdapter<PostFilter>
 
         init {
+            ivAvatar.setBackgroundResource(
+                if (Settings.get()
+                        .ui().avatarStyle == AvatarStyle.OVAL
+                ) R.drawable.sel_button_square_5_white else R.drawable.sel_button_round_5_white
+            )
             val filtersList: RecyclerView = root.findViewById(R.id.post_filter_recyclerview)
             filtersList.layoutManager =
                 LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)

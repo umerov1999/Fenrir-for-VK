@@ -37,7 +37,7 @@ android {
         buildConfigField("String", "FAKE_DEVICE", asStringVar(fake_device))
         buildConfigField("String", "FCM_SESSION_ID_GEN_URL", asStringVar(fcm_session_id_gen_url))
         buildConfigField("boolean", "MANAGE_SCOPED_STORAGE", "true")
-        buildConfigField("boolean", "FORCE_DEVELOPER_MODE", force_developer_mode)
+        buildConfigField("boolean", "FORCE_DEVELOPER_MODE", is_developer_build ? "true" : "false")
 
         ndk {
             abiFilters = targetAbi

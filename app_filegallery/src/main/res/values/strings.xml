@@ -336,6 +336,6 @@
     <string name="files_uploading_notification_title">Загрузка файлов</string>
     <string name="play_remote">Играть через сервер</string>
     <string name="open_folder_new_window">Открывать директории в новом окне</string>
-    <string name="compress_incoming_traffic">Сжимать вхохящщй траффик</string>
+    <string name="compress_incoming_traffic">Сжимать входящий траффик</string>
     <string name="parser_type">Парсер</string>
 </resources>

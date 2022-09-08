@@ -18,6 +18,8 @@ import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
+import dev.ragnarok.fenrir.settings.AvatarStyle
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.ViewUtils.getOnlineIcon
 import dev.ragnarok.fenrir.view.OnlineView
@@ -49,6 +51,11 @@ class CommunityManagerEditFragment :
         val root = inflater.inflate(R.layout.fragment_community_manager_edit, container, false)
         (requireActivity() as AppCompatActivity).setSupportActionBar(root.findViewById(R.id.toolbar))
         mAvatar = root.findViewById(R.id.avatar)
+        mAvatar?.setBackgroundResource(
+            if (Settings.get()
+                    .ui().avatarStyle == AvatarStyle.OVAL
+            ) R.drawable.sel_button_square_5_white else R.drawable.sel_button_round_5_white
+        )
         mAvatar?.setOnClickListener {
             presenter?.fireAvatarClick()
         }

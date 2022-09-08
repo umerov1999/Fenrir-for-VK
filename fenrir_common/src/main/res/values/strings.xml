@@ -20,6 +20,7 @@
         <item>Viking</item>
         <item>Raven</item>
         <item>Pennywise</item>
+        <item>Chur</item>
         <item>Fire</item>
         <item>[Random]</item>
     </string-array>
@@ -46,6 +47,7 @@
         <item>18</item>
         <item>19</item>
         <item>20</item>
+        <item>21</item>
     </string-array>
 
     <!-- Google Play-->

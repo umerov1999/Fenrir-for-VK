@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment.wallpost
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -12,9 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import com.squareup.picasso3.Transformation
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.fragment.base.AttachmentsHolder
 import dev.ragnarok.fenrir.fragment.base.AttachmentsHolder.Companion.forPost
@@ -23,7 +23,6 @@ import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
-import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
@@ -36,10 +35,16 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateFromUnixTime
 import dev.ragnarok.fenrir.util.PostDownload
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.disposables.Disposable
+import java.util.concurrent.TimeUnit
 
 class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostView>(),
     EmojiconTextView.OnHashTagClickListener, IWallPostView, MenuProvider {
@@ -55,6 +60,10 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
     private var root: ViewGroup? = null
     private var mAttachmentsViews: AttachmentsHolder? = null
     private var mTextSelectionAllowed = false
+    private var loading: RLottieImageView? = null
+    private var animationDispose = Disposable.disposed()
+    private var mAnimationLoaded = false
+    private var animLoad: ObjectAnimator? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         attachmentsViewBinder = AttachmentsViewBinder(requireActivity(), this)
@@ -96,6 +105,21 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         savedInstanceState: Bundle?
     ): View {
         val pRoot = inflater.inflate(R.layout.fragment_post, container, false) as ViewGroup
+        loading = pRoot.findViewById(R.id.loading)
+        animLoad = ObjectAnimator.ofFloat(loading, View.ALPHA, 0.0f).setDuration(1000)
+        animLoad?.addListener(object : StubAnimatorListener() {
+            override fun onAnimationEnd(animation: Animator) {
+                loading?.clearAnimationDrawable()
+                loading?.visibility = View.GONE
+                loading?.alpha = 1f
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                loading?.clearAnimationDrawable()
+                loading?.visibility = View.GONE
+                loading?.alpha = 1f
+            }
+        })
         mAttachmentsViews = forPost(pRoot)
         (requireActivity() as AppCompatActivity).setSupportActionBar(pRoot.findViewById(R.id.toolbar))
         mShareButton = pRoot.findViewById(R.id.share_button)
@@ -130,6 +154,11 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         resolveTextSelection()
         root = pRoot
         return pRoot
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        animationDispose.dispose()
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -363,12 +392,41 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         )
     }
 
+    private fun resolveLoading(visible: Boolean) {
+        animationDispose.dispose()
+        if (mAnimationLoaded && !visible) {
+            mAnimationLoaded = false
+            animLoad?.start()
+        } else if (!mAnimationLoaded && visible) {
+            animLoad?.end()
+            animationDispose = Completable.create {
+                it.onComplete()
+            }.delay(300, TimeUnit.MILLISECONDS).fromIOToMain().subscribe({
+                mAnimationLoaded = true
+                loading?.visibility = View.VISIBLE
+                loading?.alpha = 1f
+                loading?.fromRes(
+                    dev.ragnarok.fenrir_common.R.raw.s_loading,
+                    Utils.dp(180f),
+                    Utils.dp(180f),
+                    intArrayOf(
+                        0x333333,
+                        CurrentTheme.getColorPrimary(requireActivity()),
+                        0x777777,
+                        CurrentTheme.getColorSecondary(requireActivity())
+                    )
+                )
+                loading?.playAnimation()
+            }, RxUtils.ignore())
+        }
+    }
+
     override fun displayLoading() {
         val pRoot = root ?: return
         pRoot.findViewById<View>(R.id.fragment_post_deleted).visibility = View.GONE
         pRoot.findViewById<View>(R.id.post_content).visibility = View.GONE
         pRoot.findViewById<View>(R.id.post_loading_root).visibility = View.VISIBLE
-        pRoot.findViewById<View>(R.id.progressBar).visibility = View.VISIBLE
+        resolveLoading(true)
         pRoot.findViewById<View>(R.id.post_loading_text).visibility =
             View.VISIBLE
         pRoot.findViewById<View>(R.id.try_again_button).visibility = View.GONE
@@ -380,7 +438,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         pRoot.findViewById<View>(R.id.post_content).visibility = View.GONE
         pRoot.findViewById<View>(R.id.post_loading_root).visibility =
             View.VISIBLE
-        pRoot.findViewById<View>(R.id.progressBar).visibility = View.GONE
+        resolveLoading(false)
         pRoot.findViewById<View>(R.id.post_loading_text).visibility = View.GONE
         pRoot.findViewById<View>(R.id.try_again_button).visibility =
             View.VISIBLE

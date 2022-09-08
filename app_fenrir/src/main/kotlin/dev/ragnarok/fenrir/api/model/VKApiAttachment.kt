@@ -23,7 +23,6 @@ interface VKApiAttachment {
         const val TYPE_CALL = "call"
         const val TYPE_NOT_SUPPORT = "not_support"
         const val TYPE_NOTE = "note"
-        const val TYPE_APP = "app"
         const val TYPE_POLL = "poll"
         const val TYPE_EVENT = "event"
         const val TYPE_WIKI_PAGE = "page"
@@ -37,6 +36,7 @@ interface VKApiAttachment {
         const val TYPE_PRODUCT = "product"
         const val TYPE_MARKET_ALBUM = "market_album"
         const val TYPE_ARTIST = "artist"
-        val IGNORE_ATTACHMENTS = arrayOf("mini_app", "photos_list", "podcast", "pretty_cards")
+        val IGNORE_ATTACHMENTS =
+            arrayOf("mini_app", "photos_list", "podcast", "pretty_cards", "situational_theme")
     }
 }

@@ -57,7 +57,7 @@ class FeedAdapter(
         attachmentsViewBinder.displayFriendsPost(
             item.friends,
             viewHolder.attachmentsHolder.vgFriends,
-            R.layout.item_catalog_link_v1
+            R.layout.item_friend_link
         )
         viewHolder.tvOwnerName.text = item.ownerName
         val result = AppTextUtils.reduceStringForPost(item.text)

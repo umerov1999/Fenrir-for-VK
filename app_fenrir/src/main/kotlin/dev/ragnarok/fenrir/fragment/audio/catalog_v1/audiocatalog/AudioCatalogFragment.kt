@@ -70,7 +70,7 @@ class AudioCatalogFragment : BaseMvpFragment<AudioCatalogPresenter, IAudioCatalo
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_audio_catalog_v1, container, false)
+        val root = inflater.inflate(R.layout.fragment_catalog_v1_audio, container, false)
         val toolbar: Toolbar = root.findViewById(R.id.toolbar)
         if (!inTabsContainer) {
             toolbar.visibility = View.VISIBLE

@@ -1640,7 +1640,7 @@
     <string name="reset_notifications_groups">Сбросить уведомления</string>
     <string name="not_available">НЕДОСТУПНО</string>
     <string name="refresh_audio_token">Обновить аудио токен</string>
-    <string name="compress_incoming_traffic">Сжимать вхохящщй траффик</string>
+    <string name="compress_incoming_traffic">Сжимать входящий траффик</string>
     <string name="compress_outgoing_traffic">Сжимать исходящий траффик</string>
     <string name="do_not_clear_back_stack">Не очищать бэкстэк при музыке</string>
     <string name="slidr_vertical_settings">Вертикальные настройки:</string>

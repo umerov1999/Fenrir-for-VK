@@ -44,7 +44,7 @@ class VideosInCatalogFragment : BaseMvpFragment<VideosInCatalogPresenter, IVideo
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_catalog_block_v1, container, false)
+        val root = inflater.inflate(R.layout.fragment_catalog_v1_block, container, false)
         val toolbar: Toolbar = root.findViewById(R.id.toolbar)
         if (!inTabsContainer) {
             toolbar.visibility = View.VISIBLE

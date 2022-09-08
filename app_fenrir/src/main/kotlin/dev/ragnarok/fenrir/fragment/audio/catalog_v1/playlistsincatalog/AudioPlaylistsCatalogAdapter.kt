@@ -32,7 +32,7 @@ class AudioPlaylistsCatalogAdapter(
         return Holder(
             LayoutInflater.from(
                 context
-            ).inflate(R.layout.item_audio_playlist_catalog_v1, parent, false)
+            ).inflate(R.layout.item_catalog_v1_audio_playlist, parent, false)
         )
     }
 
