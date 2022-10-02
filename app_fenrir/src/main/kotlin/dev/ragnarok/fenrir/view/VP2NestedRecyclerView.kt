@@ -37,6 +37,13 @@ class VP2NestedRecyclerView @JvmOverloads constructor(
         }
     }
 
+    fun saveState() {
+        if (uid == -1) {
+            return
+        }
+        parcelables[uid] = layoutManager?.onSaveInstanceState()
+    }
+
     override fun onDetachedFromWindow() {
         if (uid == -1) {
             super.onDetachedFromWindow()

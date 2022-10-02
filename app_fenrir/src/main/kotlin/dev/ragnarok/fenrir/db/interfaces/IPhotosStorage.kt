@@ -17,4 +17,14 @@ interface IPhotosStorage : IStorage {
 
     fun findPhotosByCriteriaRx(criteria: PhotoCriteria): Single<List<PhotoDboEntity>>
     fun applyPatch(accountId: Int, ownerId: Int, photoId: Int, patch: PhotoPatch): Completable
+
+    fun insertPhotosExtendedRx(
+        accountId: Int,
+        ownerId: Int,
+        albumId: Int,
+        photos: List<PhotoDboEntity>,
+        clearBefore: Boolean
+    ): Completable
+
+    fun findPhotosExtendedByCriteriaRx(criteria: PhotoCriteria): Single<List<PhotoDboEntity>>
 }

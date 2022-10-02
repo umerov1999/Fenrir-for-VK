@@ -39,7 +39,7 @@ class VKApiPoll
     /**
      * Response ID of the current user(if the current user has not yet posted in this poll, it contains 0)
      */
-    var answer_ids: IntArray? = null
+    var answer_ids: LongArray? = null
 
     /* возвращется для анонимных опросов. */
     var anonymous = false
@@ -75,7 +75,7 @@ class VKApiPoll
         /**
          * ID of the answer for the question
          */
-        var id = 0
+        var id = 0L
 
         /**
          * Text of the answer

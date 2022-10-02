@@ -12,6 +12,7 @@ import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getNewsContentUriF
 import dev.ragnarok.fenrir.db.column.FeedListsColumns
 import dev.ragnarok.fenrir.db.column.FeedListsColumns.getCV
 import dev.ragnarok.fenrir.db.column.NewsColumns
+import dev.ragnarok.fenrir.db.column.PostsColumns
 import dev.ragnarok.fenrir.db.interfaces.IFeedStorage
 import dev.ragnarok.fenrir.db.model.entity.*
 import dev.ragnarok.fenrir.model.FeedSourceCriteria
@@ -190,6 +191,14 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             .setRepostCount(cursor.getInt(NewsColumns.REPOSTS_COUNT))
             .setUserReposted(cursor.getBoolean(NewsColumns.USER_REPOSTED))
             .setViews(cursor.getInt(NewsColumns.VIEWS))
+        cursor.getBlob(PostsColumns.COPYRIGHT_JSON).nonNullNoEmpty {
+            dbo.setCopyright(
+                MsgPack.decodeFromByteArray(
+                    NewsDboEntity.CopyrightDboEntity.serializer(),
+                    it
+                )
+            )
+        }
         val attachmentsJson =
             cursor.getBlob(NewsColumns.ATTACHMENTS_JSON)
         if (attachmentsJson.nonNullNoEmpty()) {
@@ -246,6 +255,14 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
                 NewsColumns.TAG_FRIENDS,
                 dbo.friendsTags?.let { join(",", it) }
             )
+            dbo.copyright.ifNonNull({
+                cv.put(
+                    NewsColumns.COPYRIGHT_JSON,
+                    MsgPack.encodeToByteArray(NewsDboEntity.CopyrightDboEntity.serializer(), it)
+                )
+            }, {
+                cv.putNull(NewsColumns.COPYRIGHT_JSON)
+            })
             cv.put(NewsColumns.VIEWS, dbo.views)
             if (dbo.copyHistory.nonNullNoEmpty() || dbo.attachments.nonNullNoEmpty()) {
                 val attachmentsEntities: MutableList<DboEntity> = ArrayList()

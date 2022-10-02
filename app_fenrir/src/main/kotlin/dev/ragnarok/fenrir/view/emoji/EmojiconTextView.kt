@@ -120,10 +120,10 @@ class EmojiconTextView @JvmOverloads constructor(context: Context, attrs: Attrib
             if (mDisplayHashTags) {
                 setColorsToAllHashTags(spannable)
             }
-            if (!Settings.get().ui().isSystemEmoji) {
+            if (isInEditMode || !Settings.get().ui().isSystemEmoji) {
                 addEmojis(context, spannable, mEmojiconSize, mTextStart, mTextLength)
             }
-            val mode = Settings.get().main().isOpenUrlInternal
+            val mode = if (isInEditMode) 0 else Settings.get().main().isOpenUrlInternal
             if (mode > 0) {
                 linkifyVKUrl(spannable)
             }

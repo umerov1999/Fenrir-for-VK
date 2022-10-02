@@ -20,12 +20,17 @@ class FaveLink : AbsModel {
         this.id = id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readString()
         url = `in`.readString()
         title = `in`.readString()
         description = `in`.readString()
         photo = `in`.readTypedObjectCompat(Photo.CREATOR)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_FAVE_LINK
     }
 
     fun setUrl(url: String?): FaveLink {
@@ -48,13 +53,12 @@ class FaveLink : AbsModel {
         return this
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeString(url)
         parcel.writeString(title)
         parcel.writeString(description)
-        parcel.writeTypedObjectCompat(photo, i)
+        parcel.writeTypedObjectCompat(photo, flags)
     }
 
     override fun describeContents(): Int {

@@ -33,7 +33,7 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         private set
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         date = `in`.readLong()
@@ -59,8 +59,7 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         owner = readOwner(`in`)
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeLong(date)
@@ -68,9 +67,9 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         parcel.putBoolean(isIs_expired)
         parcel.writeString(accessKey)
         parcel.writeString(target_url)
-        parcel.writeTypedObjectCompat(video, i)
-        parcel.writeTypedObjectCompat(photo, i)
-        writeOwner(parcel, i, owner)
+        parcel.writeTypedObjectCompat(video, flags)
+        parcel.writeTypedObjectCompat(photo, flags)
+        writeOwner(parcel, flags, owner)
     }
 
     override fun writeToParcelNative(dest: ParcelNative) {
@@ -84,6 +83,11 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         dest.writeParcelable(video)
         dest.writeParcelable(photo)
         writeOwner(dest, owner)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_STORY
     }
 
     fun setPhoto(photo: Photo?): Story {

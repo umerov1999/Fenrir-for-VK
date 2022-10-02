@@ -26,51 +26,53 @@ class FenrirContentProvider : ContentProvider() {
         const val URI_MESSAGES_ATTACHMENTS = 5
         const val URI_MESSAGES_ATTACHMENTS_ID = 6
         const val URI_PHOTOS = 7
-        const val URI_PHOTOS_ID = 8
-        const val URI_DIALOGS = 9
-        const val URI_DOCS = 10
-        const val URI_DOCS_ID = 11
-        const val URI_VIDEOS = 12
-        const val URI_VIDEOS_ID = 13
-        const val URI_POSTS = 14
-        const val URI_POSTS_ID = 15
-        const val URI_POST_ATTACHMENTS = 16
-        const val URI_POST_ATTACHMENTS_ID = 17
-        const val URI_GROUPS = 18
-        const val URI_GROUPS_ID = 19
-        const val URI_RELATIVESHIP = 20
-        const val URI_COMMENTS = 21
-        const val URI_COMMENTS_ID = 22
-        const val URI_COMMENTS_ATTACHMENTS = 23
-        const val URI_COMMENTS_ATTACHMENTS_ID = 24
-        const val URI_PHOTO_ALBUMS = 25
-        const val URI_NEWS = 26
-        const val URI_GROUPS_DET = 27
-        const val URI_GROUPS_DET_ID = 28
-        const val URI_VIDEO_ALBUMS = 29
-        const val URI_TOPICS = 30
-        const val URI_NOTIFICATIONS = 31
-        const val URI_USER_DET = 32
-        const val URI_USER_DET_ID = 33
-        const val URI_FAVE_PHOTOS = 34
-        const val URI_FAVE_VIDEOS = 35
-        const val URI_FAVE_PAGES = 36
-        const val URI_FAVE_GROUPS = 37
-        const val URI_FAVE_LINKS = 38
-        const val URI_FAVE_POSTS = 39
-        const val URI_FAVE_ARTICLES = 40
-        const val URI_FAVE_PRODUCTS = 41
-        const val URI_COUNTRIES = 42
-        const val URI_FEED_LISTS = 43
-        const val URI_FRIEND_LISTS = 44
-        const val URI_KEYS = 45
-        const val URI_PEERS = 46
+        const val URI_PHOTOS_EXTENDED = 8
+        const val URI_PHOTOS_ID = 9
+        const val URI_DIALOGS = 10
+        const val URI_DOCS = 11
+        const val URI_DOCS_ID = 12
+        const val URI_VIDEOS = 13
+        const val URI_VIDEOS_ID = 14
+        const val URI_POSTS = 15
+        const val URI_POSTS_ID = 16
+        const val URI_POST_ATTACHMENTS = 17
+        const val URI_POST_ATTACHMENTS_ID = 18
+        const val URI_GROUPS = 19
+        const val URI_GROUPS_ID = 20
+        const val URI_RELATIVESHIP = 21
+        const val URI_COMMENTS = 22
+        const val URI_COMMENTS_ID = 23
+        const val URI_COMMENTS_ATTACHMENTS = 24
+        const val URI_COMMENTS_ATTACHMENTS_ID = 25
+        const val URI_PHOTO_ALBUMS = 26
+        const val URI_NEWS = 27
+        const val URI_GROUPS_DET = 28
+        const val URI_GROUPS_DET_ID = 29
+        const val URI_VIDEO_ALBUMS = 30
+        const val URI_TOPICS = 31
+        const val URI_NOTIFICATIONS = 32
+        const val URI_USER_DET = 33
+        const val URI_USER_DET_ID = 34
+        const val URI_FAVE_PHOTOS = 35
+        const val URI_FAVE_VIDEOS = 36
+        const val URI_FAVE_PAGES = 37
+        const val URI_FAVE_GROUPS = 38
+        const val URI_FAVE_LINKS = 39
+        const val URI_FAVE_POSTS = 40
+        const val URI_FAVE_ARTICLES = 41
+        const val URI_FAVE_PRODUCTS = 42
+        const val URI_COUNTRIES = 43
+        const val URI_FEED_LISTS = 44
+        const val URI_FRIEND_LISTS = 45
+        const val URI_KEYS = 46
+        const val URI_PEERS = 47
 
         // path
         private const val USER_PATH = "users"
         private const val MESSAGES_PATH = "messages"
         private const val MESSAGES_ATTACHMENTS_PATH = "messages_attachments"
         private const val PHOTOS_PATH = "photos"
+        private const val PHOTOS_EXTENDED_PATH = "extended_photos"
         private const val DIALOGS_PATH = "dialogs"
         private const val PEERS_PATH = "peers"
         private const val DOCS_PATH = "docs"
@@ -114,6 +116,8 @@ class FenrirContentProvider : ContentProvider() {
         val PHOTOS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$PHOTOS_PATH"
         val PHOTOS_CONTENT_ITEM_TYPE =
             "vnd.android.cursor.item/vnd.$AUTHORITY.$PHOTOS_PATH"
+        val PHOTOS_EXTENDED_CONTENT_TYPE =
+            "vnd.android.cursor.dir/vnd.$AUTHORITY.$PHOTOS_EXTENDED_PATH"
         val DIALOGS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$DIALOGS_PATH"
         val PEERS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$PEERS_PATH"
         val DOCS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$DOCS_PATH"
@@ -187,6 +191,8 @@ class FenrirContentProvider : ContentProvider() {
         private val MESSAGES_ATTACHMENTS_CONTENT_URI =
             Uri.parse("content://$AUTHORITY/$MESSAGES_ATTACHMENTS_PATH")
         private val PHOTOS_CONTENT_URI = Uri.parse("content://$AUTHORITY/$PHOTOS_PATH")
+        private val PHOTOS_EXTENDED_CONTENT_URI =
+            Uri.parse("content://$AUTHORITY/$PHOTOS_EXTENDED_PATH")
         private val DIALOGS_CONTENT_URI = Uri.parse("content://$AUTHORITY/$DIALOGS_PATH")
         private val PEERS_CONTENT_URI = Uri.parse("content://$AUTHORITY/$PEERS_PATH")
         private val DOCS_CONTENT_URI = Uri.parse("content://$AUTHORITY/$DOCS_PATH")
@@ -239,6 +245,7 @@ class FenrirContentProvider : ContentProvider() {
         private val sMessagesProjectionMap: MutableMap<String, String>
         private val sMessagesAttachmentsProjectionMap: MutableMap<String, String>
         private val sPhotosProjectionMap: MutableMap<String, String>
+        private val sPhotosExtendedProjectionMap: MutableMap<String, String>
         private val sDialogsProjectionMap: MutableMap<String, String>
         private val sPeersProjectionMap: MutableMap<String, String>
         private val sDocsProjectionMap: MutableMap<String, String>
@@ -362,6 +369,10 @@ class FenrirContentProvider : ContentProvider() {
             return appendAccountId(PHOTOS_CONTENT_URI, aid)
         }
 
+        fun getPhotosExtendedContentUriFor(aid: Int): Uri {
+            return appendAccountId(PHOTOS_EXTENDED_CONTENT_URI, aid)
+        }
+
 
         fun getCommentsContentUriFor(aid: Int): Uri {
             return appendAccountId(COMMENTS_CONTENT_URI, aid)
@@ -458,6 +469,7 @@ class FenrirContentProvider : ContentProvider() {
                 URI_MESSAGES_ATTACHMENTS_ID
             )
             sUriMatcher.addURI(AUTHORITY, PHOTOS_PATH, URI_PHOTOS)
+            sUriMatcher.addURI(AUTHORITY, PHOTOS_EXTENDED_PATH, URI_PHOTOS_EXTENDED)
             sUriMatcher.addURI(AUTHORITY, "$PHOTOS_PATH/#", URI_PHOTOS_ID)
             sUriMatcher.addURI(AUTHORITY, DIALOGS_PATH, URI_DIALOGS)
             sUriMatcher.addURI(AUTHORITY, PEERS_PATH, URI_PEERS)
@@ -693,6 +705,45 @@ class FenrirContentProvider : ContentProvider() {
                 PhotosColumns.FULL_ACCESS_KEY
             sPhotosProjectionMap[PhotosColumns.DELETED] =
                 PhotosColumns.FULL_DELETED
+            sPhotosExtendedProjectionMap = HashMap()
+            sPhotosExtendedProjectionMap[BaseColumns._ID] =
+                PhotosExtendedColumns.FULL_ID
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.DB_ALBUM_ID] =
+                PhotosExtendedColumns.FULL_DB_ALBUM_ID
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.DB_OWNER_ID] =
+                PhotosExtendedColumns.FULL_DB_OWNER_ID
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.PHOTO_ID] =
+                PhotosExtendedColumns.FULL_PHOTO_ID
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.ALBUM_ID] =
+                PhotosExtendedColumns.FULL_ALBUM_ID
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.OWNER_ID] =
+                PhotosExtendedColumns.FULL_OWNER_ID
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.WIDTH] =
+                PhotosExtendedColumns.FULL_WIDTH
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.HEIGHT] =
+                PhotosExtendedColumns.FULL_HEIGHT
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.TEXT] =
+                PhotosExtendedColumns.FULL_TEXT
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.DATE] =
+                PhotosExtendedColumns.FULL_DATE
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.SIZES] =
+                PhotosExtendedColumns.FULL_SIZES
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.USER_LIKES] =
+                PhotosExtendedColumns.FULL_USER_LIKES
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.CAN_COMMENT] =
+                PhotosExtendedColumns.FULL_CAN_COMMENT
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.LIKES] =
+                PhotosExtendedColumns.FULL_LIKES
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.REPOSTS] =
+                PhotosExtendedColumns.FULL_REPOSTS
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.COMMENTS] =
+                PhotosExtendedColumns.FULL_COMMENTS
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.TAGS] =
+                PhotosExtendedColumns.FULL_TAGS
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.ACCESS_KEY] =
+                PhotosExtendedColumns.FULL_ACCESS_KEY
+            sPhotosExtendedProjectionMap[PhotosExtendedColumns.DELETED] =
+                PhotosExtendedColumns.FULL_DELETED
             sDialogsProjectionMap = HashMap()
             sDialogsProjectionMap[BaseColumns._ID] =
                 DialogsColumns.FULL_ID
@@ -844,6 +895,7 @@ class FenrirContentProvider : ContentProvider() {
             sPostsProjectionMap[PostsColumns.COMMENTS_COUNT] =
                 PostsColumns.FULL_COMMENTS_COUNT
             sPostsProjectionMap[PostsColumns.CAN_POST_COMMENT] = PostsColumns.FULL_CAN_POST_COMMENT
+            sPostsProjectionMap[PostsColumns.COPYRIGHT_JSON] = PostsColumns.FULL_COPYRIGHT_JSON
             sPostsProjectionMap[PostsColumns.LIKES_COUNT] = PostsColumns.FULL_LIKES_COUNT
             sPostsProjectionMap[PostsColumns.USER_LIKES] =
                 PostsColumns.FULL_USER_LIKES
@@ -993,6 +1045,8 @@ class FenrirContentProvider : ContentProvider() {
                 NewsColumns.FULL_CAN_DELETE
             sNewsProjectionMap[NewsColumns.COMMENT_COUNT] =
                 NewsColumns.FULL_COMMENT_COUNT
+            sNewsProjectionMap[NewsColumns.COPYRIGHT_JSON] =
+                NewsColumns.FULL_COPYRIGHT_JSON
             sNewsProjectionMap[NewsColumns.COMMENT_CAN_POST] = NewsColumns.FULL_COMMENT_CAN_POST
             sNewsProjectionMap[NewsColumns.LIKE_COUNT] = NewsColumns.FULL_LIKE_COUNT
             sNewsProjectionMap[NewsColumns.USER_LIKE] =
@@ -1228,6 +1282,10 @@ class FenrirContentProvider : ContentProvider() {
                 rowId = db.replace(PhotosColumns.TABLENAME, null, values)
                 resultUri = ContentUris.withAppendedId(PHOTOS_CONTENT_URI, rowId)
             }
+            URI_PHOTOS_EXTENDED -> {
+                rowId = db.replace(PhotosExtendedColumns.TABLENAME, null, values)
+                resultUri = ContentUris.withAppendedId(PHOTOS_EXTENDED_CONTENT_URI, rowId)
+            }
             URI_DIALOGS -> {
                 rowId = db.replace(DialogsColumns.TABLENAME, null, values)
                 resultUri = ContentUris.withAppendedId(DIALOGS_CONTENT_URI, rowId)
@@ -1432,6 +1490,11 @@ class FenrirContentProvider : ContentProvider() {
                 _QB.tables = PhotosColumns.TABLENAME
                 _QB.projectionMap = sPhotosProjectionMap
                 URI_PHOTOS
+            }
+            URI_PHOTOS_EXTENDED -> {
+                _QB.tables = PhotosExtendedColumns.TABLENAME
+                _QB.projectionMap = sPhotosExtendedProjectionMap
+                URI_PHOTOS_EXTENDED
             }
             URI_PHOTOS_ID -> {
                 _QB.tables = PhotosColumns.TABLENAME
@@ -1658,6 +1721,7 @@ class FenrirContentProvider : ContentProvider() {
                 URI_MESSAGES -> MessageColumns.FULL_STATUS + ", " + MessageColumns.FULL_ID + " ASC"
                 URI_MESSAGES_ATTACHMENTS -> MessagesAttachmentsColumns.FULL_ID + " ASC"
                 URI_PHOTOS -> PhotosColumns.FULL_ID + " ASC"
+                URI_PHOTOS_EXTENDED -> PhotosExtendedColumns.FULL_ID + " ASC"
                 URI_DIALOGS -> MessageColumns.FULL_DATE + " DESC"
                 URI_PEERS -> PeersColumns.FULL_ID + " DESC"
                 URI_DOCS -> DocColumns.FULL_ID + " ASC"
@@ -1718,6 +1782,7 @@ class FenrirContentProvider : ContentProvider() {
             URI_MESSAGES_ATTACHMENTS -> return MESSAGES_ATTACHMENTS_CONTENT_TYPE
             URI_MESSAGES_ATTACHMENTS_ID -> return MESSAGES_ATTACHMENTS_CONTENT_ITEM_TYPE
             URI_PHOTOS -> return PHOTOS_CONTENT_TYPE
+            URI_PHOTOS_EXTENDED -> return PHOTOS_EXTENDED_CONTENT_TYPE
             URI_PHOTOS_ID -> return PHOTOS_CONTENT_ITEM_TYPE
             URI_DIALOGS -> return DIALOGS_CONTENT_TYPE
             URI_PEERS -> return PEERS_CONTENT_TYPE
@@ -1788,6 +1853,7 @@ class FenrirContentProvider : ContentProvider() {
                 tbName = PostsColumns.TABLENAME
             }
             URI_PHOTOS -> tbName = PhotosColumns.TABLENAME
+            URI_PHOTOS_EXTENDED -> tbName = PhotosExtendedColumns.TABLENAME
             URI_MESSAGES_ATTACHMENTS -> tbName = MessagesAttachmentsColumns.TABLENAME
             URI_COMMENTS -> tbName = CommentsColumns.TABLENAME
             URI_PHOTO_ALBUMS -> tbName = PhotoAlbumsColumns.TABLENAME
@@ -1891,6 +1957,7 @@ class FenrirContentProvider : ContentProvider() {
                 tbName = PostsColumns.TABLENAME
             }
             URI_PHOTOS -> tbName = PhotosColumns.TABLENAME
+            URI_PHOTOS_EXTENDED -> tbName = PhotosExtendedColumns.TABLENAME
             URI_PHOTOS_ID -> {
                 val photoId = uri.lastPathSegment
                 selection = if (selection.isNullOrEmpty()) {

@@ -62,7 +62,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
 
     override fun getUsersPhoto(
         accountId: Int,
-        ownerId: Int?,
+        ownerId: Int,
         extended: Int?,
         sort: Int?,
         offset: Int?,
@@ -74,16 +74,20 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
             .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
+                val dbos: MutableList<PhotoDboEntity> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     photos.add(transform(dto))
+                    dbos.add(mapPhoto(dto))
                 }
-                Single.just<List<Photo>>(photos)
+                cache.photos()
+                    .insertPhotosExtendedRx(accountId, ownerId, -9000, dbos, offset == 0)
+                    .andThen(Single.just<List<Photo>>(photos))
             }
     }
 
     override fun getAll(
         accountId: Int,
-        ownerId: Int?,
+        ownerId: Int,
         extended: Int?,
         photo_sizes: Int?,
         offset: Int?,
@@ -95,10 +99,14 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
             .map { items -> listEmptyIfNull(items.items) }
             .flatMap { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)
+                val dbos: MutableList<PhotoDboEntity> = ArrayList(dtos.size)
                 for (dto in dtos) {
                     photos.add(transform(dto))
+                    dbos.add(mapPhoto(dto))
                 }
-                Single.just<List<Photo>>(photos)
+                cache.photos()
+                    .insertPhotosExtendedRx(accountId, ownerId, -9001, dbos, offset == 0)
+                    .andThen(Single.just<List<Photo>>(photos))
             }
     }
 
@@ -147,8 +155,17 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
     ): Single<List<Photo>> {
         val criteria = PhotoCriteria(accountId).setAlbumId(albumId).setOwnerId(ownerId)
             .setSortInvert(sortInvert)
-        if (albumId == -15) {
+        if (albumId == -15 || albumId == -9001) {
             criteria.setOrderBy(BaseColumns._ID)
+        }
+        if (albumId == -9001 || albumId == -9000) {
+            return cache.photos()
+                .findPhotosExtendedByCriteriaRx(criteria)
+                .map { op ->
+                    mapAll(
+                        op
+                    ) { map(it) }
+                }
         }
         return cache.photos()
             .findPhotosByCriteriaRx(criteria)

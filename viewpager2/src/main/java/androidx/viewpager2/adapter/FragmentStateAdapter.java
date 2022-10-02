@@ -218,6 +218,18 @@ public abstract class FragmentStateAdapter extends
         gcFragments();
     }
 
+    public void clearAllFragments() {
+        Set<Long> toRemove = new ArraySet<>();
+        for (int ix = 0; ix < mFragments.size(); ix++) {
+            long itemId = mFragments.keyAt(ix);
+            mItemIdToViewHolder.remove(itemId);
+            toRemove.add(itemId);
+        }
+        for (Long itemId : toRemove) {
+            removeFragment(itemId);
+        }
+    }
+
     @SuppressWarnings("WeakerAccess")
         // to avoid creation of a synthetic accessor
     void gcFragments() {

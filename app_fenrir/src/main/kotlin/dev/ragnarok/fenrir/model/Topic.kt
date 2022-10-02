@@ -40,7 +40,7 @@ class Topic : AbsModel {
         this.ownerId = ownerId
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         title = `in`.readString()
@@ -55,6 +55,11 @@ class Topic : AbsModel {
         lastCommentBody = `in`.readString()
         creator = `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)?.get()
         updater = `in`.readTypedObjectCompat(ParcelableOwnerWrapper.CREATOR)?.get()
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_TOPIC
     }
 
     fun setTitle(title: String?): Topic {
@@ -117,8 +122,7 @@ class Topic : AbsModel {
         return this
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeString(title)
@@ -131,8 +135,8 @@ class Topic : AbsModel {
         parcel.writeInt(commentsCount)
         parcel.writeString(firstCommentBody)
         parcel.writeString(lastCommentBody)
-        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(creator), i)
-        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(updater), i)
+        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(creator), flags)
+        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(updater), flags)
     }
 
     override fun describeContents(): Int {

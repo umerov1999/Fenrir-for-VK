@@ -59,6 +59,8 @@ object VkLinkParser {
         val PATTERN_FEED_SEARCH: Pattern =
             Pattern.compile("vk\\.com/feed\\?q=([^&]*)&section=search")
         val PATTERN_FENRIR_TRACK: Pattern = Pattern.compile("vk\\.com/audio/(-?\\d*)_(\\d*)") //+
+        val PATTERN_CATALOG_V2_SECTION: Pattern =
+            Pattern.compile("vk\\.com/audio\\?section=([\\w.]+)") //+
         val PATTERN_FENRIR_SERVER_TRACK_HASH: Pattern = Pattern.compile("hash=([^&]*)")
 
         val PATTERN_APP: Pattern =
@@ -261,6 +263,10 @@ object VkLinkParser {
             return vkLink
         }
         vkLink = parseFave(string)
+        if (vkLink != null) {
+            return vkLink
+        }
+        vkLink = parseCatalogV2(string)
         if (vkLink != null) {
             return vkLink
         }
@@ -593,6 +599,13 @@ object VkLinkParser {
         } catch (ignored: NumberFormatException) {
         }
         return null
+    }
+
+    private fun parseCatalogV2(string: String): AbsLink? {
+        val matcherWithSection = patterns.PATTERN_CATALOG_V2_SECTION.matcher(string)
+        return if (matcherWithSection.find()) {
+            return CatalogV2SectionLink(string)
+        } else null
     }
 
     private fun parseFave(string: String): AbsLink? {

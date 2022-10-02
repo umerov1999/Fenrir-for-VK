@@ -15,7 +15,7 @@ internal class LikesApi(accountId: Int, provider: IServiceProvider) :
         filter: String?, friendsOnly: Boolean?, offset: Int?,
         count: Int?, skipOwn: Boolean?, fields: String?
     ): Single<LikesListResponse> {
-        return provideService(ILikesService::class.java, TokenType.USER)
+        return provideService(ILikesService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service
                     .getList(

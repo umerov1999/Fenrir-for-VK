@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.IServiceProvider
+import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.ICommentsApi
 import dev.ragnarok.fenrir.api.model.response.CustomCommentsResponse
 import dev.ragnarok.fenrir.api.services.ICommentsService
@@ -22,7 +23,7 @@ internal class CommentsApi(accountId: Int, provider: IServiceProvider) :
         fields: String?
     ): Single<CustomCommentsResponse> {
         val thread_id = threadComment ?: 0
-        return provideService(ICommentsService::class.java)
+        return provideService(ICommentsService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service["var comment_id = Args.comment_id;\n" +
                         "var owner_id = Args.owner_id;\n" +

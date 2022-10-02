@@ -196,7 +196,7 @@ abstract class AccountDependencyDialogFragment : BaseDialogFragment(), OnAttachm
     }
 
     override fun onArtistOpen(artist: AudioArtist) {
-        getArtistPlace(accountId, artist.getId(), false).tryOpenWith(requireActivity())
+        getArtistPlace(accountId, artist.getId()).tryOpenWith(requireActivity())
     }
 
     override fun onFaveArticle(article: Article) {}

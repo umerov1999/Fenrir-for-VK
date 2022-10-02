@@ -801,25 +801,29 @@ object Utils {
             }
         }
 
-
-    private fun isHiddenType(@AccountType type: Int): Boolean {
-        return type == AccountType.VK_ANDROID_HIDDEN || type == AccountType.KATE_HIDDEN
-    }
-
-
-    fun isKateType(@AccountType type: Int): Boolean {
-        return type == AccountType.KATE || type == AccountType.KATE_HIDDEN
-    }
-
-
     val isHiddenCurrent: Boolean
-        get() = isHiddenType(Settings.get().accounts().getType(Settings.get().accounts().current))
-
+        get() = isHiddenAccount(Settings.get().accounts().current)
 
     fun isHiddenAccount(account_id: Int): Boolean {
-        return isHiddenType(Settings.get().accounts().getType(account_id))
+        val accType = Settings.get().accounts().getType(account_id)
+        return accType == AccountType.VK_ANDROID_HIDDEN || accType == AccountType.KATE_HIDDEN
     }
 
+    val isKateCurrent: Boolean
+        get() = isKateAccount(Settings.get().accounts().current)
+
+    fun isKateAccount(account_id: Int): Boolean {
+        val accType = Settings.get().accounts().getType(account_id)
+        return accType == AccountType.KATE || accType == AccountType.KATE_HIDDEN
+    }
+
+    val isOfficialVKCurrent: Boolean
+        get() = isOfficialVKAccount(Settings.get().accounts().current)
+
+    fun isOfficialVKAccount(account_id: Int): Boolean {
+        val accType = Settings.get().accounts().getType(account_id)
+        return accType == AccountType.VK_ANDROID || accType == AccountType.VK_ANDROID_HIDDEN
+    }
 
     @SuppressLint("HardwareIds")
     fun getDeviceId(context: Context): String {

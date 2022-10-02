@@ -124,7 +124,7 @@ internal class VideoApi(accountId: Int, provider: IServiceProvider) :
     ): Single<Items<VKApiVideo>> {
         val videos =
             join(ids, ",") { AccessIdPair.format(it) }
-        return provideService(IVideoService::class.java, TokenType.USER)
+        return provideService(IVideoService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service[ownerId, videos, albumId, count, offset, integerFromBoolean(extended)]
                     .map(extractResponseWithErrorHandling())

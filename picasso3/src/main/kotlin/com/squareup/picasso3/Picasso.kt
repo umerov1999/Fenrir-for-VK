@@ -49,6 +49,7 @@ import okhttp3.Cache
 import okhttp3.OkHttpClient
 import java.io.File
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.ExecutorService
 
 /**
@@ -88,10 +89,10 @@ class Picasso internal constructor(
     internal val eventListeners: List<EventListener> = eventListeners.toList()
 
     @get:JvmName("-targetToAction")
-    internal val targetToAction = mutableMapOf<Any, Action>()
+    internal val targetToAction = WeakHashMap<Any, Action>()
 
     @get:JvmName("-targetToDeferredRequestCreator")
-    internal val targetToDeferredRequestCreator = mutableMapOf<ImageView, DeferredRequestCreator>()
+    internal val targetToDeferredRequestCreator = WeakHashMap<ImageView, DeferredRequestCreator>()
 
     @get:JvmName("-shutdown")
     @set:JvmName("-shutdown")
@@ -368,6 +369,7 @@ class Picasso internal constructor(
         for (deferredRequestCreator in targetToDeferredRequestCreator.values) {
             deferredRequestCreator.cancel()
         }
+        targetToAction.clear()
         targetToDeferredRequestCreator.clear()
         shutdown = true
     }

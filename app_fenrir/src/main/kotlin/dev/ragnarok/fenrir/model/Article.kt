@@ -30,7 +30,7 @@ class Article : AbsModel {
         ownerId = owner_id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         ownerName = `in`.readString()
@@ -42,8 +42,7 @@ class Article : AbsModel {
         isFavorite = `in`.getBoolean()
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeString(ownerName)
@@ -51,8 +50,13 @@ class Article : AbsModel {
         parcel.writeString(title)
         parcel.writeString(subTitle)
         parcel.writeString(accessKey)
-        parcel.writeTypedObjectCompat(photo, i)
+        parcel.writeTypedObjectCompat(photo, flags)
         parcel.putBoolean(isFavorite)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_ARTICLE
     }
 
     fun setOwnerName(owner_name: String?): Article {

@@ -9,7 +9,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
@@ -18,7 +17,6 @@ import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.fragment.audio.audioplaylists.AudioPlaylistsFragment
 import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
 import dev.ragnarok.fenrir.fragment.audio.audiosrecommendation.AudiosRecommendationFragment
-import dev.ragnarok.fenrir.fragment.audio.catalog_v1.audiocatalog.AudioCatalogFragment
 import dev.ragnarok.fenrir.fragment.audio.local.audioslocal.AudiosLocalFragment
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
 import dev.ragnarok.fenrir.fragment.localserver.audioslocalserver.AudiosLocalServerFragment
@@ -71,8 +69,6 @@ class AudiosTabsFragment : BaseFragment(), MenuProvider {
                     getString(R.string.playlists)
                 MY_RECOMMENDATIONS -> tab.text =
                     getString(R.string.recommendation)
-                CATALOG -> tab.text =
-                    getString(R.string.audio_catalog)
                 LOCAL -> tab.text =
                     getString(R.string.local_audios)
                 LOCAL_SERVER -> tab.text =
@@ -90,9 +86,6 @@ class AudiosTabsFragment : BaseFragment(), MenuProvider {
                 fragment.requireArguments().putBoolean(AudiosFragment.EXTRA_IN_TABS_CONTAINER, true)
                 fragment
             }
-            CATALOG -> AudioCatalogFragment.newInstance(
-                accountId, null, true
-            )
             LOCAL -> {
                 val fragment = AudiosLocalFragment.newInstance(accountId)
                 fragment.requireArguments().putBoolean(AudiosFragment.EXTRA_IN_TABS_CONTAINER, true)
@@ -131,14 +124,6 @@ class AudiosTabsFragment : BaseFragment(), MenuProvider {
                 adapter.addFragment(LOCAL)
                 if (Settings.get().other().localServer.enabled) {
                     adapter.addFragment(LOCAL_SERVER)
-                }
-                if (Settings.get().accounts().getType(
-                        Settings.get().accounts().current
-                    ) == AccountType.VK_ANDROID || Settings.get().accounts().getType(
-                        Settings.get().accounts().current
-                    ) == AccountType.VK_ANDROID_HIDDEN
-                ) {
-                    adapter.addFragment(CATALOG)
                 }
             }
             adapter.addFragment(MY_RECOMMENDATIONS)
@@ -213,9 +198,8 @@ class AudiosTabsFragment : BaseFragment(), MenuProvider {
     }
 
     companion object {
-        const val LOCAL_SERVER = -6
-        const val LOCAL = -5
-        const val CATALOG = -4
+        const val LOCAL_SERVER = -5
+        const val LOCAL = -4
         const val PLAYLISTS = -3
         const val MY_RECOMMENDATIONS = -2
         const val MY_AUDIO = -1

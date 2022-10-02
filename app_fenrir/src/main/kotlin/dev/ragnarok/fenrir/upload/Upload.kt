@@ -5,6 +5,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.api.model.Identificable
 import dev.ragnarok.fenrir.model.AbsModel
+import dev.ragnarok.fenrir.model.AbsModelType
 import dev.ragnarok.fenrir.picasso.Content_Local
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.buildUriForPicasso
 import dev.ragnarok.fenrir.readTypedObjectCompat
@@ -55,7 +56,7 @@ open class Upload : AbsModel, Identificable {
         id = incrementedUploadId
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         accountId = `in`.readInt()
         id = `in`.readInt()
         fileUri = `in`.readTypedObjectCompat(Uri.CREATOR)
@@ -70,6 +71,11 @@ open class Upload : AbsModel, Identificable {
     fun setAutoCommit(autoCommit: Boolean): Upload {
         isAutoCommit = autoCommit
         return this
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_UPLOAD
     }
 
     override fun getObjectId(): Int {
@@ -104,12 +110,11 @@ open class Upload : AbsModel, Identificable {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(accountId)
         parcel.writeInt(id)
-        parcel.writeTypedObjectCompat(fileUri, i)
-        parcel.writeTypedObjectCompat(destination, i)
+        parcel.writeTypedObjectCompat(fileUri, flags)
+        parcel.writeTypedObjectCompat(destination, flags)
         parcel.writeInt(size)
         parcel.writeInt(status)
         parcel.writeInt(progress)

@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.IServiceProvider
+import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IFriendsApi
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiFriendList
@@ -38,7 +39,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
                 "\n" +
                 "return {\"uids\":uids, \"profiles\":profiles};"
         val formattedCode = String.format(code, userId, count, offset, targetFields, targetOrder)
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service
                     .getOnline(formattedCode)
@@ -72,7 +73,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
         userId: Int?, order: String?, listId: Int?, count: Int?,
         offset: Int?, fields: String?, nameCase: String?
     ): Single<Items<VKApiUser>> {
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service[userId, order, listId, count, offset, fields, nameCase]
                     .map(extractResponseWithErrorHandling())
@@ -80,7 +81,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun getByPhones(phones: String?, fields: String?): Single<List<VKApiUser>> {
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getByPhones(phones, fields)
                     .map(extractResponseWithErrorHandling())
@@ -92,7 +93,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
         fields: String?,
         nameCase: String?
     ): Single<Items<VKApiUser>> {
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getRecommendations(count, fields, nameCase)
                     .map(extractResponseWithErrorHandling())
@@ -100,7 +101,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun getLists(userId: Int?, returnSystem: Boolean?): Single<Items<VKApiFriendList>> {
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getLists(userId, integerFromBoolean(returnSystem))
                     .map(extractResponseWithErrorHandling())
@@ -108,7 +109,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun delete(userId: Int): Single<DeleteFriendResponse> {
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.delete(userId)
                     .map(extractResponseWithErrorHandling())
@@ -116,7 +117,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun add(userId: Int, text: String?, follow: Boolean?): Single<Int> {
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.add(userId, text, integerFromBoolean(follow))
                     .map(extractResponseWithErrorHandling())
@@ -131,7 +132,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Single<Items<VKApiUser>> {
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.search(userId, query, fields, nameCase, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -170,7 +171,7 @@ internal class FriendsApi(accountId: Int, provider: IServiceProvider) :
         //            MutualFriendsResponse data = convertJsonResponse(response.get(), MutualFriendsResponse.class);
         //            return data.profiles;
         //        });
-        return provideService(IFriendsService::class.java)
+        return provideService(IFriendsService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getMutual(formattedCode)
                     .map(extractResponseWithErrorHandling())

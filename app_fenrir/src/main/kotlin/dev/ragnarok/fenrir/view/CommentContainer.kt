@@ -28,6 +28,7 @@ import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.link.internal.TopicLink
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
@@ -65,7 +66,11 @@ class CommentContainer : LinearLayout {
     }
 
     private fun init() {
-        transformation = CurrentTheme.createTransformationForAvatar()
+        transformation = if (isInEditMode) {
+            RoundTransformation()
+        } else {
+            CurrentTheme.createTransformationForAvatar()
+        }
         colorTextSecondary = CurrentTheme.getSecondaryTextColorCode(context)
         iconColorActive = CurrentTheme.getColorPrimary(context)
     }

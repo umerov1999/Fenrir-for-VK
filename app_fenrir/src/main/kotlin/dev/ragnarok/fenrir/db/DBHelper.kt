@@ -20,6 +20,20 @@ class DBHelper private constructor(context: Context, aid: Int) :
         }
     }
 
+    private fun insertColumn(
+        db: SQLiteDatabase,
+        tableName: String,
+        column: String,
+        type: String,
+        defaultValue: String
+    ) {
+        db.execSQL("ALTER TABLE $tableName ADD $column $type $defaultValue;")
+    }
+
+    private fun dropColumn(db: SQLiteDatabase, tableName: String, column: String) {
+        db.execSQL("ALTER TABLE $tableName DROP COLUMN $column;")
+    }
+
     private fun createKeysTableIfNotExist(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + KeyColumns.TABLENAME + "] (\n" +
                 "  [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -57,6 +71,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
         createDialogTable(db)
         createPeersTable(db)
         createPhotoTable(db)
+        createPhotoExtendedTable(db)
         createDocsTable(db)
         createVideosTable(db)
         createPostAttachmentsTable(db)
@@ -113,6 +128,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
         db.execSQL("DROP TABLE IF EXISTS " + NewsColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + PhotoAlbumsColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + PhotosColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + PhotosExtendedColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS polls")
         db.execSQL("DROP TABLE IF EXISTS " + WallAttachmentsColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + PostsColumns.TABLENAME)
@@ -207,6 +223,31 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 "  [" + PhotosColumns.ACCESS_KEY + "] TEXT, " +
                 "  [" + PhotosColumns.DELETED + "] TEXT, " +
                 "  CONSTRAINT [] UNIQUE ([" + PhotosColumns.PHOTO_ID + "], [" + PhotosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+        db.execSQL(sql)
+    }
+
+    private fun createPhotoExtendedTable(db: SQLiteDatabase) {
+        val sql = "CREATE TABLE [" + PhotosExtendedColumns.TABLENAME + "] (\n" +
+                "  [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "  [" + PhotosExtendedColumns.DB_OWNER_ID + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.DB_ALBUM_ID + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.PHOTO_ID + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.ALBUM_ID + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.OWNER_ID + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.WIDTH + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.HEIGHT + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.TEXT + "] TEXT, " +
+                "  [" + PhotosExtendedColumns.DATE + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.SIZES + "] BLOB, " +
+                "  [" + PhotosExtendedColumns.USER_LIKES + "] BOOLEAN, " +
+                "  [" + PhotosExtendedColumns.CAN_COMMENT + "] BOOLEAN, " +
+                "  [" + PhotosExtendedColumns.LIKES + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.REPOSTS + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.COMMENTS + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.TAGS + "] INTEGER, " +
+                "  [" + PhotosExtendedColumns.ACCESS_KEY + "] TEXT, " +
+                "  [" + PhotosExtendedColumns.DELETED + "] TEXT, " +
+                "  CONSTRAINT [] UNIQUE ([" + PhotosExtendedColumns.PHOTO_ID + "], [" + PhotosExtendedColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -596,6 +637,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 " END;";
         db.execSQL(sql);
     }*/
+
     private fun createNewsTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE [" + NewsColumns.TABLENAME + "] (\n" +
                 "  [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -622,6 +664,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 //"  [" + NewsColumns.ATTACHMENTS_MASK + "] INTEGER, " +
                 "  [" + NewsColumns.GEO_ID + "] INTEGER, " +
                 "  [" + NewsColumns.ATTACHMENTS_JSON + "] BLOB, " +
+                "  [" + NewsColumns.COPYRIGHT_JSON + "] BLOB, " +
                 "  [" + NewsColumns.VIEWS + "] INTEGER, " +
                 "  [" + NewsColumns.TAG_FRIENDS + "] TEXT);"
         db.execSQL(sql)
@@ -656,6 +699,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 "  [" + PostsColumns.IS_PINNED + "] BOOLEAN, " +
                 "  [" + PostsColumns.DELETED + "] BOOLEAN, " +
                 "  [" + PostsColumns.POST_SOURCE + "] BLOB, " +
+                "  [" + PostsColumns.COPYRIGHT_JSON + "] BLOB, " +
                 "  [" + PostsColumns.VIEWS + "] INTEGER, " +
                 "  CONSTRAINT [] UNIQUE ([" + PostsColumns.POST_ID + "], [" + PostsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)

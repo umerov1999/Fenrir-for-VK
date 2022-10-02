@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("kotlin")
-    id("org.jetbrains.intellij") version "1.8.0"
+    id("org.jetbrains.intellij") version "1.9.0"
 }
 
 group = "dev.ragnarok"
@@ -9,10 +9,12 @@ version = "1.0"
 
 repositories {
     mavenCentral()
+    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+    maven { url "https://cache-redirector.jetbrains.com/intellij-dependencies" }
 }
 
 intellij {
-    version = "2021.3.1"
+    version = "2022.1.1"
     type = "IC"
     plugins = ['android']
 }

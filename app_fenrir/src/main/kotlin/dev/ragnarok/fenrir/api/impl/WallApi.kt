@@ -20,7 +20,7 @@ internal class WallApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         extended: Boolean?,
         fields: String?
     ): Single<WallSearchResponse> {
-        return provideService(IWallService::class.java, TokenType.USER)
+        return provideService(IWallService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service
                     .search(
@@ -208,7 +208,7 @@ internal class WallApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         replyToComment: Int?, attachments: Collection<IAttachmentToken>?,
         stickerId: Int?, generatedUniqueId: Int?
     ): Single<Int> {
-        return provideService(IWallService::class.java, TokenType.USER)
+        return provideService(IWallService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
                     .createComment(
@@ -238,7 +238,7 @@ internal class WallApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         extended: Boolean?,
         fields: String?
     ): Single<WallResponse> {
-        return provideService(IWallService::class.java, TokenType.USER)
+        return provideService(IWallService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service[ownerId, domain, offset, count, filter, if (extended != null) if (extended) 1 else 0 else null, fields]
                     .map(extractResponseWithErrorHandling())
@@ -252,7 +252,7 @@ internal class WallApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         fields: String?
     ): Single<PostsResponse> {
         val line = join(ids, ",") { orig -> orig.ownerId.toString() + "_" + orig.id }
-        return provideService(IWallService::class.java, TokenType.USER)
+        return provideService(IWallService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service
                     .getById(
@@ -306,7 +306,7 @@ internal class WallApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         startCommentId: Int?, offset: Int?, count: Int?,
         sort: String?, extended: Boolean?, fields: String?
     ): Single<DefaultCommentsResponse> {
-        return provideService(IWallService::class.java, TokenType.USER)
+        return provideService(IWallService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service
                     .getComments(

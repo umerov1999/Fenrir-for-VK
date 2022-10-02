@@ -16,19 +16,23 @@ class Call : AbsModel {
         private set
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         initiator_id = `in`.readInt()
         receiver_id = `in`.readInt()
         time = `in`.readLong()
         state = `in`.readString()
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(initiator_id)
         parcel.writeInt(receiver_id)
         parcel.writeLong(time)
         parcel.writeString(state)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_CALL
     }
 
     fun setInitiator_id(initiator_id: Int): Call {

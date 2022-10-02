@@ -76,7 +76,7 @@ internal class NewsfeedApi(accountId: Int, provider: IServiceProvider) :
         startFrom: String?,
         fields: String?
     ): Single<NewsfeedSearchResponse> {
-        return provideService(INewsfeedService::class.java, TokenType.USER)
+        return provideService(INewsfeedService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service
                     .search(

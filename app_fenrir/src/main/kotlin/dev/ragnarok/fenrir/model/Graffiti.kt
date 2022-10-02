@@ -18,7 +18,7 @@ class Graffiti : AbsModel {
         private set
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         owner_id = `in`.readInt()
         url = `in`.readString()
@@ -27,14 +27,18 @@ class Graffiti : AbsModel {
         access_key = `in`.readString()
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(owner_id)
         parcel.writeString(url)
         parcel.writeInt(width)
         parcel.writeInt(height)
         parcel.writeString(access_key)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_GRAFFITI
     }
 
     fun setId(id: Int): Graffiti {

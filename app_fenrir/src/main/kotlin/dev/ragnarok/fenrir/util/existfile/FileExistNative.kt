@@ -96,6 +96,7 @@ class FileExistNative : AbsFileExist {
             for (u in file_list) {
                 if (u.isFile) CachedAudios.insert(u.name.lowercase(Locale.getDefault()))
             }
+            t.onComplete()
         }
     }
 

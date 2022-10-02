@@ -24,7 +24,7 @@ class Link : AbsModel {
         private set
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         url = `in`.readString()
         title = `in`.readString()
         caption = `in`.readString()
@@ -35,16 +35,20 @@ class Link : AbsModel {
         msgPeerId = `in`.readInt()
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(url)
         parcel.writeString(title)
         parcel.writeString(caption)
         parcel.writeString(description)
         parcel.writeString(previewPhoto)
-        parcel.writeTypedObjectCompat(photo, i)
+        parcel.writeTypedObjectCompat(photo, flags)
         parcel.writeInt(msgId)
         parcel.writeInt(msgPeerId)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_LINK
     }
 
     fun setUrl(url: String?): Link {

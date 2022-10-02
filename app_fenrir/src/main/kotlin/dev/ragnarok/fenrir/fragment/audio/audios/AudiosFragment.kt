@@ -244,7 +244,6 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
             mutableListOf(),
             presenter?.isMyAudio ?: false,
             isSelectMode,
-            0,
             presenter?.playlistId
         )
         headerPlaylist = inflater.inflate(R.layout.header_audio_playlist, recyclerView, false)
@@ -256,7 +255,7 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
         mPlaylistAdapter?.setListener(this)
         headerPlaylistRecyclerView?.adapter = mPlaylistAdapter
         mAudioRecyclerAdapter?.setClickListener(object : AudioRecyclerAdapter.ClickListener {
-            override fun onClick(position: Int, catalog: Int, audio: Audio) {
+            override fun onClick(position: Int, audio: Audio) {
                 presenter?.playAudio(
                     requireActivity(),
                     position

@@ -87,7 +87,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         private set
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         albumId = `in`.readInt()
@@ -169,6 +169,11 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         msgPeerId = `in`.readInt()
     }
 
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_VIDEO
+    }
+
     fun setPrivacyView(privacyView: SimplePrivacy?): Video {
         this.privacyView = privacyView
         return this
@@ -179,8 +184,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         return this
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeInt(albumId)
@@ -211,8 +215,8 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         parcel.writeString(platform)
         parcel.putBoolean(isRepeat)
         parcel.writeInt(duration)
-        parcel.writeTypedObjectCompat(privacyView, i)
-        parcel.writeTypedObjectCompat(privacyComment, i)
+        parcel.writeTypedObjectCompat(privacyView, flags)
+        parcel.writeTypedObjectCompat(privacyComment, flags)
         parcel.putBoolean(isCanEdit)
         parcel.putBoolean(isCanAdd)
         parcel.putBoolean(private)

@@ -152,7 +152,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         public void onInitializeAccessibilityNodeInfo(
                 @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
                 @SuppressLint("InvalidNullabilityOverride") @NonNull
-                        AccessibilityNodeInfoCompat info
+                AccessibilityNodeInfoCompat info
         ) {
             if (!mRecyclerViewDelegate.shouldIgnore()
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {

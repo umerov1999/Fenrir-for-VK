@@ -30,6 +30,7 @@ class VKApiNews {
     var reposts_count = 0
     var mark_as_ads = 0
     var user_reposted = false
+    var copyright: Copyright? = null
 
     /**
      * Information about attachments to the post (photos, links, etc.), if any;
@@ -55,4 +56,6 @@ class VKApiNews {
     fun stripRepost() {
         copy_history = null
     }
+
+    class Copyright(val name: String, val link: String?)
 }

@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.view.View
 import android.widget.CompoundButton
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.checkbox.MaterialCheckBox
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.model.Poll
@@ -15,7 +15,7 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 
 class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.Answer>) :
     RecyclerBindableAdapter<Poll.Answer, PollAnswersAdapter.ViewHolder>(items) {
-    private var checkedIds: MutableSet<Int>
+    private var checkedIds: MutableSet<Long>
     private var checkable = false
     private var listener: OnAnswerChangedCallback? = null
     private var multiple = false
@@ -56,7 +56,7 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
         return R.layout.item_poll_answer
     }
 
-    private fun changeChecked(id: Int, isChecked: Boolean) {
+    private fun changeChecked(id: Long, isChecked: Boolean) {
         if (checkable) {
             if (isChecked) {
                 if (!multiple) {
@@ -75,7 +75,7 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
         answers: MutableList<Poll.Answer>?,
         checkable: Boolean,
         multiple: Boolean,
-        checkedIds: MutableSet<Int>
+        checkedIds: MutableSet<Long>
     ) {
         setItems(answers, false)
         this.checkable = checkable
@@ -89,16 +89,15 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
     }
 
     interface OnAnswerChangedCallback {
-        fun onAnswerChanged(checked: MutableSet<Int>)
-        fun onAnswerClick(id: Int)
+        fun onAnswerChanged(checked: MutableSet<Long>)
+        fun onAnswerClick(id: Long)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvCount: TextView = itemView.findViewById(R.id.item_poll_answer_count)
         val rbButton: MaterialCheckBox = itemView.findViewById(R.id.item_poll_answer_radio)
         val tvTitle: TextView = itemView.findViewById(R.id.item_poll_answer_title)
-        val pbRate: CircularProgressIndicator =
-            itemView.findViewById(R.id.item_poll_answer_progress)
+        val pbRate: ProgressBar = itemView.findViewById(R.id.item_poll_answer_progress)
     }
 
     init {

@@ -150,11 +150,10 @@ class AudiosRecommendationFragment :
                 requireActivity(), mutableListOf(),
                 not_show_my = true,
                 iSSelectMode = false,
-                iCatalogBlock = 0,
                 playlist_id = null
             )
         mAudioRecyclerAdapter?.setClickListener(object : AudioRecyclerAdapter.ClickListener {
-            override fun onClick(position: Int, catalog: Int, audio: Audio) {
+            override fun onClick(position: Int, audio: Audio) {
                 presenter?.playAudio(
                     requireActivity(),
                     position

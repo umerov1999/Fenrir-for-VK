@@ -64,6 +64,7 @@ class AudioLocalServerRecyclerAdapter(
     private var mPlayerDisposable = Disposable.disposed()
     private var audioListDisposable = Disposable.disposed()
     private var currAudio: Audio?
+    private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon
     fun setItems(data: List<Audio>) {
         this.data = data
         notifyDataSetChanged()
@@ -110,10 +111,8 @@ class AudioLocalServerRecyclerAdapter(
                 .main().isAudio_round_icon
         ) R.drawable.audio_button else R.drawable.audio_button_material
 
-    private fun TransformCover(): Transformation {
-        return if (Settings.get()
-                .main().isAudio_round_icon
-        ) RoundTransformation() else PolyTransformation()
+    private val transformCover: Transformation by lazy {
+        if (isAudio_round_icon) RoundTransformation() else PolyTransformation()
     }
 
     private fun updateAudioStatus(holder: AudioHolder, audio: Audio) {
@@ -409,7 +408,7 @@ class AudioLocalServerRecyclerAdapter(
                         mContext.theme
                     ) ?: return
                 )
-                .transform(TransformCover())
+                .transform(transformCover)
                 .tag(Constants.PICASSO_TAG)
                 .into(holder.play_cover)
         } else {

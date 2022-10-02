@@ -8,9 +8,9 @@ android {
     buildToolsVersion = appBuildTools
 
     defaultConfig {
+        generatedDensities = []
         minSdk = appMinSDK
         targetSdk = appTargetSDK
-
     }
 
     compileOptions {

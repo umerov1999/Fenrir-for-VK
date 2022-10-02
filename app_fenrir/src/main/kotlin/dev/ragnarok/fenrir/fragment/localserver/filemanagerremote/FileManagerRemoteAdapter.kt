@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Picasso
@@ -286,6 +287,21 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                             )
                                         }
                                         ?.show()
+                                }
+                                2 -> {
+                                    CustomSnackbars.createCustomSnackbars(view)
+                                        ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                                        ?.themedSnack(R.string.audio_force_download_pc)?.setAction(
+                                            R.string.button_yes
+                                        ) {
+                                            DownloadWorkUtils.doDownloadAudio(
+                                                context,
+                                                t,
+                                                Settings.get().accounts().current,
+                                                true,
+                                                isLocal = true
+                                            )
+                                        }?.show()
                                 }
                                 else -> {
                                     createCustomToast(context).showToastBottom(R.string.error_audio)

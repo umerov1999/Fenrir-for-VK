@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.fragment.wallpost
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -328,6 +329,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         setToolbarSubtitle(null)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun displayPostInfo(post: Post) {
         val pRoot = root ?: return
 
@@ -340,6 +342,19 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         pRoot.findViewById<View>(R.id.fragment_post_deleted).visibility = View.GONE
         pRoot.findViewById<View>(R.id.post_content).visibility = View.VISIBLE
         pRoot.findViewById<View>(R.id.post_loading_root).visibility = View.GONE
+        val tvCopyright: TextView = pRoot.findViewById(R.id.item_post_copyright)
+        post.copyright?.let { vit ->
+            tvCopyright.visibility = View.VISIBLE
+            tvCopyright.text = "©" + vit.name
+            tvCopyright.setOnClickListener {
+                LinkHelper.openUrl(
+                    requireActivity(),
+                    Settings.get().accounts().current,
+                    vit.link,
+                    false
+                )
+            }
+        } ?: run { tvCopyright.visibility = View.GONE }
         mText?.visibility = if (post.hasText()) View.VISIBLE else View.GONE
         val spannableText =
             OwnerLinkSpanFactory.withSpans(

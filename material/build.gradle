@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
 }
 
-//1.7.0-beta01
+//1.8.0-alpha01
 
 def srcDirs = [
         'com/google/android/material/animation',
@@ -77,12 +77,17 @@ android {
     defaultConfig {
         minSdk = appMinSDK
         targetSdk = appTargetSDK
+        generatedDensities = []
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
         encoding = "utf-8"
+        aaptOptions.additionalParameters "--no-version-vectors"
+    }
+    lintOptions {
+        checkOnly 'NewApi'
     }
 }
 

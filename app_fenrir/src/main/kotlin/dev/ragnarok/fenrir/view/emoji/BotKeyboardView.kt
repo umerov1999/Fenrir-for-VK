@@ -20,7 +20,7 @@ import dev.ragnarok.fenrir.util.Utils
 
 class BotKeyboardView : ScrollView {
     private val buttonViews = ArrayList<View>()
-    private val isFullSize = Settings.get().ui().isEmojis_full_screen
+    private val isFullSize = if (isInEditMode) false else Settings.get().ui().isEmojis_full_screen
     private var container: LinearLayout? = null
     private var botButtons: List<List<Keyboard.Button>>? = null
     private var delegate: BotKeyboardViewDelegate? = null

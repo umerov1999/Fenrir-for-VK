@@ -20,7 +20,7 @@ class AudioPlaylist : AbsModel {
     private var original_owner_id = 0
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         owner_id = `in`.readInt()
         count = `in`.readInt()
@@ -37,8 +37,7 @@ class AudioPlaylist : AbsModel {
         original_owner_id = `in`.readInt()
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(owner_id)
         parcel.writeInt(count)
@@ -53,6 +52,11 @@ class AudioPlaylist : AbsModel {
         parcel.writeString(original_access_key)
         parcel.writeInt(original_id)
         parcel.writeInt(original_owner_id)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_AUDIO_PLAYLIST
     }
 
     fun getId(): Int {

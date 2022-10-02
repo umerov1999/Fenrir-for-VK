@@ -69,7 +69,7 @@ class Audio : AbsModel {
     var downloadIndicator = 0
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         artist = `in`.readString()
@@ -125,8 +125,12 @@ class Audio : AbsModel {
         return Pair(empty_url || refresh_old && isHLS, refresh_old)
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_AUDIO
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeString(artist)

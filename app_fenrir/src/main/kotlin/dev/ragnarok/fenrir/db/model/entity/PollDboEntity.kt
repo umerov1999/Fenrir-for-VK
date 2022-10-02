@@ -26,7 +26,7 @@ class PollDboEntity : DboEntity() {
         private set
     var voteCount = 0
         private set
-    var myAnswerIds: IntArray? = null
+    var myAnswerIds: LongArray? = null
         private set
     var isAnonymous = false
         private set
@@ -103,7 +103,7 @@ class PollDboEntity : DboEntity() {
         return this
     }
 
-    fun setMyAnswerIds(myAnswerIds: IntArray?): PollDboEntity {
+    fun setMyAnswerIds(myAnswerIds: LongArray?): PollDboEntity {
         this.myAnswerIds = myAnswerIds
         return this
     }
@@ -126,7 +126,7 @@ class PollDboEntity : DboEntity() {
     @Keep
     @Serializable
     class Answer {
-        var id = 0
+        var id = 0L
             private set
         var text: String? = null
             private set
@@ -135,7 +135,7 @@ class PollDboEntity : DboEntity() {
         var rate = 0.0
             private set
 
-        operator fun set(id: Int, text: String?, voteCount: Int, rate: Double): Answer {
+        operator fun set(id: Long, text: String?, voteCount: Int, rate: Double): Answer {
             this.id = id
             this.text = text
             this.voteCount = voteCount

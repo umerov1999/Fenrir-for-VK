@@ -2,8 +2,10 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2BlockResponse
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2ListResponse
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2SectionResponse
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
-import dev.ragnarok.fenrir.api.model.response.CatalogResponse
 import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
 import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
 import dev.ragnarok.fenrir.model.Audio
@@ -143,12 +145,6 @@ interface IAudioApi {
     @CheckResult
     fun getPlaylistsCustom(code: String?): Single<ServicePlaylistResponse>
 
-    @CheckResult
-    fun getCatalog(artist_id: String?, query: String?): Single<Items<VKApiAudioCatalog>>
-
-    @CheckResult
-    fun getCatalogBlockById(block_id: String?, start_from: String?): Single<CatalogResponse>
-
     @get:CheckResult
     val uploadServer: Single<VKApiAudioUploadServer>
 
@@ -160,4 +156,20 @@ interface IAudioApi {
         artist: String?,
         title: String?
     ): Single<VKApiAudio>
+
+    @CheckResult
+    fun getCatalogV2Sections(
+        owner_id: Int, artist_id: String?, url: String?, query: String?, context: String?
+    ): Single<VKApiCatalogV2ListResponse>
+
+    @CheckResult
+    fun getCatalogV2Section(
+        section_id: String,
+        start_from: String?
+    ): Single<VKApiCatalogV2SectionResponse>
+
+    @CheckResult
+    fun getCatalogV2BlockItems(
+        block_id: String, start_from: String?
+    ): Single<VKApiCatalogV2BlockResponse>
 }

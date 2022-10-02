@@ -36,6 +36,7 @@ object NewsColumns : BaseColumns {
     const val CAN_PUBLISH = "can_publish"
     const val REPOSTS_COUNT = "reposts_count"
     const val USER_REPOSTED = "user_reposted"
+    const val COPYRIGHT_JSON = "copyright_json"
 
     //public static final String ATTACHMENTS_MASK = "attachments_mask";
     const val GEO_ID = "geo_id"
@@ -55,6 +56,7 @@ object NewsColumns : BaseColumns {
     const val FULL_COPY_POST_ID = "$TABLENAME.$COPY_POST_ID"
     const val FULL_COPY_POST_DATE = "$TABLENAME.$COPY_POST_DATE"
     const val FULL_TEXT = "$TABLENAME.$TEXT"
+    const val FULL_COPYRIGHT_JSON = "$TABLENAME.$COPYRIGHT_JSON"
     const val FULL_CAN_EDIT = "$TABLENAME.$CAN_EDIT"
     const val FULL_CAN_DELETE = "$TABLENAME.$CAN_DELETE"
     const val FULL_COMMENT_COUNT = "$TABLENAME.$COMMENT_COUNT"

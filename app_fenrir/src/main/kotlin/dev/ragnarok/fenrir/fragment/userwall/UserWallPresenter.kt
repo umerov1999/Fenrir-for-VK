@@ -211,7 +211,6 @@ class UserWallPresenter(
     }
 
     private fun requestActualFullInfo() {
-        val accountId = accountId
         appendDisposable(ownersRepository.getFullUserInfo(
             accountId,
             ownerId,

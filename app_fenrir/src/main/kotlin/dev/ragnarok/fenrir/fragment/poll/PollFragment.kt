@@ -99,7 +99,7 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
         answers: MutableList<Poll.Answer>?,
         canCheck: Boolean,
         multiply: Boolean,
-        checked: MutableSet<Int>
+        checked: MutableSet<Long>
     ) {
         mAnswersAdapter?.setData(answers, canCheck, multiply, checked)
     }
@@ -122,7 +122,7 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
         ownerId: Int,
         pollId: Int,
         board: Boolean,
-        answer: Int
+        answer: Long
     ) {
         PlaceFactory.getVotersPlace(accountId, ownerId, pollId, board, answer)
             .tryOpenWith(requireActivity())
@@ -148,13 +148,13 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
         }
     }
 
-    override fun onAnswerChanged(checked: MutableSet<Int>) {
+    override fun onAnswerChanged(checked: MutableSet<Long>) {
         presenter?.fireVoteChecked(
             checked
         )
     }
 
-    override fun onAnswerClick(id: Int) {
+    override fun onAnswerClick(id: Long) {
         presenter?.fireVoteClicked(
             id
         )

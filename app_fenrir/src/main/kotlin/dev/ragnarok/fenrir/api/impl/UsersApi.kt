@@ -22,7 +22,7 @@ internal class UsersApi(accountId: Int, provider: IServiceProvider) :
         fields: String?,
         nameCase: String?
     ): Single<VKApiUser> {
-        return provideService(IUsersService::class.java, TokenType.USER)
+        return provideService(IUsersService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service
                     .getUserWallInfo(
@@ -65,7 +65,7 @@ internal class UsersApi(accountId: Int, provider: IServiceProvider) :
         fields: String?,
         nameCase: String?
     ): Single<Items<VKApiUser>> {
-        return provideService(IUsersService::class.java, TokenType.USER)
+        return provideService(IUsersService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service.getFollowers(userId, offset, count, fields, nameCase)
                     .map(extractResponseWithErrorHandling())

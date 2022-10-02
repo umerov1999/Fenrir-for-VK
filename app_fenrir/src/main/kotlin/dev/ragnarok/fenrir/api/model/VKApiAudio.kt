@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.api.model
 import android.content.Context
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.adapters.AudioDtoAdapter
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.IIdComparable
 import kotlinx.serialization.Serializable
 
 /**
@@ -13,7 +14,7 @@ class VKApiAudio
 /**
  * Creates empty Audio instance.
  */
-    : VKApiAttachment {
+    : VKApiAttachment, IIdComparable {
     /**
      * Audio ID.
      */
@@ -126,5 +127,9 @@ class VKApiAudio
             }
             return null
         }
+    }
+
+    override fun compareFullId(object_s: String): Boolean {
+        return (owner_id.toString() + "_" + id) == object_s
     }
 }

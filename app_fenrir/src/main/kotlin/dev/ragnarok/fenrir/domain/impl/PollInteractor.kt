@@ -23,7 +23,7 @@ class PollInteractor(private val networker: INetworker) : IPollInteractor {
             .map { transform(it) }
     }
 
-    override fun addVote(accountId: Int, poll: Poll, answerIds: Set<Int>): Single<Poll> {
+    override fun addVote(accountId: Int, poll: Poll, answerIds: Set<Long>): Single<Poll> {
         return networker.vkDefault(accountId)
             .polls()
             .addVote(poll.ownerId, poll.id, answerIds, poll.isBoard)
@@ -37,7 +37,7 @@ class PollInteractor(private val networker: INetworker) : IPollInteractor {
             }
     }
 
-    override fun removeVote(accountId: Int, poll: Poll, answerId: Int): Single<Poll> {
+    override fun removeVote(accountId: Int, poll: Poll, answerId: Long): Single<Poll> {
         return networker.vkDefault(accountId)
             .polls()
             .deleteVote(poll.ownerId, poll.id, answerId, poll.isBoard)
@@ -72,7 +72,7 @@ class PollInteractor(private val networker: INetworker) : IPollInteractor {
         ownerId: Int,
         pollId: Int,
         isBoard: Int?,
-        answer_ids: List<Int>,
+        answer_ids: List<Long>,
         offset: Int?,
         count: Int?
     ): Single<List<User>> {

@@ -20,6 +20,11 @@ class GiftItem : AbsModel {
         thumb48 = `in`.readString()
     }
 
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_GIFT_ITEM
+    }
+
     constructor(id: Int) {
         this.id = id
     }
@@ -46,8 +51,7 @@ class GiftItem : AbsModel {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeString(thumb256)
         parcel.writeString(thumb96)

@@ -12,10 +12,15 @@ class AudioArtist : AbsModel {
         this.id = id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readString()
         name = `in`.readString()
         photo = `in`.createTypedArrayList(AudioArtistImage.CREATOR)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_AUDIO_ARTIST
     }
 
     fun getId(): String? {
@@ -59,8 +64,7 @@ class AudioArtist : AbsModel {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeString(name)
         parcel.writeTypedList(photo)

@@ -106,7 +106,7 @@ class MediaActionDrawable : Drawable() {
 
     @Deprecated(
         "Deprecated in Java",
-        ReplaceWith("PixelFormat.TRANSLUCENT", "android.graphics.PixelFormat")
+        ReplaceWith("PixelFormat.TRANSPARENT", "android.graphics.PixelFormat")
     )
     override fun getOpacity(): Int {
         return PixelFormat.TRANSPARENT

@@ -1922,4 +1922,11 @@
     <string name="birthdays_title">Birth Days</string>
     <string name="show_photos_date">Show photos date</string>
     <string name="action_jump_offset">Jump</string>
+    <string name="audio_catalog_v2">Audio Catalog v2</string>
+    <string name="sync">Sync</string>
+    <string name="faves_sync">Fave Content Sync</string>
+    <string name="experimental">Experimental</string>
+    <string name="action_catalog_v2_updates">Updates</string>
+    <string name="action_catalog_v2_recent">Recent</string>
+    <string name="action_catalog_v2_artists">Artists</string>
 </resources>

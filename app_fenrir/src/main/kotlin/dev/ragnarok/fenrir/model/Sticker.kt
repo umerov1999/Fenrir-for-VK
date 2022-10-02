@@ -23,12 +23,17 @@ class Sticker : AbsModel {
         this.id = id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         images = `in`.createTypedArrayList(Image.CREATOR)
         imagesWithBackground = `in`.createTypedArrayList(Image.CREATOR)
         animations = `in`.createTypedArrayList(Animation.CREATOR)
         animationUrl = `in`.readString()
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_STICKER
     }
 
     fun getImage(prefSize: Int, isNight: Boolean): Image {
@@ -111,8 +116,7 @@ class Sticker : AbsModel {
         return this
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeTypedList(images)
         parcel.writeTypedList(imagesWithBackground)

@@ -22,7 +22,7 @@ class VoiceMessage : AbsModel {
         this.ownerId = ownerId
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         duration = `in`.readInt()
@@ -32,6 +32,11 @@ class VoiceMessage : AbsModel {
         accessKey = `in`.readString()
         transcript = `in`.readString()
         showTranscript = `in`.getBoolean()
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_VOICE_MESSAGE
     }
 
     fun setWasListened(listened: Boolean): VoiceMessage {
@@ -118,8 +123,7 @@ class VoiceMessage : AbsModel {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeInt(duration)

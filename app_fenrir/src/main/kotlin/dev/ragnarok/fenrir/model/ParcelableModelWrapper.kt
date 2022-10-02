@@ -2,8 +2,14 @@ package dev.ragnarok.fenrir.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.ArrayMap
 import dev.ragnarok.fenrir.getBoolean
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2ArtistItem
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Block
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Link
+import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class ParcelableModelWrapper : Parcelable {
@@ -19,8 +25,7 @@ class ParcelableModelWrapper : Parcelable {
                     return arrayOfNulls(size)
                 }
             }
-        private val TYPES: MutableList<Class<*>> = ArrayList(25)
-        private val LOADERS: MutableList<(`in`: Parcel) -> AbsModel?> = ArrayList(25)
+        private val TYPES: ArrayMap<Int, (`in`: Parcel) -> AbsModel?> = ArrayMap(42)
 
         fun wrap(model: AbsModel): ParcelableModelWrapper {
             return ParcelableModelWrapper(model)
@@ -37,69 +42,93 @@ class ParcelableModelWrapper : Parcelable {
 
         fun writeModel(dest: Parcel, flags: Int, owner: AbsModel?) {
             if (owner == null) {
-                dest.writeInt(0)
+                dest.putBoolean(false)
             } else {
-                dest.writeInt(1)
+                dest.putBoolean(true)
                 dest.writeTypedObjectCompat(ParcelableModelWrapper(owner), flags)
             }
         }
 
-        init {
-            //Types
-            TYPES.add(Photo::class.java)
-            TYPES.add(Post::class.java)
-            TYPES.add(News::class.java)
-            TYPES.add(Video::class.java)
-            TYPES.add(FwdMessages::class.java)
-            TYPES.add(VoiceMessage::class.java)
-            TYPES.add(Document::class.java)
-            TYPES.add(Audio::class.java)
-            TYPES.add(Chat::class.java)
-            TYPES.add(Poll::class.java)
-            TYPES.add(Link::class.java)
-            TYPES.add(Article::class.java)
-            TYPES.add(Story::class.java)
-            TYPES.add(Call::class.java)
-            TYPES.add(NotSupported::class.java)
-            TYPES.add(WallReply::class.java)
-            TYPES.add(PhotoAlbum::class.java)
-            TYPES.add(AudioPlaylist::class.java)
-            TYPES.add(Graffiti::class.java)
-            TYPES.add(Gift::class.java)
-            TYPES.add(GiftItem::class.java)
-            TYPES.add(Comment::class.java)
-            TYPES.add(Event::class.java)
-            TYPES.add(Market::class.java)
-            TYPES.add(MarketAlbum::class.java)
-            TYPES.add(AudioArtist::class.java)
+        fun writeModels(dest: Parcel, flags: Int, list: ArrayList<AbsModel>?) {
+            if (list == null) {
+                dest.putBoolean(false)
+            } else {
+                dest.putBoolean(true)
+                dest.writeInt(list.size)
+                for (i in list) {
+                    dest.writeTypedObjectCompat(ParcelableModelWrapper(i), flags)
+                }
+            }
+        }
 
-            //Loaders
-            LOADERS.add { it.readTypedObjectCompat(Photo.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Post.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(News.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Video.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(FwdMessages.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(VoiceMessage.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Document.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Audio.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Chat.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Poll.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Link.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Article.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Story.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Call.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(NotSupported.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(WallReply.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(PhotoAlbum.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(AudioPlaylist.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Graffiti.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Gift.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(GiftItem.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Comment.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Event.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(Market.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(MarketAlbum.CREATOR) }
-            LOADERS.add { it.readTypedObjectCompat(AudioArtist.CREATOR) }
+        fun readModels(`in`: Parcel): ArrayList<AbsModel>? {
+            val ex = `in`.getBoolean()
+            if (!ex) {
+                return null
+            }
+            val sz = `in`.readInt()
+            val ret: ArrayList<AbsModel> = ArrayList(sz)
+            for (i in 0 until sz) {
+                ret.add((`in`.readTypedObjectCompat(CREATOR) ?: return null).get())
+            }
+            return ret
+        }
+
+        init {
+            TYPES[AbsModelType.MODEL_AUDIO] = { it.readTypedObjectCompat(Audio.CREATOR) }
+            TYPES[AbsModelType.MODEL_ARTICLE] = { it.readTypedObjectCompat(Article.CREATOR) }
+            TYPES[AbsModelType.MODEL_AUDIO_ARTIST] =
+                { it.readTypedObjectCompat(AudioArtist.CREATOR) }
+            TYPES[AbsModelType.MODEL_AUDIO_PLAYLIST] =
+                { it.readTypedObjectCompat(AudioPlaylist.CREATOR) }
+            TYPES[AbsModelType.MODEL_CALL] = { it.readTypedObjectCompat(Call.CREATOR) }
+            TYPES[AbsModelType.MODEL_CHAT] = { it.readTypedObjectCompat(Chat.CREATOR) }
+            TYPES[AbsModelType.MODEL_COMMENT] = { it.readTypedObjectCompat(Comment.CREATOR) }
+            TYPES[AbsModelType.MODEL_COMMUNITY] = { it.readTypedObjectCompat(Community.CREATOR) }
+            TYPES[AbsModelType.MODEL_DOCUMENT] = { it.readTypedObjectCompat(Document.CREATOR) }
+            TYPES[AbsModelType.MODEL_DOCUMENT_GRAFFITI] =
+                { it.readTypedObjectCompat(Document.Graffiti.CREATOR) }
+            TYPES[AbsModelType.MODEL_DOCUMENT_VIDEO_PREVIEW] =
+                { it.readTypedObjectCompat(Document.VideoPreview.CREATOR) }
+            TYPES[AbsModelType.MODEL_EVENT] = { it.readTypedObjectCompat(Event.CREATOR) }
+            TYPES[AbsModelType.MODEL_FAVE_LINK] = { it.readTypedObjectCompat(FaveLink.CREATOR) }
+            TYPES[AbsModelType.MODEL_FWDMESSAGES] =
+                { it.readTypedObjectCompat(FwdMessages.CREATOR) }
+            TYPES[AbsModelType.MODEL_GIFT] = { it.readTypedObjectCompat(Gift.CREATOR) }
+            TYPES[AbsModelType.MODEL_GIFT_ITEM] = { it.readTypedObjectCompat(GiftItem.CREATOR) }
+            TYPES[AbsModelType.MODEL_GRAFFITI] = { it.readTypedObjectCompat(Graffiti.CREATOR) }
+            TYPES[AbsModelType.MODEL_LINK] = { it.readTypedObjectCompat(Link.CREATOR) }
+            TYPES[AbsModelType.MODEL_MARKET] = { it.readTypedObjectCompat(Market.CREATOR) }
+            TYPES[AbsModelType.MODEL_MARKET_ALBUM] =
+                { it.readTypedObjectCompat(MarketAlbum.CREATOR) }
+            TYPES[AbsModelType.MODEL_MESSAGE] = { it.readTypedObjectCompat(Message.CREATOR) }
+            TYPES[AbsModelType.MODEL_NEWS] = { it.readTypedObjectCompat(News.CREATOR) }
+            TYPES[AbsModelType.MODEL_NOT_SUPPORTED] =
+                { it.readTypedObjectCompat(NotSupported.CREATOR) }
+            TYPES[AbsModelType.MODEL_PHOTO] = { it.readTypedObjectCompat(Photo.CREATOR) }
+            TYPES[AbsModelType.MODEL_PHOTO_ALBUM] = { it.readTypedObjectCompat(PhotoAlbum.CREATOR) }
+            TYPES[AbsModelType.MODEL_POLL] = { it.readTypedObjectCompat(Poll.CREATOR) }
+            TYPES[AbsModelType.MODEL_POLL_ANSWER] =
+                { it.readTypedObjectCompat(Poll.Answer.CREATOR) }
+            TYPES[AbsModelType.MODEL_POST] = { it.readTypedObjectCompat(Post.CREATOR) }
+            TYPES[AbsModelType.MODEL_SHORT_LINK] = { it.readTypedObjectCompat(ShortLink.CREATOR) }
+            TYPES[AbsModelType.MODEL_STICKER] = { it.readTypedObjectCompat(Sticker.CREATOR) }
+            TYPES[AbsModelType.MODEL_STORY] = { it.readTypedObjectCompat(Story.CREATOR) }
+            TYPES[AbsModelType.MODEL_TOPIC] = { it.readTypedObjectCompat(Topic.CREATOR) }
+            TYPES[AbsModelType.MODEL_USER] = { it.readTypedObjectCompat(User.CREATOR) }
+            TYPES[AbsModelType.MODEL_VIDEO] = { it.readTypedObjectCompat(Video.CREATOR) }
+            TYPES[AbsModelType.MODEL_VIDEO_ALBUM] = { it.readTypedObjectCompat(VideoAlbum.CREATOR) }
+            TYPES[AbsModelType.MODEL_VOICE_MESSAGE] =
+                { it.readTypedObjectCompat(VoiceMessage.CREATOR) }
+            TYPES[AbsModelType.MODEL_WALL_REPLY] = { it.readTypedObjectCompat(WallReply.CREATOR) }
+            TYPES[AbsModelType.MODEL_WIKI_PAGE] = { it.readTypedObjectCompat(WikiPage.CREATOR) }
+            TYPES[AbsModelType.MODEL_AUDIO_CATALOG_V2_ARTIST] =
+                { it.readTypedObjectCompat(CatalogV2ArtistItem.CREATOR) }
+            TYPES[AbsModelType.MODEL_UPLOAD] = { it.readTypedObjectCompat(Upload.CREATOR) }
+            TYPES[AbsModelType.MODEL_CATALOG_V2_BLOCK] =
+                { it.readTypedObjectCompat(CatalogV2Block.CREATOR) }
+            TYPES[AbsModelType.MODEL_CATALOG_V2_LINK] =
+                { it.readTypedObjectCompat(CatalogV2Link.CREATOR) }
         }
     }
 
@@ -111,7 +140,7 @@ class ParcelableModelWrapper : Parcelable {
 
     internal constructor(`in`: Parcel) {
         val index = `in`.readInt()
-        model = LOADERS[index].invoke(`in`)!!
+        model = TYPES[index]!!.invoke(`in`)!!
     }
 
     override fun describeContents(): Int {
@@ -119,11 +148,10 @@ class ParcelableModelWrapper : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        val index = TYPES.indexOf(model.javaClass)
-        if (index == -1) {
+        if (!TYPES.contains(model.getModelType())) {
             throw UnsupportedOperationException("Unsupported class: " + model.javaClass)
         }
-        dest.writeInt(index)
+        dest.writeInt(model.getModelType())
         dest.writeTypedObjectCompat(model, flags)
     }
 

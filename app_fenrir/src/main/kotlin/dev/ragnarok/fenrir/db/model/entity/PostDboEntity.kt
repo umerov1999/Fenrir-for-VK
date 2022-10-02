@@ -64,6 +64,8 @@ class PostDboEntity : DboEntity() {
         private set
     var source: SourceDbo? = null
         private set
+    var copyright: CopyrightDboEntity? = null
+        private set
     private var attachments: List<DboEntity>? = null
     var copyHierarchy: List<PostDboEntity>? = null
         private set
@@ -71,6 +73,11 @@ class PostDboEntity : DboEntity() {
     operator fun set(id: Int, ownerId: Int): PostDboEntity {
         this.id = id
         this.ownerId = ownerId
+        return this
+    }
+
+    fun setCopyright(copyright: CopyrightDboEntity?): PostDboEntity {
+        this.copyright = copyright
         return this
     }
 
@@ -217,6 +224,10 @@ class PostDboEntity : DboEntity() {
         this.copyHierarchy = copyHierarchy
         return this
     }
+
+    @Keep
+    @Serializable
+    class CopyrightDboEntity(val name: String, val link: String?)
 
     @Keep
     @Serializable

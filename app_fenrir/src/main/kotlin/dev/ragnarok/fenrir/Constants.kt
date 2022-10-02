@@ -11,7 +11,7 @@ import java.util.*
 
 object Constants {
     const val API_VERSION = "5.131"
-    const val DATABASE_FENRIR_VERSION = 17
+    const val DATABASE_FENRIR_VERSION = 19
     const val DATABASE_TEMPORARY_VERSION = 4
     const val EXPORT_SETTINGS_FORMAT = 1
     const val forceDeveloperMode = BuildConfig.FORCE_DEVELOPER_MODE
@@ -22,10 +22,10 @@ object Constants {
 
     val AUTH_VERSION = if (DEFAULT_ACCOUNT_TYPE == AccountType.KATE) API_VERSION else "5.122"
     const val FILE_PROVIDER_AUTHORITY: String = BuildConfig.APPLICATION_ID + ".file_provider"
-    const val VK_ANDROID_APP_VERSION_NAME = "7.40"
-    const val VK_ANDROID_APP_VERSION_CODE = "13830"
-    const val KATE_APP_VERSION_NAME = "92 lite"
-    const val KATE_APP_VERSION_CODE = "521"
+    const val VK_ANDROID_APP_VERSION_NAME = "7.44"
+    const val VK_ANDROID_APP_VERSION_CODE = "14096"
+    const val KATE_APP_VERSION_NAME = "92.2 lite"
+    const val KATE_APP_VERSION_CODE = "524"
     const val API_ID: Int = BuildConfig.VK_API_APP_ID
     const val SECRET: String = BuildConfig.VK_CLIENT_SECRET
     const val MAIN_OWNER_FIELDS = UserColumns.API_FIELDS + "," + GroupColumns.API_FIELDS
@@ -99,6 +99,12 @@ object Constants {
         get() = Resources.getSystem().displayMetrics?.let {
             it.heightPixels.toString() + "x" + it.widthPixels
         } ?: "1920x1080"
+
+    val SCREEN_WIDTH
+        get() = Resources.getSystem().displayMetrics?.widthPixels ?: 1920
+
+    val SCREEN_HEIGHT
+        get() = Resources.getSystem().displayMetrics?.heightPixels ?: 1080
 
     private fun getTypedUserAgent(@AccountType type: Int): String {
         if (type == AccountType.VK_ANDROID_HIDDEN || type == AccountType.KATE_HIDDEN) {

@@ -1,10 +1,11 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.AudioPlaylistDtoAdapter
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.IIdComparable
 import kotlinx.serialization.Serializable
 
 @Serializable(with = AudioPlaylistDtoAdapter::class)
-class VKApiAudioPlaylist : VKApiAttachment {
+class VKApiAudioPlaylist : VKApiAttachment, IIdComparable {
     var id = 0
     var owner_id = 0
     var count = 0
@@ -21,5 +22,9 @@ class VKApiAudioPlaylist : VKApiAttachment {
     var original_owner_id = 0
     override fun getType(): String {
         return VKApiAttachment.TYPE_AUDIO_PLAYLIST
+    }
+
+    override fun compareFullId(object_s: String): Boolean {
+        return (owner_id.toString() + "_" + id) == object_s
     }
 }

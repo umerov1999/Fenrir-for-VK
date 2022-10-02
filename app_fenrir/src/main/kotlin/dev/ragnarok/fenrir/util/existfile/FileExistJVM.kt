@@ -132,6 +132,7 @@ class FileExistJVM : AbsFileExist {
     override fun findAllAudios(context: Context): Completable {
         return if (!hasReadStoragePermissionSimple(context)) Completable.complete() else Completable.create { t: CompletableEmitter ->
             if (!setBusy(true)) {
+                t.onComplete()
                 return@create
             }
             findRemoteAudios(context, false)
@@ -152,6 +153,7 @@ class FileExistJVM : AbsFileExist {
                 if (u.isFile) CachedAudios.add(u.name.lowercase(Locale.getDefault()))
             }
             setBusy(false)
+            t.onComplete()
         }
     }
 

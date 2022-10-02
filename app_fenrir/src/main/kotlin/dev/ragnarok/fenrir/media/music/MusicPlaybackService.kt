@@ -1312,7 +1312,7 @@ class MusicPlaybackService : Service() {
         const val REPEAT_CURRENT = 1
         const val REPEAT_ALL = 2
         private var IDLE_DELAY = Constants.AUDIO_PLAYER_SERVICE_IDLE
-        private const val MAX_QUEUE_SIZE = 200
+        const val MAX_QUEUE_SIZE = 200
 
         fun startForPlayList(
             context: Context,

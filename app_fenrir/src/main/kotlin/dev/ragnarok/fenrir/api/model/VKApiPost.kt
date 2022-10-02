@@ -124,6 +124,8 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     var created_by = 0
     var can_edit = false
     var is_favorite = false
+
+    var copyright: Copyright? = null
     override fun getType(): String {
         return VKApiAttachment.TYPE_POST
     }
@@ -138,6 +140,8 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     fun hasCopyHistory(): Boolean {
         return copy_history.nonNullNoEmpty()
     }
+
+    class Copyright(val name: String, val link: String?)
 
     object Type {
         const val POST = 1

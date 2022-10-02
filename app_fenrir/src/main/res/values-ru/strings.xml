@@ -1698,4 +1698,11 @@
     <string name="birthdays_title">Дни рождения</string>
     <string name="show_photos_date">Показывать дату фото</string>
     <string name="action_jump_offset">Прыжок</string>
+    <string name="audio_catalog_v2">Аудио каталог v2</string>
+    <string name="sync">Синхронизация</string>
+    <string name="faves_sync">Прогрузить закладки</string>
+    <string name="experimental">Экспериментально</string>
+    <string name="action_catalog_v2_updates">Обновления</string>
+    <string name="action_catalog_v2_recent">Недавние</string>
+    <string name="action_catalog_v2_artists">Артисты</string>
 </resources>

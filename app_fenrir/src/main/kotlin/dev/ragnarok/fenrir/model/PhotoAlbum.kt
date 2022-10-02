@@ -26,7 +26,7 @@ class PhotoAlbum : AbsModel, ISomeones {
         this.ownerId = ownerId
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         size = `in`.readInt()
@@ -42,8 +42,7 @@ class PhotoAlbum : AbsModel, ISomeones {
         privacyComment = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeInt(size)
@@ -52,11 +51,16 @@ class PhotoAlbum : AbsModel, ISomeones {
         parcel.putBoolean(canUpload)
         parcel.writeLong(updatedTime)
         parcel.writeLong(createdTime)
-        parcel.writeTypedObjectCompat(sizes, i)
+        parcel.writeTypedObjectCompat(sizes, flags)
         parcel.putBoolean(uploadByAdminsOnly)
         parcel.putBoolean(commentsDisabled)
-        parcel.writeTypedObjectCompat(privacyView, i)
-        parcel.writeTypedObjectCompat(privacyComment, i)
+        parcel.writeTypedObjectCompat(privacyView, flags)
+        parcel.writeTypedObjectCompat(privacyComment, flags)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_PHOTO_ALBUM
     }
 
     override fun getObjectId(): Int {

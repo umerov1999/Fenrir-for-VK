@@ -334,6 +334,14 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         if (postSourceText.nonNullNoEmpty()) {
             dbo.setSource(MsgPack.decodeFromByteArray(SourceDbo.serializer(), postSourceText))
         }
+        cursor.getBlob(PostsColumns.COPYRIGHT_JSON).nonNullNoEmpty {
+            dbo.setCopyright(
+                MsgPack.decodeFromByteArray(
+                    PostDboEntity.CopyrightDboEntity.serializer(),
+                    it
+                )
+            )
+        }
         val copiesDbos: MutableList<PostDboEntity> = ArrayList(0)
         if (includeAttachments && (attachmentsMask > 0 || forceAttachments)) {
             val attachments: MutableList<DboEntity> = stores
@@ -444,6 +452,14 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 )
             }, {
                 cv.putNull(PostsColumns.POST_SOURCE)
+            })
+            dbo.copyright.ifNonNull({
+                cv.put(
+                    PostsColumns.COPYRIGHT_JSON,
+                    MsgPack.encodeToByteArray(PostDboEntity.CopyrightDboEntity.serializer(), it)
+                )
+            }, {
+                cv.putNull(PostsColumns.COPYRIGHT_JSON)
             })
             cv.put(PostsColumns.VIEWS, dbo.views)
             return cv

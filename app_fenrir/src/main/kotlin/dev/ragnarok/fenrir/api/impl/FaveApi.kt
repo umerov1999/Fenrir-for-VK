@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.IServiceProvider
+import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IFaveApi
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
@@ -19,7 +20,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         fields: String?,
         type: String?
     ): Single<Items<FavePageResponse>> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getPages(offset, count, type, fields)
                     .map(extractResponseWithErrorHandling())
@@ -27,7 +28,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun getPhotos(offset: Int?, count: Int?): Single<Items<VKApiPhoto>> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getPhotos(offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -35,7 +36,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun getVideos(offset: Int?, count: Int?): Single<List<VKApiVideo>> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getVideos(offset, count, "video", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
@@ -51,7 +52,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun getArticles(offset: Int?, count: Int?): Single<List<VKApiArticle>> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getArticles(offset, count, "article", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
@@ -71,7 +72,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
         offset: Int?,
         count: Int?
     ): Single<Items<VKApiArticle>> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service.getOwnerPublishedArticles(
                     owner_id,
@@ -86,7 +87,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun getPosts(offset: Int?, count: Int?): Single<FavePostsResponse> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getPosts(offset, count, "post", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
@@ -94,7 +95,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun getLinks(offset: Int?, count: Int?): Single<Items<FaveLinkDto>> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getLinks(offset, count, "link", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
@@ -102,7 +103,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun getProducts(offset: Int?, count: Int?): Single<List<VKApiMarket>> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.getProducts(offset, count, "product", 1, UserColumns.API_FIELDS)
                     .map(extractResponseWithErrorHandling())
@@ -118,7 +119,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun addPage(userId: Int?, groupId: Int?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.addPage(userId, groupId)
                     .map(extractResponseWithErrorHandling())
@@ -127,7 +128,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun addLink(link: String?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.addLink(link)
                     .map(extractResponseWithErrorHandling())
@@ -136,7 +137,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun addVideo(owner_id: Int?, id: Int?, access_key: String?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.addVideo(owner_id, id, access_key)
                     .map(extractResponseWithErrorHandling())
@@ -145,7 +146,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun addArticle(url: String?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.addArticle(url)
                     .map(extractResponseWithErrorHandling())
@@ -154,7 +155,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun addProduct(id: Int, owner_id: Int, access_key: String?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.addProduct(id, owner_id, access_key)
                     .map(extractResponseWithErrorHandling())
@@ -163,7 +164,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun addPost(owner_id: Int?, id: Int?, access_key: String?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.addPost(owner_id, id, access_key)
                     .map(extractResponseWithErrorHandling())
@@ -172,7 +173,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun removePage(userId: Int?, groupId: Int?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.removePage(userId, groupId)
                     .map(extractResponseWithErrorHandling())
@@ -181,7 +182,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun removeLink(linkId: String?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.removeLink(linkId)
                     .map(extractResponseWithErrorHandling())
@@ -190,7 +191,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun removeArticle(owner_id: Int?, article_id: Int?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.removeArticle(owner_id, article_id)
                     .map(extractResponseWithErrorHandling())
@@ -199,7 +200,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun removeProduct(id: Int?, owner_id: Int?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.removeProduct(id, owner_id)
                     .map(extractResponseWithErrorHandling())
@@ -208,7 +209,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun removePost(owner_id: Int?, id: Int?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.removePost(owner_id, id)
                     .map(extractResponseWithErrorHandling())
@@ -217,7 +218,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun removeVideo(owner_id: Int?, id: Int?): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.removeVideo(owner_id, id)
                     .map(extractResponseWithErrorHandling())
@@ -226,7 +227,7 @@ internal class FaveApi(accountId: Int, provider: IServiceProvider) : AbsApi(acco
     }
 
     override fun pushFirst(owner_id: Int): Single<Boolean> {
-        return provideService(IFaveService::class.java)
+        return provideService(IFaveService::class.java, TokenType.USER)
             .flatMap { service ->
                 service.pushFirst(
                     "var owner_id = Args.owner_id;\n" +

@@ -42,10 +42,9 @@ open class GetterSetterFixAction : AnAction() {
 
             // Replace the selection with a fixed string.
             // Must do this document change in a write action context.
-            val finalSelected = selected
             WriteCommandAction.runWriteCommandAction(
                 project
-            ) { document.replaceString(start, end, finalSelected) }
+            ) { document.replaceString(start, end, selected) }
 
             // De-select the text range that was just replaced
             primaryCaret.removeSelection()

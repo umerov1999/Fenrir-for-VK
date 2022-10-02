@@ -1,5 +1,8 @@
 package dev.ragnarok.fenrir.db.model.entity
 
+import androidx.annotation.Keep
+import kotlinx.serialization.Serializable
+
 class NewsDboEntity : DboEntity() {
     var type: String? = null
         private set
@@ -51,9 +54,16 @@ class NewsDboEntity : DboEntity() {
         private set
     var copyHistory: List<PostDboEntity>? = null
         private set
+    var copyright: CopyrightDboEntity? = null
+        private set
 
     fun setType(type: String?): NewsDboEntity {
         this.type = type
+        return this
+    }
+
+    fun setCopyright(copyright: CopyrightDboEntity?): NewsDboEntity {
+        this.copyright = copyright
         return this
     }
 
@@ -176,4 +186,8 @@ class NewsDboEntity : DboEntity() {
         this.copyHistory = copyHistory
         return this
     }
+
+    @Keep
+    @Serializable
+    class CopyrightDboEntity(val name: String, val link: String?)
 }

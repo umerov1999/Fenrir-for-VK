@@ -58,7 +58,6 @@
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textSize="12sp"
             tools:text="Artist" />
-
     </LinearLayout>
 
     <TableLayout
@@ -83,7 +82,6 @@
                 android:paddingEnd="2dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 tools:text="Time" />
-
         </TableRow>
 
         <TableRow
@@ -99,7 +97,6 @@
                 android:padding="2dp"
                 android:src="@drawable/save"
                 app:tint="?attr/colorPrimary" />
-
         </TableRow>
 
     </TableLayout>

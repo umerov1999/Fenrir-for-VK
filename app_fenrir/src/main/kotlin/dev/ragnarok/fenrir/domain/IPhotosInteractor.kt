@@ -21,7 +21,7 @@ interface IPhotosInteractor {
 
     fun getUsersPhoto(
         accountId: Int,
-        ownerId: Int?,
+        ownerId: Int,
         extended: Int?,
         sort: Int?,
         offset: Int?,
@@ -30,7 +30,7 @@ interface IPhotosInteractor {
 
     fun getAll(
         accountId: Int,
-        ownerId: Int?,
+        ownerId: Int,
         extended: Int?,
         photo_sizes: Int?,
         offset: Int?,

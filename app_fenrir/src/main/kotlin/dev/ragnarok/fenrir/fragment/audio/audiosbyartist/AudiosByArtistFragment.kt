@@ -184,11 +184,10 @@ class AudiosByArtistFragment : BaseMvpFragment<AudiosByArtistPresenter, IAudiosB
             mutableListOf(),
             presenter?.isMyAudio ?: false,
             false,
-            0,
             null
         )
         mAudioRecyclerAdapter?.setClickListener(object : AudioRecyclerAdapter.ClickListener {
-            override fun onClick(position: Int, catalog: Int, audio: Audio) {
+            override fun onClick(position: Int, audio: Audio) {
                 presenter?.playAudio(
                     requireActivity(),
                     position
@@ -265,6 +264,13 @@ class AudiosByArtistFragment : BaseMvpFragment<AudiosByArtistPresenter, IAudiosB
             val fragment = AudiosByArtistFragment()
             fragment.arguments = args
             return fragment
+        }
+
+        fun buildArgs(accountId: Int, artistId: String?): Bundle {
+            val args = Bundle()
+            args.putInt(Extra.ACCOUNT_ID, accountId)
+            args.putString(Extra.ARTIST, artistId)
+            return args
         }
     }
 }

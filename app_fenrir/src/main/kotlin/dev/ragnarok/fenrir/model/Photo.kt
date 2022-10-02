@@ -74,7 +74,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         msgPeerId = `in`.readInt()
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         albumId = `in`.readInt()
@@ -94,6 +94,11 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         repostsCount = `in`.readInt()
         msgId = `in`.readInt()
         msgPeerId = `in`.readInt()
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_PHOTO
     }
 
     override fun getObjectId(): Int {
@@ -203,14 +208,13 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeInt(albumId)
         parcel.writeInt(width)
         parcel.writeInt(height)
-        parcel.writeTypedObjectCompat(sizes, i)
+        parcel.writeTypedObjectCompat(sizes, flags)
         parcel.writeString(text)
         parcel.writeLong(date)
         parcel.putBoolean(isUserLikes)

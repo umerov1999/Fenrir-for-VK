@@ -30,7 +30,7 @@ class WikiPage : AbsModel {
         this.ownerId = ownerId
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         creatorId = `in`.readInt()
@@ -44,8 +44,7 @@ class WikiPage : AbsModel {
         viewUrl = `in`.readString()
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeInt(creatorId)
@@ -57,6 +56,11 @@ class WikiPage : AbsModel {
         parcel.writeString(parent2)
         parcel.writeInt(views)
         parcel.writeString(viewUrl)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_WIKI_PAGE
     }
 
     fun setCreatorId(creatorId: Int): WikiPage {

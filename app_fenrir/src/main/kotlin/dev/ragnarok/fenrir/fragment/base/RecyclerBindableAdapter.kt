@@ -82,6 +82,10 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
         notifyItemRangeInserted(position + headersCount, count)
     }
 
+    fun notifyItemBindableRangeChanged(position: Int, count: Int) {
+        notifyItemRangeChanged(position + headersCount, count)
+    }
+
     fun addAll(position: Int, items: List<T>) {
         val size = this.items.size
         this.items.addAll(position, items)
@@ -131,7 +135,7 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
         }
     }
 
-    fun getItems(): List<T> {
+    fun getItems(): MutableList<T> {
         return items
     }
 

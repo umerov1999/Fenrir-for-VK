@@ -16,7 +16,9 @@ import dev.ragnarok.fenrir.fragment.attachments.postcreate.PostCreateFragment
 import dev.ragnarok.fenrir.fragment.attachments.repost.RepostFragment
 import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
-import dev.ragnarok.fenrir.fragment.audio.catalog_v1.audiocatalog.AudioCatalogFragment
+import dev.ragnarok.fenrir.fragment.audio.audiosbyartist.AudiosByArtistFragment
+import dev.ragnarok.fenrir.fragment.audio.catalog_v2.lists.CatalogV2ListFragment
+import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.CatalogV2SectionFragment
 import dev.ragnarok.fenrir.fragment.comments.CommentsFragment
 import dev.ragnarok.fenrir.fragment.communitycontrol.communitymembers.CommunityMembersFragment
 import dev.ragnarok.fenrir.fragment.conversation.ConversationFragmentFactory
@@ -55,6 +57,7 @@ import dev.ragnarok.fenrir.fragment.voters.VotersFragment
 import dev.ragnarok.fenrir.fragment.wallattachments.wallsearchcommentsattachments.WallSearchCommentsAttachmentsFragment
 import dev.ragnarok.fenrir.fragment.wallpost.WallPostFragment
 import dev.ragnarok.fenrir.model.*
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
 
 object PlaceFactory {
@@ -557,39 +560,6 @@ object PlaceFactory {
             .withIntExtra(Extra.OWNER_ID, ownerId)
     }
 
-
-    fun getAudiosInCatalogBlock(accountId: Int, block_Id: String?, title: String?): Place {
-        return Place(Place.CATALOG_BLOCK_AUDIOS).withIntExtra(Extra.ACCOUNT_ID, accountId)
-            .withStringExtra(
-                Extra.ID, block_Id
-            ).withStringExtra(Extra.TITLE, title)
-    }
-
-
-    fun getPlaylistsInCatalogBlock(accountId: Int, block_Id: String?, title: String?): Place {
-        return Place(Place.CATALOG_BLOCK_PLAYLISTS).withIntExtra(Extra.ACCOUNT_ID, accountId)
-            .withStringExtra(
-                Extra.ID, block_Id
-            ).withStringExtra(Extra.TITLE, title)
-    }
-
-
-    fun getVideosInCatalogBlock(accountId: Int, block_Id: String?, title: String?): Place {
-        return Place(Place.CATALOG_BLOCK_VIDEOS).withIntExtra(Extra.ACCOUNT_ID, accountId)
-            .withStringExtra(
-                Extra.ID, block_Id
-            ).withStringExtra(Extra.TITLE, title)
-    }
-
-
-    fun getLinksInCatalogBlock(accountId: Int, block_Id: String?, title: String?): Place {
-        return Place(Place.CATALOG_BLOCK_LINKS).withIntExtra(Extra.ACCOUNT_ID, accountId)
-            .withStringExtra(
-                Extra.ID, block_Id
-            ).withStringExtra(Extra.TITLE, title)
-    }
-
-
     fun getShortLinks(accountId: Int): Place {
         return Place(Place.SHORT_LINKS).withIntExtra(Extra.ACCOUNT_ID, accountId)
     }
@@ -847,6 +817,22 @@ object PlaceFactory {
             .setArguments(BirthDayFragment.buildArgs(accountId, ownerId))
     }
 
+    fun getCatalogV2AudioCatalogPlace(
+        accountId: Int,
+        ownerId: Int,
+        artistId: String?,
+        query: String?,
+        url: String?
+    ): Place {
+        return Place(Place.CATALOG_V2_AUDIO_CATALOG)
+            .setArguments(CatalogV2ListFragment.buildArgs(accountId, ownerId, artistId, query, url))
+    }
+
+    fun getCatalogV2AudioSectionPlace(accountId: Int, sectionId: String): Place {
+        return Place(Place.CATALOG_V2_AUDIO_SECTION)
+            .setArguments(CatalogV2SectionFragment.buildArgs(accountId, sectionId))
+    }
+
     fun getAlbumsByVideoPlace(
         accountId: Int,
         ownerId: Int,
@@ -930,9 +916,17 @@ object PlaceFactory {
     }
 
 
-    fun getArtistPlace(accountId: Int, id: String?, isHideToolbar: Boolean): Place {
-        return Place(Place.ARTIST)
-            .setArguments(AudioCatalogFragment.buildArgs(accountId, id, isHideToolbar))
+    fun getArtistPlace(accountId: Int, id: String?): Place {
+        return if (Settings.get().other().isAudio_catalog_v2) getCatalogV2AudioCatalogPlace(
+            accountId,
+            accountId,
+            id, null, null
+        ) else Place(Place.ARTIST).setArguments(
+            AudiosByArtistFragment.buildArgs(
+                accountId,
+                id
+            )
+        )
     }
 
 
@@ -957,7 +951,7 @@ object PlaceFactory {
         ownerId: Int,
         pollId: Int,
         board: Boolean,
-        answer: Int
+        answer: Long
     ): Place {
         return Place(Place.VOTERS)
             .setArguments(VotersFragment.buildArgs(accountId, ownerId, pollId, board, answer))

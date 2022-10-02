@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.api.adapters
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.VKApiPost.Type.DONUT
 import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 
@@ -41,12 +42,11 @@ class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
         dto.text = optString(root, "text")
         if (hasObject(root, "copyright")) {
             val cop = root.getAsJsonObject("copyright")
-            if (dto.text.isNullOrEmpty()) {
-                dto.text = ""
-            }
             val name = optString(cop, "name")
             val link = optString(cop, "link")
-            dto.text = ("[$link|©$name]\r\n") + dto.text
+            name.nonNullNoEmpty {
+                dto.copyright = VKApiPost.Copyright(it, link)
+            }
         }
         dto.reply_owner_id = optInt(root, "reply_owner_id", 0)
         if (dto.reply_owner_id == 0) {

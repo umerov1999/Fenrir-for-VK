@@ -3,12 +3,9 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
-import dev.ragnarok.fenrir.CheckDonate
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.model.Identificable
-import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.isValueAssigned
@@ -127,6 +124,11 @@ class User : Owner, Identificable {
         verified = `in`.readBoolean()
         isCan_access_closed = `in`.readBoolean()
         bdate = `in`.readString()
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_USER
     }
 
     override val fullName: String
@@ -253,8 +255,8 @@ class User : Owner, Identificable {
         return this
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        super.writeToParcel(parcel, flags)
         parcel.writeInt(id)
         parcel.writeString(firstName)
         parcel.writeString(lastName)

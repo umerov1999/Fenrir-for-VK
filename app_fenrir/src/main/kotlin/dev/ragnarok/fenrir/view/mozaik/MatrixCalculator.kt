@@ -143,7 +143,7 @@ class MatrixCalculator(private val count: Int, private val libra: Libra) {
         internal fun canMoveToNext(row: Int, data: Array<IntArray>): Boolean {
             // можно только в том случае, если в строке есть хотябы 2 валидных значения
             // и с главном массиве есть следующая строка после row
-            return data[row][1] != -1 && data.size > row + 1
+            return data.size > row + 1 && data[row].isNotEmpty() && data[row][1] != -1
         }
 
         /**

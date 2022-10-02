@@ -14,7 +14,7 @@ class VotersPresenter(
     accountId: Int,
     private val ownerId: Int,
     private val pollId: Int,
-    private val answerId: Int,
+    private val answerId: Long,
     private val isBoard: Boolean,
     savedInstanceState: Bundle?
 ) :

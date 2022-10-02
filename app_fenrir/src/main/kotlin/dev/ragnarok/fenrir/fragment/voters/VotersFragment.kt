@@ -14,7 +14,7 @@ class VotersFragment : AbsOwnersListFragment<VotersPresenter, ISimpleOwnersView>
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     requireArguments().getInt(Extra.OWNER_ID),
                     requireArguments().getInt(Extra.POLL),
-                    requireArguments().getInt(Extra.ANSWER),
+                    requireArguments().getLong(Extra.ANSWER),
                     requireArguments().getBoolean(Extra.IS_BOARD),
                     saveInstanceState
                 )
@@ -42,13 +42,13 @@ class VotersFragment : AbsOwnersListFragment<VotersPresenter, ISimpleOwnersView>
             ownerId: Int,
             pollId: Int,
             board: Boolean,
-            answer: Int
+            answer: Long
         ): Bundle {
             val bundle = Bundle()
             bundle.putInt(Extra.ACCOUNT_ID, accountId)
             bundle.putInt(Extra.OWNER_ID, ownerId)
             bundle.putInt(Extra.POLL, pollId)
-            bundle.putInt(Extra.ANSWER, answer)
+            bundle.putLong(Extra.ANSWER, answer)
             bundle.putBoolean(Extra.IS_BOARD, board)
             return bundle
         }

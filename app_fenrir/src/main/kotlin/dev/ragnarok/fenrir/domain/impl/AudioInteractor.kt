@@ -13,9 +13,10 @@ import dev.ragnarok.fenrir.fragment.search.criteria.AudioPlaylistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.options.SpinnerOption
 import dev.ragnarok.fenrir.model.Audio
-import dev.ragnarok.fenrir.model.AudioCatalog
 import dev.ragnarok.fenrir.model.AudioPlaylist
-import dev.ragnarok.fenrir.model.CatalogBlock
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Block
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2List
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Section
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -282,26 +283,6 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             .map { it }
     }
 
-    override fun getCatalog(
-        accountId: Int,
-        artist_id: String?,
-        query: String?
-    ): Single<List<AudioCatalog>> {
-        return networker.vkDefault(accountId)
-            .audio()
-            .getCatalog(artist_id, query)
-            .map { items ->
-                listEmptyIfNull(
-                    items.items
-                )
-            }
-            .map { out ->
-                val ret: MutableList<AudioCatalog> = ArrayList()
-                for (i in out.indices) ret.add(transform(out[i]))
-                ret
-            }
-    }
-
     override fun followPlaylist(
         accountId: Int,
         playlist_id: Int,
@@ -442,14 +423,35 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             }
     }
 
-    override fun getCatalogBlockById(
+    override fun getCatalogV2Sections(
         accountId: Int,
-        block_id: String?,
-        start_from: String?
-    ): Single<CatalogBlock> {
+        owner_id: Int,
+        artist_id: String?,
+        url: String?,
+        query: String?,
+        context: String?
+    ): Single<CatalogV2List> {
         return networker.vkDefault(accountId)
             .audio()
-            .getCatalogBlockById(block_id, start_from)
-            .map { obj -> transform(obj) }
+            .getCatalogV2Sections(owner_id, artist_id, url, query, context)
+            .map { CatalogV2List(it) }
+    }
+
+    override fun getCatalogV2Section(
+        accountId: Int, section_id: String, start_from: String?
+    ): Single<CatalogV2Section> {
+        return networker.vkDefault(accountId)
+            .audio()
+            .getCatalogV2Section(section_id, start_from)
+            .map { CatalogV2Section(it) }
+    }
+
+    override fun getCatalogV2BlockItems(
+        accountId: Int, block_id: String, start_from: String?
+    ): Single<CatalogV2Block> {
+        return networker.vkDefault(accountId)
+            .audio()
+            .getCatalogV2BlockItems(block_id, start_from)
+            .map { CatalogV2Block(it) }
     }
 }

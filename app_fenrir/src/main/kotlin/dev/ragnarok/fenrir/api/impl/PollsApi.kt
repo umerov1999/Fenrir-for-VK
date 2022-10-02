@@ -39,7 +39,7 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
     override fun deleteVote(
         ownerId: Int?,
         pollId: Int,
-        answerId: Int,
+        answerId: Long,
         isBoard: Boolean?
     ): Single<Boolean> {
         return provideService(IPollsService::class.java, TokenType.USER)
@@ -53,7 +53,7 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
     override fun addVote(
         ownerId: Int,
         pollId: Int,
-        answerIds: Set<Int>,
+        answerIds: Set<Long>,
         isBoard: Boolean?
     ): Single<Boolean> {
         return provideService(IPollsService::class.java, TokenType.USER)
@@ -76,7 +76,7 @@ internal class PollsApi(accountId: Int, provider: IServiceProvider) :
         ownerId: Int,
         pollId: Int,
         isBoard: Int?,
-        answer_ids: List<Int>, offset: Int?, count: Int?
+        answer_ids: List<Long>, offset: Int?, count: Int?
     ): Single<List<VKApiUser>> {
         val ids = join(answer_ids, ",") { obj: Any -> obj.toString() } ?: return Single.just(
             emptyList()

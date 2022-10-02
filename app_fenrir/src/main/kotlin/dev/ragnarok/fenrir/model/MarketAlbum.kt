@@ -19,7 +19,7 @@ class MarketAlbum : AbsModel {
         this.owner_id = owner_id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         owner_id = `in`.readInt()
         access_key = `in`.readString()
@@ -29,15 +29,19 @@ class MarketAlbum : AbsModel {
         photo = `in`.readTypedObjectCompat(Photo.CREATOR)
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(owner_id)
         parcel.writeString(access_key)
         parcel.writeInt(count)
         parcel.writeLong(updated_time)
         parcel.writeString(title)
-        parcel.writeTypedObjectCompat(photo, i)
+        parcel.writeTypedObjectCompat(photo, flags)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_MARKET_ALBUM
     }
 
     fun getId(): Int {

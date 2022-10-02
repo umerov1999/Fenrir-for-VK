@@ -90,9 +90,9 @@ class AudiosSearchFragment :
 
     override fun createAdapter(data: MutableList<Audio>): AudioRecyclerAdapter {
         val adapter =
-            AudioRecyclerAdapter(requireActivity(), mutableListOf(), false, isSelectMode, 0, null)
+            AudioRecyclerAdapter(requireActivity(), mutableListOf(), false, isSelectMode, null)
         adapter.setClickListener(object : AudioRecyclerAdapter.ClickListener {
-            override fun onClick(position: Int, catalog: Int, audio: Audio) {
+            override fun onClick(position: Int, audio: Audio) {
                 presenter?.playAudio(
                     requireActivity(),
                     position

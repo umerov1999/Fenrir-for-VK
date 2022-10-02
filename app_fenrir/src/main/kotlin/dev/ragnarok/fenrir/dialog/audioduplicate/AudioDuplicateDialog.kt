@@ -46,6 +46,7 @@ class AudioDuplicateDialog :
     private var newBitrate: TextView? = null
     private var oldBitrate: TextView? = null
     private var bBitrate: MaterialButton? = null
+    private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = View.inflate(requireActivity(), R.layout.dialog_audio_duplicate, null)
         val dialog: Dialog = MaterialAlertDialogBuilder(requireActivity())
@@ -97,10 +98,8 @@ class AudioDuplicateDialog :
         }
     }
 
-    private fun TransformCover(): Transformation {
-        return if (Settings.get()
-                .main().isAudio_round_icon
-        ) RoundTransformation() else PolyTransformation()
+    private val transformCover: Transformation by lazy {
+        if (isAudio_round_icon) RoundTransformation() else PolyTransformation()
     }
 
     @get:DrawableRes
@@ -131,7 +130,7 @@ class AudioDuplicateDialog :
                         requireActivity().theme
                     ) ?: return
                 )
-                .transform(TransformCover())
+                .transform(transformCover)
                 .tag(Constants.PICASSO_TAG)
                 .into(holder.play_cover)
         } else {

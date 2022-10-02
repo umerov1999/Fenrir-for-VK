@@ -116,7 +116,6 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
             requireActivity(), mData,
             not_show_my = false,
             iSSelectMode = false,
-            iCatalogBlock = 0,
             playlist_id = null
         )
         mAdapter?.setClickListener(this)
@@ -136,7 +135,7 @@ class PlaylistFragment : BottomSheetDialogFragment(), AudioRecyclerAdapter.Click
         }
     }
 
-    override fun onClick(position: Int, catalog: Int, audio: Audio) {
+    override fun onClick(position: Int, audio: Audio) {
         if (MusicPlaybackController.queue == mData) {
             MusicPlaybackController.skip(position)
         } else {

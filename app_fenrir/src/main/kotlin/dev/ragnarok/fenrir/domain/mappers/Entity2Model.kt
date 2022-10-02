@@ -926,6 +926,7 @@ object Entity2Model {
             .setCanPublish(dbo.isCanPublish)
             .setRepostsCount(dbo.repostCount)
             .setUserReposted(dbo.isUserReposted)
+            .setCopyright(dbo.copyright?.let { News.Copyright(it.name, it.link) })
             .setFriends(
                 dbo.friendsTags?.let {
                     buildUserArray(
@@ -982,6 +983,7 @@ object Entity2Model {
             .setCanPin(dbo.isCanPin)
             .setPinned(dbo.isPinned)
             .setViewCount(dbo.views)
+            .setCopyright(dbo.copyright?.let { Post.Copyright(it.name, it.link) })
         val sourceDbo = dbo.source
         if (sourceDbo != null) {
             post.setSource(

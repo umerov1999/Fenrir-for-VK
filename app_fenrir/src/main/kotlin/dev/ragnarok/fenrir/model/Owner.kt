@@ -15,7 +15,7 @@ sealed class Owner : AbsModel, ParcelNative.ParcelableNative {
         this.ownerType = ownerType
     }
 
-    constructor(`in`: Parcel) : super(`in`) {
+    constructor(`in`: Parcel) {
         ownerType = `in`.readInt()
     }
 
@@ -23,8 +23,7 @@ sealed class Owner : AbsModel, ParcelNative.ParcelableNative {
         ownerType = `in`.readInt()
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(ownerType)
     }
 

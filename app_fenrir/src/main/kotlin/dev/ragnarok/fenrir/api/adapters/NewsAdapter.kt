@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.adapters
 
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.serializeble.json.JsonElement
 import dev.ragnarok.fenrir.util.serializeble.json.int
@@ -37,6 +38,14 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
         }
         dto.copy_post_date = optLong(root, "copy_post_date")
         dto.text = optString(root, "text")
+        if (hasObject(root, "copyright")) {
+            val cop = root.getAsJsonObject("copyright")
+            val name = optString(cop, "name")
+            val link = optString(cop, "link")
+            name.nonNullNoEmpty {
+                dto.copyright = VKApiNews.Copyright(it, link)
+            }
+        }
         dto.can_edit = optBoolean(root, "can_edit")
         dto.can_delete = optBoolean(root, "can_delete")
         if (hasObject(root, "comments")) {

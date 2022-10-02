@@ -25,7 +25,7 @@ class WallReply : AbsModel, Identificable {
     var attachments: Attachments? = null
         private set
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         fromId = `in`.readInt()
         postId = `in`.readInt()
@@ -37,15 +37,19 @@ class WallReply : AbsModel, Identificable {
 
     constructor()
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(fromId)
         parcel.writeInt(postId)
         parcel.writeInt(ownerId)
         parcel.writeString(text)
-        parcel.writeTypedObjectCompat(attachments, i)
-        writeOwner(parcel, i, author)
+        parcel.writeTypedObjectCompat(attachments, flags)
+        writeOwner(parcel, flags, author)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_WALL_REPLY
     }
 
     val attachmentsCount: Int

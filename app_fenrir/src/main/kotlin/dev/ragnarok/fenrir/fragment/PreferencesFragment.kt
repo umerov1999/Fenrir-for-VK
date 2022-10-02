@@ -33,6 +33,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -78,6 +80,7 @@ import dev.ragnarok.fenrir.picasso.transforms.EllipseTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
+import dev.ragnarok.fenrir.service.FaveSyncWorker
 import dev.ragnarok.fenrir.service.KeepLongpollService
 import dev.ragnarok.fenrir.settings.AvatarStyle
 import dev.ragnarok.fenrir.settings.ISettings
@@ -429,6 +432,12 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.use_api_5_90_for_audio
                 defaultValue = true
             }
+            switch("audio_catalog_v2_enable") {
+                defaultValue = true
+                titleRes = R.string.audio_catalog_v2
+                summaryRes = R.string.experimental
+                visible = Utils.isOfficialVKCurrent
+            }
             singleChoice(
                 "language_ui",
                 selItems(R.array.array_language_names, R.array.array_language_items),
@@ -461,6 +470,15 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         PlaceFactory.getFriendsByPhonesPlace(accountId)
                             .tryOpenWith(requireActivity())
                     }
+                    true
+                }
+            }
+            pref("faves_sync") {
+                titleRes = R.string.faves_sync
+                iconRes = R.drawable.sync_settings
+                onClick {
+                    val faveWork = OneTimeWorkRequest.Builder(FaveSyncWorker::class.java)
+                    WorkManager.getInstance(requireActivity()).enqueue(faveWork.build())
                     true
                 }
             }

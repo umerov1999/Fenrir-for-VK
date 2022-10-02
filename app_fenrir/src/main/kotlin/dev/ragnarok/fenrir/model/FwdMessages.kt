@@ -10,16 +10,20 @@ class FwdMessages : AbsModel {
         this.fwds = fwds
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         fwds = `in`.createTypedArrayList(Message.CREATOR)!!
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_FWDMESSAGES
     }
 
     override fun describeContents(): Int {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeTypedList(fwds)
     }
 

@@ -35,7 +35,7 @@ public abstract class SortedListAdapterCallback<T2> extends SortedList.Callback<
     public SortedListAdapterCallback(
             // b/240775049: Cannot annotate properly
             @SuppressLint({"UnknownNullness", "MissingNullability"})
-                    RecyclerView.Adapter<?> adapter) {
+            RecyclerView.Adapter<?> adapter) {
         mAdapter = adapter;
     }
 

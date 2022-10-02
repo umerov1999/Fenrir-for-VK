@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_catalog_v2_updates"
+        android:title="@string/action_catalog_v2_updates" />
+
+    <item
+        android:id="@+id/action_catalog_v2_recent"
+        android:title="@string/action_catalog_v2_recent" />
+
+    <item
+        android:id="@+id/action_catalog_v2_artists"
+        android:title="@string/action_catalog_v2_artists" />
+</menu>

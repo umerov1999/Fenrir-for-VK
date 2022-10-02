@@ -4,12 +4,15 @@ import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.interfaces.IAudioApi
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2BlockResponse
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2ListResponse
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2SectionResponse
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
-import dev.ragnarok.fenrir.api.model.response.CatalogResponse
 import dev.ragnarok.fenrir.api.model.response.ServicePlaylistResponse
 import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
 import dev.ragnarok.fenrir.api.services.IAudioService
 import dev.ragnarok.fenrir.model.Audio
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import io.reactivex.rxjava3.core.Single
 
 internal class AudioApi(accountId: Int, provider: IServiceProvider) :
@@ -203,6 +206,47 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
+    override fun getCatalogV2Sections(
+        owner_id: Int, artist_id: String?, url: String?, query: String?, context: String?
+    ): Single<VKApiCatalogV2ListResponse> {
+        return provideService(IAudioService::class.java)
+            .flatMap { service ->
+                (if (artist_id.nonNullNoEmpty()) service.getCatalogV2Artist(
+                    artist_id,
+                    0
+                ) else if (query.nonNullNoEmpty()) service.getCatalogV2AudioSearch(
+                    query,
+                    context,
+                    0
+                ) else service.getCatalogV2Sections(
+                    owner_id, 0, url
+                ))
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun getCatalogV2BlockItems(
+        block_id: String, start_from: String?
+    ): Single<VKApiCatalogV2BlockResponse> {
+        return provideService(IAudioService::class.java)
+            .flatMap { service ->
+                service
+                    .getCatalogV2BlockItems(block_id, start_from)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun getCatalogV2Section(
+        section_id: String,
+        start_from: String?
+    ): Single<VKApiCatalogV2SectionResponse> {
+        return provideService(IAudioService::class.java)
+            .flatMap { service ->
+                service.getCatalogV2Section(section_id, start_from)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
     override fun deletePlaylist(playlist_id: Int, ownerId: Int): Single<Int> {
         return provideService(IAudioService::class.java)
             .flatMap { service ->
@@ -243,15 +287,6 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
             .flatMap { service ->
                 service
                     .getPlaylistById(playlist_id, ownerId, accessKey)
-                    .map(extractResponseWithErrorHandling())
-            }
-    }
-
-    override fun getCatalog(artist_id: String?, query: String?): Single<Items<VKApiAudioCatalog>> {
-        return provideService(IAudioService::class.java)
-            .flatMap { service ->
-                service
-                    .getCatalog(artist_id, query)
                     .map(extractResponseWithErrorHandling())
             }
     }
@@ -367,21 +402,6 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
                 service
                     .getLyrics(lyrics_id)
                     .map(extractResponseWithErrorHandling())
-            }
-    }
-
-    override fun getCatalogBlockById(
-        block_id: String?,
-        start_from: String?
-    ): Single<CatalogResponse> {
-        return provideService(IAudioService::class.java)
-            .flatMap { service ->
-                service
-                    .getCatalogBlockById(block_id, start_from)
-                    .map(extractResponseWithErrorHandling())
-                    .map {
-                        it.block ?: throw NullPointerException("VK return null response block")
-                    }
             }
     }
 

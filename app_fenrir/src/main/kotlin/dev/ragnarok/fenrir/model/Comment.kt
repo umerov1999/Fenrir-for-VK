@@ -90,7 +90,7 @@ class Comment : AbsModel, Identificable {
         this.commented = commented
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         fromId = `in`.readInt()
         date = `in`.readLong()
@@ -109,6 +109,11 @@ class Comment : AbsModel, Identificable {
         threadsCount = `in`.readInt()
         threads = `in`.createTypedArrayList(CREATOR)
         pid = `in`.readInt()
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_COMMENT
     }
 
     override fun getObjectId(): Int {
@@ -217,8 +222,7 @@ class Comment : AbsModel, Identificable {
         return this
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(fromId)
         parcel.writeLong(date)
@@ -229,9 +233,9 @@ class Comment : AbsModel, Identificable {
         parcel.putBoolean(isUserLikes)
         parcel.putBoolean(isCanLike)
         parcel.putBoolean(isCanEdit)
-        parcel.writeTypedObjectCompat(attachments, i)
-        parcel.writeTypedObjectCompat(commented, i)
-        writeOwner(parcel, i, author)
+        parcel.writeTypedObjectCompat(attachments, flags)
+        parcel.writeTypedObjectCompat(commented, flags)
+        writeOwner(parcel, flags, author)
         parcel.writeInt(dbid)
         parcel.putBoolean(isDeleted)
         parcel.writeInt(threadsCount)

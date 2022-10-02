@@ -69,14 +69,13 @@ class AudioRecyclerAdapter(
     data: MutableList<Audio>,
     private val not_show_my: Boolean,
     iSSelectMode: Boolean,
-    iCatalogBlock: Int,
     playlist_id: Int?
 ) : RecyclerBindableAdapter<Audio, AudioRecyclerAdapter.AudioHolder>(data) {
     private val mContext: Context = context
     private val mAudioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
-    private val iCatalogBlock: Int
     private val playlist_id: Int?
-    private val isLongPressDownload: Boolean
+    private val isLongPressDownload: Boolean = Settings.get().main().isUse_long_click_download
+    private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon
     private var audioListDisposable = Disposable.disposed()
     private var mPlayerDisposable = Disposable.disposed()
     private var iSSelectMode: Boolean
@@ -259,14 +258,10 @@ class AudioRecyclerAdapter(
      */
     @get:DrawableRes
     private val audioCoverSimple: Int
-        get() = if (Settings.get()
-                .main().isAudio_round_icon
-        ) R.drawable.audio_button else R.drawable.audio_button_material
+        get() = if (isAudio_round_icon) R.drawable.audio_button else R.drawable.audio_button_material
 
-    private fun TransformCover(): Transformation {
-        return if (Settings.get()
-                .main().isAudio_round_icon
-        ) RoundTransformation() else PolyTransformation()
+    private val transformCover: Transformation by lazy {
+        if (isAudio_round_icon) RoundTransformation() else PolyTransformation()
     }
 
     private fun updateAudioStatus(holder: AudioHolder, audio: Audio) {
@@ -450,7 +445,7 @@ class AudioRecyclerAdapter(
                 override fun onModalOptionSelected(option: Option) {
                     when (option.id) {
                         AudioOption.play_item_audio -> {
-                            mClickListener?.onClick(position, iCatalogBlock, audio)
+                            mClickListener?.onClick(position, audio)
                             if (Settings.get().other().isShow_mini_player) getPlayerPlace(
                                 Settings.get().accounts().current
                             ).tryOpenWith(mContext)
@@ -499,7 +494,9 @@ class AudioRecyclerAdapter(
                             }
                         }
                         AudioOption.add_and_download_button -> {
-                            addTrack(Settings.get().accounts().current, audio)
+                            if (audio.ownerId != Settings.get().accounts().current) {
+                                addTrack(Settings.get().accounts().current, audio)
+                            }
                             if (!hasReadWriteStoragePermission(mContext)) {
                                 mClickListener?.onRequestWritePermissions()
                                 return
@@ -591,16 +588,14 @@ class AudioRecyclerAdapter(
                                     .setItems(artists[1]) { _: DialogInterface?, which: Int ->
                                         getArtistPlace(
                                             Settings.get().accounts().current,
-                                            artists[0][which],
-                                            false
+                                            artists[0][which]
                                         ).tryOpenWith(mContext)
                                     }
                                     .show()
                             } else {
                                 getArtistPlace(
                                     Settings.get().accounts().current,
-                                    artists[0][0],
-                                    false
+                                    artists[0][0]
                                 ).tryOpenWith(mContext)
                             }
                         }
@@ -617,7 +612,7 @@ class AudioRecyclerAdapter(
                 stop()
             }
         } else {
-            mClickListener?.onClick(position, iCatalogBlock, audio)
+            mClickListener?.onClick(position, audio)
         }
     }
 
@@ -678,7 +673,7 @@ class AudioRecyclerAdapter(
                         mContext.theme
                     ) ?: return
                 )
-                .transform(TransformCover())
+                .transform(transformCover)
                 .tag(Constants.PICASSO_TAG)
                 .into(viewHolder.play_cover)
         } else {
@@ -807,7 +802,7 @@ class AudioRecyclerAdapter(
     }
 
     interface ClickListener {
-        fun onClick(position: Int, catalog: Int, audio: Audio)
+        fun onClick(position: Int, audio: Audio)
         fun onEdit(position: Int, audio: Audio)
         fun onDelete(position: Int)
         fun onUrlPhotoOpen(url: String, prefix: String, photo_prefix: String)
@@ -873,9 +868,7 @@ class AudioRecyclerAdapter(
 
     init {
         this.iSSelectMode = iSSelectMode
-        this.iCatalogBlock = iCatalogBlock
         this.playlist_id = playlist_id
         currAudio = currentAudio
-        isLongPressDownload = Settings.get().main().isUse_long_click_download
     }
 }

@@ -1,6 +1,9 @@
 package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2BlockResponse
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2ListResponse
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2SectionResponse
 import dev.ragnarok.fenrir.api.model.response.*
 import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
 import io.reactivex.rxjava3.core.Single
@@ -183,20 +186,6 @@ interface IAudioService {
         @Field("access_key") accessKey: String?
     ): Single<BaseResponse<VKApiAudioPlaylist>>
 
-    @FormUrlEncoded
-    @POST("audio.getCatalog")
-    fun getCatalog(
-        @Field("artist_id") artist_id: String?,
-        @Field("query") query: String?
-    ): Single<BaseResponse<Items<VKApiAudioCatalog>>>
-
-    @FormUrlEncoded
-    @POST("audio.getCatalogBlockById")
-    fun getCatalogBlockById(
-        @Field("block_id") block_id: String?,
-        @Field("start_from") start_from: String?
-    ): Single<BaseResponse<BlockResponse<CatalogResponse>>>
-
     @get:POST("audio.getUploadServer")
     val uploadServer: Single<BaseResponse<VKApiAudioUploadServer>>
 
@@ -265,4 +254,41 @@ interface IAudioService {
     @FormUrlEncoded
     @POST("stats.trackEvents")
     fun trackEvents(@Field("events") events: String?): Single<BaseResponse<Int>>
+
+    @FormUrlEncoded
+    @POST("catalog.getAudio")
+    fun getCatalogV2Sections(
+        @Field("owner_id") owner_id: Int,
+        @Field("need_blocks") need_blocks: Int,
+        @Field("url") url: String?
+    ): Single<BaseResponse<VKApiCatalogV2ListResponse>>
+
+    @FormUrlEncoded
+    @POST("catalog.getAudioArtist")
+    fun getCatalogV2Artist(
+        @Field("artist_id") artist_id: String,
+        @Field("need_blocks") need_blocks: Int
+    ): Single<BaseResponse<VKApiCatalogV2ListResponse>>
+
+    @FormUrlEncoded
+    @POST("catalog.getSection")
+    fun getCatalogV2Section(
+        @Field("section_id") section_id: String,
+        @Field("start_from") start_from: String?
+    ): Single<BaseResponse<VKApiCatalogV2SectionResponse>>
+
+    @FormUrlEncoded
+    @POST("catalog.getBlockItems")
+    fun getCatalogV2BlockItems(
+        @Field("block_id") block_id: String,
+        @Field("start_from") start_from: String?
+    ): Single<BaseResponse<VKApiCatalogV2BlockResponse>>
+
+    @FormUrlEncoded
+    @POST("catalog.getAudioSearch")
+    fun getCatalogV2AudioSearch(
+        @Field("query") query: String?,
+        @Field("context") context: String?,
+        @Field("need_blocks") need_blocks: Int
+    ): Single<BaseResponse<VKApiCatalogV2ListResponse>>
 }

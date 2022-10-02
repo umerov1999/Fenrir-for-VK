@@ -92,7 +92,7 @@ class Message : AbsModel, Identificable, ISelectable {
         this.id = id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         accountId = `in`.readInt()
         id = `in`.readInt()
         body = `in`.readString()
@@ -132,6 +132,11 @@ class Message : AbsModel, Identificable, ISelectable {
         updateTime = `in`.readLong()
         payload = `in`.readString()
         keyboard = `in`.readTypedObjectCompat(Keyboard.CREATOR)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_MESSAGE
     }
 
     fun setHasAttachments(hasAttachments: Boolean): Message {
@@ -334,8 +339,7 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(accountId)
         parcel.writeInt(id)
         parcel.writeString(body)
@@ -351,7 +355,7 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.putBoolean(isSelected)
         parcel.putBoolean(isDeleted)
         parcel.putBoolean(isDeletedForAll)
-        parcel.writeTypedObjectCompat(attachments, i)
+        parcel.writeTypedObjectCompat(attachments, flags)
         parcel.writeTypedList(fwd)
         parcel.writeInt(originalId)
         parcel.writeInt(action)
@@ -361,15 +365,15 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeString(photo50)
         parcel.writeString(photo100)
         parcel.writeString(photo200)
-        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(actionUser), i)
-        parcel.writeTypedObjectCompat(sender, i)
+        parcel.writeTypedObjectCompat(ParcelableOwnerWrapper(actionUser), flags)
+        parcel.writeTypedObjectCompat(sender, flags)
         parcel.writeLong(randomId)
         writeIntStringMap(parcel, extras)
         parcel.writeInt(forwardMessagesCount)
         parcel.putBoolean(isHasAttachments)
         parcel.writeLong(updateTime)
         parcel.writeString(payload)
-        parcel.writeTypedObjectCompat(keyboard, i)
+        parcel.writeTypedObjectCompat(keyboard, flags)
     }
 
     fun setUpdateTime(updateTime: Long): Message {

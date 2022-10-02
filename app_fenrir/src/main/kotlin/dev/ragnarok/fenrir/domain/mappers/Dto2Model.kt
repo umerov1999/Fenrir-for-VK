@@ -1,13 +1,11 @@
 package dev.ragnarok.fenrir.domain.mappers
 
 import dev.ragnarok.fenrir.api.model.*
-import dev.ragnarok.fenrir.api.model.VKApiAudioCatalog.VKApiArtistBlock
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
 import dev.ragnarok.fenrir.api.model.VKApiSticker.VKApiAnimation
 import dev.ragnarok.fenrir.api.model.feedback.Copies
 import dev.ragnarok.fenrir.api.model.feedback.UserArray
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate
-import dev.ragnarok.fenrir.api.model.response.CatalogResponse
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
 import dev.ragnarok.fenrir.api.util.VKStringUtils.unescape
 import dev.ragnarok.fenrir.crypt.CryptHelper.analizeMessageBody
@@ -19,7 +17,6 @@ import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAllArrayList
 import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAllMutable
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.AudioArtist.AudioArtistImage
-import dev.ragnarok.fenrir.model.AudioCatalog.ArtistBlock
 import dev.ragnarok.fenrir.model.Document.VideoPreview
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
@@ -62,23 +59,6 @@ object Dto2Model {
             .setTitle(narrative.title)
             .setCover(narrative.cover)
             .setStory_ids(narrative.story_ids)
-    }
-
-    fun transform(block: VKApiArtistBlock?): ArtistBlock? {
-        if (block == null) return null
-        var url: String? = null
-        block.images.requireNonNull {
-            var def = 0
-            for (i in it) {
-                if (i.width * i.height > def) {
-                    def = i.width * i.height
-                    url = i.url
-                }
-            }
-        }
-        return ArtistBlock()
-            .setName(block.name)
-            .setPhoto(url)
     }
 
     private fun transformStickerImage(dto: VKApiSticker.Image): Sticker.Image {
@@ -135,13 +115,6 @@ object Dto2Model {
             transform(it)
         }
     }
-
-    private fun transformCatalogLinks(dto: List<VKApiCatalogLink>?): ArrayList<Link> {
-        return mapAllArrayList(
-            dto
-        ) { transform(it) }
-    }
-
 
     fun transformOwner(owner: VKApiOwner?): Owner? {
         return if (owner is VKApiUser) transformUser(owner) else transformCommunity(
@@ -1005,38 +978,6 @@ object Dto2Model {
             .setOriginal_owner_id(dto.original_owner_id)
     }
 
-
-    fun transform(dto: CatalogResponse): CatalogBlock {
-        return CatalogBlock()
-            .setAudios(transformAudios(dto.audios))
-            .setPlaylists(transformAudioPlaylists(dto.playlists))
-            .setVideos(transformVideos(dto.videos))
-            .setLinks(transformCatalogLinks(dto.items))
-            .setNext_from(dto.nextFrom)
-    }
-
-
-    fun transform(dto: VKApiAudioCatalog): AudioCatalog {
-        val playlists = transformAudioPlaylists(dto.playlists)
-        dto.playlist.requireNonNull {
-            playlists.add(transform(it))
-        }
-        return AudioCatalog()
-            .setId(dto.id)
-            .setSource(dto.source)
-            .setNext_from(dto.next_from)
-            .setSubtitle(dto.subtitle)
-            .setTitle(dto.title)
-            .setType(dto.type)
-            .setCount(dto.count)
-            .setAudios(transformAudios(dto.audios))
-            .setPlaylists(playlists)
-            .setVideos(transformVideos(dto.videos))
-            .setLinks(transformCatalogLinks(dto.items))
-            .setArtist(if (dto.artist != null) transform(dto.artist) else null)
-    }
-
-
     fun transform(link: VKApiLink): Link {
         return Link()
             .setUrl(link.url)
@@ -1045,16 +986,6 @@ object Dto2Model {
             .setDescription(link.description)
             .setPreviewPhoto(link.preview_photo)
             .setPhoto(link.photo?.let { transform(it) })
-    }
-
-
-    fun transform(link: VKApiCatalogLink): Link {
-        return Link()
-            .setUrl(link.url)
-            .setTitle(link.title)
-            .setDescription(link.subtitle)
-            .setPreviewPhoto(link.preview_photo)
-            .setPhoto(null)
     }
 
 
@@ -1375,6 +1306,7 @@ object Dto2Model {
             .setCanPin(dto.can_pin)
             .setPinned(dto.is_pinned)
             .setViewCount(dto.views)
+            .setCopyright(dto.copyright?.let { Post.Copyright(it.name, it.link) })
         dto.post_source.requireNonNull {
             post.setSource(
                 PostSource(
@@ -1429,6 +1361,7 @@ object Dto2Model {
             .setFriends(original.friends?.let { buildUserArray(it, owners) })
             .setSource(owners.getById(original.source_id))
             .setViewCount(original.views)
+            .setCopyright(original.copyright?.let { News.Copyright(it.name, it.link) })
         if (original.hasCopyHistory()) {
             val copies = ArrayList<Post>(original.copy_history?.size.orZero())
             for (copy in original.copy_history.orEmpty()) {

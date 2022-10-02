@@ -35,14 +35,13 @@ class ConversationAudiosFragment :
                 requireActivity(), mutableListOf(),
                 not_show_my = false,
                 iSSelectMode = false,
-                iCatalogBlock = 0,
                 playlist_id = null
             )
         audioRecyclerAdapter.setClickListener(this)
         return audioRecyclerAdapter
     }
 
-    override fun onClick(position: Int, catalog: Int, audio: Audio) {
+    override fun onClick(position: Int, audio: Audio) {
         presenter?.fireAudioPlayClick(
             position
         )

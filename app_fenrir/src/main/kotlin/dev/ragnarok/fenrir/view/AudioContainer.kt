@@ -23,6 +23,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.squareup.picasso3.Transformation
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
+import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
@@ -64,11 +65,14 @@ import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
 import io.reactivex.rxjava3.disposables.Disposable
 
 class AudioContainer : LinearLayout {
-    private val mAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val mAudioInteractor: IAudioInteractor by lazy {
+        InteractorFactory.createAudioInteractor()
+    }
     private var mPlayerDisposable = Disposable.disposed()
     private var audioListDisposable = Disposable.disposed()
     private var audios: List<Audio> = emptyList()
     private var currAudio = currentAudio
+    private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -91,10 +95,8 @@ class AudioContainer : LinearLayout {
                 .main().isAudio_round_icon
         ) R.drawable.audio_button else R.drawable.audio_button_material
 
-    private fun TransformCover(): Transformation {
-        return if (Settings.get()
-                .main().isAudio_round_icon
-        ) RoundTransformation() else PolyTransformation()
+    private val transformCover: Transformation by lazy {
+        if (isAudio_round_icon) RoundTransformation() else PolyTransformation()
     }
 
     private fun updateAudioStatus(holder: AudioHolder, audio: Audio) {
@@ -421,7 +423,9 @@ class AudioContainer : LinearLayout {
                             }
                         }
                         AudioOption.add_and_download_button -> {
-                            addTrack(Settings.get().accounts().current, audio)
+                            if (audio.ownerId != Settings.get().accounts().current) {
+                                addTrack(Settings.get().accounts().current, audio)
+                            }
                             if (!hasReadWriteStoragePermission(context)) {
                                 mAttachmentsActionCallback?.onRequestWritePermissions()
                                 return
@@ -515,8 +519,7 @@ class AudioContainer : LinearLayout {
                                     .setItems(artists[1]) { _: DialogInterface?, which: Int ->
                                         getArtistPlace(
                                             Settings.get().accounts().current,
-                                            artists[0][which],
-                                            false
+                                            artists[0][which]
                                         ).tryOpenWith(
                                             context
                                         )
@@ -524,8 +527,7 @@ class AudioContainer : LinearLayout {
                             } else {
                                 getArtistPlace(
                                     Settings.get().accounts().current,
-                                    artists[0][0],
-                                    false
+                                    artists[0][0]
                                 ).tryOpenWith(
                                     context
                                 )
@@ -602,7 +604,7 @@ class AudioContainer : LinearLayout {
                             ) ?: return
 
                         )
-                        .transform(TransformCover())
+                        .transform(transformCover)
                         .tag(Constants.PICASSO_TAG)
                         .into(check.play_cover)
                 } else {

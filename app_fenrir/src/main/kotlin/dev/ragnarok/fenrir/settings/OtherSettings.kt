@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.model.Lang
 import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.settings.ISettings.IOtherSettings
+import dev.ragnarok.fenrir.util.Utils
 import java.io.File
 import java.util.*
 
@@ -556,8 +557,16 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         } catch (e: Exception) {
             0
         }
+
+    override val isAudio_catalog_v2: Boolean
+        get() = getPreferences(app).getBoolean(
+            "audio_catalog_v2_enable",
+            true
+        ) && Utils.isOfficialVKCurrent
+
     override val isRunes_show: Boolean
         get() = getPreferences(app).getBoolean("runes_show", true)
+
     override val paganSymbol: Int
         get() = try {
             getPreferences(app).getString("pagan_symbol", "1")!!

@@ -14,7 +14,7 @@ class Poll : AbsModel {
         private set
     var voteCount = 0
         private set
-    var myAnswerIds: IntArray? = null
+    var myAnswerIds: LongArray? = null
         private set
     var isAnonymous = false
         private set
@@ -41,13 +41,13 @@ class Poll : AbsModel {
     var photo: String? = null
         private set
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         creationTime = `in`.readLong()
         question = `in`.readString()
         voteCount = `in`.readInt()
-        myAnswerIds = `in`.createIntArray()
+        myAnswerIds = `in`.createLongArray()
         isAnonymous = `in`.getBoolean()
         answers = `in`.createTypedArrayList(Answer.CREATOR)
         isBoard = `in`.getBoolean()
@@ -67,14 +67,13 @@ class Poll : AbsModel {
         this.ownerId = ownerId
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeLong(creationTime)
         parcel.writeString(question)
         parcel.writeInt(voteCount)
-        parcel.writeIntArray(myAnswerIds)
+        parcel.writeLongArray(myAnswerIds)
         parcel.putBoolean(isAnonymous)
         parcel.writeTypedList(answers)
         parcel.putBoolean(isBoard)
@@ -87,6 +86,11 @@ class Poll : AbsModel {
         parcel.writeLong(endDate)
         parcel.putBoolean(isMultiple)
         parcel.writeString(photo)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_POLL
     }
 
     fun setClosed(closed: Boolean): Poll {
@@ -149,7 +153,7 @@ class Poll : AbsModel {
         return this
     }
 
-    fun setMyAnswerIds(myAnswerIds: IntArray?): Poll {
+    fun setMyAnswerIds(myAnswerIds: LongArray?): Poll {
         this.myAnswerIds = myAnswerIds
         return this
     }
@@ -174,7 +178,7 @@ class Poll : AbsModel {
     }
 
     class Answer : AbsModel {
-        val id: Int
+        val id: Long
         var text: String? = null
             private set
         var voteCount = 0
@@ -182,23 +186,27 @@ class Poll : AbsModel {
         var rate = 0.0
             private set
 
-        constructor(id: Int) {
+        constructor(id: Long) {
             this.id = id
         }
 
-        internal constructor(`in`: Parcel) : super(`in`) {
-            id = `in`.readInt()
+        internal constructor(`in`: Parcel) {
+            id = `in`.readLong()
             text = `in`.readString()
             voteCount = `in`.readInt()
             rate = `in`.readDouble()
         }
 
-        override fun writeToParcel(parcel: Parcel, i: Int) {
-            super.writeToParcel(parcel, i)
-            parcel.writeInt(id)
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
+            parcel.writeLong(id)
             parcel.writeString(text)
             parcel.writeInt(voteCount)
             parcel.writeDouble(rate)
+        }
+
+        @AbsModelType
+        override fun getModelType(): Int {
+            return AbsModelType.MODEL_POLL_ANSWER
         }
 
         fun setText(text: String?): Answer {

@@ -114,4 +114,6 @@ object Extra {
     const val IS_BOARD = "is_board"
     const val ANSWER = "answer"
     const val SELECTED = "selected"
+    const val SECTION_ID = "section_id"
+    const val QUERY = "query"
 }

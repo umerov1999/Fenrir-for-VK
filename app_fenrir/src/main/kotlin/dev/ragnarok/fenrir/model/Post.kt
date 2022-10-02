@@ -67,8 +67,10 @@ class Post : AbsModel, Cloneable {
         private set
     var isFavorite = false
         private set
+    var copyright: Copyright? = null
+        private set
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         dbid = `in`.readInt()
         vkid = `in`.readInt()
         ownerId = `in`.readInt()
@@ -99,9 +101,15 @@ class Post : AbsModel, Cloneable {
         viewCount = `in`.readInt()
         isCanEdit = `in`.getBoolean()
         isFavorite = `in`.getBoolean()
+        copyright = `in`.readTypedObjectCompat(Copyright.CREATOR)
     }
 
     constructor()
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_POST
+    }
 
     fun setSource(source: PostSource?): Post {
         this.source = source
@@ -115,6 +123,11 @@ class Post : AbsModel, Cloneable {
 
     fun setVkid(vkid: Int): Post {
         this.vkid = vkid
+        return this
+    }
+
+    fun setCopyright(copyright: Copyright?): Post {
+        this.copyright = copyright
         return this
     }
 
@@ -267,13 +280,12 @@ class Post : AbsModel, Cloneable {
         return "POST[dbid: $dbid, vkid: $vkid, ownerid: $ownerId]"
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(dbid)
         parcel.writeInt(vkid)
         parcel.writeInt(ownerId)
         parcel.writeInt(authorId)
-        parcel.writeTypedObjectCompat(author, i)
+        parcel.writeTypedObjectCompat(author, flags)
         parcel.writeLong(date)
         parcel.writeString(text)
         parcel.writeInt(replyOwnerId)
@@ -287,18 +299,19 @@ class Post : AbsModel, Cloneable {
         parcel.putBoolean(isCanRepost)
         parcel.putBoolean(isUserReposted)
         parcel.writeInt(postType)
-        parcel.writeTypedObjectCompat(attachments, i)
+        parcel.writeTypedObjectCompat(attachments, flags)
         parcel.writeInt(signerId)
         parcel.writeInt(creatorId)
-        parcel.writeTypedObjectCompat(creator, i)
+        parcel.writeTypedObjectCompat(creator, flags)
         parcel.putBoolean(isCanPin)
         parcel.putBoolean(isPinned)
         parcel.writeTypedList(copyHierarchy)
         parcel.putBoolean(isDeleted)
-        parcel.writeTypedObjectCompat(source, i)
+        parcel.writeTypedObjectCompat(source, flags)
         parcel.writeInt(viewCount)
         parcel.putBoolean(isCanEdit)
         parcel.putBoolean(isFavorite)
+        parcel.writeTypedObjectCompat(copyright, flags)
     }
 
     /**
@@ -401,6 +414,33 @@ class Post : AbsModel, Cloneable {
     fun setCanEdit(canEdit: Boolean): Post {
         isCanEdit = canEdit
         return this
+    }
+
+    class Copyright(val name: String, val link: String?) : Parcelable {
+        constructor(parcel: Parcel) : this(
+            parcel.readString().orEmpty(),
+            parcel.readString()
+        )
+
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
+            parcel.writeString(name)
+            parcel.writeString(link)
+        }
+
+        override fun describeContents(): Int {
+            return 0
+        }
+
+        companion object CREATOR : Parcelable.Creator<Copyright> {
+            override fun createFromParcel(parcel: Parcel): Copyright {
+                return Copyright(parcel)
+            }
+
+            override fun newArray(size: Int): Array<Copyright?> {
+                return arrayOfNulls(size)
+            }
+        }
+
     }
 
     companion object CREATOR : Parcelable.Creator<Post> {

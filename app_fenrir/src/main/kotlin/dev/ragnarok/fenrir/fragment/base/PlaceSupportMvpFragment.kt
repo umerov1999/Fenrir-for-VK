@@ -233,7 +233,7 @@ abstract class PlaceSupportMvpFragment<P : PlaceSupportPresenter<V>, V> : BaseMv
     }
 
     override fun toArtistOpen(accountId: Int, artist: AudioArtist) {
-        PlaceFactory.getArtistPlace(accountId, artist.getId(), false).tryOpenWith(requireActivity())
+        PlaceFactory.getArtistPlace(accountId, artist.getId()).tryOpenWith(requireActivity())
     }
 
     override fun toMarketOpen(accountId: Int, market: Market) {

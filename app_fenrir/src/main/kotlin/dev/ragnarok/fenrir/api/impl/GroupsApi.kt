@@ -180,10 +180,15 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun getWallInfo(groupId: String?, fields: String?): Single<VKApiCommunity> {
-        return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
+        return provideService(
+            IGroupsService::class.java,
+            TokenType.USER,
+            TokenType.SERVICE,
+            TokenType.COMMUNITY
+        )
             .flatMap { service ->
                 service.getGroupWallInfo(
-                    "var group_id = Args.group_id; var fields = Args.fields; var negative_group_id = -group_id; var group_info = API.groups.getById({\"v\":\"" + Constants.API_VERSION + "\", \"group_id\":group_id, \"fields\":fields}); var all_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"all\"}).count; var owner_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"owner\"}).count; var suggests_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"suggests\"}).count; var postponed_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"postponed\"}).count; var donut_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"donut\"}).count; return {\"group_info\": group_info, \"all_wall_count\":all_wall_count, \"owner_wall_count\":owner_wall_count, \"suggests_wall_count\":suggests_wall_count, \"postponed_wall_count\":postponed_wall_count, \"donut_wall_count\":donut_wall_count };",
+                    "var group_id = Args.group_id; var fields = Args.fields; var negative_group_id = -group_id; var group_info = API.groups.getById({\"v\":\"" + Constants.API_VERSION + "\", \"group_id\":group_id, \"fields\":fields}); var all_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"all\"}).count; var owner_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"owner\"}).count; var suggests_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"suggests\"}).count; var postponed_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"postponed\"}).count; var donut_wall_count = API.wall.get({\"v\":\"" + Constants.API_VERSION + "\",\"owner_id\":negative_group_id, \"count\":1, \"filter\":\"donut\"}).count; return {\"group_info\": !group_info ? null : group_info, \"all_wall_count\":all_wall_count, \"owner_wall_count\":owner_wall_count, \"suggests_wall_count\":suggests_wall_count, \"postponed_wall_count\":postponed_wall_count, \"donut_wall_count\":donut_wall_count };",
                     groupId,
                     fields
                 )
@@ -205,7 +210,12 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
         fields: String?,
         filter: String?
     ): Single<Items<VKApiUser>> {
-        return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
+        return provideService(
+            IGroupsService::class.java,
+            TokenType.USER,
+            TokenType.COMMUNITY,
+            TokenType.SERVICE
+        )
             .flatMap { service ->
                 service.getMembers(groupId, sort, offset, count, fields, filter)
                     .map(extractResponseWithErrorHandling())
@@ -269,7 +279,7 @@ internal class GroupsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun getLongPollServer(groupId: Int): Single<GroupLongpollServer> {
-        return provideService(IGroupsService::class.java, TokenType.COMMUNITY)
+        return provideService(IGroupsService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
                     .getLongPollServer(groupId)

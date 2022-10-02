@@ -27,6 +27,8 @@ android {
     ndkVersion = appNdk
 
     defaultConfig {
+        generatedDensities = []
+
         minSdk = appMinSDK
         targetSdk = appTargetSDK
         versionCode = appFileGalleryVersionCode
@@ -120,6 +122,7 @@ dependencies {
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("androidx.drawerlayout:drawerlayout:$drawerlayoutVersion")
     implementation("androidx.loader:loader:$loaderVersion")
+    implementation("androidx.cardview:cardview:$cardviewVersion")
     implementation("androidx.collection:collection-ktx:$collectionVersion")
     implementation("androidx.savedstate:savedstate-ktx:$savedStateVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlin_serializer")

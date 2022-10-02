@@ -19,7 +19,7 @@ class VideoAlbum : AbsModel {
         this.ownerId = ownerId
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         ownerId = `in`.readInt()
         title = `in`.readString()
@@ -29,15 +29,19 @@ class VideoAlbum : AbsModel {
         privacy = `in`.readTypedObjectCompat(SimplePrivacy.CREATOR)
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeInt(ownerId)
         parcel.writeString(title)
         parcel.writeInt(count)
         parcel.writeLong(updatedTime)
         parcel.writeString(image)
-        parcel.writeTypedObjectCompat(privacy, i)
+        parcel.writeTypedObjectCompat(privacy, flags)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_VIDEO_ALBUM
     }
 
     fun getId(): Int {

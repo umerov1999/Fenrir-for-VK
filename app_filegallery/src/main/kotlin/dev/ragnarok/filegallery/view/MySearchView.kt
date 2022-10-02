@@ -26,7 +26,6 @@ import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.rxutils.RxUtils
 import io.reactivex.rxjava3.disposables.Disposable
 
-
 class MySearchView : LinearLayout {
     private var mQuery: String? = null
     private var mInput: MaterialAutoCompleteTextView? = null
@@ -78,7 +77,7 @@ class MySearchView : LinearLayout {
         mQueryDisposable.dispose()
         mQueryDisposable = stores.searchQueriesStore().getQueries(searchId)
             .fromIOToMain()
-            .subscribe({ s: List<String> ->
+            .subscribe({ s ->
                 listQueries.clear()
                 listQueries.addAll(s)
             }, RxUtils.ignore())
@@ -96,7 +95,9 @@ class MySearchView : LinearLayout {
         mInput?.setOnEditorActionListener(mOnEditorActionListener)
         listQueries = ArrayAdapter(getContext(), R.layout.search_dropdown_item)
         mInput?.setAdapter(listQueries)
-        loadQueries()
+        if (!isInEditMode) {
+            loadQueries()
+        }
         mButtonBack = findViewById(R.id.button_back)
         mButtonClear = findViewById(R.id.clear)
         mButtonAdditional = findViewById(R.id.additional)

@@ -153,6 +153,9 @@ class News : AbsModel {
     var attachments: Attachments? = null
         private set
 
+    var copyright: Copyright? = null
+        private set
+
     @Transient
     var tag: Any? = null
         private set
@@ -160,7 +163,7 @@ class News : AbsModel {
         private set
 
     constructor()
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         type = `in`.readString()
         sourceId = `in`.readInt()
         source = Owner.readOwnerFromParcel(sourceId, `in`)
@@ -186,10 +189,21 @@ class News : AbsModel {
         attachments = `in`.readTypedObjectCompat(Attachments.CREATOR)
         friends = `in`.createTypedArrayList(User.CREATOR)
         viewCount = `in`.readInt()
+        copyright = `in`.readTypedObjectCompat(Copyright.CREATOR)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_NEWS
     }
 
     fun setTag(tag: Any?): News {
         this.tag = tag
+        return this
+    }
+
+    fun setCopyright(copyright: Copyright?): News {
+        this.copyright = copyright
         return this
     }
 
@@ -350,11 +364,10 @@ class News : AbsModel {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(type)
         parcel.writeInt(sourceId)
-        parcel.writeTypedObjectCompat(source, i)
+        parcel.writeTypedObjectCompat(source, flags)
         parcel.writeString(postType)
         parcel.putBoolean(isFinalPost)
         parcel.writeInt(copyOwnerId)
@@ -374,9 +387,10 @@ class News : AbsModel {
         parcel.putBoolean(isCanPublish)
         parcel.writeInt(repostsCount)
         parcel.putBoolean(isUserReposted)
-        parcel.writeTypedObjectCompat(attachments, i)
+        parcel.writeTypedObjectCompat(attachments, flags)
         parcel.writeTypedList(friends)
         parcel.writeInt(viewCount)
+        parcel.writeTypedObjectCompat(copyright, flags)
     }
 
     fun hasAttachments(): Boolean {
@@ -386,6 +400,32 @@ class News : AbsModel {
     fun setViewCount(viewCount: Int): News {
         this.viewCount = viewCount
         return this
+    }
+
+    class Copyright(val name: String, val link: String?) : Parcelable {
+        constructor(parcel: Parcel) : this(
+            parcel.readString().orEmpty(),
+            parcel.readString()
+        )
+
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
+            parcel.writeString(name)
+            parcel.writeString(link)
+        }
+
+        override fun describeContents(): Int {
+            return 0
+        }
+
+        companion object CREATOR : Parcelable.Creator<Copyright> {
+            override fun createFromParcel(parcel: Parcel): Copyright {
+                return Copyright(parcel)
+            }
+
+            override fun newArray(size: Int): Array<Copyright?> {
+                return arrayOfNulls(size)
+            }
+        }
     }
 
     companion object CREATOR : Parcelable.Creator<News> {

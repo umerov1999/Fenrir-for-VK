@@ -186,7 +186,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider) :
             ids,
             ","
         ) { pair -> pair.ownerId.toString() + "_" + pair.id + if (pair.accessKey == null) "" else "_" + pair.accessKey }
-        return provideService(IPhotosService::class.java, TokenType.USER)
+        return provideService(IPhotosService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service.getById(line, 1, 1)
                     .map(extractResponseWithErrorHandling())
@@ -235,7 +235,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun getChatUploadServer(chat_id: Int?): Single<VKApiChatPhotoUploadServer> {
-        return provideService(IPhotosService::class.java, TokenType.USER)
+        return provideService(IPhotosService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
                     .getChatUploadServer(chat_id)
@@ -244,7 +244,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun setChatPhoto(file: String?): Single<UploadChatPhotoResponse> {
-        return provideService(IPhotosService::class.java, TokenType.USER)
+        return provideService(IPhotosService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
                     .setChatPhoto(file)
@@ -300,7 +300,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider) :
         rev: Boolean?, offset: Int?, count: Int?
     ): Single<Items<VKApiPhoto>> {
         val photos = join(photoIds, ",")
-        return provideService(IPhotosService::class.java, TokenType.USER)
+        return provideService(IPhotosService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service[ownerId, albumId, photos, integerFromBoolean(rev), 1, 1, offset, count]
                     .map(extractResponseWithErrorHandling())
@@ -360,7 +360,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider) :
         needCovers: Boolean?
     ): Single<Items<VKApiPhotoAlbum>> {
         val ids = join(albumIds, ",")
-        return provideService(IPhotosService::class.java, TokenType.USER)
+        return provideService(IPhotosService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service.getAlbums(
                     ownerId,
@@ -414,7 +414,7 @@ internal class PhotosApi(accountId: Int, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Single<Items<VKApiPhoto>> {
-        return provideService(IPhotosService::class.java, TokenType.USER)
+        return provideService(IPhotosService::class.java, TokenType.USER, TokenType.SERVICE)
             .flatMap { service ->
                 service.search(
                     q,

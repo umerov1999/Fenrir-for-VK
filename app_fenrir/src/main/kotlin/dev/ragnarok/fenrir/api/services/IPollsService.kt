@@ -25,7 +25,7 @@ interface IPollsService {
     fun deleteVote(
         @Field("owner_id") ownerId: Int?,
         @Field("poll_id") pollId: Int,
-        @Field("answer_id") answerId: Int,
+        @Field("answer_id") answerId: Long,
         @Field("is_board") isBoard: Int?
     ): Single<BaseResponse<Int>>
 

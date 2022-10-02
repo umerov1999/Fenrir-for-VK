@@ -91,8 +91,8 @@ class Community : Owner {
     override val ownerId: Int
         get() = -abs(id)
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        super.writeToParcel(parcel, flags)
         parcel.writeInt(id)
         parcel.writeString(fullName)
         parcel.writeString(screenName)
@@ -127,6 +127,11 @@ class Community : Owner {
         dest.writeString(photo200)
         dest.writeBoolean(verified)
         dest.writeBoolean(isBlacklisted)
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_COMMUNITY
     }
 
     fun setName(name: String?): Community {

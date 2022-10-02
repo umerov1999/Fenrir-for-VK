@@ -486,6 +486,12 @@ object Model2Entity {
             .setDeleted(post.isDeleted)
             .setViews(post.viewCount)
             .setDbid(post.dbid)
+            .setCopyright(post.copyright?.let {
+                PostDboEntity.CopyrightDboEntity(
+                    it.name,
+                    it.link
+                )
+            })
         val source = post.source
         if (source != null) {
             dbo.setSource(

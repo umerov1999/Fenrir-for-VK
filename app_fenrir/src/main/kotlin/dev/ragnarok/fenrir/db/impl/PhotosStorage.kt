@@ -7,7 +7,9 @@ import android.provider.BaseColumns
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.db.FenrirContentProvider
 import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPhotosContentUriFor
+import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPhotosExtendedContentUriFor
 import dev.ragnarok.fenrir.db.column.PhotosColumns
+import dev.ragnarok.fenrir.db.column.PhotosExtendedColumns
 import dev.ragnarok.fenrir.db.interfaces.IPhotosStorage
 import dev.ragnarok.fenrir.db.model.PhotoPatch
 import dev.ragnarok.fenrir.db.model.entity.PhotoDboEntity
@@ -51,6 +53,61 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
                 )
             }
             context.contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
+        }
+    }
+
+    override fun insertPhotosExtendedRx(
+        accountId: Int,
+        ownerId: Int,
+        albumId: Int,
+        photos: List<PhotoDboEntity>,
+        clearBefore: Boolean
+    ): Completable {
+        return Completable.fromAction {
+            val operations =
+                ArrayList<ContentProviderOperation>(if (clearBefore) photos.size + 1 else photos.size)
+            val uri = getPhotosExtendedContentUriFor(accountId)
+            if (clearBefore) {
+                operations.add(
+                    ContentProviderOperation
+                        .newDelete(uri)
+                        .withSelection(
+                            PhotosExtendedColumns.DB_OWNER_ID + " = ? AND " + PhotosExtendedColumns.DB_ALBUM_ID + " = ?",
+                            arrayOf(ownerId.toString(), albumId.toString())
+                        )
+                        .build()
+                )
+            }
+            for (dbo in photos) {
+                operations.add(
+                    ContentProviderOperation
+                        .newInsert(uri)
+                        .withValues(getExtendedCV(dbo, ownerId, albumId))
+                        .build()
+                )
+            }
+            context.contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
+        }
+    }
+
+    override fun findPhotosExtendedByCriteriaRx(criteria: PhotoCriteria): Single<List<PhotoDboEntity>> {
+        return Single.create { e: SingleEmitter<List<PhotoDboEntity>> ->
+            val selection = getSelectionExtendedForCriteria(criteria)
+            val orderBy =
+                if (criteria.orderBy == null) PhotosExtendedColumns.DATE + (if (!criteria.sortInvert) " DESC" else " ASC") else criteria.orderBy
+            val uri = getPhotosExtendedContentUriFor(criteria.accountId)
+            val cursor = context.contentResolver.query(uri, null, selection, null, orderBy)
+            val photos = ArrayList<PhotoDboEntity>(safeCountOf(cursor))
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    if (e.isDisposed) {
+                        break
+                    }
+                    photos.add(mapPhotoDbo(cursor))
+                }
+                cursor.close()
+            }
+            e.onSuccess(photos)
         }
     }
 
@@ -123,6 +180,30 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
             .setDeleted(cursor.getBoolean(PhotosColumns.DELETED))
     }
 
+    private fun mapPhotoExtendedDbo(cursor: Cursor): PhotoDboEntity {
+        var sizes: PhotoSizeEntity? = null
+        val sizesJson = cursor.getBlob(PhotosExtendedColumns.SIZES)
+        if (sizesJson.nonNullNoEmpty()) {
+            sizes = MsgPack.decodeFromByteArray(PhotoSizeEntity.serializer(), sizesJson)
+        }
+        val id = cursor.getInt(PhotosExtendedColumns.PHOTO_ID)
+        val ownerId = cursor.getInt(PhotosExtendedColumns.OWNER_ID)
+        return PhotoDboEntity().set(id, ownerId)
+            .setSizes(sizes)
+            .setAlbumId(cursor.getInt(PhotosExtendedColumns.ALBUM_ID))
+            .setWidth(cursor.getInt(PhotosExtendedColumns.WIDTH))
+            .setHeight(cursor.getInt(PhotosExtendedColumns.HEIGHT))
+            .setText(cursor.getString(PhotosExtendedColumns.TEXT))
+            .setDate(cursor.getLong(PhotosExtendedColumns.DATE))
+            .setUserLikes(cursor.getBoolean(PhotosExtendedColumns.USER_LIKES))
+            .setCanComment(cursor.getBoolean(PhotosExtendedColumns.CAN_COMMENT))
+            .setLikesCount(cursor.getInt(PhotosExtendedColumns.LIKES))
+            .setCommentsCount(cursor.getInt(PhotosExtendedColumns.COMMENTS))
+            .setTagsCount(cursor.getInt(PhotosExtendedColumns.TAGS))
+            .setAccessKey(cursor.getString(PhotosExtendedColumns.ACCESS_KEY))
+            .setDeleted(cursor.getBoolean(PhotosExtendedColumns.DELETED))
+    }
+
     companion object {
         internal fun getCV(dbo: PhotoDboEntity): ContentValues {
             val cv = ContentValues()
@@ -152,10 +233,58 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
             return cv
         }
 
+        internal fun getExtendedCV(
+            dbo: PhotoDboEntity,
+            ownerId: Int,
+            albumInt: Int
+        ): ContentValues {
+            val cv = ContentValues()
+            cv.put(PhotosExtendedColumns.DB_ALBUM_ID, albumInt)
+            cv.put(PhotosExtendedColumns.DB_OWNER_ID, ownerId)
+            cv.put(PhotosExtendedColumns.PHOTO_ID, dbo.id)
+            cv.put(PhotosExtendedColumns.ALBUM_ID, dbo.albumId)
+            cv.put(PhotosExtendedColumns.OWNER_ID, dbo.ownerId)
+            cv.put(PhotosExtendedColumns.WIDTH, dbo.width)
+            cv.put(PhotosExtendedColumns.HEIGHT, dbo.height)
+            cv.put(PhotosExtendedColumns.TEXT, dbo.text)
+            cv.put(PhotosExtendedColumns.DATE, dbo.date)
+            dbo.sizes.ifNonNull({
+                cv.put(
+                    PhotosExtendedColumns.SIZES,
+                    MsgPack.encodeToByteArray(PhotoSizeEntity.serializer(), it)
+                )
+            }, {
+                cv.putNull(PhotosExtendedColumns.SIZES)
+            })
+            cv.put(PhotosExtendedColumns.USER_LIKES, dbo.isUserLikes)
+            cv.put(PhotosExtendedColumns.CAN_COMMENT, dbo.isCanComment)
+            cv.put(PhotosExtendedColumns.LIKES, dbo.likesCount)
+            cv.put(PhotosExtendedColumns.REPOSTS, dbo.repostsCount)
+            cv.put(PhotosExtendedColumns.COMMENTS, dbo.commentsCount)
+            cv.put(PhotosExtendedColumns.TAGS, dbo.tagsCount)
+            cv.put(PhotosExtendedColumns.ACCESS_KEY, dbo.accessKey)
+            cv.put(PhotosExtendedColumns.DELETED, dbo.isDeleted)
+            return cv
+        }
+
         internal fun getSelectionForCriteria(criteria: PhotoCriteria): String {
             var selection = "1 = 1"
             selection = selection + " AND " + PhotosColumns.OWNER_ID + " = " + criteria.ownerId
             selection = selection + " AND " + PhotosColumns.ALBUM_ID + " = " + criteria.albumId
+            val range = criteria.range
+            if (range != null) {
+                selection = selection + " AND " + BaseColumns._ID + " >= " + range.first +
+                        " AND " + BaseColumns._ID + " <= " + criteria.range?.last.orZero()
+            }
+            return selection
+        }
+
+        internal fun getSelectionExtendedForCriteria(criteria: PhotoCriteria): String {
+            var selection = "1 = 1"
+            selection =
+                selection + " AND " + PhotosExtendedColumns.DB_OWNER_ID + " = " + criteria.ownerId
+            selection =
+                selection + " AND " + PhotosExtendedColumns.DB_ALBUM_ID + " = " + criteria.albumId
             val range = criteria.range
             if (range != null) {
                 selection = selection + " AND " + BaseColumns._ID + " >= " + range.first +

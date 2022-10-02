@@ -1,13 +1,14 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.VideoDtoAdapter
+import dev.ragnarok.fenrir.api.model.catalog_v2_audio.IIdComparable
 import kotlinx.serialization.Serializable
 
 /**
  * A video object describes an video file.
  */
 @Serializable(with = VideoDtoAdapter::class)
-class VKApiVideo : VKApiAttachment, Commentable, Likeable, Copyable {
+class VKApiVideo : VKApiAttachment, Commentable, Likeable, Copyable, IIdComparable {
     /**
      * Video ID.
      */
@@ -163,5 +164,9 @@ class VKApiVideo : VKApiAttachment, Commentable, Likeable, Copyable {
     var is_favorite = false
     override fun getType(): String {
         return VKApiAttachment.TYPE_VIDEO
+    }
+
+    override fun compareFullId(object_s: String): Boolean {
+        return (owner_id.toString() + "_" + id) == object_s
     }
 }

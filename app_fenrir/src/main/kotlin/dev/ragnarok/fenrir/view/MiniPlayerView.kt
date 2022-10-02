@@ -63,7 +63,8 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
         val play = root.findViewById<View>(R.id.item_audio_play)
         playCover = root.findViewById(R.id.item_audio_play_cover)
         visual = root.findViewById(R.id.item_audio_visual)
-        root.visibility = if (MusicPlaybackController.miniPlayerVisibility) VISIBLE else GONE
+        root.visibility =
+            if (isInEditMode || MusicPlaybackController.miniPlayerVisibility) VISIBLE else GONE
         val mPClosePlay = root.findViewById<ImageButton>(R.id.close_player)
         mPClosePlay.setOnClickListener {
             MusicPlaybackController.closeMiniPlayer()
@@ -107,11 +108,10 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
         }
     }
 
-    private fun transformCover(): Transformation {
-        return if (Settings.get()
+    private val transformCover: Transformation
+        get() = if (Settings.get()
                 .main().isAudio_round_icon
         ) RoundTransformation() else PolyTransformation()
-    }
 
     @get:DrawableRes
     private val audioCoverSimple: Int
@@ -174,7 +174,7 @@ class MiniPlayerView : FrameLayout, CustomSeekBar.CustomSeekBarListener {
             with()
                 .load(audio.thumb_image_little)
                 .placeholder(placeholder)
-                .transform(transformCover())
+                .transform(transformCover)
                 .into(playCover)
         } else {
             with().cancelRequest(playCover)

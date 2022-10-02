@@ -15,7 +15,12 @@ import io.reactivex.rxjava3.core.Single
 internal class UtilsApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IUtilsApi {
     override fun resolveScreenName(screenName: String?): Single<ResolveDomailResponse> {
-        return provideService(IUtilsService::class.java, TokenType.USER)
+        return provideService(
+            IUtilsService::class.java,
+            TokenType.USER,
+            TokenType.COMMUNITY,
+            TokenType.SERVICE
+        )
             .flatMap { service ->
                 service.resolveScreenName(screenName)
                     .map(extractResponseWithErrorHandling())
@@ -23,7 +28,12 @@ internal class UtilsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun getShortLink(url: String?, t_private: Int?): Single<VKApiShortLink> {
-        return provideService(IUtilsService::class.java, TokenType.USER)
+        return provideService(
+            IUtilsService::class.java,
+            TokenType.USER,
+            TokenType.COMMUNITY,
+            TokenType.SERVICE
+        )
             .flatMap { service ->
                 service.getShortLink(url, t_private)
                     .map(extractResponseWithErrorHandling())
@@ -47,7 +57,12 @@ internal class UtilsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun checkLink(url: String?): Single<VKApiCheckedLink> {
-        return provideService(IUtilsService::class.java, TokenType.USER)
+        return provideService(
+            IUtilsService::class.java,
+            TokenType.USER,
+            TokenType.COMMUNITY,
+            TokenType.SERVICE
+        )
             .flatMap { service ->
                 service.checkLink(url)
                     .map(extractResponseWithErrorHandling())
@@ -63,7 +78,7 @@ internal class UtilsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun getInviteLink(peer_id: Int?, reset: Int?): Single<VKApiLinkResponse> {
-        return provideService(IUtilsService::class.java, TokenType.USER)
+        return provideService(IUtilsService::class.java, TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service.getInviteLink(peer_id, reset)
                     .map(extractResponseWithErrorHandling())
@@ -71,7 +86,12 @@ internal class UtilsApi(accountId: Int, provider: IServiceProvider) :
     }
 
     override fun customScript(code: String?): Single<Int> {
-        return provideService(IUtilsService::class.java, TokenType.USER)
+        return provideService(
+            IUtilsService::class.java,
+            TokenType.USER,
+            TokenType.COMMUNITY,
+            TokenType.SERVICE
+        )
             .flatMap { service ->
                 service.customScript(code)
                     .map(extractResponseWithErrorHandling())

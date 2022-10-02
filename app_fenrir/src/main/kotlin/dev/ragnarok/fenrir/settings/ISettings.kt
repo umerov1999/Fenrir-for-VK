@@ -136,6 +136,7 @@ interface ISettings {
         fun isOwnerInChangesMonitor(ownerId: Int): Boolean
         fun putOwnerInChangesMonitor(ownerId: Int)
         fun removeOwnerInChangesMonitor(ownerId: Int)
+        val isAudio_catalog_v2: Boolean
 
         @get:Lang
         val language: Int

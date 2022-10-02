@@ -232,7 +232,7 @@ internal class MessagesApi(accountId: Int, provider: IServiceProvider) :
         msgsLimit: Int?,
         max_msg_id: Int?
     ): Single<LongpollHistoryResponse> {
-        return serviceRx(TokenType.USER)
+        return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMap { service ->
                 service
                     .getLongPollHistory(

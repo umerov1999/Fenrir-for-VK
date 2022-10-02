@@ -17,7 +17,7 @@ class Event : AbsModel {
         this.id = id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         Owner
         id = `in`.readInt()
         button_text = `in`.readString()
@@ -26,12 +26,16 @@ class Event : AbsModel {
             Owner.readOwnerFromParcel(id, `in`)
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_EVENT
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeString(button_text)
         parcel.writeString(text)
-        parcel.writeTypedObjectCompat(subject, i)
+        parcel.writeTypedObjectCompat(subject, flags)
     }
 
     fun setText(text: String?): Event {

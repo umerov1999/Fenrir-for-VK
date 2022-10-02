@@ -19,12 +19,17 @@ class Chat : AbsModel {
         this.id = id
     }
 
-    internal constructor(`in`: Parcel) : super(`in`) {
+    internal constructor(`in`: Parcel) {
         id = `in`.readInt()
         title = `in`.readString()
         photo50 = `in`.readString()
         photo100 = `in`.readString()
         photo200 = `in`.readString()
+    }
+
+    @AbsModelType
+    override fun getModelType(): Int {
+        return AbsModelType.MODEL_CHAT
     }
 
     fun setTitle(title: String?): Chat {
@@ -51,8 +56,7 @@ class Chat : AbsModel {
         return 0
     }
 
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        super.writeToParcel(parcel, i)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeString(title)
         parcel.writeString(photo50)

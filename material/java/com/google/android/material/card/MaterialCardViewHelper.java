@@ -157,7 +157,7 @@ class MaterialCardViewHelper {
     foregroundContentDrawable = new MaterialShapeDrawable();
     setShapeAppearanceModel(shapeAppearanceModelBuilder.build());
 
-    iconFadeAnimInterpolator =
+    iconFadeAnimInterpolator = card.isInEditMode() ? AnimationUtils.LINEAR_INTERPOLATOR :
         MotionUtils.resolveThemeInterpolator(
             materialCardView.getContext(),
             R.attr.motionEasingLinearInterpolator,
@@ -217,8 +217,13 @@ class MaterialCardViewHelper {
 
     materialCardView.setBackgroundInternal(insetDrawable(bgDrawable));
     fgDrawable =
-        materialCardView.isClickable() ? getClickableForeground() : foregroundContentDrawable;
+        materialCardView.isClickable() ? getClickableForeground() : getForegroundContentDrawable();
     materialCardView.setForeground(insetDrawable(fgDrawable));
+  }
+
+  @NonNull
+  private Drawable getForegroundContentDrawable() {
+    return foregroundContentDrawable;
   }
 
   boolean isBackgroundOverwritten() {
@@ -296,7 +301,7 @@ class MaterialCardViewHelper {
   void updateClickable() {
     Drawable previousFgDrawable = fgDrawable;
     fgDrawable =
-        materialCardView.isClickable() ? getClickableForeground() : foregroundContentDrawable;
+        materialCardView.isClickable() ? getClickableForeground() : getForegroundContentDrawable();
     if (previousFgDrawable != fgDrawable) {
       updateInsetForeground(fgDrawable);
     }

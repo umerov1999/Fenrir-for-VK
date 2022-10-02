@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment.fave.faveposts
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
@@ -17,12 +19,14 @@ import dev.ragnarok.fenrir.fragment.base.AttachmentsHolder
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.CircleCounterButton
@@ -54,6 +58,7 @@ class FavePostAdapter(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun configNormalPost(holder: AbsPostHolder, post: Post) {
         attachmentsViewBinder.displayAttachments(
             post.attachments,
@@ -111,6 +116,18 @@ class FavePostAdapter(
             holder.viewCounter.visibility = if (post.viewCount > 0) View.VISIBLE else View.GONE
             holder.viewCounter.text = post.viewCount.toString()
         }
+        post.copyright?.let { vit ->
+            holder.tvCopyright.visibility = View.VISIBLE
+            holder.tvCopyright.text = "©" + vit.name
+            holder.tvCopyright.setOnClickListener {
+                LinkHelper.openUrl(
+                    holder.tvCopyright.context as Activity,
+                    Settings.get().accounts().current,
+                    vit.link,
+                    false
+                )
+            }
+        } ?: run { holder.tvCopyright.visibility = View.GONE }
     }
 
     private fun fillNormalPostButtonsBlock(holder: NormalHolder, post: Post) {
@@ -203,6 +220,7 @@ class FavePostAdapter(
         val vTextContainer: View = itemView.findViewById(R.id.item_text_container)
         val tvText: EmojiconTextView = itemView.findViewById(R.id.item_post_text)
         val tvShowMore: TextView
+        val tvCopyright: TextView
         val tvTime: TextView
         val ivFriendOnly: ImageView
         val viewCounter: TextView?
@@ -212,6 +230,7 @@ class FavePostAdapter(
         val attachmentContainers: AttachmentsHolder
 
         init {
+            tvCopyright = itemView.findViewById(R.id.item_post_copyright)
             tvText.setOnHashTagClickListener(mOnHashTagClickListener)
             tvShowMore = itemView.findViewById(R.id.item_post_show_more)
             tvTime = itemView.findViewById(R.id.item_post_time)

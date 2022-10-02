@@ -95,7 +95,9 @@ class MySearchView : LinearLayout {
         mInput?.setOnEditorActionListener(mOnEditorActionListener)
         listQueries = ArrayAdapter(getContext(), R.layout.search_dropdown_item)
         mInput?.setAdapter(listQueries)
-        loadQueries()
+        if (!isInEditMode) {
+            loadQueries()
+        }
         mButtonBack = findViewById(R.id.button_back)
         mButtonClear = findViewById(R.id.clear)
         mButtonAdditional = findViewById(R.id.additional)

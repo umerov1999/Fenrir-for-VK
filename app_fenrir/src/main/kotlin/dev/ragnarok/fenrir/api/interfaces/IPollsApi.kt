@@ -16,13 +16,13 @@ interface IPollsApi {
     ): Single<VKApiPoll>
 
     @CheckResult
-    fun deleteVote(ownerId: Int?, pollId: Int, answerId: Int, isBoard: Boolean?): Single<Boolean>
+    fun deleteVote(ownerId: Int?, pollId: Int, answerId: Long, isBoard: Boolean?): Single<Boolean>
 
     @CheckResult
     fun addVote(
         ownerId: Int,
         pollId: Int,
-        answerIds: Set<Int>,
+        answerIds: Set<Long>,
         isBoard: Boolean?
     ): Single<Boolean>
 
@@ -34,7 +34,7 @@ interface IPollsApi {
         ownerId: Int,
         pollId: Int,
         isBoard: Int?,
-        answer_ids: List<Int>,
+        answer_ids: List<Long>,
         offset: Int?, count: Int?
     ): Single<List<VKApiUser>>
 }

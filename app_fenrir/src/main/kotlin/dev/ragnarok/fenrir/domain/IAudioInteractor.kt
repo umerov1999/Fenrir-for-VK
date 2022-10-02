@@ -7,9 +7,10 @@ import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioPlaylistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
 import dev.ragnarok.fenrir.model.Audio
-import dev.ragnarok.fenrir.model.AudioCatalog
 import dev.ragnarok.fenrir.model.AudioPlaylist
-import dev.ragnarok.fenrir.model.CatalogBlock
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Block
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2List
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Section
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
@@ -143,15 +144,21 @@ interface IAudioInteractor {
     ): Single<Int>
 
     fun trackEvents(accountId: Int, audio: Audio): Completable
-    fun getCatalog(
-        accountId: Int,
-        artist_id: String?,
-        query: String?
-    ): Single<List<AudioCatalog>>
 
-    fun getCatalogBlockById(
+    fun getCatalogV2Sections(
         accountId: Int,
-        block_id: String?,
-        start_from: String?
-    ): Single<CatalogBlock>
+        owner_id: Int,
+        artist_id: String?,
+        url: String?,
+        query: String?,
+        context: String?
+    ): Single<CatalogV2List>
+
+    fun getCatalogV2Section(
+        accountId: Int, section_id: String, start_from: String?
+    ): Single<CatalogV2Section>
+
+    fun getCatalogV2BlockItems(
+        accountId: Int, block_id: String, start_from: String?
+    ): Single<CatalogV2Block>
 }

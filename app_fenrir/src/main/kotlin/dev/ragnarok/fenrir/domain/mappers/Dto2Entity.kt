@@ -650,6 +650,12 @@ object Dto2Entity {
             .setGeoId(news.geo?.id.orZero())
             .setFriendsTags(news.friends)
             .setViews(news.views)
+            .setCopyright(news.copyright?.let {
+                NewsDboEntity.CopyrightDboEntity(
+                    it.name,
+                    it.link
+                )
+            })
         if (news.hasAttachments()) {
             entity.setAttachments(news.attachments?.let { mapAttachemntsList(it) })
         } else {
@@ -1011,6 +1017,7 @@ object Dto2Entity {
             .setPinned(dto.is_pinned)
             .setDeleted(false) // cant be deleted
             .setViews(dto.views)
+            .setCopyright(dto.copyright?.let { PostDboEntity.CopyrightDboEntity(it.name, it.link) })
         val source = dto.post_source
         if (source != null) {
             dbo.setSource(SourceDbo().set(source.type, source.platform, source.data, source.url))

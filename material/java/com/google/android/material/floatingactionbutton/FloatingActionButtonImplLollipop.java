@@ -68,19 +68,18 @@ class FloatingActionButtonImplLollipop extends FloatingActionButtonImpl {
     }
     shapeDrawable.initializeElevationOverlay(view.getContext());
 
-    final Drawable rippleContent;
     if (borderWidth > 0) {
       borderDrawable = createBorderDrawable(borderWidth, backgroundTint);
-      rippleContent = new LayerDrawable(
-          new Drawable[]{checkNotNull(borderDrawable), checkNotNull(shapeDrawable)});
+      rippleDrawable =
+              new RippleDrawable(
+                      RippleUtils.sanitizeRippleDrawableColor(rippleColor), new LayerDrawable(
+                      new Drawable[]{checkNotNull(borderDrawable), checkNotNull(shapeDrawable)}), null);
     } else {
       borderDrawable = null;
-      rippleContent = shapeDrawable;
+      rippleDrawable =
+              new RippleDrawable(
+                      RippleUtils.sanitizeRippleDrawableColor(rippleColor), shapeDrawable, null);
     }
-
-    rippleDrawable =
-        new RippleDrawable(
-            RippleUtils.sanitizeRippleDrawableColor(rippleColor), rippleContent, null);
 
     contentBackground = rippleDrawable;
   }

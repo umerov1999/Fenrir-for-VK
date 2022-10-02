@@ -12,7 +12,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IPollView>(accountId, savedInstanceState) {
     private val pollInteractor: IPollInteractor
-    private var mTempCheckedId: MutableSet<Int>
+    private var mTempCheckedId: MutableSet<Long>
     private var loadingNow = false
     private fun setLoadingNow(loadingNow: Boolean) {
         this.loadingNow = loadingNow
@@ -101,18 +101,18 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
         resolvePhotoView()
     }
 
-    fun fireVoteChecked(newid: MutableSet<Int>) {
+    fun fireVoteChecked(newid: MutableSet<Long>) {
         mTempCheckedId = newid
     }
 
-    fun fireVoteClicked(id: Int) {
+    fun fireVoteClicked(id: Long) {
         view?.openVoters(accountId, mPoll.ownerId, mPoll.id, mPoll.isBoard, id)
     }
 
     private fun vote() {
         if (loadingNow) return
         val accountId = accountId
-        val voteIds: Set<Int> = HashSet(mTempCheckedId)
+        val voteIds: Set<Long> = HashSet(mTempCheckedId)
         setLoadingNow(true)
         appendDisposable(pollInteractor.addVote(accountId, mPoll, voteIds)
             .fromIOToMain()
@@ -151,9 +151,9 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
     }
 
     companion object {
-        internal fun arrayToSet(ids: IntArray?): MutableSet<Int> {
+        internal fun arrayToSet(ids: LongArray?): MutableSet<Long> {
             ids ?: return HashSet(0)
-            val set: MutableSet<Int> = HashSet(ids.size)
+            val set: MutableSet<Long> = HashSet(ids.size)
             for (id in ids) {
                 set.add(id)
             }

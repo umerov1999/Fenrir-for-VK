@@ -41,6 +41,19 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/item_post_copyright"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+        android:textColor="?attr/colorAccent" />
+
     <LinearLayout
         android:id="@+id/item_post_attachments"
         android:layout_width="match_parent"

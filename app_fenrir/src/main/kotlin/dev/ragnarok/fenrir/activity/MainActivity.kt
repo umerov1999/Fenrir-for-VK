@@ -58,11 +58,8 @@ import dev.ragnarok.fenrir.fragment.audio.AudiosTabsFragment
 import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
 import dev.ragnarok.fenrir.fragment.audio.audiosbyartist.AudiosByArtistFragment
 import dev.ragnarok.fenrir.fragment.audio.audiosrecommendation.AudiosRecommendationFragment
-import dev.ragnarok.fenrir.fragment.audio.catalog_v1.audiocatalog.AudioCatalogFragment
-import dev.ragnarok.fenrir.fragment.audio.catalog_v1.audiosincatalog.AudiosInCatalogFragment
-import dev.ragnarok.fenrir.fragment.audio.catalog_v1.linksincatalog.LinksInCatalogFragment
-import dev.ragnarok.fenrir.fragment.audio.catalog_v1.playlistsincatalog.PlaylistsInCatalogFragment
-import dev.ragnarok.fenrir.fragment.audio.catalog_v1.videosincatalog.VideosInCatalogFragment
+import dev.ragnarok.fenrir.fragment.audio.catalog_v2.lists.CatalogV2ListFragment
+import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.CatalogV2SectionFragment
 import dev.ragnarok.fenrir.fragment.comments.CommentsFragment
 import dev.ragnarok.fenrir.fragment.communities.CommunitiesFragment
 import dev.ragnarok.fenrir.fragment.communitycontrol.CommunityControlFragment
@@ -1297,10 +1294,12 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 attachToFront(communitiesFragment)
             }
             Place.AUDIOS -> attachToFront(
-                AudiosTabsFragment.newInstance(
-                    args.getInt(Extra.ACCOUNT_ID), args.getInt(
-                        Extra.OWNER_ID
-                    )
+                if (Settings.get().other().isAudio_catalog_v2) CatalogV2ListFragment.newInstance(
+                    args.getInt(Extra.ACCOUNT_ID),
+                    args.getInt(Extra.OWNER_ID)
+                ) else AudiosTabsFragment.newInstance(
+                    args.getInt(Extra.ACCOUNT_ID),
+                    args.getInt(Extra.OWNER_ID)
                 )
             )
             Place.MENTIONS -> attachToFront(
@@ -1310,6 +1309,12 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     )
                 )
             )
+            Place.CATALOG_V2_AUDIO_SECTION -> attachToFront(
+                CatalogV2SectionFragment.newInstance(
+                    args
+                )
+            )
+            Place.CATALOG_V2_AUDIO_CATALOG -> attachToFront(CatalogV2ListFragment.newInstance(args))
             Place.AUDIOS_IN_ALBUM -> attachToFront(AudiosFragment.newInstance(args))
             Place.SEARCH_BY_AUDIO -> attachToFront(
                 AudiosRecommendationFragment.newInstance(
@@ -1487,43 +1492,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.DRAWER_EDIT -> attachToFront(DrawerEditFragment.newInstance())
             Place.SIDE_DRAWER_EDIT -> attachToFront(SideDrawerEditFragment.newInstance())
             Place.ARTIST -> {
-                if (Settings.get().accounts()
-                        .getType(mAccountId) == AccountType.VK_ANDROID || Settings.get().accounts()
-                        .getType(mAccountId) == AccountType.VK_ANDROID_HIDDEN
-                ) {
-                    attachToFront(AudioCatalogFragment.newInstance(args))
-                } else {
-                    attachToFront(AudiosByArtistFragment.newInstance(args))
-                }
+                attachToFront(AudiosByArtistFragment.newInstance(args))
             }
-            Place.CATALOG_BLOCK_AUDIOS -> attachToFront(
-                AudiosInCatalogFragment.newInstance(
-                    args.getInt(
-                        Extra.ACCOUNT_ID
-                    ), args.getString(Extra.ID), args.getString(Extra.TITLE)
-                )
-            )
-            Place.CATALOG_BLOCK_PLAYLISTS -> attachToFront(
-                PlaylistsInCatalogFragment.newInstance(
-                    args.getInt(
-                        Extra.ACCOUNT_ID
-                    ), args.getString(Extra.ID), args.getString(Extra.TITLE)
-                )
-            )
-            Place.CATALOG_BLOCK_VIDEOS -> attachToFront(
-                VideosInCatalogFragment.newInstance(
-                    args.getInt(
-                        Extra.ACCOUNT_ID
-                    ), args.getString(Extra.ID), args.getString(Extra.TITLE)
-                )
-            )
-            Place.CATALOG_BLOCK_LINKS -> attachToFront(
-                LinksInCatalogFragment.newInstance(
-                    args.getInt(
-                        Extra.ACCOUNT_ID
-                    ), args.getString(Extra.ID), args.getString(Extra.TITLE)
-                )
-            )
             Place.SHORT_LINKS -> attachToFront(ShortedLinksFragment.newInstance(args.getInt(Extra.ACCOUNT_ID)))
 
             Place.SHORTCUTS -> attachToFront(ShortcutsViewFragment())

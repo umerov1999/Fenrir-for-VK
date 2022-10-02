@@ -15,7 +15,7 @@ interface IPollView : IAccountDependencyView, IMvpView, IErrorView {
         answers: MutableList<Poll.Answer>?,
         canCheck: Boolean,
         multiply: Boolean,
-        checked: MutableSet<Int>
+        checked: MutableSet<Long>
     )
 
     fun displayLoading(loading: Boolean)
@@ -26,6 +26,6 @@ interface IPollView : IAccountDependencyView, IMvpView, IErrorView {
         ownerId: Int,
         pollId: Int,
         board: Boolean,
-        answer: Int
+        answer: Long
     )
 }

@@ -27,6 +27,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getArtistPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getAudiosInAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getAudiosPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getBookmarksPlace
+import dev.ragnarok.fenrir.place.PlaceFactory.getCatalogV2AudioCatalogPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getChatPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getCommentsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getCommentsThreadPlace
@@ -99,6 +100,7 @@ object LinkHelper {
     }
 
 
+    @SuppressLint("CheckResult")
     fun openVKLink(context: Context, accountId: Int, link: AbsLink, isMain: Boolean): Boolean {
         when (link.type) {
             AbsLink.PLAYLIST -> {
@@ -280,6 +282,16 @@ object LinkHelper {
                 val boardLink = link as BoardLink
                 getTopicsPlace(accountId, -abs(boardLink.groupId)).tryOpenWith(context)
             }
+            AbsLink.CATALOG_V2_SECTION_LINK -> {
+                val catalogLink = link as CatalogV2SectionLink
+                getCatalogV2AudioCatalogPlace(
+                    accountId,
+                    accountId,
+                    null,
+                    null,
+                    catalogLink.section
+                ).tryOpenWith(context)
+            }
             AbsLink.FEED_SEARCH -> {
                 val feedSearchLink = link as FeedSearchLink
                 val criteria = NewsFeedCriteria(feedSearchLink.q)
@@ -289,7 +301,7 @@ object LinkHelper {
             }
             AbsLink.ARTISTS -> {
                 val artistSearchLink = link as ArtistsLink
-                getArtistPlace(accountId, artistSearchLink.Id, false).tryOpenWith(context)
+                getArtistPlace(accountId, artistSearchLink.Id).tryOpenWith(context)
             }
             AbsLink.AUDIO_TRACK -> {
                 val audioLink = link as AudioTrackLink

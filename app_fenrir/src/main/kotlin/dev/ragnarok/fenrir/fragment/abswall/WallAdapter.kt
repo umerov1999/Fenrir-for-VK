@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment.abswall
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -17,12 +19,14 @@ import dev.ragnarok.fenrir.fragment.base.AttachmentsHolder.Companion.forPost
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
@@ -77,7 +81,20 @@ class WallAdapter(
         holder.bRestore.setOnClickListener { clickListener.onRestoreClick(item) }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun configNormalPost(holder: AbsPostHolder, post: Post) {
+        post.copyright?.let { vit ->
+            holder.tvCopyright.visibility = View.VISIBLE
+            holder.tvCopyright.text = "©" + vit.name
+            holder.tvCopyright.setOnClickListener {
+                LinkHelper.openUrl(
+                    holder.tvCopyright.context as Activity,
+                    Settings.get().accounts().current,
+                    vit.link,
+                    false
+                )
+            }
+        } ?: run { holder.tvCopyright.visibility = View.GONE }
         attachmentsViewBinder.displayAttachments(
             post.attachments,
             holder.attachmentContainers,
@@ -240,6 +257,7 @@ class WallAdapter(
         val ivSignerIcon: ImageView
         val tvSignerName: TextView
         val attachmentContainers: AttachmentsHolder
+        val tvCopyright: TextView
 
         init {
             tvText.setOnHashTagClickListener(mOnHashTagClickListener)
@@ -251,6 +269,7 @@ class WallAdapter(
             tvSignerName = itemView.findViewById(R.id.item_post_signer_name)
             attachmentContainers = forPost((itemView as ViewGroup))
             viewCounter = itemView.findViewById(R.id.post_views_counter)
+            tvCopyright = itemView.findViewById(R.id.item_post_copyright)
         }
     }
 
