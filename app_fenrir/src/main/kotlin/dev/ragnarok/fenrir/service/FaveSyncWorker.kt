@@ -94,6 +94,7 @@ class FaveSyncWorker(context: Context, workerParams: WorkerParameters) :
     private val FAVE_GET_COUNT = 500
     private val PATTERN_WALL: Pattern = Pattern.compile("fenrir_wall_(-?\\d*)_aid_(-?\\d*)")
 
+    @SuppressLint("CheckResult")
     private fun fetchInfo(id: Int, accountId: Int, log: StringBuilder) {
         log.append("###$accountId###$id\r\n")
 

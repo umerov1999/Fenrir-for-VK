@@ -62,15 +62,17 @@ class FeedBannedPresenter(
     }
 
     fun fireRemove(owner: Owner) {
-        feedInteractor.deleteBan(accountId, listOf(owner.ownerId))
-            .fromIOToMain()
-            .subscribe({
-                val pos = Utils.indexOfOwner(data, owner)
-                data.removeAt(pos)
-                view?.notifyDataRemoved(pos, 1)
-            }, {
-                showError(it)
-            })
+        actualDataDisposable.add(
+            feedInteractor.deleteBan(accountId, listOf(owner.ownerId))
+                .fromIOToMain()
+                .subscribe({
+                    val pos = Utils.indexOfOwner(data, owner)
+                    data.removeAt(pos)
+                    view?.notifyDataRemoved(pos, 1)
+                }, {
+                    showError(it)
+                })
+        )
     }
 
     private fun onDataReceived(users: List<Owner>) {

@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.domain
 
 import dev.ragnarok.fenrir.api.model.AccessIdPair
+import dev.ragnarok.fenrir.api.model.ArtistInfo
 import dev.ragnarok.fenrir.api.model.VKApiArtist
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
@@ -161,4 +162,6 @@ interface IAudioInteractor {
     fun getCatalogV2BlockItems(
         accountId: Int, block_id: String, start_from: String?
     ): Single<CatalogV2Block>
+
+    fun getArtistById(accountId: Int, artist_id: String): Single<ArtistInfo>
 }

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.settings
 
+import android.annotation.SuppressLint
 import android.content.Context
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.model.SwitchableCategory
@@ -35,6 +36,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
 
     /*ignore*/
     override val categoriesOrder: IntArray
+        @SuppressLint("WrongConstant")
         get() {
             @SwitchableCategory val all = intArrayOf(
                 SwitchableCategory.FRIENDS,

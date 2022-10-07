@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.upload.impl
 
+import android.annotation.SuppressLint
 import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
@@ -16,6 +17,7 @@ import java.io.InputStream
 
 class ChatPhotoUploadable(private val context: Context, private val networker: INetworker) :
     IUploadable<String> {
+    @SuppressLint("CheckResult")
     override fun doUpload(
         upload: Upload,
         initialServer: UploadServer?,

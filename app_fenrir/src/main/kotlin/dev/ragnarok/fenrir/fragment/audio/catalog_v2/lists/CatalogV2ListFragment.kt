@@ -67,13 +67,23 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
                 )
                 return true
             }
-            R.id.action_catalog_v2_updates -> {
+            R.id.action_catalog_v2_find_friends -> {
                 PlaceFactory.getCatalogV2AudioCatalogPlace(
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     requireArguments().getInt(Extra.ACCOUNT_ID),
                     null,
                     null,
-                    "https://vk.com/audio?section=updates"
+                    "https://vk.com/audio?section=recoms_friends"
+                ).tryOpenWith(requireActivity())
+                return true
+            }
+            R.id.action_catalog_v2_find_groups -> {
+                PlaceFactory.getCatalogV2AudioCatalogPlace(
+                    requireArguments().getInt(Extra.ACCOUNT_ID),
+                    requireArguments().getInt(Extra.ACCOUNT_ID),
+                    null,
+                    null,
+                    "https://vk.com/audio?section=recommended_groups"
                 ).tryOpenWith(requireActivity())
                 return true
             }

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.upload.impl
 
+import android.annotation.SuppressLint
 import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
@@ -22,6 +23,7 @@ class Photo2WallUploadable(
     private val networker: INetworker,
     private val attachmentsRepository: IAttachmentsRepository
 ) : IUploadable<Photo> {
+    @SuppressLint("CheckResult")
     override fun doUpload(
         upload: Upload,
         initialServer: UploadServer?,

@@ -349,7 +349,7 @@ class PostDownload(private val context: Context) {
         return msg_html.toString()
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "CheckResult")
     @Suppress("DEPRECATION")
     fun doDownloadAsHTML(account_id: Int, post: Post) {
         Completable.create {

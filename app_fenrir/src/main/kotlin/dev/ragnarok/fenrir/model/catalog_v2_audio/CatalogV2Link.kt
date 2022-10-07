@@ -17,6 +17,13 @@ class CatalogV2Link : AbsModel {
         private set
     var preview_photo: String? = null
         private set
+    var parentLayout: String? = null
+        private set
+
+    fun setParentLayout(layout: String?): CatalogV2Link {
+        parentLayout = layout
+        return this
+    }
 
     constructor(object_v: VKApiCatalogV2Link) {
         id = object_v.id
@@ -32,6 +39,7 @@ class CatalogV2Link : AbsModel {
         title = parcel.readString()
         subtitle = parcel.readString()
         preview_photo = parcel.readString()
+        parentLayout = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -40,6 +48,7 @@ class CatalogV2Link : AbsModel {
         parcel.writeString(title)
         parcel.writeString(subtitle)
         parcel.writeString(preview_photo)
+        parcel.writeString(parentLayout)
     }
 
     override fun getModelType(): Int {

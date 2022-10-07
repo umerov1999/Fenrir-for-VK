@@ -22,6 +22,7 @@
         <item>Pennywise</item>
         <item>Chur</item>
         <item>Fire</item>
+        <item>Flame</item>
         <item>[Random]</item>
     </string-array>
 
@@ -48,6 +49,7 @@
         <item>19</item>
         <item>20</item>
         <item>21</item>
+        <item>22</item>
     </string-array>
 
     <!-- Google Play-->

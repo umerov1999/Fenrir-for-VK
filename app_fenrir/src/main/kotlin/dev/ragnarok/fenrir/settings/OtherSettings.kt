@@ -325,6 +325,14 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         getPreferences(app).edit().putLong("last_audio_sync", time).apply()
     }
 
+    override fun get_last_stikers_sync(accountId: Int): Long {
+        return getPreferences(app).getLong("last_stikers_sync_$accountId", -1)
+    }
+
+    override fun set_last_stikers_sync(accountId: Int, time: Long) {
+        getPreferences(app).edit().putLong("last_stikers_sync_$accountId", time).apply()
+    }
+
     override fun is_notification_force_link(): Boolean {
         return getPreferences(app).getBoolean("notification_force_link", false)
     }

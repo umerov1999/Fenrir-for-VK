@@ -20,6 +20,8 @@ class CatalogV2Section : Parcelable {
         private set
     var next_from: String? = null
         private set
+    var listContentType: String? = null
+        private set
 
     private inline fun <reified T : AbsModel, reified S : IIdComparable> parseAllItemsByIds(
         block: CatalogV2Block,
@@ -46,25 +48,42 @@ class CatalogV2Section : Parcelable {
     constructor(object_v: VKApiCatalogV2SectionResponse) {
         blocks = object_v.section?.blocks?.let { obj ->
             val op = ArrayList<AbsModel>(obj.size)
-            for (i in obj) {
+            for ((ss, i) in obj.withIndex()) {
                 val s = CatalogV2Block(i)
-                parseAllItemsByIds(s, object_v.audios, i.audios_ids) {
-                    Dto2Model.transform(it)
+                if (i.data_type == "music_recommended_playlists") {
+                    parseAllItemsByIds(s, object_v.playlists, i.playlists_ids) {
+                        Dto2Model.transform(it)
+                    }
+                    if (s.items.isNullOrEmpty()) {
+                        parseAllItemsByIds(s, object_v.audios, i.audios_ids) {
+                            Dto2Model.transform(it)
+                        }
+                    }
+                } else {
+                    parseAllItemsByIds(s, object_v.audios, i.audios_ids) {
+                        Dto2Model.transform(it)
+                    }
+                    parseAllItemsByIds(s, object_v.playlists, i.playlists_ids) {
+                        Dto2Model.transform(it)
+                    }
+                    parseAllItemsByIds(s, object_v.artists, i.artists_ids) {
+                        CatalogV2ArtistItem(it)
+                    }
+                    parseAllItemsByIds(s, object_v.links, i.links_ids) {
+                        CatalogV2Link(it).setParentLayout(i.layout?.name)
+                    }
+                    parseAllItemsByIds(s, object_v.artist_videos, i.artist_videos_ids) {
+                        Dto2Model.transform(it)
+                    }
+                    parseAllItemsByIds(s, object_v.videos, i.videos_ids) {
+                        Dto2Model.transform(it)
+                    }
                 }
-                parseAllItemsByIds(s, object_v.playlists, i.playlists_ids) {
-                    Dto2Model.transform(it)
-                }
-                parseAllItemsByIds(s, object_v.artists, i.artists_ids) {
-                    CatalogV2ArtistItem(it)
-                }
-                parseAllItemsByIds(s, object_v.links, i.links_ids) {
-                    CatalogV2Link(it)
-                }
-                parseAllItemsByIds(s, object_v.artist_videos, i.artist_videos_ids) {
-                    Dto2Model.transform(it)
-                }
-                if (s.layout.getViewHolderType() == CatalogV2Layout.CATALOG_V2_HOLDER.TYPE_CATALOG_LIST) {
-                    s.items?.let { op.addAll(it) }
+                if (s.layout.getViewHolderType() == CatalogV2Layout.CATALOG_V2_HOLDER.TYPE_CATALOG_LIST && ss >= obj.size - 1) {
+                    s.items?.let {
+                        op.addAll(it)
+                        listContentType = s.data_type
+                    }
                 } else {
                     op.add(s)
                 }
@@ -91,6 +110,7 @@ class CatalogV2Section : Parcelable {
         title = parcel.readString()
         url = parcel.readString()
         next_from = parcel.readString()
+        listContentType = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -100,6 +120,7 @@ class CatalogV2Section : Parcelable {
         parcel.writeString(title)
         parcel.writeString(url)
         parcel.writeString(next_from)
+        parcel.writeString(listContentType)
     }
 
     override fun describeContents(): Int {

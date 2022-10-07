@@ -346,9 +346,13 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
         MaterialAlertDialogBuilder(requireActivity())
             .setTitle(R.string.select_comment_author)
             .setAdapter(adapter) { _: DialogInterface?, which: Int ->
-                presenter?.fireAuthorSelected(
-                    data[which]
-                )
+                if (Settings.get().accounts().registered.contains(data[which].ownerId)) {
+                    presenter?.fireAuthorSelected(
+                        data[which]
+                    )
+                } else {
+                    showError(R.string.token_community_required)
+                }
             }
             .setNegativeButton(R.string.button_cancel, null)
             .show()

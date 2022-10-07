@@ -14,4 +14,5 @@ interface ICatalogV2SectionView : IAccountDependencyView, IMvpView, IErrorView, 
     fun notifyDataChanged(position: Int, count: Int)
     fun showRefreshing(refreshing: Boolean)
     fun setupLoadMoreFooter(@LoadMoreState state: Int)
+    fun updateLayoutManager(type: String)
 }

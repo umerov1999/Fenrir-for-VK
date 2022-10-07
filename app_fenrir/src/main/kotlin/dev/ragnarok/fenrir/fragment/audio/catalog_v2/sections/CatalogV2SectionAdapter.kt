@@ -191,11 +191,11 @@ class CatalogV2SectionAdapter(
         private fun createLayoutManager(itemDataHolder: CatalogV2Block) {
             list.visibility = View.VISIBLE
             list.layoutManager = when (type) {
-                TYPE_CATALOG_TRIPLE_STACKED_SLIDER, TYPE_CATALOG_LIST -> StaggeredGridLayoutManager(
+                TYPE_CATALOG_TRIPLE_STACKED_SLIDER -> StaggeredGridLayoutManager(
                     3,
                     StaggeredGridLayoutManager.HORIZONTAL
                 )
-                TYPE_CATALOG_SLIDER -> LinearLayoutManager(
+                TYPE_CATALOG_LIST, TYPE_CATALOG_SLIDER -> LinearLayoutManager(
                     itemView.context,
                     LinearLayoutManager.HORIZONTAL,
                     false

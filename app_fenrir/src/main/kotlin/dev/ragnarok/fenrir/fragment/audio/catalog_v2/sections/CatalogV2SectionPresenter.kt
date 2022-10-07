@@ -26,9 +26,10 @@ class CatalogV2SectionPresenter(
     private var actualDataLoading = false
     private var actualBlockLoading = false
     private var nextFrom: String? = null
+    private var listContentType: String? = null
 
     private fun resolveLoadMoreFooterView() {
-        if (pages.isEmpty() || nextFrom.isNullOrEmpty()) {
+        if (pages.nonNullNoEmpty() && nextFrom.isNullOrEmpty()) {
             view?.setupLoadMoreFooter(LoadMoreState.END_OF_LIST)
         } else if (actualDataLoading) {
             view?.setupLoadMoreFooter(LoadMoreState.LOADING)
@@ -42,6 +43,9 @@ class CatalogV2SectionPresenter(
     override fun onGuiCreated(viewHost: ICatalogV2SectionView) {
         super.onGuiCreated(viewHost)
         viewHost.displayData(pages)
+        listContentType.nonNullNoEmpty {
+            viewHost.updateLayoutManager(it)
+        }
     }
 
     public override fun onGuiResumed() {
@@ -134,6 +138,12 @@ class CatalogV2SectionPresenter(
     private fun onActualDataReceived(isNext: Boolean, data: CatalogV2Section) {
         if (!isNext) {
             pages.clear()
+        }
+        data.listContentType.nonNullNoEmpty {
+            if (listContentType != it) {
+                listContentType = it
+                view?.updateLayoutManager(it)
+            }
         }
         nextFrom = data.next_from
         actualDataLoading = false

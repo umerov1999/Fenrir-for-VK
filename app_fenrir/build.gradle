@@ -142,7 +142,7 @@ dependencies {
     implementation project(path: ":preference")
     implementation project(path: ":retrofit")
     implementation("com.squareup.okhttp3:okhttp-android:$okhttpLibraryVersion")
-    implementation("com.squareup.okhttp3:logging-interceptor:$okhttpLibraryVersion")
+    //implementation("com.squareup.okhttp3:logging-interceptor:$okhttpLibraryVersion")
     implementation("com.squareup.okio:okio:$okioVersion")
     implementation("com.google.android.exoplayer:exoplayer-core:$exoLibraryVersion")
     implementation("com.google.android.exoplayer:exoplayer-hls:$exoLibraryVersion")

@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.domain.impl
 import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.AccessIdPair
+import dev.ragnarok.fenrir.api.model.ArtistInfo
 import dev.ragnarok.fenrir.api.model.IdPair
 import dev.ragnarok.fenrir.api.model.VKApiArtist
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
@@ -155,6 +156,11 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
     override fun getLyrics(accountId: Int, lyrics_id: Int): Single<String> {
         return networker.vkDefault(accountId)
             .audio().getLyrics(lyrics_id).map { checkNotNull(it.text) }
+    }
+
+    override fun getArtistById(accountId: Int, artist_id: String): Single<ArtistInfo> {
+        return networker.vkDefault(accountId)
+            .audio().getArtistById(artist_id).map { checkNotNull(it) }
     }
 
     override fun getPopular(

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.push.message
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -50,6 +51,7 @@ class WallPostFCMMessage {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun notifyWallPost(context: Context, accountId: Int) {
         if (!get()
                 .notifications()
@@ -69,6 +71,7 @@ class WallPostFCMMessage {
             }, ignore())
     }
 
+    @SuppressLint("CheckResult")
     private fun notifyNewPost(context: Context, accountId: Int) {
         if (!get()
                 .notifications()

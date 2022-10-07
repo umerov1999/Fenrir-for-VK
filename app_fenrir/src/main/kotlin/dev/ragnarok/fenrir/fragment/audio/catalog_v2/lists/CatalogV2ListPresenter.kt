@@ -2,16 +2,13 @@ package dev.ragnarok.fenrir.fragment.audio.catalog_v2.lists
 
 import android.content.Context
 import android.os.Bundle
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
-import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.AudioArtist
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2List
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.settings.Settings
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -40,7 +37,18 @@ class CatalogV2ListPresenter(
         if (artist_id.isNullOrEmpty()) {
             return
         }
-        startForSendAttachments(context, accountId, AudioArtist(artist_id))
+        netDisposable.add(
+            audioInteractor.getArtistById(accountId, artist_id).fromIOToMain()
+                .subscribe({ artistInfo ->
+                    artistInfo.id.ifNonNullNoEmpty({
+                        startForSendAttachments(context, accountId, AudioArtist(it))
+                    }, {
+                        startForSendAttachments(context, accountId, AudioArtist(artist_id))
+                    })
+                }, {
+                    startForSendAttachments(context, accountId, AudioArtist(artist_id))
+                })
+        )
     }
 
     override fun onDestroyed() {

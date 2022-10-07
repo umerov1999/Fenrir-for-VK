@@ -280,7 +280,7 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         }
 
     private fun resolveLoadMoreFooterView() {
-        if (mFeed.isEmpty() || mNextFrom.isNullOrEmpty()) {
+        if (mFeed.nonNullNoEmpty() && mNextFrom.isNullOrEmpty()) {
             view?.setupLoadMoreFooter(LoadMoreState.END_OF_LIST)
         } else if (isMoreLoading) {
             view?.setupLoadMoreFooter(LoadMoreState.LOADING)

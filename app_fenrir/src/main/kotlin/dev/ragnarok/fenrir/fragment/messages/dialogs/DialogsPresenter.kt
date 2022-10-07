@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment.messages.dialogs
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.R
@@ -85,7 +86,7 @@ class DialogsPresenter(
         dialogs.clear()
         dialogs.addAll(data)
         safeNotifyDataSetChanged()
-        if (needReloadStickers(accountId)) {
+        if (!isHiddenCurrent && needReloadStickers(accountId)) {
             receiveStickers()
         }
     }
@@ -220,6 +221,7 @@ class DialogsPresenter(
             }) { t -> onDialogsGetError(t) })
     }
 
+    @SuppressLint("CheckResult")
     private fun receiveStickers() {
         if (accountId <= 0) {
             return
@@ -242,7 +244,7 @@ class DialogsPresenter(
         resolveRefreshingView()
         view?.notifyHasAttachments(models != null)
         if (Settings.get().other().isNot_update_dialogs || isHiddenCurrent) {
-            if (needReloadStickers(accountId)) {
+            if (!isHiddenCurrent && needReloadStickers(accountId)) {
                 receiveStickers()
             }
             if (needReloadDialogs(accountId)) {

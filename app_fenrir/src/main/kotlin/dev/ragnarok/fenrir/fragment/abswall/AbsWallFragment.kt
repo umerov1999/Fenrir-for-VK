@@ -89,7 +89,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                 pic.lottieRes,
                 dp(pic.widthHeight),
                 dp(pic.widthHeight),
-                pic.replacement
+                pic.replacement, pic.useMoveColor
             )
             paganSymbol?.playAnimation()
         } else {

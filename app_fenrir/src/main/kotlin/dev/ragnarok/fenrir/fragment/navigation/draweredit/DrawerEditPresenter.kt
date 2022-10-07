@@ -13,6 +13,8 @@ import java.util.*
 class DrawerEditPresenter(savedInstanceState: Bundle?) :
     AbsPresenter<IDrawerEditView>(savedInstanceState) {
     private val data: List<DrawerCategory>
+
+    @SuppressLint("WrongConstant")
     private fun createInitialData(): ArrayList<DrawerCategory> {
         val categories = ArrayList<DrawerCategory>()
         val settings = Settings.get().drawerSettings()

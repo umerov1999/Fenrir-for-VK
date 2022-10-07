@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.fragment
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Context
@@ -2254,6 +2255,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             enabledCategoriesName.add(getString(R.string.drawer_newsfeed_comments))
             enabledCategoriesValues.add("12")
         }
+        enabledCategoriesName.add(getString(R.string.profile))
+        enabledCategoriesValues.add("13")
         return selItems(
             enabledCategoriesName.toTypedArray(),
             enabledCategoriesValues.toTypedArray()
@@ -2390,6 +2393,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     }
 
     class LocalMediaServerDialog : DialogFragment() {
+        @SuppressLint("CheckResult")
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val view = View.inflate(
                 requireActivity(),

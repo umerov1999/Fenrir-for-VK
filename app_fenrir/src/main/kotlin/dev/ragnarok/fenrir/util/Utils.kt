@@ -81,11 +81,12 @@ import kotlin.math.roundToInt
 object Utils {
     private val reload_news: MutableList<Int> = LinkedList()
     private val reload_dialogs: MutableList<Int> = LinkedList()
-    private val reload_stickers: MutableList<Int> = LinkedList()
     private val cachedMyStickers: MutableList<LocalSticker> = ArrayList()
     private val displaySize = Point()
     private var device_id: String? = null
     var density = 1f
+        private set
+    var scaledDensity = 1f
         private set
     var isCompressIncomingTraffic = true
     var isCompressOutgoingTraffic = false
@@ -126,9 +127,12 @@ object Utils {
 
 
     fun needReloadStickers(account_id: Int): Boolean {
-        if (!reload_stickers.contains(account_id)) {
-            reload_stickers.add(account_id)
-            return true
+        Settings.get().other().get_last_stikers_sync(account_id).let {
+            if (it > 0 && (System.currentTimeMillis() / 1000L) - it > 900) {
+                Settings.get().other()
+                    .set_last_stikers_sync(account_id, System.currentTimeMillis() / 1000L)
+                return true
+            }
         }
         return false
     }
@@ -1121,13 +1125,18 @@ object Utils {
             .toInt()
     }
 
+    fun sp(value: Float): Int {
+        return if (value == 0f) {
+            0
+        } else ceil((scaledDensity * value).toDouble())
+            .toInt()
+    }
 
     fun dpr(value: Float): Int {
         return if (value == 0f) {
             0
         } else (density * value).roundToInt()
     }
-
 
     fun dp2(value: Float): Int {
         return if (value == 0f) {
@@ -1148,6 +1157,7 @@ object Utils {
     fun prepareDensity(context: Context) {
         val metrics = context.resources.displayMetrics
         density = metrics.density
+        scaledDensity = metrics.scaledDensity
         var display: Display? = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             display = context.display

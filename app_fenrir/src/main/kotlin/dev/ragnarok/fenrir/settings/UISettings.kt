@@ -18,6 +18,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getFeedPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getFriendsFollowersPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getNewsfeedCommentsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getNotificationsPlace
+import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getPreferencesPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSearchPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVKPhotoAlbumsPlace
@@ -119,6 +120,7 @@ internal class UISettings(context: Context) : IUISettings {
             "10" -> getBookmarksPlace(accountId, FaveTabsFragment.TAB_PAGES)
             "11" -> getSearchPlace(accountId, SearchTabsFragment.TAB_PEOPLE)
             "12" -> getNewsfeedCommentsPlace(accountId)
+            "13" -> getOwnerWallPlace(accountId, accountId, null)
             else -> getDialogsPlace(accountId, accountId, null)
         }
     }

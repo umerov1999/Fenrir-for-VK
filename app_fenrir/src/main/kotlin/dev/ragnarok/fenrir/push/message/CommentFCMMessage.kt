@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.push.message
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -45,6 +46,8 @@ class CommentFCMMessage {
     private var type: String? = null
     private var item_id = 0
     private var owner_id = 0
+
+    @SuppressLint("CheckResult")
     fun notify(context: Context, accountId: Int) {
         if (!get()
                 .notifications()

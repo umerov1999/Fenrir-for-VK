@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -48,6 +49,7 @@ class CatalogV2SectionFragment :
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAdapter: CatalogV2SectionAdapter? = null
     private var mLoadMoreFooterHelper: LoadMoreFooterHelper? = null
+    private var recyclerView: RecyclerView? = null
     private var inTabsContainer = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,12 +70,11 @@ class CatalogV2SectionFragment :
             toolbar.visibility = View.GONE
         }
         mEmpty = root.findViewById(R.id.fragment_audio_catalog_empty_text)
-        val manager: RecyclerView.LayoutManager = LinearLayoutManager(requireActivity())
-        val recyclerView: RecyclerView = root.findViewById(R.id.recycleView)
-        recyclerView.layoutManager = manager
+        recyclerView = root.findViewById(R.id.recycleView)
+        recyclerView?.layoutManager = LinearLayoutManager(requireActivity())
         //recyclerView.setRecycledViewPool(CatalogV2SectionAdapter.poolCatalogV2Section)
-        recyclerView.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
-        recyclerView.addOnScrollListener(object : EndlessRecyclerOnScrollListener(4, 1000) {
+        recyclerView?.addOnScrollListener(PicassoPauseOnScrollListener(Constants.PICASSO_TAG))
+        recyclerView?.addOnScrollListener(object : EndlessRecyclerOnScrollListener(4, 1000) {
             override fun onScrollToLastElement() {
                 presenter?.onNext()
             }
@@ -98,7 +99,7 @@ class CatalogV2SectionFragment :
                 }
             })
         mAdapter?.addFooter(footerView)
-        recyclerView.adapter = mAdapter
+        recyclerView?.adapter = mAdapter
         resolveEmptyText()
         val gotoButton: FloatingActionButton = root.findViewById(R.id.goto_button)
 
@@ -119,13 +120,31 @@ class CatalogV2SectionFragment :
                 val index =
                     presenter?.getAudioPos(null, curr) ?: -1
                 if (index >= 0) {
-                    recyclerView.scrollToPosition(
+                    recyclerView?.scrollToPosition(
                         index + (mAdapter?.headersCount ?: 0)
                     )
                 } else createCustomToast(requireActivity()).showToast(R.string.audio_not_found)
             } else createCustomToast(requireActivity()).showToastError(R.string.null_audio)
         }
         return root
+    }
+
+    override fun updateLayoutManager(type: String) {
+        recyclerView?.let {
+            it.layoutManager = when (type) {
+                "music_playlists", "music_recommended_playlists", "links" -> {
+                    val columnCount = resources.getInteger(R.integer.photos_column_count)
+                    GridLayoutManager(requireActivity(), columnCount)
+                }
+                "videos", "artist_videos" -> {
+                    val columnCount = resources.getInteger(R.integer.videos_column_count)
+                    GridLayoutManager(requireActivity(), columnCount)
+                }
+                else -> {
+                    LinearLayoutManager(requireActivity())
+                }
+            }
+        }
     }
 
     override fun setupLoadMoreFooter(@LoadMoreState state: Int) {

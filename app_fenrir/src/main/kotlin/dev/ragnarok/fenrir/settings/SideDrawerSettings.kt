@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.settings
 
+import android.annotation.SuppressLint
 import android.content.Context
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.model.SideSwitchableCategory
@@ -35,6 +36,7 @@ internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
 
     /*ignore*/
     override val categoriesOrder: IntArray
+        @SuppressLint("WrongConstant")
         get() {
             @SideSwitchableCategory val all = intArrayOf(
                 SideSwitchableCategory.FRIENDS,

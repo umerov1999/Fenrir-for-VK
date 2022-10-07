@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.push.message
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -30,6 +31,8 @@ class FriendAcceptedFCMMessage {
     //private String first_name;
     //private String last_name;
     private var uid = 0
+
+    @SuppressLint("CheckResult")
     fun notify(context: Context, accountId: Int) {
         if (!get()
                 .notifications()

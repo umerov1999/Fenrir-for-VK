@@ -291,4 +291,10 @@ interface IAudioService {
         @Field("context") context: String?,
         @Field("need_blocks") need_blocks: Int
     ): Single<BaseResponse<VKApiCatalogV2ListResponse>>
+
+    @FormUrlEncoded
+    @POST("audio.getArtistById")
+    fun getArtistById(
+        @Field("artist_id") artist_id: String
+    ): Single<BaseResponse<ArtistInfo>>
 }

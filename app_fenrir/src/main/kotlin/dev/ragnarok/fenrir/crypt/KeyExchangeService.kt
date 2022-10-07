@@ -164,6 +164,7 @@ class KeyExchangeService : Service() {
         mCurrentActiveSessions.put(session.id, session)
     }
 
+    @SuppressLint("CheckResult")
     private fun iniciateKeyExchange(
         accountId: Int,
         peerId: Int,
@@ -503,6 +504,7 @@ class KeyExchangeService : Service() {
         mStopServiceHandler.sendEmptyMessageDelayed(WHAT_STOP_SERVICE, (60 * 1000).toLong())
     }
 
+    @SuppressLint("CheckResult")
     private fun storeKeyToDatabase(accountId: Int, peerId: Int, session: KeyExchangeSession) {
         val pair = AesKeyPair()
             .setVersion(currentVersion)
@@ -655,6 +657,7 @@ class KeyExchangeService : Service() {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun sendMessage(accountId: Int, peerId: Int, message: ExchangeMessage) {
         d(TAG, "sendMessage, message: $message")
         sendMessageImpl(accountId, peerId, message)

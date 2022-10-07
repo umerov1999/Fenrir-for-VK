@@ -1702,7 +1702,9 @@
     <string name="sync">Синхронизация</string>
     <string name="faves_sync">Прогрузить закладки</string>
     <string name="experimental">Экспериментально</string>
-    <string name="action_catalog_v2_updates">Обновления</string>
+    <string name="action_catalog_v2_find_friends">Найти людей</string>
+    <string name="action_catalog_v2_find_groups">Найти группы</string>
     <string name="action_catalog_v2_recent">Недавние</string>
     <string name="action_catalog_v2_artists">Артисты</string>
+    <string name="token_community_required">Требуется войти с токеном сообщества!</string>
 </resources>

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment.comments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -1082,6 +1083,7 @@ class CommentsPresenter(
         }
     }
 
+    @SuppressLint("CheckResult")
     override fun onDestroyed() {
         cacheLoadingDisposable.dispose()
         actualLoadingDisposable.dispose()

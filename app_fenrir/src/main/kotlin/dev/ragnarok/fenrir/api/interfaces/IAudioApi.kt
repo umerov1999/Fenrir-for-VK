@@ -172,4 +172,9 @@ interface IAudioApi {
     fun getCatalogV2BlockItems(
         block_id: String, start_from: String?
     ): Single<VKApiCatalogV2BlockResponse>
+
+    @CheckResult
+    fun getArtistById(
+        artist_id: String
+    ): Single<ArtistInfo>
 }

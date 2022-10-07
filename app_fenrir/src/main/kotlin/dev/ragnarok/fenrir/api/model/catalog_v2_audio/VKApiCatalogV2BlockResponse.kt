@@ -21,6 +21,9 @@ class VKApiCatalogV2BlockResponse {
     @SerialName("artist_videos")
     var artist_videos: List<VKApiVideo>? = null
 
+    @SerialName("videos")
+    var videos: List<VKApiVideo>? = null
+
     @SerialName("block")
     var block: VKApiCatalogV2Block? = null
 }

@@ -5,12 +5,10 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.OkHttp3LoggingInterceptor
 import dev.ragnarok.fenrir.util.Utils
 import okhttp3.*
-import okhttp3.logging.HttpLoggingInterceptor
-import okio.BufferedSink
-import okio.GzipSink
-import okio.buffer
+import okio.*
 import retrofit2.Converter
 import java.io.IOException
 import java.security.SecureRandom
@@ -49,15 +47,18 @@ object HttpLoggerAndParser {
             }
 
             override fun contentLength(): Long {
-                return -1
+                val g = Buffer()
+                val f = GzipSink(g).buffer()
+                this@gzipFormBody.writeTo(f)
+                f.close()
+                return g.size
             }
 
             @Throws(IOException::class)
             override fun writeTo(sink: BufferedSink) {
-                //ZstdOutputStream(sink.outputStream()).sink().buffer()
-                val gzipSink = GzipSink(sink).buffer()
-                this@gzipFormBody.writeTo(gzipSink)
-                gzipSink.close()
+                val buf = sink.gzip().buffer()
+                this@gzipFormBody.writeTo(buf)
+                buf.close()
             }
 
             override fun isOneShot(): Boolean {
@@ -86,21 +87,25 @@ object HttpLoggerAndParser {
         return this
     }
 
-    val DEFAULT_LOGGING_INTERCEPTOR: HttpLoggingInterceptor by lazy {
-        HttpLoggingInterceptor().setLevel(if (Constants.IS_DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE)
+    val DEFAULT_LOGGING_INTERCEPTOR: OkHttp3LoggingInterceptor by lazy {
+        OkHttp3LoggingInterceptor().setLevel(OkHttp3LoggingInterceptor.Level.BODY)
     }
 
-    val UPLOAD_LOGGING_INTERCEPTOR: HttpLoggingInterceptor by lazy {
-        HttpLoggingInterceptor().setLevel(if (Constants.IS_DEBUG) HttpLoggingInterceptor.Level.HEADERS else HttpLoggingInterceptor.Level.NONE)
+    val UPLOAD_LOGGING_INTERCEPTOR: OkHttp3LoggingInterceptor by lazy {
+        //OkHttp3LoggingInterceptor().setLevel(OkHttp3LoggingInterceptor.Level.HEADERS)
+        OkHttp3LoggingInterceptor().setLevel(OkHttp3LoggingInterceptor.Level.BODY)
     }
 
     fun adjust(builder: OkHttpClient.Builder) {
         if (Constants.IS_DEBUG) {
+            /*
             if (Settings.get().other().currentParser == ParserType.JSON) {
                 builder.addInterceptor(DEFAULT_LOGGING_INTERCEPTOR)
             } else {
                 builder.addInterceptor(UPLOAD_LOGGING_INTERCEPTOR)
             }
+             */
+            builder.addInterceptor(DEFAULT_LOGGING_INTERCEPTOR)
         }
     }
 

@@ -425,4 +425,15 @@ internal class AudioApi(accountId: Int, provider: IServiceProvider) :
                     .map(extractResponseWithErrorHandling())
             }
     }
+
+    override fun getArtistById(
+        artist_id: String
+    ): Single<ArtistInfo> {
+        return provideService(IAudioService::class.java)
+            .flatMap { service ->
+                service
+                    .getArtistById(artist_id)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
 }

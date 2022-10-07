@@ -1926,7 +1926,9 @@
     <string name="sync">Sync</string>
     <string name="faves_sync">Fave Content Sync</string>
     <string name="experimental">Experimental</string>
-    <string name="action_catalog_v2_updates">Updates</string>
+    <string name="action_catalog_v2_find_friends">Find friends</string>
+    <string name="action_catalog_v2_find_groups">Find groups</string>
     <string name="action_catalog_v2_recent">Recent</string>
     <string name="action_catalog_v2_artists">Artists</string>
+    <string name="token_community_required">Token Community Required!</string>
 </resources>

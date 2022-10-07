@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment.navigation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -169,6 +170,7 @@ class AdditionalNavigationFragment : AbsNavigationFragment(), MenuListAdapter.Ac
         backupRecentChats()
     }
 
+    @SuppressLint("WrongConstant")
     private fun generateNavDrawerItems(): ArrayList<AbsMenuItem> {
         val settings = Settings.get().drawerSettings()
         @SwitchableCategory val categories = settings.categoriesOrder

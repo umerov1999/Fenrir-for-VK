@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.holders
 
 import android.app.Activity
+import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,6 +14,7 @@ import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Link
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
 class LinkViewHolder(itemView: View) : IViewHolder(itemView) {
@@ -35,11 +37,30 @@ class LinkViewHolder(itemView: View) : IViewHolder(itemView) {
             tvDescription.visibility = View.VISIBLE
             tvDescription.text = item.subtitle
         }
-        if (item.preview_photo != null) {
-            displayAvatar(ivImage, transformation, item.preview_photo, Constants.PICASSO_TAG)
+        if (item.parentLayout == "categories_list") {
+            ivImage.layoutParams.width = Utils.dp(55f)
+            ivImage.layoutParams.height = Utils.dp(55f)
+            tvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+            tvDescription.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+            Utils.setTint(ivImage, CurrentTheme.getColorPrimary(ivImage.context))
+            if (item.preview_photo != null) {
+                displayAvatar(ivImage, null, item.preview_photo, Constants.PICASSO_TAG)
+            } else {
+                PicassoInstance.with().cancelRequest(ivImage)
+                ivImage.setImageResource(R.drawable.ic_avatar_unknown)
+            }
         } else {
-            PicassoInstance.with().cancelRequest(ivImage)
-            ivImage.setImageResource(R.drawable.ic_avatar_unknown)
+            ivImage.layoutParams.width = Utils.dp(100f)
+            ivImage.layoutParams.height = Utils.dp(100f)
+            tvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+            tvDescription.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+            ivImage.imageTintList = null
+            if (item.preview_photo != null) {
+                displayAvatar(ivImage, transformation, item.preview_photo, Constants.PICASSO_TAG)
+            } else {
+                PicassoInstance.with().cancelRequest(ivImage)
+                ivImage.setImageResource(R.drawable.ic_avatar_unknown)
+            }
         }
         itemView.setOnClickListener {
             if (itemView.context is Activity) {

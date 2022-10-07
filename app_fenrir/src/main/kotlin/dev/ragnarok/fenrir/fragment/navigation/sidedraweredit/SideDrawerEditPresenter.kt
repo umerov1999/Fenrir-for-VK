@@ -13,6 +13,8 @@ import java.util.*
 class SideDrawerEditPresenter(savedInstanceState: Bundle?) :
     AbsPresenter<ISideDrawerEditView>(savedInstanceState) {
     private val data: List<SideDrawerCategory>
+
+    @SuppressLint("WrongConstant")
     private fun createInitialData(): ArrayList<SideDrawerCategory> {
         val categories = ArrayList<SideDrawerCategory>()
         val settings = Settings.get().sideDrawerSettings()

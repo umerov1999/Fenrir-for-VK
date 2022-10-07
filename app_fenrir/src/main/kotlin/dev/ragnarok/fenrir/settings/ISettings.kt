@@ -131,6 +131,8 @@ interface ISettings {
         fun isEnable_dirs_files_count(): Boolean
         fun get_last_audio_sync(): Long
         fun set_last_audio_sync(time: Long)
+        fun get_last_stikers_sync(accountId: Int): Long
+        fun set_last_stikers_sync(accountId: Int, time: Long)
         val isOngoing_player_notification: Boolean
         fun reloadOwnerChangesMonitor()
         fun isOwnerInChangesMonitor(ownerId: Int): Boolean

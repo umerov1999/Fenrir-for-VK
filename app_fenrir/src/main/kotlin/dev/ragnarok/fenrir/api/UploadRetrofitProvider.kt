@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api
 
+import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants.USER_AGENT
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
@@ -16,6 +17,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
+@SuppressLint("CheckResult")
 class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploadRetrofitProvider {
     private val uploadRetrofitLock = Any()
 

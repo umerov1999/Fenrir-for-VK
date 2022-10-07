@@ -54,27 +54,33 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
         try {
             if (matcher.find()) {
                 val id = matcher.group(1)?.toInt() ?: return false
-                Repository.owners.getBaseOwnerInfo(
-                    Settings.get().accounts().current,
-                    id,
-                    IOwnersRepository.MODE_NET
+                appendDisposable(
+                    Repository.owners.getBaseOwnerInfo(
+                        Settings.get().accounts().current,
+                        id,
+                        IOwnersRepository.MODE_NET
+                    )
+                        .fromIOToMain()
+                        .subscribe({ its ->
+                            appendDisposable(
+                                ShortcutUtils.createAccountShortcutRx(
+                                    context,
+                                    id,
+                                    its.fullName.nonNullNoEmpty({ it }, { shortcut.name }),
+                                    its.maxSquareAvatar.nonNullNoEmpty({ it }, { shortcut.cover })
+                                ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
+                            )
+                        }, {
+                            appendDisposable(
+                                ShortcutUtils.createAccountShortcutRx(
+                                    context,
+                                    id,
+                                    shortcut.name,
+                                    shortcut.cover
+                                ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
+                            )
+                        })
                 )
-                    .fromIOToMain()
-                    .subscribe({ its ->
-                        ShortcutUtils.createAccountShortcutRx(
-                            context,
-                            id,
-                            its.fullName.nonNullNoEmpty({ it }, { shortcut.name }),
-                            its.maxSquareAvatar.nonNullNoEmpty({ it }, { shortcut.cover })
-                        ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
-                    }, {
-                        ShortcutUtils.createAccountShortcutRx(
-                            context,
-                            id,
-                            shortcut.name,
-                            shortcut.cover
-                        ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
-                    })
                 return true
             }
         } catch (ignored: Exception) {
@@ -88,29 +94,35 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
             if (matcher.find()) {
                 val id = matcher.group(1)?.toInt() ?: return false
                 val account_id = matcher.group(2)?.toInt() ?: return false
-                Repository.owners.getBaseOwnerInfo(
-                    Settings.get().accounts().current,
-                    id,
-                    IOwnersRepository.MODE_NET
+                appendDisposable(
+                    Repository.owners.getBaseOwnerInfo(
+                        Settings.get().accounts().current,
+                        id,
+                        IOwnersRepository.MODE_NET
+                    )
+                        .fromIOToMain()
+                        .subscribe({ its ->
+                            appendDisposable(
+                                ShortcutUtils.createWallShortcutRx(
+                                    context,
+                                    account_id,
+                                    id,
+                                    its.fullName.nonNullNoEmpty({ it }, { shortcut.name }),
+                                    its.maxSquareAvatar.nonNullNoEmpty({ it }, { shortcut.cover })
+                                ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
+                            )
+                        }, {
+                            appendDisposable(
+                                ShortcutUtils.createWallShortcutRx(
+                                    context,
+                                    account_id,
+                                    id,
+                                    shortcut.name,
+                                    shortcut.cover
+                                ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
+                            )
+                        })
                 )
-                    .fromIOToMain()
-                    .subscribe({ its ->
-                        ShortcutUtils.createWallShortcutRx(
-                            context,
-                            account_id,
-                            id,
-                            its.fullName.nonNullNoEmpty({ it }, { shortcut.name }),
-                            its.maxSquareAvatar.nonNullNoEmpty({ it }, { shortcut.cover })
-                        ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
-                    }, {
-                        ShortcutUtils.createWallShortcutRx(
-                            context,
-                            account_id,
-                            id,
-                            shortcut.name,
-                            shortcut.cover
-                        ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
-                    })
                 return true
             }
         } catch (ignored: Exception) {
@@ -124,13 +136,15 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
             if (matcher.find()) {
                 val id = matcher.group(1)?.toInt() ?: return false
                 val account_id = matcher.group(2)?.toInt() ?: return false
-                ShortcutUtils.createChatShortcutRx(
-                    context,
-                    shortcut.cover,
-                    account_id,
-                    id,
-                    shortcut.name
-                ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
+                appendDisposable(
+                    ShortcutUtils.createChatShortcutRx(
+                        context,
+                        shortcut.cover,
+                        account_id,
+                        id,
+                        shortcut.name
+                    ).fromIOToMain().subscribe(RxUtils.dummy(), RxUtils.ignore())
+                )
                 return true
             }
         } catch (ignored: Exception) {
@@ -153,11 +167,13 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
     }
 
     fun fireShortcutDeleted(pos: Int, shortcut: ShortcutStored) {
-        pInteractor.deleteShortcut(shortcut.action).fromIOToMain()
-            .subscribe({
-                shortcuts.removeAt(pos)
-                view?.notifyItemRemoved(pos)
-            }, RxUtils.ignore())
+        appendDisposable(
+            pInteractor.deleteShortcut(shortcut.action).fromIOToMain()
+                .subscribe({
+                    shortcuts.removeAt(pos)
+                    view?.notifyItemRemoved(pos)
+                }, RxUtils.ignore())
+        )
     }
 
     init {

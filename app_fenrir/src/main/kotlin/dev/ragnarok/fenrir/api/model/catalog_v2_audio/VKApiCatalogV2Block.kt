@@ -20,6 +20,9 @@ class VKApiCatalogV2Block {
     @SerialName("artist_videos_ids")
     var artist_videos_ids: ArrayList<String>? = null
 
+    @SerialName("videos_ids")
+    var videos_ids: ArrayList<String>? = null
+
     @SerialName("id")
     var id: String? = null
 

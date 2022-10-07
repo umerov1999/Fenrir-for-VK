@@ -8,7 +8,7 @@ import androidx.annotation.StringRes
 import dev.ragnarok.fenrir_common.R
 
 object Common {
-    private const val RANDOM_PAGAN_SYMBOL_NUMBER = 21
+    private const val RANDOM_PAGAN_SYMBOL_NUMBER = 22
     private var randomPaganSymbol = -1
 
     fun randomizePaganSymbol() {
@@ -76,6 +76,12 @@ object Common {
             18 -> PaganSymbolWall(R.drawable.ic_pennywise)
             19 -> PaganSymbolWall(R.drawable.ic_chur)
             20 -> PaganSymbolWall(R.drawable.ic_fire)
+            21 -> PaganSymbolWall(
+                R.raw.flame, 140f, intArrayOf(
+                    0xFF812E,
+                    getColorPrimary(context)
+                ), true
+            )
             else -> PaganSymbolWall(R.drawable.ic_cat)
         }
     }
@@ -121,14 +127,21 @@ object Common {
             lottieRes = R.raw.fenrir
             this.replacement = null
             widthHeight = 0f
+            useMoveColor = false
         }
 
-        constructor(@RawRes animation: Int, widthHeight: Float, replacement: IntArray?) {
+        constructor(
+            @RawRes animation: Int,
+            widthHeight: Float,
+            replacement: IntArray? = null,
+            useMoveColor: Boolean = false
+        ) {
             isAnimation = true
             iconRes = R.drawable.ic_cat
             lottieRes = animation
             this.replacement = replacement
             this.widthHeight = widthHeight
+            this.useMoveColor = useMoveColor
         }
 
         fun fallBack(@DrawableRes icon: Int): PaganSymbolWall {
@@ -146,5 +159,6 @@ object Common {
         val lottieRes: Int
         val replacement: IntArray?
         val widthHeight: Float
+        val useMoveColor: Boolean
     }
 }

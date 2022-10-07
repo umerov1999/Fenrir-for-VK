@@ -7,10 +7,10 @@ buildscript {
     ext.appNdk = "25.1.8937393"
     ext.appMinSDK = is_developer_build ? 29 : 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 204
-    ext.appFenrirVersionName = "2.104-Kotlin"
-    ext.appFileGalleryVersionCode = 24
-    ext.appFileGalleryVersionName = "1.24-Kotlin"
+    ext.appFenrirVersionCode = 205
+    ext.appFenrirVersionName = "2.105-Kotlin"
+    ext.appFileGalleryVersionCode = 25
+    ext.appFileGalleryVersionName = "1.25-Kotlin"
 
     //androidx libraries
     ext.activityVersion = "1.6.0"
@@ -28,8 +28,8 @@ buildscript {
     ext.customviewPoolingcontainerVersion = "1.0.0"
     ext.dynamicanimationVersion = "1.1.0-alpha03"
     ext.drawerlayoutVersion = "1.2.0-alpha01"
-    ext.exifinterfaceVersion = "1.3.3"
-    ext.fragmentVersion = "1.6.0-alpha02"
+    ext.exifinterfaceVersion = "1.3.4"
+    ext.fragmentVersion = "1.6.0-alpha03"
     ext.lifecycleVersion = "2.6.0-alpha02"
     ext.loaderVersion = "1.1.0"
     ext.mediaVersion = "1.6.0"
@@ -88,7 +88,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.4.0-beta01"
+        classpath "com.android.tools.build:gradle:7.4.0-beta02"
         classpath "com.google.gms:google-services:4.3.14"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"

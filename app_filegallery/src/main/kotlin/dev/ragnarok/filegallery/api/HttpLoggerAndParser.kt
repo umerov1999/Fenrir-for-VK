@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.model.ParserType
 import dev.ragnarok.filegallery.settings.Settings
+import dev.ragnarok.filegallery.util.OkHttp3LoggingInterceptor
 import dev.ragnarok.filegallery.util.Utils
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import java.security.SecureRandom
 import java.security.cert.CertificateException
@@ -36,8 +36,8 @@ object HttpLoggerAndParser {
         return this
     }
 
-    val DEFAULT_LOGGING_INTERCEPTOR: HttpLoggingInterceptor by lazy {
-        HttpLoggingInterceptor().setLevel(if (Constants.IS_DEBUG) HttpLoggingInterceptor.Level.HEADERS else HttpLoggingInterceptor.Level.NONE)
+    val DEFAULT_LOGGING_INTERCEPTOR: OkHttp3LoggingInterceptor by lazy {
+        OkHttp3LoggingInterceptor().setLevel(OkHttp3LoggingInterceptor.Level.BODY)
     }
 
     fun adjust(builder: OkHttpClient.Builder) {

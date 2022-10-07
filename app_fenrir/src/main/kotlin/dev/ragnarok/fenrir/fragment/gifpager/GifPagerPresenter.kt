@@ -95,12 +95,21 @@ class GifPagerPresenter(
         get() = mDocuments[mCurrentIndex].ownerId == accountId
 
     private fun resolveAspectRatio() {
+        if (mGifPlayer == null) {
+            return
+        }
         val size = mGifPlayer?.videoSize
         if (size != null) {
             view?.setAspectRatioAt(
                 mCurrentIndex,
-                size.width,
-                size.height
+                size.width.coerceAtLeast(1),
+                size.height.coerceAtLeast(1)
+            )
+        } else {
+            view?.setAspectRatioAt(
+                mCurrentIndex,
+                1,
+                1
             )
         }
     }
@@ -147,6 +156,12 @@ class GifPagerPresenter(
         val isProgress =
             adapterPosition == mCurrentIndex && mGifPlayer?.playerStatus == IGifPlayer.IStatus.PREPARING
         val size = mGifPlayer?.videoSize ?: DEF_SIZE
+        if (size.width <= 0) {
+            size.setWidth(1)
+        }
+        if (size.height <= 0) {
+            size.setHeight(1)
+        }
         view?.configHolder(
             adapterPosition,
             isProgress,

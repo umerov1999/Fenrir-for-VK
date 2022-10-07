@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment.navigation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -195,6 +196,7 @@ class SideNavigationFragment : AbsNavigationFragment(), MenuListAdapter.ActionLi
         backupRecentChats()
     }
 
+    @SuppressLint("WrongConstant")
     private fun generateNavDrawerItems(): ArrayList<AbsMenuItem> {
         val settings = Settings.get().sideDrawerSettings()
         @SideSwitchableCategory val categories = settings.categoriesOrder

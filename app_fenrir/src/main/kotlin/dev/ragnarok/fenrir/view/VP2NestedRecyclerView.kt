@@ -61,9 +61,6 @@ class VP2NestedRecyclerView @JvmOverloads constructor(
             }
         }
         val orientation = viewPager2?.orientation
-        if (!canScroll(orientation, -1f) && !canScroll(orientation, 1f)) {
-            return true
-        }
         if (ev.action == MotionEvent.ACTION_UP || ev.action == MotionEvent.ACTION_CANCEL) {
             scrolled = false
             viewPager2?.isUserInputEnabled = true

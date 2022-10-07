@@ -416,16 +416,22 @@ class DocsListPresenter(
                     val d = mDocuments[i]
                     if (d.isGif && d.hasValidGifVideoLink()) {
                         gifs.add(d)
-                    }
-                    if (d == doc) {
-                        selectedIndex = gifs.size - 1
+                        if (d.id == doc.id && d.ownerId == doc.ownerId) {
+                            selectedIndex = gifs.size - 1
+                        }
                     }
                 }
-                val finalSelectedIndex = selectedIndex
+                if (selectedIndex <= 0) {
+                    selectedIndex = 0
+                }
+                if (gifs.isEmpty()) {
+                    selectedIndex = 0
+                    gifs.add(doc)
+                }
                 view?.goToGifPlayer(
                     accountId,
                     gifs,
-                    finalSelectedIndex
+                    selectedIndex
                 )
             } else {
                 view?.openDocument(

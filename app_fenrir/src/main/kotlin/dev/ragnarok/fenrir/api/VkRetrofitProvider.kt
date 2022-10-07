@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api
 
+import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.selectConverterFactory
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
@@ -14,6 +15,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.*
 
+@SuppressLint("CheckResult")
 class VkRetrofitProvider(
     private val proxyManager: IProxySettings,
     private val clientFactory: IVkMethodHttpClientFactory

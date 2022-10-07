@@ -8,8 +8,10 @@ import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.holders.*
 import dev.ragnarok.fenrir.model.AbsModelType
 
 class CatalogV2Layout : Parcelable {
-    private var name: String? = null
-    private var data_type: String? = null
+    var name: String? = null
+        private set
+    var data_type: String? = null
+        private set
     var title: String? = null
         private set
 
@@ -39,16 +41,16 @@ class CatalogV2Layout : Parcelable {
 
     fun getViewHolderType(): Int {
         return when (name) {
-            "header" -> {
+            "header", "header_extended", "header_compact", "horizontal_buttons" -> {
                 CATALOG_V2_HOLDER.TYPE_CATALOG_HEADER
             }
-            "separator" -> {
+            "separator", "in_block_separator" -> {
                 CATALOG_V2_HOLDER.TYPE_CATALOG_SEPARATOR
             }
-            "list" -> {
+            "list", "music_chart_list" -> {
                 CATALOG_V2_HOLDER.TYPE_CATALOG_LIST
             }
-            "categories_list", "slider", "large_slider", "music_chart_large_slider" -> {
+            "categories_list", "large_list", "slider", "recomms_slider", "large_slider", "music_chart_large_slider" -> {
                 CATALOG_V2_HOLDER.TYPE_CATALOG_SLIDER
             }
             "triple_stacked_slider", "music_chart_triple_stacked_slider" -> {

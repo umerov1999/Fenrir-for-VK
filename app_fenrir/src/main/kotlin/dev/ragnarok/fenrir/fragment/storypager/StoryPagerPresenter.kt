@@ -130,8 +130,14 @@ class StoryPagerPresenter(
         if (size != null) {
             view?.setAspectRatioAt(
                 mCurrentIndex,
-                size.width,
-                size.height
+                size.width.coerceAtLeast(1),
+                size.height.coerceAtLeast(1)
+            )
+        } else {
+            view?.setAspectRatioAt(
+                mCurrentIndex,
+                1,
+                1
             )
         }
     }
@@ -170,12 +176,17 @@ class StoryPagerPresenter(
         if (size == null) {
             size = DEF_SIZE
         }
-        val finalSize = size
+        if (size.width <= 0) {
+            size.setWidth(1)
+        }
+        if (size.height <= 0) {
+            size.setHeight(1)
+        }
         view?.configHolder(
             adapterPosition,
             isProgress,
-            finalSize.width,
-            finalSize.width
+            size.width,
+            size.width
         )
     }
 

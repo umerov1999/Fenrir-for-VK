@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.holders
 
+import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Button
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
@@ -24,7 +26,7 @@ class CatalogHeaderButton @JvmOverloads constructor(context: Context, attrs: Att
 
     fun setUpWithCatalogAction(catalogAction: CatalogV2Button) {
         when (catalogAction.action?.type) {
-            "open_section" -> {
+            "open_section", "open_url" -> {
                 if (clearButton != null && clearButton?.visibility != GONE) {
                     clearButton?.visibility = GONE
                 }
@@ -43,11 +45,20 @@ class CatalogHeaderButton @JvmOverloads constructor(context: Context, attrs: Att
                 }
                 simpleText?.text = catalogAction.title
                 simpleText?.setOnClickListener {
-                    catalogAction.section_id?.let { it1 ->
-                        PlaceFactory.getCatalogV2AudioSectionPlace(
+                    if (catalogAction.action?.type == "open_url") {
+                        LinkHelper.openUrl(
+                            context as Activity,
                             Settings.get().accounts().current,
-                            it1
-                        ).tryOpenWith(context)
+                            catalogAction.action?.url,
+                            false
+                        )
+                    } else {
+                        catalogAction.section_id?.let { it1 ->
+                            PlaceFactory.getCatalogV2AudioSectionPlace(
+                                Settings.get().accounts().current,
+                                it1
+                            ).tryOpenWith(context)
+                        }
                     }
                 }
             }

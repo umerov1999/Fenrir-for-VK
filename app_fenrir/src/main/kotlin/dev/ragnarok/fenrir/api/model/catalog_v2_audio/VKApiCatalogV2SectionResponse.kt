@@ -21,6 +21,9 @@ class VKApiCatalogV2SectionResponse {
     @SerialName("artist_videos")
     var artist_videos: List<VKApiVideo>? = null
 
+    @SerialName("videos")
+    var videos: List<VKApiVideo>? = null
+
     @SerialName("section")
     var section: VKApiCatalogV2Section? = null
 }

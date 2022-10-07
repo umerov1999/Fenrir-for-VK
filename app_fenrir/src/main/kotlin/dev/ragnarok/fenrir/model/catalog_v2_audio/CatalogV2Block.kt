@@ -103,20 +103,34 @@ class CatalogV2Block : AbsModel {
         layout = pobj.layout?.let { CatalogV2Layout(it, data_type) } ?: CatalogV2Layout()
         badge = pobj.badge?.let { CatalogV2Badge(it) }
 
-        parseAllItemsByIds(object_v.audios, pobj.audios_ids) {
-            Dto2Model.transform(it)
-        }
-        parseAllItemsByIds(object_v.playlists, pobj.playlists_ids) {
-            Dto2Model.transform(it)
-        }
-        parseAllItemsByIds(object_v.artists, pobj.artists_ids) {
-            CatalogV2ArtistItem(it)
-        }
-        parseAllItemsByIds(object_v.links, pobj.links_ids) {
-            CatalogV2Link(it)
-        }
-        parseAllItemsByIds(object_v.artist_videos, pobj.artist_videos_ids) {
-            Dto2Model.transform(it)
+        if (data_type == "music_recommended_playlists") {
+            parseAllItemsByIds(object_v.playlists, pobj.playlists_ids) {
+                Dto2Model.transform(it)
+            }
+            if (items.isNullOrEmpty()) {
+                parseAllItemsByIds(object_v.audios, pobj.audios_ids) {
+                    Dto2Model.transform(it)
+                }
+            }
+        } else {
+            parseAllItemsByIds(object_v.audios, pobj.audios_ids) {
+                Dto2Model.transform(it)
+            }
+            parseAllItemsByIds(object_v.playlists, pobj.playlists_ids) {
+                Dto2Model.transform(it)
+            }
+            parseAllItemsByIds(object_v.artists, pobj.artists_ids) {
+                CatalogV2ArtistItem(it)
+            }
+            parseAllItemsByIds(object_v.links, pobj.links_ids) {
+                CatalogV2Link(it).setParentLayout(layout.name)
+            }
+            parseAllItemsByIds(object_v.artist_videos, pobj.artist_videos_ids) {
+                Dto2Model.transform(it)
+            }
+            parseAllItemsByIds(object_v.videos, pobj.videos_ids) {
+                Dto2Model.transform(it)
+            }
         }
     }
 
