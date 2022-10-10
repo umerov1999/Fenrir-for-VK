@@ -4,6 +4,7 @@ import android.provider.BaseColumns
 
 object StikerSetColumns : BaseColumns {
     const val TABLENAME = "sticker_set"
+    const val ACCOUNT_ID = "account_id"
     const val POSITION = "position"
     const val TITLE = "title"
     const val ICON = "icon"

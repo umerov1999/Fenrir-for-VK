@@ -100,25 +100,24 @@ class TempDataHelper(context: Context) :
         onCreate(db)
     }
 
+    private fun purge(db: SQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS " + TempDataColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + LogColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + ShortcutColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + AudioColumns.TABLENAME)
+        onCreate(db)
+    }
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion != Constants.DATABASE_TEMPORARY_VERSION) {
-            db.execSQL("DROP TABLE IF EXISTS " + TempDataColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + LogColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + ShortcutColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + AudioColumns.TABLENAME)
-            onCreate(db)
+            purge(db)
         }
     }
 
     override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion != Constants.DATABASE_TEMPORARY_VERSION) {
-            db.execSQL("DROP TABLE IF EXISTS " + TempDataColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + LogColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + ShortcutColumns.TABLENAME)
-            db.execSQL("DROP TABLE IF EXISTS " + AudioColumns.TABLENAME)
-            onCreate(db)
+            purge(db)
         }
     }
 

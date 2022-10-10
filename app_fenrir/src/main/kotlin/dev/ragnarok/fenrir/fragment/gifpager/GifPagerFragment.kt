@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir.fragment.gifpager
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.SparseArray
 import android.view.LayoutInflater
-import android.view.SurfaceHolder
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
@@ -20,21 +20,17 @@ import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.fragment.absdocumentpreview.AbsDocumentPreviewFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.getParcelableArrayListCompat
-import dev.ragnarok.fenrir.media.gif.IGifPlayer
 import dev.ragnarok.fenrir.model.Document
-import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
-import dev.ragnarok.fenrir.util.Utils.dp
 import dev.ragnarok.fenrir.view.CircleCounterButton
-import dev.ragnarok.fenrir.view.ExpandableSurfaceView
-import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
-import java.lang.ref.WeakReference
+import dev.ragnarok.fenrir.view.TouchImageView
 
 class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPagerView>(),
     IGifPagerView {
-    private val mHolderSparseArray = SparseArray<WeakReference<Holder>>()
     private var mViewPager: ViewPager2? = null
     private var mToolbar: Toolbar? = null
     private var mButtonsRoot: View? = null
@@ -84,7 +80,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
         mViewPager?.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                presenter?.firePageSelected(
+                presenter?.selectPage(
                     position
                 )
             }
@@ -139,30 +135,11 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
         }
     }
 
-    override fun displayData(pageCount: Int, selectedIndex: Int) {
+    override fun displayData(mDocuments: List<Document>, selectedIndex: Int) {
         if (mViewPager != null) {
-            val adapter = Adapter(pageCount)
+            val adapter = Adapter(mDocuments)
             mViewPager?.adapter = adapter
             mViewPager?.setCurrentItem(selectedIndex, false)
-        }
-    }
-
-    override fun setAspectRatioAt(position: Int, w: Int, h: Int) {
-        val holder = findByPosition(position)
-        holder?.mSurfaceView?.setAspectRatio(w, h)
-    }
-
-    override fun setPreparingProgressVisible(position: Int, preparing: Boolean) {
-        for (i in 0 until mHolderSparseArray.size()) {
-            val key = mHolderSparseArray.keyAt(i)
-            val holder = findByPosition(key)
-            if (holder != null) {
-                val isCurrent = position == key
-                val progressVisible = isCurrent && preparing
-                holder.setProgressVisible(progressVisible)
-                holder.mSurfaceView.visibility =
-                    if (isCurrent && !preparing) View.VISIBLE else View.GONE
-            }
         }
     }
 
@@ -170,81 +147,11 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
         mButtonAddOrDelete?.setIcon(if (addEnable) R.drawable.plus else R.drawable.ic_outline_delete)
     }
 
-    override fun attachDisplayToPlayer(adapterPosition: Int, gifPlayer: IGifPlayer?) {
-        val holder = findByPosition(adapterPosition)
-        if (holder != null && gifPlayer != null && holder.isSurfaceReady) {
-            gifPlayer.setDisplay(holder.mSurfaceHolder)
-        }
-    }
-
-    override fun configHolder(
-        adapterPosition: Int,
-        progress: Boolean,
-        aspectRatioW: Int,
-        aspectRatioH: Int
-    ) {
-        val holder = findByPosition(adapterPosition)
-        if (holder != null) {
-            holder.setProgressVisible(progress)
-            holder.mSurfaceView.setAspectRatio(aspectRatioW, aspectRatioH)
-            holder.mSurfaceView.visibility =
-                if (progress) View.GONE else View.VISIBLE
-        }
-    }
-
-    internal fun fireHolderCreate(holder: Holder) {
-        presenter?.fireHolderCreate(
-            holder.bindingAdapterPosition
-        )
-    }
-
-    private fun findByPosition(position: Int): Holder? {
-        val weak = mHolderSparseArray[position]
-        return weak?.get()
-    }
-
-    inner class Holder internal constructor(rootView: View) : RecyclerView.ViewHolder(rootView),
-        SurfaceHolder.Callback {
-        val mSurfaceView: ExpandableSurfaceView = rootView.findViewById(R.id.videoSurface)
-        val mSurfaceHolder: SurfaceHolder = mSurfaceView.holder
-        private val mProgressBar: RLottieImageView
-        var isSurfaceReady = false
-        override fun surfaceCreated(holder: SurfaceHolder) {
-            isSurfaceReady = true
-            presenter?.fireSurfaceCreated(
-                bindingAdapterPosition
-            )
-        }
-
-        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
-        override fun surfaceDestroyed(holder: SurfaceHolder) {
-            isSurfaceReady = false
-        }
-
-        fun setProgressVisible(visible: Boolean) {
-            mProgressBar.visibility = if (visible) View.VISIBLE else View.GONE
-            if (visible) {
-                mProgressBar.fromRes(
-                    dev.ragnarok.fenrir_common.R.raw.loading,
-                    dp(100f),
-                    dp(100f),
-                    intArrayOf(
-                        0x000000,
-                        CurrentTheme.getColorPrimary(requireActivity()),
-                        0x777777,
-                        CurrentTheme.getColorSecondary(requireActivity())
-                    )
-                )
-                mProgressBar.playAnimation()
-            } else {
-                mProgressBar.clearAnimationDrawable()
-            }
-        }
+    inner class Holder internal constructor(rootView: View) : RecyclerView.ViewHolder(rootView) {
+        val mGifView: TouchImageView = rootView.findViewById(R.id.gif_view)
 
         init {
-            mSurfaceHolder.addCallback(this)
-            mProgressBar = rootView.findViewById(R.id.preparing_progress_bar)
-            mSurfaceView.setOnClickListener { toggleFullscreen() }
+            mGifView.setOnClickListener { toggleFullscreen() }
         }
     }
 
@@ -256,33 +163,45 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
         ActivityUtils.supportToolbarFor(this)?.subtitle = getString(titleRes, *params)
     }
 
-    private inner class Adapter(val mPageCount: Int) :
+    private inner class Adapter(private var data: List<Document>) :
         RecyclerView.Adapter<Holder>() {
+        @SuppressLint("ClickableViewAccessibility")
         override fun onCreateViewHolder(container: ViewGroup, viewType: Int): Holder {
-            return Holder(
+            val ret = Holder(
                 LayoutInflater.from(container.context)
                     .inflate(R.layout.content_gif_page, container, false)
             )
+            ret.mGifView.setOnTouchListener { view: View, event: MotionEvent ->
+                if (event.pointerCount >= 2 || view.canScrollHorizontally(1) && view.canScrollHorizontally(
+                        -1
+                    )
+                ) {
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                            container.requestDisallowInterceptTouchEvent(true)
+                            return@setOnTouchListener false
+                        }
+                        MotionEvent.ACTION_UP -> {
+                            container.requestDisallowInterceptTouchEvent(false)
+                            return@setOnTouchListener true
+                        }
+                    }
+                }
+                true
+            }
+            return ret
         }
 
-        override fun onBindViewHolder(holder: Holder, position: Int) {}
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            holder.mGifView.fromNet(
+                data[position].ownerId.toString() + "_" + data[position].id.toString(),
+                data[position].videoPreview?.src,
+                data[position].getPreviewWithSize(PhotoSize.W, false), Utils.createOkHttp(5, true)
+            )
+        }
+
         override fun getItemCount(): Int {
-            return mPageCount
-        }
-
-        override fun onViewDetachedFromWindow(holder: Holder) {
-            super.onViewDetachedFromWindow(holder)
-            mHolderSparseArray.remove(holder.bindingAdapterPosition)
-        }
-
-        override fun onViewAttachedToWindow(holder: Holder) {
-            super.onViewAttachedToWindow(holder)
-            mHolderSparseArray.put(holder.bindingAdapterPosition, WeakReference(holder))
-            fireHolderCreate(holder)
-        }
-
-        init {
-            mHolderSparseArray.clear()
+            return data.size
         }
     }
 

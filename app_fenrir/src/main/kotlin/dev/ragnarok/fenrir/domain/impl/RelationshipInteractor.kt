@@ -143,7 +143,12 @@ class RelationshipInteractor(
             }
     }
 
-    override fun getRequests(accountId: Int, offset: Int?, count: Int?): Single<List<User>> {
+    override fun getRequests(
+        accountId: Int,
+        offset: Int?,
+        count: Int?,
+        store: Boolean
+    ): Single<List<User>> {
         return networker.vkDefault(accountId)
             .users()
             .getRequests(offset, count, 1, 1, UserColumns.API_FIELDS)
@@ -151,9 +156,13 @@ class RelationshipInteractor(
             .flatMap { dtos ->
                 val dbos = mapUsers(dtos)
                 val users = transformUsers(dtos)
-                repositories.relativeship()
-                    .storeRequests(accountId, dbos, accountId, offset == 0)
-                    .andThen(Single.just(users))
+                if (store) {
+                    repositories.relativeship()
+                        .storeRequests(accountId, dbos, accountId, offset == 0)
+                        .andThen(Single.just(users))
+                } else {
+                    Single.just(users)
+                }
             }
     }
 

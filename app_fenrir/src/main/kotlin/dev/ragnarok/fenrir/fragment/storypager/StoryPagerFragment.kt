@@ -25,7 +25,7 @@ import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.link.LinkHelper
-import dev.ragnarok.fenrir.media.gif.IGifPlayer
+import dev.ragnarok.fenrir.media.story.IStoryPlayer
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.Story
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -215,10 +215,10 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         }
     }
 
-    override fun attachDisplayToPlayer(adapterPosition: Int, gifPlayer: IGifPlayer?) {
+    override fun attachDisplayToPlayer(adapterPosition: Int, storyPlayer: IStoryPlayer?) {
         val holder = findByPosition(adapterPosition)
         if (holder?.isSurfaceReady == true) {
-            gifPlayer?.setDisplay(holder.mSurfaceHolder)
+            storyPlayer?.setDisplay(holder.mSurfaceHolder)
         }
     }
 

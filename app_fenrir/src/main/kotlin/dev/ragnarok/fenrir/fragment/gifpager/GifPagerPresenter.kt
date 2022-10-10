@@ -4,13 +4,9 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import dev.ragnarok.fenrir.Includes.gifPlayerFactory
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.absdocumentpreview.BaseDocumentPresenter
-import dev.ragnarok.fenrir.media.gif.IGifPlayer
-import dev.ragnarok.fenrir.media.gif.IGifPlayer.IStatusChangeListener
 import dev.ragnarok.fenrir.model.Document
-import dev.ragnarok.fenrir.model.VideoSize
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadDoc
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
@@ -20,19 +16,19 @@ class GifPagerPresenter(
     private val mDocuments: ArrayList<Document>,
     index: Int,
     savedInstanceState: Bundle?
-) : BaseDocumentPresenter<IGifPagerView>(accountId, savedInstanceState), IStatusChangeListener,
-    IGifPlayer.IVideoSizeChangeListener {
-    private var mGifPlayer: IGifPlayer? = null
+) : BaseDocumentPresenter<IGifPagerView>(accountId, savedInstanceState) {
     private var mCurrentIndex = 0
     override fun saveState(outState: Bundle) {
         super.saveState(outState)
         outState.putInt(SAVE_PAGER_INDEX, mCurrentIndex)
     }
 
-    fun fireSurfaceCreated(adapterPosition: Int) {
-        if (mCurrentIndex == adapterPosition) {
-            resolvePlayerDisplay()
+    fun selectPage(position: Int) {
+        if (mCurrentIndex == position) {
+            return
         }
+        mCurrentIndex = position
+        resolveToolbarSubtitle()
     }
 
     private fun resolveToolbarTitle() {
@@ -47,46 +43,6 @@ class GifPagerPresenter(
         )
     }
 
-    private fun resolvePlayerDisplay() {
-        if (guiIsReady) {
-            view?.attachDisplayToPlayer(
-                mCurrentIndex,
-                mGifPlayer
-            )
-        } else {
-            mGifPlayer?.setDisplay(null)
-        }
-    }
-
-    private fun initGifPlayer() {
-        if (mGifPlayer != null) {
-            val old: IGifPlayer? = mGifPlayer
-            mGifPlayer = null
-            old?.release()
-        }
-        val document = mDocuments[mCurrentIndex]
-        val url = document.videoPreview?.src
-        mGifPlayer = url?.let { gifPlayerFactory.createGifPlayer(it, true) }
-        mGifPlayer?.addStatusChangeListener(this)
-        mGifPlayer?.addVideoSizeChangeListener(this)
-        try {
-            mGifPlayer?.play()
-        } catch (e: Exception) {
-            showToast(
-                R.string.unable_to_play_file,
-                true
-            )
-        }
-    }
-
-    private fun selectPage(position: Int) {
-        if (mCurrentIndex == position) {
-            return
-        }
-        mCurrentIndex = position
-        initGifPlayer()
-    }
-
     private fun resolveAddDeleteButton() {
         view?.setupAddRemoveButton(!isMy)
     }
@@ -94,53 +50,12 @@ class GifPagerPresenter(
     private val isMy: Boolean
         get() = mDocuments[mCurrentIndex].ownerId == accountId
 
-    private fun resolveAspectRatio() {
-        if (mGifPlayer == null) {
-            return
-        }
-        val size = mGifPlayer?.videoSize
-        if (size != null) {
-            view?.setAspectRatioAt(
-                mCurrentIndex,
-                size.width.coerceAtLeast(1),
-                size.height.coerceAtLeast(1)
-            )
-        } else {
-            view?.setAspectRatioAt(
-                mCurrentIndex,
-                1,
-                1
-            )
-        }
-    }
-
-    private fun resolvePreparingProgress() {
-        val preparing =
-            mGifPlayer != null && mGifPlayer?.playerStatus == IGifPlayer.IStatus.PREPARING
-        view?.setPreparingProgressVisible(
-            mCurrentIndex,
-            preparing
-        )
-    }
-
     override fun onGuiCreated(viewHost: IGifPagerView) {
         super.onGuiCreated(viewHost)
-        viewHost.displayData(mDocuments.size, mCurrentIndex)
-        resolvePreparingProgress()
-        resolveAspectRatio()
+        viewHost.displayData(mDocuments, mCurrentIndex)
         resolveAddDeleteButton()
-        resolvePlayerDisplay()
         resolveToolbarTitle()
         resolveToolbarSubtitle()
-    }
-
-    fun firePageSelected(position: Int) {
-        if (mCurrentIndex == position) {
-            return
-        }
-        selectPage(position)
-        resolveToolbarSubtitle()
-        resolvePreparingProgress()
     }
 
     fun fireAddDeleteButtonClick() {
@@ -150,24 +65,6 @@ class GifPagerPresenter(
         } else {
             addYourself(document)
         }
-    }
-
-    fun fireHolderCreate(adapterPosition: Int) {
-        val isProgress =
-            adapterPosition == mCurrentIndex && mGifPlayer?.playerStatus == IGifPlayer.IStatus.PREPARING
-        val size = mGifPlayer?.videoSize ?: DEF_SIZE
-        if (size.width <= 0) {
-            size.setWidth(1)
-        }
-        if (size.height <= 0) {
-            size.setHeight(1)
-        }
-        view?.configHolder(
-            adapterPosition,
-            isProgress,
-            size.width,
-            size.width
-        )
     }
 
     fun fireShareButtonClick() {
@@ -191,27 +88,6 @@ class GifPagerPresenter(
         }
     }
 
-    public override fun onGuiPaused() {
-        super.onGuiPaused()
-        mGifPlayer?.pause()
-    }
-
-    public override fun onGuiResumed() {
-        super.onGuiResumed()
-        if (mGifPlayer != null) {
-            try {
-                mGifPlayer?.play()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    override fun onDestroyed() {
-        mGifPlayer?.release()
-        super.onDestroyed()
-    }
-
     private fun downloadImpl(context: Context, view: View?) {
         val document = mDocuments[mCurrentIndex]
         if (doDownloadDoc(context, document, false) == 1) {
@@ -228,26 +104,11 @@ class GifPagerPresenter(
         }
     }
 
-    override fun onPlayerStatusChange(player: IGifPlayer, previousStatus: Int, currentStatus: Int) {
-        if (mGifPlayer === player) {
-            resolvePreparingProgress()
-            resolvePlayerDisplay()
-        }
-    }
-
-    override fun onVideoSizeChanged(player: IGifPlayer, size: VideoSize) {
-        if (mGifPlayer === player) {
-            resolveAspectRatio()
-        }
-    }
-
     companion object {
         private const val SAVE_PAGER_INDEX = "save_pager_index"
-        private val DEF_SIZE = VideoSize(1, 1)
     }
 
     init {
         mCurrentIndex = savedInstanceState?.getInt(SAVE_PAGER_INDEX) ?: index
-        initGifPlayer()
     }
 }

@@ -16,8 +16,8 @@ import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
 import dev.ragnarok.fenrir.domain.impl.AttachmentsRepository
 import dev.ragnarok.fenrir.domain.impl.BlacklistRepository
-import dev.ragnarok.fenrir.media.gif.AppGifPlayerFactory
-import dev.ragnarok.fenrir.media.gif.IGifPlayerFactory
+import dev.ragnarok.fenrir.media.story.AppStoryPlayerFactory
+import dev.ragnarok.fenrir.media.story.IStoryPlayerFactory
 import dev.ragnarok.fenrir.media.voice.IVoicePlayerFactory
 import dev.ragnarok.fenrir.media.voice.VoicePlayerFactory
 import dev.ragnarok.fenrir.push.IDeviceIdProvider
@@ -38,8 +38,8 @@ object Includes {
         ProxySettingsImpl(provideApplicationContext())
     }
 
-    val gifPlayerFactory: IGifPlayerFactory by lazy {
-        AppGifPlayerFactory(proxySettings)
+    val storyPlayerFactory: IStoryPlayerFactory by lazy {
+        AppStoryPlayerFactory(proxySettings)
     }
 
     val voicePlayerFactory: IVoicePlayerFactory by lazy {

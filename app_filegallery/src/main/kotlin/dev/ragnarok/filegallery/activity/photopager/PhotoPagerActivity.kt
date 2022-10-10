@@ -480,7 +480,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                     .into(photo, mPicassoLoadCallback)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
-                photo.fromFile(Uri.parse(image.photo_url).toFile())
+                photo.fromAnimFile(Uri.parse(image.photo_url).toFile())
                 mLoadingNow = false
                 resolveProgressVisibility(true)
             }

@@ -13,7 +13,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import io.reactivex.rxjava3.core.Single
@@ -38,6 +37,7 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
     private var searchRunNow = false
     private var doLoadTabs = false
     private var offset = 0
+    private var networkOffset = 0
     private fun requestActualData(do_scan: Boolean) {
         val accountId = accountId
         if (accountId != userId) {
@@ -50,7 +50,7 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
         actualDataDisposable.add(relationshipInteractor.getRequests(
             accountId,
             offset,
-            if (isNotFriendShow) 1000 else 200
+            if (isNotFriendShow) 1000 else 200, true
         )
             .fromIOToMain()
             .subscribe({ users ->
@@ -194,6 +194,7 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
             data[SEARCH_WEB].displayCount = null
             data[SEARCH_CACHE].users.clear()
             data[SEARCH_CACHE].enable = false
+            networkOffset = 0
             view?.notifyDatasetChanged(
                 false
             )
@@ -203,13 +204,14 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
         reFillCache()
         data[SEARCH_CACHE].enable = true
         data[SEARCH_WEB].users.clear()
+        networkOffset = 0
         data[SEARCH_WEB].enable = true
         data[SEARCH_WEB].displayCount = null
         view?.notifyDatasetChanged(true)
-        runNetSearch(0, true)
+        runNetSearch(true)
     }
 
-    private fun runNetSearch(offset: Int, withDelay: Boolean) {
+    private fun runNetSearch(withDelay: Boolean) {
         if (q.trimmedIsNullOrEmpty()) {
             return
         }
@@ -217,13 +219,11 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
         searchRunNow = true
         val query = q
         val accountId = accountId
-        val single: Single<Pair<List<User>, Int>>
-        val netSingle = relationshipInteractor.searchFriends(
+        val single: Single<List<User>>
+        val netSingle = relationshipInteractor.getRequests(
             accountId,
-            userId,
-            WEB_SEARCH_COUNT_PER_LOAD,
-            offset,
-            query
+            networkOffset,
+            1000, false
         )
         single = if (withDelay) {
             Single.just(Any())
@@ -236,9 +236,7 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
             .fromIOToMain()
             .subscribe({
                 onSearchDataReceived(
-                    offset,
-                    it.first,
-                    it.second
+                    it, query
                 )
             }) { t -> onSearchError(t) })
     }
@@ -248,25 +246,31 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
         showError(getCauseIfRuntime(t))
     }
 
-    private fun onSearchDataReceived(offset: Int, users: List<User>, fullCount: Int) {
+    private fun onSearchDataReceived(users: List<User>, query: String?) {
         searchRunNow = false
         val searchData: MutableList<User> = data[SEARCH_WEB].users
-        data[SEARCH_WEB].displayCount = fullCount
-        if (offset == 0) {
+        if (networkOffset == 0) {
             searchData.clear()
-            searchData.addAll(users)
             view?.notifyDatasetChanged(
                 isSearchNow
             )
-        } else {
-            val sizeBefore = searchData.size
-            val currentCacheSize = data[SEARCH_CACHE].users.size
-            searchData.addAll(users)
-            view?.notifyItemRangeInserted(
-                sizeBefore + currentCacheSize,
-                users.size
-            )
         }
+        val sizeBefore = searchData.size
+        var count = 0
+        val preparedQ = query?.lowercase(Locale.getDefault())?.trim { it <= ' ' } ?: ""
+        for (i in users) {
+            if (allow(i, preparedQ)) {
+                searchData.add(i)
+                count++
+            }
+        }
+        val currentCacheSize = data[SEARCH_CACHE].users.size
+        data[SEARCH_WEB].displayCount = searchData.size
+        view?.notifyItemRangeInserted(
+            sizeBefore + currentCacheSize,
+            count
+        )
+        networkOffset += 1000
     }
 
     private fun reFillCache() {
@@ -312,7 +316,7 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
             if (searchRunNow) {
                 return
             }
-            runNetSearch(data[SEARCH_WEB].users.size, false)
+            runNetSearch(false)
         } else {
             if (actualDataLoadingNow || cacheLoadingNow || !actualDataReceived || actualDataEndOfContent) {
                 return

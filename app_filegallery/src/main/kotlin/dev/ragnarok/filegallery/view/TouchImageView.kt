@@ -164,7 +164,7 @@ open class TouchImageView @JvmOverloads constructor(
         touchCoordinatesListener = onTouchCoordinatesListener
     }
 
-    open fun fromFile(file: File) {
+    open fun fromAnimFile(file: File) {
         if (!FenrirNative.isNativeLoaded) {
             return
         }

@@ -329,6 +329,10 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         return getPreferences(app).getLong("last_stikers_sync_$accountId", -1)
     }
 
+    override fun del_last_stikers_sync(accountId: Int) {
+        getPreferences(app).edit().remove("last_stikers_sync_$accountId").apply()
+    }
+
     override fun set_last_stikers_sync(accountId: Int, time: Long) {
         getPreferences(app).edit().putLong("last_stikers_sync_$accountId", time).apply()
     }

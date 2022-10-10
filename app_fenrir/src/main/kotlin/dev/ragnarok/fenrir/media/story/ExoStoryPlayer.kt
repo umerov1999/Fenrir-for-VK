@@ -1,4 +1,4 @@
-package dev.ragnarok.fenrir.media.gif
+package dev.ragnarok.fenrir.media.story
 
 import android.view.SurfaceHolder
 import com.google.android.exoplayer2.ExoPlayer
@@ -8,28 +8,28 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.App.Companion.instance
 import dev.ragnarok.fenrir.Constants.USER_AGENT
-import dev.ragnarok.fenrir.media.gif.IGifPlayer.IStatus
-import dev.ragnarok.fenrir.media.gif.IGifPlayer.IStatusChangeListener
+import dev.ragnarok.fenrir.media.story.IStoryPlayer.IStatus
+import dev.ragnarok.fenrir.media.story.IStoryPlayer.IStatusChangeListener
 import dev.ragnarok.fenrir.model.ProxyConfig
 import dev.ragnarok.fenrir.model.VideoSize
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Utils.getExoPlayerFactory
 import dev.ragnarok.fenrir.util.Utils.makeMediaItem
 
-class ExoGifPlayer(
+class ExoStoryPlayer(
     private val url: String,
     private val proxyConfig: ProxyConfig?,
     private val isRepeat: Boolean
-) : IGifPlayer {
-    private val videoSizeChangeListeners: MutableList<IGifPlayer.IVideoSizeChangeListener> =
+) : IStoryPlayer {
+    private val videoSizeChangeListeners: MutableList<IStoryPlayer.IVideoSizeChangeListener> =
         ArrayList(1)
     private val statusChangeListeners: MutableList<IStatusChangeListener> = ArrayList(1)
     override var videoSize: VideoSize? = null
         private set
     private val videoListener: Player.Listener = object : Player.Listener {
         override fun onVideoSizeChanged(videoSize: com.google.android.exoplayer2.video.VideoSize) {
-            this@ExoGifPlayer.videoSize = VideoSize(videoSize.width, videoSize.height)
-            this@ExoGifPlayer.onVideoSizeChanged()
+            this@ExoStoryPlayer.videoSize = VideoSize(videoSize.width, videoSize.height)
+            this@ExoStoryPlayer.onVideoSizeChanged()
         }
 
         override fun onRenderedFirstFrame() {}
@@ -127,7 +127,7 @@ class ExoGifPlayer(
         }
     }
 
-    override fun addVideoSizeChangeListener(listener: IGifPlayer.IVideoSizeChangeListener) {
+    override fun addVideoSizeChangeListener(listener: IStoryPlayer.IVideoSizeChangeListener) {
         videoSizeChangeListeners.add(listener)
     }
 
@@ -135,7 +135,7 @@ class ExoGifPlayer(
         statusChangeListeners.add(listener)
     }
 
-    override fun removeVideoSizeChangeListener(listener: IGifPlayer.IVideoSizeChangeListener) {
+    override fun removeVideoSizeChangeListener(listener: IStoryPlayer.IVideoSizeChangeListener) {
         videoSizeChangeListeners.remove(listener)
     }
 

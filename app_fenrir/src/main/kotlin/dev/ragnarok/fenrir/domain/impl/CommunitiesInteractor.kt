@@ -24,7 +24,8 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
         accountId: Int,
         userId: Int,
         count: Int,
-        offset: Int
+        offset: Int,
+        store: Boolean
     ): Single<List<Community>> {
         return networker.vkDefault(accountId)
             .groups()[userId, true, null, GroupColumns.API_FIELDS, offset, count]
@@ -33,9 +34,13 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
                     items.items
                 )
                 val dbos = mapCommunities(dtos)
-                stores.relativeship()
-                    .storeComminities(accountId, dbos, userId, offset == 0)
-                    .andThen(Single.just(buildCommunitiesFromDbos(dbos)))
+                if (store) {
+                    stores.relativeship()
+                        .storeComminities(accountId, dbos, userId, offset == 0)
+                        .andThen(Single.just(buildCommunitiesFromDbos(dbos)))
+                } else {
+                    Single.just(buildCommunitiesFromDbos(dbos))
+                }
             }
     }
 

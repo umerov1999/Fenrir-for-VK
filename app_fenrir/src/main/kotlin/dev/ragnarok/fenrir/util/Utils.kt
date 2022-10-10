@@ -128,7 +128,7 @@ object Utils {
 
     fun needReloadStickers(account_id: Int): Boolean {
         Settings.get().other().get_last_stikers_sync(account_id).let {
-            if (it > 0 && (System.currentTimeMillis() / 1000L) - it > 900) {
+            if (it <= 0 || (System.currentTimeMillis() / 1000L) - it > 900) {
                 Settings.get().other()
                     .set_last_stikers_sync(account_id, System.currentTimeMillis() / 1000L)
                 return true

@@ -1,9 +1,9 @@
-package dev.ragnarok.fenrir.media.gif
+package dev.ragnarok.fenrir.media.story
 
 import android.view.SurfaceHolder
 import dev.ragnarok.fenrir.model.VideoSize
 
-interface IGifPlayer {
+interface IStoryPlayer {
     val videoSize: VideoSize?
     fun play()
     fun pause()
@@ -25,10 +25,10 @@ interface IGifPlayer {
     }
 
     interface IVideoSizeChangeListener {
-        fun onVideoSizeChanged(player: IGifPlayer, size: VideoSize)
+        fun onVideoSizeChanged(player: IStoryPlayer, size: VideoSize)
     }
 
     interface IStatusChangeListener {
-        fun onPlayerStatusChange(player: IGifPlayer, previousStatus: Int, currentStatus: Int)
+        fun onPlayerStatusChange(player: IStoryPlayer, previousStatus: Int, currentStatus: Int)
     }
 }

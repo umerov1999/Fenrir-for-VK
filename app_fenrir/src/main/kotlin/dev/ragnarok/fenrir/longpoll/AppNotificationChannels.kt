@@ -14,7 +14,6 @@ object AppNotificationChannels {
     const val AUDIO_CHANNEL_ID = "audio_channel"
     const val DOWNLOAD_CHANNEL_ID = "download_channel"
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private val ATTRIBUTES = AudioAttributes.Builder()
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .setUsage(AudioAttributes.USAGE_NOTIFICATION)

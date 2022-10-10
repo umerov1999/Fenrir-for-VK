@@ -39,25 +39,25 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     private var netSearchEndOfContent = false
     private var actualLoadingNow = false
 
-    //private int actualLoadingOffset;
     private var cacheLoadingNow = false
     private var netSearchNow = false
     private var filter: String? = null
-    private fun requestActualData(offset: Int, do_scan: Boolean) {
+
+    private var offset = 0
+    private var networkOffset = 0
+    private fun requestActualData(do_scan: Boolean) {
         actualLoadingNow = true
-        //this.actualLoadingOffset = offset;
         val accountId = accountId
         resolveRefreshing()
         actualDisposable.add(communitiesInteractor.getActual(
             accountId,
             userId,
             if (isNotFriendShow) 1000 else 200,
-            offset
+            offset, true
         )
             .fromIOToMain()
             .subscribe({ communities ->
                 onActualDataReceived(
-                    offset,
                     communities,
                     do_scan
                 )
@@ -69,7 +69,6 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         resolveRefreshing()
     }
 
-    //private int netSearchOffset;
     private fun resolveRefreshing() {
         resumedView?.displayRefreshing(
             actualLoadingNow || netSearchNow
@@ -87,7 +86,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         viewHost.displayData(own, filtered, search)
     }
 
-    private fun onActualDataReceived(offset: Int, communities: List<Community>, do_scan: Boolean) {
+    private fun onActualDataReceived(communities: List<Community>, do_scan: Boolean) {
         //reset cache loading
         cacheDisposable.clear()
         cacheLoadingNow = false
@@ -126,6 +125,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
                 communities.size
             )
         }
+        offset += if (isNotFriendShow) 1000 else 200
         resolveRefreshing()
     }
 
@@ -148,7 +148,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         cacheLoadingNow = false
         showError(t)
         if (isNotFriendShow) {
-            requestActualData(0, false)
+            requestActualData(false)
         }
     }
 
@@ -158,7 +158,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         own.get().addAll(communities)
         view?.notifyDataSetChanged()
         if (isNotFriendShow) {
-            requestActualData(0, communities.isNotEmpty())
+            requestActualData(communities.isNotEmpty())
         }
     }
 
@@ -179,7 +179,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         view?.notifyDataSetChanged()
         filterDisposable.clear()
         netSearchDisposable.clear()
-        //netSearchOffset = 0;
+        networkOffset = 0
         netSearchNow = false
         if (searchNow) {
             filterDisposable.add(
@@ -191,19 +191,21 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
                         )
                     }, ignore())
             )
-            startNetSearch(0, true)
+            startNetSearch(true)
         } else {
             resolveRefreshing()
         }
     }
 
-    private fun startNetSearch(offset: Int, withDelay: Boolean) {
+    private fun startNetSearch(withDelay: Boolean) {
         val accountId = accountId
         val filter = filter
         val single: Single<List<Community>>
-        val searchSingle = communitiesInteractor.search(
-            accountId, filter, null,
-            null, null, null, 0, 100, offset
+        val searchSingle = communitiesInteractor.getActual(
+            accountId,
+            userId,
+            1000,
+            networkOffset, false
         )
         single = if (withDelay) {
             Completable.complete()
@@ -213,15 +215,11 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
             searchSingle
         }
         netSearchNow = true
-        //this.netSearchOffset = offset;
         resolveRefreshing()
-        netSearchDisposable.add(single
+        netSearchDisposable.add(single.map { filterM(it, filter) }
             .fromIOToMain()
             .subscribe({ data ->
-                onSearchDataReceived(
-                    offset,
-                    data
-                )
+                onSearchDataReceived(data)
             }) { t -> onSearchError(t) })
     }
 
@@ -231,22 +229,23 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         showError(getCauseIfRuntime(t))
     }
 
-    private fun onSearchDataReceived(offset: Int, communities: List<Community>) {
+    private fun onSearchDataReceived(communities: Pair<List<Community>, Boolean>) {
         netSearchNow = false
-        netSearchEndOfContent = communities.isEmpty()
+        netSearchEndOfContent = communities.second
         resolveRefreshing()
-        if (offset == 0) {
-            search.replace(communities)
+        if (networkOffset == 0) {
+            search.replace(communities.first)
             view?.notifyDataSetChanged()
         } else {
             val sizeBefore = search.size()
-            val count = communities.size
-            search.addAll(communities)
+            val count = communities.first.size
+            search.addAll(communities.first)
             view?.notifySearchDataAdded(
                 sizeBefore,
                 count
             )
         }
+        networkOffset += 1000
     }
 
     private fun onFilteredDataReceived(filteredData: List<Community>) {
@@ -289,27 +288,26 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         if (isSearchNow) {
             netSearchDisposable.clear()
             netSearchNow = false
-            startNetSearch(0, false)
+            networkOffset = 0
+            startNetSearch(false)
         } else {
             cacheDisposable.clear()
             cacheLoadingNow = false
             actualDisposable.clear()
             actualLoadingNow = false
-            //actualLoadingOffset = 0;
-            requestActualData(0, false)
+            offset = 0
+            requestActualData(false)
         }
     }
 
     fun fireScrollToEnd() {
         if (isSearchNow) {
             if (!netSearchNow && !netSearchEndOfContent) {
-                val offset = search.size()
-                startNetSearch(offset, false)
+                startNetSearch(false)
             }
         } else {
             if (!actualLoadingNow && !cacheLoadingNow && !actualEndOfContent) {
-                val offset = own.size()
-                requestActualData(offset, false)
+                requestActualData(false)
             }
         }
     }
@@ -328,6 +326,19 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
                 }
                 emitter.onSuccess(result)
             }
+        }
+
+        internal fun filterM(
+            orig: List<Community>,
+            filter: String?
+        ): Pair<List<Community>, Boolean> {
+            val result: MutableList<Community> = ArrayList(5)
+            for (community in orig) {
+                if (isMatchFilter(community, filter)) {
+                    result.add(community)
+                }
+            }
+            return Pair(result, orig.isEmpty())
         }
 
         private fun isMatchFilter(community: Community, filter: String?): Boolean {
@@ -376,7 +387,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     init {
         loadCachedData()
         if (!isNotFriendShow) {
-            requestActualData(0, false)
+            requestActualData(false)
         }
     }
 }

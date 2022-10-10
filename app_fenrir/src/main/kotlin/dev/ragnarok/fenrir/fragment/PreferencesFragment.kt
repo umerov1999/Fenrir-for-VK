@@ -416,6 +416,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
     }
 
+    @SuppressLint("CheckResult")
     @Suppress("DEPRECATION")
     private fun createRootScreen() = screen(requireActivity()) {
         subScreen("general_preferences") {
@@ -1731,6 +1732,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     DBHelper.removeDatabaseFor(requireActivity(), accountId)
                     cleanUICache(requireActivity(), false)
                     cleanCache(requireActivity(), true)
+                    Includes.stores.stickers().clearAccount(accountId).fromIOToMain()
+                        .subscribe(RxUtils.dummy(), RxUtils.ignore())
                     true
                 }
             }

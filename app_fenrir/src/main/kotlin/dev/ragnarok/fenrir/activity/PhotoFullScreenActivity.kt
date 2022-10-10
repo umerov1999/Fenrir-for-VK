@@ -29,7 +29,7 @@ class PhotoFullScreenActivity : NoMainActivity(), PlaceProvider, AppStyleable {
         attach(
             this,
             SlidrConfig.Builder().fromUnColoredToColoredStatusBar(true)
-                .position(SlidrPosition.VERTICAL).scrimColor(CurrentTheme.getColorBackground(this))
+                .position(SlidrPosition.LEFT).scrimColor(CurrentTheme.getColorBackground(this))
                 .build()
         )
         if (savedInstanceState == null) {

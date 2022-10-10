@@ -3,11 +3,11 @@ package dev.ragnarok.fenrir.fragment.storypager
 import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.App.Companion.instance
-import dev.ragnarok.fenrir.Includes.gifPlayerFactory
+import dev.ragnarok.fenrir.Includes.storyPlayerFactory
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
-import dev.ragnarok.fenrir.media.gif.IGifPlayer
-import dev.ragnarok.fenrir.media.gif.IGifPlayer.IStatusChangeListener
+import dev.ragnarok.fenrir.media.story.IStoryPlayer
+import dev.ragnarok.fenrir.media.story.IStoryPlayer.IStatusChangeListener
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.Story
@@ -31,8 +31,8 @@ class StoryPagerPresenter(
     private val context: Context,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IStoryPagerView>(accountId, savedInstanceState),
-    IStatusChangeListener, IGifPlayer.IVideoSizeChangeListener {
-    private var mGifPlayer: IGifPlayer? = null
+    IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener {
+    private var mStoryPlayer: IStoryPlayer? = null
     private var mCurrentIndex = 0
     fun isStoryIsVideo(pos: Int): Boolean {
         return mStories[pos].photo == null && mStories[pos].video != null
@@ -75,17 +75,17 @@ class StoryPagerPresenter(
         if (guiIsReady) {
             view?.attachDisplayToPlayer(
                 mCurrentIndex,
-                mGifPlayer
+                mStoryPlayer
             )
         } else {
-            mGifPlayer?.setDisplay(null)
+            mStoryPlayer?.setDisplay(null)
         }
     }
 
-    private fun initGifPlayer() {
-        if (mGifPlayer != null) {
-            val old: IGifPlayer? = mGifPlayer
-            mGifPlayer = null
+    private fun initStoryPlayer() {
+        if (mStoryPlayer != null) {
+            val old: IStoryPlayer? = mStoryPlayer
+            mStoryPlayer = null
             old?.release()
         }
         val story = mStories[mCurrentIndex]
@@ -101,11 +101,11 @@ class StoryPagerPresenter(
             view?.showError(R.string.unable_to_play_file)
             return
         }
-        mGifPlayer = gifPlayerFactory.createGifPlayer(url, false)
-        mGifPlayer?.addStatusChangeListener(this)
-        mGifPlayer?.addVideoSizeChangeListener(this)
+        mStoryPlayer = storyPlayerFactory.createStoryPlayer(url, false)
+        mStoryPlayer?.addStatusChangeListener(this)
+        mStoryPlayer?.addVideoSizeChangeListener(this)
         try {
-            mGifPlayer?.play()
+            mStoryPlayer?.play()
         } catch (e: Exception) {
             view?.showError(R.string.unable_to_play_file)
         }
@@ -116,17 +116,17 @@ class StoryPagerPresenter(
             return
         }
         mCurrentIndex = position
-        initGifPlayer()
+        initStoryPlayer()
     }
 
     private val isMy: Boolean
         get() = mStories[mCurrentIndex].ownerId == accountId
 
     private fun resolveAspectRatio() {
-        if (mGifPlayer == null) {
+        if (mStoryPlayer == null) {
             return
         }
-        val size = mGifPlayer?.videoSize
+        val size = mStoryPlayer?.videoSize
         if (size != null) {
             view?.setAspectRatioAt(
                 mCurrentIndex,
@@ -144,7 +144,7 @@ class StoryPagerPresenter(
 
     private fun resolvePreparingProgress() {
         val preparing =
-            mGifPlayer != null && mGifPlayer?.playerStatus == IGifPlayer.IStatus.PREPARING
+            mStoryPlayer != null && mStoryPlayer?.playerStatus == IStoryPlayer.IStatus.PREPARING
         view?.setPreparingProgressVisible(
             mCurrentIndex,
             preparing
@@ -171,8 +171,8 @@ class StoryPagerPresenter(
     fun fireHolderCreate(adapterPosition: Int) {
         if (!isStoryIsVideo(adapterPosition)) return
         val isProgress =
-            adapterPosition == mCurrentIndex && (mGifPlayer == null || mGifPlayer?.playerStatus == IGifPlayer.IStatus.PREPARING)
-        var size = if (mGifPlayer == null) null else mGifPlayer?.videoSize
+            adapterPosition == mCurrentIndex && (mStoryPlayer == null || mStoryPlayer?.playerStatus == IStoryPlayer.IStatus.PREPARING)
+        var size = if (mStoryPlayer == null) null else mStoryPlayer?.videoSize
         if (size == null) {
             size = DEF_SIZE
         }
@@ -215,14 +215,14 @@ class StoryPagerPresenter(
 
     public override fun onGuiPaused() {
         super.onGuiPaused()
-        mGifPlayer?.pause()
+        mStoryPlayer?.pause()
     }
 
     public override fun onGuiResumed() {
         super.onGuiResumed()
-        if (mGifPlayer != null) {
+        if (mStoryPlayer != null) {
             try {
-                mGifPlayer?.play()
+                mStoryPlayer?.play()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -230,8 +230,8 @@ class StoryPagerPresenter(
     }
 
     override fun onDestroyed() {
-        if (mGifPlayer != null) {
-            mGifPlayer?.release()
+        if (mStoryPlayer != null) {
+            mStoryPlayer?.release()
         }
         super.onDestroyed()
     }
@@ -301,9 +301,13 @@ class StoryPagerPresenter(
         }
     }
 
-    override fun onPlayerStatusChange(player: IGifPlayer, previousStatus: Int, currentStatus: Int) {
-        if (mGifPlayer === player) {
-            if (currentStatus == IGifPlayer.IStatus.ENDED) {
+    override fun onPlayerStatusChange(
+        player: IStoryPlayer,
+        previousStatus: Int,
+        currentStatus: Int
+    ) {
+        if (mStoryPlayer === player) {
+            if (currentStatus == IStoryPlayer.IStatus.ENDED) {
                 view?.onNext()
                 return
             }
@@ -312,8 +316,8 @@ class StoryPagerPresenter(
         }
     }
 
-    override fun onVideoSizeChanged(player: IGifPlayer, size: VideoSize) {
-        if (mGifPlayer === player) {
+    override fun onVideoSizeChanged(player: IStoryPlayer, size: VideoSize) {
+        if (mStoryPlayer === player) {
             resolveAspectRatio()
         }
     }
@@ -325,6 +329,6 @@ class StoryPagerPresenter(
 
     init {
         mCurrentIndex = savedInstanceState?.getInt(SAVE_PAGER_INDEX) ?: index
-        initGifPlayer()
+        initStoryPlayer()
     }
 }

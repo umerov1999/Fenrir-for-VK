@@ -42,7 +42,7 @@ interface IRelationshipInteractor {
         offset: Int
     ): Single<List<User>>
 
-    fun getRequests(accountId: Int, offset: Int?, count: Int?): Single<List<User>>
+    fun getRequests(accountId: Int, offset: Int?, count: Int?, store: Boolean): Single<List<User>>
     fun searchFriends(
         accountId: Int,
         userId: Int,

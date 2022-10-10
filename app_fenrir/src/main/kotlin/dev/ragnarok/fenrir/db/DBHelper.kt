@@ -87,8 +87,6 @@ class DBHelper private constructor(context: Context, aid: Int) :
         createTopicsTable(db)
         createNotoficationsTable(db)
         createUserDetTable(db)
-        createStickerSetTable(db)
-        createStickersKeywordsTable(db)
         createFavePhotosTable(db)
         createFaveVideosTable(db)
         createFaveArticlesTable(db)
@@ -139,8 +137,6 @@ class DBHelper private constructor(context: Context, aid: Int) :
         db.execSQL("DROP TABLE IF EXISTS " + TopicsColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + NotificationColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + UsersDetColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + StikerSetColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + StickersKeywordsColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + FavePhotosColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + FaveArticlesColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + FaveProductColumns.TABLENAME)
@@ -170,29 +166,6 @@ class DBHelper private constructor(context: Context, aid: Int) :
                     "END;"
         db.execSQL(sqlUpdate)
         db.execSQL(sqlDelete)
-    }
-
-    private fun createStickerSetTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + StikerSetColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
-                " [" + StikerSetColumns.POSITION + "] INTEGER, " +
-                " [" + StikerSetColumns.TITLE + "] TEXT, " +
-                " [" + StikerSetColumns.ICON + "] BLOB, " +
-                " [" + StikerSetColumns.PURCHASED + "] BOOLEAN, " +
-                " [" + StikerSetColumns.PROMOTED + "] BOOLEAN, " +
-                " [" + StikerSetColumns.ACTIVE + "] BOOLEAN, " +
-                " [" + StikerSetColumns.STICKERS + "] BLOB, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
-        db.execSQL(sql)
-    }
-
-    private fun createStickersKeywordsTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + StickersKeywordsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
-                " [" + StickersKeywordsColumns.KEYWORDS + "] BLOB, " +
-                " [" + StickersKeywordsColumns.STICKERS + "] BLOB, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
-        db.execSQL(sql)
     }
 
     private fun createCountriesTable(db: SQLiteDatabase) {

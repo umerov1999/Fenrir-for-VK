@@ -17,13 +17,11 @@
 package dev.ragnarok.fenrir.view.snowfall
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
-import android.os.Build
 
 @SuppressLint("NewApi")
 internal fun Drawable.toBitmap(): Bitmap {
@@ -34,7 +32,6 @@ internal fun Drawable.toBitmap(): Bitmap {
     }
 }
 
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal fun VectorDrawable.toBitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)

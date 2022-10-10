@@ -228,7 +228,7 @@ class DialogsPresenter(
         }
         try {
             InteractorFactory.createStickersInteractor()
-                .getAndStore(accountId)
+                .getAndStoreStickerSets(accountId)
                 .fromIOToMain()
                 .subscribe(dummy(), ignore())
         } catch (ignored: Exception) {

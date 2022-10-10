@@ -409,7 +409,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     checkFCMRegistration(false)
                     mCompositeDisposable.add(MusicPlaybackController.tracksExist.findAllAudios(this)
                         .andThen(
-                            InteractorFactory.createStickersInteractor().PlaceToStickerCache(this)
+                            InteractorFactory.createStickersInteractor().placeToStickerCache(this)
                         )
                         .fromIOToMain()
                         .subscribe(RxUtils.dummy()) { t ->

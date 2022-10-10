@@ -197,7 +197,8 @@ class FaveSyncWorker(context: Context, workerParams: WorkerParameters) :
                         accountId,
                         id,
                         1000,
-                        0
+                        0,
+                        true
                     ).blockingGet()
                 } catch (e: Exception) {
                     log.append("+++++++++++++++COMMUNITIES++++++++++++++++++++++++++++\r\n")

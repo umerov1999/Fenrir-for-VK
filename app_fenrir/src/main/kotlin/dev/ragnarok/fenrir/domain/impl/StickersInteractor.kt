@@ -31,7 +31,7 @@ import java.util.*
 
 class StickersInteractor(private val networker: INetworker, private val storage: IStickersStorage) :
     IStickersInteractor {
-    override fun getAndStore(accountId: Int): Completable {
+    override fun getAndStoreStickerSets(accountId: Int): Completable {
         val stickerSet = networker.vkDefault(accountId)
             .store()
             .stickers
@@ -49,7 +49,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
                 val ret =
                     mapAllMutable(list) { mapStikerSet(it) }
                 ret.add(temp)
-                storage.store(accountId, ret)
+                storage.storeStickerSets(accountId, ret)
             }
         return if (Settings.get().other().isHint_stickers) {
             stickerSet.andThen(
@@ -74,12 +74,13 @@ class StickersInteractor(private val networker: INetworker, private val storage:
             if (w[i].isNullOrEmpty()) {
                 continue
             }
+            if (s[i].isNullOrEmpty()) {
+                continue
+            }
             ret.add(
                 StickersKeywordsEntity(
                     w[i], mapAll(
-                        listEmptyIfNull(
-                            s[i]
-                        )
+                        s[i]
                     ) { mapSticker(it) })
             )
         }
@@ -90,8 +91,8 @@ class StickersInteractor(private val networker: INetworker, private val storage:
         accountId: Int,
         items: VKApiStickersKeywords
     ): Completable {
-        val s: List<List<VKApiSticker>> = listEmptyIfNull(items.words_stickers)
-        val w: List<List<String>> = listEmptyIfNull(items.keywords)
+        val s: List<List<VKApiSticker>?> = listEmptyIfNull(items.words_stickers)
+        val w: List<List<String>?> = listEmptyIfNull(items.keywords)
         val temp: MutableList<StickersKeywordsEntity> = ArrayList()
         if (w.isEmpty() || s.isEmpty() || w.size != s.size) {
             return storage.storeKeyWords(accountId, temp)
@@ -100,7 +101,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
         return storage.storeKeyWords(accountId, temp)
     }
 
-    override fun getStickers(accountId: Int): Single<List<StickerSet>> {
+    override fun getStickerSets(accountId: Int): Single<List<StickerSet>> {
         return storage.getPurchasedAndActive(accountId)
             .map { entities ->
                 mapAll(entities) {
@@ -122,7 +123,7 @@ class StickersInteractor(private val networker: INetworker, private val storage:
             }
     }
 
-    override fun PlaceToStickerCache(context: Context): Completable {
+    override fun placeToStickerCache(context: Context): Completable {
         return if (!hasReadStoragePermissionSimple(context)) {
             Completable.complete()
         } else {

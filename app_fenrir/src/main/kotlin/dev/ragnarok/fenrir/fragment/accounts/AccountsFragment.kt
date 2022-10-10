@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.fragment.accounts
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.*
 import android.graphics.Color
@@ -66,6 +67,7 @@ import dev.ragnarok.fenrir.util.Utils.getAppVersionName
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
 import dev.ragnarok.fenrir.util.serializeble.json.*
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
@@ -574,6 +576,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         }
     }
 
+    @SuppressLint("CheckResult")
     internal fun delete(account: Account) {
         Settings.get()
             .accounts()
@@ -595,6 +598,8 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
         mData?.remove(account)
         mAdapter?.notifyDataSetChanged()
         resolveEmptyText()
+        Includes.stores.stickers().clearAccount(account.getObjectId()).fromIOToMain()
+            .subscribe(RxUtils.dummy(), RxUtils.ignore())
     }
 
     internal fun setAsActive(account: Account) {

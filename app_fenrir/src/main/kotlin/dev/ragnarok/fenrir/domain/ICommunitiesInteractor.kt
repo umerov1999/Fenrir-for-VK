@@ -6,7 +6,14 @@ import io.reactivex.rxjava3.core.Single
 
 interface ICommunitiesInteractor {
     fun getCachedData(accountId: Int, userId: Int): Single<List<Community>>
-    fun getActual(accountId: Int, userId: Int, count: Int, offset: Int): Single<List<Community>>
+    fun getActual(
+        accountId: Int,
+        userId: Int,
+        count: Int,
+        offset: Int,
+        store: Boolean
+    ): Single<List<Community>>
+
     fun search(
         accountId: Int,
         q: String?,

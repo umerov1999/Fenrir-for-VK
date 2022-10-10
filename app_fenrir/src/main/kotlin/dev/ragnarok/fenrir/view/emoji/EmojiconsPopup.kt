@@ -130,7 +130,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
             .accounts()
             .current
         val stickerSets = InteractorFactory.createStickersInteractor()
-            .getStickers(accountId)
+            .getStickerSets(accountId)
             .blockingGet()
         val view = LayoutInflater.from(mContext).inflate(R.layout.emojicons, parent, false)
         emojisPager = view.findViewById(R.id.emojis_pager)

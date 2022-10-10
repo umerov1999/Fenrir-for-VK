@@ -79,7 +79,8 @@ class CommunitiesFragment : BaseMvpFragment<CommunitiesPresenter, ICommunitiesVi
             wrappers.add(own)
             wrappers.add(filtered)
             wrappers.add(search)
-            @StringRes val titles = arrayOf(null, R.string.quick_search_title, R.string.other)
+            @StringRes val titles =
+                arrayOf(null, R.string.quick_search_title, R.string.results_in_a_network)
             mAdapter?.setData(wrappers, titles)
         }
     }

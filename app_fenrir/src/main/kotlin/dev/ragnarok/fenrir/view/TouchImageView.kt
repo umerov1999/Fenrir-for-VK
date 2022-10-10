@@ -21,8 +21,24 @@ import android.view.animation.LinearInterpolator
 import android.widget.OverScroller
 import androidx.appcompat.widget.AppCompatImageView
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.getSerializableCompat
+import dev.ragnarok.fenrir.module.FenrirNative
+import dev.ragnarok.fenrir.module.animation.AnimatedFileDrawable
+import dev.ragnarok.fenrir.picasso.PicassoInstance
+import dev.ragnarok.fenrir.util.rxutils.RxUtils
+import dev.ragnarok.fenrir.view.natives.animation.AnimationNetworkCache
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.SingleEmitter
+import io.reactivex.rxjava3.core.SingleOnSubscribe
+import io.reactivex.rxjava3.disposables.Disposable
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.BufferedInputStream
+import java.io.File
+import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -43,6 +59,8 @@ open class TouchImageView @JvmOverloads constructor(
      */
     // Scale of image ranges from minScale to maxScale, where minScale == 1
     // when the image is stretched to fit view.
+    private var mDisposable: Disposable? = null
+    private val cache: AnimationNetworkCache by lazy { AnimationNetworkCache(context) }
     var currentZoom = 0f
         private set
 
@@ -106,6 +124,7 @@ open class TouchImageView @JvmOverloads constructor(
     private var doubleTapListener: OnDoubleTapListener? = null
     private var userTouchListener: OnTouchListener? = null
     private var touchImageViewListener: OnTouchImageViewListener? = null
+    private var animDrawable: AnimatedFileDrawable? = null
 
     init {
         super.setClickable(true)
@@ -160,7 +179,134 @@ open class TouchImageView @JvmOverloads constructor(
         touchCoordinatesListener = onTouchCoordinatesListener
     }
 
+    open fun fromAnimFile(file: File) {
+        if (!FenrirNative.isNativeLoaded) {
+            return
+        }
+        clearAnimationDrawable()
+        setAnimation(
+            AnimatedFileDrawable(
+                file,
+                0,
+                100,
+                100,
+                true,
+                object : AnimatedFileDrawable.DecoderListener {
+                    override fun onError() {
+
+                    }
+                })
+        )
+    }
+
+    private fun setAnimationByUrlCache(url: String, fallback: String?, fade: Boolean) {
+        if (!FenrirNative.isNativeLoaded) {
+            PicassoInstance.with().load(fallback).into(this)
+            return
+        }
+        val ch = cache.fetch(url)
+        if (ch == null) {
+            setImageDrawable(null)
+            PicassoInstance.with().load(fallback).into(this)
+            return
+        }
+        val ref = WeakReference(this)
+        setAnimation(
+            AnimatedFileDrawable(
+                ch,
+                0,
+                100,
+                100,
+                fade,
+                object : AnimatedFileDrawable.DecoderListener {
+                    override fun onError() {
+                        ref.get()?.let { PicassoInstance.with().load(fallback).into(it) }
+                    }
+
+                })
+        )
+    }
+
+    fun fromNet(key: String, url: String?, fallback: String?, client: OkHttpClient.Builder) {
+        if (!FenrirNative.isNativeLoaded || url == null || url.isEmpty()) {
+            PicassoInstance.with().load(fallback).into(this)
+            return
+        }
+        clearAnimationDrawable()
+        if (cache.isCachedFile(key)) {
+            setAnimationByUrlCache(key, fallback, true)
+            return
+        }
+        mDisposable = Single.create(SingleOnSubscribe { u: SingleEmitter<Boolean> ->
+            try {
+                val request: Request = Request.Builder()
+                    .url(url)
+                    .build()
+                val response: Response = client.build().newCall(request).execute()
+                if (!response.isSuccessful) {
+                    u.onSuccess(false)
+                    return@SingleOnSubscribe
+                }
+                val bfr = response.body.byteStream()
+                val input = BufferedInputStream(bfr)
+                cache.writeTempCacheFile(key, input)
+                input.close()
+                cache.renameTempFile(key)
+            } catch (e: Exception) {
+                u.onSuccess(false)
+                return@SingleOnSubscribe
+            }
+            u.onSuccess(true)
+        }).fromIOToMain()
+            .subscribe(
+                { u: Boolean ->
+                    if (u) {
+                        setAnimationByUrlCache(key, fallback, true)
+                    } else {
+                        PicassoInstance.with().load(fallback).into(this)
+                    }
+                }, RxUtils.ignore()
+            )
+    }
+
+    open fun clearAnimationDrawable() {
+        mDisposable?.dispose()
+        if (animDrawable != null) {
+            animDrawable?.stop()
+            animDrawable?.callback = null
+            animDrawable?.recycle()
+            animDrawable = null
+        }
+    }
+
+    private fun setAnimation(videoDrawable: AnimatedFileDrawable) {
+        if (!videoDrawable.isDecoded) return
+        animDrawable = videoDrawable
+        animDrawable?.setAllowDecodeSingleFrame(true)
+        animDrawable?.callback = this
+        animDrawable?.start()
+        setImageDrawable(animDrawable)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        animDrawable?.callback = this
+        animDrawable?.start()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        mDisposable?.dispose()
+        animDrawable?.stop()
+        animDrawable?.callback = null
+    }
+
+    open fun isPlaying(): Boolean {
+        return animDrawable?.isRunning == true
+    }
+
     override fun setImageResource(resId: Int) {
+        clearAnimationDrawable()
         imageRenderedAtLeastOnce = false
         super.setImageResource(resId)
         savePreviousImageValues()
@@ -168,6 +314,7 @@ open class TouchImageView @JvmOverloads constructor(
     }
 
     override fun setImageBitmap(bm: Bitmap?) {
+        clearAnimationDrawable()
         imageRenderedAtLeastOnce = false
         super.setImageBitmap(bm)
         savePreviousImageValues()
@@ -175,6 +322,9 @@ open class TouchImageView @JvmOverloads constructor(
     }
 
     override fun setImageDrawable(drawable: Drawable?) {
+        if (drawable !is AnimatedFileDrawable) {
+            clearAnimationDrawable()
+        }
         imageRenderedAtLeastOnce = false
         super.setImageDrawable(drawable)
         savePreviousImageValues()
@@ -182,6 +332,7 @@ open class TouchImageView @JvmOverloads constructor(
     }
 
     override fun setImageURI(uri: Uri?) {
+        clearAnimationDrawable()
         imageRenderedAtLeastOnce = false
         super.setImageURI(uri)
         savePreviousImageValues()
