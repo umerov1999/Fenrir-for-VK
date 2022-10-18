@@ -46,7 +46,6 @@ abstract class AbsSearchPresenter<V : IBaseSearchView<T>, C : BaseSearchCriteria
             //setLoadingNow(false);
             return
         }
-        val accountId = accountId
         val cloneCriteria = (criteria ?: return).safellyClone() as C
         val nf: N = nextFrom
         setLoadingNow(true)

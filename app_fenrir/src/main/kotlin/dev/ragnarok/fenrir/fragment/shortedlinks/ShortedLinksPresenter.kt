@@ -28,7 +28,6 @@ class ShortedLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun loadActualData(offset: Int) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(fInteractor.getLastShortenedLinks(accountId, 10, offset)
             .fromIOToMain()
             .subscribe({

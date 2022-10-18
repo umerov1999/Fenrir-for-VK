@@ -44,7 +44,6 @@ class VideoAlbumsPresenter(
     private fun requestActualData(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(videosInteractor.getActualAlbums(
             accountId,
             ownerId,
@@ -88,7 +87,6 @@ class VideoAlbumsPresenter(
     }
 
     private fun loadAllDataFromDb() {
-        val accountId = accountId
         cacheDisposable.add(
             videosInteractor.getCachedAlbums(accountId, ownerId)
                 .fromIOToMain()

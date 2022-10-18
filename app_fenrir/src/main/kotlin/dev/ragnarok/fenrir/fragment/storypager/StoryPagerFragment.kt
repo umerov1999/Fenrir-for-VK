@@ -68,9 +68,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
     private var helpDisposable = Disposable.disposed()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            mFullscreen = savedInstanceState.getBoolean("mFullscreen")
-        }
+        mFullscreen = savedInstanceState?.getBoolean("mFullscreen") ?: false
         transformation = CurrentTheme.createTransformationForAvatar()
     }
 

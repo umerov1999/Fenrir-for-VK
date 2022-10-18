@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.fragment.fave.faveproducts
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Market
 
-interface IFaveProductsView : IAccountDependencyView, IMvpView, IErrorView {
+interface IFaveProductsView : IMvpView, IErrorView {
     fun displayData(markets: List<Market>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

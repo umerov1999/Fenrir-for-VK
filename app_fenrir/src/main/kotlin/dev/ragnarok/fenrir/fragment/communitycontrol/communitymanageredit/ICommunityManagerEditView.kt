@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.communitycontrol.communitymanageredit
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IProgressView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.User
 
-interface ICommunityManagerEditView : IMvpView, IAccountDependencyView, IErrorView, IProgressView,
+interface ICommunityManagerEditView : IMvpView, IErrorView, IProgressView,
     IToastView {
     fun displayUserInfo(user: User)
     fun showUserProfile(accountId: Int, user: User)

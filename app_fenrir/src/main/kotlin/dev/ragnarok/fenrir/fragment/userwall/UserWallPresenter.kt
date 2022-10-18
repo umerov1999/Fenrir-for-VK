@@ -195,7 +195,6 @@ class UserWallPresenter(
     }
 
     private fun refreshUserDetails() {
-        val accountId = accountId
         appendDisposable(
             ownersRepository.getFullUserInfo(
                 accountId,
@@ -497,7 +496,6 @@ class UserWallPresenter(
     }
 
     fun fireDeleteFromFriends() {
-        val accountId = accountId
         appendDisposable(relationshipInteractor.deleteFriends(accountId, ownerId)
             .fromIOToMain()
             .subscribe({ responseCode -> onFriendsDeleteResult(responseCode) }) { t ->
@@ -506,7 +504,6 @@ class UserWallPresenter(
     }
 
     fun fireNewStatusEntered(newValue: String?) {
-        val accountId = accountId
         appendDisposable(accountInteractor.changeStatus(accountId, newValue)
             .fromIOToMain()
             .subscribe({ onStatusChanged(newValue) }) { t ->
@@ -546,35 +543,30 @@ class UserWallPresenter(
     }
 
     fun fireAddToBookmarks() {
-        val accountId = accountId
         appendDisposable(faveInteractor.addPage(accountId, ownerId)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireRemoveFromBookmarks() {
-        val accountId = accountId
         appendDisposable(faveInteractor.removePage(accountId, ownerId, true)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireSubscribe() {
-        val accountId = accountId
         appendDisposable(wallsRepository.subscribe(accountId, ownerId)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireUnSubscribe() {
-        val accountId = accountId
         appendDisposable(wallsRepository.unsubscribe(accountId, ownerId)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     private fun executeAddToFriendsRequest(text: String?, follow: Boolean) {
-        val accountId = accountId
         appendDisposable(relationshipInteractor.addFriend(accountId, ownerId, text, follow)
             .fromIOToMain()
             .subscribe({ resultCode -> onAddFriendResult(resultCode) }) { t ->
@@ -618,7 +610,6 @@ class UserWallPresenter(
 
     private fun prepareUserAvatarsAndShow() {
         setLoadingAvatarPhotosNow(true)
-        val accountId = accountId
         appendDisposable(photosInteractor[accountId, ownerId, -6, 100, 0, true]
             .fromIOToMain()
             .subscribe({ photos -> DisplayUserProfileAlbum(photos) }) { t ->
@@ -715,7 +706,6 @@ class UserWallPresenter(
     }
 
     fun fireChatClick() {
-        val accountId = accountId
         val peer = Peer(Peer.fromUserId(user.getObjectId()))
             .setAvaUrl(user.maxSquareAvatar)
             .setTitle(user.fullName)

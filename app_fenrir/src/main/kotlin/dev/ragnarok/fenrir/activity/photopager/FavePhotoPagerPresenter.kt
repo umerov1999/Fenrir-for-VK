@@ -26,7 +26,6 @@ class FavePhotoPagerPresenter(
         }
         refreshing[index] = true
         val photo = mPhotos[index]
-        val accountId = accountId
         val forUpdate = listOf(AccessIdPair(photo.getObjectId(), photo.ownerId, photo.accessKey))
         appendDisposable(photosInteractor.getPhotosByIds(accountId, forUpdate)
             .fromIOToMain()

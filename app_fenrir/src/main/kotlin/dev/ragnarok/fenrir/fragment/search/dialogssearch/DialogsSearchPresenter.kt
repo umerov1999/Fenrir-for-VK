@@ -63,7 +63,6 @@ class DialogsSearchPresenter(
     }
 
     fun fireEntryClick(o: Conversation) {
-        val accountId = accountId
         val messagesOwnerId = accountId // todo Community dialogs search !!!
         val peer =
             Peer(Peer.fromOwnerId(o.getId())).setAvaUrl(o.imageUrl).setTitle(o.getDisplayTitle())

@@ -58,7 +58,6 @@ class RepostPresenter(
 
     fun fireReadyClick() {
         setPublishingNow(true)
-        val accountId = accountId
         val body = getTextBody()
         appendDisposable(walls.repost(accountId, post.vkid, post.ownerId, targetGroupId, body)
             .fromIOToMain()

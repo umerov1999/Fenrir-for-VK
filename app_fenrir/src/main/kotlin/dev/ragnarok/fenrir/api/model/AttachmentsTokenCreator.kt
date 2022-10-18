@@ -37,6 +37,10 @@ object AttachmentsTokenCreator {
         return AttachmentToken("call", initiator_id, receiver_id, state + "_" + time)
     }
 
+    fun ofGeo(latitude: String?, longitude: String?): IAttachmentToken {
+        return AttachmentToken("geo", latitude.hashCode(), longitude.hashCode())
+    }
+
     fun ofPhoto(id: Int, ownerId: Int, accessKey: String?): IAttachmentToken {
         return AttachmentToken("photo", id, ownerId, accessKey)
     }

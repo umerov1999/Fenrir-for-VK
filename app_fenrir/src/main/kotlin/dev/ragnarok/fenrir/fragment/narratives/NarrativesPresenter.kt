@@ -35,7 +35,6 @@ class NarrativesPresenter(
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(ownerInteractor.getNarratives(
             accountId,
             owner_id,

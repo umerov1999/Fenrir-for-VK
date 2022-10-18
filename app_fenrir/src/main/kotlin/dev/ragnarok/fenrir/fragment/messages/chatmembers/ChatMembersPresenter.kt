@@ -40,7 +40,6 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
     }
 
     private fun requestData() {
-        val accountId = accountId
         setRefreshing(true)
         appendDisposable(messagesInteractor.getChatUsers(accountId, chatId)
             .fromIOToMain()
@@ -83,8 +82,7 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
         )
     }
 
-    fun fireUserDeteleConfirmed(user: AppChatUser) {
-        val accountId = accountId
+    fun fireUserDeleteConfirmed(user: AppChatUser) {
         val userId = user.getMember()?.ownerId ?: return
         appendDisposable(messagesInteractor.removeChatMember(accountId, chatId, userId)
             .fromIOToMain()
@@ -105,7 +103,6 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
 
     fun fireUserSelected(owners: ArrayList<Owner>?) {
         owners ?: return
-        val accountId = accountId
         val users = ArrayList<User>()
         for (i in owners) {
             if (i is User) {

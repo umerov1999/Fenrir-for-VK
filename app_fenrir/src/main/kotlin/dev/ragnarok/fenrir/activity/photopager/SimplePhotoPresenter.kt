@@ -14,7 +14,6 @@ class SimplePhotoPresenter(
     private var mDataRefreshSuccessfull = false
     private fun refreshData() {
         val ids = ArrayList<AccessIdPair>(mPhotos.size)
-        val accountId = accountId
         for (photo in mPhotos) {
             ids.add(AccessIdPair(photo.getObjectId(), photo.ownerId, photo.accessKey))
         }

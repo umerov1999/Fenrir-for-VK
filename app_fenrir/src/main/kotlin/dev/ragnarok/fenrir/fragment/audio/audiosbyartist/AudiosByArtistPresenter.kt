@@ -164,7 +164,6 @@ class AudiosByArtistPresenter(
     }
 
     fun onAdd(album: AudioPlaylist) {
-        val accountId = accountId
         audioListDisposable.add(audioInteractor.followPlaylist(
             accountId,
             album.getId(),

@@ -58,6 +58,23 @@ class Document : AbsModel {
         msgPeerId = `in`.readInt()
     }
 
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
+        parcel.writeInt(ownerId)
+        parcel.writeString(title)
+        parcel.writeLong(size)
+        parcel.writeString(ext)
+        parcel.writeString(url)
+        parcel.writeLong(date)
+        parcel.writeInt(type)
+        parcel.writeString(accessKey)
+        parcel.writeTypedObjectCompat(photoPreview, flags)
+        parcel.writeTypedObjectCompat(videoPreview, flags)
+        parcel.writeTypedObjectCompat(graffiti, flags)
+        parcel.writeInt(msgId)
+        parcel.writeInt(msgPeerId)
+    }
+
     @AbsModelType
     override fun getModelType(): Int {
         return AbsModelType.MODEL_DOCUMENT
@@ -82,23 +99,6 @@ class Document : AbsModel {
 
     fun getMaxPreviewSize(excludeNonAspectRatio: Boolean): PhotoSizes.Size? {
         return photoPreview?.getMaxSize(excludeNonAspectRatio)
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
-        parcel.writeInt(ownerId)
-        parcel.writeString(title)
-        parcel.writeLong(size)
-        parcel.writeString(ext)
-        parcel.writeString(url)
-        parcel.writeLong(date)
-        parcel.writeInt(type)
-        parcel.writeString(accessKey)
-        parcel.writeTypedObjectCompat(photoPreview, flags)
-        parcel.writeTypedObjectCompat(videoPreview, flags)
-        parcel.writeTypedObjectCompat(graffiti, flags)
-        parcel.writeInt(msgId)
-        parcel.writeInt(msgPeerId)
     }
 
     fun setGraffiti(graffiti: Graffiti?): Document {
@@ -181,15 +181,15 @@ class Document : AbsModel {
             height = `in`.readInt()
         }
 
-        @AbsModelType
-        override fun getModelType(): Int {
-            return AbsModelType.MODEL_DOCUMENT_GRAFFITI
-        }
-
         override fun writeToParcel(parcel: Parcel, flags: Int) {
             parcel.writeString(src)
             parcel.writeInt(width)
             parcel.writeInt(height)
+        }
+
+        @AbsModelType
+        override fun getModelType(): Int {
+            return AbsModelType.MODEL_DOCUMENT_GRAFFITI
         }
 
         fun setSrc(src: String?): Graffiti {
@@ -240,16 +240,16 @@ class Document : AbsModel {
             fileSize = `in`.readLong()
         }
 
-        @AbsModelType
-        override fun getModelType(): Int {
-            return AbsModelType.MODEL_DOCUMENT_VIDEO_PREVIEW
-        }
-
         override fun writeToParcel(parcel: Parcel, flags: Int) {
             parcel.writeString(src)
             parcel.writeInt(width)
             parcel.writeInt(height)
             parcel.writeLong(fileSize)
+        }
+
+        @AbsModelType
+        override fun getModelType(): Int {
+            return AbsModelType.MODEL_DOCUMENT_VIDEO_PREVIEW
         }
 
         fun setSrc(src: String?): VideoPreview {

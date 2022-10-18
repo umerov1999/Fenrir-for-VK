@@ -39,7 +39,6 @@ class CommunityLinksPresenter(
     }
 
     private fun requestLinks() {
-        val accountId = accountId
         setLoadingNow(true)
         appendDisposable(networker.vkDefault(accountId)
             .groups()

@@ -336,7 +336,6 @@ open class PhotoPagerPresenter internal constructor(
         val photo = current
         val ownerId = photo.ownerId
         val photoId = photo.getObjectId()
-        val accountId = accountId
         val add = !photo.isUserLikes
         appendDisposable(photosInteractor.like(accountId, ownerId, photoId, add, photo.accessKey)
             .fromIOToMain()
@@ -448,7 +447,6 @@ open class PhotoPagerPresenter internal constructor(
         if (photo.albumId == -311) {
             return
         }
-        val accountId = accountId
         appendDisposable(photosInteractor.copy(
             accountId,
             photo.ownerId,
@@ -539,7 +537,6 @@ open class PhotoPagerPresenter internal constructor(
         }
         val photoId = photo.getObjectId()
         val ownerId = photo.ownerId
-        val accountId = accountId
         val completable: Completable = if (detele) {
             photosInteractor.deletePhoto(accountId, ownerId, photoId)
         } else {

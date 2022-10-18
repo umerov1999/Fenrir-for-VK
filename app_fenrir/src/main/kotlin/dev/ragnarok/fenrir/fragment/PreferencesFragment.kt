@@ -1219,7 +1219,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
             switch("broadcast") {
                 defaultValue = false
-                summaryRes = R.string.audio_in_status_summary
                 titleRes = R.string.audio_in_status
             }
 
@@ -1726,40 +1725,44 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
 
-            pref("account_cache_cleaner") {
-                titleRes = R.string.account_cache_cleaner
-                onClick {
-                    DBHelper.removeDatabaseFor(requireActivity(), accountId)
-                    cleanUICache(requireActivity(), false)
-                    cleanCache(requireActivity(), true)
-                    Includes.stores.stickers().clearAccount(accountId).fromIOToMain()
-                        .subscribe(RxUtils.dummy(), RxUtils.ignore())
-                    true
-                }
-            }
-
-            accentButtonPref("cache_cleaner") {
+            subScreen("cache_control") {
                 titleRes = R.string.cache_cleaner
-                onClick {
-                    TempDataHelper.helper.clear()
-                    cleanUICache(requireActivity(), false)
-                    cleanCache(requireActivity(), true)
-                    requireActivity().recreate()
-                    true
-                }
-            }
 
-            pref("ui_cache_cleaner") {
-                dependency = "enable_native"
-                titleRes = R.string.ui_cache_cleaner
-                onClick {
-                    cleanUICache(requireActivity(), true)
-                    true
+                pref("account_cache_cleaner") {
+                    titleRes = R.string.account_cache_cleaner
+                    onClick {
+                        DBHelper.removeDatabaseFor(requireActivity(), accountId)
+                        cleanUICache(requireActivity(), false)
+                        cleanCache(requireActivity(), true)
+                        Includes.stores.stickers().clearAccount(accountId).fromIOToMain()
+                            .subscribe(RxUtils.dummy(), RxUtils.ignore())
+                        true
+                    }
                 }
-            }
 
-            switch("delete_cache_images") {
-                titleRes = R.string.delete_cache_images
+                pref("ui_cache_cleaner") {
+                    dependency = "enable_native"
+                    titleRes = R.string.ui_cache_cleaner
+                    onClick {
+                        cleanUICache(requireActivity(), true)
+                        true
+                    }
+                }
+
+                accentButtonPref("cache_cleaner") {
+                    titleRes = R.string.cache_cleaner
+                    onClick {
+                        TempDataHelper.helper.clear()
+                        cleanUICache(requireActivity(), false)
+                        cleanCache(requireActivity(), true)
+                        requireActivity().recreate()
+                        true
+                    }
+                }
+
+                switch("delete_cache_images") {
+                    titleRes = R.string.delete_cache_images
+                }
             }
 
             switch("compress_incoming_traffic") {
@@ -2022,6 +2025,37 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         return if (can) available[0].gmcToken else null
     }
 
+    private val internalDataIntent = registerForActivityResult(
+        StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            try {
+                val file = File(
+                    result.data?.getStringExtra(Extra.PATH) ?: return@registerForActivityResult
+                )
+                if (file.exists()) {
+                    MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(R.string.confirmation)
+                        .setMessage(R.string.data)
+                        .setPositiveButton(R.string.delete) { _: DialogInterface?, _: Int ->
+                            file.delete()
+                        }
+                        .setNegativeButton(R.string.button_save) { _: DialogInterface?, _: Int ->
+                            file.copyTo(
+                                File(Environment.getExternalStorageDirectory(), file.name),
+                                true
+                            )
+                        }
+                        .setNeutralButton(R.string.button_cancel, null)
+                        .show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                createCustomToast(requireActivity()).showToastError(e.localizedMessage)
+            }
+        }
+    }
+
     private fun showAdditionalInfo(secured: Boolean) {
         if (secured) {
             if (!Settings.get().security().isUsePinForSecurity) {
@@ -2044,10 +2078,22 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         view.findViewById<TextInputEditText>(R.id.item_gcm_token).setText(pushToken())
         view.findViewById<TextInputEditText>(R.id.item_access_token)
             .setText(Settings.get().accounts().currentAccessToken)
-        MaterialAlertDialogBuilder(requireActivity())
+        val ot = MaterialAlertDialogBuilder(requireActivity())
+            .setPositiveButton(R.string.button_ok, null)
             .setTitle(R.string.additional_info)
             .setView(view)
-            .show()
+        if (Utils.hasNougat()) {
+            ot.setNegativeButton(R.string.data) { _: DialogInterface?, _: Int ->
+                internalDataIntent.launch(
+                    FileManagerSelectActivity.makeFileManager(
+                        requireActivity(),
+                        requireActivity().dataDir.absolutePath,
+                        null
+                    )
+                )
+            }
+        }
+        ot.show()
     }
 
     private fun showSelectIcon() {

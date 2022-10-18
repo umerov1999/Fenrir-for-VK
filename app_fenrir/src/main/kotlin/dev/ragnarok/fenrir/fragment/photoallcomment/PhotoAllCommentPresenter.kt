@@ -53,7 +53,6 @@ class PhotoAllCommentPresenter(
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(photosInteractor.getAllComments(
             accountId,
             owner_id,
@@ -148,7 +147,6 @@ class PhotoAllCommentPresenter(
     }
 
     private fun likeInternal(add: Boolean, comment: Comment) {
-        val accountId = accountId
         appendDisposable(interactor.like(accountId, comment.commented, comment.getObjectId(), add)
             .fromIOToMain()
             .subscribe(dummy()) { t ->
@@ -235,7 +233,6 @@ class PhotoAllCommentPresenter(
             return
         }
         val older = firstCommentInList
-        val accountId = accountId
         view?.displayDeepLookingCommentProgress()
         deepLookingHolder.append(older?.getObjectId()?.let { it1 ->
             interactor.getAllCommentsRange(

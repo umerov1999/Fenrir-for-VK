@@ -35,7 +35,6 @@ class FavePhotosPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     private fun loadAllCachedData() {
-        val accountId = accountId
         cacheLoadingNow = true
         cacheDisposable.add(faveInteractor.getCachedPhotos(accountId)
             .fromIOToMain()
@@ -71,7 +70,6 @@ class FavePhotosPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun request(offset: Int) {
         setRequestNow(true)
-        val accountId = accountId
         netDisposable.add(faveInteractor.getPhotos(accountId, COUNT_PER_REQUEST, offset)
             .fromIOToMain()
             .subscribe({ photos ->

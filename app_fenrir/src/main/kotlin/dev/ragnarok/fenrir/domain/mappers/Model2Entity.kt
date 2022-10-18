@@ -15,7 +15,6 @@ import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 
 object Model2Entity {
-
     fun buildKeyboardEntity(keyboard: Keyboard?): KeyboardEntity? {
         val buttonsDto = keyboard?.buttons
         if (buttonsDto.isNullOrEmpty()) {
@@ -38,24 +37,6 @@ object Model2Entity {
             .setOne_time(keyboard.one_time).setButtons(buttons)
     }
 
-    fun buildSimpleDialog(entity: Conversation): SimpleDialogEntity {
-        return SimpleDialogEntity(entity.getId())
-            .setInRead(entity.getInRead())
-            .setOutRead(entity.getOutRead())
-            .setPhoto50(entity.getPhoto50())
-            .setPhoto100(entity.getPhoto100())
-            .setPhoto200(entity.getPhoto200())
-            .setUnreadCount(entity.getUnreadCount())
-            .setTitle(entity.getTitle())
-            .setPinned(entity.getPinned()?.let { buildMessageEntity(it) })
-            .setAcl(entity.getAcl())
-            .setGroupChannel(entity.isGroupChannel())
-            .setCurrentKeyboard(buildKeyboardEntity(entity.getCurrentKeyboard()))
-            .setMajor_id(entity.getMajor_id())
-            .setMinor_id(entity.getMinor_id())
-    }
-
-
     fun buildDialog(model: Dialog): DialogDboEntity {
         return DialogDboEntity(model.peerId)
             .setUnreadCount(model.unreadCount)
@@ -71,7 +52,6 @@ object Model2Entity {
             .setMajor_id(model.major_id)
             .setMinor_id(model.getMinor_id())
     }
-
 
     fun buildMessageEntity(message: Message): MessageDboEntity {
         return MessageDboEntity().set(message.getObjectId(), message.peerId, message.senderId)
@@ -164,6 +144,11 @@ object Model2Entity {
             entities
         )
         mapAndAdd(
+            attachments.geos,
+            { buildGeoDbo(it) },
+            entities
+        )
+        mapAndAdd(
             attachments.wallReplies,
             { buildWallReplyDbo(it) },
             entities
@@ -230,72 +215,75 @@ object Model2Entity {
     fun buildDboAttachments(models: List<AbsModel>): List<DboEntity> {
         val entities: MutableList<DboEntity> = ArrayList(models.size)
         for (model in models) {
-            when (model) {
-                is Audio -> {
-                    entities.add(buildAudioEntity(model))
+            when (model.getModelType()) {
+                AbsModelType.MODEL_AUDIO -> {
+                    entities.add(buildAudioEntity(model as Audio))
                 }
-                is Sticker -> {
-                    entities.add(buildStickerEntity(model))
+                AbsModelType.MODEL_STICKER -> {
+                    entities.add(buildStickerEntity(model as Sticker))
                 }
-                is Photo -> {
-                    entities.add(buildPhotoEntity(model))
+                AbsModelType.MODEL_PHOTO -> {
+                    entities.add(buildPhotoEntity(model as Photo))
                 }
-                is Document -> {
-                    entities.add(buildDocumentDbo(model))
+                AbsModelType.MODEL_DOCUMENT -> {
+                    entities.add(buildDocumentDbo(model as Document))
                 }
-                is Video -> {
-                    entities.add(buildVideoDbo(model))
+                AbsModelType.MODEL_VIDEO -> {
+                    entities.add(buildVideoDbo(model as Video))
                 }
-                is Post -> {
-                    entities.add(buildPostDbo(model))
+                AbsModelType.MODEL_POST -> {
+                    entities.add(buildPostDbo(model as Post))
                 }
-                is Link -> {
-                    entities.add(buildLinkDbo(model))
+                AbsModelType.MODEL_LINK -> {
+                    entities.add(buildLinkDbo(model as Link))
                 }
-                is Article -> {
-                    entities.add(buildArticleDbo(model))
+                AbsModelType.MODEL_ARTICLE -> {
+                    entities.add(buildArticleDbo(model as Article))
                 }
-                is PhotoAlbum -> {
-                    entities.add(buildPhotoAlbumEntity(model))
+                AbsModelType.MODEL_PHOTO_ALBUM -> {
+                    entities.add(buildPhotoAlbumEntity(model as PhotoAlbum))
                 }
-                is Story -> {
-                    entities.add(buildStoryDbo(model))
+                AbsModelType.MODEL_STORY -> {
+                    entities.add(buildStoryDbo(model as Story))
                 }
-                is AudioPlaylist -> {
-                    entities.add(buildAudioPlaylistEntity(model))
+                AbsModelType.MODEL_AUDIO_PLAYLIST -> {
+                    entities.add(buildAudioPlaylistEntity(model as AudioPlaylist))
                 }
-                is Call -> {
-                    entities.add(buildCallDbo(model))
+                AbsModelType.MODEL_CALL -> {
+                    entities.add(buildCallDbo(model as Call))
                 }
-                is NotSupported -> {
-                    entities.add(buildNotSupportedDbo(model))
+                AbsModelType.MODEL_GEO -> {
+                    entities.add(buildGeoDbo(model as Geo))
                 }
-                is Event -> {
-                    entities.add(buildEventDbo(model))
+                AbsModelType.MODEL_NOT_SUPPORTED -> {
+                    entities.add(buildNotSupportedDbo(model as NotSupported))
                 }
-                is Market -> {
-                    entities.add(buildMarketDbo(model))
+                AbsModelType.MODEL_EVENT -> {
+                    entities.add(buildEventDbo(model as Event))
                 }
-                is MarketAlbum -> {
-                    entities.add(buildMarketAlbumDbo(model))
+                AbsModelType.MODEL_MARKET -> {
+                    entities.add(buildMarketDbo(model as Market))
                 }
-                is AudioArtist -> {
-                    entities.add(buildAudioArtistDbo(model))
+                AbsModelType.MODEL_MARKET_ALBUM -> {
+                    entities.add(buildMarketAlbumDbo(model as MarketAlbum))
                 }
-                is WallReply -> {
-                    entities.add(buildWallReplyDbo(model))
+                AbsModelType.MODEL_AUDIO_ARTIST -> {
+                    entities.add(buildAudioArtistDbo(model as AudioArtist))
                 }
-                is Graffiti -> {
-                    entities.add(buildGraffityDbo(model))
+                AbsModelType.MODEL_WALL_REPLY -> {
+                    entities.add(buildWallReplyDbo(model as WallReply))
                 }
-                is Poll -> {
-                    entities.add(buildPollDbo(model))
+                AbsModelType.MODEL_GRAFFITI -> {
+                    entities.add(buildGraffityDbo(model as Graffiti))
                 }
-                is WikiPage -> {
-                    entities.add(buildPageEntity(model))
+                AbsModelType.MODEL_POLL -> {
+                    entities.add(buildPollDbo(model as Poll))
                 }
-                is GiftItem -> {
-                    entities.add(buildGiftItemEntity(model))
+                AbsModelType.MODEL_WIKI_PAGE -> {
+                    entities.add(buildPageEntity(model as WikiPage))
+                }
+                AbsModelType.MODEL_GIFT_ITEM -> {
+                    entities.add(buildGiftItemEntity(model as GiftItem))
                 }
                 else -> {
                     throw UnsupportedOperationException("Unsupported model")
@@ -389,6 +377,15 @@ object Model2Entity {
             .setReceiver_id(dbo.receiver_id)
             .setState(dbo.state)
             .setTime(dbo.time)
+    }
+
+    private fun buildGeoDbo(dbo: Geo): GeoDboEntity {
+        return GeoDboEntity().setLatitude(dbo.latitude)
+            .setLongitude(dbo.longitude)
+            .setTitle(dbo.title)
+            .setAddress(dbo.address)
+            .setCountry(dbo.country)
+            .setId(dbo.id)
     }
 
     private fun buildWallReplyDbo(dbo: WallReply): WallReplyDboEntity {

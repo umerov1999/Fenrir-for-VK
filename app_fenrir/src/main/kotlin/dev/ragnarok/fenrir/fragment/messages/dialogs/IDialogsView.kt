@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.messages.dialogs
 
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
@@ -9,7 +8,7 @@ import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 
-interface IDialogsView : IAccountDependencyView, IMvpView, IErrorView, IToastView {
+interface IDialogsView : IMvpView, IErrorView, IToastView {
     fun displayData(data: List<Dialog>, accountId: Int)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

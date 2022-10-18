@@ -38,9 +38,7 @@ class GifPagerFragment : AbsDocumentPreviewFragment<GifPagerPresenter, IGifPager
     private var mFullscreen = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            mFullscreen = savedInstanceState.getBoolean("mFullscreen")
-        }
+        mFullscreen = savedInstanceState?.getBoolean("mFullscreen") ?: false
     }
 
     override val requestWritePermission = requestPermissionsAbs(

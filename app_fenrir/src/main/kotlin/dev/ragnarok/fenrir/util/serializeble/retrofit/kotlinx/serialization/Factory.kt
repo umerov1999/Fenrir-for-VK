@@ -70,6 +70,14 @@ fun Json.asConverterFactory(): Converter.Factory {
 }
 
 @ExperimentalSerializationApi
+fun jsonMsgPackConverterFactory(json: Json, msgPack: MsgPack): Converter.Factory {
+    return Factory(
+        "application/json; charset=UTF-8".toMediaType(),
+        Serializer.FromJsonMsgPack(json, msgPack)
+    )
+}
+
+@ExperimentalSerializationApi
 @JvmName("create")
 fun MsgPack.asConverterFactory(): Converter.Factory {
     return Factory(

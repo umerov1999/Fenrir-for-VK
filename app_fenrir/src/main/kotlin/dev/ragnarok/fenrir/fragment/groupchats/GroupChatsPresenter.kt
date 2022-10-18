@@ -23,7 +23,6 @@ class GroupChatsPresenter(accountId: Int, private val groupId: Int, savedInstanc
     private var netLoadingNow = false
     private var netLoadingNowOffset = 0
     private fun requestActualData(offset: Int) {
-        val accountId = accountId
         netLoadingNow = true
         netLoadingNowOffset = offset
         resolveRefreshingView()

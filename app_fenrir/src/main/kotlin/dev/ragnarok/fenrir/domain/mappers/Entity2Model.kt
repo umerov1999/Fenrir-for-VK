@@ -18,7 +18,6 @@ import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.VKOwnIds
 
 object Entity2Model {
-
     fun buildVideoAlbumFromDbo(dbo: VideoAlbumDboEntity): VideoAlbum {
         return VideoAlbum(dbo.id, dbo.ownerId)
             .setTitle(dbo.title)
@@ -27,7 +26,6 @@ object Entity2Model {
             .setImage(dbo.image)
             .setUpdatedTime(dbo.updateTime)
     }
-
 
     fun buildTopicFromDbo(dbo: TopicDboEntity, owners: IOwnersBundle): Topic {
         val topic = Topic(dbo.id, dbo.ownerId)
@@ -538,79 +536,84 @@ object Entity2Model {
 
 
     fun buildAttachmentFromDbo(dboEntity: DboEntity, owners: IOwnersBundle): AbsModel {
-        if (dboEntity is PhotoDboEntity) {
-            return map(dboEntity)
+        when (dboEntity) {
+            is PhotoDboEntity -> {
+                return map(dboEntity)
+            }
+            is VideoDboEntity -> {
+                return buildVideoFromDbo(dboEntity)
+            }
+            is PostDboEntity -> {
+                return buildPostFromDbo(dboEntity, owners)
+            }
+            is LinkDboEntity -> {
+                return buildLinkFromDbo(dboEntity)
+            }
+            is ArticleDboEntity -> {
+                return buildArticleFromDbo(dboEntity)
+            }
+            is StoryDboEntity -> {
+                return buildStoryFromDbo(dboEntity, owners)
+            }
+            is PhotoAlbumDboEntity -> {
+                return mapPhotoAlbum(dboEntity)
+            }
+            is GraffitiDboEntity -> {
+                return buildGraffityFromDbo(dboEntity)
+            }
+            is AudioPlaylistDboEntity -> {
+                return buildAudioPlaylistFromDbo(dboEntity)
+            }
+            is CallDboEntity -> {
+                return buildCallFromDbo(dboEntity)
+            }
+            is GeoDboEntity -> {
+                return buildGeoFromDbo(dboEntity)
+            }
+            is WallReplyDboEntity -> {
+                return buildWallReplyDbo(dboEntity, owners)
+            }
+            is NotSupportedDboEntity -> {
+                return buildNotSupportedFromDbo(dboEntity)
+            }
+            is EventDboEntity -> {
+                return buildEventFromDbo(dboEntity, owners)
+            }
+            is MarketDboEntity -> {
+                return buildMarketFromDbo(dboEntity)
+            }
+            is MarketAlbumDboEntity -> {
+                return buildMarketAlbumFromDbo(dboEntity)
+            }
+            is AudioArtistDboEntity -> {
+                return buildAudioArtistFromDbo(dboEntity)
+            }
+            is PollDboEntity -> {
+                return buildPollFromDbo(dboEntity)
+            }
+            is DocumentDboEntity -> {
+                return buildDocumentFromDbo(dboEntity)
+            }
+            is PageDboEntity -> {
+                return buildWikiPageFromDbo(dboEntity)
+            }
+            is StickerDboEntity -> {
+                return buildStickerFromDbo(dboEntity)
+            }
+            is AudioDboEntity -> {
+                return buildAudioFromDbo(dboEntity)
+            }
+            is TopicDboEntity -> {
+                return buildTopicFromDbo(dboEntity, owners)
+            }
+            is AudioMessageDboEntity -> {
+                return map(dboEntity)
+            }
+            is GiftItemDboEntity -> {
+                return buildGiftItemFromDbo(dboEntity)
+            }
+            else -> throw UnsupportedOperationException("Unsupported DBO class: " + dboEntity.javaClass)
         }
-        if (dboEntity is VideoDboEntity) {
-            return buildVideoFromDbo(dboEntity)
-        }
-        if (dboEntity is PostDboEntity) {
-            return buildPostFromDbo(dboEntity, owners)
-        }
-        if (dboEntity is LinkDboEntity) {
-            return buildLinkFromDbo(dboEntity)
-        }
-        if (dboEntity is ArticleDboEntity) {
-            return buildArticleFromDbo(dboEntity)
-        }
-        if (dboEntity is StoryDboEntity) {
-            return buildStoryFromDbo(dboEntity, owners)
-        }
-        if (dboEntity is PhotoAlbumDboEntity) {
-            return mapPhotoAlbum(dboEntity)
-        }
-        if (dboEntity is GraffitiDboEntity) {
-            return buildGraffityFromDbo(dboEntity)
-        }
-        if (dboEntity is AudioPlaylistDboEntity) {
-            return buildAudioPlaylistFromDbo(dboEntity)
-        }
-        if (dboEntity is CallDboEntity) {
-            return buildCallFromDbo(dboEntity)
-        }
-        if (dboEntity is WallReplyDboEntity) {
-            return buildWallReplyDbo(dboEntity, owners)
-        }
-        if (dboEntity is NotSupportedDboEntity) {
-            return buildNotSupportedFromDbo(dboEntity)
-        }
-        if (dboEntity is EventDboEntity) {
-            return buildEventFromDbo(dboEntity, owners)
-        }
-        if (dboEntity is MarketDboEntity) {
-            return buildMarketFromDbo(dboEntity)
-        }
-        if (dboEntity is MarketAlbumDboEntity) {
-            return buildMarketAlbumFromDbo(dboEntity)
-        }
-        if (dboEntity is AudioArtistDboEntity) {
-            return buildAudioArtistFromDbo(dboEntity)
-        }
-        if (dboEntity is PollDboEntity) {
-            return buildPollFromDbo(dboEntity)
-        }
-        if (dboEntity is DocumentDboEntity) {
-            return buildDocumentFromDbo(dboEntity)
-        }
-        if (dboEntity is PageDboEntity) {
-            return buildWikiPageFromDbo(dboEntity)
-        }
-        if (dboEntity is StickerDboEntity) {
-            return buildStickerFromDbo(dboEntity)
-        }
-        if (dboEntity is AudioDboEntity) {
-            return buildAudioFromDbo(dboEntity)
-        }
-        if (dboEntity is TopicDboEntity) {
-            return buildTopicFromDbo(dboEntity, owners)
-        }
-        if (dboEntity is AudioMessageDboEntity) {
-            return map(dboEntity)
-        }
-        if (dboEntity is GiftItemDboEntity) {
-            return buildGiftItemFromDbo(dboEntity)
-        }
-        throw UnsupportedOperationException("Unsupported DBO class: " + dboEntity.javaClass)
     }
 
     private fun buildAudioFromDbo(dbo: AudioDboEntity): Audio {
@@ -814,6 +817,15 @@ object Entity2Model {
             .setReceiver_id(dbo.receiver_id)
             .setState(dbo.state)
             .setTime(dbo.time)
+    }
+
+    private fun buildGeoFromDbo(dbo: GeoDboEntity): Geo {
+        return Geo().setLatitude(dbo.latitude)
+            .setLongitude(dbo.longitude)
+            .setTitle(dbo.title)
+            .setAddress(dbo.address)
+            .setCountry(dbo.country)
+            .setId(dbo.id)
     }
 
     private fun buildWallReplyDbo(dbo: WallReplyDboEntity, owners: IOwnersBundle): WallReply {

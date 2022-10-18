@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.fragment.fave.favelinks
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.FaveLink
 
-interface IFaveLinksView : IAccountDependencyView, IMvpView, IErrorView {
+interface IFaveLinksView : IMvpView, IErrorView {
     fun displayLinks(links: List<FaveLink>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

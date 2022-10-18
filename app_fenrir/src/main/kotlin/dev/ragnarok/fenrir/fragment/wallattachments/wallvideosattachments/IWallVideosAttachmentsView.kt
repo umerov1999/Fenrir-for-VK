@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.wallattachments.wallvideosattachments
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Video
 
-interface IWallVideosAttachmentsView : IAccountDependencyView, IMvpView, IErrorView,
+interface IWallVideosAttachmentsView : IMvpView, IErrorView,
     IAttachmentsPlacesView {
     fun displayData(videos: MutableList<Video>)
     fun notifyDataSetChanged()

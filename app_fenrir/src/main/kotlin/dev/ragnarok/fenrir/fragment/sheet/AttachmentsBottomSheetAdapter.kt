@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment.sheet
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -44,68 +45,73 @@ class AttachmentsBottomSheetAdapter(
         }
     }
 
+    @SuppressLint("SwitchIntDef")
     private fun bindEntryHolder(holder: EntryHolder, position: Int) {
         val dataPosition = position - 1
         holder.image.setBackgroundResource(R.drawable.background_unknown_image)
         val entry = data[dataPosition]
         holders.put(entry.id, holder)
-        when (val model = entry.attachment) {
-            is Photo -> {
-                bindImageHolder(holder, model)
+        val model = entry.attachment
+        when (model.getModelType()) {
+            AbsModelType.MODEL_PHOTO -> {
+                bindImageHolder(holder, model as Photo)
             }
-            is Upload -> {
-                bindUploading(holder, model)
+            AbsModelType.MODEL_UPLOAD -> {
+                bindUploading(holder, model as Upload)
             }
-            is Post -> {
-                bindPost(holder, model)
+            AbsModelType.MODEL_POST -> {
+                bindPost(holder, model as Post)
             }
-            is Video -> {
-                bindVideo(holder, model)
+            AbsModelType.MODEL_VIDEO -> {
+                bindVideo(holder, model as Video)
             }
-            is FwdMessages -> {
-                bindMessages(holder, model)
+            AbsModelType.MODEL_FWDMESSAGES -> {
+                bindMessages(holder, model as FwdMessages)
             }
-            is WallReply -> {
+            AbsModelType.MODEL_WALL_REPLY -> {
                 bindWallReplies(holder)
             }
-            is Document -> {
-                bindDoc(holder, model)
+            AbsModelType.MODEL_DOCUMENT -> {
+                bindDoc(holder, model as Document)
             }
-            is Audio -> {
-                bindAudio(holder, model)
+            AbsModelType.MODEL_AUDIO -> {
+                bindAudio(holder, model as Audio)
             }
-            is Article -> {
-                bindArticle(holder, model)
+            AbsModelType.MODEL_ARTICLE -> {
+                bindArticle(holder, model as Article)
             }
-            is Story -> {
-                bindStory(holder, model)
+            AbsModelType.MODEL_STORY -> {
+                bindStory(holder, model as Story)
             }
-            is Call -> {
+            AbsModelType.MODEL_CALL -> {
                 bindCall(holder)
             }
-            is NotSupported -> {
+            AbsModelType.MODEL_GEO -> {
+                bindGeo(holder)
+            }
+            AbsModelType.MODEL_NOT_SUPPORTED -> {
                 bindNotSupported(holder)
             }
-            is Event -> {
-                bindEvent(holder, model)
+            AbsModelType.MODEL_EVENT -> {
+                bindEvent(holder, model as Event)
             }
-            is Market -> {
-                bindMarket(holder, model)
+            AbsModelType.MODEL_MARKET -> {
+                bindMarket(holder, model as Market)
             }
-            is MarketAlbum -> {
-                bindMarketAlbum(holder, model)
+            AbsModelType.MODEL_MARKET_ALBUM -> {
+                bindMarketAlbum(holder, model as MarketAlbum)
             }
-            is AudioArtist -> {
-                bindAudioArtist(holder, model)
+            AbsModelType.MODEL_AUDIO_ARTIST -> {
+                bindAudioArtist(holder, model as AudioArtist)
             }
-            is AudioPlaylist -> {
-                bindAudioPlaylist(holder, model)
+            AbsModelType.MODEL_AUDIO_PLAYLIST -> {
+                bindAudioPlaylist(holder, model as AudioPlaylist)
             }
-            is Graffiti -> {
-                bindGraffiti(holder, model)
+            AbsModelType.MODEL_GRAFFITI -> {
+                bindGraffiti(holder, model as Graffiti)
             }
-            is PhotoAlbum -> {
-                bindPhotoAlbum(holder, model)
+            AbsModelType.MODEL_PHOTO_ALBUM -> {
+                bindPhotoAlbum(holder, model as PhotoAlbum)
             }
         }
         holder.buttomRemove.setOnClickListener {
@@ -237,6 +243,15 @@ class AttachmentsBottomSheetAdapter(
         holder.tintView.visibility = View.GONE
         with().cancelRequest(holder.image)
         holder.image.setImageResource(R.drawable.phone_call_color)
+    }
+
+    private fun bindGeo(holder: EntryHolder) {
+        holder.title.setText(R.string.geo)
+        holder.progress.visibility = View.INVISIBLE
+        holder.Retry.visibility = View.GONE
+        holder.tintView.visibility = View.GONE
+        with().cancelRequest(holder.image)
+        holder.image.setImageResource(R.drawable.geo_color)
     }
 
     private fun bindNotSupported(holder: EntryHolder) {

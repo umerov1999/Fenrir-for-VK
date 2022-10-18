@@ -64,7 +64,6 @@ class GroupWallPresenter(
     }
 
     private fun refreshInfo() {
-        val accountId = accountId
         appendDisposable(
             ownersRepository.getFullCommunityInfo(
                 accountId,
@@ -80,7 +79,6 @@ class GroupWallPresenter(
     }
 
     private fun requestActualFullInfo() {
-        val accountId = accountId
         appendDisposable(ownersRepository.getFullCommunityInfo(
             accountId,
             abs(ownerId),
@@ -186,9 +184,8 @@ class GroupWallPresenter(
     }
 
     private fun leaveCommunity() {
-        val accountid = accountId
         val groupId = abs(ownerId)
-        appendDisposable(communitiesInteractor.leave(accountid, groupId)
+        appendDisposable(communitiesInteractor.leave(accountId, groupId)
             .fromIOToMain()
             .subscribe({ onLeaveResult() }) { t ->
                 showError(getCauseIfRuntime(t))
@@ -196,9 +193,8 @@ class GroupWallPresenter(
     }
 
     private fun joinCommunity() {
-        val accountid = accountId
         val groupId = abs(ownerId)
-        appendDisposable(communitiesInteractor.join(accountid, groupId)
+        appendDisposable(communitiesInteractor.join(accountId, groupId)
             .fromIOToMain()
             .subscribe({ onJoinResult() }) { t ->
                 showError(getCauseIfRuntime(t))
@@ -463,7 +459,6 @@ class GroupWallPresenter(
 
     private fun openCommunityMessages() {
         val groupId = abs(ownerId)
-        val accountId = accountId
         val subtitle = community.fullName
         view?.openCommunityDialogs(
             accountId,
@@ -483,28 +478,24 @@ class GroupWallPresenter(
     }
 
     fun fireSubscribe() {
-        val accountId = accountId
         appendDisposable(wallsRepository.subscribe(accountId, ownerId)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireUnSubscribe() {
-        val accountId = accountId
         appendDisposable(wallsRepository.unsubscribe(accountId, ownerId)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireAddToBookmarksClick() {
-        val accountId = accountId
         appendDisposable(faveInteractor.addPage(accountId, ownerId)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireRemoveFromBookmarks() {
-        val accountId = accountId
         appendDisposable(faveInteractor.removePage(accountId, ownerId, false)
             .fromIOToMain()
             .subscribe({ onExecuteComplete() }) { t -> onExecuteError(t) })
@@ -528,7 +519,6 @@ class GroupWallPresenter(
         val peer = Peer(ownerId).setTitle(
             community.fullName
         ).setAvaUrl(community.maxSquareAvatar)
-        val accountId = accountId
         view?.openChatWith(
             accountId,
             accountId,

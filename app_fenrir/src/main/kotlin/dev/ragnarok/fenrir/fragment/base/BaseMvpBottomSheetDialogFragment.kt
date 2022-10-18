@@ -25,7 +25,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 abstract class BaseMvpBottomSheetDialogFragment<P : AbsPresenter<V>, V : IMvpView> :
-    AbsMvpBottomSheetDialogFragment<P, V>(), IMvpView, IAccountDependencyView, IProgressView,
+    AbsMvpBottomSheetDialogFragment<P, V>(), IMvpView, IProgressView,
     IErrorView, IToastView, IToolbarView {
     private var mLoadingProgressDialog: AlertDialog? = null
 
@@ -88,14 +88,6 @@ abstract class BaseMvpBottomSheetDialogFragment<P : AbsPresenter<V>, V : IMvpVie
 
     override fun setToolbarTitle(title: String?) {
         ActivityUtils.setToolbarTitle(this, title)
-    }
-
-    override fun displayAccountNotSupported() {
-        // TODO: 18.12.2017
-    }
-
-    override fun displayAccountSupported() {
-        // TODO: 18.12.2017
     }
 
     protected fun styleSwipeRefreshLayoutWithCurrentTheme(

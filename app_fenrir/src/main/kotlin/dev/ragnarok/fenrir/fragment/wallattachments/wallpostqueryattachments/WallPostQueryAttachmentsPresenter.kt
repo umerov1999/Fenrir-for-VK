@@ -39,7 +39,6 @@ class WallPostQueryAttachmentsPresenter(
     private fun loadActualData(offset: Int) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(fInteractor.getWallNoCache(
             accountId,
             owner_id,
@@ -351,7 +350,6 @@ class WallPostQueryAttachmentsPresenter(
     }
 
     fun fireLikeClick(post: Post) {
-        val accountId = accountId
         appendDisposable(fInteractor.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
             .fromIOToMain()
             .subscribe(ignore()) { t ->

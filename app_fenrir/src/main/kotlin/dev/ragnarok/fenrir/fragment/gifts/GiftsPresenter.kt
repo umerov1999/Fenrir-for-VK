@@ -28,7 +28,6 @@ class GiftsPresenter(accountId: Int, private val owner_id: Int, savedInstanceSta
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(ownersRepository.getGifts(accountId, owner_id, COUNT_PER_REQUEST, offset)
             .fromIOToMain()
             .subscribe({ gifts ->

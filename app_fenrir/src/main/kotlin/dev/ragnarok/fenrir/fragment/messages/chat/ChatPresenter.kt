@@ -1562,7 +1562,9 @@ class ChatPresenter(
     }
 
     private fun resolveAccountHotSwapSupport() {
-        setSupportAccountHotSwap(!Peer.isGroupChat(peerId))
+        if (!Peer.isGroupChat(peerId)) {
+            toggleSupportAccountHotSwap()
+        }
     }
 
     override fun onDestroyed() {

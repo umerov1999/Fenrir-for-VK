@@ -20,7 +20,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 abstract class BaseMvpDialogFragment<P : AbsPresenter<V>, V : IMvpView> :
-    AbsMvpDialogFragment<P, V>(), IMvpView, IAccountDependencyView, IErrorView, IToastView {
+    AbsMvpDialogFragment<P, V>(), IMvpView, IErrorView, IToastView {
 
     override fun showError(errorText: String?) {
         if (isAdded) {
@@ -68,14 +68,6 @@ abstract class BaseMvpDialogFragment<P : AbsPresenter<V>, V : IMvpView> :
                 snack.show()
             } ?: showError(ErrorLocalizer.localizeThrowable(provideApplicationContext(), throwable))
         }
-    }
-
-    override fun displayAccountNotSupported() {
-        // TODO: 18.12.2017
-    }
-
-    override fun displayAccountSupported() {
-        // TODO: 18.12.2017
     }
 
     override val customToast: CustomToast

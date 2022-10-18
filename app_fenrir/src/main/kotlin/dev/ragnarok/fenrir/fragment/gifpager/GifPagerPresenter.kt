@@ -14,14 +14,9 @@ import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 class GifPagerPresenter(
     accountId: Int,
     private val mDocuments: ArrayList<Document>,
-    index: Int,
+    private var mCurrentIndex: Int,
     savedInstanceState: Bundle?
 ) : BaseDocumentPresenter<IGifPagerView>(accountId, savedInstanceState) {
-    private var mCurrentIndex = 0
-    override fun saveState(outState: Bundle) {
-        super.saveState(outState)
-        outState.putInt(SAVE_PAGER_INDEX, mCurrentIndex)
-    }
 
     fun selectPage(position: Int) {
         if (mCurrentIndex == position) {
@@ -102,13 +97,5 @@ class GifPagerPresenter(
                     )
                 }?.show()
         }
-    }
-
-    companion object {
-        private const val SAVE_PAGER_INDEX = "save_pager_index"
-    }
-
-    init {
-        mCurrentIndex = savedInstanceState?.getInt(SAVE_PAGER_INDEX) ?: index
     }
 }

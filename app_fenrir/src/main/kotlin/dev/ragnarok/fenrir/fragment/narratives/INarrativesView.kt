@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.narratives
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Narratives
 import dev.ragnarok.fenrir.model.Story
 
-interface INarrativesView : IAccountDependencyView, IMvpView, IErrorView {
+interface INarrativesView : IMvpView, IErrorView {
     fun displayData(narratives: List<Narratives>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

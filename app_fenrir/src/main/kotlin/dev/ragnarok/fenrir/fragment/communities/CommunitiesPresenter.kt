@@ -47,7 +47,6 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     private var networkOffset = 0
     private fun requestActualData(do_scan: Boolean) {
         actualLoadingNow = true
-        val accountId = accountId
         resolveRefreshing()
         actualDisposable.add(communitiesInteractor.getActual(
             accountId,
@@ -131,7 +130,6 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
 
     private fun loadCachedData() {
         cacheLoadingNow = true
-        val accountId = accountId
         cacheDisposable.add(communitiesInteractor.getCachedData(accountId, userId)
             .fromIOToMain()
             .subscribe({ communities -> onCachedDataReceived(communities) }) { t ->
@@ -198,7 +196,6 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     }
 
     private fun startNetSearch(withDelay: Boolean) {
-        val accountId = accountId
         val filter = filter
         val single: Single<List<Community>>
         val searchSingle = communitiesInteractor.getActual(

@@ -24,6 +24,7 @@ import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
+import okhttp3.ResponseBody
 import java.io.Serializable
 import kotlin.contracts.contract
 
@@ -437,6 +438,10 @@ open class StubAnimatorListener : Animator.AnimatorListener {
     override fun onAnimationCancel(animation: Animator) {}
 
     override fun onAnimationStart(animation: Animator) {}
+}
+
+fun ResponseBody.isMsgPack(): Boolean {
+    return contentType()?.toString()?.contains("msgpack") == true
 }
 
 inline fun <reified T : Parcelable> Parcel.readTypedObjectCompat(c: Parcelable.Creator<T>): T? {

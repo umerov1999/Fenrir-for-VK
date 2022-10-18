@@ -74,7 +74,6 @@ class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun requestActual(offset: Int) {
         setRequestNow(true)
-        val accountId = accountId
         val newOffset = offset + COUNT
         appendDisposable(faveInteractor.getPosts(accountId, COUNT, offset)
             .fromIOToMain()
@@ -112,7 +111,6 @@ class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     private fun loadCachedData() {
-        val accountId = accountId
         cacheCompositeDisposable.add(faveInteractor.getCachedPosts(accountId)
             .fromIOToMain()
             .subscribe({ posts -> onCachedDataReceived(posts) }) { obj -> obj.printStackTrace() })
@@ -142,7 +140,6 @@ class FavePostsPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     fun fireLikeClick(post: Post) {
-        val accountId = accountId
         appendDisposable(wallInteractor.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
             .fromIOToMain()
             .subscribe(ignore()) { t -> onLikeError(t) })

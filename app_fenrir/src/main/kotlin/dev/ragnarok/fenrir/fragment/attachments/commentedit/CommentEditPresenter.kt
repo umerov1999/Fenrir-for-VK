@@ -113,7 +113,6 @@ class CommentEditPresenter(
             models.add(entry.attachment)
         }
         setEditingNow(true)
-        val accountId = accountId
         val commented = orig.commented
         val commentId = orig.getObjectId()
         val body = getTextBody()

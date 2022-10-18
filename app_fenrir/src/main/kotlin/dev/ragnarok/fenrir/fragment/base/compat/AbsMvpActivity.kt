@@ -3,11 +3,10 @@ package dev.ragnarok.fenrir.fragment.base.compat
 import android.os.Bundle
 import androidx.loader.app.LoaderManager
 import dev.ragnarok.fenrir.activity.NoMainActivity
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.*
 
 abstract class AbsMvpActivity<P : IPresenter<V>, V : IMvpView> : NoMainActivity(),
-    ViewHostDelegate.IFactoryProvider<P, V>, IAccountDependencyView, IProgressView, IErrorView,
+    ViewHostDelegate.IFactoryProvider<P, V>, IProgressView, IErrorView,
     IToastView, IToolbarView {
 
     private val delegate = ViewHostDelegate<P, V>()

@@ -36,7 +36,6 @@ class RecommendationsFriendsPresenter(accountId: Int, savedInstanceState: Bundle
     private fun requestActualData() {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(relationshipInteractor.getRecommendations(accountId, 50)
             .fromIOToMain()
             .subscribe({ users -> onDataReceived(users) }) { t ->

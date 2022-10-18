@@ -63,7 +63,6 @@ class CommunityBlacklistPresenter(
 
     private fun request(startFrom: IntNextFrom) {
         if (loadingNow) return
-        val accountId = accountId
         setLoadingNow(true)
         appendDisposable(groupSettingsInteractor.getBanned(accountId, groupId, startFrom, COUNT)
             .fromIOToMain()

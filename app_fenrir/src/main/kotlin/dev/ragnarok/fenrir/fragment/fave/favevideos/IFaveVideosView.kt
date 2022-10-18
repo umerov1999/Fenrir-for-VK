@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.fragment.fave.favevideos
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Video
 
-interface IFaveVideosView : IAccountDependencyView, IMvpView, IErrorView {
+interface IFaveVideosView : IMvpView, IErrorView {
     fun displayData(videos: List<Video>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

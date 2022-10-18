@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.activity.photopager
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Photo
 
-interface IPhotoPagerView : IMvpView, IAccountDependencyView, IErrorView, IToastView {
+interface IPhotoPagerView : IMvpView, IErrorView, IToastView {
     fun goToLikesList(accountId: Int, ownerId: Int, photoId: Int)
     fun setupLikeButton(visible: Boolean, like: Boolean, likes: Int)
     fun setupWithUserButton(users: Int)

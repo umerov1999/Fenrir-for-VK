@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.util.OkHttp3LoggingInterceptor
 import dev.ragnarok.fenrir.util.Utils
 import okhttp3.*
 import okio.*
-import retrofit2.Converter
 import java.io.IOException
 import java.security.SecureRandom
 import java.security.cert.CertificateException
@@ -20,6 +19,7 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 object HttpLoggerAndParser {
+    /*
     fun selectConverterFactory(
         json: Converter.Factory,
         msgpack: Converter.Factory
@@ -30,6 +30,7 @@ object HttpLoggerAndParser {
             json
         }
     }
+     */
 
     abstract class GzipFormBody(val original: List<Params>) : RequestBody()
 
@@ -79,9 +80,10 @@ object HttpLoggerAndParser {
         return o
     }
 
+    @Suppress("unused_parameter")
     fun Request.Builder.vkHeader(onlyJson: Boolean): Request.Builder {
         addHeader("X-VK-Android-Client", "new")
-        if (!onlyJson && Utils.currentParser == ParserType.MSGPACK) {
+        if (/*!onlyJson && */Utils.currentParser == ParserType.MSGPACK) {
             addHeader("X-Response-Format", "msgpack")
         }
         return this

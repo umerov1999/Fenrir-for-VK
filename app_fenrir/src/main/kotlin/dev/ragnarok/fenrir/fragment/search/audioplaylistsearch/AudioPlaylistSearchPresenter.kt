@@ -56,7 +56,6 @@ class AudioPlaylistSearchPresenter(
     }
 
     fun onAdd(album: AudioPlaylist, clone: Boolean) {
-        val accountId = accountId
         appendDisposable((if (clone) audioInteractor.clonePlaylist(
             accountId,
             album.getId(),

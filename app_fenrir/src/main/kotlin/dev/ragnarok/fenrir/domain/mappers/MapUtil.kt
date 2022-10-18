@@ -66,24 +66,6 @@ object MapUtil {
         }
     }
 
-    inline fun <reified O, reified R> mapAllArrayList(
-        orig: Collection<O>?,
-        function: (O) -> R
-    ): ArrayList<R> {
-        return if (orig.nonNullNoEmpty()) {
-            if (orig.size == 1) {
-                return arrayListOf(function.invoke(orig.iterator().next()))
-            }
-            val list: ArrayList<R> = ArrayList(orig.size)
-            for (o in orig) {
-                list.add(function.invoke(o))
-            }
-            return list
-        } else {
-            ArrayList(0)
-        }
-    }
-
     inline fun <reified O, reified R> mapAll(orig: Collection<O>?, function: (O) -> R?): List<R> {
         return if (orig.nonNullNoEmpty()) {
             if (orig.size == 1) {

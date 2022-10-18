@@ -5,12 +5,12 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 object ErrorLocalizer {
     private val sApiLocalizer = ApiLocalizer()
-
 
     fun localizeThrowable(context: Context, throwable: Throwable?): String {
         throwable ?: return "null"
@@ -27,6 +27,9 @@ object ErrorLocalizer {
             }
             is NotFoundException -> {
                 context.getString(R.string.error_not_found_message)
+            }
+            is HttpException -> {
+                context.getString(R.string.vk_servers_error, throwable.code())
             }
             else -> throwable.message.nonNullNoEmpty({ it }, { throwable.toString() })
         }

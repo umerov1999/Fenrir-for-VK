@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.fragment.userbanned
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Owner
 
-interface IUserBannedView : IAccountDependencyView, IMvpView, IErrorView {
+interface IUserBannedView : IMvpView, IErrorView {
     fun displayOwnerList(owners: List<Owner>)
     fun notifyItemsAdded(position: Int, count: Int)
     fun notifyDataSetChanged()

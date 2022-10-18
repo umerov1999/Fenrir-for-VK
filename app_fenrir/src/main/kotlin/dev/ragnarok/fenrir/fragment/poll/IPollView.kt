@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.fragment.poll
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Poll
 
-interface IPollView : IAccountDependencyView, IMvpView, IErrorView {
+interface IPollView : IMvpView, IErrorView {
     fun displayQuestion(title: String?)
     fun displayPhoto(photo_url: String?)
     fun displayType(anonymous: Boolean)

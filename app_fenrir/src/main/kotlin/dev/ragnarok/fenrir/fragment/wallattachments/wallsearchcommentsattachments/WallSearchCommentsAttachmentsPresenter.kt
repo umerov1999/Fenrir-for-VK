@@ -39,7 +39,6 @@ class WallSearchCommentsAttachmentsPresenter(
     private fun loadActualData() {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(interactor.getCommentsNoCache(
             accountId,
             owner_id,

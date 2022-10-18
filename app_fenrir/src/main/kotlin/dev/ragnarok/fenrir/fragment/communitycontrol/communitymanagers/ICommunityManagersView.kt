@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.communitycontrol.communitymanagers
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
 
-interface ICommunityManagersView : IAccountDependencyView, IErrorView, IMvpView, IToastView {
+interface ICommunityManagersView : IErrorView, IMvpView, IToastView {
     fun notifyDataSetChanged()
     fun displayRefreshing(loadingNow: Boolean)
     fun displayData(managers: List<Manager>)

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.vkphotos
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToolbarView
@@ -10,7 +9,7 @@ import dev.ragnarok.fenrir.model.TmpSource
 import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper
 import dev.ragnarok.fenrir.upload.Upload
 
-interface IVkPhotosView : IMvpView, IAccountDependencyView, IErrorView, IToolbarView {
+interface IVkPhotosView : IMvpView, IErrorView, IToolbarView {
     fun displayData(photos: List<SelectablePhotoWrapper>, uploads: List<Upload>)
     fun notifyDataSetChanged()
     fun notifyPhotosAdded(position: Int, count: Int)

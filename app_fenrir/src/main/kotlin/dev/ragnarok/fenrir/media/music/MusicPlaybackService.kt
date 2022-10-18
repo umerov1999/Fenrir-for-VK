@@ -1000,12 +1000,27 @@ class MusicPlaybackService : Service() {
 
         fun setDataSource(audio: Audio) {
             val accountId = Settings.get().accounts().current
-            if (!Utils.isHiddenAccount(accountId) || !audio.isLocalServer || !audio.isLocal) {
-                compositeDisposable.add(
-                    audioInteractor.trackEvents(
-                        accountId,
-                        audio
+            if (!Utils.isHiddenAccount(accountId) && !audio.isLocalServer && !audio.isLocal) {
+                var single = audioInteractor.trackEvents(
+                    accountId,
+                    audio
+                )
+                if (Settings.get()
+                        .other()
+                        .isAudioBroadcastActive
+                ) {
+                    single = single.andThen(
+                        audioInteractor.sendBroadcast(
+                            accountId,
+                            audio.ownerId,
+                            audio.id,
+                            audio.accessKey,
+                            setOf(accountId)
+                        )
                     )
+                }
+                compositeDisposable.add(
+                    single
                         .fromIOToMain()
                         .subscribe(RxUtils.dummy(), RxUtils.ignore())
                 )

@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.wallattachments.walllinksattachments
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Link
 
-interface IWallLinksAttachmentsView : IAccountDependencyView, IMvpView, IErrorView,
+interface IWallLinksAttachmentsView : IMvpView, IErrorView,
     IAttachmentsPlacesView {
     fun displayData(links: MutableList<Link>)
     fun notifyDataSetChanged()

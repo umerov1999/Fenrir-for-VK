@@ -58,14 +58,6 @@ abstract class BaseMvpActivity<P : AbsPresenter<V>, V : IMvpView> : AbsMvpActivi
         supportActionBar?.title = title
     }
 
-    override fun displayAccountNotSupported() {
-        // TODO: 18.12.2017
-    }
-
-    override fun displayAccountSupported() {
-        // TODO: 18.12.2017
-    }
-
     protected fun styleSwipeRefreshLayoutWithCurrentTheme(
         swipeRefreshLayout: SwipeRefreshLayout,
         needToolbarOffset: Boolean

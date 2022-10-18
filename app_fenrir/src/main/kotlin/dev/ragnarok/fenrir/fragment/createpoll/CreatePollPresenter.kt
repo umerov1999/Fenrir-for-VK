@@ -52,7 +52,6 @@ class CreatePollPresenter(accountId: Int, private val mOwnerId: Int, savedInstan
             return
         }
         setCreationNow(true)
-        val accountId = accountId
         appendDisposable(pollInteractor.createPoll(
             accountId,
             mQuestion,

@@ -7,10 +7,10 @@ buildscript {
     ext.appNdk = "25.1.8937393"
     ext.appMinSDK = is_developer_build ? 29 : 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 206
-    ext.appFenrirVersionName = "2.106-Kotlin"
-    ext.appFileGalleryVersionCode = 26
-    ext.appFileGalleryVersionName = "1.26-Kotlin"
+    ext.appFenrirVersionCode = 207
+    ext.appFenrirVersionName = "2.107-Kotlin"
+    ext.appFileGalleryVersionCode = 27
+    ext.appFileGalleryVersionName = "1.27-Kotlin"
 
     //androidx libraries
     ext.activityVersion = "1.6.0"
@@ -40,24 +40,24 @@ buildscript {
     ext.transitionVersion = "1.4.1"
     ext.vectordrawableVersion = "1.2.0-beta01"
     ext.webkitVersion = "1.5.0"
-    ext.workVersion = "2.8.0-alpha04"
+    ext.workVersion = "2.8.0-beta01"
 
     //firebase libraries
-    ext.firebaseDatabaseVersion = "20.0.6"
-    ext.firebaseDatatransportVersion = "18.1.6"
-    ext.firebaseMessagingVersion = "23.0.8"
+    ext.firebaseDatabaseVersion = "20.1.0"
+    ext.firebaseDatatransportVersion = "18.1.7"
+    ext.firebaseMessagingVersion = "23.1.0"
 
     //firebase common libraries
-    ext.firebaseCommonVersion = "20.1.2"
-    ext.firebaseInstallationsInteropVersion = "17.0.2"
+    ext.firebaseCommonVersion = "20.2.0"
+    ext.firebaseInstallationsInteropVersion = "17.1.0"
     ext.firebaseComponentsVersion = "17.0.1"
     ext.playServicesTasksVersion = "18.0.2"
-    ext.autoValueVersion = "1.9"
+    ext.autoValueVersion = "1.10"
 
     //common libraries
     ext.kotlin_version = "1.7.20"
     ext.kotlin_coroutines = "1.6.4"
-    ext.kotlin_serializer = "1.4.0"
+    ext.kotlin_serializer = "1.4.1"
     ext.okhttpLibraryVersion = "5.0.0-alpha.10"
     ext.okioVersion = "3.2.0"
     ext.rxJavaVersion = "3.1.5"

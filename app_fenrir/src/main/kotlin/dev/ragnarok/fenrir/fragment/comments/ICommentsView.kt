@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.comments
 
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.*
 import dev.ragnarok.fenrir.model.*
 
-interface ICommentsView : IAccountDependencyView, IAttachmentsPlacesView, IMvpView, IErrorView,
+interface ICommentsView : IAttachmentsPlacesView, IMvpView, IErrorView,
     IToolbarView, IProgressView, IToastView {
     fun displayData(data: MutableList<Comment>)
     fun notifyDataSetChanged()

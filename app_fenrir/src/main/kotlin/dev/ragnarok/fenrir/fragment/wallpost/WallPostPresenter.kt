@@ -59,7 +59,6 @@ class WallPostPresenter(
 
     private fun loadOwnerInfoIfNeed() {
         if (owner == null) {
-            val accountId = accountId
             appendDisposable(
                 ownersRepository.getBaseOwnerInfo(
                     accountId,
@@ -85,7 +84,6 @@ class WallPostPresenter(
         if (loadingPostNow) {
             return
         }
-        val accountId = accountId
         setLoadingPostNow(true)
         appendDisposable(wallInteractor.getById(accountId, ownerId, postId)
             .fromIOToMain()
@@ -186,7 +184,6 @@ class WallPostPresenter(
         if (pPost.isDeleted) {
             return false
         }
-        val accountId = accountId
         val canDeleteAsAdmin = owner is Community && (owner as Community).isAdmin
         val canDeleteAsOwner = ownerId == accountId || pPost.authorId == accountId
         return canDeleteAsAdmin || canDeleteAsOwner
@@ -298,7 +295,6 @@ class WallPostPresenter(
     }
 
     private fun deleteOrRestore(delete: Boolean) {
-        val accountId = accountId
         val completable = if (delete) wallInteractor.delete(
             accountId,
             ownerId,
@@ -326,7 +322,6 @@ class WallPostPresenter(
     }
 
     private fun pinOrUnpin(pin: Boolean) {
-        val accountId = accountId
         appendDisposable(wallInteractor.pinUnpin(accountId, ownerId, postId, pin)
             .fromIOToMain()
             .subscribe({ onPinOrUnpinComplete(pin) }) { t ->

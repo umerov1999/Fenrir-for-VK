@@ -26,7 +26,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragment<P, V>(),
-    IMvpView, IAccountDependencyView, IProgressView, IErrorView, IToastView, IToolbarView {
+    IMvpView, IProgressView, IErrorView, IToastView, IToolbarView {
     private var mLoadingProgressDialog: AlertDialog? = null
     protected fun hasHideToolbarExtra(): Boolean {
         return arguments?.getBoolean(EXTRA_HIDE_TOOLBAR) == true
@@ -91,14 +91,6 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
 
     override fun setToolbarTitle(title: String?) {
         ActivityUtils.setToolbarTitle(this, title)
-    }
-
-    override fun displayAccountNotSupported() {
-        // TODO: 18.12.2017
-    }
-
-    override fun displayAccountSupported() {
-        // TODO: 18.12.2017
     }
 
     protected fun styleSwipeRefreshLayoutWithCurrentTheme(

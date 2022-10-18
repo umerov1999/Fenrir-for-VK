@@ -432,8 +432,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         popupMenu.show()
     }
 
-    override fun displayAccountNotSupported() {}
-
     override fun getPresenterFactory(saveInstanceState: Bundle?): IPresenterFactory<PhotoPagerPresenter> =
         object : IPresenterFactory<PhotoPagerPresenter> {
             override fun create(): PhotoPagerPresenter {

@@ -4,17 +4,15 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
-import android.view.ContextMenu
+import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import dev.ragnarok.fenrir.AccountType
@@ -46,7 +44,8 @@ import java.io.File
 import java.net.URL
 import java.util.*
 
-class BrowserFragment : BaseFragment(), BackPressCallback, View.OnCreateContextMenuListener {
+class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
+    View.OnCreateContextMenuListener {
     private var mWebView: WebView? = null
     private var mAccountId = 0
     private var title: String? = null
@@ -56,6 +55,27 @@ class BrowserFragment : BaseFragment(), BackPressCallback, View.OnCreateContextM
         super.onCreate(savedInstanceState)
         mAccountId = requireArguments().getInt(Extra.ACCOUNT_ID)
         savedInstanceState?.let { restoreFromInstanceState(it) }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.copy_url) {
+            val clipboard =
+                requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+            val clip = ClipData.newPlainText(getString(R.string.link), mWebView?.url)
+            clipboard?.setPrimaryClip(clip)
+            CustomToast.createCustomToast(requireActivity()).showToast(R.string.copied)
+            return true
+        }
+        return false
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.browser_menu, menu)
     }
 
     @Suppress("SetJavaScriptEnabled", "RequiresFeature", "deprecation")

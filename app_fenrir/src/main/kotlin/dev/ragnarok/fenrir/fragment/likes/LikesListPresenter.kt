@@ -28,7 +28,6 @@ class LikesListPresenter(
     private fun requestData(offset: Int) {
         loadingNow = true
         //this.loadingOffset = offset;
-        val accountId = accountId
         resolveRefreshingView()
         netDisposable.add(likesInteractor.getLikes(
             accountId,

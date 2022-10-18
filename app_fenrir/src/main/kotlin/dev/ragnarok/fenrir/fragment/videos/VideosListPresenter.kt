@@ -195,7 +195,6 @@ class VideosListPresenter(
     private fun request(more: Boolean) {
         if (requestNow) return
         setRequestNow(true)
-        val accountId = accountId
         val startFrom = if (more) intNextFrom else IntNextFrom(0)
         netDisposable.add(interactor[accountId, ownerId, albumId, COUNT, startFrom.offset]
             .fromIOToMain()
@@ -254,7 +253,6 @@ class VideosListPresenter(
 
     private fun loadAllFromCache() {
         cacheNowLoading = true
-        val accountId = accountId
         cacheDisposable.add(interactor.getCachedVideos(accountId, ownerId, albumId)
             .fromIOToMain()
             .subscribe({ onCachedDataReceived(it) }) { obj -> obj.printStackTrace() })

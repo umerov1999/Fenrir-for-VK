@@ -36,7 +36,6 @@ class ProductAlbumsPresenter(
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(ownerInteractor.getMarketAlbums(
             accountId,
             owner_id,

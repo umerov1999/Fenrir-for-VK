@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.vkphotoalbums
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.PhotoAlbum
 import dev.ragnarok.fenrir.model.PhotoAlbumEditor
 
-interface IPhotoAlbumsView : IMvpView, IAccountDependencyView, IErrorView {
+interface IPhotoAlbumsView : IMvpView, IErrorView {
     fun displayData(data: List<PhotoAlbum>)
     fun displayLoading(loading: Boolean)
     fun notifyDataSetChanged()

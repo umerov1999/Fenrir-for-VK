@@ -33,7 +33,6 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
     private fun requestActualData(do_scan: Boolean) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(relationshipInteractor.getFollowers(
             accountId,
             userId,
@@ -150,7 +149,6 @@ class FollowersPresenter(accountId: Int, private val userId: Int, savedInstanceS
 
     private fun loadAllCacheData() {
         cacheLoadingNow = true
-        val accountId = accountId
         cacheDisposable.add(relationshipInteractor.getCachedFollowers(accountId, userId)
             .fromIOToMain()
             .subscribe({ users -> onCachedDataReceived(users) }) { t ->

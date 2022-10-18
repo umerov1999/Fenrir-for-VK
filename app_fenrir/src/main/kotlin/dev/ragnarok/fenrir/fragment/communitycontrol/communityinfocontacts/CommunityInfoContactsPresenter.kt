@@ -65,7 +65,6 @@ class CommunityInfoContactsPresenter(
     }
 
     private fun onContactsReceived(contacts: List<ContactInfo>) {
-        val accountId = accountId
         val Ids: MutableList<Int> = ArrayList(contacts.size)
         for (it in contacts) Ids.add(it.getUserId())
         appendDisposable(
@@ -88,7 +87,6 @@ class CommunityInfoContactsPresenter(
     }
 
     private fun requestContacts() {
-        val accountId = accountId
         appendDisposable(interactor.getContacts(accountId, groupId.id)
             .fromIOToMain()
             .subscribe({ contacts -> onContactsReceived(contacts) }) { throwable ->
@@ -99,7 +97,6 @@ class CommunityInfoContactsPresenter(
     }
 
     private fun requestData() {
-        val accountId = accountId
         setLoadingNow(true)
         if (groupId.adminLevel < VKApiCommunity.AdminLevel.ADMIN) {
             requestContacts()

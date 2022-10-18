@@ -17,12 +17,13 @@ import io.reactivex.rxjava3.core.Single
 
 internal class AudioApi(accountId: Int, provider: IServiceProvider) :
     AbsApi(accountId, provider), IAudioApi {
-    override fun setBroadcast(audio: IdPair?, targetIds: Collection<Int>): Single<IntArray> {
-        val audioStr = if (audio == null) null else audio.ownerId.toString() + "_" + audio.id
+    override fun setBroadcast(audio: AccessIdPair, targetIds: Collection<Int>): Single<List<Int>> {
+        val f = join(setOf(audio), ",") { AccessIdPair.format(it) }
+        val s = join(targetIds, ",")
         return provideService(IAudioService::class.java)
             .flatMap { service ->
                 service
-                    .setBroadcast(audioStr, join(targetIds, ","))
+                    .setBroadcast(f, s)
                     .map(extractResponseWithErrorHandling())
             }
     }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.api.model.ArtistInfo
-import dev.ragnarok.fenrir.api.model.IdPair
 import dev.ragnarok.fenrir.api.model.VKApiArtist
 import dev.ragnarok.fenrir.api.model.response.AddToPlaylistResponse
 import dev.ragnarok.fenrir.domain.IAudioInteractor
@@ -62,11 +61,12 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         accountId: Int,
         audioOwnerId: Int,
         audioId: Int,
+        accessKey: String?,
         targetIds: Collection<Int>
     ): Completable {
         return networker.vkDefault(accountId)
             .audio()
-            .setBroadcast(IdPair(audioId, audioOwnerId), targetIds)
+            .setBroadcast(AccessIdPair(audioId, audioOwnerId, accessKey), targetIds)
             .ignoreElement()
     }
 

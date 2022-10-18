@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.photoallcomment
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.Comment
 
-interface IPhotoAllCommentView : IAccountDependencyView, IMvpView, IErrorView, IToastView,
+interface IPhotoAllCommentView : IMvpView, IErrorView, IToastView,
     IAttachmentsPlacesView {
     fun displayData(comments: MutableList<Comment>)
     fun notifyDataSetChanged()

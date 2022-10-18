@@ -38,7 +38,6 @@ class FaveArticlesPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun loadCachedData() {
         cacheLoadingNow = true
-        val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedArticles(accountId)
             .fromIOToMain()
             .subscribe({ articles -> onCachedDataReceived(articles) }) { t ->
@@ -69,7 +68,6 @@ class FaveArticlesPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(faveInteractor.getArticles(accountId, COUNT_PER_REQUEST, offset)
             .fromIOToMain()
             .subscribe({ articles ->

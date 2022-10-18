@@ -153,7 +153,6 @@ class CommunityBanEditPresenter : AccountDependencyPresenter<ICommunityBanEditVi
 
     fun fireButtonSaveClick() {
         setRequestNow(true)
-        val accountId = accountId
         val ownerId = currentBanned().ownerId
         val endDate = blockFor.unblockingDate
         val endDateUnixtime = if (endDate != null) endDate.time / 1000 else null

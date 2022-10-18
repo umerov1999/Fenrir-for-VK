@@ -464,7 +464,6 @@ class PostCreatePresenter(
         changePublishingNowState(true)
         val fromGroup = super.fromGroup.get()
         val showSigner = addSignature.get()
-        val accountId = accountId
         appendDisposable(walls
             .post(accountId, pPost, fromGroup, showSigner)
             .fromIOToMain()
@@ -497,7 +496,6 @@ class PostCreatePresenter(
     private fun safeDraftAsync() {
         val pPost = post ?: return
         commitDataToPost()
-        val accountId = accountId
         subscribeOnIOAndIgnore(walls.cachePostWithIdSaving(accountId, pPost))
     }
 

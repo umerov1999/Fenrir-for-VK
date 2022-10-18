@@ -9,7 +9,7 @@ import dev.ragnarok.filegallery.settings.ISettings.IMainSettings
 import dev.ragnarok.filegallery.util.UncompressDefaultInterceptor
 import dev.ragnarok.filegallery.util.Utils.firstNonEmptyString
 import dev.ragnarok.filegallery.util.serializeble.msgpack.MsgPack
-import dev.ragnarok.filegallery.util.serializeble.retrofit.kotlinx.serialization.asConverterFactory
+import dev.ragnarok.filegallery.util.serializeble.retrofit.kotlinx.serialization.jsonMsgPackConverterFactory
 import dev.ragnarok.filegallery.util.serializeble.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.FormBody
@@ -67,10 +67,7 @@ class OtherRetrofitProvider @SuppressLint("CheckResult") constructor(private val
         return Retrofit.Builder()
             .baseUrl("$url/method/")
             .addConverterFactory(
-                HttpLoggerAndParser.selectConverterFactory(
-                    KJSON_FACTORY,
-                    KMSGPACK_FACTORY
-                )
+                KCONVERTER_FACTORY
             )
             .addCallAdapterFactory(RX_ADAPTER_FACTORY)
             .client(builder.build())
@@ -92,8 +89,7 @@ class OtherRetrofitProvider @SuppressLint("CheckResult") constructor(private val
     }
 
     companion object {
-        private val KJSON_FACTORY = kJson.asConverterFactory()
-        private val KMSGPACK_FACTORY = MsgPack().asConverterFactory()
+        private val KCONVERTER_FACTORY = jsonMsgPackConverterFactory(kJson, MsgPack())
         private val RX_ADAPTER_FACTORY = RxJava3CallAdapterFactory.create()
     }
 

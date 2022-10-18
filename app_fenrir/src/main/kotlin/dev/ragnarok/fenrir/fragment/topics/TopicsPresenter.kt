@@ -22,7 +22,6 @@ class TopicsPresenter(accountId: Int, private val ownerId: Int, savedInstanceSta
     private var netLoadingNow = false
     private var netLoadingNowOffset = 0
     private fun loadCachedData() {
-        val accountId = accountId
         cacheDisposable.add(
             boardInteractor.getCachedTopics(accountId, ownerId)
                 .fromIOToMain()
@@ -38,7 +37,6 @@ class TopicsPresenter(accountId: Int, private val ownerId: Int, savedInstanceSta
     }
 
     private fun requestActualData(offset: Int) {
-        val accountId = accountId
         netLoadingNow = true
         netLoadingNowOffset = offset
         resolveRefreshingView()

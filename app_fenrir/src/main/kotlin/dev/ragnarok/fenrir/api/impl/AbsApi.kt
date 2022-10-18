@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.api.impl
 
 import android.os.SystemClock
-import dev.ragnarok.fenrir.Includes
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.api.*
 import dev.ragnarok.fenrir.api.model.Captcha
 import dev.ragnarok.fenrir.api.model.Error
@@ -9,10 +9,6 @@ import dev.ragnarok.fenrir.api.model.IAttachmentToken
 import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.VkResponse
-import dev.ragnarok.fenrir.kJson
-import dev.ragnarok.fenrir.model.ParserType
-import dev.ragnarok.fenrir.nullOrEmpty
-import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.service.ApiErrorCodes
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.refresh.RefreshToken
@@ -71,9 +67,7 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                 }
             }
             .map { response ->
-                val k = if (Settings.get()
-                        .other().currentParser == ParserType.MSGPACK
-                ) MsgPack().decodeFromOkioStream(
+                val k = if (response.body.isMsgPack()) MsgPack().decodeFromOkioStream(
                     serializerType.serializer(
                         javaClass
                     ), response.body.source()
@@ -134,9 +128,7 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                 }
             }
             .map {
-                if (Settings.get()
-                        .other().currentParser == ParserType.MSGPACK
-                ) MsgPack().decodeFromOkioStream(
+                if (it.body.isMsgPack()) MsgPack().decodeFromOkioStream(
                     VkResponse.serializer(),
                     it.body.source()
                 ) else kJson.decodeFromStream(VkResponse.serializer(), it.body.byteStream())

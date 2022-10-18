@@ -36,6 +36,7 @@ interface VKApiAttachment {
         const val TYPE_PRODUCT = "product"
         const val TYPE_MARKET_ALBUM = "market_album"
         const val TYPE_ARTIST = "artist"
+        const val TYPE_GEO = "geo"
         val IGNORE_ATTACHMENTS =
             arrayOf("mini_app", "photos_list", "podcast", "pretty_cards", "situational_theme")
     }

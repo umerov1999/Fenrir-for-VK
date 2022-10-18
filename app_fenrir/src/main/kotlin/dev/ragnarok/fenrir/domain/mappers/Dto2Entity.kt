@@ -33,13 +33,12 @@ import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 
 object Dto2Entity {
-
     fun buildFeedbackDbo(feedback: VKApiBaseFeedback): FeedbackEntity {
         when (@FeedbackType val type = FeedbackEntity2Model.transformType(feedback.type)) {
             FeedbackType.FOLLOW, FeedbackType.FRIEND_ACCEPTED -> {
-                val usersNotifcation = feedback as VKApiUsersFeedback
+                val usersNotification = feedback as VKApiUsersFeedback
                 val usersDbo = UsersEntity(type)
-                usersDbo.setOwners(usersNotifcation.users?.ids)
+                usersDbo.setOwners(usersNotification.users?.ids)
                 usersDbo.setDate(feedback.date)
                 return usersDbo
             }
@@ -853,76 +852,81 @@ object Dto2Entity {
     }
 
     private fun mapAttachment(dto: VKApiAttachment): DboEntity {
-        if (dto is VKApiPhoto) {
-            return mapPhoto(dto)
+        when (dto.getType()) {
+            VKApiAttachment.TYPE_PHOTO -> {
+                return mapPhoto(dto as VKApiPhoto)
+            }
+            VKApiAttachment.TYPE_VIDEO -> {
+                return mapVideo(dto as VKApiVideo)
+            }
+            VKApiAttachment.TYPE_DOC -> {
+                return mapDoc(dto as VKApiDoc)
+            }
+            VKApiAttachment.TYPE_LINK -> {
+                return mapLink(dto as VKApiLink)
+            }
+            VKApiAttachment.TYPE_ARTICLE -> {
+                return mapArticle(dto as VKApiArticle)
+            }
+            VKApiAttachment.TYPE_AUDIO_PLAYLIST -> {
+                return mapAudioPlaylist(dto as VKApiAudioPlaylist)
+            }
+            VKApiAttachment.TYPE_STORY -> {
+                return mapStory(dto as VKApiStory)
+            }
+            VKApiAttachment.TYPE_GRAFFITI -> {
+                return mapGraffity(dto as VKApiGraffiti)
+            }
+            VKApiAttachment.TYPE_ALBUM -> {
+                return buildPhotoAlbumDbo(dto as VKApiPhotoAlbum)
+            }
+            VKApiAttachment.TYPE_CALL -> {
+                return mapCall(dto as VKApiCall)
+            }
+            VKApiAttachment.TYPE_GEO -> {
+                return mapGeo(dto as VKApiGeo)
+            }
+            VKApiAttachment.TYPE_WALL_REPLY -> {
+                return mapWallReply(dto as VKApiWallReply)
+            }
+            VKApiAttachment.TYPE_NOT_SUPPORT -> {
+                return mapNotSupported(dto as VKApiNotSupported)
+            }
+            VKApiAttachment.TYPE_EVENT -> {
+                return mapEvent(dto as VKApiEvent)
+            }
+            VKApiAttachment.TYPE_MARKET -> {
+                return mapMarket(dto as VKApiMarket)
+            }
+            VKApiAttachment.TYPE_MARKET_ALBUM -> {
+                return mapMarketAlbum(dto as VKApiMarketAlbum)
+            }
+            VKApiAttachment.TYPE_ARTIST -> {
+                return mapAudioArtist(dto as VKApiAudioArtist)
+            }
+            VKApiAttachment.TYPE_WIKI_PAGE -> {
+                return mapWikiPage(dto as VKApiWikiPage)
+            }
+            VKApiAttachment.TYPE_STICKER -> {
+                return mapSticker(dto as VKApiSticker)
+            }
+            VKApiAttachment.TYPE_POST -> {
+                return mapPost(dto as VKApiPost)
+            }
+            VKApiAttachment.TYPE_POLL -> {
+                return buildPollEntity(dto as VKApiPoll)
+            }
+            VKApiAttachment.TYPE_AUDIO -> {
+                return mapAudio(dto as VKApiAudio)
+            }
+            VKApiAttachment.TYPE_AUDIO_MESSAGE -> {
+                return mapAudioMessage(dto as VKApiAudioMessage)
+            }
+            VKApiAttachment.TYPE_GIFT -> {
+                return mapGiftItem(dto as VKApiGiftItem)
+            }
+            else -> throw UnsupportedOperationException("Unsupported attachment, class: " + dto.javaClass)
         }
-        if (dto is VKApiVideo) {
-            return mapVideo(dto)
-        }
-        if (dto is VKApiDoc) {
-            return mapDoc(dto)
-        }
-        if (dto is VKApiLink) {
-            return mapLink(dto)
-        }
-        if (dto is VKApiArticle) {
-            return mapArticle(dto)
-        }
-        if (dto is VKApiAudioPlaylist) {
-            return mapAudioPlaylist(dto)
-        }
-        if (dto is VKApiStory) {
-            return mapStory(dto)
-        }
-        if (dto is VKApiGraffiti) {
-            return mapGraffity(dto)
-        }
-        if (dto is VKApiPhotoAlbum) {
-            return buildPhotoAlbumDbo(dto)
-        }
-        if (dto is VKApiCall) {
-            return mapCall(dto)
-        }
-        if (dto is VKApiWallReply) {
-            return mapWallReply(dto)
-        }
-        if (dto is VKApiNotSupported) {
-            return mapNotSupported(dto)
-        }
-        if (dto is VKApiEvent) {
-            return mapEvent(dto)
-        }
-        if (dto is VKApiMarket) {
-            return mapMarket(dto)
-        }
-        if (dto is VKApiMarketAlbum) {
-            return mapMarketAlbum(dto)
-        }
-        if (dto is VKApiAudioArtist) {
-            return mapAudioArtist(dto)
-        }
-        if (dto is VKApiWikiPage) {
-            return mapWikiPage(dto)
-        }
-        if (dto is VKApiSticker) {
-            return mapSticker(dto)
-        }
-        if (dto is VKApiPost) {
-            return mapPost(dto)
-        }
-        if (dto is VKApiPoll) {
-            return buildPollEntity(dto)
-        }
-        if (dto is VKApiAudio) {
-            return mapAudio(dto)
-        }
-        if (dto is VKApiAudioMessage) {
-            return mapAudioMessage(dto)
-        }
-        if (dto is VKApiGiftItem) {
-            return mapGiftItem(dto)
-        }
-        throw UnsupportedOperationException("Unsupported attachment, class: " + dto.javaClass)
     }
 
     private fun mapAudio(dto: VKApiAudio): AudioDboEntity {
@@ -1175,6 +1179,15 @@ object Dto2Entity {
             .setReceiver_id(dto.receiver_id)
             .setState(dto.state)
             .setTime(dto.time)
+    }
+
+    private fun mapGeo(dto: VKApiGeo): GeoDboEntity {
+        return GeoDboEntity().setLatitude(dto.latitude)
+            .setLongitude(dto.longitude)
+            .setTitle(dto.title)
+            .setAddress(dto.address)
+            .setCountry(dto.country)
+            .setId(dto.id)
     }
 
     private fun mapNotSupported(dto: VKApiNotSupported): NotSupportedDboEntity {

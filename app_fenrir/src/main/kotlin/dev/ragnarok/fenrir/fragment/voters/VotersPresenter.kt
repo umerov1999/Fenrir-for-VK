@@ -48,7 +48,6 @@ class VotersPresenter(
     private fun requestActualData() {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(pollsInteractor.getVoters(
             accountId,
             ownerId,

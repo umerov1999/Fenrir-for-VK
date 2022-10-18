@@ -194,7 +194,6 @@ class VideoPreviewPresenter(
     }
 
     private fun refreshVideoInfo() {
-        val accountId = accountId
         setRefreshingNow(true)
         if (video == null) {
             view?.displayLoading()
@@ -225,7 +224,6 @@ class VideoPreviewPresenter(
     }
 
     fun fireAddToMyClick() {
-        val accountId = accountId
         appendDisposable(interactor.addToMy(accountId, accountId, ownerId, videoId)
             .fromIOToMain()
             .subscribe({ onAddComplete() }) { throwable ->
@@ -236,7 +234,6 @@ class VideoPreviewPresenter(
     }
 
     fun fireDeleteMyClick() {
-        val accountId = accountId
         appendDisposable(interactor.delete(accountId, videoId, ownerId, accountId)
             .fromIOToMain()
             .subscribe({ onAddComplete() }) { throwable ->
@@ -301,7 +298,6 @@ class VideoPreviewPresenter(
     fun fireLikeClick() {
         video?.let {
             val add = !it.isUserLikes
-            val accountId = accountId
             appendDisposable(interactor.likeOrDislike(accountId, ownerId, videoId, accessKey, add)
                 .fromIOToMain()
                 .subscribe(

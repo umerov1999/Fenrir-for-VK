@@ -44,7 +44,6 @@ class FeedbackPresenter(accountId: Int, savedInstanceState: Bundle?) :
         netDisposable.clear()
         netLoadingNow = true
         netLoadingStartFrom = startFrom
-        val accountId = accountId
         resolveLoadMoreFooter()
         resolveSwipeRefreshLoadingView()
         netDisposable.add(feedbackInteractor.getActualFeedbacks(
@@ -119,7 +118,6 @@ class FeedbackPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun loadAllFromDb() {
         cacheLoadingNow = true
-        val accountId = accountId
         cacheDisposable.add(feedbackInteractor.getCachedFeedbacks(accountId)
             .fromIOToMain()
             .subscribe({ onCachedDataReceived(it) }) { obj -> obj.printStackTrace() })

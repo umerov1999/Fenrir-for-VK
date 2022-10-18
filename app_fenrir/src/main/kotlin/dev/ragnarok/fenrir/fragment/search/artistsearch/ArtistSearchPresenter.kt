@@ -50,7 +50,6 @@ class ArtistSearchPresenter(
     }
 
     fun onAdd(album: AudioPlaylist) {
-        val accountId = accountId
         appendDisposable(audioInteractor.followPlaylist(
             accountId,
             album.getId(),

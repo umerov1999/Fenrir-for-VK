@@ -443,11 +443,6 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         return root
     }
 
-    private val isAudioStreaming: Boolean
-        get() = Settings.get()
-            .other()
-            .isAudioBroadcastActive
-
     @SuppressLint("ShowToast")
     private fun onSaveButtonClick(v: View) {
         val audio = MusicPlaybackController.currentAudio ?: return
@@ -785,11 +780,6 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             }
         } else ivSave?.setImageResource(R.drawable.save)
 
-        //handle VK actions
-        if (current != null && isAudioStreaming) {
-            broadcastAudio()
-        }
-
         // Set the total time
         resolveTotalTime()
     }
@@ -872,22 +862,6 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         val icon =
             if (myAudio && !currentAudio.isDeleted) R.drawable.ic_outline_delete else R.drawable.plus
         ivAdd?.setImageResource(icon)
-    }
-
-    private fun broadcastAudio() {
-        mBroadcastDisposable.clear()
-        val currentAudio = MusicPlaybackController.currentAudio ?: return
-        if (currentAudio.isLocal || currentAudio.isLocalServer) {
-            return
-        }
-        val accountId = mAccountId
-        val targetIds: Collection<Int> = setOf(accountId)
-        val id = currentAudio.id
-        val ownerId = currentAudio.ownerId
-        mBroadcastDisposable.add(
-            mAudioInteractor.sendBroadcast(accountId, ownerId, id, targetIds)
-                .fromIOToMain()
-                .subscribe({}) { })
     }
 
     /**

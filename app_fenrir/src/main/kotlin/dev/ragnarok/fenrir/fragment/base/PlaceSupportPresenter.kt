@@ -14,7 +14,7 @@ abstract class PlaceSupportPresenter<V>(accountId: Int, savedInstanceState: Bund
     AccountDependencyPresenter<V>(
         accountId,
         savedInstanceState
-    ) where V : IMvpView, V : IAttachmentsPlacesView, V : IAccountDependencyView {
+    ) where V : IMvpView, V : IAttachmentsPlacesView {
     fun fireLinkClick(link: Link) {
         view?.openLink(accountId, link)
     }

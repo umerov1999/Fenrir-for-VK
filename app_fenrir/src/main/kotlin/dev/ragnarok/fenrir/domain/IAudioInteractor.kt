@@ -32,6 +32,7 @@ interface IAudioInteractor {
         accountId: Int,
         audioOwnerId: Int,
         audioId: Int,
+        accessKey: String?,
         targetIds: Collection<Int>
     ): Completable
 

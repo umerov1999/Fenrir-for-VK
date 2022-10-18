@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.attachments.absattachmentsedit
 
 import android.net.Uri
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.AttachmentEntry
 import dev.ragnarok.fenrir.model.LocalPhoto
 
-interface IBaseAttachmentsEditView : IMvpView, IAccountDependencyView, IErrorView {
+interface IBaseAttachmentsEditView : IMvpView, IErrorView {
     fun displayInitialModels(models: MutableList<AttachmentEntry>)
     fun setSupportedButtons(
         photo: Boolean,

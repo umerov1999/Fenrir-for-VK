@@ -67,7 +67,6 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
     private fun loadActualData(offset: Int) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(faveInteractor.getPages(accountId, GET_COUNT, offset, isUser)
             .fromIOToMain()
             .subscribe({
@@ -124,7 +123,6 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
 
     private fun loadAllCachedData() {
         cacheLoadingNow = true
-        val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedPages(accountId, isUser)
             .fromIOToMain()
             .subscribe({ onCachedDataReceived(it) }) { t ->
@@ -194,7 +192,6 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
     }
 
     fun fireOwnerDelete(owner: Owner) {
-        val accountId = accountId
         appendDisposable(faveInteractor.removePage(accountId, owner.ownerId, isUser)
             .fromIOToMain()
             .subscribe({ onUserRemoved(accountId, owner.ownerId) }) { t ->
@@ -203,7 +200,6 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
     }
 
     fun firePushFirst(owner: Owner) {
-        val accountId = accountId
         appendDisposable(faveInteractor.pushFirst(accountId, owner.ownerId)
             .fromIOToMain()
             .subscribe({ fireRefresh() }) { t ->
@@ -212,7 +208,6 @@ class FavePagesPresenter(accountId: Int, isUser: Boolean, savedInstanceState: Bu
     }
 
     fun fireMention(owner: Owner) {
-        val accountId = accountId
         view?.openMention(
             accountId,
             owner

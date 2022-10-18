@@ -84,7 +84,6 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun loadNextPart(offset: Int) {
         if (loadinNow) return
-        val accountId = accountId
         setLoadinNow(true)
         appendDisposable(interactor.getBanned(accountId, 50, offset)
             .fromIOToMain()
@@ -110,7 +109,6 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     fun fireOwnersSelected(owners: ArrayList<Owner>) {
-        val accountId = accountId
         if (owners.nonNullNoEmpty()) {
             appendDisposable(interactor.banOwners(accountId, owners)
                 .fromIOToMain()
@@ -137,7 +135,6 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     fun fireRemoveClick(owner: Owner) {
-        val accountId = accountId
         appendDisposable(interactor.unbanOwner(accountId, owner.ownerId)
             .fromIOToMain()
             .subscribe({ onRemoveComplete() }) { throwable ->

@@ -27,24 +27,18 @@ import kotlin.math.abs
 class StoryPagerPresenter(
     accountId: Int,
     private val mStories: ArrayList<Story>,
-    index: Int,
+    private var mCurrentIndex: Int,
     private val context: Context,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IStoryPagerView>(accountId, savedInstanceState),
     IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener {
     private var mStoryPlayer: IStoryPlayer? = null
-    private var mCurrentIndex = 0
     fun isStoryIsVideo(pos: Int): Boolean {
         return mStories[pos].photo == null && mStories[pos].video != null
     }
 
     fun getStory(pos: Int): Story {
         return mStories[pos]
-    }
-
-    override fun saveState(outState: Bundle) {
-        super.saveState(outState)
-        outState.putInt(SAVE_PAGER_INDEX, mCurrentIndex)
     }
 
     override fun onGuiCreated(viewHost: IStoryPagerView) {
@@ -323,12 +317,10 @@ class StoryPagerPresenter(
     }
 
     companion object {
-        private const val SAVE_PAGER_INDEX = "save_pager_index"
         private val DEF_SIZE = VideoSize(1, 1)
     }
 
     init {
-        mCurrentIndex = savedInstanceState?.getInt(SAVE_PAGER_INDEX) ?: index
         initStoryPlayer()
     }
 }

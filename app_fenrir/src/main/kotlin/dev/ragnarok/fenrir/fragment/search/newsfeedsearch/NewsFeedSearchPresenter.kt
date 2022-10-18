@@ -83,7 +83,6 @@ class NewsFeedSearchPresenter(
     }
 
     fun fireLikeClick(post: Post) {
-        val accountId = accountId
         appendDisposable(walls.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
             .fromIOToMain()
             .subscribe(ignore()) { t ->

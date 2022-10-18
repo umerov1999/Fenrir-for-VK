@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.groupchats
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.GroupChats
 import dev.ragnarok.fenrir.model.LoadMoreState
 
-interface IGroupChatsView : IAccountDependencyView, IMvpView, IErrorView {
+interface IGroupChatsView : IMvpView, IErrorView {
     fun displayData(chats: MutableList<GroupChats>)
     fun notifyDataSetChanged()
     fun notifyDataAdd(position: Int, count: Int)

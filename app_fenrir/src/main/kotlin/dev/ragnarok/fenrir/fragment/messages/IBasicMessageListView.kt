@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.messages
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.LastReadId
 import dev.ragnarok.fenrir.model.Message
 
-interface IBasicMessageListView : IMvpView, IAttachmentsPlacesView, IAccountDependencyView,
+interface IBasicMessageListView : IMvpView, IAttachmentsPlacesView,
     IToastView {
     fun notifyMessagesUpAdded(position: Int, count: Int)
     fun notifyDataChanged()

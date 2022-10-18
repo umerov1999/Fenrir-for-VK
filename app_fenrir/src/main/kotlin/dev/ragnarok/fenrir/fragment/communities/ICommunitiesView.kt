@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.communities
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.DataWrapper
 import dev.ragnarok.fenrir.model.Owner
 
-interface ICommunitiesView : IAccountDependencyView, IMvpView, IErrorView {
+interface ICommunitiesView : IMvpView, IErrorView {
     fun displayData(
         own: DataWrapper<Community>,
         filtered: DataWrapper<Community>,

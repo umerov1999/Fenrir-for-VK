@@ -89,7 +89,7 @@ class ChatMembersFragment : BaseMvpFragment<ChatMembersPresenter, IChatMembersVi
             .setTitle(R.string.confirmation)
             .setMessage(getString(R.string.remove_chat_user_commit, user.getMember()?.fullName))
             .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
-                presenter?.fireUserDeteleConfirmed(
+                presenter?.fireUserDeleteConfirmed(
                     user
                 )
             }

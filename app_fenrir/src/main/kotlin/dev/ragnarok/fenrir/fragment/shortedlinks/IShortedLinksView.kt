@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.fragment.shortedlinks
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.ShortLink
 
-interface IShortedLinksView : IAccountDependencyView, IMvpView, IErrorView {
+interface IShortedLinksView : IMvpView, IErrorView {
     fun displayData(links: List<ShortLink>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

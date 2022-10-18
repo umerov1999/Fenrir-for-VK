@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.friends.birthday
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.BirthDay
 import dev.ragnarok.fenrir.model.User
 
-interface IBirthDayView : IAccountDependencyView, IMvpView, IErrorView {
+interface IBirthDayView : IMvpView, IErrorView {
     fun displayData(users: List<BirthDay>)
     fun notifyDataSetChanged()
     fun showRefreshing(refreshing: Boolean)

@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.absownerslist
 
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Owner
 
-interface ISimpleOwnersView : IMvpView, IErrorView, IAccountDependencyView {
+interface ISimpleOwnersView : IMvpView, IErrorView {
     fun displayOwnerList(owners: List<Owner>)
     fun notifyDataSetChanged()
     fun notifyDataAdded(position: Int, count: Int)

@@ -277,7 +277,6 @@ class AudiosPresenter(
     }
 
     fun onDelete(album: AudioPlaylist) {
-        val accountId = accountId
         audioListDisposable.add(audioInteractor.deletePlaylist(
             accountId,
             album.getId(),
@@ -294,7 +293,6 @@ class AudiosPresenter(
     }
 
     fun onAdd(album: AudioPlaylist) {
-        val accountId = accountId
         audioListDisposable.add(audioInteractor.followPlaylist(
             accountId,
             album.getId(),

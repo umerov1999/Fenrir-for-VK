@@ -64,7 +64,6 @@ class PhotoAlbumsPresenter(
         if (isMy) {
             return
         }
-        val accountId = accountId
         appendDisposable(ownersRepository.getBaseOwnerInfo(
             accountId,
             mOwnerId,
@@ -91,7 +90,6 @@ class PhotoAlbumsPresenter(
     private fun refreshFromNet(offset: Int) {
         netLoadingNow = true
         resolveProgressView()
-        val accountId = accountId
         netDisposable.add(photosInteractor.getActualAlbums(accountId, mOwnerId, 50, offset)
             .fromIOToMain()
             .subscribe({
@@ -137,7 +135,6 @@ class PhotoAlbumsPresenter(
     }
 
     private fun loadAllFromDb() {
-        val accountId = accountId
         cacheDisposable.add(photosInteractor.getCachedAlbums(accountId, mOwnerId)
             .fromIOToMain()
             .subscribe({ onCachedDataReceived(it) }) { })
@@ -266,7 +263,6 @@ class PhotoAlbumsPresenter(
         album.getPrivacyComment()?.let {
             privacies[1] = it
         }
-        val accountId = accountId
         appendDisposable(utilsInteractor
             .createFullPrivacies(accountId, privacies)
             .fromIOToMain()

@@ -33,7 +33,6 @@ class MessagesLookPresenter(
     }
 
     private fun initRequest() {
-        val accountId = accountId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
             mPeerId,
@@ -94,7 +93,6 @@ class MessagesLookPresenter(
         if (!loadingState.canLoadingHeader()) return
         val firstMessageId = firstMessageId ?: return
         loadingState.headerLoading()
-        val accountId = accountId
         val targetMessageId = firstMessageId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
@@ -115,7 +113,6 @@ class MessagesLookPresenter(
 
     override fun onActionModeDeleteClick() {
         super.onActionModeDeleteClick()
-        val accountId = accountId
         val ids = Observable.fromIterable(data)
             .filter { it.isSelected }
             .map { it.getObjectId() }
@@ -138,7 +135,6 @@ class MessagesLookPresenter(
 
     override fun onActionModeSpamClick() {
         super.onActionModeDeleteClick()
-        val accountId = accountId
         val ids = Observable.fromIterable(data)
             .filter { it.isSelected }
             .map { it.getObjectId() }
@@ -161,7 +157,6 @@ class MessagesLookPresenter(
         val lastMessageId = lastMessageId ?: return
         loadingState.footerLoading()
         val targetLastMessageId = lastMessageId
-        val accountId = accountId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
             mPeerId,
@@ -196,7 +191,6 @@ class MessagesLookPresenter(
     }
 
     fun fireMessageRestoreClick(message: Message) {
-        val accountId = accountId
         val id = message.getObjectId()
         appendDisposable(messagesInteractor.restoreMessage(accountId, mPeerId, id)
             .fromIOToMain()

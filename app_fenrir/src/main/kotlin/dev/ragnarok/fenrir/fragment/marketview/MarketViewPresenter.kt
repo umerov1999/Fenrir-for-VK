@@ -28,7 +28,6 @@ class MarketViewPresenter(
 
     private fun refreshPollData() {
         if (loadingNow) return
-        val accountId = accountId
         setLoadingNow(true)
         val ids: Collection<AccessIdPair> =
             listOf(AccessIdPair(mMarket.id, mMarket.owner_id, mMarket.access_key))

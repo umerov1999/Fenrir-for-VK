@@ -28,7 +28,6 @@ class VideoAlbumsByVideoPresenter(
     private fun requestActualData() {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         appendDisposable(videosInteractor.getAlbumsByVideo(
             accountId,
             ownerId,

@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.audio.local.audioslocal
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.upload.Upload
 
-interface IAudiosLocalView : IMvpView, IErrorView, IToastView, IAccountDependencyView {
+interface IAudiosLocalView : IMvpView, IErrorView, IToastView {
     fun displayList(audios: List<Audio>)
     fun notifyItemChanged(index: Int)
     fun notifyItemRemoved(index: Int)

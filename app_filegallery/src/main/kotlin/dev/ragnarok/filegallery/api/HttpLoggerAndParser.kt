@@ -8,7 +8,6 @@ import dev.ragnarok.filegallery.util.OkHttp3LoggingInterceptor
 import dev.ragnarok.filegallery.util.Utils
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import retrofit2.Converter
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
@@ -18,6 +17,7 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 object HttpLoggerAndParser {
+    /*
     fun selectConverterFactory(
         json: Converter.Factory,
         msgpack: Converter.Factory
@@ -28,9 +28,11 @@ object HttpLoggerAndParser {
             json
         }
     }
+     */
 
+    @Suppress("unused_parameter")
     fun Request.Builder.serverHeader(onlyJson: Boolean): Request.Builder {
-        if (!onlyJson && Utils.currentParser == ParserType.MSGPACK) {
+        if (/*!onlyJson && */Utils.currentParser == ParserType.MSGPACK) {
             addHeader("X-Response-Format", "msgpack")
         }
         return this

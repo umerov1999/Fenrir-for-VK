@@ -298,7 +298,6 @@ class DocsListPresenter(
     private fun requestAll() {
         setRequestNow(true)
         val filter = selectedFilter
-        val accountId = accountId
         requestHolder.append(docsInteractor.request(accountId, mOwnerId, filter)
             .fromIOToMain()
             .subscribe({ data -> onNetDataReceived(data) }) { throwable ->
@@ -342,7 +341,6 @@ class DocsListPresenter(
 
     private fun loadAll() {
         setCacheLoadingNow(true)
-        val accountId = accountId
         val filter = selectedFilter
         mLoader.append(docsInteractor.getCacheData(accountId, mOwnerId, filter)
             .fromIOToMain()

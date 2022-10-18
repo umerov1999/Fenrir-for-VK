@@ -1,11 +1,10 @@
 package dev.ragnarok.fenrir.fragment.communitycontrol.communitymembers
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Owner
 
-interface ICommunityMembersView : IAccountDependencyView, IMvpView, IErrorView {
+interface ICommunityMembersView : IMvpView, IErrorView {
     fun displayData(users: List<Owner>)
     fun notifyItemRemoved(position: Int)
     fun notifyDataSetChanged()

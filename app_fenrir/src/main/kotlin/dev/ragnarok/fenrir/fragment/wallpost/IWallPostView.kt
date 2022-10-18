@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.wallpost
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.Post
 
-interface IWallPostView : IAttachmentsPlacesView, IAccountDependencyView, IMvpView, IErrorView,
+interface IWallPostView : IAttachmentsPlacesView, IMvpView, IErrorView,
     IToastView {
     fun displayDefaultToolbarTitle()
     fun displayToolbarTitle(title: String?)

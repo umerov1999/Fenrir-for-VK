@@ -12,9 +12,8 @@ import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.fromIOToMain
-import dev.ragnarok.fenrir.model.ParserType
+import dev.ragnarok.fenrir.isMsgPack
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
 import dev.ragnarok.fenrir.util.Pair
@@ -26,7 +25,7 @@ import dev.ragnarok.fenrir.util.serializeble.json.Json
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.encodeToString
-import okio.BufferedSource
+import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
@@ -47,7 +46,6 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
             showError(Exception("Method can't be empty"))
             return
         }
-        val accountId = accountId
         val params: MutableMap<String, String> = HashMap()
         if (trimmedBody.nonNullNoEmpty()) {
             try {
@@ -70,13 +68,7 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
             }
         }
         setLoadingNow(true)
-        appendDisposable((if (Settings.get()
-                .other().currentParser == ParserType.MSGPACK
-        ) executeSingleMsgPack(
-            accountId,
-            trimmedMethod,
-            params
-        ) else executeSingleJson(accountId, trimmedMethod, params))
+        appendDisposable(executeSingle(accountId, trimmedMethod, params)
             .fromIOToMain()
             .subscribe({ onRequestResponse(it) }) { throwable ->
                 onRequestError(
@@ -161,43 +153,14 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
         }
     }
 
-    private fun executeSingleJson(
+    private fun executeSingle(
         accountId: Int,
         method: String,
         params: Map<String, String>
     ): Single<Pair<String?, String?>> {
         return networker.vkDefault(accountId)
             .other()
-            .rawRequestJson(method, params)
-            .map { optional ->
-                val responseString = optional.get()
-                val fullJson = if (responseString == null) null else toPrettyFormat(responseString)
-                var trimmedJson: String? = null
-                if (fullJson.nonNullNoEmpty()) {
-                    val lines = fullJson.split(Regex("\\r?\\n")).toTypedArray()
-                    val trimmed: MutableList<String> = ArrayList()
-                    for (line in lines) {
-                        if (trimmed.size > 1500) {
-                            trimmed.add("\n")
-                            trimmed.add("... and more " + (lines.size - 1500) + " lines")
-                            break
-                        }
-                        trimmed.add(line)
-                    }
-                    trimmedJson = join("\n", trimmed)
-                }
-                create(fullJson, trimmedJson)
-            }
-    }
-
-    private fun executeSingleMsgPack(
-        accountId: Int,
-        method: String,
-        params: Map<String, String>
-    ): Single<Pair<String?, String?>> {
-        return networker.vkDefault(accountId)
-            .other()
-            .rawRequestMsgPack(method, params)
+            .rawRequest(method, params)
             .map { optional ->
                 val responseString = optional.get()
                 val fullJson = if (responseString == null) null else toPrettyFormat(responseString)
@@ -256,19 +219,15 @@ class RequestExecutePresenter(accountId: Int, savedInstanceState: Bundle?) :
         /**
          * Convert a JSON string to pretty print version
          */
-        internal fun toPrettyFormat(jsonString: String): String {
+        internal fun toPrettyFormat(responseBody: ResponseBody): String {
             val json = Json {
                 ignoreUnknownKeys = true; isLenient = true; prettyPrint = true
             }
-            return json.encodeToString(json.parseToJsonElement(jsonString))
-        }
-
-        internal fun toPrettyFormat(bytes: BufferedSource): String {
-            val json = Json {
-                ignoreUnknownKeys = true; isLenient = true; prettyPrint = true
+            return if (responseBody.isMsgPack()) {
+                json.encodeToString(MsgPack.parseToJsonElement(responseBody.source()))
+            } else {
+                json.encodeToString(json.parseToJsonElement(responseBody.byteStream()))
             }
-            return json.encodeToString(MsgPack.parseToJsonElement(bytes))
         }
     }
-
 }

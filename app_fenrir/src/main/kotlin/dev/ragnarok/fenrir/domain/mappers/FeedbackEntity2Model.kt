@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.model.feedback.*
 import java.util.*
 
 object FeedbackEntity2Model {
-
     fun buildFeedback(entity: FeedbackEntity, owners: IOwnersBundle): Feedback {
         val feedback: Feedback = when (entity.type) {
             FeedbackType.FOLLOW, FeedbackType.FRIEND_ACCEPTED -> buildUsersFeedback(

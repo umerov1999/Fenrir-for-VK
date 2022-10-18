@@ -39,7 +39,6 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
     private var offset = 0
     private var networkOffset = 0
     private fun requestActualData(do_scan: Boolean) {
-        val accountId = accountId
         if (accountId != userId) {
             cacheLoadingNow = false
             resolveRefreshingView()
@@ -133,7 +132,6 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
     }
 
     private fun loadAllCachedData() {
-        val accountId = accountId
         cacheLoadingNow = true
         cacheDisposable.add(relationshipInteractor.getCachedRequests(accountId)
             .fromIOToMain()
@@ -218,7 +216,6 @@ class RequestsPresenter(accountId: Int, private val userId: Int, savedInstanceSt
         searchDisposable.clear()
         searchRunNow = true
         val query = q
-        val accountId = accountId
         val single: Single<List<User>>
         val netSingle = relationshipInteractor.getRequests(
             accountId,

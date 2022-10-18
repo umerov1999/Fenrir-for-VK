@@ -55,7 +55,6 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
     private fun requestActualData(do_scan: Boolean) {
         actualDataLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(relationshipInteractor.getActualFriendsList(
             accountId,
             userId,
@@ -142,7 +141,6 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
     }
 
     private fun loadAllCachedData() {
-        val accountId = accountId
         cacheLoadingNow = true
         cacheDisposable.add(relationshipInteractor.getCachedFriends(accountId, userId)
             .fromIOToMain()
@@ -227,7 +225,6 @@ class AllFriendsPresenter(accountId: Int, private val userId: Int, savedInstance
         searchDisposable.clear()
         searchRunNow = true
         val query = q
-        val accountId = accountId
         val single: Single<Pair<List<User>, Int>>
         val netSingle = relationshipInteractor.searchFriends(
             accountId,

@@ -49,7 +49,6 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
     private fun loadActualData(offset: Int) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         appendDisposable(fInteractor.getPlaylists(accountId, owner_id, offset, GET_COUNT)
             .fromIOToMain()
             .subscribe({ data ->
@@ -194,7 +193,6 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
     }
 
     fun onDelete(index: Int, album: AudioPlaylist) {
-        val accountId = accountId
         appendDisposable(fInteractor.deletePlaylist(accountId, album.getId(), album.getOwnerId())
             .fromIOToMain()
             .subscribe({
@@ -264,7 +262,6 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
     }
 
     fun onAdd(album: AudioPlaylist, clone: Boolean) {
-        val accountId = accountId
         appendDisposable((if (clone) fInteractor.clonePlaylist(
             accountId,
             album.getId(),
@@ -297,7 +294,6 @@ class AudioPlaylistsPresenter(accountId: Int, val owner_id: Int, savedInstanceSt
         for (i in audios) {
             targets.add(AccessIdPair(i.id, i.ownerId, i.accessKey))
         }
-        val accountId = accountId
         pending_to_add?.let { o ->
             appendDisposable(fInteractor.addToPlaylist(
                 accountId,

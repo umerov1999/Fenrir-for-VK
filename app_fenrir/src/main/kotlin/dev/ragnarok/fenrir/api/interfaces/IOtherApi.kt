@@ -2,12 +2,8 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import dev.ragnarok.fenrir.util.Optional
 import io.reactivex.rxjava3.core.Single
-import okio.BufferedSource
+import okhttp3.ResponseBody
 
 interface IOtherApi {
-    fun rawRequestJson(method: String, postParams: Map<String, String>): Single<Optional<String>>
-    fun rawRequestMsgPack(
-        method: String,
-        postParams: Map<String, String>
-    ): Single<Optional<BufferedSource>>
+    fun rawRequest(method: String, postParams: Map<String, String>): Single<Optional<ResponseBody>>
 }

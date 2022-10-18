@@ -23,7 +23,6 @@ class FriendsTabsPresenter(
     private var counters: FriendsCounters? = null
     private var owner: Owner? = null
     private fun requestOwnerInfo() {
-        val accountId = accountId
         appendDisposable(ownersRepository.getBaseOwnerInfo(
             accountId,
             userId,
@@ -49,7 +48,6 @@ class FriendsTabsPresenter(
     }
 
     private fun requestCounters() {
-        val accountId = accountId
         appendDisposable(relationshipInteractor.getFriendsCounters(accountId, userId)
             .fromIOToMain()
             .subscribe({ counters -> onCountersReceived(counters) }) { t ->

@@ -48,7 +48,7 @@ class DialogsPresenter(
     initialDialogsOwnerId: Int,
     models: ModelsBundle?,
     savedInstanceState: Bundle?
-) : AccountDependencyPresenter<IDialogsView>(accountId, savedInstanceState) {
+) : AccountDependencyPresenter<IDialogsView>(accountId, savedInstanceState, true) {
     private val dialogs: ArrayList<Dialog>
     private val messagesInteractor: IMessagesRepository
     private val accountsInteractor: IAccountsInteractor
@@ -649,7 +649,6 @@ class DialogsPresenter(
     }
 
     init {
-        setSupportAccountHotSwap(true)
         this.models = models
         dialogs = ArrayList()
         dialogsOwnerId = savedInstanceState?.getInt(SAVE_DIALOGS_OWNER_ID)

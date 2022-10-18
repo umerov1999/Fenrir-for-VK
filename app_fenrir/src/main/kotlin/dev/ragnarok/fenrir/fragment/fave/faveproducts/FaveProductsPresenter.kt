@@ -37,7 +37,6 @@ class FaveProductsPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun loadCachedData() {
         cacheLoadingNow = true
-        val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedProducts(accountId)
             .fromIOToMain()
             .subscribe({ markets -> onCachedDataReceived(markets) }) { t ->
@@ -68,7 +67,6 @@ class FaveProductsPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(faveInteractor.getProducts(accountId, COUNT_PER_REQUEST, offset)
             .fromIOToMain()
             .subscribe({ products ->

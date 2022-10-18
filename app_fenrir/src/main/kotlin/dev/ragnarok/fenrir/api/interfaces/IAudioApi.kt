@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.core.Single
 
 interface IAudioApi {
     @CheckResult
-    fun setBroadcast(audio: IdPair?, targetIds: Collection<Int>): Single<IntArray>
+    fun setBroadcast(audio: AccessIdPair, targetIds: Collection<Int>): Single<List<Int>>
 
     @CheckResult
     fun search(

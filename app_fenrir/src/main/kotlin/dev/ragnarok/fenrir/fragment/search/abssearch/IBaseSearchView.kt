@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.search.abssearch
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.fragment.search.options.BaseOption
 
-interface IBaseSearchView<T> : IMvpView, IErrorView, IToastView, IAccountDependencyView,
+interface IBaseSearchView<T> : IMvpView, IErrorView, IToastView,
     IAttachmentsPlacesView {
     fun displayData(data: MutableList<T>)
     fun setEmptyTextVisible(visible: Boolean)

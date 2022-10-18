@@ -89,6 +89,9 @@ class DocLink(val attachment: AbsModel) {
                         .accounts().current
                 ) context.getString(R.string.input_call) else context.getString(R.string.output_call)
             }
+            AttachmentsTypes.GEO -> {
+                return (attachment as Geo).title
+            }
         }
         return null
     }
@@ -178,6 +181,10 @@ class DocLink(val attachment: AbsModel) {
                     }
                 }
             }
+            AttachmentsTypes.GEO -> {
+                val geo = attachment as Geo
+                return geo.latitude.orEmpty() + " " + geo.longitude.orEmpty() + "\r\n" + geo.address.orEmpty()
+            }
         }
         return null
     }
@@ -188,55 +195,60 @@ class DocLink(val attachment: AbsModel) {
 
         @AttachmentsTypes
         internal fun typeOf(model: AbsModel): Int {
-            if (model is Document) {
-                return AttachmentsTypes.DOC
+            when (model.getModelType()) {
+                AbsModelType.MODEL_DOCUMENT -> {
+                    return AttachmentsTypes.DOC
+                }
+                AbsModelType.MODEL_POST -> {
+                    return AttachmentsTypes.POST
+                }
+                AbsModelType.MODEL_LINK -> {
+                    return AttachmentsTypes.LINK
+                }
+                AbsModelType.MODEL_POLL -> {
+                    return AttachmentsTypes.POLL
+                }
+                AbsModelType.MODEL_WIKI_PAGE -> {
+                    return AttachmentsTypes.WIKI_PAGE
+                }
+                AbsModelType.MODEL_STORY -> {
+                    return AttachmentsTypes.STORY
+                }
+                AbsModelType.MODEL_CALL -> {
+                    return AttachmentsTypes.CALL
+                }
+                AbsModelType.MODEL_GEO -> {
+                    return AttachmentsTypes.GEO
+                }
+                AbsModelType.MODEL_AUDIO_ARTIST -> {
+                    return AttachmentsTypes.ARTIST
+                }
+                AbsModelType.MODEL_WALL_REPLY -> {
+                    return AttachmentsTypes.WALL_REPLY
+                }
+                AbsModelType.MODEL_AUDIO_PLAYLIST -> {
+                    return AttachmentsTypes.AUDIO_PLAYLIST
+                }
+                AbsModelType.MODEL_GRAFFITI -> {
+                    return AttachmentsTypes.GRAFFITY
+                }
+                AbsModelType.MODEL_PHOTO_ALBUM -> {
+                    return AttachmentsTypes.ALBUM
+                }
+                AbsModelType.MODEL_NOT_SUPPORTED -> {
+                    return AttachmentsTypes.NOT_SUPPORTED
+                }
+                AbsModelType.MODEL_EVENT -> {
+                    return AttachmentsTypes.EVENT
+                }
+                AbsModelType.MODEL_MARKET -> {
+                    return AttachmentsTypes.MARKET
+                }
+                AbsModelType.MODEL_MARKET_ALBUM -> {
+                    return AttachmentsTypes.MARKET_ALBUM
+                }
+                else -> throw IllegalArgumentException()
             }
-            if (model is Post) {
-                return AttachmentsTypes.POST
-            }
-            if (model is Link) {
-                return AttachmentsTypes.LINK
-            }
-            if (model is Poll) {
-                return AttachmentsTypes.POLL
-            }
-            if (model is WikiPage) {
-                return AttachmentsTypes.WIKI_PAGE
-            }
-            if (model is Story) {
-                return AttachmentsTypes.STORY
-            }
-            if (model is Call) {
-                return AttachmentsTypes.CALL
-            }
-            if (model is AudioArtist) {
-                return AttachmentsTypes.ARTIST
-            }
-            if (model is WallReply) {
-                return AttachmentsTypes.WALL_REPLY
-            }
-            if (model is AudioPlaylist) {
-                return AttachmentsTypes.AUDIO_PLAYLIST
-            }
-            if (model is Graffiti) {
-                return AttachmentsTypes.GRAFFITY
-            }
-            if (model is PhotoAlbum) {
-                return AttachmentsTypes.ALBUM
-            }
-            if (model is NotSupported) {
-                return AttachmentsTypes.NOT_SUPPORTED
-            }
-            if (model is Event) {
-                return AttachmentsTypes.EVENT
-            }
-            if (model is Market) {
-                return AttachmentsTypes.MARKET
-            }
-            if (model is MarketAlbum) {
-                return AttachmentsTypes.MARKET_ALBUM
-            }
-            throw IllegalArgumentException()
         }
     }
 

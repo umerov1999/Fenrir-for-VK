@@ -29,7 +29,6 @@ class UserDetailsPresenter(
     private var photos_profile: List<Photo> = ArrayList(1)
     private var current_select = 0
     fun fireChatClick() {
-        val accountId = accountId
         val peer = Peer(
             Peer.fromUserId(
                 user.getObjectId()

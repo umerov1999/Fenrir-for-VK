@@ -25,7 +25,6 @@ open class BaseDocumentPresenter<V : IBasicDocumentView>(
     }
 
     protected fun addYourself(document: Document) {
-        val accountId = accountId
         val docId = document.id
         val ownerId = document.ownerId
         appendDisposable(docsInteractor.add(accountId, docId, ownerId, document.accessKey)
@@ -38,7 +37,6 @@ open class BaseDocumentPresenter<V : IBasicDocumentView>(
     }
 
     protected fun delete(id: Int, ownerId: Int) {
-        val accountId = accountId
         appendDisposable(docsInteractor.delete(accountId, id, ownerId)
             .fromIOToMain()
             .subscribe({

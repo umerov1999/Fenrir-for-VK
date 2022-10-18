@@ -148,7 +148,6 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     internal abstract fun getOwner(): Owner
 
     fun fireAddToBlacklistClick() {
-        val accountId = accountId
         appendDisposable(InteractorFactory.createAccountInteractor()
             .banOwners(accountId, listOf(getOwner()))
             .fromIOToMain()
@@ -156,7 +155,6 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     }
 
     fun fireRemoveBlacklistClick() {
-        val accountId = accountId
         appendDisposable(InteractorFactory.createAccountInteractor()
             .unbanOwner(accountId, ownerId)
             .fromIOToMain()
@@ -164,7 +162,6 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     }
 
     private fun loadWallCachedData() {
-        val accountId = accountId
         cacheCompositeDisposable.add(walls.getCachedWall(accountId, ownerId, wallFilter)
             .fromIOToMain()
             .subscribe({ posts -> onCachedDataReceived(posts) }) { obj -> obj.printStackTrace() })
@@ -208,7 +205,6 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     private fun requestWall(offset: Int) {
         setNowLoadingOffset(offset)
         setRequestNow(true)
-        val accountId = accountId
         val nextOffset = offset + COUNT
         val append = offset > 0
         netCompositeDisposable.add(walls.getWall(
@@ -510,7 +506,6 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         if (Settings.get().other().isDisable_likes || isHiddenAccount(accountId)) {
             return
         }
-        val accountId = accountId
         appendDisposable(walls.like(accountId, post.ownerId, post.vkid, !post.isUserLikes)
             .fromIOToMain()
             .subscribe(ignore()) { t ->

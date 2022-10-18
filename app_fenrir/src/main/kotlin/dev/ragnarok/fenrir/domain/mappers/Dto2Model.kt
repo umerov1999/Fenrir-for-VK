@@ -2,9 +2,6 @@ package dev.ragnarok.fenrir.domain.mappers
 
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
-import dev.ragnarok.fenrir.api.model.VKApiSticker.VKApiAnimation
-import dev.ragnarok.fenrir.api.model.feedback.Copies
-import dev.ragnarok.fenrir.api.model.feedback.UserArray
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
 import dev.ragnarok.fenrir.api.util.VKStringUtils.unescape
@@ -13,8 +10,6 @@ import dev.ragnarok.fenrir.crypt.MessageType
 import dev.ragnarok.fenrir.db.model.entity.PostDboEntity
 import dev.ragnarok.fenrir.domain.mappers.MapUtil.calculateConversationAcl
 import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAll
-import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAllArrayList
-import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAllMutable
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.AudioArtist.AudioArtistImage
 import dev.ragnarok.fenrir.model.Document.VideoPreview
@@ -61,67 +56,11 @@ object Dto2Model {
             .setStory_ids(narrative.story_ids)
     }
 
-    private fun transformStickerImage(dto: VKApiSticker.Image): Sticker.Image {
-        return Sticker.Image(dto.url, dto.width, dto.height)
-    }
-
-    private fun transformStickerAnimation(dto: VKApiAnimation): Sticker.Animation {
-        return Sticker.Animation(dto.url, dto.type)
-    }
-
-    private fun transformSticker(sticker: VKApiSticker): Sticker {
-        return Sticker(sticker.sticker_id)
-            .setImages(
-                mapAll(
-                    sticker.images
-                ) {
-                    transformStickerImage(it)
-                }
-            )
-            .setImagesWithBackground(
-                mapAll(
-                    sticker.images_with_background
-                ) { transformStickerImage(it) })
-            .setAnimations(
-                mapAll(
-                    sticker.animations
-                ) {
-                    transformStickerAnimation(it)
-                }
-            )
-            .setAnimationUrl(sticker.animation_url)
-    }
-
-    fun transformStickers(dto: List<VKApiSticker>?): List<Sticker> {
-        return mapAll(
-            dto
-        ) {
-            transformSticker(it)
-        }
-    }
-
-    private fun transformAudios(dto: List<VKApiAudio>?): ArrayList<Audio> {
-        return mapAllArrayList(
-            dto
-        ) {
-            transform(it)
-        }
-    }
-
-    private fun transformAudioPlaylists(dto: List<VKApiAudioPlaylist>?): MutableList<AudioPlaylist> {
-        return mapAllMutable(
-            dto
-        ) {
-            transform(it)
-        }
-    }
-
     fun transformOwner(owner: VKApiOwner?): Owner? {
         return if (owner is VKApiUser) transformUser(owner) else transformCommunity(
             owner as VKApiCommunity
         )
     }
-
 
     fun transformOwners(
         users: Collection<VKApiUser>?,
@@ -141,59 +80,6 @@ object Dto2Model {
         return owners
     }
 
-    fun transformCommunityDetails(dto: VKApiCommunity): CommunityDetails {
-        val details = CommunityDetails()
-            .setCanMessage(dto.can_message)
-            .setStatus(dto.status)
-            .setStatusAudio(dto.status_audio?.let { transform(it) })
-            .setFavorite(dto.is_favorite)
-            .setSubscribed(dto.is_subscribed)
-        dto.counters.requireNonNull {
-            details.setAllWallCount(it.all_wall)
-                .setOwnerWallCount(it.owner_wall)
-                .setPostponedWallCount(it.postponed_wall)
-                .setSuggestedWallCount(it.suggest_wall)
-                .setTopicsCount(it.topics)
-                .setDonutWallCount(it.donuts)
-                .setDocsCount(it.docs)
-                .setPhotosCount(it.photos)
-                .setAudiosCount(it.audios)
-                .setVideosCount(it.videos)
-                .setProductsCount(it.market)
-                .setProductServicesCount(it.market_services)
-                .setNarrativesCount(it.narratives)
-                .setArticlesCount(it.articles).setChatsCount(it.chats)
-        }
-        dto.menu?.nonNullNoEmpty {
-            val o = ArrayList<CommunityDetails.Menu>(it.size)
-            for (i in it) {
-                o.add(CommunityDetails.Menu(i.id, i.url, i.title, i.type, i.cover))
-            }
-            details.setMenu(o)
-        }
-        details.setCover(dto.cover.requireNonNull({
-            val cover = CommunityDetails.Cover()
-                .setEnabled(it.enabled)
-                .setImages(ArrayList(safeCountOf(dto.cover?.images)))
-            dto.cover?.images.requireNonNull { pit ->
-                for (imageDto in pit) {
-                    cover.getImages()?.add(
-                        CommunityDetails.CoverImage(
-                            imageDto.url,
-                            imageDto.height,
-                            imageDto.width
-                        )
-                    )
-                }
-            }
-            cover
-        }, {
-            CommunityDetails.Cover().setEnabled(false)
-        }))
-        details.setDescription(dto.description)
-        return details
-    }
-
     private fun transformGroupChat(chats: VKApiGroupChats): GroupChats {
         return GroupChats(chats.id)
             .setInvite_link(chats.invite_link)
@@ -203,7 +89,6 @@ object Dto2Model {
             .setMembers_count(chats.members_count)
             .setLastUpdateTime(chats.last_message_date)
     }
-
 
     fun transformCommunity(community: VKApiCommunity?): Community? {
         community ?: return null
@@ -274,15 +159,6 @@ object Dto2Model {
         }
     }
 
-    fun transformAudioArtist(dtos: List<VKApiAudioArtist>?): List<AudioArtist> {
-        return mapAll(
-            dtos
-        ) {
-            transform(it)
-        }
-    }
-
-
     fun transformMarket(dtos: List<VKApiMarket>?): List<Market> {
         return mapAll(
             dtos
@@ -295,13 +171,6 @@ object Dto2Model {
             dtos
         ) { transformUser(it) }
     }
-
-    private fun transformVideos(dtos: List<VKApiVideo>?): List<Video> {
-        return mapAll(
-            dtos
-        ) { transform(it) }
-    }
-
 
     fun transformFaveUser(favePage: FavePageResponse): FavePage {
         var id = 0
@@ -682,16 +551,6 @@ object Dto2Model {
         return privacy
     }
 
-    fun buildUserArray(copies: Copies, owners: IOwnersBundle): List<Owner> {
-        val data: MutableList<Owner> = ArrayList(safeCountOf(copies.pairs))
-        copies.pairs.requireNonNull {
-            for (pair in it) {
-                data.add(owners.getById(pair.owner_id))
-            }
-        }
-        return data
-    }
-
     private fun buildUserArray(users: List<Int>, owners: IOwnersBundle): List<User> {
         val data: MutableList<User> = ArrayList(safeCountOf(users))
         for (pair in users) {
@@ -701,16 +560,6 @@ object Dto2Model {
                     pair
                 ) as User
             )
-        }
-        return data
-    }
-
-    fun buildUserArray(original: UserArray, owners: IOwnersBundle): List<Owner> {
-        val data: MutableList<Owner> = ArrayList(original.ids?.size ?: 0)
-        original.ids.requireNonNull {
-            for (id in it) {
-                data.add(owners.getById(id))
-            }
         }
         return data
     }
@@ -843,6 +692,15 @@ object Dto2Model {
             .setReceiver_id(dto.receiver_id)
             .setState(dto.state)
             .setTime(dto.time)
+    }
+
+    fun transform(dto: VKApiGeo): Geo {
+        return Geo().setLatitude(dto.latitude)
+            .setLongitude(dto.longitude)
+            .setTitle(dto.title)
+            .setAddress(dto.address)
+            .setCountry(dto.country)
+            .setId(dto.id)
     }
 
     fun transform(dto: VKApiWallReply, owners: IOwnersBundle): WallReply {
@@ -1224,6 +1082,8 @@ object Dto2Model {
                 )
                 VKApiAttachment.TYPE_CALL -> attachments.prepareCalls()
                     .add(transform(attachment as VKApiCall))
+                VKApiAttachment.TYPE_GEO -> attachments.prepareGeos()
+                    .add(transform(attachment as VKApiGeo))
                 VKApiAttachment.TYPE_WALL_REPLY -> attachments.prepareWallReply()
                     .add(transform(attachment as VKApiWallReply, owners))
                 VKApiAttachment.TYPE_NOT_SUPPORT -> attachments.prepareNotSupporteds()

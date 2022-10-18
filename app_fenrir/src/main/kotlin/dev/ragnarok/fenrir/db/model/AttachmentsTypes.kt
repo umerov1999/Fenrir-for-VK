@@ -27,7 +27,8 @@ import androidx.annotation.IntDef
     AttachmentsTypes.MARKET,
     AttachmentsTypes.MARKET_ALBUM,
     AttachmentsTypes.ARTIST,
-    AttachmentsTypes.WIKI_PAGE
+    AttachmentsTypes.WIKI_PAGE,
+    AttachmentsTypes.GEO
 )
 @Retention(AnnotationRetention.SOURCE)
 annotation class AttachmentsTypes {
@@ -57,5 +58,6 @@ annotation class AttachmentsTypes {
         const val MARKET_ALBUM = 23
         const val ARTIST = 24
         const val WIKI_PAGE = 25
+        const val GEO = 26
     }
 }

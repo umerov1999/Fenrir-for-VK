@@ -1,12 +1,11 @@
 package dev.ragnarok.fenrir.fragment.wallattachments.wallsearchcommentsattachments
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Comment
 
-interface IWallSearchCommentsAttachmentsView : IAccountDependencyView, IMvpView, IErrorView,
+interface IWallSearchCommentsAttachmentsView : IMvpView, IErrorView,
     IAttachmentsPlacesView {
     fun displayData(comments: MutableList<Comment>)
     fun notifyDataSetChanged()

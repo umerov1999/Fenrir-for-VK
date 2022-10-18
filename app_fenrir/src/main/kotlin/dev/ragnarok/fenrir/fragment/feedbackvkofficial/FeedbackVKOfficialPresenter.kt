@@ -56,7 +56,6 @@ class FeedbackVKOfficialPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     fun hideNotification(position: Int, query: String?) {
-        val accountId = accountId
         actualDataDisposable.add(fInteractor.hide(accountId, query)
             .fromIOToMain()
             .subscribe({

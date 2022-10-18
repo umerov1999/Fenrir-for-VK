@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.feed
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
@@ -8,7 +7,7 @@ import dev.ragnarok.fenrir.model.FeedSource
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.News
 
-interface IFeedView : IAccountDependencyView, IAttachmentsPlacesView, IMvpView, IErrorView {
+interface IFeedView : IAttachmentsPlacesView, IMvpView, IErrorView {
     fun displayFeedSources(sources: MutableList<FeedSource>)
     fun notifyFeedSourcesChanged()
     fun displayFeed(data: MutableList<News>, rawScrollState: String?)

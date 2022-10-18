@@ -141,6 +141,40 @@ abstract class AbsAdapter<T>(name: String) : KSerializer<T> {
         }
 
         @JvmOverloads
+        fun optFloat(json: JsonObject?, name: String, fallback: Float = 0f): Float {
+            contract {
+                returns(true) implies (json != null)
+            }
+            json ?: return fallback
+            return try {
+                val element = json[name]
+                (element as? JsonPrimitive)?.floatOrNull ?: fallback
+            } catch (e: Exception) {
+                if (Constants.IS_DEBUG) {
+                    e.printStackTrace()
+                }
+                fallback
+            }
+        }
+
+        @JvmOverloads
+        fun optDouble(json: JsonObject?, name: String, fallback: Double = 0.0): Double {
+            contract {
+                returns(true) implies (json != null)
+            }
+            json ?: return fallback
+            return try {
+                val element = json[name]
+                (element as? JsonPrimitive)?.doubleOrNull ?: fallback
+            } catch (e: Exception) {
+                if (Constants.IS_DEBUG) {
+                    e.printStackTrace()
+                }
+                fallback
+            }
+        }
+
+        @JvmOverloads
         fun optLong(json: JsonObject?, name: String, fallback: Long = 0L): Long {
             contract {
                 returns(true) implies (json != null)

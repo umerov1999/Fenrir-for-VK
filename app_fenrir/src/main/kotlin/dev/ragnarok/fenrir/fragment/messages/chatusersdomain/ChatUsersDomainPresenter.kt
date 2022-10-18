@@ -78,7 +78,6 @@ class ChatUsersDomainPresenter(
     }
 
     private fun requestData() {
-        val accountId = accountId
         setRefreshing(true)
         appendDisposable(messagesInteractor.getChatUsers(accountId, chatId)
             .fromIOToMain()

@@ -41,7 +41,6 @@ class NotReadMessagesPresenter(
     }
 
     private fun initRequest() {
-        val accountId = accountId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
             peer.id,
@@ -103,7 +102,6 @@ class NotReadMessagesPresenter(
         if (!loadingState.canLoadingHeader()) return
         val firstMessageId = firstMessageId
         loadingState.headerLoading()
-        val accountId = accountId
         val targetMessageId = firstMessageId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
@@ -124,7 +122,6 @@ class NotReadMessagesPresenter(
 
     override fun onActionModeDeleteClick() {
         super.onActionModeDeleteClick()
-        val accountId = accountId
         val ids = Observable.fromIterable(data)
             .filter { it.isSelected }
             .map { it.getObjectId() }
@@ -147,7 +144,6 @@ class NotReadMessagesPresenter(
 
     override fun onActionModeSpamClick() {
         super.onActionModeDeleteClick()
-        val accountId = accountId
         val ids = Observable.fromIterable(data)
             .filter { it.isSelected }
             .map { it.getObjectId() }
@@ -170,7 +166,6 @@ class NotReadMessagesPresenter(
         val lastMessageId = lastMessageId ?: return
         loadingState.footerLoading()
         val targetLastMessageId = lastMessageId
-        val accountId = accountId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
             peer.id,
@@ -205,7 +200,6 @@ class NotReadMessagesPresenter(
     }
 
     fun fireMessageRestoreClick(message: Message) {
-        val accountId = accountId
         val id = message.getObjectId()
         appendDisposable(messagesInteractor.restoreMessage(accountId, peer.id, id)
             .fromIOToMain()

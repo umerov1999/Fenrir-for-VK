@@ -194,6 +194,12 @@ class AttchmentsEditorAdapter(
         holder.photoImageView.setImageResource(R.drawable.phone_call_color)
     }
 
+    private fun bindGeo(holder: ViewHolder) {
+        holder.tvTitle.setText(R.string.geo)
+        with().cancelRequest(holder.photoImageView)
+        holder.photoImageView.setImageResource(R.drawable.geo_color)
+    }
+
     private fun bindEvent(holder: ViewHolder, event: Event) {
         holder.tvTitle.text = event.button_text
         with().cancelRequest(holder.photoImageView)
@@ -336,68 +342,71 @@ class AttchmentsEditorAdapter(
         val model = item.attachment
         holder.pbProgress.visibility = View.GONE
         holder.vTint.visibility = View.GONE
-        when (model) {
-            is Photo -> {
-                bindPhoto(holder, model)
+        when (model.getModelType()) {
+            AbsModelType.MODEL_PHOTO -> {
+                bindPhoto(holder, model as Photo)
             }
-            is Video -> {
-                bindVideo(holder, model)
+            AbsModelType.MODEL_VIDEO -> {
+                bindVideo(holder, model as Video)
             }
-            is Audio -> {
-                bindAudio(holder, model)
+            AbsModelType.MODEL_AUDIO -> {
+                bindAudio(holder, model as Audio)
             }
-            is Poll -> {
-                bindPoll(holder, model)
+            AbsModelType.MODEL_POLL -> {
+                bindPoll(holder, model as Poll)
             }
-            is Post -> {
-                bindPost(holder, model)
+            AbsModelType.MODEL_POST -> {
+                bindPost(holder, model as Post)
             }
-            is Document -> {
-                bindDoc(holder, model)
+            AbsModelType.MODEL_DOCUMENT -> {
+                bindDoc(holder, model as Document)
             }
-            is FwdMessages -> {
+            AbsModelType.MODEL_FWDMESSAGES -> {
                 bindFwdMessages(holder)
             }
-            is Upload -> {
-                configUploadObject(model, holder)
+            AbsModelType.MODEL_UPLOAD -> {
+                configUploadObject(model as Upload, holder)
             }
-            is Link -> {
-                bindLink(holder, model)
+            AbsModelType.MODEL_LINK -> {
+                bindLink(holder, model as Link)
             }
-            is Article -> {
-                bindArticle(holder, model)
+            AbsModelType.MODEL_ARTICLE -> {
+                bindArticle(holder, model as Article)
             }
-            is Story -> {
-                bindStory(holder, model)
+            AbsModelType.MODEL_STORY -> {
+                bindStory(holder, model as Story)
             }
-            is Call -> {
+            AbsModelType.MODEL_CALL -> {
                 bindCall(holder)
             }
-            is NotSupported -> {
+            AbsModelType.MODEL_GEO -> {
+                bindGeo(holder)
+            }
+            AbsModelType.MODEL_NOT_SUPPORTED -> {
                 bindNotSupported(holder)
             }
-            is Event -> {
-                bindEvent(holder, model)
+            AbsModelType.MODEL_EVENT -> {
+                bindEvent(holder, model as Event)
             }
-            is Market -> {
-                bindMarket(holder, model)
+            AbsModelType.MODEL_MARKET -> {
+                bindMarket(holder, model as Market)
             }
-            is MarketAlbum -> {
-                bindMarketAlbum(holder, model)
+            AbsModelType.MODEL_MARKET_ALBUM -> {
+                bindMarketAlbum(holder, model as MarketAlbum)
             }
-            is AudioArtist -> {
-                bindAudioArtist(holder, model)
+            AbsModelType.MODEL_AUDIO_ARTIST -> {
+                bindAudioArtist(holder, model as AudioArtist)
             }
-            is AudioPlaylist -> {
-                bindAudioPlaylist(holder, model)
+            AbsModelType.MODEL_AUDIO_PLAYLIST -> {
+                bindAudioPlaylist(holder, model as AudioPlaylist)
             }
-            is Graffiti -> {
-                bindGraffiti(holder, model)
+            AbsModelType.MODEL_GRAFFITI -> {
+                bindGraffiti(holder, model as Graffiti)
             }
-            is PhotoAlbum -> {
-                bindPhotoAlbum(holder, model)
+            AbsModelType.MODEL_PHOTO_ALBUM -> {
+                bindPhotoAlbum(holder, model as PhotoAlbum)
             }
-            is WallReply -> {
+            AbsModelType.MODEL_WALL_REPLY -> {
                 bindWallReplies(holder)
             }
             else -> {

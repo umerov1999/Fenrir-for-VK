@@ -31,7 +31,6 @@ class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private var doLoadTabs = false
     private fun loadCachedData() {
         cacheLoading = true
-        val accountId = accountId
         cacheDisposable.add(
             faveInteractor.getCachedLinks(accountId)
                 .fromIOToMain()
@@ -41,7 +40,6 @@ class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun loadActual(offset: Int) {
         actualLoading = true
-        val accountId = accountId
         resolveRefreshingView()
         actualDisposable.add(faveInteractor.getLinks(accountId, getCount, offset)
             .fromIOToMain()
@@ -129,7 +127,6 @@ class FaveLinksPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     fun fireDeleteClick(link: FaveLink) {
-        val accountId = accountId
         val id = link.id ?: return
         appendDisposable(faveInteractor.removeLink(accountId, id)
             .fromIOToMain()

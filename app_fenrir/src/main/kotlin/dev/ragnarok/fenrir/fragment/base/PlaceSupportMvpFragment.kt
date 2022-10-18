@@ -24,7 +24,7 @@ import kotlin.math.abs
 
 abstract class PlaceSupportMvpFragment<P : PlaceSupportPresenter<V>, V> : BaseMvpFragment<P, V>(),
     OnAttachmentsActionCallback, IAttachmentsPlacesView,
-    OwnerClickListener where V : IMvpView, V : IAttachmentsPlacesView, V : IAccountDependencyView {
+    OwnerClickListener where V : IMvpView, V : IAttachmentsPlacesView {
     private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,

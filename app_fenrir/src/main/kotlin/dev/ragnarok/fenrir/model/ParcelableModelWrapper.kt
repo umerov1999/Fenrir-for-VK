@@ -25,7 +25,7 @@ class ParcelableModelWrapper : Parcelable {
                     return arrayOfNulls(size)
                 }
             }
-        private val TYPES: ArrayMap<Int, (`in`: Parcel) -> AbsModel?> = ArrayMap(42)
+        private val TYPES: ArrayMap<Int, (`in`: Parcel) -> AbsModel?> = ArrayMap(43)
 
         fun wrap(model: AbsModel): ParcelableModelWrapper {
             return ParcelableModelWrapper(model)
@@ -125,6 +125,7 @@ class ParcelableModelWrapper : Parcelable {
             TYPES[AbsModelType.MODEL_AUDIO_CATALOG_V2_ARTIST] =
                 { it.readTypedObjectCompat(CatalogV2ArtistItem.CREATOR) }
             TYPES[AbsModelType.MODEL_UPLOAD] = { it.readTypedObjectCompat(Upload.CREATOR) }
+            TYPES[AbsModelType.MODEL_GEO] = { it.readTypedObjectCompat(Geo.CREATOR) }
             TYPES[AbsModelType.MODEL_CATALOG_V2_BLOCK] =
                 { it.readTypedObjectCompat(CatalogV2Block.CREATOR) }
             TYPES[AbsModelType.MODEL_CATALOG_V2_LINK] =

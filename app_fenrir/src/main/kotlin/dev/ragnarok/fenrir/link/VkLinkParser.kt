@@ -49,6 +49,8 @@ object VkLinkParser {
         val PATTERN_ACCESS_KEY: Pattern = Pattern.compile("access_key=(\\w+)")
         val PATTERN_VIDEO_ALBUM: Pattern =
             Pattern.compile("vk\\.com/videos(-?\\d*)[?]section=album_(\\d*)")
+        val PATTERN_VIDEOS_OWNER: Pattern =
+            Pattern.compile("vk\\.com/videos(-?\\d*)")
 
         //vk.com/wall-2345345_7834545?reply=15345346
         val PATTERN_WALL_POST_COMMENT: Pattern =
@@ -491,12 +493,22 @@ object VkLinkParser {
     }
 
     private fun parseVideoAlbum(string: String): AbsLink? {
-        val matcher = patterns.PATTERN_VIDEO_ALBUM.matcher(string)
+        var matcher = patterns.PATTERN_VIDEO_ALBUM.matcher(string)
         try {
             if (matcher.find()) {
                 return matcher.group(1)
                     ?.let {
                         matcher.group(2)?.let { it1 -> VideoAlbumLink(it.toInt(), it1.toInt()) }
+                    }
+            }
+        } catch (ignored: NumberFormatException) {
+        }
+        matcher = patterns.PATTERN_VIDEOS_OWNER.matcher(string)
+        try {
+            if (matcher.find()) {
+                return matcher.group(1)
+                    ?.let {
+                        VideosLink(it.toInt())
                     }
             }
         } catch (ignored: NumberFormatException) {

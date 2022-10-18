@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.videos
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
@@ -8,7 +7,7 @@ import dev.ragnarok.fenrir.fragment.base.core.IToolbarView
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.upload.Upload
 
-interface IVideosListView : IAccountDependencyView, IMvpView, IToolbarView, IErrorView, IToastView {
+interface IVideosListView : IMvpView, IToolbarView, IErrorView, IToastView {
     fun displayData(data: List<Video>)
     fun notifyDataAdded(position: Int, count: Int)
     fun displayLoading(loading: Boolean)

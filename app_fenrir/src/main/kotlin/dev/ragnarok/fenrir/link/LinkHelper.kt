@@ -46,6 +46,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getVKPhotoAlbumsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVKPhotosAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoAlbumPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVideoPreviewPlace
+import dev.ragnarok.fenrir.place.PlaceFactory.getVideosPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
@@ -244,6 +245,15 @@ object LinkHelper {
                     videoAlbumLink.ownerId,
                     videoAlbumLink.albumId,
                     null,
+                    null
+                )
+                    .tryOpenWith(context)
+            }
+            AbsLink.VIDEOS -> {
+                val videosLink = link as VideosLink
+                getVideosPlace(
+                    accountId,
+                    videosLink.ownerId,
                     null
                 )
                     .tryOpenWith(context)

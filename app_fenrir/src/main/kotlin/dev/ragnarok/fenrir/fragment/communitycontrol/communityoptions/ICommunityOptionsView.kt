@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.communitycontrol.communityoptions
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IProgressView
@@ -8,7 +7,7 @@ import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.Day
 import dev.ragnarok.fenrir.model.IdOption
 
-interface ICommunityOptionsView : IMvpView, IAccountDependencyView, IErrorView, IProgressView,
+interface ICommunityOptionsView : IMvpView, IErrorView, IProgressView,
     IToastView {
     fun displayName(name: String?)
     fun displayDescription(description: String?)

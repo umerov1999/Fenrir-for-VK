@@ -9,7 +9,8 @@ import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.asConverterFactory
+import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
+import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.jsonMsgPackConverterFactory
 import dev.ragnarok.fenrir.util.serializeble.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.Interceptor
@@ -64,10 +65,15 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
         HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         return Retrofit.Builder()
             .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/") // dummy
-            .addConverterFactory(kJson.asConverterFactory())
-            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+            .addConverterFactory(KCONVERTER_FACTORY)
+            .addCallAdapterFactory(RX_ADAPTER_FACTORY)
             .client(builder.build())
             .build()
+    }
+
+    companion object {
+        private val KCONVERTER_FACTORY = jsonMsgPackConverterFactory(kJson, MsgPack())
+        private val RX_ADAPTER_FACTORY = RxJava3CallAdapterFactory.create()
     }
 
     init {

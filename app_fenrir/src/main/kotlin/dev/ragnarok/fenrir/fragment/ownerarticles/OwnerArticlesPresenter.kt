@@ -33,7 +33,6 @@ class OwnerArticlesPresenter(
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(faveInteractor.getOwnerPublishedArticles(
             accountId,
             ownerId,

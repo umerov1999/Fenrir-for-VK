@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.docs
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.DocFilter
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.upload.Upload
 
-interface IDocListView : IAccountDependencyView, IMvpView, IErrorView {
+interface IDocListView : IMvpView, IErrorView {
     fun displayData(documents: MutableList<Document>, asImages: Boolean)
     fun showRefreshing(refreshing: Boolean)
     fun notifyDataSetChanged()

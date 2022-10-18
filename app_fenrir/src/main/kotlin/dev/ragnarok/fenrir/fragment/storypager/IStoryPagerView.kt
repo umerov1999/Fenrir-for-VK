@@ -1,14 +1,13 @@
 package dev.ragnarok.fenrir.fragment.storypager
 
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.media.story.IStoryPlayer
 import dev.ragnarok.fenrir.model.Story
 
-interface IStoryPagerView : IMvpView, IErrorView, IToastView, IAccountDependencyView {
+interface IStoryPagerView : IMvpView, IErrorView, IToastView {
     fun displayData(pageCount: Int, selectedIndex: Int)
     fun setAspectRatioAt(position: Int, w: Int, h: Int)
     fun setPreparingProgressVisible(position: Int, preparing: Boolean)

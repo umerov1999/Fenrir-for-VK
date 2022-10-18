@@ -17,7 +17,7 @@ interface IAudioService {
     fun setBroadcast(
         @Field("audio") audio: String?,
         @Field("target_ids") targetIds: String?
-    ): Single<BaseResponse<IntArray>>
+    ): Single<BaseResponse<List<Int>>>
 
     //https://vk.com/dev/audio.search
     @FormUrlEncoded

@@ -33,7 +33,6 @@ class ProductsPresenter(
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(ownerInteractor.getMarket(
             accountId,
             owner_id,

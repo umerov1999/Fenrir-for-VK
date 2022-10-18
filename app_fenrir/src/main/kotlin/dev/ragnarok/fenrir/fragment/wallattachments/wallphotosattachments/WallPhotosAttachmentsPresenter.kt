@@ -78,7 +78,6 @@ class WallPhotosAttachmentsPresenter(
     private fun loadActualData(offset: Int) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(fInteractor.getWallNoCache(
             accountId,
             owner_id,

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.abswall
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
@@ -8,7 +7,7 @@ import dev.ragnarok.fenrir.fragment.base.core.ISnackbarView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.*
 
-interface IWallView : IAttachmentsPlacesView, IAccountDependencyView, IMvpView, ISnackbarView,
+interface IWallView : IAttachmentsPlacesView, IMvpView, ISnackbarView,
     IErrorView, IToastView {
     fun displayWallData(data: MutableList<Post>)
     fun notifyWallDataSetChanged()

@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.messages.localjsontochat
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.IAttachmentsPlacesView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Peer
 
-interface ILocalJsonToChatView : IAccountDependencyView, IMvpView, IErrorView,
+interface ILocalJsonToChatView : IMvpView, IErrorView,
     IAttachmentsPlacesView {
     fun displayData(posts: ArrayList<Message>)
     fun notifyDataSetChanged()

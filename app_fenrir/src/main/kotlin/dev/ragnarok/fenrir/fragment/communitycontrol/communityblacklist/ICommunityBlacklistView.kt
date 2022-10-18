@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.communitycontrol.communityblacklist
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.Banned
 import dev.ragnarok.fenrir.model.User
 
-interface ICommunityBlacklistView : IAccountDependencyView, IErrorView, IMvpView, IToastView {
+interface ICommunityBlacklistView : IErrorView, IMvpView, IToastView {
     fun displayRefreshing(loadingNow: Boolean)
     fun notifyDataSetChanged()
     fun diplayData(data: List<Banned>)

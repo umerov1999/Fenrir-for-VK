@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.model
 
+import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.fragment.base.DocLink
@@ -29,6 +30,8 @@ class Attachments : Parcelable, Cloneable {
     var stories: ArrayList<Story>? = null
         private set
     var calls: ArrayList<Call>? = null
+        private set
+    var geos: ArrayList<Geo>? = null
         private set
     var polls: ArrayList<Poll>? = null
         private set
@@ -73,6 +76,7 @@ class Attachments : Parcelable, Cloneable {
         gifts = `in`.createTypedArrayList(GiftItem.CREATOR)
         stories = `in`.createTypedArrayList(Story.CREATOR)
         calls = `in`.createTypedArrayList(Call.CREATOR)
+        geos = `in`.createTypedArrayList(Geo.CREATOR)
         audioPlaylists = `in`.createTypedArrayList(AudioPlaylist.CREATOR)
         graffity = `in`.createTypedArrayList(Graffiti.CREATOR)
         photoAlbums = `in`.createTypedArrayList(PhotoAlbum.CREATOR)
@@ -99,6 +103,7 @@ class Attachments : Parcelable, Cloneable {
         dest.writeTypedList(gifts)
         dest.writeTypedList(stories)
         dest.writeTypedList(calls)
+        dest.writeTypedList(geos)
         dest.writeTypedList(audioPlaylists)
         dest.writeTypedList(graffity)
         dest.writeTypedList(photoAlbums)
@@ -110,96 +115,105 @@ class Attachments : Parcelable, Cloneable {
         dest.writeTypedList(audioArtists)
     }
 
+    @SuppressLint("SwitchIntDef")
     fun add(model: AbsModel) {
-        if (model is Audio) {
-            prepareAudios().add(model)
-            return
-        }
-        if (model is Sticker) {
-            prepareStickers().add(model)
-            return
-        }
-        if (model is PhotoAlbum) {
-            preparePhotoAlbums().add(model)
-            return
-        }
-        if (model is Photo) {
-            preparePhotos().add(model)
-            return
-        }
-        if (model is VoiceMessage) {
-            prepareVoiceMessages().add(model)
-            return
-        }
-        if (model is Document) {
-            prepareDocs().add(model)
-            return
-        }
-        if (model is Video) {
-            prepareVideos().add(model)
-            return
-        }
-        if (model is Post) {
-            preparePosts().add(model)
-            return
-        }
-        if (model is Link) {
-            prepareLinks().add(model)
-            return
-        }
-        if (model is Article) {
-            prepareArticles().add(model)
-            return
-        }
-        if (model is Story) {
-            prepareStories().add(model)
-            return
-        }
-        if (model is Call) {
-            prepareCalls().add(model)
-            return
-        }
-        if (model is NotSupported) {
-            prepareNotSupporteds().add(model)
-            return
-        }
-        if (model is Event) {
-            prepareEvents().add(model)
-            return
-        }
-        if (model is Market) {
-            prepareMarkets().add(model)
-            return
-        }
-        if (model is MarketAlbum) {
-            prepareMarketAlbums().add(model)
-            return
-        }
-        if (model is AudioArtist) {
-            prepareAudioArtist().add(model)
-            return
-        }
-        if (model is WallReply) {
-            prepareWallReply().add(model)
-            return
-        }
-        if (model is AudioPlaylist) {
-            prepareAudioPlaylists().add(model)
-            return
-        }
-        if (model is Graffiti) {
-            prepareGraffity().add(model)
-            return
-        }
-        if (model is Poll) {
-            preparePolls().add(model)
-            return
-        }
-        if (model is WikiPage) {
-            prepareWikiPages().add(model)
-        }
-        if (model is GiftItem) {
-            prepareGifts().add(model)
+        when (model.getModelType()) {
+            AbsModelType.MODEL_AUDIO -> {
+                prepareAudios().add(model as Audio)
+                return
+            }
+            AbsModelType.MODEL_STICKER -> {
+                prepareStickers().add(model as Sticker)
+                return
+            }
+            AbsModelType.MODEL_PHOTO_ALBUM -> {
+                preparePhotoAlbums().add(model as PhotoAlbum)
+                return
+            }
+            AbsModelType.MODEL_PHOTO -> {
+                preparePhotos().add(model as Photo)
+                return
+            }
+            AbsModelType.MODEL_VOICE_MESSAGE -> {
+                prepareVoiceMessages().add(model as VoiceMessage)
+                return
+            }
+            AbsModelType.MODEL_DOCUMENT -> {
+                prepareDocs().add(model as Document)
+                return
+            }
+            AbsModelType.MODEL_VIDEO -> {
+                prepareVideos().add(model as Video)
+                return
+            }
+            AbsModelType.MODEL_POST -> {
+                preparePosts().add(model as Post)
+                return
+            }
+            AbsModelType.MODEL_LINK -> {
+                prepareLinks().add(model as Link)
+                return
+            }
+            AbsModelType.MODEL_ARTICLE -> {
+                prepareArticles().add(model as Article)
+                return
+            }
+            AbsModelType.MODEL_STORY -> {
+                prepareStories().add(model as Story)
+                return
+            }
+            AbsModelType.MODEL_CALL -> {
+                prepareCalls().add(model as Call)
+                return
+            }
+            AbsModelType.MODEL_GEO -> {
+                prepareGeos().add(model as Geo)
+                return
+            }
+            AbsModelType.MODEL_NOT_SUPPORTED -> {
+                prepareNotSupporteds().add(model as NotSupported)
+                return
+            }
+            AbsModelType.MODEL_EVENT -> {
+                prepareEvents().add(model as Event)
+                return
+            }
+            AbsModelType.MODEL_MARKET -> {
+                prepareMarkets().add(model as Market)
+                return
+            }
+            AbsModelType.MODEL_MARKET_ALBUM -> {
+                prepareMarketAlbums().add(model as MarketAlbum)
+                return
+            }
+            AbsModelType.MODEL_AUDIO_ARTIST -> {
+                prepareAudioArtist().add(model as AudioArtist)
+                return
+            }
+            AbsModelType.MODEL_WALL_REPLY -> {
+                prepareWallReply().add(model as WallReply)
+                return
+            }
+            AbsModelType.MODEL_AUDIO_PLAYLIST -> {
+                prepareAudioPlaylists().add(model as AudioPlaylist)
+                return
+            }
+            AbsModelType.MODEL_GRAFFITI -> {
+                prepareGraffity().add(model as Graffiti)
+                return
+            }
+            AbsModelType.MODEL_POLL -> {
+                preparePolls().add(model as Poll)
+                return
+            }
+            AbsModelType.MODEL_WIKI_PAGE -> {
+                prepareWikiPages().add(model as WikiPage)
+                return
+            }
+            AbsModelType.MODEL_GIFT_ITEM -> {
+                prepareGifts().add(model as GiftItem)
+                return
+            }
         }
     }
 
@@ -239,6 +253,9 @@ class Attachments : Parcelable, Cloneable {
             result.addAll(it)
         }
         calls.nonNullNoEmpty {
+            result.addAll(it)
+        }
+        geos.nonNullNoEmpty {
             result.addAll(it)
         }
         audioPlaylists.nonNullNoEmpty {
@@ -331,6 +348,13 @@ class Attachments : Parcelable, Cloneable {
             calls = ArrayList(1)
         }
         return calls!!
+    }
+
+    fun prepareGeos(): ArrayList<Geo> {
+        if (geos == null) {
+            geos = ArrayList(1)
+        }
+        return geos!!
     }
 
     fun prepareWallReply(): ArrayList<WallReply> {
@@ -451,6 +475,7 @@ class Attachments : Parcelable, Cloneable {
             stories,
             photoAlbums,
             calls,
+            geos,
             audioPlaylists,
             graffity,
             polls,
@@ -478,6 +503,7 @@ class Attachments : Parcelable, Cloneable {
             stories,
             photoAlbums,
             calls,
+            geos,
             audioPlaylists,
             graffity,
             polls,
@@ -571,6 +597,11 @@ class Attachments : Parcelable, Cloneable {
                 result.add(DocLink(call))
             }
         }
+        if (geos != null) {
+            for (geo in geos.orEmpty()) {
+                result.add(DocLink(geo))
+            }
+        }
         if (audioPlaylists != null) {
             for (playlist in audioPlaylists.orEmpty()) {
                 result.add(DocLink(playlist))
@@ -633,6 +664,7 @@ class Attachments : Parcelable, Cloneable {
         clone.stories = cloneListAsArrayList(stories)
         clone.photoAlbums = cloneListAsArrayList(photoAlbums)
         clone.calls = cloneListAsArrayList(calls)
+        clone.geos = cloneListAsArrayList(geos)
         clone.audioPlaylists = cloneListAsArrayList(audioPlaylists)
         clone.graffity = cloneListAsArrayList(graffity)
         clone.polls = cloneListAsArrayList(polls)
@@ -681,6 +713,9 @@ class Attachments : Parcelable, Cloneable {
         }
         if (calls != null) {
             line = line + " calls=" + safeCountOf(calls)
+        }
+        if (geos != null) {
+            line = line + " geos=" + safeCountOf(geos)
         }
         if (audioPlaylists != null) {
             line = line + " audio_playlists=" + safeCountOf(audioPlaylists)

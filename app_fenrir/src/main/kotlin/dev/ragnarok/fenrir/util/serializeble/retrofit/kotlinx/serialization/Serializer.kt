@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization
 
+import dev.ragnarok.fenrir.isMsgPack
 import dev.ragnarok.fenrir.util.serializeble.json.Json
 import dev.ragnarok.fenrir.util.serializeble.json.internal.JavaStreamSerialReader
 import dev.ragnarok.fenrir.util.serializeble.json.internal.decodeByReader
@@ -31,6 +32,27 @@ sealed class Serializer {
         ): T {
             val string = body.string()
             return format.decodeFromString(loader, string)
+        }
+
+        override fun <T> toRequestBody(
+            contentType: MediaType,
+            saver: SerializationStrategy<T>,
+            value: T
+        ): RequestBody {
+            val string = format.encodeToString(saver, value)
+            return string.toRequestBody(contentType)
+        }
+    }
+
+    class FromJsonMsgPack(override val format: Json, private val msgPack: MsgPack) : Serializer() {
+        override fun <T> fromResponseBody(
+            loader: DeserializationStrategy<T>,
+            body: ResponseBody
+        ): T {
+            if (body.isMsgPack()) {
+                return msgPack.decodeFromOkioStream(loader, body.source())
+            }
+            return format.decodeByReader(loader, JavaStreamSerialReader(body.byteStream()))
         }
 
         override fun <T> toRequestBody(

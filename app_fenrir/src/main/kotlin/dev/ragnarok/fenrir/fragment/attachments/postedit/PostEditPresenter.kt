@@ -215,7 +215,6 @@ class PostEditPresenter(
     }
 
     private fun postImpl() {
-        val accountId = accountId
         val publishDate = getTimerValue()
         val body = getTextBody()
         val signed = if (isAddSignatureOptionAvailable()) addSignature.get() else null

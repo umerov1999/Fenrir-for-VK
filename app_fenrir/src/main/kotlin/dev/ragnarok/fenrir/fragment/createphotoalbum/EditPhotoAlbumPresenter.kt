@@ -115,7 +115,6 @@ class EditPhotoAlbumPresenter : AccountDependencyPresenter<IEditPhotoAlbumView> 
     }
 
     private fun onFinalButtonClick() {
-        val accountId = accountId
         val api = networker.vkDefault(accountId).photos()
         val title = state()?.title
         val description = state()?.description

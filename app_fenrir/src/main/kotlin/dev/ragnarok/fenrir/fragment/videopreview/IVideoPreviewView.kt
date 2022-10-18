@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.videopreview
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Video
 
-interface IVideoPreviewView : IAccountDependencyView, IMvpView, IErrorView {
+interface IVideoPreviewView : IMvpView, IErrorView {
     fun displayLoading()
     fun displayLoadingError()
     fun displayVideoInfo(video: Video)

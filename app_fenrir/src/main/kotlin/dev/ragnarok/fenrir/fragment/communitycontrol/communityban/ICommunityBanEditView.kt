@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.communitycontrol.communityban
 
-import dev.ragnarok.fenrir.fragment.base.IAccountDependencyView
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IProgressView
@@ -8,7 +7,7 @@ import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.model.IdOption
 import dev.ragnarok.fenrir.model.Owner
 
-interface ICommunityBanEditView : IMvpView, IAccountDependencyView, IErrorView, IProgressView,
+interface ICommunityBanEditView : IMvpView, IErrorView, IProgressView,
     IToastView {
     fun displayUserInfo(user: Owner)
     fun displayBanStatus(adminId: Int, adminName: String?, endDate: Long)

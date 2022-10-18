@@ -165,7 +165,6 @@ class CatalogV2SectionPresenter(
     }
 
     fun onAdd(album: AudioPlaylist) {
-        val accountId = accountId
         appendDisposable(fInteractor.followPlaylist(
             accountId,
             album.getId(),

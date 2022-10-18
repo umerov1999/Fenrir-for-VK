@@ -43,6 +43,7 @@ import androidx.annotation.IntDef
     AbsModelType.MODEL_WIKI_PAGE,
     AbsModelType.MODEL_AUDIO_CATALOG_V2_ARTIST,
     AbsModelType.MODEL_UPLOAD,
+    AbsModelType.MODEL_GEO,
     AbsModelType.MODEL_CATALOG_V2_BLOCK,
     AbsModelType.MODEL_CATALOG_V2_LINK
 )
@@ -91,7 +92,8 @@ annotation class AbsModelType {
         const val MODEL_WIKI_PAGE = 37
         const val MODEL_AUDIO_CATALOG_V2_ARTIST = 38
         const val MODEL_UPLOAD = 39
-        const val MODEL_CATALOG_V2_BLOCK = 40
-        const val MODEL_CATALOG_V2_LINK = 41
+        const val MODEL_GEO = 40
+        const val MODEL_CATALOG_V2_BLOCK = 41
+        const val MODEL_CATALOG_V2_LINK = 42
     }
 }

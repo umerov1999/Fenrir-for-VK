@@ -148,7 +148,6 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
         )
 
     fun fireButtonSaveClick() {
-        val accountId = accountId
         val role = selectedRole
         val user = currentUser
         setSavingNow(true)
@@ -174,7 +173,6 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
         if (isCreator) {
             return
         }
-        val accountId = accountId
         val user = currentUser
         setSavingNow(true)
         appendDisposable(interactor.editManager(

@@ -39,7 +39,6 @@ class MutualFriendsPresenter(accountId: Int, private val userId: Int, savedInsta
     private fun requestActualData() {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(relationshipInteractor.getMutualFriends(
             accountId,
             userId,

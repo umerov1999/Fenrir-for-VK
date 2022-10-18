@@ -104,6 +104,9 @@ class AttachmentsDtoAdapter : AbsAdapter<VKApiAttachments>("VKApiAttachments") {
                 VKApiAttachment.TYPE_CALL == type -> {
                     kJson.decodeFromJsonElement(VKApiCall.serializer(), o ?: return null)
                 }
+                VKApiAttachment.TYPE_GEO == type -> {
+                    kJson.decodeFromJsonElement(VKApiGeo.serializer(), o ?: return null)
+                }
                 VKApiAttachment.TYPE_AUDIO_PLAYLIST == type -> {
                     kJson.decodeFromJsonElement(VKApiAudioPlaylist.serializer(), o ?: return null)
                 }

@@ -2,13 +2,12 @@ package dev.ragnarok.fenrir.api
 
 import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.api.HttpLoggerAndParser.selectConverterFactory
 import dev.ragnarok.fenrir.api.RetrofitWrapper.Companion.wrap
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
-import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.asConverterFactory
+import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.jsonMsgPackConverterFactory
 import dev.ragnarok.fenrir.util.serializeble.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.OkHttpClient
@@ -104,7 +103,7 @@ class VkRetrofitProvider(
         return wrap(
             Retrofit.Builder()
                 .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/")
-                .addConverterFactory(selectConverterFactory(KJSON_FACTORY, KMSGPACK_FACTORY))
+                .addConverterFactory(KCONVERTER_FACTORY)
                 .addCallAdapterFactory(RX_ADAPTER_FACTORY)
                 .client(okHttpClient)
                 .build()
@@ -112,8 +111,7 @@ class VkRetrofitProvider(
     }
 
     companion object {
-        private val KJSON_FACTORY = kJson.asConverterFactory()
-        private val KMSGPACK_FACTORY = MsgPack().asConverterFactory()
+        private val KCONVERTER_FACTORY = jsonMsgPackConverterFactory(kJson, MsgPack())
         private val RX_ADAPTER_FACTORY = RxJava3CallAdapterFactory.create()
     }
 

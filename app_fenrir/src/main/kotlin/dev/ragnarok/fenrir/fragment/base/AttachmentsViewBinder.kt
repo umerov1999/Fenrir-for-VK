@@ -1,6 +1,9 @@
 package dev.ragnarok.fenrir.fragment.base
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -21,6 +24,7 @@ import dev.ragnarok.fenrir.db.model.AttachmentsTypes
 import dev.ragnarok.fenrir.fragment.base.AttachmentsHolder.Companion.forCopyPost
 import dev.ragnarok.fenrir.fragment.base.holder.IdentificableHolder
 import dev.ragnarok.fenrir.fragment.base.holder.SharedHolders
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.*
@@ -32,6 +36,7 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadVoice
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
+import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.PhotosViewHelper
 import dev.ragnarok.fenrir.view.WaveFormView
 import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
@@ -829,6 +834,11 @@ class AttachmentsViewBinder(
                         ivPhotoT.visibility = View.GONE
                         ivType.setImageResource(R.drawable.phone_call)
                     }
+                    AttachmentsTypes.GEO -> {
+                        ivType.visibility = View.VISIBLE
+                        ivPhotoT.visibility = View.GONE
+                        ivType.setImageResource(R.drawable.geo)
+                    }
                     else -> {
                         ivType.visibility = View.GONE
                         ivPhotoT.visibility = View.GONE
@@ -951,6 +961,25 @@ class AttachmentsViewBinder(
             )
             AttachmentsTypes.MARKET -> mAttachmentsActionCallback?.onMarketOpen(link.attachment as Market)
             AttachmentsTypes.ARTIST -> mAttachmentsActionCallback?.onArtistOpen(link.attachment as AudioArtist)
+            AttachmentsTypes.NOT_SUPPORTED -> {
+                val clipboard =
+                    mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+                val clip =
+                    ClipData.newPlainText("response", (link.attachment as NotSupported).getBody())
+                clipboard?.setPrimaryClip(clip)
+                CustomToast.createCustomToast(mContext).showToast(R.string.copied)
+            }
+            AttachmentsTypes.GEO -> {
+                val geo = link.attachment as Geo
+                if (geo.latitude.nonNullNoEmpty() && geo.longitude.nonNullNoEmpty() && mContext is Activity) {
+                    LinkHelper.openUrl(
+                        mContext,
+                        Settings.get().accounts().current,
+                        "https://www.google.com/maps?q=${geo.latitude},${geo.longitude}",
+                        false
+                    )
+                }
+            }
         }
     }
 

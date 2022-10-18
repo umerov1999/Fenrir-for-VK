@@ -14,7 +14,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.UncompressDefaultInterceptor
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
-import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.asConverterFactory
+import dev.ragnarok.fenrir.util.serializeble.retrofit.kotlinx.serialization.jsonMsgPackConverterFactory
 import dev.ragnarok.fenrir.util.serializeble.retrofit.rxjava3.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import okhttp3.FormBody
@@ -64,7 +64,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
             HttpLoggerAndParser.configureToIgnoreCertificates(builder)
             val retrofit = Retrofit.Builder()
                 .baseUrl("https://" + Settings.get().other().get_Auth_Domain() + "/")
-                .addConverterFactory(KJSON_FACTORY)
+                .addConverterFactory(KCONVERTER_FACTORY)
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .client(builder.build())
                 .build()
@@ -92,7 +92,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
             HttpLoggerAndParser.configureToIgnoreCertificates(builder)
             val retrofit = Retrofit.Builder()
                 .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/")
-                .addConverterFactory(KJSON_FACTORY)
+                .addConverterFactory(KCONVERTER_FACTORY)
                 .addCallAdapterFactory(RX_ADAPTER_FACTORY)
                 .client(builder.build())
                 .build()
@@ -135,10 +135,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
         return Retrofit.Builder()
             .baseUrl("$url/method/")
             .addConverterFactory(
-                HttpLoggerAndParser.selectConverterFactory(
-                    KJSON_FACTORY,
-                    KMSGPACK_FACTORY
-                )
+                KCONVERTER_FACTORY
             )
             .addCallAdapterFactory(RX_ADAPTER_FACTORY)
             .client(builder.build())
@@ -163,7 +160,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
         HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         return Retrofit.Builder()
             .baseUrl("https://" + Settings.get().other().get_Api_Domain() + "/method/") // dummy
-            .addConverterFactory(KJSON_FACTORY)
+            .addConverterFactory(KCONVERTER_FACTORY)
             .addCallAdapterFactory(RX_ADAPTER_FACTORY)
             .client(builder.build())
             .build()
@@ -196,8 +193,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
     }
 
     companion object {
-        private val KJSON_FACTORY = kJson.asConverterFactory()
-        private val KMSGPACK_FACTORY = MsgPack().asConverterFactory()
+        private val KCONVERTER_FACTORY = jsonMsgPackConverterFactory(kJson, MsgPack())
         private val RX_ADAPTER_FACTORY = RxJava3CallAdapterFactory.create()
     }
 

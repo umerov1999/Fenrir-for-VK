@@ -44,7 +44,6 @@ class FriendsByPhonesPresenter(accountId: Int, context: Context, savedInstanceSt
     private fun requestActualData() {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         appendDisposable(accountsInteractor.getContactList(accountId, 0, 1000)
             .fromIOToMain()
             .subscribe({ owners -> onActualDataReceived(owners) }) { t ->

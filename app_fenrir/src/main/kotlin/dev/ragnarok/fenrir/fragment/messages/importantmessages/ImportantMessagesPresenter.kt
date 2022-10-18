@@ -21,7 +21,6 @@ class ImportantMessagesPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun loadActualData(offset: Int) {
         actualDataLoading = true
         resolveRefreshingView()
-        val accountId = accountId
         actualDataDisposable.add(fInteractor.getImportantMessages(accountId, 50, offset, null)
             .fromIOToMain()
             .subscribe({ data ->

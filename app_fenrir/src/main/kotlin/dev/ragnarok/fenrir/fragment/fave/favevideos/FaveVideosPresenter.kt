@@ -35,7 +35,6 @@ class FaveVideosPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun loadCachedData() {
         cacheLoadingNow = true
-        val accountId = accountId
         cacheDisposable.add(faveInteractor.getCachedVideos(accountId)
             .fromIOToMain()
             .subscribe({ videos -> onCachedDataReceived(videos) }) { t ->
@@ -66,7 +65,6 @@ class FaveVideosPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private fun request(offset: Int) {
         netLoadingNow = true
         resolveRefreshingView()
-        val accountId = accountId
         netDisposable.add(faveInteractor.getVideos(accountId, COUNT_PER_REQUEST, offset)
             .fromIOToMain()
             .subscribe({ videos ->

@@ -763,8 +763,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                 }
             }
             .map<BaseResponse<List<VKApiUser>>> {
-                if (Settings.get()
-                        .other().currentParser == ParserType.MSGPACK
+                if (it.body.isMsgPack()
                 ) MsgPack.decodeFromOkioStream(it.body.source()) else kJson.decodeFromStream(it.body.byteStream())
             }.map { it1 ->
                 it1.error.requireNonNull {

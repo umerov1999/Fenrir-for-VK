@@ -21,7 +21,6 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
 
     private fun refreshPollData() {
         if (loadingNow) return
-        val accountId = accountId
         setLoadingNow(true)
         appendDisposable(pollInteractor.getPollById(
             accountId,
@@ -111,7 +110,6 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
 
     private fun vote() {
         if (loadingNow) return
-        val accountId = accountId
         val voteIds: Set<Long> = HashSet(mTempCheckedId)
         setLoadingNow(true)
         appendDisposable(pollInteractor.addVote(accountId, mPoll, voteIds)
@@ -138,7 +136,6 @@ class PollPresenter(accountId: Int, private var mPoll: Poll, savedInstanceState:
     }
 
     private fun removeVote() {
-        val accountId = accountId
         val answerId = mPoll.myAnswerIds?.get(0) ?: return
         setLoadingNow(true)
         appendDisposable(pollInteractor.removeVote(accountId, mPoll, answerId)

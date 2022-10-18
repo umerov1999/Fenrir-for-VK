@@ -60,7 +60,6 @@ class VkPhotosPresenter(
     }
 
     private fun refreshOwnerInfoIfNeed() {
-        val accountId = accountId
         if (!isMy && owner == null) {
             appendDisposable(
                 ownersRepository.getBaseOwnerInfo(
@@ -75,7 +74,6 @@ class VkPhotosPresenter(
     }
 
     private fun refreshAlbumInfoIfNeed() {
-        val accountId = accountId
         if (album == null) {
             appendDisposable(
                 interactor.getAlbumById(accountId, ownerId, albumId)
@@ -291,7 +289,6 @@ class VkPhotosPresenter(
     }
 
     private fun loadInitialData() {
-        val accountId = accountId
         cacheDisposable.add(interactor.getAllCachedData(accountId, ownerId, albumId, invertPhotoRev)
             .zipWith(
                 uploadManager[accountId, destination]

@@ -36,7 +36,6 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private var cacheLoadingNow = false
     private var mTmpFeedScrollOnGuiReady: String? = null
     private fun refreshFeedSources() {
-        val accountId = accountId
         appendDisposable(feedInteractor.getCachedFeedLists(accountId)
             .fromIOToMain()
             .subscribe({ lists ->
@@ -46,7 +45,6 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     internal fun requestActualFeedLists() {
-        val accountId = accountId
         appendDisposable(
             feedInteractor.getActualFeedLists(accountId)
                 .fromIOToMain()
@@ -67,7 +65,6 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
 
     private fun requestFeedAtLast(startFrom: String?) {
         loadingHolder.dispose()
-        val accountId = accountId
         val sourcesIds = mSourceIds
         loadingNowNextFrom = startFrom
         loadingNow = true
@@ -158,7 +155,6 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     private fun loadCachedFeed(thenScrollToState: String?) {
-        val accountId = accountId
         setCacheLoadingNow(true)
         cacheLoadingHolder.append(
             feedInteractor
@@ -448,7 +444,6 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     fun fireLikeClick(news: News) {
         if ("post".equals(news.type, ignoreCase = true)) {
             val add = !news.isUserLike
-            val accountId = accountId
             appendDisposable(
                 walls.like(accountId, news.sourceId, news.postId, add)
                     .fromIOToMain()
