@@ -646,7 +646,6 @@ object Dto2Entity {
             .setCanPublish(news.can_publish)
             .setRepostCount(news.reposts_count)
             .setUserReposted(news.user_reposted)
-            .setGeoId(news.geo?.id.orZero())
             .setFriendsTags(news.friends)
             .setViews(news.views)
             .setCopyright(news.copyright?.let {

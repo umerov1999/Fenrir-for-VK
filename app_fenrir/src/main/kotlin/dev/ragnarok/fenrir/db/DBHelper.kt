@@ -634,10 +634,8 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 "  [" + NewsColumns.CAN_PUBLISH + "] BOOLEAN, " +
                 "  [" + NewsColumns.REPOSTS_COUNT + "] INTEGER, " +
                 "  [" + NewsColumns.USER_REPOSTED + "] BOOLEAN, " +
-                //"  [" + NewsColumns.ATTACHMENTS_MASK + "] INTEGER, " +
-                "  [" + NewsColumns.GEO_ID + "] INTEGER, " +
-                "  [" + NewsColumns.ATTACHMENTS_JSON + "] BLOB, " +
-                "  [" + NewsColumns.COPYRIGHT_JSON + "] BLOB, " +
+                "  [" + NewsColumns.ATTACHMENTS_BLOB + "] BLOB, " +
+                "  [" + NewsColumns.COPYRIGHT_BLOB + "] BLOB, " +
                 "  [" + NewsColumns.VIEWS + "] INTEGER, " +
                 "  [" + NewsColumns.TAG_FRIENDS + "] TEXT);"
         db.execSQL(sql)
@@ -665,14 +663,14 @@ class DBHelper private constructor(context: Context, aid: Int) :
                 "  [" + PostsColumns.REPOSTS_COUNT + "] INTEGER, " +
                 "  [" + PostsColumns.USER_REPOSTED + "] BOOLEAN, " +
                 "  [" + PostsColumns.POST_TYPE + "] TEXT, " +
-                "  [" + PostsColumns.ATTACHMENTS_MASK + "] INTEGER, " +
+                "  [" + PostsColumns.ATTACHMENTS_COUNT + "] INTEGER, " +
                 "  [" + PostsColumns.SIGNED_ID + "] INTEGER, " +
                 "  [" + PostsColumns.CREATED_BY + "] INTEGER, " +
                 "  [" + PostsColumns.CAN_PIN + "] BOOLEAN, " +
                 "  [" + PostsColumns.IS_PINNED + "] BOOLEAN, " +
                 "  [" + PostsColumns.DELETED + "] BOOLEAN, " +
                 "  [" + PostsColumns.POST_SOURCE + "] BLOB, " +
-                "  [" + PostsColumns.COPYRIGHT_JSON + "] BLOB, " +
+                "  [" + PostsColumns.COPYRIGHT_BLOB + "] BLOB, " +
                 "  [" + PostsColumns.VIEWS + "] INTEGER, " +
                 "  CONSTRAINT [] UNIQUE ([" + PostsColumns.POST_ID + "], [" + PostsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)

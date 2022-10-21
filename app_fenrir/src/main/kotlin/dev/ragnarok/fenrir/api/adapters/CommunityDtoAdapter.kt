@@ -93,11 +93,6 @@ class CommunityDtoAdapter : AbsAdapter<VKApiCommunity>("VKApiCommunity") {
             dto.ban_end_date = optLong(banInfo, "end_date")
             dto.ban_comment = optString(banInfo, "comment")
         }
-        if (hasObject(root, VKApiCommunity.PLACE)) {
-            dto.place = root[VKApiCommunity.PLACE]?.let {
-                kJson.decodeFromJsonElement(VKApiPlace.serializer(), it)
-            }
-        }
         dto.description = optString(root, VKApiCommunity.DESCRIPTION)
         dto.wiki_page = optString(root, VKApiCommunity.WIKI_PAGE)
         dto.members_count = optInt(root, VKApiCommunity.MEMBERS_COUNT)

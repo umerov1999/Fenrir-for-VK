@@ -895,7 +895,7 @@ class FenrirContentProvider : ContentProvider() {
             sPostsProjectionMap[PostsColumns.COMMENTS_COUNT] =
                 PostsColumns.FULL_COMMENTS_COUNT
             sPostsProjectionMap[PostsColumns.CAN_POST_COMMENT] = PostsColumns.FULL_CAN_POST_COMMENT
-            sPostsProjectionMap[PostsColumns.COPYRIGHT_JSON] = PostsColumns.FULL_COPYRIGHT_JSON
+            sPostsProjectionMap[PostsColumns.COPYRIGHT_BLOB] = PostsColumns.FULL_COPYRIGHT_BLOB
             sPostsProjectionMap[PostsColumns.LIKES_COUNT] = PostsColumns.FULL_LIKES_COUNT
             sPostsProjectionMap[PostsColumns.USER_LIKES] =
                 PostsColumns.FULL_USER_LIKES
@@ -910,7 +910,8 @@ class FenrirContentProvider : ContentProvider() {
             sPostsProjectionMap[PostsColumns.USER_REPOSTED] =
                 PostsColumns.FULL_USER_REPOSTED
             sPostsProjectionMap[PostsColumns.POST_TYPE] = PostsColumns.FULL_POST_TYPE
-            sPostsProjectionMap[PostsColumns.ATTACHMENTS_MASK] = PostsColumns.FULL_ATTACHMENTS_MASK
+            sPostsProjectionMap[PostsColumns.ATTACHMENTS_COUNT] =
+                PostsColumns.FULL_ATTACHMENTS_COUNT
             sPostsProjectionMap[PostsColumns.SIGNED_ID] = PostsColumns.FULL_SIGNED_ID
             sPostsProjectionMap[PostsColumns.CREATED_BY] = PostsColumns.FULL_CREATED_BY
             sPostsProjectionMap[PostsColumns.CAN_PIN] = PostsColumns.FULL_CAN_PIN
@@ -1045,8 +1046,8 @@ class FenrirContentProvider : ContentProvider() {
                 NewsColumns.FULL_CAN_DELETE
             sNewsProjectionMap[NewsColumns.COMMENT_COUNT] =
                 NewsColumns.FULL_COMMENT_COUNT
-            sNewsProjectionMap[NewsColumns.COPYRIGHT_JSON] =
-                NewsColumns.FULL_COPYRIGHT_JSON
+            sNewsProjectionMap[NewsColumns.COPYRIGHT_BLOB] =
+                NewsColumns.FULL_COPYRIGHT_BLOB
             sNewsProjectionMap[NewsColumns.COMMENT_CAN_POST] = NewsColumns.FULL_COMMENT_CAN_POST
             sNewsProjectionMap[NewsColumns.LIKE_COUNT] = NewsColumns.FULL_LIKE_COUNT
             sNewsProjectionMap[NewsColumns.USER_LIKE] =
@@ -1057,13 +1058,10 @@ class FenrirContentProvider : ContentProvider() {
             sNewsProjectionMap[NewsColumns.REPOSTS_COUNT] =
                 NewsColumns.FULL_REPOSTS_COUNT
             sNewsProjectionMap[NewsColumns.USER_REPOSTED] = NewsColumns.FULL_USER_REPOSTED
-            //sNewsProjectionMap.put(NewsColumns.ATTACHMENTS_MASK, NewsColumns.FULL_ATTACHMENTS_COUNT);
-            sNewsProjectionMap[NewsColumns.GEO_ID] = NewsColumns.FULL_GEO_ID
             sNewsProjectionMap[NewsColumns.TAG_FRIENDS] = NewsColumns.FULL_TAG_FRIENDS
-            sNewsProjectionMap[NewsColumns.ATTACHMENTS_JSON] =
-                NewsColumns.FULL_ATTACHMENTS_JSON
+            sNewsProjectionMap[NewsColumns.ATTACHMENTS_BLOB] =
+                NewsColumns.FULL_ATTACHMENTS_BLOB
             sNewsProjectionMap[NewsColumns.VIEWS] = NewsColumns.FULL_VIEWS
-            //sNewsProjectionMap.put(NewsColumns.HAS_COPY_HISTORY, NewsColumns.FULL_HAS_COPY_HISTORY);
             sGroupsDetProjectionMap = HashMap()
             sGroupsDetProjectionMap[BaseColumns._ID] =
                 GroupsDetColumns.FULL_ID

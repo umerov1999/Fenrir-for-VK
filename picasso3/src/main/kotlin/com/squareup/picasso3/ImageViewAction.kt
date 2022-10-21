@@ -20,17 +20,22 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import com.squareup.picasso3.RequestHandler.Result
+import java.lang.ref.WeakReference
 
 internal class ImageViewAction(
     picasso: Picasso,
-    val target: ImageView,
+    target: ImageView,
     data: Request,
     private val errorDrawable: Drawable?,
     @DrawableRes val errorResId: Int,
     private val noFade: Boolean,
     var callback: Callback?
 ) : Action(picasso, data) {
+    private val targetReference = WeakReference(target)
+
     override fun complete(result: Result) {
+        val target = targetReference.get() ?: return
+
         PicassoDrawable.setResult(
             target,
             picasso.context,
@@ -42,6 +47,8 @@ internal class ImageViewAction(
     }
 
     override fun error(e: Exception) {
+        val target = targetReference.get() ?: return
+
         val placeholder = target.drawable
         if (placeholder is Animatable) {
             (placeholder as Animatable).stop()
@@ -54,8 +61,8 @@ internal class ImageViewAction(
         callback?.onError(e)
     }
 
-    override fun getTarget(): Any {
-        return target
+    override fun getTarget(): ImageView? {
+        return targetReference.get()
     }
 
     override fun cancel() {

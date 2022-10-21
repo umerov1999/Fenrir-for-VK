@@ -129,6 +129,14 @@ class FileExistJVM : AbsFileExist {
         setBusy(false)
     }
 
+    override fun addPhoto(file: String) {
+        if (!setBusy(true)) {
+            return
+        }
+        CachedPhotos.add(file.lowercase(Locale.getDefault()))
+        setBusy(false)
+    }
+
     override fun findAllAudios(context: Context): Completable {
         return if (!hasReadStoragePermissionSimple(context)) Completable.complete() else Completable.create { t: CompletableEmitter ->
             if (!setBusy(true)) {

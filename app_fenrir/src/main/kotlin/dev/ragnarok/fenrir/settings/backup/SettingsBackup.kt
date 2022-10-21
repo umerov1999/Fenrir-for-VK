@@ -78,6 +78,7 @@ class SettingsBackup {
         var lifecycle_music_service: String? = null
         var autoplay_gif: Boolean? = null
         var strip_news_repost: Boolean? = null
+        var communities_in_page_search: Boolean? = null
         var ad_block_story_news: Boolean? = null
         var block_news_by_words_set: Set<String>? = null
         var new_loading_dialog: Boolean? = null

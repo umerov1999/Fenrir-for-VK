@@ -47,6 +47,7 @@ interface ISettings {
         val isDump_fcm: Boolean
         val isAutoplay_gif: Boolean
         val isStrip_news_repost: Boolean
+        val isCommunities_in_page_search: Boolean
         val isAd_block_story_news: Boolean
         val isBlock_news_by_words: Set<String>?
         val isNew_loading_dialog: Boolean

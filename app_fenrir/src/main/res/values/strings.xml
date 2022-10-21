@@ -1933,4 +1933,5 @@
     <string name="action_catalog_v2_recent">Recent</string>
     <string name="action_catalog_v2_artists">Artists</string>
     <string name="token_community_required">Token Community Required!</string>
+    <string name="communities_in_page_search">Communities in page search</string>
 </resources>

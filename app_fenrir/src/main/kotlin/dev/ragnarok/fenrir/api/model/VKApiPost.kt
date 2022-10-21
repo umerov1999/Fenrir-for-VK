@@ -96,11 +96,6 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     var attachments: VKApiAttachments? = null
 
     /**
-     * Information about location.
-     */
-    var geo: VKApiPlace? = null
-
-    /**
      * ID of the author (if the post was published by a community and signed by a user).
      */
     var signer_id = 0

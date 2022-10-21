@@ -191,7 +191,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             .setRepostCount(cursor.getInt(NewsColumns.REPOSTS_COUNT))
             .setUserReposted(cursor.getBoolean(NewsColumns.USER_REPOSTED))
             .setViews(cursor.getInt(NewsColumns.VIEWS))
-        cursor.getBlob(PostsColumns.COPYRIGHT_JSON).nonNullNoEmpty {
+        cursor.getBlob(PostsColumns.COPYRIGHT_BLOB).nonNullNoEmpty {
             dbo.setCopyright(
                 MsgPack.decodeFromByteArray(
                     NewsDboEntity.CopyrightDboEntity.serializer(),
@@ -200,7 +200,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             )
         }
         val attachmentsJson =
-            cursor.getBlob(NewsColumns.ATTACHMENTS_JSON)
+            cursor.getBlob(NewsColumns.ATTACHMENTS_BLOB)
         if (attachmentsJson.nonNullNoEmpty()) {
             val attachmentsEntity =
                 MsgPack.decodeFromByteArray(ListSerializer(DboEntity.serializer()), attachmentsJson)
@@ -250,18 +250,17 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             cv.put(NewsColumns.CAN_PUBLISH, dbo.isCanPublish)
             cv.put(NewsColumns.REPOSTS_COUNT, dbo.repostCount)
             cv.put(NewsColumns.USER_REPOSTED, dbo.isUserReposted)
-            cv.put(NewsColumns.GEO_ID, dbo.geoId)
             cv.put(
                 NewsColumns.TAG_FRIENDS,
                 dbo.friendsTags?.let { join(",", it) }
             )
             dbo.copyright.ifNonNull({
                 cv.put(
-                    NewsColumns.COPYRIGHT_JSON,
+                    NewsColumns.COPYRIGHT_BLOB,
                     MsgPack.encodeToByteArray(NewsDboEntity.CopyrightDboEntity.serializer(), it)
                 )
             }, {
-                cv.putNull(NewsColumns.COPYRIGHT_JSON)
+                cv.putNull(NewsColumns.COPYRIGHT_BLOB)
             })
             cv.put(NewsColumns.VIEWS, dbo.views)
             if (dbo.copyHistory.nonNullNoEmpty() || dbo.attachments.nonNullNoEmpty()) {
@@ -274,14 +273,14 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
                 }
                 if (attachmentsEntities.nonNullNoEmpty()) {
                     cv.put(
-                        NewsColumns.ATTACHMENTS_JSON,
+                        NewsColumns.ATTACHMENTS_BLOB,
                         MsgPack.encodeToByteArray(
                             ListSerializer(DboEntity.serializer()),
                             attachmentsEntities
                         )
                     )
                 } else {
-                    cv.putNull(NewsColumns.ATTACHMENTS_JSON)
+                    cv.putNull(NewsColumns.ATTACHMENTS_BLOB)
                 }
             }
             return cv

@@ -163,13 +163,19 @@ object DownloadWorkUtils {
         downloadManager?.enqueue(downloadRequest)
     }
 
-    private fun toDefaultInternalDownloader(context: Context, url: String, file: DownloadInfo) {
+    private fun toDefaultInternalDownloader(
+        context: Context,
+        url: String,
+        file: DownloadInfo,
+        type: String
+    ) {
         val downloadWork = OneTimeWorkRequest.Builder(DefaultDownloadWorker::class.java)
         val data = Data.Builder()
         data.putString(ExtraDwn.URL, url)
         data.putString(ExtraDwn.DIR, file.path)
         data.putString(ExtraDwn.FILE, file.file)
         data.putString(ExtraDwn.EXT, file.ext)
+        data.putString(ExtraDwn.TYPE, type)
         downloadWork.setInputData(data.build())
         WorkManager.getInstance(context).enqueue(downloadWork.build())
     }
@@ -249,7 +255,7 @@ object DownloadWorkUtils {
             if (!Settings.get().other().isUse_internal_downloader) {
                 toExternalDownloader(context, url, result_filename)
             } else {
-                toDefaultInternalDownloader(context, url, result_filename)
+                toDefaultInternalDownloader(context, url, result_filename, "json")
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context).showToastError("audio.dumplist: " + e.message)
@@ -272,14 +278,13 @@ object DownloadWorkUtils {
             if (!Settings.get().other().isUse_internal_downloader) {
                 toExternalDownloader(context, url, result_filename)
             } else {
-                toDefaultInternalDownloader(context, url, result_filename)
+                toDefaultInternalDownloader(context, url, result_filename, "video")
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context).showToastError("Video Error: " + e.message)
             return
         }
     }
-
 
     fun doDownloadVoice(context: Context, doc: VoiceMessage) {
         if (doc.getLinkMp3().isNullOrEmpty() && doc.getLinkOgg().isNullOrEmpty())
@@ -308,14 +313,13 @@ object DownloadWorkUtils {
             if (!Settings.get().other().isUse_internal_downloader) {
                 toExternalDownloader(context, urlDownload, result_filename)
             } else {
-                toDefaultInternalDownloader(context, urlDownload, result_filename)
+                toDefaultInternalDownloader(context, urlDownload, result_filename, "voice")
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context).showToastError("Voice Error: " + e.message)
             return
         }
     }
-
 
     fun doDownloadSticker(context: Context, sticker: Sticker) {
         val link: String? = if (sticker.isAnimated) {
@@ -341,7 +345,7 @@ object DownloadWorkUtils {
             if (!Settings.get().other().isUse_internal_downloader) {
                 toExternalDownloader(context, link, result_filename)
             } else {
-                toDefaultInternalDownloader(context, link, result_filename)
+                toDefaultInternalDownloader(context, link, result_filename, "sticker")
             }
             Utils.getCachedMyStickers()
                 .add(0, Sticker.LocalSticker(result_filename.build(), sticker.isAnimated))
@@ -361,7 +365,6 @@ object DownloadWorkUtils {
         }
         return DownloadInfo(file, dir, ext_i!!)
     }
-
 
     fun doDownloadDoc(context: Context, doc: Document, force: Boolean): Int {
         val pUrl = doc.url
@@ -389,7 +392,7 @@ object DownloadWorkUtils {
             if (!Settings.get().other().isUse_internal_downloader) {
                 toExternalDownloader(context, pUrl, result_filename)
             } else {
-                toDefaultInternalDownloader(context, pUrl, result_filename)
+                toDefaultInternalDownloader(context, pUrl, result_filename, "doc")
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context).showToastError("Docs Error: " + e.message)
@@ -408,7 +411,7 @@ object DownloadWorkUtils {
             if (!Settings.get().other().isUse_internal_downloader) {
                 toExternalDownloader(context, url, result_filename)
             } else {
-                toDefaultInternalDownloader(context, url, result_filename)
+                toDefaultInternalDownloader(context, url, result_filename, "photo")
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context).showToastError("Photo Error: " + e.message)
@@ -620,7 +623,8 @@ object DownloadWorkUtils {
         protected fun doDownload(
             url: String?,
             file_v: DownloadInfo,
-            UseMediaScanner: Boolean
+            UseMediaScanner: Boolean,
+            type: String
         ): Boolean {
             var mBuilder = createNotification(
                 applicationContext,
@@ -702,6 +706,9 @@ object DownloadWorkUtils {
                             )
                         )
                     }
+                    if (type == "photo") {
+                        MusicPlaybackController.tracksExist.addPhoto(file_v.buildFilename())
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -773,7 +780,12 @@ object DownloadWorkUtils {
                 inputData.getString(ExtraDwn.DIR)!!, inputData.getString(ExtraDwn.EXT)!!
             )
 
-            val ret = doDownload(inputData.getString(ExtraDwn.URL)!!, file_v, true)
+            val ret = doDownload(
+                inputData.getString(ExtraDwn.URL)!!,
+                file_v,
+                true,
+                inputData.getString(ExtraDwn.TYPE).orEmpty()
+            )
             if (ret) {
                 val mBuilder = createNotification(
                     applicationContext,
@@ -879,7 +891,7 @@ object DownloadWorkUtils {
             val ret = if (audio.isHLS) doHLSDownload(audio.url!!, file_v) else doDownload(
                 audio.url,
                 file_v,
-                true
+                true, "audio"
             )
             if (ret) {
                 val cover =
@@ -891,7 +903,7 @@ object DownloadWorkUtils {
                 var updated_tag = false
                 if (needCover && cover.nonNullNoEmpty()) {
                     val cover_file = DownloadInfo(file_v.file, file_v.path, "jpg")
-                    if (doDownload(cover, cover_file, false)) {
+                    if (doDownload(cover, cover_file, false, "cover")) {
                         try {
                             val pathAudio = file_v.build()
                             val pathCover = cover_file.build()
@@ -1016,6 +1028,7 @@ object DownloadWorkUtils {
         const val DIR = "dir"
         const val FILE = "file"
         const val EXT = "ext"
+        const val TYPE = "type"
         const val ACCOUNT = "account"
         const val NEED_UPDATE_TAG = "need_update_tag"
     }

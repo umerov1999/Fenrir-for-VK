@@ -67,16 +67,14 @@ internal class Dispatcher internal constructor(
     @get:JvmName("-pausedTags")
     internal val pausedTags = mutableSetOf<Any>()
 
-    private val dispatcherThread: DispatcherThread
-    private val handler: Handler
-
     @get:JvmName("-receiver")
     internal val receiver: NetworkBroadcastReceiver?
 
     @get:JvmName("-receiverPostM")
     internal val receiverPostM: NetworkBroadcastReceiverPostM?
 
-    @get:JvmName("-scansNetworkChanges")
+    private val dispatcherThread: DispatcherThread
+    private val handler: Handler
     internal val scansNetworkChanges: Boolean
 
     init {

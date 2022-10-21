@@ -510,6 +510,10 @@
 
     <style name="App.DayNight.Lineage.Amoled" parent="App.DayNight.Lineage" />
 
+    <style name="App.DayNight.Dynamic.Amoled" parent="App.DayNight.Dynamic" />
+
+    <style name="App.DayNight.BlueRed.Amoled" parent="App.DayNight.BlueRed" />
+
     <style name="App.DayNight.Ice.MD1" parent="App.DayNight.Ice">
         <item name="materialCardStyle">@style/CardViewMD</item>
         <item name="materialCardBackgroundStyle">@drawable/background_rectangle_filled</item>

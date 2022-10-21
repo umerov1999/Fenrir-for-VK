@@ -300,8 +300,8 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         cancelable: Cancelable
     ): PostDboEntity {
         val dbid = cursor.getInt(BaseColumns._ID)
-        val attachmentsMask =
-            cursor.getInt(PostsColumns.ATTACHMENTS_MASK)
+        val attachmentsCount =
+            cursor.getInt(PostsColumns.ATTACHMENTS_COUNT)
         val postId = cursor.getInt(PostsColumns.POST_ID)
         val ownerId = cursor.getInt(PostsColumns.OWNER_ID)
         val dbo = PostDboEntity().set(postId, ownerId)
@@ -334,7 +334,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         if (postSourceText.nonNullNoEmpty()) {
             dbo.setSource(MsgPack.decodeFromByteArray(SourceDbo.serializer(), postSourceText))
         }
-        cursor.getBlob(PostsColumns.COPYRIGHT_JSON).nonNullNoEmpty {
+        cursor.getBlob(PostsColumns.COPYRIGHT_BLOB).nonNullNoEmpty {
             dbo.setCopyright(
                 MsgPack.decodeFromByteArray(
                     PostDboEntity.CopyrightDboEntity.serializer(),
@@ -343,7 +343,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             )
         }
         val copiesDbos: MutableList<PostDboEntity> = ArrayList(0)
-        if (includeAttachments && (attachmentsMask > 0 || forceAttachments)) {
+        if (includeAttachments && (attachmentsCount > 0 || forceAttachments)) {
             val attachments: MutableList<DboEntity> = stores
                 .attachments()
                 .getAttachmentsDbosSync(accountId, AttachToType.POST, dbid, cancelable)
@@ -444,7 +444,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             cv.put(PostsColumns.DELETED, dbo.isDeleted)
             val attachmentsCount = safeCountOf(dbo.getAttachments())
             val copiesCount = safeCountOf(dbo.copyHierarchy)
-            cv.put(PostsColumns.ATTACHMENTS_MASK, attachmentsCount + copiesCount)
+            cv.put(PostsColumns.ATTACHMENTS_COUNT, attachmentsCount + copiesCount)
             dbo.source.ifNonNull({
                 cv.put(
                     PostsColumns.POST_SOURCE,
@@ -455,11 +455,11 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             })
             dbo.copyright.ifNonNull({
                 cv.put(
-                    PostsColumns.COPYRIGHT_JSON,
+                    PostsColumns.COPYRIGHT_BLOB,
                     MsgPack.encodeToByteArray(PostDboEntity.CopyrightDboEntity.serializer(), it)
                 )
             }, {
-                cv.putNull(PostsColumns.COPYRIGHT_JSON)
+                cv.putNull(PostsColumns.COPYRIGHT_BLOB)
             })
             cv.put(PostsColumns.VIEWS, dbo.views)
             return cv

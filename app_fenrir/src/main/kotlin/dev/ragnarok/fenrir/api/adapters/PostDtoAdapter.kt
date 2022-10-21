@@ -88,11 +88,6 @@ class PostDtoAdapter : AbsAdapter<VKApiPost>("VKApiPost") {
                     kJson.decodeFromJsonElement(VKApiAttachments.serializer(), it)
                 }
         }
-        if (hasObject(root, "geo")) {
-            dto.geo = root["geo"]?.let {
-                kJson.decodeFromJsonElement(VKApiPlace.serializer(), it)
-            }
-        }
         dto.can_edit = optBoolean(root, "can_edit")
         dto.is_favorite = optBoolean(root, "is_favorite")
         dto.signer_id = optInt(root, "signer_id")

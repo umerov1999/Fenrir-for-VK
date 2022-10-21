@@ -36,7 +36,6 @@ class VKApiNews {
      * Information about attachments to the post (photos, links, etc.), if any;
      */
     var attachments: VKApiAttachments? = null
-    var geo: VKApiPlace? = null
     var friends: ArrayList<Int>? = null
     var views = 0
     val attachmentsCount: Int

@@ -44,8 +44,6 @@ class NewsDboEntity : DboEntity() {
         private set
     var isUserReposted = false
         private set
-    var geoId = 0
-        private set
     var friendsTags: List<Int>? = null
         private set
     var views = 0
@@ -159,11 +157,6 @@ class NewsDboEntity : DboEntity() {
 
     fun setUserReposted(userReposted: Boolean): NewsDboEntity {
         isUserReposted = userReposted
-        return this
-    }
-
-    fun setGeoId(geoId: Int): NewsDboEntity {
-        this.geoId = geoId
         return this
     }
 

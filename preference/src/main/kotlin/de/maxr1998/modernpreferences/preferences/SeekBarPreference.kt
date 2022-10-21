@@ -96,9 +96,9 @@ class SeekBarPreference(key: String) : Preference(key) {
             bottomMargin = 0
         }
         val widget = holder.widget as Space?
-        val inflater = LayoutInflater.from(widget?.context)
         val sb = (widget?.tag
-            ?: inflater.inflate(R.layout.map_preference_widget_seekbar, holder.root)
+            ?: LayoutInflater.from(widget?.context)
+                .inflate(R.layout.map_preference_widget_seekbar, holder.root)
                 .findViewById(android.R.id.progress)) as ModernSeekBar?
         val tv = (sb?.tag ?: holder.itemView.findViewById(R.id.progress_text)) as TextView?
         widget?.tag = sb?.apply {

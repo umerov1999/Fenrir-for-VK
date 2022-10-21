@@ -43,8 +43,24 @@ class DatabaseInteractor(private val cache: IDatabaseStore, private val networke
                         dbos.add(CountryDboEntity().set(dto.id, dto.title))
                         countries.add(Country(dto.id, dto.title))
                     }
-                    cache.storeCountries(accountId, dbos)
-                        .andThen(Single.just<List<Country>>(countries))
+                    if (countries.isEmpty()) {
+                        networker.vkDefault(accountId)
+                            .database().getCountries(false, "RU,BY,RS", null, 100)
+                            .flatMap { itemsg ->
+                                val dtosg = listEmptyIfNull(itemsg.items)
+                                val dbosg: MutableList<CountryDboEntity> = ArrayList(dtosg.size)
+                                val countriesg: MutableList<Country> = ArrayList(dbosg.size)
+                                for (dto in dtosg) {
+                                    dbosg.add(CountryDboEntity().set(dto.id, dto.title))
+                                    countriesg.add(Country(dto.id, dto.title))
+                                }
+                                cache.storeCountries(accountId, dbosg)
+                                    .andThen(Single.just<List<Country>>(countriesg))
+                            }
+                    } else {
+                        cache.storeCountries(accountId, dbos)
+                            .andThen(Single.just<List<Country>>(countries))
+                    }
                 }
         } else cache.getCountries(accountId)
             .flatMap { dbos ->

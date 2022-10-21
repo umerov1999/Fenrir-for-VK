@@ -828,7 +828,6 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             VKApiCommunity.BAN_INFO,
             VKApiCommunity.CITY,
             VKApiCommunity.COUNTRY,
-            VKApiCommunity.PLACE,
             VKApiCommunity.DESCRIPTION,
             VKApiCommunity.WIKI_PAGE,
             VKApiCommunity.MEMBERS_COUNT,

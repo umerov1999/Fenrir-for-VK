@@ -79,6 +79,10 @@ class FileExistNative : AbsFileExist {
         CachedAudios.insert(file.lowercase(Locale.getDefault()))
     }
 
+    override fun addPhoto(file: String) {
+        CachedPhotos.insert(file.lowercase(Locale.getDefault()))
+    }
+
     override fun findAllAudios(context: Context): Completable {
         return if (!hasReadStoragePermissionSimple(context)) Completable.complete() else Completable.create { t: CompletableEmitter ->
             findRemoteAudios(context, false)

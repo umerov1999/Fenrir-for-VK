@@ -75,11 +75,6 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
                     kJson.decodeFromJsonElement(VKApiAttachments.serializer(), it)
                 }
         }
-        if (root.has("geo")) {
-            dto.geo = root["geo"]?.let {
-                kJson.decodeFromJsonElement(VKApiPlace.serializer(), it)
-            }
-        }
         if (root.has("photos")) {
             val photosArray = root.getAsJsonObject("photos").getAsJsonArray("items")
             if (dto.attachments == null) {
@@ -102,26 +97,26 @@ class NewsAdapter : AbsAdapter<VKApiNews>("VKApiNews") {
             }
         }
         if (root.has("audio")) {
-            val photosTagsArray = root.getAsJsonObject("audio").getAsJsonArray("items")
+            val audiosArray = root.getAsJsonObject("audio").getAsJsonArray("items")
             if (dto.attachments == null) {
                 dto.attachments = VKApiAttachments()
             }
             parseArray(
-                photosTagsArray,
+                audiosArray,
                 null,
-                VKApiPhoto.serializer()
+                VKApiAudio.serializer()
             )?.let {
                 dto.attachments?.append(it)
             }
         }
         if (root.has("video")) {
-            val photosTagsArray = root.getAsJsonObject("video").getAsJsonArray("items")
+            val videoArray = root.getAsJsonObject("video").getAsJsonArray("items")
             if (dto.attachments == null) {
                 dto.attachments = VKApiAttachments()
             }
             parseArray(
-                photosTagsArray,
-                null, VKApiPhoto.serializer()
+                videoArray,
+                null, VKApiVideo.serializer()
             )?.let {
                 dto.attachments?.append(it)
             }

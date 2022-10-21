@@ -720,6 +720,11 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.strip_news_repost
             }
 
+            switch("communities_in_page_search") {
+                defaultValue = false
+                titleRes = R.string.communities_in_page_search
+            }
+
             switch("ad_block_story_news") {
                 defaultValue = true
                 summaryRes = R.string.ad_block_story_news_summary

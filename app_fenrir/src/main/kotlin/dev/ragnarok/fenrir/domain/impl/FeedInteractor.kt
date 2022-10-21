@@ -164,7 +164,13 @@ class FeedInteractor(
                 }
         } else {
             networker.vkDefault(accountId)
-                .newsfeed()[filters, null, null, null, maxPhotos, if ("updates" == sourceIds) null else sourceIds, startFrom, count, Constants.MAIN_OWNER_FIELDS]
+                .newsfeed()[filters, null, null, null, maxPhotos, if (setOf(
+                    "updates_photos",
+                    "updates_videos",
+                    "updates_full",
+                    "updates_audios"
+                ).contains(sourceIds)
+            ) null else sourceIds, startFrom, count, Constants.MAIN_OWNER_FIELDS]
                 .flatMap { response ->
                     val blockAds = Settings.get().other().isAd_block_story_news
                     val needStripRepost = Settings.get().other().isStrip_news_repost

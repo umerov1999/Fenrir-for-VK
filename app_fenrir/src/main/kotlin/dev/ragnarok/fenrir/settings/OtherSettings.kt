@@ -228,6 +228,8 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("autoplay_gif", true)
     override val isStrip_news_repost: Boolean
         get() = getPreferences(app).getBoolean("strip_news_repost", false)
+    override val isCommunities_in_page_search: Boolean
+        get() = getPreferences(app).getBoolean("communities_in_page_search", false)
     override val isAd_block_story_news: Boolean
         get() = getPreferences(app).getBoolean("ad_block_story_news", true)
     override val isBlock_news_by_words: Set<String>?

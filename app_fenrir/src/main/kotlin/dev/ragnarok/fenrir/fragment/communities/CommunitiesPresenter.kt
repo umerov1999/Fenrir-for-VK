@@ -198,12 +198,19 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
     private fun startNetSearch(withDelay: Boolean) {
         val filter = filter
         val single: Single<List<Community>>
-        val searchSingle = communitiesInteractor.getActual(
+
+        val in_page = Settings.get().other().isCommunities_in_page_search
+        val inc = if (in_page) 1000 else 100
+        val searchSingle = if (in_page) communitiesInteractor.getActual(
             accountId,
             userId,
             1000,
             networkOffset, false
+        ) else communitiesInteractor.search(
+            accountId, filter, null,
+            null, null, null, 0, 100, networkOffset
         )
+
         single = if (withDelay) {
             Completable.complete()
                 .delay(1, TimeUnit.SECONDS)
@@ -216,7 +223,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         netSearchDisposable.add(single.map { filterM(it, filter) }
             .fromIOToMain()
             .subscribe({ data ->
-                onSearchDataReceived(data)
+                onSearchDataReceived(data, inc)
             }) { t -> onSearchError(t) })
     }
 
@@ -226,7 +233,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         showError(getCauseIfRuntime(t))
     }
 
-    private fun onSearchDataReceived(communities: Pair<List<Community>, Boolean>) {
+    private fun onSearchDataReceived(communities: Pair<List<Community>, Boolean>, inc: Int) {
         netSearchNow = false
         netSearchEndOfContent = communities.second
         resolveRefreshing()
@@ -242,7 +249,7 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
                 count
             )
         }
-        networkOffset += 1000
+        networkOffset += inc
     }
 
     private fun onFilteredDataReceived(filteredData: List<Community>) {

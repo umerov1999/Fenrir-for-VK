@@ -75,11 +75,6 @@ class VKApiCommunity
     var status_audio: VKApiAudio? = null
 
     /**
-     * The location which specified in information about community
-     */
-    var place: VKApiPlace? = null
-
-    /**
      * срок окончания блокировки в формате unixtime;
      */
     var ban_end_date: Long = 0
@@ -352,11 +347,6 @@ class VKApiCommunity
          * Filed country from VK fields set
          */
         const val COUNTRY = "country"
-
-        /**
-         * Filed place from VK fields set
-         */
-        const val PLACE = "place"
 
         /**
          * Filed description from VK fields set

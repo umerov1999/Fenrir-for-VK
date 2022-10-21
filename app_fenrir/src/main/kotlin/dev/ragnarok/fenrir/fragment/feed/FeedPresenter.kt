@@ -70,12 +70,24 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         loadingNow = true
         resolveLoadMoreFooterView()
         resolveRefreshingView()
-        if ("updates" == sourcesIds) {
+        if (setOf("updates_photos", "updates_videos", "updates_full", "updates_audios").contains(
+                sourcesIds
+            )
+        ) {
+            val fil = when (sourcesIds) {
+                "updates_photos" -> "photo,photo_tag"
+                "updates_audios" -> "audio"
+                "updates_videos" -> "video"
+                "updates_full" -> "photo,photo_tag,wall_photo,friend,audio,video"
+                else -> {
+                    throw UnsupportedOperationException()
+                }
+            }
             loadingHolder.append(feedInteractor.getActualFeed(
                 accountId,
                 25,
                 startFrom,
-                "photo,photo_tag,wall_photo,friend,audio,video",
+                fil,
                 9,
                 sourcesIds
             )
@@ -466,11 +478,14 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
             val data: MutableList<FeedSource> = ArrayList(8)
             data.add(FeedSource(null, R.string.news_feed, false))
             data.add(FeedSource("likes", R.string.likes_posts, false))
-            data.add(FeedSource("updates", R.string.updates, false))
+            data.add(FeedSource("updates_full", R.string.updates, false))
             data.add(FeedSource("friends", R.string.friends, false))
             data.add(FeedSource("groups", R.string.groups, false))
             data.add(FeedSource("pages", R.string.pages, false))
             data.add(FeedSource("following", R.string.subscriptions, false))
+            data.add(FeedSource("updates_photos", R.string.photos, false))
+            data.add(FeedSource("updates_videos", R.string.videos, false))
+            data.add(FeedSource("updates_audios", R.string.audios, false))
             data.add(FeedSource("recommendation", R.string.recommendation, false))
             return data
         }

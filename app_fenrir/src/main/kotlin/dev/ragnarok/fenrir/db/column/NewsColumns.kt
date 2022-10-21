@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.db.column
 import android.content.ContentValues
 import android.provider.BaseColumns
 import dev.ragnarok.fenrir.api.model.VKApiNews
-import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.Utils
 
 object NewsColumns : BaseColumns {
@@ -36,12 +35,10 @@ object NewsColumns : BaseColumns {
     const val CAN_PUBLISH = "can_publish"
     const val REPOSTS_COUNT = "reposts_count"
     const val USER_REPOSTED = "user_reposted"
-    const val COPYRIGHT_JSON = "copyright_json"
+    const val COPYRIGHT_BLOB = "copyright_blob"
 
-    //public static final String ATTACHMENTS_MASK = "attachments_mask";
-    const val GEO_ID = "geo_id"
     const val TAG_FRIENDS = "friends_tag"
-    const val ATTACHMENTS_JSON = "attachments_json"
+    const val ATTACHMENTS_BLOB = "attachments_blob"
     const val VIEWS = "views"
     const val FULL_ID = TABLENAME + "." + BaseColumns._ID
 
@@ -56,7 +53,7 @@ object NewsColumns : BaseColumns {
     const val FULL_COPY_POST_ID = "$TABLENAME.$COPY_POST_ID"
     const val FULL_COPY_POST_DATE = "$TABLENAME.$COPY_POST_DATE"
     const val FULL_TEXT = "$TABLENAME.$TEXT"
-    const val FULL_COPYRIGHT_JSON = "$TABLENAME.$COPYRIGHT_JSON"
+    const val FULL_COPYRIGHT_BLOB = "$TABLENAME.$COPYRIGHT_BLOB"
     const val FULL_CAN_EDIT = "$TABLENAME.$CAN_EDIT"
     const val FULL_CAN_DELETE = "$TABLENAME.$CAN_DELETE"
     const val FULL_COMMENT_COUNT = "$TABLENAME.$COMMENT_COUNT"
@@ -68,10 +65,8 @@ object NewsColumns : BaseColumns {
     const val FULL_REPOSTS_COUNT = "$TABLENAME.$REPOSTS_COUNT"
     const val FULL_USER_REPOSTED = "$TABLENAME.$USER_REPOSTED"
 
-    //public static final String FULL_ATTACHMENTS_COUNT = TABLENAME + "." + ATTACHMENTS_MASK;
-    const val FULL_GEO_ID = "$TABLENAME.$GEO_ID"
     const val FULL_TAG_FRIENDS = "$TABLENAME.$TAG_FRIENDS"
-    const val FULL_ATTACHMENTS_JSON = "$TABLENAME.$ATTACHMENTS_JSON"
+    const val FULL_ATTACHMENTS_BLOB = "$TABLENAME.$ATTACHMENTS_BLOB"
     const val FULL_VIEWS = "$TABLENAME.$VIEWS"
     fun getCV(p: VKApiNews): ContentValues {
         val cv = ContentValues()
@@ -95,8 +90,6 @@ object NewsColumns : BaseColumns {
         cv.put(CAN_PUBLISH, p.can_publish)
         cv.put(REPOSTS_COUNT, p.reposts_count)
         cv.put(USER_REPOSTED, p.user_reposted)
-        //cv.put(ATTACHMENTS_MASK, Attachments.genAttachmentsMask(p));
-        cv.put(GEO_ID, p.geo?.id.orZero())
         cv.put(TAG_FRIENDS, p.friends?.let { Utils.join(",", it) })
         cv.put(VIEWS, p.views)
 
