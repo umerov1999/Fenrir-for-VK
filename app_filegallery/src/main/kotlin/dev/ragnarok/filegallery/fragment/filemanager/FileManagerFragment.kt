@@ -30,6 +30,7 @@ import dev.ragnarok.filegallery.fragment.base.BaseMvpFragment
 import dev.ragnarok.filegallery.fragment.base.core.IPresenterFactory
 import dev.ragnarok.filegallery.fragment.filemanager.FileManagerAdapter.ClickListener
 import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerBottomSheet
+import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerBottomSheet.Companion.REQUEST_TAG
 import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerBottomSheetSelected
 import dev.ragnarok.filegallery.listener.*
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController
@@ -274,8 +275,32 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
     }
 
     override fun onDirTag(item: FileItem) {
-        TagOwnerBottomSheet.create(item)
-            .show(parentFragmentManager, "tag_add")
+        if (item.isHasTag) {
+            MaterialAlertDialogBuilder(requireActivity()).setTitle(R.string.attention)
+                .setMessage(requireActivity().getString(R.string.do_tag_remove, item.file_name))
+                .setPositiveButton(R.string.button_yes) { _: DialogInterface?, _: Int ->
+                    presenter?.fireRemoveDirTag(item)
+                }
+                .setNegativeButton(R.string.button_cancel, null)
+                .show()
+        } else {
+            TagOwnerBottomSheet.create(item)
+                .show(parentFragmentManager, "tag_add")
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        parentFragmentManager.setFragmentResultListener(
+            REQUEST_TAG,
+            this
+        ) { _: String?, result: Bundle ->
+            if (result.containsKey(Extra.PATH)) {
+                result.getParcelableCompat<FileItem>(Extra.PATH)
+                    ?.let { presenter?.onAddTagFromDialog(it) }
+            }
+        }
     }
 
     override fun onToggleDirTag(item: FileItem) {

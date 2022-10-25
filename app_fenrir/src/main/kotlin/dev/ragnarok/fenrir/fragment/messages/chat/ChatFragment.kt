@@ -1148,19 +1148,33 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         openCameraRequest.launch(fileUri)
     }
 
-    override fun showDeleteForAllDialog(ids: ArrayList<Message>) {
-        MaterialAlertDialogBuilder(requireActivity()).apply {
+    override fun showDeleteForAllDialog(
+        removeAllIds: ArrayList<Message>,
+        editRemoveAllIds: ArrayList<Message>
+    ) {
+        val msg = MaterialAlertDialogBuilder(requireActivity()).apply {
             setTitle(R.string.confirmation)
             setMessage(R.string.messages_delete_for_all_question_message)
             setCancelable(true)
-            setNeutralButton(R.string.button_super_delete) { _, _ -> presenter?.fireDeleteSuper(ids) }
             setPositiveButton(R.string.button_for_all) { _, _ ->
                 presenter?.fireDeleteForAllClick(
-                    ids
+                    removeAllIds
                 )
             }
-            setNegativeButton(R.string.button_for_me) { _, _ -> presenter?.fireDeleteForMeClick(ids) }
-        }.show()
+            setNegativeButton(R.string.button_for_me) { _, _ ->
+                presenter?.fireDeleteForMeClick(
+                    removeAllIds
+                )
+            }
+        }
+        if (editRemoveAllIds.nonNullNoEmpty()) {
+            msg.setNeutralButton(R.string.button_super_delete) { _, _ ->
+                presenter?.fireDeleteSuper(
+                    editRemoveAllIds
+                )
+            }
+        }
+        msg.show()
     }
 
     @SuppressLint("ShowToast")
@@ -1953,7 +1967,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 receiver = NetworkBroadcastReceiver(requireActivity(), object : Utils.SafeCallInt {
                     override fun call() {
                         if (isNetworkAvailable(requireActivity())) {
-                            presenter?.fireNetworkChenged()
+                            presenter?.fireNetworkChanged()
                         }
                     }
                 })
@@ -1965,7 +1979,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                     NetworkBroadcastReceiverPostM(requireActivity(), object : Utils.SafeCallInt {
                         override fun call() {
                             if (isNetworkAvailable(requireActivity())) {
-                                presenter?.fireNetworkChenged()
+                                presenter?.fireNetworkChanged()
                             }
                         }
                     })

@@ -88,8 +88,11 @@ class TagOwnerBottomSheet : BaseMvpBottomSheetDialogFragment<TagOwnerPresenter, 
     }
 
     override fun successAdd(owner: TagOwner, item: FileItem) {
-        CustomToast.createCustomToast(requireActivity(), view)
+        CustomToast.createCustomToast(requireActivity(), null)
             ?.showToastSuccessBottom(getString(R.string.success_add, item.file_name, owner.name))
+        val intent = Bundle()
+        intent.putParcelable(Extra.PATH, item)
+        parentFragmentManager.setFragmentResult(REQUEST_TAG, intent)
         dismiss()
     }
 
@@ -122,6 +125,7 @@ class TagOwnerBottomSheet : BaseMvpBottomSheetDialogFragment<TagOwnerPresenter, 
     }
 
     companion object {
+        const val REQUEST_TAG = "tag_owner_request"
         fun create(item: FileItem): TagOwnerBottomSheet {
             val args = Bundle()
             args.putParcelable(Extra.PATH, item)

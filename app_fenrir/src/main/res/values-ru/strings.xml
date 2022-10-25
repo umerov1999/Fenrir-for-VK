@@ -1710,4 +1710,5 @@
     <string name="action_catalog_v2_artists">Артисты</string>
     <string name="token_community_required">Требуется войти с токеном сообщества!</string>
     <string name="communities_in_page_search">Поиск сообществ на странице</string>
+    <string name="sections">Секции</string>
 </resources>

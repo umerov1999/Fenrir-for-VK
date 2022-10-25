@@ -85,7 +85,11 @@ interface IChatView : IBasicMessageListView, IErrorView, IToastView {
     fun startAudioSelection(accountId: Int)
     fun startDocSelection(accountId: Int)
     fun startCamera(fileUri: Uri)
-    fun showDeleteForAllDialog(ids: ArrayList<Message>)
+    fun showDeleteForAllDialog(
+        removeAllIds: ArrayList<Message>,
+        editRemoveAllIds: ArrayList<Message>
+    )
+
     fun scrollTo(position: Int)
     fun showSnackbar(@StringRes res: Int, isLong: Boolean)
     fun goToMessagesLookup(accountId: Int, peerId: Int, messageId: Int, message: Message)

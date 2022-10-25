@@ -34,8 +34,7 @@
             android:layout_width="@dimen/avatar_size_small"
             android:layout_height="@dimen/avatar_size_small"
             android:layout_marginStart="4dp"
-            android:contentDescription="@null"
-            android:visibility="gone" />
+            android:contentDescription="@null" />
 
         <dev.ragnarok.fenrir.view.OnlineView
             android:id="@+id/item_message_important"
@@ -45,7 +44,6 @@
             android:layout_alignBottom="@id/item_message_avatar"
             android:padding="3dp"
             android:src="@drawable/star"
-            android:visibility="gone"
             app:circle_color="?icon_color_active"
             app:stroke_color="?android:colorBackground" />
 

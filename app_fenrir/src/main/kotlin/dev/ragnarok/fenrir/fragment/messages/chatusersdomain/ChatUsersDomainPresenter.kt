@@ -81,7 +81,7 @@ class ChatUsersDomainPresenter(
         setRefreshing(true)
         appendDisposable(messagesInteractor.getChatUsers(accountId, chatId)
             .fromIOToMain()
-            .subscribe({ users -> onDataReceived(users) }) { t ->
+            .subscribe({ onDataReceived(it) }) { t ->
                 onDataGetError(
                     t
                 )
@@ -93,10 +93,10 @@ class ChatUsersDomainPresenter(
         showError(t)
     }
 
-    private fun onDataReceived(users: List<AppChatUser>) {
+    private fun onDataReceived(data: List<AppChatUser>) {
         setRefreshing(false)
         original.clear()
-        original.addAll(users)
+        original.addAll(data)
         updateCriteria()
     }
 

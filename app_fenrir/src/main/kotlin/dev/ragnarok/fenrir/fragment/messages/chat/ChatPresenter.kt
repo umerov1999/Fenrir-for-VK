@@ -101,6 +101,7 @@ class ChatPresenter(
     private var fetchConversationDisposable = Disposable.disposed()
 
     private var conversation: Conversation? = null
+    private var chatAdminsIds: ArrayList<Int>? = null
 
     fun getConversation(): Conversation? {
         return conversation
@@ -722,7 +723,7 @@ class ChatPresenter(
         }
     }
 
-    fun fireNetworkChenged() {
+    fun fireNetworkChanged() {
         if (!isHiddenAccount(accountId)) {
             appendDisposable(
                 checkErrorMessages().fromIOToMain()
@@ -1352,12 +1353,16 @@ class ChatPresenter(
                     Peer.toChatId(peerId)
                 )
                     .fromIOToMain()
-                    .subscribe({ t ->
-                        run {
-                            subtitle = getString(R.string.chat_users_count, t.size)
-                            resolveToolbarSubtitle()
+                    .subscribe({
+                        chatAdminsIds = ArrayList()
+                        for (i in it) {
+                            if (i.isAdmin() || i.isOwner()) {
+                                chatAdminsIds?.add(i.getObjectId())
+                            }
                         }
-                    }, { run { resolveToolbarSubtitle() } })
+                        subtitle = getString(R.string.chat_users_count, it.size)
+                        resolveToolbarSubtitle()
+                    }, { resolveToolbarSubtitle() })
             )
 
 
@@ -1701,6 +1706,7 @@ class ChatPresenter(
     private fun deleteSelectedMessages() {
         val sent = ArrayList<Message>(0)
         val canDeleteForAll = ArrayList<Message>(0)
+        val canEditAndDeleteForAll = ArrayList<Message>(0)
 
         var hasChanged = false
         val iterator = data.iterator()
@@ -1716,6 +1722,9 @@ class ChatPresenter(
                 MessageStatus.SENT -> {
                     if (canDeleteForAll(message)) {
                         canDeleteForAll.add(message)
+                        if (canEdit(message)) {
+                            canEditAndDeleteForAll.add(message)
+                        }
                     } else {
                         sent.add(message)
                     }
@@ -1746,7 +1755,7 @@ class ChatPresenter(
         }
 
         if (canDeleteForAll.isNotEmpty()) {
-            view?.showDeleteForAllDialog(canDeleteForAll)
+            view?.showDeleteForAllDialog(canDeleteForAll, canEditAndDeleteForAll)
         }
     }
 
@@ -1855,7 +1864,7 @@ class ChatPresenter(
     }
 
     private fun canDeleteForAll(message: Message): Boolean {
-        return message.isOut && Unixtime.now() - message.date < 24 * 60 * 60 && peerId != accountId
+        return chatAdminsIds?.contains(accountId) == true || (message.isOut && Unixtime.now() - message.date < 24 * 60 * 60 && peerId != accountId)
     }
 
     private fun cancelWaitingForUploadMessage(messageId: Int) {

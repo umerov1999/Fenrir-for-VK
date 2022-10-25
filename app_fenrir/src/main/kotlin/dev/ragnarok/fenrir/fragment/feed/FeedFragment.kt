@@ -71,6 +71,27 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_feed, menu)
+        val s = presenter?.configureMenu()
+        s.nonNullNoEmpty {
+            menu.addSubMenu(R.string.sections).let { vv ->
+                for ((p, i) in s.orEmpty().withIndex()) {
+                    vv.add(
+                        if (i.isCustom) i.getTitle(requireActivity()) else "#" + i.getTitle(
+                            requireActivity()
+                        )
+                    )
+                        .setOnMenuItemClickListener {
+                            mRecycleView?.stopScroll()
+                            mRecycleView?.scrollToPosition(0)
+                            mHeaderLayoutManager?.scrollToPosition(p)
+                            presenter?.fireFeedSourceClick(
+                                i
+                            )
+                            true
+                        }
+                }
+            }
+        }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -441,6 +462,7 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
 
     override fun notifyFeedSourcesChanged() {
         mFeedSourceAdapter?.notifyDataSetChanged()
+        requireActivity().invalidateOptionsMenu()
     }
 
     override fun displayFeed(data: MutableList<News>, rawScrollState: String?) {

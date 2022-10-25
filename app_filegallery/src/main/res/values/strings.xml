@@ -163,7 +163,7 @@
     <string name="use_internal_downloader_summary">Для видео и документов</string>
     <string name="video_controller_to_decor">Видео кнопки в DecorView</string>
     <string name="video_swipes">Свайпы у видео</string>
-    <string name="download_photo_tap">Скачивать фото по долгому нажатию"</string>
+    <string name="download_photo_tap">Скачивать фото по долгому нажатию</string>
     <string name="show_photos_line">Показывать трекбар с фотками</string>
     <string name="music_settings">Плеер и музыка</string>
     <string name="audio_round_icon">Круглые обложки аудио</string>
@@ -209,7 +209,7 @@
     <string name="enabled_audio_local_sync">Синхронизировать скачанные</string>
     <string name="rotating_player_cover">Вращать обложку плеера</string>
     <string name="audio_channel">FileGallery-Плеер</string>
-    <string name="downloading">Скачивание"</string>
+    <string name="downloading">Скачивание</string>
     <string name="saved_audio">Скачивание трека…</string>
     <string name="exist_audio">Уже скачано (изменение даты…)</string>
     <string name="cancel">Отмена</string>
@@ -242,7 +242,7 @@
     <string name="rotate_video">Поворот</string>
     <string name="popup">В окне</string>
     <string name="image_number">%1$d из %2$d</string>
-    <string name="download">Скачать"</string>
+    <string name="download">Скачать</string>
     <string name="play_audio_after_current">Играть следующим</string>
     <string name="get_bitrate">Узнать Битрейт</string>
     <string name="delete">Удалить</string>
@@ -276,8 +276,10 @@
     <string name="title_entry_name">Введите имя</string>
     <string name="tags">Тэги</string>
     <string name="add_dir_tag">Присвоить метку</string>
+    <string name="remove_dir_tag">Убрать метку</string>
     <string name="export_settings">Экспорт настроек</string>
     <string name="import_settings">Импорт настроек</string>
+    <string name="export_adb">Экспорт для adb</string>
     <string name="slidr_settings">Настройки Slidr</string>
     <string name="import_export_settings">Импорт/Экспорт</string>
     <string name="viewpager_page_transform">Анимация Viewpager2</string>
@@ -322,6 +324,7 @@
     <string name="ask_for_pin_on_application_start_title">PIN-код при старте</string>
     <string name="ask_for_pin_on_application_start_summary">Запрашивать PIN-код при старте приложения</string>
     <string name="do_remove">Вы уверены, что хотите удалить %1$s?</string>
+    <string name="do_tag_remove">Вы уверены, что хотите убрать метку %1$s?</string>
     <string name="attention">Внимание</string>
     <string name="delete_disabled">Удаление заблокировано</string>
     <string name="root_dir">Корень</string>

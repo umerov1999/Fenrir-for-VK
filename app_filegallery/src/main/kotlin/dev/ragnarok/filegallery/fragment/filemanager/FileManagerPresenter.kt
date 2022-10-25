@@ -477,6 +477,30 @@ class FileManagerPresenter(
         }
     }
 
+    fun fireRemoveDirTag(item: FileItem) {
+        item.file_path?.let { op ->
+            appendDisposable(
+                Includes.stores.searchQueriesStore().deleteTagDirByPath(op)
+                    .fromIOToMain().subscribe({
+                        item.checkTag()
+                        val list = if (q == null) fileList else fileListSearch
+                        view?.notifyItemChanged(list.indexOf(item))
+                    }, {
+                        view?.showThrowable(it)
+                    })
+            )
+        }
+    }
+
+    fun onAddTagFromDialog(item: FileItem) {
+        val list = if (q == null) fileList else fileListSearch
+        val s = list.indexOf(item)
+        if (s >= 0) {
+            list[s].checkTag()
+            view?.notifyItemChanged(s)
+        }
+    }
+
     fun onClickFile(item: FileItem) {
         if (selectedOwner != null) {
             item.checkTag()

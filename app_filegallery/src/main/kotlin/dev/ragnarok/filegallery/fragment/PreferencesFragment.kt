@@ -67,6 +67,7 @@ import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.settings.backup.SettingsBackup
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.Utils.getAppVersionName
+import dev.ragnarok.filegallery.util.Utils.safelyClose
 import dev.ragnarok.filegallery.util.rxutils.RxUtils
 import dev.ragnarok.filegallery.util.serializeble.json.*
 import dev.ragnarok.filegallery.util.serializeble.prefs.Preferences
@@ -79,6 +80,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.FilenameFilter
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
@@ -715,6 +717,103 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onSelectionChange {
                     Utils.currentParser = it.toInt()
                     Settings.get().main().updateLocalServer()
+                }
+            }
+
+            pref("export_adb") {
+                titleRes = R.string.export_adb
+                onClick {
+                    val path: File =
+                        if (Environment.getExternalStorageDirectory().isDirectory && Environment.getExternalStorageDirectory()
+                                .canRead()
+                        ) {
+                            Environment.getExternalStorageDirectory()
+                        } else {
+                            File("/")
+                        }
+                    val ou = StringBuilder()
+                    ou.append("mkdir mnt/media")
+                    ou.append("\r\n")
+                    ou.append("mkdir mnt/media/0")
+                    ou.append("\r\n")
+                    path.list(FilenameFilter { dir: File, filename: String ->
+                        val sel = File(dir, filename)
+                        if (sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Android"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Fonts"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Documents"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Subtitles"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "ColorOS"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Audiobooks"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Notifications"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Alarms"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Ringtones"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                "Podcasts"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                ".sstmp"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                ".time"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                ".dev"
+                            ).absolutePath || sel.absolutePath == File(
+                                Environment.getExternalStorageDirectory(),
+                                ".ext4"
+                            ).absolutePath
+                        ) {
+                            return@FilenameFilter false
+                        }
+                        ou.append("adb pull -a \"/storage/emulated/0/${filename}\" \"mnt/media/0/${filename}\" > \"${filename}.txt\"")
+                        ou.append("\r\n")
+                        true
+                    })
+                    var out: FileOutputStream? = null
+                    try {
+                        val file = File(Environment.getExternalStorageDirectory(), "to_adb.sh")
+                        file.delete()
+                        val bytes = ou.toString().toByteArray(StandardCharsets.UTF_8)
+                        out = FileOutputStream(file)
+                        val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+                        out.write(bom)
+                        out.write(bytes)
+                        out.flush()
+                        requireActivity().sendBroadcast(
+                            Intent(
+                                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                                Uri.fromFile(file)
+                            )
+                        )
+                        createCustomToast(requireActivity(), null)?.showToast(
+                            R.string.success,
+                            file.absolutePath
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    } finally {
+                        safelyClose(out)
+                    }
+                    true
                 }
             }
 

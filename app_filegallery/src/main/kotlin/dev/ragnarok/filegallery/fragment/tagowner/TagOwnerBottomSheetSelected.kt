@@ -18,6 +18,7 @@ import dev.ragnarok.filegallery.fragment.base.BaseMvpBottomSheetDialogFragment
 import dev.ragnarok.filegallery.fragment.base.core.IPresenterFactory
 import dev.ragnarok.filegallery.model.FileItem
 import dev.ragnarok.filegallery.model.tags.TagOwner
+import dev.ragnarok.filegallery.util.toast.CustomToast
 
 class TagOwnerBottomSheetSelected :
     BaseMvpBottomSheetDialogFragment<TagOwnerPresenter, ITagOwnerView>(),
@@ -88,7 +89,7 @@ class TagOwnerBottomSheetSelected :
     }
 
     override fun successAdd(owner: TagOwner, item: FileItem) {
-        customToast?.showToastSuccessBottom(
+        CustomToast.createCustomToast(requireActivity(), null)?.showToastSuccessBottom(
             getString(
                 R.string.success_add,
                 item.file_name,

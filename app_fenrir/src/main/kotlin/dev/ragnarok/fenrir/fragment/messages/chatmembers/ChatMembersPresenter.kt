@@ -11,16 +11,20 @@ import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
+import java.util.*
 
 class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IChatMembersView>(accountId, savedInstanceState) {
     private val messagesInteractor: IMessagesRepository
     private val users: MutableList<AppChatUser>
+    private val original: MutableList<AppChatUser>
     private var refreshing = false
     private var isOwner = false
-    override fun onGuiCreated(viewHost: IChatMembersView) {
-        super.onGuiCreated(viewHost)
-        viewHost.displayData(users)
+    private var query: String? = null
+
+    fun setLoadingNow(loadingNow: Boolean) {
+        refreshing = loadingNow
+        resolveRefreshing()
     }
 
     private fun resolveRefreshing() {
@@ -29,13 +33,51 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
         )
     }
 
-    public override fun onGuiResumed() {
-        super.onGuiResumed()
-        resolveRefreshing()
+    private fun updateCriteria() {
+        setLoadingNow(true)
+        users.clear()
+        if (query.isNullOrEmpty()) {
+            users.addAll(original)
+            setLoadingNow(false)
+            view?.notifyDataSetChanged()
+            return
+        }
+        for (i in original) {
+            val user = i.getMember()
+            if (query?.lowercase(Locale.getDefault())?.let {
+                    user?.fullName?.lowercase(Locale.getDefault())?.contains(it)
+                } == true || query?.lowercase(Locale.getDefault())?.let {
+                    user?.domain?.lowercase(Locale.getDefault())?.contains(
+                        it
+                    )
+                } == true
+            ) {
+                users.add(i)
+            }
+        }
+        setLoadingNow(false)
+        view?.notifyDataSetChanged()
+    }
+
+    fun fireQuery(q: String?) {
+        query = if (q.isNullOrEmpty()) null else {
+            q
+        }
+        updateCriteria()
+    }
+
+    override fun onGuiCreated(viewHost: IChatMembersView) {
+        super.onGuiCreated(viewHost)
+        viewHost.displayData(users)
     }
 
     private fun setRefreshing(refreshing: Boolean) {
         this.refreshing = refreshing
+        resolveRefreshing()
+    }
+
+    public override fun onGuiResumed() {
+        super.onGuiResumed()
         resolveRefreshing()
     }
 
@@ -55,19 +97,20 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
         showError(t)
     }
 
-    private fun onDataReceived(users: List<AppChatUser>) {
+    private fun onDataReceived(data: List<AppChatUser>) {
         setRefreshing(false)
-        this.users.clear()
-        this.users.addAll(users)
+
+        original.clear()
+        original.addAll(data)
         isOwner = false
-        for (i in users) {
+        for (i in original) {
             if (i.getObjectId() == accountId) {
                 isOwner = i.isOwner()
                 break
             }
         }
         view?.setIsOwner(isOwner)
-        view?.notifyDataSetChanged()
+        updateCriteria()
     }
 
     fun fireRefresh() {
@@ -92,7 +135,12 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
     }
 
     private fun onUserRemoved(id: Int) {
-        val index = findIndexById(users, id)
+        var index = findIndexById(original, id)
+        if (index != -1) {
+            original.removeAt(index)
+        }
+
+        index = findIndexById(users, id)
         if (index != -1) {
             users.removeAt(index)
             view?.notifyItemRemoved(
@@ -103,14 +151,14 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
 
     fun fireUserSelected(owners: ArrayList<Owner>?) {
         owners ?: return
-        val users = ArrayList<User>()
+        val usersData = ArrayList<User>()
         for (i in owners) {
             if (i is User) {
-                users.add(i)
+                usersData.add(i)
             }
         }
-        if (users.nonNullNoEmpty()) {
-            appendDisposable(messagesInteractor.addChatUsers(accountId, chatId, users)
+        if (usersData.nonNullNoEmpty()) {
+            appendDisposable(messagesInteractor.addChatUsers(accountId, chatId, usersData)
                 .fromIOToMain()
                 .subscribe({ onChatUsersAdded(it) }) { t ->
                     onChatUsersAddError(
@@ -127,7 +175,9 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
 
     private fun onChatUsersAdded(added: List<AppChatUser>) {
         val startSize = users.size
+        original.addAll(added)
         users.addAll(added)
+
         view?.notifyDataAdded(
             startSize,
             added.size
@@ -149,6 +199,7 @@ class ChatMembersPresenter(accountId: Int, private val chatId: Int, savedInstanc
 
     init {
         users = ArrayList()
+        original = ArrayList()
         messagesInteractor = messages
         requestData()
     }

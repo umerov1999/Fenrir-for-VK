@@ -304,7 +304,9 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         menus.add(
             OptionRequest(
                 AudioLocalOption.add_dir_tag_item,
-                context.getString(R.string.add_dir_tag),
+                if (audio.isHasTag) context.getString(R.string.remove_dir_tag) else context.getString(
+                    R.string.add_dir_tag
+                ),
                 R.drawable.star,
                 false
             )
@@ -469,7 +471,9 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         menus.add(
             OptionRequest(
                 AudioLocalOption.add_dir_tag_item,
-                context.getString(R.string.add_dir_tag),
+                if (file.isHasTag) context.getString(R.string.remove_dir_tag) else context.getString(
+                    R.string.add_dir_tag
+                ),
                 R.drawable.star,
                 false
             )
@@ -554,7 +558,9 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         menus.add(
             OptionRequest(
                 AudioLocalOption.add_dir_tag_item,
-                context.getString(R.string.add_dir_tag),
+                if (file.isHasTag) context.getString(R.string.remove_dir_tag) else context.getString(
+                    R.string.add_dir_tag
+                ),
                 R.drawable.star,
                 false
             )

@@ -29,6 +29,7 @@ import dev.ragnarok.fenrir.model.SelectProfileCriteria
 import dev.ragnarok.fenrir.place.PlaceFactory.getFriendsFollowersPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.view.MySearchView
 
 class ChatMembersFragment : BaseMvpFragment<ChatMembersPresenter, IChatMembersView>(),
     IChatMembersView, ChatMembersListAdapter.ActionListener {
@@ -66,6 +67,25 @@ class ChatMembersFragment : BaseMvpFragment<ChatMembersPresenter, IChatMembersVi
         fabAdd.setOnClickListener {
             presenter?.fireAddUserClick()
         }
+        val mySearchView: MySearchView = root.findViewById(R.id.searchview)
+        mySearchView.setRightButtonVisibility(false)
+        mySearchView.setLeftIcon(R.drawable.magnify)
+        mySearchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                presenter?.fireQuery(
+                    query
+                )
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                presenter?.fireQuery(
+                    newText
+                )
+                return false
+            }
+        })
+        mySearchView.activateKeyboard()
         return root
     }
 

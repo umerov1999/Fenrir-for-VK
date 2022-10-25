@@ -147,6 +147,10 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         resolveLoadMoreFooterView()
     }
 
+    fun configureMenu(): List<FeedSource> {
+        return mFeedSources
+    }
+
     override fun onGuiCreated(viewHost: IFeedView) {
         super.onGuiCreated(viewHost)
         viewHost.displayFeedSources(mFeedSources)
