@@ -265,7 +265,7 @@ public class Snackbar extends BaseTransientBottomBar<Snackbar> {
   }
 
   @Nullable
-  private static ViewGroup findSuitableParent(View view) {
+  public static ViewGroup findSuitableParent(View view) {
     ViewGroup fallback = null;
     do {
       if (view instanceof CoordinatorLayout) {

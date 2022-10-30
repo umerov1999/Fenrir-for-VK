@@ -99,7 +99,7 @@ interface ISettings {
         val isDelete_cache_images: Boolean
         val isCompress_incoming_traffic: Boolean
         val isCompress_outgoing_traffic: Boolean
-        val isLimit_cache: Boolean
+        val isLimitImage_cache: Int
         val isDo_not_clear_back_stack: Boolean
         val isMention_fave: Boolean
         val isDisabled_encryption: Boolean

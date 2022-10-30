@@ -142,6 +142,29 @@ internal class NewsfeedApi(accountId: Int, provider: IServiceProvider) :
             }
     }
 
+    override fun getTop(
+        filters: String?, returnBanned: Boolean?, startTime: Long?,
+        endTime: Long?, maxPhotoCount: Int?, sourceIds: String?,
+        startFrom: String?, count: Int?, fields: String?
+    ): Single<NewsfeedResponse> {
+        return provideService(INewsfeedService::class.java, TokenType.USER)
+            .flatMap { service ->
+                service.getByType(
+                    "top",
+                    filters,
+                    integerFromBoolean(returnBanned),
+                    startTime,
+                    endTime,
+                    maxPhotoCount,
+                    sourceIds,
+                    startFrom,
+                    count,
+                    fields
+                )
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
     override fun getRecommended(
         startTime: Long?, endTime: Long?,
         maxPhotoCount: Int?, startFrom: String?, count: Int?, fields: String?

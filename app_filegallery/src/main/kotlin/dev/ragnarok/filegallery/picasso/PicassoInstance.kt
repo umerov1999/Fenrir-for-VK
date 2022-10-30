@@ -1,9 +1,12 @@
 package dev.ragnarok.filegallery.picasso
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.os.StatFs
+import androidx.core.content.ContextCompat
 import com.squareup.picasso3.BitmapSafeResize
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.filegallery.Constants
@@ -14,7 +17,6 @@ import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import java.io.File
-import java.io.IOException
 
 class PicassoInstance @SuppressLint("CheckResult") private constructor(
     private val app: Context
@@ -25,9 +27,11 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
     private var singleton: Picasso? = null
 
     private fun getSingleton(): Picasso {
-        singleton ?: run {
+        if (singleton == null) {
             synchronized(this) {
-                singleton = create()
+                if (singleton == null) {
+                    singleton = create()
+                }
             }
         }
         return singleton!!
@@ -62,8 +66,23 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
         return Picasso.Builder(app)
             .defaultBitmapConfig(Bitmap.Config.ARGB_8888)
             .client(builder.build())
+            .withCacheSize(calculateMemoryCacheSize(app))
             .addRequestHandler(PicassoFileManagerHandler(app))
             .build()
+    }
+
+    fun clear_cache() {
+        synchronized(this) {
+            if (singleton != null) {
+                singleton?.shutdown()
+                singleton = null
+                cache_data?.flush()
+            }
+            Logger.d(TAG, "Picasso singleton shutdown")
+            instance?.getCache_data()
+            instance?.cache_data?.delete()
+            instance?.cache_data = null
+        }
     }
 
     companion object {
@@ -80,6 +99,10 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             return instance!!.getSingleton()
         }
 
+        fun clear_cache() {
+            instance?.clear_cache()
+        }
+
         fun getCoversPath(context: Context): File {
             val cache = File(context.cacheDir, "covers-cache")
             //val cache = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "covers-cache")
@@ -87,12 +110,6 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
                 cache.mkdirs()
             }
             return cache
-        }
-
-        @Throws(IOException::class)
-        fun clear_cache() {
-            instance?.getCache_data()
-            instance?.cache_data?.evictAll()
         }
 
         // from picasso sources
@@ -107,6 +124,24 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             } catch (ignored: IllegalArgumentException) {
             }
             return size.coerceAtMost(52428800L).coerceAtLeast(5242880L)
+        }
+
+        internal fun calculateMemoryCacheSize(context: Context): Int {
+            val limit_cache_images = Settings.get().main().isLimitImage_cache
+
+            val am = ContextCompat.getSystemService(context, ActivityManager::class.java)
+            am ?: return (if (limit_cache_images > 2) limit_cache_images else 256) * 1024 * 1024
+            val largeHeap = context.applicationInfo.flags and ApplicationInfo.FLAG_LARGE_HEAP != 0
+            val memoryClass = if (largeHeap) am.largeMemoryClass else am.memoryClass
+            if (limit_cache_images > 2 && (1024L * 1024L * memoryClass / 7).toInt() > limit_cache_images * 1024 * 1024
+            ) {
+                return limit_cache_images * 1024 * 1024
+            }
+            return (1024L * 1024L * memoryClass / when (limit_cache_images) {
+                0 -> 20
+                1 -> 10
+                else -> 7
+            }).toInt()
         }
     }
 }

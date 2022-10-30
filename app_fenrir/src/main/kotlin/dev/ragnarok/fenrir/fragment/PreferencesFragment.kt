@@ -1768,6 +1768,24 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 switch("delete_cache_images") {
                     titleRes = R.string.delete_cache_images
                 }
+
+                singleChoice(
+                    "limit_cache_images",
+                    selItems(
+                        R.array.array_limit_cache_images_names,
+                        R.array.array_limit_cache_images_items
+                    ),
+                    parentFragmentManager
+                ) {
+                    initialSelection = "2"
+                    titleRes = R.string.limit_cache_images
+                    onSelectionChange {
+                        TempDataHelper.helper.clear()
+                        cleanUICache(requireActivity(), false)
+                        cleanCache(requireActivity(), true)
+                        requireActivity().recreate()
+                    }
+                }
             }
 
             switch("compress_incoming_traffic") {
@@ -1785,18 +1803,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onCheckedChange {
                     Utils.isCompressOutgoingTraffic = it
                     Includes.proxySettings.broadcastUpdate(null)
-                }
-            }
-
-            switch("limit_cache") {
-                defaultValue = false
-                titleRes = R.string.limit_cache
-                onCheckedChange {
-                    TempDataHelper.helper.clear()
-                    cleanUICache(requireActivity(), false)
-                    cleanCache(requireActivity(), true)
-                    Includes.proxySettings.broadcastUpdate(null)
-                    requireActivity().recreate()
                 }
             }
 

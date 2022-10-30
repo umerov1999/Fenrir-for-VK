@@ -48,6 +48,26 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="array_limit_cache_images_names" translatable="false">
+        <item>5%</item>
+        <item>10%</item>
+        <item>15%</item>
+        <item>128 MB</item>
+        <item>256 MB</item>
+        <item>512 MB</item>
+        <item>1 GB</item>
+    </string-array>
+
+    <string-array name="array_limit_cache_images_items" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>128</item>
+        <item>256</item>
+        <item>512</item>
+        <item>1024</item>
+    </string-array>
+
     <string-array name="array_chat_background_names">
         <item>Monotone</item>
         <item>Cookies</item>
@@ -1879,7 +1899,7 @@
     <string name="copy_value">Copy</string>
     <string name="download_voice_ogg">Download voice as ogg</string>
     <string name="error_hiding">Error hiding!</string>
-    <string name="limit_cache">Limit cache</string>
+    <string name="limit_cache_images">Memory image cache limit</string>
     <string name="files_count_a">%1$d file</string>
     <string name="files_count_b">%1$d files</string>
     <string name="files_count_c">%1$d files</string>
@@ -1935,4 +1955,5 @@
     <string name="token_community_required">Token Community Required!</string>
     <string name="communities_in_page_search">Communities in page search</string>
     <string name="sections">Sections</string>
+    <string name="do_unimportant">Remove from important?</string>
 </resources>

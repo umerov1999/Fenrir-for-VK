@@ -72,6 +72,7 @@ interface ISettings {
         val isOngoing_player_notification: Boolean
         val isCompress_incoming_traffic: Boolean
         val currentParser: Int
+        val isLimitImage_cache: Int
     }
 
     interface ISecuritySettings {

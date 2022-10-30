@@ -665,6 +665,23 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             }
 
             singleChoice(
+                "limit_cache_images",
+                selItems(
+                    R.array.array_limit_cache_images_names,
+                    R.array.array_limit_cache_images_items
+                ),
+                parentFragmentManager
+            ) {
+                initialSelection = "2"
+                titleRes = R.string.limit_cache_images
+                onSelectionChange {
+                    cleanUICache(requireActivity(), false)
+                    cleanCache(requireActivity(), true)
+                    requireActivity().recreate()
+                }
+            }
+
+            singleChoice(
                 "rendering_mode",
                 selItems(
                     R.array.array_rendering_mode_names,

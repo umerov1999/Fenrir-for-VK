@@ -94,6 +94,26 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="array_limit_cache_images_names" translatable="false">
+        <item>5%</item>
+        <item>10%</item>
+        <item>15%</item>
+        <item>128 MB</item>
+        <item>256 MB</item>
+        <item>512 MB</item>
+        <item>1 GB</item>
+    </string-array>
+
+    <string-array name="array_limit_cache_images_items" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>128</item>
+        <item>256</item>
+        <item>512</item>
+        <item>1024</item>
+    </string-array>
+
     <string-array name="player_progress_state" translatable="false">
         <item> ••••••</item>
         <item>• •••••</item>
@@ -341,4 +361,5 @@
     <string name="open_folder_new_window">Открывать директории в новом окне</string>
     <string name="compress_incoming_traffic">Сжимать входящий траффик</string>
     <string name="parser_type">Парсер</string>
+    <string name="limit_cache_images">Лимит кэша картинок в памяти</string>
 </resources>

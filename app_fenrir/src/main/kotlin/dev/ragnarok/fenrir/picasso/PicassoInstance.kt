@@ -1,13 +1,16 @@
 package dev.ragnarok.fenrir.picasso
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.ContentUris
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.StatFs
 import android.provider.MediaStore
+import androidx.core.content.ContextCompat
 import com.squareup.picasso3.BitmapSafeResize
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.fenrir.AccountType
@@ -24,7 +27,6 @@ import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import java.io.File
-import java.io.IOException
 
 class PicassoInstance @SuppressLint("CheckResult") private constructor(
     private val app: Context,
@@ -77,12 +79,14 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
                     .addHeader("User-Agent", Constants.USER_AGENT(AccountType.BY_TYPE)).build()
                 chain.proceed(request)
             }).addInterceptor(UncompressDefaultInterceptor)
+        /*
         if (Settings.get().other().isLimit_cache) {
             builder.addNetworkInterceptor(Interceptor { chain: Interceptor.Chain ->
                 chain.proceed(chain.request()).newBuilder()
                     .header("Cache-Control", "max-age=86400").build()
             })
         }
+         */
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
         BitmapSafeResize.setMaxResolution(Settings.get().other().maxBitmapResolution)
         BitmapSafeResize.setHardwareRendering(Settings.get().other().rendering_mode)
@@ -90,11 +94,26 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
         return Picasso.Builder(app)
             .defaultBitmapConfig(Bitmap.Config.ARGB_8888)
             .client(builder.build())
+            .withCacheSize(calculateMemoryCacheSize(app))
             .addRequestHandler(PicassoLocalRequestHandler())
             .addRequestHandler(PicassoMediaMetadataHandler())
             .addRequestHandler(PicassoFileManagerHandler(app))
             .addRequestHandler(PicassoFullLocalRequestHandler(app))
             .build()
+    }
+
+    fun clear_cache() {
+        synchronized(this) {
+            if (singleton != null) {
+                singleton?.shutdown()
+                singleton = null
+                cache_data?.flush()
+            }
+            Logger.d(TAG, "Picasso singleton shutdown")
+            instance?.getCache_data()
+            instance?.cache_data?.delete()
+            instance?.cache_data = null
+        }
     }
 
     companion object {
@@ -156,18 +175,16 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             return instance!!.getSingleton()
         }
 
+        fun clear_cache() {
+            instance?.clear_cache()
+        }
+
         fun getCoversPath(context: Context): File {
             val cache = File(context.cacheDir, "covers-cache")
             if (!cache.exists()) {
                 cache.mkdirs()
             }
             return cache
-        }
-
-        @Throws(IOException::class)
-        fun clear_cache() {
-            instance?.getCache_data()
-            instance?.cache_data?.evictAll()
         }
 
         // from picasso sources
@@ -182,6 +199,24 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             } catch (ignored: IllegalArgumentException) {
             }
             return size.coerceAtMost(52428800L).coerceAtLeast(5242880L)
+        }
+
+        internal fun calculateMemoryCacheSize(context: Context): Int {
+            val limit_cache_images = Settings.get().other().isLimitImage_cache
+
+            val am = ContextCompat.getSystemService(context, ActivityManager::class.java)
+            am ?: return (if (limit_cache_images > 2) limit_cache_images else 256) * 1024 * 1024
+            val largeHeap = context.applicationInfo.flags and ApplicationInfo.FLAG_LARGE_HEAP != 0
+            val memoryClass = if (largeHeap) am.largeMemoryClass else am.memoryClass
+            if (limit_cache_images > 2 && (1024L * 1024L * memoryClass / 7).toInt() > limit_cache_images * 1024 * 1024
+            ) {
+                return limit_cache_images * 1024 * 1024
+            }
+            return (1024L * 1024L * memoryClass / when (limit_cache_images) {
+                0 -> 20
+                1 -> 10
+                else -> 7
+            }).toInt()
         }
     }
 

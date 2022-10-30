@@ -338,6 +338,14 @@ internal class MainSettings(context: Context) : IMainSettings {
         }
     }
 
+    override val isLimitImage_cache: Int
+        get() = try {
+            getPreferences(app).getString("limit_cache_images", "2")!!
+                .trim { it <= ' ' }.toInt()
+        } catch (e: Exception) {
+            2
+        }
+
     override val isOpen_folder_new_window: Boolean
         get() = getPreferences(app).getBoolean("open_folder_new_window", false)
 }

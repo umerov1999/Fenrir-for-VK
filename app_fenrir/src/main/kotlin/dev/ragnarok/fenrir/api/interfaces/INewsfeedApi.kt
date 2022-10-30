@@ -49,6 +49,13 @@ interface INewsfeedApi {
     ): Single<NewsfeedResponse>
 
     @CheckResult
+    fun getTop(
+        filters: String?, returnBanned: Boolean?, startTime: Long?,
+        endTime: Long?, maxPhotoCount: Int?, sourceIds: String?,
+        startFrom: String?, count: Int?, fields: String?
+    ): Single<NewsfeedResponse>
+
+    @CheckResult
     fun getRecommended(
         startTime: Long?, endTime: Long?,
         maxPhotoCount: Int?, startFrom: String?, count: Int?, fields: String?

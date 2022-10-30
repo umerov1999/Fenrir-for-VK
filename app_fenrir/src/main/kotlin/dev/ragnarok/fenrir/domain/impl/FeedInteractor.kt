@@ -73,11 +73,36 @@ class FeedInteractor(
         maxPhotos: Int?,
         sourceIds: String?
     ): Single<Pair<List<News>, String?>> {
-        return if ("likes" == sourceIds) {
-            networker.vkDefault(accountId)
-                .newsfeed()
-                .getFeedLikes(maxPhotos, startFrom, count, Constants.MAIN_OWNER_FIELDS)
-                .flatMap { response ->
+        return when (sourceIds) {
+            "likes", "recommendation", "top" -> {
+                when (sourceIds) {
+                    "likes" -> networker.vkDefault(accountId)
+                        .newsfeed()
+                        .getFeedLikes(maxPhotos, startFrom, count, Constants.MAIN_OWNER_FIELDS)
+                    "recommendation" -> networker.vkDefault(accountId)
+                        .newsfeed()
+                        .getRecommended(
+                            null,
+                            null,
+                            maxPhotos,
+                            startFrom,
+                            count,
+                            Constants.MAIN_OWNER_FIELDS
+                        )
+                    else -> networker.vkDefault(accountId)
+                        .newsfeed()
+                        .getTop(
+                            null,
+                            null,
+                            null,
+                            null,
+                            maxPhotos,
+                            null,
+                            startFrom,
+                            count,
+                            Constants.MAIN_OWNER_FIELDS
+                        )
+                }.flatMap { response ->
                     val nextFrom = response.nextFrom
                     val owners = transformOwners(response.profiles, response.groups)
                     val feed = listEmptyIfNull(response.items)
@@ -114,113 +139,67 @@ class FeedInteractor(
                                 }
                         }
                 }
-        } else if ("recommendation" == sourceIds) {
-            networker.vkDefault(accountId)
-                .newsfeed()
-                .getRecommended(
-                    null,
-                    null,
-                    maxPhotos,
-                    startFrom,
-                    count,
-                    Constants.MAIN_OWNER_FIELDS
-                )
-                .flatMap { response ->
-                    val nextFrom = response.nextFrom
-                    val owners = transformOwners(response.profiles, response.groups)
-                    val feed = listEmptyIfNull(response.items)
-                    val dbos: MutableList<NewsDboEntity> = ArrayList(feed.size)
-                    val ownIds = VKOwnIds()
-                    for (news in feed) {
-                        if (news.source_id == 0) {
-                            continue
+            }
+            else -> {
+                networker.vkDefault(accountId)
+                    .newsfeed()[filters, null, null, null, maxPhotos, if (setOf(
+                        "updates_photos",
+                        "updates_videos",
+                        "updates_full",
+                        "updates_audios"
+                    ).contains(sourceIds)
+                ) null else sourceIds, startFrom, count, Constants.MAIN_OWNER_FIELDS]
+                    .flatMap { response ->
+                        val blockAds = Settings.get().other().isAd_block_story_news
+                        val needStripRepost = Settings.get().other().isStrip_news_repost
+                        val rgx = Settings.get().other().isBlock_news_by_words
+                        val nextFrom = response.nextFrom
+                        val owners = transformOwners(response.profiles, response.groups)
+                        val feed = listEmptyIfNull(response.items)
+                        val dbos: MutableList<NewsDboEntity> = ArrayList(feed.size)
+                        val ownIds = VKOwnIds()
+                        for (dto in feed) {
+                            if (dto.source_id == 0 || blockAds && (dto.type == "ads" || dto.mark_as_ads != 0) || needStripRepost && dto.isOnlyRepost || containInWords(
+                                    rgx,
+                                    dto
+                                )
+                            ) {
+                                continue
+                            }
+                            dbos.add(mapNews(dto))
+                            ownIds.appendNews(dto)
                         }
-                        dbos.add(mapNews(news))
-                        ownIds.appendNews(news)
-                    }
-                    val ownerEntities = mapOwners(response.profiles, response.groups)
-                    stores.feed()
-                        .store(accountId, dbos, ownerEntities, startFrom.isNullOrEmpty())
-                        .flatMap {
-                            otherSettings.storeFeedNextFrom(accountId, nextFrom)
-                            otherSettings.setFeedSourceIds(accountId, sourceIds)
-                            ownersRepository.findBaseOwnersDataAsBundle(
-                                accountId,
-                                ownIds.all,
-                                IOwnersRepository.MODE_ANY,
-                                owners
-                            )
-                                .map {
-                                    val news: MutableList<News> = ArrayList(feed.size)
-                                    for (dto in feed) {
-                                        if (dto.source_id == 0) {
-                                            continue
+                        val ownerEntities = mapOwners(response.profiles, response.groups)
+                        stores.feed()
+                            .store(accountId, dbos, ownerEntities, startFrom.isNullOrEmpty())
+                            .flatMap {
+                                otherSettings.storeFeedNextFrom(accountId, nextFrom)
+                                otherSettings.setFeedSourceIds(accountId, sourceIds)
+                                ownersRepository.findBaseOwnersDataAsBundle(
+                                    accountId,
+                                    ownIds.all,
+                                    IOwnersRepository.MODE_ANY,
+                                    owners
+                                )
+                                    .map {
+                                        val news: MutableList<News> = ArrayList(feed.size)
+                                        for (dto in feed) {
+                                            if (dto.source_id == 0 || blockAds && (dto.type == "ads" || dto.mark_as_ads != 0) || needStripRepost && dto.isOnlyRepost || containInWords(
+                                                    rgx,
+                                                    dto
+                                                )
+                                            ) {
+                                                continue
+                                            } else if (needStripRepost && dto.hasCopyHistory()) {
+                                                dto.stripRepost()
+                                            }
+                                            news.add(buildNews(dto, it))
                                         }
-                                        news.add(buildNews(dto, it))
+                                        create(news, nextFrom)
                                     }
-                                    create(news, nextFrom)
-                                }
-                        }
-                }
-        } else {
-            networker.vkDefault(accountId)
-                .newsfeed()[filters, null, null, null, maxPhotos, if (setOf(
-                    "updates_photos",
-                    "updates_videos",
-                    "updates_full",
-                    "updates_audios"
-                ).contains(sourceIds)
-            ) null else sourceIds, startFrom, count, Constants.MAIN_OWNER_FIELDS]
-                .flatMap { response ->
-                    val blockAds = Settings.get().other().isAd_block_story_news
-                    val needStripRepost = Settings.get().other().isStrip_news_repost
-                    val rgx = Settings.get().other().isBlock_news_by_words
-                    val nextFrom = response.nextFrom
-                    val owners = transformOwners(response.profiles, response.groups)
-                    val feed = listEmptyIfNull(response.items)
-                    val dbos: MutableList<NewsDboEntity> = ArrayList(feed.size)
-                    val ownIds = VKOwnIds()
-                    for (dto in feed) {
-                        if (dto.source_id == 0 || blockAds && (dto.type == "ads" || dto.mark_as_ads != 0) || needStripRepost && dto.isOnlyRepost || containInWords(
-                                rgx,
-                                dto
-                            )
-                        ) {
-                            continue
-                        }
-                        dbos.add(mapNews(dto))
-                        ownIds.appendNews(dto)
+                            }
                     }
-                    val ownerEntities = mapOwners(response.profiles, response.groups)
-                    stores.feed()
-                        .store(accountId, dbos, ownerEntities, startFrom.isNullOrEmpty())
-                        .flatMap {
-                            otherSettings.storeFeedNextFrom(accountId, nextFrom)
-                            otherSettings.setFeedSourceIds(accountId, sourceIds)
-                            ownersRepository.findBaseOwnersDataAsBundle(
-                                accountId,
-                                ownIds.all,
-                                IOwnersRepository.MODE_ANY,
-                                owners
-                            )
-                                .map {
-                                    val news: MutableList<News> = ArrayList(feed.size)
-                                    for (dto in feed) {
-                                        if (dto.source_id == 0 || blockAds && (dto.type == "ads" || dto.mark_as_ads != 0) || needStripRepost && dto.isOnlyRepost || containInWords(
-                                                rgx,
-                                                dto
-                                            )
-                                        ) {
-                                            continue
-                                        } else if (needStripRepost && dto.hasCopyHistory()) {
-                                            dto.stripRepost()
-                                        }
-                                        news.add(buildNews(dto, it))
-                                    }
-                                    create(news, nextFrom)
-                                }
-                        }
-                }
+            }
         }
     }
 

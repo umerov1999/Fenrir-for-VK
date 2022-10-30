@@ -1655,7 +1655,7 @@
     <string name="copy_value">Копировать</string>
     <string name="download_voice_ogg">Скачивать голосовые в ogg</string>
     <string name="error_hiding">Невозможно скрыть!</string>
-    <string name="limit_cache">Уменьшать кэш</string>
+    <string name="limit_cache_images">Лимит кэша картинок в памяти</string>
     <string name="files_count_a">%1$d файл</string>
     <string name="files_count_b">%1$d файла</string>
     <string name="files_count_c">%1$d файлов</string>
@@ -1711,4 +1711,5 @@
     <string name="token_community_required">Требуется войти с токеном сообщества!</string>
     <string name="communities_in_page_search">Поиск сообществ на странице</string>
     <string name="sections">Секции</string>
+    <string name="do_unimportant">Убрать из важных?</string>
 </resources>

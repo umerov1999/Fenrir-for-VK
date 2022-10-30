@@ -88,7 +88,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
         view?.notifyDataChanged()
     }
 
-    private fun safeNotifyItemChanged(index: Int) {
+    fun safeNotifyItemChanged(index: Int) {
         view?.notifyItemChanged(index)
     }
 

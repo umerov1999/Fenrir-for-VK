@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.cardview.widget.CardView
 import androidx.core.graphics.ColorUtils
+import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.settings.CurrentTheme
@@ -114,7 +115,7 @@ class CustomToast private constructor(context: Context) : AbsCustomToast {
             view: View?,
             anchorView: View? = null
         ): AbsCustomToast? {
-            if (view != null && view.isAttachedToWindow) {
+            if (view != null && view.isAttachedToWindow && Snackbar.findSuitableParent(view) != null) {
                 return CustomSnackbars.createCustomSnackbars(view, anchorView)
             }
             if (context is Activity && (context.isFinishing || context.isDestroyed)) {

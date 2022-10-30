@@ -59,6 +59,7 @@ class SettingsBackup {
         var open_folder_new_window: Boolean? = null
         var current_parser: String? = null
         var compress_incoming_traffic: Boolean? = null
+        var limit_cache_images: String? = null
     }
 
     fun doBackup(): JsonObject {

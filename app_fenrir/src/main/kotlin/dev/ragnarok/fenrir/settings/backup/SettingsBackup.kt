@@ -120,7 +120,7 @@ class SettingsBackup {
         var delete_cache_images: Boolean? = null
         var compress_incoming_traffic: Boolean? = null
         var compress_outgoing_traffic: Boolean? = null
-        var limit_cache: Boolean? = null
+        var limit_cache_images: String? = null
         var do_not_clear_back_stack: Boolean? = null
         var mention_fave: Boolean? = null
         var disable_encryption: Boolean? = null

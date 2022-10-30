@@ -30,33 +30,14 @@ class AccountAdapter(
     private val context: Context,
     private val data: List<Account>,
     private val callback: Callback
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<AccountAdapter.AccountHolder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
-    private val showHidden: Boolean = Settings.get().security().IsShow_hidden_accounts()
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        when (viewType) {
-            DATA_TYPE_HIDDEN -> return HiddenViewHolder(
-                LayoutInflater.from(
-                    context
-                ).inflate(R.layout.line_hidden, parent, false)
-            )
-            DATA_TYPE_NORMAL -> return Holder(
-                LayoutInflater.from(
-                    context
-                ).inflate(R.layout.item_account, parent, false)
-            )
-        }
-        throw UnsupportedOperationException()
-    }
-
-    private fun getDataTypeByAdapterPosition(adapterPosition: Int): Int {
-        return if (Utils.isHiddenAccount(getByPosition(adapterPosition).getObjectId()) && !showHidden) {
-            DATA_TYPE_HIDDEN
-        } else DATA_TYPE_NORMAL
-    }
-
-    override fun getItemViewType(adapterPosition: Int): Int {
-        return getDataTypeByAdapterPosition(adapterPosition)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountHolder {
+        return AccountHolder(
+            LayoutInflater.from(
+                context
+            ).inflate(R.layout.item_account, parent, false)
+        )
     }
 
     fun getByPosition(position: Int): Account {
@@ -68,11 +49,7 @@ class AccountAdapter(
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(dualHolder: RecyclerView.ViewHolder, position: Int) {
-        if (getDataTypeByAdapterPosition(position) == DATA_TYPE_HIDDEN) {
-            return
-        }
-        val holder = dualHolder as Holder
+    override fun onBindViewHolder(holder: AccountHolder, position: Int) {
         val account = getByPosition(position)
         val owner = account.owner
         if (owner == null) {
@@ -146,11 +123,7 @@ class AccountAdapter(
         fun onClick(account: Account)
     }
 
-    private class HiddenViewHolder(view: View) : RecyclerView.ViewHolder(
-        view
-    )
-
-    class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class AccountHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val firstName: TextView = itemView.findViewById(R.id.first_name)
         val domain: TextView = itemView.findViewById(R.id.domain)
         val vOnline: OnlineView = itemView.findViewById(R.id.item_user_online)
@@ -161,9 +134,6 @@ class AccountAdapter(
     }
 
     companion object {
-        private const val DATA_TYPE_NORMAL = 0
-        private const val DATA_TYPE_HIDDEN = 1
         private val STATUS_COLOR_OFFLINE = Color.parseColor("#999999")
     }
-
 }

@@ -210,6 +210,15 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         } catch (e: Exception) {
             1
         }
+
+    override val isLimitImage_cache: Int
+        get() = try {
+            getPreferences(app).getString("limit_cache_images", "2")!!
+                .trim { it <= ' ' }.toInt()
+        } catch (e: Exception) {
+            2
+        }
+
     override val musicLifecycle: Int
         get() = try {
             var v = getPreferences(app).getString(
@@ -435,8 +444,6 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("compress_incoming_traffic", true)
     override val isCompress_outgoing_traffic: Boolean
         get() = getPreferences(app).getBoolean("compress_outgoing_traffic", false)
-    override val isLimit_cache: Boolean
-        get() = getPreferences(app).getBoolean("limit_cache", false)
     override val isDo_not_clear_back_stack: Boolean
         get() = getPreferences(app).getBoolean("do_not_clear_back_stack", false)
     override val isMention_fave: Boolean

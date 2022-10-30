@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import io.reactivex.rxjava3.core.Completable
@@ -118,7 +119,18 @@ class AccountsInteractor(
 
     override fun getAll(refresh: Boolean): Single<List<Account>> {
         return Single.create { emitter: SingleEmitter<List<Account>> ->
-            val ids: Collection<Int> = settings.registered
+            val tmpIds: Collection<Int> = settings.registered
+            val ids: Collection<Int> = if (!Settings.get().security().IsShow_hidden_accounts()) {
+                val lst = ArrayList<Int>()
+                for (i in tmpIds) {
+                    if (!Utils.isHiddenAccount(i)) {
+                        lst.add(i)
+                    }
+                }
+                lst
+            } else {
+                tmpIds
+            }
             val accounts: MutableList<Account> = ArrayList(ids.size)
             for (id in ids) {
                 if (emitter.isDisposed) {

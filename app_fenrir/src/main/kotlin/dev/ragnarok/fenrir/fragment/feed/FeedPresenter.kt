@@ -15,6 +15,7 @@ import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DisposableHolder
 import dev.ragnarok.fenrir.util.InputTextDialog
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.needReloadNews
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
@@ -484,6 +485,9 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
             data.add(FeedSource("likes", R.string.likes_posts, false))
             data.add(FeedSource("updates_full", R.string.updates, false))
             data.add(FeedSource("friends", R.string.friends, false))
+            if (!Utils.isKateCurrent) {
+                data.add(FeedSource("top", R.string.top, false))
+            }
             data.add(FeedSource("groups", R.string.groups, false))
             data.add(FeedSource("pages", R.string.pages, false))
             data.add(FeedSource("following", R.string.subscriptions, false))

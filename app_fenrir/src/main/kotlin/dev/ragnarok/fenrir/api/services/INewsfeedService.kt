@@ -171,6 +171,21 @@ interface INewsfeedService {
     ): Single<BaseResponse<NewsfeedResponse>>
 
     @FormUrlEncoded
+    @POST("newsfeed.getByType")
+    fun getByType(
+        @Field("feed_type") feed_type: String,
+        @Field("filters") filters: String?,
+        @Field("return_banned") returnBanned: Int?,
+        @Field("start_time") startTime: Long?,
+        @Field("end_time") endTime: Long?,
+        @Field("max_photos") maxPhotoCount: Int?,
+        @Field("source_ids") sourceIds: String?,
+        @Field("start_from") startFrom: String?,
+        @Field("count") count: Int?,
+        @Field("fields") fields: String?
+    ): Single<BaseResponse<NewsfeedResponse>>
+
+    @FormUrlEncoded
     @POST("newsfeed.getRecommended")
     fun getRecommended(
         @Field("start_time") startTime: Long?,
