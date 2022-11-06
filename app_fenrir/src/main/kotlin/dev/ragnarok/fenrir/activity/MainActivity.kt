@@ -38,8 +38,10 @@ import dev.ragnarok.fenrir.Includes.pushRegistrationResolver
 import dev.ragnarok.fenrir.activity.ActivityUtils.checkInputExist
 import dev.ragnarok.fenrir.activity.ActivityUtils.isMimeAudio
 import dev.ragnarok.fenrir.activity.EnterPinActivity.Companion.getClass
+import dev.ragnarok.fenrir.activity.gifpager.GifPagerActivity
 import dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity.Companion.newInstance
 import dev.ragnarok.fenrir.activity.qr.CameraScanActivity
+import dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.dialog.ResolveDomainDialog
 import dev.ragnarok.fenrir.domain.InteractorFactory
@@ -58,6 +60,7 @@ import dev.ragnarok.fenrir.fragment.audio.AudiosTabsFragment
 import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
 import dev.ragnarok.fenrir.fragment.audio.audiosbyartist.AudiosByArtistFragment
 import dev.ragnarok.fenrir.fragment.audio.audiosrecommendation.AudiosRecommendationFragment
+import dev.ragnarok.fenrir.fragment.audio.catalog_v2.listedit.CatalogV2ListEditFragment
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.lists.CatalogV2ListFragment
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.CatalogV2SectionFragment
 import dev.ragnarok.fenrir.fragment.comments.CommentsFragment
@@ -81,7 +84,6 @@ import dev.ragnarok.fenrir.fragment.feedbanned.FeedBannedFragment
 import dev.ragnarok.fenrir.fragment.friends.birthday.BirthDayFragment
 import dev.ragnarok.fenrir.fragment.friends.friendsbyphones.FriendsByPhonesFragment
 import dev.ragnarok.fenrir.fragment.friends.friendstabs.FriendsTabsFragment
-import dev.ragnarok.fenrir.fragment.gifpager.GifPagerFragment
 import dev.ragnarok.fenrir.fragment.gifts.GiftsFragment
 import dev.ragnarok.fenrir.fragment.groupchats.GroupChatsFragment
 import dev.ragnarok.fenrir.fragment.likes.LikesFragment
@@ -115,7 +117,6 @@ import dev.ragnarok.fenrir.fragment.search.SearchTabsFragment
 import dev.ragnarok.fenrir.fragment.search.SingleTabSearchFragment
 import dev.ragnarok.fenrir.fragment.shortcutsview.ShortcutsViewFragment
 import dev.ragnarok.fenrir.fragment.shortedlinks.ShortedLinksFragment
-import dev.ragnarok.fenrir.fragment.storypager.StoryPagerFragment
 import dev.ragnarok.fenrir.fragment.theme.ThemeFragment
 import dev.ragnarok.fenrir.fragment.topics.TopicsFragment
 import dev.ragnarok.fenrir.fragment.userbanned.UserBannedFragment
@@ -1071,8 +1072,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         get() = frontFragment is ChatFragment
     private val isFragmentWithoutNavigation: Boolean
         get() = frontFragment is CommentsFragment ||
-                frontFragment is PostCreateFragment ||
-                frontFragment is GifPagerFragment
+                frontFragment is PostCreateFragment
 
     override fun onNavigateUp(): Boolean {
         supportFragmentManager.popBackStack()
@@ -1208,11 +1208,10 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         val args = place.safeArguments()
         when (place.type) {
             Place.VIDEO_PREVIEW -> attachToFront(VideoPreviewFragment.newInstance(args))
-            Place.STORY_PLAYER -> if (getMainActivityTransform() == MainActivityTransforms.SWIPEBLE) {
-                attachToFront(StoryPagerFragment.newInstance(args))
-            } else {
-                Utils.openPlaceWithSwipebleActivity(this, place)
-            }
+            Place.STORY_PLAYER -> place.launchActivityForResult(
+                this,
+                StoryPagerActivity.newInstance(this, args)
+            )
             Place.FRIENDS_AND_FOLLOWERS -> attachToFront(FriendsTabsFragment.newInstance(args))
             Place.EXTERNAL_LINK -> attachToFront(BrowserFragment.newInstance(args))
             Place.DOC_PREVIEW -> {
@@ -1220,10 +1219,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 if (document != null && document.hasValidGifVideoLink()) {
                     val aid = args.getInt(Extra.ACCOUNT_ID)
                     val documents = ArrayList(listOf(document))
-                    val ph = Intent(this, PhotoFullScreenActivity::class.java)
-                    ph.action = PhotoFullScreenActivity.ACTION_OPEN_PLACE
-                    ph.putExtra(Extra.PLACE, PlaceFactory.getGifPagerPlace(aid, documents, 0))
-                    place.launchActivityForResult(this, ph)
+                    val extra = GifPagerActivity.buildArgs(aid, documents, 0)
+                    place.launchActivityForResult(this, GifPagerActivity.newInstance(this, extra))
                 } else {
                     attachToFront(DocPreviewFragment.newInstance(args))
                 }
@@ -1351,12 +1348,14 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     it
                 )
             }
-            Place.SINGLE_PHOTO, Place.GIF_PAGER -> {
-                val ph = Intent(this, PhotoFullScreenActivity::class.java)
-                ph.action = PhotoFullScreenActivity.ACTION_OPEN_PLACE
-                ph.putExtra(Extra.PLACE, place)
-                place.launchActivityForResult(this, ph)
-            }
+            Place.SINGLE_PHOTO -> place.launchActivityForResult(
+                this,
+                SinglePhotoActivity.newInstance(this, args)
+            )
+            Place.GIF_PAGER -> place.launchActivityForResult(
+                this,
+                GifPagerActivity.newInstance(this, args)
+            )
             Place.POLL -> attachToFront(PollFragment.newInstance(args))
             Place.BOOKMARKS -> attachToFront(FaveTabsFragment.newInstance(args))
             Place.DOCS -> attachToFront(DocsFragment.newInstance(args))
@@ -1491,6 +1490,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.FRIENDS_BIRTHDAYS -> attachToFront(BirthDayFragment.newInstance(args))
             Place.DRAWER_EDIT -> attachToFront(DrawerEditFragment.newInstance())
             Place.SIDE_DRAWER_EDIT -> attachToFront(SideDrawerEditFragment.newInstance())
+            Place.CATALOG_V2_LIST_EDIT -> attachToFront(CatalogV2ListEditFragment.newInstance())
             Place.ARTIST -> {
                 attachToFront(AudiosByArtistFragment.newInstance(args))
             }

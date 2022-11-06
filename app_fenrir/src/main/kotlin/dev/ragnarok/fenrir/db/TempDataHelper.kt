@@ -7,15 +7,48 @@ import android.provider.BaseColumns
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.db.column.*
+import dev.ragnarok.fenrir.module.FenrirNative
 
 class TempDataHelper(context: Context) :
-    SQLiteOpenHelper(context, "temp_app_data.sqlite", null, Constants.DATABASE_TEMPORARY_VERSION) {
+    SQLiteOpenHelper(
+        context,
+        if (!FenrirNative.isNativeLoaded) "temp_app_data_uncompressed.sqlite" else "temp_app_data.sqlite",
+        null,
+        Constants.DATABASE_TEMPORARY_VERSION
+    ) {
     override fun onCreate(db: SQLiteDatabase) {
         createTmpDataTable(db)
         createSearchRequestTable(db)
         createLogsTable(db)
         createShortcutsColumn(db)
         createAudiosTable(db)
+        createStickerSetTable(db)
+        createStickersKeywordsTable(db)
+    }
+
+    private fun createStickerSetTable(db: SQLiteDatabase) {
+        val sql = "CREATE TABLE [" + StikerSetColumns.TABLENAME + "] (\n" +
+                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
+                " [" + StikerSetColumns.ACCOUNT_ID + "] INTEGER, " +
+                " [" + StikerSetColumns.POSITION + "] INTEGER, " +
+                " [" + StikerSetColumns.TITLE + "] TEXT, " +
+                " [" + StikerSetColumns.ICON + "] BLOB, " +
+                " [" + StikerSetColumns.PURCHASED + "] BOOLEAN, " +
+                " [" + StikerSetColumns.PROMOTED + "] BOOLEAN, " +
+                " [" + StikerSetColumns.ACTIVE + "] BOOLEAN, " +
+                " [" + StikerSetColumns.STICKERS + "] BLOB, " +
+                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+        db.execSQL(sql)
+    }
+
+    private fun createStickersKeywordsTable(db: SQLiteDatabase) {
+        val sql = "CREATE TABLE [" + StickersKeywordsColumns.TABLENAME + "] (\n" +
+                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
+                " [" + StickersKeywordsColumns.ACCOUNT_ID + "] INTEGER, " +
+                " [" + StickersKeywordsColumns.KEYWORDS + "] BLOB, " +
+                " [" + StickersKeywordsColumns.STICKERS + "] BLOB, " +
+                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+        db.execSQL(sql)
     }
 
     private fun createTmpDataTable(db: SQLiteDatabase) {
@@ -106,6 +139,8 @@ class TempDataHelper(context: Context) :
         db.execSQL("DROP TABLE IF EXISTS " + LogColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + ShortcutColumns.TABLENAME)
         db.execSQL("DROP TABLE IF EXISTS " + AudioColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + StikerSetColumns.TABLENAME)
+        db.execSQL("DROP TABLE IF EXISTS " + StickersKeywordsColumns.TABLENAME)
         onCreate(db)
     }
 

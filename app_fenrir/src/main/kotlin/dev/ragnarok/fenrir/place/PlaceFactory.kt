@@ -2,15 +2,17 @@ package dev.ragnarok.fenrir.place
 
 import android.net.Uri
 import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.activity.SinglePhotoActivity
 import dev.ragnarok.fenrir.activity.VideoPlayerActivity
+import dev.ragnarok.fenrir.activity.gifpager.GifPagerActivity
 import dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity.Companion.buildArgsForAlbum
 import dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity.Companion.buildArgsForFave
 import dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity.Companion.buildArgsForSimpleGallery
+import dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity
 import dev.ragnarok.fenrir.dialog.ResolveDomainDialog
 import dev.ragnarok.fenrir.fragment.BrowserFragment
 import dev.ragnarok.fenrir.fragment.DocPreviewFragment
 import dev.ragnarok.fenrir.fragment.PreferencesFragment
-import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.buildArgs
 import dev.ragnarok.fenrir.fragment.abswall.AbsWallFragment
 import dev.ragnarok.fenrir.fragment.attachments.postcreate.PostCreateFragment
 import dev.ragnarok.fenrir.fragment.attachments.repost.RepostFragment
@@ -32,7 +34,6 @@ import dev.ragnarok.fenrir.fragment.feedbanned.FeedBannedFragment
 import dev.ragnarok.fenrir.fragment.friends.birthday.BirthDayFragment
 import dev.ragnarok.fenrir.fragment.friends.friendsbyphones.FriendsByPhonesFragment
 import dev.ragnarok.fenrir.fragment.friends.friendstabs.FriendsTabsFragment
-import dev.ragnarok.fenrir.fragment.gifpager.GifPagerFragment
 import dev.ragnarok.fenrir.fragment.groupchats.GroupChatsFragment
 import dev.ragnarok.fenrir.fragment.likes.LikesFragment
 import dev.ragnarok.fenrir.fragment.marketview.MarketViewFragment
@@ -46,7 +47,6 @@ import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.SearchTabsFragment
 import dev.ragnarok.fenrir.fragment.search.SingleTabSearchFragment
 import dev.ragnarok.fenrir.fragment.search.criteria.BaseSearchCriteria
-import dev.ragnarok.fenrir.fragment.storypager.StoryPagerFragment.Companion.buildArgs
 import dev.ragnarok.fenrir.fragment.topics.TopicsFragment
 import dev.ragnarok.fenrir.fragment.videoalbumsbyvideo.VideoAlbumsByVideoFragment
 import dev.ragnarok.fenrir.fragment.videopreview.VideoPreviewFragment
@@ -74,6 +74,8 @@ object PlaceFactory {
     val sideDrawerEditPlace: Place
         get() = Place(Place.SIDE_DRAWER_EDIT)
 
+    val catalogV2ListEditPlace: Place
+        get() = Place(Place.CATALOG_V2_LIST_EDIT)
 
     val proxyAddPlace: Place
         get() = Place(Place.PROXY_ADD)
@@ -314,7 +316,7 @@ object PlaceFactory {
 
     fun getGifPagerPlace(accountId: Int, documents: ArrayList<Document>, index: Int): Place {
         val place = Place(Place.GIF_PAGER)
-        place.setArguments(GifPagerFragment.buildArgs(accountId, documents, index))
+        place.setArguments(GifPagerActivity.buildArgs(accountId, documents, index))
         return place
     }
 
@@ -653,7 +655,7 @@ object PlaceFactory {
 
     fun getHistoryVideoPreviewPlace(accountId: Int, stories: ArrayList<Story>, index: Int): Place {
         return Place(Place.STORY_PLAYER)
-            .setArguments(buildArgs(accountId, stories, index))
+            .setArguments(StoryPagerActivity.buildArgs(accountId, stories, index))
     }
 
     fun getVideoPreviewPlace(
@@ -675,12 +677,10 @@ object PlaceFactory {
             )
     }
 
-
     fun getSingleURLPhotoPlace(url: String?, prefix: String?, photo_prefix: String?): Place {
         return Place(Place.SINGLE_PHOTO)
-            .setArguments(buildArgs(url, prefix, photo_prefix))
+            .setArguments(SinglePhotoActivity.buildArgs(url, prefix, photo_prefix))
     }
-
 
     fun getLikesCopiesPlace(
         accountId: Int,

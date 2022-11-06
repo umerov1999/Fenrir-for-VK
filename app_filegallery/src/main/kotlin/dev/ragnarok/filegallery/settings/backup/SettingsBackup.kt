@@ -21,6 +21,7 @@ class SettingsBackup {
         var app_theme: String? = null
         var night_switch: String? = null
         var theme_overlay: String? = null
+        var language_ui: String? = null
         var delete_disabled: Boolean? = null
         var font_size: String? = null
         var local_media_server: String? = null

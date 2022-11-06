@@ -97,7 +97,7 @@ internal class VideoStorage(base: AppStorages) : AbsStorage(base), IVideoStorage
             cursor.getBlob(VideoColumns.PRIVACY_VIEW)
         if (privacyViewText.nonNullNoEmpty()) {
             video.setPrivacyView(
-                MsgPack.decodeFromByteArray(
+                MsgPack.decodeFromByteArrayEx(
                     PrivacyEntity.serializer(),
                     privacyViewText
                 )
@@ -107,7 +107,7 @@ internal class VideoStorage(base: AppStorages) : AbsStorage(base), IVideoStorage
             cursor.getBlob(VideoColumns.PRIVACY_COMMENT)
         if (privacyCommentText.nonNullNoEmpty()) {
             video.setPrivacyComment(
-                MsgPack.decodeFromByteArray(
+                MsgPack.decodeFromByteArrayEx(
                     PrivacyEntity.serializer(),
                     privacyCommentText
                 )
@@ -195,7 +195,7 @@ internal class VideoStorage(base: AppStorages) : AbsStorage(base), IVideoStorage
             dbo.privacyView.ifNonNull({
                 cv.put(
                     VideoColumns.PRIVACY_VIEW,
-                    MsgPack.encodeToByteArray(PrivacyEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PrivacyEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(
@@ -206,7 +206,7 @@ internal class VideoStorage(base: AppStorages) : AbsStorage(base), IVideoStorage
             dbo.privacyComment.ifNonNull({
                 cv.put(
                     VideoColumns.PRIVACY_VIEW,
-                    MsgPack.encodeToByteArray(PrivacyEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PrivacyEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(

@@ -28,6 +28,7 @@ import dev.ragnarok.fenrir.fragment.comments.ICommentsView.ICommentContextView
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DisposableHolder
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
@@ -853,6 +854,12 @@ class CommentsPresenter(
     }
 
     private fun likeInternal(add: Boolean, comment: Comment) {
+        if (Settings.get().other().isDisable_likes || Utils.isHiddenAccount(
+                accountId
+            )
+        ) {
+            return
+        }
         val accountId = authorId
         appendDisposable(interactor.like(accountId, comment.commented, comment.getObjectId(), add)
             .fromIOToMain()

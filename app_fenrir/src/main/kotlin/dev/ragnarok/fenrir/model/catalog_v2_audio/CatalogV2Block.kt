@@ -12,7 +12,9 @@ import dev.ragnarok.fenrir.model.AbsModelType
 import dev.ragnarok.fenrir.model.ParcelableModelWrapper
 import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.writeTypedObjectCompat
+import kotlin.math.abs
 
 class CatalogV2Block : AbsModel {
     var id: String? = null
@@ -85,6 +87,31 @@ class CatalogV2Block : AbsModel {
         badge = object_v.badge?.let { CatalogV2Badge(it) }
     }
 
+    private fun parsePlaylistCover(object_v: VKApiCatalogV2BlockResponse) {
+        for (m in object_v.playlists.orEmpty()) {
+            if (m.thumb_image.isNullOrEmpty()) {
+                var fuser = false
+                for (d in object_v.profiles.orEmpty()) {
+                    if (d.id == m.owner_id) {
+                        m.thumb_image =
+                            Utils.firstNonEmptyString(d.photo_200, d.photo_100, d.photo_50)
+                        fuser = true
+                        break
+                    }
+                }
+                if (!fuser) {
+                    for (d in object_v.groups.orEmpty()) {
+                        if (d.id == abs(m.owner_id)) {
+                            m.thumb_image =
+                                Utils.firstNonEmptyString(d.photo_200, d.photo_100, d.photo_50)
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     constructor(object_v: VKApiCatalogV2BlockResponse) {
         val pobj = object_v.block ?: run {
             this@CatalogV2Block.layout = CatalogV2Layout()
@@ -104,6 +131,7 @@ class CatalogV2Block : AbsModel {
         badge = pobj.badge?.let { CatalogV2Badge(it) }
 
         if (data_type == "music_recommended_playlists") {
+            parsePlaylistCover(object_v)
             parseAllItemsByIds(object_v.playlists, pobj.playlists_ids) {
                 Dto2Model.transform(it)
             }
@@ -116,6 +144,7 @@ class CatalogV2Block : AbsModel {
             parseAllItemsByIds(object_v.audios, pobj.audios_ids) {
                 Dto2Model.transform(it)
             }
+            parsePlaylistCover(object_v)
             parseAllItemsByIds(object_v.playlists, pobj.playlists_ids) {
                 Dto2Model.transform(it)
             }

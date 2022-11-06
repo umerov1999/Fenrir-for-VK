@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.activity
 import android.os.Bundle
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.localimagealbums.LocalImageAlbumsFragment
 import dev.ragnarok.fenrir.fragment.localphotos.LocalPhotosFragment
 import dev.ragnarok.fenrir.getParcelableCompat
@@ -43,13 +42,10 @@ class PhotosActivity : NoMainActivity(), PlaceProvider {
                 .addToBackStack("photos")
                 .commit()
         } else if (place.type == Place.SINGLE_PHOTO) {
-            val localPhotosFragment = newInstance(place.safeArguments())
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(R.anim.fragment_enter_pop, R.anim.fragment_exit_pop)
-                .replace(R.id.fragment, localPhotosFragment)
-                .addToBackStack("preview")
-                .commit()
+            place.launchActivityForResult(
+                this,
+                SinglePhotoActivity.newInstance(this, place.safeArguments())
+            )
         }
     }
 

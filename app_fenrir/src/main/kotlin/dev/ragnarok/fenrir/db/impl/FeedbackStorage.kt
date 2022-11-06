@@ -42,7 +42,7 @@ internal class FeedbackStorage(context: AppStorages) : AbsStorage(context), IFee
                 cv.put(NotificationColumns.DATE, dbo.date)
                 cv.put(
                     NotificationColumns.CONTENT_PACK,
-                    MsgPack.encodeToByteArray(FeedbackEntity.serializer(), dbo)
+                    MsgPack.encodeToByteArrayEx(FeedbackEntity.serializer(), dbo)
                 )
                 val index = addToListAndReturnIndex(
                     operations, ContentProviderOperation
@@ -104,7 +104,7 @@ internal class FeedbackStorage(context: AppStorages) : AbsStorage(context), IFee
 
     private fun mapDto(cursor: Cursor): FeedbackEntity {
         val data = cursor.getBlob(NotificationColumns.CONTENT_PACK)!!
-        return MsgPack.decodeFromByteArray(FeedbackEntity.serializer(), data)
+        return MsgPack.decodeFromByteArrayEx(FeedbackEntity.serializer(), data)
     }
 
 
@@ -130,7 +130,7 @@ internal class FeedbackStorage(context: AppStorages) : AbsStorage(context), IFee
                 cv.put(NotificationColumns.DATE, dbo.time)
                 cv.put(
                     NotificationColumns.CONTENT_PACK,
-                    MsgPack.encodeToByteArray(FeedbackVKOfficial.serializer(), dbo)
+                    MsgPack.encodeToByteArrayEx(FeedbackVKOfficial.serializer(), dbo)
                 )
                 val index = addToListAndReturnIndex(
                     operations, ContentProviderOperation
@@ -191,6 +191,6 @@ internal class FeedbackStorage(context: AppStorages) : AbsStorage(context), IFee
 
     private fun mapDtoOfficial(cursor: Cursor): FeedbackVKOfficial {
         val data = cursor.getBlob(NotificationColumns.CONTENT_PACK)!!
-        return MsgPack.decodeFromByteArray(FeedbackVKOfficial.serializer(), data)
+        return MsgPack.decodeFromByteArrayEx(FeedbackVKOfficial.serializer(), data)
     }
 }

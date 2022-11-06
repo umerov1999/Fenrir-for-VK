@@ -315,6 +315,18 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         subScreen("general_preferences") {
             titleRes = R.string.general_settings
             iconRes = R.drawable.preferences_settings
+            singleChoice(
+                "language_ui",
+                selItems(R.array.array_language_names, R.array.array_language_items),
+                parentFragmentManager
+            ) {
+                iconRes = R.drawable.lang_settings
+                initialSelection = "0"
+                titleRes = R.string.language_ui
+                onSelectionChange {
+                    requireActivity().recreate()
+                }
+            }
             pref(KEY_APP_THEME) {
                 iconRes = R.drawable.select_colored
                 titleRes = R.string.choose_theme_title

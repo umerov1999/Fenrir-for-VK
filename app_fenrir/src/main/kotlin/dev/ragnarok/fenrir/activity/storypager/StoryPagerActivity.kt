@@ -1,17 +1,22 @@
-package dev.ragnarok.fenrir.fragment.storypager
+package dev.ragnarok.fenrir.activity.storypager
 
 import android.Manifest
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.SparseArray
 import android.view.*
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -20,11 +25,16 @@ import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Transformation
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
-import dev.ragnarok.fenrir.activity.ActivityUtils
+import dev.ragnarok.fenrir.activity.BaseMvpActivity
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
-import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
+import dev.ragnarok.fenrir.activity.slidr.Slidr
+import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
+import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
+import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
+import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.link.LinkHelper
+import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.media.story.IStoryPlayer
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.Story
@@ -32,7 +42,9 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.picasso.PicassoInstance
+import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
+import dev.ragnarok.fenrir.place.PlaceProvider
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
@@ -52,8 +64,8 @@ import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>(),
-    IStoryPagerView {
+class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>(),
+    IStoryPagerView, PlaceProvider, AppStyleable {
     private val mHolderSparseArray = SparseArray<WeakReference<MultiHolder>>()
     private var mViewPager: ViewPager2? = null
     private var mToolbar: Toolbar? = null
@@ -66,51 +78,36 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
     private var mFullscreen = false
     private var hasExternalUrl = false
     private var helpDisposable = Disposable.disposed()
+
+    @LayoutRes
+    override fun getNoMainContentView(): Int {
+        return R.layout.fragment_story_pager
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mFullscreen = savedInstanceState?.getBoolean("mFullscreen") ?: false
         transformation = CurrentTheme.createTransformationForAvatar()
-    }
-
-    private val requestWritePermission = requestPermissionsAbs(
-        arrayOf(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-    ) {
-        lazyPresenter { fireWritePermissionResolved() }
-    }
-
-    override fun requestWriteExternalStoragePermission() {
-        requestWritePermission.launch()
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_story_pager, container, false)
-        mToolbar = root.findViewById(R.id.toolbar)
-        (requireActivity() as AppCompatActivity).setSupportActionBar(mToolbar)
-        mAvatar = root.findViewById(R.id.toolbar_avatar)
-        mViewPager = root.findViewById(R.id.view_pager)
+        val mContentRoot = findViewById<RelativeLayout>(R.id.story_pager_root)
+        mToolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(mToolbar)
+        mAvatar = findViewById(R.id.toolbar_avatar)
+        mViewPager = findViewById(R.id.view_pager)
         mViewPager?.offscreenPageLimit = 1
         mViewPager?.setPageTransformer(
             Utils.createPageTransform(
                 Settings.get().main().viewpager_page_transform
             )
         )
-        mExp = root.findViewById(R.id.item_story_expires)
-        val mHelper = root.findViewById<RLottieImageView?>(R.id.swipe_helper)
+        mExp = findViewById(R.id.item_story_expires)
+        val mHelper = findViewById<RLottieImageView?>(R.id.swipe_helper)
         if (HelperSimple.needHelp(HelperSimple.STORY_HELPER, 2)) {
             mHelper?.visibility = View.VISIBLE
             mHelper?.fromRes(
                 dev.ragnarok.fenrir_common.R.raw.story_guide_hand_swipe,
                 Utils.dp(500F),
                 Utils.dp(500F),
-                intArrayOf(0x333333, CurrentTheme.getColorSecondary(requireActivity()))
+                intArrayOf(0x333333, CurrentTheme.getColorSecondary(this))
             )
             mHelper?.playAnimation()
             helpDisposable = Completable.create {
@@ -128,13 +125,118 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                 presenter?.firePageSelected(position)
             }
         })
-        mDownload = root.findViewById(R.id.button_download)
-        mShare = root.findViewById(R.id.button_share)
+        mDownload = findViewById(R.id.button_download)
+        mShare = findViewById(R.id.button_share)
         mShare?.setOnClickListener { presenter?.fireShareButtonClick() }
         mDownload?.setOnClickListener { presenter?.fireDownloadButtonClick() }
-        mLink = root.findViewById(R.id.button_link)
+        mLink = findViewById(R.id.button_link)
         resolveFullscreenViews()
-        return root
+        val mButtonsRoot: View = findViewById(R.id.buttons)
+
+        Slidr.attach(
+            this,
+            SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+                .position(SlidrPosition.LEFT)
+                .listener(object : SlidrListener {
+                    override fun onSlideStateChanged(state: Int) {
+
+                    }
+
+                    @SuppressLint("Range")
+                    override fun onSlideChange(percent: Float) {
+                        var tmp = 1f - percent
+                        tmp *= 4
+                        tmp = Utils.clamp(1f - tmp, 0f, 1f)
+                        if (Utils.hasOreo()) {
+                            mContentRoot?.setBackgroundColor(Color.argb(tmp, 0f, 0f, 0f))
+                        } else {
+                            mContentRoot?.setBackgroundColor(
+                                Color.argb(
+                                    (tmp * 255).toInt(),
+                                    0,
+                                    0,
+                                    0
+                                )
+                            )
+                        }
+                        mButtonsRoot.alpha = tmp
+                        mToolbar?.alpha = tmp
+                        mViewPager?.alpha = Utils.clamp(percent, 0f, 1f)
+                    }
+
+                    override fun onSlideOpened() {
+
+                    }
+
+                    override fun onSlideClosed(): Boolean {
+                        finish()
+                        overridePendingTransition(0, 0)
+                        return true
+                    }
+
+                }).build()
+        )
+    }
+
+    override fun openPlace(place: Place) {
+        val args = place.safeArguments()
+        when (place.type) {
+            Place.PLAYER -> {
+                val player = supportFragmentManager.findFragmentByTag("audio_player")
+                if (player is AudioPlayerFragment) player.dismiss()
+                AudioPlayerFragment.newInstance(args).show(supportFragmentManager, "audio_player")
+            }
+            else -> Utils.openPlaceWithSwipebleActivity(this, place)
+        }
+    }
+
+    override fun hideMenu(hide: Boolean) {}
+    override fun openMenu(open: Boolean) {}
+
+    @Suppress("DEPRECATION")
+    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
+        val statusbarNonColored = CurrentTheme.getStatusBarNonColored(this)
+        val statusbarColored = CurrentTheme.getStatusBarColor(this)
+        val w = window
+        w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        w.statusBarColor = if (colored) statusbarColored else statusbarNonColored
+        @ColorInt val navigationColor =
+            if (colored) CurrentTheme.getNavigationBarColor(this) else Color.BLACK
+        w.navigationBarColor = navigationColor
+        if (Utils.hasMarshmallow()) {
+            var flags = window.decorView.systemUiVisibility
+            flags = if (invertIcons) {
+                flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            } else {
+                flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+            }
+            window.decorView.systemUiVisibility = flags
+        }
+        if (Utils.hasOreo()) {
+            var flags = window.decorView.systemUiVisibility
+            if (invertIcons) {
+                flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                w.decorView.systemUiVisibility = flags
+                w.navigationBarColor = Color.WHITE
+            } else {
+                flags = flags and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+                w.decorView.systemUiVisibility = flags
+            }
+        }
+    }
+
+    private val requestWritePermission = requestPermissionsAbs(
+        arrayOf(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+    ) {
+        lazyPresenter { fireWritePermissionResolved() }
+    }
+
+    override fun requestWriteExternalStoragePermission() {
+        requestWritePermission.launch()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -149,7 +251,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             .setHideNavigationMenu(true)
             .setBarsColored(colored = false, invertIcons = false)
             .build()
-            .apply(requireActivity())
+            .apply(this)
     }
 
     internal fun toggleFullscreen() {
@@ -186,7 +288,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                     aid,
                     stories,
                     index,
-                    requireActivity(),
+                    this@StoryPagerActivity,
                     saveInstanceState
                 )
             }
@@ -221,15 +323,15 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
     }
 
     override fun setToolbarTitle(@StringRes titleRes: Int, vararg params: Any?) {
-        ActivityUtils.supportToolbarFor(this)?.title = getString(titleRes, *params)
+        supportActionBar?.title = getString(titleRes, *params)
     }
 
     override fun setToolbarSubtitle(story: Story, account_id: Int) {
-        ActivityUtils.supportToolbarFor(this)?.subtitle = story.owner?.fullName
+        supportActionBar?.subtitle = story.owner?.fullName
         mAvatar?.setOnClickListener {
             story.owner?.let { it1 ->
                 PlaceFactory.getOwnerWallPlace(account_id, it1)
-                    .tryOpenWith(requireActivity())
+                    .tryOpenWith(this)
             }
         }
         mAvatar?.let {
@@ -262,7 +364,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
             mLink?.visibility = View.VISIBLE
             mLink?.setOnClickListener {
                 LinkHelper.openUrl(
-                    requireActivity(),
+                    this,
                     account_id,
                     story.target_url, false
                 )
@@ -271,7 +373,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
     }
 
     override fun onShare(story: Story, account_id: Int) {
-        SendAttachmentsActivity.startForSendAttachments(requireActivity(), account_id, story)
+        SendAttachmentsActivity.startForSendAttachments(this, account_id, story)
     }
 
     override fun configHolder(
@@ -345,9 +447,9 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                     Utils.dp(100F),
                     intArrayOf(
                         0x000000,
-                        CurrentTheme.getColorPrimary(requireActivity()),
+                        CurrentTheme.getColorPrimary(this@StoryPagerActivity),
                         0x777777,
-                        CurrentTheme.getColorSecondary(requireActivity())
+                        CurrentTheme.getColorSecondary(this@StoryPagerActivity)
                     )
                 )
                 mProgressBar.playAnimation()
@@ -383,7 +485,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
         override fun bindTo(story: Story) {
             photo.resetZoom()
             if (story.isIs_expired) {
-                createCustomToast(requireActivity()).showToastError(R.string.is_expired)
+                createCustomToast(this@StoryPagerActivity).showToastError(R.string.is_expired)
                 mLoadingNow = false
                 resolveProgressVisibility(true)
                 return
@@ -400,7 +502,7 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                 loadImage(url)
             } else {
                 PicassoInstance.with().cancelRequest(photo)
-                createCustomToast(requireActivity()).showToast(R.string.empty_url)
+                createCustomToast(this@StoryPagerActivity).showToast(R.string.empty_url)
             }
         }
 
@@ -439,9 +541,9 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
                         Utils.dp(100F),
                         intArrayOf(
                             0x000000,
-                            CurrentTheme.getColorPrimary(requireActivity()),
+                            CurrentTheme.getColorPrimary(this@StoryPagerActivity),
                             0x777777,
-                            CurrentTheme.getColorSecondary(requireActivity())
+                            CurrentTheme.getColorSecondary(this@StoryPagerActivity)
                         )
                     )
                     progress.playAnimation()
@@ -554,13 +656,17 @@ class StoryPagerFragment : BaseMvpFragment<StoryPagerPresenter, IStoryPagerView>
     }
 
     companion object {
+        const val ACTION_OPEN =
+            "dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity"
 
-        fun newInstance(args: Bundle?): StoryPagerFragment {
-            val fragment = StoryPagerFragment()
-            fragment.arguments = args
-            return fragment
+        fun newInstance(context: Context, args: Bundle?): Intent {
+            val ph = Intent(context, StoryPagerActivity::class.java)
+            val targetArgs = Bundle()
+            targetArgs.putAll(args)
+            ph.action = ACTION_OPEN
+            ph.putExtras(targetArgs)
+            return ph
         }
-
 
         fun buildArgs(aid: Int, stories: ArrayList<Story>, index: Int): Bundle {
             val args = Bundle()

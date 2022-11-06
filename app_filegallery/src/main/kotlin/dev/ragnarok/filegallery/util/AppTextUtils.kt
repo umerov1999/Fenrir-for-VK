@@ -9,6 +9,15 @@ object AppTextUtils {
     private const val ONE_DAY_SEC = (24 * 60 * 60).toLong()
     private val DATE = Date()
 
+    private var SHORT_DATE = SimpleDateFormat("HH:mm", Utils.appLocale)
+    private var FULL_LITTLE_DATE = SimpleDateFormat("dd.MM.yy HH:mm", Utils.appLocale)
+
+
+    fun updateDateLang(locale: Locale?) {
+        SHORT_DATE = SimpleDateFormat("HH:mm", locale)
+        FULL_LITTLE_DATE = SimpleDateFormat("dd.MM.yy HH:mm", locale)
+    }
+
     /**
      * Получение строки с датой и временем сообщений
      *
@@ -24,8 +33,6 @@ object AppTextUtils {
         val startTomorrow = startToday + ONE_DAY_SEC
         val startOfDayAfterTomorrow = startTomorrow + ONE_DAY_SEC
         val startOfYesterday = startToday - ONE_DAY_SEC
-        val SHORT_DATE = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val FULL_LITTLE_DATE = SimpleDateFormat("dd.MM.yy HH:mm", Locale.getDefault())
         if (unixTime in startToday until startTomorrow) {
             return SHORT_DATE.format(DATE)
         }

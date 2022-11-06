@@ -1,4 +1,4 @@
-package dev.ragnarok.fenrir.fragment.storypager
+package dev.ragnarok.fenrir.activity.storypager
 
 import android.content.Context
 import android.os.Bundle

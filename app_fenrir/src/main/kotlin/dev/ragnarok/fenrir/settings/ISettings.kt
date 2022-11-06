@@ -158,6 +158,7 @@ interface ISettings {
         val customChannelNotif: Int
         fun nextCustomChannelNotif()
         val currentParser: Int
+        var catalogV2ListSort: List<Int>
     }
 
     interface IAccountsSettings {

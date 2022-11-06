@@ -434,11 +434,24 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.use_api_5_90_for_audio
                 defaultValue = true
             }
-            switch("audio_catalog_v2_enable") {
-                defaultValue = true
+            subScreen("audio_catalog_v2") {
                 titleRes = R.string.audio_catalog_v2
                 summaryRes = R.string.experimental
                 visible = Utils.isOfficialVKCurrent
+
+                switch("audio_catalog_v2_enable") {
+                    defaultValue = true
+                    titleRes = R.string.turn_on
+                }
+
+                pref("audio_catalog_v2_sort_list") {
+                    titleRes = R.string.catalog_v2_edit_list
+                    dependency = "audio_catalog_v2_enable"
+                    onClick {
+                        PlaceFactory.catalogV2ListEditPlace.tryOpenWith(requireActivity())
+                        true
+                    }
+                }
             }
             singleChoice(
                 "language_ui",

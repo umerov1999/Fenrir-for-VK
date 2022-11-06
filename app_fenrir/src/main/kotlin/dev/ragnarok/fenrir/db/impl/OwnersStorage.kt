@@ -63,7 +63,8 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 if (cursor.moveToNext()) {
                     val json = cursor.getBlob(UsersDetColumns.DATA)
                     if (json.nonNullNoEmpty()) {
-                        details = MsgPack.decodeFromByteArray(UserDetailsEntity.serializer(), json)
+                        details =
+                            MsgPack.decodeFromByteArrayEx(UserDetailsEntity.serializer(), json)
                     }
                 }
                 cursor.close()
@@ -87,7 +88,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                     val json = cursor.getBlob(GroupsDetColumns.DATA)
                     if (json.nonNullNoEmpty()) {
                         details =
-                            MsgPack.decodeFromByteArray(CommunityDetailsEntity.serializer(), json)
+                            MsgPack.decodeFromByteArrayEx(CommunityDetailsEntity.serializer(), json)
                     }
                 }
                 cursor.close()
@@ -106,7 +107,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
             cv.put(BaseColumns._ID, groupId)
             cv.put(
                 GroupsDetColumns.DATA,
-                MsgPack.encodeToByteArray(CommunityDetailsEntity.serializer(), dbo)
+                MsgPack.encodeToByteArrayEx(CommunityDetailsEntity.serializer(), dbo)
             )
             val uri = getGroupsDetContentUriFor(accountId)
             contentResolver.insert(uri, cv)
@@ -123,7 +124,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
             cv.put(BaseColumns._ID, userId)
             cv.put(
                 UsersDetColumns.DATA,
-                MsgPack.encodeToByteArray(UserDetailsEntity.serializer(), dbo)
+                MsgPack.encodeToByteArrayEx(UserDetailsEntity.serializer(), dbo)
             )
             val uri = getUserDetContentUriFor(accountId)
             contentResolver.insert(uri, cv)

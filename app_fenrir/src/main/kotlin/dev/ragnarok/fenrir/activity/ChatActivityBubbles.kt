@@ -12,10 +12,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.activity.gifpager.GifPagerActivity
 import dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity.Companion.newInstance
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
+import dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity
 import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.messages.chat.ChatFragment.Companion.newInstance
@@ -101,21 +103,25 @@ class ChatActivityBubbles : NoMainActivity(), PlaceProvider, AppStyleable {
                     it
                 )
             }
-            Place.SINGLE_PHOTO, Place.GIF_PAGER -> {
-                val ph = Intent(this, PhotoFullScreenActivity::class.java)
-                ph.action = PhotoFullScreenActivity.ACTION_OPEN_PLACE
-                ph.putExtra(Extra.PLACE, place)
-                startActivity(ph)
-            }
+            Place.SINGLE_PHOTO -> place.launchActivityForResult(
+                this,
+                SinglePhotoActivity.newInstance(this, args)
+            )
+            Place.STORY_PLAYER -> place.launchActivityForResult(
+                this,
+                StoryPagerActivity.newInstance(this, args)
+            )
+            Place.GIF_PAGER -> place.launchActivityForResult(
+                this,
+                GifPagerActivity.newInstance(this, args)
+            )
             Place.DOC_PREVIEW -> {
                 val document: Document? = args.getParcelableCompat(Extra.DOC)
                 if (document != null && document.hasValidGifVideoLink()) {
                     val aid = args.getInt(Extra.ACCOUNT_ID)
                     val documents = ArrayList(listOf(document))
-                    val gf = Intent(this, PhotoFullScreenActivity::class.java)
-                    gf.action = PhotoFullScreenActivity.ACTION_OPEN_PLACE
-                    gf.putExtra(Extra.PLACE, PlaceFactory.getGifPagerPlace(aid, documents, 0))
-                    startActivity(gf)
+                    val extra = GifPagerActivity.buildArgs(aid, documents, 0)
+                    place.launchActivityForResult(this, GifPagerActivity.newInstance(this, extra))
                 } else {
                     Utils.openPlaceWithSwipebleActivity(this, place)
                 }

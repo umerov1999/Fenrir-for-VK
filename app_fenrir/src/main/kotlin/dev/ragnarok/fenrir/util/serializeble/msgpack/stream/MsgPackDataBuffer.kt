@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.util.serializeble.msgpack.stream
 
+import com.google.common.math.IntMath.mod
+import dev.ragnarok.fenrir.module.BufferWriteNative
 import okio.BufferedSource
 
 interface MsgPackDataBuffer {
@@ -8,8 +10,8 @@ interface MsgPackDataBuffer {
 
 abstract class MsgPackDataOutputBuffer : MsgPackDataBuffer {
     abstract fun add(byte: Byte): Boolean
-    abstract fun addAll(bytes: List<Byte>): Boolean
-    abstract fun addAll(bytes: ByteArray): Boolean
+    abstract fun addAll(bytesList: List<Byte>): Boolean
+    abstract fun addAll(bytesArray: ByteArray): Boolean
 }
 
 abstract class MsgPackDataInputBuffer : MsgPackDataBuffer {
@@ -24,11 +26,43 @@ abstract class MsgPackDataInputBuffer : MsgPackDataBuffer {
     abstract fun currentIndex(): Int
 }
 
+class MsgPackDataOutputArrayBufferCompressed : MsgPackDataOutputBuffer() {
+    private val bytes = BufferWriteNative(8192)
+    override fun add(byte: Byte): Boolean {
+        bytes.putChar(byte)
+        return true
+    }
+
+    override fun addAll(bytesList: List<Byte>): Boolean {
+        bytes.putByteArray(bytesList.toByteArray())
+        return true
+    }
+
+    override fun addAll(bytesArray: ByteArray): Boolean {
+        bytes.putByteArray(bytesArray)
+        return true
+    }
+
+    override fun toByteArray() = bytes.compressLZ4Buffer() ?: ByteArray(0)
+}
+
 class MsgPackDataOutputArrayBuffer : MsgPackDataOutputBuffer() {
-    private val bytes = mutableListOf<Byte>()
-    override fun add(byte: Byte) = bytes.add(byte)
-    override fun addAll(bytes: List<Byte>) = this.bytes.addAll(bytes)
-    override fun addAll(bytes: ByteArray) = this.bytes.addAll(bytes.toList())
+    private val bytes = ArrayList<Byte>()
+    override fun add(byte: Byte): Boolean {
+        if (mod(bytes.size, 8192) == 0) {
+            bytes.ensureCapacity(bytes.size + 8192)
+        }
+        return bytes.add(byte)
+    }
+
+    override fun addAll(bytesList: List<Byte>): Boolean {
+        val cap = bytes.size + bytesList.size
+        val res = ((cap + 8192 - 1) / 8192) * 8192
+        bytes.ensureCapacity(res)
+        return bytes.addAll(bytesList)
+    }
+
+    override fun addAll(bytesArray: ByteArray) = addAll(bytesArray.toList())
     override fun toByteArray() = bytes.toByteArray()
 }
 

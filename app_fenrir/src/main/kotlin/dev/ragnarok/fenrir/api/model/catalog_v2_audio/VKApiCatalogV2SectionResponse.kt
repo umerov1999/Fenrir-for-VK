@@ -24,6 +24,12 @@ class VKApiCatalogV2SectionResponse {
     @SerialName("videos")
     var videos: List<VKApiVideo>? = null
 
+    @SerialName("profiles")
+    var profiles: List<VKApiUser>? = null
+
+    @SerialName("groups")
+    var groups: List<VKApiCommunity>? = null
+
     @SerialName("section")
     var section: VKApiCatalogV2Section? = null
 }

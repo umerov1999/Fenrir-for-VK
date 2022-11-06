@@ -473,7 +473,7 @@ object DownloadWorkUtils {
         try {
             val downloadWork = OneTimeWorkRequest.Builder(TrackDownloadWorker::class.java)
             val data = Data.Builder()
-            data.putByteArray(ExtraDwn.URL, MsgPack.encodeToByteArray(Audio.serializer(), audio))
+            data.putByteArray(ExtraDwn.URL, MsgPack.encodeToByteArrayEx(Audio.serializer(), audio))
             data.putString(ExtraDwn.DIR, result_filename.path)
             data.putString(ExtraDwn.FILE, result_filename.file)
             data.putString(ExtraDwn.EXT, result_filename.ext)
@@ -497,7 +497,7 @@ object DownloadWorkUtils {
         )
         val downloadWork = OneTimeWorkRequest.Builder(TrackDownloadWorker::class.java)
         val data = Data.Builder()
-        data.putByteArray(ExtraDwn.URL, MsgPack.encodeToByteArray(Audio.serializer(), audio))
+        data.putByteArray(ExtraDwn.URL, MsgPack.encodeToByteArrayEx(Audio.serializer(), audio))
         data.putString(ExtraDwn.DIR, result_filename.path)
         data.putString(ExtraDwn.FILE, result_filename.file)
         data.putString(ExtraDwn.EXT, result_filename.ext)
@@ -864,7 +864,7 @@ object DownloadWorkUtils {
                 inputData.getString(ExtraDwn.DIR)!!, inputData.getString(ExtraDwn.EXT)!!
             )
             val needCover = inputData.getBoolean(ExtraDwn.NEED_UPDATE_TAG, true)
-            val audio = MsgPack.decodeFromByteArray(
+            val audio = MsgPack.decodeFromByteArrayEx(
                 Audio.serializer(),
                 inputData.getByteArray(ExtraDwn.URL)!!
             )

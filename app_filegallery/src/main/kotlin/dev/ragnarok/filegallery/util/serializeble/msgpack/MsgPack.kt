@@ -1,5 +1,7 @@
 package dev.ragnarok.filegallery.util.serializeble.msgpack
 
+import dev.ragnarok.fenrir.module.BufferWriteNative
+import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.filegallery.util.serializeble.json.JsonElement
 import dev.ragnarok.filegallery.util.serializeble.msgpack.internal.*
 import dev.ragnarok.filegallery.util.serializeble.msgpack.stream.toMsgPackArrayBuffer
@@ -73,10 +75,6 @@ open class MsgPack @JvmOverloads constructor(
         return decoder.decodeSerializableValue(deserializer)
     }
 
-    fun parseToJsonElement(bytes: ByteArray): JsonElement {
-        return decodeFromByteArray(InternalJsonElement.serializer(), bytes).element
-    }
-
     fun parseToJsonElement(bytes: BufferedSource): JsonElement {
         return decodeFromOkioStream(InternalJsonElement.serializer(), bytes).element
     }
@@ -108,7 +106,50 @@ open class MsgPack @JvmOverloads constructor(
             BasicMsgPackEncoder(
                 configuration,
                 serializersModule,
-                inlineEncoders = inlineEncoders
+                inlineEncoders = inlineEncoders,
+                compressed = false
+            )
+        )
+        kotlin.runCatching {
+            encoder.encodeSerializableValue(serializer, value)
+        }.fold(
+            onSuccess = { return encoder.result.toByteArray() },
+            onFailure = {
+                throw it
+            }
+        )
+    }
+
+    fun <T> decodeFromByteArrayEx(
+        deserializer: DeserializationStrategy<T>,
+        bytes: ByteArray
+    ): T {
+        if (!FenrirNative.isNativeLoaded || bytes.size < 4 || bytes[0] != 0x02.toByte() || bytes[1] != 0x4C.toByte() || bytes[2] != 0x5A.toByte() || bytes[3] != 0x34.toByte()) {
+            return decodeFromByteArray(deserializer, bytes)
+        }
+        val s = BufferWriteNative(bytes.size)
+        s.putByteArray(bytes)
+        val decoder = MsgPackDecoder(
+            BasicMsgPackDecoder(
+                configuration,
+                serializersModule,
+                (s.deCompressLZ4Buffer() ?: ByteArray(0)).toMsgPackArrayBuffer(),
+                inlineDecoders = inlineDecoders
+            )
+        )
+        return decoder.decodeSerializableValue(deserializer)
+    }
+
+    fun <T> encodeToByteArrayEx(
+        serializer: SerializationStrategy<T>,
+        value: T
+    ): ByteArray {
+        val encoder = MsgPackEncoder(
+            BasicMsgPackEncoder(
+                configuration,
+                serializersModule,
+                inlineEncoders = inlineEncoders,
+                compressed = FenrirNative.isNativeLoaded
             )
         )
         kotlin.runCatching {

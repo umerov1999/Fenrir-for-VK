@@ -127,13 +127,13 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
             .setCommentsDisabled(cursor.getBoolean(PhotoAlbumsColumns.COMMENTS_DISABLED))
         val sizesJson = cursor.getBlob(PhotoAlbumsColumns.SIZES)
         if (sizesJson.nonNullNoEmpty()) {
-            album.setSizes(MsgPack.decodeFromByteArray(PhotoSizeEntity.serializer(), sizesJson))
+            album.setSizes(MsgPack.decodeFromByteArrayEx(PhotoSizeEntity.serializer(), sizesJson))
         }
         val privacyViewText =
             cursor.getBlob(PhotoAlbumsColumns.PRIVACY_VIEW)
         if (privacyViewText.nonNullNoEmpty()) {
             album.setPrivacyView(
-                MsgPack.decodeFromByteArray(
+                MsgPack.decodeFromByteArrayEx(
                     PrivacyEntity.serializer(),
                     privacyViewText
                 )
@@ -143,7 +143,7 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
             cursor.getBlob(PhotoAlbumsColumns.PRIVACY_COMMENT)
         if (privacyCommentText.nonNullNoEmpty()) {
             album.setPrivacyComment(
-                MsgPack.decodeFromByteArray(
+                MsgPack.decodeFromByteArrayEx(
                     PrivacyEntity.serializer(),
                     privacyCommentText
                 )
@@ -162,7 +162,7 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
             dbo.privacyView.ifNonNull({
                 cv.put(
                     PhotoAlbumsColumns.PRIVACY_VIEW,
-                    MsgPack.encodeToByteArray(PrivacyEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PrivacyEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(
@@ -173,7 +173,7 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
             dbo.privacyComment.ifNonNull({
                 cv.put(
                     PhotoAlbumsColumns.PRIVACY_COMMENT,
-                    MsgPack.encodeToByteArray(PrivacyEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PrivacyEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(
@@ -187,7 +187,7 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
             dbo.sizes.ifNonNull({
                 cv.put(
                     PhotoAlbumsColumns.SIZES,
-                    MsgPack.encodeToByteArray(PhotoSizeEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PhotoSizeEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(

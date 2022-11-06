@@ -459,6 +459,12 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     }
 
     fun fireLikeClick(news: News) {
+        if (Utils.isHiddenAccount(
+                accountId
+            )
+        ) {
+            return
+        }
         if ("post".equals(news.type, ignoreCase = true)) {
             val add = !news.isUserLike
             appendDisposable(
@@ -486,7 +492,7 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
             data.add(FeedSource("updates_full", R.string.updates, false))
             data.add(FeedSource("friends", R.string.friends, false))
             if (!Utils.isKateCurrent) {
-                data.add(FeedSource("top", R.string.top, false))
+                data.add(FeedSource("top", R.string.interesting, false))
             }
             data.add(FeedSource("groups", R.string.groups, false))
             data.add(FeedSource("pages", R.string.pages, false))

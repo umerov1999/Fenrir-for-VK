@@ -198,7 +198,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             patch.extras.ifNonNull({
                 cv.put(
                     MessageColumns.EXTRAS,
-                    MsgPack.encodeToByteArray(
+                    MsgPack.encodeToByteArrayEx(
                         MapSerializer(Int.serializer(), String.serializer()),
                         it
                     )
@@ -213,7 +213,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             patch.keyboard.ifNonNull({
                 cv.put(
                     MessageColumns.KEYBOARD,
-                    MsgPack.encodeToByteArray(KeyboardEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(
@@ -276,7 +276,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                         patch.extras.ifNonNull({
                             cv.put(
                                 MessageColumns.EXTRAS,
-                                MsgPack.encodeToByteArray(
+                                MsgPack.encodeToByteArrayEx(
                                     MapSerializer(
                                         Int.serializer(),
                                         String.serializer()
@@ -293,7 +293,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                         patch.keyboard.ifNonNull({
                             cv.put(
                                 MessageColumns.KEYBOARD,
-                                MsgPack.encodeToByteArray(KeyboardEntity.serializer(), it)
+                                MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
                             )
                         }, {
                             cv.putNull(
@@ -773,7 +773,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             dbo.extras.ifNonNull({
                 cv.put(
                     MessageColumns.EXTRAS,
-                    MsgPack.encodeToByteArray(
+                    MsgPack.encodeToByteArrayEx(
                         MapSerializer(Int.serializer(), String.serializer()),
                         it
                     )
@@ -787,7 +787,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             dbo.keyboard.ifNonNull({
                 cv.put(
                     MessageColumns.KEYBOARD,
-                    MsgPack.encodeToByteArray(KeyboardEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(
@@ -840,7 +840,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             var keyboard: KeyboardEntity? = null
             val extrasText = cursor.getBlob(MessageColumns.EXTRAS)
             if (extrasText.nonNullNoEmpty()) {
-                extras = MsgPack.decodeFromByteArray(
+                extras = MsgPack.decodeFromByteArrayEx(
                     MapSerializer(
                         Int.serializer(),
                         String.serializer()
@@ -850,7 +850,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             val keyboardText =
                 cursor.getBlob(MessageColumns.KEYBOARD)
             if (keyboardText.nonNullNoEmpty()) {
-                keyboard = MsgPack.decodeFromByteArray(KeyboardEntity.serializer(), keyboardText)
+                keyboard = MsgPack.decodeFromByteArrayEx(KeyboardEntity.serializer(), keyboardText)
             }
             return MessageDboEntity().set(id, peerId, fromId)
                 .setEncrypted(cursor.getBoolean(MessageColumns.ENCRYPTED))

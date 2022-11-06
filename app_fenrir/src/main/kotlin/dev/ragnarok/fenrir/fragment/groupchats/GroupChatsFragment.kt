@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment.groupchats
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityFeatures
@@ -111,9 +113,15 @@ class GroupChatsFragment : BaseMvpFragment<GroupChatsPresenter, IGroupChatsView>
     }
 
     override fun onGroupChatsClick(chat: GroupChats) {
-        presenter?.fireGroupChatsClick(
-            chat
-        )
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.enter_to_group_chat)
+            .setPositiveButton(R.string.button_yes) { _: DialogInterface?, _: Int ->
+                presenter?.fireGroupChatsClick(
+                    chat
+                )
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     companion object {

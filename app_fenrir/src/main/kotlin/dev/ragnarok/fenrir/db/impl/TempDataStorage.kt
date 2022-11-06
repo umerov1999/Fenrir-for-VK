@@ -18,8 +18,8 @@ import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.decodeFromByteArray
-import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 
 class TempDataStorage internal constructor(context: Context) : ITempDataStorage {
     private val app: Context = context.applicationContext
@@ -354,7 +354,12 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
                     i.main_artists.ifNonNull({
                         cv.put(
                             AudioColumns.MAIN_ARTISTS,
-                            MsgPack.encodeToByteArray(it)
+                            MsgPack.encodeToByteArrayEx(
+                                MapSerializer(
+                                    String.serializer(),
+                                    String.serializer()
+                                ), it
+                            )
                         )
                     }, {
                         cv.putNull(AudioColumns.MAIN_ARTISTS)
@@ -462,7 +467,14 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
             val artistsSourceText =
                 cursor.getBlob(AudioColumns.MAIN_ARTISTS)
             if (artistsSourceText.nonNullNoEmpty()) {
-                v.setMain_artists(MsgPack.decodeFromByteArray(artistsSourceText))
+                v.setMain_artists(
+                    MsgPack.decodeFromByteArrayEx(
+                        MapSerializer(
+                            String.serializer(),
+                            String.serializer()
+                        ), artistsSourceText
+                    )
+                )
             }
             v.updateDownloadIndicator()
             return v

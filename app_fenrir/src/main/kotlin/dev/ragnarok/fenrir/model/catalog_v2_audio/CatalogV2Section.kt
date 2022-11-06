@@ -6,6 +6,8 @@ import dev.ragnarok.fenrir.api.model.catalog_v2_audio.IIdComparable
 import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2SectionResponse
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.AbsModel
+import dev.ragnarok.fenrir.util.Utils
+import kotlin.math.abs
 
 class CatalogV2Section : Parcelable {
     var blocks: List<AbsModel>? = null
@@ -45,12 +47,38 @@ class CatalogV2Section : Parcelable {
         block.items?.addAll(ret)
     }
 
+    private fun parsePlaylistCover(object_v: VKApiCatalogV2SectionResponse) {
+        for (m in object_v.playlists.orEmpty()) {
+            if (m.thumb_image.isNullOrEmpty()) {
+                var fuser = false
+                for (d in object_v.profiles.orEmpty()) {
+                    if (d.id == m.owner_id) {
+                        m.thumb_image =
+                            Utils.firstNonEmptyString(d.photo_200, d.photo_100, d.photo_50)
+                        fuser = true
+                        break
+                    }
+                }
+                if (!fuser) {
+                    for (d in object_v.groups.orEmpty()) {
+                        if (d.id == abs(m.owner_id)) {
+                            m.thumb_image =
+                                Utils.firstNonEmptyString(d.photo_200, d.photo_100, d.photo_50)
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     constructor(object_v: VKApiCatalogV2SectionResponse) {
         blocks = object_v.section?.blocks?.let { obj ->
             val op = ArrayList<AbsModel>(obj.size)
             for ((ss, i) in obj.withIndex()) {
                 val s = CatalogV2Block(i)
                 if (i.data_type == "music_recommended_playlists") {
+                    parsePlaylistCover(object_v)
                     parseAllItemsByIds(s, object_v.playlists, i.playlists_ids) {
                         Dto2Model.transform(it)
                     }
@@ -63,6 +91,7 @@ class CatalogV2Section : Parcelable {
                     parseAllItemsByIds(s, object_v.audios, i.audios_ids) {
                         Dto2Model.transform(it)
                     }
+                    parsePlaylistCover(object_v)
                     parseAllItemsByIds(s, object_v.playlists, i.playlists_ids) {
                         Dto2Model.transform(it)
                     }

@@ -6,12 +6,14 @@
         <item>Default</item>
         <item>English</item>
         <item>Russian</item>
+        <item>Belorussian</item>
     </string-array>
 
     <string-array name="array_language_items" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
+        <item>3</item>
     </string-array>
 
     <string-array name="array_parser_names" translatable="false">
@@ -1956,4 +1958,8 @@
     <string name="communities_in_page_search">Communities in page search</string>
     <string name="sections">Sections</string>
     <string name="do_unimportant">Remove from important?</string>
+    <string name="enter_to_group_chat">Enter to group chat?</string>
+    <string name="interesting">interesting</string>
+    <string name="catalog_v2_edit_list">Edit list</string>
+    <string name="turn_on">Turn on</string>
 </resources>

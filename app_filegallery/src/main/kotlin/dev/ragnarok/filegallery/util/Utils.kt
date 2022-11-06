@@ -21,7 +21,9 @@ import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Includes.provideMainThreadScheduler
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.media.exo.OkHttpDataSource
+import dev.ragnarok.filegallery.model.Lang
 import dev.ragnarok.filegallery.settings.Settings.get
+import dev.ragnarok.filegallery.util.AppTextUtils.updateDateLang
 import dev.ragnarok.filegallery.view.natives.rlottie.RLottieImageView
 import dev.ragnarok.filegallery.view.pager.*
 import io.reactivex.rxjava3.core.Completable
@@ -340,14 +342,55 @@ object Utils {
         }
     }
 
+    private fun getLocaleSettings(@Lang lang: Int): Locale {
+        when (lang) {
+            Lang.ENGLISH -> {
+                return Locale.ENGLISH
+            }
+            Lang.RUSSIA -> {
+                return Locale("ru", "RU")
+            }
+            Lang.BELORUSSIAN -> {
+                return Locale("be", "BY")
+            }
+            Lang.DEFAULT -> {}
+        }
+        return Locale.getDefault()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun setSystemLocaleLegacy(config: Configuration, locale: Locale) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.setLocale(locale)
+        } else {
+            config.locale = locale
+        }
+    }
+
+    val appLocale: Locale
+        get() = getLocaleSettings(get().main().language)
+
     fun updateActivityContext(base: Context): Context {
         val size = get().main().getFontSize()
+        @Lang val lang = get().main().language
+        val locale = getLocaleSettings(lang)
+        updateDateLang(locale)
         return if (size == 0) {
-            base
+            if (lang == Lang.DEFAULT) {
+                base
+            } else {
+                val res = base.resources
+                val config = Configuration(res.configuration)
+                setSystemLocaleLegacy(config, getLocaleSettings(lang))
+                base.createConfigurationContext(config)
+            }
         } else {
             val res = base.resources
             val config = Configuration(res.configuration)
             config.fontScale = res.configuration.fontScale + 0.15f * size
+            if (lang != Lang.DEFAULT) {
+                setSystemLocaleLegacy(config, getLocaleSettings(lang))
+            }
             base.createConfigurationContext(config)
         }
     }

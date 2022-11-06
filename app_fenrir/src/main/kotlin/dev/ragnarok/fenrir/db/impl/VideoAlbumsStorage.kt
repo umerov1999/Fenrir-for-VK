@@ -93,7 +93,7 @@ internal class VideoAlbumsStorage(base: AppStorages) : AbsStorage(base), IVideoA
         var privacyEntity: PrivacyEntity? = null
         val privacyJson = cursor.getBlob(VideoAlbumsColumns.PRIVACY)
         if (privacyJson.nonNullNoEmpty()) {
-            privacyEntity = MsgPack.decodeFromByteArray(PrivacyEntity.serializer(), privacyJson)
+            privacyEntity = MsgPack.decodeFromByteArrayEx(PrivacyEntity.serializer(), privacyJson)
         }
         return VideoAlbumDboEntity(id, ownerId)
             .setTitle(cursor.getString(VideoAlbumsColumns.TITLE))
@@ -115,7 +115,7 @@ internal class VideoAlbumsStorage(base: AppStorages) : AbsStorage(base), IVideoA
             dbo.privacy.ifNonNull({
                 cv.put(
                     VideoAlbumsColumns.PRIVACY,
-                    MsgPack.encodeToByteArray(PrivacyEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PrivacyEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(VideoAlbumsColumns.PRIVACY)

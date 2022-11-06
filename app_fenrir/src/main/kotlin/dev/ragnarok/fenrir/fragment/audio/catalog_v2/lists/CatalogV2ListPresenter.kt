@@ -9,6 +9,13 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.AudioArtist
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2List
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_CATALOG
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_LOCAL_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_LOCAL_SERVER_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_PLAYLIST
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_RECOMMENDATIONS
 import dev.ragnarok.fenrir.settings.Settings
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -99,7 +106,10 @@ class CatalogV2ListPresenter(
 
     private fun onNetDataGetError(t: Throwable) {
         mSections.clear()
-        addExtra()
+        val srt = Settings.get().other().catalogV2ListSort
+        for (i in srt) {
+            makeByUid(i, null)
+        }
         view?.notifyDataSetChanged()
         netLoadingNow = false
         resolveLoading()
@@ -107,52 +117,76 @@ class CatalogV2ListPresenter(
         view?.onFail()
     }
 
-    private fun addExtra() {
-        if (artist_id.nonNullNoEmpty() || query.nonNullNoEmpty() || url.nonNullNoEmpty()) {
+    private fun makeByUid(
+        @CatalogV2SortListCategory n: Int,
+        catalogSections: List<CatalogV2List.CatalogV2ListItem>?
+    ) {
+        if ((artist_id.nonNullNoEmpty() || query.nonNullNoEmpty() || url.nonNullNoEmpty()) && n != TYPE_CATALOG) {
             return
         }
-        if (accountId == owner_id) {
-            mSections.add(
-                CatalogV2List.CatalogV2ListItem(
-                    CatalogV2List.CatalogV2ListItem.TYPE_LOCAL_AUDIO,
-                    context.getString(R.string.local_audios)
-                )
-            )
-            if (accountId >= 0 && Settings.get().other().localServer.enabled) {
+        when (n) {
+            TYPE_AUDIO -> {
                 mSections.add(
                     CatalogV2List.CatalogV2ListItem(
-                        CatalogV2List.CatalogV2ListItem.TYPE_LOCAL_SERVER_AUDIO,
-                        context.getString(R.string.on_server)
+                        TYPE_AUDIO,
+                        context.getString(R.string.my_saved)
+                    )
+                )
+            }
+            TYPE_CATALOG -> {
+                if (catalogSections != null) {
+                    mSections.addAll(catalogSections)
+                }
+            }
+            TYPE_LOCAL_AUDIO -> {
+                if (accountId == owner_id) {
+                    mSections.add(
+                        CatalogV2List.CatalogV2ListItem(
+                            TYPE_LOCAL_AUDIO,
+                            context.getString(R.string.local_audios)
+                        )
+                    )
+                }
+            }
+            TYPE_LOCAL_SERVER_AUDIO -> {
+                if (accountId == owner_id && accountId >= 0 && Settings.get()
+                        .other().localServer.enabled
+                ) {
+                    mSections.add(
+                        CatalogV2List.CatalogV2ListItem(
+                            TYPE_LOCAL_SERVER_AUDIO,
+                            context.getString(R.string.on_server)
+                        )
+                    )
+                }
+            }
+            TYPE_PLAYLIST -> {
+                mSections.add(
+                    CatalogV2List.CatalogV2ListItem(
+                        TYPE_PLAYLIST,
+                        context.getString(R.string.playlists)
+                    )
+                )
+            }
+            TYPE_RECOMMENDATIONS -> {
+                mSections.add(
+                    CatalogV2List.CatalogV2ListItem(
+                        TYPE_RECOMMENDATIONS,
+                        context.getString(R.string.recommendation)
                     )
                 )
             }
         }
-        mSections.add(
-            CatalogV2List.CatalogV2ListItem(
-                CatalogV2List.CatalogV2ListItem.TYPE_AUDIO,
-                context.getString(R.string.my_saved)
-            )
-        )
-        mSections.add(
-            CatalogV2List.CatalogV2ListItem(
-                CatalogV2List.CatalogV2ListItem.TYPE_PLAYLIST,
-                context.getString(R.string.playlists)
-            )
-        )
-        mSections.add(
-            CatalogV2List.CatalogV2ListItem(
-                CatalogV2List.CatalogV2ListItem.TYPE_RECOMMENDATIONS,
-                context.getString(R.string.recommendation)
-            )
-        )
     }
 
     private fun onNetDataReceived(data: CatalogV2List) {
         netLoadingNow = false
         resolveLoading()
         mSections.clear()
-        mSections.addAll(data.sections.orEmpty())
-        addExtra()
+        val srt = Settings.get().other().catalogV2ListSort
+        for (i in srt) {
+            makeByUid(i, data.sections)
+        }
         view?.notifyDataSetChanged()
         var pos = 0
         for (i in 0 until data.sections?.size.orZero()) {
@@ -161,7 +195,9 @@ class CatalogV2ListPresenter(
                 break
             }
         }
-        view?.setSection(pos)
+        if (srt[0] == TYPE_CATALOG) {
+            view?.setSection(pos)
+        }
     }
 
     override fun onGuiCreated(viewHost: ICatalogV2ListView) {

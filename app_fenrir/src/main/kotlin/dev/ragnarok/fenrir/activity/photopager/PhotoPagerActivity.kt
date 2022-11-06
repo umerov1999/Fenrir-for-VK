@@ -62,7 +62,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>(), IPhotoPagerView,
     PlaceProvider, AppStyleable, MenuProvider {
     companion object {
@@ -72,7 +71,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         private const val DEFAULT_PHOTO_SIZE = PhotoSize.W
         private const val ACTION_OPEN =
             "dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity"
-
 
         fun buildArgsForSimpleGallery(
             aid: Int, index: Int, photos: ArrayList<Photo>,
@@ -85,7 +83,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             args.putBoolean(EXTRA_NEED_UPDATE, needUpdate)
             return args
         }
-
 
         fun buildArgsForAlbum(
             aid: Int,
@@ -106,7 +103,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             args.putParcelable(Extra.SOURCE, source)
             return args
         }
-
 
         fun buildArgsForAlbum(
             aid: Int,
@@ -135,7 +131,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return args
         }
 
-
         fun buildArgsForAlbum(
             aid: Int,
             albumId: Int,
@@ -156,7 +151,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             return args
         }
 
-
         fun buildArgsForFave(aid: Int, photos: ArrayList<Photo>, index: Int): Bundle {
             val args = Bundle()
             args.putInt(Extra.ACCOUNT_ID, aid)
@@ -166,7 +160,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         }
 
         private var mLastBackPressedTime: Long = 0
-
 
         fun newInstance(context: Context, placeType: Int, args: Bundle?): Intent? {
             if (mLastBackPressedTime + 1000 > System.currentTimeMillis()) {

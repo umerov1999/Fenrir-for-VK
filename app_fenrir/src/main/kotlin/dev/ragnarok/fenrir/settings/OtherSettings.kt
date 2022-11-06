@@ -10,8 +10,16 @@ import dev.ragnarok.fenrir.api.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.model.Lang
 import dev.ragnarok.fenrir.model.ParserType
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_CATALOG
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_LOCAL_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_LOCAL_SERVER_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_PLAYLIST
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_RECOMMENDATIONS
 import dev.ragnarok.fenrir.settings.ISettings.IOtherSettings
 import dev.ragnarok.fenrir.util.Utils
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import java.io.File
 import java.util.*
 
@@ -552,6 +560,30 @@ internal class OtherSettings(context: Context) : IOtherSettings {
             getPreferences(app).edit().putString(
                 "slidr_settings_json",
                 kJson.encodeToString(SlidrSettings.serializer(), settings)
+            )
+                .apply()
+        }
+
+    override var catalogV2ListSort: List<Int>
+        get() {
+            val ret = getPreferences(app).getString("catalog_v2_list_json", null)
+            return if (ret == null) {
+                listOf(
+                    TYPE_CATALOG,
+                    TYPE_LOCAL_AUDIO,
+                    TYPE_LOCAL_SERVER_AUDIO,
+                    TYPE_AUDIO,
+                    TYPE_PLAYLIST,
+                    TYPE_RECOMMENDATIONS
+                )
+            } else {
+                kJson.decodeFromString(ListSerializer(Int.serializer()), ret)
+            }
+        }
+        set(settings) {
+            getPreferences(app).edit().putString(
+                "catalog_v2_list_json",
+                kJson.encodeToString(ListSerializer(Int.serializer()), settings)
             )
                 .apply()
         }

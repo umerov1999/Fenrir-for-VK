@@ -1393,6 +1393,10 @@ object Utils {
                 Constants.DEVICE_COUNTRY_CODE = "ru"
                 return Locale("ru", "RU")
             }
+            Lang.BELORUSSIAN -> {
+                Constants.DEVICE_COUNTRY_CODE = "be"
+                return Locale("be", "BY")
+            }
             Lang.DEFAULT -> {}
         }
         Constants.DEVICE_COUNTRY_CODE = "ru"
@@ -1414,7 +1418,6 @@ object Utils {
     }
 
     @Suppress("DEPRECATION")
-
     private fun setSystemLocaleLegacy(config: Configuration, locale: Locale) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             config.setLocale(locale)
@@ -1422,7 +1425,6 @@ object Utils {
             config.locale = locale
         }
     }
-
 
     fun updateActivityContext(base: Context): Context {
         if (getSystemLocale(base.resources.configuration) != null && getSystemLocale(base.resources.configuration)?.language.nonNullNoEmpty()) {
@@ -1456,7 +1458,6 @@ object Utils {
             base.createConfigurationContext(config)
         }
     }
-
 
     fun checkValues(values: Collection<Boolean>): Boolean {
         for (i in values) {

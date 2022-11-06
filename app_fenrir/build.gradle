@@ -43,7 +43,7 @@ android {
         ndk {
             abiFilters = targetAbi
         }
-        resConfigs "en", "ru"
+        resConfigs "en", "ru", "be"
     }
 
     lint {

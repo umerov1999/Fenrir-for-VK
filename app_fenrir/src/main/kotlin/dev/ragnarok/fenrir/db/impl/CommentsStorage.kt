@@ -333,7 +333,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             .setDeleted(cursor.getBoolean(CommentsColumns.DELETED))
         if (threadsJson != null) {
             dbo.setThreads(
-                MsgPack.decodeFromByteArray(
+                MsgPack.decodeFromByteArrayEx(
                     ListSerializer(CommentEntity.serializer()),
                     threadsJson
                 )
@@ -367,7 +367,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             dbo.threads.ifNonNullNoEmpty({
                 cv.put(
                     CommentsColumns.THREADS,
-                    MsgPack.encodeToByteArray(ListSerializer(CommentEntity.serializer()), it)
+                    MsgPack.encodeToByteArrayEx(ListSerializer(CommentEntity.serializer()), it)
                 )
             }, {
                 cv.putNull(CommentsColumns.THREADS)

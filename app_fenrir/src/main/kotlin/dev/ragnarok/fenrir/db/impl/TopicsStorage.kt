@@ -108,7 +108,7 @@ internal class TopicsStorage(base: AppStorages) : AbsStorage(base), ITopicsStore
             pollDbo.ifNonNull({
                 cv.put(
                     TopicsColumns.ATTACHED_POLL,
-                    MsgPack.encodeToByteArray(PollDboEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PollDboEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(TopicsColumns.ATTACHED_POLL)
@@ -139,7 +139,7 @@ internal class TopicsStorage(base: AppStorages) : AbsStorage(base), ITopicsStore
             dbo.poll.ifNonNull({
                 cv.put(
                     TopicsColumns.ATTACHED_POLL,
-                    MsgPack.encodeToByteArray(PollDboEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PollDboEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(TopicsColumns.ATTACHED_POLL)
@@ -164,7 +164,7 @@ internal class TopicsStorage(base: AppStorages) : AbsStorage(base), ITopicsStore
             val pollJson =
                 cursor.getBlob(TopicsColumns.ATTACHED_POLL)
             if (pollJson.nonNullNoEmpty()) {
-                dbo.setPoll(MsgPack.decodeFromByteArray(PollDboEntity.serializer(), pollJson))
+                dbo.setPoll(MsgPack.decodeFromByteArrayEx(PollDboEntity.serializer(), pollJson))
             }
             return dbo
         }

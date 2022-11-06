@@ -84,7 +84,7 @@ internal class DocsStorage(base: AppStorages) : AbsStorage(base), IDocsStorage {
                 entity.photo.ifNonNull({
                     cv.put(
                         DocColumns.PHOTO,
-                        MsgPack.encodeToByteArray(PhotoSizeEntity.serializer(), it)
+                        MsgPack.encodeToByteArrayEx(PhotoSizeEntity.serializer(), it)
                     )
                 }, {
                     cv.putNull(
@@ -94,7 +94,7 @@ internal class DocsStorage(base: AppStorages) : AbsStorage(base), IDocsStorage {
                 entity.graffiti.ifNonNull({
                     cv.put(
                         DocColumns.GRAFFITI,
-                        MsgPack.encodeToByteArray(GraffitiDbo.serializer(), it)
+                        MsgPack.encodeToByteArrayEx(GraffitiDbo.serializer(), it)
                     )
                 }, {
                     cv.putNull(
@@ -104,7 +104,7 @@ internal class DocsStorage(base: AppStorages) : AbsStorage(base), IDocsStorage {
                 entity.video.ifNonNull({
                     cv.put(
                         DocColumns.VIDEO,
-                        MsgPack.encodeToByteArray(VideoPreviewDbo.serializer(), it)
+                        MsgPack.encodeToByteArrayEx(VideoPreviewDbo.serializer(), it)
                     )
                 }, {
                     cv.putNull(
@@ -149,7 +149,7 @@ internal class DocsStorage(base: AppStorages) : AbsStorage(base), IDocsStorage {
             val videoJson = cursor.getBlob(DocColumns.VIDEO)
             if (photoJson.nonNullNoEmpty()) {
                 document.setPhoto(
-                    MsgPack.decodeFromByteArray(
+                    MsgPack.decodeFromByteArrayEx(
                         PhotoSizeEntity.serializer(),
                         photoJson
                     )
@@ -157,7 +157,7 @@ internal class DocsStorage(base: AppStorages) : AbsStorage(base), IDocsStorage {
             }
             if (graffitiJson.nonNullNoEmpty()) {
                 document.setGraffiti(
-                    MsgPack.decodeFromByteArray(
+                    MsgPack.decodeFromByteArrayEx(
                         GraffitiDbo.serializer(),
                         graffitiJson
                     )
@@ -165,7 +165,7 @@ internal class DocsStorage(base: AppStorages) : AbsStorage(base), IDocsStorage {
             }
             if (videoJson.nonNullNoEmpty()) {
                 document.setVideo(
-                    MsgPack.decodeFromByteArray(
+                    MsgPack.decodeFromByteArrayEx(
                         VideoPreviewDbo.serializer(),
                         videoJson
                     )

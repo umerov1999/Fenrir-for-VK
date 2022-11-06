@@ -332,11 +332,11 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         val postSourceText =
             cursor.getBlob(PostsColumns.POST_SOURCE)
         if (postSourceText.nonNullNoEmpty()) {
-            dbo.setSource(MsgPack.decodeFromByteArray(SourceDbo.serializer(), postSourceText))
+            dbo.setSource(MsgPack.decodeFromByteArrayEx(SourceDbo.serializer(), postSourceText))
         }
         cursor.getBlob(PostsColumns.COPYRIGHT_BLOB).nonNullNoEmpty {
             dbo.setCopyright(
-                MsgPack.decodeFromByteArray(
+                MsgPack.decodeFromByteArrayEx(
                     PostDboEntity.CopyrightDboEntity.serializer(),
                     it
                 )
@@ -448,7 +448,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             dbo.source.ifNonNull({
                 cv.put(
                     PostsColumns.POST_SOURCE,
-                    MsgPack.encodeToByteArray(SourceDbo.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(SourceDbo.serializer(), it)
                 )
             }, {
                 cv.putNull(PostsColumns.POST_SOURCE)
@@ -456,7 +456,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             dbo.copyright.ifNonNull({
                 cv.put(
                     PostsColumns.COPYRIGHT_BLOB,
-                    MsgPack.encodeToByteArray(PostDboEntity.CopyrightDboEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PostDboEntity.CopyrightDboEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(PostsColumns.COPYRIGHT_BLOB)

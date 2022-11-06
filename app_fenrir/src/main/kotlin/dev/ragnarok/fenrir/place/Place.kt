@@ -226,6 +226,7 @@ open class Place : Parcelable {
         const val FRIENDS_BIRTHDAYS = 95
         const val CATALOG_V2_AUDIO_CATALOG = 96
         const val CATALOG_V2_AUDIO_SECTION = 97
+        const val CATALOG_V2_LIST_EDIT = 98
 
         @JvmField
         val CREATOR: Parcelable.Creator<Place> = object : Parcelable.Creator<Place> {

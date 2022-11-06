@@ -24,6 +24,12 @@ class VKApiCatalogV2BlockResponse {
     @SerialName("videos")
     var videos: List<VKApiVideo>? = null
 
+    @SerialName("profiles")
+    var profiles: List<VKApiUser>? = null
+
+    @SerialName("groups")
+    var groups: List<VKApiCommunity>? = null
+
     @SerialName("block")
     var block: VKApiCatalogV2Block? = null
 }

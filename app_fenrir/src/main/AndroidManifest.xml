@@ -388,10 +388,26 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name="dev.ragnarok.fenrir.activity.PhotoFullScreenActivity"
+            android:name="dev.ragnarok.fenrir.activity.gifpager.GifPagerActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
-            android:label="@string/photos"
+            android:label="@string/gif_player"
+            android:theme="@style/App.DayNight.Swipes"
+            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+
+        <activity
+            android:name="dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="true"
+            android:label="@string/story"
+            android:theme="@style/App.DayNight.Swipes"
+            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+
+        <activity
+            android:name="dev.ragnarok.fenrir.activity.SinglePhotoActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="true"
+            android:label="@string/photo"
             android:theme="@style/App.DayNight.Swipes"
             android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>

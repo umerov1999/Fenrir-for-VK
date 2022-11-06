@@ -219,11 +219,11 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         }
 
         private fun serializeDbo(dboEntity: DboEntity): ByteArray {
-            return MsgPack.encodeToByteArray(DboEntity.serializer(), dboEntity)
+            return MsgPack.encodeToByteArrayEx(DboEntity.serializer(), dboEntity)
         }
 
         internal fun deserializeDbo(json: ByteArray): DboEntity {
-            return MsgPack.decodeFromByteArray(DboEntity.serializer(), json)
+            return MsgPack.decodeFromByteArrayEx(DboEntity.serializer(), json)
         }
     }
 }

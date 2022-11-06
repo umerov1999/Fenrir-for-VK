@@ -59,7 +59,7 @@ class UserDetailsPresenter(
         )
     }
 
-    private fun DisplayUserProfileAlbum(photos: List<Photo>) {
+    private fun displayUserProfileAlbum(photos: List<Photo>) {
         if (photos.isEmpty()) {
             return
         }
@@ -104,7 +104,15 @@ class UserDetailsPresenter(
                         }
                     )
                 )
-                .setIcon(Icon.fromResources(R.drawable.gender))
+                .setIcon(
+                    Icon.fromResources(
+                        when (user.sex) {
+                            Sex.MAN -> R.drawable.gender_male
+                            Sex.WOMAN -> R.drawable.gender_female
+                            else -> R.drawable.gender
+                        }
+                    )
+                )
                 .setSection(mainSection)
         )
         if (user.bdate.nonNullNoEmpty()) {
@@ -649,7 +657,7 @@ class UserDetailsPresenter(
         appendDisposable(
             InteractorFactory.createPhotosInteractor()[accountId, user.ownerId, -6, 50, 0, true]
                 .fromIOToMain()
-                .subscribe({ DisplayUserProfileAlbum(it) }, ignore())
+                .subscribe({ displayUserProfileAlbum(it) }, ignore())
         )
     }
 }

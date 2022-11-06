@@ -1,4 +1,4 @@
-package dev.ragnarok.fenrir.fragment.storypager
+package dev.ragnarok.fenrir.activity.storypager
 
 import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView

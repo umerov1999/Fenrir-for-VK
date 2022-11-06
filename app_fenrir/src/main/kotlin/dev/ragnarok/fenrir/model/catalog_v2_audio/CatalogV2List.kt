@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.model.catalog_v2_audio
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.api.model.catalog_v2_audio.VKApiCatalogV2ListResponse
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_CATALOG
 import dev.ragnarok.fenrir.orZero
 
 class CatalogV2List : Parcelable {
@@ -41,6 +42,7 @@ class CatalogV2List : Parcelable {
         var url: String? = null
             private set
 
+        @CatalogV2SortListCategory
         var customType: Int = TYPE_CATALOG
             private set
 
@@ -50,7 +52,7 @@ class CatalogV2List : Parcelable {
             url = parcel.readString()
         }
 
-        constructor(type: Int, title: String) {
+        constructor(@CatalogV2SortListCategory type: Int, title: String) {
             customType = type
             this.title = title
         }
@@ -72,13 +74,6 @@ class CatalogV2List : Parcelable {
         }
 
         companion object {
-            const val TYPE_CATALOG = 0
-            const val TYPE_LOCAL_AUDIO = 1
-            const val TYPE_LOCAL_SERVER_AUDIO = 2
-            const val TYPE_AUDIO = 3
-            const val TYPE_PLAYLIST = 4
-            const val TYPE_RECOMMENDATIONS = 5
-
             @JvmField
             val CREATOR: Parcelable.Creator<CatalogV2ListItem> =
                 object : Parcelable.Creator<CatalogV2ListItem> {

@@ -6,7 +6,6 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.DualTabPhotosFragment
-import dev.ragnarok.fenrir.fragment.SinglePhotoFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.localphotos.LocalPhotosFragment
 import dev.ragnarok.fenrir.fragment.vkphotos.IVkPhotosView
 import dev.ragnarok.fenrir.fragment.vkphotos.VKPhotosFragment
@@ -74,13 +73,7 @@ class DualTabPhotoActivity : NoMainActivity(), PlaceProvider {
                 startActivity(intent)
             }
             Place.SINGLE_PHOTO -> {
-                val previewPhotosFragment = newInstance(args)
-                supportFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.fragment_enter_pop, R.anim.fragment_exit_pop)
-                    .replace(R.id.fragment, previewPhotosFragment)
-                    .addToBackStack("preview")
-                    .commit()
+                place.launchActivityForResult(this, SinglePhotoActivity.newInstance(this, args))
             }
             Place.LOCAL_IMAGE_ALBUM -> {
                 val album: LocalImageAlbum? = args.getParcelableCompat(Extra.ALBUM)

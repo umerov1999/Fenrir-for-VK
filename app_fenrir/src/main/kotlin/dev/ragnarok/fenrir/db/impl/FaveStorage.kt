@@ -67,7 +67,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 val cv = ContentValues()
                 cv.put(
                     FavePostsColumns.POST,
-                    MsgPack.encodeToByteArray(PostDboEntity.serializer(), dbo)
+                    MsgPack.encodeToByteArrayEx(PostDboEntity.serializer(), dbo)
                 )
                 operations.add(
                     ContentProviderOperation
@@ -135,7 +135,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 entity.photo.ifNonNull({
                     cv.put(
                         FaveLinksColumns.PHOTO,
-                        MsgPack.encodeToByteArray(PhotoDboEntity.serializer(), it)
+                        MsgPack.encodeToByteArrayEx(PhotoDboEntity.serializer(), it)
                     )
                 }, {
                     cv.putNull(
@@ -228,7 +228,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 cv.put(FavePhotosColumns.POST_ID, dbo.postId)
                 cv.put(
                     FavePhotosColumns.PHOTO,
-                    MsgPack.encodeToByteArray(PhotoDboEntity.serializer(), dbo)
+                    MsgPack.encodeToByteArrayEx(PhotoDboEntity.serializer(), dbo)
                 )
                 val index = addToListAndReturnIndex(
                     operations, ContentProviderOperation
@@ -308,7 +308,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
 
     private fun mapVideo(cursor: Cursor): VideoDboEntity {
         val json = cursor.getBlob(FaveVideosColumns.VIDEO)!!
-        return MsgPack.decodeFromByteArray(VideoDboEntity.serializer(), json)
+        return MsgPack.decodeFromByteArrayEx(VideoDboEntity.serializer(), json)
     }
 
     override fun getArticles(criteria: FaveArticlesCriteria): Single<List<ArticleDboEntity>> {
@@ -369,12 +369,12 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
 
     private fun mapArticle(cursor: Cursor): ArticleDboEntity {
         val json = cursor.getBlob(FaveArticlesColumns.ARTICLE)!!
-        return MsgPack.decodeFromByteArray(ArticleDboEntity.serializer(), json)
+        return MsgPack.decodeFromByteArrayEx(ArticleDboEntity.serializer(), json)
     }
 
     private fun mapProduct(cursor: Cursor): MarketDboEntity {
         val json = cursor.getBlob(FaveProductColumns.PRODUCT)!!
-        return MsgPack.decodeFromByteArray(MarketDboEntity.serializer(), json)
+        return MsgPack.decodeFromByteArrayEx(MarketDboEntity.serializer(), json)
     }
 
     override fun storeVideos(
@@ -398,7 +398,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 val cv = ContentValues()
                 cv.put(
                     FaveVideosColumns.VIDEO,
-                    MsgPack.encodeToByteArray(VideoDboEntity.serializer(), dbo)
+                    MsgPack.encodeToByteArrayEx(VideoDboEntity.serializer(), dbo)
                 )
                 val index = addToListAndReturnIndex(
                     operations, ContentProviderOperation
@@ -440,7 +440,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 val cv = ContentValues()
                 cv.put(
                     FaveArticlesColumns.ARTICLE,
-                    MsgPack.encodeToByteArray(ArticleDboEntity.serializer(), dbo)
+                    MsgPack.encodeToByteArrayEx(ArticleDboEntity.serializer(), dbo)
                 )
                 val index = addToListAndReturnIndex(
                     operations, ContentProviderOperation
@@ -482,7 +482,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
                 val cv = ContentValues()
                 cv.put(
                     FaveProductColumns.PRODUCT,
-                    MsgPack.encodeToByteArray(MarketDboEntity.serializer(), dbo)
+                    MsgPack.encodeToByteArrayEx(MarketDboEntity.serializer(), dbo)
                 )
                 val index = addToListAndReturnIndex(
                     operations, ContentProviderOperation
@@ -578,7 +578,7 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
 
     private fun mapFavePosts(cursor: Cursor): PostDboEntity {
         val json = cursor.getBlob(FavePostsColumns.POST)!!
-        return MsgPack.decodeFromByteArray(PostDboEntity.serializer(), json)
+        return MsgPack.decodeFromByteArrayEx(PostDboEntity.serializer(), json)
     }
 
     companion object {
@@ -627,12 +627,12 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
 
         internal fun mapFavePhoto(cursor: Cursor): PhotoDboEntity {
             val json = cursor.getBlob(FavePhotosColumns.PHOTO)!!
-            return MsgPack.decodeFromByteArray(PhotoDboEntity.serializer(), json)
+            return MsgPack.decodeFromByteArrayEx(PhotoDboEntity.serializer(), json)
         }
 
         internal fun mapFaveLinkPhoto(cursor: Cursor): PhotoDboEntity {
             val json = cursor.getBlob(FaveLinksColumns.PHOTO)!!
-            return MsgPack.decodeFromByteArray(PhotoDboEntity.serializer(), json)
+            return MsgPack.decodeFromByteArrayEx(PhotoDboEntity.serializer(), json)
         }
     }
 }

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.activity
 
+import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.PictureInPictureParams
 import android.content.Context
@@ -22,11 +23,14 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.customview.widget.ViewDragHelper.STATE_IDLE
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Includes.proxySettings
 import dev.ragnarok.fenrir.activity.SwipebleActivity.Companion.applyIntent
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
+import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
+import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
 import dev.ragnarok.fenrir.listener.AppStyleable
 import dev.ragnarok.fenrir.media.video.ExoVideoPlayer
 import dev.ragnarok.fenrir.media.video.IVideoPlayer
@@ -146,13 +150,7 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         Utils.prepareDensity(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
-        if (Settings.get().other().isVideo_swipes) {
-            attach(
-                this,
-                SlidrConfig.Builder().scrimColor(CurrentTheme.getColorBackground(this))
-                    .fromUnColoredToColoredStatusBar(true).build()
-            )
-        }
+        val surfaceContainer = findViewById<ViewGroup>(R.id.videoSurfaceContainer)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         mDecorView = window.decorView
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -193,8 +191,56 @@ class VideoPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback,
             mControllerView?.updateComment(!isLocal && video?.isCanComment == true)
         }
         mControllerView = VideoControllerView(this)
-        val surfaceContainer = findViewById<ViewGroup>(R.id.videoSurfaceContainer)
         mSurfaceView = findViewById(R.id.videoSurface)
+        if (Settings.get().other().isVideo_swipes) {
+            attach(
+                this,
+                SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+                    .position(SlidrPosition.LEFT)
+                    .listener(object : SlidrListener {
+                        override fun onSlideStateChanged(state: Int) {
+                            if (state != STATE_IDLE) {
+                                if (supportActionBar?.isShowing == true) {
+                                    resolveControlsVisibility()
+                                }
+                            }
+                        }
+
+                        @SuppressLint("Range")
+                        override fun onSlideChange(percent: Float) {
+                            var tmp = 1f - percent
+                            tmp *= 4
+                            tmp = Utils.clamp(1f - tmp, 0f, 1f)
+                            if (Utils.hasOreo()) {
+                                surfaceContainer?.setBackgroundColor(Color.argb(tmp, 0f, 0f, 0f))
+                            } else {
+                                surfaceContainer?.setBackgroundColor(
+                                    Color.argb(
+                                        (tmp * 255).toInt(),
+                                        0,
+                                        0,
+                                        0
+                                    )
+                                )
+                            }
+                            mControllerView?.alpha = tmp
+                            toolbar?.alpha = tmp
+                            mSurfaceView?.alpha = Utils.clamp(percent, 0f, 1f)
+                        }
+
+                        override fun onSlideOpened() {
+
+                        }
+
+                        override fun onSlideClosed(): Boolean {
+                            finish()
+                            overridePendingTransition(0, 0)
+                            return true
+                        }
+
+                    }).build()
+            )
+        }
         surfaceContainer.setOnClickListener { resolveControlsVisibility() }
         val videoHolder = mSurfaceView?.holder
         videoHolder?.addCallback(this)

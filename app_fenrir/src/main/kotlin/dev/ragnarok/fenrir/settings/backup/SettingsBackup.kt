@@ -150,6 +150,7 @@ class SettingsBackup {
         var runes_show: Boolean? = null
         var player_background_settings_json: String? = null
         var slidr_settings_json: String? = null
+        var catalog_v2_list_json: String? = null
         var use_api_5_90_for_audio: Boolean? = null
         var is_side_navigation: Boolean? = null
         var is_side_no_stroke: Boolean? = null

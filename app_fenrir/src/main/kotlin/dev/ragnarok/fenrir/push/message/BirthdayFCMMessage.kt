@@ -13,6 +13,7 @@ import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.birthdaysChannelId
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.getBirthdaysChannel
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.push.NotificationUtils.configOtherPushNotification
 import dev.ragnarok.fenrir.settings.Settings.get
@@ -82,8 +83,11 @@ class BirthdayFCMMessage {
             val context: BirthdayContext =
                 kJson.decodeFromString(BirthdayContext.serializer(), data["context"] ?: return null)
             message.user_id = context.user_id
-            if (context.user_id == 0) {
-                return null
+            if (message.user_id == 0) {
+                message.user_id = data["from_id"]?.toInt().orZero()
+                if (message.user_id == 0) {
+                    return null
+                }
             }
             message.body = data["body"]
             message.title = data["title"]

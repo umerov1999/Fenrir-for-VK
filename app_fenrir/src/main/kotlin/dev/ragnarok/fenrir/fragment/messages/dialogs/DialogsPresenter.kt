@@ -230,9 +230,15 @@ class DialogsPresenter(
             InteractorFactory.createStickersInteractor()
                 .getAndStoreStickerSets(accountId)
                 .fromIOToMain()
-                .subscribe(dummy(), ignore())
-        } catch (ignored: Exception) {
-            /*ignore*/
+                .subscribe(dummy()) {
+                    if (Settings.get().other().isDeveloper_mode) {
+                        showError(it)
+                    }
+                }
+        } catch (e: Exception) {
+            if (Settings.get().other().isDeveloper_mode) {
+                showError(e)
+            }
         }
     }
 

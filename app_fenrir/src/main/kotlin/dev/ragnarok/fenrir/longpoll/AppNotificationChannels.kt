@@ -188,7 +188,7 @@ object AppNotificationChannels {
     fun getBirthdaysChannel(context: Context): NotificationChannel {
         val channelName = context.getString(R.string.birthdays)
         val channel = NotificationChannel(
-            groupInvitesChannelId,
+            birthdaysChannelId,
             channelName,
             NotificationManager.IMPORTANCE_LOW
         )

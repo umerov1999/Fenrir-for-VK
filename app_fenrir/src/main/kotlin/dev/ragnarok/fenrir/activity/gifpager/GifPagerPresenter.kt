@@ -1,4 +1,4 @@
-package dev.ragnarok.fenrir.fragment.gifpager
+package dev.ragnarok.fenrir.activity.gifpager
 
 import android.content.Context
 import android.os.Bundle

@@ -193,7 +193,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             .setViews(cursor.getInt(NewsColumns.VIEWS))
         cursor.getBlob(PostsColumns.COPYRIGHT_BLOB).nonNullNoEmpty {
             dbo.setCopyright(
-                MsgPack.decodeFromByteArray(
+                MsgPack.decodeFromByteArrayEx(
                     NewsDboEntity.CopyrightDboEntity.serializer(),
                     it
                 )
@@ -203,7 +203,10 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             cursor.getBlob(NewsColumns.ATTACHMENTS_BLOB)
         if (attachmentsJson.nonNullNoEmpty()) {
             val attachmentsEntity =
-                MsgPack.decodeFromByteArray(ListSerializer(DboEntity.serializer()), attachmentsJson)
+                MsgPack.decodeFromByteArrayEx(
+                    ListSerializer(DboEntity.serializer()),
+                    attachmentsJson
+                )
             if (attachmentsEntity.nonNullNoEmpty()) {
                 val attachmentsOnly: MutableList<DboEntity> = ArrayList(attachmentsEntity.size)
                 val copiesOnly: MutableList<PostDboEntity> = ArrayList(0)
@@ -257,7 +260,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
             dbo.copyright.ifNonNull({
                 cv.put(
                     NewsColumns.COPYRIGHT_BLOB,
-                    MsgPack.encodeToByteArray(NewsDboEntity.CopyrightDboEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(NewsDboEntity.CopyrightDboEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(NewsColumns.COPYRIGHT_BLOB)
@@ -274,7 +277,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
                 if (attachmentsEntities.nonNullNoEmpty()) {
                     cv.put(
                         NewsColumns.ATTACHMENTS_BLOB,
-                        MsgPack.encodeToByteArray(
+                        MsgPack.encodeToByteArrayEx(
                             ListSerializer(DboEntity.serializer()),
                             attachmentsEntities
                         )

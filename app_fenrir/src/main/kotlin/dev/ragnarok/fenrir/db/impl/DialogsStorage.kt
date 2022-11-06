@@ -152,7 +152,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         entity.currentKeyboard.ifNonNull({
             cv.put(
                 PeersColumns.KEYBOARD,
-                MsgPack.encodeToByteArray(KeyboardEntity.serializer(), it)
+                MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
             )
         }, {
             cv.putNull(PeersColumns.KEYBOARD)
@@ -160,7 +160,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         entity.pinned.ifNonNull({
             cv.put(
                 PeersColumns.PINNED,
-                MsgPack.encodeToByteArray(MessageDboEntity.serializer(), it)
+                MsgPack.encodeToByteArrayEx(MessageDboEntity.serializer(), it)
             )
         }, {
             cv.putNull(PeersColumns.PINNED)
@@ -197,7 +197,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             keyboardEntity.ifNonNull({
                 cv.put(
                     PeersColumns.KEYBOARD,
-                    MsgPack.encodeToByteArray(KeyboardEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(PeersColumns.KEYBOARD)
@@ -286,13 +286,13 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                         .setInRead(cursor.getInt(PeersColumns.IN_READ))
                         .setOutRead(cursor.getInt(PeersColumns.OUT_READ))
                         .setPinned(
-                            if (pinJson == null) null else MsgPack.decodeFromByteArray(
+                            if (pinJson == null) null else MsgPack.decodeFromByteArrayEx(
                                 MessageDboEntity.serializer(),
                                 pinJson
                             )
                         )
                         .setCurrentKeyboard(
-                            if (keyboardJson == null) null else MsgPack.decodeFromByteArray(
+                            if (keyboardJson == null) null else MsgPack.decodeFromByteArrayEx(
                                 KeyboardEntity.serializer(),
                                 keyboardJson
                             )
@@ -390,7 +390,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                     it.pinned.ifNonNull({ dd ->
                         peerscv.put(
                             PeersColumns.PINNED,
-                            MsgPack.encodeToByteArray(MessageDboEntity.serializer(), dd)
+                            MsgPack.encodeToByteArrayEx(MessageDboEntity.serializer(), dd)
                         )
                     }, {
                         peerscv.putNull(PeersColumns.PINNED)

@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.util.serializeble.msgpack.internal
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPackConfiguration
 import dev.ragnarok.fenrir.util.serializeble.msgpack.exceptions.MsgPackSerializationException
 import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataOutputArrayBuffer
+import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataOutputArrayBufferCompressed
 import dev.ragnarok.fenrir.util.serializeble.msgpack.stream.MsgPackDataOutputBuffer
 import dev.ragnarok.fenrir.util.serializeble.msgpack.types.MsgPackType
 import dev.ragnarok.fenrir.util.serializeble.msgpack.utils.splitToByteArray
@@ -20,9 +21,11 @@ internal class BasicMsgPackEncoder(
     private val configuration: MsgPackConfiguration,
     override val serializersModule: SerializersModule,
     private val packer: MsgPacker = BasicMsgPacker(),
+    compressed: Boolean,
     val inlineEncoders: Map<SerialDescriptor, (InlineEncoderHelper) -> Encoder> = mapOf()
 ) : AbstractEncoder() {
-    val result = MsgPackDataOutputArrayBuffer()
+    val result: MsgPackDataOutputBuffer =
+        if (compressed) MsgPackDataOutputArrayBufferCompressed() else MsgPackDataOutputArrayBuffer()
 
     override fun encodeBoolean(value: Boolean) {
         result.addAll(packer.packBoolean(value))
@@ -114,11 +117,11 @@ internal class BasicMsgPackEncoder(
                     }
                     collectionSize <= MsgPackType.Array.MAX_ARRAY16_LENGTH -> {
                         result.add(MsgPackType.Array.ARRAY16)
-                        result.addAll(collectionSize.toShort().splitToByteArray().toList())
+                        result.addAll(collectionSize.toShort().splitToByteArray())
                     }
                     collectionSize <= MsgPackType.Array.MAX_ARRAY32_LENGTH -> {
                         result.add(MsgPackType.Array.ARRAY32)
-                        result.addAll(collectionSize.splitToByteArray().toList())
+                        result.addAll(collectionSize.splitToByteArray())
                     }
                     else -> throw MsgPackSerializationException.serialization(
                         result,
@@ -133,11 +136,11 @@ internal class BasicMsgPackEncoder(
                     }
                     collectionSize <= MsgPackType.Map.MAX_MAP16_LENGTH -> {
                         result.add(MsgPackType.Map.MAP16)
-                        result.addAll(collectionSize.toShort().splitToByteArray().toList())
+                        result.addAll(collectionSize.toShort().splitToByteArray())
                     }
                     collectionSize <= MsgPackType.Map.MAX_MAP32_LENGTH -> {
                         result.add(MsgPackType.Map.MAP32)
-                        result.addAll(collectionSize.splitToByteArray().toList())
+                        result.addAll(collectionSize.splitToByteArray())
                     }
                     else -> throw MsgPackSerializationException.serialization(
                         result,

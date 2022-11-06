@@ -23,6 +23,12 @@ import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.fragment.localserver.audioslocalserver.AudiosLocalServerFragment
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2List
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_CATALOG
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_LOCAL_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_LOCAL_SERVER_AUDIO
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_PLAYLIST
+import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_RECOMMENDATIONS
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
@@ -147,7 +153,7 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
             viewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
-                    if (mAdapter?.pFragments?.get(position)?.customType == CatalogV2List.CatalogV2ListItem.TYPE_CATALOG) {
+                    if (mAdapter?.pFragments?.get(position)?.customType == TYPE_CATALOG) {
                         mySearchView?.visibility = View.VISIBLE
                     } else {
                         mySearchView?.visibility = View.GONE
@@ -300,19 +306,19 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
         }
 
         override fun createFragment(position: Int): Fragment {
-            if (pFragments[position].customType == CatalogV2List.CatalogV2ListItem.TYPE_CATALOG) {
+            if (pFragments[position].customType == TYPE_CATALOG) {
                 return CatalogV2SectionFragment.newInstance(
                     Settings.get().accounts().current, pFragments[position].id.orEmpty(),
                     isHideToolbar = true
                 )
             } else when (pFragments[position].customType) {
-                CatalogV2List.CatalogV2ListItem.TYPE_LOCAL_AUDIO -> return AudiosLocalFragment.newInstance(
+                TYPE_LOCAL_AUDIO -> return AudiosLocalFragment.newInstance(
                     requireArguments().getInt(Extra.ACCOUNT_ID)
                 )
-                CatalogV2List.CatalogV2ListItem.TYPE_LOCAL_SERVER_AUDIO -> return AudiosLocalServerFragment.newInstance(
+                TYPE_LOCAL_SERVER_AUDIO -> return AudiosLocalServerFragment.newInstance(
                     requireArguments().getInt(Extra.ACCOUNT_ID)
                 )
-                CatalogV2List.CatalogV2ListItem.TYPE_AUDIO -> {
+                TYPE_AUDIO -> {
                     val args = AudiosFragment.buildArgs(
                         requireArguments().getInt(Extra.ACCOUNT_ID),
                         requireArguments().getInt(Extra.OWNER_ID),
@@ -322,7 +328,7 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
                     args.putBoolean(AudiosFragment.EXTRA_IN_TABS_CONTAINER, true)
                     return AudiosFragment.newInstance(args)
                 }
-                CatalogV2List.CatalogV2ListItem.TYPE_PLAYLIST -> {
+                TYPE_PLAYLIST -> {
                     val fragment = AudioPlaylistsFragment.newInstance(
                         requireArguments().getInt(Extra.ACCOUNT_ID),
                         requireArguments().getInt(Extra.OWNER_ID)
@@ -331,7 +337,7 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
                         .putBoolean(AudiosFragment.EXTRA_IN_TABS_CONTAINER, true)
                     return fragment
                 }
-                CatalogV2List.CatalogV2ListItem.TYPE_RECOMMENDATIONS -> {
+                TYPE_RECOMMENDATIONS -> {
                     val fragment = AudiosRecommendationFragment.newInstance(
                         requireArguments().getInt(Extra.ACCOUNT_ID),
                         requireArguments().getInt(Extra.OWNER_ID), false, 0

@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.db.column.*
 import dev.ragnarok.fenrir.db.column.attachments.CommentsAttachmentsColumns
 import dev.ragnarok.fenrir.db.column.attachments.MessagesAttachmentsColumns
 import dev.ragnarok.fenrir.db.column.attachments.WallAttachmentsColumns
+import dev.ragnarok.fenrir.module.FenrirNative
 import java.util.concurrent.ConcurrentHashMap
 
 class DBHelper private constructor(context: Context, aid: Int) :
@@ -807,7 +808,7 @@ class DBHelper private constructor(context: Context, aid: Int) :
         }
 
         internal fun getDatabaseFileName(aid: Int): String {
-            return "fenrir_$aid.sqlite"
+            return if (!FenrirNative.isNativeLoaded) "fenrir_uncompressed_$aid.sqlite" else "fenrir_$aid.sqlite"
         }
     }
 }

@@ -160,7 +160,7 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
         var sizes: PhotoSizeEntity? = null
         val sizesJson = cursor.getBlob(PhotosColumns.SIZES)
         if (sizesJson.nonNullNoEmpty()) {
-            sizes = MsgPack.decodeFromByteArray(PhotoSizeEntity.serializer(), sizesJson)
+            sizes = MsgPack.decodeFromByteArrayEx(PhotoSizeEntity.serializer(), sizesJson)
         }
         val id = cursor.getInt(PhotosColumns.PHOTO_ID)
         val ownerId = cursor.getInt(PhotosColumns.OWNER_ID)
@@ -180,30 +180,6 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
             .setDeleted(cursor.getBoolean(PhotosColumns.DELETED))
     }
 
-    private fun mapPhotoExtendedDbo(cursor: Cursor): PhotoDboEntity {
-        var sizes: PhotoSizeEntity? = null
-        val sizesJson = cursor.getBlob(PhotosExtendedColumns.SIZES)
-        if (sizesJson.nonNullNoEmpty()) {
-            sizes = MsgPack.decodeFromByteArray(PhotoSizeEntity.serializer(), sizesJson)
-        }
-        val id = cursor.getInt(PhotosExtendedColumns.PHOTO_ID)
-        val ownerId = cursor.getInt(PhotosExtendedColumns.OWNER_ID)
-        return PhotoDboEntity().set(id, ownerId)
-            .setSizes(sizes)
-            .setAlbumId(cursor.getInt(PhotosExtendedColumns.ALBUM_ID))
-            .setWidth(cursor.getInt(PhotosExtendedColumns.WIDTH))
-            .setHeight(cursor.getInt(PhotosExtendedColumns.HEIGHT))
-            .setText(cursor.getString(PhotosExtendedColumns.TEXT))
-            .setDate(cursor.getLong(PhotosExtendedColumns.DATE))
-            .setUserLikes(cursor.getBoolean(PhotosExtendedColumns.USER_LIKES))
-            .setCanComment(cursor.getBoolean(PhotosExtendedColumns.CAN_COMMENT))
-            .setLikesCount(cursor.getInt(PhotosExtendedColumns.LIKES))
-            .setCommentsCount(cursor.getInt(PhotosExtendedColumns.COMMENTS))
-            .setTagsCount(cursor.getInt(PhotosExtendedColumns.TAGS))
-            .setAccessKey(cursor.getString(PhotosExtendedColumns.ACCESS_KEY))
-            .setDeleted(cursor.getBoolean(PhotosExtendedColumns.DELETED))
-    }
-
     companion object {
         internal fun getCV(dbo: PhotoDboEntity): ContentValues {
             val cv = ContentValues()
@@ -217,7 +193,7 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
             dbo.sizes.ifNonNull({
                 cv.put(
                     PhotosColumns.SIZES,
-                    MsgPack.encodeToByteArray(PhotoSizeEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PhotoSizeEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(PhotosColumns.SIZES)
@@ -251,7 +227,7 @@ internal class PhotosStorage(base: AppStorages) : AbsStorage(base), IPhotosStora
             dbo.sizes.ifNonNull({
                 cv.put(
                     PhotosExtendedColumns.SIZES,
-                    MsgPack.encodeToByteArray(PhotoSizeEntity.serializer(), it)
+                    MsgPack.encodeToByteArrayEx(PhotoSizeEntity.serializer(), it)
                 )
             }, {
                 cv.putNull(PhotosExtendedColumns.SIZES)
