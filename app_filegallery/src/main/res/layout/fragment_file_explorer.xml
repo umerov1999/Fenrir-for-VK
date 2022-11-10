@@ -113,7 +113,7 @@
         app:radius_bottom_right="2dp"
         app:radius_top_left="12dp"
         app:radius_top_right="12dp"
-        app:view_color="?colorControlNormal">
+        app:view_color="?colorPrimary">
 
         <TextView
             android:id="@+id/current_path"

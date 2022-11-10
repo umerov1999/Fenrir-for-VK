@@ -502,8 +502,6 @@ internal class OtherSettings(context: Context) : IOtherSettings {
         get() = getPreferences(app).getBoolean("hint_stickers", true)
     override val isEnable_native: Boolean
         get() = getPreferences(app).getBoolean("enable_native", true)
-    override val isEnable_cache_ui_anim: Boolean
-        get() = getPreferences(app).getBoolean("enable_cache_ui_anim", false)
     override val isRecording_to_opus: Boolean
         get() = getPreferences(app).getBoolean("recording_to_opus", false)
     override val isDisable_sensored_voice: Boolean

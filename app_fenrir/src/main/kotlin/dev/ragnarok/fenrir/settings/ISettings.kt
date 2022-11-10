@@ -119,7 +119,6 @@ interface ISettings {
         val isVideo_swipes: Boolean
         val isHint_stickers: Boolean
         val isEnable_native: Boolean
-        val isEnable_cache_ui_anim: Boolean
         val isRecording_to_opus: Boolean
         val paganSymbol: Int
         val isRunes_show: Boolean

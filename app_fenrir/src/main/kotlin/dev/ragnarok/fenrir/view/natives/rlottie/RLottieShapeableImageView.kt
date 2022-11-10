@@ -61,7 +61,6 @@ class RLottieShapeableImageView @JvmOverloads constructor(
         setAnimation(
             RLottieDrawable(
                 ch, true, w, h,
-                precache = false,
                 limitFps = false,
                 colorReplacement = null,
                 useMoveColor = false
@@ -139,7 +138,6 @@ class RLottieShapeableImageView @JvmOverloads constructor(
         setAnimation(
             RLottieDrawable(
                 resId,
-                "res_$resId",
                 w,
                 h,
                 false,
@@ -157,7 +155,6 @@ class RLottieShapeableImageView @JvmOverloads constructor(
         setAnimation(
             RLottieDrawable(
                 file, false, w, h,
-                precache = false,
                 limitFps = false,
                 colorReplacement = null,
                 useMoveColor = false
@@ -283,7 +280,7 @@ class RLottieShapeableImageView @JvmOverloads constructor(
         a.recycle()
         if (FenrirNative.isNativeLoaded && animRes != 0) {
             animatedDrawable =
-                RLottieDrawable(animRes, "" + animRes, width, height, false, null, false)
+                RLottieDrawable(animRes, width, height, false, null, false)
             setAnimation(animatedDrawable!!)
             playAnimation()
         }

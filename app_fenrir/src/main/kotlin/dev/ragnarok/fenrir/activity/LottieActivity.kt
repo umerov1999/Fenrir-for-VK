@@ -57,41 +57,42 @@ class LottieActivity : AppCompatActivity() {
                 result.data?.getStringExtra(Extra.PATH), title
             )
             toGif?.isEnabled = false
-            lottie?.stopAnimation()
-            lottie?.let {
-                RLottie2Gif.create(it.animatedDrawable!!)
-                    .setListener(object : Lottie2GifListener {
-                        var start: Long = 0
-                        var logs: String? = null
-                        override fun onStarted() {
-                            start = System.currentTimeMillis()
-                            logs = "Wait a moment...\r\n"
-                            log(logs)
-                        }
+            RLottie2Gif.create(
+                BufferWriteNative.fromStreamEndlessNull(
+                    contentResolver.openInputStream(
+                        intent.data ?: return@registerForActivityResult
+                    ) ?: return@registerForActivityResult
+                )
+            ).setListener(object : Lottie2GifListener {
+                var start: Long = 0
+                var logs: String? = null
+                override fun onStarted() {
+                    start = System.currentTimeMillis()
+                    logs = "Wait a moment...\r\n"
+                    log(logs)
+                }
 
-                        @SuppressLint("SetTextI18n")
-                        override fun onProgress(frame: Int, totalFrame: Int) {
-                            log(logs + "progress : " + frame + "/" + totalFrame)
-                        }
+                @SuppressLint("SetTextI18n")
+                override fun onProgress(frame: Int, totalFrame: Int) {
+                    log(logs + "progress : " + frame + "/" + totalFrame)
+                }
 
-                        override fun onFinished() {
-                            logs =
-                                "GIF created (" + (System.currentTimeMillis() - start) + "ms)\r\n" +
-                                        "Resolution : " + 500 + "x" + 500 + "\r\n" +
-                                        "Path : " + file + "\r\n" +
-                                        "File Size : " + file.length() / 1024 + "kb"
-                            log(logs)
-                            toGif?.post { toGif?.isEnabled = true }
-                            lottie?.post { lottie?.playAnimation() }
-                        }
-                    })
-                    .setBackgroundColor(Color.TRANSPARENT)
-                    .setOutputPath(file)
-                    .setSize(500, 500)
-                    .setBackgroundTask(true)
-                    .setDithering(false)
-                    .build()
-            }
+                override fun onFinished() {
+                    logs =
+                        "GIF created (" + (System.currentTimeMillis() - start) + "ms)\r\n" +
+                                "Resolution : " + 500 + "x" + 500 + "\r\n" +
+                                "Path : " + file + "\r\n" +
+                                "File Size : " + file.length() / 1024 + "kb"
+                    log(logs)
+                    toGif?.post { toGif?.isEnabled = true }
+                }
+            })
+                .setBackgroundColor(Color.TRANSPARENT)
+                .setOutputPath(file)
+                .setSize(500, 500)
+                .setBackgroundTask(true)
+                .setDithering(false)
+                .build()
         }
     }
 

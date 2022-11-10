@@ -49,14 +49,24 @@ class FileExistJVM : AbsFileExist {
             }
             return
         }
-        val reader = ReaderJsonLexer(JavaStreamSerialReader(FileInputStream(audios)))
-        reader.consumeNextToken(WriteMode.LIST.begin)
-        while (reader.canConsumeValue()) {
-            RemoteAudios.add(reader.consumeStringLenient().lowercase(Locale.getDefault()))
-        }
-        reader.consumeNextToken(WriteMode.LIST.end)
-        if (needLock) {
-            setBusy(false)
+        try {
+            val reader = ReaderJsonLexer(
+                JavaStreamSerialReader(FileInputStream(audios))
+            )
+            reader.consumeNextToken(WriteMode.LIST.begin)
+            while (reader.canConsumeValue()) {
+                RemoteAudios.add(reader.consumeStringLenient().lowercase(Locale.getDefault()))
+                reader.tryConsumeComma()
+            }
+            reader.consumeNextToken(WriteMode.LIST.end)
+            if (needLock) {
+                setBusy(false)
+            }
+        } catch (e: Exception) {
+            if (needLock) {
+                setBusy(false)
+            }
+            throw e
         }
     }
 

@@ -141,7 +141,6 @@ class SettingsBackup {
         var dump_fcm: Boolean? = null
         var hint_stickers: Boolean? = null
         var enable_native: Boolean? = null
-        var enable_cache_ui_anim: Boolean? = null
         var disable_sensored_voice: Boolean? = null
         var local_media_server: String? = null
         var pagan_symbol: String? = null

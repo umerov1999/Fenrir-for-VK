@@ -146,7 +146,6 @@
     <string name="about_settings">Аб дадатку</string>
     <string name="account_cache_cleaner">Ачысціць кэш і базу дадзеных</string>
     <string name="cache_cleaner">Ачысціць кэш</string>
-    <string name="ui_cache_cleaner">Ачысціць толькі UI кэш</string>
     <!-- Quick Reply-->
     <string name="go_to_dialog">Да дыялогу</string>
     <string name="send">Адправіць</string>
@@ -1589,7 +1588,6 @@
     <string name="ffmpeg_audio_codecs">FFmpeg аўдыё кодэкі</string>
     <string name="strip_news_repost">Прыбраць рэпосты з навін</string>
     <string name="need_refresh">Патрабуе абнавіць спіс</string>
-    <string name="enable_cache_ui_anim">Кэшаваць UI анімацыі</string>
     <string name="scoped_storage">Scoped Storage Android 11</string>
     <string name="rotating_player_cover">Вяртаць вокладку плэера</string>
     <string name="sort_old_to_new">Ад старых да новых</string>

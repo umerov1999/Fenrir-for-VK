@@ -60,6 +60,7 @@ class DialogsPresenter(
     private var endOfContent = false
     private var netLoadingNow = false
     private var cacheNowLoading = false
+    private var needAskWhenGuiReady = false
     override fun saveState(outState: Bundle) {
         super.saveState(outState)
         outState.putInt(SAVE_DIALOGS_OWNER_ID, dialogsOwnerId)
@@ -71,6 +72,10 @@ class DialogsPresenter(
 
         // only for user dialogs
         viewHost.setCreateGroupChatButtonVisible(dialogsOwnerId > 0)
+        if (needAskWhenGuiReady) {
+            viewHost.askToReload()
+            needAskWhenGuiReady = false
+        }
     }
 
     private fun onDialogsFirstResponse(data: List<Dialog>) {
@@ -254,7 +259,11 @@ class DialogsPresenter(
                 receiveStickers()
             }
             if (needReloadDialogs(accountId)) {
-                view?.askToReload()
+                if (view == null) {
+                    needAskWhenGuiReady = true
+                } else {
+                    view?.askToReload()
+                }
             }
         } else {
             requestAtLast()

@@ -863,7 +863,8 @@ object DownloadWorkUtils {
                 inputData.getString(ExtraDwn.FILE)!!,
                 inputData.getString(ExtraDwn.DIR)!!, inputData.getString(ExtraDwn.EXT)!!
             )
-            val needCover = inputData.getBoolean(ExtraDwn.NEED_UPDATE_TAG, true)
+            val needCover =
+                inputData.getBoolean(ExtraDwn.NEED_UPDATE_TAG, true) && FenrirNative.isNativeLoaded
             val audio = MsgPack.decodeFromByteArrayEx(
                 Audio.serializer(),
                 inputData.getByteArray(ExtraDwn.URL)!!

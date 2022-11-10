@@ -1712,13 +1712,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.enable_native
             }
 
-            switch("enable_cache_ui_anim") {
-                defaultValue = false
-                dependency = "enable_native"
-                summaryRes = R.string.need_restart
-                titleRes = R.string.enable_cache_ui_anim
-            }
-
             switch("settings_no_push") {
                 titleRes = R.string.settings_no_push
             }
@@ -1750,19 +1743,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     titleRes = R.string.account_cache_cleaner
                     onClick {
                         DBHelper.removeDatabaseFor(requireActivity(), accountId)
-                        cleanUICache(requireActivity(), false)
                         cleanCache(requireActivity(), true)
                         Includes.stores.stickers().clearAccount(accountId).fromIOToMain()
                             .subscribe(RxUtils.dummy(), RxUtils.ignore())
-                        true
-                    }
-                }
-
-                pref("ui_cache_cleaner") {
-                    dependency = "enable_native"
-                    titleRes = R.string.ui_cache_cleaner
-                    onClick {
-                        cleanUICache(requireActivity(), true)
                         true
                     }
                 }
@@ -1771,7 +1754,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     titleRes = R.string.cache_cleaner
                     onClick {
                         TempDataHelper.helper.clear()
-                        cleanUICache(requireActivity(), false)
                         cleanCache(requireActivity(), true)
                         requireActivity().recreate()
                         true
@@ -1794,7 +1776,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     titleRes = R.string.limit_cache_images
                     onSelectionChange {
                         TempDataHelper.helper.clear()
-                        cleanUICache(requireActivity(), false)
                         cleanCache(requireActivity(), true)
                         requireActivity().recreate()
                     }
@@ -2808,6 +2789,18 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         }
                     }
                 }
+                cache = File(context.cacheDir, "video_resource_cache")
+                if (cache.exists() && cache.isDirectory) {
+                    val children = cache.list()
+                    if (children != null) {
+                        for (child in children) {
+                            val rem = File(cache, child)
+                            if (rem.isFile) {
+                                rem.delete()
+                            }
+                        }
+                    }
+                }
                 AudioRecordWrapper.getRecordingDirectory(context)?.let {
                     if (it.exists() && it.isDirectory) {
                         val children = it.list()
@@ -2817,40 +2810,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                                 if (rem.isFile) {
                                     rem.delete()
                                 }
-                            }
-                        }
-                    }
-                }
-                if (notify) createCustomToast(context).showToast(R.string.success)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                if (notify) createCustomToast(context).showToastError(e.localizedMessage)
-            }
-        }
-
-
-        fun cleanUICache(context: Context, notify: Boolean) {
-            try {
-                var cache = File(context.cacheDir, "lottie_cache/rendered")
-                if (cache.exists() && cache.isDirectory) {
-                    val children = cache.list()
-                    if (children != null) {
-                        for (child in children) {
-                            val rem = File(cache, child)
-                            if (rem.isFile) {
-                                rem.delete()
-                            }
-                        }
-                    }
-                }
-                cache = File(context.cacheDir, "video_resource_cache")
-                if (cache.exists() && cache.isDirectory) {
-                    val children = cache.list()
-                    if (children != null) {
-                        for (child in children) {
-                            val rem = File(cache, child)
-                            if (rem.isFile) {
-                                rem.delete()
                             }
                         }
                     }

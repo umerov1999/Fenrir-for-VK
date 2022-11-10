@@ -393,7 +393,7 @@
             android:exported="true"
             android:label="@string/gif_player"
             android:theme="@style/App.DayNight.Swipes"
-            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
             android:name="dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity"
@@ -401,7 +401,7 @@
             android:exported="true"
             android:label="@string/story"
             android:theme="@style/App.DayNight.Swipes"
-            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
             android:name="dev.ragnarok.fenrir.activity.SinglePhotoActivity"

@@ -48,7 +48,6 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.impl.CountersInteractor
 import dev.ragnarok.fenrir.fragment.*
 import dev.ragnarok.fenrir.fragment.PreferencesFragment.Companion.cleanCache
-import dev.ragnarok.fenrir.fragment.PreferencesFragment.Companion.cleanUICache
 import dev.ragnarok.fenrir.fragment.abswall.AbsWallFragment
 import dev.ragnarok.fenrir.fragment.attachments.commentcreate.CommentCreateFragment
 import dev.ragnarok.fenrir.fragment.attachments.commentedit.CommentEditFragment
@@ -428,9 +427,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                             )
                         }
                     }
-                    if (!Settings.get().other().appStoredVersionEqual()) {
-                        cleanUICache(this, false)
-                    }
+                    Settings.get().other().appStoredVersionEqual()
                     if (Settings.get().other().isDelete_cache_images) {
                         cleanCache(this, false)
                     }

@@ -8,7 +8,6 @@ import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.module.FenrirNative
-import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.service.KeepLongpollService
@@ -56,7 +55,6 @@ class App : Application() {
         Utils.isCompressIncomingTraffic = Settings.get().other().isCompress_incoming_traffic
         Utils.isCompressOutgoingTraffic = Settings.get().other().isCompress_outgoing_traffic
         Utils.currentParser = Settings.get().other().currentParser
-        RLottieDrawable.setCacheResourceAnimation(Settings.get().other().isEnable_cache_ui_anim)
         MusicPlaybackController.registerBroadcast(this)
         PicassoInstance.init(this, Includes.proxySettings)
         if (Settings.get().other().isKeepLongpoll) {

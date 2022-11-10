@@ -687,7 +687,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 initialSelection = "2"
                 titleRes = R.string.limit_cache_images
                 onSelectionChange {
-                    cleanUICache(requireActivity(), false)
                     cleanCache(requireActivity(), true)
                     requireActivity().recreate()
                 }
@@ -714,12 +713,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     setHardwareRendering(sz)
                     requireActivity().recreate()
                 }
-            }
-
-            switch("enable_cache_ui_anim") {
-                defaultValue = false
-                summaryRes = R.string.need_restart
-                titleRes = R.string.enable_cache_ui_anim
             }
 
             switch("enable_dirs_files_count") {
@@ -851,7 +844,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onClick {
                     Includes.stores.searchQueriesStore().clearQueriesAll()
                     Includes.stores.searchQueriesStore().clearFilesAll()
-                    cleanUICache(requireActivity(), false)
                     cleanCache(requireActivity(), true)
                     requireActivity().recreate()
                     true
@@ -1381,27 +1373,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     }
                 }
                 cache = File(context.cacheDir, "lottie_cache")
-                if (cache.exists() && cache.isDirectory) {
-                    val children = cache.list()
-                    if (children != null) {
-                        for (child in children) {
-                            val rem = File(cache, child)
-                            if (rem.isFile) {
-                                rem.delete()
-                            }
-                        }
-                    }
-                }
-                if (notify) createCustomToast(context, null)?.showToast(R.string.success)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                if (notify) createCustomToast(context, null)?.showToastThrowable(e)
-            }
-        }
-
-        fun cleanUICache(context: Context, notify: Boolean) {
-            try {
-                var cache = File(context.cacheDir, "lottie_cache/rendered")
                 if (cache.exists() && cache.isDirectory) {
                     val children = cache.list()
                     if (children != null) {

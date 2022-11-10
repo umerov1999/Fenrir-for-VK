@@ -61,7 +61,6 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         setAnimation(
             RLottieDrawable(
                 ch, true, w, h,
-                precache = false,
                 limitFps = false,
                 colorReplacement = null,
                 useMoveColor = false
@@ -139,7 +138,6 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         setAnimation(
             RLottieDrawable(
                 resId,
-                "res_$resId",
                 w,
                 h,
                 false,
@@ -157,7 +155,6 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         setAnimation(
             RLottieDrawable(
                 file, false, w, h,
-                precache = false,
                 limitFps = false,
                 colorReplacement = null,
                 useMoveColor = false
@@ -173,7 +170,6 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         setAnimation(
             RLottieDrawable(
                 jsonString, w, h,
-                precache = false,
                 limitFps = false,
                 colorReplacement = null,
                 useMoveColor = false
@@ -298,7 +294,7 @@ class RLottieImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         a.recycle()
         if (FenrirNative.isNativeLoaded && animRes != 0) {
             animatedDrawable =
-                RLottieDrawable(animRes, "" + animRes, width, height, false, null, false)
+                RLottieDrawable(animRes, width, height, false, null, false)
             setAnimation(animatedDrawable!!)
             playAnimation()
         }

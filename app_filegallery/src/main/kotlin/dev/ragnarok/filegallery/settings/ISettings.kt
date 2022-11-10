@@ -29,7 +29,6 @@ interface ISettings {
         fun getNightMode(): Int
         fun isDeveloper_mode(): Boolean
         val isOpen_folder_new_window: Boolean
-        fun isEnable_cache_ui_anim(): Boolean
         fun isEnable_dirs_files_count(): Boolean
 
         fun getMusicDir(): String

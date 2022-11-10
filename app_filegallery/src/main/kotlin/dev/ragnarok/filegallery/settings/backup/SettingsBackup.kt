@@ -52,7 +52,6 @@ class SettingsBackup {
         var max_bitmap_resolution: String? = null
         var max_thumb_resolution: String? = null
         var rendering_mode: String? = null
-        var enable_cache_ui_anim: Boolean? = null
         var enable_dirs_files_count: Boolean? = null
         var viewpager_page_transform: String? = null
         var player_cover_transform: String? = null

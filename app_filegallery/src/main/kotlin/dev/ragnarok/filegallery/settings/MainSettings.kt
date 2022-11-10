@@ -77,10 +77,6 @@ internal class MainSettings(context: Context) : IMainSettings {
         return getPreferences(app).getBoolean("developer_mode", forceDeveloperMode)
     }
 
-    override fun isEnable_cache_ui_anim(): Boolean {
-        return getPreferences(app).getBoolean("enable_cache_ui_anim", false)
-    }
-
     override fun isEnable_dirs_files_count(): Boolean {
         return getPreferences(app).getBoolean("enable_dirs_files_count", true)
     }

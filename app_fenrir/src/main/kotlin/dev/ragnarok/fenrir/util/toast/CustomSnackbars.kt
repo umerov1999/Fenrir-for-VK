@@ -66,9 +66,13 @@ class CustomSnackbars private constructor(private val view: View, private val an
     }
 
     companion object {
-        fun createCustomSnackbars(view: View?, anchorView: View? = null): CustomSnackbars? {
+        fun createCustomSnackbars(
+            view: View?,
+            anchorView: View? = null,
+            notAttached: Boolean = false
+        ): CustomSnackbars? {
             return view?.let {
-                if (view.isAttachedToWindow && Snackbar.findSuitableParent(it) != null) CustomSnackbars(
+                if ((view.isAttachedToWindow || notAttached) && Snackbar.findSuitableParent(it) != null) CustomSnackbars(
                     it,
                     anchorView
                 ) else null

@@ -87,7 +87,7 @@ android {
         encoding = "utf-8"
         aaptOptions.additionalParameters "--no-version-vectors"
     }
-    lintOptions {
+    lint {
         checkOnly 'NewApi'
     }
 }

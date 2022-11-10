@@ -14,7 +14,9 @@ import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Keyboard
 import dev.ragnarok.fenrir.model.Message
+import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.VoiceMessage
+import dev.ragnarok.fenrir.place.PlaceFactory.getChatPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getMessagesLookupPlace
 
 class MessagesSearchFragment :
@@ -58,7 +60,10 @@ class MessagesSearchFragment :
     }
 
     override fun onMessageLongClick(message: Message, position: Int): Boolean {
-        return false
+        presenter?.fireMessageLongClick(
+            message
+        )
+        return true
     }
 
     override fun onMessageClicked(message: Message, position: Int) {
@@ -81,6 +86,10 @@ class MessagesSearchFragment :
 
     override fun goToMessagesLookup(accountId: Int, peerId: Int, messageId: Int) {
         getMessagesLookupPlace(accountId, peerId, messageId, null).tryOpenWith(requireActivity())
+    }
+
+    override fun goToPeerLookup(accountId: Int, peer: Peer) {
+        getChatPlace(accountId, accountId, peer).tryOpenWith(requireActivity())
     }
 
     override fun configNowVoiceMessagePlaying(

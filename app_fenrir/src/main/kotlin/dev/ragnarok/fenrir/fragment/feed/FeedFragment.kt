@@ -321,7 +321,7 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
     }
 
     override fun askToReload() {
-        CustomSnackbars.createCustomSnackbars(view)
+        CustomSnackbars.createCustomSnackbars(view, null, true)
             ?.setDurationSnack(Snackbar.LENGTH_LONG)?.defaultSnack(R.string.update_news)
             ?.setAction(R.string.do_update) {
                 mFeedLayoutManager?.scrollToPosition(0)

@@ -108,7 +108,6 @@
     <string name="max_thumb_resolution">Максімальны дазвол вокладкі</string>
     <string name="rendering_mode">Рэжым адмалёўкі малюнкаў</string>
     <string name="need_restart">Патрабуецца перазапуск</string>
-    <string name="enable_cache_ui_anim">Кэшаваць UI анімацыі</string>
     <string name="enable_dirs_files_count">Колькасць файлаў у тэчцы</string>
     <string name="cache_cleaner">Ачысціць кэш</string>
     <string name="local_media_server">Лакальны медыя сервер</string>

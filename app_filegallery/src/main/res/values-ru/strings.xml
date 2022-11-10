@@ -108,7 +108,6 @@
     <string name="max_thumb_resolution">Максимальное разрешение обложки</string>
     <string name="rendering_mode">Режим отрисовки изображений</string>
     <string name="need_restart">Требуется перезапуск</string>
-    <string name="enable_cache_ui_anim">Кэшировать UI анимации</string>
     <string name="enable_dirs_files_count">Количество файлов в папке</string>
     <string name="cache_cleaner">Очистить кэш</string>
     <string name="local_media_server">Локальный медиа сервер</string>

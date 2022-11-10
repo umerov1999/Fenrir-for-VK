@@ -221,7 +221,6 @@
     <string name="max_thumb_resolution">Maximum cover resolution</string>
     <string name="rendering_mode">Image rendering mode</string>
     <string name="need_restart">Restart required</string>
-    <string name="enable_cache_ui_anim">Cache UI animations</string>
     <string name="enable_dirs_files_count">Number of files in folder</string>
     <string name="cache_cleaner">Clear cache</string>
     <string name="local_media_server">Local media server</string>

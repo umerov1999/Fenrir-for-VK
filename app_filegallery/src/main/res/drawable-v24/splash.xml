@@ -13,13 +13,13 @@
                 android:gradientRadius="90"
                 android:type="radial">
                 <item
-                    android:color="#FFC107"
+                    android:color="@color/icon_var1"
                     android:offset="0.1" />
                 <item
-                    android:color="#E91E63"
+                    android:color="@color/icon_var2"
                     android:offset="0.4" />
                 <item
-                    android:color="#03A9F4"
+                    android:color="@color/icon_var3"
                     android:offset="1.0" />
             </gradient>
         </aapt:attr>

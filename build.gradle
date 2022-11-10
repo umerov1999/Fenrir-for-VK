@@ -7,10 +7,10 @@ buildscript {
     ext.appNdk = "25.1.8937393"
     ext.appMinSDK = is_developer_build ? 29 : 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 211
-    ext.appFenrirVersionName = "2.111-Kotlin"
-    ext.appFileGalleryVersionCode = 41
-    ext.appFileGalleryVersionName = "1.41-Kotlin"
+    ext.appFenrirVersionCode = 212
+    ext.appFenrirVersionName = "2.112-Kotlin"
+    ext.appFileGalleryVersionCode = 42
+    ext.appFileGalleryVersionName = "1.42-Kotlin"
 
     //androidx libraries
     ext.activityVersion = "1.6.1"
@@ -39,8 +39,8 @@ buildscript {
     ext.tracingVersion = "1.1.0"
     ext.transitionVersion = "1.4.1"
     ext.vectordrawableVersion = "1.2.0-beta01"
-    ext.webkitVersion = "1.6.0-alpha02"
-    ext.workVersion = "2.8.0-beta01"
+    ext.webkitVersion = "1.6.0-alpha03"
+    ext.workVersion = "2.8.0-beta02"
 
     //firebase libraries
     ext.firebaseDatabaseVersion = "20.1.0"
@@ -88,7 +88,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.4.0-beta04"
+        classpath "com.android.tools.build:gradle:7.4.0-beta05"
         classpath "com.google.gms:google-services:4.3.14"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"

@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.fragment.search.messagessearch
 
 import dev.ragnarok.fenrir.fragment.search.abssearch.IBaseSearchView
 import dev.ragnarok.fenrir.model.Message
+import dev.ragnarok.fenrir.model.Peer
 
 interface IMessagesSearchView : IBaseSearchView<Message> {
     fun goToMessagesLookup(accountId: Int, peerId: Int, messageId: Int)
@@ -22,5 +23,6 @@ interface IMessagesSearchView : IBaseSearchView<Message> {
         speed: Boolean
     )
 
+    fun goToPeerLookup(accountId: Int, peer: Peer)
     fun disableVoicePlaying()
 }

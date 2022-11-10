@@ -308,7 +308,6 @@
     <string name="about_settings">About application</string>
     <string name="account_cache_cleaner">Clear cache and sql</string>
     <string name="cache_cleaner">Clear cache</string>
-    <string name="ui_cache_cleaner">Clear only UI</string>
     <!-- Quick Reply-->
     <string name="go_to_dialog">To dialog</string>
     <string name="send">Send</string>
@@ -1836,7 +1835,6 @@
     <string name="ffmpeg_audio_codecs">FFmpeg audio codecs</string>
     <string name="strip_news_repost">Remove reposts from news</string>
     <string name="need_refresh">Need Refresh</string>
-    <string name="enable_cache_ui_anim">Caching UI Animations</string>
     <string name="scoped_storage">Scoped Storage Android 11</string>
     <string name="rotating_player_cover">Rotate player cover</string>
     <string name="sort_old_to_new">From Old to New</string>

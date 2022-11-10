@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.fragment.search.messagessearch
 import android.os.Bundle
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.domain.IMessagesRepository
+import dev.ragnarok.fenrir.domain.Mode
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
@@ -11,6 +12,7 @@ import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.media.voice.IVoicePlayer
 import dev.ragnarok.fenrir.model.Message
+import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
@@ -89,6 +91,20 @@ class MessagesSearchPresenter(
 
     override fun canSearch(criteria: MessageSearchCriteria?): Boolean {
         return criteria?.query.trimmedNonNullNoEmpty()
+    }
+
+    fun fireMessageLongClick(message: Message) {
+        appendDisposable(
+            messagesInteractor.getConversationSingle(
+                accountId, message.peerId,
+                Mode.NET
+            ).fromIOToMain().subscribe({
+                view?.goToPeerLookup(
+                    accountId,
+                    Peer(message.peerId).setTitle(it.getTitle()).setAvaUrl(it.imageUrl)
+                )
+            }, { showError(it) })
+        )
     }
 
     fun fireMessageClick(message: Message) {

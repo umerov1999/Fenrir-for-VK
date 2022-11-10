@@ -399,7 +399,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
     }
 
     override fun askToReload() {
-        CustomSnackbars.createCustomSnackbars(view)
+        CustomSnackbars.createCustomSnackbars(view, null, true)
             ?.setDurationSnack(Snackbar.LENGTH_LONG)?.defaultSnack(R.string.update_dialogs)
             ?.setAction(R.string.button_yes) {
                 presenter?.fireRefresh()

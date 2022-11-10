@@ -27,7 +27,7 @@ class TempDataHelper(context: Context) :
     }
 
     private fun createStickerSetTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + StikerSetColumns.TABLENAME + "] (\n" +
+        val sql = "CREATE TABLE IF NOT EXISTS [" + StikerSetColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 " [" + StikerSetColumns.ACCOUNT_ID + "] INTEGER, " +
                 " [" + StikerSetColumns.POSITION + "] INTEGER, " +
@@ -42,7 +42,7 @@ class TempDataHelper(context: Context) :
     }
 
     private fun createStickersKeywordsTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + StickersKeywordsColumns.TABLENAME + "] (\n" +
+        val sql = "CREATE TABLE IF NOT EXISTS [" + StickersKeywordsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 " [" + StickersKeywordsColumns.ACCOUNT_ID + "] INTEGER, " +
                 " [" + StickersKeywordsColumns.KEYWORDS + "] BLOB, " +

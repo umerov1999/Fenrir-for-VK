@@ -36,6 +36,7 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
     private var loadingNowNextFrom: String? = null
     private var cacheLoadingNow = false
     private var mTmpFeedScrollOnGuiReady: String? = null
+    private var needAskWhenGuiReady = false
     private fun refreshFeedSources() {
         appendDisposable(feedInteractor.getCachedFeedLists(accountId)
             .fromIOToMain()
@@ -163,6 +164,11 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         mTmpFeedScrollOnGuiReady = null
         resolveRefreshingView()
         resolveLoadMoreFooterView()
+
+        if (needAskWhenGuiReady) {
+            viewHost.askToReload()
+            needAskWhenGuiReady = false
+        }
     }
 
     private fun setCacheLoadingNow(cacheLoadingNow: Boolean) {
@@ -215,7 +221,11 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
             if (needReloadNews(accountId)) {
                 val vr = Settings.get().main().start_newsMode
                 if (vr == 2) {
-                    view?.askToReload()
+                    if (view == null) {
+                        needAskWhenGuiReady = true
+                    } else {
+                        view?.askToReload()
+                    }
                 } else if (vr == 1) {
                     view?.scrollTo(0)
                     requestFeedAtLast(null)
@@ -334,9 +344,9 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         if (owners.isNullOrEmpty()) {
             return
         }
-        val Ids: MutableList<Int> = ArrayList(owners.size)
+        val iIds: MutableList<Int> = ArrayList(owners.size)
         for (i in owners) {
-            Ids.add(i.ownerId)
+            iIds.add(i.ownerId)
         }
         InputTextDialog.Builder(context)
             .setTitleRes(R.string.set_news_list_title)
@@ -347,7 +357,7 @@ class FeedPresenter(accountId: Int, savedInstanceState: Bundle?) :
                     appendDisposable(feedInteractor.saveList(
                         accountId,
                         newValue?.trim { it <= ' ' },
-                        Ids
+                        iIds
                     )
                         .fromIOToMain()
                         .subscribe({
