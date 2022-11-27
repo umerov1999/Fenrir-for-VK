@@ -20,8 +20,6 @@ import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentThem
 
 abstract class AbsChatAttachmentsFragment<T, P : BaseChatAttachmentsPresenter<T, V>, V : IBaseChatAttachmentsView<T>> :
     PlaceSupportMvpFragment<P, V>(), IBaseChatAttachmentsView<T> {
-
-    @JvmField
     protected var mRecyclerView: RecyclerView? = null
     protected var mEmpty: TextView? = null
     protected var mSwipeRefreshLayout: SwipeRefreshLayout? = null

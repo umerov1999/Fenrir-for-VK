@@ -18,8 +18,9 @@ interface IPhotoAlbumsView : IMvpView, IErrorView {
     fun setCreateAlbumFabVisible(visible: Boolean)
     fun goToAlbumCreation(accountId: Int, ownerId: Int)
     fun goToAlbumEditing(accountId: Int, album: PhotoAlbum, editor: PhotoAlbumEditor)
-    fun seDrawertPhotoSectionActive(active: Boolean)
+    fun setDrawerPhotoSectionActive(active: Boolean)
     fun notifyItemRemoved(index: Int)
+    fun notifyItemChanged(index: Int)
     fun notifyDataAdded(position: Int, size: Int)
     fun goToPhotoComments(accountId: Int, ownerId: Int)
 }

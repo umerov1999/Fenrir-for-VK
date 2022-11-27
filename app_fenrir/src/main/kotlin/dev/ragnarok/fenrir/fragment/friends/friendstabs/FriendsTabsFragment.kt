@@ -22,13 +22,13 @@ import dev.ragnarok.fenrir.fragment.friends.mutualfriends.MutualFriendsFragment
 import dev.ragnarok.fenrir.fragment.friends.onlinefriends.OnlineFriendsFragment
 import dev.ragnarok.fenrir.fragment.friends.recommendationsfriends.RecommendationsFriendsFragment
 import dev.ragnarok.fenrir.fragment.friends.requests.RequestsFragment
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.model.FriendsCounters
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class FriendsTabsFragment : BaseMvpFragment<FriendsTabsPresenter, IFriendsTabsView>(),
     IFriendsTabsView, MenuProvider {
@@ -156,7 +156,7 @@ class FriendsTabsFragment : BaseMvpFragment<FriendsTabsPresenter, IFriendsTabsVi
     override fun setDrawerFriendsSectionSelected(selected: Boolean) {
         if (requireActivity() is OnSectionResumeCallback) {
             if (selected) {
-                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_FRIENDS)
+                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_FRIENDS)
             } else {
                 (requireActivity() as OnSectionResumeCallback).onClearSelection()
             }

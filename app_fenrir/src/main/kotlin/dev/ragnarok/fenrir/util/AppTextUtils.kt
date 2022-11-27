@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.util
 
 import android.content.Context
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
@@ -35,7 +36,18 @@ object AppTextUtils {
 
 
     fun reduceStringForPost(input: String?): String? {
-        return reduceText(input, 400)
+        val pp = OwnerLinkSpanFactory.findPatterns(input, owners = true, topics = false)
+        var l = 400
+        for (i in pp.orEmpty()) {
+            if (i.start >= l) {
+                break
+            } else if (i.end > l) {
+                l = i.end + 1
+                break
+            }
+
+        }
+        return reduceText(input, l)
     }
 
 

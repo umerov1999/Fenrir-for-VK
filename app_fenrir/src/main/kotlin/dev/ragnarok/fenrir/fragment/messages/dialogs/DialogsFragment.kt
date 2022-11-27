@@ -32,7 +32,6 @@ import dev.ragnarok.fenrir.dialog.DialogNotifOptionsDialog
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.fragment.messages.dialogs.IDialogsView.IContextView
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.DialogsSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
@@ -68,6 +67,7 @@ import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentThem
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.UpEditFab
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDialogsView,
     DialogsAdapter.ClickListener, MenuProvider {
@@ -425,7 +425,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
             actionBar.subtitle = requireArguments().getString(Extra.SUBTITLE)
         }
         if (requireActivity() is OnSectionResumeCallback) {
-            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_DIALOGS)
+            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_DIALOGS)
         }
         ActivityFeatures.Builder()
             .begin()

@@ -8,10 +8,9 @@ import dev.ragnarok.fenrir.api.model.LocalServerSettings
 import dev.ragnarok.fenrir.api.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
+import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.Lang
 import dev.ragnarok.fenrir.model.PhotoSize
-import dev.ragnarok.fenrir.model.SideSwitchableCategory
-import dev.ragnarok.fenrir.model.SwitchableCategory
 import dev.ragnarok.fenrir.model.drawer.RecentChat
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.settings.theme.ThemeOverlay
@@ -275,17 +274,15 @@ interface ISettings {
     }
 
     interface IDrawerSettings {
-        fun isCategoryEnabled(@SwitchableCategory category: Int): Boolean
-        fun setCategoriesOrder(@SwitchableCategory order: IntArray, active: BooleanArray)
-        val categoriesOrder: IntArray
-        fun observeChanges(): Observable<Any>
+        var categoriesOrder: List<DrawerCategory>
+        fun observeChanges(): Observable<List<DrawerCategory>>
+        fun reset()
     }
 
     interface ISideDrawerSettings {
-        fun isCategoryEnabled(@SideSwitchableCategory category: Int): Boolean
-        fun setCategoriesOrder(@SideSwitchableCategory order: IntArray, active: BooleanArray)
-        val categoriesOrder: IntArray
-        fun observeChanges(): Observable<Any>
+        var categoriesOrder: List<DrawerCategory>
+        fun observeChanges(): Observable<List<DrawerCategory>>
+        fun reset()
     }
 
     interface IPushSettings {

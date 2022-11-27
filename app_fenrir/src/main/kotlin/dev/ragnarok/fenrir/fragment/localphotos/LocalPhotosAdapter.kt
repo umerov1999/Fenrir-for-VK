@@ -96,7 +96,6 @@ class LocalPhotosAdapter(private val context: Context, private val data: List<Lo
     }
 
     companion object {
-        @JvmField
         val TAG: String = LocalPhotosAdapter::class.java.simpleName
     }
 

@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.Constants.USER_AGENT
 import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
@@ -904,22 +905,12 @@ object Utils {
         )
     }
 
-
     fun setTint(view: ImageView?, @ColorInt color: Int) {
         if (view == null) {
             return
         }
         view.imageTintList = ColorStateList.valueOf(color)
     }
-
-
-    fun setBackgroundTint(view: ImageView?, @ColorInt color: Int) {
-        if (view == null) {
-            return
-        }
-        view.backgroundTintList = ColorStateList.valueOf(color)
-    }
-
 
     fun setBackgroundTint(view: View?, @ColorInt color: Int) {
         if (view == null) {
@@ -940,6 +931,16 @@ object Utils {
         }
     }
 
+    fun setColorFilter(view: FloatingActionButton?, @ColorInt color: Int) {
+        if (view == null) {
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            view.colorFilter = BlendModeColorFilter(color, BlendMode.MODULATE)
+        } else {
+            view.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
+        }
+    }
 
     fun setColorFilter(view: ImageView?, @ColorInt color: Int) {
         if (view == null) {

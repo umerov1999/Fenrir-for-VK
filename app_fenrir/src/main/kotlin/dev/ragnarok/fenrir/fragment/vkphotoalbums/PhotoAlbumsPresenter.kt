@@ -11,11 +11,9 @@ import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.fromIOToMain
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import kotlin.math.max
 
 class PhotoAlbumsPresenter(
     accountId: Int,
@@ -32,13 +30,12 @@ class PhotoAlbumsPresenter(
     private var mOwner: Owner? = null
     private var mAction: String? = null
     private var mData: ArrayList<PhotoAlbum> = ArrayList()
+    private var offset = 0
     private var endOfContent = false
     private var netLoadingNow = false
     fun fireScrollToEnd() {
         if (!netLoadingNow && mData.nonNullNoEmpty() && !endOfContent) {
-            val reserved =
-                if (Settings.get().other().localServer.enabled && accountId == mOwnerId) 2 else 1
-            refreshFromNet(max(0, mData.size - reserved))
+            refreshFromNet()
         }
     }
 
@@ -52,7 +49,7 @@ class PhotoAlbumsPresenter(
     }
 
     private fun resolveDrawerPhotoSection() {
-        view?.seDrawertPhotoSectionActive(
+        view?.setDrawerPhotoSectionActive(
             isMy
         )
     }
@@ -87,14 +84,13 @@ class PhotoAlbumsPresenter(
         resolveCreateAlbumButtonVisibility()
     }
 
-    private fun refreshFromNet(offset: Int) {
+    private fun refreshFromNet() {
         netLoadingNow = true
         resolveProgressView()
         netDisposable.add(photosInteractor.getActualAlbums(accountId, mOwnerId, 50, offset)
             .fromIOToMain()
             .subscribe({
                 onActualAlbumsReceived(
-                    offset,
                     it
                 )
             }) { t -> onActualAlbumsGetError(t) })
@@ -106,7 +102,7 @@ class PhotoAlbumsPresenter(
         resolveProgressView()
     }
 
-    private fun onActualAlbumsReceived(offset: Int, albums: List<PhotoAlbum>) {
+    private fun onActualAlbumsReceived(albums: List<PhotoAlbum>) {
         // reset cache loading
         cacheDisposable.clear()
         endOfContent = albums.isEmpty() || mData.contains(albums[0]) && albums.size < 50
@@ -120,17 +116,20 @@ class PhotoAlbumsPresenter(
             var size = 0
             for (i in albums) {
                 if (mData.contains(i)) {
+                    val pos = mData.indexOf(i)
+                    mData[pos] = i
+                    view?.notifyItemChanged(pos)
                     continue
                 }
                 size++
                 mData.add(i)
             }
-            val finalSize = size
             view?.notifyDataAdded(
                 startSize,
-                finalSize
+                size
             )
         }
+        offset += 50
         resolveProgressView()
     }
 
@@ -244,7 +243,8 @@ class PhotoAlbumsPresenter(
         cacheDisposable.clear()
         netDisposable.clear()
         netLoadingNow = false
-        refreshFromNet(0)
+        offset = 0
+        refreshFromNet()
     }
 
     fun fireAlbumDeletingConfirmed(album: PhotoAlbum) {
@@ -306,7 +306,8 @@ class PhotoAlbumsPresenter(
             mOwner = params.owner
         }
         loadAllFromDb()
-        refreshFromNet(0)
+        offset = 0
+        refreshFromNet()
         if (mOwner == null && !isMy) {
             loadOwnerInfo()
         }

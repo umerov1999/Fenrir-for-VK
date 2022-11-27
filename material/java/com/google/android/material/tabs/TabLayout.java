@@ -574,7 +574,7 @@ public class TabLayout extends HorizontalScrollView {
         a.getDimensionPixelSize(R.styleable.TabLayout_tabPaddingBottom, tabPaddingBottom);
 
     if (ThemeEnforcement.isMaterial3Theme(context)) {
-      defaultTabTextAppearance = R.attr.textAppearanceLabelLarge;
+      defaultTabTextAppearance = R.attr.textAppearanceTitleSmall;
     } else {
       defaultTabTextAppearance = R.attr.textAppearanceButton;
     }
@@ -1891,7 +1891,7 @@ public class TabLayout extends HorizontalScrollView {
   }
 
   /**
-   * Called when a selected tab is added. Unselects all other tabs in the TabLayout.
+   * Called when a tab is selected. Unselects all other tabs in the TabLayout.
    *
    * @param position Position of the selected tab.
    */
@@ -1900,6 +1900,16 @@ public class TabLayout extends HorizontalScrollView {
     if (position < tabCount) {
       for (int i = 0; i < tabCount; i++) {
         final View child = slidingTabIndicator.getChildAt(i);
+        // Update the tab view if it needs to be updated (eg. it's newly selected and it is not
+        // yet selected, or it is selected and something else was selected).
+        if ((i == position && !child.isSelected()) || (i != position && child.isSelected())) {
+          child.setSelected(i == position);
+          child.setActivated(i == position);
+          if (child instanceof TabView) {
+            ((TabView) child).updateTab();
+          }
+          continue;
+        }
         child.setSelected(i == position);
         child.setActivated(i == position);
       }
@@ -1952,15 +1962,9 @@ public class TabLayout extends HorizontalScrollView {
       // If the current tab is still attached to the TabLayout.
       if (currentTab != null && currentTab.parent != null) {
         dispatchTabUnselected(currentTab);
-        if (currentTab.view != null) {
-          currentTab.view.update();
-        }
       }
       if (tab != null) {
         dispatchTabSelected(tab);
-        if (tab.view != null) {
-          tab.view.update();
-        }
       }
     }
   }
@@ -2696,7 +2700,7 @@ public class TabLayout extends HorizontalScrollView {
       setSelected(false);
     }
 
-    final void update() {
+    final void updateTab() {
       final Tab tab = this.tab;
       final View custom = tab != null ? tab.getCustomView() : null;
       if (custom != null) {
@@ -2772,8 +2776,12 @@ public class TabLayout extends HorizontalScrollView {
         // has been explicitly set.
         setContentDescription(tab.contentDesc);
       }
+    }
+
+    final void update() {
+      updateTab();
       // Finally update our selected state
-      setSelected(tab != null && tab.isSelected());
+      setSelected(this.tab != null && this.tab.isSelected());
     }
 
     private void inflateAndAddDefaultIconView() {
@@ -3281,7 +3289,9 @@ public class TabLayout extends HorizontalScrollView {
      * @param duration The duration over which the animation should take place.
      */
     void animateIndicatorToPosition(final int position, int duration) {
-      if (indicatorAnimator != null && indicatorAnimator.isRunning()) {
+      if (indicatorAnimator != null
+          && indicatorAnimator.isRunning()
+          && indicatorPosition != position) {
         indicatorAnimator.cancel();
       }
 

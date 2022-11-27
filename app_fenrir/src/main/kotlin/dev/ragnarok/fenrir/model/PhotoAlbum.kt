@@ -86,13 +86,21 @@ class PhotoAlbum : AbsModel, ISomeones {
     }
 
     fun getDisplayTitle(context: Context): String? {
-        return if (id == -9001 || id == -311) {
-            if (id == -9001) {
+        return when (title) {
+            "All photos" -> {
                 context.getString(R.string.all_photos)
-            } else {
+            }
+            "Local Server" -> {
                 context.getString(R.string.on_server)
             }
-        } else title
+            "Wall Photos" -> {
+                context.getString(R.string.wall_photos)
+            }
+            "With User photos" -> {
+                context.getString(R.string.photos_with_user)
+            }
+            else -> title
+        }
     }
 
     fun getDescription(): String? {

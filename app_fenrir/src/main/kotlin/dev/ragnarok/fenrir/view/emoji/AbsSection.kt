@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.view.emoji
 
 open class AbsSection(val type: Int) {
-    @JvmField
     var active = false
 
     companion object {

@@ -16,7 +16,6 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.fragment.audio.audioplaylists.AudioPlaylistsFragment
 import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
@@ -24,6 +23,7 @@ import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleTabSearchPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class AudioSelectTabsFragment : BaseFragment(), MenuProvider {
     var accountId = 0
@@ -95,7 +95,7 @@ class AudioSelectTabsFragment : BaseFragment(), MenuProvider {
             actionBar.subtitle = null
         }
         if (requireActivity() is OnSectionResumeCallback) {
-            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_AUDIOS)
+            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_AUDIOS)
         }
         ActivityFeatures.Builder()
             .begin()

@@ -3,14 +3,14 @@ buildscript {
     ext.is_developer_build = false
 
     ext.appCompileSDK = 33
-    ext.appBuildTools = "33.0.0"
+    ext.appBuildTools = "33.0.1"
     ext.appNdk = "25.1.8937393"
     ext.appMinSDK = is_developer_build ? 29 : 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 212
-    ext.appFenrirVersionName = "2.112-Kotlin"
-    ext.appFileGalleryVersionCode = 42
-    ext.appFileGalleryVersionName = "1.42-Kotlin"
+    ext.appFenrirVersionCode = 214
+    ext.appFenrirVersionName = "2.114-Kotlin"
+    ext.appFileGalleryVersionCode = 44
+    ext.appFileGalleryVersionName = "1.44-Kotlin"
 
     //androidx libraries
     ext.activityVersion = "1.6.1"
@@ -52,17 +52,17 @@ buildscript {
     ext.firebaseInstallationsInteropVersion = "17.1.0"
     ext.firebaseComponentsVersion = "17.0.1"
     ext.playServicesTasksVersion = "18.0.2"
-    ext.autoValueVersion = "1.10"
+    ext.autoValueVersion = "1.10.1"
 
     //common libraries
-    ext.kotlin_version = "1.7.20"
+    ext.kotlin_version = "1.8.0-Beta"
     ext.kotlin_coroutines = "1.6.4"
     ext.kotlin_serializer = "1.4.1"
     ext.okhttpLibraryVersion = "5.0.0-alpha.10"
     ext.okioVersion = "3.2.0"
     ext.rxJavaVersion = "3.1.5"
     ext.guavaVersion = "31.1-android"
-    ext.exoLibraryVersion = "2.18.1"
+    ext.exoLibraryVersion = "2.18.2"
     ext.errorproneVersion = "2.15.0"
     ext.desugarLibraryVersion = "1.2.0"
 
@@ -92,10 +92,12 @@ buildscript {
         classpath "com.google.gms:google-services:4.3.14"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        //https://plugins.jetbrains.com/plugin/6954-kotlin/versions/staging
     }
 }
 
 allprojects {
+    tasks.withType(Test) {enabled = false}
     repositories {
         google()
         mavenCentral()

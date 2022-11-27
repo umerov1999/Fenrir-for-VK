@@ -65,13 +65,13 @@ import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.db.DBHelper
 import dev.ragnarok.fenrir.db.TempDataHelper
 import dev.ragnarok.fenrir.domain.InteractorFactory
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.UpdatableNavigation
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.media.record.AudioRecordWrapper
+import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.model.SwitchableCategory
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -97,6 +97,7 @@ import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.natives.rlottie.RLottieImageView
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -2262,14 +2263,27 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     private val accountId: Int
         get() = requireArguments().getInt(ACCOUNT_ID)
 
+    private fun isEnabledNavigationCategoryById(
+        list: List<DrawerCategory>,
+        @SwitchableCategory key: String
+    ): Boolean {
+        for (i in list) {
+            if (i.getId() == key) {
+                return i.isActive()
+            }
+        }
+        return true
+    }
+
     private fun initStartPagePreference(): ArrayList<SelectionItem> {
-        val drawerSettings = Settings.get()
-            .drawerSettings()
+        val drawerSettings = if (Settings.get().other().is_side_navigation()) Settings.get()
+            .sideDrawerSettings().categoriesOrder else Settings.get()
+            .drawerSettings().categoriesOrder
         val enabledCategoriesName = ArrayList<String>()
         val enabledCategoriesValues = ArrayList<String>()
         enabledCategoriesName.add(getString(R.string.last_closed_page))
         enabledCategoriesValues.add("last_closed")
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.FRIENDS)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.FRIENDS)) {
             enabledCategoriesName.add(getString(R.string.friends))
             enabledCategoriesValues.add("1")
         }
@@ -2279,33 +2293,33 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         enabledCategoriesValues.add("3")
         enabledCategoriesName.add(getString(R.string.drawer_feedback))
         enabledCategoriesValues.add("4")
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.GROUPS)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.GROUPS)) {
             enabledCategoriesName.add(getString(R.string.groups))
             enabledCategoriesValues.add("5")
         }
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.PHOTOS)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.PHOTOS)) {
             enabledCategoriesName.add(getString(R.string.photos))
             enabledCategoriesValues.add("6")
         }
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.VIDEOS)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.VIDEOS)) {
             enabledCategoriesName.add(getString(R.string.videos))
             enabledCategoriesValues.add("7")
         }
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.MUSIC)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.MUSIC)) {
             enabledCategoriesName.add(getString(R.string.music))
             enabledCategoriesValues.add("8")
         }
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.DOCS)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.DOCS)) {
             enabledCategoriesName.add(getString(R.string.attachment_documents))
             enabledCategoriesValues.add("9")
         }
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.BOOKMARKS)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.FAVES)) {
             enabledCategoriesName.add(getString(R.string.bookmarks))
             enabledCategoriesValues.add("10")
         }
         enabledCategoriesName.add(getString(R.string.search))
         enabledCategoriesValues.add("11")
-        if (drawerSettings.isCategoryEnabled(SwitchableCategory.NEWSFEED_COMMENTS)) {
+        if (isEnabledNavigationCategoryById(drawerSettings, SwitchableCategory.NEWSFEED_COMMENTS)) {
             enabledCategoriesName.add(getString(R.string.drawer_newsfeed_comments))
             enabledCategoriesValues.add("12")
         }
@@ -2332,7 +2346,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             actionBar.subtitle = null
         }
         if (requireActivity() is OnSectionResumeCallback) {
-            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_SETTINGS)
+            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_SETTINGS)
         }
         if (requireActivity() is UpdatableNavigation) {
             (requireActivity() as UpdatableNavigation).onUpdateNavigation()

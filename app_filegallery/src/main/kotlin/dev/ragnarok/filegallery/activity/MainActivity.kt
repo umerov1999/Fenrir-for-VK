@@ -1,10 +1,8 @@
 package dev.ragnarok.filegallery.activity
 
 import android.Manifest
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.app.Activity
+import android.content.*
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -29,10 +27,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
+import dev.ragnarok.fenrir.module.FenrirNative
+import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.activity.EnterPinActivity.Companion.getClass
 import dev.ragnarok.filegallery.activity.photopager.PhotoPagerActivity
+import dev.ragnarok.filegallery.activity.qr.CameraScanActivity
 import dev.ragnarok.filegallery.fragment.AudioPlayerFragment
 import dev.ragnarok.filegallery.fragment.PreferencesFragment
 import dev.ragnarok.filegallery.fragment.SecurityPreferencesFragment
@@ -46,7 +48,11 @@ import dev.ragnarok.filegallery.listener.*
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController.ServiceToken
 import dev.ragnarok.filegallery.media.music.MusicPlaybackService
+import dev.ragnarok.filegallery.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
+import dev.ragnarok.filegallery.modalbottomsheetdialogfragment.Option
+import dev.ragnarok.filegallery.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.filegallery.model.SectionItem
+import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.place.Place
 import dev.ragnarok.filegallery.place.PlaceFactory.getFileManagerPlace
 import dev.ragnarok.filegallery.place.PlaceFactory.getLocalMediaServerPlace
@@ -216,6 +222,30 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
         handleIntent(intent?.action, false)
     }
 
+    private val requestQRScan = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val scanner = result.data?.extras?.getString(Extra.URL)
+            if (scanner.nonNullNoEmpty()) {
+                MaterialAlertDialogBuilder(this)
+                    .setIcon(R.drawable.qr_code)
+                    .setMessage(scanner)
+                    .setTitle(getString(R.string.scan_qr))
+                    .setNeutralButton(R.string.button_copy) { _: DialogInterface?, _: Int ->
+                        val clipboard = getSystemService(
+                            CLIPBOARD_SERVICE
+                        ) as ClipboardManager?
+                        val clip = ClipData.newPlainText("response", scanner)
+                        clipboard?.setPrimaryClip(clip)
+                        createCustomToast(this, null)?.showToast(R.string.copied_to_clipboard)
+                    }
+                    .setCancelable(true)
+                    .create().show()
+            }
+        }
+    }
+
     private fun resolveToolbarNavigationIcon() {
         mToolbar ?: return
         val manager: FragmentManager = supportFragmentManager
@@ -225,18 +255,54 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
         } else {
             mToolbar?.setNavigationIcon(R.drawable.client_round)
             mToolbar?.setNavigationOnClickListener {
-                if (Settings.get().main()
-                        .getNightMode() == AppCompatDelegate.MODE_NIGHT_YES || Settings.get()
-                        .main()
-                        .getNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY || Settings.get()
-                        .main().getNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                ) {
-                    Settings.get().main().switchNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                } else {
-                    Settings.get().main().switchNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
+                val menus = ModalBottomSheetDialogFragment.Builder()
+                menus.add(
+                    OptionRequest(
+                        0,
+                        getString(R.string.night_mode_title),
+                        R.drawable.ic_outline_nights_stay,
+                        false
+                    )
+                )
+                menus.add(
+                    OptionRequest(
+                        1,
+                        getString(R.string.scan_qr),
+                        R.drawable.qr_code,
+                        false
+                    )
+                )
+                menus.show(
+                    supportFragmentManager,
+                    "left_options",
+                    object : ModalBottomSheetDialogFragment.Listener {
+                        override fun onModalOptionSelected(option: Option) {
+                            when {
+                                option.id == 0 -> {
+                                    if (Settings.get().main()
+                                            .getNightMode() == AppCompatDelegate.MODE_NIGHT_YES || Settings.get()
+                                            .main()
+                                            .getNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY || Settings.get()
+                                            .main()
+                                            .getNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                                    ) {
+                                        Settings.get().main()
+                                            .switchNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                                    } else {
+                                        Settings.get().main()
+                                            .switchNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                                    }
+                                }
+                                option.id == 1 && FenrirNative.isNativeLoaded -> {
+                                    val intent =
+                                        Intent(this@MainActivity, CameraScanActivity::class.java)
+                                    requestQRScan.launch(intent)
+                                }
+                            }
+                        }
+                    })
             }
         }
     }

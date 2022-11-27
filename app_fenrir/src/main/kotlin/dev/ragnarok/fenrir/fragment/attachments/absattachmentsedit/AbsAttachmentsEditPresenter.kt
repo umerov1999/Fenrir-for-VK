@@ -23,7 +23,6 @@ abstract class AbsAttachmentsEditPresenter<V : IBaseAttachmentsEditView> interna
     accountId: Int,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<V>(accountId, savedInstanceState) {
-    @JvmField
     val uploadManager: IUploadManager = Includes.uploadManager
     val data: ArrayList<AttachmentEntry>
     private var textBody: String? = null

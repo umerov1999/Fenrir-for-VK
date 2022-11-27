@@ -105,7 +105,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             cv.put(PostsColumns.OWNER_ID, ownerId)
             cv.put(PostsColumns.FROM_ID, authorId)
             val resultUri = contentResolver.insert(uri, cv)
-            resultUri?.lastPathSegment?.toInt()
+            resultUri?.lastPathSegment?.toInt().orZero()
         }
     }
 

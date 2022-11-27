@@ -55,7 +55,11 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
             val dto = FeedbackVKOfficial()
             if (hasObject(root_item, "action")) {
                 val action_item = root_item["action"]?.jsonObject
-                if ("authorize" == optString(action_item, "type")) {
+                if ("authorize" == optString(action_item, "type") || "custom" == optString(
+                        action_item,
+                        "type"
+                    ) && optString(root_item, "icon_type") == "friend_found"
+                ) {
                     dto.action = ActionURL(optString(action_item, "url"))
                 } else if ("message_open" == optString(
                         action_item,
@@ -103,7 +107,7 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
             dto.header.nonNullNoEmpty {
                 dto.header = it.replace("{date}", "")
                     .replace("'''(((?!''').)*)'''".toRegex(), "<b>$1</b>")
-                    .replace("\\[vk(ontakte)?://[A-Za-z0-9/?=]+\\|([^]]+)]".toRegex(), "$2")
+                    .replace("\\[vk(ontakte)?://[A-Za-z\\d/?=]+\\|([^]]+)]".toRegex(), "$2")
 
                 val matcher = LinkParser.MENTIONS_AVATAR_PATTERN.matcher(it)
                 if (matcher.find()) {
@@ -137,13 +141,13 @@ class FeedbackVKOfficialDtoAdapter : AbsAdapter<FeedbackVKOfficialList>("Feedbac
                 dto.text =
                     it.replace("{date}", "")
                         .replace("'''(((?!''').)*)'''".toRegex(), "<b>$1</b>")
-                        .replace("\\[vk(ontakte)?://[A-Za-z0-9/?=]+\\|([^]]+)]".toRegex(), "$2")
+                        .replace("\\[vk(ontakte)?://[A-Za-z\\d/?=]+\\|([^]]+)]".toRegex(), "$2")
             }
             dto.footer = optString(root_item, "footer")
             dto.footer.nonNullNoEmpty {
                 dto.footer = it.replace("{date}", "")
                     .replace("'''(((?!''').)*)'''".toRegex(), "<b>$1</b>")
-                    .replace("\\[vk(ontakte)?://[A-Za-z0-9/?=]+\\|([^]]+)]".toRegex(), "$2")
+                    .replace("\\[vk(ontakte)?://[A-Za-z\\d/?=]+\\|([^]]+)]".toRegex(), "$2")
             }
             dto.time = optLong(root_item, "date")
             dto.iconURL = optString(root_item, "icon_url")

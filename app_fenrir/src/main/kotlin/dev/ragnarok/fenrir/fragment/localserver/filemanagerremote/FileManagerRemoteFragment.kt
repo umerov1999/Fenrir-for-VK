@@ -59,11 +59,13 @@ class FileManagerRemoteFragment :
     private var animationDispose = Disposable.disposed()
     private var mAnimationLoaded = false
     private var animLoad: ObjectAnimator? = null
+    private var mySearchView: MySearchView? = null
 
     override fun onBackPressed(): Boolean {
         if (presenter?.canLoadUp() == true) {
             mLayoutManager?.onSaveInstanceState()?.let { presenter?.backupDirectoryScroll(it) }
             presenter?.loadUp()
+            mySearchView?.clear()
             return false
         }
         return true
@@ -90,16 +92,16 @@ class FileManagerRemoteFragment :
         mRecyclerView = root.findViewById(R.id.list)
         empty = root.findViewById(R.id.empty)
 
-        val mySearchView: MySearchView = root.findViewById(R.id.searchview)
-        mySearchView.setRightButtonVisibility(false)
-        mySearchView.setLeftIcon(R.drawable.magnify)
-        mySearchView.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
+        mySearchView = root.findViewById(R.id.searchview)
+        mySearchView?.setRightButtonVisibility(false)
+        mySearchView?.setLeftIcon(R.drawable.magnify)
+        mySearchView?.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
             override fun onBackButtonClick() {
-                presenter?.doSearch(mySearchView.text.toString())
+                presenter?.doSearch(mySearchView?.text.toString())
             }
         })
 
-        mySearchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
+        mySearchView?.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 presenter?.doSearch(query)
                 return false

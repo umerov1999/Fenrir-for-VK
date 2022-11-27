@@ -22,7 +22,6 @@ import dev.ragnarok.fenrir.dialog.ImageSizeAlertDialog
 import dev.ragnarok.fenrir.dialog.ImageSizeAlertDialog.Companion.showUploadPhotoSizeIfNeed
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.fragment.vkphotos.BigVkPhotosAdapter.UploadActionListener
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
@@ -37,6 +36,7 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.util.toast.CustomToast
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
     BigVkPhotosAdapter.PhotosActionListener, UploadActionListener, IVkPhotosView, MenuProvider {
@@ -323,7 +323,7 @@ class VKPhotosFragment : BaseMvpFragment<VkPhotosPresenter, IVkPhotosView>(),
     override fun setDrawerPhotosSelected(selected: Boolean) {
         if (requireActivity() is OnSectionResumeCallback) {
             if (selected) {
-                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_PHOTOS)
+                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_PHOTOS)
             } else {
                 (requireActivity() as OnSectionResumeCallback).onClearSelection()
             }

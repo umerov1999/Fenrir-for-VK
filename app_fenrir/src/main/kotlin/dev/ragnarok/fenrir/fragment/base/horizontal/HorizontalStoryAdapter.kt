@@ -20,6 +20,11 @@ class HorizontalStoryAdapter(data: MutableList<Story>) :
         val item = getItem(position)
         val context = viewHolder.itemView.context
         viewHolder.name.text = item.owner?.fullName
+        if (item.isEmptyStory()) {
+            viewHolder.story_empty.visibility = View.VISIBLE
+        } else {
+            viewHolder.story_empty.visibility = View.GONE
+        }
         if (item.expires <= 0) viewHolder.expires.visibility = View.INVISIBLE else {
             if (item.isIs_expired) {
                 viewHolder.expires.visibility = View.VISIBLE
@@ -77,6 +82,7 @@ class HorizontalStoryAdapter(data: MutableList<Story>) :
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val story_image: ImageView = itemView.findViewById(R.id.item_story_pic)
+        val story_empty: ImageView = itemView.findViewById(R.id.item_story_empty)
         val name: TextView = itemView.findViewById(R.id.item_story_name)
         val expires: TextView = itemView.findViewById(R.id.item_story_expires)
     }

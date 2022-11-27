@@ -4,7 +4,6 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class SimpleTextOption : BaseOption {
-    @JvmField
     var value: String? = null
 
     constructor(key: Int, title: Int, active: Boolean) : super(SIMPLE_TEXT, key, title, active)

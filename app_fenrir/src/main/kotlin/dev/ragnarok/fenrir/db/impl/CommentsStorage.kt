@@ -157,7 +157,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
         }
     }
 
-    override fun findEditingComment(accountId: Int, commented: Commented): Maybe<DraftComment>? {
+    override fun findEditingComment(accountId: Int, commented: Commented): Maybe<DraftComment> {
         return Maybe.create { e: MaybeEmitter<DraftComment> ->
             val cursor = contentResolver.query(
                 getCommentsContentUriFor(accountId), null,

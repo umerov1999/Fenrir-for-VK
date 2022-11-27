@@ -16,7 +16,6 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.db.OwnerHelper
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
 import dev.ragnarok.fenrir.fragment.localserver.videoslocalserver.VideosLocalServerFragment
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.VideoSearchCriteria
 import dev.ragnarok.fenrir.fragment.videoalbums.VideoAlbumsFragment
@@ -25,6 +24,7 @@ import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleTabSearchPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class VideosTabsFragment : BaseFragment(), MenuProvider {
     var accountId = 0
@@ -99,7 +99,7 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
         }
         if (requireActivity() is OnSectionResumeCallback) {
             if (isMy) {
-                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_VIDEOS)
+                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_VIDEOS)
             } else {
                 (requireActivity() as OnSectionResumeCallback).onClearSelection()
             }

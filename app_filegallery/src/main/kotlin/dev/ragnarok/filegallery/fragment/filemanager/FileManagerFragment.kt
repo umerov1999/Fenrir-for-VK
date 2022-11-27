@@ -67,6 +67,7 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
     private var animationDispose = Disposable.disposed()
     private var mAnimationLoaded = false
     private var animLoad: ObjectAnimator? = null
+    private var mySearchView: MySearchView? = null
 
     private val requestPhotoUpdate = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -133,24 +134,24 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         (requireActivity() as AppCompatActivity).setSupportActionBar(root.findViewById(R.id.toolbar))
         mRecyclerView = root.findViewById(R.id.list)
         empty = root.findViewById(R.id.empty)
-        val mySearchView: MySearchView = root.findViewById(R.id.searchview)
-        mySearchView.setRightButtonVisibility(true)
-        mySearchView.setRightIcon(R.drawable.ic_favorite_add)
-        mySearchView.setLeftIcon(R.drawable.magnify)
-        mySearchView.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
+        mySearchView = root.findViewById(R.id.searchview)
+        mySearchView?.setRightButtonVisibility(true)
+        mySearchView?.setRightIcon(R.drawable.ic_favorite_add)
+        mySearchView?.setLeftIcon(R.drawable.magnify)
+        mySearchView?.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
             override fun onBackButtonClick() {
-                presenter?.doSearch(mySearchView.text.toString(), true)
+                presenter?.doSearch(mySearchView?.text.toString(), true)
             }
         })
 
-        mySearchView.setOnAdditionalButtonClickListener(object :
+        mySearchView?.setOnAdditionalButtonClickListener(object :
             MySearchView.OnAdditionalButtonClickListener {
             override fun onAdditionalButtonClick() {
                 TagOwnerBottomSheetSelected().show(parentFragmentManager, "selectOwner")
             }
         })
 
-        mySearchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
+        mySearchView?.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 presenter?.doSearch(query, true)
                 return false
@@ -356,6 +357,7 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         if (presenter?.canLoadUp() == true) {
             mLayoutManager?.onSaveInstanceState()?.let { presenter?.backupDirectoryScroll(it) }
             presenter?.loadUp()
+            mySearchView?.clear()
             return false
         }
         return true

@@ -56,7 +56,6 @@ class SpinnerOption : BaseOption {
     }
 
     class Entry : Parcelable, Cloneable {
-        @JvmField
         val id: Int
         val name: Int
 

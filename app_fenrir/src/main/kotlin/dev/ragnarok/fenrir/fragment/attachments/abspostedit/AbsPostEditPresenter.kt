@@ -8,13 +8,8 @@ abstract class AbsPostEditPresenter<V : IBasePostEditView> internal constructor(
     accountId: Int,
     savedInstanceState: Bundle?
 ) : AbsAttachmentsEditPresenter<V>(accountId, savedInstanceState) {
-    @JvmField
     val fromGroup = BooleanValue()
-
-    @JvmField
     val friendsOnly = BooleanValue()
-
-    @JvmField
     val addSignature = BooleanValue()
     private val friendsOnlyOptionAvailable = BooleanValue()
     private val fromGroupOptionAvailable = BooleanValue()

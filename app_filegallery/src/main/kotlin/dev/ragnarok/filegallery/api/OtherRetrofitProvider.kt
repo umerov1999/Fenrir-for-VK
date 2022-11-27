@@ -84,7 +84,7 @@ class OtherRetrofitProvider @SuppressLint("CheckResult") constructor(private val
                     }
                 }
             }
-            localServerRetrofitInstance
+            localServerRetrofitInstance!!
         }
     }
 

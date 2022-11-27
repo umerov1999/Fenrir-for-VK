@@ -92,13 +92,8 @@ abstract class MultyDataAdapter<T, VH : RecyclerView.ViewHolder>(
     }
 
     class ItemInfo<T> {
-        @JvmField
         var item: T? = null
-
-        @JvmField
         var internalPosition = 0
-
-        @JvmField
         var sectionTitleRes: Int? = null
     }
 }

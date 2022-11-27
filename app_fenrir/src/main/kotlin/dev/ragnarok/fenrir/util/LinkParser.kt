@@ -8,9 +8,9 @@ import java.util.regex.Pattern
 
 object LinkParser {
     private val MENTIONS_PATTERN: Pattern =
-        Pattern.compile("\\[((?:id|club|event|public)[0-9]+)\\|([^]]+)]")
+        Pattern.compile("\\[((?:id|club|event|public)\\d+)\\|([^]]+)]")
     val MENTIONS_AVATAR_PATTERN: Pattern =
-        Pattern.compile("\\[((?:id|club|event|public))([0-9]+)\\|([^]]+)]")
+        Pattern.compile("\\[((?:id|club|event|public))(\\d+)\\|([^]]+)]")
     private val PHONE_NUMBER_PATTERN: Pattern = Pattern.compile("\\+\\d{8,15}")
     private var REPLY_URL_PATTERN: Pattern? = null
     private var URL_PATTERN: Pattern? = null
@@ -94,9 +94,9 @@ object LinkParser {
         try {
             @Suppress("DEPRECATION")
             URL_PATTERN = Pattern.compile(
-                "((?:(http|https|Http|Https|ftp|Ftp)://(?:(?:[a-zA-Z0-9$\\-_.+!*'(),;?&=]|(?:%[a-fA-F0-9]{2})){1,64}(?::(?:[a-zA-Z0-9$\\-_.+!*'(),;?&=]|(?:%[a-fA-F0-9]{2})){1,25})?@)?)?(?:" + Pattern.compile(
-                    "(([a-zA-Z0-9 -퟿豈-﷏ﷰ-￯]([a-zA-Z0-9 -퟿豈-﷏ﷰ-￯\\-]{0,61}[a-zA-Z0-9 -퟿豈-﷏ﷰ-￯])?\\.)+([a-zA-Z0-9-]{2,63}|рф|бел|укр)|" + Patterns.IP_ADDRESS + ")"
-                ) + ")" + "(?::\\d{1,5})?)" + "(/(?:(?:[" + "a-zA-Z0-9 -퟿豈-﷏ﷰ-￯" + ";/?:@&=#~" + "\\-.+!*'(),_])|(?:%[a-fA-F0-9]{2}))*)?" + "(?:\\b|$)"
+                "((?:(http|https|Http|Https|ftp|Ftp)://(?:(?:[a-zA-Z\\d$\\-_.+!*'(),;?&=]|(?:%[a-fA-F\\d]{2})){1,64}(?::(?:[a-zA-Z\\d$\\-_.+!*'(),;?&=]|(?:%[a-fA-F\\d]{2})){1,25})?@)?)?(?:" + Pattern.compile(
+                    "(([a-zA-Z\\d -퟿豈-﷏ﷰ-￯]([a-zA-Z\\d -퟿豈-﷏ﷰ-￯\\-]{0,61}[a-zA-Z\\d -퟿豈-﷏ﷰ-￯])?\\.)+([a-zA-Z\\d-]{2,63}|рф|бел|укр)|" + Patterns.IP_ADDRESS + ")"
+                ) + ")" + "(?::\\d{1,5})?)" + "(/(?:(?:[" + "a-zA-Z\\d -퟿豈-﷏ﷰ-￯" + ";/?:@&=#~" + "\\-.+!*'(),_])|(?:%[a-fA-F\\d]{2}))*)?" + "(?:\\b|$)"
             )
             REPLY_URL_PATTERN = Pattern.compile("\\[($URL_PATTERN)\\|([^]]+)]")
         } catch (ignored: Exception) {

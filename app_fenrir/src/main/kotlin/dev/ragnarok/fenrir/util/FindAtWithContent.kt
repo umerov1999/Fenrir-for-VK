@@ -65,7 +65,7 @@ abstract class FindAtWithContent<T>(
             search(offset, searchCount).fromIOToMain()
                 .subscribe({
                     offset += searchCount
-                    if (it.isNullOrEmpty()) {
+                    if (it.isEmpty()) {
                         ended = true
                         updateLoading(false)
                     } else {

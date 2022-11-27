@@ -378,7 +378,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                 val count = stores.attachments()
                     .getCount(accountId, AttachToType.MESSAGE, message.getId())
                     .blockingGet()
-                message.setAttachmentsCount(count ?: 0)
+                message.setAttachmentsCount(count)
                 e.onSuccess(message)
             }
             e.onComplete()

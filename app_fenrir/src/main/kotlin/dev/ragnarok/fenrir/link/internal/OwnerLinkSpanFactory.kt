@@ -19,6 +19,35 @@ object OwnerLinkSpanFactory {
         Pattern.compile("\\[(id|club)(\\d*):bp(-\\d*)_(\\d*)\\|([^]]+)]")
     private val linkPattern: Pattern = Pattern.compile("\\[(https:[^]]+)\\|([^]]+)]")
 
+    fun findPatterns(
+        input: String?,
+        owners: Boolean,
+        topics: Boolean
+    ): List<AbsInternalLink>? {
+        if (input.isNullOrEmpty()) {
+            return null
+        }
+        val ownerLinks = if (owners) findOwnersLinks(input) else null
+        val topicLinks = if (topics) findTopicLinks(input) else null
+        val othersLinks = findOthersLinks(input)
+        val count = safeCountOfMultiple(ownerLinks, topicLinks, othersLinks)
+        if (count > 0) {
+            val all: MutableList<AbsInternalLink> = ArrayList(count)
+            if (ownerLinks.nonNullNoEmpty()) {
+                all.addAll(ownerLinks)
+            }
+            if (topicLinks.nonNullNoEmpty()) {
+                all.addAll(topicLinks)
+            }
+            if (othersLinks.nonNullNoEmpty()) {
+                all.addAll(othersLinks)
+            }
+            Collections.sort(all, LINK_COMPARATOR)
+            return all
+        }
+        return null
+    }
+
     fun withSpans(
         input: String?,
         owners: Boolean,

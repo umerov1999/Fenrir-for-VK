@@ -9,12 +9,14 @@ import android.content.res.Configuration
 import android.graphics.*
 import android.os.Build
 import android.view.Display
+import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.filegallery.BuildConfig
 import dev.ragnarok.filegallery.Constants
@@ -180,8 +182,11 @@ object Utils {
         view?.imageTintList = ColorStateList.valueOf(color)
     }
 
-    fun setBackgroundTint(view: ImageView?, @ColorInt color: Int) {
-        view?.backgroundTintList = ColorStateList.valueOf(color)
+    fun setBackgroundTint(view: View?, @ColorInt color: Int) {
+        if (view == null) {
+            return
+        }
+        view.backgroundTintList = ColorStateList.valueOf(color)
     }
 
     fun setColorFilter(view: ImageView?, @ColorInt color: Int) {
@@ -189,6 +194,17 @@ object Utils {
             view?.colorFilter = BlendModeColorFilter(color, BlendMode.MODULATE)
         } else {
             view?.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
+        }
+    }
+
+    fun setColorFilter(view: FloatingActionButton?, @ColorInt color: Int) {
+        if (view == null) {
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            view.colorFilter = BlendModeColorFilter(color, BlendMode.MODULATE)
+        } else {
+            view.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
         }
     }
 

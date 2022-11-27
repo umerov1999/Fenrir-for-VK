@@ -28,7 +28,6 @@ import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSe
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.fragment.base.horizontal.HorizontalPlaylistAdapter
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
@@ -48,6 +47,7 @@ import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentThem
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.MySearchView
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosView,
     HorizontalPlaylistAdapter.Listener {
@@ -315,7 +315,7 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
                 actionBar.subtitle = null
             }
             if (requireActivity() is OnSectionResumeCallback) {
-                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_AUDIOS)
+                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_AUDIOS)
             }
             ActivityFeatures.Builder()
                 .begin()

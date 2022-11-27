@@ -255,6 +255,15 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
             }
     }
 
+    private fun checkPhotoAlbumExist(id: Int, list: List<VKApiPhotoAlbum>): Boolean {
+        for (i in list) {
+            if (i.id == id) {
+                return true
+            }
+        }
+        return false
+    }
+
     override fun getActualAlbums(
         accountId: Int,
         ownerId: Int,
@@ -276,6 +285,28 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
                     Allph.size = -1
                     dbos.add(buildPhotoAlbumDbo(Allph))
                     albums.add(transform(Allph))
+                    if (!checkPhotoAlbumExist(
+                            -9000,
+                            dtos
+                        ) && accountId != ownerId && ownerId >= 0
+                    ) {
+                        val Usrph = VKApiPhotoAlbum()
+                        Usrph.title = "With User photos"
+                        Usrph.id = -9000
+                        Usrph.owner_id = ownerId
+                        Usrph.size = -1
+                        dbos.add(buildPhotoAlbumDbo(Usrph))
+                        albums.add(transform(Usrph))
+                    }
+                    if (!checkPhotoAlbumExist(-7, dtos)) {
+                        val GrpPhotos = VKApiPhotoAlbum()
+                        GrpPhotos.title = "Wall Photos"
+                        GrpPhotos.id = -7
+                        GrpPhotos.owner_id = ownerId
+                        GrpPhotos.size = -1
+                        dbos.add(buildPhotoAlbumDbo(GrpPhotos))
+                        albums.add(transform(GrpPhotos))
+                    }
                     if (Settings.get().other().localServer.enabled && accountId == ownerId) {
                         val Srvph = VKApiPhotoAlbum()
                         Srvph.title = "Local Server"

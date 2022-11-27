@@ -16,7 +16,6 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.model.NewsfeedComment
@@ -26,6 +25,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.is600dp
 import dev.ragnarok.fenrir.util.Utils.isLandscape
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class NewsfeedCommentsFragment :
     PlaceSupportMvpFragment<NewsfeedCommentsPresenter, INewsfeedCommentsView>(),
@@ -81,7 +81,7 @@ class NewsfeedCommentsFragment :
         setToolbarTitle(this, R.string.drawer_newsfeed_comments)
         setToolbarSubtitle(this, null)
         if (requireActivity() is OnSectionResumeCallback) {
-            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_NEWSFEED_COMMENTS)
+            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_NEWSFEED_COMMENTS)
         }
         ActivityFeatures.Builder()
             .begin()

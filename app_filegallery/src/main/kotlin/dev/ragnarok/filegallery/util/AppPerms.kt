@@ -42,6 +42,13 @@ object AppPerms {
         return hasWritePermission == PackageManager.PERMISSION_GRANTED && hasReadPermission == PackageManager.PERMISSION_GRANTED
     }
 
+    fun hasCameraPermission(context: Context): Boolean {
+        if (!Utils.hasMarshmallow()) return true
+        val hasCameraPermission =
+            PermissionChecker.checkSelfPermission(context, Manifest.permission.CAMERA)
+        return hasReadWriteStoragePermission(context) && hasCameraPermission == PackageManager.PERMISSION_GRANTED
+    }
+
     fun hasNotificationPermissionSimple(context: Context): Boolean {
         if (!Utils.hasTiramisu()) return true
         val hasNPermission = PermissionChecker.checkSelfPermission(

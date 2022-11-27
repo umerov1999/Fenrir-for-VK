@@ -38,6 +38,7 @@ class CameraScanActivity : NoMainActivity() {
     private lateinit var textureView: PreviewView
     private var camera: Camera? = null
     private var finder: FinderView? = null
+    private var flashButton: FloatingActionButton? = null
     private val reader: MultiFormatReader = MultiFormatReader()
     private var isFlash = false
 
@@ -70,6 +71,16 @@ class CameraScanActivity : NoMainActivity() {
             startCamera()
         }, { finish() })
 
+    private fun updateFlashButton() {
+        Utils.setColorFilter(
+            flashButton,
+            if (isFlash) CurrentTheme.getColorPrimary(this) else ContextCompat.getColor(
+                this,
+                com.google.android.material.R.color.m3_fab_efab_foreground_color_selector
+            )
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Slidr.attach(
@@ -79,11 +90,14 @@ class CameraScanActivity : NoMainActivity() {
         setContentView(R.layout.activity_camera_scan)
         textureView = findViewById(R.id.preview)
         finder = findViewById(R.id.view_finder)
+        flashButton = findViewById(R.id.flash_button)
+        updateFlashButton()
 
-        findViewById<FloatingActionButton>(R.id.flash_button).setOnClickListener {
+        flashButton?.setOnClickListener {
             if (camera?.cameraInfo?.hasFlashUnit() == true) {
                 isFlash = !isFlash
                 camera?.cameraControl?.enableTorch(isFlash)
+                updateFlashButton()
             }
         }
 

@@ -211,7 +211,7 @@ object ShortcutUtils {
             with()
                 .load(url)
                 .transform(RoundTransformation())
-                .get()
+                .get()!!
         }
     }
 

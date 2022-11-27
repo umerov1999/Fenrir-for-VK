@@ -160,7 +160,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
 
     override fun getArtistById(accountId: Int, artist_id: String): Single<ArtistInfo> {
         return networker.vkDefault(accountId)
-            .audio().getArtistById(artist_id).map { checkNotNull(it) }
+            .audio().getArtistById(artist_id).map { it }
     }
 
     override fun getPopular(

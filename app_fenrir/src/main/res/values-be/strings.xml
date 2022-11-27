@@ -1713,4 +1713,6 @@
     <string name="interesting">цікавыя</string>
     <string name="catalog_v2_edit_list">Рэдагаваць спіс</string>
     <string name="turn_on">Уключыць</string>
+    <string name="photos_with_user">Фатаграфіі з карыстальнікам</string>
+    <string name="wall_photos">Фатаграфіі на сцяне</string>
 </resources>

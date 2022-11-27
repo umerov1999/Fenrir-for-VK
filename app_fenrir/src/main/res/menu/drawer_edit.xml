@@ -7,4 +7,11 @@
         android:title="@string/save"
         app:iconTint="?colorOnSurface"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_reset"
+        android:icon="@drawable/refresh"
+        android:title="@string/reset"
+        app:iconTint="?colorOnSurface"
+        app:showAsAction="ifRoom" />
 </menu>

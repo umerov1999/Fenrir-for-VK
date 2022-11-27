@@ -39,9 +39,8 @@ class VkRetrofitProvider(
         return Single.fromCallable {
             var retrofit: RetrofitWrapper?
             synchronized(retrofitCacheLock) {
-                retrofit = retrofitCache[accountId]
-                if (retrofit != null) {
-                    return@fromCallable retrofit
+                retrofitCache[accountId]?.let {
+                    return@fromCallable it
                 }
                 val client = clientFactory.createDefaultVkHttpClient(
                     accountId,
@@ -50,7 +49,7 @@ class VkRetrofitProvider(
                 retrofit = createDefaultVkApiRetrofit(client)
                 retrofitCache.put(accountId, retrofit)
             }
-            retrofit
+            retrofit!!
         }
     }
 
@@ -77,7 +76,7 @@ class VkRetrofitProvider(
                     }
                 }
             }
-            serviceRetrofit
+            serviceRetrofit!!
         }
     }
 

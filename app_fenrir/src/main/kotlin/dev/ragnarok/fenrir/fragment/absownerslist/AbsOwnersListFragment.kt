@@ -25,7 +25,6 @@ abstract class AbsOwnersListFragment<P : SimpleOwnersPresenter<V>, V : ISimpleOw
     protected var mRecyclerView: RecyclerView? = null
     protected var mSwipeRefreshLayout: SwipeRefreshLayout? = null
 
-    @JvmField
     protected var mOwnersAdapter: OwnersAdapter? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
     private var mCount: MaterialTextView? = null

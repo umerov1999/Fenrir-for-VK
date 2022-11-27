@@ -376,4 +376,5 @@
     <string name="parser_type">Parser</string>
     <string name="limit_cache_images">In-Memory Image Cache Limit</string>
     <string name="language_ui">Language</string>
+    <string name="scan_qr">Scan QR</string>
 </resources>

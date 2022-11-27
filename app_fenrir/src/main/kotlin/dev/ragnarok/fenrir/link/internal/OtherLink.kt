@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.link.internal
 
 class OtherLink(start: Int, end: Int, link: String, name: String) : AbsInternalLink() {
-    @JvmField
     val Link: String
 
     init {

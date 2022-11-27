@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.fragment.vkphotoalbums.PhotoAlbumsPresenter.AdditionalParams
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
@@ -39,6 +38,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getPhotoAllCommentsPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getVKPhotosAlbumPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class VKPhotoAlbumsFragment : BaseMvpFragment<PhotoAlbumsPresenter, IPhotoAlbumsView>(),
     IPhotoAlbumsView, VkPhotoAlbumsAdapter.ClickListener, SwipeRefreshLayout.OnRefreshListener,
@@ -204,10 +204,10 @@ class VKPhotoAlbumsFragment : BaseMvpFragment<PhotoAlbumsPresenter, IPhotoAlbums
             .tryOpenWith(requireActivity())
     }
 
-    override fun seDrawertPhotoSectionActive(active: Boolean) {
+    override fun setDrawerPhotoSectionActive(active: Boolean) {
         if (requireActivity() is OnSectionResumeCallback) {
             if (active) {
-                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_PHOTOS)
+                (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_PHOTOS)
             } else {
                 (requireActivity() as OnSectionResumeCallback).onClearSelection()
             }
@@ -218,6 +218,12 @@ class VKPhotoAlbumsFragment : BaseMvpFragment<PhotoAlbumsPresenter, IPhotoAlbums
         if (mAdapter != null) {
             mAdapter?.notifyItemRemoved(index)
             resolveEmptyTextVisibility()
+        }
+    }
+
+    override fun notifyItemChanged(index: Int) {
+        if (mAdapter != null) {
+            mAdapter?.notifyItemChanged(index)
         }
     }
 

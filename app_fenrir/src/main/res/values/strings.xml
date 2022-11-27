@@ -1960,4 +1960,6 @@
     <string name="interesting">interesting</string>
     <string name="catalog_v2_edit_list">Edit list</string>
     <string name="turn_on">Turn on</string>
+    <string name="photos_with_user">Photos with user</string>
+    <string name="wall_photos">Photos on Wall</string>
 </resources>

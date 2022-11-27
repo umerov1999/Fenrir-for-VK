@@ -3,44 +3,61 @@ package dev.ragnarok.fenrir.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.StringRes
+import com.google.errorprone.annotations.Keep
+import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.putBoolean
+import kotlinx.serialization.Serializable
 
+@Keep
+@Serializable
 class DrawerCategory : Parcelable {
-    @StringRes
-    private val title: Int
-
     @SwitchableCategory
-    private val key: Int
-    private var checked = false
+    private val id: String
+    private var active = false
 
-    constructor(@SwitchableCategory key: Int, @StringRes title: Int) {
-        this.title = title
-        this.key = key
+    constructor(@SwitchableCategory id: String, active: Boolean = true) {
+        this.id = id
+        this.active = active
     }
 
     internal constructor(`in`: Parcel) {
-        title = `in`.readInt()
-        key = `in`.readInt()
-        checked = `in`.getBoolean()
+        id = `in`.readString()!!
+        active = `in`.getBoolean()
     }
 
     @StringRes
-    fun getTitle(): Int {
-        return title
+    fun getTitleResCategory(): Int {
+        return when (id) {
+            SwitchableCategory.FRIENDS -> R.string.friends
+            SwitchableCategory.NEWSFEED_COMMENTS -> R.string.drawer_newsfeed_comments
+            SwitchableCategory.GROUPS -> R.string.groups
+            SwitchableCategory.PHOTOS -> R.string.photos
+            SwitchableCategory.VIDEOS -> R.string.videos
+            SwitchableCategory.MUSIC -> R.string.music
+            SwitchableCategory.DOCS -> R.string.documents
+            SwitchableCategory.FAVES -> R.string.bookmarks
+            SwitchableCategory.DIALOGS -> R.string.dialogs
+            SwitchableCategory.FEED -> R.string.feed
+            SwitchableCategory.FEEDBACK -> R.string.drawer_feedback
+            SwitchableCategory.SEARCH -> R.string.search
+            else -> {
+                throw IllegalArgumentException()
+            }
+        }
     }
 
     @SwitchableCategory
-    fun getKey(): Int {
-        return key
+    fun getId(): String {
+        return id
     }
 
-    fun isChecked(): Boolean {
-        return checked
+    fun isActive(): Boolean {
+        return active
     }
 
-    fun setChecked(checked: Boolean): DrawerCategory {
-        this.checked = checked
+    fun setActive(checked: Boolean): DrawerCategory {
+        this.active = checked
         return this
     }
 
@@ -49,9 +66,8 @@ class DrawerCategory : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(title)
-        dest.writeInt(key)
-        dest.putBoolean(checked)
+        dest.writeString(id)
+        dest.putBoolean(active)
     }
 
     companion object CREATOR : Parcelable.Creator<DrawerCategory> {

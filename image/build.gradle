@@ -33,4 +33,5 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:$constraintlayoutVersion")
     implementation("io.reactivex.rxjava3:rxjava:$rxJavaVersion")
     implementation("androidx.exifinterface:exifinterface:$exifinterfaceVersion")
+    implementation("androidx.transition:transition:$transitionVersion")
 }

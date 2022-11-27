@@ -85,7 +85,7 @@ class AudiosPresenter(
                     Includes.stores.tempStore().getAudiosAll(ownerId)
                         .fromIOToMain()
                         .subscribe({
-                            if (it.isNullOrEmpty()) {
+                            if (it.isEmpty()) {
                                 fireRefresh()
                             } else {
                                 audios.addAll(it)

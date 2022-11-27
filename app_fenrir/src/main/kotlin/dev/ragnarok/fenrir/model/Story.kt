@@ -85,6 +85,10 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
         writeOwner(dest, owner)
     }
 
+    fun isEmptyStory(): Boolean {
+        return photo == null && video == null && target_url.isNullOrEmpty()
+    }
+
     @AbsModelType
     override fun getModelType(): Int {
         return AbsModelType.MODEL_STORY

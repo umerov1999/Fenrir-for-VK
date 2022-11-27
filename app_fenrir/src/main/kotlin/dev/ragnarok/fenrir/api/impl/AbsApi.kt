@@ -229,7 +229,7 @@ internal open class AbsApi(val accountId: Int, private val retrofitProvider: ISe
                         it.serializer ?: throw UnsupportedOperationException()
                     )
                         .map(extractResponseWithErrorHandling())
-                        .blockingGet() as T
+                        .blockingGet()
                 }
             }
             response.response ?: throw NullPointerException("VK return null response")

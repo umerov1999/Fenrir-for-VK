@@ -249,4 +249,5 @@
     <string name="parser_type">Парсер</string>
     <string name="limit_cache_images">Лимит кэша картинок в памяти</string>
     <string name="language_ui">Язык</string>
+    <string name="scan_qr">Сканировать QR</string>
 </resources>

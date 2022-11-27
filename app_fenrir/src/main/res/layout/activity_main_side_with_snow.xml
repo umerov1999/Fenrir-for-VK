@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dev.ragnarok.fenrir.view.ErrorIgnoreDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/my_drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:colorBackground"
     android:fitsSystemWindows="true">
 
     <RelativeLayout
@@ -17,7 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/miniplayer_side_root"
-            android:background="?android:colorBackground"
             android:clipToPadding="false" />
 
         <com.google.android.material.card.MaterialCardView
@@ -50,13 +49,11 @@
             app:snowflakesNum="220" />
     </RelativeLayout>
 
-    <androidx.fragment.app.FragmentContainerView
+    <dev.ragnarok.fenrir.view.navigation.SideNavigationView
         android:id="@+id/additional_navigation_menu"
-        android:name="dev.ragnarok.fenrir.fragment.navigation.SideNavigationFragment"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:alpha="0.90"
-        tools:layout="@layout/fragment_side_navigation_drawer" />
+        android:alpha="0.90" />
 
 </dev.ragnarok.fenrir.view.ErrorIgnoreDrawerLayout>

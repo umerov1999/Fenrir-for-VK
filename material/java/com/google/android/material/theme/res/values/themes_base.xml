@@ -140,6 +140,8 @@
     <item name="materialSwitchStyle">@style/Widget.Material3.CompoundButton.MaterialSwitch</item>
     <item name="navigationRailStyle">@style/Widget.Material3.NavigationRailView</item>
     <item name="navigationViewStyle">@style/Widget.Material3.NavigationView</item>
+    <item name="materialSearchBarStyle">@style/Widget.Material3.SearchBar</item>
+    <item name="materialSearchViewStyle">@style/Widget.Material3.SearchView</item>
     <item name="radioButtonStyle">@style/Widget.Material3.CompoundButton.RadioButton</item>
     <item name="sliderStyle">@style/Widget.Material3.Slider</item>
     <item name="snackbarStyle">@style/Widget.Material3.Snackbar</item>
@@ -208,7 +210,7 @@
     <item name="textAppearanceSmallPopupMenu">?attr/textAppearanceBodyLarge</item>
 
     <!-- Shape attributes. -->
-    <item name="shapeCornerFamily">@macro/m3_sys_shape_corner_full_family</item>
+    <item name="shapeCornerFamily">@integer/m3_sys_shape_corner_full_corner_family</item>
     <item name="shapeAppearanceCornerExtraSmall">@style/ShapeAppearance.Material3.Corner.ExtraSmall</item>
     <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.Material3.Corner.Small</item>
     <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.Material3.Corner.Medium</item>
@@ -249,7 +251,7 @@
     <item name="motionDurationExtraLong2">@integer/m3_sys_motion_duration_extra_long2</item>
     <item name="motionDurationExtraLong3">@integer/m3_sys_motion_duration_extra_long3</item>
     <item name="motionDurationExtraLong4">@integer/m3_sys_motion_duration_extra_long4</item>
-    <item name="motionPath">@macro/m3_sys_motion_path</item>
+    <item name="motionPath">@integer/m3_sys_motion_path</item>
 
     <!-- Elevation overlays. -->
     <item name="elevationOverlayEnabled">true</item>
@@ -380,6 +382,8 @@
     <item name="materialSwitchStyle">@style/Widget.Material3.CompoundButton.MaterialSwitch</item>
     <item name="navigationRailStyle">@style/Widget.Material3.NavigationRailView</item>
     <item name="navigationViewStyle">@style/Widget.Material3.NavigationView</item>
+    <item name="materialSearchBarStyle">@style/Widget.Material3.SearchBar</item>
+    <item name="materialSearchViewStyle">@style/Widget.Material3.SearchView</item>
     <item name="radioButtonStyle">@style/Widget.Material3.CompoundButton.RadioButton</item>
     <item name="sliderStyle">@style/Widget.Material3.Slider</item>
     <item name="snackbarStyle">@style/Widget.Material3.Snackbar</item>
@@ -448,7 +452,7 @@
     <item name="textAppearanceSmallPopupMenu">?attr/textAppearanceBodyLarge</item>
 
     <!-- Shape attributes. -->
-    <item name="shapeCornerFamily">@macro/m3_sys_shape_corner_full_family</item>
+    <item name="shapeCornerFamily">@integer/m3_sys_shape_corner_full_corner_family</item>
     <item name="shapeAppearanceCornerExtraSmall">@style/ShapeAppearance.Material3.Corner.ExtraSmall</item>
     <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.Material3.Corner.Small</item>
     <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.Material3.Corner.Medium</item>
@@ -489,7 +493,7 @@
     <item name="motionDurationExtraLong2">@integer/m3_sys_motion_duration_extra_long2</item>
     <item name="motionDurationExtraLong3">@integer/m3_sys_motion_duration_extra_long3</item>
     <item name="motionDurationExtraLong4">@integer/m3_sys_motion_duration_extra_long4</item>
-    <item name="motionPath">@macro/m3_sys_motion_path</item>
+    <item name="motionPath">@integer/m3_sys_motion_path</item>
 
     <!-- Elevation overlays. -->
     <item name="elevationOverlayEnabled">true</item>

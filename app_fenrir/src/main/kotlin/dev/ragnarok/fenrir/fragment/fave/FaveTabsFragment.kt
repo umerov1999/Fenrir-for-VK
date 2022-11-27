@@ -22,12 +22,12 @@ import dev.ragnarok.fenrir.fragment.fave.favephotos.FavePhotosFragment
 import dev.ragnarok.fenrir.fragment.fave.faveposts.FavePostsFragment
 import dev.ragnarok.fenrir.fragment.fave.faveproducts.FaveProductsFragment
 import dev.ragnarok.fenrir.fragment.fave.favevideos.FaveVideosFragment
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.link.types.FaveLink
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.createPageTransform
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class FaveTabsFragment : BaseFragment() {
     var accountId = 0
@@ -73,7 +73,7 @@ class FaveTabsFragment : BaseFragment() {
             actionBar.subtitle = null
         }
         if (requireActivity() is OnSectionResumeCallback) {
-            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_BOOKMARKS)
+            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_BOOKMARKS)
         }
         ActivityFeatures.Builder()
             .begin()

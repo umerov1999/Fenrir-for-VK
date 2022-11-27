@@ -1715,4 +1715,6 @@
     <string name="interesting">интересные</string>
     <string name="catalog_v2_edit_list">Редактировать список</string>
     <string name="turn_on">Включить</string>
+    <string name="photos_with_user">Фотографии с пользователем</string>
+    <string name="wall_photos">Фотографии на стене</string>
 </resources>

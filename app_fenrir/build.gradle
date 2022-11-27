@@ -75,6 +75,7 @@ android {
         release {
             minifyEnabled = false
             shrinkResources = false
+            zipAlignEnabled = true
         }
         debug {
             minifyEnabled = false
@@ -141,6 +142,7 @@ dependencies {
     implementation project(path: ":material")
     implementation project(path: ":preference")
     implementation project(path: ":retrofit")
+    implementation project(path: ":camera2")
     implementation("com.squareup.okhttp3:okhttp-android:$okhttpLibraryVersion")
     //implementation("com.squareup.okhttp3:logging-interceptor:$okhttpLibraryVersion")
     implementation("com.squareup.okio:okio:$okioVersion")
@@ -159,10 +161,10 @@ dependencies {
     implementation("androidx.collection:collection-ktx:$collectionVersion")
     implementation("androidx.savedstate:savedstate-ktx:$savedStateVersion")
     implementation("androidx.cardview:cardview:$cardviewVersion")
-    implementation("androidx.camera:camera-core:$cameraVersion")
-    implementation("androidx.camera:camera-lifecycle:$cameraVersion")
-    implementation("androidx.camera:camera-view:$cameraVersion")
-    implementation("androidx.camera:camera-camera2:$cameraVersion")
+    //implementation("androidx.camera:camera-core:$cameraVersion")
+    //implementation("androidx.camera:camera-lifecycle:$cameraVersion")
+    //implementation("androidx.camera:camera-view:$cameraVersion")
+    //implementation("androidx.camera:camera-camera2:$cameraVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlin_serializer")
     implementation("com.google.errorprone:error_prone_annotations:${errorproneVersion}")
 }

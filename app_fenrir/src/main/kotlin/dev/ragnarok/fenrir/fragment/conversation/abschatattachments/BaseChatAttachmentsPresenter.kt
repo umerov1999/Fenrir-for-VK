@@ -11,7 +11,6 @@ import io.reactivex.rxjava3.core.Single
 abstract class BaseChatAttachmentsPresenter<T, V : IBaseChatAttachmentsView<T>> internal constructor(
     private val peerId: Int, accountId: Int, savedInstanceState: Bundle?
 ) : PlaceSupportPresenter<V>(accountId, savedInstanceState) {
-    @JvmField
     val data: MutableList<T>
     private var nextFrom: String? = null
     private var endOfContent = false

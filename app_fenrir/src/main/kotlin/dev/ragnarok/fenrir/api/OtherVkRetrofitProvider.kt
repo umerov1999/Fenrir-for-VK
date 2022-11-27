@@ -175,7 +175,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                     }
                 }
             }
-            localServerRetrofitInstance
+            localServerRetrofitInstance!!
         }
     }
 
@@ -188,7 +188,7 @@ class OtherVkRetrofitProvider @SuppressLint("CheckResult") constructor(private v
                     }
                 }
             }
-            longpollRetrofitInstance
+            longpollRetrofitInstance!!
         }
     }
 

@@ -42,7 +42,7 @@ class UploadRetrofitProvider(private val proxySettings: IProxySettings) : IUploa
                     }
                 }
             }
-            uploadRetrofitInstance
+            uploadRetrofitInstance!!
         }
     }
 

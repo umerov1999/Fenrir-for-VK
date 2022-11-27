@@ -2,6 +2,7 @@ package dev.ragnarok.filegallery
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.camera.core.ImageProcessingUtil
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.filegallery.activity.crash.CrashUtils
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController
@@ -33,6 +34,7 @@ class App : Application() {
 
         if (FenrirNative.isNativeLoaded) {
             MusicPlaybackController.tracksExist = FileExistNative()
+            ImageProcessingUtil.setProcessingUtil(Camera2ImageProcessingUtil)
         } else {
             MusicPlaybackController.tracksExist = FileExistJVM()
         }

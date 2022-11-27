@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
 }
 
-//1.8.0-alpha02
+//1.8.0-alpha03
 
 def srcDirs = [
         'com/google/android/material/animation',
@@ -40,6 +40,7 @@ def srcDirs = [
         'com/google/android/material/radiobutton',
         'com/google/android/material/resources',
         'com/google/android/material/ripple',
+        'com/google/android/material/search',
         'com/google/android/material/shape',
         'com/google/android/material/shadow',
         'com/google/android/material/sidesheet',
@@ -93,20 +94,20 @@ android {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:$annotationVersion")
-    api("androidx.appcompat:appcompat:$appcompatVersion")
-    api("androidx.core:core:$coreVersion")
-    api("androidx.activity:activity:$activityVersion")
-    api("androidx.fragment:fragment:$fragmentVersion")
-    api("androidx.cardview:cardview:$cardviewVersion")
-    api("androidx.dynamicanimation:dynamicanimation:$dynamicanimationVersion")
-    api("androidx.constraintlayout:constraintlayout:$constraintlayoutVersion")
-    //api("androidx.recyclerview:recyclerview:$recyclerviewVersion")
-    api("androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayoutVersion")
-    api("androidx.vectordrawable:vectordrawable:$vectordrawableVersion")
-    api("androidx.transition:transition:$transitionVersion")
-    api("androidx.lifecycle:lifecycle-runtime:$lifecycleVersion")
-    api("androidx.drawerlayout:drawerlayout:$drawerlayoutVersion")
+    implementation("androidx.annotation:annotation:$annotationVersion")
+    implementation("androidx.appcompat:appcompat:$appcompatVersion")
+    implementation("androidx.core:core:$coreVersion")
+    implementation("androidx.activity:activity:$activityVersion")
+    implementation("androidx.fragment:fragment:$fragmentVersion")
+    implementation("androidx.cardview:cardview:$cardviewVersion")
+    implementation("androidx.dynamicanimation:dynamicanimation:$dynamicanimationVersion")
+    implementation("androidx.constraintlayout:constraintlayout:$constraintlayoutVersion")
+    //implementation("androidx.recyclerview:recyclerview:$recyclerviewVersion")
+    implementation("androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayoutVersion")
+    implementation("androidx.vectordrawable:vectordrawable:$vectordrawableVersion")
+    implementation("androidx.transition:transition:$transitionVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime:$lifecycleVersion")
+    implementation("androidx.drawerlayout:drawerlayout:$drawerlayoutVersion")
     implementation("com.google.errorprone:error_prone_annotations:${errorproneVersion}")
-    api project(path: ":viewpager2")
+    implementation project(path: ":viewpager2")
 }

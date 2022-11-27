@@ -17,7 +17,6 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.dialog.feedbacklink.FeedbackLinkDialog
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
-import dev.ragnarok.fenrir.fragment.navigation.AbsNavigationFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
@@ -28,6 +27,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper.Companion.createFrom
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class FeedbackFragment : PlaceSupportMvpFragment<FeedbackPresenter, IFeedbackView>(),
     SwipeRefreshLayout.OnRefreshListener, IFeedbackView, FeedbackAdapter.ClickListener {
@@ -79,7 +79,7 @@ class FeedbackFragment : PlaceSupportMvpFragment<FeedbackPresenter, IFeedbackVie
             actionBar.subtitle = null
         }
         if (requireActivity() is OnSectionResumeCallback) {
-            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationFragment.SECTION_ITEM_FEEDBACK)
+            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_FEEDBACK)
         }
         ActivityFeatures.Builder()
             .begin()

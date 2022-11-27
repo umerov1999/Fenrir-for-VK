@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.util.ParcelUtils.readObjectInteger
 import dev.ragnarok.fenrir.util.ParcelUtils.writeObjectInteger
 
 class SimpleNumberOption : BaseOption {
-    @JvmField
     var value: Int? = null
 
     constructor(key: Int, title: Int, active: Boolean) : super(SIMPLE_NUMBER, key, title, active)

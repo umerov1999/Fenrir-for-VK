@@ -18,4 +18,5 @@ object Extra {
     const val SELECT = "select"
     const val IS_OUT_OF_MEMORY = "is_out_of_memory"
     const val METHOD = "method"
+    const val URL = "url"
 }

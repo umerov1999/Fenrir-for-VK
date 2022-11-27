@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir
 import android.app.Application
 import android.os.Handler
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.camera.core.ImageProcessingUtil
 import dev.ragnarok.fenrir.activity.crash.CrashUtils
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
@@ -48,6 +49,7 @@ class App : Application() {
 
         if (FenrirNative.isNativeLoaded) {
             MusicPlaybackController.tracksExist = FileExistNative()
+            ImageProcessingUtil.setProcessingUtil(Camera2ImageProcessingUtil)
         } else {
             MusicPlaybackController.tracksExist = FileExistJVM()
         }
