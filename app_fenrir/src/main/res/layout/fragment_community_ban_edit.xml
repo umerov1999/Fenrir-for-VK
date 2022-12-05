@@ -73,7 +73,7 @@
                     android:gravity="end"
                     android:textColor="?white_color"
                     android:textSize="@dimen/font_size_big_title"
-                    tools:text="Алексей Иванов" />
+                    tools:text="Umerov Artem" />
 
                 <TextView
                     android:id="@+id/domain"
@@ -83,7 +83,7 @@
                     android:gravity="end"
                     android:textColor="?white_color"
                     android:textSize="@dimen/font_size_subtitle"
-                    tools:text="id90456655" />
+                    tools:text="id98464648" />
 
                 <TextView
                     android:id="@+id/status"

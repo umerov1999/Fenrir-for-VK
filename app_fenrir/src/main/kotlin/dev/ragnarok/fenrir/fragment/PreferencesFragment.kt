@@ -1923,21 +1923,14 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
             pref("version") {
                 titleRes = R.string.app_name
-                badge =
-                    if (Utils.compareFingerprintHashForPackage(requireActivity())) "VK API $API_VERSION" else getString(
-                        R.string.unofficial
-                    )
+                badge = "VK API $API_VERSION"
                 summary = Utils.getAppVersionName(requireActivity())
                 onClick {
                     val view = View.inflate(requireActivity(), R.layout.dialog_about_us, null)
                     val anim: RLottieImageView = view.findViewById(R.id.lottie_animation)
                     val txt: TextView =
                         view.findViewById(dev.ragnarok.fenrir_common.R.id.sub_header)
-                    txt.setText(
-                        (if (Utils.compareFingerprintHashForPackage(requireActivity())) Common.getAboutUsHeader(
-                            Settings.get().other().paganSymbol
-                        ) else R.string.unofficial)
-                    )
+                    txt.setText(Common.getAboutUsHeader(Settings.get().other().paganSymbol))
                     val cbc = Common.getAboutUsAnimation(
                         Settings.get().other().paganSymbol,
                         requireActivity()

@@ -2,11 +2,14 @@ package dev.ragnarok.fenrir.fragment.messages.messageslook
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.IMessagesRepository
+import dev.ragnarok.fenrir.domain.Mode
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.fragment.messages.AbsMessageListPresenter
 import dev.ragnarok.fenrir.fromIOToMain
+import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Message
+import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Side
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -23,19 +26,52 @@ class MessagesLookPresenter(
     savedInstanceState: Bundle?
 ) : AbsMessageListPresenter<IMessagesLookView>(accountId, savedInstanceState) {
     private val messagesInteractor: IMessagesRepository = messages
-    private val mPeerId: Int = peerId
+    private val peer = Peer(peerId)
     private val loadingState: LOADING_STATE
     private var mFocusMessageId = 0
+
+    private fun fetchConversationThenActual() {
+        appendDisposable(
+            messagesInteractor.getConversationSingle(
+                accountId,
+                peer.id,
+                Mode.ANY
+            )
+                .fromIOToMain()
+                .subscribe({ onConversationFetched(it) }, { onConversationFetchFail(it) })
+        )
+    }
+
+    private fun onConversationFetchFail(throwable: Throwable) {
+        showError(view, throwable)
+        view?.displayToolbarAvatar(accountId, peer)
+        initRequest()
+    }
+
+    private fun onConversationFetched(data: Conversation) {
+        if (peer.getTitle().isNullOrEmpty()) {
+            peer.setTitle(data.getDisplayTitle())
+        }
+        if (peer.avaUrl.isNullOrEmpty()) {
+            peer.setAvaUrl(data.imageUrl)
+        }
+        view?.displayToolbarAvatar(accountId, peer)
+        lastReadId.setIncoming(data.getInRead())
+        lastReadId.setOutgoing(data.getOutRead())
+        initRequest()
+    }
+
     override fun onGuiCreated(viewHost: IMessagesLookView) {
         super.onGuiCreated(viewHost)
         viewHost.displayMessages(data, lastReadId)
         loadingState.updateState()
+        view?.displayToolbarAvatar(accountId, peer)
     }
 
     private fun initRequest() {
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
-            mPeerId,
+            peer.id,
             COUNT,
             -COUNT / 2,
             mFocusMessageId,
@@ -72,7 +108,7 @@ class MessagesLookPresenter(
 
     private fun deleteSentImpl(ids: Collection<Int>) {
         appendDisposable(messagesInteractor.deleteMessages(
-            accountId, mPeerId, ids,
+            accountId, peer.id, ids,
             forAll = false, spam = false
         )
             .fromIOToMain()
@@ -96,7 +132,7 @@ class MessagesLookPresenter(
         val targetMessageId = firstMessageId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
-            mPeerId,
+            peer.id,
             COUNT,
             -COUNT,
             targetMessageId,
@@ -121,7 +157,7 @@ class MessagesLookPresenter(
         if (ids.nonNullNoEmpty()) {
             appendDisposable(messagesInteractor.deleteMessages(
                 accountId,
-                mPeerId,
+                peer.id,
                 ids,
                 forAll = false,
                 spam = false
@@ -142,7 +178,7 @@ class MessagesLookPresenter(
             .blockingGet()
         if (ids.nonNullNoEmpty()) {
             appendDisposable(messagesInteractor.deleteMessages(
-                accountId, mPeerId, ids,
+                accountId, peer.id, ids,
                 forAll = false, spam = true
             )
                 .fromIOToMain()
@@ -159,7 +195,7 @@ class MessagesLookPresenter(
         val targetLastMessageId = lastMessageId
         appendDisposable(messagesInteractor.getPeerMessages(
             accountId,
-            mPeerId,
+            peer.id,
             COUNT,
             0,
             targetLastMessageId,
@@ -192,7 +228,7 @@ class MessagesLookPresenter(
 
     fun fireMessageRestoreClick(message: Message) {
         val id = message.getObjectId()
-        appendDisposable(messagesInteractor.restoreMessage(accountId, mPeerId, id)
+        appendDisposable(messagesInteractor.restoreMessage(accountId, peer.id, id)
             .fromIOToMain()
             .subscribe({ onMessageRestoredSuccessfully(id) }) { t ->
                 showError(getCauseIfRuntime(t))
@@ -353,7 +389,7 @@ class MessagesLookPresenter(
                 view?.focusTo(0)
             } else {
                 mFocusMessageId = focusTo
-                initRequest()
+                fetchConversationThenActual()
             }
         }
     }

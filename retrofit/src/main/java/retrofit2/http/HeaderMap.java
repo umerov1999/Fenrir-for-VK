@@ -46,6 +46,13 @@ import retrofit2.Retrofit;
  * foo.list(ImmutableMap.of("Accept", "text/plain", "Accept-Charset", "utf-8"));
  * </pre>
  *
+ * <p>Map keys and values representing parameter values allow only ascii values by default.
+ * Specify {@link #allowUnsafeNonAsciiValues() allowUnsafeNonAsciiValues=true} to change this behavior.
+ *
+ * <pre>
+ * &#64;GET("/search")
+ * void list(@HeaderMap(allowUnsafeNonAsciiValues=true) Map&lt;String, String&gt; headers);
+ *
  * @see Header
  * @see Headers
  */
@@ -53,4 +60,8 @@ import retrofit2.Retrofit;
 @Target(PARAMETER)
 @Retention(RUNTIME)
 public @interface HeaderMap {
+    /**
+     * Specifies whether the parameter values are allowed with unsafe non ascii values.
+     */
+    boolean allowUnsafeNonAsciiValues() default false;
 }

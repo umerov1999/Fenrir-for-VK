@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment.newsfeedcomments
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
@@ -18,11 +20,13 @@ import dev.ragnarok.fenrir.fragment.base.AttachmentsHolder.Companion.forPost
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.fragment.newsfeedcomments.NewsfeedCommentsAdapter.AbsHolder
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.AspectRatioImageView
@@ -225,6 +229,7 @@ class NewsfeedCommentsAdapter(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun bindPost(holder: PostHolder, position: Int) {
         val comment = data[position]
         val post = comment.getModel() as Post
@@ -276,6 +281,18 @@ class NewsfeedCommentsAdapter(
             actionListener?.onPostBodyClick(comment)
         }
         holder.postRoot.setOnClickListener(postOpenClickListener)
+        post.copyright?.let { vit ->
+            holder.tvCopyright.visibility = View.VISIBLE
+            holder.tvCopyright.text = "©" + vit.name
+            holder.tvCopyright.setOnClickListener {
+                LinkHelper.openUrl(
+                    holder.tvCopyright.context as Activity,
+                    Settings.get().accounts().current,
+                    vit.link,
+                    false
+                )
+            }
+        } ?: run { holder.tvCopyright.visibility = View.GONE }
     }
 
     private fun needToShowTopDivider(post: Post): Boolean {
@@ -381,6 +398,7 @@ class NewsfeedCommentsAdapter(
         val friendsOnlyIcon: View
         val topDivider: View = itemView.findViewById(R.id.top_divider)
         val postRoot: View
+        val tvCopyright: TextView
 
         init {
             val postAttachmentRoot = itemView.findViewById<ViewGroup>(R.id.item_post_attachments)
@@ -390,6 +408,7 @@ class NewsfeedCommentsAdapter(
             signerName = itemView.findViewById(R.id.item_post_signer_name)
             viewsCounter = itemView.findViewById(R.id.post_views_counter)
             friendsOnlyIcon = itemView.findViewById(R.id.item_post_friends_only)
+            tvCopyright = itemView.findViewById(R.id.item_post_copyright)
             postRoot = itemView.findViewById(R.id.post_root)
         }
     }

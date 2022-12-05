@@ -18,6 +18,7 @@ package com.google.android.material.search;
 
 import com.google.android.material.R;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static com.google.android.material.theme.overlay.MaterialThemeOverlay.wrap;
 
 import android.annotation.SuppressLint;
@@ -26,7 +27,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -52,10 +52,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -77,7 +77,45 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-/** Layout that provides a full screen search view and can be used with {@link SearchBar}. */
+/**
+ * Layout that provides a full screen search view and can be used with {@link SearchBar}.
+ *
+ *
+ * <p>The example below shows how to use the {@link SearchBar} and {@link SearchView} together:
+ *
+ * <pre>
+ * &lt;androidx.coordinatorlayout.widget.CoordinatorLayout
+ *     android:layout_width=&quot;match_parent&quot;
+ *     android:layout_height=&quot;match_parent&quot;&gt;
+ *
+ *   &lt;!-- NestedScrollingChild goes here (NestedScrollView, RecyclerView, etc.). --&gt;
+ *   &lt;androidx.core.widget.NestedScrollView
+ *       android:layout_width=&quot;match_parent&quot;
+ *       android:layout_height=&quot;match_parent&quot;
+ *       app:layout_behavior=&quot;@string/searchbar_scrolling_view_behavior&quot;&gt;
+ *     &lt;!-- Screen content goes here. --&gt;
+ *   &lt;/androidx.core.widget.NestedScrollView&gt;
+ *
+ *   &lt;com.google.android.material.appbar.AppBarLayout
+ *       android:layout_width=&quot;match_parent&quot;
+ *       android:layout_height=&quot;wrap_content&quot;&gt;
+ *     &lt;com.google.android.material.search.SearchBar
+ *         android:id=&quot;@+id/search_bar&quot;
+ *         android:layout_width=&quot;match_parent&quot;
+ *         android:layout_height=&quot;wrap_content&quot;
+ *         android:hint=&quot;@string/searchbar_hint&quot; /&gt;
+ *   &lt;/com.google.android.material.appbar.AppBarLayout&gt;
+ *
+ *   &lt;com.google.android.material.search.SearchView
+ *       android:layout_width=&quot;match_parent&quot;
+ *       android:layout_height=&quot;match_parent&quot;
+ *       android:hint=&quot;@string/searchbar_hint&quot;
+ *       app:layout_anchor=&quot;@id/search_bar&quot;&gt;
+ *     &lt;!-- Search suggestions/results go here (ScrollView, RecyclerView, etc.). --&gt;
+ *   &lt;/com.google.android.material.search.SearchView&gt;
+ * &lt;/androidx.coordinatorlayout.widget.CoordinatorLayout&gt;
+ * </pre>
+ */
 @SuppressWarnings("RestrictTo")
 public class SearchView extends FrameLayout implements CoordinatorLayout.AttachedBehavior {
 
@@ -108,6 +146,7 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
   private boolean animatedMenuItems;
   private boolean autoShowKeyboard;
   private boolean useWindowInsetsController;
+  private boolean statusBarSpacerEnabledOverride;
   @NonNull private TransitionState currentTransitionState = TransitionState.HIDDEN;
   private Map<View, Integer> childImportantForAccessibilityMap;
 
@@ -169,7 +208,6 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
     setUpEditText(textAppearanceResId, text, hint);
     setUpBackButton(useDrawerArrowDrawable, hideNavigationIcon);
     setUpClearButton();
-    setUpDivider();
     setUpContentOnTouchListener();
     setUpInsetListeners();
   }
@@ -187,12 +225,7 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
   protected void onFinishInflate() {
     super.onFinishInflate();
 
-    Activity activity = ContextUtils.getActivity(getContext());
-    if (activity != null) {
-      Window window = activity.getWindow();
-      setSoftInputMode(window);
-      setStatusBarSpacerEnabled(shouldShowStatusBarSpacer(window));
-    }
+    updateSoftInputMode();
   }
 
   @RequiresApi(VERSION_CODES.LOLLIPOP)
@@ -213,6 +246,12 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
   @NonNull
   public CoordinatorLayout.Behavior<SearchView> getBehavior() {
     return new SearchView.Behavior();
+  }
+
+  @Nullable
+  private Window getActivityWindow() {
+    Activity activity = ContextUtils.getActivity(getContext());
+    return activity == null ? null : activity.getWindow();
   }
 
   @SuppressLint("ClickableViewAccessibility") // Will be handled by accessibility delegate.
@@ -292,12 +331,6 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
           @Override
           public void afterTextChanged(Editable s) {}
         });
-  }
-
-  private void setUpDivider() {
-    int colorOnSurface = MaterialColors.getColor(this, R.attr.colorOnSurface);
-    int dividerColor = ColorUtils.setAlphaComponent(colorOnSurface, Math.round(0.12f * 255));
-    divider.setBackgroundColor(dividerColor);
   }
 
   @SuppressLint("ClickableViewAccessibility") // Will be handled by accessibility delegate.
@@ -404,7 +437,11 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
     ViewCompat.setOnApplyWindowInsetsListener(
         statusBarSpacer,
         (v, insets) -> {
-          setUpStatusBarSpacer(insets.getSystemWindowInsetTop());
+          int systemWindowInsetTop = insets.getSystemWindowInsetTop();
+          setUpStatusBarSpacer(systemWindowInsetTop);
+          if (!statusBarSpacerEnabledOverride) {
+            setStatusBarSpacerEnabledInternal(systemWindowInsetTop > 0);
+          }
           return insets;
         });
   }
@@ -423,7 +460,7 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
   }
 
   /** Returns whether or not this {@link SearchView} is set up with an {@link SearchBar}. */
-  public boolean isSetUpWithSearchBar() {
+  public boolean isSetupWithSearchBar() {
     return this.searchBar != null;
   }
 
@@ -433,7 +470,7 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
    * automatically if the {@link SearchBar} and {@link SearchView} are in a {@link
    * CoordinatorLayout} and the {@link SearchView} is anchored to the {@link SearchBar}.
    */
-  public void setUpWithSearchBar(@Nullable SearchBar searchBar) {
+  public void setupWithSearchBar(@Nullable SearchBar searchBar) {
     this.searchBar = searchBar;
     searchViewAnimationHelper.setSearchBar(searchBar);
     if (searchBar != null) {
@@ -489,15 +526,15 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
    * Sets whether the menu items should be animated from the {@link SearchBar} to {@link
    * SearchView}.
    */
-  public void setAnimatedMenuItems(boolean animatedMenuItems) {
-    this.animatedMenuItems = animatedMenuItems;
+  public void setMenuItemsAnimated(boolean menuItemsAnimated) {
+    this.animatedMenuItems = menuItemsAnimated;
   }
 
   /**
    * Returns whether the menu items should be animated from the {@link SearchBar} to {@link
    * SearchView}.
    */
-  public boolean isAnimatedMenuItems() {
+  public boolean isMenuItemsAnimated() {
     return animatedMenuItems;
   }
 
@@ -511,12 +548,22 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
     return autoShowKeyboard;
   }
 
-  /** Sets whether the soft keyboard should be shown with {@code WindowInsetsController}. */
+  /**
+   * Sets whether the soft keyboard should be shown with {@code WindowInsetsController}.
+   *
+   * @hide
+   */
+  @RestrictTo(LIBRARY_GROUP)
   public void setUseWindowInsetsController(boolean useWindowInsetsController) {
     this.useWindowInsetsController = useWindowInsetsController;
   }
 
-  /** Returns whether the soft keyboard should be shown with {@code WindowInsetsController}. */
+  /**
+   * Returns whether the soft keyboard should be shown with {@code WindowInsetsController}.
+   *
+   * @hide
+   */
+  @RestrictTo(LIBRARY_GROUP)
   public boolean isUseWindowInsetsController() {
     return useWindowInsetsController;
   }
@@ -625,7 +672,8 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
    * the {@link SearchView} during initial render but make sure to invoke this if you are changing
    * the soft input mode at runtime.
    */
-  public void setSoftInputMode(@Nullable Window window) {
+  public void updateSoftInputMode() {
+    Window window = getActivityWindow();
     if (window != null) {
       this.softInputMode = window.getAttributes().softInputMode;
     }
@@ -634,11 +682,18 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
   /**
    * Enables/disables the status bar spacer, which can be used in cases where the status bar is
    * translucent and the {@link SearchView} should not overlap the status bar area. This will be set
-   * automatically by the {@link SearchView} during initial render based on {@link
-   * #shouldShowStatusBarSpacer(Window)}, but make sure to invoke this if you would like to override
-   * the default behavior.
+   * automatically by the {@link SearchView} during initial render, but make sure to invoke this if
+   * you would like to override the default behavior.
+   *
+   * @hide
    */
+  @RestrictTo(LIBRARY_GROUP)
   public void setStatusBarSpacerEnabled(boolean enabled) {
+    statusBarSpacerEnabledOverride = true;
+    setStatusBarSpacerEnabledInternal(enabled);
+  }
+
+  private void setStatusBarSpacerEnabledInternal(boolean enabled) {
     statusBarSpacer.setVisibility(enabled ? VISIBLE : GONE);
   }
 
@@ -749,25 +804,6 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
     ViewUtils.hideKeyboard(editText, useWindowInsetsController);
   }
 
-  private static boolean shouldShowStatusBarSpacer(@Nullable Window window) {
-    if (window == null) {
-      return false;
-    }
-    WindowManager.LayoutParams lp = window.getAttributes();
-    boolean translucentStatus =
-        VERSION.SDK_INT >= VERSION_CODES.KITKAT
-            && (lp.flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                == WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-    boolean layoutNoLimits =
-        (lp.flags & WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-            == WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-    boolean edgeToEdge =
-        VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN
-            && (window.getDecorView().getSystemUiVisibility() & ViewUtils.EDGE_TO_EDGE_FLAGS)
-                == ViewUtils.EDGE_TO_EDGE_FLAGS;
-    return translucentStatus || layoutNoLimits || edgeToEdge;
-  }
-
   boolean isAdjustNothingSoftInputMode() {
     return softInputMode == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
   }
@@ -846,8 +882,8 @@ public class SearchView extends FrameLayout implements CoordinatorLayout.Attache
     @Override
     public boolean onDependentViewChanged(
         @NonNull CoordinatorLayout parent, @NonNull SearchView child, @NonNull View dependency) {
-      if (!child.isSetUpWithSearchBar() && dependency instanceof SearchBar) {
-        child.setUpWithSearchBar((SearchBar) dependency);
+      if (!child.isSetupWithSearchBar() && dependency instanceof SearchBar) {
+        child.setupWithSearchBar((SearchBar) dependency);
       }
       return false;
     }

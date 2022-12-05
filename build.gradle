@@ -7,10 +7,10 @@ buildscript {
     ext.appNdk = "25.1.8937393"
     ext.appMinSDK = is_developer_build ? 29 : 21
     ext.appTargetSDK = 31
-    ext.appFenrirVersionCode = 214
-    ext.appFenrirVersionName = "2.114-Kotlin"
-    ext.appFileGalleryVersionCode = 44
-    ext.appFileGalleryVersionName = "1.44-Kotlin"
+    ext.appFenrirVersionCode = 999
+    ext.appFenrirVersionName = "2.999"
+    ext.appFileGalleryVersionCode = 999
+    ext.appFileGalleryVersionName = "1.999"
 
     //androidx libraries
     ext.activityVersion = "1.6.1"
@@ -88,7 +88,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.4.0-beta05"
+        classpath "com.android.tools.build:gradle:7.4.0-rc01"
         classpath "com.google.gms:google-services:4.3.14"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"

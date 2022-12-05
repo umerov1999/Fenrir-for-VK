@@ -77,10 +77,12 @@ abstract class ParameterHandler<T> {
     static final class Header<T> extends ParameterHandler<T> {
         private final String name;
         private final Converter<T, String> valueConverter;
+        private final boolean allowUnsafeNonAsciiValues;
 
-        Header(String name, Converter<T, String> valueConverter) {
+        Header(String name, Converter<T, String> valueConverter, boolean allowUnsafeNonAsciiValues) {
             this.name = Objects.requireNonNull(name, "name == null");
             this.valueConverter = valueConverter;
+            this.allowUnsafeNonAsciiValues = allowUnsafeNonAsciiValues;
         }
 
         @Override
@@ -90,7 +92,7 @@ abstract class ParameterHandler<T> {
             String headerValue = valueConverter.convert(value);
             if (headerValue == null) return; // Skip converted but null values.
 
-            builder.addHeader(name, headerValue);
+            builder.addHeader(name, headerValue, allowUnsafeNonAsciiValues);
         }
     }
 
@@ -210,11 +212,13 @@ abstract class ParameterHandler<T> {
         private final Method method;
         private final int p;
         private final Converter<T, String> valueConverter;
+        private final boolean allowUnsafeNonAsciiValues;
 
-        HeaderMap(Method method, int p, Converter<T, String> valueConverter) {
+        HeaderMap(Method method, int p, Converter<T, String> valueConverter, boolean allowUnsafeNonAsciiValues) {
             this.method = method;
             this.p = p;
             this.valueConverter = valueConverter;
+            this.allowUnsafeNonAsciiValues = allowUnsafeNonAsciiValues;
         }
 
         @Override
@@ -233,7 +237,8 @@ abstract class ParameterHandler<T> {
                     throw Utils.parameterError(
                             method, p, "Header map contained null value for key '" + headerName + "'.");
                 }
-                builder.addHeader(headerName, valueConverter.convert(headerValue));
+                builder.addHeader(
+                        headerName, valueConverter.convert(headerValue), allowUnsafeNonAsciiValues);
             }
         }
     }

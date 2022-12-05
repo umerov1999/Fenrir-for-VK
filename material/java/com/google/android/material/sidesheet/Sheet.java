@@ -27,8 +27,7 @@ import java.lang.annotation.RetentionPolicy;
  * Interface for sheet constants and {@code IntDefs} to be shared between the different {@link
  * Sheet} implementations.
  */
-public interface Sheet {
-
+interface Sheet {
   /** The sheet is dragging. */
   int STATE_DRAGGING = 1;
 
@@ -70,7 +69,12 @@ public interface Sheet {
   /** The sheet is based on the right edge; it slides from the right edge towards the left. */
   int RIGHT = 0;
 
-  /** The edge of the screen that a sheet slides out of. */
+  /**
+   * The edge of the screen that a sheet slides out of.
+   *
+   * @hide
+   */
+  @RestrictTo(LIBRARY_GROUP)
   @IntDef({RIGHT})
   @Retention(RetentionPolicy.SOURCE)
   @interface SheetEdge {}

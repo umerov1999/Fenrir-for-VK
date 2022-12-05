@@ -31,7 +31,9 @@ class App : Application() {
         super.onCreate()
 
         AppCompatDelegate.setDefaultNightMode(Settings.get().ui().nightMode)
-        CrashUtils.install(this)
+        if (Settings.get().other().isDeveloper_mode) {
+            CrashUtils.install(this)
+        }
 
         if (Settings.get().other().isEnable_native) {
             FenrirNative.loadNativeLibrary(object : FenrirNative.NativeOnException {

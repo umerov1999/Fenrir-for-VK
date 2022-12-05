@@ -106,6 +106,9 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
     }
 
     private fun init(context: Context) {
+        if (isInEditMode) {
+            return
+        }
         mAccountId = Settings.get()
             .accounts()
             .current
@@ -189,6 +192,9 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        if (isInEditMode) {
+            return
+        }
         mCallbacks = try {
             context as NavigationDrawerCallbacks
         } catch (ignored: ClassCastException) {
@@ -198,6 +204,9 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        if (isInEditMode) {
+            return
+        }
         mCompositeDisposable.dispose()
         mCallbacks = null
     }

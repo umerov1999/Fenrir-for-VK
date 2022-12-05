@@ -1672,7 +1672,6 @@
     <string name="gender_man">Мужской</string>
     <string name="closed">Закрытый</string>
     <string name="opened">Открытый</string>
-    <string name="unofficial">Неофициальный</string>
     <string name="mark_listened_voice">Отмечать прослушанные голосовые</string>
     <string name="voters">Проголосовали</string>
     <string name="validate_tls">Верификация сертификатов</string>

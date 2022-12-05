@@ -49,7 +49,6 @@ import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.media.exo.OkHttpDataSource
 import dev.ragnarok.fenrir.model.*
 import dev.ragnarok.fenrir.model.Sticker.LocalSticker
-import dev.ragnarok.fenrir.module.StringHash
 import dev.ragnarok.fenrir.module.rlottie.RLottieDrawable
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
@@ -97,17 +96,19 @@ object Utils {
         return cachedMyStickers
     }
 
+    /*
     fun compareFingerprintHashForPackage(context: Context): Boolean {
         return try {
             val sign = context.getSignature()
             if (sign != null) {
-                return "73cbb1d92bd8f6432568e838de407ed01b071515" == StringHash.calculateSha1(sign.toByteArray())
+                return "hash" == StringHash.calculateSha1(sign.toByteArray())
             }
             true
         } catch (e: Exception) {
             true
         }
     }
+     */
 
     fun needReloadNews(account_id: Int): Boolean {
         if (!reload_news.contains(account_id)) {

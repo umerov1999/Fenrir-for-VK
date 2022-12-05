@@ -92,6 +92,9 @@ class AdditionalNavigationView : AbsNavigationView, MenuListAdapter.ActionListen
     }
 
     private fun init(context: Context) {
+        if (isInEditMode) {
+            return
+        }
         mAccountId = Settings.get()
             .accounts()
             .current
@@ -187,6 +190,9 @@ class AdditionalNavigationView : AbsNavigationView, MenuListAdapter.ActionListen
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        if (isInEditMode) {
+            return
+        }
         mCallbacks = try {
             context as NavigationDrawerCallbacks
         } catch (ignored: ClassCastException) {
@@ -196,6 +202,9 @@ class AdditionalNavigationView : AbsNavigationView, MenuListAdapter.ActionListen
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        if (isInEditMode) {
+            return
+        }
         mCompositeDisposable.dispose()
         mCallbacks = null
     }

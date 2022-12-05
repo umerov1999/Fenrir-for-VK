@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-            tools:text="Заблокирован Р. Колбасой навсегда" />
+            tools:text="Заблокирован А. Умеровым навсегда" />
 
         <TextView
             android:id="@+id/comment_text"

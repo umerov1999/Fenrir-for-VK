@@ -72,7 +72,8 @@ class AudioContainer : LinearLayout {
     private var audioListDisposable = Disposable.disposed()
     private var audios: List<Audio> = emptyList()
     private var currAudio = currentAudio
-    private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon
+    private val isAudio_round_icon: Boolean =
+        if (isInEditMode) true else Settings.get().main().isAudio_round_icon
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)

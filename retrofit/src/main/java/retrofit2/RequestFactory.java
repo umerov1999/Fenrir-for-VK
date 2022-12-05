@@ -144,7 +144,7 @@ final class RequestFactory {
      */
     static final class Builder {
         // Upper and lower characters, digits, underscores, and hyphens, starting with a character.
-        private static final String PARAM = "[a-zA-Z][a-zA-Z0-9_-]*";
+        private static final String PARAM = "[a-zA-Z][a-zA-Z\\d_-]*";
         private static final Pattern PARAM_URL_REGEX = Pattern.compile("\\{(" + PARAM + ")\\}");
         private static final Pattern PARAM_NAME_REGEX = Pattern.compile(PARAM);
 
@@ -277,11 +277,12 @@ final class RequestFactory {
                 HTTP http = (HTTP) annotation;
                 parseHttpMethodAndPath(http.method(), http.path(), http.hasBody());
             } else if (annotation instanceof retrofit2.http.Headers) {
-                String[] headersToParse = ((retrofit2.http.Headers) annotation).value();
+                retrofit2.http.Headers headers = (retrofit2.http.Headers) annotation;
+                String[] headersToParse = headers.value();
                 if (headersToParse.length == 0) {
                     throw methodError(method, "@Headers annotation is empty.");
                 }
-                headers = parseHeaders(headersToParse);
+                this.headers = parseHeaders(headersToParse, headers.allowUnsafeNonAsciiValues());
             } else if (annotation instanceof Multipart) {
                 if (isFormEncoded) {
                     throw methodError(method, "Only one encoding annotation is allowed.");
@@ -329,7 +330,7 @@ final class RequestFactory {
             relativeUrlParamNames = parsePathParameters(value);
         }
 
-        private Headers parseHeaders(String[] headers) {
+        private Headers parseHeaders(String[] headers, boolean allowUnsafeNonAsciiValues) {
             Headers.Builder builder = new Headers.Builder();
             for (String header : headers) {
                 int colon = header.indexOf(':');
@@ -345,6 +346,8 @@ final class RequestFactory {
                     } catch (IllegalArgumentException e) {
                         throw methodError(method, e, "Malformed content type: %s", headerValue);
                     }
+                } else if (allowUnsafeNonAsciiValues) {
+                    builder.addUnsafeNonAscii(headerName, headerValue);
                 } else {
                     builder.add(headerName, headerValue);
                 }
@@ -561,15 +564,17 @@ final class RequestFactory {
                     ParameterizedType parameterizedType = (ParameterizedType) type;
                     Type iterableType = Utils.getParameterUpperBound(0, parameterizedType);
                     Converter<?, String> converter = retrofit.stringConverter(iterableType, annotations);
-                    return new ParameterHandler.Header<>(name, converter).iterable();
+                    return new ParameterHandler.Header<>(name, converter, header.allowUnsafeNonAsciiValues())
+                            .iterable();
                 } else if (rawParameterType.isArray()) {
                     Class<?> arrayComponentType = boxIfPrimitive(rawParameterType.getComponentType());
                     Converter<?, String> converter =
                             retrofit.stringConverter(arrayComponentType, annotations);
-                    return new ParameterHandler.Header<>(name, converter).array();
+                    return new ParameterHandler.Header<>(name, converter, header.allowUnsafeNonAsciiValues())
+                            .array();
                 } else {
                     Converter<?, String> converter = retrofit.stringConverter(type, annotations);
-                    return new ParameterHandler.Header<>(name, converter);
+                    return new ParameterHandler.Header<>(name, converter, header.allowUnsafeNonAsciiValues());
                 }
 
             } else if (annotation instanceof HeaderMap) {
@@ -595,7 +600,8 @@ final class RequestFactory {
                 Type valueType = Utils.getParameterUpperBound(1, parameterizedType);
                 Converter<?, String> valueConverter = retrofit.stringConverter(valueType, annotations);
 
-                return new ParameterHandler.HeaderMap<>(method, p, valueConverter);
+                return new ParameterHandler.HeaderMap<>(
+                        method, p, valueConverter, ((HeaderMap) annotation).allowUnsafeNonAsciiValues());
 
             } else if (annotation instanceof Field) {
                 validateResolvableType(p, type);

@@ -8,28 +8,27 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityFeatures
-import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.fragment.messages.chat.MessagesAdapter
 import dev.ragnarok.fenrir.fragment.messages.chat.MessagesAdapter.OnMessageActionListener
-import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.model.*
+import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
+import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.SafeCallInt
+import dev.ragnarok.fenrir.util.Utils.createGradientChatImage
 import dev.ragnarok.fenrir.util.Utils.safeObjectCall
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper.Companion.createFrom
@@ -47,6 +46,9 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
     private var mHeaderHelper: LoadMoreFooterHelper? = null
     private var mFooterHelper: LoadMoreFooterHelper? = null
     private var mEndlessRecyclerOnScrollListener: EndlessRecyclerOnScrollListener? = null
+    private var EmptyAvatar: TextView? = null
+    private var Title: TextView? = null
+    private var Avatar: ImageView? = null
     private var mActionView: ActionModeHolder? = null
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,11 +57,13 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
     ): View? {
         val root = inflater.inflate(R.layout.fragment_messages_lookup, container, false)
         root.background = CurrentTheme.getChatBackground(requireActivity())
-        (requireActivity() as AppCompatActivity).setSupportActionBar(root.findViewById(R.id.toolbar))
         val layoutManager: RecyclerView.LayoutManager =
             LinearLayoutManager(requireActivity(), RecyclerView.VERTICAL, true)
         mRecyclerView = root.findViewById(R.id.recycleView)
         mRecyclerView?.layoutManager = layoutManager
+        Title = root.findViewById(R.id.dialog_title)
+        Avatar = root.findViewById(R.id.toolbar_avatar)
+        EmptyAvatar = root.findViewById(R.id.empty_avatar_text)
         mHeaderView = inflater.inflate(R.layout.footer_load_more, mRecyclerView, false)
         mFooterView = inflater.inflate(R.layout.footer_load_more, mRecyclerView, false)
         mHeaderHelper =
@@ -180,7 +184,8 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
         mActionView?.titleView?.text = title
         mActionView?.buttonSpam?.visibility =
             if (canSpam) View.VISIBLE else View.GONE
-        mActionView?.buttonEdit?.visibility = if (canEdit) View.VISIBLE else View.GONE
+        mActionView?.buttonEdit?.visibility =
+            if (canEdit) View.VISIBLE else View.GONE
         mActionView?.buttonPin?.visibility =
             if (canPin) View.VISIBLE else View.GONE
         mActionView?.buttonStar?.visibility = if (canStar) View.VISIBLE else View.GONE
@@ -194,12 +199,12 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
         }
     }
 
-    override fun notifyDataChanged() {
-        mMessagesAdapter?.notifyDataSetChanged()
-    }
-
     override fun notifyItemChanged(index: Int) {
         mMessagesAdapter?.notifyItemBindableChanged(index)
+    }
+
+    override fun notifyDataChanged() {
+        mMessagesAdapter?.notifyDataSetChanged()
     }
 
     override fun setupHeaders(
@@ -236,7 +241,9 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
                 position
             )
         } else {
-            presenter?.fireOwnerClick(userId)
+            presenter?.fireOwnerClick(
+                userId
+            )
         }
     }
 
@@ -283,6 +290,45 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
         )
     }
 
+    override fun displayToolbarAvatar(accountId: Int, peer: Peer) {
+        if (EmptyAvatar == null || Avatar == null || Title == null) {
+            return
+        }
+        Avatar?.setOnClickListener {
+            PlaceFactory.getChatPlace(accountId, accountId, peer).tryOpenWith(requireActivity())
+        }
+        Title?.text = peer.getTitle()
+        if (peer.avaUrl.nonNullNoEmpty()) {
+            EmptyAvatar?.visibility = View.GONE
+            Avatar?.let {
+                with()
+                    .load(peer.avaUrl)
+                    .transform(RoundTransformation())
+                    .into(it)
+            }
+        } else {
+            Avatar?.let { with().cancelRequest(it) }
+            if (!peer.getTitle().isNullOrEmpty()) {
+                var name = peer.getTitle()
+                EmptyAvatar?.visibility = View.VISIBLE
+                if ((name?.length ?: 0) > 2) name = name?.substring(0, 2)
+                name = name?.trim { it <= ' ' }
+                EmptyAvatar?.text = name
+            } else {
+                EmptyAvatar?.visibility = View.GONE
+            }
+            Avatar?.setImageBitmap(
+                RoundTransformation().localTransform(
+                    createGradientChatImage(
+                        200,
+                        200,
+                        peer.id
+                    )
+                )
+            )
+        }
+    }
+
     override fun onBackPressed(): Boolean {
         if (mActionView?.isVisible == true) {
             mActionView?.hide()
@@ -293,11 +339,6 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
 
     override fun onResume() {
         super.onResume()
-        val actionBar = supportToolbarFor(this)
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.viewing_messages)
-            actionBar.subtitle = null
-        }
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)

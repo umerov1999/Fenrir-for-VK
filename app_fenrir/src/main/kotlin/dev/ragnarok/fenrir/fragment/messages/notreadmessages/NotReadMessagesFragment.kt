@@ -261,7 +261,7 @@ class NotReadMessagesFragment :
     }
 
     override fun onAvatarClick(message: Message, userId: Int, position: Int) {
-        if (mActionView != null && (mActionView ?: return).isVisible) {
+        if (mActionView?.isVisible == true) {
             presenter?.fireMessageClick(
                 message,
                 position
@@ -274,7 +274,7 @@ class NotReadMessagesFragment :
     }
 
     override fun onLongAvatarClick(message: Message, userId: Int, position: Int) {
-        if (mActionView != null && (mActionView ?: return).isVisible) {
+        if (mActionView?.isVisible == true) {
             presenter?.fireMessageClick(
                 message,
                 position

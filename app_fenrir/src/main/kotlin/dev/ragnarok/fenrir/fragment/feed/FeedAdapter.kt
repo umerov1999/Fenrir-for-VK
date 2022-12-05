@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.fragment.feed
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
@@ -19,10 +21,12 @@ import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.fragment.base.holder.IdentificableHolder
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.model.News
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
@@ -40,6 +44,8 @@ class FeedAdapter(
     private var clickListener: ClickListener? = null
     private var nextHolderId = 0
     private var recyclerView: RecyclerView? = null
+
+    @SuppressLint("SetTextI18n")
     override fun onBindItemViewHolder(viewHolder: PostHolder, position: Int, type: Int) {
         val item = getItem(position)
         attachmentsViewBinder.displayAttachments(
@@ -133,6 +139,19 @@ class FeedAdapter(
         viewHolder.viewsCounter.visibility = if (item.viewCount > 0) View.VISIBLE else View.GONE
         //holder.viewsCounter.setText(String.valueOf(item.getViewCount()));
         setCountText(viewHolder.viewsCounter, item.viewCount, false)
+
+        item.copyright?.let { vit ->
+            viewHolder.tvCopyright.visibility = View.VISIBLE
+            viewHolder.tvCopyright.text = "©" + vit.name
+            viewHolder.tvCopyright.setOnClickListener {
+                LinkHelper.openUrl(
+                    viewHolder.tvCopyright.context as Activity,
+                    Settings.get().accounts().current,
+                    vit.link,
+                    false
+                )
+            }
+        } ?: run { viewHolder.tvCopyright.visibility = View.GONE }
     }
 
     override fun viewHolder(view: View, type: Int): PostHolder {
@@ -220,6 +239,7 @@ class FeedAdapter(
         val attachmentsHolder: AttachmentsHolder
         val viewsCounter: TextView
         val cardView: View
+        val tvCopyright: TextView
         override val holderId: Int
             get() = cardView.tag as Int
 
@@ -260,6 +280,7 @@ class FeedAdapter(
             shareButton = root.findViewById(R.id.share_button)
             attachmentsHolder = forPost((root as ViewGroup))
             viewsCounter = itemView.findViewById(R.id.post_views_counter)
+            tvCopyright = itemView.findViewById(R.id.item_post_copyright)
         }
     }
 

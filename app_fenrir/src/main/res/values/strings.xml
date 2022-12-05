@@ -1917,7 +1917,6 @@
     <string name="gender_man">Male</string>
     <string name="closed">Closed</string>
     <string name="opened">Opened</string>
-    <string name="unofficial">Unofficial</string>
     <string name="mark_listened_voice">Mark Listened Voice</string>
     <string name="voters">Voters</string>
     <string name="validate_tls">Certificate Verification</string>
