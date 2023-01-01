@@ -40,6 +40,7 @@ import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asPrimitiveSafe
 import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.has
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
+import dev.ragnarok.fenrir.api.rest.HttpException
 import dev.ragnarok.fenrir.db.DBHelper
 import dev.ragnarok.fenrir.dialog.directauth.DirectAuthDialog
 import dev.ragnarok.fenrir.dialog.directauth.DirectAuthDialog.Companion.newInstance
@@ -77,12 +78,9 @@ import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.exceptions.Exceptions
 import okhttp3.*
-import okhttp3.Call
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Callback,
@@ -284,7 +282,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
             val settings = SettingsBackup().doBackup()
             root.put("settings", settings)
             val bytes = Json { prettyPrint = true }.printJsonElement(root.build()).toByteArray(
-                StandardCharsets.UTF_8
+                Charsets.UTF_8
             )
             out = FileOutputStream(file)
             val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
@@ -739,7 +737,7 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
             .add(
                 "device_id", Utils.getDeviceId(provideApplicationContext())
             )
-        return Includes.networkInterfaces.getVkRetrofitProvider().provideRawHttpClient(type)
+        return Includes.networkInterfaces.getVkRestProvider().provideRawHttpClient(type)
             .flatMap { client ->
                 Single.create { emitter: SingleEmitter<Response> ->
                     val request: Request = Request.Builder()
@@ -747,19 +745,21 @@ class AccountsFragment : BaseFragment(), View.OnClickListener, AccountAdapter.Ca
                             "https://" + Settings.get().other()
                                 .get_Api_Domain() + "/method/users.get"
                         )
-                        .method("POST", bodyBuilder.build())
+                        .post(bodyBuilder.build())
                         .build()
-                    val call = client.newCall(request)
+                    val call = client.build().newCall(request)
                     emitter.setCancellable { call.cancel() }
-                    call.enqueue(object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            emitter.onError(e)
-                        }
-
-                        override fun onResponse(call: Call, response: Response) {
+                    try {
+                        val response = call.execute()
+                        if (!response.isSuccessful) {
+                            emitter.tryOnError(HttpException(response.code))
+                        } else {
                             emitter.onSuccess(response)
                         }
-                    })
+                        response.close()
+                    } catch (e: Exception) {
+                        emitter.tryOnError(e)
+                    }
                 }
             }
             .map<BaseResponse<List<VKApiUser>>> {

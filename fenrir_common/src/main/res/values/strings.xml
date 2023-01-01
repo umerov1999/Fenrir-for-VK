@@ -23,6 +23,8 @@
         <item>Chur</item>
         <item>Fire</item>
         <item>Flame</item>
+        <item>Valkyrie 1</item>
+        <item>Valkyrie 2</item>
         <item>[Random]</item>
     </string-array>
 
@@ -50,6 +52,8 @@
         <item>20</item>
         <item>21</item>
         <item>22</item>
+        <item>23</item>
+        <item>24</item>
     </string-array>
 
     <!-- Google Play-->

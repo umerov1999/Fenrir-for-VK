@@ -201,7 +201,7 @@
     <string name="viewpager_page_transform">Анимация Viewpager2</string>
     <string name="player_cover_transform">Анимация свайпа обложки плеера</string>
     <string name="developer">Разработчик: Умеров Артём</string>
-    <string name="repo">Репозиторий: https://github.com/umerov1999/FileGallery</string>
+    <string name="repo">Репозиторий: https://github.com/umerov1999/Fenrir-for-VK</string>
     <string name="repo_local_server">Репозиторий: https://github.com/umerov1999/FenrirMediaServer/releases</string>
     <string name="tag_count_a">%1$d метка</string>
     <string name="tag_count_b">%1$d метки</string>
@@ -250,4 +250,6 @@
     <string name="limit_cache_images">Лимит кэша картинок в памяти</string>
     <string name="language_ui">Язык</string>
     <string name="scan_qr">Сканировать QR</string>
+    <string name="client_rest_shutdown">Запрос отменён</string>
+    <string name="internal_server_error">Ошибка сервера (HTTP: %1$d)</string>
 </resources>

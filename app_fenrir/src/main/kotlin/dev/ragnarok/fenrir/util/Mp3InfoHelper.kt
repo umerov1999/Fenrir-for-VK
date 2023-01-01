@@ -6,16 +6,15 @@ import io.reactivex.rxjava3.core.Single
 import okhttp3.Request
 
 object Mp3InfoHelper {
-
     fun getLength(url: String): Single<Long> {
         return Single.create {
-            val builder = Utils.createOkHttp(60, false)
+            val builder = Utils.createOkHttp(15, false)
             val request: Request = Request.Builder()
                 .url(url)
                 .build()
             val response = builder.build().newCall(request).execute()
             if (!response.isSuccessful) {
-                it.onError(
+                it.tryOnError(
                     Exception(
                         "Server return " + response.code +
                                 " " + response.message
@@ -24,8 +23,9 @@ object Mp3InfoHelper {
             } else {
                 val length = response.header("Content-Length")
                 response.body.close()
+                response.close()
                 if (length.isNullOrEmpty()) {
-                    it.onError(Exception("Empty content length!"))
+                    it.tryOnError(Exception("Empty content length!"))
                 }
                 length?.let { o ->
                     it.onSuccess(o.toLong())

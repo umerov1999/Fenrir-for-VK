@@ -40,14 +40,16 @@ class Photo2MessageUploadable(
         } else {
             networker.vkDefault(accountId)
                 .photos()
-                .messagesUploadServer.map { s -> s }
+                .messagesUploadServer.map { it }
         }
         return serverSingle.flatMap { server ->
             var `is`: InputStream? = null
             try {
                 `is` = UploadUtils.openStream(context, upload.fileUri, upload.size)
                 networker.uploads()
-                    .uploadPhotoToMessageRx(server.url, `is`!!, listener)
+                    .uploadPhotoToMessageRx(
+                        server.url ?: throw NotFoundException("upload url empty"), `is`!!, listener
+                    )
                     .doFinally(safelyCloseAction(`is`))
                     .flatMap { dto ->
                         networker.vkDefault(accountId)

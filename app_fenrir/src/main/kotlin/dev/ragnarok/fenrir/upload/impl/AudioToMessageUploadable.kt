@@ -39,7 +39,7 @@ class AudioToMessageUploadable(
             networker.vkDefault(accountId)
                 .audio()
                 .uploadServer
-                .map { s -> s }
+                .map { it }
         } else {
             Single.just(initialServer)
         }
@@ -71,7 +71,12 @@ class AudioToMessageUploadable(
                 val finalArtist = Artist
                 val finalTrackName = TrackName
                 return@flatMap networker.uploads()
-                    .uploadAudioRx(server.url, filename, `is`, listener)
+                    .uploadAudioRx(
+                        server.url ?: throw NotFoundException("upload url empty"),
+                        filename,
+                        `is`,
+                        listener
+                    )
                     .doFinally(safelyCloseAction(`is`))
                     .flatMap { dto ->
                         networker
