@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,7 +10,7 @@ class VKApiMarketAlbum : VKApiAttachment {
     var id = 0
 
     @SerialName("owner_id")
-    var owner_id = 0
+    var owner_id = 0L
 
     @SerialName("access_key")
     var access_key: String? = null

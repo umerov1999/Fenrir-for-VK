@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.domain.mappers
 
 import dev.ragnarok.fenrir.api.model.*
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
 import dev.ragnarok.fenrir.api.util.VKStringUtils.unescape
@@ -174,10 +175,10 @@ object Dto2Model {
     }
 
     fun transformFaveUser(favePage: FavePageResponse): FavePage {
-        var id = 0
+        var id = 0L
         when (favePage.type) {
-            FavePageType.USER -> id = favePage.user?.id ?: 0
-            FavePageType.COMMUNITY -> id = favePage.group?.id ?: 0
+            FavePageType.USER -> id = favePage.user?.id ?: 0L
+            FavePageType.COMMUNITY -> id = favePage.group?.id ?: 0L
         }
         val page = FavePage(id)
             .setDescription(favePage.description)
@@ -221,7 +222,7 @@ object Dto2Model {
             .setHasUnseenStories(user.has_unseen_stories)
     }
 
-    fun transform(accountUid: Int, update: AddMessageUpdate): VKApiMessage {
+    fun transform(accountUid: Long, update: AddMessageUpdate): VKApiMessage {
         val message = VKApiMessage()
         message.id = update.messageId
         message.out = update.isOut
@@ -248,7 +249,7 @@ object Dto2Model {
     }
 
     fun transform(
-        accountId: Int,
+        accountId: Long,
         dtos: List<VKApiDialog>,
         owners: IOwnersBundle,
         contacts: List<VKApiConversation.ContactElement>?
@@ -293,7 +294,7 @@ object Dto2Model {
 
 
     fun transform(
-        accountId: Int,
+        accountId: Long,
         dto: VKApiConversation,
         bundle: IOwnersBundle,
         contacts: List<VKApiConversation.ContactElement>?
@@ -340,7 +341,7 @@ object Dto2Model {
 
 
     fun transform(
-        accountId: Int,
+        accountId: Long,
         dto: VKApiDialog,
         bundle: IOwnersBundle,
         contacts: List<VKApiConversation.ContactElement>?
@@ -388,7 +389,7 @@ object Dto2Model {
 
 
     fun transformMessages(
-        aid: Int,
+        aid: Long,
         dtos: List<VKApiMessage>,
         owners: IOwnersBundle
     ): List<Message> {
@@ -431,7 +432,7 @@ object Dto2Model {
     }
 
 
-    fun transform(aid: Int, message: VKApiMessage, owners: IOwnersBundle): Message {
+    fun transform(aid: Long, message: VKApiMessage, owners: IOwnersBundle): Message {
         val encrypted = analizeMessageBody(message.body) == MessageType.CRYPTED
         val appMessage = Message(message.id)
             .setAccountId(aid)
@@ -458,7 +459,7 @@ object Dto2Model {
             .setSender(owners.getById(message.from_id))
             .setPayload(message.payload)
             .setKeyboard(transformKeyboard(message.keyboard))
-        if (message.action_mid != 0) {
+        if (message.action_mid != 0L) {
             appMessage.setActionUser(owners.getById(message.action_mid))
         }
         if (message.attachments != null && message.attachments?.nonEmpty() == true) {
@@ -532,7 +533,7 @@ object Dto2Model {
     fun transform(
         simplePrivacy: SimplePrivacy,
         owners: IOwnersBundle,
-        friendListMap: Map<Int, FriendList>
+        friendListMap: Map<Long, FriendList>
     ): Privacy {
         val privacy = Privacy()
         privacy.setType(simplePrivacy.getType() ?: "null")
@@ -553,7 +554,7 @@ object Dto2Model {
         return privacy
     }
 
-    private fun buildUserArray(users: List<Int>, owners: IOwnersBundle): List<User> {
+    private fun buildUserArray(users: List<Long>, owners: IOwnersBundle): List<User> {
         val data: MutableList<User> = ArrayList(safeCountOf(users))
         for (pair in users) {
             val dt = owners.getById(pair)
@@ -581,12 +582,12 @@ object Dto2Model {
             .setThreadsCount(dto.threads_count)
             .setThreads(buildComments(commented, dto.threads, owners))
             .setPid(dto.pid)
-        if (dto.from_id != 0) {
+        if (dto.from_id != 0L) {
             comment.setAuthor(owners.getById(dto.from_id))
         }
         dto.attachments.requireNonNull {
             comment.setAttachments(buildAttachments(it, owners))
-            //comment.setHasAttachmens(comment.getAttachments().count());
+            //comment.setHasAttachments(comment.getAttachments().count());
         }
         return comment
     }
@@ -620,10 +621,10 @@ object Dto2Model {
             .setCommentsCount(dto.comments?.count.orZero())
             .setFirstCommentBody(dto.first_comment)
             .setLastCommentBody(dto.last_comment)
-        if (dto.updated_by != 0) {
+        if (dto.updated_by != 0L) {
             topic.setUpdater(owners.getById(dto.updated_by))
         }
-        if (dto.created_by != 0) {
+        if (dto.created_by != 0L) {
             topic.setCreator(owners.getById(dto.created_by))
         }
         return topic
@@ -714,7 +715,7 @@ object Dto2Model {
             .setAuthor(owners.getById(dto.from_id))
         dto.attachments.requireNonNull {
             comment.setAttachments(buildAttachments(it, owners))
-            //comment.setHasAttachmens(comment.getAttachments().count());
+            //comment.setHasAttachments(comment.getAttachments().count());
         }
         return comment
     }
@@ -1101,7 +1102,7 @@ object Dto2Model {
                 VKApiAttachment.TYPE_AUDIO_PLAYLIST -> attachments.prepareAudioPlaylists().add(
                     transform(attachment as VKApiAudioPlaylist)
                 )
-                VKApiAttachment.TYPE_GRAFFITI -> attachments.prepareGraffity()
+                VKApiAttachment.TYPE_GRAFFITI -> attachments.prepareGraffiti()
                     .add(transform(attachment as VKApiGraffiti))
                 VKApiAttachment.TYPE_POLL -> attachments.preparePolls()
                     .add(transform(attachment as VKApiPoll))
@@ -1240,12 +1241,12 @@ object Dto2Model {
 
 
     fun fillPostOwners(post: Post, owners: IOwnersBundle) {
-        if (post.authorId != 0) {
+        if (post.authorId != 0L) {
             post.setAuthor(owners.getById(post.authorId))
         }
-        if (post.signerId != 0) {
+        if (post.signerId != 0L) {
             post.setCreator(owners.getById(post.signerId) as User)
-        } else if (post.creatorId != 0) {
+        } else if (post.creatorId != 0L) {
             post.setCreator(owners.getById(post.creatorId) as User)
         }
     }

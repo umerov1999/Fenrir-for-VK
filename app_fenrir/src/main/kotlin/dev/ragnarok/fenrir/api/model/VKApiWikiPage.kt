@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.Serializable
 
 /**
@@ -15,12 +16,12 @@ class VKApiWikiPage : VKApiAttachment {
     /**
      * ID of the group the wiki page belongs to;
      */
-    var owner_id = 0
+    var owner_id = 0L
 
     /**
      * ID of the page creator.
      */
-    var creator_id = 0
+    var creator_id = 0L
 
     /**
      * Wiki page name.
@@ -55,7 +56,7 @@ class VKApiWikiPage : VKApiAttachment {
     /**
      * ID of the last user who edited the page.
      */
-    var editor_id = 0
+    var editor_id = 0L
 
     /**
      * Date of the last change.

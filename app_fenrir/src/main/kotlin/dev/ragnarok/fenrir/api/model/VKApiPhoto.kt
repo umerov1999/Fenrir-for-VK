@@ -1,6 +1,10 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.PhotoDtoAdapter
+import dev.ragnarok.fenrir.api.model.interfaces.Commentable
+import dev.ragnarok.fenrir.api.model.interfaces.Copyable
+import dev.ragnarok.fenrir.api.model.interfaces.Likeable
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.Serializable
 
 /**
@@ -25,7 +29,7 @@ class VKApiPhoto
     /**
      * ID of the user or community that owns the photo.
      */
-    var owner_id = 0
+    var owner_id = 0L
 
     /**
      * Width (in pixels) of the original photo.

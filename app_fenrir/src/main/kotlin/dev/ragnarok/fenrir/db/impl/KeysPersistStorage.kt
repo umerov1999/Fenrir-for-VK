@@ -20,7 +20,7 @@ internal class KeysPersistStorage(context: AppStorages) : AbsStorage(context), I
     private fun map(cursor: Cursor): AesKeyPair {
         return AesKeyPair()
             .setVersion(cursor.getInt(KeyColumns.VERSION))
-            .setPeerId(cursor.getInt(KeyColumns.PEER_ID))
+            .setPeerId(cursor.getLong(KeyColumns.PEER_ID))
             .setSessionId(cursor.getLong(KeyColumns.SESSION_ID))
             .setDate(cursor.getLong(KeyColumns.DATE))
             .setStartMessageId(cursor.getInt(KeyColumns.START_SESSION_MESSAGE_ID))
@@ -31,9 +31,9 @@ internal class KeysPersistStorage(context: AppStorages) : AbsStorage(context), I
 
     override fun saveKeyPair(pair: AesKeyPair): Completable {
         return Completable.create { e: CompletableEmitter ->
-            val alreaadyExist = findKeyPairFor(pair.accountId, pair.sessionId)
+            val alreadyExist = findKeyPairFor(pair.accountId, pair.sessionId)
                 .blockingGet()
-            if (alreaadyExist != null) {
+            if (alreadyExist != null) {
                 e.tryOnError(DatabaseException("Key pair with the session ID is already in the database"))
                 return@create
             }
@@ -52,7 +52,7 @@ internal class KeysPersistStorage(context: AppStorages) : AbsStorage(context), I
         }
     }
 
-    override fun getAll(accountId: Int): Single<List<AesKeyPair>> {
+    override fun getAll(accountId: Long): Single<List<AesKeyPair>> {
         return Single.create { e: SingleEmitter<List<AesKeyPair>> ->
             val uri = getKeysContentUriFor(accountId)
             val cursor = context.contentResolver.query(uri, null, null, null, BaseColumns._ID)
@@ -70,7 +70,7 @@ internal class KeysPersistStorage(context: AppStorages) : AbsStorage(context), I
         }
     }
 
-    override fun getKeys(accountId: Int, peerId: Int): Single<List<AesKeyPair>> {
+    override fun getKeys(accountId: Long, peerId: Long): Single<List<AesKeyPair>> {
         return Single.create { e: SingleEmitter<List<AesKeyPair>> ->
             val uri = getKeysContentUriFor(accountId)
             val cursor = context.contentResolver
@@ -95,7 +95,7 @@ internal class KeysPersistStorage(context: AppStorages) : AbsStorage(context), I
         }
     }
 
-    override fun findLastKeyPair(accountId: Int, peerId: Int): Single<Optional<AesKeyPair>> {
+    override fun findLastKeyPair(accountId: Long, peerId: Long): Single<Optional<AesKeyPair>> {
         return Single.create { e: SingleEmitter<Optional<AesKeyPair>> ->
             val uri = getKeysContentUriFor(accountId)
             val cursor = context.contentResolver
@@ -117,7 +117,7 @@ internal class KeysPersistStorage(context: AppStorages) : AbsStorage(context), I
         }
     }
 
-    override fun findKeyPairFor(accountId: Int, sessionId: Long): Maybe<AesKeyPair> {
+    override fun findKeyPairFor(accountId: Long, sessionId: Long): Maybe<AesKeyPair> {
         return Maybe.create { e: MaybeEmitter<AesKeyPair> ->
             val uri = getKeysContentUriFor(accountId)
             val cursor = context.contentResolver
@@ -142,7 +142,7 @@ internal class KeysPersistStorage(context: AppStorages) : AbsStorage(context), I
         }
     }
 
-    override fun deleteAll(accountId: Int): Completable {
+    override fun deleteAll(accountId: Long): Completable {
         return Completable.create { e: CompletableEmitter ->
             val uri = getKeysContentUriFor(accountId)
             context.contentResolver.delete(uri, null, null)

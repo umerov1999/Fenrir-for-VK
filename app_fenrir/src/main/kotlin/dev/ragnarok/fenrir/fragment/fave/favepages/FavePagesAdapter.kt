@@ -46,7 +46,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
         val favePage = data[position]
         if (Settings.get().other().isMention_fave) {
             holder.itemView.setOnLongClickListener {
-                if (favePage.getObjectId() >= 0) {
+                if (favePage.getOwnerObjectId() >= 0) {
                     favePage.owner?.let { it1 -> clickListener?.onMention(it1) }
                 }
                 true
@@ -64,13 +64,13 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
             if (favePage.owner?.isVerified == true) View.VISIBLE else View.GONE
 
         if (Settings.get().other()
-                .isOwnerInChangesMonitor(favePage.owner?.ownerId ?: favePage.getObjectId())
+                .isOwnerInChangesMonitor(favePage.owner?.ownerId ?: favePage.getOwnerObjectId())
         ) {
             holder.ivMonitor.visibility = View.VISIBLE
             holder.ivMonitor.fromRes(
                 dev.ragnarok.fenrir_common.R.raw.eye,
-                Utils.dp(48f),
-                Utils.dp(48f),
+                Utils.dp(24f),
+                Utils.dp(24f),
                 intArrayOf(
                     0x333333,
                     Color.parseColor("#ffffff"),
@@ -83,6 +83,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
             holder.ivMonitor.visibility = View.GONE
             holder.ivMonitor.clearAnimationDrawable()
         }
+        holder.blacklisted.clearColorFilter()
         if (favePage.type == FavePageType.USER) {
             val user = favePage.user
             displayAvatar(
@@ -110,13 +111,13 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
             } else if (user?.isFriend == true && Utils.hasMarshmallow() && FenrirNative.isNativeLoaded) {
                 holder.blacklisted.visibility = View.VISIBLE
                 holder.blacklisted.fromRes(
-                    dev.ragnarok.fenrir_common.R.raw.infinity,
+                    dev.ragnarok.fenrir_common.R.raw.is_friend,
                     Utils.dp(48f),
                     Utils.dp(48f),
                     intArrayOf(
-                        0x333333,
+                        0x000000,
                         getColorPrimary(context),
-                        0x777777,
+                        0xffffff,
                         getColorSecondary(context)
                     )
                 )

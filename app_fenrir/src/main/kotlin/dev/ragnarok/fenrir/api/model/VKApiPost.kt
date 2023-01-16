@@ -1,6 +1,10 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.PostDtoAdapter
+import dev.ragnarok.fenrir.api.model.interfaces.Commentable
+import dev.ragnarok.fenrir.api.model.interfaces.Copyable
+import dev.ragnarok.fenrir.api.model.interfaces.Likeable
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import kotlinx.serialization.Serializable
@@ -18,12 +22,12 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     /**
      * Wall owner ID.
      */
-    var owner_id = 0
+    var owner_id = 0L
 
     /**
      * ID of the user who posted.
      */
-    var from_id = 0
+    var from_id = 0L
 
     /**
      * Date (in Unix time) the post was added.
@@ -38,7 +42,7 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     /**
      * ID of the wall owner the post to which the reply is addressed (if the post is a reply to another wall post).
      */
-    var reply_owner_id = 0
+    var reply_owner_id = 0L
 
     /**
      * ID of the wall post to which the reply is addressed (if the post is a reply to another wall post).
@@ -98,7 +102,7 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     /**
      * ID of the author (if the post was published by a community and signed by a user).
      */
-    var signer_id = 0
+    var signer_id = 0L
 
     /**
      * информация о том, может ли текущий пользователь закрепить запись. R.Kolbasa
@@ -118,7 +122,7 @@ class VKApiPost : VKApiAttachment, Commentable, Likeable, Copyable {
     var copy_history: ArrayList<VKApiPost>? = null
     var post_source: VKApiPostSource? = null
     var views = 0
-    var created_by = 0
+    var created_by = 0L
     var can_edit = false
     var is_favorite = false
 

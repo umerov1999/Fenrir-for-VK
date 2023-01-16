@@ -1,6 +1,8 @@
 package dev.ragnarok.fenrir.fragment.friends.followers
 
+import android.content.DialogInterface
 import android.os.Bundle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.DeltaOwnerActivity
@@ -8,6 +10,7 @@ import dev.ragnarok.fenrir.fragment.absownerslist.AbsOwnersListFragment
 import dev.ragnarok.fenrir.fragment.base.core.IPresenterFactory
 import dev.ragnarok.fenrir.model.DeltaOwner
 import dev.ragnarok.fenrir.model.Owner
+import dev.ragnarok.fenrir.util.Utils
 
 class FollowersFragment : AbsOwnersListFragment<FollowersPresenter, IFollowersView>(),
     IFollowersView {
@@ -15,10 +18,10 @@ class FollowersFragment : AbsOwnersListFragment<FollowersPresenter, IFollowersVi
         return object : IPresenterFactory<FollowersPresenter> {
             override fun create(): FollowersPresenter {
                 return FollowersPresenter(
-                    requireArguments().getInt(
+                    requireArguments().getLong(
                         Extra.ACCOUNT_ID
                     ),
-                    requireArguments().getInt(Extra.USER_ID),
+                    requireArguments().getLong(Extra.USER_ID),
                     saveInstanceState
                 )
             }
@@ -30,6 +33,18 @@ class FollowersFragment : AbsOwnersListFragment<FollowersPresenter, IFollowersVi
     }
 
     override fun onLongClick(owner: Owner): Boolean {
+        if (!Utils.follower_kick_mode) {
+            MaterialAlertDialogBuilder(requireActivity()).setIcon(R.drawable.report_red)
+                .setTitle(R.string.select)
+                .setMessage(R.string.block_or_delete)
+                .setPositiveButton(R.string.block_user) { _: DialogInterface?, _: Int ->
+                    Utils.follower_kick_mode = true
+                    presenter?.removeFollower(owner)
+                }
+                .setCancelable(true).show()
+            return true
+        }
+
         presenter?.removeFollower(
             owner
         )
@@ -39,8 +54,8 @@ class FollowersFragment : AbsOwnersListFragment<FollowersPresenter, IFollowersVi
     override fun showModFollowers(
         add: List<Owner>,
         remove: List<Owner>,
-        accountId: Int,
-        ownerId: Int
+        accountId: Long,
+        ownerId: Long
     ) {
         if (add.isEmpty() && remove.isEmpty()) {
             return
@@ -70,10 +85,10 @@ class FollowersFragment : AbsOwnersListFragment<FollowersPresenter, IFollowersVi
 
     companion object {
 
-        fun newInstance(accountId: Int, userId: Int): FollowersFragment {
+        fun newInstance(accountId: Long, userId: Long): FollowersFragment {
             val args = Bundle()
-            args.putInt(Extra.ACCOUNT_ID, accountId)
-            args.putInt(Extra.USER_ID, userId)
+            args.putLong(Extra.ACCOUNT_ID, accountId)
+            args.putLong(Extra.USER_ID, userId)
             val followersFragment = FollowersFragment()
             followersFragment.arguments = args
             return followersFragment

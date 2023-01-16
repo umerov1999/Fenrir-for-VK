@@ -4,6 +4,7 @@ import android.content.Context
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.adapters.AudioDtoAdapter
 import dev.ragnarok.fenrir.api.model.catalog_v2_audio.IIdComparable
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.Serializable
 
 /**
@@ -23,7 +24,7 @@ class VKApiAudio
     /**
      * Audio owner ID.
      */
-    var owner_id = 0
+    var owner_id = 0L
 
     /**
      * Artist name.
@@ -56,7 +57,7 @@ class VKApiAudio
      * ID of the album containing the audio file (if assigned).
      */
     var album_id = 0
-    var album_owner_id = 0
+    var album_owner_id = 0L
     var album_access_key: String? = null
 
     /**

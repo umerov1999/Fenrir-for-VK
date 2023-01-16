@@ -11,17 +11,17 @@ import dev.ragnarok.fenrir.model.BannedPart
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Utils.findOwnerIndexById
+import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 
-class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
+class UserBannedPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IUserBannedView>(accountId, savedInstanceState) {
     private val interactor: IAccountsInteractor = InteractorFactory.createAccountInteractor()
     private val owners: MutableList<Owner>
     private var endOfContent = false
     private var loadinNow = false
-    private fun onOwnerRemoved(id: Int) {
-        val index = findOwnerIndexById(owners, id)
+    private fun onOwnerRemoved(id: Long) {
+        val index = findIndexById(owners, id)
         if (index != -1) {
             owners.removeAt(index)
             view?.notifyItemRemoved(
@@ -157,12 +157,12 @@ class UserBannedPresenter(accountId: Int, savedInstanceState: Bundle?) :
         val repository = blacklistRepository
         appendDisposable(repository.observeAdding()
             .filter { it.first == accountId }
-            .map(Pair<Int, Owner>::second)
+            .map(Pair<Long, Owner>::second)
             .observeOn(provideMainThreadScheduler())
             .subscribe { onOwnerAdded(it) })
         appendDisposable(repository.observeRemoving()
             .filter { it.first == accountId }
-            .map(Pair<Int, Int>::second)
+            .map(Pair<Long, Long>::second)
             .observeOn(provideMainThreadScheduler())
             .subscribe { onOwnerRemoved(it) })
     }

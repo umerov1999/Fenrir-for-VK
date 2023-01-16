@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api.model
 
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.Serializable
 
 /**
@@ -19,7 +20,7 @@ class VKApiNote
     /**
      * Note owner ID.
      */
-    var user_id = 0
+    var user_id = 0L
 
     /**
      * Note title.

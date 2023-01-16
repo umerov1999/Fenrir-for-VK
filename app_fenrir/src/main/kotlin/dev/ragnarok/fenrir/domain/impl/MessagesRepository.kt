@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.Includes.provideMainThreadScheduler
 import dev.ragnarok.fenrir.api.Fields
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.*
+import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken
 import dev.ragnarok.fenrir.api.model.local_json.ChatJsonResponse
 import dev.ragnarok.fenrir.api.model.longpoll.*
 import dev.ragnarok.fenrir.crypt.CryptHelper.encryptWithAes
@@ -116,7 +117,7 @@ class MessagesRepository(
     private val senderScheduler = Schedulers.from(Executors.newFixedThreadPool(1))
     private val handler = InternalHandler(this)
     private var nowSending = false
-    private var registeredAccounts: List<Int>? = null
+    private var registeredAccounts: List<Long>? = null
     override fun observeMessagesSendErrors(): Flowable<Throwable> {
         return sendErrorsPublisher.onBackpressureBuffer()
     }
@@ -145,7 +146,7 @@ class MessagesRepository(
         sendMessage(registeredAccounts())
     }
 
-    private fun registeredAccounts(): List<Int>? {
+    private fun registeredAccounts(): List<Long>? {
         if (registeredAccounts == null) {
             registeredAccounts = accountsSettings.registered
         }
@@ -177,7 +178,7 @@ class MessagesRepository(
         sendErrorsPublisher.onNext(t)
     }
 
-    private fun sendMessage(accountIds: Collection<Int>?) {
+    private fun sendMessage(accountIds: Collection<Long>?) {
         nowSending = true
         compositeDisposable.add(sendUnsentMessage(accountIds ?: return)
             .subscribeOn(senderScheduler)
@@ -220,7 +221,7 @@ class MessagesRepository(
     }
 
     override fun handleFlagsUpdates(
-        accountId: Int,
+        accountId: Long,
         setUpdates: List<MessageFlagsSetUpdate>?,
         resetUpdates: List<MessageFlagsResetUpdate>?
     ): Completable {
@@ -263,7 +264,7 @@ class MessagesRepository(
     }
 
     override fun handleWriteUpdates(
-        accountId: Int,
+        accountId: Long,
         updates: List<WriteTextInDialogUpdate>?
     ): Completable {
         return Completable.fromAction {
@@ -278,8 +279,8 @@ class MessagesRepository(
     }
 
     override fun updateDialogKeyboard(
-        accountId: Int,
-        peerId: Int,
+        accountId: Long,
+        peerId: Long,
         keyboard: Keyboard?
     ): Completable {
         return storages.dialogs()
@@ -287,7 +288,7 @@ class MessagesRepository(
     }
 
     override fun handleUnreadBadgeUpdates(
-        accountId: Int,
+        accountId: Long,
         updates: List<BadgeCountChangeUpdate>?
     ): Completable {
         return Completable.fromAction {
@@ -312,7 +313,7 @@ class MessagesRepository(
     }
 
     override fun handleReadUpdates(
-        accountId: Int,
+        accountId: Long,
         setUpdates: List<OutputMessagesSetReadUpdate>?,
         resetUpdates: List<InputMessagesSetReadUpdate>?
     ): Completable {
@@ -344,9 +345,13 @@ class MessagesRepository(
         }
         if (resetUpdates.nonNullNoEmpty()) {
             for (update in resetUpdates) {
+                val patch = PeerPatch(update.peerId).withInRead(update.localId)
+                    .withUnreadCount(update.unreadCount)
+                if (update.peerId == accountId) {
+                    patch.withOutRead(update.localId)
+                }
                 patches.add(
-                    PeerPatch(update.peerId).withInRead(update.localId)
-                        .withUnreadCount(update.unreadCount)
+                    patch
                 )
                 tryCancelNotificationForPeer(provideApplicationContext(), accountId, update.peerId)
             }
@@ -371,8 +376,8 @@ class MessagesRepository(
     }
 
     override fun getConversationSingle(
-        accountId: Int,
-        peerId: Int,
+        accountId: Long,
+        peerId: Long,
         mode: Mode
     ): Single<Conversation> {
         val cached = getCachedConversation(accountId, peerId)
@@ -395,7 +400,10 @@ class MessagesRepository(
         throw IllegalArgumentException("Unsupported mode: $mode")
     }
 
-    private fun getCachedConversation(accountId: Int, peerId: Int): Single<Optional<Conversation>> {
+    private fun getCachedConversation(
+        accountId: Long,
+        peerId: Long
+    ): Single<Optional<Conversation>> {
         return storages.dialogs()
             .findSimple(accountId, peerId)
             .flatMap { optional ->
@@ -409,7 +417,7 @@ class MessagesRepository(
             }
     }
 
-    private fun getActualConversation(accountId: Int, peerId: Int): Single<Conversation> {
+    private fun getActualConversation(accountId: Long, peerId: Long): Single<Conversation> {
         return networker.vkDefault(accountId)
             .messages()
             .getConversations(listOf(peerId), true, Fields.FIELDS_BASE_OWNER)
@@ -433,7 +441,11 @@ class MessagesRepository(
             }
     }
 
-    override fun getConversation(accountId: Int, peerId: Int, mode: Mode): Flowable<Conversation> {
+    override fun getConversation(
+        accountId: Long,
+        peerId: Long,
+        mode: Mode
+    ): Flowable<Conversation> {
         val cached = getCachedConversation(accountId, peerId)
         val actual = getActualConversation(accountId, peerId)
         return when (mode) {
@@ -462,7 +474,7 @@ class MessagesRepository(
     }
 
     private fun simpleEntity2Conversation(
-        accountId: Int,
+        accountId: Long,
         existingOwners: Collection<Owner>
     ): SingleTransformer<SimpleDialogEntity, Conversation> {
         return SingleTransformer { single: Single<SimpleDialogEntity> ->
@@ -490,7 +502,7 @@ class MessagesRepository(
     }
 
     override fun edit(
-        accountId: Int,
+        accountId: Long,
         message: Message,
         body: String?,
         attachments: List<AbsModel>,
@@ -511,8 +523,8 @@ class MessagesRepository(
     }
 
     override fun getCachedPeerMessages(
-        accountId: Int,
-        peerId: Int
+        accountId: Long,
+        peerId: Long
     ): Single<List<Message>> {
         val criteria = MessagesCriteria(accountId, peerId)
         return storages.messages()
@@ -522,7 +534,7 @@ class MessagesRepository(
     }
 
     override fun getMessagesFromLocalJSon(
-        accountId: Int,
+        accountId: Long,
         context: Context
     ): Single<Pair<Peer, List<Message>>> {
         return Single.create { its ->
@@ -557,7 +569,7 @@ class MessagesRepository(
         }
     }
 
-    override fun getCachedDialogs(accountId: Int): Single<List<Dialog>> {
+    override fun getCachedDialogs(accountId: Long): Single<List<Dialog>> {
         val criteria = DialogsCriteria(accountId)
         return storages.dialogs()
             .getDialogs(criteria)
@@ -594,7 +606,7 @@ class MessagesRepository(
             }
     }
 
-    private fun getById(accountId: Int, messageId: Int): Single<Message> {
+    private fun getById(accountId: Long, messageId: Int): Single<Message> {
         return networker.vkDefault(accountId)
             .messages()
             .getById(listOf(messageId))
@@ -614,7 +626,7 @@ class MessagesRepository(
             }
     }
 
-    private fun entities2Models(accountId: Int): SingleTransformer<List<MessageDboEntity>, List<Message>> {
+    private fun entities2Models(accountId: Long): SingleTransformer<List<MessageDboEntity>, List<Message>> {
         return SingleTransformer { single: Single<List<MessageDboEntity>> ->
             single
                 .flatMap { dbos ->
@@ -639,8 +651,8 @@ class MessagesRepository(
     }
 
     private fun insertPeerMessages(
-        accountId: Int,
-        peerId: Int,
+        accountId: Long,
+        peerId: Long,
         messages: List<VKApiMessage>,
         clearBefore: Boolean
     ): Completable {
@@ -651,12 +663,12 @@ class MessagesRepository(
             }
     }
 
-    override fun insertMessages(accountId: Int, messages: List<VKApiMessage>): Completable {
+    override fun insertMessages(accountId: Long, messages: List<VKApiMessage>): Completable {
         return Single.just(messages)
             .compose(DTO_TO_DBO)
             .flatMap { dbos -> storages.messages().insert(accountId, dbos) }
             .flatMapCompletable {
-                val peers: MutableSet<Int> = HashSet()
+                val peers: MutableSet<Long> = HashSet()
                 for (m in messages) {
                     peers.add(m.peer_id)
                 }
@@ -689,7 +701,7 @@ class MessagesRepository(
             }
     }
 
-    private fun applyPeerUpdatesAndPublish(accountId: Int, patches: List<PeerPatch>): Completable {
+    private fun applyPeerUpdatesAndPublish(accountId: Long, patches: List<PeerPatch>): Completable {
         val updates: MutableList<PeerUpdate> = ArrayList()
         for (p in patches) {
             val update = PeerUpdate(accountId, p.id)
@@ -715,7 +727,7 @@ class MessagesRepository(
     }
 
     override fun getImportantMessages(
-        accountId: Int, count: Int, offset: Int?,
+        accountId: Long, count: Int, offset: Int?,
         startMessageId: Int?
     ): Single<List<Message>> {
         return networker.vkDefault(accountId)
@@ -760,10 +772,10 @@ class MessagesRepository(
     }
 
     override fun getJsonHistory(
-        accountId: Int,
+        accountId: Long,
         offset: Int?,
         count: Int?,
-        peerId: Int
+        peerId: Long
     ): Single<List<String>> {
         return networker.vkDefault(accountId)
             .messages()
@@ -783,7 +795,7 @@ class MessagesRepository(
     }
 
     override fun getPeerMessages(
-        accountId: Int, peerId: Int, count: Int, offset: Int?,
+        accountId: Long, peerId: Long, count: Int, offset: Int?,
         startMessageId: Int?, cacheData: Boolean, rev: Boolean
     ): Single<List<Message>> {
         var pCount = count
@@ -871,13 +883,13 @@ class MessagesRepository(
             }
     }
 
-    override fun insertDialog(accountId: Int, dialog: Dialog): Completable {
+    override fun insertDialog(accountId: Long, dialog: Dialog): Completable {
         val dialogsStore = storages.dialogs()
         return dialogsStore.insertDialogs(accountId, listOf(buildDialog(dialog)), false)
     }
 
     override fun getDialogs(
-        accountId: Int,
+        accountId: Long,
         count: Int,
         startMessageId: Int?
     ): Single<List<Dialog>> {
@@ -895,7 +907,7 @@ class MessagesRepository(
             }
             .flatMap { response ->
                 val apiDialogs: List<VKApiDialog> = listEmptyIfNull(response.dialogs)
-                val ownerIds: Collection<Int> = if (apiDialogs.nonNullNoEmpty()) {
+                val ownerIds: Collection<Long> = if (apiDialogs.nonNullNoEmpty()) {
                     val vkOwnIds = VKOwnIds()
                     vkOwnIds.append(accountId) // добавляем свой профайл на всякий случай
                     for (dialog in apiDialogs) {
@@ -954,11 +966,11 @@ class MessagesRepository(
     }
 
     override fun findCachedMessages(
-        accountId: Int,
+        accountId: Long,
         ids: List<Int>
     ): Single<List<Message>> {
         return storages.messages()
-            .findMessagesByIds(accountId, ids, withAtatchments = true, withForwardMessages = true)
+            .findMessagesByIds(accountId, ids, withAttachments = true, withForwardMessages = true)
             .compose(entities2Models(accountId))
             .compose(decryptor.withMessagesDecryption(accountId))
     }
@@ -1019,7 +1031,7 @@ class MessagesRepository(
                                 storages.messages()
                                     .findMessagesByIds(
                                         accountId, listOf(resultMid),
-                                        withAtatchments = true, withForwardMessages = true
+                                        withAttachments = true, withForwardMessages = true
                                     )
                                     .compose(entities2Models(accountId))
                                     .map { messages ->
@@ -1039,7 +1051,7 @@ class MessagesRepository(
     }
 
     private fun changeMessageStatus(
-        accountId: Int,
+        accountId: Long,
         messageId: Int,
         @MessageStatus status: Int,
         vkid: Int?
@@ -1052,7 +1064,7 @@ class MessagesRepository(
             .doOnComplete { messageUpdatesPublisher.onNext(listOf(update)) }
     }
 
-    override fun enqueueAgainList(accountId: Int, ids: Collection<Int>): Completable {
+    override fun enqueueAgainList(accountId: Long, ids: Collection<Int>): Completable {
         val updates = ArrayList<MessageUpdate>(ids.size)
         for (i in ids) {
             val update = MessageUpdate(accountId, i)
@@ -1065,14 +1077,14 @@ class MessagesRepository(
             .doOnComplete { messageUpdatesPublisher.onNext(updates) }
     }
 
-    override fun enqueueAgain(accountId: Int, messageId: Int): Completable {
+    override fun enqueueAgain(accountId: Long, messageId: Int): Completable {
         return changeMessageStatus(accountId, messageId, MessageStatus.QUEUE, null)
     }
 
-    override fun sendUnsentMessage(accountIds: Collection<Int>): Single<SentMsg> {
+    override fun sendUnsentMessage(accountIds: Collection<Long>): Single<SentMsg> {
         val store = storages.messages()
         return store
-            .findFirstUnsentMessage(accountIds, withAtatchments = true, withForwardMessages = false)
+            .findFirstUnsentMessage(accountIds, withAttachments = true, withForwardMessages = false)
             .flatMap { optional ->
                 if (optional.isEmpty) {
                     return@flatMap Single.error<SentMsg>(NotFoundException())
@@ -1105,7 +1117,7 @@ class MessagesRepository(
     }
 
     override fun searchConversations(
-        accountId: Int,
+        accountId: Long,
         count: Int,
         q: String?
     ): Single<List<Conversation>> {
@@ -1115,7 +1127,7 @@ class MessagesRepository(
             .flatMap { chattables ->
                 val conversations: List<VKApiConversation> =
                     listEmptyIfNull(chattables.conversations)
-                val ownerIds: Collection<Int> = if (conversations.nonNullNoEmpty()) {
+                val ownerIds: Collection<Long> = if (conversations.nonNullNoEmpty()) {
                     val vkOwnIds = VKOwnIds()
                     vkOwnIds.append(accountId)
                     for (dialog in conversations) {
@@ -1149,8 +1161,8 @@ class MessagesRepository(
     }
 
     override fun searchMessages(
-        accountId: Int,
-        peerId: Int?,
+        accountId: Long,
+        peerId: Long?,
         count: Int,
         offset: Int,
         q: String?
@@ -1180,14 +1192,14 @@ class MessagesRepository(
             }
     }
 
-    override fun getChatUsers(accountId: Int, chatId: Int): Single<List<AppChatUser>> {
+    override fun getChatUsers(accountId: Long, chatId: Long): Single<List<AppChatUser>> {
         return networker.vkDefault(accountId)
             .messages()
             .getConversationMembers(Peer.fromChatId(chatId), Fields.FIELDS_BASE_OWNER)
             .flatMap { chatDto ->
                 val dtos: List<VKApiConversationMembers> =
                     listEmptyIfNull(chatDto.conversationMembers)
-                val ownerIds: Collection<Int> = if (dtos.nonNullNoEmpty()) {
+                val ownerIds: Collection<Long> = if (dtos.nonNullNoEmpty()) {
                     val vkOwnIds = VKOwnIds()
                     vkOwnIds.append(accountId)
                     for (dto in dtos) {
@@ -1214,7 +1226,7 @@ class MessagesRepository(
                             user.setJoin_date(dto.join_date)
                             user.setAdmin(dto.is_admin)
                             user.setOwner(dto.is_owner)
-                            if (user.getInvitedBy() != 0) {
+                            if (user.getInvitedBy() != 0L) {
                                 user.setInviter(ownersBundle.getById(user.getInvitedBy()))
                             }
                             models.add(user)
@@ -1224,14 +1236,14 @@ class MessagesRepository(
             }
     }
 
-    override fun removeChatMember(accountId: Int, chatId: Int, userId: Int): Completable {
+    override fun removeChatMember(accountId: Long, chatId: Long, userId: Long): Completable {
         return networker.vkDefault(accountId)
             .messages()
             .removeChatMember(chatId, userId)
             .ignoreElement()
     }
 
-    override fun deleteChatPhoto(accountId: Int, chatId: Int): Completable {
+    override fun deleteChatPhoto(accountId: Long, chatId: Long): Completable {
         return networker.vkDefault(accountId)
             .messages()
             .deleteChatPhoto(chatId)
@@ -1239,8 +1251,8 @@ class MessagesRepository(
     }
 
     override fun addChatUsers(
-        accountId: Int,
-        chatId: Int,
+        accountId: Long,
+        chatId: Long,
         users: List<User>
     ): Single<List<AppChatUser>> {
         val api = networker.vkDefault(accountId).messages()
@@ -1251,7 +1263,7 @@ class MessagesRepository(
                 for (user in users) {
                     completable =
                         completable.andThen(
-                            api.addChatUser(chatId, user.getObjectId()).ignoreElement()
+                            api.addChatUser(chatId, user.getOwnerObjectId()).ignoreElement()
                         )
                     val chatUser = AppChatUser(user, accountId)
                         .setCanRemove(true)
@@ -1262,7 +1274,7 @@ class MessagesRepository(
             }
     }
 
-    override fun deleteDialog(accountId: Int, peedId: Int): Completable {
+    override fun deleteDialog(accountId: Long, peedId: Long): Completable {
         return networker.vkDefault(accountId)
             .messages()
             .deleteDialog(peedId)
@@ -1277,8 +1289,8 @@ class MessagesRepository(
     }
 
     override fun deleteMessages(
-        accountId: Int,
-        peerId: Int,
+        accountId: Long,
+        peerId: Long,
         ids: Collection<Int>,
         forAll: Boolean,
         spam: Boolean
@@ -1301,14 +1313,14 @@ class MessagesRepository(
             }
     }
 
-    override fun pinUnPinConversation(accountId: Int, peerId: Int, peen: Boolean): Completable {
+    override fun pinUnPinConversation(accountId: Long, peerId: Long, peen: Boolean): Completable {
         return networker.vkDefault(accountId)
             .messages()
             .pinUnPinConversation(peerId, peen)
     }
 
     override fun markAsListened(
-        accountId: Int,
+        accountId: Long,
         message_id: Int
     ): Completable {
         return networker.vkDefault(accountId)
@@ -1317,8 +1329,8 @@ class MessagesRepository(
     }
 
     override fun markAsImportant(
-        accountId: Int,
-        peerId: Int,
+        accountId: Long,
+        peerId: Long,
         ids: Collection<Int>,
         important: Int?
     ): Completable {
@@ -1338,7 +1350,7 @@ class MessagesRepository(
     }
 
     private fun applyMessagesPatchesAndPublish(
-        accountId: Int,
+        accountId: Long,
         patches: List<MessagePatch>
     ): Completable {
         val updates: MutableList<MessageUpdate> = ArrayList(patches.size)
@@ -1363,7 +1375,7 @@ class MessagesRepository(
             .doOnComplete { messageUpdatesPublisher.onNext(updates) }
     }
 
-    private fun invalidatePeerLastMessage(accountId: Int, peerId: Int): Completable {
+    private fun invalidatePeerLastMessage(accountId: Long, peerId: Long): Completable {
         return storages.messages()
             .findLastSentMessageIdForPeer(accountId, peerId)
             .flatMapCompletable {
@@ -1378,7 +1390,7 @@ class MessagesRepository(
             }
     }
 
-    override fun restoreMessage(accountId: Int, peerId: Int, messageId: Int): Completable {
+    override fun restoreMessage(accountId: Long, peerId: Long, messageId: Int): Completable {
         return networker.vkDefault(accountId)
             .messages()
             .restore(messageId)
@@ -1389,7 +1401,7 @@ class MessagesRepository(
             }
     }
 
-    override fun editChat(accountId: Int, chatId: Int, title: String?): Completable {
+    override fun editChat(accountId: Long, chatId: Long, title: String?): Completable {
         val patch = PeerPatch(Peer.fromChatId(chatId)).withTitle(title)
         return networker.vkDefault(accountId)
             .messages()
@@ -1403,17 +1415,17 @@ class MessagesRepository(
     }
 
     override fun createGroupChat(
-        accountId: Int,
-        users: Collection<Int>,
+        accountId: Long,
+        users: Collection<Long>,
         title: String?
-    ): Single<Int> {
+    ): Single<Long> {
         return networker.vkDefault(accountId)
             .messages()
             .createChat(users, title)
     }
 
     override fun recogniseAudioMessage(
-        accountId: Int,
+        accountId: Long,
         message_id: Int?,
         audio_message_id: String?
     ): Single<Int> {
@@ -1423,9 +1435,9 @@ class MessagesRepository(
     }
 
     override fun setMemberRole(
-        accountId: Int,
-        chat_id: Int,
-        member_id: Int,
+        accountId: Long,
+        chat_id: Long,
+        member_id: Long,
         isAdmin: Boolean
     ): Completable {
         return networker.vkDefault(accountId)
@@ -1434,7 +1446,7 @@ class MessagesRepository(
             .ignoreElement()
     }
 
-    override fun markAsRead(accountId: Int, peerId: Int, toId: Int): Completable {
+    override fun markAsRead(accountId: Long, peerId: Long, toId: Int): Completable {
         val patch = PeerPatch(peerId).withInRead(toId).withUnreadCount(0)
         return networker.vkDefault(accountId)
             .messages()
@@ -1448,8 +1460,8 @@ class MessagesRepository(
     }
 
     override fun pin(
-        accountId: Int,
-        peerId: Int,
+        accountId: Long,
+        peerId: Long,
         message: Message?
     ): Completable {
         val update = PeerUpdate(accountId, peerId)
@@ -1470,7 +1482,7 @@ class MessagesRepository(
             .doOnComplete { peerUpdatePublisher.onNext(listOf(update)) }
     }
 
-    private fun internalSend(accountId: Int, dbo: MessageDboEntity): Single<Int> {
+    private fun internalSend(accountId: Long, dbo: MessageDboEntity): Single<Int> {
         if (dbo.extras.isNullOrEmpty() && dbo.getAttachments()
                 .isNullOrEmpty() && dbo.forwardCount == 0
         ) {
@@ -1548,7 +1560,7 @@ class MessagesRepository(
     }
 
     private fun checkForwardMessages(
-        accountId: Int,
+        accountId: Long,
         dbo: MessageDboEntity
     ): Single<Pair<Boolean, Optional<List<Int>>>> {
         return if (dbo.forwardCount == 0) {
@@ -1564,7 +1576,7 @@ class MessagesRepository(
     }
 
     private fun checkVoiceMessage(
-        accountId: Int,
+        accountId: Long,
         dbo: MessageDboEntity
     ): Single<Optional<IAttachmentToken>> {
         val extras = dbo.extras
@@ -1677,7 +1689,7 @@ class MessagesRepository(
         }
     }
 
-    private class PeerId(val accountId: Int, val peerId: Int) {
+    private class PeerId(val accountId: Long, val peerId: Long) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || javaClass != other.javaClass) return false
@@ -1686,8 +1698,8 @@ class MessagesRepository(
         }
 
         override fun hashCode(): Int {
-            var result = accountId
-            result = 31 * result + peerId
+            var result = accountId.hashCode()
+            result = 31 * result + peerId.hashCode()
             return result
         }
     }
@@ -1705,7 +1717,7 @@ class MessagesRepository(
         }
 
         internal fun entity2Model(
-            accountId: Int,
+            accountId: Long,
             entity: SimpleDialogEntity,
             owners: IOwnersBundle
         ): Conversation {
@@ -1739,7 +1751,7 @@ class MessagesRepository(
                 .setMinor_id(entity.minor_id)
         }
 
-        internal fun patch2Update(accountId: Int, patch: MessagePatch): MessageUpdate {
+        internal fun patch2Update(accountId: Long, patch: MessagePatch): MessageUpdate {
             val update = MessageUpdate(accountId, patch.messageId)
             patch.deletion.requireNonNull {
                 update.setDeleteUpdate(MessageUpdate.DeleteUpdate(it.deleted, it.deletedForAll))

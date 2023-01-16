@@ -41,7 +41,8 @@ import dev.ragnarok.fenrir.activity.qr.CustomQRCodeWriter
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
-import dev.ragnarok.fenrir.api.model.Identificable
+import dev.ragnarok.fenrir.api.model.interfaces.Identificable
+import dev.ragnarok.fenrir.api.model.interfaces.IdentificableOwner
 import dev.ragnarok.fenrir.link.internal.LinkActionAdapter
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.media.exo.OkHttpDataSource
@@ -72,9 +73,10 @@ import kotlin.math.roundToInt
 
 
 object Utils {
-    private val reload_news: MutableList<Int> = LinkedList()
-    private val reload_dialogs: MutableList<Int> = LinkedList()
+    private val reload_news: MutableList<Long> = LinkedList()
+    private val reload_dialogs: MutableList<Long> = LinkedList()
     private val cachedMyStickers: MutableList<LocalSticker> = ArrayList()
+    var follower_kick_mode = false
     private val displaySize = Point()
     private var device_id: String? = null
     var density = 1f
@@ -103,7 +105,7 @@ object Utils {
     }
      */
 
-    fun needReloadNews(account_id: Int): Boolean {
+    fun needReloadNews(account_id: Long): Boolean {
         if (!reload_news.contains(account_id)) {
             reload_news.add(account_id)
             return true
@@ -112,7 +114,7 @@ object Utils {
     }
 
 
-    fun needReloadDialogs(account_id: Int): Boolean {
+    fun needReloadDialogs(account_id: Long): Boolean {
         if (!reload_dialogs.contains(account_id)) {
             reload_dialogs.add(account_id)
             return true
@@ -121,11 +123,11 @@ object Utils {
     }
 
 
-    fun needReloadStickers(account_id: Int): Boolean {
-        Settings.get().other().get_last_stikers_sync(account_id).let {
+    fun needReloadStickers(account_id: Long): Boolean {
+        Settings.get().other().get_last_stickers_sync(account_id).let {
             if (it <= 0 || (System.currentTimeMillis() / 1000L) - it > 900) {
                 Settings.get().other()
-                    .set_last_stikers_sync(account_id, System.currentTimeMillis() / 1000L)
+                    .set_last_stickers_sync(account_id, System.currentTimeMillis() / 1000L)
                 return true
             }
         }
@@ -477,6 +479,13 @@ object Utils {
         return ids
     }
 
+    fun idsListOfOwner(data: Collection<IdentificableOwner>): List<Long> {
+        val ids: MutableList<Long> = ArrayList(data.size)
+        for (identifiable in data) {
+            ids.add(identifiable.getOwnerObjectId())
+        }
+        return ids
+    }
 
     fun <T : Identificable> findById(data: Collection<T?>?, id: Int): T? {
         data ?: return null
@@ -488,6 +497,15 @@ object Utils {
         return null
     }
 
+    fun <T : IdentificableOwner> findById(data: Collection<T?>?, id: Long): T? {
+        data ?: return null
+        for (element in data) {
+            if (element?.getOwnerObjectId() == id) {
+                return element
+            }
+        }
+        return null
+    }
 
     fun <T : Identificable> findIndexById(data: List<T?>?, id: Int): Int {
         data ?: return -1
@@ -499,17 +517,17 @@ object Utils {
         return -1
     }
 
-    fun findOwnerIndexById(data: List<Owner>?, id: Int): Int {
+    fun <T : IdentificableOwner> findIndexById(data: List<T?>?, id: Long): Int {
         data ?: return -1
         for (i in data.indices) {
-            if (data[i].ownerId == id) {
+            if (data[i]?.getOwnerObjectId() == id) {
                 return i
             }
         }
         return -1
     }
 
-    fun <T : ISomeones> findIndexById(data: List<T?>?, id: Int, ownerId: Int): Int {
+    fun <T : ISomeones> findIndexById(data: List<T?>?, id: Int, ownerId: Long): Int {
         data ?: return -1
         for (i in data.indices) {
             val t = data[i]
@@ -670,6 +688,15 @@ object Utils {
         return -1
     }
 
+    fun indexOf(data: List<IdentificableOwner>?, id: Long): Int {
+        data ?: return -1
+        for (i in data.indices) {
+            if (data[i].getOwnerObjectId() == id) {
+                return i
+            }
+        }
+        return -1
+    }
 
     fun indexOfOwner(data: List<Owner>?, o: Owner?): Int {
         if (data == null || o == null) {
@@ -677,17 +704,6 @@ object Utils {
         }
         for (i in data.indices) {
             if (data[i].ownerId == o.ownerId) {
-                return i
-            }
-        }
-        return -1
-    }
-
-
-    fun indexOfOwner(data: List<Owner>?, id: Int): Int {
-        data ?: return -1
-        for (i in data.indices) {
-            if (data[i].ownerId == id) {
                 return i
             }
         }
@@ -803,7 +819,7 @@ object Utils {
     val isHiddenCurrent: Boolean
         get() = isHiddenAccount(Settings.get().accounts().current)
 
-    fun isHiddenAccount(account_id: Int): Boolean {
+    fun isHiddenAccount(account_id: Long): Boolean {
         val accType = Settings.get().accounts().getType(account_id)
         return accType == AccountType.VK_ANDROID_HIDDEN || accType == AccountType.KATE_HIDDEN
     }
@@ -811,7 +827,7 @@ object Utils {
     val isKateCurrent: Boolean
         get() = isKateAccount(Settings.get().accounts().current)
 
-    fun isKateAccount(account_id: Int): Boolean {
+    fun isKateAccount(account_id: Long): Boolean {
         val accType = Settings.get().accounts().getType(account_id)
         return accType == AccountType.KATE || accType == AccountType.KATE_HIDDEN
     }
@@ -819,7 +835,7 @@ object Utils {
     val isOfficialVKCurrent: Boolean
         get() = isOfficialVKAccount(Settings.get().accounts().current)
 
-    fun isOfficialVKAccount(account_id: Int): Boolean {
+    fun isOfficialVKAccount(account_id: Long): Boolean {
         val accType = Settings.get().accounts().getType(account_id)
         return accType == AccountType.VK_ANDROID || accType == AccountType.VK_ANDROID_HIDDEN
     }
@@ -989,43 +1005,43 @@ object Utils {
         visual.playAnimation()
     }
 
-    fun createGradientChatImage(width: Int, height: Int, owner_id: Int): Bitmap {
+    fun createGradientChatImage(width: Int, height: Int, owner_id: Long): Bitmap {
         val color1: String
         val color2: String
         when (owner_id % 10) {
-            1 -> {
+            1L -> {
                 color1 = "#00ABD6"
                 color2 = "#8700D6"
             }
-            2 -> {
+            2L -> {
                 color1 = "#FF7900"
                 color2 = "#FF9500"
             }
-            3 -> {
+            3L -> {
                 color1 = "#55D600"
                 color2 = "#00D67A"
             }
-            4 -> {
+            4L -> {
                 color1 = "#9400D6"
                 color2 = "#D6008E"
             }
-            5 -> {
+            5L -> {
                 color1 = "#cd8fff"
                 color2 = "#9100ff"
             }
-            6 -> {
+            6L -> {
                 color1 = "#ff7f69"
                 color2 = "#fe0bdb"
             }
-            7 -> {
+            7L -> {
                 color1 = "#FE790B"
                 color2 = "#0BFEAB"
             }
-            8 -> {
+            8L -> {
                 color1 = "#9D0BFE"
                 color2 = "#0BFEAB"
             }
-            9 -> {
+            9L -> {
                 color1 = "#9D0BFE"
                 color2 = "#FEDF0B"
             }
@@ -1353,7 +1369,7 @@ object Utils {
         context: Context,
         adapter: RecyclerView.Adapter<T>,
         message: String?,
-        accountId: Int
+        accountId: Long
     ): View {
         val root = View.inflate(context, R.layout.alert_recycle_frame, null)
         val recyclerView: RecyclerView = root.findViewById(R.id.alert_recycle)
@@ -1370,7 +1386,7 @@ object Utils {
                     owners = true,
                     topics = false,
                     listener = object : LinkActionAdapter() {
-                        override fun onOwnerClick(ownerId: Int) {
+                        override fun onOwnerClick(ownerId: Long) {
                             getOwnerWallPlace(accountId, ownerId, null).tryOpenWith(context)
                         }
                     })

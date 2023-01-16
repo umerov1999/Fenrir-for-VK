@@ -4,20 +4,20 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import dev.ragnarok.fenrir.*
-import dev.ragnarok.fenrir.api.model.Identificable
+import dev.ragnarok.fenrir.api.model.interfaces.Identificable
 import dev.ragnarok.fenrir.util.ParcelUtils.readIntStringMap
 import dev.ragnarok.fenrir.util.ParcelUtils.writeIntStringMap
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 
 class Message : AbsModel, Identificable, ISelectable {
-    var accountId = 0
+    var accountId = 0L
         private set
     private var id: Int
     var body: String? = null
         private set
-    var peerId = 0
+    var peerId = 0L
         private set
-    var senderId = 0
+    var senderId = 0L
         private set
     var isOut = false
         private set
@@ -58,7 +58,7 @@ class Message : AbsModel, Identificable, ISelectable {
     @ChatAction
     var action = 0
         private set
-    var actionMid = 0
+    var actionMid = 0L
         private set
     var actionEmail: String? = null
         private set
@@ -93,13 +93,13 @@ class Message : AbsModel, Identificable, ISelectable {
     }
 
     internal constructor(parcel: Parcel) {
-        accountId = parcel.readInt()
+        accountId = parcel.readLong()
         id = parcel.readInt()
         body = parcel.readString()
         decryptedBody = parcel.readString()
         //this.title = in.readString();
-        peerId = parcel.readInt()
-        senderId = parcel.readInt()
+        peerId = parcel.readLong()
+        senderId = parcel.readLong()
         isOut = parcel.getBoolean()
         isImportant = parcel.getBoolean()
         @MessageStatus val tStatus = parcel.readInt()
@@ -115,7 +115,7 @@ class Message : AbsModel, Identificable, ISelectable {
         originalId = parcel.readInt()
         @ChatAction val tmpChatAction = parcel.readInt()
         action = tmpChatAction
-        actionMid = parcel.readInt()
+        actionMid = parcel.readLong()
         actionEmail = parcel.readString()
         actionText = parcel.readString()
         photo50 = parcel.readString()
@@ -211,7 +211,7 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    fun setPeerId(peerId: Int): Message {
+    fun setPeerId(peerId: Long): Message {
         this.peerId = peerId
         return this
     }
@@ -243,7 +243,7 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    fun setActionMid(actionMid: Int): Message {
+    fun setActionMid(actionMid: Long): Message {
         this.actionMid = actionMid
         return this
     }
@@ -276,7 +276,7 @@ class Message : AbsModel, Identificable, ISelectable {
     val isServiseMessage: Boolean
         get() = action != ChatAction.NO_ACTION
 
-    fun setSenderId(senderId: Int): Message {
+    fun setSenderId(senderId: Long): Message {
         this.senderId = senderId
         return this
     }
@@ -340,13 +340,13 @@ class Message : AbsModel, Identificable, ISelectable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(accountId)
+        parcel.writeLong(accountId)
         parcel.writeInt(id)
         parcel.writeString(body)
         parcel.writeString(decryptedBody)
         //dest.writeString(title);
-        parcel.writeInt(peerId)
-        parcel.writeInt(senderId)
+        parcel.writeLong(peerId)
+        parcel.writeLong(senderId)
         parcel.putBoolean(isOut)
         parcel.putBoolean(isImportant)
         parcel.writeInt(status)
@@ -359,7 +359,7 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeTypedList(fwd)
         parcel.writeInt(originalId)
         parcel.writeInt(action)
-        parcel.writeInt(actionMid)
+        parcel.writeLong(actionMid)
         parcel.writeString(actionEmail)
         parcel.writeString(actionText)
         parcel.writeString(photo50)
@@ -381,7 +381,7 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    fun setAccountId(accountId: Int): Message {
+    fun setAccountId(accountId: Long): Message {
         this.accountId = accountId
         return this
     }
@@ -390,8 +390,8 @@ class Message : AbsModel, Identificable, ISelectable {
         get() = status == MessageStatus.SENT
     val isSticker: Boolean
         get() = safeCountOf(attachments?.stickers) > 0
-    val isGraffity: Boolean
-        get() = safeCountOf(attachments?.graffity) > 0
+    val isGraffiti: Boolean
+        get() = safeCountOf(attachments?.graffiti) > 0
     val isCall: Boolean
         get() = safeCountOf(attachments?.calls) > 0
     val isGift: Boolean
@@ -412,8 +412,8 @@ class Message : AbsModel, Identificable, ISelectable {
                 isSticker -> {
                     return MessageType.STICKER
                 }
-                isGraffity -> {
-                    return MessageType.GRAFFITY
+                isGraffiti -> {
+                    return MessageType.GRAFFITI
                 }
                 isCall -> {
                     return MessageType.CALL

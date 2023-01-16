@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.DocsEntryDtoAdapter
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,7 +11,7 @@ class VKApiDoc : VKApiAttachment {
     var id = 0
 
     @SerialName("owner_id")
-    var ownerId = 0
+    var ownerId = 0L
 
     @SerialName("title")
     var title: String? = null

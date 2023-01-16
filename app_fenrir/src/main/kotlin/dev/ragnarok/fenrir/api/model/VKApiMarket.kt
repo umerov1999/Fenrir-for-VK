@@ -1,12 +1,13 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.MarketDtoAdapter
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.Serializable
 
 @Serializable(with = MarketDtoAdapter::class)
 class VKApiMarket : VKApiAttachment {
     var id = 0
-    var owner_id = 0
+    var owner_id = 0L
     var access_key: String? = null
     var weight = 0
     var availability = 0

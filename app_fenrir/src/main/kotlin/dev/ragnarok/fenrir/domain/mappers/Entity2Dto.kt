@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.domain.mappers
 
 import dev.ragnarok.fenrir.api.model.AttachmentsTokenCreator
-import dev.ragnarok.fenrir.api.model.IAttachmentToken
+import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken
 import dev.ragnarok.fenrir.db.model.entity.*
 
 object Entity2Dto {
@@ -42,7 +42,7 @@ object Entity2Dto {
                 return AttachmentsTokenCreator.ofPhotoAlbum(dboEntity.id, dboEntity.ownerId)
             }
             is GraffitiDboEntity -> {
-                return AttachmentsTokenCreator.ofGraffity(
+                return AttachmentsTokenCreator.ofGraffiti(
                     dboEntity.id,
                     dboEntity.owner_id,
                     dboEntity.access_key
@@ -89,7 +89,7 @@ object Entity2Dto {
                 )
             }
             is AudioPlaylistDboEntity -> {
-                return if (dboEntity.original_access_key.isNullOrEmpty() || dboEntity.original_id == 0 || dboEntity.original_owner_id == 0) {
+                return if (dboEntity.original_access_key.isNullOrEmpty() || dboEntity.original_id == 0 || dboEntity.original_owner_id == 0L) {
                     AttachmentsTokenCreator.ofAudioPlaylist(
                         dboEntity.id,
                         dboEntity.ownerId,

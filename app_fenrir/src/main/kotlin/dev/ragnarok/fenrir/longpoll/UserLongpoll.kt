@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 internal class UserLongpoll(
     private val networker: INetworker,
-    override val accountId: Int,
+    override val accountId: Long,
     private val callback: Callback
 ) : ILongpoll {
     private val mDelayedObservable = Observable.interval(
@@ -119,6 +119,9 @@ internal class UserLongpoll(
     private fun fixUpdates(updates: VkApiLongpollUpdates) {
         updates.add_message_updates.nonNullNoEmpty {
             for (update in it) {
+                if (update.peerId == accountId) {
+                    update.isOut = true
+                }
                 if (update.isOut) {
                     update.from = accountId
                 }
@@ -137,7 +140,7 @@ internal class UserLongpoll(
         }
 
     interface Callback {
-        fun onUpdates(aid: Int, updates: VkApiLongpollUpdates)
+        fun onUpdates(aid: Long, updates: VkApiLongpollUpdates)
     }
 
     companion object {

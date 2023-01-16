@@ -19,7 +19,7 @@ import dev.ragnarok.fenrir.util.rxutils.RxUtils.dummy
 import io.reactivex.rxjava3.core.Observable
 
 class NotReadMessagesPresenter(
-    accountId: Int,
+    accountId: Long,
     focusTo: Int,
     incoming: Int,
     outgoing: Int,
@@ -216,9 +216,9 @@ class NotReadMessagesPresenter(
         }
     }
 
-    private fun onMessagesDeleteSuccessfully(ids: Collection<Int?>) {
+    private fun onMessagesDeleteSuccessfully(ids: Collection<Int>) {
         for (id in ids) {
-            val message = findById(id ?: return)
+            val message = findById(id)
             message?.setDeleted(true)
         }
         safeNotifyDataChanged()

@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.conversation.conversationlinks
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Apis.get
-import dev.ragnarok.fenrir.api.model.VKApiAttachment
 import dev.ragnarok.fenrir.api.model.VKApiLink
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.fragment.conversation.abschatattachments.BaseChatAttachmentsPresenter
 import dev.ragnarok.fenrir.model.Link
@@ -14,7 +14,7 @@ import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
 import io.reactivex.rxjava3.core.Single
 
-class ChatAttachmentLinksPresenter(peerId: Int, accountId: Int, savedInstanceState: Bundle?) :
+class ChatAttachmentLinksPresenter(peerId: Long, accountId: Long, savedInstanceState: Bundle?) :
     BaseChatAttachmentsPresenter<Link, IChatAttachmentLinksView>(
         peerId,
         accountId,
@@ -26,7 +26,7 @@ class ChatAttachmentLinksPresenter(peerId: Int, accountId: Int, savedInstanceSta
     }
 
     override fun requestAttachments(
-        peerId: Int,
+        peerId: Long,
         nextFrom: String?
     ): Single<Pair<String?, List<Link>>> {
         return get().vkDefault(accountId)

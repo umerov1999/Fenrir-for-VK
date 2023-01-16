@@ -46,7 +46,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
     private var showHidden = false
     private var mStartOfToday: Long = 0
     private var mClickListener: ClickListener? = null
-    private var accountId = 0
+    private var accountId = 0L
     fun updateShowHidden(showHidden: Boolean) {
         this.showHidden = showHidden
     }
@@ -82,7 +82,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
 
     private fun getDataTypeByAdapterPosition(adapterPosition: Int): Int {
         return if (Settings.get().security()
-                .isHiddenDialog(getByPosition(adapterPosition).getObjectId()) && !showHidden
+                .isHiddenDialog(getByPosition(adapterPosition).getOwnerObjectId()) && !showHidden
         ) {
             DATA_TYPE_HIDDEN
         } else DATA_TYPE_NORMAL
@@ -133,7 +133,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
                 MessageType.CALL -> mContext.getString(R.string.call_message)
                 MessageType.DOC -> mContext.getString(R.string.doc_message)
                 MessageType.GIFT -> mContext.getString(R.string.gift_message)
-                MessageType.GRAFFITY -> mContext.getString(R.string.graffity_message)
+                MessageType.GRAFFITI -> mContext.getString(R.string.graffiti_message)
                 MessageType.PHOTO -> mContext.getString(R.string.photo_message)
                 MessageType.STICKER -> mContext.getString(R.string.sticker_message)
                 MessageType.VIDEO -> mContext.getString(R.string.video_message)
@@ -243,7 +243,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         holder.ivUnreadTicks.visibility = if (dialog.isLastMessageOut) View.VISIBLE else View.GONE
         holder.ivUnreadTicks.setImageResource(if (lastMessageRead) R.drawable.check_all else R.drawable.check)
         holder.silent.visibility = if (Settings.get().notifications()
-                .isSilentChat(accountId, dialog.getObjectId())
+                .isSilentChat(accountId, dialog.getOwnerObjectId())
         ) View.VISIBLE else View.GONE
         holder.ivOnline.visibility =
             if (online && !dialog.isChat && !dialog.isContact) View.VISIBLE else View.GONE
@@ -318,7 +318,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
                         Utils.createGradientChatImage(
                             200,
                             200,
-                            dialog.getObjectId()
+                            dialog.getOwnerObjectId()
                         )
                     )
                 )
@@ -383,13 +383,13 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         return this
     }
 
-    fun setData(data: List<Dialog>, accountId: Int) {
+    fun setData(data: List<Dialog>, accountId: Long) {
         mDialogs = data
         this.accountId = accountId
         notifyDataSetChanged()
     }
 
-    fun updateAccount(accountId: Int) {
+    fun updateAccount(accountId: Long) {
         this.accountId = accountId
     }
 

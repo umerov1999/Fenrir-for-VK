@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.PhotoAlbumDtoAdapter
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.Serializable
 
 /**
@@ -35,7 +36,7 @@ class VKApiPhotoAlbum
     /**
      * ID of the user or community that owns the album.
      */
-    var owner_id = 0
+    var owner_id = 0L
 
     /**
      * Whether a user can upload photos to this album(false — cannot, true — can).

@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.StoryDtoAdapter
+import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import kotlinx.serialization.Serializable
 
 @Serializable(with = StoryDtoAdapter::class)
@@ -13,7 +14,7 @@ class VKApiStory : VKApiAttachment {
     /**
      * Note owner ID.
      */
-    var owner_id = 0
+    var owner_id = 0L
 
     /**
      * Date (in Unix time) when the note was created.

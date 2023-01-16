@@ -4,7 +4,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
 import dev.ragnarok.fenrir.*
-import dev.ragnarok.fenrir.api.model.Identificable
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
@@ -16,8 +15,8 @@ import kotlin.math.abs
 @Keep
 @Serializable
 @SerialName("user")
-class User : Owner, Identificable {
-    private val id: Int
+class User : Owner {
+    private val id: Long
     var firstName: String? = null
         private set
     var lastName: String? = null
@@ -70,12 +69,12 @@ class User : Owner, Identificable {
     var isCan_access_closed = false
         private set
 
-    constructor(id: Int) : super(OwnerType.USER) {
+    constructor(id: Long) : super(OwnerType.USER) {
         this.id = id
     }
 
     internal constructor(parcel: Parcel) : super(parcel) {
-        id = parcel.readInt()
+        id = parcel.readLong()
         firstName = parcel.readString()
         lastName = parcel.readString()
         isOnline = parcel.getBoolean()
@@ -103,7 +102,7 @@ class User : Owner, Identificable {
     }
 
     internal constructor(parcel: ParcelNative) : super(parcel) {
-        id = parcel.readInt()
+        id = parcel.readLong()
         firstName = parcel.readString()
         lastName = parcel.readString()
         isOnline = parcel.readBoolean()
@@ -271,7 +270,7 @@ class User : Owner, Identificable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         super.writeToParcel(parcel, flags)
-        parcel.writeInt(id)
+        parcel.writeLong(id)
         parcel.writeString(firstName)
         parcel.writeString(lastName)
         parcel.putBoolean(isOnline)
@@ -300,7 +299,7 @@ class User : Owner, Identificable {
 
     override fun writeToParcelNative(dest: ParcelNative) {
         super.writeToParcelNative(dest)
-        dest.writeInt(id)
+        dest.writeLong(id)
         dest.writeString(firstName)
         dest.writeString(lastName)
         dest.writeBoolean(isOnline)
@@ -327,15 +326,15 @@ class User : Owner, Identificable {
         dest.writeBoolean(hasUnseenStories)
     }
 
-    override val ownerId: Int
+    override val ownerId: Long
         get() = abs(id)
 
     override fun describeContents(): Int {
         return 0
     }
 
-    override fun getObjectId(): Int {
-        return id
+    override fun getOwnerObjectId(): Long {
+        return abs(id)
     }
 
     override fun get100photoOrSmaller(): String? {

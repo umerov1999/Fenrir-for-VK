@@ -16,10 +16,10 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import dev.ragnarok.fenrir.*
 import dev.ragnarok.fenrir.activity.ActivityUtils
-import dev.ragnarok.fenrir.api.model.AttachmentToken
+import dev.ragnarok.fenrir.api.model.AttachmentTokens
 import dev.ragnarok.fenrir.api.model.AttachmentsTokenCreator
-import dev.ragnarok.fenrir.api.model.IAttachmentToken
 import dev.ragnarok.fenrir.api.model.VKApiMessage
+import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken
 import dev.ragnarok.fenrir.crypt.AesKeyPair
 import dev.ragnarok.fenrir.crypt.KeyExchangeService
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
@@ -71,7 +71,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class ChatPresenter(
-    accountId: Int, private val messagesOwnerId: Int,
+    accountId: Long, private val messagesOwnerId: Long,
     initialPeer: Peer, config: ChatConfig, savedInstanceState: Bundle?
 ) : AbsMessageListPresenter<IChatView>(accountId, savedInstanceState) {
 
@@ -101,7 +101,7 @@ class ChatPresenter(
     private var fetchConversationDisposable = Disposable.disposed()
 
     private var conversation: Conversation? = null
-    private var chatAdminsIds: ArrayList<Int>? = null
+    private var chatAdminsIds: ArrayList<Long>? = null
 
     fun getConversation(): Conversation? {
         return conversation
@@ -124,7 +124,7 @@ class ChatPresenter(
     private val isGroupChat: Boolean
         get() = Peer.isGroupChat(peerId)
 
-    private val peerId: Int
+    private val peerId: Long
         get() = peer.id
 
     val isChronologyInverted: Boolean
@@ -354,7 +354,7 @@ class ChatPresenter(
         )
     }
 
-    private fun onDialogRemovedSuccessfully(oldaccountId: Int) {
+    private fun onDialogRemovedSuccessfully(oldaccountId: Long) {
         view?.showSnackbar(R.string.deleted, true)
         if (accountId != oldaccountId) {
             return
@@ -1312,7 +1312,7 @@ class ChatPresenter(
         }
     }
 
-    private fun isChatWithUser(userId: Int): Boolean {
+    private fun isChatWithUser(userId: Long): Boolean {
         return !isGroupChat && Peer.toUserId(peerId) == userId
     }
 
@@ -1357,7 +1357,7 @@ class ChatPresenter(
                         chatAdminsIds = ArrayList()
                         for (i in it) {
                             if (i.isAdmin() || i.isOwner()) {
-                                chatAdminsIds?.add(i.getObjectId())
+                                chatAdminsIds?.add(i.getOwnerObjectId())
                             }
                         }
                         subtitle = getString(R.string.chat_users_count, it.size)
@@ -1381,7 +1381,7 @@ class ChatPresenter(
 
     private fun canEdit(message: Message): Boolean {
         return message.isOut && Unixtime.now() - message.date < 24 * 60 * 60
-                && !message.isSticker && !message.isVoiceMessage && !message.isGraffity && !message.isCall
+                && !message.isSticker && !message.isVoiceMessage && !message.isGraffiti && !message.isCall
     }
 
     private fun canChangePin(): Boolean {
@@ -1932,8 +1932,8 @@ class ChatPresenter(
     fun fireChatDownloadClick(context: Context, action: String) {
         val downloadWork = OneTimeWorkRequest.Builder(ChatDownloadWorker::class.java)
         val data = Data.Builder()
-        data.putInt(Extra.OWNER_ID, peerId)
-        data.putInt(Extra.ACCOUNT_ID, accountId)
+        data.putLong(Extra.OWNER_ID, peerId)
+        data.putLong(Extra.ACCOUNT_ID, accountId)
         data.putString(Extra.TITLE, conversation?.getDisplayTitle(context))
         data.putString(Extra.ACTION, action)
         downloadWork.setInputData(data.build())
@@ -2231,7 +2231,7 @@ class ChatPresenter(
             .fromIOToMain()
             .subscribe({
                 if (it.nonEmpty()) {
-                    val kk = it.get() as AttachmentToken
+                    val kk = it.get() as AttachmentTokens.AttachmentToken
                     if (!file.isAnimated) {
                         val graffiti = Graffiti().setId(kk.id).setOwner_id(kk.ownerId)
                             .setAccess_key(kk.accessKey)
@@ -2307,7 +2307,7 @@ class ChatPresenter(
         }
     }
 
-    fun fireSendClickFromAttachmens() {
+    fun fireSendClickFromAttachments() {
         fireSendClick()
     }
 
@@ -2437,7 +2437,7 @@ class ChatPresenter(
         view?.showChatMembers(accountId, Peer.toChatId(peerId))
     }
 
-    fun fireLongAvatarClick(Id: Int) {
+    fun fireLongAvatarClick(Id: Long) {
         if (Id > 0) {
             netLoadingDisposable = Repository.owners.getFullUserInfo(accountId, Id, MODE_NET)
                 .fromIOToMain()

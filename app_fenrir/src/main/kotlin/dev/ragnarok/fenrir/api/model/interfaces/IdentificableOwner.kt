@@ -1,11 +1,11 @@
-package dev.ragnarok.fenrir.api.model
+package dev.ragnarok.fenrir.api.model.interfaces
 
 /**
  * Describes objects that contains an "id" field.
  */
-interface Identificable {
+interface IdentificableOwner {
     /**
      * Returns unique identifier of this object(usually it's value of JSON field "id").
      */
-    fun getObjectId(): Int
+    fun getOwnerObjectId(): Long
 }

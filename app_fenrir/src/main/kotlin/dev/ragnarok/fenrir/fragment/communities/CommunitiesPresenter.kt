@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Translit.cyr2lat
 import dev.ragnarok.fenrir.util.Translit.lat2cyr
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
-import dev.ragnarok.fenrir.util.Utils.indexOfOwner
+import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -22,7 +22,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanceState: Bundle?) :
+class CommunitiesPresenter(accountId: Long, private val userId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<ICommunitiesView>(accountId, savedInstanceState) {
     private val own: DataWrapper<Community> = DataWrapper(ArrayList(), true)
     private val filtered: DataWrapper<Community> = DataWrapper(ArrayList(0), false)
@@ -94,13 +94,13 @@ class CommunitiesPresenter(accountId: Int, private val userId: Int, savedInstanc
         if (do_scan && isNotFriendShow) {
             val not_communities = ArrayList<Owner>()
             for (i in own.get()) {
-                if (indexOfOwner(communities, i.ownerId) == -1) {
+                if (indexOf(communities, i.ownerId) == -1) {
                     not_communities.add(i)
                 }
             }
             val add_communities = ArrayList<Owner>()
             for (i in communities) {
-                if (indexOfOwner(own.get(), i.ownerId) == -1) {
+                if (indexOf(own.get(), i.ownerId) == -1) {
                     add_communities.add(i)
                 }
             }

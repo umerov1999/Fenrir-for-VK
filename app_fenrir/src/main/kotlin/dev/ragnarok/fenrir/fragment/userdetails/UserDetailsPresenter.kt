@@ -20,7 +20,7 @@ import dev.ragnarok.fenrir.util.Utils.joinNonEmptyStrings
 import dev.ragnarok.fenrir.util.rxutils.RxUtils.ignore
 
 class UserDetailsPresenter(
-    accountId: Int,
+    accountId: Long,
     private val user: User,
     details: UserDetails,
     savedInstanceState: Bundle?
@@ -31,7 +31,7 @@ class UserDetailsPresenter(
     fun fireChatClick() {
         val peer = Peer(
             Peer.fromUserId(
-                user.getObjectId()
+                user.getOwnerObjectId()
             )
         )
             .setAvaUrl(user.maxSquareAvatar)
@@ -86,7 +86,7 @@ class UserDetailsPresenter(
         val items: MutableList<AdvancedItem> = ArrayList()
         val mainSection = Section(Text(R.string.mail_information))
         val domain =
-            if (user.domain.nonNullNoEmpty()) "@" + user.domain else "@" + user.getObjectId()
+            if (user.domain.nonNullNoEmpty()) "@" + user.domain else "@" + user.getOwnerObjectId()
         items.add(
             AdvancedItem(1, AdvancedItem.TYPE_COPY_DETAILS_ONLY, Text(R.string.id))
                 .setSubtitle(Text(domain))
@@ -314,14 +314,14 @@ class UserDetailsPresenter(
             details.getBooks()
         )
         val beliefs = Section(Text(R.string.beliefs))
-        if (getPolitivalViewRes(details.getPolitical()) != null) {
+        if (getPoliticalViewRes(details.getPolitical()) != null) {
             items.add(
                 AdvancedItem(26, Text(R.string.political_views))
                     .setSection(beliefs)
                     .setIcon(R.drawable.ic_profile_personal)
                     .setSubtitle(
                         Text(
-                            getPolitivalViewRes(
+                            getPoliticalViewRes(
                                 details.getPolitical()
                             )
                         )
@@ -584,7 +584,7 @@ class UserDetailsPresenter(
         internal fun addPersonalInfo(
             items: MutableList<AdvancedItem>,
             @DrawableRes icon: Int,
-            key: Int,
+            key: Long,
             section: Section,
             @StringRes title: Int,
             v: String?
@@ -599,7 +599,7 @@ class UserDetailsPresenter(
             }
         }
 
-        internal fun getPolitivalViewRes(political: Int): Int? {
+        internal fun getPoliticalViewRes(political: Int): Int? {
             return when (political) {
                 1 -> R.string.political_views_communist
                 2 -> R.string.political_views_socialist
