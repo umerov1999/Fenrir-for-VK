@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2020-2021 Eduard Wolf
+// SPDX-FileCopyrightText: 2020-2022 Eduard Wolf
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -99,8 +99,7 @@ fun <T : Any> Preferences.asProperty(
  * @param tag optional tag which is used as SharedPreferences key - default to property name
  */
 // <!--- KNIT example-property-without-default-02.kt -->
-@Suppress("RemoveExplicitTypeArguments")
-inline fun <reified T> Preferences.asProperty(tag: String? = null): ReadWriteProperty<Any?, T> =
+inline fun <reified T> Preferences.asProperty(tag: String? = null) =
     asProperty<T>(serializersModule.serializer(), tag)
 
 /**
