@@ -36,7 +36,7 @@ namespace tvg
 class SwRenderer : public RenderMethod
 {
 public:
-    RenderData prepare(const Shape& shape, RenderData data, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag flags) override;
+    RenderData prepare(const RenderShape& rshape, RenderData data, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag flags, bool clipper) override;
     RenderData prepare(Surface* image, Polygon* triangles, uint32_t triangleCnt, RenderData data, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag flags) override;
     bool preRender() override;
     bool renderShape(RenderData data) override;
@@ -50,13 +50,15 @@ public:
 
     bool clear() override;
     bool sync() override;
-    bool target(uint32_t* buffer, uint32_t stride, uint32_t w, uint32_t h, uint32_t cs);
+    bool target(uint32_t* buffer, uint32_t stride, uint32_t w, uint32_t h, uint32_t colorSpace);
     bool mempool(bool shared);
 
     Compositor* target(const RenderRegion& region) override;
     bool beginComposite(Compositor* cmp, CompositeMethod method, uint32_t opacity) override;
     bool endComposite(Compositor* cmp) override;
     void clearCompositors();
+
+    uint32_t colorSpace() override;
 
     static SwRenderer* gen();
     static bool init(uint32_t threads);
