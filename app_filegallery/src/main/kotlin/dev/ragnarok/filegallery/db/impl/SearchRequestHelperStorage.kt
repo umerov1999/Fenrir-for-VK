@@ -26,7 +26,6 @@ import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import java.io.File
-import java.util.Collections
 
 class SearchRequestHelperStorage internal constructor(context: Context) :
     ISearchRequestHelperStorage {
@@ -355,6 +354,22 @@ class SearchRequestHelperStorage internal constructor(context: Context) :
         return File(path).length()
     }
 
+    private class ItemModificationComparator : Comparator<TagDir> {
+        override fun compare(lhs: TagDir, rhs: TagDir): Int {
+            return when {
+                lhs.type == FileType.folder && rhs.type != FileType.folder -> {
+                    -1
+                }
+
+                lhs.type != FileType.folder && rhs.type == FileType.folder -> {
+                    1
+                }
+
+                else -> rhs.id.compareTo(lhs.id)
+            }
+        }
+    }
+
     override fun getTagDirs(ownerId: Int): Single<List<TagDir>> {
         return Single.fromCallable {
             val where = TagDirsColumns.OWNER_ID + " = ?"
@@ -382,6 +397,7 @@ class SearchRequestHelperStorage internal constructor(context: Context) :
                     )
                 }
             }
+            data.sortWith(ItemModificationComparator())
             data
         }
     }
@@ -430,7 +446,7 @@ class SearchRequestHelperStorage internal constructor(context: Context) :
                     val cv = ContentValues()
                     cv.put(TagOwnerColumns.NAME, p.name)
                     val v = Math.toIntExact(db.insert(TagOwnerColumns.TABLENAME, null, cv))
-                    for (kk in (p.dirs ?: Collections.emptyList())) {
+                    for (kk in (p.dirs ?: emptyList())) {
                         val cvDir = ContentValues()
                         cvDir.put(TagDirsColumns.OWNER_ID, v)
                         cvDir.put(TagDirsColumns.NAME, kk.name)
