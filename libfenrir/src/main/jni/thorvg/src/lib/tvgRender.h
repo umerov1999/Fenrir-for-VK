@@ -48,6 +48,17 @@ struct Compositor
     uint32_t        opacity;
 };
 
+struct RenderMesh
+{
+    Polygon* triangles = nullptr;
+    uint32_t triangleCnt = 0;
+
+    ~RenderMesh()
+    {
+        free(triangles);
+    }
+};
+
 struct RenderRegion
 {
     int32_t x, y, w, h;
@@ -94,6 +105,7 @@ struct RenderStroke
     uint32_t dashCnt = 0;
     StrokeCap cap = StrokeCap::Square;
     StrokeJoin join = StrokeJoin::Bevel;
+    bool strokeFirst = false;
 
     ~RenderStroke()
     {
@@ -186,11 +198,11 @@ class RenderMethod
 public:
     virtual ~RenderMethod() {}
     virtual RenderData prepare(const RenderShape& rshape, RenderData data, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag flags, bool clipper) = 0;
-    virtual RenderData prepare(Surface* image, Polygon* triangles, uint32_t triangleCnt, RenderData data, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag flags) = 0;
+    virtual RenderData prepare(const Array<RenderData>& scene, RenderData data, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag flags) = 0;
+    virtual RenderData prepare(Surface* image, const RenderMesh* mesh, RenderData data, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag flags) = 0;
     virtual bool preRender() = 0;
     virtual bool renderShape(RenderData data) = 0;
     virtual bool renderImage(RenderData data) = 0;
-    virtual bool renderImageMesh(RenderData data) = 0;
     virtual bool postRender() = 0;
     virtual bool dispose(RenderData data) = 0;
     virtual RenderRegion region(RenderData data) = 0;

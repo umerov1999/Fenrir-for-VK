@@ -64,29 +64,25 @@ struct Picture::Impl
 
     Paint* paint = nullptr;           //vector picture uses
     Surface* surface = nullptr;       //bitmap picture uses
-    Polygon* triangles = nullptr;     //mesh data
-    uint32_t triangleCnt = 0;       //mesh triangle count
-    void* rdata = nullptr;            //engine data
+    RenderData rd = nullptr;          //engine data
     float w = 0, h = 0;
-    bool resizing = false;
     uint32_t rendererColorSpace = 0;
+    RenderMesh rm;                    //mesh data
+    bool resizing = false;
 
     ~Impl()
     {
         if (paint) delete(paint);
-        free(triangles);
         free(surface);
     }
 
     bool dispose(RenderMethod& renderer)
     {
         bool ret = true;
-        if (paint) {
-            ret = paint->pImpl->dispose(renderer);
-        } else if (surface) {
-            ret =  renderer.dispose(rdata);
-            rdata = nullptr;
-        }
+        if (paint) ret = paint->pImpl->dispose(renderer);
+        else if (surface) ret =  renderer.dispose(rd);
+        rd = nullptr;
+
         return ret;
     }
 
@@ -131,30 +127,27 @@ struct Picture::Impl
         else return RenderTransform(pTransform, &tmp);
     }
 
-    void* update(RenderMethod &renderer, const RenderTransform* pTransform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag pFlag, bool clipper)
+    RenderData update(RenderMethod &renderer, const RenderTransform* pTransform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag pFlag, bool clipper)
     {
         rendererColorSpace = renderer.colorSpace();
         auto flag = reload();
 
         if (surface) {
             auto transform = resizeTransform(pTransform);
-            rdata = renderer.prepare(surface, triangles, triangleCnt, rdata, &transform, opacity, clips, static_cast<RenderUpdateFlag>(pFlag | flag));
+            rd = renderer.prepare(surface, &rm, rd, &transform, opacity, clips, static_cast<RenderUpdateFlag>(pFlag | flag));
         } else if (paint) {
             if (resizing) {
                 loader->resize(paint, w, h);
                 resizing = false;
             }
-            rdata = paint->pImpl->update(renderer, pTransform, opacity, clips, static_cast<RenderUpdateFlag>(pFlag | flag), clipper);
+            rd = paint->pImpl->update(renderer, pTransform, opacity, clips, static_cast<RenderUpdateFlag>(pFlag | flag), clipper);
         }
-        return rdata;
+        return rd;
     }
 
     bool render(RenderMethod &renderer)
     {
-        if (surface) {
-            if (triangles) return renderer.renderImageMesh(rdata);
-            else return renderer.renderImage(rdata);
-        }
+        if (surface) return renderer.renderImage(rd);
         else if (paint) return paint->pImpl->render(renderer);
         return false;
     }
@@ -179,11 +172,12 @@ struct Picture::Impl
 
     bool bounds(float* x, float* y, float* w, float* h)
     {
-        if (triangleCnt > 0) {
-            Point min = { triangles[0].vertex[0].pt.x, triangles[0].vertex[0].pt.y };
-            Point max = { triangles[0].vertex[0].pt.x, triangles[0].vertex[0].pt.y };
+        if (rm.triangleCnt > 0) {
+            auto triangles = rm.triangles;
+            auto min = triangles[0].vertex[0].pt;
+            auto max = triangles[0].vertex[0].pt;
 
-            for (uint32_t i = 0; i < triangleCnt; ++i) {
+            for (uint32_t i = 0; i < rm.triangleCnt; ++i) {
                 if (triangles[i].vertex[0].pt.x < min.x) min.x = triangles[i].vertex[0].pt.x;
                 else if (triangles[i].vertex[0].pt.x > max.x) max.x = triangles[i].vertex[0].pt.x;
                 if (triangles[i].vertex[0].pt.y < min.y) min.y = triangles[i].vertex[0].pt.y;
@@ -214,7 +208,7 @@ struct Picture::Impl
 
     RenderRegion bounds(RenderMethod& renderer)
     {
-        if (rdata) return renderer.region(rdata);
+        if (rd) return renderer.region(rd);
         if (paint) return paint->pImpl->bounds(renderer);
         return {0, 0, 0, 0};
     }
@@ -261,13 +255,13 @@ struct Picture::Impl
     void mesh(const Polygon* triangles, const uint32_t triangleCnt)
     {
         if (triangles && triangleCnt > 0) {
-            this->triangleCnt = triangleCnt;
-            this->triangles = (Polygon*)malloc(sizeof(Polygon) * triangleCnt);
-            memcpy(this->triangles, triangles, sizeof(Polygon) * triangleCnt);
+            this->rm.triangleCnt = triangleCnt;
+            this->rm.triangles = (Polygon*)malloc(sizeof(Polygon) * triangleCnt);
+            memcpy(this->rm.triangles, triangles, sizeof(Polygon) * triangleCnt);
         } else {
-            free(this->triangles);
-            this->triangles = nullptr;
-            this->triangleCnt = 0;
+            free(this->rm.triangles);
+            this->rm.triangles = nullptr;
+            this->rm.triangleCnt = 0;
         }
     }
 
@@ -289,10 +283,10 @@ struct Picture::Impl
         dup->h = h;
         dup->resizing = resizing;
 
-        if (triangleCnt > 0) {
-            dup->triangleCnt = triangleCnt;
-            dup->triangles = (Polygon*)malloc(sizeof(Polygon) * triangleCnt);
-            memcpy(dup->triangles, triangles, sizeof(Polygon) * triangleCnt);
+        if (rm.triangleCnt > 0) {
+            dup->rm.triangleCnt = rm.triangleCnt;
+            dup->rm.triangles = (Polygon*)malloc(sizeof(Polygon) * rm.triangleCnt);
+            memcpy(dup->rm.triangles, rm.triangles, sizeof(Polygon) * rm.triangleCnt);
         }
 
         return ret.release();

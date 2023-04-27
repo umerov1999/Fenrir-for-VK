@@ -112,6 +112,22 @@ static void ScaleUVDown2(int src_width,
     }
   }
 #endif
+#if defined(HAS_SCALEUVROWDOWN2_NEON)
+  if (TestCpuFlag(kCpuHasNEON)) {
+    ScaleUVRowDown2 =
+        filtering == kFilterNone
+            ? ScaleUVRowDown2_Any_NEON
+            : (filtering == kFilterLinear ? ScaleUVRowDown2Linear_Any_NEON
+                                          : ScaleUVRowDown2Box_Any_NEON);
+    if (IS_ALIGNED(dst_width, 8)) {
+      ScaleUVRowDown2 =
+          filtering == kFilterNone
+              ? ScaleUVRowDown2_NEON
+              : (filtering == kFilterLinear ? ScaleUVRowDown2Linear_NEON
+                                            : ScaleUVRowDown2Box_NEON);
+    }
+  }
+#endif
 
 // This code is not enabled.  Only box filter is available at this time.
 #if defined(HAS_SCALEUVROWDOWN2_SSSE3)
@@ -130,23 +146,7 @@ static void ScaleUVDown2(int src_width,
     }
   }
 #endif
-// This code is not enabled.  Only box filter is available at this time.
-#if defined(HAS_SCALEUVROWDOWN2_NEON)
-  if (TestCpuFlag(kCpuHasNEON)) {
-    ScaleUVRowDown2 =
-        filtering == kFilterNone
-            ? ScaleUVRowDown2_Any_NEON
-            : (filtering == kFilterLinear ? ScaleUVRowDown2Linear_Any_NEON
-                                          : ScaleUVRowDown2Box_Any_NEON);
-    if (IS_ALIGNED(dst_width, 8)) {
-      ScaleUVRowDown2 =
-          filtering == kFilterNone
-              ? ScaleUVRowDown2_NEON
-              : (filtering == kFilterLinear ? ScaleUVRowDown2Linear_NEON
-                                            : ScaleUVRowDown2Box_NEON);
-    }
-  }
-#endif
+
 #if defined(HAS_SCALEUVROWDOWN2_MSA)
   if (TestCpuFlag(kCpuHasMSA)) {
     ScaleUVRowDown2 =
@@ -644,19 +644,19 @@ void ScaleUVLinearUp2(int src_width,
   // This function can only scale up by 2 times horizontally.
   assert(src_width == ((dst_width + 1) / 2));
 
-#ifdef HAS_SCALEUVROWUP2LINEAR_SSSE3
+#ifdef HAS_SCALEUVROWUP2_LINEAR_SSSE3
   if (TestCpuFlag(kCpuHasSSSE3)) {
     ScaleRowUp = ScaleUVRowUp2_Linear_Any_SSSE3;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2LINEAR_AVX2
+#ifdef HAS_SCALEUVROWUP2_LINEAR_AVX2
   if (TestCpuFlag(kCpuHasAVX2)) {
     ScaleRowUp = ScaleUVRowUp2_Linear_Any_AVX2;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2LINEAR_NEON
+#ifdef HAS_SCALEUVROWUP2_LINEAR_NEON
   if (TestCpuFlag(kCpuHasNEON)) {
     ScaleRowUp = ScaleUVRowUp2_Linear_Any_NEON;
   }
@@ -697,19 +697,19 @@ void ScaleUVBilinearUp2(int src_width,
   assert(src_width == ((dst_width + 1) / 2));
   assert(src_height == ((dst_height + 1) / 2));
 
-#ifdef HAS_SCALEUVROWUP2BILINEAR_SSSE3
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_SSSE3
   if (TestCpuFlag(kCpuHasSSSE3)) {
     Scale2RowUp = ScaleUVRowUp2_Bilinear_Any_SSSE3;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2BILINEAR_AVX2
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_AVX2
   if (TestCpuFlag(kCpuHasAVX2)) {
     Scale2RowUp = ScaleUVRowUp2_Bilinear_Any_AVX2;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2BILINEAR_NEON
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_NEON
   if (TestCpuFlag(kCpuHasNEON)) {
     Scale2RowUp = ScaleUVRowUp2_Bilinear_Any_NEON;
   }
@@ -751,19 +751,19 @@ void ScaleUVLinearUp2_16(int src_width,
   // This function can only scale up by 2 times horizontally.
   assert(src_width == ((dst_width + 1) / 2));
 
-#ifdef HAS_SCALEUVROWUP2LINEAR_16_SSE41
+#ifdef HAS_SCALEUVROWUP2_LINEAR_16_SSE41
   if (TestCpuFlag(kCpuHasSSE41)) {
     ScaleRowUp = ScaleUVRowUp2_Linear_16_Any_SSE41;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2LINEAR_16_AVX2
+#ifdef HAS_SCALEUVROWUP2_LINEAR_16_AVX2
   if (TestCpuFlag(kCpuHasAVX2)) {
     ScaleRowUp = ScaleUVRowUp2_Linear_16_Any_AVX2;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2LINEAR_16_NEON
+#ifdef HAS_SCALEUVROWUP2_LINEAR_16_NEON
   if (TestCpuFlag(kCpuHasNEON)) {
     ScaleRowUp = ScaleUVRowUp2_Linear_16_Any_NEON;
   }
@@ -804,19 +804,19 @@ void ScaleUVBilinearUp2_16(int src_width,
   assert(src_width == ((dst_width + 1) / 2));
   assert(src_height == ((dst_height + 1) / 2));
 
-#ifdef HAS_SCALEUVROWUP2BILINEAR_16_SSE41
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_16_SSE41
   if (TestCpuFlag(kCpuHasSSE41)) {
     Scale2RowUp = ScaleUVRowUp2_Bilinear_16_Any_SSE41;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2BILINEAR_16_AVX2
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_16_AVX2
   if (TestCpuFlag(kCpuHasAVX2)) {
     Scale2RowUp = ScaleUVRowUp2_Bilinear_16_Any_AVX2;
   }
 #endif
 
-#ifdef HAS_SCALEUVROWUP2BILINEAR_16_NEON
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_16_NEON
   if (TestCpuFlag(kCpuHasNEON)) {
     Scale2RowUp = ScaleUVRowUp2_Bilinear_16_Any_NEON;
   }
@@ -1039,7 +1039,7 @@ static void ScaleUV(const uint8_t* src,
                        dst_stride, src, dst, x, y, dy, /*bpp=*/2, filtering);
     return;
   }
-  if (filtering && (dst_width + 1) / 2 == src_width) {
+  if ((filtering == kFilterLinear) && ((dst_width + 1) / 2 == src_width)) {
     ScaleUVLinearUp2(src_width, src_height, clip_width, clip_height, src_stride,
                      dst_stride, src, dst);
     return;
@@ -1139,7 +1139,7 @@ int UVScale_16(const uint16_t* src_uv,
   }
 #endif
 
-  if (filtering && (dst_width + 1) / 2 == src_width) {
+  if ((filtering == kFilterLinear) && ((dst_width + 1) / 2 == src_width)) {
     ScaleUVLinearUp2_16(src_width, src_height, dst_width, dst_height,
                         src_stride_uv, dst_stride_uv, src_uv, dst_uv);
     return 0;

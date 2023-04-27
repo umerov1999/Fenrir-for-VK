@@ -48,7 +48,7 @@ struct Shape::Impl
         return renderer.renderShape(rd);
     }
 
-    void* update(RenderMethod& renderer, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag pFlag, bool clipper)
+    RenderData update(RenderMethod& renderer, const RenderTransform* transform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag pFlag, bool clipper)
     {
         rd = renderer.prepare(rs, rd, transform, opacity, clips, static_cast<RenderUpdateFlag>(pFlag | flag), clipper);
         flag = RenderUpdateFlag::None;
@@ -262,6 +262,15 @@ struct Shape::Impl
         return true;
     }
 
+    bool strokeFirst(bool strokeFirst)
+    {
+        if (!rs.stroke) rs.stroke = new RenderStroke();
+        rs.stroke->strokeFirst = strokeFirst;
+        flag |= RenderUpdateFlag::Stroke;
+
+        return true;
+    }
+
     Paint* duplicate()
     {
         auto ret = Shape::gen();
@@ -295,6 +304,7 @@ struct Shape::Impl
             dup->rs.stroke->dashCnt = rs.stroke->dashCnt;
             dup->rs.stroke->cap = rs.stroke->cap;
             dup->rs.stroke->join = rs.stroke->join;
+            dup->rs.stroke->strokeFirst = rs.stroke->strokeFirst;
             memcpy(dup->rs.stroke->color, rs.stroke->color, sizeof(rs.stroke->color));
 
             if (rs.stroke->dashCnt > 0) {

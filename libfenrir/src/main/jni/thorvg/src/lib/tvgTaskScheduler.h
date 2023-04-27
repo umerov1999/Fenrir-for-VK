@@ -43,47 +43,83 @@ struct TaskScheduler
 struct Task
 {
 private:
-    mutex                   mtx;
+    mutex                   finishedMtx;
+    mutex                   preparedMtx;
     condition_variable      cv;
-    bool                    ready{true};
-    bool                    pending{false};
+    bool                    finished = true;        //if run() finished
+    bool                    prepared = false;       //the task is requested
 
 public:
-    virtual ~Task() = default;
-
-    void done()
+    virtual ~Task()
     {
-        if (!pending) return;
+        if (!prepared) return;
 
-        unique_lock<mutex> lock(mtx);
-        while (!ready) cv.wait(lock);
-        pending = false;
+        //Guarantee the task is finished by TaskScheduler.
+        unique_lock<mutex> lock(preparedMtx);
+
+        while (prepared) {
+            cv.wait(lock);
+        }
+    }
+
+    void done(unsigned tid = 0)
+    {
+        if (finished) return;
+
+        lock_guard<mutex> lock(finishedMtx);
+
+        if (finished) return;
+
+        //the job hasn't been launched yet.
+
+        //set finished so that operator() quickly returns.
+        finished = true;
+
+        run(tid);
     }
 
 protected:
     virtual void run(unsigned tid) = 0;
 
 private:
+    void finish()
+    {
+        lock_guard<mutex> lock(preparedMtx);
+        prepared = false;
+        cv.notify_one();
+    }
+
     void operator()(unsigned tid)
     {
+        if (finished) {
+            finish();
+            return;
+        }
+
+        lock_guard<mutex> lock(finishedMtx);
+
+        if (finished) {
+            finish();
+            return;
+        }
+
         run(tid);
 
-        lock_guard<mutex> lock(mtx);
-        ready = true;
-        cv.notify_one();
+        finished = true;
+
+        finish();
     }
 
     void prepare()
     {
-        ready = false;
-        pending = true;
+        finished = false;
+        prepared = true;
     }
 
-    friend class TaskSchedulerImpl;
+    friend struct TaskSchedulerImpl;
 };
-
-
 
 }
 
 #endif //_TVG_TASK_SCHEDULER_H_
+ 

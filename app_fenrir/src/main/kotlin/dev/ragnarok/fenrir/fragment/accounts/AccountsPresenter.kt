@@ -12,17 +12,18 @@ import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.ApiException
 import dev.ragnarok.fenrir.api.Auth
-import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonArray
-import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonObject
-import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asJsonObjectSafe
-import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.asPrimitiveSafe
-import dev.ragnarok.fenrir.api.adapters.AbsAdapter.Companion.has
+import dev.ragnarok.fenrir.api.adapters.AbsDtoAdapter.Companion.asJsonObjectSafe
+import dev.ragnarok.fenrir.api.adapters.AbsDtoAdapter.Companion.asPrimitiveSafe
+import dev.ragnarok.fenrir.api.adapters.AbsDtoAdapter.Companion.hasArray
+import dev.ragnarok.fenrir.api.adapters.AbsDtoAdapter.Companion.hasObject
+import dev.ragnarok.fenrir.api.adapters.AbsDtoAdapter.Companion.hasPrimitive
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.rest.HttpException
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.db.DBHelper
+import dev.ragnarok.fenrir.db.model.entity.DialogDboEntity
 import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
@@ -37,6 +38,7 @@ import dev.ragnarok.fenrir.model.Account
 import dev.ragnarok.fenrir.model.IOwnersBundle
 import dev.ragnarok.fenrir.model.SaveAccount
 import dev.ragnarok.fenrir.model.User
+import dev.ragnarok.fenrir.model.criteria.DialogsCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.nonNullNoEmptyOr
 import dev.ragnarok.fenrir.requireNonNull
@@ -53,8 +55,10 @@ import dev.ragnarok.fenrir.util.serializeble.json.JsonObjectBuilder
 import dev.ragnarok.fenrir.util.serializeble.json.contentOrNull
 import dev.ragnarok.fenrir.util.serializeble.json.decodeFromStream
 import dev.ragnarok.fenrir.util.serializeble.json.intOrNull
+import dev.ragnarok.fenrir.util.serializeble.json.jsonArray
 import dev.ragnarok.fenrir.util.serializeble.json.jsonObject
 import dev.ragnarok.fenrir.util.serializeble.json.jsonPrimitive
+import dev.ragnarok.fenrir.util.serializeble.json.long
 import dev.ragnarok.fenrir.util.serializeble.json.longOrNull
 import dev.ragnarok.fenrir.util.serializeble.json.put
 import dev.ragnarok.fenrir.util.serializeble.msgpack.MsgPack
@@ -62,6 +66,7 @@ import dev.ragnarok.fenrir.util.toast.CustomToast
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.exceptions.Exceptions
+import kotlinx.serialization.builtins.ListSerializer
 import okhttp3.FormBody
 import okhttp3.Request
 import okhttp3.Response
@@ -389,14 +394,14 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             if (file.exists()) {
                 val elem = kJson.parseToJsonElement(FileInputStream(file)).jsonObject
 
-                val exchangeToken = elem["exchange_token"]?.jsonPrimitive?.contentOrNull
+                val exchangeToken = elem["exchange_token"]?.asPrimitiveSafe?.contentOrNull
                     ?: return
                 val type =
-                    elem["type"]?.jsonPrimitive?.intOrNull ?: return
-                val device = elem["device"]?.jsonPrimitive?.contentOrNull
-                val device_id = elem["device_id"]?.jsonPrimitive?.contentOrNull
-                val api_ver = elem["api_ver"]?.jsonPrimitive?.contentOrNull
-                val sak_version = elem["sak_version"]?.jsonPrimitive?.contentOrNull
+                    elem["type"]?.asPrimitiveSafe?.intOrNull ?: return
+                val device = elem["device"]?.asPrimitiveSafe?.contentOrNull
+                val device_id = elem["device_id"]?.asPrimitiveSafe?.contentOrNull
+                val api_ver = elem["api_ver"]?.asPrimitiveSafe?.contentOrNull
+                val sak_version = elem["sak_version"]?.asPrimitiveSafe?.contentOrNull
 
                 appendDisposable(
                     networker.vkDirectAuth(type, device).authByExchangeToken(
@@ -423,7 +428,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                         )
                         view?.showColoredSnack(R.string.success, Color.parseColor("#AA48BE2D"))
 
-                        if (elem.has("login")) {
+                        if (hasPrimitive(elem, "login")) {
                             Settings.get().accounts().storeLogin(
                                 user_id,
                                 elem["login"]?.jsonPrimitive?.contentOrNull ?: return@subscribe
@@ -464,36 +469,56 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                         ?.showToastWarningBottom(R.string.settings_for_another_client)
                 }
                 val reader = obj["fenrir_accounts"]
-                for (i in reader?.asJsonArray.orEmpty()) {
-                    val elem = i.asJsonObject
-                    val id = elem["user_id"]?.jsonPrimitive?.longOrNull ?: continue
+                for (i in reader?.jsonArray.orEmpty()) {
+                    val elem = i.jsonObject
+                    val id = elem["user_id"]?.asPrimitiveSafe?.longOrNull ?: continue
                     if (Settings.get().accounts().registered.contains(id)) continue
-                    val token = elem["access_token"]?.jsonPrimitive?.contentOrNull ?: continue
-                    val Type = elem["type"]?.jsonPrimitive?.intOrNull ?: continue
+                    val token = elem["access_token"]?.asPrimitiveSafe?.contentOrNull ?: continue
+                    val Type = elem["type"]?.asPrimitiveSafe?.intOrNull ?: continue
                     processNewAccount(
                         id, token, Type, null, null, "fenrir_app",
                         isCurrent = false,
                         needSave = false
                     )
-                    if (elem.has("login")) {
+                    if (hasPrimitive(elem, "login")) {
                         Settings.get().accounts().storeLogin(
                             id,
                             elem["login"]?.jsonPrimitive?.contentOrNull ?: continue
                         )
                     }
-                    if (elem.has("device")) {
+                    if (hasPrimitive(elem, "device")) {
                         Settings.get().accounts().storeDevice(
                             id,
                             elem["device"]?.jsonPrimitive?.contentOrNull ?: continue
                         )
                     }
                 }
-                if (obj.has("settings")) {
-                    SettingsBackup().doRestore(obj["settings"]?.asJsonObject)
+                if (hasObject(obj, "settings")) {
+                    SettingsBackup().doRestore(obj["settings"]?.jsonObject)
                     view?.customToast?.setDuration(Toast.LENGTH_LONG)
                     view?.customToast?.showToastSuccessBottom(
                         R.string.need_restart
                     )
+                }
+                try {
+                    if (hasArray(obj, "conversations_saved")) {
+                        for (i in obj["conversations_saved"]?.jsonArray.orEmpty()) {
+                            val aid = i.jsonObject["account_id"]?.asPrimitiveSafe?.long ?: continue
+                            val dialogsJsonElem =
+                                i.jsonObject["conversation"]?.jsonArray ?: continue
+                            if (!dialogsJsonElem.isEmpty()) {
+                                Includes.stores.dialogs().insertDialogs(
+                                    aid, kJson.decodeFromJsonElement(
+                                        ListSerializer(
+                                            DialogDboEntity.serializer()
+                                        ), dialogsJsonElem
+                                    ), true
+                                ).blockingAwait()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
             view?.customToast?.showToast(
@@ -533,7 +558,8 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         try {
             val root = JsonObjectBuilder()
             val arr = JsonArrayBuilder()
-            for (i in Settings.get().accounts().registered) {
+            val registered = Settings.get().accounts().registered
+            for (i in registered) {
                 val temp = JsonObjectBuilder()
                 val owner = Users?.getById(i)
                 temp.put("user_name", owner?.fullName)
@@ -560,6 +586,33 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             root.put("fenrir_accounts", arr.build())
             val settings = SettingsBackup().doBackup()
             root.put("settings", settings)
+
+            val arrDialogs = JsonArrayBuilder()
+            for (i in registered) {
+                if (Utils.isHiddenAccount(i)) {
+                    try {
+                        val dialogs =
+                            Includes.stores.dialogs().getDialogs(DialogsCriteria(i)).blockingGet()
+                        val tmp = JsonObjectBuilder()
+                        tmp.put(
+                            "account_id", i
+                        )
+                        tmp.put(
+                            "conversation", kJson.encodeToJsonElement(
+                                ListSerializer(
+                                    DialogDboEntity.serializer()
+                                ), dialogs
+                            )
+                        )
+                        arrDialogs.add(
+                            tmp.build()
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+            root.put("conversations_saved", arrDialogs.build())
             val bytes = Json { prettyPrint = true }.printJsonElement(root.build()).toByteArray(
                 Charsets.UTF_8
             )

@@ -242,6 +242,7 @@ Result Shape::appendRect(float x, float y, float w, float h, float rx, float ry)
 }
 
 
+//TODO: kill alpha at TVG 1.0, because we also have opacity
 Result Shape::fill(uint8_t r, uint8_t g, uint8_t b, uint8_t a) noexcept
 {
     pImpl->rs.color[0] = r;
@@ -284,6 +285,14 @@ Result Shape::fillColor(uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a) const no
 const Fill* Shape::fill() const noexcept
 {
     return pImpl->rs.fill;
+}
+
+
+Result Shape::order(bool strokeFirst) noexcept
+{
+    if (!pImpl->strokeFirst(strokeFirst)) return Result::FailedAllocation;
+
+    return Result::Success;
 }
 
 
