@@ -1268,6 +1268,11 @@ void SplitRGBPlane(const uint8_t* src_rgb,
     }
   }
 #endif
+#if defined(HAS_SPLITRGBROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    SplitRGBRow = SplitRGBRow_RVV;
+  }
+#endif
 
   for (y = 0; y < height; ++y) {
     // Copy a row of RGB.
@@ -1327,6 +1332,11 @@ void MergeRGBPlane(const uint8_t* src_r,
     }
   }
 #endif
+#if defined(HAS_MERGERGBROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    MergeRGBRow = MergeRGBRow_RVV;
+  }
+#endif
 
   for (y = 0; y < height; ++y) {
     // Merge a row of U and V into a row of RGB.
@@ -1358,6 +1368,9 @@ static void SplitARGBPlaneAlpha(const uint8_t* src_argb,
 
   assert(height > 0);
 
+  if (width <= 0 || height == 0) {
+    return;
+  }
   if (src_stride_argb == width * 4 && dst_stride_r == width &&
       dst_stride_g == width && dst_stride_b == width && dst_stride_a == width) {
     width *= height;
@@ -1398,6 +1411,11 @@ static void SplitARGBPlaneAlpha(const uint8_t* src_argb,
     }
   }
 #endif
+#if defined(HAS_SPLITARGBROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    SplitARGBRow = SplitARGBRow_RVV;
+  }
+#endif
 
   for (y = 0; y < height; ++y) {
     SplitARGBRow(src_argb, dst_r, dst_g, dst_b, dst_a, width);
@@ -1425,6 +1443,9 @@ static void SplitARGBPlaneOpaque(const uint8_t* src_argb,
                        uint8_t* dst_b, int width) = SplitXRGBRow_C;
   assert(height > 0);
 
+  if (width <= 0 || height == 0) {
+    return;
+  }
   if (src_stride_argb == width * 4 && dst_stride_r == width &&
       dst_stride_g == width && dst_stride_b == width) {
     width *= height;
@@ -1462,6 +1483,11 @@ static void SplitARGBPlaneOpaque(const uint8_t* src_argb,
     if (IS_ALIGNED(width, 16)) {
       SplitXRGBRow = SplitXRGBRow_NEON;
     }
+  }
+#endif
+#if defined(HAS_SPLITXRGBROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    SplitXRGBRow = SplitXRGBRow_RVV;
   }
 #endif
 
@@ -1530,6 +1556,9 @@ static void MergeARGBPlaneAlpha(const uint8_t* src_r,
 
   assert(height > 0);
 
+  if (width <= 0 || height == 0) {
+    return;
+  }
   if (src_stride_r == width && src_stride_g == width && src_stride_b == width &&
       src_stride_a == width && dst_stride_argb == width * 4) {
     width *= height;
@@ -1561,6 +1590,11 @@ static void MergeARGBPlaneAlpha(const uint8_t* src_r,
     }
   }
 #endif
+#if defined(HAS_MERGEARGBROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    MergeARGBRow = MergeARGBRow_RVV;
+  }
+#endif
 
   for (y = 0; y < height; ++y) {
     MergeARGBRow(src_r, src_g, src_b, src_a, dst_argb, width);
@@ -1590,6 +1624,9 @@ static void MergeARGBPlaneOpaque(const uint8_t* src_r,
 
   assert(height > 0);
 
+  if (width <= 0 || height == 0) {
+    return;
+  }
   if (src_stride_r == width && src_stride_g == width && src_stride_b == width &&
       dst_stride_argb == width * 4) {
     width *= height;
@@ -1618,6 +1655,11 @@ static void MergeARGBPlaneOpaque(const uint8_t* src_r,
     if (IS_ALIGNED(width, 16)) {
       MergeXRGBRow = MergeXRGBRow_NEON;
     }
+  }
+#endif
+#if defined(HAS_MERGEXRGBROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    MergeXRGBRow = MergeXRGBRow_RVV;
   }
 #endif
 
@@ -2071,6 +2113,16 @@ int YUY2ToI422(const uint8_t* src_yuy2,
     }
   }
 #endif
+#if defined(HAS_YUY2TOYROW_LSX) && defined(HAS_YUY2TOUV422ROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    YUY2ToYRow = YUY2ToYRow_Any_LSX;
+    YUY2ToUV422Row = YUY2ToUV422Row_Any_LSX;
+    if (IS_ALIGNED(width, 16)) {
+      YUY2ToYRow = YUY2ToYRow_LSX;
+      YUY2ToUV422Row = YUY2ToUV422Row_LSX;
+    }
+  }
+#endif
 #if defined(HAS_YUY2TOYROW_LASX) && defined(HAS_YUY2TOUV422ROW_LASX)
   if (TestCpuFlag(kCpuHasLASX)) {
     YUY2ToYRow = YUY2ToYRow_Any_LASX;
@@ -2372,6 +2424,14 @@ void MirrorPlane(const uint8_t* src_y,
     }
   }
 #endif
+#if defined(HAS_MIRRORROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    MirrorRow = MirrorRow_Any_LSX;
+    if (IS_ALIGNED(width, 32)) {
+      MirrorRow = MirrorRow_LSX;
+    }
+  }
+#endif
 #if defined(HAS_MIRRORROW_LASX)
   if (TestCpuFlag(kCpuHasLASX)) {
     MirrorRow = MirrorRow_Any_LASX;
@@ -2435,6 +2495,14 @@ void MirrorUVPlane(const uint8_t* src_uv,
     MirrorUVRow = MirrorUVRow_Any_MSA;
     if (IS_ALIGNED(width, 8)) {
       MirrorUVRow = MirrorUVRow_MSA;
+    }
+  }
+#endif
+#if defined(HAS_MIRRORUVROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    MirrorUVRow = MirrorUVRow_Any_LSX;
+    if (IS_ALIGNED(width, 8)) {
+      MirrorUVRow = MirrorUVRow_LSX;
     }
   }
 #endif
@@ -2607,6 +2675,14 @@ int ARGBMirror(const uint8_t* src_argb,
     ARGBMirrorRow = ARGBMirrorRow_Any_MSA;
     if (IS_ALIGNED(width, 16)) {
       ARGBMirrorRow = ARGBMirrorRow_MSA;
+    }
+  }
+#endif
+#if defined(HAS_ARGBMIRRORROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    ARGBMirrorRow = ARGBMirrorRow_Any_LSX;
+    if (IS_ALIGNED(width, 8)) {
+      ARGBMirrorRow = ARGBMirrorRow_LSX;
     }
   }
 #endif
@@ -3488,6 +3564,11 @@ int ARGBAttenuate(const uint8_t* src_argb,
     if (IS_ALIGNED(width, 16)) {
       ARGBAttenuateRow = ARGBAttenuateRow_LASX;
     }
+  }
+#endif
+#if defined(HAS_ARGBATTENUATEROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    ARGBAttenuateRow = ARGBAttenuateRow_RVV;
   }
 #endif
 
@@ -4633,6 +4714,11 @@ static int ARGBSobelize(const uint8_t* src_argb,
     }
   }
 #endif
+#if defined(HAS_ARGBTOYJROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    ARGBToYJRow = ARGBToYJRow_RVV;
+  }
+#endif
 
 #if defined(HAS_SOBELYROW_SSE2)
   if (TestCpuFlag(kCpuHasSSE2)) {
@@ -5269,6 +5355,14 @@ int YUY2ToNV12(const uint8_t* src_yuy2,
     YUY2ToYRow = YUY2ToYRow_Any_MSA;
     if (IS_ALIGNED(width, 32)) {
       YUY2ToYRow = YUY2ToYRow_MSA;
+    }
+  }
+#endif
+#if defined(HAS_YUY2TOYROW_LSX) && defined(HAS_YUY2TOUV422ROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    YUY2ToYRow = YUY2ToYRow_Any_LSX;
+    if (IS_ALIGNED(width, 16)) {
+      YUY2ToYRow = YUY2ToYRow_LSX;
     }
   }
 #endif

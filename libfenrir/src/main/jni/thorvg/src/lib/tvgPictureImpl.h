@@ -66,14 +66,19 @@ struct Picture::Impl
     Surface* surface = nullptr;       //bitmap picture uses
     RenderData rd = nullptr;          //engine data
     float w = 0, h = 0;
-    uint32_t rendererColorSpace = 0;
     RenderMesh rm;                    //mesh data
+    Picture* picture = nullptr;
     bool resizing = false;
+    bool needComp = false;            //need composition
+
+    Impl(Picture* p) : picture(p)
+    {
+    }
 
     ~Impl()
     {
         if (paint) delete(paint);
-        free(surface);
+        delete(surface);
     }
 
     bool dispose(RenderMethod& renderer)
@@ -86,7 +91,7 @@ struct Picture::Impl
         return ret;
     }
 
-    uint32_t reload()
+    uint32_t load()
     {
         if (loader) {
             if (!paint) {
@@ -104,10 +109,11 @@ struct Picture::Impl
                     if (paint) return RenderUpdateFlag::None;
                 }
             }
-            free(surface);
-            if ((surface = loader->bitmap(rendererColorSpace).release())) {
-                loader->close();
-                return RenderUpdateFlag::Image;
+            if (!surface) {
+                if ((surface = loader->bitmap().release())) {
+                    loader->close();
+                    return RenderUpdateFlag::Image;
+                }
             }
         }
         return RenderUpdateFlag::None;
@@ -127,10 +133,22 @@ struct Picture::Impl
         else return RenderTransform(pTransform, &tmp);
     }
 
+    bool needComposition(uint32_t opacity)
+    {
+        //In this case, paint(scene) would try composition itself.
+        if (opacity < 255) return false;
+
+        //Composition test
+        const Paint* target;
+        auto method = picture->composite(&target);
+        if (!target || method == tvg::CompositeMethod::ClipPath) return false;
+        if (target->pImpl->opacity < 255 && target->pImpl->opacity > 0) return true;
+        return false;
+    }
+
     RenderData update(RenderMethod &renderer, const RenderTransform* pTransform, uint32_t opacity, Array<RenderData>& clips, RenderUpdateFlag pFlag, bool clipper)
     {
-        rendererColorSpace = renderer.colorSpace();
-        auto flag = reload();
+        auto flag = load();
 
         if (surface) {
             auto transform = resizeTransform(pTransform);
@@ -140,6 +158,7 @@ struct Picture::Impl
                 loader->resize(paint, w, h);
                 resizing = false;
             }
+            needComp = needComposition(opacity) ? true : false;
             rd = paint->pImpl->update(renderer, pTransform, opacity, clips, static_cast<RenderUpdateFlag>(pFlag | flag), clipper);
         }
         return rd;
@@ -147,9 +166,18 @@ struct Picture::Impl
 
     bool render(RenderMethod &renderer)
     {
+        bool ret = false;
         if (surface) return renderer.renderImage(rd);
-        else if (paint) return paint->pImpl->render(renderer);
-        return false;
+        else if (paint) {
+            Compositor* cmp = nullptr;
+            if (needComp) {
+                cmp = renderer.target(bounds(renderer), renderer.colorSpace());
+                renderer.beginComposite(cmp, CompositeMethod::None, 255);
+            }
+            ret = paint->pImpl->render(renderer);
+            if (cmp) renderer.endComposite(cmp);
+        }
+        return ret;
     }
 
     bool viewbox(float* x, float* y, float* w, float* h)
@@ -246,7 +274,7 @@ struct Picture::Impl
         if (paint || surface) return Result::InsufficientCondition;
         if (loader) loader->close();
         loader = LoaderMgr::loader(data, w, h, copy);
-        if (!loader) return Result::NonSupport;
+        if (!loader) return Result::FailedAllocation;
         this->w = loader->w;
         this->h = loader->h;
         return Result::Success;
@@ -267,7 +295,7 @@ struct Picture::Impl
 
     Paint* duplicate()
     {
-        reload();
+        load();
 
         auto ret = Picture::gen();
 
@@ -276,8 +304,10 @@ struct Picture::Impl
 
         dup->loader = loader;
         if (surface) {
-            dup->surface = static_cast<Surface*>(malloc(sizeof(Surface)));
+            dup->surface = new Surface;
             *dup->surface = *surface;
+            //TODO: A dupilcation is not a proxy... it needs copy of the pixel data?
+            dup->surface->owner = false;
         }
         dup->w = w;
         dup->h = h;
@@ -294,7 +324,7 @@ struct Picture::Impl
 
     Iterator* iterator()
     {
-        reload();
+        load();
         return new PictureIterator(paint);
     }
 };
