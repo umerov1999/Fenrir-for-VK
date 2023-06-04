@@ -820,9 +820,10 @@ static void ScaleAddCols2_C(int dst_width,
     int ix = x >> 16;
     x += dx;
     boxwidth = MIN1((x >> 16) - ix);
-    assert(((boxwidth - minboxwidth) == 0) || ((boxwidth - minboxwidth) == 1));
+    int scaletbl_index = boxwidth - minboxwidth;
+    assert((scaletbl_index == 0) || (scaletbl_index == 1));
     *dst_ptr++ = (uint8_t)(SumPixels(boxwidth, src_ptr + ix) *
-                               scaletbl[boxwidth - minboxwidth] >>
+                               scaletbl[scaletbl_index] >>
                            16);
   }
 }
@@ -843,10 +844,10 @@ static void ScaleAddCols2_16_C(int dst_width,
     int ix = x >> 16;
     x += dx;
     boxwidth = MIN1((x >> 16) - ix);
-    assert(((boxwidth - minboxwidth) == 0) || ((boxwidth - minboxwidth) == 1));
-    *dst_ptr++ = SumPixels_16(boxwidth, src_ptr + ix) *
-                     scaletbl[boxwidth - minboxwidth] >>
-                 16;
+    int scaletbl_index = boxwidth - minboxwidth;
+    assert((scaletbl_index == 0) || (scaletbl_index == 1));
+    *dst_ptr++ =
+        SumPixels_16(boxwidth, src_ptr + ix) * scaletbl[scaletbl_index] >> 16;
   }
 }
 
@@ -1117,6 +1118,11 @@ void ScalePlaneBilinearDown(int src_width,
     }
   }
 #endif
+#if defined(HAS_INTERPOLATEROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    InterpolateRow = InterpolateRow_RVV;
+  }
+#endif
 
 #if defined(HAS_SCALEFILTERCOLS_SSSE3)
   if (TestCpuFlag(kCpuHasSSSE3) && src_width < 32768) {
@@ -1310,6 +1316,11 @@ void ScalePlaneBilinearUp(int src_width,
     if (IS_ALIGNED(dst_width, 16)) {
       InterpolateRow = InterpolateRow_NEON;
     }
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    InterpolateRow = InterpolateRow_RVV;
   }
 #endif
 
