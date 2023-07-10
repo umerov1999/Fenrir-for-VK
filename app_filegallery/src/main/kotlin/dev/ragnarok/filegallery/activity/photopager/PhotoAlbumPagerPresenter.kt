@@ -1,6 +1,5 @@
 package dev.ragnarok.filegallery.activity.photopager
 
-import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
@@ -10,11 +9,13 @@ import dev.ragnarok.filegallery.api.interfaces.ILocalServerApi
 import dev.ragnarok.filegallery.fromIOToMain
 import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.util.Utils
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.SingleEmitter
 
 class PhotoAlbumPagerPresenter(
-    index: Int, source: Long, invertPhotoRev: Boolean, context: Context,
+    index: Int, source: Long, invertPhotoRev: Boolean,
     savedInstanceState: Bundle?
-) : PhotoPagerPresenter(ArrayList(0), context, savedInstanceState) {
+) : PhotoPagerPresenter(ArrayList(0), savedInstanceState) {
     private val photosInteractor: ILocalServerApi = networkInterfaces.localServerApi()
     private val invertPhotoRev: Boolean
     private var canLoad: Boolean
@@ -67,6 +68,31 @@ class PhotoAlbumPagerPresenter(
         }
     }
 
+    private fun loadDataFromParcelNative(parcelNative: Long) {
+        changeLoadingNowState(true)
+        appendDisposable(
+            Single.create { v: SingleEmitter<ArrayList<Photo>> ->
+                v.onSuccess(
+                    ParcelNative.loadParcelableArrayList(
+                        parcelNative, Photo.NativeCreator, ParcelFlags.MUTABLE_LIST
+                    ) ?: ArrayList()
+                )
+            }
+                .fromIOToMain()
+                .subscribe({ onInitialLoadingFinished(it) }) {
+                    it.printStackTrace()
+                })
+    }
+
+    private fun onInitialLoadingFinished(photos: List<Photo>) {
+        changeLoadingNowState(false)
+        mPhotos.addAll(photos)
+        refreshPagerView()
+        resolveButtonsBarVisible()
+        resolveToolbarVisibility()
+        refreshInfoViews()
+    }
+
     companion object {
         private const val COUNT_PER_LOAD = 100
     }
@@ -74,11 +100,7 @@ class PhotoAlbumPagerPresenter(
     init {
         canLoad = true
         this.invertPhotoRev = invertPhotoRev
-        mPhotos.addAll(ParcelNative.fromNative(source).readParcelableList(Photo.NativeCreator)!!)
         currentIndex = index
-        refreshPagerView()
-        resolveButtonsBarVisible()
-        resolveToolbarVisibility()
-        refreshInfoViews()
+        loadDataFromParcelNative(source)
     }
 }
