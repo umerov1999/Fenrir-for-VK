@@ -81,7 +81,8 @@ import kotlin.math.roundToInt
 object Utils {
     private val reload_news: MutableList<Long> = LinkedList()
     private val reload_dialogs: MutableList<Long> = LinkedList()
-    private val cachedMyStickers: MutableList<LocalSticker> = ArrayList()
+    private val cachedMyStickers: MutableList<LocalSticker> = LinkedList()
+    private val registeredParcels: MutableSet<Long> = HashSet()
     var follower_kick_mode = false
     private val displaySize = Point()
     private var device_id: String? = null
@@ -97,6 +98,18 @@ object Utils {
 
     fun getCachedMyStickers(): MutableList<LocalSticker> {
         return cachedMyStickers
+    }
+
+    fun registerParcelNative(pointer: Long) {
+        registeredParcels.add(pointer)
+    }
+
+    fun unregisterParcelNative(pointer: Long) {
+        registeredParcels.remove(pointer)
+    }
+
+    fun isParcelNativeRegistered(pointer: Long): Boolean {
+        return registeredParcels.contains(pointer)
     }
 
     /*
@@ -725,6 +738,29 @@ object Utils {
 
     fun hasTiramisu(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    }
+
+    fun hasUpsideDownCake(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+    }
+
+    @Suppress("deprecation")
+    fun finishActivityImmediate(activity: Activity) {
+        activity.finish()
+        if (!hasUpsideDownCake()) {
+            activity.overridePendingTransition(0, 0)
+        } else {
+            activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, 0, 0)
+        }
+    }
+
+    @Suppress("deprecation")
+    fun activityTransactionImmediate(activity: Activity) {
+        if (!hasUpsideDownCake()) {
+            activity.overridePendingTransition(0, 0)
+        } else {
+            activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
+        }
     }
 
     fun indexOf(data: List<Identificable>?, id: Int): Int {

@@ -3,9 +3,10 @@ package dev.ragnarok.filegallery.activity.slidr
 import android.animation.ArgbEvaluator
 import android.app.Activity
 import android.graphics.Color
-import android.view.View
+import android.view.WindowManager
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowInsetsControllerCompat
 import dev.ragnarok.filegallery.activity.slidr.widget.SliderPanel.OnPanelSlideListener
 import dev.ragnarok.filegallery.settings.CurrentTheme.getNavigationBarColor
 import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarColor
@@ -35,8 +36,7 @@ internal open class ColorPanelSlideListener(
     }
 
     override fun onClosed() {
-        activity.finish()
-        activity.overridePendingTransition(0, 0)
+        Utils.finishActivityImmediate(activity)
     }
 
     override fun onOpened() {
@@ -63,23 +63,14 @@ internal open class ColorPanelSlideListener(
                     w.statusBarColor = statusColor
                     w.navigationBarColor = navigationColor
                     val invertIcons = !isDark(statusColor)
-                    if (Utils.hasMarshmallow()) {
-                        var flags = w.decorView.systemUiVisibility
-                        flags = if (invertIcons) {
-                            flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                        } else {
-                            flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-                        }
-                        w.decorView.systemUiVisibility = flags
-                    }
-                    if (Utils.hasOreo()) {
-                        var flags = w.decorView.systemUiVisibility
-                        flags = if (invertIcons) {
-                            flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                        } else {
-                            flags and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
-                        }
-                        w.decorView.systemUiVisibility = flags
+
+                    val ins = WindowInsetsControllerCompat(w, w.decorView)
+                    ins.isAppearanceLightStatusBars = invertIcons
+                    ins.isAppearanceLightNavigationBars = invertIcons
+
+                    if (!Utils.hasMarshmallow()) {
+                        w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                     }
                 }
             }

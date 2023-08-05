@@ -920,7 +920,10 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 defaultValue = false
                 titleRes = R.string.change_upload_size
             }
-
+            switch("instant_photo_display") {
+                defaultValue = false
+                titleRes = R.string.instant_photo_display
+            }
         }
 
         subScreen("input_settings") {
@@ -1209,10 +1212,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onCheckedChange {
                     requireActivity().recreate()
                 }
-            }
-
-            switch("ongoing_player_notification") {
-                titleRes = R.string.ongoing_player_notification
             }
 
             switch("force_cache") {
@@ -2291,7 +2290,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
     }
 
     private fun initStartPagePreference(): ArrayList<SelectionItem> {
-        val drawerSettings = if (Settings.get().other().is_side_navigation()) Settings.get()
+        val drawerSettings = if (Settings.get().other().is_side_navigation) Settings.get()
             .sideDrawerSettings().categoriesOrder else Settings.get()
             .drawerSettings().categoriesOrder
         val enabledCategoriesName = ArrayList<String>()

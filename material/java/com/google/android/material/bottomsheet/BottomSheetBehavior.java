@@ -22,6 +22,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
@@ -47,6 +49,7 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
 import android.view.WindowInsets;
 import android.view.accessibility.AccessibilityEvent;
+import androidx.activity.BackEventCompat;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -71,6 +74,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.internal.ViewUtils;
 import com.google.android.material.internal.ViewUtils.RelativePadding;
+import com.google.android.material.motion.MaterialBackHandler;
+import com.google.android.material.motion.MaterialBottomContainerBackHelper;
 import com.google.android.material.resources.MaterialResources;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -89,7 +94,8 @@ import java.util.Map;
  * window-like. For BottomSheetDialog use {@link BottomSheetDialog#setTitle(int)}, and for
  * BottomSheetDialogFragment use {@link ViewCompat#setAccessibilityPaneTitle(View, CharSequence)}.
  */
-public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
+public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V>
+    implements MaterialBackHandler {
 
   /** Callback for monitoring events about bottom sheets. */
   public abstract static class BottomSheetCallback {
@@ -323,6 +329,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   @NonNull private final ArrayList<BottomSheetCallback> callbacks = new ArrayList<>();
 
   @Nullable private VelocityTracker velocityTracker;
+  @Nullable MaterialBottomContainerBackHelper bottomContainerBackHelper;
 
   int activePointerId;
 
@@ -461,6 +468,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     // first time we layout with this behavior by checking (viewRef == null).
     viewRef = null;
     viewDragHelper = null;
+    bottomContainerBackHelper = null;
   }
 
   @Override
@@ -469,6 +477,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     // Release references so we don't run unnecessary codepaths while not attached to a view.
     viewRef = null;
     viewDragHelper = null;
+    bottomContainerBackHelper = null;
   }
 
   @Override
@@ -538,6 +547,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       setWindowInsetsListener(child);
       ViewCompat.setWindowInsetsAnimationCallback(child, new InsetsAnimationCallback(child));
       viewRef = new WeakReference<>(child);
+      bottomContainerBackHelper = new MaterialBottomContainerBackHelper(child);
       // Only set MaterialShapeDrawable as background if shapeTheming is enabled, otherwise will
       // default to android:background declared in styles or layout.
       if (materialShapeDrawable != null) {
@@ -1356,6 +1366,26 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   }
 
   /**
+   * Sets whether the bottom sheet should remove its corners when it reaches the expanded state.
+   *
+   * <p>If false, the bottom sheet will only remove its corners if it is expanded and reaches the
+   * top of the screen.
+   */
+  public void setShouldRemoveExpandedCorners(boolean shouldRemoveExpandedCorners) {
+    if (this.shouldRemoveExpandedCorners != shouldRemoveExpandedCorners) {
+      this.shouldRemoveExpandedCorners = shouldRemoveExpandedCorners;
+      updateDrawableForTargetState(getState(), /* animate= */ true);
+    }
+  }
+
+  /**
+   * Returns whether the bottom sheet will remove its corners when it reaches the expanded state.
+   */
+  public boolean isShouldRemoveExpandedCorners() {
+    return shouldRemoveExpandedCorners;
+  }
+
+  /**
    * Gets the current state of the bottom sheet.
    *
    * @return One of {@link #STATE_EXPANDED}, {@link #STATE_HALF_EXPANDED}, {@link #STATE_COLLAPSED},
@@ -1435,10 +1465,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         && viewRef.get() != null
         && VERSION.SDK_INT >= VERSION_CODES.S) {
       V view = viewRef.get();
-      int[] location = new int[2];
-      view.getLocationOnScreen(location);
       // Only use device corner radius if sheet is touching top of screen.
-      if (location[1] == 0) {
+      if (isAtTopOfScreen()) {
         final WindowInsets insets = view.getRootWindowInsets();
         if (insets != null) {
           float topLeftInterpolation =
@@ -1468,9 +1496,18 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     return 0;
   }
 
+  private boolean isAtTopOfScreen() {
+    if (viewRef == null || viewRef.get() == null) {
+      return false;
+    }
+    int[] location = new int[2];
+    viewRef.get().getLocationOnScreen(location);
+    return location[1] == 0;
+  }
+
   private boolean isExpandedAndShouldRemoveCorners() {
     // Only remove corners when it's full screen.
-    return state == STATE_EXPANDED && (shouldRemoveExpandedCorners || getExpandedOffset() == 0);
+    return state == STATE_EXPANDED && (shouldRemoveExpandedCorners || isAtTopOfScreen());
   }
 
   private int calculatePeekHeight() {
@@ -1550,6 +1587,67 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     int peek = calculatePeekHeight();
     final float newTop = child.getTop() + yvel * hideFriction;
     return Math.abs(newTop - collapsedOffset) / (float) peek > HIDE_THRESHOLD;
+  }
+
+  @Override
+  public void startBackProgress(@NonNull BackEventCompat backEvent) {
+    if (bottomContainerBackHelper == null) {
+      return;
+    }
+    bottomContainerBackHelper.startBackProgress(backEvent);
+  }
+
+  @Override
+  public void updateBackProgress(@NonNull BackEventCompat backEvent) {
+    if (bottomContainerBackHelper == null) {
+      return;
+    }
+    bottomContainerBackHelper.updateBackProgress(backEvent);
+  }
+
+  @Override
+  public void handleBackInvoked() {
+    if (bottomContainerBackHelper == null) {
+      return;
+    }
+    BackEventCompat backEvent = bottomContainerBackHelper.onHandleBackInvoked();
+    if (backEvent == null || VERSION.SDK_INT < VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      // If using traditional button system nav or if pre-U, just hide or collapse the bottom sheet.
+      setState(hideable ? STATE_HIDDEN : STATE_COLLAPSED);
+      return;
+    }
+    if (hideable) {
+      bottomContainerBackHelper.finishBackProgressNotPersistent(
+          backEvent,
+          new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+              // Hide immediately following the built-in predictive back slide down animation.
+              setStateInternal(STATE_HIDDEN);
+              if (viewRef != null && viewRef.get() != null) {
+                viewRef.get().requestLayout();
+              }
+            }
+          });
+    } else {
+      bottomContainerBackHelper.finishBackProgressPersistent(
+          backEvent, /* animatorListener= */ null);
+      setState(STATE_COLLAPSED);
+    }
+  }
+
+  @Override
+  public void cancelBackProgress() {
+    if (bottomContainerBackHelper == null) {
+      return;
+    }
+    bottomContainerBackHelper.cancelBackProgress();
+  }
+
+  @VisibleForTesting
+  @Nullable
+  MaterialBottomContainerBackHelper getBackHelper() {
+    return bottomContainerBackHelper;
   }
 
   @Nullable

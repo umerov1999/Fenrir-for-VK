@@ -110,6 +110,9 @@ namespace TagLib {
                                bool readAudioProperties = true,
                                AudioProperties::ReadStyle
                                audioPropertiesStyle = AudioProperties::Average) const = 0;
+    private:
+      class FileTypeResolverPrivate;
+      FileTypeResolverPrivate *d;
     };
 
     class TAGLIB_EXPORT StreamTypeResolver : public FileTypeResolver
@@ -118,12 +121,15 @@ namespace TagLib {
       /*!
        * Destroys this StreamTypeResolver instance.
        */
-      virtual ~StreamTypeResolver() = 0;
+      ~StreamTypeResolver() override = 0;
 
       virtual File *createFileFromStream(IOStream *stream,
                                bool readAudioProperties = true,
                                AudioProperties::ReadStyle
                                audioPropertiesStyle = AudioProperties::Average) const = 0;
+    private:
+      class StreamTypeResolverPrivate;
+      StreamTypeResolverPrivate *d;
     };
 
     /*!

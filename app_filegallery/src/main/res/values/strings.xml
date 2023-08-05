@@ -351,7 +351,6 @@
     <string name="reboot_pc_linux">Restart Linux</string>
     <string name="reset_settings">Reset settings</string>
     <string name="wrong_settings_format">This settings format is not supported!</string>
-    <string name="ongoing_player_notification">Continuous notification</string>
     <string name="files_uploading_notification_title">Uploading files</string>
     <string name="play_remote">Play via server</string>
     <string name="open_folder_new_window">Open directories in a new window</string>
@@ -365,4 +364,5 @@
     <string name="start_select_mode">Select Mode</string>
     <string name="end_select_mode">End selection</string>
     <string name="send_action">Send</string>
+    <string name="instant_photo_display">Instant photo display</string>
 </resources>

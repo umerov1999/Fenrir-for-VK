@@ -47,6 +47,7 @@ add_library(thorvg STATIC
         thorvg/src/lib/sw_engine/tvgSwShape.cpp
         thorvg/src/lib/sw_engine/tvgSwStroke.cpp
         thorvg/src/lib/tvgAccessor.cpp
+        thorvg/src/lib/tvgAnimation.cpp
         thorvg/src/lib/tvgBezier.cpp
         thorvg/src/lib/tvgCanvas.cpp
         thorvg/src/lib/tvgFill.cpp
@@ -175,23 +176,6 @@ target_compile_options(libyuv PRIVATE
         -ffast-math ${OPTIMIZE_NORMAL} -funroll-loops -fno-strict-aliasing -fno-math-errno ${SYM_VISIBILITY})
 target_include_directories(libyuv PRIVATE
         animation/libyuv/include)
-
-if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
-    set_target_properties(libyuv PROPERTIES
-            ANDROID_ARM_NEON FALSE
-            ANDROID_ARM_MODE arm)
-    target_compile_definitions(libyuv PRIVATE
-            ANDROID_ARM_NEON=false)
-    target_sources(libyuv PRIVATE
-            animation/libyuv/source/compare_neon.cc
-            animation/libyuv/source/rotate_neon.cc
-            animation/libyuv/source/row_neon.cc
-            animation/libyuv/source/scale_neon.cc)
-else ()
-    set_target_properties(libyuv PROPERTIES
-            ANDROID_ARM_NEON FALSE
-            ANDROID_ARM_MODE arm)
-endif ()
 
 add_library(opus STATIC
         audio/opus/libopus/src/opus.c

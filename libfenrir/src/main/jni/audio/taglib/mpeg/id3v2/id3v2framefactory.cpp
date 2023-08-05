@@ -23,10 +23,11 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#include <tdebug.h>
-#include <tzlib.h>
-
 #include "id3v2framefactory.h"
+
+#include "tdebug.h"
+#include "tzlib.h"
+
 #include "id3v2synchdata.h"
 #include "id3v1genres.h"
 
@@ -58,7 +59,7 @@ namespace
     StringList fields = frame->fieldList();
     StringList newfields;
 
-    for(StringList::ConstIterator it = fields.begin(); it != fields.end(); ++it) {
+    for(auto it = fields.cbegin(); it != fields.cend(); ++it) {
       String s = *it;
       int offset = 0;
       int end = 0;
@@ -115,11 +116,11 @@ FrameFactory *FrameFactory::instance()
   return &factory;
 }
 
-Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHeader) const
+std::pair<Frame::Header *, bool> FrameFactory::prepareFrameHeader(
+  ByteVector &data, const Header *tagHeader) const
 {
-  ByteVector data = origData;
   unsigned int version = tagHeader->majorVersion();
-  Frame::Header *header = new Frame::Header(data, version);
+  auto header = new Frame::Header(data, version);
   ByteVector frameID = header->frameID();
 
   // A quick sanity check -- make sure that the frameID is 4 uppercase Latin1
@@ -130,7 +131,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
      header->frameSize() > data.size())
   {
     delete header;
-    return 0;
+    return {nullptr, false};
   }
 
 #ifndef NO_ITUNES_HACKS
@@ -144,10 +145,10 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   }
 #endif
 
-  for(ByteVector::ConstIterator it = frameID.begin(); it != frameID.end(); it++) {
+  for(auto it = frameID.cbegin(); it != frameID.cend(); it++) {
     if( (*it < 'A' || *it > 'Z') && (*it < '0' || *it > '9') ) {
       delete header;
-      return 0;
+      return {nullptr, false};
     }
   }
 
@@ -164,24 +165,39 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
 
   if(!zlib::isAvailable() && header->compression()) {
     debug("Compressed frames are currently not supported.");
-    return new UnknownFrame(data, header);
+    return {header, false};
   }
 
   if(header->encryption()) {
     debug("Encrypted frames are currently not supported.");
-    return new UnknownFrame(data, header);
+    return {header, false};
   }
 
   if(!updateFrame(header)) {
     header->setTagAlterPreservation(true);
-    return new UnknownFrame(data, header);
+    return {header, false};
   }
 
-  // updateFrame() might have updated the frame ID.
+  return {header, true};
+}
 
-  frameID = header->frameID();
+Frame *FrameFactory::createFrame(const ByteVector &origData,
+                                 const Header *tagHeader) const
+{
+  ByteVector data = origData;
+  auto [header, ok] = prepareFrameHeader(data, tagHeader);
+  if(!ok) {
+    // check if frame is valid and return as UnknownFrame
+    return header ? new UnknownFrame(data, header) : nullptr;
+  }
+  return createFrame(data, header, tagHeader);
+}
 
-  // This is where things get necissarily nasty.  Here we determine which
+Frame *FrameFactory::createFrame(const ByteVector &data, Frame::Header *header,
+                                 const Header *tagHeader) const {
+  ByteVector frameID = header->frameID();
+
+  // This is where things get necessarily nasty.  Here we determine which
   // Frame subclass (or if none is found simply an Frame) based
   // on the frame ID.  Since there are a lot of possibilities, that means
   // a lot of if blocks.
@@ -206,7 +222,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   // Comments (frames 4.10)
 
   if(frameID == "COMM") {
-    CommentsFrame *f = new CommentsFrame(data, header);
+    auto f = new CommentsFrame(data, header);
     d->setTextEncoding(f);
     return f;
   }
@@ -214,7 +230,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   // Attached Picture (frames 4.14)
 
   if(frameID == "APIC") {
-    AttachedPictureFrame *f = new AttachedPictureFrame(data, header);
+    auto f = new AttachedPictureFrame(data, header);
     d->setTextEncoding(f);
     return f;
   }
@@ -240,7 +256,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   // General Encapsulated Object (frames 4.15)
 
   if(frameID == "GEOB") {
-    GeneralEncapsulatedObjectFrame *f = new GeneralEncapsulatedObjectFrame(data, header);
+    auto f = new GeneralEncapsulatedObjectFrame(data, header);
     d->setTextEncoding(f);
     return f;
   }
@@ -251,7 +267,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
     if(frameID != "WXXX") {
       return new UrlLinkFrame(data, header);
     }
-    UserUrlLinkFrame *f = new UserUrlLinkFrame(data, header);
+    auto f = new UserUrlLinkFrame(data, header);
     d->setTextEncoding(f);
     return f;
   }
@@ -259,7 +275,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   // Unsynchronized lyric/text transcription (frames 4.8)
 
   if(frameID == "USLT") {
-    UnsynchronizedLyricsFrame *f = new UnsynchronizedLyricsFrame(data, header);
+    auto f = new UnsynchronizedLyricsFrame(data, header);
     if(d->useDefaultEncoding)
       f->setTextEncoding(d->defaultEncoding);
     return f;
@@ -268,7 +284,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   // Synchronized lyrics/text (frames 4.9)
 
   if(frameID == "SYLT") {
-    SynchronizedLyricsFrame *f = new SynchronizedLyricsFrame(data, header);
+    auto f = new SynchronizedLyricsFrame(data, header);
     if(d->useDefaultEncoding)
       f->setTextEncoding(d->defaultEncoding);
     return f;
@@ -292,7 +308,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   // Ownership (frames 4.22)
 
   if(frameID == "OWNE") {
-    OwnershipFrame *f = new OwnershipFrame(data, header);
+    auto f = new OwnershipFrame(data, header);
     d->setTextEncoding(f);
     return f;
   }
