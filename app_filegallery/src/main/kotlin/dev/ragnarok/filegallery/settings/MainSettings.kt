@@ -10,7 +10,11 @@ import dev.ragnarok.fenrir.module.FileUtils
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Constants.forceDeveloperMode
 import dev.ragnarok.filegallery.kJson
-import dev.ragnarok.filegallery.model.*
+import dev.ragnarok.filegallery.model.Lang
+import dev.ragnarok.filegallery.model.LocalServerSettings
+import dev.ragnarok.filegallery.model.ParserType
+import dev.ragnarok.filegallery.model.PlayerCoverBackgroundSettings
+import dev.ragnarok.filegallery.model.SlidrSettings
 import dev.ragnarok.filegallery.settings.ISettings.IMainSettings
 import dev.ragnarok.filegallery.settings.theme.ThemeOverlay
 import dev.ragnarok.filegallery.view.pager.Transformers_Types
@@ -326,6 +330,20 @@ internal class MainSettings(context: Context) : IMainSettings {
 
     override val isOpen_folder_new_window: Boolean
         get() = getPreferences(app).getBoolean("open_folder_new_window", false)
+
+    override val picassoDispatcher: Int
+        get() = try {
+            if (!getPreferences(app).contains("picasso_dispatcher")) {
+                getPreferences(app).edit().putString(
+                    "picasso_dispatcher",
+                    if (FenrirNative.isNativeLoaded && FileUtils.threadsCount > 4) "1" else "0"
+                ).apply()
+            }
+            getPreferences(app).getString("picasso_dispatcher", "0")!!
+                .trim { it <= ' ' }.toInt()
+        } catch (e: Exception) {
+            0
+        }
 
     @get:Lang
     override val language: Int

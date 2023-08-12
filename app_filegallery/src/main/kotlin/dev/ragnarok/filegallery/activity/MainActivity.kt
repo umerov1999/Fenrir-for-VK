@@ -2,7 +2,13 @@ package dev.ragnarok.filegallery.activity
 
 import android.Manifest
 import android.app.Activity
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -44,7 +50,11 @@ import dev.ragnarok.filegallery.fragment.tagdir.TagDirFragment
 import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerFragment
 import dev.ragnarok.filegallery.fragment.theme.ThemeFragment
 import dev.ragnarok.filegallery.fromIOToMain
-import dev.ragnarok.filegallery.listener.*
+import dev.ragnarok.filegallery.listener.AppStyleable
+import dev.ragnarok.filegallery.listener.BackPressCallback
+import dev.ragnarok.filegallery.listener.CanBackPressedCallback
+import dev.ragnarok.filegallery.listener.OnSectionResumeCallback
+import dev.ragnarok.filegallery.listener.UpdatableNavigation
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController.ServiceToken
 import dev.ragnarok.filegallery.media.music.MusicPlaybackService
@@ -253,14 +263,29 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
             mToolbar?.setNavigationIcon(R.drawable.client_round)
             mToolbar?.setNavigationOnClickListener {
                 val menus = ModalBottomSheetDialogFragment.Builder()
-                menus.add(
-                    OptionRequest(
-                        0,
-                        getString(R.string.night_mode_title),
-                        R.drawable.ic_outline_nights_stay,
-                        false
+                if (Settings.get()
+                        .main().nightMode == AppCompatDelegate.MODE_NIGHT_YES || Settings.get()
+                        .main().nightMode == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY || Settings.get()
+                        .main().nightMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                ) {
+                    menus.add(
+                        OptionRequest(
+                            0,
+                            getString(R.string.day_mode_title),
+                            R.drawable.ic_outline_wb_sunny,
+                            false
+                        )
                     )
-                )
+                } else {
+                    menus.add(
+                        OptionRequest(
+                            0,
+                            getString(R.string.night_mode_title),
+                            R.drawable.ic_outline_nights_stay,
+                            false
+                        )
+                    )
+                }
                 menus.add(
                     OptionRequest(
                         1,
