@@ -26,18 +26,16 @@
 #ifndef TAGLIB_XINGHEADER_H
 #define TAGLIB_XINGHEADER_H
 
-#include "mpegheader.h"
-#include "taglib_export.h"
-
 #include <memory>
+
+#include "taglib_export.h"
+#include "mpegheader.h"
 
 namespace TagLib {
 
   class ByteVector;
 
   namespace MPEG {
-
-    class File;
 
     //! An implementation of the Xing/VBRI headers
 

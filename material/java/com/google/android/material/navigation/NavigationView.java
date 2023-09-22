@@ -30,7 +30,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.RippleDrawable;
@@ -76,6 +75,7 @@ import androidx.customview.view.AbsSavedState;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener;
 import androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener;
+import com.google.android.material.drawable.DrawableUtils;
 import com.google.android.material.internal.ContextUtils;
 import com.google.android.material.internal.NavigationMenu;
 import com.google.android.material.internal.NavigationMenuPresenter;
@@ -202,14 +202,15 @@ public class NavigationView extends ScrimInsetsFrameLayout implements MaterialBa
 
     // Set the background to a MaterialShapeDrawable if it hasn't been set or if it can be converted
     // to a MaterialShapeDrawable.
-    if (getBackground() == null || getBackground() instanceof ColorDrawable) {
+    Drawable background = getBackground();
+    ColorStateList backgroundColorStateList = DrawableUtils.getColorStateListOrNull(background);
+
+    if (background == null || backgroundColorStateList != null) {
       ShapeAppearanceModel shapeAppearanceModel =
           ShapeAppearanceModel.builder(context, attrs, defStyleAttr, DEF_STYLE_RES).build();
-      Drawable orig = getBackground();
       MaterialShapeDrawable materialShapeDrawable = new MaterialShapeDrawable(shapeAppearanceModel);
-      if (orig instanceof ColorDrawable) {
-        materialShapeDrawable.setFillColor(
-            ColorStateList.valueOf(((ColorDrawable) orig).getColor()));
+      if (backgroundColorStateList != null) {
+        materialShapeDrawable.setFillColor(backgroundColorStateList);
       }
       materialShapeDrawable.initializeElevationOverlay(context);
       ViewCompat.setBackground(this, materialShapeDrawable);
