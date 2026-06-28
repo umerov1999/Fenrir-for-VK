@@ -52,14 +52,14 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp">
 
-                    <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                    <dev.ragnarok.fenrir.view.LinkHelperTextView
                         android:id="@+id/fragment_document_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:textSize="16sp" />
 
-                    <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                    <dev.ragnarok.fenrir.view.LinkHelperTextView
                         android:id="@+id/fragment_document_subtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

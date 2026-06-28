@@ -55,7 +55,7 @@ android {
     defaultConfig {
         minSdk =
             if (isDevelopBuild()) libs.versions.appMinSDKDevelop.asInt() else libs.versions.appMinSDKNotDevelop.asInt()
-        buildConfigField("String", "VERSION_NAME_INSTALLATION", "17.3.0".commaString())
+        buildConfigField("String", "VERSION_NAME_INSTALLATION", "19.1.1".commaString())
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21

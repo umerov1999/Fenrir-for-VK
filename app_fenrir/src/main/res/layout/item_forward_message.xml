@@ -5,6 +5,7 @@
     android:id="@+id/message_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:paddingTop="2dp"
     android:paddingBottom="4dp">
 
@@ -35,13 +36,12 @@
             android:textSize="12sp"
             tools:text="Name" />
 
-        <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+        <dev.ragnarok.fenrir.view.LinkHelperTextView
             android:id="@+id/item_fwd_message_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="start"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            app:emojiconSize="20sp"
             tools:text="Message" />
 
         <include

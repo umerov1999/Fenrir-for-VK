@@ -33,8 +33,8 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.CommentContainer
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import java.util.Locale
 
 class CommentsAdapter(
@@ -47,9 +47,9 @@ class CommentsAdapter(
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val colorTextSecondary: Int = CurrentTheme.getSecondaryTextColorCode(context)
     private val iconColorActive: Int = CurrentTheme.getColorPrimary(context)
-    private var onHashTagClickListener: EmojiconTextView.OnHashTagClickListener? = null
+    private var onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener? = null
     private var listener: OnCommentActionListener? = null
-    fun setOnHashTagClickListener(onHashTagClickListener: EmojiconTextView.OnHashTagClickListener?) {
+    fun setOnHashTagClickListener(onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener?) {
         this.onHashTagClickListener = onHashTagClickListener
     }
 
@@ -252,7 +252,7 @@ class CommentsAdapter(
         RecyclerView.ViewHolder(root) {
         val tvOwnerName: TextView = root.findViewById(R.id.item_comment_owner_name)
         val ivOwnerAvatar: ImageView = root.findViewById(R.id.item_comment_owner_avatar)
-        val tvText: EmojiconTextView = root.findViewById(R.id.item_comment_text)
+        val tvText: LinkHelperTextView = root.findViewById(R.id.item_comment_text)
         val tvTime: TextView
         val tvLikeCounter: TextView
         val selectionView: View
@@ -279,7 +279,7 @@ class CommentsAdapter(
         }
 
         init {
-            tvText.setOnHashTagClickListener(object : EmojiconTextView.OnHashTagClickListener {
+            tvText.setOnHashTagClickListener(object : LinkHelperTextView.OnHashTagClickListener {
                 override fun onHashTagClicked(hashTag: String) {
                     onHashTagClickListener?.onHashTagClicked(hashTag)
                 }

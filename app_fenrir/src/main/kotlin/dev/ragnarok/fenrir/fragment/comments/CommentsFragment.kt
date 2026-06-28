@@ -60,16 +60,16 @@ import dev.ragnarok.fenrir.util.MessagesReplyItemCallback
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
 import dev.ragnarok.fenrir.view.CommentsInputViewController
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelperComment
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelperComment.Companion.createFrom
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnStickerClickedListener
 import dev.ragnarok.fenrir.view.emoji.StickersKeyWordsAdapter
 import kotlin.math.max
 
 class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsView>(),
     ICommentsView, OnStickerClickedListener, CommentsInputViewController.OnInputActionCallback,
-    OnCommentActionListener, EmojiconTextView.OnHashTagClickListener, BackPressCallback,
+    OnCommentActionListener, LinkHelperTextView.OnHashTagClickListener, BackPressCallback,
     MenuProvider {
     private var mInputController: CommentsInputViewController? = null
     private var mRecyclerView: RecyclerView? = null

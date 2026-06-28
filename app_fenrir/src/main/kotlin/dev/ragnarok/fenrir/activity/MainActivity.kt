@@ -43,10 +43,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.FCMRegistrationUtils
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.proxySettings
-import dev.ragnarok.fenrir.Includes.pushRegistrationResolver
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.checkInputExist
 import dev.ragnarok.fenrir.activity.ActivityUtils.isMimeAudio
@@ -668,7 +668,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         requestEnterPinZero.launch(EnterPinActivity.getIntent(this))
     }
 
-    private fun checkFCMRegistration(onlyCheckGMS: Boolean) {
+    private fun checkFCMRegistration(onlyCheckAvailableFCM: Boolean) {
         if (!checkPlayServices(this)) {
             if (!Settings.get().main().isDisabledErrorFCM) {
                 mViewFragment?.let {
@@ -683,15 +683,13 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             }
             return
         }
-        if (onlyCheckGMS) {
+        if (onlyCheckAvailableFCM) {
             return
         }
         mCompositeJob.add(
-            pushRegistrationResolver.resolvePushRegistration(mAccountId, this)
+            FCMRegistrationUtils.register
                 .hiddenIO()
         )
-
-        //RequestHelper.checkPushRegistration(this);
     }
 
     private fun bindToAudioPlayService() {

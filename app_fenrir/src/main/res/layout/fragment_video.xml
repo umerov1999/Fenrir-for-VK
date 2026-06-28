@@ -60,7 +60,7 @@
                             tools:text="Name" />
                     </LinearLayout>
 
-                    <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                    <dev.ragnarok.fenrir.view.LinkHelperTextView
                         android:id="@+id/fragment_video_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -109,7 +109,7 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
-                    <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                    <dev.ragnarok.fenrir.view.LinkHelperTextView
                         android:id="@+id/fragment_video_subtitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

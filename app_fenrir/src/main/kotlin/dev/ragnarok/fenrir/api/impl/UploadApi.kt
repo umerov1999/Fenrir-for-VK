@@ -94,7 +94,7 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
         )
         val part: MultipartBody.Part =
             MultipartBody.Part.createFormData(
-                if (!isVideo) "photo" else "video_file",
+                if (!isVideo) "file" else "video_file",
                 filename,
                 body
             )

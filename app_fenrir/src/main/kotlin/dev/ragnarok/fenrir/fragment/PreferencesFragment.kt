@@ -751,9 +751,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
 
-            switch("font_only_for_chats") {
-                defaultValue = false
-                titleRes = R.string.font_only_for_chats
+            switch("font_size_only_for_post_messages") {
+                defaultValue = true
+                titleRes = R.string.font_size_only_for_post_messages
                 onCheckedChange {
                     requireActivity().recreate()
                 }
@@ -1059,10 +1059,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             titleRes = R.string.input
             iconRes = R.drawable.input_settings
             collapseIcon = true
-            switch("emojis_type") {
-                defaultValue = false
-                titleRes = R.string.emojis_type_title
-            }
 
             switch("dont_write") {
                 defaultValue = false
@@ -2246,9 +2242,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         if (accountId == ISettings.IAccountsSettings.INVALID_ID) {
             return null
         }
-        val available = Settings.get().pushSettings().registrations
-        val can = available.size == 1 && available[0].userId == accountId
-        return if (can) available[0].fcmToken else null
+        val available = Settings.get().pushSettings().registered
+        val can = available != null && available.userId == accountId
+        return if (can) available.fcmToken else null
     }
 
     private val internalDataIntent = registerForActivityResult(

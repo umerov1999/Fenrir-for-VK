@@ -101,7 +101,7 @@ interface ISettings {
         val isSnow_mode: Boolean
         val photoRoundMode: Int
         val fontSize: Int
-        val fontOnlyForChats: Boolean
+        val fontSizeOnlyForChatsAndMessages: Boolean
         val isLoad_history_notif: Boolean
         val isDont_write: Boolean
         val isOver_ten_attach: Boolean
@@ -291,8 +291,7 @@ interface ISettings {
     }
 
     interface IPushSettings {
-        fun savePushRegistrations(data: Collection<VKPushRegistration>)
-        val registrations: List<VKPushRegistration>
+        var registered: VKPushRegistration?
     }
 
     interface ISecuritySettings {
@@ -337,7 +336,6 @@ interface ISettings {
         val nightMode: Int
         fun getDefaultPage(accountId: Long): Place
         fun notifyPlaceResumed(type: Int)
-        val isSystemEmoji: Boolean
         val isEmojis_full_screen: Boolean
         val isStickers_by_theme: Boolean
         val isStickers_by_new: Boolean

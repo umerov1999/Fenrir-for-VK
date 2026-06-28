@@ -15,6 +15,7 @@
  */
 package androidx.media3.decoder.ffmpeg
 
+import android.content.Context
 import android.os.Handler
 import androidx.media3.common.C
 import androidx.media3.common.Format
@@ -28,6 +29,7 @@ import androidx.media3.exoplayer.RendererCapabilities
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DecoderAudioRenderer
+import androidx.media3.exoplayer.audio.DefaultAudioSink
 import dev.ragnarok.fenrir.module.FenrirNative
 
 /**
@@ -39,16 +41,22 @@ class FfmpegAudioRenderer : DecoderAudioRenderer<FfmpegAudioDecoder> {
     /**
      * Creates a new instance.
      *
+     * @param context A context.
      * @param eventHandler    A handler to use when delivering events to `eventListener`. May be
      * null if delivery of events is not required.
      * @param eventListener   A listener of events. May be null if delivery of events is not required.
      * @param audioProcessors Optional [AudioProcessor]s that will process audio before output.
      */
     constructor(
+        context: Context,
         eventHandler: Handler?,
         eventListener: AudioRendererEventListener?,
         vararg audioProcessors: AudioProcessor
-    ) : super(eventHandler, eventListener, *audioProcessors)
+    ) : super(
+        eventHandler,
+        eventListener,
+        DefaultAudioSink.Builder(context).setAudioProcessors(audioProcessors).build()
+    )
 
     /**
      * Creates a new instance.

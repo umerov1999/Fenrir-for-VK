@@ -19,12 +19,12 @@ import dev.ragnarok.fenrir.module.FenrirNative.density
 import dev.ragnarok.fenrir.module.animation.LoadedFrom
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.InputStream
 import kotlin.math.ceil
-import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
 class ThorVGLottieDrawable : Drawable, Animatable {
@@ -51,6 +51,8 @@ class ThorVGLottieDrawable : Drawable, Animatable {
     private var mutated = false
 
     private var startTime = -1L
+
+    private var nextFrameJob: Job? = null
 
     constructor(
         filePath: String,
@@ -150,7 +152,7 @@ class ThorVGLottieDrawable : Drawable, Animatable {
                 val elapsedMs = (System.nanoTime() - startTime) / 1_000_000
                 startTime = -1L
 
-                CoroutineScope(Dispatchers.Main).launch {
+                nextFrameJob = CoroutineScope(Dispatchers.Main).launch {
                     delay((lottieState.frameInterval - elapsedMs).coerceAtLeast(0L).milliseconds)
                     if (running) {
                         startTime = System.nanoTime()
@@ -250,6 +252,8 @@ class ThorVGLottieDrawable : Drawable, Animatable {
     }
 
     override fun start() {
+        nextFrameJob?.cancel()
+
         running = true
         ended = false
         started = false
@@ -262,10 +266,14 @@ class ThorVGLottieDrawable : Drawable, Animatable {
 
     override fun stop() {
         running = false
+
+        nextFrameJob?.cancel()
     }
 
     fun pause() {
         running = false
+
+        nextFrameJob?.cancel()
     }
 
     fun resume() {
@@ -357,18 +365,21 @@ class ThorVGLottieDrawable : Drawable, Animatable {
         }
 
         internal fun setFirstFrameInternal(frame: Int) {
-            firstFrame = min(frame, getLastFrameInternal())
+            firstFrame = frame.coerceAtLeast(0).coerceAtMost(getLastFrameInternal())
             updateFrameInterval()
         }
 
         internal fun setLastFrameInternal(frame: Int) {
-            lastFrame = min(frame, composition?.frameCount ?: 0)
+            val lastFrameTmp = composition?.frameCount ?: 0
+            lastFrame =
+                frame.coerceAtLeast(0).coerceAtMost(if (lastFrameTmp > 0) lastFrameTmp - 1 else 0)
+
             updateFrameInterval()
         }
 
         internal fun updateFrameInterval() {
             val currentComposition = composition ?: return
-            val totalFrames = getLastFrameInternal() - firstFrame
+            val totalFrames = getLastFrameInternal() - firstFrame + 1
             frameInterval = when {
                 totalFrames <= 0 -> 0L
                 speed <= 0f -> 0L
@@ -469,7 +480,7 @@ class ThorVGLottieDrawable : Drawable, Animatable {
             colorReplacementTmp = colorReplacement
             useMoveColorTmp = useMoveColor
             frameCount = outValues[LOTTIE_INFO_FRAME_COUNT]
-            duration = outValues[LOTTIE_INFO_DURATION] * 1000L
+            duration = outValues[LOTTIE_INFO_DURATION].toLong()
 
             width = dp(outValues[LOTTIE_INFO_WIDTH])
             height = dp(outValues[LOTTIE_INFO_HEIGHT])
@@ -501,7 +512,7 @@ class ThorVGLottieDrawable : Drawable, Animatable {
             colorReplacementTmp = colorReplacement
             useMoveColorTmp = useMoveColor
             frameCount = outValues[LOTTIE_INFO_FRAME_COUNT]
-            duration = outValues[LOTTIE_INFO_DURATION] * 1000L
+            duration = outValues[LOTTIE_INFO_DURATION].toLong()
 
             width = dp(outValues[LOTTIE_INFO_WIDTH])
             height = dp(outValues[LOTTIE_INFO_HEIGHT])

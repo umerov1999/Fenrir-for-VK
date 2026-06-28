@@ -109,7 +109,6 @@ android {
                 libs.versions.vkClientSecret.commaString()
             )
         }
-        /*
         create("kate") {
             applicationId = "dev.ragnarok.fenrir_kate"
             dimension = "type"
@@ -121,7 +120,6 @@ android {
                 libs.versions.kateClientSecret.commaString()
             )
         }
-         */
     }
 }
 
@@ -157,6 +155,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.vectordrawable)
+    implementation(libs.androidx.emoji2)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.customview)
     implementation(libs.androidx.customview.poolingcontainer)

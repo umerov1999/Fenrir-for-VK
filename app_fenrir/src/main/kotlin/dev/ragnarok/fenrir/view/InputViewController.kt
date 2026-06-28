@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isEmpty
+import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.Keyboard
@@ -22,9 +23,7 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.view.emoji.BotKeyboardView
-import dev.ragnarok.fenrir.view.emoji.BotKeyboardView.BotKeyboardViewDelegate
-import dev.ragnarok.fenrir.view.emoji.EmojiconEditText
+import dev.ragnarok.fenrir.view.BotKeyboardView.BotKeyboardViewDelegate
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.Companion.input
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnEmojiconBackspaceClickedListener
@@ -40,7 +39,7 @@ class InputViewController(
     private val callback: OnInputActionCallback
 ) {
     private val mActivity: Context = activity.applicationContext
-    private val mInputField: EmojiconEditText = rootView.findViewById(R.id.fragment_input_text)
+    private val mInputField: TextInputEditText = rootView.findViewById(R.id.fragment_input_text)
     private val rlEmojiContainer: LinearLayout
     private val ibEmoji: ImageView
     private val ibAttach: ImageView

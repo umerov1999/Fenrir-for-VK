@@ -33,7 +33,6 @@ import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import java.util.Locale
 
 class CommentContainer : LinearLayout {
@@ -82,7 +81,7 @@ class CommentContainer : LinearLayout {
         commentsData: List<Comment>?,
         binder: AttachmentsViewBinder,
         listener: OnCommentActionListener?,
-        onHashTagClickListener: EmojiconTextView.OnHashTagClickListener?
+        onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener?
     ) {
         if (commentsData.isNullOrEmpty()) {
             if (isNotEmpty()) {
@@ -226,11 +225,11 @@ class CommentContainer : LinearLayout {
 
     private inner class CommentHolder(
         root: View,
-        onHashTagClickListener: EmojiconTextView.OnHashTagClickListener?
+        onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener?
     ) {
         val tvOwnerName: TextView = root.findViewById(R.id.item_comment_owner_name)
         val ivOwnerAvatar: ImageView = root.findViewById(R.id.item_comment_owner_avatar)
-        val tvText: EmojiconTextView = root.findViewById(R.id.item_comment_text)
+        val tvText: LinkHelperTextView = root.findViewById(R.id.item_comment_text)
         val tvTime: TextView
         val tvLikeCounter: TextView
         val vAttachmentsRoot: View
@@ -253,7 +252,7 @@ class CommentContainer : LinearLayout {
         }
 
         init {
-            tvText.setOnHashTagClickListener(object : EmojiconTextView.OnHashTagClickListener {
+            tvText.setOnHashTagClickListener(object : LinkHelperTextView.OnHashTagClickListener {
                 override fun onHashTagClicked(hashTag: String) {
                     onHashTagClickListener?.onHashTagClicked(hashTag)
                 }

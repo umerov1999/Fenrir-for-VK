@@ -66,7 +66,7 @@
 
         </LinearLayout>
 
-        <dev.ragnarok.fenrir.view.emoji.EmojiconEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/fragment_create_post_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -77,8 +77,7 @@
             android:minHeight="140dp"
             android:padding="16dp"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:textColorHint="?android:textColorSecondary"
-            app:emojiconSize="20sp" />
+            android:textColorHint="?android:textColorSecondary" />
 
         <LinearLayout
             android:id="@+id/under_body_container"

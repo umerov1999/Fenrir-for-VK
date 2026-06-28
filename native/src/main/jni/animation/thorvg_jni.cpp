@@ -280,7 +280,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nLoa
     jint *dataArr = env->GetIntArrayElements(data, nullptr);
     if (dataArr != nullptr) {
         dataArr[0] = (jint) info->animation->totalFrame();
-        dataArr[1] = (jint) info->animation->duration();
+        dataArr[1] = (jint) (info->animation->duration() * 1000.0f);
         dataArr[2] = (jint) tmpWidth;
         dataArr[3] = (jint) tmpHeight;
         env->ReleaseIntArrayElements(data, dataArr, 0);
@@ -339,7 +339,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nLoa
     jint *dataArr = env->GetIntArrayElements(data, nullptr);
     if (dataArr != nullptr) {
         dataArr[0] = (jint) info->animation->totalFrame();
-        dataArr[1] = (jint) info->animation->duration();
+        dataArr[1] = (jint) (info->animation->duration() * 1000.0f);
         dataArr[2] = (jint) tmpWidth;
         dataArr[3] = (jint) tmpHeight;
         env->ReleaseIntArrayElements(data, dataArr, 0);
@@ -559,7 +559,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottie2Gif_lottie2gif(JNI
 
         env->CallVoidMethod(store_Wlistener, mth_start);
 
-        for (float p = 0.0f; p < duration; p += delay) {
+        for (auto p = 0.0f; p < duration; p += delay) {
             auto frameNo = info.animation->totalFrame() * (p / duration);
             info.animation->frame(frameNo);
             info.canvas->update();
@@ -577,7 +577,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottie2Gif_lottie2gif(JNI
 
         env->CallVoidMethod(store_Wlistener, mth_end);
     } else {
-        for (float p = 0.0f; p < duration; p += delay) {
+        for (auto p = 0.0f; p < duration; p += delay) {
             auto frameNo = info.animation->totalFrame() * (p / duration);
             info.animation->frame(frameNo);
             info.canvas->update();

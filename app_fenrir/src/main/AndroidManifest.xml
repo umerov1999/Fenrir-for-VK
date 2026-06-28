@@ -92,6 +92,10 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <meta-data
+            android:name="firebase_messaging_installation_id_enabled"
+            android:value="true" />
+
         <activity
             android:name="dev.ragnarok.fenrir.activity.LoginActivity"
             android:configChanges="keyboardHidden|orientation"

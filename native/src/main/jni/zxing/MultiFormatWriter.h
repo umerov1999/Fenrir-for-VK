@@ -23,7 +23,7 @@ class BitMatrix;
 class MultiFormatWriter
 {
 public:
-	[[deprecated("use CreateBarcode()")]] explicit MultiFormatWriter(BarcodeFormat format) : _format(format) {}
+	explicit MultiFormatWriter(BarcodeFormat format) : _format(format) {}
 
 	/**
 	* Used for Aztec, PDF417, and QRCode only.

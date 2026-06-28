@@ -21,6 +21,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
+        android:adjustViewBounds="true"
+        android:maxWidth="280dp"
+        android:maxHeight="280dp"
         android:minWidth="96dp"
         android:minHeight="96dp"
         android:scaleType="centerCrop"
@@ -73,7 +76,7 @@
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             tools:text="Size" />
 
-        <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+        <dev.ragnarok.fenrir.view.LinkHelperTextView
             android:id="@+id/item_message_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -81,7 +84,6 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:visibility="gone"
             app:displayHashTags="true"
-            app:emojiconSize="20sp"
             app:fixWrapText="true"
             app:hashTagColor="?colorPrimaryVariant"
             tools:text="Message" />

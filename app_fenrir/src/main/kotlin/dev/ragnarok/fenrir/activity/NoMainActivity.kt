@@ -22,11 +22,6 @@ abstract class NoMainActivity : AppCompatActivity() {
         FragmentManager.OnBackStackChangedListener { resolveToolbarNavigationIcon() }
     private var isZoomPhoto = false
 
-    private val isChatActivity: Boolean
-        get() {
-            return this is ChatActivity || this is LocalJsonToChatActivity || this is ChatActivityBubbles
-        }
-
     @get:LayoutRes
     protected open val noMainContentView: Int
         get() = R.layout.activity_no_main
@@ -62,7 +57,7 @@ abstract class NoMainActivity : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(Utils.updateActivityContext(newBase, isChatActivity))
+        super.attachBaseContext(Utils.updateActivityContext(newBase))
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {

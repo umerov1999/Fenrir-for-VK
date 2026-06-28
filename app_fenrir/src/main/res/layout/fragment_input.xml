@@ -78,7 +78,7 @@
                     android:src="@drawable/emoticon"
                     app:tint="?colorOnSurface" />
 
-                <dev.ragnarok.fenrir.view.emoji.EmojiconEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/fragment_input_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -96,8 +96,7 @@
                     android:paddingBottom="4dp"
                     android:saveEnabled="false"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColorHint="?android:textColorHint"
-                    app:emojiconSize="20sp" />
+                    android:textColorHint="?android:textColorHint" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/buttonBotKeyboard"
@@ -158,7 +157,7 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <dev.ragnarok.fenrir.view.emoji.BotKeyboardView
+    <dev.ragnarok.fenrir.view.BotKeyboardView
         android:id="@+id/fragment_input_keyboard_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

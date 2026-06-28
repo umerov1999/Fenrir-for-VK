@@ -456,6 +456,15 @@ class FeedbackVKOfficialAdapter(
             attachments = itemView.findViewById(R.id.attachments)
             photo_image = itemView.findViewById(R.id.photo_image)
             actionButton = itemView.findViewById(R.id.action_button)
+
+            val fontSize = Settings.get().main().fontSize
+            if (Settings.get().main().fontSizeOnlyForChatsAndMessages && fontSize != 0) {
+                name.setTextSize(0, name.textSize + Utils.dp(0.4f) * fontSize)
+                description.setTextSize(0, description.textSize + Utils.dp(0.4f) * fontSize)
+                footer.setTextSize(0, footer.textSize + Utils.dp(0.4f) * fontSize)
+                time.setTextSize(0, time.textSize + Utils.dp(0.4f) * fontSize)
+                mHeaderTitle.setTextSize(0, mHeaderTitle.textSize + Utils.dp(0.4f) * fontSize)
+            }
         }
     }
 

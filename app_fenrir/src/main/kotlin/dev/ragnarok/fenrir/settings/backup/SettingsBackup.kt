@@ -48,7 +48,7 @@ class SettingsBackup {
         var pref_display_photo_size: Int? = null
         var photo_rounded_view: String? = null
         var font_size_int: Int? = null
-        var font_only_for_chats: Boolean? = null
+        var font_size_only_for_post_messages: Boolean? = null
         var long_click_photo: String? = null
         var photo_zoom_enable_list: Boolean? = null
         var is_open_url_internal: String? = null
@@ -65,7 +65,6 @@ class SettingsBackup {
         var night_switch: String? = null
         var default_category: String? = null
         var last_closed_place_type: Int? = null
-        var emojis_type: Boolean? = null
         var emojis_full_screen: Boolean? = null
         var stickers_by_theme: Boolean? = null
         var stickers_by_new: Boolean? = null

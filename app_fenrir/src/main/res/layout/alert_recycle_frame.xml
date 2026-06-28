@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+        <dev.ragnarok.fenrir.view.LinkHelperTextView
             android:id="@+id/alert_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

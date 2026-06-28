@@ -110,14 +110,13 @@ enum struct Result
  */
 enum struct ColorSpace : uint8_t
 {
-    ABGR8888 = 0,      ///< The channels are joined in the order: alpha, blue, green, red. Colors are alpha-premultiplied.
-    ARGB8888,          ///< The channels are joined in the order: alpha, red, green, blue. Colors are alpha-premultiplied.
-    ABGR8888S,         ///< The channels are joined in the order: alpha, blue, green, red. Colors are un-alpha-premultiplied. @since 0.12
-    ARGB8888S,         ///< The channels are joined in the order: alpha, red, green, blue. Colors are un-alpha-premultiplied. @since 0.12
-    Grayscale8,        ///< One single channel data.
-    Unknown = 255      ///< Unknown channel data. This is reserved for an initial ColorSpace value. @since 1.0
+    ABGR8888 = 0,  ///< The channels are joined in the order: alpha, blue, green, red. Colors are alpha-premultiplied.
+    ARGB8888,      ///< The channels are joined in the order: alpha, red, green, blue. Colors are alpha-premultiplied.
+    ABGR8888S,     ///< The channels are joined in the order: alpha, blue, green, red. Colors are un-alpha-premultiplied. @since 0.12
+    ARGB8888S,     ///< The channels are joined in the order: alpha, red, green, blue. Colors are un-alpha-premultiplied. @since 0.12
+    Grayscale8,    ///< Single channel, 1 byte per pixel 8-bit grayscale.
+    Unknown = 255  ///< Unknown channel data. This is reserved for an initial ColorSpace value. @since 1.0
 };
-
 
 /**
  * @brief Enumeration to specify rendering engine behavior.
@@ -1615,6 +1614,7 @@ struct TVG_API Picture : Paint
      *
      * @retval Result::InvalidArguments In case no data are provided or the @p size is zero or less.
      * @retval Result::NonSupport When trying to load a file with an unknown extension.
+     * @retval Result::InsufficientCondition If a vector asset has already been loaded into the picture.
      *
      * @warning It's the user responsibility to release the @p data memory.
      *
@@ -1701,6 +1701,8 @@ struct TVG_API Picture : Paint
      * @param[in] h The height of the image in pixels.
      * @param[in] cs Specifies how the 32-bit color values should be interpreted.
      * @param[in] copy If @c true, the data is copied into the engine's local buffer. If @c false, the data is not copied.
+     *
+     * @note If the memory data pointed to by @p data is modified, calling this API will re-upload the updated content to the canvas.
      *
      * @since 0.9
      */
@@ -2175,6 +2177,8 @@ struct TVG_API Text : Paint
      *
      * @param[in] ch A pointer to a UTF-8 encoded character.
      * @param[out] metrics A reference to a @ref GlyphMetrics structure to be filled with the resulting values.
+     * @param[out] next An optional pointer that receives the position immediately
+     *                  following the processed UTF-8 character.
      *
      * @return Result::InsufficientCondition if no font or size has been set yet.
      * @return Result::InvalidArguments if the given character is invalid or not supported.
@@ -2183,7 +2187,7 @@ struct TVG_API Text : Paint
      * @note Currently, ThorVG only supports horizontal text layout.
      * @note Experimental API
      */
-    Result metrics(const char* ch, GlyphMetrics& metrics) const noexcept;
+    Result metrics(const char* ch, GlyphMetrics& metrics, const char** next = nullptr) const noexcept;
 
     /**
      * @brief Loads a scalable font data (ttf) from a file.
@@ -2301,9 +2305,11 @@ struct TVG_API SwCanvas final : Canvas
      *
      * @warning Do not access @p buffer during Canvas::add() - Canvas::sync(). It should not be accessed while the engine is writing on it.
      *
+     * @note Currently, only @c ColorSpace::ABGR8888S, @c ColorSpace::ABGR8888, @c ColorSpace::ARGB8888S, and @c ColorSpace::ARGB8888 are supported for @p cs.
+     *
      * @see Canvas::viewport()
      * @see Canvas::sync()
-    */
+     */
     Result target(uint32_t* buffer, uint32_t stride, uint32_t w, uint32_t h, ColorSpace cs) noexcept;
 
     /**
@@ -2398,25 +2404,62 @@ struct TVG_API WgCanvas final : Canvas
     ~WgCanvas() override;
 
     /**
+     * @brief Encapsulates the WebGPU context required for rendering.
+     *
+     * This structure contains the WebGPU objects used to initialize the rendering backend.
+     *
+     * @note Experimental API
+     */
+    struct Context
+    {
+        void* instance;  // WGPUInstance, context for all other wgpu objects.
+        void* adapter;   // WGPUAdapter, the adapter associated with the rendering device.
+        void* device;    // WGPUDevice, a desired handle for the wgpu device.
+    };
+
+    /**
      * @brief Sets the drawing target for the rasterization.
      *
-     * @param[in] device WGPUDevice, a desired handle for the wgpu device. If it is @c nullptr, ThorVG will assign an appropriate device internally.
+     * @param[in] device WGPUDevice, a desired handle for the wgpu device.
      * @param[in] instance WGPUInstance, context for all other wgpu objects.
      * @param[in] target Either WGPUSurface or WGPUTexture, serving as handles to a presentable surface or texture.
      * @param[in] w The width of the target.
      * @param[in] h The height of the target.
-     * @param[in] cs Specifies how the pixel values should be interpreted. Currently, it only allows @c ColorSpace::ABGR8888S as @c WGPUTextureFormat_RGBA8Unorm.
+     * @param[in] cs Specifies how the pixel values should be interpreted. Currently, it allows @c ColorSpace::ABGR8888 and @c ColorSpace::ABGR8888S.
      * @param[in] type @c 0: surface, @c 1: texture are used as pesentable target.
      *
      * @retval Result::InsufficientCondition if the canvas is performing rendering. Please ensure the canvas is synced.
      * @retval Result::NonSupport In case the wg engine is not supported.
      *
+     * @warning Regardless of the value of @p cs, this target API uses the default alpha mode.
+     *
      * @since 1.0
      *
+     * @see WgCanvas::target(const Context&, void*, uint32_t, uint32_t, ColorSpace, int)
      * @see Canvas::viewport()
      * @see Canvas::sync()
      */
     Result target(void* device, void* instance, void* target, uint32_t w, uint32_t h, ColorSpace cs, int type = 0) noexcept;
+
+    /**
+     * @brief Sets the drawing target for the rasterization.
+     *
+     * @param[in] context WebGPU context.
+     * @param[in] target Either WGPUSurface or WGPUTexture, serving as handles to a presentable surface or texture.
+     * @param[in] w The width of the target.
+     * @param[in] h The height of the target.
+     * @param[in] cs Specifies how the pixel values should be interpreted. Currently, it allows @c ColorSpace::ABGR8888 and @c ColorSpace::ABGR8888S.
+     * @param[in] type @c 0: surface, @c 1: texture are used as pesentable target.
+     *
+     * @retval Result::InsufficientCondition if the canvas is performing rendering. Please ensure the canvas is synced.
+     * @retval Result::NonSupport In case the wg engine is not supported.
+     *
+     * @note Experimental API
+     *
+     * @see Canvas::viewport()
+     * @see Canvas::sync()
+     */
+    Result target(const Context& context, void* target, uint32_t w, uint32_t h, ColorSpace cs, int type = 0) noexcept;
 
     /**
      * @brief Creates a new WebGPU Canvas object with optional rendering engine settings.
@@ -2585,7 +2628,7 @@ struct TVG_API Animation
      * @retval Result::InvalidArguments If the @p begin is higher than @p end.
      * @retval Result::NonSupport When it's not animatable.
      *
-     * @note Animation allows a range from 0.0 to the total frame. @p end should not be higher than @p begin.
+     * @note Animation allows a range from 0.0 to the total frame. @p end should not be lower than @p begin.
      * @note If a marker has been specified, its range will be disregarded.
      *
      * @see LottieAnimation::segment(const char* marker)

@@ -272,7 +272,6 @@
 
     <string name="chat_empty_text">Здесь пока ничего нет…</string>
 
-    <string name="emojis_type_title">Использовать системные смайлы</string>
     <string name="emojis_full_screen">Стикеры на весь экран</string>
     <string name="stickers_by_theme">Дневные/ночные стикеры</string>
     <string name="stickers_by_new">Стикеры от новых к старым</string>
@@ -1690,7 +1689,7 @@
     <string name="block_or_delete">Заблокировать подписчика? Режим сохраниться на сессию</string>
     <string name="exchange_token">Токен обмена</string>
     <string name="available_only_dons">Доступно только донам!</string>
-    <string name="font_only_for_chats">Шрифт только чатам</string>
+    <string name="font_size_only_for_post_messages">Размер шрифта постам и чатам</string>
     <string name="views">Просмотры</string>
     <string name="answer">Ответить</string>
     <string name="clips">Клипы</string>

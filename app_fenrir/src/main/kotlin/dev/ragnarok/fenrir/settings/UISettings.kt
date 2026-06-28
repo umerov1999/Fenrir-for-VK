@@ -134,8 +134,6 @@ internal class UISettings(context: Context) : IUISettings {
         }
     }
 
-    override val isSystemEmoji: Boolean
-        get() = getPreferences(app).getBoolean("emojis_type", false)
     override val isEmojis_full_screen: Boolean
         get() = getPreferences(app).getBoolean("emojis_full_screen", false)
     override val isStickers_by_theme: Boolean

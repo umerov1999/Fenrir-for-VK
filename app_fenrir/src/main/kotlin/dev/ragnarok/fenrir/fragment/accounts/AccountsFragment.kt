@@ -540,7 +540,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             "account_options"
         ) { _, option ->
             when (option.id) {
-                0 -> presenter?.fireDelete(requireActivity(), account)
+                0 -> presenter?.fireDeleteAccount(account)
                 1 -> presenter?.createShortcut(requireActivity(), account)
                 2 -> presenter?.fireSetAsActive(account)
                 3 -> if (!Settings.get().security().isUsePinForSecurity) {

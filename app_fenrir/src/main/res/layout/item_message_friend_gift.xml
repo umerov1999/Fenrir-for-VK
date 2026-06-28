@@ -24,6 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
+        android:orientation="horizontal"
         android:paddingStart="4dp"
         android:paddingTop="2dp"
         android:paddingEnd="4dp"
@@ -60,14 +61,13 @@
             app:first_color="?message_bubble_color"
             app:second_color="?message_bubble_color">
 
-            <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+            <dev.ragnarok.fenrir.view.LinkHelperTextView
                 android:id="@+id/item_message_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 app:displayHashTags="true"
-                app:emojiconSize="20sp"
                 app:fixWrapText="true"
                 app:hashTagColor="?colorPrimaryVariant"
                 tools:text="Message" />

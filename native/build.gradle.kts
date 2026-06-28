@@ -30,6 +30,7 @@ android {
                     cmake {
                         arguments.addAll(
                             setOf(
+                                "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
                                 "-DANDROID_STL=c++_static",
                                 "-DANDROID_PLATFORM=android-$minSdk",
                                 "-DCMAKE_BUILD_TYPE=Release"
@@ -43,6 +44,7 @@ android {
                     cmake {
                         arguments.addAll(
                             setOf(
+                                "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
                                 "-DANDROID_STL=c++_static",
                                 "-DANDROID_PLATFORM=android-$minSdk",
                                 "-DCMAKE_BUILD_TYPE=Debug"

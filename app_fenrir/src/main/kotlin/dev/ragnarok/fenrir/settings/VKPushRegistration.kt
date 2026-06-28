@@ -13,10 +13,6 @@ class VKPushRegistration {
     lateinit var deviceId: String
         private set
 
-    @SerialName("vkAccessToken")
-    lateinit var vkAccessToken: String
-        private set
-
     @SerialName("fcmToken")
     lateinit var fcmToken: String
         private set
@@ -24,12 +20,10 @@ class VKPushRegistration {
     fun set(
         userId: Long,
         deviceId: String,
-        vkAccessToken: String,
         fcmToken: String
     ): VKPushRegistration {
         this.userId = userId
         this.deviceId = deviceId
-        this.vkAccessToken = vkAccessToken
         this.fcmToken = fcmToken
         return this
     }

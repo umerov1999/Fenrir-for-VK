@@ -32,12 +32,12 @@ import dev.ragnarok.fenrir.model.menu.options.CommentsPhotoOption
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 
 class PhotoAllCommentFragment :
     PlaceSupportMvpFragment<PhotoAllCommentPresenter, IPhotoAllCommentView>(),
     IPhotoAllCommentView, SwipeRefreshLayout.OnRefreshListener, OnCommentActionListener,
-    EmojiconTextView.OnHashTagClickListener {
+    LinkHelperTextView.OnHashTagClickListener {
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAdapter: CommentsAdapter? = null
     private var mEmpty: TextView? = null

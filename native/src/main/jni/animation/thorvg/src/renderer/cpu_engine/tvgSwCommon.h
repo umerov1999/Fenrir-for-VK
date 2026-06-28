@@ -267,6 +267,7 @@ struct SwImage
     FilterMethod filter;
     bool direct = false;  // draw image directly (with offset)
     bool scaled = false;  // draw uniform scaled image
+    bool alphaIgnored = false;  // If true, the alpha channel can be ignored.
 };
 
 typedef uint8_t (*SwMask)(uint8_t s, uint8_t d, uint8_t a);                       // src, dst, alpha
@@ -511,7 +512,7 @@ void mpoolInit(uint32_t threads);
 void mpoolTerm();
 SwMpool* mpoolReq();
 
-bool rasterCompositor(SwSurface* surface);
+Result rasterCompositor(SwSurface* surface);
 bool rasterShape(SwSurface* surface, SwShape* shape, const RenderRegion& bbox, RenderColor& c);
 bool rasterTexmapPolygon(SwSurface* surface, const SwImage& image, const Matrix& transform, const RenderRegion& bbox, uint8_t opacity);
 bool rasterScaledImage(SwSurface* surface, const SwImage& image, const Matrix& transform, const RenderRegion& bbox, uint8_t opacity);

@@ -22,6 +22,14 @@ class CancelableJob {
         }
     }
 
+    fun hasJob(): Boolean {
+        var ret = false
+        synchronized(this) {
+            ret = job != null
+        }
+        return ret
+    }
+
     operator fun plusAssign(job: Job) {
         set(job)
     }

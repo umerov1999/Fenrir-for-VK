@@ -43,8 +43,8 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.AspectRatioImageView
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.VideoServiceIcons.getIconByType
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import dev.ragnarok.fenrir.view.natives.animation.AnimatedShapeableImageView
 import dev.ragnarok.fenrir.view.natives.animation.AspectRatioAnimatedShapeableImageView
 
@@ -412,7 +412,7 @@ class NewsfeedMentionsAdapter(
         val commentRoot: View = itemView.findViewById(R.id.comment_root)
         val commentAvatar: ImageView = itemView.findViewById(R.id.item_comment_owner_avatar)
         val commentAuthorName: TextView = itemView.findViewById(R.id.item_comment_owner_name)
-        val commentText: EmojiconTextView = itemView.findViewById(R.id.item_comment_text)
+        val commentText: LinkHelperTextView = itemView.findViewById(R.id.item_comment_text)
         val commentDatetime: TextView = itemView.findViewById(R.id.item_comment_time)
         val commentLikeCounter: TextView = itemView.findViewById(R.id.item_comment_like_counter)
         val commentAttachmentRoot: ViewGroup =
@@ -445,7 +445,7 @@ class NewsfeedMentionsAdapter(
         val ownerName: TextView = itemView.findViewById(R.id.item_post_owner_name)
         val postDatetime: TextView = itemView.findViewById(R.id.item_post_time)
         val postTextRoot: View = itemView.findViewById(R.id.item_text_container)
-        val postText: EmojiconTextView = itemView.findViewById(R.id.item_post_text)
+        val postText: LinkHelperTextView = itemView.findViewById(R.id.item_post_text)
         val buttonShowMore: View = itemView.findViewById(R.id.item_post_show_more)
         val signerRoot: View
         val signerAvatar: ImageView

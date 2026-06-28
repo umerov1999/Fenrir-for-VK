@@ -163,7 +163,7 @@
             app:layout_constraintTop_toTopOf="@id/item_chat_avatar"
             tools:text="time" />
 
-        <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+        <dev.ragnarok.fenrir.view.LinkHelperTextView
             android:id="@+id/dialog_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -176,7 +176,6 @@
             android:scrollbars="none"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textSize="14sp"
-            app:emojiconSize="17sp"
             app:layout_constraintEnd_toStartOf="@id/item_chat_unread_count"
             app:layout_constraintStart_toEndOf="@id/item_chat_avatar"
             app:layout_constraintTop_toBottomOf="@id/dialog_title"

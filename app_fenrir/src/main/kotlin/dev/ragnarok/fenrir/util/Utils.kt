@@ -92,7 +92,7 @@ import dev.ragnarok.fenrir.util.AppTextUtils.updateDateLang
 import dev.ragnarok.fenrir.util.FileUtil.updateDateLang
 import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.toast.AbsCustomToast
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 import dev.ragnarok.fenrir.view.pager.BackgroundToForegroundTransformer
 import dev.ragnarok.fenrir.view.pager.ClockSpinTransformer
@@ -1552,7 +1552,7 @@ object Utils {
         val recyclerView: RecyclerView = root.findViewById(R.id.alert_recycle)
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = adapter
-        val mMessage: EmojiconTextView = root.findViewById(R.id.alert_message)
+        val mMessage: LinkHelperTextView = root.findViewById(R.id.alert_message)
         if (message.isNullOrEmpty()) {
             mMessage.visibility = View.GONE
         } else {
@@ -1604,7 +1604,7 @@ object Utils {
         config.setLocale(locale)
     }
 
-    fun updateActivityContext(base: Context, isChatActivity: Boolean = false): Context {
+    fun updateActivityContext(base: Context): Context {
         if (getSystemLocale(base.resources.configuration) != null && getSystemLocale(base.resources.configuration)?.language.nonNullNoEmpty()) {
             Constants.DEVICE_COUNTRY_CODE =
                 getSystemLocale(base.resources.configuration)?.language?.lowercase(Locale.getDefault())
@@ -1612,18 +1612,19 @@ object Utils {
         } else {
             Constants.DEVICE_COUNTRY_CODE = "ru"
         }
-        val size = Settings.get().main().fontSize
         @Lang val lang = Settings.get().main().language
         val locale = getLocaleSettings(lang)
         updateDateLang(locale)
         updateDateLang()
-        return if (size == 0 || Settings.get().main().fontOnlyForChats && !isChatActivity) {
+
+        val size = Settings.get().main().fontSize
+        return if (size == 0 || Settings.get().main().fontSizeOnlyForChatsAndMessages) {
             if (lang == Lang.DEFAULT) {
                 base
             } else {
                 val res = base.resources
                 val config = Configuration(res.configuration)
-                setSystemLocaleLegacy(config, getLocaleSettings(lang))
+                setSystemLocaleLegacy(config, locale)
                 base.createConfigurationContext(config)
             }
         } else {
@@ -1631,7 +1632,7 @@ object Utils {
             val config = Configuration(res.configuration)
             config.fontScale = res.configuration.fontScale + 0.05f * size
             if (lang != Lang.DEFAULT) {
-                setSystemLocaleLegacy(config, getLocaleSettings(lang))
+                setSystemLocaleLegacy(config, locale)
             }
             base.createConfigurationContext(config)
         }

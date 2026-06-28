@@ -788,6 +788,16 @@ void LottieBuilder::updatePuckerBloat(TVG_UNUSED LottieGroup* parent, LottieObje
     ctx->update(new LottiePuckerBloatModifier(puckerBloat->amount(frameNo, tween, exps)));
 }
 
+void LottieBuilder::updateZigZag(TVG_UNUSED LottieGroup* parent, LottieObject** child, float frameNo, TVG_UNUSED Inlist<RenderContext>& contexts, RenderContext* ctx)
+{
+    auto zigzag = static_cast<LottieZigZag*>(*child);
+    auto amplitude = zigzag->amplitude(frameNo, tween, exps);
+    if (tvg::zero(amplitude)) return;
+    auto frequency = zigzag->frequency(frameNo, tween, exps);
+    auto point = (LottieZigZagModifier::PointType)zigzag->point(frameNo, tween, exps);
+    ctx->update(new LottieZigZagModifier(amplitude, frequency, point));
+}
+
 void LottieBuilder::updateRepeater(TVG_UNUSED LottieGroup* parent, LottieObject** child, float frameNo, TVG_UNUSED Inlist<RenderContext>& contexts, RenderContext* ctx)
 {
     auto repeater = static_cast<LottieRepeater*>(*child);
@@ -897,6 +907,10 @@ void LottieBuilder::updateChildren(LottieGroup* parent, float frameNo, Inlist<Re
                 }
                 case LottieObject::PuckerBloat: {
                     updatePuckerBloat(parent, child, frameNo, contexts, ctx);
+                    break;
+                }
+                case LottieObject::ZigZag: {
+                    updateZigZag(parent, child, frameNo, contexts, ctx);
                     break;
                 }
                 default: break;
@@ -1021,15 +1035,16 @@ void LottieBuilder::updateURLFont(LottieLayer* layer, float frameNo, LottieText*
     paint->text(buf);
     paint->layout(doc.bbox.size.x, doc.bbox.size.y);
     paint->translate(doc.bbox.pos.x, doc.bbox.pos.y);
-    if (doc.bbox.size.x > 0.0f) paint->wrap(TextWrap::Word);
+    if (doc.bbox.size.x > 0.0f) paint->wrap(TextWrap::Smart);
 
-    //align the text to the base line
+    //align the text to the base line, or top within the box
     TextMetrics metrics;
     paint->metrics(metrics);
-    paint->align(doc.justify, metrics.ascent / (metrics.ascent - metrics.descent));
+    auto valign = (doc.bbox.size.y > 0.0f) ? 0.0f : metrics.ascent / (metrics.ascent - metrics.descent);
+    paint->align(doc.justify, valign);
 
     //apply spacing
-    auto hspacing = (doc.tracking > 0.0f) ? (1.0f + doc.tracking * doc.size / metrics.ascent) : 1.0f;
+    auto hspacing = 1.0f + doc.tracking * doc.size / metrics.ascent;
     auto vspacing = (doc.height > 0.0f && paint->lines() > 1) ? (doc.height / metrics.advance) : 1.0f;
     paint->spacing(hspacing, vspacing);
 
@@ -1280,9 +1295,14 @@ void LottieBuilder::updateLocalFont(LottieLayer* layer, float frameNo, LottieTex
             ctx.cursor = {0.0f, (++ctx.line * doc.height + ctx.totalLineSpace) / ctx.scale};
             continue;
         }
+        /* all lowercase letters are converted to uppercase in the "t" text field, making the "ca" value irrelevant, thus AllCaps is nothing to do.
+           So only convert lowercase letters to uppercase (for 'SmallCaps' an extra scaling factor applied) */
+        auto glyph = _searchGlyph(text->font, ctx.p, doc, ctx.capScale);
+        auto advance = glyph ? (glyph->width + doc.tracking) * ctx.capScale : 0.0f;
+
         if (*ctx.p == ' ') {
             // if next word overflows the box, break at this space
-            if (doc.bbox.size.x > 0.0f && (ctx.cursor.x + _nextWordWidth(text, doc, ctx.p + 1)) * ctx.scale >= doc.bbox.size.x) {
+            if (doc.bbox.size.x > 0.0f && (ctx.cursor.x + advance + _nextWordWidth(text, doc, ctx.p + 1)) * ctx.scale >= doc.bbox.size.x) {
                 ++ctx.p;
                 lineWrapped = true;
                 continue;
@@ -1295,12 +1315,13 @@ void LottieBuilder::updateLocalFont(LottieLayer* layer, float frameNo, LottieTex
                 ctx.lineScene->translate(ctx.cursor.x, ctx.cursor.y);
             }
         }
-        /* all lowercase letters are converted to uppercase in the "t" text field, making the "ca" value irrelevant, thus AllCaps is nothing to do.
-           So only convert lowercase letters to uppercase (for 'SmallCaps' an extra scaling factor applied) */
-        auto glyph = _searchGlyph(text->font, ctx.p, doc, ctx.capScale);
 
         // draw matched glyphs
         if (glyph) {
+            if (doc.bbox.size.x > 0.0f && ctx.cursor.x > 0.0f && (ctx.cursor.x + advance) * ctx.scale > doc.bbox.size.x) {
+                lineWrapped = true;
+                continue;
+            }
             if (text->alignOp.group == LottieText::AlignOption::Group::Chars || text->alignOp.group == LottieText::AlignOption::Group::All) {
                 ctx.textScene->add(ctx.lineScene);
                 ctx.lineScene = Scene::gen();
@@ -1308,8 +1329,7 @@ void LottieBuilder::updateLocalFont(LottieLayer* layer, float frameNo, LottieTex
             }
             auto shape = textShape(text, frameNo, doc, glyph, ctx);
             if (!updateTextRange(text, frameNo, shape, doc, ctx)) _commit(glyph, shape, ctx);
-            if (doc.bbox.size.x > 0.0f && ctx.cursor.x * ctx.scale >= doc.bbox.size.x) lineWrapped = true;
-            else ctx.cursor.x += (glyph->width + doc.tracking) * ctx.capScale;
+            ctx.cursor.x += advance;
             ctx.p += glyph->len;
             ctx.idx += glyph->len;
         } else {

@@ -36,7 +36,7 @@
         app:first_color="?message_bubble_color"
         app:second_color="?message_bubble_color">
 
-        <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+        <dev.ragnarok.fenrir.view.LinkHelperTextView
             android:id="@+id/item_service_message_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
 
         </LinearLayout>
 
-        <dev.ragnarok.fenrir.view.emoji.BotKeyboardView
+        <dev.ragnarok.fenrir.view.BotKeyboardView
             android:id="@+id/input_keyboard_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -50,18 +50,18 @@ import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
 import dev.ragnarok.fenrir.view.CircleCounterButton
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
 class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostView>(),
-    EmojiconTextView.OnHashTagClickListener, IWallPostView, MenuProvider {
+    LinkHelperTextView.OnHashTagClickListener, IWallPostView, MenuProvider {
     private var mSignerNameText: TextView? = null
     private var mSignerRootView: View? = null
     private var mSignerAvatar: ImageView? = null
     private var mShareButton: CircleCounterButton? = null
     private var mCommentsButton: CircleCounterButton? = null
     private var mLikeButton: CircleCounterButton? = null
-    private var mText: EmojiconTextView? = null
+    private var mText: LinkHelperTextView? = null
     private var attachmentsViewBinder: AttachmentsViewBinder? = null
     private var transformation: Transformation? = null
     private var root: ViewGroup? = null

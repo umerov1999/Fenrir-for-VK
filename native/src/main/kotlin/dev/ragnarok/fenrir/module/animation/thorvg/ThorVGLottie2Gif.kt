@@ -7,9 +7,11 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newFixedThreadPoolContext
 import java.io.File
+import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.ThreadPoolExecutor
 
 class ThorVGLottie2Gif internal constructor(private val builder: Builder) {
     private external fun lottie2gif(
@@ -180,7 +182,10 @@ class ThorVGLottie2Gif internal constructor(private val builder: Builder) {
     }
 
     companion object {
-        private val coroutineDispatcher = newFixedThreadPoolContext(2, "convertingQueue$this")
+        private val coroutineDispatcher = ScheduledThreadPoolExecutor(
+            8,
+            ThreadPoolExecutor.DiscardPolicy()
+        ).asCoroutineDispatcher()
 
         private val coroutineExceptionHandlerEmpty = CoroutineExceptionHandler { _, throwable ->
             if (BuildConfig.DEBUG) {

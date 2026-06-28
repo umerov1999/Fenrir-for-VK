@@ -17,11 +17,13 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.ThreadPoolExecutor
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -588,7 +590,10 @@ class AnimatedFileDrawable(
     }
 
     companion object {
-        private val coroutineDispatcher = newFixedThreadPoolContext(8, "decodeQueue$this")
+        private val coroutineDispatcher = ScheduledThreadPoolExecutor(
+            8,
+            ThreadPoolExecutor.DiscardPolicy()
+        ).asCoroutineDispatcher()
 
         private val coroutineExceptionHandlerEmpty = CoroutineExceptionHandler { _, throwable ->
             if (BuildConfig.DEBUG) {

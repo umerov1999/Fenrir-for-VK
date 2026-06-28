@@ -29,7 +29,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.CircleCounterButton
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 
 class FavePostAdapter(
     private val mContext: Context,
@@ -51,7 +51,7 @@ class FavePostAdapter(
         }
     }
     private var recyclerView: RecyclerView? = null
-    private var mOnHashTagClickListener: EmojiconTextView.OnHashTagClickListener? = null
+    private var mOnHashTagClickListener: LinkHelperTextView.OnHashTagClickListener? = null
     override fun onBindItemViewHolder(
         viewHolder: RecyclerView.ViewHolder,
         position: Int,
@@ -196,7 +196,7 @@ class FavePostAdapter(
         throw IllegalArgumentException()
     }
 
-    fun setOnHashTagClickListener(onHashTagClickListener: EmojiconTextView.OnHashTagClickListener?) {
+    fun setOnHashTagClickListener(onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener?) {
         mOnHashTagClickListener = onHashTagClickListener
     }
 
@@ -232,7 +232,7 @@ class FavePostAdapter(
         val tvOwnerName: TextView = itemView.findViewById(R.id.item_post_owner_name)
         val ivOwnerAvatar: ImageView = itemView.findViewById(R.id.item_post_avatar)
         val vTextContainer: View = itemView.findViewById(R.id.item_text_container)
-        val tvText: EmojiconTextView = itemView.findViewById(R.id.item_post_text)
+        val tvText: LinkHelperTextView = itemView.findViewById(R.id.item_post_text)
         val tvShowMore: TextView
         val tvCopyright: TextView = itemView.findViewById(R.id.item_post_copyright)
         val tvTime: TextView

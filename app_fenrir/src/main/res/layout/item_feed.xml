@@ -66,7 +66,7 @@
             app:layout_constraintTop_toTopOf="@id/item_post_owner_name"
             tools:text="1533" />
 
-        <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+        <dev.ragnarok.fenrir.view.LinkHelperTextView
             android:id="@+id/item_post_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -79,7 +79,6 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textSize="15sp"
             app:displayHashTags="true"
-            app:emojiconSize="20sp"
             app:hashTagColor="?colorPrimaryVariant"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/item_post_avatar"

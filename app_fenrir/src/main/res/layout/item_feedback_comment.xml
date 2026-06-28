@@ -104,7 +104,7 @@
                     android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     tools:text="Name" />
 
-                <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                <dev.ragnarok.fenrir.view.LinkHelperTextView
                     android:id="@+id/item_comment_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -112,7 +112,6 @@
                     android:paddingStart="0dp"
                     android:paddingEnd="8dp"
                     android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                    app:emojiconSize="18sp"
                     tools:text="Message" />
 
                 <LinearLayout
@@ -192,13 +191,12 @@
                     android:textIsSelectable="false"
                     tools:text="Name" />
 
-                <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                <dev.ragnarok.fenrir.view.LinkHelperTextView
                     android:id="@+id/item_comment_reply_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="start"
                     android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                    app:emojiconSize="20sp"
                     tools:text="Message" />
 
                 <LinearLayout

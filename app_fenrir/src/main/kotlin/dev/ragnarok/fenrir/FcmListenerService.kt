@@ -27,13 +27,18 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
+@SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class FcmListenerService : FirebaseMessagingService() {
     @SuppressLint("CheckResult")
     @WorkerThread
-    override fun onNewToken(s: String) {
-        super.onNewToken(s)
+    override fun onRegistered(installationId: String) {
+        super.onRegistered(installationId)
+
         pushRegistrationResolver
-            .resolvePushRegistration(Settings.get().accounts().current, applicationContext)
+            .resolvePushRegistration(
+                installationId,
+                applicationContext
+            )
             .hiddenIO()
     }
 

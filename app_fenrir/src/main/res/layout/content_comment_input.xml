@@ -69,7 +69,7 @@
                         android:src="@drawable/emoticon"
                         app:tint="?colorOnSurface" />
 
-                    <dev.ragnarok.fenrir.view.emoji.EmojiconEditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/fragment_input_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -85,8 +85,7 @@
                         android:paddingBottom="2dp"
                         android:saveEnabled="false"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                        android:textColorHint="?android:textColorHint"
-                        app:emojiconSize="20sp" />
+                        android:textColorHint="?android:textColorHint" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

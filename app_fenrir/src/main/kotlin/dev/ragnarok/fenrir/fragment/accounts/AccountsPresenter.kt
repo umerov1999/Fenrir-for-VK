@@ -170,7 +170,24 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         view?.resolveEmptyText(mData.isEmpty())
     }
 
-    fun fireDelete(context: Context, account: Account) {
+    fun fireDeleteAccount(account: Account) {
+        LongpollInstance.longpollManager.forceDestroy(account.getOwnerObjectId())
+
+        val curPush = Settings.get().pushSettings().registered
+        Settings.get().pushSettings().registered = null
+        if (curPush != null && curPush.userId == account.getOwnerObjectId()) {
+            appendJob(Includes.pushRegistrationResolver.unregister(curPush).fromIOToMain({
+                doDeleteAccount(account)
+            }, {
+                it.printStackTrace()
+                doDeleteAccount(account)
+            }))
+        } else {
+            doDeleteAccount(account)
+        }
+    }
+
+    fun doDeleteAccount(account: Account) {
         Settings.get()
             .accounts()
             .removeAccessToken(account.getOwnerObjectId())
@@ -186,8 +203,18 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         val s = Settings.get()
             .accounts()
             .remove(account.getOwnerObjectId())
-        DBHelper.removeDatabaseFor(context, account.getOwnerObjectId())
-        LongpollInstance.longpollManager.forceDestroy(account.getOwnerObjectId())
+
+        appendJob(
+            Includes.stores.stickers().clearAccount(account.getOwnerObjectId()).hiddenIO()
+        )
+        appendJob(
+            Includes.stores.tempStore().clearReactionAssets(account.getOwnerObjectId())
+                .hiddenIO()
+        )
+        Utils.clearReactionAssets(account.getOwnerObjectId())
+
+        DBHelper.removeDatabaseFor(applicationContext, account.getOwnerObjectId())
+
         val indx = indexOf(account.getOwnerObjectId())
         mData.removeAt(indx)
         view?.notifyItemRemoved(indx)
@@ -200,14 +227,6 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             }
         }
         view?.resolveEmptyText(mData.isEmpty())
-        appendJob(
-            Includes.stores.stickers().clearAccount(account.getOwnerObjectId()).hiddenIO()
-        )
-        appendJob(
-            Includes.stores.tempStore().clearReactionAssets(account.getOwnerObjectId())
-                .hiddenIO()
-        )
-        Utils.clearReactionAssets(account.getOwnerObjectId())
     }
 
     fun processNewAccount(

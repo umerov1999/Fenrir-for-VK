@@ -479,7 +479,6 @@
 
     <string name="chat_empty_text">Nothing here yet…</string>
 
-    <string name="emojis_type_title">Use system emoji</string>
     <string name="emojis_full_screen">Fullscreen stickers</string>
     <string name="stickers_by_theme">Day/Night Stickers</string>
     <string name="stickers_by_new">Stickers by new</string>
@@ -1941,7 +1940,7 @@
     <string name="block_or_delete">Block a subscriber? This choice will be remembered until restart</string>
     <string name="exchange_token">Exchange token</string>
     <string name="available_only_dons">Available only for supporters!</string>
-    <string name="font_only_for_chats">Font for chats only</string>
+    <string name="font_size_only_for_post_messages">Font size for posts and messages</string>
     <string name="views">Views</string>
     <string name="answer">Answer</string>
     <string name="clips">Clips</string>

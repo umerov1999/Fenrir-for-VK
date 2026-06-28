@@ -170,8 +170,8 @@ internal class MainSettings(context: Context) : IMainSettings {
     override val fontSize: Int
         get() = getPreferences(app).getInt("font_size_int", 0)
 
-    override val fontOnlyForChats: Boolean
-        get() = getPreferences(app).getBoolean("font_only_for_chats", false)
+    override val fontSizeOnlyForChatsAndMessages: Boolean
+        get() = getPreferences(app).getBoolean("font_size_only_for_post_messages", true)
 
     override fun setPrefDisplayImageSize(@PhotoSize size: Int) {
         getPreferences(app)

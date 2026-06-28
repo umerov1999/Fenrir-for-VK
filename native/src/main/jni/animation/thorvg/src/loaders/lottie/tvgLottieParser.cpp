@@ -326,8 +326,7 @@ bool LottieParser::getValue(Point3& pt)
     pt.y = getFloat();
     pt.z = getFloat();
 
-    while (nextArrayValue())
-        getFloat();  // drop
+    while (nextArrayValue()) getFloat();  // drop
 
     return true;
 }
@@ -515,11 +514,10 @@ bool LottieParser::parseCommon(LottieObject* obj, const char* key)
 {
     if (KEY_AS("nm")) {
         obj->id = djb2Encode(getString());
-        return true;
     } else if (KEY_AS("hd")) {
         obj->hidden = getBool();
-        return true;
     } else return false;
+    return true;
 }
 
 
@@ -527,23 +525,19 @@ bool LottieParser::parseCommon(LottieObject* obj, LottieProperty& prop, const ch
 {
     if (KEY_AS("ix")) {
         prop.ix = getInt();
-        return true;
     } else if (KEY_AS("x") && expressions) {
         getExpression(getStringCopy(), comp, context.layer, context.parent, &prop);
-        return true;
     } else if (KEY_AS("sid")) {
         registerSlot(obj, getString(), prop);
-        return true;
     } else return false;
+    return true;
 }
 
 
 bool LottieParser::parseDirection(LottieShape* shape, const char* key)
 {
     if (KEY_AS("d")) {
-        if (getInt() == 3) {
-            shape->clockwise = false;       //default is true
-        }
+        if (getInt() == 3) shape->clockwise = false;       //default is true
         return true;
     }
     return false;
@@ -901,6 +895,22 @@ LottiePuckerBloat* LottieParser::parsePuckerBloat()
     return puckerBloat;
 }
 
+LottieZigZag* LottieParser::parseZigZag()
+{
+    auto zigzag = new LottieZigZag;
+
+    context.parent = zigzag;
+
+    while (auto key = nextObjectKey()) {
+        if (parseCommon(zigzag, key)) continue;
+        else if (KEY_AS("s")) parseProperty(zigzag->amplitude);
+        else if (KEY_AS("r")) parseProperty(zigzag->frequency);
+        else if (KEY_AS("pt")) parseProperty(zigzag->point);
+        else skip();
+    }
+    return zigzag;
+}
+
 LottieObject* LottieParser::parseObject(const char* type)
 {
     if (!strcmp(type, "gr")) return parseGroup();
@@ -918,9 +928,9 @@ LottieObject* LottieParser::parseObject(const char* type)
     else if (!strcmp(type, "rp")) return parseRepeater();
     else if (!strcmp(type, "pb")) return parsePuckerBloat();
     else if (!strcmp(type, "op")) return parseOffsetPath();
+    else if (!strcmp(type, "zz")) return parseZigZag();
     else if (!strcmp(type, "mm")) TVGLOG("LOTTIE", "MergePath(mm) is not supported yet");
     else if (!strcmp(type, "tw")) TVGLOG("LOTTIE", "Twist(tw) is not supported yet");
-    else if (!strcmp(type, "zz")) TVGLOG("LOTTIE", "ZigZag(zz) is not supported yet");
     return nullptr;
 }
 
@@ -1210,8 +1220,7 @@ void LottieParser::parseChars(Array<LottieGlyph*>& glyphs)
                 }
             } else skip();
         }
-        glyph->prepare();
-        glyphs.push(glyph);
+        if (glyph->prepare()) glyphs.push(glyph);
     }
 }
 

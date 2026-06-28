@@ -68,9 +68,9 @@ import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadVoice
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.toast.CustomToast
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.PhotosViewHelper
 import dev.ragnarok.fenrir.view.WaveFormView
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 import java.lang.ref.WeakReference
 import kotlin.math.abs
@@ -92,7 +92,7 @@ class AttachmentsViewBinder(
         )
     private val expandVoiceTranscript: Boolean = Settings.get().main().isExpand_voice_transcript
     private var mVoiceActionListener: VoiceActionListener? = null
-    private var mOnHashTagClickListener: EmojiconTextView.OnHashTagClickListener? = null
+    private var mOnHashTagClickListener: LinkHelperTextView.OnHashTagClickListener? = null
 
     private val mLinkActionAdapter = object : OwnerLinkSpanFactory.ActionListener() {
         override fun onOwnerClick(ownerId: Long) {
@@ -104,7 +104,7 @@ class AttachmentsViewBinder(
         }
     }
 
-    fun setOnHashTagClickListener(onHashTagClickListener: EmojiconTextView.OnHashTagClickListener?) {
+    fun setOnHashTagClickListener(onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener?) {
         mOnHashTagClickListener = onHashTagClickListener
     }
 
@@ -629,7 +629,7 @@ class AttachmentsViewBinder(
             itemView.tag = null
             val tvTitle = itemView.findViewById<TextView>(R.id.item_document_title)
             val tvDetails = itemView.findViewById<TextView>(R.id.item_document_ext_size)
-            val tvPostText: EmojiconTextView = itemView.findViewById(R.id.item_message_text)
+            val tvPostText: LinkHelperTextView = itemView.findViewById(R.id.item_message_text)
             val ivPhotoT: ShapeableImageView = itemView.findViewById(R.id.item_document_image)
             val ivPhoto_Post = itemView.findViewById<ImageView>(R.id.item_post_avatar_image)
             val ivType = itemView.findViewById<ImageView>(R.id.item_document_type)
@@ -1200,7 +1200,7 @@ class AttachmentsViewBinder(
     ) {
         val ivAvatar: ImageView = itemView.findViewById(R.id.item_copy_history_post_avatar)
         val ownerName: TextView = itemView.findViewById(R.id.item_post_copy_owner_name)
-        val bodyView: EmojiconTextView = itemView.findViewById(R.id.item_post_copy_text)
+        val bodyView: LinkHelperTextView = itemView.findViewById(R.id.item_post_copy_text)
         val tvShowMore: View = itemView.findViewById(R.id.item_post_copy_show_more)
         val buttonDots: View = itemView.findViewById(R.id.item_copy_history_post_dots)
         val attachmentsHolder: AttachmentsHolder = forCopyPost(itemView)

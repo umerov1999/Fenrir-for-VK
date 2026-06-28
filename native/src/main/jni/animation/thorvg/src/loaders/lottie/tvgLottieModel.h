@@ -273,6 +273,7 @@ struct LottieObject
         RoundedCorner,
         OffsetPath,
         PuckerBloat,
+        ZigZag,
         TextRange,
         Audio
     };
@@ -300,15 +301,16 @@ struct LottieGlyph
 {
     Array<LottieObject*> children;   //glyph shapes.
     float width;
-    char* code;
+    char* code = nullptr;
     char* family = nullptr;
     char* style = nullptr;
     uint16_t size;
     uint8_t len;
 
-    void prepare()
+    bool prepare()
     {
-        len = strlen(code);
+        len = code ? strlen(code) : 0;
+        return len > 0;
     }
 
     ~LottieGlyph()
@@ -500,6 +502,7 @@ private:
     float totalLen;
     float currentLen;
     Point split(float dLen, float lenSearched, float& angle);
+    void rewind();
 
 public:
     LottieFloat firstMargin = 0.0f;
@@ -1036,6 +1039,18 @@ struct LottiePuckerBloat : LottieObject
     }
 
     LottieFloat amount = 0.0f;
+};
+
+struct LottieZigZag : LottieObject
+{
+    LottieZigZag()
+    {
+        LottieObject::type = LottieObject::ZigZag;
+    }
+
+    LottieFloat amplitude = 0.0f;
+    LottieInteger frequency = 0;
+    LottieInteger point = 1; //1: corner, 2: smooth
 };
 
 struct LottieGroup : LottieObject, LottieRenderPooler<tvg::Shape>

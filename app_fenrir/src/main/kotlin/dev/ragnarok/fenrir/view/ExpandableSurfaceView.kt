@@ -28,14 +28,15 @@ class ExpandableSurfaceView @JvmOverloads constructor(
     private var minScale = 1.0f
     private var maxScale = 5.0f
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (videoAspectRatio == 0.0f) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             return
         }
         var width = MeasureSpec.getSize(widthMeasureSpec)
         // Use maxHeight only on non-fit resize mode and in vertical videos
         var height = MeasureSpec.getSize(heightMeasureSpec)
         if (height == 0) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             return
         }
         val viewAspectRatio = width / height.toFloat()

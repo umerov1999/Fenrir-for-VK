@@ -32,7 +32,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                    <dev.ragnarok.fenrir.view.LinkHelperTextView
                         android:id="@+id/fragment_post_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -43,7 +43,6 @@
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="16sp"
                         app:displayHashTags="true"
-                        app:emojiconSize="20sp"
                         app:hashTagColor="?colorPrimaryVariant"
                         tools:text="Message" />
 

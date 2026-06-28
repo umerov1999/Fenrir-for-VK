@@ -51,9 +51,8 @@ struct LottieCustomSlot
     ~LottieCustomSlot();
 };
 
-class LottieLoader : public AnimLoader, public Task
+struct LottieLoader : AnimLoader, Task
 {
-public:
     const char* content = nullptr;      //lottie file data
     ColorReplace colorReplaceInternal;
     uint32_t size = 0;                  //lottie data size

@@ -129,12 +129,12 @@ import dev.ragnarok.fenrir.util.ScreenshotHelper
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
+import dev.ragnarok.fenrir.view.BotKeyboardView
 import dev.ragnarok.fenrir.view.InputViewController
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.LoadMoreFooterHelper
 import dev.ragnarok.fenrir.view.ReactionContainer
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
-import dev.ragnarok.fenrir.view.emoji.BotKeyboardView
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup
 import dev.ragnarok.fenrir.view.emoji.StickersKeyWordsAdapter
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
@@ -149,7 +149,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     InputViewController.RecordActionsCallback,
     AttachmentsViewBinder.VoiceActionListener, EmojiconsPopup.OnStickerClickedListener,
     EmojiconsPopup.OnMyStickerClickedListener,
-    EmojiconTextView.OnHashTagClickListener, BotKeyboardView.BotKeyboardViewDelegate,
+    LinkHelperTextView.OnHashTagClickListener, BotKeyboardView.BotKeyboardViewDelegate,
     ReactionContainer.ReactionClicked {
 
     private var headerView: View? = null

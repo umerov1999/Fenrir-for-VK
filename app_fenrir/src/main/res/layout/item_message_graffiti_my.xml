@@ -67,7 +67,7 @@
             app:first_color="#00ffffff"
             app:second_color="#00ffffff">
 
-            <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+            <dev.ragnarok.fenrir.view.LinkHelperTextView
                 android:id="@+id/item_message_user"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -80,19 +80,17 @@
                 android:textStyle="bold"
                 android:visibility="gone"
                 app:displayHashTags="true"
-                app:emojiconSize="20sp"
                 app:fixWrapText="true"
                 app:hashTagColor="?colorPrimaryVariant"
                 tools:text="User" />
 
-            <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+            <dev.ragnarok.fenrir.view.LinkHelperTextView
                 android:id="@+id/item_message_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:textColorLink="?colorPrimary"
                 app:displayHashTags="true"
-                app:emojiconSize="20sp"
                 app:fixWrapText="true"
                 app:hashTagColor="?colorPrimaryVariant"
                 tools:text="Message" />

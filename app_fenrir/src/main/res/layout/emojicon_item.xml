@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dev.ragnarok.fenrir.view.emoji.EmojiconTextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<dev.ragnarok.fenrir.view.LinkHelperTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/emojicon_icon"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,5 +8,4 @@
     android:gravity="center"
     android:padding="4dp"
     android:textColor="@android:color/black"
-    android:textSize="28sp"
-    app:emojiconSize="36dp" />
+    android:textSize="28sp" />

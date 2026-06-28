@@ -7,7 +7,7 @@ import androidx.core.content.edit
 import de.maxr1998.modernpreferences.PreferenceScreen.Companion.getPreferences
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Includes.pushRegistrationResolver
+import dev.ragnarok.fenrir.FCMRegistrationUtils
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
@@ -43,7 +43,7 @@ internal class AccountsSettings @SuppressLint("UseSparseArrays") constructor(con
     @SuppressLint("CheckResult")
     private fun fireAccountChange() {
         currentPublisher.myEmit(current)
-        pushRegistrationResolver.resolvePushRegistration(current, app).hiddenIO()
+        FCMRegistrationUtils.register.hiddenIO()
     }
 
     override var current: Long

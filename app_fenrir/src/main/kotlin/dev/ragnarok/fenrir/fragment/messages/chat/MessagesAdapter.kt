@@ -42,12 +42,12 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadSticker
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
+import dev.ragnarok.fenrir.view.BotKeyboardView
+import dev.ragnarok.fenrir.view.BotKeyboardView.BotKeyboardViewDelegate
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.MessageView
 import dev.ragnarok.fenrir.view.OnlineView
 import dev.ragnarok.fenrir.view.ReactionContainer
-import dev.ragnarok.fenrir.view.emoji.BotKeyboardView
-import dev.ragnarok.fenrir.view.emoji.BotKeyboardView.BotKeyboardViewDelegate
-import dev.ragnarok.fenrir.view.emoji.EmojiconTextView
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -78,7 +78,7 @@ class MessagesAdapter(
                 attachmentsActionCallback.onUrlOpen(url)
             }
         }
-    private var onHashTagClickListener: EmojiconTextView.OnHashTagClickListener? = null
+    private var onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener? = null
     private var onMessageActionListener: OnMessageActionListener? = null
     private var onReactionListener: ReactionContainer.ReactionClicked? = null
     private val isSupportPopupMenu = Settings.get()
@@ -631,7 +631,7 @@ class MessagesAdapter(
         attachmentsViewBinder.disableVoiceMessagePlaying()
     }
 
-    fun setOnHashTagClickListener(onHashTagClickListener: EmojiconTextView.OnHashTagClickListener?) {
+    fun setOnHashTagClickListener(onHashTagClickListener: LinkHelperTextView.OnHashTagClickListener?) {
         this.onHashTagClickListener = onHashTagClickListener
     }
 
@@ -701,7 +701,7 @@ class MessagesAdapter(
     private abstract class BaseMessageHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val root: View = itemView.findViewById(R.id.message_container)
-        val user: EmojiconTextView? = itemView.findViewById(R.id.item_message_user)
+        val user: LinkHelperTextView? = itemView.findViewById(R.id.item_message_user)
         val status: TextView = itemView.findViewById(R.id.item_message_status_text)
         val avatar: ImageView = itemView.findViewById(R.id.item_message_avatar)
         val important: OnlineView = itemView.findViewById(R.id.item_message_important)
@@ -714,7 +714,7 @@ class MessagesAdapter(
     private inner class GiftMessageHolder(itemView: View) :
         BaseMessageHolder(itemView) {
         val gift: ImageView = itemView.findViewById(R.id.gift)
-        val message: EmojiconTextView = itemView.findViewById(R.id.item_message_text)
+        val message: LinkHelperTextView = itemView.findViewById(R.id.item_message_text)
 
         init {
             message.movementMethod = LinkMovementMethod.getInstance()
@@ -726,7 +726,7 @@ class MessagesAdapter(
 
     private inner class MessageHolder(itemView: View) :
         BaseMessageHolder(itemView) {
-        val body: EmojiconTextView = itemView.findViewById(R.id.item_message_text)
+        val body: LinkHelperTextView = itemView.findViewById(R.id.item_message_text)
         val forwardMessagesRoot: ViewGroup
         val bubble: MessageView
         val attachmentsRoot: View

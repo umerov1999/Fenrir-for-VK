@@ -132,7 +132,7 @@
                             android:visibility="gone"
                             app:tint="?colorOnSurface" />
 
-                        <dev.ragnarok.fenrir.view.emoji.EmojiconTextView
+                        <dev.ragnarok.fenrir.view.LinkHelperTextView
                             android:id="@+id/header_group_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -141,8 +141,7 @@
                             android:maxLines="6"
                             android:stateListAnimator="@animator/clicked"
                             android:textAppearance="@style/ProfileSubText"
-                            android:visibility="visible"
-                            app:emojiconSize="20sp" />
+                            android:visibility="visible" />
 
                     </LinearLayout>
 

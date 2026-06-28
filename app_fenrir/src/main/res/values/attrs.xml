@@ -17,11 +17,10 @@
         <attr name="arcLoadingStartAngle" format="float" />
     </declare-styleable>
 
-    <declare-styleable name="Emojicon">
+    <declare-styleable name="LinkHelperTextView">
         <attr name="displayHashTags" format="boolean" />
-        <attr name="emojiconSize" format="dimension" />
-        <attr name="emojiconTextStart" format="integer" />
-        <attr name="emojiconTextLength" format="integer" />
+        <attr name="linkHelperTextStart" format="integer" />
+        <attr name="linkHelperTextLength" format="integer" />
         <attr name="hashTagColor" format="color" />
     </declare-styleable>
 

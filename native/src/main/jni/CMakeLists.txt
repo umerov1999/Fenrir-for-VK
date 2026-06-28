@@ -438,109 +438,105 @@ add_library(zxing STATIC
         zxing/aztec/AZToken.cpp
         zxing/aztec/AZWriter.cpp
         zxing/datamatrix/DMBitLayout.cpp
-        zxing/datamatrix/DMDecoder.cpp
-        zxing/datamatrix/DMECEncoder.cpp
-        zxing/datamatrix/DMReader.cpp
-        zxing/datamatrix/DMVersion.cpp
         zxing/datamatrix/DMDataBlock.cpp
+        zxing/datamatrix/DMDecoder.cpp
         zxing/datamatrix/DMDetector.cpp
+        zxing/datamatrix/DMECEncoder.cpp
         zxing/datamatrix/DMHighLevelEncoder.cpp
+        zxing/datamatrix/DMReader.cpp
         zxing/datamatrix/DMSymbolInfo.cpp
+        zxing/datamatrix/DMVersion.cpp
         zxing/datamatrix/DMWriter.cpp
         zxing/libzueci/zueci.c
         zxing/maxicode/MCBitMatrixParser.cpp
         zxing/maxicode/MCDecoder.cpp
         zxing/maxicode/MCReader.cpp
-        zxing/oned/ODCodabarReader.cpp
-        zxing/oned/ODCode128Writer.cpp
-        zxing/oned/ODCode93Writer.cpp
-        zxing/oned/ODDataBarExpandedReader.cpp
-        zxing/oned/ODEAN8Writer.cpp
-        zxing/oned/ODReader.cpp
-        zxing/oned/ODTelepenReader.cpp
-        zxing/oned/ODWriterHelper.cpp
-        zxing/oned/ODCodabarWriter.cpp
+        zxing/oned/ODDataBarReader.cpp
         zxing/oned/ODCode39Reader.cpp
+        zxing/oned/ODCodabarReader.cpp
+        zxing/oned/ODUPCEANCommon.cpp
+        zxing/oned/ODCodabarWriter.cpp
+        zxing/oned/ODCode128Reader.cpp
+        zxing/oned/ODITFReader.cpp
+        zxing/oned/ODTelepenReader.cpp
+        zxing/oned/ODDataBarCommon.cpp
         zxing/oned/ODDXFilmEdgeReader.cpp
         zxing/oned/ODDataBarLimitedReader.cpp
-        zxing/oned/ODITFReader.cpp
-        zxing/oned/ODUPCAWriter.cpp
-        zxing/oned/ODCode128Patterns.cpp
+        zxing/oned/ODCode93Writer.cpp
         zxing/oned/ODCode39Writer.cpp
-        zxing/oned/ODDataBarCommon.cpp
-        zxing/oned/ODDataBarReader.cpp
-        zxing/oned/ODITFWriter.cpp
-        zxing/oned/ODUPCEANCommon.cpp
-        zxing/oned/ODCode128Reader.cpp
-        zxing/oned/ODCode93Reader.cpp
-        zxing/oned/ODDataBarExpandedBitDecoder.cpp
-        zxing/oned/ODEAN13Writer.cpp
+        zxing/oned/ODUPCAWriter.cpp
         zxing/oned/ODMultiUPCEANReader.cpp
+        zxing/oned/ODEAN13Writer.cpp
+        zxing/oned/ODWriterHelper.cpp
+        zxing/oned/ODReader.cpp
         zxing/oned/ODUPCEWriter.cpp
-        zxing/pdf417/MicroPDFReader.cpp
+        zxing/oned/ODCode93Reader.cpp
+        zxing/oned/ODCode128Patterns.cpp
+        zxing/oned/ODEAN8Writer.cpp
+        zxing/oned/ODCode128Writer.cpp
+        zxing/oned/ODDataBarExpandedReader.cpp
+        zxing/oned/ODITFWriter.cpp
+        zxing/oned/ODDataBarExpandedBitDecoder.cpp
+        zxing/pdf417/PDFReader.cpp
         zxing/pdf417/PDFBarcodeValue.cpp
-        zxing/pdf417/PDFCodewordDecoder.cpp
-        zxing/pdf417/PDFDetectionResult.cpp
-        zxing/pdf417/PDFDetector.cpp
-        zxing/pdf417/PDFHighLevelEncoder.cpp
-        zxing/pdf417/PDFModulusPoly.cpp
         zxing/pdf417/PDFScanningDecoder.cpp
         zxing/pdf417/ZXBigInteger.cpp
-        zxing/pdf417/PDFBoundingBox.cpp
-        zxing/pdf417/PDFDecoder.cpp
-        zxing/pdf417/PDFDetectionResultColumn.cpp
+        zxing/pdf417/PDFCodewordDecoder.cpp
         zxing/pdf417/PDFEncoder.cpp
-        zxing/pdf417/PDFModulusGF.cpp
-        zxing/pdf417/PDFReader.cpp
+        zxing/pdf417/PDFDecoder.cpp
+        zxing/pdf417/MicroPDFReader.cpp
+        zxing/pdf417/PDFHighLevelEncoder.cpp
         zxing/pdf417/PDFWriter.cpp
+        zxing/pdf417/PDFDetectionResult.cpp
+        zxing/pdf417/PDFDetector.cpp
+        zxing/pdf417/PDFDetectionResultColumn.cpp
+        zxing/pdf417/PDFBoundingBox.cpp
         zxing/qrcode/QRBitMatrixParser.cpp
-        zxing/qrcode/QRDataBlock.cpp
-        zxing/qrcode/QRDetector.cpp
-        zxing/qrcode/QRErrorCorrectionLevel.cpp
-        zxing/qrcode/QRMaskUtil.cpp
-        zxing/qrcode/QRReader.cpp
-        zxing/qrcode/QRWriter.cpp
-        zxing/qrcode/QRCodecMode.cpp
-        zxing/qrcode/QRDecoder.cpp
-        zxing/qrcode/QREncoder.cpp
-        zxing/qrcode/QRFormatInformation.cpp
-        zxing/qrcode/QRMatrixUtil.cpp
         zxing/qrcode/QRVersion.cpp
-        zxing/Barcode.cpp
-        zxing/BitMatrixIO.cpp
-        zxing/GenericGFPoly.cpp
-        zxing/MultiFormatReader.cpp
-        zxing/ReedSolomonEncoder.cpp
-        zxing/Utf.cpp
-        zxing/BarcodeFormat.cpp
-        zxing/BitSource.cpp
-        zxing/ECI.cpp
-        zxing/GlobalHistogramBinarizer.cpp
-        zxing/MultiFormatWriter.cpp
-        zxing/ResultPoint.cpp
-        zxing/WhiteRectDetector.cpp
-        zxing/BinaryBitmap.cpp
-        zxing/CharacterSet.cpp
-        zxing/Error.cpp
-        zxing/GridSampler.cpp
-        zxing/PerspectiveTransform.cpp
+        zxing/qrcode/QRMaskUtil.cpp
+        zxing/qrcode/QRErrorCorrectionLevel.cpp
+        zxing/qrcode/QRWriter.cpp
+        zxing/qrcode/QRDecoder.cpp
+        zxing/qrcode/QRFormatInformation.cpp
+        zxing/qrcode/QREncoder.cpp
+        zxing/qrcode/QRReader.cpp
+        zxing/qrcode/QRDetector.cpp
+        zxing/qrcode/QRMatrixUtil.cpp
+        zxing/qrcode/QRDataBlock.cpp
+        zxing/qrcode/QRCodecMode.cpp
         zxing/TextDecoder.cpp
-        zxing/WriteBarcode.cpp
-        zxing/BitArray.cpp
-        zxing/ConcentricFinder.cpp
+        zxing/GridSampler.cpp
         zxing/GTIN.cpp
-        zxing/HRI.cpp
+        zxing/WhiteRectDetector.cpp
+        zxing/BarcodeFormat.cpp
+        zxing/ZXingCpp.cpp
+        zxing/BitArray.cpp
+        zxing/WriteBarcode.cpp
+        zxing/BitSource.cpp
+        zxing/BitMatrix.cpp
+        zxing/Barcode.cpp
+        zxing/HybridBinarizer.cpp
         zxing/ReadBarcode.cpp
         zxing/TextEncoder.cpp
+        zxing/BinaryBitmap.cpp
         zxing/ZXingC.cpp
-        zxing/BitMatrix.cpp
+        zxing/GlobalHistogramBinarizer.cpp
+        zxing/Error.cpp
+        zxing/BitMatrixIO.cpp
+        zxing/Utf.cpp
+        zxing/HRI.cpp
+        zxing/ResultPoint.cpp
         zxing/Content.cpp
-        zxing/GenericGF.cpp
-        zxing/HybridBinarizer.cpp
-        zxing/JSON.cpp
+        zxing/MultiFormatWriter.cpp
         zxing/LocalGrid.cpp
-        zxing/ReedSolomonDecoder.cpp
-        zxing/ZXingCpp.cpp
+        zxing/PerspectiveTransform.cpp
+        zxing/ReedSolomon.cpp
+        zxing/CharacterSet.cpp
+        zxing/ConcentricFinder.cpp
+        zxing/JSON.cpp
+        zxing/CreateBarcode.cpp
+        zxing/ECI.cpp
+        zxing/MultiFormatReader.cpp
 )
 
 target_include_directories(zxing
@@ -619,5 +615,5 @@ target_link_libraries(fenrir_jni
         PRIVATE zxing)
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_link_options(fenrir_jni PRIVATE "-Wl,-z,max-page-size=16384,--build-id=none")
+    target_link_options(fenrir_jni PRIVATE "-Wl,--build-id=none")
 endif ()
