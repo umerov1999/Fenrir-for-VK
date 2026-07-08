@@ -108,26 +108,6 @@ public:
 	friend bool operator==(const BitArray& a, const BitArray& b) { return a._bits == b._bits; }
 };
 
-template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-constexpr T& AppendBit(T& val, bool bit)
-{
-	return (val <<= 1) |= static_cast<T>(bit);
-}
-
-template <typename ARRAY, typename = std::enable_if_t<std::is_integral_v<typename ARRAY::value_type>>>
-constexpr int ToInt(const ARRAY& a)
-{
-	assert(Reduce(a) <= 32);
-
-	int pattern = 0;
-	for (int i = 0; i < Size(a); i++) {
-		if (a[i] < 0) // negative shift is undefined behavior
-			return -1;
-		pattern = (pattern << a[i]) | ~(0xffffffff << a[i]) * (~i & 1);
-	}
-	return pattern;
-}
-
 template <typename T = int, typename = std::enable_if_t<std::is_integral_v<T>>>
 T ToInt(const BitArray& bits, int pos = 0, int count = 8 * sizeof(T))
 {

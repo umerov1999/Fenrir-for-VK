@@ -1235,6 +1235,7 @@
     <string name="upload_new_story">Загрузить историю</string>
     <string name="channel_upload_files">Загрузка файлов</string>
     <string name="files_uploading_notification_title">Загрузка файлов</string>
+    <string name="files_uploading_error_notification_title">Ошибка загрузки файлов!</string>
     <string name="service_pinned_message">%1$s закрепил сообщение</string>
     <string name="service_unpinned_message">%1$s открепил сообщение</string>
     <string name="service_invite_user_by_link">%1$s присоединился по ссылке</string>
@@ -1729,4 +1730,6 @@
     <string name="saving_network_traffic">Экономия трафика</string>
     <string name="select_storage">Выберите хранилище</string>
     <string name="reacted_peers">Отреагировали</string>
+    <string name="call_reset_description">Последние %1$d цифры звонка</string>
+    <string name="retry">Повторить</string>
 </resources>

@@ -91,7 +91,7 @@ open class Upload : AbsModel, Identificable {
         return fileId != null
     }
 
-    fun buildThumnailUri(): Uri {
+    fun buildThumbnailUri(): Uri {
         return buildUriForPicasso(Content_Local.PHOTO, fileId!!)
     }
 

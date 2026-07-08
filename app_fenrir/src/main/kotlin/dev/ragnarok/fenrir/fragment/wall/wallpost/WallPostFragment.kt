@@ -275,7 +275,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         mText?.setTextIsSelectable(mTextSelectionAllowed)
         for (i in 0 until copiesRoot.childCount) {
             val copyRoot = copiesRoot.getChildAt(i) as ViewGroup
-            val textView = copyRoot.findViewById<TextView>(R.id.item_post_copy_text)
+            val textView = copyRoot.findViewById<LinkHelperTextView>(R.id.item_post_copy_text)
             textView?.setTextIsSelectable(mTextSelectionAllowed)
         }
     }
@@ -386,7 +386,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
             }
         } ?: run { tvCopyright.visibility = View.GONE }
         mText?.visibility = if (post.hasText()) View.VISIBLE else View.GONE
-        val spannableText =
+        mText?.precompute(
             OwnerLinkSpanFactory.withSpans(
                 post.text,
                 owners = true,
@@ -400,7 +400,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
                         presenter?.fireUrlClick(url)
                     }
                 })
-        mText?.setText(spannableText, TextView.BufferType.SPANNABLE)
+        )
         val displaySigner = post.signerId > 0 && post.creator != null
         mSignerRootView?.visibility = if (displaySigner) View.VISIBLE else View.GONE
         if (displaySigner) {

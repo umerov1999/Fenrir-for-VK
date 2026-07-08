@@ -25,7 +25,7 @@ class CancelableJob {
     fun hasJob(): Boolean {
         var ret = false
         synchronized(this) {
-            ret = job != null
+            ret = job != null && job?.isCancelled != true
         }
         return ret
     }

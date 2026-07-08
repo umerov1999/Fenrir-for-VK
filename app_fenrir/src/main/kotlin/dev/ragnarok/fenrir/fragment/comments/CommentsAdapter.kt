@@ -154,9 +154,9 @@ class CommentsAdapter(
         )
         if (text.isNullOrEmpty() && comment.fromId == 0L) {
             holder.tvText.visibility = View.VISIBLE
-            holder.tvText.setText(R.string.deleted)
+            holder.tvText.precompute(R.string.deleted)
         } else {
-            holder.tvText.setText(text, TextView.BufferType.SPANNABLE)
+            holder.tvText.precompute(text)
             holder.tvText.visibility =
                 if (comment.text.isNullOrEmpty()) View.GONE else View.VISIBLE
             holder.tvText.movementMethod = LinkMovementMethod.getInstance()

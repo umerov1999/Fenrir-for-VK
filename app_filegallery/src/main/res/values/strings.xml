@@ -379,6 +379,7 @@
     <string name="reset_settings">Reset settings</string>
     <string name="wrong_settings_format">This settings format is not supported!</string>
     <string name="files_uploading_notification_title">Uploading files</string>
+    <string name="files_uploading_error_notification_title">Error uploading files!</string>
     <string name="play_remote">Play via server</string>
     <string name="open_folder_new_window">Open directories in a new window</string>
     <string name="compress_incoming_traffic">Compress incoming traffic</string>
@@ -402,4 +403,5 @@
     <string name="photo_zoom_enable_list">Scroll through zoomed images</string>
     <string name="repeat_mode">Repeat</string>
     <string name="select_storage">Select storage</string>
+    <string name="retry">Retry</string>
 </resources>

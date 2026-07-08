@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnEmojiconClickedListener
 import dev.ragnarok.fenrir.view.emoji.section.Emojicon
 
@@ -28,7 +28,7 @@ internal class EmojiAdapter(context: Context, data: Array<Emojicon>) : ArrayAdap
         }
         val emoji = getItem(position)
         val holder = v?.tag as ViewHolder?
-        holder?.icon?.setText(emoji?.emoji, TextView.BufferType.SPANNABLE)
+        holder?.icon?.precompute(emoji?.emoji)
         holder?.icon?.setOnClickListener {
             getItem(position)?.let { it1 ->
                 emojiClickListener?.onEmojiconClicked(
@@ -40,6 +40,6 @@ internal class EmojiAdapter(context: Context, data: Array<Emojicon>) : ArrayAdap
     }
 
     internal class ViewHolder {
-        var icon: TextView? = null
+        var icon: LinkHelperTextView? = null
     }
 }

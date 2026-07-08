@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.ifNonNullNoEmpty
@@ -15,9 +16,15 @@ import dev.ragnarok.fenrir.util.IntentService
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import java.io.File
 
-class QuickReplyService : IntentService(QuickReplyService::class.java.name) {
+class NotificationIntentService : IntentService(NotificationIntentService::class.java.name) {
     override fun onHandleIntent(intent: Intent?) {
         intent ?: return
+
+        if (intent.action == ACTION_RETRY_UPLOAD) {
+            Includes.uploadManager.retryAll()
+            return
+        }
+
         val extras = intent.extras ?: return
         when {
             ACTION_ADD_MESSAGE == intent.action -> {
@@ -64,10 +71,11 @@ class QuickReplyService : IntentService(QuickReplyService::class.java.name) {
     }
 
     companion object {
-        const val ACTION_ADD_MESSAGE = "QuickReplyService.ACTION_ADD_MESSAGE"
-        const val ACTION_MARK_AS_READ = "QuickReplyService.ACTION_MARK_AS_READ"
-        const val ACTION_DELETE_FILE = "QuickReplyService.ACTION_DELETE_FILE"
-        const val ACTION_VALIDATE = "QuickReplyService.ACTION_VALIDATE"
+        const val ACTION_ADD_MESSAGE = "NotificationIntentService.ACTION_ADD_MESSAGE"
+        const val ACTION_MARK_AS_READ = "NotificationIntentService.ACTION_MARK_AS_READ"
+        const val ACTION_DELETE_FILE = "NotificationIntentService.ACTION_DELETE_FILE"
+        const val ACTION_VALIDATE = "NotificationIntentService.ACTION_VALIDATE"
+        const val ACTION_RETRY_UPLOAD = "NotificationIntentService.ACTION_RETRY_UPLOAD"
 
         fun intentForAddMessage(
             context: Context,
@@ -75,7 +83,7 @@ class QuickReplyService : IntentService(QuickReplyService::class.java.name) {
             peerId: Long,
             msg: Message
         ): Intent {
-            val intent = Intent(context, QuickReplyService::class.java)
+            val intent = Intent(context, NotificationIntentService::class.java)
             intent.action = ACTION_ADD_MESSAGE
             intent.putExtra(Extra.ACCOUNT_ID, accountId)
             intent.putExtra(Extra.PEER_ID, peerId)
@@ -89,7 +97,7 @@ class QuickReplyService : IntentService(QuickReplyService::class.java.name) {
             notificationId: Int,
             notificationTag: String
         ): Intent {
-            val intent = Intent(context, QuickReplyService::class.java)
+            val intent = Intent(context, NotificationIntentService::class.java)
             intent.action = ACTION_DELETE_FILE
             intent.putExtra(Extra.DOC, path)
             intent.putExtra(Extra.ID, notificationId)
@@ -103,7 +111,7 @@ class QuickReplyService : IntentService(QuickReplyService::class.java.name) {
             peerId: Long,
             msgId: Int
         ): Intent {
-            val intent = Intent(context, QuickReplyService::class.java)
+            val intent = Intent(context, NotificationIntentService::class.java)
             intent.action = ACTION_MARK_AS_READ
             intent.putExtra(Extra.ACCOUNT_ID, accountId)
             intent.putExtra(Extra.PEER_ID, peerId)
@@ -116,10 +124,18 @@ class QuickReplyService : IntentService(QuickReplyService::class.java.name) {
             accountId: Long,
             hash: String
         ): Intent {
-            val intent = Intent(context, QuickReplyService::class.java)
+            val intent = Intent(context, NotificationIntentService::class.java)
             intent.action = ACTION_VALIDATE
             intent.putExtra(Extra.ACCOUNT_ID, accountId)
             intent.putExtra(Extra.HASH, hash)
+            return intent
+        }
+
+        fun intentForRetryUpload(
+            context: Context
+        ): Intent {
+            val intent = Intent(context, NotificationIntentService::class.java)
+            intent.action = ACTION_RETRY_UPLOAD
             return intent
         }
     }

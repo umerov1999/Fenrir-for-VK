@@ -6,8 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
-import android.text.PrecomputedText
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -17,6 +15,7 @@ import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.util.PatternsCompat
@@ -47,10 +46,9 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
     private var mOnHashTagClickListener: OnHashTagClickListener? = null
     private var mDisplayHashTags = false
     private var mHashTagWordColor = 0
-    private var linksResolved: CharSequence? = null
+    private var linksResolverTaskData: CharSequence? = null
     private val mResolveLinks: CancelableJob
     private var interceptSpans = false
-    private var isObjectConstructed: Boolean? = null
 
     constructor(context: Context) : super(context) {
         mResolveLinks = CancelableJob()
@@ -75,6 +73,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         mAdditionalHashTagChars = ArrayList(2)
         mAdditionalHashTagChars?.add('_')
         mAdditionalHashTagChars?.add('@')
+        var fontScaleFactor: Float
         val a =
             context.obtainStyledAttributes(attrs, R.styleable.LinkHelperTextView)
         try {
@@ -82,14 +81,16 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
             mTextLength = a.getInteger(R.styleable.LinkHelperTextView_linkHelperTextLength, -1)
             mHashTagWordColor = a.getColor(R.styleable.LinkHelperTextView_hashTagColor, Color.BLUE)
             mDisplayHashTags = a.getBoolean(R.styleable.LinkHelperTextView_displayHashTags, false)
+            fontScaleFactor = a.getFloat(R.styleable.LinkHelperTextView_fontScaleFactor, 0.6f)
         } finally {
             a.recycle()
         }
-        isObjectConstructed = true
 
         val fontSize = Settings.get().main().fontSize
-        if (Settings.get().main().fontSizeOnlyForChatsAndMessages && fontSize != 0) {
-            setTextSize(0, textSize + Utils.dp(0.6f) * fontSize)
+        if (Settings.get()
+                .main().fontSizeOnlyForChatsAndMessages && fontSize != 0 && fontScaleFactor > 0
+        ) {
+            setTextSize(0, textSize + Utils.dp(fontScaleFactor) * fontSize)
         }
     }
 
@@ -129,7 +130,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         while (index < text.length - 1) {
             val sign = text[index]
             var nextNotLetterDigitCharIndex =
-                index + 1 // we assume it is next. if if was not changed by findNextValidHashTagChar then index will be incremented by 1
+                index + 1 // we assume it is next. if was not changed by findNextValidHashTagChar then index will be incremented by 1
             if (sign == '#') {
                 if (!ret) {
                     ret = true
@@ -137,6 +138,10 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
                 startIndexOfNextHashSign = index
                 nextNotLetterDigitCharIndex =
                     findNextValidHashTagChar(text, startIndexOfNextHashSign)
+                if (startIndexOfNextHashSign + 1 == nextNotLetterDigitCharIndex) {
+                    index++
+                    continue
+                }
                 setColorForHashTagToTheEnd(
                     text,
                     startIndexOfNextHashSign,
@@ -180,16 +185,15 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         s.setSpan(span, startIndex, nextNotLetterDigitCharIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
-    override fun setText(originalText: CharSequence?, type: BufferType) {
-        if (isObjectConstructed != true || originalText.isNullOrEmpty() ||
-            originalText is PrecomputedTextCompat ||
-            Build.VERSION.SDK_INT > Build.VERSION_CODES.P && originalText is PrecomputedText
-        ) {
-            super.setText(originalText, type)
-            return
-        }
-        linksResolved = originalText
-        super.setText(originalText.toString(), BufferType.NORMAL)
+    fun precompute(@StringRes res: Int) {
+        precompute(context.getString(res))
+    }
+
+    fun precompute(text: CharSequence?) {
+        mResolveLinks.cancel()
+        linksResolverTaskData = null
+        setText(text.toString(), BufferType.NORMAL)
+        linksResolverTaskData = text
         makeResolveLinkJob()
     }
 
@@ -383,8 +387,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         get() = getAllHashTags(false)
 
     private fun makeResolveLinkJob() {
-        mResolveLinks.cancel()
-        val tmpLinksResolved = linksResolved
+        val tmpLinksResolved = linksResolverTaskData
         if (tmpLinksResolved.isNullOrEmpty()) {
             return
         }
@@ -440,26 +443,27 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
             )
              */
             if (!needRefreshText) {
-                linksResolved = null
-                return@launch
-            }
-            val params = TextViewCompat.getTextMetricsParams(this@LinkHelperTextView)
-            val precomputedText = PrecomputedTextCompat.create(spannable, params)
-            CoroutinesUtils.inMainThread {
-                linksResolved = null
-                setPrecomputedText(precomputedText)
+                CoroutinesUtils.inMainThread {
+                    linksResolverTaskData = null
+                }
+            } else {
+                val params = TextViewCompat.getTextMetricsParams(this@LinkHelperTextView)
+                val precomputedText = PrecomputedTextCompat.create(spannable, params)
+                CoroutinesUtils.inMainThread {
+                    linksResolverTaskData = null
+                    setPrecomputedText(precomputedText)
+                }
             }
         })
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (isInEditMode || linksResolved.isNullOrEmpty()) {
+        if (isInEditMode || linksResolverTaskData.isNullOrEmpty()) {
             return
         }
-        if (isObjectConstructed == true && !mResolveLinks.hasJob()) {
-            makeResolveLinkJob()
-        }
+        mResolveLinks.cancel()
+        makeResolveLinkJob()
     }
 
     override fun onDetachedFromWindow() {
@@ -467,9 +471,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         if (isInEditMode) {
             return
         }
-        if (isObjectConstructed == true) {
-            mResolveLinks.cancel()
-        }
+        mResolveLinks.cancel()
     }
 
     interface OnHashTagClickListener {

@@ -614,7 +614,7 @@
             android:theme="@style/App.DayNight.Swipes" />
 
         <service
-            android:name="dev.ragnarok.fenrir.service.QuickReplyService"
+            android:name="dev.ragnarok.fenrir.service.NotificationIntentService"
             android:exported="false" />
 
         <service

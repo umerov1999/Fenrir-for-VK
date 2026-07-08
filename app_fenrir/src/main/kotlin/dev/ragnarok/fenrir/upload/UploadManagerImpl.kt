@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.upload
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -16,6 +17,7 @@ import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
+import dev.ragnarok.fenrir.service.NotificationIntentService.Companion.intentForRetryUpload
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.fenrir.upload.impl.AudioToMessageUploadable
 import dev.ragnarok.fenrir.upload.impl.AudioUploadable
@@ -38,6 +40,7 @@ import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
+import dev.ragnarok.fenrir.util.Utils.makeImmutablePendingIntent
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.inMainThread
@@ -77,12 +80,13 @@ class UploadManagerImpl(
     private val deletingProcessor = createPublishSubject<IntArray>()
     private val completeProcessor = createPublishSubject<Pair<Upload, UploadResult<*>>>()
     private val statusProcessor = createPublishSubject<Upload>()
+    private val lock = Any()
 
     private val timer: Flow<IProgressUpdate?> = flow {
         while (isActive()) {
             delay(PROGRESS_LOOKUP_DELAY.milliseconds)
             val ret: IProgressUpdate?
-            synchronized(this) {
+            synchronized(lock) {
                 val pCurrent = current
                 ret = if (pCurrent == null) {
                     null
@@ -107,7 +111,7 @@ class UploadManagerImpl(
     override fun get(accountId: Long, @Method filters: List<Int>): Flow<List<Upload>> {
         return flow {
             val data: MutableList<Upload> = ArrayList()
-            synchronized(this) {
+            synchronized(lock) {
                 for (upload in queue) {
                     if (accountId == upload.accountId && filters.contains(upload.destination.method)) {
                         data.add(upload)
@@ -119,15 +123,15 @@ class UploadManagerImpl(
     }
 
     private fun getByDestination(accountId: Long, destination: UploadDestination): List<Upload> {
-        synchronized(this) {
-            val data: MutableList<Upload> = ArrayList()
+        val data: MutableList<Upload> = ArrayList()
+        synchronized(lock) {
             for (upload in queue) {
                 if (accountId == upload.accountId && destination.compareTo(upload.destination)) {
                     data.add(upload)
                 }
             }
-            return data
         }
+        return data
     }
 
     private fun startWithNotification() {
@@ -137,6 +141,51 @@ class UploadManagerImpl(
                 updateNotification(it)
             }
         )
+    }
+
+    private fun buildErrorUploadNotification(message: String?) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager?
+                ?: return
+        if (needCreateChannel) {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                context.getString(R.string.channel_upload_files),
+                NotificationManager.IMPORTANCE_LOW
+            )
+            notificationManager.createNotificationChannel(channel)
+            needCreateChannel = false
+        }
+        val builder: NotificationCompat.Builder =
+            NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification_upload)
+                .setContentTitle(context.getString(R.string.files_uploading_error_notification_title))
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .setAutoCancel(true)
+        builder.priority = NotificationCompat.PRIORITY_HIGH
+
+        val retryUploadIntent =
+            intentForRetryUpload(context)
+        val retryUploadPendingIntent = PendingIntent.getService(
+            context,
+            NotificationHelper.NOTIFICATION_UPLOAD_FAIL,
+            retryUploadIntent,
+            makeImmutablePendingIntent(PendingIntent.FLAG_CANCEL_CURRENT)
+        )
+        val actionRetryUpload =
+            NotificationCompat.Action.Builder(
+                R.drawable.ic_notification_upload,
+                context.resources.getString(R.string.retry), retryUploadPendingIntent
+            ).build()
+        builder.addAction(actionRetryUpload)
+
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            notificationManager.notify(
+                NotificationHelper.NOTIFICATION_UPLOAD_FAIL,
+                builder.build()
+            )
+        }
     }
 
     private fun updateNotification(updates: IProgressUpdate?) {
@@ -175,16 +224,16 @@ class UploadManagerImpl(
     }
 
     override fun enqueue(intents: List<UploadIntent>) {
-        synchronized(this) {
-            val all: MutableList<Upload> = ArrayList(intents.size)
+        val all: MutableList<Upload> = ArrayList(intents.size)
+        synchronized(lock) {
             for (intent in intents) {
                 val upload = intent2Upload(intent)
                 all.add(upload)
                 queue.add(upload)
             }
-            addingProcessor.myEmit(all)
-            startIfNotStarted()
         }
+        addingProcessor.myEmit(all)
+        startIfNotStarted()
     }
 
     private fun startIfNotStarted() {
@@ -204,8 +253,31 @@ class UploadManagerImpl(
         return first
     }
 
+    private fun doUpload(uploadable: IUploadable<*>, upload: Upload, uploadServer: UploadServer?) {
+        compositeDisposable.add(
+            scheduler.launch {
+                uploadable.doUpload(
+                    upload,
+                    uploadServer,
+                    WeakProgressPublisher(upload)
+                ).catch {
+                    if (isActive()) {
+                        onUploadFail(upload, it)
+                    }
+                }.collect {
+                    if (isActive()) {
+                        onUploadComplete(
+                            upload,
+                            it
+                        )
+                    }
+                }
+            }
+        )
+    }
+
     private fun startIfNotStartedInternal() {
-        synchronized(this) {
+        synchronized(lock) {
             if (current != null) {
                 return
             }
@@ -220,31 +292,12 @@ class UploadManagerImpl(
             statusProcessor.myEmit(first)
             val uploadable = createUploadable(first)
             val server = serverMap[createServerKey(first)]
-            compositeDisposable.add(
-                scheduler.launch {
-                    uploadable.doUpload(
-                        first,
-                        server,
-                        WeakProgressPublisher(first)
-                    ).catch {
-                        if (isActive()) {
-                            onUploadFail(first, it)
-                        }
-                    }.collect {
-                        if (isActive()) {
-                            onUploadComplete(
-                                first,
-                                it
-                            )
-                        }
-                    }
-                }
-            )
+            doUpload(uploadable, first, server)
         }
     }
 
     private fun onUploadComplete(upload: Upload, result: UploadResult<*>) {
-        synchronized(this) {
+        synchronized(lock) {
             queue.remove(upload)
             if (current === upload) {
                 current = null
@@ -265,7 +318,7 @@ class UploadManagerImpl(
     }
 
     private fun onUploadFail(upload: Upload, t: Throwable) {
-        synchronized(this) {
+        synchronized(lock) {
             if (current === upload) {
                 current = null
                 val cause = getCauseIfRuntime(t)
@@ -279,6 +332,7 @@ class UploadManagerImpl(
                     CustomToast.createCustomToast(context, null)?.setDuration(Toast.LENGTH_SHORT)
                         ?.showToastError(message)
                 })
+                buildErrorUploadNotification(message)
             }
             val errorMessage: String? = if (t is ApiException) {
                 localizeThrowable(context, t)
@@ -292,7 +346,7 @@ class UploadManagerImpl(
     }
 
     override fun cancel(id: Int) {
-        synchronized(this) {
+        synchronized(lock) {
             if (current?.getObjectId() == id) {
                 compositeDisposable.clear()
                 current = null
@@ -302,24 +356,44 @@ class UploadManagerImpl(
                 queue.removeAt(index)
                 deletingProcessor.myEmit(intArrayOf(id))
             }
-            startIfNotStarted()
         }
+        startIfNotStarted()
     }
 
     override fun retry(id: Int) {
-        synchronized(this) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            notificationManager?.cancel(NotificationHelper.NOTIFICATION_UPLOAD_FAIL)
+        }
+        synchronized(lock) {
             val index = findIndexById(queue, id)
             if (index != -1) {
                 val upload = queue[index]
                 upload.setStatus(Upload.STATUS_QUEUE).errorText = null
                 statusProcessor.myEmit(upload)
-                startIfNotStarted()
             }
         }
+        startIfNotStarted()
+    }
+
+    override fun retryAll() {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+        if (AppPerms.hasNotificationPermissionSimple(context)) {
+            notificationManager?.cancel(NotificationHelper.NOTIFICATION_UPLOAD_FAIL)
+        }
+        synchronized(lock) {
+            for (i in queue) {
+                i.setStatus(Upload.STATUS_QUEUE).errorText = null
+                statusProcessor.myEmit(i)
+            }
+        }
+        startIfNotStarted()
     }
 
     override fun cancelAll(accountId: Long, destination: UploadDestination) {
-        synchronized(this) {
+        synchronized(lock) {
             if (current != null && accountId == current?.accountId && destination.compareTo(
                     current?.destination
                 )
@@ -343,12 +417,12 @@ class UploadManagerImpl(
                 }
                 deletingProcessor.myEmit(ids)
             }
-            startIfNotStarted()
         }
+        startIfNotStarted()
     }
 
     override fun getCurrent(): Optional<Upload> {
-        synchronized(this) { return wrap(current) }
+        synchronized(lock) { return wrap(current) }
     }
 
     override fun observeDeleting(includeCompleted: Boolean): Flow<IntArray> {
@@ -454,7 +528,7 @@ class UploadManagerImpl(
 
     class WeakProgressPublisher(upload: Upload) :
         PercentagePublisher {
-        val reference: WeakReference<Upload> = WeakReference(upload)
+        private val reference: WeakReference<Upload> = WeakReference(upload)
         override fun onProgressChanged(percentage: Int) {
             val upload = reference.get()
             if (upload != null) {
@@ -503,5 +577,4 @@ class UploadManagerImpl(
             return builder.toString()
         }
     }
-
 }

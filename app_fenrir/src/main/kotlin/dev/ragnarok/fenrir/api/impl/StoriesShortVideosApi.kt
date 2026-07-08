@@ -116,10 +116,10 @@ internal class StoriesShortVideosApi(accountId: Long, provider: IServiceProvider
             }
     }
 
-    override fun stories_save(upload_results: String?): Flow<Items<VKApiStory>> {
+    override fun stories_save(uploadResultsJson: String?): Flow<Items<VKApiStory>> {
         return provideService(IStoriesShortVideosService(), TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.stories_save(upload_results)
+                it.stories_save(uploadResultsJson)
                     .map(extractResponseWithErrorHandling())
             }
     }

@@ -101,7 +101,11 @@ struct RenderRegion
 {
     struct {
         int32_t x, y;
-    } min, max;
+    } min;
+
+    struct {
+        int32_t x, y;
+    } max;
 
     static constexpr RenderRegion intersect(const RenderRegion& lhs, const RenderRegion& rhs)
     {

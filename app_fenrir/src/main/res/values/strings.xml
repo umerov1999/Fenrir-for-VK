@@ -1481,6 +1481,7 @@
     <string name="upload_new_story">Upload story</string>
     <string name="channel_upload_files">Upload files</string>
     <string name="files_uploading_notification_title">Uploading files</string>
+    <string name="files_uploading_error_notification_title">Error uploading files!</string>
     <string name="service_pinned_message">%1$s pinned the message</string>
     <string name="service_unpinned_message">%1$s unpinned the message</string>
     <string name="service_invite_user_by_link">%1$s joined by link</string>
@@ -1981,4 +1982,6 @@
     <string name="saving_network_traffic">Data saving mode</string>
     <string name="select_storage">Select storage</string>
     <string name="reacted_peers">Reacted peers</string>
+    <string name="call_reset_description">Last %1$d digits of the call</string>
+    <string name="retry">Retry</string>
 </resources>

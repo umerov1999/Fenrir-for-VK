@@ -5,6 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class VKApiValidationResponse {
+    @SerialName("type")
+    var type: String? = null
+
     @SerialName("sid")
     var sid: String? = null
 
@@ -12,8 +15,14 @@ class VKApiValidationResponse {
     var delay = 0
 
     @SerialName("validation_type")
-    var validation_type: String? = null
+    var validationType: String? = null
 
     @SerialName("validation_resend")
-    var validation_resend: String? = null
+    var validationResend: String? = null
+
+    @SerialName("external_id")
+    var externalId: String? = null
+
+    @SerialName("code_length")
+    var codeLength: Int = 0
 }

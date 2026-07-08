@@ -37,7 +37,7 @@ interface IStoriesShortVideosApi {
     fun stories_delete(owner_id: Long, story_id: Int): Flow<Int>
 
     @CheckResult
-    fun stories_save(upload_results: String?): Flow<Items<VKApiStory>>
+    fun stories_save(uploadResultsJson: String?): Flow<Items<VKApiStory>>
 
     @CheckResult
     fun getStories(owner_id: Long?, extended: Int?, fields: String?): Flow<StoriesResponse>

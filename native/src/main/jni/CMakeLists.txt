@@ -471,7 +471,6 @@ add_library(zxing STATIC
         zxing/oned/ODReader.cpp
         zxing/oned/ODUPCEWriter.cpp
         zxing/oned/ODCode93Reader.cpp
-        zxing/oned/ODCode128Patterns.cpp
         zxing/oned/ODEAN8Writer.cpp
         zxing/oned/ODCode128Writer.cpp
         zxing/oned/ODDataBarExpandedReader.cpp
@@ -485,6 +484,7 @@ add_library(zxing STATIC
         zxing/pdf417/PDFEncoder.cpp
         zxing/pdf417/PDFDecoder.cpp
         zxing/pdf417/MicroPDFReader.cpp
+        zxing/pdf417/PDF417.cpp
         zxing/pdf417/PDFHighLevelEncoder.cpp
         zxing/pdf417/PDFWriter.cpp
         zxing/pdf417/PDFDetectionResult.cpp

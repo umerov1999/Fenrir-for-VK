@@ -264,13 +264,14 @@ class NewsfeedMentionsAdapter(
         )
         holder.commentAuthorName.text = comment.fullAuthorName
         holder.commentDatetime.text = AppTextUtils.getDateFromUnixTime(context, comment.date)
-        val text = OwnerLinkSpanFactory.withSpans(
-            comment.text,
-            owners = true,
-            topics = true,
-            listener = null
+        holder.commentText.precompute(
+            OwnerLinkSpanFactory.withSpans(
+                comment.text,
+                owners = true,
+                topics = true,
+                listener = null
+            )
         )
-        holder.commentText.setText(text, TextView.BufferType.SPANNABLE)
         holder.commentText.visibility =
             if (comment.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.commentLikeCounter.visibility =
@@ -307,13 +308,14 @@ class NewsfeedMentionsAdapter(
         displayAvatar(holder.ownerAvatar, transformation, post.authorPhoto, Constants.PICASSO_TAG)
         addOwnerAvatarClickHandling(holder.ownerAvatar, post.ownerId)
         val reduced = AppTextUtils.reduceStringForPost(post.text)
-        holder.postText.text =
+        holder.postText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 reduced,
                 owners = true,
                 topics = false,
                 listener = null
             )
+        )
         holder.buttonShowMore.visibility =
             if (post.hasText() && post.text?.length.orZero() > 400) View.VISIBLE else View.GONE
         holder.postTextRoot.visibility = if (post.hasText()) View.VISIBLE else View.GONE

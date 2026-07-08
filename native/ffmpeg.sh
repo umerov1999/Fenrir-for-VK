@@ -20,7 +20,7 @@ mv FFmpeg-release-$FFMPEG_VERSION ffmpeg
 
 ENABLED_DECODERS=(mpeg4 h264 hevc mp3 aac ac3 eac3 flac vorbis alac)
 HOST_PLATFORM="linux-x86_64"
-NDK_PATH="$HOME/Android/Sdk/ndk/30.0.14904198"
+NDK_PATH="$HOME/Android/Sdk/ndk/30.0.15729638"
 
 cp ${SCRIPT_DIR}/okhttp.c "$HOME/ffmpeg/libavformat/okhttp.c"
 

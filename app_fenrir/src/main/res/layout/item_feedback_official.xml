@@ -31,12 +31,12 @@
         android:padding="8dp">
 
         <RelativeLayout
-            android:id="@+id/item_friend_avatar_container"
+            android:id="@+id/item_avatar_container"
             android:layout_width="@dimen/avatar_size_usual"
             android:layout_height="@dimen/avatar_size_usual">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/item_friend_avatar"
+                android:id="@+id/item_avatar"
                 android:layout_width="@dimen/avatar_size_usual"
                 android:layout_height="@dimen/avatar_size_usual"
                 android:layout_centerInParent="true"
@@ -47,7 +47,7 @@
                 android:id="@+id/item_icon"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:layout_alignBottom="@id/item_friend_avatar"
+                android:layout_alignBottom="@id/item_avatar"
                 android:layout_alignParentEnd="true"
                 android:contentDescription="@null"
                 android:padding="3dp" />
@@ -64,28 +64,28 @@
             android:paddingEnd="8dp">
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/item_friend_name"
+                android:id="@+id/item_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 tools:text="Name" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/item_additional_info"
+                android:id="@+id/item_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 tools:text="comment for post..." />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/item_friend_footer"
+                android:id="@+id/item_footer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 tools:text="Footer" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/item_friend_time"
+                android:id="@+id/item_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"

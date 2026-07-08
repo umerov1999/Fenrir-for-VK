@@ -82,13 +82,14 @@ class FavePostAdapter(
         )
         holder.tvOwnerName.text = post.authorName
         val reduced = AppTextUtils.reduceStringForPost(post.text)
-        holder.tvText.text =
+        holder.tvText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 reduced,
                 owners = true,
                 topics = false,
                 listener = mLinkActionAdapter
             )
+        )
         holder.tvShowMore.visibility =
             if (post.hasText() && post.text?.length.orZero() > 400) View.VISIBLE else View.GONE
         holder.tvText.visibility = if (post.hasText()) View.VISIBLE else View.GONE

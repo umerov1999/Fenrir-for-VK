@@ -435,13 +435,14 @@ class AttachmentsViewBinder(
             check.bodyView.visibility =
                 if (copy.text.isNullOrEmpty()) View.GONE else View.VISIBLE
             check.bodyView.setOnHashTagClickListener(mOnHashTagClickListener)
-            check.bodyView.text =
+            check.bodyView.precompute(
                 OwnerLinkSpanFactory.withSpans(
                     text,
                     owners = true,
                     topics = false,
                     listener = mLinkActionAdapter
                 )
+            )
             check.ivAvatar.setOnClickListener {
                 mAttachmentsActionCallback?.onOpenOwner(
                     copy.authorId
@@ -556,12 +557,14 @@ class AttachmentsViewBinder(
                         true
                     }
             }
-            val tvBody = itemView.findViewById<TextView>(R.id.item_fwd_message_text)
-            tvBody.text = OwnerLinkSpanFactory.withSpans(
-                if (message.cryptStatus == CryptStatus.DECRYPTED) message.decryptedText else message.text,
-                owners = true,
-                topics = false,
-                listener = mLinkActionAdapter
+            val tvBody = itemView.findViewById<LinkHelperTextView>(R.id.item_fwd_message_text)
+            tvBody.precompute(
+                OwnerLinkSpanFactory.withSpans(
+                    if (message.cryptStatus == CryptStatus.DECRYPTED) message.decryptedText else message.text,
+                    owners = true,
+                    topics = false,
+                    listener = mLinkActionAdapter
+                )
             )
             tvBody.visibility =
                 if (message.text.isNullOrEmpty()) View.GONE else View.VISIBLE
@@ -650,37 +653,43 @@ class AttachmentsViewBinder(
                 tvShowMore.visibility = if (subtitle.length > 400) View.VISIBLE else View.GONE
                 tvDetails.visibility = View.GONE
                 tvPostText.visibility = View.VISIBLE
-                tvPostText.text = OwnerLinkSpanFactory.withSpans(
-                    AppTextUtils.reduceStringForPost(subtitle),
-                    owners = true,
-                    topics = false,
-                    listener = mLinkActionAdapter
+                tvPostText.precompute(
+                    OwnerLinkSpanFactory.withSpans(
+                        AppTextUtils.reduceStringForPost(subtitle),
+                        owners = true,
+                        topics = false,
+                        listener = mLinkActionAdapter
+                    )
                 )
             } else if (doc.type == AttachmentsTypes.WALL_REPLY) {
                 tvShowMore.visibility = if (subtitle.length > 400) View.VISIBLE else View.GONE
                 tvDetails.visibility = View.GONE
                 tvPostText.visibility = View.VISIBLE
-                tvPostText.text = OwnerLinkSpanFactory.withSpans(
-                    AppTextUtils.reduceStringForPost(subtitle),
-                    owners = true,
-                    topics = false,
-                    listener = mLinkActionAdapter
+                tvPostText.precompute(
+                    OwnerLinkSpanFactory.withSpans(
+                        AppTextUtils.reduceStringForPost(subtitle),
+                        owners = true,
+                        topics = false,
+                        listener = mLinkActionAdapter
+                    )
                 )
             } else if (doc.type == AttachmentsTypes.EVENT) {
                 tvShowMore.visibility = View.GONE
                 tvDetails.visibility = View.GONE
                 tvPostText.visibility = View.VISIBLE
-                tvPostText.text = OwnerLinkSpanFactory.withSpans(
-                    AppTextUtils.reduceStringForPost(subtitle),
-                    owners = true,
-                    topics = false,
-                    listener = mLinkActionAdapter
+                tvPostText.precompute(
+                    OwnerLinkSpanFactory.withSpans(
+                        AppTextUtils.reduceStringForPost(subtitle),
+                        owners = true,
+                        topics = false,
+                        listener = mLinkActionAdapter
+                    )
                 )
             } else if (doc.type == AttachmentsTypes.NOT_SUPPORTED) {
                 tvShowMore.visibility = View.GONE
                 tvDetails.visibility = View.GONE
                 tvPostText.visibility = View.VISIBLE
-                tvPostText.text = AppTextUtils.reduceStringForPost(subtitle)
+                tvPostText.precompute(AppTextUtils.reduceStringForPost(subtitle))
             } else {
                 tvDetails.visibility = View.VISIBLE
                 tvPostText.visibility = View.GONE

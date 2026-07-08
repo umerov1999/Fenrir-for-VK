@@ -407,7 +407,7 @@ class AttachmentsBottomSheetAdapter(
         holder.title.setTextColor(titleColor)
         if (upload.hasThumbnail()) {
             with()
-                .load(upload.buildThumnailUri())
+                .load(upload.buildThumbnailUri())
                 .placeholder(R.drawable.background_gray)
                 .into(holder.image)
         } else {

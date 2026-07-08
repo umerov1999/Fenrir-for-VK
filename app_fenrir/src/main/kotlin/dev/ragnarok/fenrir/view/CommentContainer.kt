@@ -161,9 +161,9 @@ class CommentContainer : LinearLayout {
                 })
             if (text.isNullOrEmpty() && comment.fromId == 0L) {
                 check.tvText.visibility = VISIBLE
-                check.tvText.setText(R.string.deleted)
+                check.tvText.precompute(R.string.deleted)
             } else {
-                check.tvText.setText(text, TextView.BufferType.SPANNABLE)
+                check.tvText.precompute(text)
                 check.tvText.visibility =
                     if (comment.text.isNullOrEmpty()) GONE else VISIBLE
                 check.tvText.movementMethod = LinkMovementMethod.getInstance()

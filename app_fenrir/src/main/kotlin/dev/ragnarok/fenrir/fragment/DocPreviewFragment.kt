@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
@@ -47,6 +46,7 @@ import dev.ragnarok.fenrir.util.Utils.shareLink
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.view.CircleCounterButton
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.TouchImageView
 
 class DocPreviewFragment : BaseFragment(), MenuProvider {
@@ -66,8 +66,8 @@ class DocPreviewFragment : BaseFragment(), MenuProvider {
     }
     private var preview: TouchImageView? = null
     private var ivDocIcon: ImageView? = null
-    private var tvTitle: TextView? = null
-    private var tvSubtitle: TextView? = null
+    private var tvTitle: LinkHelperTextView? = null
+    private var tvSubtitle: LinkHelperTextView? = null
     private var mLoadingNow = false
     private var deleted = false
     private val docsInteractor: IDocsInteractor = InteractorFactory.createDocsInteractor()
@@ -206,8 +206,8 @@ class DocPreviewFragment : BaseFragment(), MenuProvider {
             preview?.visibility = View.GONE
             ivDocIcon?.visibility = View.VISIBLE
         }
-        tvTitle?.text = document?.title
-        tvSubtitle?.text = document?.size?.let { getSizeString(it) }
+        tvTitle?.precompute(document?.title)
+        tvSubtitle?.precompute(document?.size?.let { getSizeString(it) })
         resolveButtons()
     }
 

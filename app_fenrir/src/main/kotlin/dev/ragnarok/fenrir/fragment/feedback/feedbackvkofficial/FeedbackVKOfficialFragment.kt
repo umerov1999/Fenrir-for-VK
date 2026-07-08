@@ -78,10 +78,10 @@ class FeedbackVKOfficialFragment :
                     .setCancelable(true)
                     .setPositiveButton(R.string.button_yes) { _, _ ->
                         val notification = mAdapter?.getByPosition(o)
-                        if (notification != null && !notification.hide_query.isNullOrEmpty()) {
+                        if (notification != null && !notification.hideQuery.isNullOrEmpty()) {
                             presenter?.hideNotification(
                                 o,
-                                notification.hide_query
+                                notification.hideQuery
                             )
                         } else {
                             CustomSnackbars.createCustomSnackbars(recyclerView)
@@ -165,22 +165,22 @@ class FeedbackVKOfficialFragment :
         mSwipeRefreshLayout?.isRefreshing = refreshing
     }
 
-    override fun openOwnerWall(owner_id: Long) {
-        getOwnerWallPlace(Settings.get().accounts().current, owner_id, null).tryOpenWith(
+    override fun openOwnerWall(ownerId: Long) {
+        getOwnerWallPlace(Settings.get().accounts().current, ownerId, null).tryOpenWith(
             requireActivity()
         )
     }
 
     override fun openAction(action: FeedbackVKOfficial.Action) {
         when (action.getActionType()) {
-            FeedbackVKOfficial.Action_Types.BROWSER_URL -> {
+            FeedbackVKOfficial.ActionTypes.BROWSER_URL -> {
                 LinkHelper.openLinkInBrowser(
                     requireActivity(),
                     (action as ActionBrowserURL).getUrl()
                 )
             }
 
-            FeedbackVKOfficial.Action_Types.URL -> {
+            FeedbackVKOfficial.ActionTypes.URL -> {
                 LinkHelper.openUrl(
                     requireActivity(),
                     Settings.get().accounts().current,
@@ -188,7 +188,7 @@ class FeedbackVKOfficialFragment :
                 )
             }
 
-            FeedbackVKOfficial.Action_Types.MESSAGE -> {
+            FeedbackVKOfficial.ActionTypes.MESSAGE -> {
                 val msg = action as ActionMessage
                 getMessagesLookupPlace(
                     Settings.get().accounts().current,

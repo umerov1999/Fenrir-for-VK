@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
-import dev.ragnarok.fenrir.api.model.response.CustomResponse
 import dev.ragnarok.fenrir.api.model.upload.UploadAudioDto
 import dev.ragnarok.fenrir.api.model.upload.UploadChatPhotoDto
 import dev.ragnarok.fenrir.api.model.upload.UploadDocDto
@@ -10,7 +9,6 @@ import dev.ragnarok.fenrir.api.model.upload.UploadOwnerPhotoDto
 import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToAlbumDto
 import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToMessageDto
 import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToWallDto
-import dev.ragnarok.fenrir.api.model.upload.UploadStoryDto
 import dev.ragnarok.fenrir.api.model.upload.UploadVideoDto
 import kotlinx.coroutines.flow.Flow
 import java.io.InputStream
@@ -43,7 +41,7 @@ interface IUploadApi {
         inputStream: InputStream,
         listener: PercentagePublisher?,
         isVideo: Boolean
-    ): Flow<CustomResponse<UploadStoryDto>>
+    ): Flow<String>
 
     fun uploadVideoRx(
         server: String,

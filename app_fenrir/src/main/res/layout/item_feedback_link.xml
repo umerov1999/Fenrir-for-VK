@@ -27,14 +27,14 @@
         android:orientation="vertical">
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/item_feedback_link_text2"
+            android:id="@+id/item_feedback_link_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             tools:text="Small Text" />
 
         <dev.ragnarok.fenrir.view.LinkHelperTextView
-            android:id="@+id/item_feedback_link_text"
+            android:id="@+id/item_feedback_link_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"

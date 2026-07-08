@@ -11,15 +11,15 @@ import kotlin.math.abs
 class FeedbackVKOfficial {
     var footer: String? = null
     var header: String? = null
-    var header_owner_avatar_url: String? = null
-    var header_owner_id: Long? = null
+    var headerOwnerAvatarUrl: String? = null
+    var headerOwnerId: Long? = null
     var text: String? = null
     var iconURL: String? = null
     var iconType: String? = null
-    var hide_query: String? = null
+    var hideQuery: String? = null
     var time: Long = 0
     var images: ArrayList<ImageAdditional>? = null
-    var images_action: Action? = null
+    var imagesAction: Action? = null
     var attachments: ArrayList<Photo>? = null
     var action: Action? = null
     fun getImage(prefSize: Int): ImageAdditional? {
@@ -37,9 +37,9 @@ class FeedbackVKOfficial {
         return result
     }
 
-    @IntDef(Action_Types.MESSAGE, Action_Types.BROWSER_URL, Action_Types.URL)
+    @IntDef(ActionTypes.MESSAGE, ActionTypes.BROWSER_URL, ActionTypes.URL)
     @Retention(AnnotationRetention.SOURCE)
-    annotation class Action_Types {
+    annotation class ActionTypes {
         companion object {
             const val MESSAGE = 0
             const val BROWSER_URL = 1
@@ -50,7 +50,7 @@ class FeedbackVKOfficial {
     @Keep
     @Serializable
     sealed class Action {
-        @Action_Types
+        @ActionTypes
         abstract fun getActionType(): Int
     }
 
@@ -67,7 +67,7 @@ class FeedbackVKOfficial {
         }
 
         override fun getActionType(): Int {
-            return Action_Types.MESSAGE
+            return ActionTypes.MESSAGE
         }
     }
 
@@ -80,7 +80,7 @@ class FeedbackVKOfficial {
         }
 
         override fun getActionType(): Int {
-            return Action_Types.URL
+            return ActionTypes.URL
         }
     }
 
@@ -93,7 +93,7 @@ class FeedbackVKOfficial {
         }
 
         override fun getActionType(): Int {
-            return Action_Types.BROWSER_URL
+            return ActionTypes.BROWSER_URL
         }
     }
 
@@ -120,6 +120,6 @@ class FeedbackVKOfficial {
         var type: String? = null
 
         @SerialName("object_id")
-        var object_id: String? = null
+        var objectId: String? = null
     }
 }

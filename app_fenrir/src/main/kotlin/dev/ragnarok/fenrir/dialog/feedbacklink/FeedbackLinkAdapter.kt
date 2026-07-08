@@ -24,6 +24,7 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 
 class FeedbackLinkAdapter(
     private val mContext: Context,
@@ -107,13 +108,14 @@ class FeedbackLinkAdapter(
                 holder.ivImage.visibility = View.GONE
             }
         }
-        val spannableTitle = OwnerLinkSpanFactory.withSpans(
-            title,
-            owners = true,
-            topics = true,
-            listener = null
+        holder.mTitle.precompute(
+            OwnerLinkSpanFactory.withSpans(
+                title,
+                owners = true,
+                topics = true,
+                listener = null
+            )
         )
-        holder.mTitle.setText(spannableTitle, TextView.BufferType.SPANNABLE)
         holder.mTitle.visibility =
             if (title.isNullOrEmpty()) View.GONE else View.VISIBLE
     }
@@ -133,8 +135,8 @@ class FeedbackLinkAdapter(
 
     @SuppressLint("SwitchIntDef")
     inner class ViewHolder(root: View) : RecyclerView.ViewHolder(root) {
-        val mTitle: TextView = root.findViewById(R.id.item_feedback_link_text)
-        val mSubtitle: TextView = root.findViewById(R.id.item_feedback_link_text2)
+        val mTitle: LinkHelperTextView = root.findViewById(R.id.item_feedback_link_title)
+        val mSubtitle: TextView = root.findViewById(R.id.item_feedback_link_subtitle)
         val ivImage: ImageView = root.findViewById(R.id.item_feedback_link_image)
 
         init {

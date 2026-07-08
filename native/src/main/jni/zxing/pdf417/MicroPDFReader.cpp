@@ -11,21 +11,23 @@
 #include "ReaderOptions.h"
 #include "DecoderResult.h"
 #include "LogMatrix.h"
+#include "PDF417.h"
 #include "PDFCodewordDecoder.h"
 #include "PDFScanningDecoder.h"
 #include "Pattern.h"
+#include "PerspectiveTransform.h"
+#include "RegressionLine.h"
 
 #include <list>
-#include <map>
+#include <limits>
 #include <vector>
 
-#ifndef PRINT_DEBUG
-#define printf(...){}
-#endif
+#define LRAP_WITH_CW 1
+#define USE_E2E_PATTERNS
 
 namespace ZXing::MicroPdf417 {
 
-using Pattern417 = std::array<uint16_t, 8>;
+using namespace PDF417;
 
 static constexpr FixedPattern<6, 10> LRRAPs[] = {
 	{2, 2, 1, 3, 1, 1}, /* 1*/
@@ -141,7 +143,11 @@ static constexpr auto ToInts(const FixedPattern<6, 10> in[52])
 {
 	std::array<int, 52> res{};
 	for (int i = 0; i < 52; ++i)
+#ifdef USE_E2E_PATTERNS
+		res[i] = ToInt(NormalizedE2EPattern<6, 10, 5>(in[i]));
+#else
 		res[i] = ToInt(in[i]);
+#endif
 	return res;
 }
 
@@ -162,80 +168,41 @@ static int RAPCluster(int idx)
 	return ((idx - 1) % 3) * 3;
 }
 
-struct CodeWord
-{
-	int cluster = -1;
-	int code = -1;
-	operator bool() const noexcept { return code != -1 && cluster % 3 == 0; }
-};
-
-template <typename POINT>
-class BitMatrixModuleCursor : public BitMatrixCursor<POINT>
-{
-public:
-	float ms;
-
-	BitMatrixModuleCursor(const BitMatrix& image, POINT p, POINT d, float ms) : BitMatrixCursor<POINT>(image, p, d), ms(ms) {}
-};
-
-using BitMatrixModuleCursorF = BitMatrixModuleCursor<PointF>;
-
-template <typename POINT>
-CodeWord ReadCodeWord(BitMatrixModuleCursor<POINT>& cur, int expectedCluster = -1)
-{
-	auto readCodeWord = [expectedCluster](auto& cur) -> CodeWord {
-		auto startP = cur.p;
-		auto np = NormalizedPattern<8, 17>(cur.template readPatternFromBlack<Pattern417>(cur.ms / 2, cur.ms * 20, cur.ms * 15));
-		int cluster = (np[0] - np[2] + np[4] - np[6] + 9) % 9;
-		int code = expectedCluster == -1 || cluster == expectedCluster ? Pdf417::CodewordDecoder::GetCodeword(ToInt(np)) : -1;
-		if (code != -1) {
-			cur.ms = length(cur.p - startP) / length(cur.d) / 17.f;
-			// printf("new ms: %.1f\n", cur.ms);
-		}
-
-		return {cluster, code};
-	};
-
-	log(cur.p, 4);
-	auto curBackup = cur;
-	auto cw = readCodeWord(cur);
-	if (!cw) {
-		for (auto offset : {cur.ms * curBackup.left(), cur.ms * curBackup.right()}) {
-			auto curAlt = curBackup;
-			curAlt.p += offset;
-			if (!curAlt.isIn()) // curBackup might be the first or last image row
-				continue;
-			if (auto cwAlt = readCodeWord(curAlt)) {
-				printf("adjust cursor at %s: %s\n", ToString(PointI(curBackup.p)).c_str(), ToString(PointI(offset)).c_str());
-				cur = curAlt;
-				return cwAlt;
-			}
-		}
-	}
-	return cw;
-}
-
 using PatternRAP = std::array<uint16_t, 6>;
 
 static int ReadRAP(BitMatrixModuleCursorF& cur, RAP type)
 {
-	log(cur.p, 3);
-	int res = RAPIndex(ToInt(NormalizedPattern<6, 10>(cur.readPatternFromBlack<PatternRAP>(3, cur.ms * 15))), type);
-	if (type == RAP::R) {
-		auto c = cur;
-		if (cur.stepToEdge(1, cur.ms * 2) == 0 || ((c = cur).stepToEdge(1, cur.ms * 2) != 0 && c.isIn()))
-			return 0;
+	log(cur.p, 2);
+	auto pattern = cur.readPatternFromBlack<PatternRAP>(cur.ms * 1, cur.ms * (10 + MS_THR), cur.ms * (10 - MS_THR));
+#ifdef USE_E2E_PATTERNS
+	int res = RAPIndex(ToInt(NormalizedE2EPattern<6, 10, 5>(pattern)), type);
+#else
+	int res = RAPIndex(ToInt(NormalizedPattern<6, 10>(pattern)), type);
+#endif
+	if (res) {
+		cur.ms = Reduce(pattern) / 10.;
+		if (type == RAP::R) {
+			auto c = cur;
+			auto ms_thr = cur.ms * 1.5 + 1;
+			if (cur.stepToEdge(1, ms_thr) == 0 || ((c = cur).stepToEdge(1, ms_thr) != 0 && c.isIn()))
+				res = 0;
+		}
 	}
+	log(cur.p, res ? -1 : 1);
 	return res;
 }
 
 static int IsLRAP(const PatternView& view)
 {
 	int l = view.sum(6);
+#if LRAP_WITH_CW
 	int r = view.subView(6).sum(8);
 
-	// nominal l:r ratio is 10:17
+	// nominal l:r ratio is 10:17, accept ratios between 10:13 and 10:22 (approx. 45° tolerance)
 	if (l < 10 || r < 17 || l * 20 < r * 10 || l * 14 > r * 10 || (!view.isAtFirstBar() && view[-1] < l / 10))
+#else
+	if (l < 10 || (!view.isAtFirstBar() && view[-1] < l / 10))
+#endif
 		return 0;
 
 #if 1
@@ -248,15 +215,19 @@ static int IsLRAP(const PatternView& view)
 	if (view[0] < m * 3 / 2 || M > m * 6 || view[5] > 5 * m)
 		return 0;
 #endif
+#ifdef USE_E2E_PATTERNS
+	auto v = RAPIndex(ToInt(NormalizedE2EPattern<6, 10, 5>(view)), RAP::L);
+#else
 	auto v = RAPIndex(ToInt(NormalizedPattern<6, 10>(view)), RAP::L);
+#endif
 
 	return v;
 };
 
 static std::tuple<PatternView, int> FindLRAP(const PatternView& view)
 {
-	constexpr int minSize = 6 + 8 + 6; // 1 column
-	auto window = view.subView(0, 6 + 8);
+	constexpr int minSize = 6 + 8 * LRAP_WITH_CW; // 1 column
+	auto window = view.subView(0, 6 + 8 * LRAP_WITH_CW);
 #if 1
 	for (auto end = view.end() - minSize; window.data() < end; window.skipPair())
 #else
@@ -277,6 +248,21 @@ struct Segment
 {
 	int idx;
 	std::vector<LRAP*> lraps;
+};
+
+struct RAPPair
+{
+	int first, second, offset, family;
+
+	RAPPair(int f, int s): first(f), second(s), offset(0), family(0) {
+		int diff = second - first;
+		if (diff < -4)
+			diff += 52;
+		family = (diff + 4) / 8 * 8;
+		offset = diff - family;
+	}
+
+	bool isValid() const { return first != 0 && second != 0 && family <= 24 && std::abs(offset) <= 3; }
 };
 
 using Cluster = std::vector<LRAP>;
@@ -311,13 +297,13 @@ static Clusters FindCandidates(const BitMatrix& image, bool tryHarder, bool reve
 #endif
 		(std::tie(next, idx) = FindLRAP(next), next.isValid()) {
 			LRAP p{{next.pixelsInFront(), y}, idx, next.sum()};
-			log(centered(p), 2);
+			log(centered(PointF(reversed ? width - 1 - p.x : p.x, reversed ? height - 1 - p.y : p.y)), 1);
 
 			// Try to attach this LRAP to an existing cluster by proximity in x/y; prune stale short
 			// clusters and create a new cluster if no suitable match was found.
 			for (auto pCluster = res.begin(); pCluster != res.end();) {
 				auto diff = p - pCluster->back();
-				if (diff.y <= 2 * skip && std::abs(diff.x) <= std::max(diff.y, 2)) {
+				if (diff.y <= 3 * skip && std::abs(diff.x) <= std::max(diff.y, 2)) {
 					pCluster->push_back(p);
 					p = {};
 					break;
@@ -371,15 +357,28 @@ static Clusters FindCandidates(const BitMatrix& image, bool tryHarder, bool reve
 		// remove duplicates (can appear after small ones are dropped)
 		segs.unique([](auto& l, auto& r) { return l.idx == r.idx; });
 
-		// remove non-monotonic elements from the front and the back
-		while (segs.size() > 1 && segs.begin()->idx > std::next(segs.begin())->idx)
+		// remove non-monotonic and too far away elements from the front and the back
+		int diff = 0;
+		while (segs.size() > 1 && ((diff = std::next(segs.begin())->idx - segs.begin()->idx) < 0 || diff > 3))
 			segs.pop_front();
-		while (segs.size() > 1 && segs.rbegin()->idx < std::next(segs.rbegin())->idx)
+		while (segs.size() > 1 && ((diff = std::next(segs.rbegin())->idx - segs.rbegin()->idx) > 0 || diff < -3))
 			segs.pop_back();
+
+#if LRAP_WITH_CW == 0 // support rotated symbols > 30°
+		if (Size(segs) < 3)
+			return true;
+		// remove single elements that are not part of a monotonic sequence
+		for (auto it = std::next(segs.begin()); it != std::prev(segs.end());) {
+			if (it->idx > std::next(it)->idx && std::next(it)->idx > std::prev(it)->idx)
+				it = segs.erase(it);
+			else
+				++it;
+		}
+#endif
 
 		// remove complete segment if too small, too spread out or contains non-monotonic sequence
 		if (Size(segs) < 3 || std::abs(segs.back().idx - segs.front().idx) > 2 * Size(segs)
-			|| !std::ranges::is_sorted(segs, {}, &Segment::idx))
+			|| (LRAP_WITH_CW && !std::ranges::is_sorted(segs, {}, &Segment::idx)))
 			return true;
 
 		// replace current segment with one containing only the center points of each lrap streak
@@ -407,42 +406,71 @@ static Clusters FindCandidates(const BitMatrix& image, bool tryHarder, bool reve
 	return res;
 }
 
-static int DetermineNumCols(BitMatrixModuleCursorF start, const Cluster& lraps)
+static int DetermineNumCols(BitMatrixModuleCursorF& start, const Cluster& lraps)
 {
-	auto r = [&](BitMatrixModuleCursorF cur) { return ReadRAP(cur, RAP::R) != 0; };
-	auto cw_r = [&](BitMatrixModuleCursorF cur) { return ReadCodeWord(cur) && r(cur); };
-	auto c_cw_cw_r = [&](BitMatrixModuleCursorF cur) { return (ReadRAP(cur, RAP::C) != 0) && ReadCodeWord(cur) && cw_r(cur); };
-	auto cw_c_cw_cw_r = [&](BitMatrixModuleCursorF cur) { return ReadCodeWord(cur) && c_cw_cw_r(cur); };
+	printf("right: %s, ms: %.1f\n", ToString(start.d).c_str(), start.ms);
+	std::array<int, 16> colHist = {}, offsets = {};
+	for (int s = 0; s < 2 && std::ranges::max(colHist) < 3; ++s)
+		for (auto& p : lraps) {
+			auto cur = start;
+			auto tmp = cur;
+			cur.p = centered(p) + s * cur.ms * right(cur.d); // if we don't have enough LRAPs, scan again with 1 modSize offset
 
-	int res = 0;
+			auto pair = RAPPair(ReadRAP(cur, RAP::L), 0);
+			if (!pair.first || !SkipCodeword(cur))
+				continue;
 
-	for (auto& p : lraps) {
-		auto cur = start;
-		cur.p = centered(p);
+			printf("\nLRAP: %2d @ %5.1fx%5.1f ", pair.first, cur.p.x, cur.p.y);
 
-		auto i = ReadRAP(cur, RAP::L);
-		if (!i)
-			continue;
-		if (!ReadCodeWord(cur, RAPCluster(i)))
-			continue;
+			auto checkRAP = [&](RAP rap, int colI) {
+				--colI;
+				pair = RAPPair(pair.first, ReadRAP((tmp = cur), rap));
+				if (pair.isValid()) {
+					colHist[colI * 4 + pair.family / 8] += 1;
+					offsets[colI * 4 + pair.family / 8] += pair.offset;
+				}
+				printf("%2d/%2d: %2d %s ", pair.first, pair.second, pair.offset, pair.isValid() ? "<  " : "   ");
+				return pair.isValid();
+			};
 
-		if (cw_c_cw_cw_r(cur))
-			return 4;
-		else if (c_cw_cw_r(cur))
-			res = std::max(res, 3);
-		else if (cw_r(cur))
-			res = std::max(res, 2);
-		else if (r(cur))
-			res = std::max(res, 1);
+			checkRAP(RAP::R, 1);
+			if (checkRAP(RAP::C, 3)) {
+				pair.first = pair.second;
+				cur = tmp;
+				if (SkipCodeword(cur) && SkipCodeword(cur) && checkRAP(RAP::R, 3))
+					continue;
+			}
+			if (SkipCodeword(cur)) {
+				checkRAP(RAP::R, 2);
+				if (checkRAP(RAP::C, 4)) {
+					pair.first = pair.second;
+					cur = tmp;
+					if (SkipCodeword(cur) && SkipCodeword(cur) && checkRAP(RAP::R, 4))
+						continue;
+				}
+			}
+		}
+
+	printv("\ncolHist: ", "%2d ", "", colHist);
+	printv("\noffsets: ", "%2d ", "\n", offsets);
+	int nCol = std::ranges::max_element(colHist) - colHist.begin();
+
+	if (colHist[nCol]) {
+		auto offset = double(offsets[nCol]) / colHist[nCol];
+		start.d = bresenhamDirection((10. + 17. * 2) * start.d - 2. * offset * start.right());
+		printf("average offset: %.1f, new right: %s, ms: %.1f\n", offset, ToString(start.d).c_str(), start.ms);
 	}
 
-	return res;
+	return nCol / 4 + 1;
 }
 
 struct SymbolInfo
 {
 	int nCols = 0, nRows = 0, nECCs = 0, rotFam = 0, startRow = 0, rowB = 0, rowE = 0;
 	int nCWs() const { return nCols * nRows; }
+	int lastRow() const { return startRow + nRows - 1; }
+	int width() const { return 21 + nCols * 17 + (nCols > 2) * 10; }
+	int height() const { return nRows * 2; }
 };
 
 static constexpr std::array<SymbolInfo, 35> SYMBOLS = {{
@@ -485,32 +513,60 @@ static constexpr std::array<SymbolInfo, 35> SYMBOLS = {{
 	{4, 44, 50, 24, 1, 1, 44},
 }};
 
-static const SymbolInfo& DetermineSymbolInfo(const Matrix<int>& mat, const std::array<int, 4>& rotFamHist [[maybe_unused]])
+static const SymbolInfo& DetermineSymbolInfo(const Matrix<Codeword>& cwMat, const std::array<int, 4>& rotFamHist [[maybe_unused]])
 {
-	// int rotFam = (std::ranges::max_element(rotFamHist) - rotFamHist.begin()) * 8;
-	std::array<int, SYMBOLS.size()> symHist = {};
-	auto nCWs = std::ranges::count_if(mat, [](auto i) { return i != -1; });
+	auto rotFamMax = std::ranges::max_element(rotFamHist);
+	int rotFam = *rotFamMax && *rotFamMax > Reduce(rotFamHist) / 2 ? static_cast<int>(rotFamMax - rotFamHist.begin()) * 8 : -1;
+	// rotFam = -1; // uncomment to test symbol detection without rotation family filtering
 
-	for (int y = 1; y < mat.height(); ++y) {
-		if (std::any_of(&mat(0, y), &mat(0, y) + mat.width(), [](auto i) { return i != -1; }))
-			for (const auto& s : SYMBOLS) {
-				if (s.nCols == mat.width() && s.rowB <= y && y <= s.rowE && nCWs >= s.nCWs() - s.nECCs && nCWs < s.nCWs() + 2 * s.nCols)
-					// && s.rotFam == rotFam
-					symHist[&s - &SYMBOLS.front()]++;
-			}
+	std::vector<int> sightsPerRow(cwMat.height(), 0);
+	for (int y = 1; y < cwMat.height(); ++y)
+		for (int x = 0; x < cwMat.width(); ++x)
+			sightsPerRow[y] += cwMat(x, y).count;
+
+	const SymbolInfo* bestSym = SYMBOLS.data();
+	int minError = std::numeric_limits<int>::max();
+	float meanCount = Reduce(cwMat, 0.f, [](float acc, const Codeword& e) { return acc + e.count; })
+					  / std::ranges::count_if(cwMat, [](const auto& e) { return e.count > 0; });
+
+	for (const auto& s : SYMBOLS) {
+		if (s.nCols != cwMat.width() || (rotFam != -1 && s.rotFam != rotFam))
+			continue;
+
+		int error = s.nCWs() * meanCount; // with all inside filled and outside empty, this will result in 0 error
+		for (int y = 1; y < cwMat.height(); ++y) {
+			bool isOutside = y < s.startRow || y > s.lastRow();
+			error += (isOutside ? 1 : -1) * sightsPerRow[y];
+		}
+
+		printf("symbol: %d, %2dx%2d, rotFam: %2d, firstRow: %2d, error: %d\n",
+			   static_cast<int>(&s - SYMBOLS.data()), s.nCols, s.nRows, s.rotFam, s.startRow, error);
+
+		if (error < minError) {
+			minError = error;
+			bestSym = &s;
+		}
 	}
 
-	int symIdx = std::ranges::max_element(symHist) - symHist.begin();
-	if (symHist[symIdx] < 1)
-		symIdx = 0; // fallback to the dummy symbol if no match was found
-	return SYMBOLS[symIdx];
+	return *bestSym;
 }
 
 static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 {
-	BitMatrixModuleCursorF startCur(image, centered(lraps.front()), PointF(lraps.back() - lraps.front()),
-									lraps.front().width / (10 + 17.f));
-	startCur.turnLeft();
+	auto inward = (lraps.back().y > lraps.front().y ? 1 : -1) * PointF(1, 0);
+	RegressionLine lineL, lineR;
+	lineL.setDirectionInward(inward);
+	lineR.setDirectionInward(inward);
+	for (auto& p : lraps) {
+		lineL.add(PointF(p));
+		lineR.add(PointF(p) + p.width * inward);
+	}
+	lineL.evaluate(2, true);
+	lineR.evaluate(2, true);
+	auto down = bresenhamDirection(right(lineL.normal()));
+	printf("down: %s\n", ToString(down).c_str());
+	BitMatrixModuleCursorF startCur(image, centered(lraps.front()), bresenhamDirection(lineR.normal()),
+									lraps.front().width / (10. + 17. * LRAP_WITH_CW));
 	startCur.step(-1);
 
 	int nCols = DetermineNumCols(startCur, lraps);
@@ -519,68 +575,75 @@ static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 		return {};
 
 	int failedTries = 0;
-	while(failedTries < 10 && image.isIn(startCur.p + startCur.left())) {
-		startCur.p += startCur.left();
+	while(failedTries < 10 && image.isIn(startCur.p - down)) {
+		startCur.p += -down;
 		auto cur = startCur;
 		log(cur.p);
 		if (!ReadRAP(cur, RAP::L))
 			++failedTries;
 	}
 
-	startCur.p += failedTries * startCur.right();
+	startCur.p += failedTries * down;
 
-	// Per-column histogram of observed RAP deltas (0..52), used to stabilize row/column pattern decoding.
-	Matrix<std::map<int, int>> histMat(nCols, 52 + 1);
+	// Matrix with vector of codewords for each cell, to collect all codeword sightings and their counts.
+	Matrix<std::vector<Codeword>> histMat(nCols, 52 + 1);
 	// Histogram of rotation family votes (4 possible families) collected while scanning RAP pairs.
 	std::array<int, 4> rotFamHist = {};
 	Position pos;
 
-	auto checkRAP = [&](int li, int ri, int scale = 1) {
-		int famIdx = ((52 + ri - li) % 52 + 4 * scale) / (8 * scale);
-		if (ri == 0 || famIdx > 3)
+	auto checkRAP = [&](int li, int ri) {
+		auto rap = RAPPair(li, ri);
+		if (!rap.isValid())
 			return false;
-		rotFamHist.at(famIdx)++;
+		// printf("li: %2d, ri: %2d, ri-li: %2d, fam: %d, offset: %d\n", li, ri, rap.second - rap.first, rap.family, rap.offset);
+		rotFamHist.at(rap.family/8)++;
 		failedTries = 0;
 		return true;
 	};
 
-	auto inSweepRange = [&, sweepDir = startCur.right()](PointF p) { return dot(PointF(lraps.back()) - p, sweepDir) >= 0; };
+	auto inSweepRange = [&](PointF p) { return dot(PointF(lraps.back()) - p, down) >= 0; };
 
 	failedTries = 1;
-	for (; image.isIn(startCur.p + startCur.right()) && (inSweepRange(startCur.p) || failedTries < 10);
-		 startCur.p += startCur.right(), failedTries++) {
+	for (; image.isIn(startCur.p + down) && (inSweepRange(startCur.p) || failedTries < 10 * startCur.ms); startCur.p += down, failedTries++) {
 		auto cur = startCur;
 		log(cur.p);
 
 		auto li = ReadRAP(cur, RAP::L);
+		// printf("li: %2d @ (%f, %f)\n", li, cur.p.x, cur.p.y);
 		if (!li)
 			continue;
-		CodeWord cw[4];
-		int ci = 0, ri = 0;
+		startCur.ms = cur.ms;
+		Codeword cw[4];
+		int ci = 0, ri = 0, cluster = RAPCluster(li);
 
-		cw[0] = ReadCodeWord(cur);
+		cw[0] = ReadCodeword(cur, cluster);
 		if (nCols == 2) {
-			cw[1] = ReadCodeWord(cur);
+			cw[1] = ReadCodeword(cur, cluster);
 		} else if (nCols == 3) {
 			ci = ReadRAP(cur, RAP::C);
-			cw[1] = ReadCodeWord(cur);
-			cw[2] = ReadCodeWord(cur);
+			if (checkRAP(li, ci))
+				cluster = RAPCluster(ci);
+			cw[1] = ReadCodeword(cur, cluster);
+			cw[2] = ReadCodeword(cur, cluster);
 		} else if (nCols == 4) {
-			cw[1] = ReadCodeWord(cur);
+			cw[1] = ReadCodeword(cur, cluster);
 			ci = ReadRAP(cur, RAP::C);
-			cw[2] = ReadCodeWord(cur);
-			cw[3] = ReadCodeWord(cur);
+			if (checkRAP(li, ci))
+				cluster = RAPCluster(ci);
+			cw[2] = ReadCodeword(cur, cluster);
+			cw[3] = ReadCodeword(cur, cluster);
 		}
 		ri = ReadRAP(cur, RAP::R);
 
 		if (nCols <= 2) {
-			checkRAP(li, ri, 1);
+			checkRAP(li, ri);
 		} else {
-			checkRAP(li, ci, 1);
-			checkRAP(li, ri, 2);
+			checkRAP(li, ci);
+			checkRAP(ci, ri);
 		}
 
-		if (ri) {
+		if (ci || ri || cw[0] || cw[1] || cw[2] || cw[3]) {
+			// collect crude approximation as fallback
 			if (pos[0] == PointI()) {
 				pos[0] = PointI(startCur.p);
 				pos[1] = PointI(cur.p);
@@ -598,46 +661,99 @@ static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 			return o;
 		};
 
-		printf("%d/%d -> ", li, RAPCluster(li));
+		printf("%2d/%d -> ", li, RAPCluster(li));
 		for (int x = 0; x < nCols; ++x) {
-			printf("%d/%d ", cw[x].code, cw[x].cluster);
+			printf("%3d/%d ", cw[x].codeword, cw[x].cluster);
 			if (cw[x]) {
 				li += rowOffset(cw[x].cluster);
 				if (li < 1 || li > 52)
-					break;
-				histMat(x, li)[cw[x].code]++;
+					continue;
+				auto& cell = histMat(x, li);
+				auto cwPtr = std::ranges::find(cell, cw[x]);
+				if (cwPtr != cell.end()) {
+					cwPtr->count++;
+					cwPtr->left += cw[x].left;
+					cwPtr->right += cw[x].right;
+				}
+				else
+					cell.push_back(cw[x]);
 			}
 		}
 		printf("\n");
 	}
 
-	Matrix<int> mat(nCols, 53, -1);
-	std::ranges::transform(histMat, mat.begin(), [](std::map<int, int>& hist) {
-		return hist.empty() ? -1 : std::ranges::max_element(hist, {}, &std::pair<const int, int>::second)->first;
+	Matrix<Codeword> cwMat(nCols, 53, {});
+	std::ranges::transform(histMat, cwMat.begin(), [](std::vector<Codeword>& hist) {
+		if (hist.empty())
+			return Codeword{};
+		if (hist.size() == 1)
+			return hist.front();
+
+		auto best = std::ranges::max_element(hist, [](const auto& a, const auto& b) { return a.count < b.count; });
+		bool bestIsUnique = std::ranges::all_of(hist, [&](const auto& a) { return &a == &*best || a.count < best->count; });
+
+		return bestIsUnique ? *best : Codeword{};
 	});
 
-	auto si = DetermineSymbolInfo(mat, rotFamHist);
+#ifdef PRINT_DEBUG
+	for (int y = 0; y < cwMat.height(); ++y) {
+		printf("%2d: ", y);
+		for (int x = 0; x < cwMat.width(); ++x) {
+			auto& e = cwMat(x, y);
+			e.count ? printf("%3d %2d | ", e.codeword, e.count) : printf("       | ");
+		}
+		printf("\n");
+	}
+#endif
+
+	auto si = DetermineSymbolInfo(cwMat, rotFamHist);
 
 	std::vector<int> codewords(si.nCWs() + 1);
-	codewords[0] = Size(codewords); // see DecodeCodewords
-	std::copy_n(&mat(0, si.startRow), si.nCWs(), codewords.begin() + 1);
-
-#ifdef PRINT_DEBUG
-	printf("codewords: ");
-	for (int cw: codewords)
-		printf("%3d ", cw);
-	printf("\n");
-#endif
+	// MicroPDF417 does not encode the number of codewords in the symbol but the DecodeCodewords() function expects the first element
+	// to contain the number of codewords. The ReedSolomon algorithm can gracefully handle prepended zeros, the VerifyCodewordCount()
+	// function will autocorrect the number of codewords if the first element is zero.
+	codewords[0] = 0;
+	for (int i = 0; i < si.nCWs(); ++i)
+		codewords[i + 1] = (&cwMat(0, si.startRow))[i].codeword;
 
 	std::vector<int> erasures;
 	for (int i=0; i < Size(codewords); ++i)
 		if (codewords[i] == -1)
 			erasures.push_back(i);
 
+	if (Size(erasures) > si.nECCs)
+		return {};
+
+	// TODO: implement proper handling of ECI Descriptor codeword at the start of the codeword sequence
+	// (see ISO 24728:2006, section 5.2.4.2 ECI Descriptor codeword)
 	DecoderResult decoderResult = Pdf417::DecodeCodewords(codewords, si.nECCs, erasures);
-	printf("size: %dx%d, cws: %d, rotFamHist: %d/%d/%d/%d, rotFam: %d, nEECs: %d, erasures: %d, valid: %d\n", si.nCols, si.nRows,
-		   si.nCWs(), rotFamHist[0], rotFamHist[1], rotFamHist[2], rotFamHist[3], si.rotFam, si.nECCs, Size(erasures),
-		   decoderResult.isValid());
+	printf("size: %dx%d, firstRow: %d, cws: %d, rotFamHist: %d/%d/%d/%d, rotFam: %d, nEECs: %d, erasures: %d, valid: %d\n", si.nCols,
+		   si.nRows, si.startRow, si.nCWs(), rotFamHist[0], rotFamHist[1], rotFamHist[2], rotFamHist[3], si.rotFam, si.nECCs,
+		   Size(erasures), decoderResult.isValid());
+
+	// Extrapolate the symbol corners from a perspective transform created from detected codeword positions near the corners of the symbol.
+	auto closestCorner = [&](PointI corner, PointI dir) -> PointI {
+		for (int x = 0; x <= si.width() / 2; ++x)
+			for (int y = 0; y < si.height() / 2; ++y) {
+				auto offset = PointI{x, y} * dir;
+				if (cwMat(corner + offset).count > 1)
+					return offset;
+			}
+		return {};
+	};
+	PointI tlI = closestCorner({0, si.startRow}, {1, 1}), trI = closestCorner({si.nCols - 1, si.startRow}, {-1, 1}),
+		   brI = closestCorner({si.nCols - 1, si.lastRow()}, {-1, -1}), blI = closestCorner({0, si.lastRow()}, {1, -1});
+	PointI cell(17, 2);
+
+	auto src = QuadrilateralF(PointI{10, 1} + tlI * cell, PointI{si.width() - 11, 1} + trI * cell,
+							  PointI{si.width() - 11, si.height() - 1} + brI * cell, PointI{10, si.height() - 1} + blI * cell);
+	auto dst =
+		QuadrilateralF(cwMat(PointI{0, si.startRow} + tlI).leftPos(), cwMat(PointI{si.nCols - 1, si.startRow} + trI).rightPos(),
+					   cwMat(PointI{si.nCols - 1, si.lastRow()} + brI).rightPos(), cwMat(PointI{0, si.lastRow()} + blI).leftPos());
+	auto mod2pix = PerspectiveTransform(src, dst);
+	if (mod2pix.isValid())
+		pos = Position{mod2pix({0, 0}), mod2pix({(double)si.width(), 0}), mod2pix({(double)si.width(), (double)si.height()}),
+					   mod2pix({0, (double)si.height()})};
 
 	return MatrixBarcode(std::move(decoderResult), DetectorResult({}, std::move(pos)), BarcodeFormat::MicroPDF417);
 }

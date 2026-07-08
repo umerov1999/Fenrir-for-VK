@@ -163,6 +163,10 @@
             android:foregroundServiceType="dataSync" />
 
         <service
+            android:name="dev.ragnarok.filegallery.service.NotificationIntentService"
+            android:exported="false" />
+
+        <service
             android:name="dev.ragnarok.filegallery.media.music.MusicPlaybackService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback">

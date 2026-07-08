@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.api.services
 
+import dev.ragnarok.fenrir.api.model.VKApiJsonString
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.CustomResponse
 import dev.ragnarok.fenrir.api.model.upload.UploadAudioDto
@@ -31,7 +32,18 @@ class IUploadService : IServiceRest() {
         return rest.doMultipartFormFullUrl(server, file, baseInt)
     }
 
-    fun uploadStoryRx(
+    fun uploadStoryPhotoRx(
+        server: String,
+        file: MultipartBody.Part
+    ): Flow<VKApiJsonString> {
+        return rest.doMultipartFormFullUrl(
+            server,
+            file,
+            VKApiJsonString.serializer()
+        )
+    }
+
+    fun uploadStoryVideoRx(
         server: String,
         file: MultipartBody.Part
     ): Flow<CustomResponse<UploadStoryDto>> {

@@ -95,9 +95,9 @@ private:
     {
         Line line{};
         Line firstLine{};
+        bool moveto = false;
         uint32_t movetoOutIndex = 0;
         uint32_t movetoInIndex = 0;
-        bool moveto = false;
     };
 
     RenderPath& modify(const RenderPath& in, RenderPath& out, Matrix* transform);

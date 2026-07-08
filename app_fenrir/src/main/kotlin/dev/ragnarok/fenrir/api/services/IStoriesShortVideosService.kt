@@ -65,10 +65,10 @@ class IStoriesShortVideosService : IServiceRest() {
         )
     }
 
-    fun stories_save(upload_results: String?): Flow<BaseResponse<Items<VKApiStory>>> {
+    fun stories_save(uploadResultsJson: String?): Flow<BaseResponse<Items<VKApiStory>>> {
         return rest.request(
             "stories.save",
-            form("upload_results" to upload_results),
+            form("upload_results_json" to uploadResultsJson),
             items(VKApiStory.serializer())
         )
     }

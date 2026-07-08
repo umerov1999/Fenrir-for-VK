@@ -270,7 +270,16 @@ namespace internal
                 return INVALID_LEAD;
             case 1:
                 err = utf8::internal::get_sequence_1(it, end, cp);
-                break;
+                // No need for further validations
+                if (err == UTF8_OK) {
+                    code_point = cp;
+                    ++it;
+                    return UTF8_OK;
+                } else {
+                    it = original_it;
+                    return err;
+                }
+                break; // just to make sure there are no warnings
             case 2:
                 err = utf8::internal::get_sequence_2(it, end, cp);
             break;
@@ -393,6 +402,10 @@ namespace internal
             if (lead == 0xF0 && trail1 < 0x90) {
                 it = original_it;
                 return OVERLONG_SEQUENCE;
+            }
+            if (lead == 0xF4 && trail1 > 0x8F) {
+                it = original_it;
+                return INVALID_CODE_POINT;
             }
             if (lead >= 0xF5) {
                 it = original_it;

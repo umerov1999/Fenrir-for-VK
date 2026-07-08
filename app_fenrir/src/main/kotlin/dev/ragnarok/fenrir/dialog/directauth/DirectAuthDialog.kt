@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
@@ -33,7 +34,7 @@ class DirectAuthDialog : BaseMvpDialogFragment<DirectAuthPresenter, IDirectAuthV
     private var mCaptchaLegacy: TextInputEditText? = null
     private var mSmsCode: TextInputEditText? = null
     private var mSavePassword: MaterialSwitch? = null
-    private var mSmsCodeRoot: View? = null
+    private var mSmsCodeRoot: TextInputLayout? = null
     private var mSmsAuthHelp: MaterialTextView? = null
     private var mContentRoot: View? = null
     private var mLoadingRoot: View? = null
@@ -254,6 +255,14 @@ class DirectAuthDialog : BaseMvpDialogFragment<DirectAuthPresenter, IDirectAuthV
             mSmsAuthHelp?.setText(R.string.sms_auth_help)
         } else {
             mSmsAuthHelp?.text = description
+        }
+    }
+
+    override fun updateSmsHint(hint: String?) {
+        if (hint.isNullOrEmpty()) {
+            mSmsCodeRoot?.setHint(R.string.login_sms_code_hint)
+        } else {
+            mSmsCodeRoot?.hint = hint
         }
     }
 

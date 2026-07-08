@@ -33,6 +33,7 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.ViewUtils.getOnlineIcon
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.OnlineView
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -197,7 +198,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
             )
             lastMessage = spannable.append(": ").append(lastMessage)
         }
-        holder.mDialogMessage.text = lastMessage
+        holder.mDialogMessage.precompute(lastMessage)
         val lastMessageRead = dialog.isLastMessageRead
         val titleTextStyle = getTextStyle(dialog.isLastMessageOut, lastMessageRead)
         holder.mDialogTitle.setTypeface(null, titleTextStyle)
@@ -423,7 +424,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         RecyclerView.ViewHolder(view) {
         val mContentRoot: View = view.findViewById(R.id.content_root)
         val mDialogTitle: TextView = view.findViewById(R.id.dialog_title)
-        val mDialogMessage: TextView = view.findViewById(R.id.dialog_message)
+        val mDialogMessage: LinkHelperTextView = view.findViewById(R.id.dialog_message)
         val ivDialogType: ImageView = view.findViewById(R.id.dialog_type)
         val ivAvatar: ImageView = view.findViewById(R.id.item_chat_avatar)
         val ivVerified: ImageView = itemView.findViewById(R.id.item_verified)

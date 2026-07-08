@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.model.feedback.MentionFeedback
 import dev.ragnarok.fenrir.model.feedback.PostPublishFeedback
 import dev.ragnarok.fenrir.model.feedback.ReplyCommentFeedback
 import dev.ragnarok.fenrir.model.feedback.UsersFeedback
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.OnlineView
 import java.util.Calendar
 
@@ -305,11 +306,11 @@ class FeedbackAdapter(
         val cOwnerAvatar: ImageView = root.findViewById(R.id.item_comment_owner_avatar)
         val cChangable: OnlineView = root.findViewById(R.id.item_circle_changable)
         val cOwnerName: TextView = root.findViewById(R.id.item_comment_owner_name)
-        val cOwnerText: TextView = root.findViewById(R.id.item_comment_text)
+        val cOwnerText: LinkHelperTextView = root.findViewById(R.id.item_comment_text)
         val cOwnerTime: TextView = root.findViewById(R.id.item_comment_time)
         val cReplyOwnerAvatar: ImageView = root.findViewById(R.id.item_comment_reply_owner_avatar)
         val cReplyName: TextView = root.findViewById(R.id.item_comment_reply_owner_name)
-        val cReplyText: TextView = root.findViewById(R.id.item_comment_reply_text)
+        val cReplyText: LinkHelperTextView = root.findViewById(R.id.item_comment_reply_text)
         val cReplyTime: TextView = root.findViewById(R.id.item_comment_reply_time)
         val cReplyContainer: ViewGroup = root.findViewById(R.id.comment_reply_feedback)
         val vAttachmentsRoot: View = root.findViewById(R.id.item_feedback_comment_attachments_root)

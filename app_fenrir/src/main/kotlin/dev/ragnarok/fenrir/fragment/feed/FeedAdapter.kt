@@ -32,6 +32,7 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.ViewUtils.setCountText
 import dev.ragnarok.fenrir.view.CircleCounterButton
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 
 class FeedAdapter(
     private val context: Context,
@@ -78,44 +79,45 @@ class FeedAdapter(
         )
         viewHolder.tvOwnerName.text = item.ownerName
         val result = AppTextUtils.reduceStringForPost(item.text)
-        viewHolder.tvText.text =
+        viewHolder.tvText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 result,
                 owners = true,
                 topics = false,
                 listener = mLinkActionAdapter
             )
+        )
         var force = false
         if (item.text.isNullOrEmpty()) {
             when (item.type) {
                 "photo" -> {
                     force = true
-                    viewHolder.tvText.setText(R.string.public_photo)
+                    viewHolder.tvText.precompute(R.string.public_photo)
                 }
 
                 "wall_photo" -> {
                     force = true
-                    viewHolder.tvText.setText(R.string.public_photo_wall)
+                    viewHolder.tvText.precompute(R.string.public_photo_wall)
                 }
 
                 "photo_tag" -> {
                     force = true
-                    viewHolder.tvText.setText(R.string.public_photo_tag)
+                    viewHolder.tvText.precompute(R.string.public_photo_tag)
                 }
 
                 "friend" -> {
                     force = true
-                    viewHolder.tvText.setText(R.string.public_friends)
+                    viewHolder.tvText.precompute(R.string.public_friends)
                 }
 
                 "audio" -> {
                     force = true
-                    viewHolder.tvText.setText(R.string.public_audio)
+                    viewHolder.tvText.precompute(R.string.public_audio)
                 }
 
                 "video" -> {
                     force = true
-                    viewHolder.tvText.setText(R.string.public_video)
+                    viewHolder.tvText.precompute(R.string.public_video)
                 }
             }
         }
@@ -241,7 +243,7 @@ class FeedAdapter(
         OnCreateContextMenuListener {
         val tvOwnerName: TextView
         val ivOwnerAvatar: ImageView
-        val tvText: TextView
+        val tvText: LinkHelperTextView
         val tvShowMore: TextView
         val tvTime: TextView
         val bottomActionsContainer: Group

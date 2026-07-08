@@ -113,7 +113,7 @@ class AttchmentsEditorAdapter(
         holder.pbProgress.changePercentage(upload.progress)
         if (upload.hasThumbnail()) {
             with()
-                .load(upload.buildThumnailUri())
+                .load(upload.buildThumbnailUri())
                 .placeholder(R.drawable.background_gray)
                 .into(holder.photoImageView)
         } else {

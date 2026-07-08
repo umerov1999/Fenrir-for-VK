@@ -4,7 +4,6 @@ import dev.ragnarok.fenrir.api.IUploadRestProvider
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.IUploadApi
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
-import dev.ragnarok.fenrir.api.model.response.CustomResponse
 import dev.ragnarok.fenrir.api.model.upload.UploadAudioDto
 import dev.ragnarok.fenrir.api.model.upload.UploadChatPhotoDto
 import dev.ragnarok.fenrir.api.model.upload.UploadDocDto
@@ -12,14 +11,18 @@ import dev.ragnarok.fenrir.api.model.upload.UploadOwnerPhotoDto
 import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToAlbumDto
 import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToMessageDto
 import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToWallDto
-import dev.ragnarok.fenrir.api.model.upload.UploadStoryDto
 import dev.ragnarok.fenrir.api.model.upload.UploadVideoDto
 import dev.ragnarok.fenrir.api.services.IUploadService
 import dev.ragnarok.fenrir.api.util.ProgressRequestBody
 import dev.ragnarok.fenrir.api.util.ProgressRequestBody.UploadCallbacks
+import dev.ragnarok.fenrir.kJsonNotPretty
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.JsonArrayBuilder
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.put
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import java.io.InputStream
@@ -87,7 +90,7 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
         inputStream: InputStream,
         listener: PercentagePublisher?,
         isVideo: Boolean
-    ): Flow<CustomResponse<UploadStoryDto>> {
+    ): Flow<String> {
         val body = ProgressRequestBody(
             inputStream, wrapPercentageListener(listener),
             "*/*".toMediaTypeOrNull()
@@ -98,8 +101,35 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
                 filename,
                 body
             )
-        return service().flatMapConcat {
-            it.uploadStoryRx(server, part)
+        return if (isVideo) {
+            service().flatMapConcat {
+                it.uploadStoryVideoRx(server, part).map { r ->
+                    if (r.error.nonNullNoEmpty()) {
+                        throw Exception(r.error)
+                    }
+                    val uploadResult = r.response?.upload_result
+                    if (uploadResult.isNullOrEmpty()) {
+                        throw Exception("upload_result is empty!")
+                    }
+                    uploadResult
+                }
+            }
+        } else {
+            service().flatMapConcat {
+                it.uploadStoryPhotoRx(server, part).map { r ->
+                    val uploadResult = r.json_data
+                    if (uploadResult.isNullOrEmpty()) {
+                        throw Exception("upload_result is empty!")
+                    }
+                    uploadResult
+                }
+            }
+        }.map {
+            val ret = JsonArrayBuilder()
+            val elem = JsonObjectBuilder()
+            elem.put("upload_result", it)
+            ret.add(elem.build())
+            kJsonNotPretty.encodeToString(ret.build())
         }
     }
 

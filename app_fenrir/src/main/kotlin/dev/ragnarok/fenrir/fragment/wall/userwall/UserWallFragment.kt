@@ -62,6 +62,7 @@ import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.getVerifiedColor
 import dev.ragnarok.fenrir.util.Utils.setBackgroundTint
 import dev.ragnarok.fenrir.util.ViewUtils.getOnlineIcon
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.OnlineView
 import dev.ragnarok.fenrir.view.ProfileCoverDrawable
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
@@ -366,7 +367,7 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
     }
 
     override fun displayUserStatus(statusText: String?, swAudioIcon: Boolean) {
-        mHeaderHolder?.tvStatus?.text = statusText
+        mHeaderHolder?.tvStatus?.precompute(statusText)
         mHeaderHolder?.tvAudioStatus?.visibility =
             if (swAudioIcon) View.VISIBLE else View.GONE
     }
@@ -619,7 +620,7 @@ class UserWallFragment : AbsWallFragment<IUserWallView, UserWallPresenter>(), IU
         val ivVerified: ImageView = root.findViewById(R.id.item_verified)
         val tvName: TextView = root.findViewById(R.id.fragment_user_profile_name)
         val tvScreenName: TextView = root.findViewById(R.id.fragment_user_profile_id)
-        val tvStatus: TextView = root.findViewById(R.id.fragment_user_profile_status)
+        val tvStatus: LinkHelperTextView = root.findViewById(R.id.fragment_user_profile_status)
         val tvAudioStatus: ImageView = root.findViewById(R.id.fragment_user_profile_audio)
         val tvLastSeen: TextView = root.findViewById(R.id.fragment_user_profile_activity)
         val ivOnline: OnlineView = root.findViewById(R.id.header_navi_menu_online)

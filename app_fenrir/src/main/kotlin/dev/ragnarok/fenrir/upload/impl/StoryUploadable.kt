@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Story
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.MessageMethod
@@ -76,32 +75,28 @@ class StoryUploadable(private val context: Context, private val networker: INetw
                         )
                         .onCompletion { safelyClose(inputStream) }
                         .flatMapConcat { dto ->
-                            if (dto.error.nonNullNoEmpty()) {
-                                toFlowThrowable(Exception(dto.error))
-                            } else {
-                                networker
-                                    .vkDefault(accountId)
-                                    .stories()
-                                    .stories_save(dto.response?.upload_result)
-                                    .map {
-                                        listEmptyIfNull(it.items)
-                                    }
-                                    .flatMapConcat { tmpList ->
-                                        if (tmpList.isEmpty()) {
-                                            toFlowThrowable(NotFoundException("[stories_save] returned empty list"))
-                                        } else {
-                                            owners.findBaseOwnersDataAsBundle(
-                                                accountId, listOf(
-                                                    Settings.get().accounts().current
-                                                ), IOwnersRepository.MODE_ANY, null
-                                            ).map {
-                                                val document =
-                                                    Dto2Model.transformStory(tmpList[0], it)
-                                                UploadResult(server, document)
-                                            }
+                            networker
+                                .vkDefault(accountId)
+                                .stories()
+                                .stories_save(dto)
+                                .map {
+                                    listEmptyIfNull(it.items)
+                                }
+                                .flatMapConcat { tmpList ->
+                                    if (tmpList.isEmpty()) {
+                                        toFlowThrowable(NotFoundException("[stories_save] returned empty list"))
+                                    } else {
+                                        owners.findBaseOwnersDataAsBundle(
+                                            accountId, listOf(
+                                                Settings.get().accounts().current
+                                            ), IOwnersRepository.MODE_ANY, null
+                                        ).map {
+                                            val document =
+                                                Dto2Model.transformStory(tmpList[0], it)
+                                            UploadResult(server, document)
                                         }
                                     }
-                            }
+                                }
                         }
                 }
             } catch (e: Exception) {

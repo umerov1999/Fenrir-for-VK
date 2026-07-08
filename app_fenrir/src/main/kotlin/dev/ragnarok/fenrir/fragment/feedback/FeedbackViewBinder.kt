@@ -70,15 +70,15 @@ class FeedbackViewBinder(
         holder: FeedbackAdapter.CommentHolder
     ) {
         val feedback = notification.where
-        val spannable =
+        holder.cOwnerName.text = feedback?.fullAuthorName
+        holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 feedback?.text,
                 owners = true,
                 topics = false,
                 listener = mLinkActionAdapter
             )
-        holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.setText(spannable, TextView.BufferType.SPANNABLE)
+        )
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
         action = action + SPACE + context.getString(R.string.mentioned_in_comment_photo_video)
         val actionLink = Link.startOf(action.length)
@@ -138,15 +138,15 @@ class FeedbackViewBinder(
         holder: FeedbackAdapter.CommentHolder
     ) {
         val feedback = notification.where
-        val spannable =
+        holder.cOwnerName.text = feedback?.fullAuthorName
+        holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 feedback?.text,
                 owners = true,
                 topics = false,
                 listener = mLinkActionAdapter
             )
-        holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.setText(spannable, TextView.BufferType.SPANNABLE)
+        )
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
         action = action + SPACE + context.getString(R.string.mentioned_in_comment_photo_video)
         val actionLink = Link.startOf(action.length)
@@ -186,15 +186,15 @@ class FeedbackViewBinder(
     ) {
         val post = notification.commentOf as Post
         val feedback = notification.where
-        val spannable =
+        holder.cOwnerName.text = feedback?.fullAuthorName
+        holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 feedback?.text,
                 owners = true,
                 topics = true,
                 listener = mLinkActionAdapter
             )
-        holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.setText(spannable, TextView.BufferType.SPANNABLE)
+        )
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
         action = action + SPACE + context.getString(R.string.in_comments_for_post)
         val actionLink = Link.startOf(action.length)
@@ -247,15 +247,15 @@ class FeedbackViewBinder(
         holder: FeedbackAdapter.CommentHolder
     ) {
         val feedback = notification.where as Post
-        val spannable =
+        holder.cOwnerName.text = feedback.authorName
+        holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 feedback.text,
                 owners = true,
                 topics = false,
                 listener = mLinkActionAdapter
             )
-        holder.cOwnerName.text = feedback.authorName
-        holder.cOwnerText.setText(spannable, TextView.BufferType.SPANNABLE)
+        )
         val timeWithActionText =
             AppTextUtils.getDateFromUnixTime(notification.date) + SPACE + context.getString(R.string.mentioned_in_post)
         holder.cOwnerTime.text = timeWithActionText
@@ -289,19 +289,19 @@ class FeedbackViewBinder(
         holder: FeedbackAdapter.CommentHolder
     ) {
         val feedback = notification.post
-        val feedBackText =
+        var action = AppTextUtils.getDateFromUnixTime(notification.date)
+        action = action + SPACE + context.getString(R.string.postings_you_the_news)
+        holder.cOwnerName.text = feedback?.authorName
+        holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 feedback?.text,
                 owners = true,
                 topics = false,
                 listener = mLinkActionAdapter
             )
-        var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.postings_you_the_news)
-        holder.cOwnerName.text = feedback?.authorName
-        holder.cOwnerText.setText(feedBackText, TextView.BufferType.SPANNABLE)
+        )
         holder.cOwnerText.visibility =
-            if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
+            if (feedback?.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.text = action
         holder.cChangable.visibility = View.GONE
         with()
@@ -337,19 +337,19 @@ class FeedbackViewBinder(
         holder: FeedbackAdapter.CommentHolder
     ) {
         val feedback = notification.post
-        val feedBackText =
+        var action = AppTextUtils.getDateFromUnixTime(notification.date)
+        action = action + SPACE + context.getString(R.string.on_your_wall)
+        holder.cOwnerName.text = feedback?.authorName
+        holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 feedback?.text,
                 owners = true,
                 topics = false,
                 listener = mLinkActionAdapter
             )
-        var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.on_your_wall)
-        holder.cOwnerName.text = feedback?.authorName
-        holder.cOwnerText.setText(feedBackText, TextView.BufferType.SPANNABLE)
+        )
         holder.cOwnerText.visibility =
-            if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
+            if (feedback?.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.text = action
         holder.cChangable.visibility = View.GONE
         with()
@@ -381,13 +381,6 @@ class FeedbackViewBinder(
         holder: FeedbackAdapter.CommentHolder
     ) {
         val feedback = notification.comment
-        val feedBackText =
-            OwnerLinkSpanFactory.withSpans(
-                feedback?.text,
-                owners = true,
-                topics = false,
-                listener = mLinkActionAdapter
-            )
         var action = feedback?.date?.let { AppTextUtils.getDateFromUnixTime(it) }
         action = action + SPACE + context.getString(R.string.comment_your_video_without_video)
         val parentLink = Link.startOf(action.length)
@@ -397,9 +390,16 @@ class FeedbackViewBinder(
         showAsLink(spannable, parentLink)
         val ownername = feedback?.fullAuthorName + SPACE + context.getString(R.string.commented)
         holder.cOwnerName.text = ownername
-        holder.cOwnerText.setText(feedBackText, TextView.BufferType.SPANNABLE)
+        holder.cOwnerText.precompute(
+            OwnerLinkSpanFactory.withSpans(
+                feedback?.text,
+                owners = true,
+                topics = false,
+                listener = mLinkActionAdapter
+            )
+        )
         holder.cOwnerText.visibility =
-            if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
+            if (feedback?.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
@@ -427,13 +427,6 @@ class FeedbackViewBinder(
         holder: FeedbackAdapter.CommentHolder
     ) {
         val feedback = notification.comment
-        val feedBackText =
-            OwnerLinkSpanFactory.withSpans(
-                feedback?.text,
-                owners = true,
-                topics = false,
-                listener = mLinkActionAdapter
-            )
         var action = feedback?.date?.let { AppTextUtils.getDateFromUnixTime(it) }
         action = action + SPACE + context.getString(R.string.comment_your_photo_without_photo)
         val parentLink = Link.startOf(action.length)
@@ -442,9 +435,16 @@ class FeedbackViewBinder(
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, parentLink)
         holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.setText(feedBackText, TextView.BufferType.SPANNABLE)
+        holder.cOwnerText.precompute(
+            OwnerLinkSpanFactory.withSpans(
+                feedback?.text,
+                owners = true,
+                topics = false,
+                listener = mLinkActionAdapter
+            )
+        )
         holder.cOwnerText.visibility =
-            if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
+            if (feedback?.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
         holder.cChangable.visibility = View.GONE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
@@ -491,7 +491,7 @@ class FeedbackViewBinder(
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, parentLink)
         holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.text = feedBackText
+        holder.cOwnerText.precompute(feedBackText)
         holder.cOwnerText.visibility =
             if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
@@ -549,7 +549,7 @@ class FeedbackViewBinder(
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, parentLink)
         holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.text = feedBackText
+        holder.cOwnerText.precompute(feedBackText)
         holder.cOwnerText.visibility =
             if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
@@ -599,7 +599,7 @@ class FeedbackViewBinder(
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, parentLink)
         holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.text = feedBackText
+        holder.cOwnerText.precompute(feedBackText)
         holder.cOwnerText.visibility =
             if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
@@ -636,7 +636,7 @@ class FeedbackViewBinder(
                 topics = true,
                 listener = mLinkActionAdapter
             )
-        holder.cOwnerText.text = feedBackText
+        holder.cOwnerText.precompute(feedBackText)
         holder.cOwnerText.visibility =
             if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
         val containers = AttachmentsHolder.forFeedback(holder.vAttachmentsRoot)
@@ -697,7 +697,7 @@ class FeedbackViewBinder(
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, parentLink)
         holder.cOwnerName.text = feedback?.fullAuthorName
-        holder.cOwnerText.text = feedBackText
+        holder.cOwnerText.precompute(feedBackText)
         holder.cOwnerText.visibility =
             if (feedBackText.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.cOwnerTime.setText(spannable, TextView.BufferType.SPANNABLE)
@@ -746,7 +746,7 @@ class FeedbackViewBinder(
         if (reply != null) {
             holder.cReplyName.text = reply.fullAuthorName
             holder.cReplyTime.text = AppTextUtils.getDateFromUnixTime(reply.date)
-            holder.cReplyText.text = OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(reply.text)
+            holder.cReplyText.precompute(OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(reply.text))
             val authorAvaUrl = reply.maxAuthorAvaUrl
             displayAvatar(
                 holder.cReplyOwnerAvatar,

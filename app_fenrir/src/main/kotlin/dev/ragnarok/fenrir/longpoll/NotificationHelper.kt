@@ -42,9 +42,9 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getExternalLinkPlace
 import dev.ragnarok.fenrir.push.ChatEntryFetcher
 import dev.ragnarok.fenrir.push.ChatEntryFetcher.DialogInfo
 import dev.ragnarok.fenrir.push.NotificationScheduler
-import dev.ragnarok.fenrir.service.QuickReplyService.Companion.intentForAccountValidate
-import dev.ragnarok.fenrir.service.QuickReplyService.Companion.intentForAddMessage
-import dev.ragnarok.fenrir.service.QuickReplyService.Companion.intentForReadMessage
+import dev.ragnarok.fenrir.service.NotificationIntentService.Companion.intentForAccountValidate
+import dev.ragnarok.fenrir.service.NotificationIntentService.Companion.intentForAddMessage
+import dev.ragnarok.fenrir.service.NotificationIntentService.Companion.intentForReadMessage
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.toastColor
 import dev.ragnarok.fenrir.util.AppPerms
@@ -80,6 +80,7 @@ object NotificationHelper {
     const val NOTIFICATION_DOWNLOAD_MANAGER = 76
     const val NOTIFICATION_MENTION = 77
     const val NOTIFICATION_DOWNLOADING_GROUP = 78
+    const val NOTIFICATION_UPLOAD_FAIL = 79
     private val bubbleLock = Any()
     private var bubbleOpened: String? = null
     private fun getBubbleOpened(): String? {

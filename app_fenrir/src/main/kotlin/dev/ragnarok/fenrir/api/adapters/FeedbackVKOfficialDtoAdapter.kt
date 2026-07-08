@@ -31,9 +31,9 @@ class FeedbackVKOfficialDtoAdapter :
         if (!checkObject(json)) {
             throw Exception("$TAG error parse object")
         }
-        val dtolist = FeedbackVKOfficialList()
+        val dtoList = FeedbackVKOfficialList()
         val root = json.jsonObject
-        dtolist.items = ArrayList()
+        dtoList.items = ArrayList()
 
         val profiles: List<VKApiUser> =
             if (hasArray(root, "profiles")) kJson.decodeFromJsonElementOrNull(
@@ -54,71 +54,74 @@ class FeedbackVKOfficialDtoAdapter :
                 photos.add(kJson.decodeFromJsonElement(VKApiPhoto.serializer(), i))
             }
         }
-        if (!hasArray(root, "items")) return dtolist
+        if (!hasArray(root, "items")) return dtoList
         for (i in root["items"]?.jsonArray.orEmpty()) {
             if (!checkObject(i)) {
                 continue
             }
-            val root_item = i.jsonObject
+            val rootItem = i.jsonObject
             val dto = FeedbackVKOfficial()
-            if (hasObject(root_item, "action")) {
-                val action_item = root_item["action"]?.jsonObject
-                if ("authorize" == optString(action_item, "type")) {
-                    dto.action = ActionBrowserURL(optString(action_item, "url"))
+            if (hasObject(rootItem, "action")) {
+                val actionItem = rootItem["action"]?.jsonObject
+                if ("authorize" == optString(actionItem, "type")) {
+                    dto.action = ActionBrowserURL(optString(actionItem, "url"))
                 } else if ("custom" == optString(
-                        action_item,
+                        actionItem,
                         "type"
                     ) && optString(
-                        root_item,
+                        rootItem,
                         "icon_type"
                     ) == "friend_found" && optString(
-                        action_item,
+                        actionItem,
                         "url"
                     )?.contains("friends_swipe") != true
                 ) {
-                    dto.action = ActionURL(optString(action_item, "url"))
+                    dto.action = ActionURL(optString(actionItem, "url"))
                 } else if ("custom" == optString(
-                        action_item,
+                        actionItem,
                         "type"
                     ) && (optString(
-                        action_item,
+                        actionItem,
                         "url"
                     )?.contains("/story") == true || optString(
-                        action_item,
+                        actionItem,
                         "url"
-                    )?.contains("/wall") == true)
+                    )?.contains("/wall") == true || optString(
+                        actionItem,
+                        "url"
+                    )?.contains("/music") == true)
                 ) {
-                    dto.action = ActionURL(optString(action_item, "url"))
+                    dto.action = ActionURL(optString(actionItem, "url"))
                 } else if ("message_open" == optString(
-                        action_item,
+                        actionItem,
                         "type"
-                    ) && hasObject(action_item, "context")
+                    ) && hasObject(actionItem, "context")
                 ) {
-                    val context_item = action_item["context"]?.jsonObject
+                    val contextItem = actionItem["context"]?.jsonObject
                     dto.action = ActionMessage(
-                        optLong(context_item, "peer_id", 0),
-                        optInt(context_item, "id", 0)
+                        optLong(contextItem, "peer_id", 0),
+                        optInt(contextItem, "id", 0)
                     )
                 }
             }
             try {
-                if (hasObject(root_item, "action_buttons")) {
-                    val action_buttons = root_item["action_buttons"]?.jsonObject
-                    for (ss1 in action_buttons.orEmpty().keys) {
-                        if (checkArray(action_buttons?.get(ss1))) {
-                            for (ss2 in action_buttons[ss1]?.jsonArray.orEmpty()) {
+                if (hasObject(rootItem, "action_buttons")) {
+                    val actionButtons = rootItem["action_buttons"]?.jsonObject
+                    for (ss1 in actionButtons.orEmpty().keys) {
+                        if (checkArray(actionButtons?.get(ss1))) {
+                            for (ss2 in actionButtons[ss1]?.jsonArray.orEmpty()) {
                                 if (checkObject(ss2)) {
                                     val act = ss2.jsonObject
                                     if (hasObject(act, "action")) {
-                                        val actu = act["action"]?.jsonObject
+                                        val action = act["action"]?.jsonObject
                                         if ("hide_item" == optString(
-                                                actu,
+                                                action,
                                                 "type"
-                                            ) && hasObject(actu, "context")
+                                            ) && hasObject(action, "context")
                                         ) {
-                                            val actctx = actu["context"]?.jsonObject
-                                            dto.hide_query = optString(actctx, "query")
-                                            if (dto.hide_query.nonNullNoEmpty()) {
+                                            val actionContext = action["context"]?.jsonObject
+                                            dto.hideQuery = optString(actionContext, "query")
+                                            if (dto.hideQuery.nonNullNoEmpty()) {
                                                 break
                                             }
                                         }
@@ -130,8 +133,8 @@ class FeedbackVKOfficialDtoAdapter :
                 }
             } catch (_: Exception) {
             }
-            dto.iconType = optString(root_item, "icon_type")
-            dto.header = optString(root_item, "header")
+            dto.iconType = optString(rootItem, "icon_type")
+            dto.header = optString(rootItem, "header")
             dto.header.nonNullNoEmpty {
                 dto.header = it.replace("{date}", "")
                     .replace("'''(((?!''').)*)'''".toRegex(), "<b>$1</b>")
@@ -140,22 +143,22 @@ class FeedbackVKOfficialDtoAdapter :
                 try {
                     val matcher = FeedbackLinkSpanFactory.MENTIONS_AVATAR_PATTERN.find(it)
                     matcher?.let { sm ->
-                        val Type = sm.groupValues.getOrNull(1)
+                        val type = sm.groupValues.getOrNull(1)
                         sm.groupValues.getOrNull(2)?.toLong()?.let { lit ->
-                            dto.header_owner_id =
-                                if (Type == "event" || Type == "club" || Type == "public") -lit else lit
-                            if (dto.header_owner_id.orZero() >= 0) {
+                            dto.headerOwnerId =
+                                if (type == "event" || type == "club" || type == "public") -lit else lit
+                            if (dto.headerOwnerId.orZero() >= 0) {
                                 for (n in profiles) {
-                                    if (n.id == dto.header_owner_id) {
-                                        dto.header_owner_avatar_url =
+                                    if (n.id == dto.headerOwnerId) {
+                                        dto.headerOwnerAvatarUrl =
                                             Utils.firstNonEmptyString(n.photo_200, n.photo_100)
                                         break
                                     }
                                 }
                             } else {
                                 for (n in groups) {
-                                    if (-n.id == dto.header_owner_id) {
-                                        dto.header_owner_avatar_url =
+                                    if (-n.id == dto.headerOwnerId) {
+                                        dto.headerOwnerAvatarUrl =
                                             Utils.firstNonEmptyString(n.photo_200, n.photo_100)
                                         break
                                     }
@@ -167,70 +170,70 @@ class FeedbackVKOfficialDtoAdapter :
                 }
             }
 
-            dto.text = optString(root_item, "text")
+            dto.text = optString(rootItem, "text")
             dto.text.nonNullNoEmpty {
                 dto.text =
                     it.replace("{date}", "")
                         .replace("'''(((?!''').)*)'''".toRegex(), "<b>$1</b>")
                         .replace("\\[vk(ontakte)?://[A-Za-z\\d/?=]+\\|([^]]+)]".toRegex(), "$2")
             }
-            dto.footer = optString(root_item, "footer")
+            dto.footer = optString(rootItem, "footer")
             dto.footer.nonNullNoEmpty {
                 dto.footer = it.replace("{date}", "")
                     .replace("'''(((?!''').)*)'''".toRegex(), "<b>$1</b>")
                     .replace("\\[vk(ontakte)?://[A-Za-z\\d/?=]+\\|([^]]+)]".toRegex(), "$2")
             }
-            dto.time = optLong(root_item, "date")
-            dto.iconURL = optString(root_item, "icon_url")
+            dto.time = optLong(rootItem, "date")
+            dto.iconURL = optString(rootItem, "icon_url")
             val attachments: MutableList<Attachment> = ArrayList()
-            if (hasObject(root_item, "main_item")) {
-                val main_item = root_item["main_item"]?.jsonObject
-                if (hasArray(main_item, "image_object")) {
-                    val jsonPhotos2 = main_item["image_object"]?.jsonArray
+            if (hasObject(rootItem, "main_item")) {
+                val mainItem = rootItem["main_item"]?.jsonObject
+                if (hasArray(mainItem, "image_object")) {
+                    val jsonPhotos2 = mainItem["image_object"]?.jsonArray
                     dto.iconURL =
                         jsonPhotos2?.get(jsonPhotos2.size - 1)?.asJsonObjectSafe?.get("url")?.asPrimitiveSafe?.content
                 }
-                if ("photo" == optString(main_item, "type")) {
+                if ("photo" == optString(mainItem, "type")) {
                     attachments.add(
                         kJson.decodeFromJsonElement(
                             Attachment.serializer(),
-                            main_item!!
+                            mainItem!!
                         )
                     )
                 }
             }
-            if (hasObject(root_item, "additional_item")) {
-                val additional_item = root_item["additional_item"]?.jsonObject
-                if (hasArray(additional_item, "image_object")) {
-                    val arrt = additional_item["image_object"]?.jsonArray
+            if (hasObject(rootItem, "additional_item")) {
+                val additionalItem = rootItem["additional_item"]?.jsonObject
+                if (hasArray(additionalItem, "image_object")) {
+                    val array = additionalItem["image_object"]?.jsonArray
                     dto.images = ArrayList()
-                    for (s in arrt.orEmpty()) {
+                    for (s in array.orEmpty()) {
                         if (!checkObject(s)) {
                             continue
                         }
-                        val imgh: ImageAdditional =
+                        val img: ImageAdditional =
                             kJson.decodeFromJsonElement(ImageAdditional.serializer(), s)
-                        dto.images?.add(imgh)
+                        dto.images?.add(img)
                     }
 
-                    if (hasObject(additional_item, "action")) {
-                        val action_item = additional_item["action"]?.jsonObject
-                        if ("custom" == optString(action_item, "type")) {
-                            dto.images_action = ActionURL(optString(action_item, "url"))
+                    if (hasObject(additionalItem, "action")) {
+                        val actionItem = additionalItem["action"]?.jsonObject
+                        if ("custom" == optString(actionItem, "type")) {
+                            dto.imagesAction = ActionURL(optString(actionItem, "url"))
                         }
                     }
                 }
-                if ("photo" == optString(additional_item, "type")) {
+                if ("photo" == optString(additionalItem, "type")) {
                     attachments.add(
                         kJson.decodeFromJsonElement(
                             Attachment.serializer(),
-                            additional_item!!
+                            additionalItem!!
                         )
                     )
                 }
             }
-            if (hasArray(root_item, "attachments")) {
-                val temp = root_item["attachments"]?.jsonArray
+            if (hasArray(rootItem, "attachments")) {
+                val temp = rootItem["attachments"]?.jsonArray
                 for (a in temp.orEmpty()) {
                     if (!checkObject(a)) {
                         continue
@@ -239,11 +242,11 @@ class FeedbackVKOfficialDtoAdapter :
                 }
             }
             for (s in attachments) {
-                if (s.type.isNullOrEmpty() || s.object_id.isNullOrEmpty() || s.type != "photo") {
+                if (s.type.isNullOrEmpty() || s.objectId.isNullOrEmpty() || s.type != "photo") {
                     continue
                 }
                 for (v in photos) {
-                    if (v.owner_id.toString() + "_" + v.id == s.object_id) {
+                    if (v.owner_id.toString() + "_" + v.id == s.objectId) {
                         if (dto.attachments == null) {
                             dto.attachments = ArrayList()
                         }
@@ -252,9 +255,9 @@ class FeedbackVKOfficialDtoAdapter :
                     }
                 }
             }
-            dtolist.items?.add(dto)
+            dtoList.items?.add(dto)
         }
-        return dtolist
+        return dtoList
     }
 
     companion object {

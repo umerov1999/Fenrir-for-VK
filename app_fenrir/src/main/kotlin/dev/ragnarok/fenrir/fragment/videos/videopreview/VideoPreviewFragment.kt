@@ -65,6 +65,7 @@ import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.shareLink
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.CircleCounterButton
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.natives.animation.AnimatedShapeableImageView
 import dev.ragnarok.fenrir.view.natives.animation.AspectRatioAnimatedShapeableImageView
 
@@ -89,8 +90,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
     private var mRootView: View? = null
     private var likeButton: CircleCounterButton? = null
     private var commentsButton: CircleCounterButton? = null
-    private var mTitleText: TextView? = null
-    private var mSubtitleText: TextView? = null
+    private var mTitleText: LinkHelperTextView? = null
+    private var mSubtitleText: LinkHelperTextView? = null
     private var mPreviewImage: AspectRatioAnimatedShapeableImageView? = null
     private var mOwnerAvatar: ImageView? = null
     private var mOwnerText: TextView? = null
@@ -267,13 +268,14 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         }
         safelySetText(mTitleText, video.title)
         if (mSubtitleText != null) {
-            val subtitle = withSpans(
-                video.description,
-                owners = true,
-                topics = false,
-                listener = ownerLinkAdapter
+            mSubtitleText?.precompute(
+                withSpans(
+                    video.description,
+                    owners = true,
+                    topics = false,
+                    listener = ownerLinkAdapter
+                )
             )
-            mSubtitleText?.setText(subtitle, TextView.BufferType.SPANNABLE)
             mSubtitleText?.movementMethod = LinkMovementMethod.getInstance()
         }
         val imageUrl = video.image

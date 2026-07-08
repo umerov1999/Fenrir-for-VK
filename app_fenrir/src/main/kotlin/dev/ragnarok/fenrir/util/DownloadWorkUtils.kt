@@ -39,7 +39,7 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.FileUtils
 import dev.ragnarok.fenrir.module.hls.TSDemuxer
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.service.QuickReplyService
+import dev.ragnarok.fenrir.service.NotificationIntentService
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController
@@ -864,7 +864,7 @@ object DownloadWorkUtils {
                 mBuilder.setContentIntent(readPendingIntent)
 
                 if (Settings.get().main().isDeveloper_mode) {
-                    val deleteIntent = QuickReplyService.intentForDeleteFile(
+                    val deleteIntent = NotificationIntentService.intentForDeleteFile(
                         applicationContext,
                         file_v.build(),
                         NotificationHelper.NOTIFICATION_DOWNLOAD,
@@ -1029,7 +1029,7 @@ object DownloadWorkUtils {
                 mBuilder.setContentIntent(ReadPendingIntent)
 
                 if (Settings.get().main().isDeveloper_mode) {
-                    val DeleteIntent = QuickReplyService.intentForDeleteFile(
+                    val DeleteIntent = NotificationIntentService.intentForDeleteFile(
                         applicationContext,
                         file_v.build(),
                         NotificationHelper.NOTIFICATION_DOWNLOAD,

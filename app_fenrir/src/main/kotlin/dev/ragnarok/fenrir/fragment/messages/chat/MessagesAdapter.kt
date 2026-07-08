@@ -195,13 +195,14 @@ class MessagesAdapter(
         }
         holder.message.visibility = if (message.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.message.setInterceptSpans(isSupportPopupMenu)
-        holder.message.text =
+        holder.message.precompute(
             OwnerLinkSpanFactory.withSpans(
                 message.text,
                 owners = true,
                 topics = false,
                 listener = ownerLinkAdapter
             )
+        )
         val giftItem = message.attachments?.gifts?.get(0)
         giftItem?.thumb256.ifNonNullNoEmpty({
             with()
@@ -285,7 +286,7 @@ class MessagesAdapter(
             displayAvatar(holder.avatar, avatarTransformation, avaurl, Constants.PICASSO_TAG)
             holder.avatar.setBackgroundColor(Color.TRANSPARENT)
         }
-        if (holder.user != null) holder.user.text = message.sender?.fullName
+        holder.user?.precompute(message.sender?.fullName)
         holder.avatar.setOnClickListener {
             onMessageActionListener?.onAvatarClick(
                 message,
@@ -450,13 +451,14 @@ class MessagesAdapter(
             }
         }
         holder.body.setInterceptSpans(isSupportPopupMenu)
-        holder.body.text =
+        holder.body.precompute(
             OwnerLinkSpanFactory.withSpans(
                 displayedText,
                 owners = true,
                 topics = false,
                 listener = ownerLinkAdapter
             )
+        )
         holder.encryptedView.visibility =
             if (message.cryptStatus == CryptStatus.NO_ENCRYPTION) View.GONE else View.VISIBLE
         val hasAttachments =
@@ -504,7 +506,7 @@ class MessagesAdapter(
             if (message.isOut) lastReadId.outgoing >= message.getObjectId() else lastReadId.incoming >= message.getObjectId()
         if (disable_read) read = true
         bindReadState(holder.itemView, message.status == MessageStatus.SENT && read)
-        holder.tvAction.text = message.getServiceText(context)
+        holder.tvAction.precompute(message.getServiceText(context))
 
         var lastX = 0
         var lastY = 0
@@ -661,7 +663,7 @@ class MessagesAdapter(
     private class ServiceMessageHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val root: View = itemView.findViewById(R.id.item_message_bubble)
-        val tvAction: TextView = itemView.findViewById(R.id.item_service_message_text)
+        val tvAction: LinkHelperTextView = itemView.findViewById(R.id.item_service_message_text)
         val attachmentsRoot: View = itemView.findViewById(R.id.item_message_attachment_container)
         val mAttachmentsHolder: AttachmentsHolder = AttachmentsHolder()
         val botKeyboardView: BotKeyboardView = itemView.findViewById(R.id.input_keyboard_container)

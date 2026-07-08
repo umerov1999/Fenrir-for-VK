@@ -229,6 +229,9 @@ class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstance
     }
 
     private fun doInsertPlaylist(playlist: AudioPlaylist) {
+        if (searcher.isSearchMode) {
+            searcher.cancel()
+        }
         val offset = addon.size
         playlists.add(offset, playlist)
         view?.notifyDataAdded(

@@ -72,6 +72,7 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.getVerifiedColor
 import dev.ragnarok.fenrir.util.Utils.setBackgroundTint
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
+import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.ProfileCoverDrawable
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 import kotlin.math.abs
@@ -123,7 +124,7 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         } else {
             details.status
         }
-        mHeaderHolder?.tvStatus?.text = statusText
+        mHeaderHolder?.tvStatus?.precompute(statusText)
         mHeaderHolder?.tvAudioStatus?.visibility =
             if (details.statusAudio != null) View.VISIBLE else View.GONE
         val domain =
@@ -637,7 +638,7 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
         val ivVerified: ImageView = root.findViewById(R.id.item_verified)
         val bDonate: ThorVGLottieView = root.findViewById(R.id.donated_anim)
         val tvName: TextView = root.findViewById(R.id.header_group_name)
-        val tvStatus: TextView = root.findViewById(R.id.header_group_status)
+        val tvStatus: LinkHelperTextView = root.findViewById(R.id.header_group_status)
         val tvAudioStatus: ImageView = root.findViewById(R.id.fragment_group_audio)
         val tvDomain: TextView = root.findViewById(R.id.header_group_id)
         val bTopics: TextView = root.findViewById(R.id.header_group_btopics)

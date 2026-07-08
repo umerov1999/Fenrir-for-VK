@@ -17,15 +17,15 @@ import dev.ragnarok.filegallery.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.filegallery.model.SlidrSettings
 import dev.ragnarok.filegallery.settings.ISettings.IMainSettings
 import dev.ragnarok.filegallery.settings.theme.ThemeOverlay
+import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.myEmit
 import dev.ragnarok.filegallery.view.pager.Transformers_Types
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import java.io.File
 
 internal class MainSettings(context: Context) : IMainSettings {
     private val app: Context = context.applicationContext
-    private val localServerPublisher = MutableSharedFlow<LocalServerSettings>(replay = 1)
+    private val localServerPublisher = createPublishSubject<LocalServerSettings>()
 
     override val fontSize: Int
         get() = getPreferences(app).getInt("font_size_int", 0)

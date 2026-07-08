@@ -21,6 +21,7 @@
         <attr name="displayHashTags" format="boolean" />
         <attr name="linkHelperTextStart" format="integer" />
         <attr name="linkHelperTextLength" format="integer" />
+        <attr name="fontScaleFactor" format="float" />
         <attr name="hashTagColor" format="color" />
     </declare-styleable>
 

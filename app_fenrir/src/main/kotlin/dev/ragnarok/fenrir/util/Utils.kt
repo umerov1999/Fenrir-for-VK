@@ -1557,7 +1557,7 @@ object Utils {
             mMessage.visibility = View.GONE
         } else {
             mMessage.visibility = View.VISIBLE
-            mMessage.text =
+            mMessage.precompute(
                 OwnerLinkSpanFactory.withSpans(
                     message,
                     owners = true,
@@ -1567,6 +1567,7 @@ object Utils {
                             getOwnerWallPlace(accountId, ownerId, null).tryOpenWith(context)
                         }
                     })
+            )
         }
         return root
     }

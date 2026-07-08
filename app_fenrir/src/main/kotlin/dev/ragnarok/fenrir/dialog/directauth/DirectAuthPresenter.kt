@@ -3,7 +3,9 @@ package dev.ragnarok.fenrir.dialog.directauth
 import android.os.Bundle
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.Includes.networkInterfaces
+import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Auth.scope
 import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.exceptions.CaptchaLegacyNeedException
@@ -36,7 +38,9 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
     private var smsSid: String? = null
     private var captcha: String? = null
     private var appCode: String? = null
-    private var RedirectUrl: String? = null
+    private var redirectUrl: String? = null
+    private var twoFaDescription: String? = null
+    private var smsCodeHint: String? = null
     fun fireLoginClick() {
         doLogin(false)
     }
@@ -95,6 +99,8 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
         requiredVKIdCaptcha = null
         requireAppCode = false
         requireSmsCode = false
+        twoFaDescription = null
+        smsCodeHint = null
         if (t is CaptchaLegacyNeedException) {
             val sid = t.captchaSid ?: return showError(t)
             val img = t.captchaImg ?: return showError(t)
@@ -103,8 +109,8 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
             requiredVKIdCaptcha = VKIdCaptcha(t.redirect_uri, t.domain, null)
         } else if (t is NeedValidationException) {
             if (Constants.DEFAULT_ACCOUNT_TYPE == AccountType.KATE) {
-                RedirectUrl = t.validationURL
-                if (!RedirectUrl.isNullOrEmpty()) {
+                redirectUrl = t.validationURL
+                if (!redirectUrl.isNullOrEmpty()) {
                     onValidate()
                 }
             } else {
@@ -121,13 +127,14 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
                         ignoreCase = true
                     ) -> {
                         requireSmsCode = true
-                        RedirectUrl = t.validationURL
+                        redirectUrl = t.validationURL
                         if ("2fa_callreset".equals(
                                 type,
                                 ignoreCase = true
                             )
                         ) {
-                            view?.updateSmsDescription(t.description)
+                            requireSmsHelp = true
+                            twoFaDescription = t.description
                         }
                     }
 
@@ -140,8 +147,8 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
 
                     else -> {
                         showError(t)
-                        RedirectUrl = t.validationURL
-                        if (!RedirectUrl.isNullOrEmpty()) {
+                        redirectUrl = t.validationURL
+                        if (!redirectUrl.isNullOrEmpty()) {
                             onValidate()
                         }
                     }
@@ -157,10 +164,16 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
                                 sid,
                                 Constants.AUTH_API_VERSION,
                                 libverify_support = true,
-                                allow_callreset = false
+                                allow_callreset = true
                             )
                             .delayedFlow(1000)
-                            .fromIOToMain({ }) {
+                            .fromIOToMain({
+                                if ("callreset" == it.validationType) {
+                                    smsCodeHint = Includes.provideApplicationContext()
+                                        .getString(R.string.call_reset_description, it.codeLength)
+                                    resolveSmsCodeHint()
+                                }
+                            }) {
                                 showError(getCauseIfRuntime(t))
                             })
                 }
@@ -170,9 +183,11 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
         }
         resolveCaptchaViews()
         resolveSmsRootVisibility()
+        resolveTwoFaDescription()
         resolveSmsHelpVisibility()
         resolveAppCodeRootVisibility()
         resolveButtonLoginState()
+        resolveSmsCodeHint()
 
         when {
             requiredVKIdCaptcha != null -> {
@@ -186,12 +201,12 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
                 view?.moveFocusToCaptchaLegacy()
             }
 
-            requireSmsCode -> {
-                view?.moveFocusToSmsCode()
-            }
-
             requireSmsHelp -> {
                 view?.moveFocusToSmsHelp()
+            }
+
+            requireSmsCode -> {
+                view?.moveFocusToSmsCode()
             }
 
             requireAppCode -> {
@@ -249,7 +264,7 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
 
     private fun onValidate() {
         view?.returnSuccessValidation(
-            RedirectUrl,
+            redirectUrl,
             if (username.nonNullNoEmpty()) username?.trim() else "",
             if (pass.nonNullNoEmpty()) pass?.trim() else "",
             "web_validation",
@@ -273,6 +288,8 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
         resolveSmsHelpVisibility()
         resolveAppCodeRootVisibility()
         resolveCaptchaViews()
+        resolveTwoFaDescription()
+        resolveSmsCodeHint()
     }
 
     fun fireLoginViaWebClick() {
@@ -292,6 +309,14 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
                     && (!requireSmsCode || smsCode.trimmedNonNullNoEmpty())
                     && (!requireAppCode || appCode.trimmedNonNullNoEmpty())
         )
+    }
+
+    private fun resolveTwoFaDescription() {
+        view?.updateSmsDescription(twoFaDescription)
+    }
+
+    private fun resolveSmsCodeHint() {
+        view?.updateSmsHint(smsCodeHint)
     }
 
     fun fireLoginEdit(sequence: CharSequence?) {
