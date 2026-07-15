@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
@@ -15,7 +15,7 @@ import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import kotlin.math.max
 
 class AddProxyFragment : BaseMvpFragment<AddProxyPresenter, IAddProxyView>(), IAddProxyView {
-    private var mAuth: MaterialCheckBox? = null
+    private var mAuth: MaterialSwitch? = null
     private var mAuthFieldsRoot: View? = null
     override fun onCreateView(
         inflater: LayoutInflater,

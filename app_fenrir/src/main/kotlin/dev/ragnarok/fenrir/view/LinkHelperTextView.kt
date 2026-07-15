@@ -192,9 +192,15 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
     fun precompute(text: CharSequence?) {
         mResolveLinks.cancel()
         linksResolverTaskData = null
-        setText(text.toString(), BufferType.NORMAL)
-        linksResolverTaskData = text
-        makeResolveLinkJob()
+        if (text != null) {
+            setText(text.toString(), BufferType.NORMAL)
+        } else {
+            setText(null, BufferType.NORMAL)
+        }
+        if (!isTextSelectable) {
+            linksResolverTaskData = text
+            makeResolveLinkJob()
+        }
     }
 
     fun setInterceptSpans(interceptSpans: Boolean) {
@@ -455,6 +461,17 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
                 }
             }
         })
+    }
+
+    fun makeTextSelectable(selectable: Boolean) {
+        mResolveLinks.cancel()
+        linksResolverTaskData = null
+        if (text != null) {
+            setText(text.toString(), BufferType.NORMAL)
+        } else {
+            setText(null, BufferType.NORMAL)
+        }
+        setTextIsSelectable(selectable)
     }
 
     override fun onAttachedToWindow() {

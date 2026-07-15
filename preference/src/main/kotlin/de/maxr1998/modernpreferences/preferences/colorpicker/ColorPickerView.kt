@@ -18,6 +18,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.toColorInt
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import de.maxr1998.modernpreferences.R
 import de.maxr1998.modernpreferences.preferences.colorpicker.builder.ColorWheelRendererBuilder
 import de.maxr1998.modernpreferences.preferences.colorpicker.builder.PaintBuilder
@@ -427,9 +428,9 @@ class ColorPickerView : View {
         this.alphaSlider?.setColor(selectedColor)
     }
 
-    fun setColorEdit(colorEdit: TextInputEditText?) {
+    fun setColorEdit(colorEdit: TextInputEditText?, colorEditInputLayout: TextInputLayout?) {
         this.colorEdit = colorEdit
-        this.colorEdit?.visibility = VISIBLE
+        colorEditInputLayout?.visibility = VISIBLE
         this.colorEdit?.addTextChangedListener(colorTextChange)
     }
 

@@ -1732,4 +1732,5 @@
     <string name="reacted_peers">Отреагировали</string>
     <string name="call_reset_description">Последние %1$d цифры звонка</string>
     <string name="retry">Повторить</string>
+    <string name="video_play_with_external_player">Играть в стороннем плеере</string>
 </resources>

@@ -217,57 +217,57 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/community_manager_position"
-                        android:textColor="?android:textColorSecondary" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/community_manager_positon"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:gravity="top"
-                        android:inputType="text|textCapSentences|textMultiLine"
-                        android:padding="8dp"
-                        android:textSize="14sp" />
+                        android:hint="@string/community_manager_position"
+                        android:padding="8dp">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/community_manager_email"
-                        android:textColor="?android:textColorSecondary" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/community_manager_positon"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="top"
+                            android:inputType="text|textCapSentences|textMultiLine"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/community_manager_email"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:gravity="top"
-                        android:inputType="textWebEmailAddress"
-                        android:padding="8dp"
-                        android:textSize="14sp" />
+                        android:hint="@string/community_manager_email"
+                        android:padding="8dp">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/community_manager_phone"
-                        android:textColor="?android:textColorSecondary" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/community_manager_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:inputType="textWebEmailAddress"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/community_manager_phone"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:gravity="top"
-                        android:inputType="phone"
-                        android:padding="8dp"
-                        android:textSize="14sp" />
+                        android:hint="@string/community_manager_phone"
+                        android:padding="8dp">
 
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/community_manager_phone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:inputType="phone"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
             </LinearLayout>

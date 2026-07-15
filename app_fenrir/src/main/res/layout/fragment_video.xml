@@ -115,7 +115,6 @@
                         android:layout_height="wrap_content"
                         android:paddingStart="16dp"
                         android:paddingEnd="16dp"
-                        android:textIsSelectable="true"
                         android:textSize="14sp"
                         tools:text="Subvideo" />
 

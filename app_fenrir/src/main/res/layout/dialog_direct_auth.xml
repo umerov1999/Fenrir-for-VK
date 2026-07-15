@@ -25,13 +25,13 @@
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="@string/login_phone_or_email_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/field_username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/login_phone_or_email_hint"
                     android:inputType="text"
                     android:textSize="16sp" />
 
@@ -41,13 +41,13 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/login_password_hint"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/field_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/login_password_hint"
                     android:inputType="textPassword"
                     android:textSize="16sp" />
 
@@ -61,13 +61,13 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:hint="@string/login_app_code_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/field_app_code"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/login_app_code_hint"
                         android:inputType="number"
                         android:textSize="16sp" />
 
@@ -127,13 +127,13 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:hint="@string/login_captcha_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/field_captcha_legacy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/login_captcha_hint"
                         android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>

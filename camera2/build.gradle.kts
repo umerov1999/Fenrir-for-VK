@@ -67,7 +67,6 @@ dependencies {
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.concurrent.futures)
     implementation(libs.kotlinx.atomicfu)
-    implementation(libs.javax.inject)
     implementation(libs.dagger)
     annotationProcessor(libs.auto.value)
 

@@ -4,18 +4,18 @@
     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:hint="Name:"
     android:paddingStart="16dp"
     android:paddingTop="8dp"
     android:paddingEnd="16dp"
-    android:paddingBottom="8dp">
+    android:paddingBottom="8dp"
+    tools:ignore="HardcodedText">
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/edit_file_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Name:"
         android:inputType="text"
-        android:textSize="16sp"
-        tools:ignore="HardcodedText" />
+        android:textSize="16sp" />
 
 </com.google.android.material.textfield.TextInputLayout>

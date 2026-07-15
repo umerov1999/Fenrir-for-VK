@@ -15,173 +15,154 @@
         android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <com.google.android.material.card.MaterialCardView
-            style="?materialCardStyle"
+        <dev.ragnarok.fenrir.view.RoundCornerLinearView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:contentPadding="0dp">
+            android:layout_margin="16dp"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:radius_bottom_left="10dp"
+            app:radius_bottom_right="10dp"
+            app:radius_top_left="10dp"
+            app:radius_top_right="10dp"
+            app:view_is_stroke="true"
+            app:view_stroke_color="?dividerColor"
+            app:view_stroke_width="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                    <LinearLayout
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/address"
+                        android:text="@string/proxy_address_helper_text"
+                        android:textColor="?android:textColorSecondary" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal">
+                        android:hint="@string/phoxy_address_hint"
+                        android:padding="8dp">
 
-                        <LinearLayout
-                            android:layout_width="0dp"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/address"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:labelFor="@+id/address"
-                                android:text="@string/proxy_address_helper_text"
-                                android:textColor="?android:textColorSecondary" />
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/address"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:hint="@string/phoxy_address_hint"
-                                android:inputType="textVisiblePassword"
-                                android:padding="8dp"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:labelFor="@+id/port"
-                                android:text="@string/proxy_port_helper_text"
-                                android:textColor="?android:textColorSecondary" />
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/port"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:hint="@string/phoxy_port_hint"
-                                android:inputType="number"
-                                android:padding="8dp"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/authorization"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/proxy_authorization" />
-
-                    <LinearLayout
-                        android:id="@+id/auth_fields_root"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:labelFor="@+id/username"
-                                android:text="@string/proxy_username_helper_text"
-                                android:textColor="?android:textColorSecondary" />
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/username"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:hint="@string/phoxy_username_hint"
-                                android:inputType="textVisiblePassword"
-                                android:padding="8dp"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:labelFor="@+id/password"
-                                android:text="@string/proxy_password_helper_text"
-                                android:textColor="?android:textColorSecondary" />
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/password"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:hint="@string/phoxy_pass_hint"
-                                android:inputType="textPassword"
-                                android:padding="8dp"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
+                            android:layout_marginTop="8dp"
+                            android:inputType="textPassword"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="horizontal"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_save"
-                        style="@style/MyOutlinedButton"
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/button_save" />
+                        android:labelFor="@+id/port"
+                        android:text="@string/proxy_port_helper_text"
+                        android:textColor="?android:textColorSecondary" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/phoxy_port_hint"
+                        android:padding="8dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/port"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:inputType="number"
+                            android:textSize="14sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+            <include layout="@layout/line_divider" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/authorization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/proxy_authorization" />
+
+            <LinearLayout
+                android:id="@+id/auth_fields_root"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/phoxy_username_hint"
+                    android:padding="8dp"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/username"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:textSize="14sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/phoxy_pass_hint"
+                    android:padding="8dp"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:textSize="14sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_save"
+                style="@style/MyOutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="8dp"
+                android:text="@string/button_save" />
+
+        </dev.ragnarok.fenrir.view.RoundCornerLinearView>
 
     </androidx.core.widget.NestedScrollView>
 

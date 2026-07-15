@@ -18,7 +18,6 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:textIsSelectable="true"
             android:textSize="14sp"
             tools:text="Message" />
 

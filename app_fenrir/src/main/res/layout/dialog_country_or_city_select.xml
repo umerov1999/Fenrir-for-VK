@@ -4,10 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:hint="@string/type_here_to_start_searching"
         android:paddingStart="16dp"
         android:paddingTop="16dp"
         android:paddingEnd="16dp">
@@ -16,23 +17,20 @@
             android:id="@+id/input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?messages_background_color"
-            android:hint="@string/type_here_to_start_searching"
             android:imeOptions="actionDone"
             android:inputType="text"
-            android:padding="8dp"
-            android:textColor="?android:attr/textColorPrimary"
             android:textSize="@dimen/font_size_title" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:text="@string/results_in_a_network"
-            android:textSize="@dimen/font_size_subtitle" />
-
-    </LinearLayout>
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="4dp"
+        android:text="@string/results_in_a_network"
+        android:textSize="@dimen/font_size_subtitle" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"

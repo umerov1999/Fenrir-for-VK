@@ -12,43 +12,41 @@
         android:text="@string/community_options_main_info_title"
         android:textSize="24sp" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:labelFor="@+id/name"
-        android:text="@string/community_options_name_title"
-        android:textColor="?android:textColorSecondary" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/name"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:importantForAutofill="no"
-        android:inputType="text|textCapSentences"
-        android:padding="8dp"
-        android:textSize="14sp" />
+        android:hint="@string/community_options_name_title"
+        android:padding="8dp">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:labelFor="@+id/description"
-        android:text="@string/community_options_description_title"
-        android:textColor="?android:textColorSecondary" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:importantForAutofill="no"
+            android:inputType="text|textCapSentences"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/description"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="top"
-        android:importantForAutofill="no"
-        android:inputType="text|textMultiLine|textCapSentences"
-        android:minHeight="80dp"
-        android:padding="8dp"
-        android:textSize="14sp" />
+        android:hint="@string/community_options_description_title"
+        android:padding="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="top"
+            android:importantForAutofill="no"
+            android:inputType="text|textMultiLine|textCapSentences"
+            android:minHeight="80dp"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:id="@+id/community_type_root"
@@ -107,6 +105,5 @@
             android:textSize="14sp" />
 
     </LinearLayout>
-
 
 </LinearLayout>

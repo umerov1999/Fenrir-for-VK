@@ -55,17 +55,17 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:padding="8dp">
+                        android:hint="store.getStockItems"
+                        android:padding="8dp"
+                        tools:ignore="HardcodedText">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/method"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="store.getStockItems"
                             android:inputType="text"
                             android:minHeight="48dp"
-                            android:textSize="14sp"
-                            tools:ignore="HardcodedText" />
+                            android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textview.MaterialTextView
@@ -81,18 +81,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:padding="8dp">
+                        android:hint="type1=>value1\ntype2=>value2"
+                        android:padding="8dp"
+                        tools:ignore="HardcodedText">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/body"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="top"
-                            android:hint="type1=>value1\ntype2=>value2"
                             android:inputType="text|textMultiLine"
                             android:minHeight="80dp"
-                            android:textSize="14sp"
-                            tools:ignore="HardcodedText" />
+                            android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton

@@ -728,6 +728,9 @@ internal class MainSettings(context: Context) : IMainSettings {
         get() = getPreferences(app).getBoolean("video_controller_to_decor", false)
     override val isVideo_swipes: Boolean
         get() = getPreferences(app).getBoolean("video_swipes", true)
+    override val isVideo_play_with_external_player: Boolean
+        get() = getPreferences(app).getBoolean("video_play_with_external_player", false)
+
     override var isDisable_likes: Boolean
         get() = getPreferences(app).getBoolean("disable_likes", false)
         set(disabled) {

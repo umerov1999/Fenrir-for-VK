@@ -19,18 +19,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:padding="8dp">
+            android:hint="Device ID:"
+            android:padding="8dp"
+            tools:ignore="HardcodedText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/item_device_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:hint="Device ID:"
                 android:inputType="text|textMultiLine"
                 android:minHeight="48dp"
-                android:textSize="@dimen/font_size_subtitle"
-                tools:ignore="HardcodedText" />
+                android:textSize="@dimen/font_size_subtitle" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -39,18 +39,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:padding="8dp">
+            android:hint="FCM Token:"
+            android:padding="8dp"
+            tools:ignore="HardcodedText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/item_fcm_token"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:hint="FCM Token:"
                 android:inputType="text|textMultiLine|textLongMessage|textNoSuggestions"
                 android:minHeight="48dp"
-                android:textSize="@dimen/font_size_subtitle"
-                tools:ignore="HardcodedText" />
+                android:textSize="@dimen/font_size_subtitle" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -58,18 +58,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:padding="8dp">
+            android:hint="User-Agent:"
+            android:padding="8dp"
+            tools:ignore="HardcodedText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/item_user_agent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:hint="User-Agent:"
                 android:inputType="text|textMultiLine"
                 android:minHeight="48dp"
-                android:textSize="@dimen/font_size_subtitle"
-                tools:ignore="HardcodedText" />
+                android:textSize="@dimen/font_size_subtitle" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -77,14 +77,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:padding="8dp">
+            android:hint="Access Token:"
+            android:padding="8dp"
+            tools:ignore="HardcodedText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/item_access_token"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:hint="Access Token:"
                 android:inputType="text|textMultiLine"
                 android:minHeight="48dp"
                 android:textSize="@dimen/font_size_subtitle"

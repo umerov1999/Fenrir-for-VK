@@ -25,6 +25,7 @@ import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Parcel
+import android.text.method.LinkMovementMethod
 import android.util.ArrayMap
 import android.util.SparseArray
 import android.util.TypedValue
@@ -1557,6 +1558,7 @@ object Utils {
             mMessage.visibility = View.GONE
         } else {
             mMessage.visibility = View.VISIBLE
+            mMessage.movementMethod = LinkMovementMethod.getInstance()
             mMessage.precompute(
                 OwnerLinkSpanFactory.withSpans(
                     message,
@@ -1771,7 +1773,90 @@ object Utils {
         context.startActivity(intent)
     }
 
+    fun playDirectVkLinkInExternalPlayer(
+        context: Context,
+        url: String?,
+        isHLS: Boolean,
+        title: String?
+    ) {
+        if (url.isNullOrEmpty()) {
+            return
+        }
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(url.toUri(), if (!isHLS) "video/mp4" else "application/x-mpegURL")
+        title?.let {
+            intent.putExtra("com.android.extra.filename", "$it." + if (!isHLS) "mp4" else "m3u8")
+            intent.putExtra("title", it)
+        }
+        context.startActivity(intent)
+    }
+
+    fun doAutoPlayVideoExternalPlayer(
+        context: Context,
+        customToast: AbsCustomToast?,
+        video: Video
+    ) {
+        if (!video.live.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.live, true, video.title)
+        } else if (!video.mp4link2160.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.mp4link2160, false, video.title)
+        } else if (!video.mp4link1440.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.mp4link1440, false, video.title)
+        } else if (!video.mp4link1080.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.mp4link1080, false, video.title)
+        } else if (!video.mp4link720.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.mp4link720, false, video.title)
+        } else if (!video.mp4link480.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.mp4link480, false, video.title)
+        } else if (!video.mp4link360.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.mp4link360, false, video.title)
+        } else if (!video.mp4link240.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.mp4link240, false, video.title)
+        } else if (!video.hls.isNullOrEmpty()) {
+            playDirectVkLinkInExternalPlayer(context, video.hls, true, video.title)
+        } else if (video.externalLink.nonNullNoEmpty()) {
+            if (video.externalLink?.contains("youtube") == true) {
+                when {
+                    AppPrefs.isReVancedYoutubeInstalled(context) -> {
+                        playVideoWithYoutubeReVanced(context, video)
+                    }
+
+                    AppPrefs.isNewPipeInstalled(context) -> {
+                        playVideoWithNewPipe(context, video)
+                    }
+
+                    AppPrefs.isYoutubeInstalled(context) -> {
+                        playVideoWithYoutube(context, video)
+                    }
+
+                    else -> {
+                        playVideoWithExternalSoftware(
+                            context,
+                            customToast,
+                            video.externalLink ?: return
+                        )
+                    }
+                }
+            } else if (video.externalLink?.contains("coub") == true && AppPrefs.isCoubInstalled(
+                    context
+                )
+            ) {
+                playVideoWithCoub(context, video)
+            } else {
+                playVideoWithExternalSoftware(context, customToast, video.externalLink ?: return)
+            }
+        } else if (video.player.nonNullNoEmpty()) {
+            playVideoWithExternalSoftware(context, customToast, video.player ?: return)
+        } else {
+            customToast?.showToastError(R.string.video_not_have_link)
+        }
+    }
+
     fun doAutoPlayVideo(context: Context, customToast: AbsCustomToast?, video: Video) {
+        if (Settings.get().main().isVideo_play_with_external_player) {
+            doAutoPlayVideoExternalPlayer(context, customToast, video)
+            return
+        }
         if (!video.live.isNullOrEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_LIVE)
         } else if (!video.hls.isNullOrEmpty()) {

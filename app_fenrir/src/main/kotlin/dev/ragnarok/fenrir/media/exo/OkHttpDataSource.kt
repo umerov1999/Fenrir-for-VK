@@ -158,7 +158,10 @@ class OkHttpDataSource internal constructor(
         bytesToRead = if (dataSpec.length != C.LENGTH_UNSET.toLong()) {
             dataSpec.length
         } else {
-            val contentLength = responseBody.contentLength()
+            val contentLength = HttpUtil.getContentLength(
+                response.header(HttpHeaders.CONTENT_LENGTH),
+                response.header(HttpHeaders.CONTENT_RANGE)
+            )
             if (contentLength != -1L) contentLength - bytesToSkip else C.LENGTH_UNSET.toLong()
         }
         connectionEstablished = true

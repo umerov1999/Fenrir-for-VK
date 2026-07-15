@@ -13,6 +13,10 @@
         android:title="@string/edit" />
 
     <item
+        android:id="@+id/action_allow_text_selection"
+        android:title="@string/allow_text_selection" />
+
+    <item
         android:id="@+id/action_copy_url"
         android:title="@string/copy_url" />
 </menu>

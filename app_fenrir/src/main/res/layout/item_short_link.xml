@@ -4,10 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="4dp"
     android:baselineAligned="false"
     android:orientation="vertical"
-    android:padding="8dp"
+    android:padding="16dp"
     app:radius_bottom_left="10dp"
     app:radius_bottom_right="10dp"
     app:radius_top_left="10dp"
@@ -24,13 +27,14 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:textColor="?colorSecondary"
-        android:textSize="15sp"
+        android:textSize="18sp"
         tools:text="Short" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/item_link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
         android:ellipsize="end"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -38,13 +42,15 @@
         android:maxLines="1"
         android:scrollHorizontally="true"
         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-        android:textSize="12sp"
+        android:textSize="14sp"
         tools:text="Original" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/item_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
         android:ellipsize="end"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -54,32 +60,24 @@
         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         tools:text="time" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <include layout="@layout/line_divider" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/item_views"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:contentDescription="@null"
-            android:src="@drawable/view"
-            app:tint="?colorPrimary" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/item_views"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:ellipsize="end"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            tools:text="views" />
-    </LinearLayout>
+        android:drawableStart="@drawable/view"
+        android:drawablePadding="4dp"
+        android:drawableTint="?colorSecondaryVariant"
+        android:ellipsize="end"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_vertical"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxLines="1"
+        android:scrollHorizontally="true"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+        tools:text="views" />
 
     <RelativeLayout
         android:layout_width="match_parent"

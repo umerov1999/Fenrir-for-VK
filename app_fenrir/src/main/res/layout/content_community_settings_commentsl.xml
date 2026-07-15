@@ -52,17 +52,24 @@
         android:layout_height="wrap_content"
         android:text="@string/community_options_enable_keyword_filter" />
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/obscene_stopwords_values"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="top"
         android:hint="@string/community_options_separate_keywords_by_commas"
-        android:importantForAutofill="no"
-        android:inputType="textUri"
-        android:minHeight="80dp"
-        android:padding="8dp"
-        android:textSize="14sp" />
+        android:padding="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/obscene_stopwords_values"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="top"
+            android:importantForAutofill="no"
+            android:inputType="textUri"
+            android:minHeight="80dp"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

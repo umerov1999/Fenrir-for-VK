@@ -17,6 +17,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.widget.NestedScrollView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import de.maxr1998.modernpreferences.R
 import de.maxr1998.modernpreferences.preferences.colorpicker.ColorPickerView
 import de.maxr1998.modernpreferences.preferences.colorpicker.ColorPickerView.WHEEL_TYPE
@@ -209,17 +210,19 @@ class ColorPickerDialogBuilder private constructor(context: Context, theme: Int 
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            val colorEdit = View.inflate(context, R.layout.color_edit, null) as TextInputEditText
+            val colorEditInputLayout =
+                View.inflate(context, R.layout.color_edit, null) as TextInputLayout
+            val colorEdit = colorEditInputLayout.findViewById<TextInputEditText>(R.id.color_edit)
             colorEdit.filters = arrayOf<InputFilter>(AllCaps())
             colorEdit.setSingleLine()
-            colorEdit.visibility = View.GONE
+            colorEditInputLayout.visibility = View.GONE
 
             // limit number of characters to hexColors
             val maxLength = if (isAlphaSliderEnabled) 9 else 7
             colorEdit.filters = arrayOf<InputFilter>(LengthFilter(maxLength))
-            pickerContainer.addView(colorEdit, layoutParamsForColorEdit)
+            pickerContainer.addView(colorEditInputLayout, layoutParamsForColorEdit)
             colorEdit.setText(Utils.getHexString(getStartColor(initialColor), isAlphaSliderEnabled))
-            colorPickerView.setColorEdit(colorEdit)
+            colorPickerView.setColorEdit(colorEdit, colorEditInputLayout)
         }
         if (isPreviewEnabled) {
             val colorPreview = View.inflate(context, R.layout.color_preview, null) as LinearLayout

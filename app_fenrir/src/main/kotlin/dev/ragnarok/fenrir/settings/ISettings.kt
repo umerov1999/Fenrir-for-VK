@@ -202,6 +202,7 @@ interface ISettings {
         val isDo_auto_play_video: Boolean
         val isVideo_controller_to_decor: Boolean
         val isVideo_swipes: Boolean
+        val isVideo_play_with_external_player: Boolean
         val isHint_stickers: Boolean
         val isEnable_native: Boolean
         val isRecording_to_opus: Boolean

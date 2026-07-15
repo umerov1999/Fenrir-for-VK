@@ -150,6 +150,14 @@ class OpusDecoder(
                 skipSamples = 0
                 outputData.position(skipBytes)
             }
+        } else if (inputBuffer.hasSupplementalData()) {
+            val discardPaddingSamples = getDiscardPaddingSamples(inputBuffer.supplementalData)
+            if (discardPaddingSamples > 0) {
+                val discardBytes = samplesToBytes(discardPaddingSamples, channelCount, outputFloat)
+                if (result >= discardBytes) {
+                    outputData.limit(result - discardBytes)
+                }
+            }
         }
         return null
     }
@@ -252,6 +260,17 @@ class OpusDecoder(
             }
             // Fall back to returning the default seek pre-roll.
             return DEFAULT_SEEK_PRE_ROLL_SAMPLES
+        }
+
+        @VisibleForTesting /* package */ fun getDiscardPaddingSamples(supplementalData: ByteBuffer?): Int {
+            if (supplementalData == null || supplementalData.remaining() != 8) {
+                return 0
+            }
+            val discardPaddingNs = supplementalData.order(ByteOrder.LITTLE_ENDIAN).getLong()
+            if (discardPaddingNs < 0) {
+                return 0
+            }
+            return ((discardPaddingNs * SAMPLE_RATE) / C.NANOS_PER_SECOND).toInt()
         }
 
         /**

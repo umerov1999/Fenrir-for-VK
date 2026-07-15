@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -17,7 +16,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.net.toUri
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -101,6 +99,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
     private var mOwnerGroup: ViewGroup? = null
     private var mVideoPlayButton: AppCompatImageView? = null
     private var mVideoPlayIcon: AppCompatImageView? = null
+    private var mTextSelectionAllowed = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -120,6 +119,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         menu.findItem(R.id.action_add_to_my_videos).isVisible = view.pCanAdd
         menu.findItem(R.id.action_delete_from_my_videos).isVisible = view.pIsMy
         menu.findItem(R.id.action_edit).isVisible = view.pIsMy
+        menu.findItem(R.id.action_allow_text_selection).isVisible = !mTextSelectionAllowed
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -145,6 +145,12 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                 presenter?.fireEditVideo(
                     requireActivity()
                 )
+                true
+            }
+
+            R.id.action_allow_text_selection -> {
+                applyTextSelection()
+                requireActivity().invalidateOptionsMenu()
                 true
             }
 
@@ -206,6 +212,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
 
         mVideoPlayButton = mRootView?.findViewById(R.id.item_video_play_button)
         mVideoPlayIcon = mRootView?.findViewById(R.id.item_video_play_icon)
+
+        mTextSelectionAllowed = false
         return mRootView
     }
 
@@ -222,6 +230,11 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             requireArguments().getParcelableCompat(Extra.VIDEO),
             saveInstanceState
         )
+    }
+
+    private fun applyTextSelection() {
+        mTextSelectionAllowed = true
+        mSubtitleText?.makeTextSelectable(true)
     }
 
     override fun displayLoading() {
@@ -731,7 +744,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                 val item = items[which]
                 when (item.key) {
                     Menu.P_240 -> video.mp4link240?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             false,
                             video.title
@@ -739,7 +753,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.P_360 -> video.mp4link360?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             false,
                             video.title
@@ -747,7 +762,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.P_480 -> video.mp4link480?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             false,
                             video.title
@@ -755,7 +771,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.P_720 -> video.mp4link720?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             false,
                             video.title
@@ -763,7 +780,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.P_1080 -> video.mp4link1080?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             false,
                             video.title
@@ -771,7 +789,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.P_1440 -> video.mp4link1440?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             false,
                             video.title
@@ -779,7 +798,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.P_2160 -> video.mp4link2160?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             false,
                             video.title
@@ -787,7 +807,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.LIVE -> video.live?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             true,
                             video.title
@@ -795,7 +816,8 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                     }
 
                     Menu.HLS -> video.hls?.let {
-                        playDirectVkLinkInExternalPlayer(
+                        Utils.playDirectVkLinkInExternalPlayer(
+                            requireActivity(),
                             it,
                             true,
                             video.title
@@ -873,16 +895,6 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             }
             .setNegativeButton(R.string.button_cancel, null)
             .show()
-    }
-
-    private fun playDirectVkLinkInExternalPlayer(url: String, isHLS: Boolean, title: String?) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(url.toUri(), if (!isHLS) "video/mp4" else "application/x-mpegURL")
-        title?.let {
-            intent.putExtra("com.android.extra.filename", "$it." + if (!isHLS) "mp4" else "m3u8")
-            intent.putExtra("title", it)
-        }
-        startActivity(intent)
     }
 
     override fun onResume() {

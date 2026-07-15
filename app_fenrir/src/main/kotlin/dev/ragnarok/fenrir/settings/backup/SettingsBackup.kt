@@ -149,6 +149,7 @@ class SettingsBackup {
         var do_auto_play_video: Boolean? = null
         var video_controller_to_decor: Boolean? = null
         var video_swipes: Boolean? = null
+        var video_play_with_external_player: Boolean? = null
         var disable_likes: Boolean? = null
         var disable_notifications: Boolean? = null
         var native_parcel_photo: Boolean? = null

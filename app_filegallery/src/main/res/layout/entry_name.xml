@@ -3,6 +3,7 @@
     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:hint="@string/title_entry_name"
     android:paddingStart="16dp"
     android:paddingTop="8dp"
     android:paddingEnd="16dp"
@@ -12,7 +13,6 @@
         android:id="@+id/edit_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/title_entry_name"
         android:inputType="text"
         android:textSize="16sp" />
 

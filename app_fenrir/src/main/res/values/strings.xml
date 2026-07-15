@@ -1296,8 +1296,8 @@
     <string name="section_play_title">Play</string>
     <string name="play_in_external_player">Play in third-party player</string>
     <string name="title_play_in_newpipe">Play in NewPipe</string>
-    <string name="title_play_in_youtube_vanced">Play in Youtube Revanced</string>
-    <string name="title_play_in_youtube">Play in Youtube</string>
+    <string name="title_play_in_youtube_vanced">Play in YouTube Revanced</string>
+    <string name="title_play_in_youtube">Play in YouTube</string>
     <string name="title_play_in_coub">Play in Coub</string>
     <string name="title_play_in_another_software">Play in third-party software</string>
     <string name="title_play_in_browser">Play in browser</string>
@@ -1984,4 +1984,5 @@
     <string name="reacted_peers">Reacted peers</string>
     <string name="call_reset_description">Last %1$d digits of the call</string>
     <string name="retry">Retry</string>
+    <string name="video_play_with_external_player">Play in third-party player</string>
 </resources>

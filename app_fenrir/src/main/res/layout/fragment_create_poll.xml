@@ -23,13 +23,13 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="4dp"
+                android:hint="@string/poll_question">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/dialog_poll_create_question"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/poll_question"
                     android:textSize="@dimen/font_size_subtitle" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -43,38 +43,12 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp">
+                    android:layout_marginTop="4dp"
+                    android:hint="@string/poll_options">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/poll_options"
-                        android:textSize="@dimen/font_size_subtitle" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/poll_options"
-                        android:textSize="@dimen/font_size_subtitle" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,12 +57,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:visibility="gone">
+                    android:hint="@string/poll_options">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -97,12 +70,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:visibility="gone">
+                    android:hint="@string/add_option">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -111,12 +83,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:hint="@string/add_option"
                     android:visibility="gone">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -125,12 +97,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:hint="@string/add_option"
                     android:visibility="gone">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -139,12 +111,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:hint="@string/add_option"
                     android:visibility="gone">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -153,12 +125,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:hint="@string/add_option"
                     android:visibility="gone">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -167,12 +139,40 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:hint="@string/add_option"
                     android:visibility="gone">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_option"
+                        android:textSize="@dimen/font_size_subtitle" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/add_option"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/font_size_subtitle" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/add_option"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:textSize="@dimen/font_size_subtitle" />
                 </com.google.android.material.textfield.TextInputLayout>
 

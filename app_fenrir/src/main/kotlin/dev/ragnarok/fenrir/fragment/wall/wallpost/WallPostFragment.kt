@@ -166,7 +166,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         mCommentsButton?.setOnClickListener {
             presenter?.fireCommentClick()
         }
-        resolveTextSelection()
+        mTextSelectionAllowed = false
         root = pRoot
         return pRoot
     }
@@ -224,8 +224,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
             }
 
             R.id.action_allow_text_selection -> {
-                mTextSelectionAllowed = true
-                resolveTextSelection()
+                applyTextSelection()
                 requireActivity().invalidateOptionsMenu()
                 return true
             }
@@ -270,13 +269,16 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         customToast?.showToast(R.string.copied_text)
     }
 
-    private fun resolveTextSelection() {
-        val copiesRoot = mAttachmentsViews?.vgPosts ?: return
-        mText?.setTextIsSelectable(mTextSelectionAllowed)
-        for (i in 0 until copiesRoot.childCount) {
-            val copyRoot = copiesRoot.getChildAt(i) as ViewGroup
-            val textView = copyRoot.findViewById<LinkHelperTextView>(R.id.item_post_copy_text)
-            textView?.setTextIsSelectable(mTextSelectionAllowed)
+    private fun applyTextSelection() {
+        mTextSelectionAllowed = true
+        mText?.makeTextSelectable(true)
+        val copiesRoot = mAttachmentsViews?.vgPosts
+        if (copiesRoot != null) {
+            for (i in 0 until copiesRoot.childCount) {
+                val copyRoot = copiesRoot.getChildAt(i) as ViewGroup
+                val textView = copyRoot.findViewById<LinkHelperTextView>(R.id.item_post_copy_text)
+                textView?.makeTextSelectable(true)
+            }
         }
     }
 

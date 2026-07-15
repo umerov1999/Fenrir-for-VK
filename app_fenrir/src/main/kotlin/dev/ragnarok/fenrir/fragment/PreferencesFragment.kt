@@ -953,6 +953,12 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.do_auto_play_video
             }
 
+            switch("video_play_with_external_player") {
+                dependency = "do_auto_play_video"
+                defaultValue = false
+                titleRes = R.string.video_play_with_external_player
+            }
+
             switch("video_controller_to_decor") {
                 defaultValue = false
                 titleRes = R.string.video_controller_to_decor

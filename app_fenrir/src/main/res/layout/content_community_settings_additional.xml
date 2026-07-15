@@ -73,23 +73,22 @@
 
     </RadioGroup>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:labelFor="@+id/website"
-        android:text="@string/community_options_website_title"
-        android:textColor="?android:textColorSecondary" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/website"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:importantForAutofill="no"
-        android:inputType="textUri"
-        android:padding="8dp"
-        android:textSize="14sp" />
+        android:hint="@string/community_options_website_title"
+        android:padding="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/website"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:importantForAutofill="no"
+            android:inputType="textUri"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:id="@+id/public_date_root"

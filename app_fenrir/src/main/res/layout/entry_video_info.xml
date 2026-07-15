@@ -19,13 +19,14 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp">
+            android:hint="title:"
+            android:paddingTop="8dp"
+            tools:ignore="HardcodedText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="title:"
                 android:inputType="text"
                 android:textSize="16sp"
                 tools:ignore="HardcodedText" />
@@ -36,16 +37,16 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp">
+            android:hint="description:"
+            android:paddingTop="8dp"
+            tools:ignore="HardcodedText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="description:"
                 android:inputType="textMultiLine|text"
-                android:textSize="16sp"
-                tools:ignore="HardcodedText" />
+                android:textSize="16sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
