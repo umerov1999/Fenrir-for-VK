@@ -62,7 +62,6 @@ import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity
 import dev.ragnarok.fenrir.activity.VideoSelectActivity
 import dev.ragnarok.fenrir.activity.selectprofiles.SelectProfilesActivity
-import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.db.model.AttachmentsTypes
 import dev.ragnarok.fenrir.dialog.ImageSizeAlertDialog
@@ -1752,7 +1751,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         try {
             if (toolbar != null) {
                 resolveToolbarNavigationIcon()
-                if (peerId < VKApiMessage.CHAT_PEER && peerId < VKApiMessage.CONTACT_PEER) {
+                if (Peer.getType(peerId) != Peer.CHAT && Peer.getType(peerId) != Peer.CONTACT) {
                     toolbarAvatar?.setOnClickListener {
                         showUserWall(Settings.get().accounts().current, peerId)
                     }
@@ -1760,7 +1759,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                         presenter?.fireLongAvatarClick(peerId)
                         true
                     }
-                } else if (peerId < VKApiMessage.CONTACT_PEER) {
+                } else if (Peer.getType(peerId) == Peer.CHAT) {
                     toolbarAvatar?.setOnClickListener {
                         presenter?.fireShowChatMembers()
                     }

@@ -7,8 +7,8 @@
 #include <cstdarg>
 
 #define TVG_VERSION_MAJOR 1  // for compile-time checks
-#define TVG_VERSION_MINOR 0  // for compile-time checks
-#define TVG_VERSION_MICRO 7  // for compile-time checks
+#define TVG_VERSION_MINOR 1  // for compile-time checks
+#define TVG_VERSION_MICRO 0  // for compile-time checks
 
 #ifdef TVG_API
     #undef TVG_API
@@ -195,11 +195,10 @@ enum struct FillRule : uint8_t
     EvenOdd      ///< A line from the point to a location outside the shape is drawn and its intersections with the path segments of the shape are counted. If the number of intersections is an odd number, the point is inside the shape.
 };
 
-
 /**
  * @brief Defines the image filtering method used during image scaling or transformation.
  *
- * @note Experimental API
+ * @since 1.1
  */
 enum struct FilterMethod : uint8_t
 {
@@ -615,10 +614,40 @@ struct TVG_API Paint
      * @note To test a single point, set the region size to w = 1, h = 1.
      * @note For efficiency, an AABB (axis-aligned bounding box) test is performed internally before precise hit detection.
      * @note This test does not take into account the results of blending or masking.
-     * @note This test does take into account the the hidden paints as well. @see Paint::visible()
+     * @note This test does take into account hidden paints as well.
+     * @see Paint::visible() const
      * @since 1.0
      */
     bool intersects(int32_t x, int32_t y, int32_t w = 1, int32_t h = 1) noexcept;
+
+    /**
+     * @brief Checks whether a given region intersects the filled area of the paint.
+     *
+     * This function determines whether the specified rectangular region—defined by (`x`, `y`, `w`, `h`)—
+     * intersects the geometric fill region of the paint object.
+     *
+     * This is useful for hit-testing purposes, such as detecting whether a user interaction (e.g., touch or click)
+     * occurs within a painted region.
+     *
+     * The paint must be updated in a Canvas beforehand—typically after the Canvas has been
+     * drawn and synchronized.
+     *
+     * @param[in] x The x-coordinate of the top-left corner of the test region.
+     * @param[in] y The y-coordinate of the top-left corner of the test region.
+     * @param[in] w The width of the region to test. Must be greater than 0.
+     * @param[in] h The height of the region to test. Must be greater than 0.
+     * @param[in] visibleOnly If @c true, hidden paints are excluded from the intersection test.
+     *
+     * @return @c true if any part of the region intersects the filled area; otherwise, @c false.
+     *
+     * @note To test a single point, set the region size to w = 1, h = 1.
+     * @note This test does not take into account the results of blending or masking.
+     *
+     * @see Paint::visible(bool on)
+     *
+     * @since Experimental API
+     */
+    bool intersects(int32_t x, int32_t y, int32_t w, int32_t h, bool visibleOnly) noexcept;
 
     /**
      * @brief Duplicates the object.
@@ -1232,8 +1261,8 @@ struct TVG_API Shape : Paint
      *
      * The rectangle is treated as a new sub-path - it is not connected with the previous sub-path.
      *
-     * The value of the current point is set to (@p x + @p rx, @p y) - in case @p rx is greater
-     * than @p w/2 the current point is set to (@p x + @p w/2, @p y)
+     * The value of the current point is set to (@p x + @p w, @p y + @p ry) - in case @p ry is greater
+     * than @p h/2 the current point is set to (@p x + @p w, @p y + @p h/2).
      *
      * @param[in] x The horizontal coordinate of the upper-left corner of the rectangle.
      * @param[in] y The vertical coordinate of the upper-left corner of the rectangle.
@@ -1306,7 +1335,7 @@ struct TVG_API Shape : Paint
      * @param[in] r The red color channel value in the range [0 ~ 255]. The default value is 0.
      * @param[in] g The green color channel value in the range [0 ~ 255]. The default value is 0.
      * @param[in] b The blue color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The default value is 0.
+     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The default value is 255.
      *
      * @note If the stroke width is 0 (default), the stroke will not be visible regardless of the color.
      * @note Either a solid color or a gradient fill is applied, depending on what was set as last.
@@ -1400,7 +1429,7 @@ struct TVG_API Shape : Paint
      * @param[in] r The red color channel value in the range [0 ~ 255]. The default value is 0.
      * @param[in] g The green color channel value in the range [0 ~ 255]. The default value is 0.
      * @param[in] b The blue color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The default value is 0.
+     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The default value is 255.
      *
      * @note Either a solid color or a gradient fill is applied, depending on what was set as last.
      */
@@ -1743,7 +1772,7 @@ struct TVG_API Picture : Paint
      * @return Always returns @c Result::Success.
      *
      * @see FilterMethod
-     * @note Experimental API
+     * @since 1.1
      */
     Result filter(FilterMethod method) noexcept;
 
@@ -1788,6 +1817,21 @@ struct TVG_API Picture : Paint
      */
     Type type() const noexcept override;
 
+    /**
+     * @brief Enable or disable accessible mode for a Picture.
+     *
+     * When accessible mode is enabled, the Picture maintains an internal mapping
+     * of ID-accessible vector assets nodes (such as SVG), allowing efficient access to Paint objects
+     * and their associated identifier information via Accessor APIs.
+     *
+     * When disabled, no additional mapping is maintained and all nodes are treated
+     * as general traversal targets.
+     *
+     * @see Picture::paint()
+     * @see Accessor::name()
+     *
+     * @since 1.1
+     */
     bool accessible = false;
 
     _TVG_DECLARE_ACCESSOR(Animation);
@@ -2052,7 +2096,7 @@ struct TVG_API Text : Paint
      * @return The total number of lines.
      *
      * @see Text::wrap()
-     * @since Experimental API
+     * @since 1.1
      */
     uint32_t lines() noexcept;
 
@@ -2433,11 +2477,11 @@ struct TVG_API WgCanvas final : Canvas
      *
      * @warning Regardless of the value of @p cs, this target API uses the default alpha mode.
      *
-     * @since 1.0
-     *
      * @see WgCanvas::target(const Context&, void*, uint32_t, uint32_t, ColorSpace, int)
      * @see Canvas::viewport()
      * @see Canvas::sync()
+     *
+     * @since 1.0
      */
     Result target(void* device, void* instance, void* target, uint32_t w, uint32_t h, ColorSpace cs, int type = 0) noexcept;
 
@@ -2454,10 +2498,10 @@ struct TVG_API WgCanvas final : Canvas
      * @retval Result::InsufficientCondition if the canvas is performing rendering. Please ensure the canvas is synced.
      * @retval Result::NonSupport In case the wg engine is not supported.
      *
-     * @note Experimental API
-     *
      * @see Canvas::viewport()
      * @see Canvas::sync()
+     *
+     * @note Experimental API
      */
     Result target(const Context& context, void* target, uint32_t w, uint32_t h, ColorSpace cs, int type = 0) noexcept;
 
@@ -2826,8 +2870,8 @@ struct TVG_API Accessor
      * @see Accessor::set()
      * @see Picture::accessible
      *
-     * @note This function is only availble within Accessor callbacks registered via @ref Accessor::set().
-     * @note Experimental API
+     * @note This function is only available within Accessor callbacks registered via @ref Accessor::set().
+     * @since 1.1
      */
     const char* name(uint32_t id) noexcept;
 

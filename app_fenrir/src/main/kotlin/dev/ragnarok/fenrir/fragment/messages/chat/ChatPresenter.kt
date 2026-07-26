@@ -23,7 +23,6 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.api.model.AttachmentTokens
 import dev.ragnarok.fenrir.api.model.AttachmentsTokenCreator
-import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken
 import dev.ragnarok.fenrir.crypt.AesKeyPair
 import dev.ragnarok.fenrir.crypt.KeyExchangeService
@@ -2266,7 +2265,7 @@ class ChatPresenter(
             isPlusEncryption,
             isEncryptionSupport,
             !chronologyInvert,
-            peerId < VKApiMessage.CHAT_PEER,
+            Peer.getType(peerId) != Peer.CHAT,
             chat
         )
     }

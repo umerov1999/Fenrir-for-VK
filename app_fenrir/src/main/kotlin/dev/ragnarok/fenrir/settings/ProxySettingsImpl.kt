@@ -15,9 +15,7 @@ import kotlinx.coroutines.flow.SharedFlow
 class ProxySettingsImpl(context: Context) : IProxySettings {
     private val preferences: SharedPreferences =
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-    private val addPublisher = createPublishSubject<ProxyConfig>()
-    private val deletePublisher = createPublishSubject<ProxyConfig>()
-    private val activePublisher = createPublishSubject<Optional<ProxyConfig>>()
+
     override fun put(address: String, port: Int) {
         val id = generateNextId()
         val config = ProxyConfig().set(id, address, port)
@@ -31,7 +29,7 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
         preferences.edit {
             putStringSet(KEY_LIST, set)
         }
-        addPublisher.myEmit(config)
+        observeAdding.myEmit(config)
     }
 
     override fun put(address: String, port: Int, username: String, pass: String) {
@@ -41,13 +39,13 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
     }
 
     override val observeAdding: SharedFlow<ProxyConfig>
-        get() = addPublisher
+        field = createPublishSubject<ProxyConfig>()
 
     override val observeRemoving: SharedFlow<ProxyConfig>
-        get() = deletePublisher
+        field = createPublishSubject<ProxyConfig>()
 
     override val observeActive: SharedFlow<Optional<ProxyConfig>>
-        get() = activePublisher
+        field = createPublishSubject<Optional<ProxyConfig>>()
 
     override val all: MutableList<ProxyConfig>
         get() {
@@ -76,18 +74,18 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
                 if (config == null) null else kJson.encodeToString(ProxyConfig.serializer(), config)
             )
         }
-        activePublisher.myEmit(wrap(config))
+        observeActive.myEmit(wrap(config))
     }
 
     override fun broadcastUpdate(config: ProxyConfig?) {
         if (config == null) {
-            activePublisher.myEmit(
+            observeActive.myEmit(
                 wrap(
                     activeProxy
                 )
             )
         } else {
-            activePublisher.myEmit(wrap(config))
+            observeActive.myEmit(wrap(config))
         }
     }
 
@@ -98,7 +96,7 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
         preferences.edit {
             putStringSet(KEY_LIST, set)
         }
-        deletePublisher.myEmit(config)
+        observeRemoving.myEmit(config)
     }
 
     private fun generateNextId(): Int {

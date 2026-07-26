@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-#include <algorithm>
 #include "tvgSwCommon.h"
 #include "tvgTaskScheduler.h"
 #include "tvgSwRenderer.h"
@@ -34,7 +33,7 @@
 /************************************************************************/
 
 static int32_t _rendererCnt = -1;
-static mutex _rendererMtx;
+static StrictKey _rendererMtx;
 
 struct SwTask : Task
 {
@@ -62,8 +61,8 @@ struct SwTask : Task
 
     void invisible()
     {
-        curBox.reset();
-        if (!nodirty) dirtyRegion->add(prvBox, curBox);
+        valid = false;
+        if (!nodirty) dirtyRegion->add(prvBox, {});
     }
 
     bool ready(bool condition)
@@ -77,6 +76,12 @@ struct SwTask : Task
         flags[0] |= flags[1];  //applied the previous flags if it's skipped before
         flags[1] = RenderUpdateFlag::None;  //reset
         return false;
+    }
+
+    bool complete()
+    {
+        prvBox = valid ? curBox : RenderRegion{};
+        return true;
     }
 
     virtual bool clip(SwRle* target) = 0;
@@ -124,7 +129,7 @@ struct SwShapeTask : SwTask
     {
         auto strokeWidth = validStrokeWidth(clipper);
         auto updateShape = flags[0] & (RenderUpdateFlag::Path | RenderUpdateFlag::Transform | RenderUpdateFlag::Clip);
-        auto updateFill = (flags[0] & (RenderUpdateFlag::Color | RenderUpdateFlag::Gradient));
+        auto updateFill = flags[0] & (RenderUpdateFlag::Color | RenderUpdateFlag::Gradient | RenderUpdateFlag::Transform);
 
         //Shape
         if (updateShape) {
@@ -139,22 +144,18 @@ struct SwShapeTask : SwTask
         }
         //Fill
         if (updateFill) {
-            if (auto fill = rshape->fill) {
-                auto ctable = (flags[0] & RenderUpdateFlag::Gradient) ? true : false;
-                if (!shapeGenFillColors(shape, fill, transform, renderer->surface, opacity, ctable)) goto err;
-            }
+            if (!shapeGenFillColors(shape.fill, rshape->fill, transform, renderer->surface, opacity, (flags[0] & RenderUpdateFlag::Gradient))) goto err;
         }
         //Stroke
-        if (updateShape || flags[0] & RenderUpdateFlag::Stroke) {
-            if (strokeWidth > 0.0f) {
-                if (!shapeGenStrokeRle(shape, rshape, transform, clipBox, curBox, renderer->mpool, tid, renderer->antiAlias)) goto err;
-                if (auto fill = rshape->strokeFill()) {
-                    auto ctable = (flags[0] & RenderUpdateFlag::GradientStroke) ? true : false;
-                    if (!shapeGenStrokeFillColors(shape, fill, transform, renderer->surface, opacity, ctable)) goto err;
-                }
-            } else {
-                shapeDelStroke(shape);
+        if (strokeWidth > 0.0f) {
+            auto updateStroke = updateShape || (flags[0] & RenderUpdateFlag::Stroke);
+            if (updateStroke && !shapeGenStrokeRle(shape, rshape, transform, clipBox, curBox, renderer->mpool, tid, renderer->antiAlias)) goto err;
+            auto ctable = flags[0] & RenderUpdateFlag::GradientStroke;
+            if (ctable || flags[0] & RenderUpdateFlag::Transform) {
+                if (!shapeGenFillColors(shape.stroke->fill, rshape->strokeFill(), transform, renderer->surface, opacity, ctable)) goto err;
             }
+        } else {
+            shapeDelStroke(shape);
         }
 
         shapeDelOutline(shape);
@@ -423,8 +424,7 @@ bool SwRenderer::renderImage(RenderData data)
             }
         }
     }
-    task->prvBox = task->curBox;
-    return true;
+    return task->complete();
 }
 
 
@@ -483,8 +483,7 @@ bool SwRenderer::renderShape(RenderData data)
             }
         }
     }
-    task->prvBox = task->curBox;
-    return true;
+    return task->complete();
 }
 
 
@@ -704,7 +703,7 @@ bool SwRenderer::intersectsShape(RenderData data, const RenderRegion& region)
 
     if (!task->valid || !task->bounds().intersected(region)) return false;
     if (rleIntersect(task->shape.strokeRle, region)) return true;
-    return task->shape.rle ? rleIntersect(task->shape.rle, region): task->shape.fastTrack;
+    return task->shape.fastTrack || rleIntersect(task->shape.rle, region);
 }
 
 

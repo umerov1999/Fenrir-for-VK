@@ -117,10 +117,10 @@ class DirectAuthDialog : BaseMvpDialogFragment<DirectAuthPresenter, IDirectAuthV
         }
     }
 
-    override fun setLoginButtonEnabled(enabled: Boolean) {
+    override fun setLoginButtonEnabled(enabled: Boolean, passwordEntered: Boolean) {
         val buttonLogin = (dialog as AlertDialog?)?.getButton(DialogInterface.BUTTON_POSITIVE)
         buttonLogin?.isEnabled = enabled
-        mSavePassword?.visibility = if (enabled) View.VISIBLE else View.GONE
+        mSavePassword?.visibility = if (passwordEntered) View.VISIBLE else View.GONE
     }
 
     override fun setSmsRootVisible(visible: Boolean) {

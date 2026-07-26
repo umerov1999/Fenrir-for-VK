@@ -9,8 +9,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.insets.ProtectionLayout
 import androidx.core.view.iterator
+import androidx.webkit.WebViewClientCompat
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
@@ -55,7 +56,21 @@ class LoginActivity : AppCompatActivity() {
         webview.settings.userAgentString = getUserAgentByType(Constants.DEFAULT_ACCOUNT_TYPE)
 
         //Чтобы получать уведомления об окончании загрузки страницы
-        webview.webViewClient = object : WebViewClient() {
+        webview.webViewClient = object : WebViewClientCompat() {
+            override fun onRenderProcessGone(
+                view: WebView?,
+                detail: RenderProcessGoneDetail?
+            ): Boolean {
+                webview.destroy()
+                createCustomToast(
+                    this@LoginActivity,
+                    null,
+                    null
+                )?.showToastError(R.string.crash_error_activity_out_of_memory)
+                finish()
+                return true
+            }
+
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 parseUrl(url)
             }

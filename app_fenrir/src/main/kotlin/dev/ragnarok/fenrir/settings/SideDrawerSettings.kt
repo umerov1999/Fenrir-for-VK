@@ -15,8 +15,6 @@ import kotlinx.serialization.builtins.ListSerializer
 
 internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
     private val app: Context = context.applicationContext
-    private val publishSubject = createPublishSubject<List<DrawerCategory>>()
-
     internal fun makeDefaults(): List<DrawerCategory> {
         return listOf(
             DrawerCategory(SwitchableCategory.FRIENDS),
@@ -97,11 +95,11 @@ internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
                     kJson.encodeToString(ListSerializer(DrawerCategory.serializer()), list)
                 )
             }
-            publishSubject.myEmit(list)
+            observeChanges.myEmit(list)
         }
 
     override val observeChanges: SharedFlow<List<DrawerCategory>>
-        get() = publishSubject
+        field = createPublishSubject<List<DrawerCategory>>()
 
     override fun reset() {
         PreferenceScreen.getPreferences(app).edit {
@@ -109,6 +107,6 @@ internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
                 "side_navigation_menu_order"
             )
         }
-        publishSubject.myEmit(makeDefaults())
+        observeChanges.myEmit(makeDefaults())
     }
 }

@@ -16,7 +16,6 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
     private val mPrefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mApplication: Context = context.applicationContext
-    private val mPinEnterHistory: MutableList<Long>
     private val hiddenPeers: MutableSet<String>
     private var mPinHash: String?
     private var mKeyEncryptionPolicyAccepted: Boolean
@@ -46,26 +45,26 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
             }
         }
     override val pinEnterHistory: List<Long>
-        get() = mPinEnterHistory
+        field: MutableList<Long>
 
     private fun storePinHistory() {
-        val target: MutableSet<String> = HashSet(mPinEnterHistory.size)
-        for (value in mPinEnterHistory) {
+        val target: MutableSet<String> = HashSet(pinEnterHistory.size)
+        for (value in pinEnterHistory) {
             target.add(value.toString())
         }
         mPrefs.edit { putStringSet(KEY_PIN_ENTER_HISTORY, target) }
     }
 
     override fun clearPinHistory() {
-        mPinEnterHistory.clear()
+        pinEnterHistory.clear()
         mPrefs.edit { remove(KEY_PIN_ENTER_HISTORY) }
     }
 
     override fun firePinAttemptNow() {
         val now = System.currentTimeMillis()
-        mPinEnterHistory.add(now)
-        if (mPinEnterHistory.size > pinHistoryDepth) {
-            mPinEnterHistory.removeAt(0)
+        pinEnterHistory.add(now)
+        if (pinEnterHistory.size > pinHistoryDepth) {
+            pinEnterHistory.removeAt(0)
         }
         storePinHistory()
     }
@@ -235,7 +234,7 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
 
     init {
         mPinHash = mPrefs.getString(KEY_PIN_HASH, null)
-        mPinEnterHistory = extractPinEnterHistory(mPrefs)
+        pinEnterHistory = extractPinEnterHistory(mPrefs)
         mKeyEncryptionPolicyAccepted = mPrefs.getBoolean(KEY_ENCRYPTION_POLICY_ACCEPTED, false)
         hiddenPeers = Collections.synchronizedSet(HashSet(1))
         reloadHiddenDialogSettings()

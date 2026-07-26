@@ -402,7 +402,7 @@ class MessagesRepository(
         if (setUpdates.nonNullNoEmpty()) {
             for (update in setUpdates) {
                 if (!Settings.get().main().isDisable_notifications && Settings.get()
-                        .main().isInfo_reading && update.peerId < VKApiMessage.CHAT_PEER
+                        .main().isInfo_reading && Peer.getType(update.peerId) != Peer.CHAT
                 ) {
                     compositeJob.add(
                         getRx(

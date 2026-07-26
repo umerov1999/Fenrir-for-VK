@@ -14,7 +14,6 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
     private val mPrefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mApplication: Context = context.applicationContext
-    private val mPinEnterHistory: MutableList<Long>
     private var mPinHash: String?
 
     private var pinHash: String?
@@ -28,7 +27,7 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
             }
         }
     override val pinEnterHistory: List<Long>
-        get() = mPinEnterHistory
+        field: MutableList<Long>
 
     override var isUsePinForEntrance: Boolean
         get() = hasPinHash && getPreferences(mApplication)
@@ -38,23 +37,23 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
         }
 
     private fun storePinHistory() {
-        val target: MutableSet<String> = HashSet(mPinEnterHistory.size)
-        for (value in mPinEnterHistory) {
+        val target: MutableSet<String> = HashSet(pinEnterHistory.size)
+        for (value in pinEnterHistory) {
             target.add(value.toString())
         }
         mPrefs.edit { putStringSet(KEY_PIN_ENTER_HISTORY, target) }
     }
 
     override fun clearPinHistory() {
-        mPinEnterHistory.clear()
+        pinEnterHistory.clear()
         mPrefs.edit { remove(KEY_PIN_ENTER_HISTORY) }
     }
 
     override fun firePinAttemptNow() {
         val now = System.currentTimeMillis()
-        mPinEnterHistory.add(now)
-        if (mPinEnterHistory.size > pinHistoryDepth) {
-            mPinEnterHistory.removeAt(0)
+        pinEnterHistory.add(now)
+        if (pinEnterHistory.size > pinHistoryDepth) {
+            pinEnterHistory.removeAt(0)
         }
         storePinHistory()
     }
@@ -125,6 +124,6 @@ class SecuritySettings internal constructor(context: Context) : ISecuritySetting
 
     init {
         mPinHash = mPrefs.getString(KEY_PIN_HASH, null)
-        mPinEnterHistory = extractPinEnterHistory(mPrefs)
+        pinEnterHistory = extractPinEnterHistory(mPrefs)
     }
 }

@@ -149,6 +149,7 @@ SwCanvas* SwCanvas::gen(EngineOption op) noexcept
         return ret;
     }
 #endif
+    TVGLOG("RENDERER", "SwCanvas is not supported");
     return nullptr;
 }
 
@@ -202,6 +203,7 @@ GlCanvas* GlCanvas::gen(EngineOption op) noexcept
         return ret;
     }
 #endif
+    TVGLOG("RENDERER", "GlCanvas is not supported");
     return nullptr;
 }
 
@@ -259,5 +261,6 @@ WgCanvas* WgCanvas::gen(EngineOption op) noexcept
         return ret;
     }
 #endif
+    TVGLOG("RENDERER", "WgCanvas is not supported");
     return nullptr;
 }

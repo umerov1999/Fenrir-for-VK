@@ -20,29 +20,27 @@ import java.util.Collections
 internal class AccountsSettings @SuppressLint("UseSparseArrays") constructor(context: Context) :
     IAccountsSettings {
     private val app: Context = context.applicationContext
-    private val changesPublisher = createPublishSubject<IAccountsSettings>()
     private val preferences: SharedPreferences = getPreferences(context)
     private val tokens: MutableMap<Long, String> = Collections.synchronizedMap(HashMap(1))
     private val types: MutableMap<Long, Int> = Collections.synchronizedMap(HashMap(1))
     private val devices: MutableMap<Long, String> = Collections.synchronizedMap(HashMap(1))
     private val accounts: MutableSet<Long> = Collections.synchronizedSet(HashSet(1))
-    private val currentPublisher = createPublishSubject<Long>()
     private fun notifyAboutRegisteredChanges() {
-        changesPublisher.myEmit(this)
+        observeRegistered.myEmit(this)
     }
 
     override val observeRegistered: SharedFlow<IAccountsSettings>
-        get() = changesPublisher
+        field = createPublishSubject<IAccountsSettings>()
 
     override val observeChanges: SharedFlow<Long>
-        get() = currentPublisher
+        field = createPublishSubject<Long>()
 
     override val registered: List<Long>
         get() = ArrayList(accounts)
 
     @SuppressLint("CheckResult")
     private fun fireAccountChange() {
-        currentPublisher.myEmit(current)
+        observeChanges.myEmit(current)
         FCMRegistrationUtils.register.hiddenIO()
     }
 

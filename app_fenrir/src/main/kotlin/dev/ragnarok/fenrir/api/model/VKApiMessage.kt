@@ -118,7 +118,9 @@ class VKApiMessage
 
     companion object {
         const val CHAT_PEER = 2000000000
+        const val MAX_CHAT_PEER = 2999999999
         const val CONTACT_PEER = 1900000000
+        const val MAX_CONTACT_PEER = CHAT_PEER - 1
         const val FLAG_UNREAD = 1 //сообщение не прочитано
         const val FLAG_OUTBOX = 2 //исходящее сообщение
         const val FLAG_REPLIED = 4 //на сообщение был создан ответ

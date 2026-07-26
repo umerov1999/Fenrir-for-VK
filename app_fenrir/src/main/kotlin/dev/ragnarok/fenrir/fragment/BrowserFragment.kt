@@ -12,16 +12,17 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewClientCompat
 import androidx.webkit.WebViewFeature
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
@@ -100,44 +101,46 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
         }
 
         mWebView = root.findViewById(R.id.webview)
-        mWebView?.settings?.builtInZoomControls = true
-        mWebView?.settings?.displayZoomControls = false
-        mWebView?.webViewClient = VkLinkSupportWebClient()
-        mWebView?.webChromeClient = object : WebChromeClient() {
-            override fun onReceivedTitle(view: WebView, title: String) {
-                this@BrowserFragment.title = title
-                refreshActionBar()
+        mWebView?.let {
+            it.settings.builtInZoomControls = true
+            it.settings.displayZoomControls = false
+            it.webViewClient = VkLinkSupportWebClient()
+            it.webChromeClient = object : WebChromeClient() {
+                override fun onReceivedTitle(view: WebView, title: String) {
+                    this@BrowserFragment.title = title
+                    refreshActionBar()
+                }
             }
-        }
-        if (Settings.get().main().isWebview_night_mode && WebViewFeature.isFeatureSupported(
-                WebViewFeature.FORCE_DARK
-            ) && Settings.get().ui().isDarkModeEnabled(requireActivity())
-        ) {
-            mWebView?.settings
-                ?.let { WebSettingsCompat.setForceDark(it, WebSettingsCompat.FORCE_DARK_ON) }
-        }
-        if (mWebView != null) {
-            registerForContextMenu(mWebView ?: return null)
-        }
-        mWebView?.settings?.userAgentString = UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
-        mWebView?.settings?.javaScriptEnabled = true // из-за этого не срабатывал метод
-        mWebView?.settings?.domStorageEnabled = true
-        mWebView?.settings?.blockNetworkLoads = false
-        mWebView?.settings?.blockNetworkImage = false
-        mWebView?.settings?.databaseEnabled = true
-        // shouldOverrideUrlLoading в WebClient
-        when {
-            savedInstanceState != null -> {
-                restoreFromInstanceState(savedInstanceState)
+            if (Settings.get().main().isWebview_night_mode && WebViewFeature.isFeatureSupported(
+                    WebViewFeature.FORCE_DARK
+                ) && Settings.get().ui().isDarkModeEnabled(requireActivity())
+            ) {
+                WebSettingsCompat.setForceDark(it.settings, WebSettingsCompat.FORCE_DARK_ON)
             }
+            registerForContextMenu(it)
 
-            webState != null -> {
-                mWebView?.restoreState(webState ?: return null)
-                webState = null
-            }
+            it.settings.userAgentString = UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
+            it.settings.javaScriptEnabled = true // из-за этого не срабатывал метод
+            it.settings.domStorageEnabled = true
+            it.settings.blockNetworkLoads = false
+            it.settings.blockNetworkImage = false
+            it.settings.databaseEnabled = true
 
-            else -> {
-                loadAtFirst()
+            // shouldOverrideUrlLoading в WebClient
+            val tmpWebState = webState
+            when {
+                savedInstanceState != null -> {
+                    restoreFromInstanceState(savedInstanceState)
+                }
+
+                tmpWebState != null -> {
+                    it.restoreState(tmpWebState)
+                    webState = null
+                }
+
+                else -> {
+                    loadAtFirst()
+                }
             }
         }
         return root
@@ -301,7 +304,20 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
         return true
     }
 
-    private inner class VkLinkSupportWebClient : WebViewClient() {
+    private inner class VkLinkSupportWebClient : WebViewClientCompat() {
+        override fun onRenderProcessGone(
+            view: WebView,
+            detail: RenderProcessGoneDetail?
+        ): Boolean {
+            view.destroy()
+            CustomToast.createCustomToast(
+                requireActivity(),
+                null,
+                null
+            )?.showToastError(R.string.crash_error_activity_out_of_memory)
+            return true
+        }
+
         override fun onLoadResource(view: WebView, url: String) {
             super.onLoadResource(view, url)
             d(TAG, "onLoadResource, url: $url")

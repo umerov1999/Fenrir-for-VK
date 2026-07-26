@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ChatActivityBubbles.Companion.forStart
 import dev.ragnarok.fenrir.activity.MainActivity
-import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory.withSpans
@@ -363,7 +362,7 @@ object NotificationHelper {
         }
         makeMedia(context, msgs, message, hideBody, accountId, accAvatar, avatar)
         msgs.addMessage(inbox)
-        if (message.peerId > VKApiMessage.CHAT_PEER) {
+        if (Peer.getType(message.peerId) == Peer.CHAT) {
             msgs.conversationTitle = peer.getTitle()
             msgs.isGroupConversation = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
         }

@@ -21,6 +21,7 @@ import androidx.core.text.PrecomputedTextCompat
 import androidx.core.util.PatternsCompat
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.FragmentActivity
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.link.internal.LinkSpan
@@ -32,10 +33,12 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ClickableForegroundColorSpan
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromScopeToMain
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.ThreadPoolExecutor
 
@@ -47,29 +50,28 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
     private var mDisplayHashTags = false
     private var mHashTagWordColor = 0
     private var linksResolverTaskData: CharSequence? = null
-    private val mResolveLinks: CancelableJob
+    private var mResolveLinks: CancelableJob? = null
     private var interceptSpans = false
 
     constructor(context: Context) : super(context) {
-        mResolveLinks = CancelableJob()
         init(null)
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(
         context, attrs
     ) {
-        mResolveLinks = CancelableJob()
         init(attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context, attrs, defStyleAttr
     ) {
-        mResolveLinks = CancelableJob()
         init(attrs)
     }
 
     private fun init(attrs: AttributeSet?) {
+        mResolveLinks = CancelableJob()
+
         mAdditionalHashTagChars = ArrayList(2)
         mAdditionalHashTagChars?.add('_')
         mAdditionalHashTagChars?.add('@')
@@ -190,7 +192,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
     }
 
     fun precompute(text: CharSequence?) {
-        mResolveLinks.cancel()
+        mResolveLinks?.cancel()
         linksResolverTaskData = null
         if (text != null) {
             setText(text.toString(), BufferType.NORMAL)
@@ -392,14 +394,13 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
     val allHashTags: List<String>
         get() = getAllHashTags(false)
 
-    private fun makeResolveLinkJob() {
-        val tmpLinksResolved = linksResolverTaskData
-        if (tmpLinksResolved.isNullOrEmpty()) {
-            return
-        }
-        mResolveLinks.set(linkResolveScheduler.launch {
-            var needRefreshText = tmpLinksResolved is Spannable
-            val spannable = SpannableStringBuilder.valueOf(tmpLinksResolved)
+    fun resolveLinkFlow(
+        textWithLink: CharSequence,
+        metrics: PrecomputedTextCompat.Params
+    ): Flow<PrecomputedTextCompat?> {
+        return flow {
+            var needRefreshText = textWithLink is Spannable
+            val spannable = SpannableStringBuilder.valueOf(textWithLink)
             if (mDisplayHashTags) {
                 needRefreshText = setColorsToAllHashTags(spannable)
             }
@@ -414,7 +415,13 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                if (Constants.IS_DEBUG) {
+                    e.printStackTrace()
+                }
+                if (e is CancellationException) {
+                    throw e
+                }
             }
             try {
                 val res = MAIL_PATTERN.findAll(spannable)
@@ -427,44 +434,59 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                if (Constants.IS_DEBUG) {
+                    e.printStackTrace()
+                }
+                if (e is CancellationException) {
+                    throw e
+                }
             }
             if (linkifyUrls(spannable)) {
                 needRefreshText = true
             }
-            /*
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val textClassifier = context.getSystemService(TextClassificationManager::class.java)
-                    .textClassifier
-                val request = TextLinks.Request.Builder(spannable)
-                textClassifier.generateLinks(request.build()).apply(
-                    spannable,
-                    TextLinks.APPLY_STRATEGY_IGNORE,
+            emit(
+                if (!needRefreshText) {
                     null
-                )
-            }
-            LinkifyCompat.addLinks(
-                spannable,
-                Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES
+                } else {
+                    PrecomputedTextCompat.create(spannable, metrics)
+                }
             )
-             */
-            if (!needRefreshText) {
-                CoroutinesUtils.inMainThread {
-                    linksResolverTaskData = null
+        }
+    }
+
+    private fun makeResolveLinkJob() {
+        val tmpLinksResolved = linksResolverTaskData
+        if (tmpLinksResolved.isNullOrEmpty()) {
+            return
+        }
+
+        mResolveLinks?.set(
+            resolveLinkFlow(
+                tmpLinksResolved,
+                TextViewCompat.getTextMetricsParams(this)
+            ).fromScopeToMain(linkResolveScheduler, { txt ->
+                linksResolverTaskData = null
+                if (txt != null) {
+                    try {
+                        setPrecomputedText(txt)
+                    } catch (e: Exception) {
+                        if (Constants.IS_DEBUG) {
+                            e.printStackTrace()
+                        }
+                    }
                 }
-            } else {
-                val params = TextViewCompat.getTextMetricsParams(this@LinkHelperTextView)
-                val precomputedText = PrecomputedTextCompat.create(spannable, params)
-                CoroutinesUtils.inMainThread {
-                    linksResolverTaskData = null
-                    setPrecomputedText(precomputedText)
+            }, {
+                linksResolverTaskData = null
+                if (Constants.IS_DEBUG) {
+                    it.printStackTrace()
                 }
-            }
-        })
+            })
+        )
     }
 
     fun makeTextSelectable(selectable: Boolean) {
-        mResolveLinks.cancel()
+        mResolveLinks?.cancel()
         linksResolverTaskData = null
         if (text != null) {
             setText(text.toString(), BufferType.NORMAL)
@@ -479,7 +501,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         if (isInEditMode || linksResolverTaskData.isNullOrEmpty()) {
             return
         }
-        mResolveLinks.cancel()
+        mResolveLinks?.cancel()
         makeResolveLinkJob()
     }
 
@@ -488,7 +510,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         if (isInEditMode) {
             return
         }
-        mResolveLinks.cancel()
+        mResolveLinks?.cancel()
     }
 
     interface OnHashTagClickListener {

@@ -164,7 +164,7 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
                                 sid,
                                 Constants.AUTH_API_VERSION,
                                 libverify_support = true,
-                                allow_callreset = true
+                                allow_callreset = false
                             )
                             .delayedFlow(1000)
                             .fromIOToMain({
@@ -304,10 +304,10 @@ class DirectAuthPresenter(savedInstanceState: Bundle?) :
     private fun resolveButtonLoginState() {
         resumedView?.setLoginButtonEnabled(
             username.trimmedNonNullNoEmpty()
-                    && pass.nonNullNoEmpty()
                     && (requiredCaptchaLegacy == null || captcha.trimmedNonNullNoEmpty())
                     && (!requireSmsCode || smsCode.trimmedNonNullNoEmpty())
-                    && (!requireAppCode || appCode.trimmedNonNullNoEmpty())
+                    && (!requireAppCode || appCode.trimmedNonNullNoEmpty()),
+            pass.nonNullNoEmpty()
         )
     }
 

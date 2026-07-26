@@ -507,6 +507,8 @@
   <inspection_tool class="AtomicFieldUpdaterNotStaticFinal" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AutoCloseableResource" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AvoidDependencyNamedArgumentsNotation" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+  <inspection_tool class="AvoidDuplicateDependencies" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+  <inspection_tool class="AvoidDuplicateRepositories" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
   <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="BeforeOrAfterIsPublicVoidNoArg" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="BigDecimalLegacyMethod" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -1112,6 +1114,7 @@
   </inspection_tool>
   <inspection_tool class="LastArgumentMustBeNull" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LateinitVarOverridesLateinitVar" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="LatestMinorVersion" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LeakableMapKey" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LeakingThis" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LengthOneStringsInConcatenation" enabled="false" level="INFORMATION" enabled_by_default="false" />
@@ -1456,6 +1459,7 @@
   <inspection_tool class="RedundantInnerClassModifier" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="RedundantInterpolationPrefix" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
   <inspection_tool class="RedundantJavaTimeOperations" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="RedundantKotlinStdLibDependency" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="RedundantLabel" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="RedundantLabeledReturnOnLastExpressionInLambda" enabled="false" level="INFORMATION" enabled_by_default="false" />
   <inspection_tool class="RedundantLabeledSwitchRuleCodeBlock" enabled="false" level="WARNING" enabled_by_default="false" />

@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.db.column
 import android.content.ContentValues
 import android.provider.BaseColumns
 import dev.ragnarok.fenrir.api.model.VKApiChat
-import dev.ragnarok.fenrir.api.model.VKApiMessage
+import dev.ragnarok.fenrir.model.Peer
 
 object DialogsColumns : BaseColumns {
     const val TABLENAME = "dialogs"
@@ -46,7 +46,7 @@ object DialogsColumns : BaseColumns {
 
     fun getCV(chat: VKApiChat): ContentValues {
         val cv = ContentValues()
-        cv.put(BaseColumns._ID, VKApiMessage.CHAT_PEER + chat.id)
+        cv.put(BaseColumns._ID, Peer.fromChatId(chat.id))
         cv.put(TITLE, chat.title)
         cv.put(PHOTO_200, chat.photo_200)
         cv.put(PHOTO_100, chat.photo_100)

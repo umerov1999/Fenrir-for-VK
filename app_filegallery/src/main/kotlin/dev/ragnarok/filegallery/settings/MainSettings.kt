@@ -25,8 +25,6 @@ import java.io.File
 
 internal class MainSettings(context: Context) : IMainSettings {
     private val app: Context = context.applicationContext
-    private val localServerPublisher = createPublishSubject<LocalServerSettings>()
-
     override val fontSize: Int
         get() = getPreferences(app).getInt("font_size_int", 0)
 
@@ -134,11 +132,11 @@ internal class MainSettings(context: Context) : IMainSettings {
                 kJson.encodeToString(LocalServerSettings.serializer(), settings)
             )
         }
-        localServerPublisher.myEmit(settings)
+        observeLocalServer.myEmit(settings)
     }
 
     override fun updateLocalServer() {
-        localServerPublisher.myEmit(localServer)
+        observeLocalServer.myEmit(localServer)
     }
 
     override val playerCoverBackgroundSettings: PlayerCoverBackgroundSettings
@@ -237,7 +235,7 @@ internal class MainSettings(context: Context) : IMainSettings {
         get() = getPreferences(app).getBoolean("show_mini_player", true)
 
     override val observeLocalServer: SharedFlow<LocalServerSettings>
-        get() = localServerPublisher
+        field = createPublishSubject<LocalServerSettings>()
 
     override val isUse_internal_downloader: Boolean
         get() = getPreferences(app).getBoolean("use_internal_downloader", true)

@@ -73,9 +73,9 @@ class Peer : Parcelable {
         const val CHAT = 3
         const val CONTACT = 4
         fun getType(peerId: Long): Int {
-            if (peerId > VKApiMessage.CHAT_PEER) {
+            if (peerId > VKApiMessage.CHAT_PEER && peerId <= VKApiMessage.MAX_CHAT_PEER) {
                 return CHAT
-            } else if (peerId > VKApiMessage.CONTACT_PEER) {
+            } else if (peerId > VKApiMessage.CONTACT_PEER && peerId <= VKApiMessage.MAX_CONTACT_PEER) {
                 return CONTACT
             }
             return if (peerId < 0) {
@@ -112,7 +112,7 @@ class Peer : Parcelable {
         }
 
         fun isGroupChat(peerId: Long): Boolean {
-            return peerId > VKApiMessage.CHAT_PEER
+            return peerId > VKApiMessage.CHAT_PEER && peerId <= VKApiMessage.MAX_CHAT_PEER
         }
 
         fun isContactChat(peerId: Long): Boolean {

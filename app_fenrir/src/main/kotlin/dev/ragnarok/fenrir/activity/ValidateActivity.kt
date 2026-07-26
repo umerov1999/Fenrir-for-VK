@@ -9,8 +9,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.insets.ProtectionLayout
 import androidx.core.view.iterator
+import androidx.webkit.WebViewClientCompat
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
@@ -33,6 +34,7 @@ import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import kotlinx.coroutines.flow.filter
 import kotlin.math.max
 
@@ -75,7 +77,21 @@ class ValidateActivity : AppCompatActivity() {
         webview.settings.userAgentString = UserAgentTool.getAccountUserAgent(accountId)
 
         //Чтобы получать уведомления об окончании загрузки страницы
-        webview.webViewClient = object : WebViewClient() {
+        webview.webViewClient = object : WebViewClientCompat() {
+            override fun onRenderProcessGone(
+                view: WebView?,
+                detail: RenderProcessGoneDetail?
+            ): Boolean {
+                webview.destroy()
+                createCustomToast(
+                    this@ValidateActivity,
+                    null,
+                    null
+                )?.showToastError(R.string.crash_error_activity_out_of_memory)
+                finish()
+                return true
+            }
+
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 parseUrl(url)
             }
