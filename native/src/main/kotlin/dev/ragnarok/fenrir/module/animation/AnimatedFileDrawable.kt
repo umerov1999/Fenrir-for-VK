@@ -43,10 +43,10 @@ class AnimatedFileDrawable(
         ptr: Long,
         bitmap: Bitmap?,
         params: IntArray,
-        stride: Int,
         preview: Boolean,
         startTimeSeconds: Float,
-        endTimeSeconds: Float
+        endTimeSeconds: Float,
+        loop: Boolean
     ): Int
 
     private external fun seekToMs(ptr: Long, ms: Long, params: IntArray, precise: Boolean)
@@ -54,13 +54,12 @@ class AnimatedFileDrawable(
         ptr: Long,
         ms: Long,
         bitmap: Bitmap?,
-        data: IntArray,
-        stride: Int
+        data: IntArray
     ): Int
 
     private external fun prepareToSeek(ptr: Long)
 
-    private val metaData = IntArray(6)
+    private val metaData = IntArray(8)
     private var decoderCreated: Boolean = false
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
     private val sync = Any()
@@ -188,10 +187,9 @@ class AnimatedFileDrawable(
                                 nativePtr,
                                 backgroundBitmap,
                                 metaData,
-                                it.rowBytes,
                                 false,
                                 startTime,
-                                endTime
+                                endTime, true
                             ) == 0
                         ) {
                             CoroutineScope(Dispatchers.Main).launch {
@@ -276,18 +274,17 @@ class AnimatedFileDrawable(
                     nativePtr,
                     ms,
                     backgroundBitmap,
-                    metaData,
-                    it.rowBytes
+                    metaData
                 )
             } else {
                 getVideoFrame(
                     nativePtr,
                     backgroundBitmap,
                     metaData,
-                    it.rowBytes,
                     true,
                     0f,
-                    0f
+                    0f,
+                    true
                 )
             }
             if (result != 0) backgroundBitmap else null

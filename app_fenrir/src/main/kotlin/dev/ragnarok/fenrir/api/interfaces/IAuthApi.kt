@@ -1,7 +1,10 @@
 package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
-import dev.ragnarok.fenrir.api.model.VKApiValidationResponse
+import dev.ragnarok.fenrir.api.model.VKApiValidateAccount
+import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemCheckOtp
+import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
+import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemSendOtp
 import dev.ragnarok.fenrir.api.model.response.AnonymTokenResponse
 import dev.ragnarok.fenrir.api.model.response.GetAuthCodeStatusResponse
 import dev.ragnarok.fenrir.api.model.response.LoginResponse
@@ -14,70 +17,89 @@ interface IAuthApi {
     fun directLogin(
         grantType: String?,
         clientId: Int,
-        clientSecret: String?,
         username: String?,
-        pass: String?,
+        password: String?,
         v: String?,
         twoFaSupported: Boolean,
         scope: String?,
-        code: String?,
-        captchaSid: String?,
-        captchaKey: String?,
         captchaSuccessToken: String?,
-        forceSms: Boolean,
-        libverify_support: Boolean,
-        smsSid: String?,
-        anonymous_token: String?
-    ): Flow<LoginResponse>
-
-    @CheckResult
-    fun validatePhone(
-        phone: String?,
-        apiId: Int,
-        clientId: Int,
-        clientSecret: String?,
+        libVerifySupport: Boolean,
         sid: String?,
-        v: String?,
-        libverify_support: Boolean,
-        allow_callreset: Boolean
-    ): Flow<VKApiValidationResponse>
+        anonymousToken: String?,
+        sakVersion: String?,
+        flowType: String?
+    ): Flow<LoginResponse>
 
     @CheckResult
     fun authByExchangeToken(
         clientId: Int,
-        apiId: Int,
         exchangeToken: String,
         scope: String,
         initiator: String,
         deviceId: String?,
         sakVersion: String?,
-        gaid: String?,
         v: String?
     ): Flow<VKUrlResponse>
 
     @CheckResult
-    fun get_anonym_token(
+    fun validateAccount(
         apiId: Int,
+        supportedWays: String?,
+        login: String,
+        forcePassword: Boolean,
+        passkeySupported: Boolean,
+        sakVersion: String?,
+        flowType: String?,
+        accessToken: String?,
+        v: String?
+    ): Flow<VKApiValidateAccount>
+
+    @CheckResult
+    fun sendEcosystemOtp(
+        apiId: Int,
+        sid: String?,
+        accessToken: String?,
+        v: String?,
+        suffix: String
+    ): Flow<EcosystemSendOtp>
+
+    @CheckResult
+    fun checkEcosystemOtp(
+        apiId: Int,
+        sid: String?,
+        accessToken: String?,
+        v: String?,
+        verificationMethod: String,
+        code: String
+    ): Flow<EcosystemCheckOtp>
+
+    @CheckResult
+    fun getEcosystemVerificationMethods(
+        apiId: Int,
+        sid: String?,
+        accessToken: String?,
+        v: String?
+    ): Flow<EcosystemGetVerificationMethods>
+
+    @CheckResult
+    fun getAnonymToken(
         clientId: Int,
         clientSecret: String?,
-        v: String?,
-        device_id: String?
+        v: String?
     ): Flow<AnonymTokenResponse>
 
     @CheckResult
     fun setAuthCodeStatus(
-        auth_code: String?,
+        authCode: String?,
         apiId: Int,
-        device_id: String?,
         accessToken: String?,
         v: String?
     ): Flow<SetAuthCodeStatusResponse>
 
     @CheckResult
     fun getAuthCodeStatus(
-        auth_code: String?,
+        authCode: String?,
         apiId: Int,
-        device_id: String?,
         accessToken: String?,
         v: String?
     ): Flow<GetAuthCodeStatusResponse>

@@ -132,12 +132,6 @@
             android:theme="@style/MyTransparentDialog" />
 
         <activity
-            android:name="dev.ragnarok.fenrir.activity.CaptchaLegacyActivity"
-            android:excludeFromRecents="true"
-            android:theme="@style/MyTransparentDialog"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
             android:name="dev.ragnarok.fenrir.activity.PostPublishPrepareActivity"
             android:excludeFromRecents="true"
             android:exported="true"

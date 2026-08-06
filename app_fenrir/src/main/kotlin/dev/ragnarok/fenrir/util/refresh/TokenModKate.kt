@@ -141,7 +141,7 @@ object TokenModKate {
             .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 chain.proceed(
                     chain.toRequestBuilder(false)
                         .addHeader("User-Agent", userAgent())

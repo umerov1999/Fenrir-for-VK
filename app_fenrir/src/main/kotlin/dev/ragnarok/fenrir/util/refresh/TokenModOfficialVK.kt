@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.util.refresh
 import android.os.Build
 import android.util.Base64
 import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.Constants.VK_ANDROID_APP_VERSION_CODE
-import dev.ragnarok.fenrir.Constants.VK_ANDROID_APP_VERSION_NAME
+import dev.ragnarok.fenrir.Constants.AUTH_VK_ANDROID_APP_VERSION_CODE
+import dev.ragnarok.fenrir.Constants.AUTH_VK_ANDROID_APP_VERSION_NAME
 import dev.ragnarok.fenrir.Includes.proxySettings
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
@@ -129,7 +129,7 @@ object TokenModOfficialVK {
         }
         list.add("X-subtype=841415684880")
         list.add("X-X-subtype=841415684880")
-        list.add("X-app_ver=$VK_ANDROID_APP_VERSION_CODE")
+        list.add("X-app_ver=$AUTH_VK_ANDROID_APP_VERSION_CODE")
         list.add("X-kid=|ID|$rid|")
         list.add("X-X-kid=|ID|$rid|")
         list.add("X-osv=" + Build.VERSION.SDK_INT)
@@ -139,12 +139,12 @@ object TokenModOfficialVK {
         list.add("X-pub2=$str2")
         list.add("X-appid=$str3")
         list.add("X-subscription=841415684880")
-        list.add("X-app_ver_name=$VK_ANDROID_APP_VERSION_NAME")
+        list.add("X-app_ver_name=$AUTH_VK_ANDROID_APP_VERSION_NAME")
         list.add("app=com.vkontakte.android")
         list.add("sender=841415684880")
         list.add("device=$device")
         list.add("cert=48761eef50ee53afc4cc9c5f10e6bde7f8f5b82f")
-        list.add("app_ver=$VK_ANDROID_APP_VERSION_CODE")
+        list.add("app_ver=$AUTH_VK_ANDROID_APP_VERSION_CODE")
         list.add("gcm_ver=200313005")
     }
 
@@ -171,7 +171,7 @@ object TokenModOfficialVK {
             .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 chain.proceed(
                     chain.toRequestBuilder(false)
                         .addHeader("User-Agent", userAgent())

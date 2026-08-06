@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.Mode
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.model.Peer
+import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.push.NotificationUtils.loadRoundedImageRx
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
@@ -18,7 +19,7 @@ object ChatEntryFetcher {
     fun getRx(context: Context, accountId: Long, peerId: Long): Flow<DialogInfo> {
         val app = context.applicationContext
         when (Peer.getType(peerId)) {
-            Peer.USER, Peer.GROUP -> {
+            PeerType.USER, PeerType.GROUP -> {
                 val ownerId = Peer.toOwnerId(peerId)
                 return OwnerInfo.getRx(app, accountId, ownerId)
                     .map { info ->
@@ -31,7 +32,7 @@ object ChatEntryFetcher {
                     }
             }
 
-            Peer.CHAT, Peer.CONTACT -> return messages
+            PeerType.CHAT, PeerType.CONTACT -> return messages
                 .getConversation(accountId, peerId, Mode.ANY)
                 .flatMapConcat { chat ->
                     loadRoundedImageRx(app, chat.imageUrl, R.drawable.ic_group_chat)

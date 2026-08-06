@@ -13,8 +13,7 @@ object AnimatedFileFrame {
         ptr: Long,
         ms: Long,
         bitmap: Bitmap?,
-        data: IntArray,
-        stride: Int
+        data: IntArray
     ): Int
 
     fun getDurationMs(file: File): Long {
@@ -39,7 +38,7 @@ object AnimatedFileFrame {
         if (!FenrirNative.isNativeLoaded) {
             return null
         }
-        val metaData = IntArray(6)
+        val metaData = IntArray(8)
         val nPtr = createDecoder(file.absolutePath, metaData)
         if (nPtr != 0L && (metaData[0] > 3840 || metaData[1] > 3840)) {
             destroyDecoder(nPtr)
@@ -57,8 +56,7 @@ object AnimatedFileFrame {
                 nPtr,
                 frameAt,
                 ret,
-                metaData,
-                ret.rowBytes
+                metaData
             ) == 0
         ) {
             ret.recycle()

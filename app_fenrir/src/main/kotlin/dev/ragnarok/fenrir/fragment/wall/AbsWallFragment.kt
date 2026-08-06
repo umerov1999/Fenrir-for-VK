@@ -543,7 +543,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                 val menus = ModalBottomSheetDialogFragment.Builder()
                 menus.add(
                     OptionRequest(
-                        R.id.button_ok,
+                        0,
                         getString(R.string.by_name),
                         R.drawable.pencil,
                         false
@@ -551,7 +551,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                 )
                 menus.add(
                     OptionRequest(
-                        R.id.button_cancel,
+                        1,
                         getString(R.string.by_owner),
                         R.drawable.person,
                         false
@@ -562,11 +562,11 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                     "search_story_options"
                 ) { _, option ->
                     when (option.id) {
-                        R.id.button_ok -> {
+                        0 -> {
                             presenter?.searchStory(true)
                         }
 
-                        R.id.button_cancel -> {
+                        1 -> {
                             presenter?.searchStory(false)
                         }
                     }

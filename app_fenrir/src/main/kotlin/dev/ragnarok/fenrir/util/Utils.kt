@@ -1484,7 +1484,7 @@ object Utils {
             .readTimeout(timeouts, TimeUnit.SECONDS)
             .writeTimeout(timeouts, TimeUnit.SECONDS)
             .callTimeout(timeouts, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 chain.proceed(
                     chain.toRequestBuilder(false).vkHeader(true).addHeader(
                         "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT

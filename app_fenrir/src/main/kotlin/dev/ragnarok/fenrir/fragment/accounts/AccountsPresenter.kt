@@ -386,7 +386,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             root.put("exchange_token", token)
             root.put("avatar", owner?.maxSquareAvatar)
             root.put("device_id", Utils.getDeviceId(type, context))
-            root.put("sak_version", "1.102")
+            root.put("sak_version", Constants.VK_ANDROID_APP_SAK_VERSION)
             root.put("last_access_token", Settings.get().accounts().getAccessToken(user_id))
             val login = Settings.get().accounts().getLogin(user_id)
             val device = Settings.get().accounts().getDevice(user_id)
@@ -443,13 +443,11 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                 appendJob(
                     networker.vkDirectAuth(type, device).authByExchangeToken(
                         Constants.API_ID,
-                        Constants.API_ID,
                         exchangeToken,
                         Auth.scope,
                         "expired_token",
                         device_id,
                         sak_version,
-                        null,
                         api_ver
                     ).fromIOToMain({
                         val aToken = it.resultUrl?.let { it1 -> tryExtractAccessToken(it1) }
@@ -599,10 +597,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             delay(data.polling_delay.seconds)
             if (isActive() && data.expires_in > System.currentTimeMillis() / 1000) {
                 networker.vkAuth().getAuthCodeStatus(
-                    q, Constants.API_ID, Utils.getDeviceId(
-                        Constants.DEFAULT_ACCOUNT_TYPE,
-                        provideApplicationContext()
-                    ), token, Constants.AUTH_API_VERSION
+                    q, Constants.API_ID, token, Constants.AUTH_API_VERSION
                 ).catch {
                     if (Constants.IS_DEBUG) {
                         it.printStackTrace()
@@ -632,7 +627,6 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                                             networker.vkDirectAuth(Constants.DEFAULT_ACCOUNT_TYPE)
                                                 .authByExchangeToken(
                                                     Constants.API_ID,
-                                                    Constants.API_ID,
                                                     st,
                                                     Auth.scope,
                                                     "expired_token",
@@ -640,8 +634,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                                                         Constants.DEFAULT_ACCOUNT_TYPE,
                                                         provideApplicationContext()
                                                     ),
-                                                    "1.102",
-                                                    null,
+                                                    Constants.VK_ANDROID_APP_SAK_VERSION,
                                                     Constants.API_VERSION
                                                 ).fromIOToMain({ p ->
                                                     val aToken = p.resultUrl?.let { it1 ->
@@ -671,7 +664,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                 }
             } else {
                 inMainThread {
-                    view?.showError(R.string.auth_by_qr_error)
+                    view?.showError(R.string.auth_by_qr_expired)
                 }
                 emit(false)
             }
@@ -679,13 +672,15 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
     }
 
     fun fireAuthByQR(q: String) {
-        Settings.get().accounts().anonymToken.token?.let {
+        val anonymToken = Settings.get().accounts().anonymToken
+        if (!anonymToken.isValid()) {
+            view?.showError(R.string.anonym_token_not_valid)
+            return
+        }
+        anonymToken.token?.let {
             appendJob(
                 networker.vkAuth().setAuthCodeStatus(
-                    q, Constants.API_ID, Utils.getDeviceId(
-                        Constants.DEFAULT_ACCOUNT_TYPE,
-                        provideApplicationContext()
-                    ), it, Constants.AUTH_API_VERSION
+                    q, Constants.API_ID, it, Constants.AUTH_API_VERSION
                 )
                     .fromIOToMain({ rt ->
                         if (rt.status != 0 && rt.polling_delay > 0) {
@@ -855,24 +850,22 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
     init {
         fireLoad(false)
 
-        if (Utils.isOfficialVKCurrent && Settings.get()
-                .accounts().anonymToken.expired_at <= System.currentTimeMillis() / 1000
+        if (Constants.DEFAULT_ACCOUNT_TYPE == AccountType.VK_ANDROID && !Settings.get()
+                .accounts().anonymToken.isValid()
         ) {
             appendJob(
-                networker.vkDirectAuth().get_anonym_token(
-                    Constants.API_ID,
+                networker.vkDirectAuth().getAnonymToken(
                     Constants.API_ID,
                     Constants.SECRET,
-                    Constants.AUTH_API_VERSION,
-                    Utils.getDeviceId(
-                        Constants.DEFAULT_ACCOUNT_TYPE,
-                        provideApplicationContext()
-                    )
-                ).fromIOToMain {
+                    Constants.AUTH_API_VERSION
+                ).fromIOToMain({
                     if (it.token.nonNullNoEmpty() && it.expired_at > System.currentTimeMillis() / 1000) {
                         Settings.get().accounts().anonymToken = AnonymToken().set(it)
                     }
+                }, {
+                    view?.showThrowable(it)
                 })
+            )
         }
     }
 }

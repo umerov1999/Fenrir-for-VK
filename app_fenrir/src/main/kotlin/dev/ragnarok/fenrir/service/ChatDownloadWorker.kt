@@ -28,6 +28,7 @@ import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Peer
+import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -77,7 +78,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
     }
 
     private fun getAvatarUrl(owner: Owner?, owner_id: Long): String {
-        if (Peer.getType(owner_id) == Peer.CHAT) {
+        if (Peer.getType(owner_id) == PeerType.CHAT) {
             return "https://vk.ru/images/icons/im_multichat_200.png"
         }
         val AVATAR_USER_DEFAULT = "https://vk.ru/images/camera_200.png?ava=1"
@@ -91,7 +92,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
     }
 
     private fun getTitle(owner: Owner?, owner_id: Long, chat_title: String?): String? {
-        return if (Peer.getType(owner_id) != Peer.CHAT) {
+        return if (Peer.getType(owner_id) != PeerType.CHAT) {
             if (owner == null || owner.fullName.isNullOrEmpty()) "dialog_$owner_id" else owner.fullName
         } else chat_title
     }
@@ -387,7 +388,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
     private fun doDownloadAsHTML(chat_title: String?, account_id: Long, owner_id: Long) {
         try {
             var owner: Owner? = null
-            if (Peer.getType(owner_id) != Peer.CHAT) {
+            if (Peer.getType(owner_id) != PeerType.CHAT) {
                 owner = OwnerInfo.getRx(applicationContext, account_id, owner_id)
                     .syncSingleSafe()?.owner
             }
@@ -432,7 +433,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             main = Apply("<#AVATAR_URL#>", getAvatarUrl(owner, owner_id), main)
             main = Apply(
                 "<#PAGE_LINK#>",
-                if (Peer.getType(owner_id) != Peer.CHAT) "https://vk.ru/" + (if (owner_id < 0) "club" else "id") + abs(
+                if (Peer.getType(owner_id) != PeerType.CHAT) "https://vk.ru/" + (if (owner_id < 0) "club" else "id") + abs(
                     owner_id
                 ) else "",
                 main
@@ -559,7 +560,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
     private fun doJsonDownload(chat_title: String?, account_id: Long, owner_id: Long) {
         try {
             var owner: Owner? = null
-            if (Peer.getType(owner_id) != Peer.CHAT) {
+            if (Peer.getType(owner_id) != PeerType.CHAT) {
                 owner = OwnerInfo.getRx(applicationContext, account_id, owner_id)
                     .syncSingleSafe()?.owner
             }
@@ -606,7 +607,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             output.write(bom)
             var offset = 0
             var isFirst = true
-            if (Peer.getType(owner_id) == Peer.CHAT) {
+            if (Peer.getType(owner_id) == PeerType.CHAT) {
                 output.write("{ \"type\": \"chat\", \"chat\": [")
             } else {
                 output.write("{ \"type\": \"dialog\", \"dialog\": [")
@@ -659,7 +660,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
                     peer_title ?: return, null
                 ) + "\""
             )
-            if (Peer.getType(owner_id) != Peer.CHAT && Peer.getType(owner_id) != Peer.GROUP) {
+            if (Peer.getType(owner_id) != PeerType.CHAT && Peer.getType(owner_id) != PeerType.GROUP) {
                 val own = owner as User?
                 output.write(", \"page_avatar\": \"" + (own ?: return).maxSquareAvatar + "\"")
             }

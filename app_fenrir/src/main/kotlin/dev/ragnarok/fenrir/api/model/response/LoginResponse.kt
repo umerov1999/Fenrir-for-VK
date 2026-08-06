@@ -12,8 +12,6 @@ class LoginResponse {
     var error: String? = null
     var errorBasic: Error? = null
     var errorDescription: String? = null
-    var captchaSid: String? = null
-    var captchaImg: String? = null
     var validationType // 2fa_sms or 2fa_app
             : String? = null
     var redirect_uri: String? = null

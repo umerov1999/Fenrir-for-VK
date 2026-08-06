@@ -1105,40 +1105,6 @@ void ARGB4444ToUVRow_C(const uint8_t* src_argb4444,
   }
 }
 
-void ARGBToUV444Row_C(const uint8_t* src_argb,
-                      uint8_t* dst_u,
-                      uint8_t* dst_v,
-                      int width) {
-  int x;
-  for (x = 0; x < width; ++x) {
-    uint8_t ab = src_argb[0];
-    uint8_t ag = src_argb[1];
-    uint8_t ar = src_argb[2];
-    dst_u[0] = RGBToU(ar, ag, ab);
-    dst_v[0] = RGBToV(ar, ag, ab);
-    src_argb += 4;
-    dst_u += 1;
-    dst_v += 1;
-  }
-}
-
-void ARGBToUVJ444Row_C(const uint8_t* src_argb,
-                       uint8_t* dst_u,
-                       uint8_t* dst_v,
-                       int width) {
-  int x;
-  for (x = 0; x < width; ++x) {
-    uint8_t ab = src_argb[0];
-    uint8_t ag = src_argb[1];
-    uint8_t ar = src_argb[2];
-    dst_u[0] = RGBToUJ(ar, ag, ab);
-    dst_v[0] = RGBToVJ(ar, ag, ab);
-    src_argb += 4;
-    dst_u += 1;
-    dst_v += 1;
-  }
-}
-
 void ARGBGrayRow_C(const uint8_t* src_argb, uint8_t* dst_argb, int width) {
   int x;
   for (x = 0; x < width; ++x) {
@@ -4580,6 +4546,40 @@ void RGBToUVMatrixRow_C(const uint8_t* src_rgb,
   }
 }
 
+void RGBToUV444MatrixRow_C(const uint8_t* src_rgb,
+                           uint8_t* dst_u,
+                           uint8_t* dst_v,
+                           int width,
+                           const struct ArgbConstants* c) {
+  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4]);
+  while (width > 0) {
+    int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
+    RGB24ToARGBRow_C(src_rgb, row, twidth);
+    ARGBToUV444MatrixRow_C(row, dst_u, dst_v, twidth, c);
+    src_rgb += twidth * 3;
+    dst_u += twidth;
+    dst_v += twidth;
+    width -= twidth;
+  }
+}
+
+#if defined(HAS_ARGBTOYMATRIXROW_SSSE3) && defined(HAS_RGB24TOARGBROW_SSSE3)
+void RGBToYMatrixRow_SSSE3(const uint8_t* src_rgb,
+                           uint8_t* dst_y,
+                           int width,
+                           const struct ArgbConstants* c) {
+  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4]);
+  while (width > 0) {
+    int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
+    RGB24ToARGBRow_SSSE3(src_rgb, row, twidth);
+    ARGBToYMatrixRow_SSSE3(row, dst_y, twidth, c);
+    src_rgb += twidth * 3;
+    dst_y += twidth;
+    width -= twidth;
+  }
+}
+#endif
+
 #if defined(HAS_ARGBTOYMATRIXROW_AVX2) && defined(HAS_RGB24TOARGBROW_AVX2)
 void RGBToYMatrixRow_AVX2(const uint8_t* src_rgb,
                           uint8_t* dst_y,
@@ -4592,6 +4592,27 @@ void RGBToYMatrixRow_AVX2(const uint8_t* src_rgb,
     ARGBToYMatrixRow_AVX2(row, dst_y, twidth, c);
     src_rgb += twidth * 3;
     dst_y += twidth;
+    width -= twidth;
+  }
+}
+#endif
+
+#if defined(HAS_ARGBTOUVMATRIXROW_SSSE3) && defined(HAS_RGB24TOARGBROW_SSSE3)
+void RGBToUVMatrixRow_SSSE3(const uint8_t* src_rgb,
+                            int src_stride_rgb,
+                            uint8_t* dst_u,
+                            uint8_t* dst_v,
+                            int width,
+                            const struct ArgbConstants* c) {
+  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4 * 2]);
+  while (width > 0) {
+    int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
+    RGB24ToARGBRow_SSSE3(src_rgb, row, twidth);
+    RGB24ToARGBRow_SSSE3(src_rgb + src_stride_rgb, row + MAXTWIDTH * 4, twidth);
+    ARGBToUVMatrixRow_SSSE3(row, MAXTWIDTH * 4, dst_u, dst_v, twidth, c);
+    src_rgb += twidth * 3;
+    dst_u += twidth / 2;
+    dst_v += twidth / 2;
     width -= twidth;
   }
 }
@@ -4641,22 +4662,61 @@ void RGBToUVMatrixRow_AVX512BW(const uint8_t* src_rgb,
 }
 #endif
 
-#if defined(HAS_ARGBTOUVMATRIXROW_NEON) && defined(HAS_RGB24TOARGBROW_NEON)
-void RGBToUVMatrixRow_NEON(const uint8_t* src_rgb,
-                           int src_stride_rgb,
-                           uint8_t* dst_u,
-                           uint8_t* dst_v,
-                           int width,
-                           const struct ArgbConstants* c) {
-  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4 * 2]);
+#if defined(HAS_ARGBTOUV444MATRIXROW_SSSE3) && \
+    defined(HAS_RGB24TOARGBROW_SSSE3)
+void RGBToUV444MatrixRow_SSSE3(const uint8_t* src_rgb,
+                               uint8_t* dst_u,
+                               uint8_t* dst_v,
+                               int width,
+                               const struct ArgbConstants* c) {
+  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4]);
   while (width > 0) {
     int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
-    RGB24ToARGBRow_NEON(src_rgb, row, twidth);
-    RGB24ToARGBRow_NEON(src_rgb + src_stride_rgb, row + MAXTWIDTH * 4, twidth);
-    ARGBToUVMatrixRow_NEON(row, MAXTWIDTH * 4, dst_u, dst_v, twidth, c);
+    RGB24ToARGBRow_SSSE3(src_rgb, row, twidth);
+    ARGBToUV444MatrixRow_SSSE3(row, dst_u, dst_v, twidth, c);
     src_rgb += twidth * 3;
-    dst_u += twidth / 2;
-    dst_v += twidth / 2;
+    dst_u += twidth;
+    dst_v += twidth;
+    width -= twidth;
+  }
+}
+#endif
+
+#if defined(HAS_ARGBTOUV444MATRIXROW_AVX2) && \
+    defined(HAS_RGB24TOARGBROW_AVX2)
+void RGBToUV444MatrixRow_AVX2(const uint8_t* src_rgb,
+                              uint8_t* dst_u,
+                              uint8_t* dst_v,
+                              int width,
+                              const struct ArgbConstants* c) {
+  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4]);
+  while (width > 0) {
+    int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
+    RGB24ToARGBRow_AVX2(src_rgb, row, twidth);
+    ARGBToUV444MatrixRow_AVX2(row, dst_u, dst_v, twidth, c);
+    src_rgb += twidth * 3;
+    dst_u += twidth;
+    dst_v += twidth;
+    width -= twidth;
+  }
+}
+#endif
+
+#if defined(HAS_ARGBTOUV444MATRIXROW_AVX512BW) && \
+    defined(HAS_RGB24TOARGBROW_AVX512BW)
+void RGBToUV444MatrixRow_AVX512BW(const uint8_t* src_rgb,
+                                  uint8_t* dst_u,
+                                  uint8_t* dst_v,
+                                  int width,
+                                  const struct ArgbConstants* c) {
+  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4]);
+  while (width > 0) {
+    int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
+    RGB24ToARGBRow_AVX512BW(src_rgb, row, twidth);
+    ARGBToUV444MatrixRow_AVX512BW(row, dst_u, dst_v, twidth, c);
+    src_rgb += twidth * 3;
+    dst_u += twidth;
+    dst_v += twidth;
     width -= twidth;
   }
 }

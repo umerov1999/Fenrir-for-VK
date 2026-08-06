@@ -61,7 +61,7 @@ class Conversation(val id: Long) {
 
     val imageUrl: String?
         get() {
-            if (Peer.getType(id) == Peer.CHAT || Peer.getType(id) == Peer.CONTACT) {
+            if (Peer.getType(id) == PeerType.CHAT || Peer.getType(id) == PeerType.CONTACT) {
 
                 //if (isEmpty(img) && interlocutor != null) {
                 //img = interlocutor.getMaxSquareAvatar();
@@ -73,7 +73,7 @@ class Conversation(val id: Long) {
 
     fun getDisplayTitle(context: Context): String? {
         return when (Peer.getType(id)) {
-            Peer.USER, Peer.GROUP -> {
+            PeerType.USER, PeerType.GROUP -> {
                 val custom = get().main().getUserNameChanges(id)
                 if (custom.nonNullNoEmpty()) {
                     return custom
@@ -86,14 +86,14 @@ class Conversation(val id: Long) {
                 } else interlocutor?.fullName
             }
 
-            Peer.CHAT, Peer.CONTACT -> title
+            PeerType.CHAT, PeerType.CONTACT -> title
             else -> throw IllegalStateException("Unknown peer id: $id")
         }
     }
 
     fun getDisplayTitle(): String? {
         return when (Peer.getType(id)) {
-            Peer.USER, Peer.GROUP -> {
+            PeerType.USER, PeerType.GROUP -> {
                 val custom = get().main().getUserNameChanges(id)
                 if (custom.nonNullNoEmpty()) {
                     return custom
@@ -104,7 +104,7 @@ class Conversation(val id: Long) {
                 } else interlocutor?.fullName
             }
 
-            Peer.CHAT, Peer.CONTACT -> title
+            PeerType.CHAT, PeerType.CONTACT -> title
             else -> throw IllegalStateException("Unknown peer id: $id")
         }
     }

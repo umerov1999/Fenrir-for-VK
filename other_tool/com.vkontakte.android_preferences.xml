@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="oauthHost">domain</string>
+    <string name="apiHost">domain</string>
+    <!--<string name="apiRemoteHost">domain</string>-->
+    <string name="__dbg_network_executor">okhttp</string>
+    <boolean name="__dbg_use_libverify_for_auth" value="false" />
+    <boolean name="__dbg_network_disable_zstd_msgpack_quic" value="true" />
+</map>

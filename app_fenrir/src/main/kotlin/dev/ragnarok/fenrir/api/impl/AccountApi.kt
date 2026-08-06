@@ -172,7 +172,7 @@ internal class AccountApi(accountId: Long, provider: IServiceProvider) :
         return provideService(IAccountService(), TokenType.USER)
             .flatMapConcat {
                 it.getExchangeToken()
-                    .map(AuthApi.extractResponseWithErrorHandling())
+                    .map(extractResponseWithErrorHandling())
             }
     }
 

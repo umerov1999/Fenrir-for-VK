@@ -19,4 +19,16 @@ class AnonymToken {
         this.expired_at = response.expired_at
         return this
     }
+
+    fun isExpired(): Boolean {
+        return expired_at <= System.currentTimeMillis() / 1000
+    }
+
+    fun isEmpty(): Boolean {
+        return token.isNullOrEmpty()
+    }
+
+    fun isValid(): Boolean {
+        return !isEmpty() && !isExpired()
+    }
 }

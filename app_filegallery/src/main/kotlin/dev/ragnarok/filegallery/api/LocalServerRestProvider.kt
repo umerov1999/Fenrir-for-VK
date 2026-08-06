@@ -35,13 +35,13 @@ class LocalServerRestProvider @SuppressLint("CheckResult") constructor(private v
             .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 val request =
                     chain.request().newBuilder().serverHeader(false)
                         .addHeader("User-Agent", Constants.USER_AGENT)
                         .build()
                 chain.proceed(request)
-            }).addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            }).addInterceptor(Interceptor { chain ->
                 if (chain.request().body is MultipartBody) {
                     return@Interceptor chain.proceed(chain.request())
                 }

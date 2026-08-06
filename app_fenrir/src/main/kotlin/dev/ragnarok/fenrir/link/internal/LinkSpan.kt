@@ -29,7 +29,7 @@ class LinkSpan(
         val menus = ModalBottomSheetDialogFragment.Builder()
         menus.add(
             OptionRequest(
-                R.id.button_ok,
+                0,
                 context.getString(
                     if (link.contains("tel:")) {
                         R.string.call
@@ -43,7 +43,7 @@ class LinkSpan(
         )
         menus.add(
             OptionRequest(
-                R.id.button_cancel,
+                1,
                 context.getString(R.string.copy_simple),
                 R.drawable.content_copy,
                 true
@@ -54,7 +54,7 @@ class LinkSpan(
             "left_options"
         ) { _, option ->
             when (option.id) {
-                R.id.button_ok -> {
+                0 -> {
                     LinkHelper.openUrl(
                         context as Activity,
                         Settings.get().accounts().current,
@@ -62,7 +62,7 @@ class LinkSpan(
                     )
                 }
 
-                R.id.button_cancel -> {
+                1 -> {
                     val clipboard =
                         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                     var tmpLink = link

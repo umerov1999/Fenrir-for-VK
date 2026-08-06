@@ -53,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
         webview.settings.blockNetworkLoads = false
         webview.settings.blockNetworkImage = false
         webview.clearCache(true)
-        webview.settings.userAgentString = getUserAgentByType(Constants.DEFAULT_ACCOUNT_TYPE)
+        webview.settings.userAgentString = getUserAgentByType(Constants.DEFAULT_ACCOUNT_TYPE, true)
 
         //Чтобы получать уведомления об окончании загрузки страницы
         webview.webViewClient = object : WebViewClientCompat() {

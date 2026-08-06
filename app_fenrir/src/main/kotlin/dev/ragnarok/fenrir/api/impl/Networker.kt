@@ -39,6 +39,10 @@ class Networker(settings: IProxySettings) : INetworker {
         return vkRestProvider
     }
 
+    override fun getOtherRestProvider(): IOtherVKRestProvider {
+        return otherVkRestProvider
+    }
+
     override fun vkDirectAuth(@AccountType accountType: Int, customDevice: String?): IAuthApi {
         return AuthApi(object : IDirectLoginServiceProvider {
             override fun provideAuthService(): Flow<IAuthService> {

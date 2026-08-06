@@ -80,8 +80,8 @@ std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image, bool t
 			if (FindIf(res, [p](const auto& old) { return distance(p, old) < old.size / 2; }) == res.end()) {
 				log(p);
 				N++;
-				auto pattern = LocateConcentricPattern<E2E>(image, PATTERN, p,
-															next.sum() * 3); // 3 for very skewed samples
+				auto width = 2 * next.sum(); // the factor 2 allows for a maximum aspect ratio of 4:1 due to perspective distortion
+				auto pattern = LocateConcentricPattern<E2E>(image, PATTERN, p, width);
 				if (pattern) {
 					log(*pattern, 3);
 					log(*pattern + PointF(.2, 0), 3);
@@ -99,7 +99,7 @@ std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image, bool t
 		}
 	}
 
-	printf("FPs?  : %d\n", N);
+	printf("FPs: FindPattern: %d, LocateConcentric: %d\n", N, Size(res));
 
 	return res;
 }
@@ -168,6 +168,7 @@ FinderPatternSets GenerateFinderPatternSets(FinderPatterns& patterns)
 	candidates.reserve(maxCandidates * 2);
 
 	int nbPatterns = Size(patterns);
+	bool useFilters = nbPatterns > 5; // for a small number of patterns, we apply no/less filters (like size ratio, leg ratio, angle)
 	for (int i = 0; i < nbPatterns - 2; i++) {
 		const auto* c0 = &patterns[i];
 		double maxDistToC = c0->size / 7.0 * maxModuleCount;
@@ -185,7 +186,7 @@ FinderPatternSets GenerateFinderPatternSets(FinderPatterns& patterns)
 					continue;
 
 				const auto* p = &patterns[idx];
-				if (c0->size > p->size * 2) {
+				if (useFilters && c0->size > p->size * 2 + 2) {
 					stats.rejSize++;
 					continue;
 				}
@@ -247,7 +248,7 @@ FinderPatternSets GenerateFinderPatternSets(FinderPatterns& patterns)
 				// Make sure distAB and distBC don't differ more than reasonable:
 				// equivalent to distAB > 2 * distBC || distBC > 2 * distAB but avoids sqrt.
 				// TODO: make sure the constant 2 is not too conservative for reasonably tilted symbols
-				if (distAB2 > 4 * distBC2 || distBC2 > 4 * distAB2) {
+				if (useFilters && (distAB2 > 4 * distBC2 || distBC2 > 4 * distAB2)) {
 					stats.rejLegRatio++;
 					continue;
 				}
@@ -264,7 +265,7 @@ FinderPatternSets GenerateFinderPatternSets(FinderPatterns& patterns)
 
 				// Make sure the angle between AB and BC does not deviate from 90° too much
 				auto cosAB_BC = (distAB2 + distBC2 - distAC2) / (2 * distAB * distBC);
-				if (std::isnan(cosAB_BC) || cosAB_BC > cosUpper || cosAB_BC < cosLower) {
+				if (useFilters && (std::isnan(cosAB_BC) || cosAB_BC > cosUpper || cosAB_BC < cosLower)) {
 					stats.rejAngle++;
 					continue;
 				}
@@ -423,9 +424,9 @@ static std::optional<PointF> LocateAlignmentPattern(const BitMatrix& image, int 
 		if (!cor || !image.get(*cor))
 			continue;
 
-		if (auto cor1 = CenterOfRing(image, PointI(*cor), moduleSize, 1))
-			if (auto cor2 = CenterOfRing(image, PointI(*cor), moduleSize * 3, -2))
-				if (distance(*cor1, *cor2) < moduleSize / 2) {
+		if (auto cor1 = CenterOfRing(image, PointI(*cor), moduleSize * 2, 1))
+			if (auto cor2 = CenterOfRing(image, PointI(*cor), moduleSize * 3, 2))
+				if (distance(*cor1, *cor2) < moduleSize / 2 && cor2->size > cor1->size) {
 					auto res = (*cor1 + *cor2) / 2;
 					log(res, 3);
 					return res;
@@ -468,10 +469,11 @@ DetectorResults SampleQR(const BitMatrix& image, const FinderPatternSet& fp)
 
 	auto best = top.err == left.err ? (top.dim > left.dim ? top : left) : (top.err < left.err ? top : left);
 	int dimension = best.dim;
-	int moduleSize = static_cast<int>(best.ms + 1);
+	int moduleSize = static_cast<int>(top.dim == left.dim ? std::midpoint(top.ms, left.ms) : best.ms) + 1;
 
 	auto br = PointF{-1, -1};
 	auto brOffset = PointF{3, 3};
+	bool brFound = false;
 
 	// Everything except version 1 (21 modules) has an alignment pattern. Estimate the center of that by intersecting
 	// line extensions of the 1 module wide square around the finder patterns. This could also help with detecting
@@ -493,9 +495,8 @@ DetectorResults SampleQR(const BitMatrix& image, const FinderPatternSet& fp)
 			if (auto brCP = LocateAlignmentPattern(image, moduleSize, brInter))
 				br = *brCP;
 
-		// if the symbol is tilted or the resolution of the RegressionLines is sufficient, use their intersection
-		// as the best estimate (see discussion in #199 and test image estimate-tilt.jpg )
-		if (!image.isIn(br) && (EstimateTilt(fp) > 1.1 || (bl2.isHighRes() && bl3.isHighRes() && tr2.isHighRes() && tr3.isHighRes())))
+		brFound = image.isIn(br);
+		if (!brFound)
 			br = brInter;
 	}
 
@@ -596,12 +597,17 @@ DetectorResults SampleQR(const BitMatrix& image, const FinderPatternSet& fp)
 	else
 		co_yield SampleGrid(image, dimension, dimension, mod2Pix);
 
-	// if we have a version 1 symbol (no alignment patterns) and tried and failed with the intersection of the lines around the finder
-	// patterns, use the simple estimation as a fallback. See #1086
-	if (dimension == 21 && brOffset != PointF(0, 0)) {
-		mod2Pix = Mod2Pix(dimension, PointF(0, 0), {fp.tl, fp.tr, fp.tr - fp.tl + fp.bl, fp.bl});
-		co_yield SampleGrid(image, dimension, dimension, mod2Pix);
-	}
+	// if we have not found the br alignment pattern, we check
+	// a) if we have a version 1 symbol and tried and failed with the intersection of the trace lines (#1086), or
+	// b) if the symbol is almost level and the resolution of the RegressionLines is not sufficient (#199 and estimate-tilt.jpg)
+	// we then try the fallback method of sampling the symbol with the br corner extrapolated from the other three corners.
+	if (!brFound
+		&& ((dimension == 21 && brOffset != PointF(0, 0))
+			|| (EstimateTilt(fp) < 1.1 && !(bl2.isHighRes() && bl3.isHighRes() && tr2.isHighRes() && tr3.isHighRes()))))
+		{
+			mod2Pix = Mod2Pix(dimension, PointF(0, 0), {fp.tl, fp.tr, fp.tr - fp.tl + fp.bl, fp.bl});
+			co_yield SampleGrid(image, dimension, dimension, mod2Pix);
+		}
 }
 
 /**
@@ -634,7 +640,7 @@ DetectorResult DetectPureQR(const BitMatrix& image)
 			return {};
 	}
 
-	auto fpWidth = Reduce(diagonal);
+	PointF::value_t fpWidth = Reduce(diagonal);
 	auto dimension =
 		EstimateDimension(image, {tl + fpWidth / 2 * PointF(1, 1), fpWidth}, {tr + fpWidth / 2 * PointF(-1, 1), fpWidth}).dim;
 

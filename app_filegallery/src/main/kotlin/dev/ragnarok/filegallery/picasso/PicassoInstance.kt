@@ -57,7 +57,7 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             .writeTimeout(Constants.PICASSO_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.PICASSO_TIMEOUT, TimeUnit.SECONDS)
             .cache(cache_data)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 val request = chain.request().newBuilder()
                     .addHeader("User-Agent", Constants.USER_AGENT).build()
                 chain.proceed(request)

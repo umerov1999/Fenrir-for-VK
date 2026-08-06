@@ -4,8 +4,6 @@ import android.content.Context
 import dev.ragnarok.fenrir.App.Companion.instance
 import dev.ragnarok.fenrir.api.impl.Networker
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.validation.CaptchaLegacyProvider
-import dev.ragnarok.fenrir.api.validation.ICaptchaLegacyProvider
 import dev.ragnarok.fenrir.api.validation.IVKIdCaptchaProvider
 import dev.ragnarok.fenrir.api.validation.IValidateProvider
 import dev.ragnarok.fenrir.api.validation.VKIdCaptchaProvider
@@ -71,9 +69,6 @@ object Includes {
     }
     val settings: ISettings by lazy {
         SettingsImpl(instance)
-    }
-    val captchaLegacyProvider: ICaptchaLegacyProvider by lazy {
-        CaptchaLegacyProvider(provideApplicationContext())
     }
     val vkIdCaptchaProvider: IVKIdCaptchaProvider by lazy {
         VKIdCaptchaProvider()

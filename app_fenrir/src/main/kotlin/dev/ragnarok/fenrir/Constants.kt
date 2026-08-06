@@ -16,6 +16,9 @@ object Constants {
     const val FILE_PROVIDER_AUTHORITY: String = "${BuildConfig.APPLICATION_ID}.file_provider"
     const val VK_ANDROID_APP_VERSION_NAME = "8.15"
     const val VK_ANDROID_APP_VERSION_CODE = 15271
+    const val AUTH_VK_ANDROID_APP_VERSION_NAME = "8.189"
+    const val AUTH_VK_ANDROID_APP_VERSION_CODE = 56343
+    const val VK_ANDROID_APP_SAK_VERSION = "13.1.1"
     const val KATE_APP_VERSION_NAME = "129 lite"
     const val KATE_APP_VERSION_CODE = 604
 

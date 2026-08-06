@@ -27,6 +27,7 @@
 
 #include <array>
 #include <bitset>
+#include <cstdint>
 
 #include "tdebug.h"
 #include "tstringlist.h"
@@ -57,6 +58,9 @@ public:
 
 namespace
 {
+  constexpr unsigned int maxCompressedFrameOutputSize = 64U * 1024U * 1024U;
+  constexpr unsigned int maxCompressedFrameRatio = 64;
+
   bool isValidFrameID(const ByteVector &frameID)
   {
     if(frameID.size() != 4)
@@ -300,8 +304,13 @@ ByteVector Frame::fieldData(const ByteVector &frameData) const
      frameDataOffset + frameDataLength > frameData.size()) {
     // The first check is needed because some "dual purpose" frame constructors
     // call this method with only the frame ID, i.e. without a complete header.
-    debug("Invalid frame data length");
-    return ByteVector();
+    if(frameDataOffset > frameData.size()) {
+      debug("Invalid frame data length");
+      return ByteVector();
+    }
+    // Per-frame ID3v2.4 unsynchronisation can shrink frameData after the
+    // header's declared size was set; use what's actually available.
+    frameDataLength = frameData.size() - frameDataOffset;
   }
 
   if(zlib::isAvailable() && d->header->compression() && !d->header->encryption()) {
@@ -310,8 +319,16 @@ ByteVector Frame::fieldData(const ByteVector &frameData) const
       return ByteVector();
     }
 
-    const ByteVector outData = zlib::decompress(frameData.mid(frameDataOffset),
-                                                frameDataLength);
+    const ByteVector compressedData = frameData.mid(frameDataOffset);
+    const uint64_t maxOutputSizeForInput =
+      static_cast<uint64_t>(compressedData.size()) * maxCompressedFrameRatio;
+    if(frameDataLength > maxCompressedFrameOutputSize ||
+       frameDataLength > maxOutputSizeForInput) {
+      debug("Compressed frame exceeds decompression limit");
+      return ByteVector();
+    }
+
+    const ByteVector outData = zlib::decompress(compressedData, frameDataLength);
     if(!outData.isEmpty() && frameDataLength != outData.size()) {
       debug("frameDataLength does not match the data length returned by zlib");
     }

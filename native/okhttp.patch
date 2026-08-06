@@ -1,7 +1,7 @@
-Index: FFmpeg-n8.1.2/libavformat/hls.c
+Index: FFmpeg-n9.0/libavformat/hls.c
 ===================================================================
---- FFmpeg-n8.1.2.orig/libavformat/hls.c
-+++ FFmpeg-n8.1.2/libavformat/hls.c
+--- FFmpeg-n9.0.orig/libavformat/hls.c
++++ FFmpeg-n9.0/libavformat/hls.c
 @@ -29,7 +29,6 @@
  
  #include "config_components.h"
@@ -10,7 +10,7 @@ Index: FFmpeg-n8.1.2/libavformat/hls.c
  #include "libavutil/aes.h"
  #include "libavutil/avstring.h"
  #include "libavutil/avassert.h"
-@@ -635,23 +634,6 @@ static int ensure_playlist(HLSContext *c
+@@ -661,23 +660,6 @@ static int ensure_playlist(HLSContext *c
      return 0;
  }
  
@@ -34,7 +34,7 @@ Index: FFmpeg-n8.1.2/libavformat/hls.c
  
  static int open_url(AVFormatContext *s, AVIOContext **pb, const char *url,
                      AVDictionary **opts, AVDictionary *opts2, int *is_http_out)
-@@ -704,23 +686,9 @@ static int open_url(AVFormatContext *s,
+@@ -730,23 +712,9 @@ static int open_url(AVFormatContext *s,
      av_dict_copy(&tmp, *opts, 0);
      av_dict_copy(&tmp, opts2, 0);
  
@@ -61,7 +61,7 @@ Index: FFmpeg-n8.1.2/libavformat/hls.c
      if (ret >= 0) {
          // update cookies on http response with setcookies.
          char *new_cookies = NULL;
-@@ -810,19 +778,6 @@ static int parse_playlist(HLSContext *c,
+@@ -836,19 +804,6 @@ static int parse_playlist(HLSContext *c,
      int prev_n_segments = 0;
      int64_t prev_start_seq_no = -1;
  
@@ -81,11 +81,11 @@ Index: FFmpeg-n8.1.2/libavformat/hls.c
  
      if (!in) {
          AVDictionary *opts = NULL;
-Index: FFmpeg-n8.1.2/libavformat/protocols.c
+Index: FFmpeg-n9.0/libavformat/protocols.c
 ===================================================================
---- FFmpeg-n8.1.2.orig/libavformat/protocols.c
-+++ FFmpeg-n8.1.2/libavformat/protocols.c
-@@ -79,7 +79,11 @@ extern const URLProtocol ff_libzmq_proto
+--- FFmpeg-n9.0.orig/libavformat/protocols.c
++++ FFmpeg-n9.0/libavformat/protocols.c
+@@ -80,7 +80,11 @@ extern const URLProtocol ff_libzmq_proto
  extern const URLProtocol ff_ipfs_gateway_protocol;
  extern const URLProtocol ff_ipns_gateway_protocol;
  

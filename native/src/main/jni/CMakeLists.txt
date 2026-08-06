@@ -558,8 +558,8 @@ target_compile_options(zxing PRIVATE
 add_library(fenrir_jni
         SHARED
         jni_call.cpp
-        animation/thorvg_jni.cpp
-        animation/animation_jni.cpp
+        animation/thorvg/thorvg_jni.cpp
+        animation/video/gifvideo_jni.cpp
         audio/ffmpeg/to_mp4_audio_jni.cpp
         audio/ffmpeg/ffmpeg_jni.cpp
         audio/ts/mpegts_demux_jni.cpp

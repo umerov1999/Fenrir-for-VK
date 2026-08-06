@@ -23,8 +23,6 @@ class LoginResponseDtoAdapter : AbsDtoAdapter<LoginResponse>("LoginResponse") {
             dto.error = optString(json, "error")
         }
         dto.errorDescription = optString(json, "error_description")
-        dto.captchaSid = optString(json, "captcha_sid")
-        dto.captchaImg = optString(json, "captcha_img")
         dto.validationType = optString(json, "validation_type")
         dto.redirect_uri = optString(json, "redirect_uri")
         dto.phoneMask = optString(json, "phone_mask")

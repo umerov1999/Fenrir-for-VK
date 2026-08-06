@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flow
 import okhttp3.FormBody
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.util.concurrent.TimeUnit
 
 class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val proxySettings: IProxySettings) :
@@ -53,12 +54,12 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
                 .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
                 .followRedirects(true)
                 .followSslRedirects(true)
-                .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+                .addInterceptor(Interceptor { chain ->
                     val request =
                         chain.toRequestBuilder(false).vkHeader(true)
                             .addHeader(
                                 "User-Agent",
-                                UserAgentTool.getAccountUserAgent(accountType, customDevice)
+                                UserAgentTool.getAccountUserAgent(accountType, customDevice, true)
                             ).build()
                     chain.proceed(request)
                 })
@@ -77,13 +78,36 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
                 .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
                 .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-                .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+                .addInterceptor(Interceptor { chain ->
+                    var vkAccessToken: String? = null
+                    val original: Request = chain.request()
+                    val formBuilder = FormBody.Builder()
+                    val body = original.body
+                    if (body is FormBody) {
+                        for (i in 0 until body.size) {
+                            val name = body.name(i)
+                            when (name) {
+                                "access_token" -> {
+                                    vkAccessToken = body.value(i)
+                                    continue
+                                }
+                            }
+                            val value = body.value(i)
+                            formBuilder.add(name, value)
+                        }
+                    }
                     val request =
                         chain.toRequestBuilder(false).vkHeader(true)
                             .addHeader(
-                                "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
-                            ).build()
-                    chain.proceed(request)
+                                "User-Agent", UserAgentTool.AUTH_USER_AGENT_CURRENT_ACCOUNT
+                            ).post(formBuilder.build())
+                    if (vkAccessToken.nonNullNoEmpty()) {
+                        chain.proceed(
+                            request.addHeader("Authorization", "Bearer $vkAccessToken").build()
+                        )
+                    } else {
+                        chain.proceed(request.build())
+                    }
                 })
                 .addInterceptor(UncompressDefaultInterceptor)
             ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
@@ -105,13 +129,13 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
             .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 val request =
                     chain.toRequestBuilder(false).vkHeader(false).addHeader(
                         "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
                     ).build()
                 chain.proceed(request)
-            }).addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            }).addInterceptor(Interceptor { chain ->
                 val original = chain.request()
                 val formBuilder = FormBody.Builder()
                 val body = original.body
@@ -140,7 +164,7 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
             .connectTimeout(Constants.LONGPOLL_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.LONGPOLL_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.LONGPOLL_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 val request =
                     chain.toRequestBuilder(false).vkHeader(true).addHeader(
                         "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT

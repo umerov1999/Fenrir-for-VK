@@ -314,7 +314,7 @@ object Utils {
             .readTimeout(timeouts, TimeUnit.SECONDS)
             .writeTimeout(timeouts, TimeUnit.SECONDS)
             .callTimeout(timeouts, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 chain.proceed(
                     chain.request().newBuilder().addHeader("User-Agent", Constants.USER_AGENT)
                         .build()

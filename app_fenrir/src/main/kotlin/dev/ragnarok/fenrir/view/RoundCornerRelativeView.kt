@@ -243,7 +243,7 @@ class RoundCornerRelativeView : RelativeLayout {
                     false
                 )
             }
-            PATH.lineTo(radius_bottom_left, heightTmp)
+            PATH.lineTo(strokeWidth + radius_bottom_left, heightTmp)
         } else {
             isMove = true
         }

@@ -49,7 +49,7 @@ class UploadRestProvider(private val proxySettings: IProxySettings) : IUploadRes
             .connectTimeout(Constants.UPLOAD_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.UPLOAD_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.UPLOAD_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 val request =
                     chain.toRequestBuilder(false).vkHeader(true).addHeader(
                         "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT

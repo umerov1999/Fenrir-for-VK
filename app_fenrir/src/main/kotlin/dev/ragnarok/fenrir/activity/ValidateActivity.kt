@@ -74,7 +74,7 @@ class ValidateActivity : AppCompatActivity() {
         webview.settings.blockNetworkLoads = false
         webview.settings.blockNetworkImage = false
         webview.clearCache(true)
-        webview.settings.userAgentString = UserAgentTool.getAccountUserAgent(accountId)
+        webview.settings.userAgentString = UserAgentTool.getAccountUserAgent(accountId, true)
 
         //Чтобы получать уведомления об окончании загрузки страницы
         webview.webViewClient = object : WebViewClientCompat() {

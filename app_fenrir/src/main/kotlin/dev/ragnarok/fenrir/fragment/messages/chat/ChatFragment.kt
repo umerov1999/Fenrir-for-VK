@@ -100,6 +100,7 @@ import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.ModelsBundle
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Peer
+import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.model.Sticker
@@ -1751,7 +1752,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         try {
             if (toolbar != null) {
                 resolveToolbarNavigationIcon()
-                if (Peer.getType(peerId) != Peer.CHAT && Peer.getType(peerId) != Peer.CONTACT) {
+                if (Peer.getType(peerId) != PeerType.CHAT && Peer.getType(peerId) != PeerType.CONTACT) {
                     toolbarAvatar?.setOnClickListener {
                         showUserWall(Settings.get().accounts().current, peerId)
                     }
@@ -1759,7 +1760,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                         presenter?.fireLongAvatarClick(peerId)
                         true
                     }
-                } else if (Peer.getType(peerId) == Peer.CHAT) {
+                } else if (Peer.getType(peerId) == PeerType.CHAT) {
                     toolbarAvatar?.setOnClickListener {
                         presenter?.fireShowChatMembers()
                     }

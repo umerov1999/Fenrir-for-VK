@@ -83,7 +83,7 @@ abstract class AbsVKApiInterceptor(private val version: String) :
         return chain.proceed(
             original.newBuilder().vkHeader(false)
                 .header("Authorization", "Bearer $vkAccessToken")
-                .header("User-Agent", getAccountUserAgent(type, customDeviceName))
+                .header("User-Agent", getAccountUserAgent(type, customDeviceName, false))
                 .post(formBuilder.build())
                 .makeVK(true)
                 .build()

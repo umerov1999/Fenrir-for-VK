@@ -81,11 +81,11 @@ class VKMethodHttpClientFactory : IVKMethodHttpClientFactory {
             .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 val request = chain.toRequestBuilder(true).vkHeader(false)
                     .addHeader(
                         "User-Agent",
-                        UserAgentTool.getAccountUserAgent(type, customDeviceName)
+                        UserAgentTool.getAccountUserAgent(type, customDeviceName, false)
                     ).build()
                 chain.proceed(request)
             }).addInterceptor(UncompressDefaultInterceptor)

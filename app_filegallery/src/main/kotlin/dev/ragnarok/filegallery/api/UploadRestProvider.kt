@@ -52,13 +52,13 @@ class UploadRestProvider(private val mainSettings: ISettings.IMainSettings) : IU
             .connectTimeout(Constants.UPLOAD_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.UPLOAD_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.UPLOAD_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .addInterceptor(Interceptor { chain ->
                 val request =
                     chain.request().newBuilder().serverHeader(false)
                         .addHeader("User-Agent", Constants.USER_AGENT)
                         .build()
                 chain.proceed(request)
-            }).addInterceptor(Interceptor { chain: Interceptor.Chain ->
+            }).addInterceptor(Interceptor { chain ->
                 if (chain.request().body is MultipartBody) {
                     return@Interceptor chain.proceed(chain.request())
                 }

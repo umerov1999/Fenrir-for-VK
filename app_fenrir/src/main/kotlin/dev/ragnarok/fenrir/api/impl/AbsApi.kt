@@ -203,33 +203,7 @@ internal open class AbsApi(val accountId: Long, private val restProvider: IServi
 
             ApiErrorCodes.CAPTCHA_NEED -> {
                 val redirectUri = error.redirectUri
-                if (redirectUri.isNullOrEmpty()) {
-                    val captchaSid = error.captchaSid
-                    if (captchaSid.isNullOrEmpty()) {
-                        return false
-                    }
-                    val provider = Includes.captchaLegacyProvider
-                    provider.requestCaptcha(captchaSid, error.captchaImg)
-                    var code: String? = null
-                    while (true) {
-                        try {
-                            code = provider.lookupCode(captchaSid)
-                            if (code != null) {
-                                break
-                            } else {
-                                SystemClock.sleep(1000)
-                            }
-                        } catch (_: OutOfDateException) {
-                            break
-                        }
-                    }
-                    if (code.nonNullNoEmpty()) {
-                        params["captcha_sid"] = captchaSid
-                        params["captcha_key"] = code
-                    } else {
-                        handle = false
-                    }
-                } else {
+                if (redirectUri.nonNullNoEmpty()) {
                     val provider = Includes.vkIdCaptchaProvider
                     provider.requestCaptcha(
                         redirectUri,

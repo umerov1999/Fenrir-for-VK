@@ -896,7 +896,6 @@
     <string name="forward">Переслать</string>
     <string name="read">Прочитать</string>
     <string name="open">Открыть</string>
-    <string name="enter_captcha_text">Введите текст с картинки</string>
     <string name="from_camera">Сделать фото</string>
     <string name="updated_profile_photo_at">%1$s обновил(а) фотографию на странице</string>
     <string name="updated_status_at">обновил(а) статус: %1$s</string>
@@ -1184,7 +1183,7 @@
     <string name="bitrate">Битрейт: %1$d kbs, Размер: %2$s</string>
     <string name="error_timeout_message">Превышено время ожидание запроса</string>
     <string name="error_unknown_host">Нет подключения к сети</string>
-    <string name="login_sms_code_hint">Код из SMS</string>
+    <string name="login_code_hint">Код</string>
     <string name="button_proxy">Прокси</string>
     <string name="button_settings">Настройки</string>
     <string name="login_password_hint">Пароль</string>
@@ -1195,8 +1194,6 @@
     <string name="button_login">Войти</string>
     <string name="drawer_edit_title">Всплывающее меню</string>
     <string name="theme_edit_title">Выбор цветового оформления</string>
-    <string name="login_app_code_hint">Код подтверждения</string>
-    <string name="button_login_send_code_via_sms">Отправить код через SMS</string>
     <string name="error_not_found_message">Объект не найден</string>
     <string name="vk_servers_error">Сервера ВК упали (HTTP: %1$d)</string>
     <string name="client_rest_shutdown">Запрос отменён</string>
@@ -1715,6 +1712,7 @@
     <string name="single_line_photos">Фото</string>
     <string name="auth_by_qr">Вход по qr</string>
     <string name="auth_by_qr_error">Вход по qr не возможен!</string>
+    <string name="auth_by_qr_expired">Истек период ожидания QR кода!</string>
     <string name="refreshing_token">Перевыпуск токена…</string>
     <string name="error_title">Ошибка: %1$s</string>
     <string name="error_stacktrace">Трассировка стека: %1$s</string>
@@ -1730,7 +1728,22 @@
     <string name="saving_network_traffic">Экономия трафика</string>
     <string name="select_storage">Выберите хранилище</string>
     <string name="reacted_peers">Отреагировали</string>
-    <string name="call_reset_description">Последние %1$d цифры звонка</string>
     <string name="retry">Повторить</string>
     <string name="video_play_with_external_player">Играть в стороннем плеере</string>
+    <string name="next">Далее</string>
+    <string name="anonym_token_not_valid">Получение анонимного токена было неудачно, перезапустите приложение!</string>
+    <string name="auth_validate_method">Метод подтверждения:</string>
+    <string name="auth_validate_method_push">Push уведомление (%1$s)</string>
+    <string name="auth_validate_method_email">Email (%1$s)</string>
+    <string name="auth_validate_method_sms">СМС (%1$s)</string>
+    <string name="auth_validate_method_callreset">Звонок (%1$s)</string>
+    <string name="auth_validate_method_password">Пароль</string>
+    <string name="auth_validate_method_reserve_code">Резервный код</string>
+    <string name="auth_validate_method_codegen">Генератор кодов</string>
+    <string name="auth_validate_reserve_code_help">Используйте резервный код из сохранённого Вами списка</string>
+    <string name="auth_validate_push_help">Ваш код авторизации был отправлен в приложение ВК на %1$s</string>
+    <string name="auth_validate_email_help">Ваш код авторизации был отправлен на ваш Mail %1$s</string>
+    <string name="auth_validate_sms_help">Ваш код авторизации был отправлен в смс сообщении на номер %1$s</string>
+    <string name="auth_validate_callreset_help">Вам сейчас позвонят на %1$s и продиктуют код авторизации (длина: %2$d)</string>
+    <string name="auth_validate_codegen_help">Воспользуйтесь кодом из приложения генерации кодов авторизации</string>
 </resources>

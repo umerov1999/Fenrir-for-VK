@@ -47,8 +47,7 @@ import dev.ragnarok.fenrir.activity.FileManagerSelectActivity
 import dev.ragnarok.fenrir.activity.LoginActivity.Companion.createIntent
 import dev.ragnarok.fenrir.activity.ProxyManagerActivity
 import dev.ragnarok.fenrir.api.Auth.scope
-import dev.ragnarok.fenrir.dialog.directauth.DirectAuthDialog
-import dev.ragnarok.fenrir.dialog.directauth.DirectAuthDialog.Companion.newInstance
+import dev.ragnarok.fenrir.dialog.directauth.DirectAuthIdVKDialog
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
@@ -304,11 +303,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
         requireActivity().addMenuProvider(this, viewLifecycleOwner)
 
         parentFragmentManager.setFragmentResultListener(
-            DirectAuthDialog.ACTION_LOGIN_VIA_WEB,
-            this
-        ) { _: String?, _: Bundle? -> startLoginViaWeb() }
-        parentFragmentManager.setFragmentResultListener(
-            DirectAuthDialog.ACTION_VALIDATE_VIA_WEB,
+            DirectAuthIdVKDialog.ACTION_VALIDATE_VIA_WEB,
             this
         ) { _, result ->
             val url = result.getString(Extra.URL)
@@ -318,8 +313,9 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             val isSave = result.getBoolean(Extra.SAVE)
             startValidateViaWeb(url, Login, Password, TwoFA, isSave)
         }
+
         parentFragmentManager.setFragmentResultListener(
-            DirectAuthDialog.ACTION_LOGIN_COMPLETE,
+            DirectAuthIdVKDialog.ACTION_LOGIN_COMPLETE,
             this
         ) { _, result ->
             val uid = result.getLong(Extra.USER_ID)
@@ -399,7 +395,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
     }
 
     override fun startDirectLogin() {
-        val auth = newInstance()
+        val auth = DirectAuthIdVKDialog.newInstance()
         auth.show(parentFragmentManager, "direct-login")
     }
 
@@ -752,10 +748,11 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             }
 
             R.id.auth_by_qr -> {
-                if (FenrirNative.isNativeLoaded && Utils.isOfficialVKCurrent && Settings.get()
-                        .accounts().anonymToken.expired_at <= System.currentTimeMillis() / 1000
-                ) {
+                if (!FenrirNative.isNativeLoaded || !Utils.isOfficialVKCurrent) {
                     showError(R.string.auth_by_qr_error)
+                    return false
+                } else if (!Settings.get().accounts().anonymToken.isValid()) {
+                    showError(R.string.anonym_token_not_valid)
                     return false
                 }
                 val intent =

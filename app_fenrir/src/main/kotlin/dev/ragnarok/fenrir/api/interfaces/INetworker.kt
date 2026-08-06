@@ -2,10 +2,12 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
+import dev.ragnarok.fenrir.api.IOtherVKRestProvider
 import dev.ragnarok.fenrir.api.IVKRestProvider
 
 interface INetworker {
     fun getVkRestProvider(): IVKRestProvider
+    fun getOtherRestProvider(): IOtherVKRestProvider
     fun vkDefault(accountId: Long): IAccountApis
     fun vkManual(accountId: Long, accessToken: String): IAccountApis
     fun vkDirectAuth(

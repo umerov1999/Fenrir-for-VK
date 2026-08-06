@@ -92,6 +92,7 @@ import dev.ragnarok.fenrir.model.NotSupported
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.OwnerType
 import dev.ragnarok.fenrir.model.Peer
+import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.PhotoAlbum
 import dev.ragnarok.fenrir.model.PhotoSizes
@@ -564,8 +565,8 @@ object Entity2Model {
             .setMajor_id(entity.major_id)
             .setMinor_id(entity.minor_id)
         when (Peer.getType(entity.peerId)) {
-            Peer.GROUP, Peer.USER -> dialog.setInterlocutor(owners.getById(dialog.peerId))
-            Peer.CHAT, Peer.CONTACT -> dialog.setInterlocutor(message?.senderId?.let {
+            PeerType.GROUP, PeerType.USER -> dialog.setInterlocutor(owners.getById(dialog.peerId))
+            PeerType.CHAT, PeerType.CONTACT -> dialog.setInterlocutor(message?.senderId?.let {
                 owners.getById(
                     it
                 )

@@ -85,6 +85,7 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.OwnerType
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.PeerDeleting
+import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.PeerUpdate
 import dev.ragnarok.fenrir.model.ReactedMessagesPeers
 import dev.ragnarok.fenrir.model.ReactionAsset
@@ -402,7 +403,7 @@ class MessagesRepository(
         if (setUpdates.nonNullNoEmpty()) {
             for (update in setUpdates) {
                 if (!Settings.get().main().isDisable_notifications && Settings.get()
-                        .main().isInfo_reading && Peer.getType(update.peerId) != Peer.CHAT
+                        .main().isInfo_reading && Peer.getType(update.peerId) != PeerType.CHAT
                 ) {
                     compositeJob.add(
                         getRx(
@@ -667,8 +668,8 @@ class MessagesRepository(
                 val ownIds = VKOwnIds()
                 for (dbo in dbos) {
                     when (Peer.getType(dbo.peerId)) {
-                        Peer.GROUP, Peer.USER -> ownIds.append(dbo.peerId)
-                        Peer.CHAT, Peer.CONTACT -> ownIds.append(dbo.message?.fromId)
+                        PeerType.GROUP, PeerType.USER -> ownIds.append(dbo.peerId)
+                        PeerType.CHAT, PeerType.CONTACT -> ownIds.append(dbo.message?.fromId)
                     }
                 }
                 ownersRepository

@@ -3,6 +3,7 @@
 #include "libavcodec/ffjni.h"
 #include "libavcodec/jni.h"
 
+#include "libavutil/error.h"
 #include "libavutil/avstring.h"
 #include "libavutil/mem.h"
 #include "libavutil/opt.h"

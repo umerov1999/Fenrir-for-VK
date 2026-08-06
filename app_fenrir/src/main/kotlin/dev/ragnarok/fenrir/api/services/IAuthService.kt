@@ -1,6 +1,9 @@
 package dev.ragnarok.fenrir.api.services
 
-import dev.ragnarok.fenrir.api.model.VKApiValidationResponse
+import dev.ragnarok.fenrir.api.model.VKApiValidateAccount
+import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemCheckOtp
+import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
+import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemSendOtp
 import dev.ragnarok.fenrir.api.model.response.AnonymTokenResponse
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.GetAuthCodeStatusResponse
@@ -14,61 +17,52 @@ class IAuthService : IServiceRest() {
     fun directLogin(
         grantType: String?,
         clientId: Int,
-        clientSecret: String?,
         username: String?,
         password: String?,
         v: String?,
         twoFaSupported: Int?,
         scope: String?,
-        smscode: String?,
-        captchaSid: String?,
-        captchaKey: String?,
         captchaSuccessToken: String?,
-        forceSms: Int?,
-        device_id: String?,
-        libverify_support: Int?,
+        deviceId: String?,
+        libVerifySupport: Int?,
         lang: String?,
-        smsSid: String?,
-        anonymous_token: String?
+        sid: String?,
+        anonymousToken: String?,
+        sakVersion: String?,
+        flowType: String?
     ): Flow<LoginResponse> {
         return rest.request(
             "token",
             form(
-                "libverify_support" to libverify_support,
-                "password" to password,
-                "code" to smscode,
-                "grant_type" to grantType,
-                "2fa_supported" to twoFaSupported,
-                "v" to v,
+                "libverify_support" to libVerifySupport,
                 "scope" to scope,
-                "client_secret" to clientSecret,
-                "client_id" to clientId,
+                "sid" to sid,
+                "grant_type" to grantType,
                 "username" to username,
-                "captcha_sid" to captchaSid,
-                "captcha_key" to captchaKey,
-                "success_token" to captchaSuccessToken,
-                "force_sms" to forceSms,
-                "device_id" to device_id,
-                "anonymous_token" to anonymous_token,
-                "sid" to smsSid,
+                "password" to password,
+                "2fa_supported" to twoFaSupported,
+                "anonymous_token" to anonymousToken,
+                "https" to 1,
+                "v" to v,
                 "lang" to lang,
-                "https" to 1
+                "device_id" to deviceId,
+                "sak_version" to sakVersion,
+                "flow_type" to flowType,
+                "api_id" to clientId,
+                "success_token" to captchaSuccessToken
             ), LoginResponse.serializer(), false
         )
     }
 
     // initiator = expired_token
-    // gaid - ads_device_id
     // device_id - ads_android_id
     fun authByExchangeToken(
         clientId: Int,
-        apiId: Int,
         exchangeToken: String,
         scope: String,
         initiator: String,
         deviceId: String?,
         sakVersion: String?,
-        gaid: String?,
         v: String?,
         lang: String?
     ): Flow<VKUrlResponse> {
@@ -76,13 +70,12 @@ class IAuthService : IServiceRest() {
             "auth_by_exchange_token",
             form(
                 "client_id" to clientId,
-                "api_id" to apiId,
+                "api_id" to clientId,
                 "exchange_token" to exchangeToken,
                 "scope" to scope,
                 "initiator" to initiator,
                 "device_id" to deviceId,
                 "sak_version" to sakVersion,
-                "gaid" to gaid,
                 "v" to v,
                 "lang" to lang,
                 "https" to 1
@@ -90,53 +83,133 @@ class IAuthService : IServiceRest() {
         )
     }
 
-    fun validatePhone(
-        phone: String?,
+    fun validateAccount(
         apiId: Int,
-        clientId: Int,
-        clientSecret: String?,
-        sid: String?,
+        lang: String?,
+        deviceId: String?,
+        supportedWays: String?,
+        login: String,
+        forcePassword: Int,
+        passkeySupported: Int,
+        sakVersion: String?,
+        flowType: String?,
+        accessToken: String?,
         v: String?,
-        device_id: String?,
-        libverify_support: Int?,
-        allow_callreset: Int?,
-        lang: String?
-    ): Flow<BaseResponse<VKApiValidationResponse>> {
+    ): Flow<BaseResponse<VKApiValidateAccount>> {
         return rest.request(
-            "auth.validatePhone",
+            "auth.validateAccount",
             form(
-                "libverify_support" to libverify_support,
-                "allow_callreset" to allow_callreset,
-                "phone" to phone,
-                "api_id" to apiId,
-                "client_id" to clientId,
-                "client_secret" to clientSecret,
-                "sid" to sid,
-                "v" to v,
-                "device_id" to device_id,
                 "lang" to lang,
-                "https" to 1
+                "device_id" to deviceId,
+                "supported_ways" to supportedWays,
+                "login" to login,
+                "force_password" to forcePassword,
+                "passkey_supported" to passkeySupported,
+                "sak_version" to sakVersion,
+                "flow_type" to flowType,
+                "access_token" to accessToken,
+                "v" to v,
+                "https" to 1,
+                "api_id" to apiId
             ),
-            base(VKApiValidationResponse.serializer())
+            base(VKApiValidateAccount.serializer())
         )
     }
 
-    fun get_anonym_token(
+    //ecosystem.sendOtpSms
+    //ecosystem.sendOtpPush
+    //ecosystem.sendOtpCallReset
+    //ecosystem.sendOtpEmail
+    fun sendEcosystemOtp(
         apiId: Int,
+        lang: String?,
+        deviceId: String?,
+        sid: String?,
+        accessToken: String?,
+        v: String?,
+        suffix: String
+    ): Flow<BaseResponse<EcosystemSendOtp>> {
+        val finalSuffix = suffix.replaceFirstChar { it.uppercase() }
+        return rest.request(
+            "ecosystem.sendOtp$finalSuffix",
+            form(
+                "lang" to lang,
+                "device_id" to deviceId,
+                "sid" to sid,
+                "access_token" to accessToken,
+                "v" to v,
+                "https" to 1,
+                "api_id" to apiId
+            ),
+            base(EcosystemSendOtp.serializer())
+        )
+    }
+
+    fun checkEcosystemOtp(
+        apiId: Int,
+        lang: String?,
+        deviceId: String?,
+        sid: String?,
+        accessToken: String?,
+        v: String?,
+        verificationMethod: String,
+        code: String
+    ): Flow<BaseResponse<EcosystemCheckOtp>> {
+        return rest.request(
+            "ecosystem.checkOtp",
+            form(
+                "lang" to lang,
+                "device_id" to deviceId,
+                "sid" to sid,
+                "access_token" to accessToken,
+                "v" to v,
+                "https" to 1,
+                "api_id" to apiId,
+                "code" to code,
+                "verification_method" to verificationMethod
+            ),
+            base(EcosystemCheckOtp.serializer())
+        )
+    }
+
+    fun getEcosystemVerificationMethods(
+        apiId: Int,
+        lang: String?,
+        deviceId: String?,
+        sid: String?,
+        accessToken: String?,
+        v: String?
+    ): Flow<BaseResponse<EcosystemGetVerificationMethods>> {
+        return rest.request(
+            "ecosystem.getVerificationMethods",
+            form(
+                "lang" to lang,
+                "device_id" to deviceId,
+                "sid" to sid,
+                "v" to v,
+                "access_token" to accessToken,
+                "https" to 1,
+                "api_id" to apiId
+            ),
+            base(EcosystemGetVerificationMethods.serializer())
+        )
+    }
+
+    fun getAnonymToken(
         clientId: Int,
         clientSecret: String?,
         v: String?,
-        device_id: String?,
+        deviceId: String?,
         lang: String?
     ): Flow<AnonymTokenResponse> {
         return rest.request(
             "get_anonym_token",
             form(
-                "api_id" to apiId,
+                "api_id" to clientId,
                 "client_id" to clientId,
                 "client_secret" to clientSecret,
                 "v" to v,
-                "device_id" to device_id,
+                "device_id" to deviceId,
                 "lang" to lang,
                 "https" to 1
             ), AnonymTokenResponse.serializer()
@@ -144,9 +217,9 @@ class IAuthService : IServiceRest() {
     }
 
     fun setAuthCodeStatus(
-        auth_code: String?,
+        authCode: String?,
         apiId: Int,
-        device_id: String?,
+        deviceId: String?,
         accessToken: String?,
         lang: String?,
         v: String?
@@ -155,8 +228,8 @@ class IAuthService : IServiceRest() {
             "auth.setAuthCodeStatus",
             form(
                 "api_id" to apiId,
-                "auth_code" to auth_code,
-                "device_id" to device_id,
+                "auth_code" to authCode,
+                "device_id" to deviceId,
                 "access_token" to accessToken,
                 "lang" to lang,
                 "https" to 1,
@@ -166,9 +239,9 @@ class IAuthService : IServiceRest() {
     }
 
     fun getAuthCodeStatus(
-        auth_code: String?,
+        authCode: String?,
         apiId: Int,
-        device_id: String?,
+        deviceId: String?,
         accessToken: String?,
         lang: String?,
         v: String?
@@ -177,8 +250,8 @@ class IAuthService : IServiceRest() {
             "auth.getAuthCodeStatus",
             form(
                 "api_id" to apiId,
-                "auth_code" to auth_code,
-                "device_id" to device_id,
+                "auth_code" to authCode,
+                "device_id" to deviceId,
                 "access_token" to accessToken,
                 "lang" to lang,
                 "https" to 1,
@@ -190,7 +263,6 @@ class IAuthService : IServiceRest() {
     /*
     fun refreshTokens(
         clientId: Int,
-        apiId: Int,
         clientSecret: String,
         device_id: String,
         lang: String?,
@@ -199,7 +271,7 @@ class IAuthService : IServiceRest() {
         exchange_token: String,
         active_index: Int?,
         v: String?
-    ): Single<LoginResponse> {
+        ): Single<LoginResponse> {
         return rest.request(
             "auth.refreshTokens",
             form(
@@ -207,7 +279,7 @@ class IAuthService : IServiceRest() {
                 "scope" to scope,
                 "client_secret" to clientSecret,
                 "client_id" to clientId,
-                "apiId" to apiId,
+                "api_id" to clientId,
                 "initiator" to initiator,
                 "device_id" to device_id,
                 "exchange_tokens" to exchange_token,

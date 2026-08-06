@@ -64,6 +64,7 @@ import dev.ragnarok.fenrir.model.MessageStatus
 import dev.ragnarok.fenrir.model.MessageUpdate
 import dev.ragnarok.fenrir.model.ModelsBundle
 import dev.ragnarok.fenrir.model.Peer
+import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.PeerUpdate
 import dev.ragnarok.fenrir.model.Reaction
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
@@ -1480,12 +1481,12 @@ class ChatPresenter(
         subtitle = null
 
         when (Peer.getType(peerId)) {
-            Peer.GROUP -> {
+            PeerType.GROUP -> {
                 subtitle = null
                 resolveToolbarSubtitle()
             }
 
-            Peer.CHAT -> appendJob(
+            PeerType.CHAT -> appendJob(
                 messagesRepository.getChatUsers(
                     accountId,
                     Peer.toChatId(peerId)
@@ -1503,7 +1504,7 @@ class ChatPresenter(
             )
 
 
-            Peer.USER -> appendJob(
+            PeerType.USER -> appendJob(
                 Stores.instance
                     .owners()
                     .getLocalizedUserActivity(messagesOwnerId, Peer.toUserId(peerId))
@@ -1512,6 +1513,10 @@ class ChatPresenter(
                         resolveToolbarSubtitle()
                     }, { logThrowable("ChatPresenter", it) })
             )
+
+            else -> {
+
+            }
         }
     }
 
@@ -2265,7 +2270,7 @@ class ChatPresenter(
             isPlusEncryption,
             isEncryptionSupport,
             !chronologyInvert,
-            Peer.getType(peerId) != Peer.CHAT,
+            Peer.getType(peerId) != PeerType.CHAT,
             chat
         )
     }

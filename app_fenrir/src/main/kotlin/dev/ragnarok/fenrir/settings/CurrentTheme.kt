@@ -148,6 +148,14 @@ object CurrentTheme {
         } ?: Color.TRANSPARENT
     }
 
+    fun getColorPrimaryFixedDim(context: Context): Int {
+        return getColorFromAttrs(
+            com.google.android.material.R.attr.colorPrimaryFixedDim,
+            context,
+            "#000000"
+        )
+    }
+
     fun getColorControlNormal(context: Context?): Int {
         return context?.let {
             getColorFromAttrs(

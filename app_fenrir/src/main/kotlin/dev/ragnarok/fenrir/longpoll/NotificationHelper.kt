@@ -33,6 +33,7 @@ import dev.ragnarok.fenrir.longpoll.AppNotificationChannels.validationChannelId
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Peer
+import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
@@ -362,7 +363,7 @@ object NotificationHelper {
         }
         makeMedia(context, msgs, message, hideBody, accountId, accAvatar, avatar)
         msgs.addMessage(inbox)
-        if (Peer.getType(message.peerId) == Peer.CHAT) {
+        if (Peer.getType(message.peerId) == PeerType.CHAT) {
             msgs.conversationTitle = peer.getTitle()
             msgs.isGroupConversation = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
         }

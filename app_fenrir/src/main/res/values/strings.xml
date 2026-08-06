@@ -1118,7 +1118,6 @@
     <string name="forward">Forward</string>
     <string name="read">Read</string>
     <string name="open">Open</string>
-    <string name="enter_captcha_text">Enter the text from the image</string>
     <string name="from_camera">Make a photo</string>
     <string name="updated_profile_photo_at">%1$s updated profile picture</string>
     <string name="updated_status_at">%1$s updated status</string>
@@ -1423,8 +1422,7 @@
     <string name="bitrate">Bitrate: %1$d kbs, Size: %2$s</string>
     <string name="error_timeout_message">Request timed out</string>
     <string name="error_unknown_host">No network connection</string>
-    <string name="login_sms_code_hint">Code from SMS</string>
-    <string name="login_captcha_hint" translatable="false">Captcha</string>
+    <string name="login_code_hint">Code from SMS</string>
     <string name="button_proxy">Proxy</string>
     <string name="button_settings">Settings</string>
     <string name="login_password_hint">Password</string>
@@ -1435,8 +1433,6 @@
     <string name="button_login">Login</string>
     <string name="drawer_edit_title">Pop-up menu</string>
     <string name="theme_edit_title">Select theme</string>
-    <string name="login_app_code_hint">Confirmation code</string>
-    <string name="button_login_send_code_via_sms">Send code via SMS</string>
     <string name="error_not_found_message">Object not found</string>
     <string name="vk_servers_error">VK servers down (HTTP: %1$d)</string>
     <string name="client_rest_shutdown">Request canceled</string>
@@ -1967,6 +1963,7 @@
     <string name="single_line_photos">Photos</string>
     <string name="auth_by_qr">Login with QR code</string>
     <string name="auth_by_qr_error">QR login is not available!</string>
+    <string name="auth_by_qr_expired">The QR code waiting period has expired!</string>
     <string name="refreshing_token">Refreshing Token…</string>
     <string name="error_title">Error: %1$s</string>
     <string name="error_stacktrace">Stacktrace: %1$s</string>
@@ -1982,7 +1979,22 @@
     <string name="saving_network_traffic">Data saving mode</string>
     <string name="select_storage">Select storage</string>
     <string name="reacted_peers">Reacted peers</string>
-    <string name="call_reset_description">Last %1$d digits of the call</string>
     <string name="retry">Retry</string>
     <string name="video_play_with_external_player">Play in third-party player</string>
+    <string name="next">Next</string>
+    <string name="anonym_token_not_valid">Obtaining an anonymous token failed, please restart the application!</string>
+    <string name="auth_validate_method">Validate method:</string>
+    <string name="auth_validate_method_push">Push (%1$s)</string>
+    <string name="auth_validate_method_email">Email (%1$s)</string>
+    <string name="auth_validate_method_sms">Sms (%1$s)</string>
+    <string name="auth_validate_method_callreset">Callreset (%1$s)</string>
+    <string name="auth_validate_method_password">Password</string>
+    <string name="auth_validate_method_reserve_code">Reserve code</string>
+    <string name="auth_validate_method_codegen">Codegen</string>
+    <string name="auth_validate_reserve_code_help">Use a backup code from your saved list</string>
+    <string name="auth_validate_push_help">Your authorization code has been sent to the VK app at %1$s</string>
+    <string name="auth_validate_email_help">Your authorization code has been sent to your email at %1$s</string>
+    <string name="auth_validate_sms_help">Your authorization code has been sent via SMS to %1$s</string>
+    <string name="auth_validate_callreset_help">Your authorization code will be called to %1$s and dictated to you (length: %2$d)</string>
+    <string name="auth_validate_codegen_help">Use the code from the authorization code generator app</string>
 </resources>

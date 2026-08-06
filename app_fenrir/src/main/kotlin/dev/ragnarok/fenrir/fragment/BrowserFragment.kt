@@ -175,7 +175,7 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
         if (owner != null && typeRes.isNotEmpty()) {
             menus.add(
                 OptionRequest(
-                    R.id.button_ok,
+                    0,
                     getString(R.string.download),
                     R.drawable.save,
                     true
@@ -184,7 +184,7 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
         }
         menus.add(
             OptionRequest(
-                R.id.button_cancel,
+                1,
                 getString(R.string.copy_simple),
                 R.drawable.content_copy,
                 true
@@ -194,7 +194,7 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
             childFragmentManager,
             "left_options"
         ) { _, option ->
-            if (option.id == R.id.button_ok) {
+            if (option.id == 0) {
                 val urlObj = URL(imageUrl)
                 val urlPath: String = urlObj.path
                 var fileName = urlPath.substring(urlPath.lastIndexOf('/') + 1)
@@ -221,7 +221,7 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
                         null
                     ), dir, imageUrl, typeRes
                 )
-            } else if (option.id == R.id.button_cancel) {
+            } else if (option.id == 1) {
                 val clipboard =
                     requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                 val clip = ClipData.newPlainText("response", imageUrl)

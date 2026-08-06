@@ -57,11 +57,37 @@ object UserAgentTool {
         SCREEN_RESOLUTION
     )
 
+    private val AUTH_VK_ANDROID_USER_AGENT = String.format(
+        Locale.US,
+        "VKAndroidApp/%s-%d (Android %s; SDK %d; %s; %s; %s; %s)",
+        Constants.AUTH_VK_ANDROID_APP_VERSION_NAME,
+        Constants.AUTH_VK_ANDROID_APP_VERSION_CODE,
+        Build.VERSION.RELEASE,
+        Build.VERSION.SDK_INT,
+        Build.SUPPORTED_ABIS[0],
+        Utils.deviceName,
+        Constants.DEVICE_COUNTRY_CODE,
+        SCREEN_RESOLUTION
+    )
+
     private val VK_ANDROID_USER_AGENT_FAKE = String.format(
         Locale.US,
         "VKAndroidApp/%s-%d (Android %s; SDK %d; %s; %s; %s; %s)",
         Constants.VK_ANDROID_APP_VERSION_NAME,
         Constants.VK_ANDROID_APP_VERSION_CODE,
+        Build.VERSION.RELEASE,
+        Build.VERSION.SDK_INT,
+        BuildConfig.FAKE_ABI,
+        BuildConfig.FAKE_DEVICE,
+        Constants.DEVICE_COUNTRY_CODE,
+        SCREEN_RESOLUTION
+    )
+
+    private val AUTH_VK_ANDROID_USER_AGENT_FAKE = String.format(
+        Locale.US,
+        "VKAndroidApp/%s-%d (Android %s; SDK %d; %s; %s; %s; %s)",
+        Constants.AUTH_VK_ANDROID_APP_VERSION_NAME,
+        Constants.AUTH_VK_ANDROID_APP_VERSION_CODE,
         Build.VERSION.RELEASE,
         Build.VERSION.SDK_INT,
         BuildConfig.FAKE_ABI,
@@ -76,7 +102,7 @@ object UserAgentTool {
         Constants.IOS_APP_VERSION_CODE
     )
 
-    fun getAccountUserAgent(@AccountType type: Int, device: String?): String {
+    fun getAccountUserAgent(@AccountType type: Int, device: String?, isAuth: Boolean): String {
         if (type == AccountType.VK_ANDROID_HIDDEN || type == AccountType.KATE_HIDDEN || type == AccountType.IOS_HIDDEN) {
             if (device.nonNullNoEmpty()) {
                 return when (type) {
@@ -103,8 +129,8 @@ object UserAgentTool {
                     else -> String.format(
                         Locale.US,
                         "VKAndroidApp/%s-%d (Android %s; SDK %d; %s; %s; %s; %s)",
-                        Constants.VK_ANDROID_APP_VERSION_NAME,
-                        Constants.VK_ANDROID_APP_VERSION_CODE,
+                        if (isAuth) Constants.AUTH_VK_ANDROID_APP_VERSION_NAME else Constants.VK_ANDROID_APP_VERSION_NAME,
+                        if (isAuth) Constants.AUTH_VK_ANDROID_APP_VERSION_CODE else Constants.VK_ANDROID_APP_VERSION_CODE,
                         Build.VERSION.RELEASE,
                         Build.VERSION.SDK_INT,
                         BuildConfig.FAKE_ABI,
@@ -116,21 +142,37 @@ object UserAgentTool {
             }
         }
         return when (type) {
-            AccountType.NULL, AccountType.VK_ANDROID -> VK_ANDROID_USER_AGENT
-            AccountType.VK_ANDROID_HIDDEN -> VK_ANDROID_USER_AGENT_FAKE
+            AccountType.NULL, AccountType.VK_ANDROID -> if (isAuth) AUTH_VK_ANDROID_USER_AGENT else VK_ANDROID_USER_AGENT
+            AccountType.VK_ANDROID_HIDDEN -> if (isAuth) AUTH_VK_ANDROID_USER_AGENT_FAKE else VK_ANDROID_USER_AGENT_FAKE
             AccountType.KATE -> KATE_USER_AGENT
             AccountType.KATE_HIDDEN -> KATE_USER_AGENT_FAKE
             AccountType.IOS_HIDDEN -> VK_iOS_USER_AGENT_FAKE
-            else -> byDefaultAccountType(VK_ANDROID_USER_AGENT, KATE_USER_AGENT)
+            else -> byDefaultAccountType(
+                if (isAuth) AUTH_VK_ANDROID_USER_AGENT else VK_ANDROID_USER_AGENT,
+                KATE_USER_AGENT
+            )
         }
     }
 
-    fun getAccountUserAgent(accountId: Long): String {
+    fun getAccountUserAgent(accountId: Long, isAuth: Boolean): String {
         return getAccountUserAgent(
             Settings.get().accounts().getType(accountId),
-            Settings.get().accounts().getDevice(accountId)
+            Settings.get().accounts().getDevice(accountId),
+            isAuth
         )
     }
+
+    val AUTH_USER_AGENT_CURRENT_ACCOUNT
+        get() = Settings.get().accounts().current.let {
+            if (it == ISettings.IAccountsSettings.INVALID_ID) {
+                byDefaultAccountType(
+                    AUTH_VK_ANDROID_USER_AGENT,
+                    KATE_USER_AGENT
+                )
+            } else getAccountUserAgent(
+                Settings.get().accounts().getType(it), Settings.get().accounts().getDevice(it), true
+            )
+        }
 
     val USER_AGENT_CURRENT_ACCOUNT
         get() = Settings.get().accounts().current.let {
@@ -140,18 +182,23 @@ object UserAgentTool {
                     KATE_USER_AGENT
                 )
             } else getAccountUserAgent(
-                Settings.get().accounts().getType(it), Settings.get().accounts().getDevice(it)
+                Settings.get().accounts().getType(it),
+                Settings.get().accounts().getDevice(it),
+                false
             )
         }
 
-    fun getUserAgentByType(@AccountType type: Int): String {
+    fun getUserAgentByType(@AccountType type: Int, isAuth: Boolean): String {
         return when (type) {
-            AccountType.NULL, AccountType.VK_ANDROID -> VK_ANDROID_USER_AGENT
-            AccountType.VK_ANDROID_HIDDEN -> VK_ANDROID_USER_AGENT_FAKE
+            AccountType.NULL, AccountType.VK_ANDROID -> if (isAuth) AUTH_VK_ANDROID_USER_AGENT else VK_ANDROID_USER_AGENT
+            AccountType.VK_ANDROID_HIDDEN -> if (isAuth) AUTH_VK_ANDROID_USER_AGENT_FAKE else VK_ANDROID_USER_AGENT_FAKE
             AccountType.KATE -> KATE_USER_AGENT
             AccountType.KATE_HIDDEN -> KATE_USER_AGENT_FAKE
             AccountType.IOS_HIDDEN -> VK_iOS_USER_AGENT_FAKE
-            else -> byDefaultAccountType(VK_ANDROID_USER_AGENT, KATE_USER_AGENT)
+            else -> byDefaultAccountType(
+                if (isAuth) AUTH_VK_ANDROID_USER_AGENT else VK_ANDROID_USER_AGENT,
+                KATE_USER_AGENT
+            )
         }
     }
 }
