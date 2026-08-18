@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.map
 
 internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
     AbsApi(accountId, provider), IMessagesApi {
-    private fun serviceRx(vararg tokenTypes: Int): Flow<IMessageService> {
+    private fun serviceRx(@TokenType vararg tokenTypes: Int): Flow<IMessageService> {
         return provideService(IMessageService(), *tokenTypes)
     }
 

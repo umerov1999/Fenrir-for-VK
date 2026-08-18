@@ -18,7 +18,6 @@ import de.maxr1998.modernpreferences.AbsPreferencesFragment
 import de.maxr1998.modernpreferences.PreferenceScreen
 import de.maxr1998.modernpreferences.PreferencesAdapter
 import de.maxr1998.modernpreferences.helpers.DISABLED_RESOURCE_ID
-import de.maxr1998.modernpreferences.helpers.collapse
 import de.maxr1998.modernpreferences.helpers.onCheckedBeforeChange
 import de.maxr1998.modernpreferences.helpers.onCheckedChange
 import de.maxr1998.modernpreferences.helpers.onClick
@@ -217,83 +216,76 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
 
     private fun createRootScreen() = screen(requireActivity()) {
         collapseIcon = true
-        collapse("security_preferences") {
-            titleRes = R.string.general_settings
-            switch(SecuritySettings.KEY_USE_PIN_FOR_SECURITY) {
-                defaultValue = false
-                titleRes = R.string.use_pin_for_security_title
-                onCheckedBeforeChange {
-                    if (it) {
-                        if (!Settings.get().security().hasPinHash) {
-                            startCreatePinActivity(this)
-                            false
-                        } else {
-                            // при вызове mUsePinForSecurityPreference.setChecked(true) мы опять попадем в этот блок
-                            true
-                        }
+        switch(SecuritySettings.KEY_USE_PIN_FOR_SECURITY) {
+            defaultValue = false
+            titleRes = R.string.use_pin_for_security_title
+            onCheckedBeforeChange {
+                if (it) {
+                    if (!Settings.get().security().hasPinHash) {
+                        startCreatePinActivity(this)
+                        false
                     } else {
-                        Settings.get().security().setPin(null)
+                        // при вызове mUsePinForSecurityPreference.setChecked(true) мы опять попадем в этот блок
                         true
                     }
-                }
-            }
-
-            switch(SecuritySettings.KEY_USE_PIN_FOR_ENTRANCE) {
-                defaultValue = false
-                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
-                summaryRes = R.string.ask_for_pin_on_application_start_summary
-                titleRes = R.string.ask_for_pin_on_application_start_title
-            }
-
-            switch(SecuritySettings.DELAYED_PIN_FOR_ENTRANCE) {
-                defaultValue = false
-                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
-                summaryRes = R.string.delayed_pin_for_entrance_summary
-                titleRes = R.string.delayed_pin_for_entrance_title
-            }
-
-            switch("allow_fingerprint") {
-                defaultValue = false
-                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
-                titleRes = R.string.allow_fingerprint_title
-            }
-
-            pref(SecuritySettings.KEY_CHANGE_PIN) {
-                dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
-                titleRes = R.string.change_pin_title
-                onClick {
-                    requestChangePin.launch(
-                        Intent(
-                            requireActivity(),
-                            CreatePinActivity::class.java
-                        )
-                    )
+                } else {
+                    Settings.get().security().setPin(null)
                     true
                 }
             }
         }
-        collapse("other_section") {
-            titleRes = R.string.other
 
-            switch("hide_notif_message_body") {
-                summaryRes = R.string.hide_notif_message_body_summary
-                titleRes = R.string.hide_notif_message_body_title
+        switch(SecuritySettings.KEY_USE_PIN_FOR_ENTRANCE) {
+            defaultValue = false
+            dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
+            summaryRes = R.string.ask_for_pin_on_application_start_summary
+            titleRes = R.string.ask_for_pin_on_application_start_title
+        }
+
+        switch(SecuritySettings.DELAYED_PIN_FOR_ENTRANCE) {
+            defaultValue = false
+            dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
+            summaryRes = R.string.delayed_pin_for_entrance_summary
+            titleRes = R.string.delayed_pin_for_entrance_title
+        }
+
+        switch("allow_fingerprint") {
+            defaultValue = false
+            dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
+            titleRes = R.string.allow_fingerprint_title
+        }
+
+        pref(SecuritySettings.KEY_CHANGE_PIN) {
+            dependency = SecuritySettings.KEY_USE_PIN_FOR_SECURITY
+            titleRes = R.string.change_pin_title
+            onClick {
+                requestChangePin.launch(
+                    Intent(
+                        requireActivity(),
+                        CreatePinActivity::class.java
+                    )
+                )
+                true
             }
+        }
+        switch("hide_notif_message_body") {
+            summaryRes = R.string.hide_notif_message_body_summary
+            titleRes = R.string.hide_notif_message_body_title
+        }
 
-            switch("show_hidden_accounts") {
-                defaultValue = true
-                titleRes = R.string.show_hidden_accounts
+        switch("show_hidden_accounts") {
+            defaultValue = true
+            titleRes = R.string.show_hidden_accounts
+        }
+
+        switch("disable_hidden_accounts") {
+            defaultValue = false
+            titleRes = R.string.disable_hidden_accounts
+            onCheckedBeforeChange {
+                !Settings.get().accounts().currentHidden
             }
-
-            switch("disable_hidden_accounts") {
-                defaultValue = false
-                titleRes = R.string.disable_hidden_accounts
-                onCheckedBeforeChange {
-                    !Settings.get().accounts().currentHidden
-                }
-                onCheckedChange {
-                    Settings.get().accounts().loadAccounts(true)
-                }
+            onCheckedChange {
+                Settings.get().accounts().loadAccounts(true)
             }
         }
     }

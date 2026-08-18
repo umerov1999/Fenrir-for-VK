@@ -1353,7 +1353,7 @@
     <string name="set_no_hide_dialog">Снять ограничения</string>
     <string name="local_audios">На устройстве</string>
     <string name="not_supported">Не поддерживается</string>
-    <string name="not_supported_hide">Установите пин-код в настройках!</string>
+    <string name="required_pin_secure_for_action">Для выполнения этого действия необходимо установить ПИН-код в настройках безопасности.</string>
     <string name="is_expired">Истекло</string>
     <string name="story">История</string>
     <string name="call">Звонок</string>

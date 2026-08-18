@@ -101,7 +101,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
         if (Settings.get().security().isUsePinForSecurity) {
             requestEnterPin.launch(Intent(requireActivity(), EnterPinActivity::class.java))
         } else {
-            customToast?.showToastError(R.string.not_supported_hide)
+            customToast?.showToastError(R.string.required_pin_secure_for_action)
             securitySettingsPlace.tryOpenWith(requireActivity())
         }
     }
@@ -371,7 +371,7 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
                 )
 
                 6 -> if (!Settings.get().security().isUsePinForSecurity) {
-                    customToast?.showToastError(R.string.not_supported_hide)
+                    customToast?.showToastError(R.string.required_pin_secure_for_action)
                     securitySettingsPlace.tryOpenWith(requireActivity())
                 } else {
                     Settings.get().security().addHiddenDialog(dialog.getOwnerObjectId())

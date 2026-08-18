@@ -1593,7 +1593,7 @@
     <string name="set_no_hide_dialog">Remove restrictions</string>
     <string name="local_audios">Stored on this device</string>
     <string name="not_supported">Not supported</string>
-    <string name="not_supported_hide">Set the pin code in the settings!</string>
+    <string name="required_pin_secure_for_action">To perform this action, you need to set a PIN code in the security settings.</string>
     <string name="is_expired">Expired</string>
     <string name="story">History</string>
     <string name="call">Call</string>

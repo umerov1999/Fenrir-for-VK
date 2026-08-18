@@ -57,6 +57,7 @@ import dev.ragnarok.fenrir.model.SaveAccount
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceFactory.getPreferencesPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
@@ -94,7 +95,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                 )
             )
         } else {
-            customToast?.showToastError(R.string.not_supported_hide)
+            navigateToSecuritySettings()
         }
     }
     private val requestWritePermissionExchangeToken = requestPermissionsAbs(
@@ -112,7 +113,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             )
         } else {
             presenter?.fireResetTempAccount()
-            customToast?.showToastError(R.string.not_supported_hide)
+            navigateToSecuritySettings()
         }
     }
     private val requestReadPermissionImportAccount = requestPermissionsAbs(
@@ -237,6 +238,17 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             result.data?.getStringExtra(Extra.PATH)
                 ?.let { presenter?.exportAccounts(requireActivity(), it) }
         }
+    }
+
+    private fun navigateToSecuritySettings() {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.info)
+            .setMessage(R.string.required_pin_secure_for_action)
+            .setPositiveButton(R.string.settings) { _, _ ->
+                PlaceFactory.securitySettingsPlace.tryOpenWith(requireActivity())
+            }
+            .setNegativeButton(R.string.button_cancel, null)
+            .show()
     }
 
     override fun onCreateView(
@@ -540,7 +552,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                 1 -> presenter?.createShortcut(requireActivity(), account)
                 2 -> presenter?.fireSetAsActive(account)
                 3 -> if (!Settings.get().security().isUsePinForSecurity) {
-                    customToast?.showToastError(R.string.not_supported_hide)
+                    navigateToSecuritySettings()
                 } else {
                     presenter?.fireSetTempAccount(account.getOwnerObjectId())
                     requestEnterPinForShowPassword.launch(
@@ -578,7 +590,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                         requestWritePermissionExchangeToken.launch()
                     } else {
                         if (!Settings.get().security().isUsePinForSecurity) {
-                            customToast?.showToastError(R.string.not_supported_hide)
+                            navigateToSecuritySettings()
                         } else {
                             requestEnterPinForExchangeToken.launch(
                                 Intent(
@@ -724,7 +736,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                         )
                     )
                 } else {
-                    customToast?.showToastError(R.string.not_supported_hide)
+                    navigateToSecuritySettings()
                 }
                 return true
             }

@@ -2299,7 +2299,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 createCustomToast(
                     requireActivity(),
                     view
-                )?.showToastError(R.string.not_supported_hide)
+                )?.showToastError(R.string.required_pin_secure_for_action)
                 PlaceFactory.securitySettingsPlace.tryOpenWith(requireActivity())
             } else {
                 requestPinForAdditionalInfo.launch(

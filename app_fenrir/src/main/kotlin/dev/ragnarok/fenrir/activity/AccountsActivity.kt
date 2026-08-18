@@ -10,6 +10,7 @@ import androidx.core.view.iterator
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.fragment.PreferencesFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.SecurityPreferencesFragment
 import dev.ragnarok.fenrir.fragment.accounts.AccountsFragment
 import dev.ragnarok.fenrir.fragment.shortcutsview.ShortcutsViewFragment
 import dev.ragnarok.fenrir.fragment.theme.ThemeFragment
@@ -66,6 +67,14 @@ class AccountsActivity : NoMainActivity(), PlaceProvider {
                     .beginTransaction()
                     .replace(noMainContainerViewId, ThemeFragment())
                     .addToBackStack("preferences_themes")
+                    .commit()
+            }
+
+            Place.SECURITY -> {
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(noMainContainerViewId, SecurityPreferencesFragment())
+                    .addToBackStack("security")
                     .commit()
             }
 

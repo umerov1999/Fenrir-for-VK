@@ -31,6 +31,7 @@ import dev.ragnarok.fenrir.api.interfaces.IVideoApi
 import dev.ragnarok.fenrir.api.interfaces.IWallApi
 import dev.ragnarok.fenrir.api.rest.IServiceRest
 import dev.ragnarok.fenrir.api.rest.SimplePostHttp
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlowThrowable
@@ -186,7 +187,7 @@ internal class VKApies private constructor(
             override fun <T : IServiceRest> provideService(
                 accountId: Long,
                 serviceClass: T,
-                vararg tokenTypes: Int
+                @TokenType vararg tokenTypes: Int
             ): Flow<T> {
                 return provideRest(
                     accountId,
@@ -197,32 +198,22 @@ internal class VKApies private constructor(
                 }
             }
 
-            fun provideRest(aid: Long, vararg tokenPolicy: Int): Flow<SimplePostHttp> {
-                if (aid == ISettings.IAccountsSettings.INVALID_ID) {
-                    return toFlowThrowable(UnsupportedOperationException("Please select account!"))
-                }
-                if (useCustomToken) {
-                    customAccessToken?.let {
-                        return provider.provideCustomRest(aid, it)
+            fun provideRest(aid: Long, @TokenType vararg tokenPolicy: Int): Flow<SimplePostHttp> {
+                return if (aid == ISettings.IAccountsSettings.INVALID_ID) {
+                    toFlowThrowable(UnsupportedOperationException("Please select account!"))
+                } else if (useCustomToken) {
+                    if (customAccessToken.nonNullNoEmpty()) {
+                        provider.provideCustomRest(aid, customAccessToken)
+                    } else {
+                        toFlowThrowable(UnsupportedOperationException("Invalid Custom access_token!"))
                     }
-                }
-                val isCommunity = aid < 0
-                return if (isCommunity) {
+                } else {
+                    val isCommunity = aid < 0
                     when {
-                        Utils.intValueIn(TokenType.COMMUNITY, *tokenPolicy) -> {
+                        isCommunity && Utils.intValueIn(TokenType.COMMUNITY, *tokenPolicy) -> {
                             provider.provideNormalRest(aid)
                         }
 
-                        Utils.intValueIn(TokenType.SERVICE, *tokenPolicy) -> {
-                            provider.provideServiceRest()
-                        }
-
-                        else -> {
-                            toFlowThrowable(UnsupportedOperationException("Unsupported account_id: $aid with token_policy: " + tokenPolicy.contentToString()))
-                        }
-                    }
-                } else {
-                    when {
                         Utils.intValueIn(TokenType.USER, *tokenPolicy) -> {
                             provider.provideNormalRest(aid)
                         }
@@ -232,11 +223,7 @@ internal class VKApies private constructor(
                         }
 
                         else -> {
-                            toFlowThrowable(
-                                UnsupportedOperationException(
-                                    "Unsupported account_id: " + aid + " with token_policy: " + tokenPolicy.contentToString()
-                                )
-                            )
+                            toFlowThrowable(UnsupportedOperationException("Unsupported account_id: $aid with token_policy: " + tokenPolicy.contentToString()))
                         }
                     }
                 }

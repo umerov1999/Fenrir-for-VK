@@ -63,7 +63,7 @@ internal class StoriesShortVideosApi(accountId: Long, provider: IServiceProvider
         storyId: Int?,
         offset: Int?, count: Int?
     ): Flow<ViewersListResponse> {
-        return provideService(IStoriesShortVideosService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IStoriesShortVideosService(), TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
                 it.getStoriesViewers(
                     ownerId, storyId, offset, count, 1, Fields.FIELDS_BASE_USER

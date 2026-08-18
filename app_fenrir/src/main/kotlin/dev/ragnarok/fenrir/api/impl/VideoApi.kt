@@ -130,7 +130,7 @@ internal class VideoApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<Items<VKApiVideo>> {
         val videos =
             join(ids, ",") { AccessIdPair.format(it) }
-        return provideService(IVideoService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IVideoService(), TokenType.USER)
             .flatMapConcat {
                 it[ownerId, videos, albumId, count, offset, integerFromBoolean(extended)]
                     .map(extractResponseWithErrorHandling())

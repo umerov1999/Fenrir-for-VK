@@ -35,7 +35,10 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
 
 internal open class AbsApi(val accountId: Long, private val restProvider: IServiceProvider) {
-    fun <T : IServiceRest> provideService(serviceClass: T, vararg tokenTypes: Int): Flow<T> {
+    fun <T : IServiceRest> provideService(
+        serviceClass: T,
+        @TokenType vararg tokenTypes: Int
+    ): Flow<T> {
         var pTokenTypes: IntArray = tokenTypes
         if (pTokenTypes.nullOrEmpty()) {
             pTokenTypes = intArrayOf(TokenType.USER) // user by default

@@ -7,6 +7,6 @@ interface IServiceProvider {
     fun <T : IServiceRest> provideService(
         accountId: Long,
         serviceClass: T,
-        vararg tokenTypes: Int
+        @TokenType vararg tokenTypes: Int
     ): Flow<T>
 }
