@@ -105,6 +105,8 @@ object PlaceFactory {
         get() = Place(Place.DRAWER_EDIT)
     val sideDrawerEditPlace: Place
         get() = Place(Place.SIDE_DRAWER_EDIT)
+    val bottomDrawerEditPlace: Place
+        get() = Place(Place.BOTTOM_DRAWER_EDIT)
 
     val catalogV2ListEditPlace: Place
         get() = Place(Place.CATALOG_V2_LIST_EDIT)

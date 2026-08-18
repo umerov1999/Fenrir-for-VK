@@ -473,8 +473,6 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
     private fun mapEntity(cursor: Cursor): DialogDboEntity {
         @ChatAction val action =
             cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_ACTION)
-        val encrypted =
-            cursor.getBoolean(DialogsColumns.FOREIGN_MESSAGE_ENCRYPTED)
         val messageId = cursor.getInt(DialogsColumns.LAST_MESSAGE_ID)
         val peerId = cursor.getLong(BaseColumns._ID)
         val fromId =
@@ -487,7 +485,6 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             .setForwardCount(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_FWD_COUNT))
             .setConversationMessageId(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_CMID))
             .setAction(action)
-            .setEncrypted(encrypted)
         return DialogDboEntity(peerId)
             .setMessage(message)
             .setInRead(cursor.getInt(DialogsColumns.IN_READ))

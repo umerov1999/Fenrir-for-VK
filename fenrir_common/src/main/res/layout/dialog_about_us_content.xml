@@ -2,20 +2,10 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/sub_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:text="@string/opensource"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:textSize="16sp" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:padding="4dp"
-        android:text="@string/developer"
+        android:padding="16dp"
+        android:text="@string/disclaimer"
         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:textColor="?colorPrimary"
         android:textSize="15sp" />

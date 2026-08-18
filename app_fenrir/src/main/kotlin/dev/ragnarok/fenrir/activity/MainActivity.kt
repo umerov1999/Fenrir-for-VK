@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.widget.RelativeLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -26,9 +27,9 @@ import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.get
 import androidx.core.view.insets.ProtectionLayout
 import androidx.core.view.iterator
 import androidx.drawerlayout.widget.DrawerLayout
@@ -118,7 +119,6 @@ import dev.ragnarok.fenrir.fragment.messages.messageslook.MessagesLookFragment
 import dev.ragnarok.fenrir.fragment.messages.notreadmessages.NotReadMessagesFragment
 import dev.ragnarok.fenrir.fragment.narratives.NarrativesFragment
 import dev.ragnarok.fenrir.fragment.navigationedit.DrawerEditFragment
-import dev.ragnarok.fenrir.fragment.navigationedit.SideDrawerEditFragment
 import dev.ragnarok.fenrir.fragment.ownerarticles.OwnerArticlesFragment
 import dev.ragnarok.fenrir.fragment.photos.createphotoalbum.CreatePhotoAlbumFragment
 import dev.ragnarok.fenrir.fragment.photos.photoallcomment.PhotoAllCommentFragment
@@ -175,7 +175,9 @@ import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.Banned
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.Document
+import dev.ragnarok.fenrir.model.DrawerType
 import dev.ragnarok.fenrir.model.Manager
+import dev.ragnarok.fenrir.model.NavigationPage
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.SectionCounters
 import dev.ragnarok.fenrir.model.User
@@ -216,6 +218,8 @@ import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 import dev.ragnarok.fenrir.view.navigation.AbsNavigationView.NavigationDrawerCallbacks
+import dev.ragnarok.fenrir.view.navigation.SideNavigationView
+import dev.ragnarok.fenrir.view.snowfall.SnowfallView
 import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.getInstance
 import kotlinx.coroutines.flow.filter
 import kotlin.math.max
@@ -298,17 +302,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
     @get:LayoutRes
     protected open val mainContentView: Int
         get() = if (Settings.get().main().is_side_navigation) {
-            if (Settings.get().main().isSnow_mode) {
-                R.layout.activity_main_side_with_snow
-            } else {
-                R.layout.activity_main_side
-            }
+            R.layout.activity_main_side
         } else {
-            if (Settings.get().main().isSnow_mode) {
-                R.layout.activity_main_with_snow
-            } else {
-                R.layout.activity_main
-            }
+            R.layout.activity_main
         }
 
     @get:IdRes
@@ -450,6 +446,33 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         }
     }
 
+    private fun refreshBottomMenu() {
+        mBottomNavigation?.menuStopUpdate()
+        val menu = mBottomNavigation?.menu
+        if (menu != null) {
+            menu.clear()
+            var s = 0
+            for (i in Settings.get().bottomDrawerSettings().categoriesOrder) {
+                if (s > 4) {
+                    break
+                }
+                if (!i.active) {
+                    continue
+                }
+                val item = AbsNavigationView.getItemBySwitchableCategory(i.id) ?: continue
+                menu.add(0, item.section, 0, item.title).setIcon(item.icon)
+                s++
+            }
+            menu.add(
+                0,
+                AbsNavigationView.SECTION_ITEM_OTHER.type,
+                0,
+                AbsNavigationView.SECTION_ITEM_OTHER.title
+            ).setIcon(AbsNavigationView.SECTION_ITEM_OTHER.icon)
+        }
+        mBottomNavigation?.menuRestoreUpdate()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         delegate.applyDayNight()
         if (savedInstanceState == null && mainActivityTransform == MainActivityTransforms.MAIN) {
@@ -477,6 +500,44 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 .sharedFlowToMain { updateMessagesBagde(it.second) })
         bindToAudioPlayService()
         setContentView(mainContentView)
+
+        if (Settings.get().main().isSnow_mode) {
+            findViewById<ViewGroup>(R.id.main_root)?.let {
+                val snowView = SnowfallView(this)
+                val layoutParams = RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT
+                )
+                snowView.layoutParams = layoutParams
+                it.addView(snowView)
+            }
+        }
+
+        if (Settings.get().main().is_side_navigation) {
+            mCompositeJob.add(
+                SideNavigationView.observeScanQr.sharedFlowToMain {
+                    if (FenrirNative.isNativeLoaded) {
+                        val intent =
+                            Intent(
+                                this@MainActivity,
+                                CameraScanActivity::class.java
+                            )
+                        requestQRScan.launch(intent)
+                    }
+                })
+        } else {
+            mCompositeJob.add(
+                Settings.get().bottomDrawerSettings().observeChanges.sharedFlowToMain {
+                    refreshBottomMenu()
+                    val r = mCurrentFrontSection?.type
+                    if (r != null) {
+                        mBottomNavigation?.menu?.findItem(r)?.isChecked =
+                            true
+                    }
+                    navigationView?.selectPage(mCurrentFrontSection)
+                })
+        }
+
         mAccountId = Settings.get()
             .accounts()
             .current
@@ -525,6 +586,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         mBottomNavigation?.setOnItemSelectedListener(this)
         mBottomNavigationContainer = findViewById(R.id.bottom_navigation_menu_container)
 
+        refreshBottomMenu()
         createInsetListener()
 
         supportFragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener)
@@ -712,6 +774,11 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     ) R.drawable.client_round else R.drawable.client_round_vk
                 )
                 mToolbar?.setNavigationOnClickListener {
+                    if (Settings.get().main().is_side_navigation) {
+                        val drawerLayout = findViewById<DrawerLayout>(R.id.my_drawer_layout)
+                        drawerLayout?.openDrawer(GravityCompat.START)
+                        return@setNavigationOnClickListener
+                    }
                     val menus = ModalBottomSheetDialogFragment.Builder()
                     menus.add(
                         OptionRequest(
@@ -1118,12 +1185,12 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         }
         val sectionDrawerItem = item as SectionMenuItem
         when (sectionDrawerItem.section) {
-            AbsNavigationView.PAGE_ACCOUNTS -> {
+            NavigationPage.ACCOUNTS -> {
                 startAccountsActivity()
                 return
             }
 
-            AbsNavigationView.PAGE_STORIES -> {
+            NavigationPage.STORIES -> {
                 PlaceFactory.getHistoryVideoPreviewPlace(
                     mAccountId,
                     ArrayList(),
@@ -1132,7 +1199,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 return
             }
 
-            AbsNavigationView.PAGE_CLIPS -> {
+            NavigationPage.CLIPS -> {
                 PlaceFactory.getShortVideoPlace(mAccountId, null)
                     .tryOpenWith(this@MainActivity)
                 return
@@ -1149,7 +1216,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 }
                 val aid = mAccountId
                 when (sectionDrawerItem.section) {
-                    AbsNavigationView.PAGE_DIALOGS -> openPlace(
+                    NavigationPage.DIALOGS -> openPlace(
                         PlaceFactory.getDialogsPlace(
                             aid,
                             aid,
@@ -1157,7 +1224,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         )
                     )
 
-                    AbsNavigationView.PAGE_FRIENDS -> openPlace(
+                    NavigationPage.FRIENDS -> openPlace(
                         PlaceFactory.getFriendsFollowersPlace(
                             aid,
                             aid,
@@ -1166,28 +1233,28 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         )
                     )
 
-                    AbsNavigationView.PAGE_BIRTHDAYS -> openPlace(
+                    NavigationPage.BIRTHDAYS -> openPlace(
                         PlaceFactory.getFriendsBirthdaysPlace(
                             aid,
                             aid
                         )
                     )
 
-                    AbsNavigationView.PAGE_GROUPS -> openPlace(
+                    NavigationPage.GROUPS -> openPlace(
                         PlaceFactory.getCommunitiesPlace(
                             aid,
                             aid
                         )
                     )
 
-                    AbsNavigationView.PAGE_PREFERENSES -> openPlace(
+                    NavigationPage.PREFERENCES -> openPlace(
                         PlaceFactory.getPreferencesPlace(
                             aid
                         )
                     )
 
-                    AbsNavigationView.PAGE_MUSIC -> openPlace(PlaceFactory.getAudiosPlace(aid, aid))
-                    AbsNavigationView.PAGE_DOCUMENTS -> openPlace(
+                    NavigationPage.MUSIC -> openPlace(PlaceFactory.getAudiosPlace(aid, aid))
+                    NavigationPage.DOCUMENTS -> openPlace(
                         PlaceFactory.getDocumentsPlace(
                             aid,
                             aid,
@@ -1195,14 +1262,14 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         )
                     )
 
-                    AbsNavigationView.PAGE_FEED -> openPlace(PlaceFactory.getFeedPlace(aid))
-                    AbsNavigationView.PAGE_NOTIFICATION -> openPlace(
+                    NavigationPage.FEED -> openPlace(PlaceFactory.getFeedPlace(aid))
+                    NavigationPage.FEEDBACK -> openPlace(
                         PlaceFactory.getNotificationsPlace(
                             aid
                         )
                     )
 
-                    AbsNavigationView.PAGE_PHOTOS -> openPlace(
+                    NavigationPage.PHOTOS -> openPlace(
                         PlaceFactory.getVKPhotoAlbumsPlace(
                             aid,
                             aid,
@@ -1211,7 +1278,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         )
                     )
 
-                    AbsNavigationView.PAGE_VIDEOS -> openPlace(
+                    NavigationPage.VIDEOS -> openPlace(
                         PlaceFactory.getVideosPlace(
                             aid,
                             aid,
@@ -1219,14 +1286,14 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         )
                     )
 
-                    AbsNavigationView.PAGE_BOOKMARKS -> openPlace(
+                    NavigationPage.BOOKMARKS -> openPlace(
                         PlaceFactory.getBookmarksPlace(
                             aid,
                             FaveTabsFragment.TAB_PAGES
                         )
                     )
 
-                    AbsNavigationView.PAGE_SEARCH -> openPlace(
+                    NavigationPage.SEARCH -> openPlace(
                         PlaceFactory.getSearchPlace(
                             aid,
                             SearchTabsFragment.TAB_PEOPLE
@@ -1316,23 +1383,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
 
     override fun onSectionResume(sectionDrawerItem: SectionMenuItem) {
         navigationView?.selectPage(sectionDrawerItem)
-        if (mBottomNavigation != null) {
-            when (sectionDrawerItem.section) {
-                AbsNavigationView.PAGE_FEED -> mBottomNavigation?.menu?.get(0)?.isChecked =
-                    true
-
-                AbsNavigationView.PAGE_SEARCH -> mBottomNavigation?.menu?.get(1)?.isChecked =
-                    true
-
-                AbsNavigationView.PAGE_DIALOGS -> mBottomNavigation?.menu?.get(2)?.isChecked =
-                    true
-
-                AbsNavigationView.PAGE_NOTIFICATION -> mBottomNavigation?.menu?.get(3)?.isChecked =
-                    true
-
-                else -> mBottomNavigation?.menu?.get(4)?.isChecked = true
-            }
-        }
+        mBottomNavigation?.menu?.findItem(sectionDrawerItem.section)?.isChecked = true
         mCurrentFrontSection = sectionDrawerItem
     }
 
@@ -1361,7 +1412,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 .delayedFlow(1000)
                 .fromIOToMain {
                     if (it) {
-                        mBottomNavigation?.removeBadge(R.id.menu_feedback)
+                        mBottomNavigation?.removeBadge(NavigationPage.FEEDBACK)
                         navigationView?.onUnreadNotificationsCountChange(0)
                     }
                 }
@@ -1748,8 +1799,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
 
             Place.USER_BLACKLIST -> attachToFront(UserBannedFragment.newInstance(args.getLong(Extra.ACCOUNT_ID)))
             Place.FRIENDS_BIRTHDAYS -> attachToFront(BirthDayFragment.newInstance(args))
-            Place.DRAWER_EDIT -> attachToFront(DrawerEditFragment.newInstance())
-            Place.SIDE_DRAWER_EDIT -> attachToFront(SideDrawerEditFragment.newInstance())
+            Place.DRAWER_EDIT -> attachToFront(DrawerEditFragment.newInstance(DrawerType.ADDITIONAL))
+            Place.SIDE_DRAWER_EDIT -> attachToFront(DrawerEditFragment.newInstance(DrawerType.SIDE))
+            Place.BOTTOM_DRAWER_EDIT -> attachToFront(DrawerEditFragment.newInstance(DrawerType.BOTTOM))
             Place.CATALOG_V2_LIST_EDIT -> attachToFront(CatalogV2ListEditFragment.newInstance())
             Place.ARTIST -> attachToFront(AudiosByArtistFragment.newInstance(args))
             Place.SHORT_LINKS -> attachToFront(ShortedLinksFragment.newInstance(args.getLong(Extra.ACCOUNT_ID)))
@@ -1893,11 +1945,11 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         navigationView?.onUnreadDialogsCountChange(count)
         if (mBottomNavigation != null) {
             if (count > 0) {
-                val badgeDrawable = mBottomNavigation?.getOrCreateBadge(R.id.menu_messages)
+                val badgeDrawable = mBottomNavigation?.getOrCreateBadge(NavigationPage.DIALOGS)
                 badgeDrawable?.isBadgeNotSaveColor = true
                 badgeDrawable?.number = count
             } else {
-                mBottomNavigation?.removeBadge(R.id.menu_messages)
+                mBottomNavigation?.removeBadge(NavigationPage.DIALOGS)
             }
         }
     }
@@ -1907,18 +1959,18 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         navigationView?.onUnreadNotificationsCountChange(counters.notifications)
         if (mBottomNavigation != null) {
             if (counters.notifications > 0) {
-                val badgeDrawable = mBottomNavigation?.getOrCreateBadge(R.id.menu_feedback)
+                val badgeDrawable = mBottomNavigation?.getOrCreateBadge(NavigationPage.FEEDBACK)
                 badgeDrawable?.isBadgeNotSaveColor = true
                 badgeDrawable?.number = counters.notifications
             } else {
-                mBottomNavigation?.removeBadge(R.id.menu_feedback)
+                mBottomNavigation?.removeBadge(NavigationPage.FEEDBACK)
             }
             if (counters.messages > 0) {
-                val badgeDrawable = mBottomNavigation?.getOrCreateBadge(R.id.menu_messages)
+                val badgeDrawable = mBottomNavigation?.getOrCreateBadge(NavigationPage.DIALOGS)
                 badgeDrawable?.isBadgeNotSaveColor = true
                 badgeDrawable?.number = counters.messages
             } else {
-                mBottomNavigation?.removeBadge(R.id.menu_messages)
+                mBottomNavigation?.removeBadge(NavigationPage.DIALOGS)
             }
         }
     }
@@ -1926,33 +1978,13 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
     private fun removeNotificationsBadge() {
         navigationView?.onUnreadDialogsCountChange(0)
         navigationView?.onUnreadNotificationsCountChange(0)
-        mBottomNavigation?.removeBadge(R.id.menu_feedback)
-        mBottomNavigation?.removeBadge(R.id.menu_messages)
+        mBottomNavigation?.removeBadge(NavigationPage.FEEDBACK)
+        mBottomNavigation?.removeBadge(NavigationPage.DIALOGS)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_feed -> {
-                openPageAndCloseSheet(AbsNavigationView.SECTION_ITEM_FEED)
-                return true
-            }
-
-            R.id.menu_search -> {
-                openPageAndCloseSheet(AbsNavigationView.SECTION_ITEM_SEARCH)
-                return true
-            }
-
-            R.id.menu_messages -> {
-                openPageAndCloseSheet(AbsNavigationView.SECTION_ITEM_DIALOGS)
-                return true
-            }
-
-            R.id.menu_feedback -> {
-                openPageAndCloseSheet(AbsNavigationView.SECTION_ITEM_FEEDBACK)
-                return true
-            }
-
-            R.id.menu_other -> {
+            NavigationPage.OTHER -> {
                 if (navigationView?.isSheetOpen == true) {
                     navigationView?.closeSheet()
                 } else {
@@ -1961,7 +1993,14 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 return true
             }
 
-            else -> return false
+            else -> {
+                val p = AbsNavigationView.getItemByPageId(item.itemId)
+                if (p != null) {
+                    openPageAndCloseSheet(p)
+                    return true
+                }
+                return false
+            }
         }
     }
 

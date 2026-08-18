@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,7 +14,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.maxr1998.modernpreferences.AbsPreferencesFragment
 import de.maxr1998.modernpreferences.PreferenceScreen
 import de.maxr1998.modernpreferences.PreferencesAdapter
@@ -26,7 +24,6 @@ import de.maxr1998.modernpreferences.helpers.onCheckedChange
 import de.maxr1998.modernpreferences.helpers.onClick
 import de.maxr1998.modernpreferences.helpers.pref
 import de.maxr1998.modernpreferences.helpers.screen
-import de.maxr1998.modernpreferences.helpers.singleChoice
 import de.maxr1998.modernpreferences.helpers.switch
 import de.maxr1998.modernpreferences.preferences.TwoStatePreference
 import dev.ragnarok.fenrir.R
@@ -34,8 +31,6 @@ import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.activity.CreatePinActivity
 import dev.ragnarok.fenrir.activity.MainActivity
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
-import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.fragment.pin.createpin.CreatePinFragment
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback
@@ -43,15 +38,12 @@ import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.UpdatableNavigation
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
-import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.SecuritySettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
-import dev.ragnarok.fenrir.util.toast.CustomToast
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 import kotlin.math.max
@@ -280,55 +272,12 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
                 }
             }
         }
-        collapse("secured_messages_section") {
-            titleRes = R.string.secured_messages
-
-            pref("encryption_terms_of_use") {
-                titleRes = R.string.encryption_terms_of_use_title
-                onClick {
-                    val view = View.inflate(
-                        requireActivity(),
-                        R.layout.content_encryption_terms_of_use,
-                        null
-                    )
-                    MaterialAlertDialogBuilder(requireActivity())
-                        .setView(view)
-                        .setTitle(R.string.fenrir_encryption)
-                        .setNegativeButton(R.string.button_cancel, null)
-                        .show()
-                    true
-                }
-            }
-
-            pref(SecuritySettings.KEY_DELETE_KEYS) {
-                summaryRes = R.string.clear_storage_of_encryption_keys
-                titleRes = R.string.delete_keys
-                onClick {
-                    onClearKeysClick()
-                    true
-                }
-            }
-        }
         collapse("other_section") {
             titleRes = R.string.other
 
             switch("hide_notif_message_body") {
                 summaryRes = R.string.hide_notif_message_body_summary
                 titleRes = R.string.hide_notif_message_body_title
-            }
-
-            singleChoice(
-                "crypt_version",
-                selItems(R.array.crypt_version_names, R.array.crypt_version_list),
-                parentFragmentManager
-            ) {
-                initialSelection = "1"
-                titleRes = R.string.crypt_version
-            }
-
-            switch("disable_encryption") {
-                defaultValue = false
-                titleRes = R.string.disable_encryption
             }
 
             switch("show_hidden_accounts") {
@@ -352,52 +301,6 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).setSupportActionBar(view.findViewById(R.id.toolbar))
-    }
-
-    private fun onClearKeysClick() {
-        val items = arrayOf(
-            getString(R.string.for_the_current_account),
-            getString(R.string.for_all_accounts)
-        )
-        MaterialAlertDialogBuilder(requireActivity())
-            .setItems(items) { _, which ->
-                onClearKeysClick(
-                    which == 1
-                )
-            }
-            .setNegativeButton(R.string.button_cancel, null)
-            .show()
-    }
-
-    private fun onClearKeysClick(allAccount: Boolean) {
-        if (allAccount) {
-            val accountIds: Collection<Long> = Settings.get()
-                .accounts()
-                .registered
-            for (accountId in accountIds) {
-                removeKeysFor(accountId)
-            }
-        } else {
-            val currentAccountId = Settings.get()
-                .accounts()
-                .current
-            if (ISettings.IAccountsSettings.INVALID_ID != currentAccountId) {
-                removeKeysFor(currentAccountId)
-            }
-        }
-        CustomToast.createCustomToast(requireActivity(), view)?.setDuration(Toast.LENGTH_LONG)
-            ?.showToastSuccessBottom(R.string.deleted)
-    }
-
-    private fun removeKeysFor(accountId: Long) {
-        Stores.instance
-            .keys(KeyLocationPolicy.PERSIST)
-            .deleteAll(accountId)
-            .syncSingleSafe()
-        Stores.instance
-            .keys(KeyLocationPolicy.RAM)
-            .deleteAll(accountId)
-            .syncSingleSafe()
     }
 
     private fun startCreatePinActivity(preference: TwoStatePreference) {

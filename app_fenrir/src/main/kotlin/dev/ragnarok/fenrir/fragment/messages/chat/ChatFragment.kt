@@ -31,7 +31,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -42,7 +41,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.yalantis.ucrop.UCrop
@@ -62,7 +60,6 @@ import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity
 import dev.ragnarok.fenrir.activity.VideoSelectActivity
 import dev.ragnarok.fenrir.activity.selectprofiles.SelectProfilesActivity
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.db.model.AttachmentsTypes
 import dev.ragnarok.fenrir.dialog.ImageSizeAlertDialog
 import dev.ragnarok.fenrir.dialog.LandscapeExpandBottomSheetDialog
@@ -1654,25 +1651,17 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         canLeaveChat: Boolean,
         canChangeTitle: Boolean,
         canShowMembers: Boolean,
-        encryptionStatusVisible: Boolean,
-        encryptionEnabled: Boolean,
-        encryptionPlusEnabled: Boolean,
-        keyExchangeVisible: Boolean,
         chronoVisible: Boolean,
-        ProfileVisible: Boolean,
-        InviteLink: Boolean
+        profileVisible: Boolean,
+        inviteLink: Boolean
     ) {
         optionMenuSettings.apply {
             put(LEAVE_CHAT_VISIBLE, canLeaveChat)
             put(CHANGE_CHAT_TITLE_VISIBLE, canChangeTitle)
             put(CHAT_MEMBERS_VISIBLE, canShowMembers)
-            put(ENCRYPTION_STATUS_VISIBLE, encryptionStatusVisible)
-            put(ENCRYPTION_ENABLED, encryptionEnabled)
-            put(ENCRYPTION_PLUS_ENABLED, encryptionPlusEnabled)
-            put(KEY_EXCHANGE_VISIBLE, keyExchangeVisible)
             put(CHRONO_VISIBLE, chronoVisible)
-            put(PROFILE_VISIBLE, ProfileVisible)
-            put(CAN_GENERATE_INVITE_LINK, InviteLink)
+            put(PROFILE_VISIBLE, profileVisible)
+            put(CAN_GENERATE_INVITE_LINK, inviteLink)
         }
 
         try {
@@ -1954,54 +1943,6 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         inputViewController?.setupRecordPauseButton(isRecording)
     }
 
-    override fun displayInitiateKeyExchangeQuestion(@KeyLocationPolicy keyStoragePolicy: Int) {
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(R.string.key_exchange)
-            .setMessage(R.string.you_dont_have_encryption_keys_stored_initiate_key_exchange)
-            .setPositiveButton(R.string.button_ok) { _, _ ->
-                presenter?.fireInitiateKeyExchangeClick(
-                    keyStoragePolicy
-                )
-            }
-            .setNegativeButton(R.string.button_cancel, null)
-            .show()
-    }
-
-    override fun showEncryptionKeysPolicyChooseDialog(requestCode: Int) {
-        val view = View.inflate(activity, R.layout.dialog_select_encryption_key_policy, null)
-        val buttonOnDisk = view.findViewById<MaterialRadioButton>(R.id.button_on_disk)
-        val buttonInRam = view.findViewById<MaterialRadioButton>(R.id.button_in_ram)
-
-        buttonOnDisk.isChecked = true
-
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(R.string.choose_location_key_store)
-            .setView(view)
-            .setPositiveButton(R.string.button_ok) { _, _ ->
-                if (buttonOnDisk.isChecked) {
-                    presenter?.fireDiskKeyStoreSelected(requestCode)
-                } else if (buttonInRam.isChecked) {
-                    presenter?.fireRamKeyStoreSelected(requestCode)
-                }
-            }
-            .setNegativeButton(R.string.button_cancel, null)
-            .show()
-    }
-
-    override fun showEncryptionDisclaimerDialog(requestCode: Int) {
-        val view = View.inflate(activity, R.layout.content_encryption_terms_of_use, null)
-        MaterialAlertDialogBuilder(requireActivity())
-            .setView(view)
-            .setTitle(R.string.fenrir_encryption)
-            .setPositiveButton(R.string.button_accept) { _, _ ->
-                presenter?.fireTermsOfUseAcceptClick(
-                    requestCode
-                )
-            }
-            .setNegativeButton(R.string.button_cancel, null)
-            .show()
-    }
-
     override fun onResume() {
         super.onResume()
         ActivityFeatures.Builder()
@@ -2021,38 +1962,11 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 optionMenuSettings.get(CHANGE_CHAT_TITLE_VISIBLE, false)
             findItem(R.id.action_chat_members).isVisible =
                 optionMenuSettings.get(CHAT_MEMBERS_VISIBLE, false)
-            findItem(R.id.action_key_exchange).isVisible =
-                optionMenuSettings.get(KEY_EXCHANGE_VISIBLE, false)
             findItem(R.id.change_chrono_history).isVisible =
                 optionMenuSettings.get(CHRONO_VISIBLE, false)
             findItem(R.id.show_profile).isVisible = optionMenuSettings.get(PROFILE_VISIBLE, false)
             findItem(R.id.action_invite_link).isVisible =
                 optionMenuSettings.get(CAN_GENERATE_INVITE_LINK, false)
-        }
-        val encryptionStatusItem = menu.findItem(R.id.crypt_state)
-        val encryptionStatusVisible = optionMenuSettings.get(ENCRYPTION_STATUS_VISIBLE, false)
-
-        encryptionStatusItem.isVisible = encryptionStatusVisible
-
-        if (encryptionStatusVisible) {
-            @DrawableRes
-            var drawableRes = R.drawable.ic_outline_lock_open
-
-            if (optionMenuSettings.get(ENCRYPTION_ENABLED, false)) {
-                drawableRes = if (optionMenuSettings.get(ENCRYPTION_PLUS_ENABLED, false)) {
-                    R.drawable.lock_plus
-                } else {
-                    R.drawable.ic_outline_lock
-                }
-            }
-
-            try {
-                encryptionStatusItem.setIcon(drawableRes)
-            } catch (_: Exception) {
-                //java.lang.NullPointerException: Attempt to invoke virtual method
-                // 'android.content.res.Resources$Theme android.app.Activity.getTheme()' on a null object reference
-            }
-
         }
     }
 
@@ -2181,8 +2095,6 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
             R.id.action_attachments_in_conversation -> presenter?.fireDialogAttachmentsClick()
             R.id.messages_search -> presenter?.fireSearchClick()
-            R.id.crypt_state -> presenter?.fireEncryptionStatusClick()
-            R.id.action_key_exchange -> presenter?.fireKeyExchangeClick()
             R.id.action_invite_link -> presenter?.fireGenerateInviteLink()
         }
 
@@ -2342,12 +2254,8 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         private const val LEAVE_CHAT_VISIBLE = 1
         private const val CHANGE_CHAT_TITLE_VISIBLE = 2
         private const val CHAT_MEMBERS_VISIBLE = 3
-        private const val ENCRYPTION_STATUS_VISIBLE = 4
-        private const val ENCRYPTION_ENABLED = 5
-        private const val ENCRYPTION_PLUS_ENABLED = 6
-        private const val KEY_EXCHANGE_VISIBLE = 7
-        private const val CHRONO_VISIBLE = 8
-        private const val PROFILE_VISIBLE = 9
-        private const val CAN_GENERATE_INVITE_LINK = 10
+        private const val CHRONO_VISIBLE = 4
+        private const val PROFILE_VISIBLE = 5
+        private const val CAN_GENERATE_INVITE_LINK = 6
     }
 }

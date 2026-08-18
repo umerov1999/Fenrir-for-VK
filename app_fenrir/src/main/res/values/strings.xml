@@ -454,16 +454,6 @@
         <item>4</item>
     </string-array>
 
-    <string-array name="crypt_version_names" translatable="false">
-        <item>1 (RSA-512, AES-128)</item>
-        <item>2 (RSA-2048, AES-256)</item>
-    </string-array>
-
-    <string-array name="crypt_version_list" translatable="false">
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-
     <string name="night_mode_title">Night mode</string>
     <string name="theme_overlay" translatable="false">Amoled/Material 1</string>
 
@@ -520,7 +510,10 @@
 
     <string name="drawer_categories_title">Popup menu items</string>
     <string name="side_drawer_categories_title">Side menu items</string>
-    <string name="drawer_categories_summary">Select the items that you want to appear in the main menu of the application</string>
+    <string name="bottom_drawer_categories_title">Bottom menu items</string>
+    <string name="drawer_categories_summary">Select the items that you want to appear in the popup menu of the application</string>
+    <string name="side_drawer_categories_summary">Select the items that you want to appear in the side menu of the application</string>
+    <string name="bottom_drawer_categories_summary">Select the items that you want to appear in the bottom menu of the application</string>
 
     <string name="add_vote">Vote</string>
     <string name="remove_vote">Retract the vote</string>
@@ -1134,18 +1127,12 @@
     <string name="show_photo">Show photo</string>
     <string name="show_video">Show video</string>
     <string name="choose_action">Actions</string>
-    <string name="apply">Accept</string>
     <string name="create_pin_code_title">Create a PIN</string>
     <string name="entered_pin_codes_do_not_match">Entered PIN codes do not match</string>
-    <string name="key_exchange">Key exchange</string>
-    <string name="key_exchange_content_text">Excanging keys with %1$s</string>
-    <string name="key_exchange_request">Key exchange request</string>
-    <string name="key_exchange_request_content_text">%1$s requests permission to exchange encryption keys</string>
     <string name="limit_exceeded_number_of_attempts_message">Input attempt limit exceeded</string>
     <string name="not_yet_implemented_message">Not yet implemented!</string>
     <string name="pin_is_invalid_message">PIN is invalid</string>
     <string name="repeat_pin_code_title">Repeat the PIN</string>
-    <string name="session_already_created">The session is already active</string>
     <string name="use_pin_title">Use a PIN or fingerprint</string>
     <string name="button_0" translatable="false">0</string>
     <string name="button_1" translatable="false">1</string>
@@ -1167,63 +1154,15 @@
     <string name="button_8_desc">TUV</string>
     <string name="button_9_desc">WXYZ</string>
     <string name="vk_url" translatable="false">https://vk.ru/</string>
-    <string name="key_exchange_failed">Key exchange failed</string>
-    <string name="you_have_successfully_exchanged_keys">Key exchange completed successfully. You can now enable message encryption</string>
-    <string name="encryption_status">Encryption status</string>
-    <string name="no_encryption_keys">No encryption keys</string>
-    <string name="you_dont_have_encryption_keys_stored_initiate_key_exchange">You have no stored encryption keys. Initiate key exchange?</string>
     <string name="counter_documents">documents</string>
     <string name="ask_for_pin_on_application_start_title">PIN on app start</string>
     <string name="ask_for_pin_on_application_start_summary">Require PIN when the app starts</string>
     <string name="delayed_pin_for_entrance_title">Don\'t ask every time</string>
     <string name="delayed_pin_for_entrance_summary">Require PIN only after 10 minutes</string>
-    <string name="you_have_received_request_for_key_exchange_from">You have received an encryption key exchange request from</string>
     <string name="use_pin_for_security_title">Use PIN code</string>
     <string name="security">Security</string>
     <string name="change_pin_title">Change PIN code</string>
-    <string name="button_decline">Decline</string>
-    <string name="button_accept">Accept</string>
     <string name="accepted_friend_request">accepted a friend request</string>
-
-    <string name="encryption_terms_of_use">
-        TERMS OF USE
-        \n
-        \n1. FUNCTIONAL FEATURES
-        \n1.1. This feature provides encryption of message text only, attachment protection is not implemented.
-        \n1.2. This feature is not available for group chats or conversations with groups.
-        \n1.3. To start exchanging encrypted messages, participants must complete a key exchange procedure.
-        \n1.4. Messages can only be decrypted on the device that participated in the specific key pair exchange. On other devices, in other applications, or in a browser, the user will not be able to read the original message content.
-        \n
-        \n2. KEY EXCHANGE
-        \n2.1. To transfer keys, the application will send several system messages directly into the conversation.
-        \n2.2. Compromise of system messages does not pose a security risk, they serve only as transport and do not contain encryption keys in plaintext.
-        \n2.3. Deleting system messages from the conversation does not affect encryption functionality.
-        \n2.4. Key exchange can be performed repeatedly an unlimited number of times. New messages will be encrypted with new keys, while old messages can still be decrypted with previous keys.
-        \n
-        \n3. KEY STORAGE
-        \n3.1. Encryption keys are stored locally on users devices in persistent or volatile memory (depending on the chosen mode).
-        \n3.2. If encryption keys are lost, the user will not be able to read encrypted incoming or outgoing messages.
-        \n3.3. The user may lose encryption keys in the following cases:
-        \n- uninstalling the application from the device;
-        \n- clearing application data;
-        \n- using the “Delete keys” option in the application settings;
-        \n- closing the application (only in volatile key storage mode);
-        \n- removing the account from the application.
-        \n
-        \n4. DISCLAIMER
-        \n4.1. The developers of the Fenrir application are not responsible for any data loss resulting from loss of encryption keys or improper use of this feature.</string>
-    <string name="choose_location_key_store">Select key storage location</string>
-    <string name="clear_storage_of_encryption_keys">Clear encryption key store</string>
-    <string name="delete_keys">Delete keys</string>
-    <string name="encryption_terms_of_use_title">Terms of Use</string>
-    <string name="for_all_accounts">For all accounts</string>
-    <string name="for_the_current_account">For current account</string>
-    <string name="fenrir_encryption">Fenrir encryption</string>
-    <string name="secured_messages">Protected messages</string>
-    <string name="store_in_ram">Store in RAM</string>
-    <string name="store_in_ram_summary">Encryption keys will be stored in volatile memory. IMPORTANT: After closing the application, these keys will be permanently lost and you will not be able to decrypt incoming or outgoing messages.</string>
-    <string name="store_on_disk">Save on disk (recommended)</string>
-    <string name="store_on_disk_summary">Encryption keys will be saved in persistent device storage.</string>
     <string name="for_topic">In topic</string>
     <string name="reached_maximum_count_of_attachments">Maximum number of attachments reached</string>
     <string name="select">Choose answer option</string>
@@ -1432,6 +1371,8 @@
     <string name="button_login_via_web">Via Web</string>
     <string name="button_login">Login</string>
     <string name="drawer_edit_title">Pop-up menu</string>
+    <string name="side_drawer_edit_title">Side menu</string>
+    <string name="bottom_drawer_edit_title">Bottom menu</string>
     <string name="theme_edit_title">Select theme</string>
     <string name="error_not_found_message">Object not found</string>
     <string name="vk_servers_error">VK servers down (HTTP: %1$d)</string>
@@ -1451,9 +1392,6 @@
     <string name="allow_fingerprint_title">Allow fingerprint</string>
     <string name="error_login_by_fingerprint_not_allowed">Fingerprint login not allowed</string>
     <string name="birthdays">Birthdays</string>
-    <string name="error_key_exchange_invalid_session_state">Invalid session status. Key exchange failed.</string>
-    <string name="error_key_exchange_cancelled_by_user">Key exchange was canceled by user</string>
-    <string name="error_key_exchange_session_expired">The session is no longer active. Try exchanging keys again.</string>
     <string name="last_closed_page">Last closed</string>
     <string name="open_links_in_app">Open links in the app</string>
     <string name="pause">pause</string>
@@ -1655,9 +1593,7 @@
     <string name="set_no_hide_dialog">Remove restrictions</string>
     <string name="local_audios">Stored on this device</string>
     <string name="not_supported">Not supported</string>
-    <string name="crypt_version">Encryption version</string>
     <string name="not_supported_hide">Set the pin code in the settings!</string>
-    <string name="disable_encryption">Disable encryption</string>
     <string name="is_expired">Expired</string>
     <string name="story">History</string>
     <string name="call">Call</string>
@@ -1982,6 +1918,7 @@
     <string name="retry">Retry</string>
     <string name="video_play_with_external_player">Play in third-party player</string>
     <string name="next">Next</string>
+    <string name="bottom_navigation_menu_max_5">Only 5 elements allowed!</string>
     <string name="anonym_token_not_valid">Obtaining an anonymous token failed, please restart the application!</string>
     <string name="auth_validate_method">Validate method:</string>
     <string name="auth_validate_method_push">Push (%1$s)</string>

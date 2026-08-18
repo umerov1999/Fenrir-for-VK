@@ -7,6 +7,7 @@ import kotlinx.serialization.msgpack.MsgPack
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Response
+import okhttp3.internal.OkHttpInternalApi
 import okhttp3.internal.http.promisesBody
 import okhttp3.internal.platform.Platform
 import okio.Buffer
@@ -93,6 +94,7 @@ class OkHttp3LoggingInterceptor @JvmOverloads constructor(
             val DEFAULT: Logger = DefaultLogger()
 
             private class DefaultLogger : Logger {
+                @OptIn(OkHttpInternalApi::class)
                 override fun log(message: String) {
                     Platform.get().log(message)
                 }

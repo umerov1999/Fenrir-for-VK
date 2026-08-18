@@ -26,9 +26,6 @@ import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.WriteTextInDialogUpdate
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
-import dev.ragnarok.fenrir.crypt.CryptHelper.encryptWithAes
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
-import dev.ragnarok.fenrir.crypt.KeyPairDoesNotExistException
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.MessageEditEntity
 import dev.ragnarok.fenrir.db.model.MessagePatch
@@ -39,7 +36,6 @@ import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
 import dev.ragnarok.fenrir.db.model.entity.PeerDialogEntity
 import dev.ragnarok.fenrir.db.model.entity.ReactionAssetEntity
 import dev.ragnarok.fenrir.db.model.entity.StickerDboEntity
-import dev.ragnarok.fenrir.domain.IMessagesDecryptor
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory.createAccountInteractor
@@ -72,7 +68,6 @@ import dev.ragnarok.fenrir.longpoll.NotificationHelper.tryCancelNotificationForP
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Conversation
-import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.IOwnersBundle
 import dev.ragnarok.fenrir.model.Keyboard
@@ -163,7 +158,6 @@ class MessagesRepository(
     private val storages: IStorages,
     private val uploadManager: IUploadManager
 ) : IMessagesRepository {
-    private val decryptor: IMessagesDecryptor = MessagesDecryptor(storages)
     private val peerUpdatePublisher = createPublishSubject<List<PeerUpdate>>()
     private val peerDeletingPublisher = createPublishSubject<PeerDeleting>()
     private val messageUpdatesPublisher = createPublishSubject<List<MessageUpdate>>()
@@ -616,7 +610,6 @@ class MessagesRepository(
         return storages.messages()
             .getByCriteria(criteria, withAtatchments = true, withForwardMessages = true)
             .flatMapConcat(entities2Models(accountId))
-            .flatMapConcat(decryptor.withMessagesDecryption(accountId))
     }
 
     override fun getMessagesFromLocalJSon(
@@ -674,23 +667,12 @@ class MessagesRepository(
                 }
                 ownersRepository
                     .findBaseOwnersDataAsBundle(accountId, ownIds.all, IOwnersRepository.MODE_ANY)
-                    .flatMapConcat { owners ->
-                        val messages: MutableList<Message> = ArrayList(0)
+                    .map { owners ->
                         val dialogs: MutableList<Dialog> = ArrayList(dbos.size)
                         for (dbo in dbos) {
-                            val dialog = buildDialogFromDbo(accountId, dbo, owners)
-                            dialogs.add(dialog)
-                            if (dbo.message?.isEncrypted == true) {
-                                dialog.message?.let { messages.add(it) }
-                            }
+                            dialogs.add(buildDialogFromDbo(accountId, dbo, owners))
                         }
-                        if (messages.nonNullNoEmpty()) {
-                            toFlow(messages)
-                                .flatMapConcat(decryptor.withMessagesDecryption(accountId))
-                                .map { dialogs }
-                        } else {
-                            toFlow(dialogs)
-                        }
+                        dialogs
                     }
             }
     }
@@ -857,7 +839,6 @@ class MessagesRepository(
                                 }
                                 insertCompletable.andThen(
                                     toFlow(messages)
-                                        .flatMapConcat(decryptor.withMessagesDecryption(accountId))
                                 )
                             })
             }
@@ -888,7 +869,7 @@ class MessagesRepository(
 
     override fun getPeerMessages(
         accountId: Long, peerId: Long, count: Int, offset: Int?,
-        startMessageId: Int?, cacheData: Boolean, rev: Boolean
+        startMessageId: Int?, excludeStartMessage: Boolean, cacheData: Boolean, rev: Boolean
     ): Flow<List<Message>> {
         var pCount = count
         if (rev) pCount = 200
@@ -915,7 +896,7 @@ class MessagesRepository(
                         .withLastMessage(conversation.lastMessageId)
                         .withUnreadCount(conversation.unreadCount)
                 }
-                if (startMessageId != null && dtos.nonNullNoEmpty() && startMessageId == dtos[0].id) {
+                if (excludeStartMessage && startMessageId != null && dtos.nonNullNoEmpty() && startMessageId == dtos[0].id) {
                     dtos.removeAt(0)
                 }
                 var completable: Flow<Boolean>
@@ -968,11 +949,6 @@ class MessagesRepository(
                                     }
                                     insertCompletable.andThen(
                                         toFlow(messages)
-                                            .flatMapConcat(
-                                                decryptor.withMessagesDecryption(
-                                                    accountId
-                                                )
-                                            )
                                     )
                                 }
                             })
@@ -1025,17 +1001,12 @@ class MessagesRepository(
                     .flatMapConcat { owners ->
                         val entities: MutableList<DialogDboEntity> = ArrayList(apiDialogs.size)
                         val dialogs: MutableList<Dialog> = ArrayList(apiDialogs.size)
-                        val encryptedMessages: MutableList<Message> =
-                            ArrayList(0)
                         for (dto in apiDialogs) {
                             val entity = mapDialog(dto, response.contacts) ?: continue
                             entities.add(entity)
                             val dialog = transform(accountId, dto, owners, response.contacts)
                             if (dialog != null) {
                                 dialogs.add(dialog)
-                            }
-                            if (entity.message?.isEncrypted == true) {
-                                dialog?.message?.let { encryptedMessages.add(it) }
                             }
                         }
                         val insertCompletable = dialogsStore
@@ -1047,14 +1018,7 @@ class MessagesRepository(
                                     response.unreadCount
                                 )
                             }
-                        if (encryptedMessages.nonNullNoEmpty()) {
-                            insertCompletable.andThen(
-                                toFlow(encryptedMessages)
-                                    .flatMapConcat(decryptor.withMessagesDecryption(accountId))
-                                    .map { dialogs })
-                        } else {
-                            insertCompletable.andThen(toFlow(dialogs))
-                        }
+                        insertCompletable.andThen(toFlow(dialogs))
                     }
             }
     }
@@ -1066,7 +1030,6 @@ class MessagesRepository(
         return storages.messages()
             .findMessagesByIds(accountId, ids, withAttachments = true, withForwardMessages = true)
             .flatMapConcat(entities2Models(accountId))
-            .flatMapConcat(decryptor.withMessagesDecryption(accountId))
     }
 
     @SuppressLint("UseSparseArrays")
@@ -1077,7 +1040,6 @@ class MessagesRepository(
         return getTargetMessageStatus(builder)
             .flatMapConcat { status ->
                 val patch = MessageEditEntity(status, accountId)
-                patch.setEncrypted(builder.requireEncryption)
                 patch.setPayload(builder.payload)
                 patch.setDate(now())
                 patch.setRead(false)
@@ -1111,33 +1073,25 @@ class MessagesRepository(
                 } else {
                     patch.setForward(null)
                 }
-                getFinalMessagesBody(builder)
-                    .flatMapConcat { body ->
-                        patch.setText(body.get())
-                        val storeSingle = if (draftMessageId != null) {
-                            storages.messages().applyPatch(accountId, draftMessageId, patch)
-                        } else {
-                            storages.messages().insert(accountId, peerId, patch)
-                        }
-                        storeSingle
-                            .flatMapConcat { resultMid ->
-                                storages.messages()
-                                    .findMessagesByIds(
-                                        accountId, listOf(resultMid),
-                                        withAttachments = true, withForwardMessages = true
-                                    )
-                                    .flatMapConcat(entities2Models(accountId))
-                                    .map { messages ->
-                                        if (messages.isEmpty()) {
-                                            throw NotFoundException()
-                                        }
-                                        val message = messages[0]
-                                        if (builder.requireEncryption) {
-                                            message.decryptedText = builder.text
-                                            message.cryptStatus = CryptStatus.DECRYPTED
-                                        }
-                                        message
-                                    }
+                patch.setText(builder.text)
+                val storeSingle = if (draftMessageId != null) {
+                    storages.messages().applyPatch(accountId, draftMessageId, patch)
+                } else {
+                    storages.messages().insert(accountId, peerId, patch)
+                }
+                storeSingle
+                    .flatMapConcat { resultMid ->
+                        storages.messages()
+                            .findMessagesByIds(
+                                accountId, listOf(resultMid),
+                                withAttachments = true, withForwardMessages = true
+                            )
+                            .flatMapConcat(entities2Models(accountId))
+                            .map { messages ->
+                                if (messages.isEmpty()) {
+                                    throw NotFoundException()
+                                }
+                                messages[0]
                             }
                     }
             }
@@ -1309,7 +1263,7 @@ class MessagesRepository(
                             data.add(message)
                         }
                         data
-                    }.flatMapConcat(decryptor.withMessagesDecryption(accountId))
+                    }
             }
     }
 
@@ -1841,33 +1795,6 @@ class MessagesRepository(
                 }
         }
         return toFlow(Optional.empty())
-    }
-
-    private fun getFinalMessagesBody(builder: SaveMessageBuilder): Flow<Optional<String>> {
-        if (builder.text.isNullOrEmpty() || !builder.requireEncryption) {
-            return toFlow(
-                Optional.wrap(
-                    builder.text
-                )
-            )
-        }
-        @KeyLocationPolicy val policy = builder.keyLocationPolicy
-        return storages.keys(policy)
-            .findLastKeyPair(builder.accountId, builder.peerId)
-            .map {
-                if (it.isEmpty) {
-                    throw KeyPairDoesNotExistException()
-                }
-                val pair = it.requireNonEmpty()
-                val encrypted = encryptWithAes(
-                    builder.text.orEmpty(),
-                    pair.myAesKey,
-                    builder.text.orEmpty(),
-                    pair.sessionId,
-                    builder.keyLocationPolicy
-                )
-                Optional.wrap(encrypted)
-            }
     }
 
     private fun getTargetMessageStatus(builder: SaveMessageBuilder): Flow<Int> {

@@ -205,7 +205,6 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             cv.put(MessagesColumns.OUT, patch.isOut)
             //cv.put(MessageColumns.TITLE, patch.getTitle());
             cv.put(MessagesColumns.TEXT, patch.text)
-            cv.put(MessagesColumns.ENCRYPTED, patch.isEncrypted)
             cv.put(MessagesColumns.IMPORTANT, patch.isImportant)
             cv.put(MessagesColumns.DELETED, patch.isDeleted)
             cv.put(MessagesColumns.FORWARD_COUNT, safeCountOf(patch.forward))
@@ -271,7 +270,6 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                 cv.put(MessagesColumns.OUT, patch.isOut)
                 //cv.put(MessageColumns.TITLE, patch.getTitle());
                 cv.put(MessagesColumns.TEXT, patch.text)
-                cv.put(MessagesColumns.ENCRYPTED, patch.isEncrypted)
                 cv.put(MessagesColumns.IMPORTANT, patch.isImportant)
                 cv.put(MessagesColumns.DELETED, patch.isDeleted)
                 cv.put(MessagesColumns.FORWARD_COUNT, safeCountOf(patch.forward))
@@ -789,7 +787,6 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             cv.put(MessagesColumns.OUT, dbo.isOut)
             //cv.put(MessageColumns.TITLE, dbo.getTitle());
             cv.put(MessagesColumns.TEXT, dbo.text)
-            cv.put(MessagesColumns.ENCRYPTED, dbo.isEncrypted)
             cv.put(MessagesColumns.IMPORTANT, dbo.isImportant)
             cv.put(MessagesColumns.DELETED, dbo.isDeleted)
             cv.put(MessagesColumns.FORWARD_COUNT, dbo.forwardCount)
@@ -909,7 +906,6 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                 )
             }
             return MessageDboEntity().set(id, peerId, fromId)
-                .setEncrypted(cursor.getBoolean(MessagesColumns.ENCRYPTED))
                 .setStatus(status)
                 .setAction(action)
                 .setExtras(extras)

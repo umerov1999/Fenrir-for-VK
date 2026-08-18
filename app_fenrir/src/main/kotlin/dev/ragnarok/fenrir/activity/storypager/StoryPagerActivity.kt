@@ -144,7 +144,7 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
                 if (stateSpeed) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
             )
         }
-        val mHelper = findViewById<ThorVGLottieView?>(R.id.swipe_helper)
+        val mHelper = findViewById<ThorVGLottieView>(R.id.swipe_helper)
         if (HelperSimple.needHelp(HelperSimple.STORY_HELPER, 2)) {
             mHelper?.visibility = View.VISIBLE
             mHelper?.fromRes(

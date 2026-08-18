@@ -58,9 +58,12 @@
         <item>25</item>
     </string-array>
 
-    <!-- Google Play-->
-    <string name="developer">Developer: Umerov A.</string>
-    <string name="opensource">Opensource</string>
+    <string name="disclaimer">This project is a demonstration
+        \nand a tutorial for developing REST clients in Kotlin and C++ for Android,
+        \nas well as integrating modern media libraries.
+        \n
+        \nUse for purposes other than technology exploration,
+        \nand publication of this work is strictly prohibited.</string>
     <string name="repo">Repository: https://github.com/umerov1999/Fenrir-for-VK</string>
     <string name="repo_local_server">Repository: https://github.com/umerov1999/FenrirMediaServer/releases</string>
     <string name="enabled_local_server">Enabled</string>

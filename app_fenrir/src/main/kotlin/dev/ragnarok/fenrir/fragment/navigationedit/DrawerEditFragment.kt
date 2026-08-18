@@ -15,13 +15,14 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
-import dev.ragnarok.fenrir.fragment.base.compat.AbsMvpFragment
+import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.model.DrawerCategory
-import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.model.DrawerType
 
-class DrawerEditFragment : AbsMvpFragment<DrawerEditPresenter, IDrawerEditView>(),
+class DrawerEditFragment : BaseMvpFragment<DrawerEditPresenter, IDrawerEditView>(),
     IDrawerEditView, MenuProvider {
     private var mAdapter: DrawerCategoriesAdapter? = null
 
@@ -99,7 +100,6 @@ class DrawerEditFragment : AbsMvpFragment<DrawerEditPresenter, IDrawerEditView>(
             }
 
             R.id.action_reset -> {
-                Settings.get().drawerSettings().reset()
                 presenter?.fireResetClick()
                 true
             }
@@ -112,12 +112,19 @@ class DrawerEditFragment : AbsMvpFragment<DrawerEditPresenter, IDrawerEditView>(
         super.onResume()
         val actionBar = supportToolbarFor(this)
         if (actionBar != null) {
-            actionBar.setTitle(R.string.drawer_edit_title)
+            actionBar.setTitle(
+                when (requireArguments().getInt(Extra.TYPE)) {
+                    DrawerType.BOTTOM -> R.string.bottom_drawer_edit_title
+                    DrawerType.SIDE -> R.string.side_drawer_edit_title
+                    else -> R.string.drawer_edit_title
+                }
+            )
             actionBar.subtitle = null
         }
     }
 
-    override fun getPresenterFactory(saveInstanceState: Bundle?) = DrawerEditPresenter()
+    override fun getPresenterFactory(saveInstanceState: Bundle?) =
+        DrawerEditPresenter(requireArguments().getInt(Extra.TYPE))
 
     @SuppressLint("NotifyDataSetChanged")
     override fun notifyDataSetChanged() {
@@ -133,9 +140,10 @@ class DrawerEditFragment : AbsMvpFragment<DrawerEditPresenter, IDrawerEditView>(
     }
 
     companion object {
-        fun newInstance(): DrawerEditFragment {
+        fun newInstance(@DrawerType type: Int): DrawerEditFragment {
             val args = Bundle()
             val fragment = DrawerEditFragment()
+            args.putInt(Extra.TYPE, type)
             fragment.arguments = args
             return fragment
         }

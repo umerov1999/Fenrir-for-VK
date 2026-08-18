@@ -50,7 +50,6 @@ import dev.ragnarok.fenrir.model.AudioArtist
 import dev.ragnarok.fenrir.model.AudioArtist.AudioArtistImage
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.model.Call
-import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.Event
@@ -135,7 +134,6 @@ object Model2Entity {
             .setDate(message.date)
             .setOut(message.isOut)
             .setText(message.text)
-            .setEncrypted(message.cryptStatus != CryptStatus.NO_ENCRYPTION)
             .setImportant(message.isImportant)
             .setDeleted(message.isDeleted)
             .setDeletedForAll(message.isDeletedForAll)

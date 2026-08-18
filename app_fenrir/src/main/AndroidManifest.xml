@@ -127,11 +127,6 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name="dev.ragnarok.fenrir.activity.KeyExchangeCommitActivity"
-            android:excludeFromRecents="true"
-            android:theme="@style/MyTransparentDialog" />
-
-        <activity
             android:name="dev.ragnarok.fenrir.activity.PostPublishPrepareActivity"
             android:excludeFromRecents="true"
             android:exported="true"
@@ -613,11 +608,6 @@
 
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
-
-        <service
-            android:name="dev.ragnarok.fenrir.crypt.KeyExchangeService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

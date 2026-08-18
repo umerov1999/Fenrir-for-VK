@@ -380,6 +380,11 @@ static int ScaleUVBilinearDown(int src_width,
     }
   }
 #endif
+#if defined(HAS_INTERPOLATEROW_SVE2)
+  if (TestCpuFlag(kCpuHasSVE2)) {
+    InterpolateRow = InterpolateRow_SVE2;
+  }
+#endif
 #if defined(HAS_INTERPOLATEROW_SME)
   if (TestCpuFlag(kCpuHasSME)) {
     InterpolateRow = InterpolateRow_SME;
@@ -458,6 +463,12 @@ static int ScaleUVBilinearUp(int src_width,
                              int y,
                              int dy,
                              enum FilterMode filtering) {
+  assert(src_width > 0);
+  assert(src_height > 0);
+  assert(dst_width > 0);
+  assert(dst_height > 0);
+  assert(dy <= 65536);
+
   int j;
   void (*InterpolateRow)(uint8_t* dst_uv, const uint8_t* src_uv,
                          ptrdiff_t src_stride, int dst_width,
@@ -480,6 +491,11 @@ static int ScaleUVBilinearUp(int src_width,
     if (IS_ALIGNED(dst_width, 8)) {
       InterpolateRow = InterpolateRow_NEON;
     }
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_SVE2)
+  if (TestCpuFlag(kCpuHasSVE2)) {
+    InterpolateRow = InterpolateRow_SVE2;
   }
 #endif
 #if defined(HAS_INTERPOLATEROW_SME)
@@ -565,22 +581,27 @@ static int ScaleUVBilinearUp(int src_width,
       src += src_stride;
     }
 
+    // 2-row rolling buffer:
+    // rowptr and (rowptr + rowstride) hold the scaled rows for yi and yi + 1.
+    // Because dy <= 65536 (dy <= 1.0 in 16.16), yi advances in unit steps.
+    // When yi != lasty:
+    // 1. Scale the next source row into the older buffer (rowptr).
+    // 2. Swap buffer pointers (rowptr += rowstride; rowstride = -rowstride;)
+    //    so rowptr points to yi and (rowptr + rowstride) points to yi + 1.
+    // 3. Advance src by 1 row if row yi + 2 exists ((y + 65536) < max_y),
+    //    otherwise clamp src at (src_height - 1) to avoid reading out of bounds.
     for (j = 0; j < dst_height; ++j) {
+      if (y > max_y) {
+        y = max_y;
+      }
       yi = y >> 16;
       if (yi != lasty) {
-        if (y > max_y) {
-          y = max_y;
-          yi = y >> 16;
-          src = src_uv + yi * src_stride;
-        }
-        if (yi != lasty) {
-          ScaleUVFilterCols(rowptr, src, dst_width, x, dx);
-          rowptr += rowstride;
-          rowstride = -rowstride;
-          lasty = yi;
-          if ((y + 65536) < max_y) {
-            src += src_stride;
-          }
+        ScaleUVFilterCols(rowptr, src, dst_width, x, dx);
+        rowptr += rowstride;
+        rowstride = -rowstride;
+        lasty = yi;
+        if ((y + 65536) < max_y) {
+          src += src_stride;
         }
       }
       if (filtering == kFilterLinear) {

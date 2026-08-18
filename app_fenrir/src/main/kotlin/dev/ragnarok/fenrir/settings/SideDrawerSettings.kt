@@ -6,14 +6,13 @@ import de.maxr1998.modernpreferences.PreferenceScreen
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.SwitchableCategory
-import dev.ragnarok.fenrir.settings.ISettings.ISideDrawerSettings
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.myEmit
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.builtins.ListSerializer
 
-internal class SideDrawerSettings(context: Context) : ISideDrawerSettings {
+internal class SideDrawerSettings(context: Context) : ISettings.IDrawerSettings {
     private val app: Context = context.applicationContext
     internal fun makeDefaults(): List<DrawerCategory> {
         return listOf(

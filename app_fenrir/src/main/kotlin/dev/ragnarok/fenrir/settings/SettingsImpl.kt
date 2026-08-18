@@ -8,13 +8,13 @@ import dev.ragnarok.fenrir.settings.ISettings.INotificationSettings
 import dev.ragnarok.fenrir.settings.ISettings.IPushSettings
 import dev.ragnarok.fenrir.settings.ISettings.IRecentChats
 import dev.ragnarok.fenrir.settings.ISettings.ISecuritySettings
-import dev.ragnarok.fenrir.settings.ISettings.ISideDrawerSettings
 import dev.ragnarok.fenrir.settings.ISettings.IUISettings
 
 class SettingsImpl(app: Context) : ISettings {
     private val recentChats: IRecentChats = RecentChatsSettings(app)
     private val drawerSettings: IDrawerSettings = DrawerSettings(app)
-    private val sideDrawerSettings: ISideDrawerSettings = SideDrawerSettings(app)
+    private val sideDrawerSettings: IDrawerSettings = SideDrawerSettings(app)
+    private val bottomDrawerSettings: IDrawerSettings = BottomDrawerSettings(app)
     private val pushSettings: IPushSettings = PushSettings(app)
     private val securitySettings: ISecuritySettings = SecuritySettings(app)
     private val iuiSettings: IUISettings = UISettings(app)
@@ -29,8 +29,12 @@ class SettingsImpl(app: Context) : ISettings {
         return drawerSettings
     }
 
-    override fun sideDrawerSettings(): ISideDrawerSettings {
+    override fun sideDrawerSettings(): IDrawerSettings {
         return sideDrawerSettings
+    }
+
+    override fun bottomDrawerSettings(): IDrawerSettings {
+        return bottomDrawerSettings
     }
 
     override fun pushSettings(): IPushSettings {

@@ -110,13 +110,6 @@ internal class MainSettings(context: Context) : IMainSettings {
             return preferPhotoPreviewSize.get()!!
         }
 
-    override val cryptVersion: Int
-        get() = try {
-            getPreferences(app).getString("crypt_version", "1")?.trim()?.toInt() ?: 1
-        } catch (_: Exception) {
-            1
-        }
-
     @PhotoSize
     private fun restorePhotoPreviewSize(): Int {
         return try {
@@ -706,8 +699,6 @@ internal class MainSettings(context: Context) : IMainSettings {
         get() = getPreferences(app).getBoolean("do_not_clear_back_stack", false)
     override val isMention_fave: Boolean
         get() = getPreferences(app).getBoolean("mention_fave", false)
-    override val isDisabled_encryption: Boolean
-        get() = getPreferences(app).getBoolean("disable_encryption", false)
     override val isAudio_save_mode_button: Boolean
         get() = getPreferences(app).getBoolean("audio_save_mode_button", true)
     override val isShow_mutual_count: Boolean

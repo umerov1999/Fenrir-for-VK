@@ -24,10 +24,6 @@ import dev.ragnarok.fenrir.activity.ActivityUtils
 import dev.ragnarok.fenrir.api.model.AttachmentTokens
 import dev.ragnarok.fenrir.api.model.AttachmentsTokenCreator
 import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken
-import dev.ragnarok.fenrir.crypt.AesKeyPair
-import dev.ragnarok.fenrir.crypt.KeyExchangeService
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
-import dev.ragnarok.fenrir.crypt.KeyPairDoesNotExistException
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.IMessagesRepository
@@ -193,15 +189,6 @@ class ChatPresenter(
 
     val isChronologyInverted: Boolean
         get() = chronologyInvert
-
-    private val isEncryptionSupport: Boolean
-        get() = Peer.isUser(peerId) && peerId != messagesOwnerId && !Settings.get()
-            .main().isDisabled_encryption
-
-    private val isEncryptionEnabled: Boolean
-        get() = Settings.get()
-            .security()
-            .isMessageEncryptionEnabled(messagesOwnerId, peerId)
 
     private var currentPhotoCameraUri: Uri? = null
 
@@ -890,13 +877,14 @@ class ChatPresenter(
 
         val peerId = this.peerId
         netLoadingDisposable += messagesRepository.getPeerMessages(
-            messagesOwnerId,
-            peerId,
-            COUNT,
-            null,
-            startMessageId,
-            !chronologyInvert,
-            chronologyInvert
+            accountId = messagesOwnerId,
+            peerId = peerId,
+            count = COUNT,
+            offset = null,
+            startMessageId = startMessageId,
+            excludeStartMessage = true,
+            cacheData = !chronologyInvert,
+            rev = chronologyInvert
         )
             .fromIOToMain(
                 { messages -> onNetDataReceived(messages, startMessageId) },
@@ -981,24 +969,12 @@ class ChatPresenter(
     }
 
     private fun sendImpl() {
-        val securitySettings = Settings.get().security()
-
         val trimmedText = AppTextUtils.safeTrim(draftMessageText, null)
-        val encryptionEnabled = securitySettings.isMessageEncryptionEnabled(messagesOwnerId, peerId)
-
-        @KeyLocationPolicy
-        var keyLocationPolicy = KeyLocationPolicy.PERSIST
-        if (encryptionEnabled) {
-            keyLocationPolicy =
-                securitySettings.getEncryptionLocationPolicy(messagesOwnerId, peerId)
-        }
 
         val builder = SaveMessageBuilder(messagesOwnerId, peer.id)
             .also {
                 it.setText(trimmedText)
                 it.setDraftMessageId(draftMessageId)
-                it.setRequireEncryption(encryptionEnabled)
-                it.setKeyLocationPolicy(keyLocationPolicy)
             }
 
         val fwds = ArrayList<Message>()
@@ -1064,7 +1040,6 @@ class ChatPresenter(
     private fun onMessageSaveError(throwable: Throwable) {
         view?.run {
             when (throwable) {
-                is KeyPairDoesNotExistException -> showError(R.string.no_encryption_keys)
                 is UploadNotResolvedException -> showError(R.string.upload_not_resolved_exception_message)
                 else -> showError(throwable.message)
             }
@@ -2254,87 +2229,14 @@ class ChatPresenter(
     private fun resolveOptionMenu() {
         val chat = isGroupChat
 
-        var isPlusEncryption = false
-        if (isEncryptionEnabled) {
-            isPlusEncryption = Settings.get()
-                .security()
-                .getEncryptionLocationPolicy(messagesOwnerId, peerId) == KeyLocationPolicy.RAM
-        }
-
         view?.configOptionMenu(
             chat,
             chat,
             chat,
-            isEncryptionSupport,
-            isEncryptionEnabled,
-            isPlusEncryption,
-            isEncryptionSupport,
             !chronologyInvert,
             Peer.getType(peerId) != PeerType.CHAT,
             chat
         )
-    }
-
-    fun fireEncryptionStatusClick() {
-        if (!isEncryptionEnabled && !Settings.get().security().isKeyEncryptionPolicyAccepted) {
-            view?.showEncryptionDisclaimerDialog(REQUEST_CODE_ENABLE_ENCRYPTION)
-            return
-        }
-
-        onEncryptionToggleClick()
-    }
-
-    private fun onEncryptionToggleClick() {
-        if (isEncryptionEnabled) {
-            Settings.get().security().disableMessageEncryption(messagesOwnerId, peerId)
-            resolveOptionMenu()
-        } else {
-            view?.showEncryptionKeysPolicyChooseDialog(REQUEST_CODE_ENABLE_ENCRYPTION)
-        }
-    }
-
-    private fun fireKeyStoreSelected(requestCode: Int, @KeyLocationPolicy policy: Int) {
-        when (requestCode) {
-            REQUEST_CODE_ENABLE_ENCRYPTION -> onEnableEncryptionKeyStoreSelected(policy)
-            REQUEST_CODE_KEY_EXCHANGE -> KeyExchangeService.initiateKeyExchangeSession(
-                applicationContext,
-                messagesOwnerId,
-                peerId,
-                policy
-            )
-        }
-    }
-
-    fun fireDiskKeyStoreSelected(requestCode: Int) {
-        fireKeyStoreSelected(requestCode, KeyLocationPolicy.PERSIST)
-    }
-
-    fun fireRamKeyStoreSelected(requestCode: Int) {
-        fireKeyStoreSelected(requestCode, KeyLocationPolicy.RAM)
-    }
-
-    private fun onEnableEncryptionKeyStoreSelected(@KeyLocationPolicy policy: Int) {
-        appendJob(
-            Stores.instance
-                .keys(policy)
-                .getKeys(messagesOwnerId, peerId)
-                .fromIOToMain(
-                    { aesKeyPairs -> fireEncryptionEnableClick(policy, aesKeyPairs) },
-                    { logThrowable("ChatPresenter", it) })
-        )
-    }
-
-    private fun fireEncryptionEnableClick(@KeyLocationPolicy policy: Int, pairs: List<AesKeyPair>) {
-        if (pairs.isEmpty()) {
-            view?.displayInitiateKeyExchangeQuestion(policy)
-        } else {
-            Settings.get().security().enableMessageEncryption(messagesOwnerId, peerId, policy)
-            resolveOptionMenu()
-        }
-    }
-
-    fun fireInitiateKeyExchangeClick(@KeyLocationPolicy policy: Int) {
-        KeyExchangeService.initiateKeyExchangeSession(App.instance, messagesOwnerId, peerId, policy)
     }
 
     override fun saveState(outState: Bundle) {
@@ -2535,34 +2437,11 @@ class ChatPresenter(
         sendMessage(builder)
     }
 
-    fun fireKeyExchangeClick() {
-        if (!Settings.get().security().isKeyEncryptionPolicyAccepted) {
-            view?.showEncryptionDisclaimerDialog(REQUEST_CODE_KEY_EXCHANGE)
-            return
-        }
-
-        if (isEncryptionSupport) {
-            view?.showEncryptionKeysPolicyChooseDialog(REQUEST_CODE_KEY_EXCHANGE)
-        }
-    }
-
     fun fireGenerateInviteLink() {
         netLoadingDisposable += utilsInteractor.getInviteLink(accountId, peerId, 0)
             .fromIOToMain({
                 it.link?.let { it1 -> view?.copyToClipBoard(it1) }
             }, { onConversationFetchFail(it) })
-    }
-
-    fun fireTermsOfUseAcceptClick(requestCode: Int) {
-        Settings.get().security().isKeyEncryptionPolicyAccepted = true
-
-        when (requestCode) {
-            REQUEST_CODE_KEY_EXCHANGE -> if (isEncryptionSupport) {
-                view?.showEncryptionKeysPolicyChooseDialog(REQUEST_CODE_KEY_EXCHANGE)
-            }
-
-            REQUEST_CODE_ENABLE_ENCRYPTION -> onEncryptionToggleClick()
-        }
     }
 
     fun fireSendClickFromAttachments() {
@@ -2932,8 +2811,5 @@ class ChatPresenter(
         private const val SAVE_DRAFT_MESSAGE_ID = "save_draft_message_id"
         private const val SAVE_CONFIG = "save_config"
         private const val SAVE_CAMERA_FILE_URI = "save_camera_file_uri"
-
-        private const val REQUEST_CODE_ENABLE_ENCRYPTION = 1
-        private const val REQUEST_CODE_KEY_EXCHANGE = 2
     }
 }

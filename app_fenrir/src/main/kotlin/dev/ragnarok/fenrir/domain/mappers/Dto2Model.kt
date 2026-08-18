@@ -51,8 +51,6 @@ import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
 import dev.ragnarok.fenrir.api.util.VKStringUtils.unescape
-import dev.ragnarok.fenrir.crypt.CryptHelper.analizeMessageBody
-import dev.ragnarok.fenrir.crypt.MessageType
 import dev.ragnarok.fenrir.db.model.entity.PostDboEntity
 import dev.ragnarok.fenrir.domain.mappers.MapUtil.calculateConversationAcl
 import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAll
@@ -68,7 +66,6 @@ import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Conversation
-import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.Document.VideoPreview
@@ -542,7 +539,6 @@ object Dto2Model {
     }
 
     fun transform(aid: Long, message: VKApiMessage, owners: IOwnersBundle): Message {
-        val encrypted = analizeMessageBody(message.text) == MessageType.CRYPTED
         val appMessage = Message(message.id)
             .setAccountId(aid)
             .setText(message.text) //.setTitle(message.title)
@@ -556,7 +552,6 @@ object Dto2Model {
             .setDeleted(message.deleted)
             .setDeletedForAll(false) // cant be deleted from api?
             .setOriginalId(message.id)
-            .setCryptStatus(if (encrypted) CryptStatus.ENCRYPTED else CryptStatus.NO_ENCRYPTION)
             .setImportant(message.important)
             .setAction(Message.fromApiChatAction(message.action))
             .setActionMid(message.action_mid)

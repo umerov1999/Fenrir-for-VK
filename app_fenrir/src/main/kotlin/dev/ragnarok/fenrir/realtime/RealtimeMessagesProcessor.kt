@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.Includes.stores
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate
-import dev.ragnarok.fenrir.crypt.KeyExchangeService
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.IOwnersRepository
@@ -228,29 +227,15 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                 .messages()
                 .getById(needGetFromNet)
                 .map { result.appendDtos(it) }
+        }.flatMapConcat { s ->
+            if (s.data.isEmpty()) {
+                toFlow(s)
+            } else {
+                identifyMissingObjectsGetAndStore(s)
+                    .andThen(toFlow(s)) // сохраняем сообщения в локальную базу и получаем оттуда "тяжелые" обьекты сообщений
+                    .flatMapConcat(storeToCacheAndReturn())
+            }
         }
-            .map { s ->
-                // отсеиваем сообщения, которые имеют отношение к обмену ключами
-                removeIf(
-                    s.data
-                ) {
-                    KeyExchangeService.intercept(
-                        app,
-                        s.accountId,
-                        it.dto
-                    )
-                }
-                s
-            }
-            .flatMapConcat { s ->
-                if (s.data.isEmpty()) {
-                    toFlow(s)
-                } else {
-                    identifyMissingObjectsGetAndStore(s)
-                        .andThen(toFlow(s)) // сохраняем сообщения в локальную базу и получаем оттуда "тяжелые" обьекты сообщений
-                        .flatMapConcat(storeToCacheAndReturn())
-                }
-            }
     }
 
     private fun storeToCacheAndReturn(): suspend (TmpResult) -> Flow<TmpResult> = { result ->

@@ -18,6 +18,5 @@
         app:itemIconTint="@color/selector_bottom_navigation"
         app:itemPaddingBottom="2dp"
         app:itemPaddingTop="2dp"
-        app:labelVisibilityMode="unlabeled"
-        app:menu="@menu/menu_main" />
+        app:labelVisibilityMode="unlabeled" />
 </LinearLayout>

@@ -156,7 +156,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
     }
 
     private fun findNextValidHashTagChar(text: CharSequence, start: Int): Int {
-        var nonLetterDigitCharIndex = -1 // skip first sign '#"
+        var nonLetterDigitCharIndex = -1 // skip first sign '#'
         for (index in start + 1 until text.length) {
             val sign = text[index]
             val isValidSign =
@@ -401,8 +401,8 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
         return flow {
             var needRefreshText = textWithLink is Spannable
             val spannable = SpannableStringBuilder.valueOf(textWithLink)
-            if (mDisplayHashTags) {
-                needRefreshText = setColorsToAllHashTags(spannable)
+            if (mDisplayHashTags && setColorsToAllHashTags(spannable)) {
+                needRefreshText = true
             }
             try {
                 val res = PHONE_NUMBER_PATTERN.findAll(spannable)

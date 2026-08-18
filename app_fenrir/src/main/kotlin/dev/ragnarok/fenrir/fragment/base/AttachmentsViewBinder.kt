@@ -35,7 +35,6 @@ import dev.ragnarok.fenrir.model.Attachments
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.AudioArtist
 import dev.ragnarok.fenrir.model.AudioPlaylist
-import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.Event
 import dev.ragnarok.fenrir.model.Geo
@@ -560,7 +559,7 @@ class AttachmentsViewBinder(
             val tvBody = itemView.findViewById<LinkHelperTextView>(R.id.item_fwd_message_text)
             tvBody.precompute(
                 OwnerLinkSpanFactory.withSpans(
-                    if (message.cryptStatus == CryptStatus.DECRYPTED) message.decryptedText else message.text,
+                    message.text,
                     owners = true,
                     topics = false,
                     listener = mLinkActionAdapter

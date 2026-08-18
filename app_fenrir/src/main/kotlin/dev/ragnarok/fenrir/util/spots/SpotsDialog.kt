@@ -62,7 +62,7 @@ class SpotsDialog internal constructor(
 
     private fun initMessage() {
         if (message.nonNullNoEmpty()) {
-            findViewById<MaterialTextView?>(R.id.dmax_spots_title)?.text = message
+            findViewById<MaterialTextView>(R.id.dmax_spots_title)?.text = message
         }
     }
 

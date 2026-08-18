@@ -919,13 +919,6 @@
         <item name="bottomSheetDialogTheme">@style/CustomBottomSheetDialog</item>
     </style>
 
-    <style name="MyTransparentDialog.Amoled" parent="MyTransparentDialog" />
-
-    <style name="MyTransparentDialog.MD1" parent="MyTransparentDialog">
-        <item name="materialCardStyle">@style/CardViewMD</item>
-        <item name="materialCardBackgroundStyle">@drawable/background_rectangle_filled</item>
-    </style>
-
     <style name="Theme.Toolbar.Surface" parent="ThemeOverlay.Material3Expressive.Toolbar.Surface">
         <!--        <item name="android:tint">?colorOnSurface</item>-->
         <item name="toolbarNavigationButtonStyle">@style/Toolbar.Button.Navigation.Tinted</item>

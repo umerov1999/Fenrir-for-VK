@@ -1525,6 +1525,15 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
 
+            pref(KEY_BOTTOM_DRAWER_ITEMS) {
+                summaryRes = R.string.bottom_drawer_categories_summary
+                titleRes = R.string.bottom_drawer_categories_title
+                onClick {
+                    PlaceFactory.bottomDrawerEditPlace.tryOpenWith(requireActivity())
+                    true
+                }
+            }
+
             switch("show_recent_dialogs") {
                 defaultValue = true
                 titleRes = R.string.show_recent_dialogs
@@ -1559,7 +1568,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
             pref(KEY_SIDE_DRAWER_ITEMS) {
                 dependency = "is_side_navigation"
-                summaryRes = R.string.drawer_categories_summary
+                summaryRes = R.string.side_drawer_categories_summary
                 titleRes = R.string.side_drawer_categories_title
                 onClick {
                     PlaceFactory.sideDrawerEditPlace.tryOpenWith(requireActivity())
@@ -2910,6 +2919,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         private const val KEY_SECURITY = "security"
         private const val KEY_DRAWER_ITEMS = "drawer_categories"
         private const val KEY_SIDE_DRAWER_ITEMS = "side_drawer_categories"
+        private const val KEY_BOTTOM_DRAWER_ITEMS = "bottom_drawer_categories"
 
 
         fun buildArgs(accountId: Long): Bundle {

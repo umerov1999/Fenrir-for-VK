@@ -5,7 +5,7 @@ object Constants {
     const val AUTH_API_VERSION = API_VERSION
     const val OLD_API_FOR_AUDIO_VERSION = "5.90"
 
-    const val DATABASE_FENRIR_VERSION = 46
+    const val DATABASE_FENRIR_VERSION = 47
     const val DATABASE_TEMPORARY_VERSION = 14
     const val EXPORT_SETTINGS_FORMAT = 1
     const val forceDeveloperMode: Boolean = BuildConfig.FORCE_DEVELOPER_MODE
@@ -16,9 +16,9 @@ object Constants {
     const val FILE_PROVIDER_AUTHORITY: String = "${BuildConfig.APPLICATION_ID}.file_provider"
     const val VK_ANDROID_APP_VERSION_NAME = "8.15"
     const val VK_ANDROID_APP_VERSION_CODE = 15271
-    const val AUTH_VK_ANDROID_APP_VERSION_NAME = "8.189"
-    const val AUTH_VK_ANDROID_APP_VERSION_CODE = 56343
-    const val VK_ANDROID_APP_SAK_VERSION = "13.1.1"
+    const val AUTH_VK_ANDROID_APP_VERSION_NAME = "8.191"
+    const val AUTH_VK_ANDROID_APP_VERSION_CODE = 56796
+    const val VK_ANDROID_APP_SAK_VERSION = "15.0.2"
     const val KATE_APP_VERSION_NAME = "129 lite"
     const val KATE_APP_VERSION_CODE = 604
 

@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.db.column.CommentsColumns
 import dev.ragnarok.fenrir.db.column.CountriesColumns
 import dev.ragnarok.fenrir.db.column.DialogsColumns
 import dev.ragnarok.fenrir.db.column.DocsColumns
-import dev.ragnarok.fenrir.db.column.EncryptionKeysForMessagesColumns
 import dev.ragnarok.fenrir.db.column.FaveArticlesColumns
 import dev.ragnarok.fenrir.db.column.FaveLinksColumns
 import dev.ragnarok.fenrir.db.column.FavePagesColumns
@@ -116,7 +115,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
         createFavePostsTable(db)
         createCountriesTable(db)
         createFriendListsTable(db)
-        createKeysTableIfNotExist(db)
 
         createZeroMessageProtectionTriggers(db)
         //createAttachmentsTriggers(db)
@@ -164,22 +162,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
             execSQL("DROP TABLE IF EXISTS " + CountriesColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + FriendListsColumns.TABLENAME)
         }
-    }
-
-    private fun createKeysTableIfNotExist(db: SQLiteDatabase) {
-        val sql =
-            "CREATE TABLE IF NOT EXISTS [" + EncryptionKeysForMessagesColumns.TABLENAME + "] (\n" +
-                    " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    " [" + EncryptionKeysForMessagesColumns.VERSION + "] INTEGER, " +
-                    " [" + EncryptionKeysForMessagesColumns.PEER_ID + "] INTEGER, " +
-                    " [" + EncryptionKeysForMessagesColumns.SESSION_ID + "] INTEGER, " +
-                    " [" + EncryptionKeysForMessagesColumns.DATE + "] INTEGER, " +
-                    " [" + EncryptionKeysForMessagesColumns.START_SESSION_MESSAGE_ID + "] INTEGER, " +
-                    " [" + EncryptionKeysForMessagesColumns.END_SESSION_MESSAGE_ID + "] INTEGER, " +
-                    " [" + EncryptionKeysForMessagesColumns.OUT_KEY + "] TEXT, " +
-                    " [" + EncryptionKeysForMessagesColumns.IN_KEY + "] TEXT," +
-                    " CONSTRAINT [] UNIQUE ([" + EncryptionKeysForMessagesColumns.SESSION_ID + "]) ON CONFLICT REPLACE);"
-        db.execSQL(sql)
     }
 
     private fun createZeroMessageProtectionTriggers(db: SQLiteDatabase) {
@@ -461,7 +443,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.DATE + "] INTEGER, " +
                 " [" + MessagesColumns.UPDATE_TIME + "] INTEGER, " +
                 " [" + MessagesColumns.OUT + "] BOOLEAN, " +
-                " [" + MessagesColumns.ENCRYPTED + "] BOOLEAN, " +
                 " [" + MessagesColumns.DELETED + "] BOOLEAN, " +
                 " [" + MessagesColumns.DELETED_FOR_ALL + "] BOOLEAN, " +
                 " [" + MessagesColumns.IMPORTANT + "] BOOLEAN, " +

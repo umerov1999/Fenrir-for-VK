@@ -3617,19 +3617,17 @@ void InterpolateRow_NEON(uint8_t* dst_ptr,
       "dup         v5.16b, %w4                   \n"
       "dup         v4.16b, %w5                   \n"
       // General purpose row blend.
-      "1:          \n"
+      "1:                                        \n"
       "ld1         {v0.16b}, [%1], #16           \n"
       "ld1         {v1.16b}, [%2], #16           \n"
       "subs        %w3, %w3, #16                 \n"
       "umull       v2.8h, v0.8b,  v4.8b          \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
       "umull2      v3.8h, v0.16b, v4.16b         \n"
-      "prfm        pldl1keep, [%2, 448]          \n"
       "umlal       v2.8h, v1.8b,  v5.8b          \n"
       "umlal2      v3.8h, v1.16b, v5.16b         \n"
       "rshrn       v0.8b,  v2.8h, #8             \n"
-      "rshrn2      v0.16b, v3.8h, #8             \n"
-      "st1         {v0.16b}, [%0], #16           \n"
+      "rshrn       v1.8b,  v3.8h, #8             \n"
+      "stp         d0, d1, [%0], #16             \n"
       "b.gt        1b                            \n"
       "b           99f                           \n"
 
@@ -3638,9 +3636,7 @@ void InterpolateRow_NEON(uint8_t* dst_ptr,
       "ld1         {v0.16b}, [%1], #16           \n"
       "ld1         {v1.16b}, [%2], #16           \n"
       "subs        %w3, %w3, #16                 \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
       "urhadd      v0.16b, v0.16b, v1.16b        \n"
-      "prfm        pldl1keep, [%2, 448]          \n"
       "st1         {v0.16b}, [%0], #16           \n"
       "b.gt        50b                           \n"
       "b           99f                           \n"
@@ -3649,7 +3645,6 @@ void InterpolateRow_NEON(uint8_t* dst_ptr,
       "100:        \n"
       "ld1         {v0.16b}, [%1], #16           \n"
       "subs        %w3, %w3, #16                 \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
       "st1         {v0.16b}, [%0], #16           \n"
       "b.gt        100b                          \n"
 
@@ -3660,7 +3655,7 @@ void InterpolateRow_NEON(uint8_t* dst_ptr,
         "+r"(dst_width)    // %3
       : "r"(y1_fraction),  // %4
         "r"(y0_fraction)   // %5
-      : "cc", "memory", "v0", "v1", "v3", "v4", "v5");
+      : "cc", "memory", "v0", "v1", "v2", "v3", "v4", "v5");
 }
 
 // Bilinear filter 8x2 -> 8x1
@@ -3681,21 +3676,44 @@ void InterpolateRow_16_NEON(uint16_t* dst_ptr,
 
       "dup         v5.8h, %w4                    \n"
       "dup         v4.8h, %w5                    \n"
-      // General purpose row blend.
-      "1:          \n"
-      "ld1         {v0.8h}, [%1], #16            \n"
-      "ld1         {v1.8h}, [%2], #16            \n"
-      "subs        %w3, %w3, #8                  \n"
-      "umull       v2.4s, v0.4h, v4.4h           \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
-      "umull2      v3.4s, v0.8h, v4.8h           \n"
-      "prfm        pldl1keep, [%2, 448]          \n"
-      "umlal       v2.4s, v1.4h, v5.4h           \n"
-      "umlal2      v3.4s, v1.8h, v5.8h           \n"
-      "rshrn       v0.4h, v2.4s, #8              \n"
-      "rshrn2      v0.8h, v3.4s, #8              \n"
-      "st1         {v0.8h}, [%0], #16            \n"
-      "b.gt        1b                            \n"
+      "subs        %w3, %w3, #16                 \n"
+      "b.lt        2f                            \n"
+
+      // 16-element unrolled loop (32 bytes).
+      "1:                                        \n"
+      "ldp         q0, q1, [%1], #32             \n"
+      "ldp         q6, q7, [%2], #32             \n"
+      "subs        %w3, %w3, #16                 \n"
+      "umull       v16.4s, v0.4h, v4.4h          \n"
+      "umull2      v17.4s, v0.8h, v4.8h          \n"
+      "umull       v18.4s, v1.4h, v4.4h          \n"
+      "umull2      v19.4s, v1.8h, v4.8h          \n"
+      "umlal       v16.4s, v6.4h, v5.4h          \n"
+      "umlal2      v17.4s, v6.8h, v5.8h          \n"
+      "umlal       v18.4s, v7.4h, v5.4h          \n"
+      "umlal2      v19.4s, v7.8h, v5.8h          \n"
+      "rshrn       v0.4h, v16.4s, #8             \n"
+      "rshrn       v1.4h, v17.4s, #8             \n"
+      "rshrn       v2.4h, v18.4s, #8             \n"
+      "rshrn       v3.4h, v19.4s, #8             \n"
+      "stp         d0, d1, [%0], #16             \n"
+      "stp         d2, d3, [%0], #16             \n"
+      "b.ge        1b                            \n"
+
+      "2:                                        \n"
+      "adds        %w3, %w3, #16                 \n"
+      "b.eq        99f                           \n"
+
+      // 8-element tail (16 bytes).
+      "ld1         {v0.8h}, [%1]                 \n"
+      "ld1         {v1.8h}, [%2]                 \n"
+      "umull       v16.4s, v0.4h, v4.4h          \n"
+      "umull2      v17.4s, v0.8h, v4.8h          \n"
+      "umlal       v16.4s, v1.4h, v5.4h          \n"
+      "umlal2      v17.4s, v1.8h, v5.8h          \n"
+      "rshrn       v0.4h, v16.4s, #8             \n"
+      "rshrn       v1.4h, v17.4s, #8             \n"
+      "stp         d0, d1, [%0]                  \n"
       "b           99f                           \n"
 
       // Blend 50 / 50.
@@ -3703,9 +3721,7 @@ void InterpolateRow_16_NEON(uint16_t* dst_ptr,
       "ld1         {v0.8h}, [%1], #16            \n"
       "ld1         {v1.8h}, [%2], #16            \n"
       "subs        %w3, %w3, #8                  \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
       "urhadd      v0.8h, v0.8h, v1.8h           \n"
-      "prfm        pldl1keep, [%2, 448]          \n"
       "st1         {v0.8h}, [%0], #16            \n"
       "b.gt        50b                           \n"
       "b           99f                           \n"
@@ -3714,7 +3730,6 @@ void InterpolateRow_16_NEON(uint16_t* dst_ptr,
       "100:        \n"
       "ld1         {v0.8h}, [%1], #16            \n"
       "subs        %w3, %w3, #8                  \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
       "st1         {v0.8h}, [%0], #16            \n"
       "b.gt        100b                          \n"
 
@@ -3725,87 +3740,8 @@ void InterpolateRow_16_NEON(uint16_t* dst_ptr,
         "+r"(dst_width)    // %3
       : "r"(y1_fraction),  // %4
         "r"(y0_fraction)   // %5
-      : "cc", "memory", "v0", "v1", "v2", "v3", "v4", "v5");
-}
-
-// Bilinear filter 8x2 -> 8x1
-// Use scale to convert lsb formats to msb, depending how many bits there are:
-// 32768 = 9 bits
-// 16384 = 10 bits
-// 4096 = 12 bits
-// 256 = 16 bits
-void InterpolateRow_16To8_NEON(uint8_t* dst_ptr,
-                               const uint16_t* src_ptr,
-                               ptrdiff_t src_stride,
-                               int scale,
-                               int dst_width,
-                               int source_y_fraction) {
-  const int y1_fraction = source_y_fraction;
-  const int y0_fraction = 256 - y1_fraction;
-  const uint16_t* src_ptr1 = src_ptr + src_stride;
-  const int shift = 15 - __builtin_clz((int32_t)scale);  // Negative shl is shr
-
-  asm volatile(
-      "dup         v6.8h, %w6                    \n"
-      "cmp         %w4, #0                       \n"
-      "b.eq        100f                          \n"
-      "cmp         %w4, #128                     \n"
-      "b.eq        50f                           \n"
-
-      "dup         v5.8h, %w4                    \n"
-      "dup         v4.8h, %w5                    \n"
-      // General purpose row blend.
-      "1:          \n"
-      "ld1         {v0.8h}, [%1], #16            \n"
-      "ld1         {v1.8h}, [%2], #16            \n"
-      "subs        %w3, %w3, #8                  \n"
-      "umull       v2.4s, v0.4h, v4.4h           \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
-      "umull2      v3.4s, v0.8h, v4.8h           \n"
-      "prfm        pldl1keep, [%2, 448]          \n"
-      "umlal       v2.4s, v1.4h, v5.4h           \n"
-      "umlal2      v3.4s, v1.8h, v5.8h           \n"
-      "rshrn       v0.4h, v2.4s, #8              \n"
-      "rshrn2      v0.8h, v3.4s, #8              \n"
-      "ushl        v0.8h, v0.8h, v6.8h           \n"
-      "uqxtn       v0.8b, v0.8h                  \n"
-      "st1         {v0.8b}, [%0], #8             \n"
-      "b.gt        1b                            \n"
-      "b           99f                           \n"
-
-      // Blend 50 / 50.
-      "50:         \n"
-      "ld1         {v0.8h}, [%1], #16            \n"
-      "ld1         {v1.8h}, [%2], #16            \n"
-      "subs        %w3, %w3, #8                  \n"
-      "prfm        pldl1keep, [%1, 448]          \n"
-      "urhadd      v0.8h, v0.8h, v1.8h           \n"
-      "prfm        pldl1keep, [%2, 448]          \n"
-      "ushl        v0.8h, v0.8h, v6.8h           \n"
-      "uqxtn       v0.8b, v0.8h                  \n"
-      "st1         {v0.8b}, [%0], #8             \n"
-      "b.gt        50b                           \n"
-      "b           99f                           \n"
-
-      // Blend 100 / 0 - Copy row unchanged.
-      "100:        \n"
-      "ldr         q0, [%1], #16                 \n"
-      "ushl        v0.8h, v0.8h, v2.8h           \n"  // shr = v2 is negative
-      "prfm        pldl1keep, [%1, 448]          \n"
-      "uqxtn       v0.8b, v0.8h                  \n"
-      "subs        %w3, %w3, #8                  \n"  // 8 src pixels per loop
-      "str         d0, [%0], #8                  \n"  // store 8 pixels
-      "b.gt        100b                          \n"
-
-      "99:         \n"
-      : "+r"(dst_ptr),     // %0
-        "+r"(src_ptr),     // %1
-        "+r"(src_ptr1),    // %2
-        "+r"(dst_width)    // %3
-      : "r"(y1_fraction),  // %4
-        "r"(y0_fraction),  // %5
-        "r"(shift)         // %6
-      : "cc", "memory", "v0", "v1", "v2", "v3", "v4", "v5", "v6");
+      : "cc", "memory", "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v16",
+        "v17", "v18", "v19");
 }
 
 // dr * (256 - sa) / 256 + sr = dr - dr * sa / 256 + sr
@@ -5167,6 +5103,69 @@ void Convert16To8Row_NEON(const uint16_t* src_y,
         "+r"(width)   // %2
       : "r"(shift)    // %3
       : "cc", "memory", "v0", "v1", "v2");
+}
+
+void HalfRow_16To8_NEON(const uint16_t* src_uv,
+                        ptrdiff_t src_uv_stride,
+                        uint8_t* dst_uv,
+                        int scale,
+                        int width) {
+  const uint16_t* src_uv1 = src_uv + src_uv_stride;
+  const int shift = 23 - __builtin_clz((int32_t)scale);
+  asm volatile(
+      "dup         v4.8h, %w4                    \n"
+      "1:          \n"
+      "ldp         q0, q1, [%0], #32             \n"
+      "ldp         q2, q3, [%1], #32             \n"
+      "subs        %w3, %w3, #16                 \n"
+      "urhadd      v0.8h, v0.8h, v2.8h           \n"
+      "urhadd      v1.8h, v1.8h, v3.8h           \n"
+      "prfm        pldl1keep, [%0, 448]          \n"
+      "prfm        pldl1keep, [%1, 448]          \n"
+      "uqshl       v0.8h, v0.8h, v4.8h           \n"
+      "uqshl       v1.8h, v1.8h, v4.8h           \n"
+      "uzp2        v0.16b, v0.16b, v1.16b        \n"
+      "str         q0, [%2], #16                 \n"
+      "b.gt        1b                            \n"
+      : "+r"(src_uv),   // %0
+        "+r"(src_uv1),  // %1
+        "+r"(dst_uv),   // %2
+        "+r"(width)     // %3
+      : "r"(shift)      // %4
+      : "cc", "memory", "v0", "v1", "v2", "v3", "v4");
+}
+
+void HalfWidthRow_16To8_NEON(const uint16_t* src_uv,
+                             ptrdiff_t src_uv_stride,
+                             uint8_t* dst_uv,
+                             int scale,
+                             int width) {
+  const uint16_t* src_uv1 = src_uv + src_uv_stride;
+  const int shift = 23 - __builtin_clz((int32_t)scale);
+  asm volatile(
+      "dup         v4.8h, %w4                    \n"
+      "1:          \n"
+      "ldp         q0, q1, [%0], #32             \n"
+      "ldp         q2, q3, [%1], #32             \n"
+      "subs        %w3, %w3, #8                  \n"
+      "uaddlp      v0.4s, v0.8h                  \n"
+      "uaddlp      v1.4s, v1.8h                  \n"
+      "prfm        pldl1keep, [%0, 448]          \n"
+      "uadalp      v0.4s, v2.8h                  \n"
+      "uadalp      v1.4s, v3.8h                  \n"
+      "prfm        pldl1keep, [%1, 448]          \n"
+      "rshrn       v0.4h, v0.4s, #2              \n"
+      "rshrn2      v0.8h, v1.4s, #2              \n"
+      "uqshl       v0.8h, v0.8h, v4.8h           \n"
+      "uzp2        v0.16b, v0.16b, v0.16b        \n"
+      "str         d0, [%2], #8                  \n"
+      "b.gt        1b                            \n"
+      : "+r"(src_uv),   // %0
+        "+r"(src_uv1),  // %1
+        "+r"(dst_uv),   // %2
+        "+r"(width)     // %3
+      : "r"(shift)      // %4
+      : "cc", "memory", "v0", "v1", "v2", "v3", "v4");
 }
 
 // Use scale to convert J420 to I420

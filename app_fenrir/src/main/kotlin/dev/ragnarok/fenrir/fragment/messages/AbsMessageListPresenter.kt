@@ -187,8 +187,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
         val result = StringBuilder()
         var firstTime = true
         for (message in selected) {
-            val body =
-                if (message.decryptedText.isNullOrEmpty()) message.text else message.decryptedText
+            val body = message.text
             result.append(if (!firstTime) "\n" else "")
             result.append(body)
             if (message.isVoiceMessage) {

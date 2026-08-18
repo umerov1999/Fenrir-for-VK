@@ -313,7 +313,10 @@
 
     <string name="drawer_categories_title">Элементы всплывающего меню</string>
     <string name="side_drawer_categories_title">Элементы бокового меню</string>
-    <string name="drawer_categories_summary">Выберите элементы, которые будут отображаться в главном меню приложения</string>
+    <string name="bottom_drawer_categories_title">Элементы панели навигации</string>
+    <string name="drawer_categories_summary">Выберите элементы, которые будут отображаться во всплывающем меню приложения</string>
+    <string name="side_drawer_categories_summary">Выберите элементы, которые будут отображаться в боковом меню приложения</string>
+    <string name="bottom_drawer_categories_summary">Выберите элементы, которые будут отображаться в панели навигации приложения</string>
 
     <string name="add_vote">Голосовать</string>
     <string name="remove_vote">Удалить голос</string>
@@ -912,18 +915,12 @@
     <string name="show_photo">Показать фото</string>
     <string name="show_video">Показать видео</string>
     <string name="choose_action">Действия</string>
-    <string name="apply">Принять</string>
     <string name="create_pin_code_title">Создайте PIN-код</string>
     <string name="entered_pin_codes_do_not_match">Введенные PIN-коды не совпадают</string>
-    <string name="key_exchange">Обмен ключами</string>
-    <string name="key_exchange_content_text">Происходит обмен ключами с %1$s</string>
-    <string name="key_exchange_request">Запрос на обмен ключами</string>
-    <string name="key_exchange_request_content_text">%1$s запрашивает разрешение на обмен ключами шифрования</string>
     <string name="limit_exceeded_number_of_attempts_message">Превышен лимит попыток ввода</string>
     <string name="not_yet_implemented_message">Ещё не реализовано!</string>
     <string name="pin_is_invalid_message">Неверный PIN-код</string>
     <string name="repeat_pin_code_title">Повторите PIN-код</string>
-    <string name="session_already_created">Сессия уже активна</string>
     <string name="use_pin_title">Используйте PIN-код или отпечаток пальца</string>
     <string name="button_2_desc">АБВ</string>
     <string name="button_3_desc">ГДЕ</string>
@@ -933,63 +930,15 @@
     <string name="button_7_desc">РСТУ</string>
     <string name="button_8_desc">ФХЦ</string>
     <string name="button_9_desc">ЧШЭЮ</string>
-    <string name="key_exchange_failed">Обмен ключами не удался</string>
-    <string name="you_have_successfully_exchanged_keys">Вы успешно обменялись ключами, теперь можете включить шифрование сообщений</string>
-    <string name="encryption_status">Статус шифрования</string>
-    <string name="no_encryption_keys">Нет ключей шифрования</string>
-    <string name="you_dont_have_encryption_keys_stored_initiate_key_exchange">У Вас нет сохраненных ключей шифрования. Инициировать обмен ключами?</string>
     <string name="counter_documents">документы</string>
     <string name="ask_for_pin_on_application_start_title">PIN-код при старте</string>
     <string name="ask_for_pin_on_application_start_summary">Запрашивать PIN-код при старте приложения</string>
     <string name="delayed_pin_for_entrance_title">Не запрашивать каждый раз</string>
     <string name="delayed_pin_for_entrance_summary">Запрашивать PIN-код только после 10 мин</string>
-    <string name="you_have_received_request_for_key_exchange_from">Вы получили запрос на обмен ключами шифрования от</string>
     <string name="use_pin_for_security_title">Использовать PIN-код</string>
     <string name="security">Безопасность</string>
     <string name="change_pin_title">Изменить PIN-код</string>
-    <string name="button_decline">Отклонить</string>
-    <string name="button_accept">Принять</string>
     <string name="accepted_friend_request">принял заявку в друзья</string>
-
-    <string name="encryption_terms_of_use">
-        УСЛОВИЯ ИСПОЛЬЗОВАНИЯ
-        \n
-        \n1. ФУНКЦИОНАЛЬНЫЕ ОСОБЕННОСТИ
-        \n1.1. Опция подразумевает шифрование исключительно текста сообщений, защита вложений не реализована.
-        \n1.2. Опция недоступна для групповых бесед или диалогов с сообществами.
-        \n1.3. Для того, чтобы начать обмен шифрованными сообщениями, собеседники должны пройти процедуру обмена ключами.
-        \n1.4. Сообщения могут быть расшифрованы только на том устройстве, которое участвовало в процедуре обмена конкретной парой ключей, на других устройствах, в других приложениях или браузере пользователь не сможет прочитать оригинальный текст сообщений.
-        \n
-        \n2. ОБМЕН КЛЮЧАМИ ШИФРОВАНИЯ
-        \n2.1. Для передачи ключей приложением будет отправлено несколько служебных сообщений непосредственно в диалог.
-        \n2.2. Компрометация служебных сообщений не несет угрозы для безопасности, они выполняют исключительно транспортную роль и не содержат ключей шифрования в открытом виде.
-        \n2.3. Удаление служебных сообщений из диалога никак не повлияет на функционал шифрования.
-        \n2.4. Обмен ключами может быть выполнен повторно бесконечное количество раз, при этом новые сообщения будут зашифрованы новыми ключами, а старые по прежнему могут быть расшифрованы старыми.
-        \n
-        \n3. ХРАНЕНИЕ КЛЮЧЕЙ
-        \n3.1. Ключи шифрования хранятся локально на устройствах собеседников в постоянной или оперативной памяти (в зависимости от выбранного режима).
-        \n3.2. В случае утери ключей шифрования пользователь не сможет прочитать зашифрованные входящие и исходящие сообщения.
-        \n3.3. Пользователь потеряет ключи шифрования в следующих случаях:
-        \n- удаление приложения с устройства;
-        \n- очистка данных приложения;
-        \n- после использования опции “Удалить ключи” в настройках приложения;
-        \n- после закрытия приложения (только для режима хранения ключей в оперативной памяти);
-        \n- при удалении аккаунта из приложения.
-        \n
-        \n4. ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ
-        \n4.1. Разработчики приложения Fenrir не несут ответственности за потерю данных пользователя в случае утери им ключей шифрования или неправильного использования данной опции.</string>
-    <string name="choose_location_key_store">Выбери место хранения ключей</string>
-    <string name="clear_storage_of_encryption_keys">Очистить хранилище ключей шифрования</string>
-    <string name="delete_keys">Удалить ключи</string>
-    <string name="encryption_terms_of_use_title">Условия использования</string>
-    <string name="for_all_accounts">Для всех учетных записей</string>
-    <string name="for_the_current_account">Для текущей учетной записи</string>
-    <string name="fenrir_encryption">Шифрование Fenrir</string>
-    <string name="secured_messages">Защищенные сообщения</string>
-    <string name="store_in_ram">Хранить в оперативной памяти</string>
-    <string name="store_in_ram_summary">Ключи шифрования будут помещены в оперативную память. ВАЖНО. После закрытия приложения Вы навсегда потеряете эти ключи и не сможете расшифровать входящие и исходящие сообщения.</string>
-    <string name="store_on_disk">Сохранить на диск (рекомендуется)</string>
-    <string name="store_on_disk_summary">Ключи шифрования будут сохранены в постоянной памяти устройства.</string>
     <string name="for_topic">В обсуждении</string>
     <string name="reached_maximum_count_of_attachments">Достигнуто максимальное количество вложений</string>
     <string name="select">Выберите вариант ответа</string>
@@ -1193,6 +1142,8 @@
     <string name="button_login_via_web">Через Web</string>
     <string name="button_login">Войти</string>
     <string name="drawer_edit_title">Всплывающее меню</string>
+    <string name="side_drawer_edit_title">Боковое меню</string>
+    <string name="bottom_drawer_edit_title">Панель навигации</string>
     <string name="theme_edit_title">Выбор цветового оформления</string>
     <string name="error_not_found_message">Объект не найден</string>
     <string name="vk_servers_error">Сервера ВК упали (HTTP: %1$d)</string>
@@ -1212,9 +1163,6 @@
     <string name="allow_fingerprint_title">Разрешить отпечаток пальца</string>
     <string name="error_login_by_fingerprint_not_allowed">Вход с помощью отпечатка пальца не разрешен</string>
     <string name="birthdays">Дни рождения</string>
-    <string name="error_key_exchange_invalid_session_state">Недопустимый статус сессии. Обмен ключами не удался.</string>
-    <string name="error_key_exchange_cancelled_by_user">Обмен ключами был отменен пользователем</string>
-    <string name="error_key_exchange_session_expired">Сессия уже не активна. Повторите обмен еще раз.</string>
     <string name="last_closed_page">Последняя закрытая</string>
     <string name="open_links_in_app">Открывать ссылки в приложении</string>
     <string name="pause">пауза</string>
@@ -1405,9 +1353,7 @@
     <string name="set_no_hide_dialog">Снять ограничения</string>
     <string name="local_audios">На устройстве</string>
     <string name="not_supported">Не поддерживается</string>
-    <string name="crypt_version">Версия шифрования</string>
     <string name="not_supported_hide">Установите пин-код в настройках!</string>
-    <string name="disable_encryption">Отключить шифрование</string>
     <string name="is_expired">Истекло</string>
     <string name="story">История</string>
     <string name="call">Звонок</string>
@@ -1731,6 +1677,7 @@
     <string name="retry">Повторить</string>
     <string name="video_play_with_external_player">Играть в стороннем плеере</string>
     <string name="next">Далее</string>
+    <string name="bottom_navigation_menu_max_5">Допустимо только 5 элементов!</string>
     <string name="anonym_token_not_valid">Получение анонимного токена было неудачно, перезапустите приложение!</string>
     <string name="auth_validate_method">Метод подтверждения:</string>
     <string name="auth_validate_method_push">Push уведомление (%1$s)</string>

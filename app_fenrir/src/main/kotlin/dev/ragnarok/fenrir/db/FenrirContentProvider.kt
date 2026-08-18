@@ -64,10 +64,8 @@ class FenrirContentProvider : ContentProvider() {
         const val URI_FAVE_ARTICLES = 41
         const val URI_FAVE_PRODUCTS = 42
         const val URI_COUNTRIES = 43
-        const val URI_FEED_OWNERS = 44
-        const val URI_FRIEND_LISTS = 45
-        const val URI_KEYS = 46
-        const val URI_PEERS = 47
+        const val URI_FRIEND_LISTS = 44
+        const val URI_PEERS = 45
 
         // path
         private const val USER_PATH = "users"
@@ -102,7 +100,6 @@ class FenrirContentProvider : ContentProvider() {
         private const val FAVE_POSTS_PATH = "fave_posts"
         private const val COUNTRIES_PATH = "countries"
         private const val FRIEND_LISTS_PATH = "friends_lists"
-        private const val KEYS_PATH = "keys"
 
         // Типы данных
         val USER_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$USER_PATH"
@@ -179,7 +176,6 @@ class FenrirContentProvider : ContentProvider() {
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$COUNTRIES_PATH"
         val FRIEND_LISTS_CONTENT_TYPE =
             "vnd.android.cursor.dir/vnd.$AUTHORITY.$FRIEND_LISTS_PATH"
-        val KEYS_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.$AUTHORITY.$KEYS_PATH"
 
         // описание и создание UriMatcher
         private var sUriMatcher: UriMatcher = UriMatcher(UriMatcher.NO_MATCH)
@@ -236,7 +232,6 @@ class FenrirContentProvider : ContentProvider() {
             "content://$AUTHORITY/$COUNTRIES_PATH".toUri()
         private val FRIEND_LISTS_CONTENT_URI =
             "content://$AUTHORITY/$FRIEND_LISTS_PATH".toUri()
-        private val KEYS_CONTENT_URI = "content://$AUTHORITY/$KEYS_PATH".toUri()
         private const val AID = "aid"
 
         //Setup projection maps
@@ -272,7 +267,6 @@ class FenrirContentProvider : ContentProvider() {
         private val sFaveProductsProjectionMap: MutableMap<String, String>
         private val sCountriesProjectionMap: MutableMap<String, String>
         private val sFriendListsProjectionMap: MutableMap<String, String>
-        private val sKeysProjectionMap: MutableMap<String, String>
 
         /*
         private fun testProjectionMapsArgs(vararg maps: MutableMap<String, String>) {
@@ -324,10 +318,6 @@ class FenrirContentProvider : ContentProvider() {
             )
         }
          */
-
-        fun getKeysContentUriFor(aid: Long): Uri {
-            return appendAccountId(KEYS_CONTENT_URI, aid)
-        }
 
         fun getGroupsDetContentUriFor(aid: Long): Uri {
             return appendAccountId(GROUPS_DET_CONTENT_URI, aid)
@@ -524,7 +514,6 @@ class FenrirContentProvider : ContentProvider() {
             sUriMatcher.addURI(AUTHORITY, FAVE_POSTS_PATH, URI_FAVE_POSTS)
             sUriMatcher.addURI(AUTHORITY, COUNTRIES_PATH, URI_COUNTRIES)
             sUriMatcher.addURI(AUTHORITY, FRIEND_LISTS_PATH, URI_FRIEND_LISTS)
-            sUriMatcher.addURI(AUTHORITY, KEYS_PATH, URI_KEYS)
         }
 
         init {
@@ -657,8 +646,6 @@ class FenrirContentProvider : ContentProvider() {
             //sMessagesProjectionMap.put(MessageColumns.TITLE, MessageColumns.FULL_TITLE);
             sMessagesProjectionMap[MessagesColumns.TEXT] =
                 MessagesColumns.FULL_TEXT
-            sMessagesProjectionMap[MessagesColumns.ENCRYPTED] =
-                MessagesColumns.FULL_ENCRYPTED
             sMessagesProjectionMap[MessagesColumns.DELETED] = MessagesColumns.FULL_DELETED
             sMessagesProjectionMap[MessagesColumns.DELETED_FOR_ALL] =
                 MessagesColumns.FULL_DELETED_FOR_ALL
@@ -810,8 +797,6 @@ class FenrirContentProvider : ContentProvider() {
                 MessagesColumns.FULL_CONVERSATION_MESSAGE_ID + " AS " + DialogsColumns.FOREIGN_MESSAGE_CMID
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_ACTION] =
                 MessagesColumns.FULL_ACTION + " AS " + DialogsColumns.FOREIGN_MESSAGE_ACTION
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_ENCRYPTED] =
-                MessagesColumns.FULL_ENCRYPTED + " AS " + DialogsColumns.FOREIGN_MESSAGE_ENCRYPTED
 
             sPeersProjectionMap = HashMap()
             sPeersProjectionMap[BaseColumns._ID] = PeersColumns.FULL_ID
@@ -1248,25 +1233,6 @@ class FenrirContentProvider : ContentProvider() {
             sFriendListsProjectionMap[FriendListsColumns.NAME] =
                 FriendListsColumns.FULL_NAME
 
-            sKeysProjectionMap = HashMap()
-            sKeysProjectionMap[BaseColumns._ID] = EncryptionKeysForMessagesColumns.FULL_ID
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.VERSION] =
-                EncryptionKeysForMessagesColumns.FULL_VERSION
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.PEER_ID] =
-                EncryptionKeysForMessagesColumns.FULL_PEER_ID
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.SESSION_ID] =
-                EncryptionKeysForMessagesColumns.FULL_SESSION_ID
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.DATE] =
-                EncryptionKeysForMessagesColumns.FULL_DATE
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.START_SESSION_MESSAGE_ID] =
-                EncryptionKeysForMessagesColumns.FULL_START_SESSION_MESSAGE_ID
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.END_SESSION_MESSAGE_ID] =
-                EncryptionKeysForMessagesColumns.FULL_END_SESSION_MESSAGE_ID
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.OUT_KEY] =
-                EncryptionKeysForMessagesColumns.FULL_OUT_KEY
-            sKeysProjectionMap[EncryptionKeysForMessagesColumns.IN_KEY] =
-                EncryptionKeysForMessagesColumns.FULL_IN_KEY
-
             //testProjectionMaps()
         }
     }
@@ -1495,11 +1461,6 @@ class FenrirContentProvider : ContentProvider() {
             URI_FRIEND_LISTS -> {
                 rowId = db.replace(FriendListsColumns.TABLENAME, null, values)
                 resultUri = ContentUris.withAppendedId(FRIEND_LISTS_CONTENT_URI, rowId)
-            }
-
-            URI_KEYS -> {
-                rowId = db.replace(EncryptionKeysForMessagesColumns.TABLENAME, null, values)
-                resultUri = ContentUris.withAppendedId(KEYS_CONTENT_URI, rowId)
             }
 
             else -> throw IllegalArgumentException("Unknown URI $uri")
@@ -1844,12 +1805,6 @@ class FenrirContentProvider : ContentProvider() {
                 URI_FRIEND_LISTS
             }
 
-            URI_KEYS -> {
-                _QB.tables = EncryptionKeysForMessagesColumns.TABLENAME
-                _QB.projectionMap = sKeysProjectionMap
-                URI_KEYS
-            }
-
             else -> throw IllegalArgumentException("Unknown URI $uri")
         }
 
@@ -1889,7 +1844,6 @@ class FenrirContentProvider : ContentProvider() {
                 URI_FAVE_POSTS -> FavePostsColumns.FULL_ID + " ASC"
                 URI_COUNTRIES -> CountriesColumns.FULL_ID + " ASC"
                 URI_FRIEND_LISTS -> FriendListsColumns.FULL_ID + " ASC"
-                URI_KEYS -> EncryptionKeysForMessagesColumns.FULL_ID + " ASC"
                 else -> throw UnknownError("Unknown table type for sort order")
             }
         } else {
@@ -1960,7 +1914,6 @@ class FenrirContentProvider : ContentProvider() {
             URI_FAVE_POSTS -> return FAVE_POSTS_CONTENT_TYPE
             URI_COUNTRIES -> return COUNTRIES_CONTENT_TYPE
             URI_FRIEND_LISTS -> return FRIEND_LISTS_CONTENT_TYPE
-            URI_KEYS -> return KEYS_CONTENT_TYPE
         }
         return null
     }
@@ -2038,7 +1991,6 @@ class FenrirContentProvider : ContentProvider() {
             URI_FAVE_POSTS -> tbName = FavePostsColumns.TABLENAME
             URI_COUNTRIES -> tbName = CountriesColumns.TABLENAME
             URI_FRIEND_LISTS -> tbName = FriendListsColumns.TABLENAME
-            URI_KEYS -> tbName = EncryptionKeysForMessagesColumns.TABLENAME
             else -> throw IllegalArgumentException("Wrong URI: $uri")
         }
         val db: SQLiteDatabase = getDbHelper(uri).writableDatabase
@@ -2164,7 +2116,6 @@ class FenrirContentProvider : ContentProvider() {
             URI_FAVE_POSTS -> tbName = FavePostsColumns.TABLENAME
             URI_COUNTRIES -> tbName = CountriesColumns.TABLENAME
             URI_FRIEND_LISTS -> tbName = FriendListsColumns.TABLENAME
-            URI_KEYS -> tbName = EncryptionKeysForMessagesColumns.TABLENAME
             else -> throw IllegalArgumentException("Wrong URI: $uri")
         }
         val db: SQLiteDatabase = getDbHelper(uri).writableDatabase

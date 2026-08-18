@@ -1,6 +1,6 @@
-Index: material-components-android-master/lib/java/com/google/android/material/AndroidManifest.xml
+Index: material-components-android/lib/java/com/google/android/material/AndroidManifest.xml
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/AndroidManifest.xml
+--- material-components-android.orig/lib/java/com/google/android/material/AndroidManifest.xml
 +++ /dev/null
 @@ -1,20 +0,0 @@
 -<?xml version="1.0" encoding="utf-8"?>
@@ -23,10 +23,10 @@ Index: material-components-android-master/lib/java/com/google/android/material/A
 -
 -  <application/>
 -</manifest>
-Index: material-components-android-master/lib/java/com/google/android/material/badge/BadgeDrawable.java
+Index: material-components-android/lib/java/com/google/android/material/badge/BadgeDrawable.java
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/badge/BadgeDrawable.java
-+++ material-components-android-master/lib/java/com/google/android/material/badge/BadgeDrawable.java
+--- material-components-android.orig/lib/java/com/google/android/material/badge/BadgeDrawable.java
++++ material-components-android/lib/java/com/google/android/material/badge/BadgeDrawable.java
 @@ -490,6 +490,17 @@ public class BadgeDrawable extends Drawa
      }
    }
@@ -45,10 +45,10 @@ Index: material-components-android-master/lib/java/com/google/android/material/b
    /** Returns whether this badge will display a number. */
    public boolean hasNumber() {
      return !state.hasText() && state.hasNumber();
-Index: material-components-android-master/lib/java/com/google/android/material/badge/BadgeState.java
+Index: material-components-android/lib/java/com/google/android/material/badge/BadgeState.java
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/badge/BadgeState.java
-+++ material-components-android-master/lib/java/com/google/android/material/badge/BadgeState.java
+--- material-components-android.orig/lib/java/com/google/android/material/badge/BadgeState.java
++++ material-components-android/lib/java/com/google/android/material/badge/BadgeState.java
 @@ -207,7 +207,7 @@ public final class BadgeState {
              : storedState.badgeWithTextShapeAppearanceOverlayResId;
  
@@ -107,10 +107,10 @@ Index: material-components-android-master/lib/java/com/google/android/material/b
      }
    }
  }
-Index: material-components-android-master/lib/java/com/google/android/material/badge/ExperimentalBadgeUtils.java
+Index: material-components-android/lib/java/com/google/android/material/badge/ExperimentalBadgeUtils.java
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/badge/ExperimentalBadgeUtils.java
-+++ material-components-android-master/lib/java/com/google/android/material/badge/ExperimentalBadgeUtils.java
+--- material-components-android.orig/lib/java/com/google/android/material/badge/ExperimentalBadgeUtils.java
++++ material-components-android/lib/java/com/google/android/material/badge/ExperimentalBadgeUtils.java
 @@ -16,10 +16,8 @@
  
  package com.google.android.material.badge;
@@ -128,10 +128,10 @@ Index: material-components-android-master/lib/java/com/google/android/material/b
  })
 -@Experimental(level = ERROR)
  public @interface ExperimentalBadgeUtils {}
-Index: material-components-android-master/lib/java/com/google/android/material/bottomnavigation/res/values/styles.xml
+Index: material-components-android/lib/java/com/google/android/material/bottomnavigation/res/values/styles.xml
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/bottomnavigation/res/values/styles.xml
-+++ material-components-android-master/lib/java/com/google/android/material/bottomnavigation/res/values/styles.xml
+--- material-components-android.orig/lib/java/com/google/android/material/bottomnavigation/res/values/styles.xml
++++ material-components-android/lib/java/com/google/android/material/bottomnavigation/res/values/styles.xml
 @@ -66,7 +66,6 @@
      <item name="itemPaddingTop">@dimen/m3_bottom_nav_item_padding_top</item>
      <item name="itemPaddingBottom">@dimen/m3_bottom_nav_item_padding_bottom</item>
@@ -155,10 +155,10 @@ Index: material-components-android-master/lib/java/com/google/android/material/b
    <style name="Widget.Material3.BottomNavigationView.ActiveIndicator" parent="">
      <item name="android:width">@dimen/m3_bottom_nav_item_active_indicator_width</item>
      <item name="android:height">@dimen/m3_bottom_nav_item_active_indicator_height</item>
-Index: material-components-android-master/lib/java/com/google/android/material/bottomsheet/BottomSheetBehavior.java
+Index: material-components-android/lib/java/com/google/android/material/bottomsheet/BottomSheetBehavior.java
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/bottomsheet/BottomSheetBehavior.java
-+++ material-components-android-master/lib/java/com/google/android/material/bottomsheet/BottomSheetBehavior.java
+--- material-components-android.orig/lib/java/com/google/android/material/bottomsheet/BottomSheetBehavior.java
++++ material-components-android/lib/java/com/google/android/material/bottomsheet/BottomSheetBehavior.java
 @@ -75,6 +75,8 @@ import androidx.core.view.insets.Protect
  import androidx.customview.view.AbsSavedState;
  import androidx.customview.widget.ViewDragHelper;
@@ -201,10 +201,10 @@ Index: material-components-android-master/lib/java/com/google/android/material/b
      if (view instanceof ViewGroup) {
        ViewGroup group = (ViewGroup) view;
        for (int i = 0, count = group.getChildCount(); i < count; i++) {
-Index: material-components-android-master/lib/java/com/google/android/material/card/MaterialCardViewHelper.java
+Index: material-components-android/lib/java/com/google/android/material/card/MaterialCardViewHelper.java
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/card/MaterialCardViewHelper.java
-+++ material-components-android-master/lib/java/com/google/android/material/card/MaterialCardViewHelper.java
+--- material-components-android.orig/lib/java/com/google/android/material/card/MaterialCardViewHelper.java
++++ material-components-android/lib/java/com/google/android/material/card/MaterialCardViewHelper.java
 @@ -167,7 +167,7 @@ class MaterialCardViewHelper {
      foregroundContentDrawable = new MaterialShapeDrawable();
      setShapeAppearance(shapeAppearanceModelBuilder.build());
@@ -244,10 +244,10 @@ Index: material-components-android-master/lib/java/com/google/android/material/c
      if (previousFgDrawable != fgDrawable) {
        updateInsetForeground(fgDrawable);
      }
-Index: material-components-android-master/lib/java/com/google/android/material/materialswitch/res/values/dimens.xml
+Index: material-components-android/lib/java/com/google/android/material/materialswitch/res/values/dimens.xml
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/materialswitch/res/values/dimens.xml
-+++ material-components-android-master/lib/java/com/google/android/material/materialswitch/res/values/dimens.xml
+--- material-components-android.orig/lib/java/com/google/android/material/materialswitch/res/values/dimens.xml
++++ material-components-android/lib/java/com/google/android/material/materialswitch/res/values/dimens.xml
 @@ -16,9 +16,9 @@
    -->
  
@@ -261,10 +261,30 @@ Index: material-components-android-master/lib/java/com/google/android/material/m
 +  <dimen name="mtrl_switch_track_height">24dp</dimen>
    <dimen name="mtrl_switch_text_padding">16dp</dimen>
  </resources>
-Index: material-components-android-master/lib/java/com/google/android/material/snackbar/Snackbar.java
+Index: material-components-android/lib/java/com/google/android/material/navigation/NavigationBarView.java
 ===================================================================
---- material-components-android-master.orig/lib/java/com/google/android/material/snackbar/Snackbar.java
-+++ material-components-android-master/lib/java/com/google/android/material/snackbar/Snackbar.java
+--- material-components-android.orig/lib/java/com/google/android/material/navigation/NavigationBarView.java
++++ material-components-android/lib/java/com/google/android/material/navigation/NavigationBarView.java
+@@ -546,6 +546,15 @@ public abstract class NavigationBarView
+     presenter.updateMenuView(true);
+   }
+ 
++  public void menuStopUpdate() {
++    presenter.setUpdateSuspended(true);
++  }
++
++  public void menuRestoreUpdate() {
++    presenter.setUpdateSuspended(false);
++    presenter.updateMenuView(true);
++  }
++
+   /**
+    * Returns the tint which is applied to our menu items' icons.
+    *
+Index: material-components-android/lib/java/com/google/android/material/snackbar/Snackbar.java
+===================================================================
+--- material-components-android.orig/lib/java/com/google/android/material/snackbar/Snackbar.java
++++ material-components-android/lib/java/com/google/android/material/snackbar/Snackbar.java
 @@ -283,7 +283,7 @@ public class Snackbar extends BaseTransi
    }
  

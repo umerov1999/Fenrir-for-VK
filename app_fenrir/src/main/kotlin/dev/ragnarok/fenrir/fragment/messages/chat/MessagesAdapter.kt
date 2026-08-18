@@ -24,7 +24,6 @@ import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.VoiceActionListen
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.ifNonNullNoEmpty
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
-import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Keyboard
 import dev.ragnarok.fenrir.model.LastReadId
 import dev.ragnarok.fenrir.model.Message
@@ -36,7 +35,6 @@ import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadSticker
@@ -58,7 +56,7 @@ class MessagesAdapter(
     items: MutableList<Message>,
     private var lastReadId: LastReadId,
     private val attachmentsActionCallback: OnAttachmentsActionCallback,
-    disable_read: Boolean
+    private val disableRead: Boolean
 ) : RecyclerBindableAdapter<Message, RecyclerView.ViewHolder>(items) {
     private val df = SimpleDateFormat("dd.MM.yyyy HH:mm", Utils.appLocale)
     private val attachmentsViewBinder: AttachmentsViewBinder =
@@ -66,7 +64,6 @@ class MessagesAdapter(
     private val avatarTransformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val selectedDrawable: ShapeDrawable = ShapeDrawable(OvalShape())
     private val unreadColor: Int
-    private val disable_read: Boolean
     private val isNightSticker: Boolean
     private val ownerLinkAdapter =
         object : OwnerLinkSpanFactory.ActionListener() {
@@ -121,8 +118,8 @@ class MessagesAdapter(
         bindBaseMessageHolder(holder, message)
         if (message.isDeleted) {
             holder.root.alpha = 0.6f
-            holder.Restore.visibility = View.VISIBLE
-            holder.Restore.setOnClickListener {
+            holder.restore.visibility = View.VISIBLE
+            holder.restore.setOnClickListener {
                 onMessageActionListener?.onRestoreClick(
                     message,
                     getItemRawPosition(holder.bindingAdapterPosition)
@@ -130,7 +127,7 @@ class MessagesAdapter(
             }
         } else {
             holder.root.alpha = 1f
-            holder.Restore.visibility = View.GONE
+            holder.restore.visibility = View.GONE
         }
         val sticker = message.attachments?.stickers?.get(0)
         if (sticker?.isAnimated == true) {
@@ -182,8 +179,8 @@ class MessagesAdapter(
         bindBaseMessageHolder(holder, message)
         if (message.isDeleted) {
             holder.root.alpha = 0.6f
-            holder.Restore.visibility = View.VISIBLE
-            holder.Restore.setOnClickListener {
+            holder.restore.visibility = View.VISIBLE
+            holder.restore.setOnClickListener {
                 onMessageActionListener?.onRestoreClick(
                     message,
                     getItemRawPosition(holder.bindingAdapterPosition)
@@ -191,7 +188,7 @@ class MessagesAdapter(
             }
         } else {
             holder.root.alpha = 1f
-            holder.Restore.visibility = View.GONE
+            holder.restore.visibility = View.GONE
         }
         holder.message.visibility = if (message.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         holder.message.setInterceptSpans(isSupportPopupMenu)
@@ -274,7 +271,7 @@ class MessagesAdapter(
         bindStatusText(holder.status, message.status, message.date, message.updateTime)
         var read =
             if (message.isOut) lastReadId.outgoing >= message.getObjectId() else lastReadId.incoming >= message.getObjectId()
-        if (disable_read) read = true
+        if (disableRead) read = true
         bindReadState(holder.itemView, message.status == MessageStatus.SENT && read)
         if (message.isSelected) {
             holder.itemView.setBackgroundColor(CurrentTheme.getColorSecondary(context))
@@ -372,8 +369,8 @@ class MessagesAdapter(
         })
         if (message.isDeleted) {
             holder.root.alpha = 0.6f
-            holder.Restore.visibility = View.VISIBLE
-            holder.Restore.setOnClickListener {
+            holder.restore.visibility = View.VISIBLE
+            holder.restore.setOnClickListener {
                 onMessageActionListener?.onRestoreClick(
                     message,
                     getItemRawPosition(holder.bindingAdapterPosition)
@@ -381,71 +378,40 @@ class MessagesAdapter(
             }
         } else {
             holder.root.alpha = 1f
-            holder.Restore.visibility = View.GONE
+            holder.restore.visibility = View.GONE
         }
         holder.body.visibility = if (message.text.isNullOrEmpty()) View.GONE else View.VISIBLE
-        val displayedText: String? = when (message.cryptStatus) {
-            CryptStatus.NO_ENCRYPTION, CryptStatus.ENCRYPTED, CryptStatus.DECRYPT_FAILED -> message.text
-
-            CryptStatus.DECRYPTED -> message.decryptedText
-            else -> null
-        }
         if (!message.isGraffiti) {
-            when (message.cryptStatus) {
-                CryptStatus.ENCRYPTED, CryptStatus.DECRYPT_FAILED -> {
-                    holder.bubble.setNonGradientColor(
-                        "#D4ff0000".toColor()
+            if (message.isOut) {
+                if (Settings.get().main().isCustomMessageOutColor) {
+                    holder.bubble.setGradientColor(
+                        Settings.get().main().customColorMessageOutPrimary,
+                        Settings.get().main().customColorMessageOutSecondary
                     )
-                }
-
-                CryptStatus.NO_ENCRYPTION, CryptStatus.DECRYPTED -> {
-                    if (message.isOut) {
-                        if (Settings.get().main().isCustomMessageOutColor) {
-                            holder.bubble.setGradientColor(
-                                Settings.get().main().customColorMessageOutPrimary,
-                                Settings.get().main().customColorMessageOutSecondary
+                } else {
+                    if (Settings.get()
+                            .main().isMessageOutNoColor
+                    ) {
+                        holder.bubble.setNonGradientColor(
+                            CurrentTheme.getColorFromAttrs(
+                                R.attr.message_bubble_color,
+                                context,
+                                "#D4ff0000"
                             )
-                        } else {
-                            if (Settings.get()
-                                    .main().isMessageOutNoColor
-                            ) {
-                                holder.bubble.setNonGradientColor(
-                                    CurrentTheme.getColorFromAttrs(
-                                        R.attr.message_bubble_color,
-                                        context,
-                                        "#D4ff0000"
-                                    )
-                                )
-                            } else {
-                                holder.bubble.setGradientColor(
-                                    CurrentTheme.getColorFromAttrs(
-                                        R.attr.my_messages_bubble_color,
-                                        context,
-                                        "#D4ff0000"
-                                    ),
-                                    CurrentTheme.getColorFromAttrs(
-                                        R.attr.my_messages_secondary_bubble_color,
-                                        context,
-                                        "#D4ff0000"
-                                    )
-                                )
-                            }
-                        }
+                        )
                     } else {
-                        if (!Settings.get().main().isCustomMessageInColor) {
-                            holder.bubble.setNonGradientColor(
-                                CurrentTheme.getColorFromAttrs(
-                                    R.attr.message_bubble_color,
-                                    context,
-                                    "#D4ff0000"
-                                )
+                        holder.bubble.setGradientColor(
+                            CurrentTheme.getColorFromAttrs(
+                                R.attr.my_messages_bubble_color,
+                                context,
+                                "#D4ff0000"
+                            ),
+                            CurrentTheme.getColorFromAttrs(
+                                R.attr.my_messages_secondary_bubble_color,
+                                context,
+                                "#D4ff0000"
                             )
-                        } else {
-                            holder.bubble.setGradientColor(
-                                Settings.get().main().customColorMessageInPrimary,
-                                Settings.get().main().customColorMessageInSecondary
-                            )
-                        }
+                        )
                     }
                 }
             }
@@ -453,14 +419,12 @@ class MessagesAdapter(
         holder.body.setInterceptSpans(isSupportPopupMenu)
         holder.body.precompute(
             OwnerLinkSpanFactory.withSpans(
-                displayedText,
+                message.text,
                 owners = true,
                 topics = false,
                 listener = ownerLinkAdapter
             )
         )
-        holder.encryptedView.visibility =
-            if (message.cryptStatus == CryptStatus.NO_ENCRYPTION) View.GONE else View.VISIBLE
         val hasAttachments =
             message.fwd.nonNullNoEmpty() || message.attachments?.hasAttachments == true
         holder.attachmentsRoot.visibility = if (hasAttachments) View.VISIBLE else View.GONE
@@ -504,7 +468,7 @@ class MessagesAdapter(
         })
         var read =
             if (message.isOut) lastReadId.outgoing >= message.getObjectId() else lastReadId.incoming >= message.getObjectId()
-        if (disable_read) read = true
+        if (disableRead) read = true
         bindReadState(holder.itemView, message.status == MessageStatus.SENT && read)
         holder.tvAction.precompute(message.getServiceText(context))
 
@@ -707,7 +671,7 @@ class MessagesAdapter(
         val status: TextView = itemView.findViewById(R.id.item_message_status_text)
         val avatar: ImageView = itemView.findViewById(R.id.item_message_avatar)
         val important: OnlineView = itemView.findViewById(R.id.item_message_important)
-        val Restore: Button = itemView.findViewById(R.id.item_message_restore)
+        val restore: Button = itemView.findViewById(R.id.item_message_restore)
 
         val reactionContainer: ReactionContainer? =
             itemView.findViewById(R.id.item_message_reaction)
@@ -733,7 +697,6 @@ class MessagesAdapter(
         val bubble: MessageView
         val attachmentsRoot: View
         val attachmentsHolder: AttachmentsHolder
-        val encryptedView: View = itemView.findViewById(R.id.item_message_encrypted)
         val botKeyboardView: BotKeyboardView? = itemView.findViewById(R.id.input_keyboard_container)
 
         init {
@@ -772,7 +735,6 @@ class MessagesAdapter(
     init {
         selectedDrawable.paint.color = CurrentTheme.getColorPrimary(context)
         unreadColor = CurrentTheme.getMessageUnreadColor(context)
-        this.disable_read = disable_read
         isNightSticker =
             Settings.get().ui().isStickers_by_theme && Settings.get().ui().isDarkModeEnabled(
                 context

@@ -107,11 +107,12 @@ class MessagesLookPresenter(
     private fun initRequest() {
         appendJob(
             messagesInteractor.getPeerMessages(
-                accountId,
-                peer.id,
-                COUNT,
-                -COUNT / 2,
-                mFocusMessageId,
+                accountId = accountId,
+                peerId = peer.id,
+                count = COUNT,
+                offset = -COUNT / 2,
+                startMessageId = mFocusMessageId,
+                excludeStartMessage = false,
                 cacheData = false,
                 rev = false
             )
@@ -167,11 +168,12 @@ class MessagesLookPresenter(
         loadingState.headerLoading()
         appendJob(
             messagesInteractor.getPeerMessages(
-                accountId,
-                peer.id,
-                COUNT,
-                -COUNT,
-                targetMessageId,
+                accountId = accountId,
+                peerId = peer.id,
+                count = COUNT,
+                offset = -COUNT,
+                startMessageId = targetMessageId,
+                excludeStartMessage = true,
                 cacheData = false,
                 rev = false
             )
@@ -231,11 +233,12 @@ class MessagesLookPresenter(
         loadingState.footerLoading()
         appendJob(
             messagesInteractor.getPeerMessages(
-                accountId,
-                peer.id,
-                COUNT,
-                0,
-                targetLastMessageId,
+                accountId = accountId,
+                peerId = peer.id,
+                count = COUNT,
+                offset = 0,
+                startMessageId = targetLastMessageId,
+                excludeStartMessage = true,
                 cacheData = false,
                 rev = false
             )

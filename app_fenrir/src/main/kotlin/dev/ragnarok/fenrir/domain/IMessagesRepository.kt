@@ -118,6 +118,7 @@ interface IMessagesRepository {
         count: Int,
         offset: Int?,
         startMessageId: Int?,
+        excludeStartMessage: Boolean,
         cacheData: Boolean,
         rev: Boolean
     ): Flow<List<Message>>

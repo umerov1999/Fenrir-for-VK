@@ -320,8 +320,20 @@ class AdditionalNavigationView : AbsNavigationView, MenuListAdapter.ActionListen
     }
 
     override fun setUp(drawerLayout: DrawerLayout) {}
-    override fun onUnreadDialogsCountChange(count: Int) {}
-    override fun onUnreadNotificationsCountChange(count: Int) {}
+    override fun onUnreadDialogsCountChange(count: Int) {
+        if (SECTION_ITEM_DIALOGS.count != count) {
+            SECTION_ITEM_DIALOGS.count = count
+            safellyNotifyDataSetChanged()
+        }
+    }
+
+    override fun onUnreadNotificationsCountChange(count: Int) {
+        if (SECTION_ITEM_FEEDBACK.count != count) {
+            SECTION_ITEM_FEEDBACK.count = count
+            safellyNotifyDataSetChanged()
+        }
+    }
+
     override fun checkCloseByClick(ev: MotionEvent): Boolean {
         if (!isSheetOpen) {
             return false

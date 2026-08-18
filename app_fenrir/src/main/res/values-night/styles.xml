@@ -1086,11 +1086,6 @@
         <item name="messages_background_color">#000000</item>
     </style>
 
-    <style name="MyTransparentDialog.Amoled" parent="MyTransparentDialog">
-        <item name="message_bubble_color">#0B0B0B</item>
-        <item name="sticker_hint_color">#DD0B0B0B</item>
-    </style>
-
     <style name="MyTransparentDialog" parent="Theme.Material3Expressive.DayNight.Dialog">
         <item name="android:windowIsTranslucent">true</item>
         <item name="colorPrimary">#A4C9FF</item>

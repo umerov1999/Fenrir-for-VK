@@ -1769,20 +1769,20 @@ void ARGBToRGB565DitherRow_NEON(const uint8_t* src_argb,
                                 uint32_t dither4,
                                 int width) {
   asm volatile(
-      "vdup.32     d7, %2                        \n"  // dither4
+      "vdup.32     d7, %3                        \n"  // dither4
       "1:          \n"
-      "vld4.8      {d0, d2, d4, d6}, [%1]!       \n"  // load 8 pixels of ARGB.
-      "subs        %3, %3, #8                    \n"  // 8 processed per loop.
+      "vld4.8      {d0, d2, d4, d6}, [%0]!       \n"  // load 8 pixels of ARGB.
+      "subs        %2, %2, #8                    \n"  // 8 processed per loop.
       "vqadd.u8    d0, d0, d7                    \n"
       "vqadd.u8    d2, d2, d7                    \n"
       "vqadd.u8    d4, d4, d7                    \n"  // add for dither
       ARGBTORGB565
-      "vst1.8      {q2}, [%0]!                   \n"  // store 8 RGB565.
+      "vst1.8      {q2}, [%1]!                   \n"  // store 8 RGB565.
       "bgt         1b                            \n"
-      : "+r"(dst_rgb)   // %0
-      : "r"(src_argb),  // %1
-        "r"(dither4),   // %2
-        "r"(width)      // %3
+      : "+r"(src_argb),  // %0
+        "+r"(dst_rgb),   // %1
+        "+r"(width)      // %2
+      : "r"(dither4)     // %3
       : "cc", "memory", "q0", "q1", "q2", "q3");
 }
 
@@ -3679,6 +3679,66 @@ void Convert16To8Row_NEON(const uint16_t* src_y,
         "+r"(width)   // %2
       : "r"(shift)    // %3
       : "cc", "memory", "q0", "q1", "q2");
+}
+
+void HalfRow_16To8_NEON(const uint16_t* src_uv,
+                        ptrdiff_t src_uv_stride,
+                        uint8_t* dst_uv,
+                        int scale,
+                        int width) {
+  const uint16_t* src_uv1 = src_uv + src_uv_stride;
+  const int shift = 15 - __builtin_clz((int32_t)scale);  // Negative shl is shr
+  asm volatile(
+      "vdup.16     q4, %4                        \n"
+      "1:          \n"
+      "vld1.16     {q0, q1}, [%0]!               \n"
+      "vld1.16     {q2, q3}, [%1]!               \n"
+      "subs        %3, %3, #16                   \n"  // 16 src pixels per loop
+      "vrhadd.u16  q0, q0, q2                    \n"
+      "vrhadd.u16  q1, q1, q3                    \n"
+      "vshl.u16    q0, q0, q4                    \n"  // shr = q4 is negative
+      "vshl.u16    q1, q1, q4                    \n"
+      "vqmovn.u16  d0, q0                        \n"
+      "vqmovn.u16  d1, q1                        \n"
+      "vst1.8      {q0}, [%2]!                   \n"
+      "bgt         1b                            \n"
+      : "+r"(src_uv),   // %0
+        "+r"(src_uv1),  // %1
+        "+r"(dst_uv),   // %2
+        "+r"(width)     // %3
+      : "r"(shift)      // %4
+      : "cc", "memory", "q0", "q1", "q2", "q3", "q4");
+}
+
+void HalfWidthRow_16To8_NEON(const uint16_t* src_uv,
+                             ptrdiff_t src_uv_stride,
+                             uint8_t* dst_uv,
+                             int scale,
+                             int width) {
+  const uint16_t* src_uv1 = src_uv + src_uv_stride;
+  const int shift = 15 - __builtin_clz((int32_t)scale);  // Negative shl is shr
+  asm volatile(
+      "vdup.16     q4, %4                        \n"
+      "1:          \n"
+      "vld1.16     {q0, q1}, [%0]!               \n"
+      "vld1.16     {q2, q3}, [%1]!               \n"
+      "subs        %3, %3, #8                    \n"  // 8 dst pixels per loop
+      "vpaddl.u16  q0, q0                        \n"
+      "vpaddl.u16  q1, q1                        \n"
+      "vpadal.u16  q0, q2                        \n"
+      "vpadal.u16  q1, q3                        \n"
+      "vrshrn.u32  d0, q0, #2                    \n"
+      "vrshrn.u32  d1, q1, #2                    \n"
+      "vshl.u16    q0, q0, q4                    \n"  // shr = q4 is negative
+      "vqmovn.u16  d0, q0                        \n"
+      "vst1.8      {d0}, [%2]!                   \n"
+      "bgt         1b                            \n"
+      : "+r"(src_uv),   // %0
+        "+r"(src_uv1),  // %1
+        "+r"(dst_uv),   // %2
+        "+r"(width)     // %3
+      : "r"(shift)      // %4
+      : "cc", "memory", "q0", "q1", "q2", "q3", "q4");
 }
 
 // Use scale to convert J420 to I420

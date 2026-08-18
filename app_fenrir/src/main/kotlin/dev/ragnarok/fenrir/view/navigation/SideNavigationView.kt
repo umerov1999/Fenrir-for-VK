@@ -1,6 +1,8 @@
 package dev.ragnarok.fenrir.view.navigation
 
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -15,7 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.SwitchableCategory
@@ -23,6 +27,7 @@ import dev.ragnarok.fenrir.model.drawer.AbsMenuItem
 import dev.ragnarok.fenrir.model.drawer.DividerMenuItem
 import dev.ragnarok.fenrir.model.drawer.RecentChat
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
@@ -36,9 +41,13 @@ import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.getVerifiedColor
 import dev.ragnarok.fenrir.util.Utils.setBackgroundTint
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.myEmit
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
+import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
+import kotlinx.coroutines.flow.SharedFlow
 
 class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
     private val mCompositeJob = CompositeJob()
@@ -101,6 +110,15 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
         mDrawerLayout?.removeDrawerListener(navCallback)
         statesCallback = callback
         mDrawerLayout?.addDrawerListener(navCallback)
+    }
+
+    private fun onSetOffline(success: Boolean) {
+        if (success) createCustomToast(
+            context,
+            null
+        )?.showToast(R.string.succ_offline) else createCustomToast(
+            context, null
+        )?.showToastError(R.string.err_offline)
     }
 
     private fun init(context: Context) {
@@ -177,6 +195,38 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
                     .ui().nightMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             ) R.drawable.ic_outline_wb_sunny else R.drawable.ic_outline_nights_stay
         )
+
+        vHeader.findViewById<ImageView>(R.id.header_navi_menu_offline).setOnClickListener {
+            mCompositeJob.add(
+                InteractorFactory.createAccountInteractor()
+                    .setOffline(mAccountId)
+                    .fromIOToMain({ onSetOffline(it) }) {
+                        onSetOffline(
+                            false
+                        )
+                    })
+        }
+
+        vHeader.findViewById<ImageView>(R.id.header_navi_menu_open_url).setOnClickListener {
+            val clipBoard =
+                context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager?
+            if (clipBoard != null && clipBoard.primaryClip != null && clipBoard.primaryClip?.itemCount.orZero() > 0 && (clipBoard.primaryClip
+                    ?: return@setOnClickListener).getItemAt(0).text != null
+            ) {
+                val temp =
+                    clipBoard.primaryClip?.getItemAt(0)?.text.toString()
+                LinkHelper.openUrl(
+                    context,
+                    mAccountId,
+                    temp
+                )
+            }
+        }
+
+        vHeader.findViewById<ImageView>(R.id.header_navi_menu_scan_qr).setOnClickListener {
+            observeScanQr.myEmit(true)
+        }
+
         mAdapter = MenuListAdapter(context, mDrawerItems ?: mutableListOf(), this, false)
         mAdapter?.addHeader(vHeader)
         recyclerView.adapter = mAdapter
@@ -478,5 +528,10 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
 
     override fun onDrawerItemLongClick(item: AbsMenuItem) {
         selectItem(item, true)
+    }
+
+    companion object {
+        val observeScanQr: SharedFlow<Boolean>
+            field = createPublishSubject<Boolean>()
     }
 }

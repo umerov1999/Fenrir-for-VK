@@ -119,11 +119,12 @@ object NotificationHelper {
                         { info ->
                             if (Settings.get().main().isLoad_history_notif) {
                                 messages.getPeerMessages(
-                                    accountId,
-                                    message.peerId,
-                                    10,
-                                    1,
-                                    null,
+                                    accountId = accountId,
+                                    peerId = message.peerId,
+                                    count = 10,
+                                    offset = 1,
+                                    startMessageId = null,
+                                    excludeStartMessage = false,
                                     cacheData = false,
                                     rev = false
                                 )
@@ -215,7 +216,7 @@ object NotificationHelper {
         context: Context
     ): CharSequence? {
         var messageText =
-            if (message.decryptedText.isNullOrEmpty()) message.text else message.decryptedText
+            message.text
         if (messageText == null) messageText = ""
         if (message.forwardMessagesCount > 0) {
             messageText += " " + context.getString(

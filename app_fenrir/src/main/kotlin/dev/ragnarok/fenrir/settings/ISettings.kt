@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.api.model.LocalServerSettings
 import dev.ragnarok.fenrir.api.model.PlayerCoverBackgroundSettings
 import dev.ragnarok.fenrir.api.model.SlidrSettings
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.Lang
 import dev.ragnarok.fenrir.model.PhotoSize
@@ -19,7 +18,8 @@ import kotlinx.coroutines.flow.SharedFlow
 interface ISettings {
     fun recentChats(): IRecentChats
     fun drawerSettings(): IDrawerSettings
-    fun sideDrawerSettings(): ISideDrawerSettings
+    fun sideDrawerSettings(): IDrawerSettings
+    fun bottomDrawerSettings(): IDrawerSettings
     fun pushSettings(): IPushSettings
     fun security(): ISecuritySettings
     fun ui(): IUISettings
@@ -105,7 +105,6 @@ interface ISettings {
         val isLoad_history_notif: Boolean
         val isDont_write: Boolean
         val isOver_ten_attach: Boolean
-        val cryptVersion: Int
 
         fun getFeedSourceIds(accountId: Long): String?
         fun setFeedSourceIds(accountId: Long, sourceIds: String?)
@@ -187,7 +186,6 @@ interface ISettings {
         val isLimitImage_cache: Int
         val isDo_not_clear_back_stack: Boolean
         val isMention_fave: Boolean
-        val isDisabled_encryption: Boolean
         val isDisable_sensored_voice: Boolean
         var isInvertPhotoRev: Boolean
         val isAudio_save_mode_button: Boolean
@@ -285,30 +283,17 @@ interface ISettings {
         fun reset()
     }
 
-    interface ISideDrawerSettings {
-        var categoriesOrder: List<DrawerCategory>
-        val observeChanges: SharedFlow<List<DrawerCategory>>
-        fun reset()
-    }
-
     interface IPushSettings {
         var registered: VKPushRegistration?
     }
 
     interface ISecuritySettings {
-        var isKeyEncryptionPolicyAccepted: Boolean
         fun isPinValid(values: IntArray): Boolean
         fun setPin(pin: IntArray?)
         var isUsePinForSecurity: Boolean
         var isUsePinForEntrance: Boolean
         var isDelayedAllow: Boolean
         var isEntranceByFingerprintAllowed: Boolean
-
-        @KeyLocationPolicy
-        fun getEncryptionLocationPolicy(accountId: Long, peerId: Long): Int
-        fun disableMessageEncryption(accountId: Long, peerId: Long)
-        fun isMessageEncryptionEnabled(accountId: Long, peerId: Long): Boolean
-        fun enableMessageEncryption(accountId: Long, peerId: Long, @KeyLocationPolicy policy: Int)
         fun firePinAttemptNow()
         fun clearPinHistory()
         val pinEnterHistory: List<Long>

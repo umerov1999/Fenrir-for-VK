@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.db.impl
 
 import android.content.Context
 import android.content.ContextWrapper
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.db.interfaces.IAttachmentsStorage
 import dev.ragnarok.fenrir.db.interfaces.ICommentsStorage
 import dev.ragnarok.fenrir.db.interfaces.IDatabaseStore
@@ -11,7 +10,6 @@ import dev.ragnarok.fenrir.db.interfaces.IDocsStorage
 import dev.ragnarok.fenrir.db.interfaces.IFaveStorage
 import dev.ragnarok.fenrir.db.interfaces.IFeedStorage
 import dev.ragnarok.fenrir.db.interfaces.IFeedbackStorage
-import dev.ragnarok.fenrir.db.interfaces.IKeysStorage
 import dev.ragnarok.fenrir.db.interfaces.ILocalMediaStorage
 import dev.ragnarok.fenrir.db.interfaces.IMessagesStorage
 import dev.ragnarok.fenrir.db.interfaces.IOwnersStorage
@@ -38,8 +36,6 @@ class AppStorages(base: Context) : ContextWrapper(base), IStorages {
     private var dialogs: IDialogsStorage? = null
     private var feedback: IFeedbackStorage? = null
     private var localMedia: ILocalMediaStorage? = null
-    private var keysPersist: KeysPersistStorage? = null
-    private var keysRam: KeysRamStorage? = null
     private var attachments: IAttachmentsStorage? = null
 
     @Volatile
@@ -163,27 +159,6 @@ class AppStorages(base: Context) : ContextWrapper(base), IStorages {
             attachments = AttachmentsStorage(this)
         }
         return attachments!!
-    }
-
-    @Synchronized
-    override fun keys(@KeyLocationPolicy policy: Int): IKeysStorage {
-        return when (policy) {
-            KeyLocationPolicy.PERSIST -> {
-                if (keysPersist == null) {
-                    keysPersist = KeysPersistStorage(this)
-                }
-                keysPersist!!
-            }
-
-            KeyLocationPolicy.RAM -> {
-                if (keysRam == null) {
-                    keysRam = KeysRamStorage()
-                }
-                keysRam!!
-            }
-
-            else -> throw IllegalArgumentException("Unsupported key location policy")
-        }
     }
 
     @Synchronized

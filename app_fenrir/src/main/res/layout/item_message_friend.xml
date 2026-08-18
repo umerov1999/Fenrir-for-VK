@@ -103,29 +103,13 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <LinearLayout
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/item_message_status_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/item_message_encrypted"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:layout_marginEnd="2dp"
-                    android:contentDescription="@null"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_message_crypt_vector"
-                    app:tint="?android:textColorSecondary" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/item_message_status_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    tools:text="time" />
-
-            </LinearLayout>
+                android:gravity="start|center_vertical"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                tools:text="time" />
 
             <dev.ragnarok.fenrir.view.BotKeyboardView
                 android:id="@+id/input_keyboard_container"

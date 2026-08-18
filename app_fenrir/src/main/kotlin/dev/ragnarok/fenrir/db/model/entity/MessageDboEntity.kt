@@ -22,8 +22,6 @@ class MessageDboEntity : DboEntity() {
         private set
     var text: String? = null
         private set
-    var isEncrypted = false
-        private set
     var isImportant = false
         private set
     var isDeleted = false
@@ -108,11 +106,6 @@ class MessageDboEntity : DboEntity() {
 
     fun setText(text: String?): MessageDboEntity {
         this.text = text
-        return this
-    }
-
-    fun setEncrypted(encrypted: Boolean): MessageDboEntity {
-        isEncrypted = encrypted
         return this
     }
 

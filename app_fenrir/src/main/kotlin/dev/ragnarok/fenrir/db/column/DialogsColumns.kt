@@ -42,7 +42,6 @@ object DialogsColumns : BaseColumns {
     const val FOREIGN_MESSAGE_FWD_COUNT = "message_forward_count"
     const val FOREIGN_MESSAGE_CMID = "message_forward_conversation_message_id"
     const val FOREIGN_MESSAGE_ACTION = "message_action"
-    const val FOREIGN_MESSAGE_ENCRYPTED = "message_encrypted"
 
     fun getCV(chat: VKApiChat): ContentValues {
         val cv = ContentValues()

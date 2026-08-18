@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.IOwnersRepository
@@ -227,14 +226,6 @@ class DialogsPresenter(
             }
         }
         builder.setForwardMessages(fwds)
-        val encryptionEnabled =
-            Settings.get().security().isMessageEncryptionEnabled(accountId, dialog.peerId)
-        @KeyLocationPolicy var keyLocationPolicy = KeyLocationPolicy.PERSIST
-        if (encryptionEnabled) {
-            keyLocationPolicy =
-                Settings.get().security().getEncryptionLocationPolicy(accountId, dialog.peerId)
-        }
-        builder.setRequireEncryption(encryptionEnabled).setKeyLocationPolicy(keyLocationPolicy)
         appendJob(
             messagesInteractor.put(builder)
                 .fromIOToMain({

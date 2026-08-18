@@ -4,8 +4,6 @@ import dev.ragnarok.fenrir.db.model.entity.DboEntity
 import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
 
 class MessageEditEntity(val status: Int, val senderId: Long) {
-    var isEncrypted = false
-        private set
     var date: Long = 0
         private set
     var isOut = false
@@ -39,11 +37,6 @@ class MessageEditEntity(val status: Int, val senderId: Long) {
 
     fun setRead(read: Boolean): MessageEditEntity {
         isRead = read
-        return this
-    }
-
-    fun setEncrypted(encrypted: Boolean): MessageEditEntity {
-        isEncrypted = encrypted
         return this
     }
 

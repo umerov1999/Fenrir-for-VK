@@ -6,33 +6,31 @@ import de.maxr1998.modernpreferences.PreferenceScreen
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.SwitchableCategory
-import dev.ragnarok.fenrir.settings.ISettings.IDrawerSettings
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.myEmit
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.builtins.ListSerializer
 
-internal class DrawerSettings(context: Context) : IDrawerSettings {
+internal class BottomDrawerSettings(context: Context) : ISettings.IDrawerSettings {
     private val app: Context = context.applicationContext
     internal fun makeDefaults(): List<DrawerCategory> {
         return listOf(
-            DrawerCategory(SwitchableCategory.FRIENDS),
-            DrawerCategory(SwitchableCategory.DIALOGS, false),
-            DrawerCategory(SwitchableCategory.FEED, false),
-            DrawerCategory(SwitchableCategory.FEEDBACK, false),
-            DrawerCategory(SwitchableCategory.STORIES),
-            DrawerCategory(SwitchableCategory.CLIPS, Utils.isOfficialDefault),
-            DrawerCategory(SwitchableCategory.BIRTHDAYS),
-            DrawerCategory(SwitchableCategory.GROUPS),
-            DrawerCategory(SwitchableCategory.PHOTOS),
-            DrawerCategory(SwitchableCategory.VIDEOS),
-            DrawerCategory(SwitchableCategory.MUSIC),
-            DrawerCategory(SwitchableCategory.DOCS),
-            DrawerCategory(SwitchableCategory.FAVES),
-            DrawerCategory(SwitchableCategory.SEARCH, false),
-            DrawerCategory(SwitchableCategory.SETTINGS),
-            DrawerCategory(SwitchableCategory.ACCOUNTS)
+            DrawerCategory(SwitchableCategory.FEED),
+            DrawerCategory(SwitchableCategory.SEARCH),
+            DrawerCategory(SwitchableCategory.DIALOGS),
+            DrawerCategory(SwitchableCategory.FEEDBACK),
+            DrawerCategory(SwitchableCategory.FRIENDS, false),
+            DrawerCategory(SwitchableCategory.STORIES, false),
+            DrawerCategory(SwitchableCategory.CLIPS, false),
+            DrawerCategory(SwitchableCategory.BIRTHDAYS, false),
+            DrawerCategory(SwitchableCategory.GROUPS, false),
+            DrawerCategory(SwitchableCategory.PHOTOS, false),
+            DrawerCategory(SwitchableCategory.VIDEOS, false),
+            DrawerCategory(SwitchableCategory.MUSIC, false),
+            DrawerCategory(SwitchableCategory.DOCS, false),
+            DrawerCategory(SwitchableCategory.FAVES, false),
+            DrawerCategory(SwitchableCategory.SETTINGS, false),
+            DrawerCategory(SwitchableCategory.ACCOUNTS, false)
         )
     }
 
@@ -40,7 +38,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
         get() {
             val defaults = makeDefaults()
             val jsonString =
-                PreferenceScreen.getPreferences(app).getString("navigation_menu_order", null)
+                PreferenceScreen.getPreferences(app).getString("bottom_navigation_menu_order", null)
                     ?: return makeDefaults()
 
             return try {
@@ -80,7 +78,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
             } catch (_: Exception) {
                 PreferenceScreen.getPreferences(app).edit {
                     putString(
-                        "navigation_menu_order",
+                        "bottom_navigation_menu_order",
                         kJson.encodeToString(
                             ListSerializer(DrawerCategory.serializer()),
                             defaults
@@ -93,7 +91,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
         set(list) {
             PreferenceScreen.getPreferences(app).edit {
                 putString(
-                    "navigation_menu_order",
+                    "bottom_navigation_menu_order",
                     kJson.encodeToString(ListSerializer(DrawerCategory.serializer()), list)
                 )
             }
@@ -106,7 +104,7 @@ internal class DrawerSettings(context: Context) : IDrawerSettings {
     override fun reset() {
         PreferenceScreen.getPreferences(app).edit {
             remove(
-                "navigation_menu_order"
+                "bottom_navigation_menu_order"
             )
         }
         observeChanges.myEmit(makeDefaults())

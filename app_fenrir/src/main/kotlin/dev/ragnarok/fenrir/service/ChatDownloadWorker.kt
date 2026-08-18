@@ -24,7 +24,6 @@ import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
-import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Peer
@@ -177,7 +176,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             )
         )
         val message =
-            StringBuilder(if (i.cryptStatus != CryptStatus.DECRYPTED) i.text.orEmpty() else i.decryptedText.orEmpty())
+            StringBuilder(i.text.orEmpty())
         if (!isSub && i.forwardMessagesCount > 0) {
             for (s in i.fwd.orEmpty()) {
                 val fwd = Build_Message(s, true)
@@ -459,11 +458,12 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
                 }
                 try {
                     messages = messagesRepository.getPeerMessages(
-                        account_id,
-                        owner_id,
-                        200,
-                        offset,
-                        null,
+                        accountId = account_id,
+                        peerId = owner_id,
+                        count = 200,
+                        offset = offset,
+                        startMessageId = null,
+                        excludeStartMessage = false,
                         cacheData = false,
                         rev = false
                     ).syncSingle()

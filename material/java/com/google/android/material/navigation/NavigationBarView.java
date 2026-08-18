@@ -546,6 +546,15 @@ public abstract class NavigationBarView extends FrameLayout {
     presenter.updateMenuView(true);
   }
 
+  public void menuStopUpdate() {
+    presenter.setUpdateSuspended(true);
+  }
+
+  public void menuRestoreUpdate() {
+    presenter.setUpdateSuspended(false);
+    presenter.updateMenuView(true);
+  }
+
   /**
    * Returns the tint which is applied to our menu items' icons.
    *

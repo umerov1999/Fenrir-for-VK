@@ -29,8 +29,12 @@
         <item>[Рандом]</item>
     </string-array>
 
-    <string name="developer">Разработчик: Умеров А.</string>
-    <string name="opensource">Открытый исходный код</string>
+    <string name="disclaimer">Данный проект является демонстрационным вариантом
+        \nи учебным пособием для разработки rest клиентов на языке Kotlin и C++ под Android,
+        \nа также интеграции современных библиотек для работы с медиа.
+        \n
+        \nИспользовать для других целей, кроме как изучения технологий,
+        \nа также публиковать данную работу строго запрещено.</string>
     <string name="repo">Репозиторий: https://github.com/umerov1999/Fenrir-for-VK</string>
     <string name="repo_local_server">Репозиторий: https://github.com/umerov1999/FenrirMediaServer/releases</string>
 

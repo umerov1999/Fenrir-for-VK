@@ -80,10 +80,6 @@ class Message : AbsModel, Identificable, ISelectable {
         private set
     var extras: Map<Int, String>? = null
         private set
-
-    @CryptStatus
-    var cryptStatus = 0
-    var decryptedText: String? = null
     var sender: Owner? = null
         private set
     var forwardMessagesCount = 0
@@ -101,15 +97,12 @@ class Message : AbsModel, Identificable, ISelectable {
         accountId = parcel.readLong()
         id = parcel.readInt()
         text = parcel.readString()
-        decryptedText = parcel.readString()
         peerId = parcel.readLong()
         senderId = parcel.readLong()
         isOut = parcel.getBoolean()
         isImportant = parcel.getBoolean()
         @MessageStatus val tStatus = parcel.readInt()
         status = tStatus
-        @CryptStatus val cs = parcel.readInt()
-        cryptStatus = cs
         date = parcel.readLong()
         conversation_message_id = parcel.readInt()
         isSelected = parcel.getBoolean()
@@ -396,13 +389,11 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeLong(accountId)
         parcel.writeInt(id)
         parcel.writeString(text)
-        parcel.writeString(decryptedText)
         parcel.writeLong(peerId)
         parcel.writeLong(senderId)
         parcel.putBoolean(isOut)
         parcel.putBoolean(isImportant)
         parcel.writeInt(status)
-        parcel.writeInt(cryptStatus)
         parcel.writeLong(date)
         parcel.writeInt(conversation_message_id)
         parcel.putBoolean(isSelected)
@@ -518,16 +509,6 @@ class Message : AbsModel, Identificable, ISelectable {
 
     val isChatTitleUpdate: Boolean
         get() = action == ChatAction.TITLE_UPDATE
-
-    fun setCryptStatus(@CryptStatus cryptStatus: Int): Message {
-        this.cryptStatus = cryptStatus
-        return this
-    }
-
-    fun setDecryptedText(decryptedText: String?): Message {
-        this.decryptedText = decryptedText
-        return this
-    }
 
     fun setPayload(payload: String?): Message {
         this.payload = payload

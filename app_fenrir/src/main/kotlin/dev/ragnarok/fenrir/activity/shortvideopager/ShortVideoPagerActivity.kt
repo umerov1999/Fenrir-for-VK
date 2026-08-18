@@ -141,7 +141,7 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
                 Settings.get().main().viewpager_page_transform
             )
         )
-        val mHelper = findViewById<ThorVGLottieView?>(R.id.swipe_helper)
+        val mHelper = findViewById<ThorVGLottieView>(R.id.swipe_helper)
         if (HelperSimple.needHelp(HelperSimple.SHORT_VIDEO_HELPER, 2)) {
             mHelper?.visibility = View.VISIBLE
             mHelper?.fromRes(

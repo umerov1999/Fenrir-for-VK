@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item
-        android:id="@+id/crypt_state"
-        android:icon="@drawable/ic_outline_lock_open"
-        android:title="@string/encryption_status"
-        app:iconTint="?colorOnSurface"
-        app:showAsAction="always" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/action_refresh"
@@ -20,7 +12,6 @@
     <item
         android:id="@+id/show_profile"
         android:title="@string/show_profile" />
-
 
     <item
         android:id="@+id/action_leave_chat"
@@ -49,10 +40,6 @@
     <item
         android:id="@+id/make_screenshot"
         android:title="@string/make_screenshot" />
-
-    <item
-        android:id="@+id/action_key_exchange"
-        android:title="@string/key_exchange" />
 
     <item
         android:id="@+id/messages_search"

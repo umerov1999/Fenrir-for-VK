@@ -147,7 +147,7 @@ class Dialog : IdentificableOwner, Parcelable {
     }
 
     val lastMessageText: String?
-        get() = if (message == null) "..." else if (message?.cryptStatus == CryptStatus.DECRYPTED) message?.decryptedText else message?.text
+        get() = if (message == null) "..." else message?.text
 
     fun getSenderShortName(context: Context): String {
         var targerText: String? = null

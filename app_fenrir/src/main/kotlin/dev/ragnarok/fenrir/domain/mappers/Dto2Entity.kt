@@ -63,8 +63,6 @@ import dev.ragnarok.fenrir.api.model.interfaces.Commentable
 import dev.ragnarok.fenrir.api.model.interfaces.Likeable
 import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.api.model.response.FavePageResponse
-import dev.ragnarok.fenrir.crypt.CryptHelper.analizeMessageBody
-import dev.ragnarok.fenrir.crypt.MessageType
 import dev.ragnarok.fenrir.db.model.IdPairEntity
 import dev.ragnarok.fenrir.db.model.entity.ArticleDboEntity
 import dev.ragnarok.fenrir.db.model.entity.AudioArtistDboEntity
@@ -1487,7 +1485,6 @@ object Dto2Entity {
     }
 
     fun mapMessage(dto: VKApiMessage): MessageDboEntity {
-        val encrypted = analizeMessageBody(dto.text) == MessageType.CRYPTED
         var randomId: Long = 0
         dto.random_id.nonNullNoEmpty {
             try {
@@ -1499,7 +1496,6 @@ object Dto2Entity {
             .setDate(dto.date)
             .setOut(dto.out)
             .setText(dto.text)
-            .setEncrypted(encrypted)
             .setImportant(dto.important)
             .setKeyboard(mapKeyboard(dto.keyboard))
             .setDeleted(dto.deleted)

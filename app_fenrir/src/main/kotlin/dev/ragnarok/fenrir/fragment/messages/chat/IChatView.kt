@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.fragment.messages.chat
 
 import android.net.Uri
 import androidx.annotation.StringRes
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.fragment.messages.IBasicMessageListView
@@ -52,13 +51,9 @@ interface IChatView : IBasicMessageListView, IErrorView, IToastView {
         canLeaveChat: Boolean,
         canChangeTitle: Boolean,
         canShowMembers: Boolean,
-        encryptionStatusVisible: Boolean,
-        encryptionEnabled: Boolean,
-        encryptionPlusEnabled: Boolean,
-        keyExchangeVisible: Boolean,
         chronoVisible: Boolean,
-        ProfileVisible: Boolean,
-        InviteLink: Boolean
+        profileVisible: Boolean,
+        inviteLink: Boolean
     )
 
     fun goToSearchMessage(accountId: Long, peer: Peer)
@@ -76,9 +71,6 @@ interface IChatView : IBasicMessageListView, IErrorView, IToastView {
     fun displayForwardTypeSelectDialog(messages: ArrayList<Message>)
     fun setEmptyTextVisible(visible: Boolean)
     fun setupRecordPauseButton(isRecording: Boolean)
-    fun displayInitiateKeyExchangeQuestion(@KeyLocationPolicy keyStoragePolicy: Int)
-    fun showEncryptionKeysPolicyChooseDialog(requestCode: Int)
-    fun showEncryptionDisclaimerDialog(requestCode: Int)
     fun showEditAttachmentsDialog(attachments: MutableList<AttachmentEntry>, isGroupChat: Boolean)
 
     fun displayEditingMessage(message: Message?)

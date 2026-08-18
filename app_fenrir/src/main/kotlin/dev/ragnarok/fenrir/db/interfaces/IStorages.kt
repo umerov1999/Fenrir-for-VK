@@ -1,13 +1,10 @@
 package dev.ragnarok.fenrir.db.interfaces
 
-import dev.ragnarok.fenrir.crypt.KeyLocationPolicy
-
 interface IStorages {
     fun tempStore(): ITempDataStorage
     fun videoAlbums(): IVideoAlbumsStorage
     fun videos(): IVideoStorage
     fun attachments(): IAttachmentsStorage
-    fun keys(@KeyLocationPolicy policy: Int): IKeysStorage
     fun localMedia(): ILocalMediaStorage
     fun notifications(): IFeedbackStorage
     fun dialogs(): IDialogsStorage

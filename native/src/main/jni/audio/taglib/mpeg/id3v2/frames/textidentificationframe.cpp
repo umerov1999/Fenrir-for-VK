@@ -29,6 +29,7 @@
 #include <array>
 #include <utility>
 
+#include "tutils.h"
 #include "tpropertymap.h"
 #include "id3v1genres.h"
 #include "id3v2tag.h"
@@ -160,11 +161,12 @@ namespace
 
 const KeyConversionMap &TextIdentificationFrame::involvedPeopleMap() // static
 {
-  static KeyConversionMap m;
-  if(m.isEmpty()) {
+  static const KeyConversionMap m = [] {
+    KeyConversionMap map;
     for(const auto &[o, t] : involvedPeople)
-      m.insert(t, o);
-  }
+      map.insert(t, o);
+    return map;
+  }();
   return m;
 }
 
@@ -217,7 +219,7 @@ void TextIdentificationFrame::parseFields(const ByteVector &data)
 
   // read the string data type (the first byte of the field data)
 
-  d->textEncoding = static_cast<String::Type>(data[0]);
+  d->textEncoding = Utils::textEncodingFromByte(data[0]);
 
   // split the byte array into chunks based on the string type (two byte delimiter
   // for unicode encodings)

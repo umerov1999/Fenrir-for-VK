@@ -7,11 +7,11 @@ import android.widget.FrameLayout
 import androidx.drawerlayout.widget.DrawerLayout
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.DrawerCategory
+import dev.ragnarok.fenrir.model.NavigationPage
 import dev.ragnarok.fenrir.model.SwitchableCategory
 import dev.ragnarok.fenrir.model.drawer.AbsMenuItem
 import dev.ragnarok.fenrir.model.drawer.IconMenuItem
 import dev.ragnarok.fenrir.model.drawer.RecentChat
-import dev.ragnarok.fenrir.model.drawer.SectionMenuItem
 
 abstract class AbsNavigationView : FrameLayout {
     abstract fun refreshNavigationItems(list: List<DrawerCategory>? = null)
@@ -56,81 +56,51 @@ abstract class AbsNavigationView : FrameLayout {
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     companion object {
-        const val PAGE_FRIENDS = 0
-        const val PAGE_DIALOGS = 1
-        const val PAGE_FEED = 2
-        const val PAGE_MUSIC = 3
-        const val PAGE_DOCUMENTS = 4
-        const val PAGE_PHOTOS = 5
-        const val PAGE_PREFERENSES = 6
-        const val PAGE_ACCOUNTS = 7
-        const val PAGE_GROUPS = 8
-        const val PAGE_VIDEOS = 9
-        const val PAGE_BOOKMARKS = 10
-        const val PAGE_NOTIFICATION = 11
-        const val PAGE_SEARCH = 12
-        const val PAGE_STORIES = 13
-        const val PAGE_CLIPS = 14
-        const val PAGE_BIRTHDAYS = 15
-
-        val SECTION_ITEM_FRIENDS: SectionMenuItem =
-            IconMenuItem(PAGE_FRIENDS, R.drawable.friends, R.string.friends)
-
-        val SECTION_ITEM_DIALOGS: SectionMenuItem =
-            IconMenuItem(PAGE_DIALOGS, R.drawable.email, R.string.dialogs)
-
-        val SECTION_ITEM_FEED: SectionMenuItem =
-            IconMenuItem(PAGE_FEED, R.drawable.rss, R.string.feed)
-
-        val SECTION_ITEM_FEEDBACK: SectionMenuItem =
-            IconMenuItem(PAGE_NOTIFICATION, R.drawable.feed, R.string.drawer_feedback)
-
-        val SECTION_ITEM_STORIES: SectionMenuItem = IconMenuItem(
-            PAGE_STORIES,
+        val SECTION_ITEM_OTHER =
+            IconMenuItem(NavigationPage.OTHER, R.drawable.ic_menu_24_white, R.string.other)
+        val SECTION_ITEM_FRIENDS =
+            IconMenuItem(NavigationPage.FRIENDS, R.drawable.friends, R.string.friends)
+        val SECTION_ITEM_DIALOGS =
+            IconMenuItem(NavigationPage.DIALOGS, R.drawable.email, R.string.dialogs)
+        val SECTION_ITEM_FEED = IconMenuItem(NavigationPage.FEED, R.drawable.rss, R.string.feed)
+        val SECTION_ITEM_FEEDBACK =
+            IconMenuItem(NavigationPage.FEEDBACK, R.drawable.feed, R.string.drawer_feedback)
+        val SECTION_ITEM_STORIES = IconMenuItem(
+            NavigationPage.STORIES,
             R.drawable.story_outline,
             R.string.stories
         )
-
-        val SECTION_ITEM_CLIPS: SectionMenuItem = IconMenuItem(
-            PAGE_CLIPS,
+        val SECTION_ITEM_CLIPS = IconMenuItem(
+            NavigationPage.CLIPS,
             R.drawable.clip_outline,
             R.string.clips
         )
 
-        val SECTION_ITEM_BIRTHDAYS: SectionMenuItem = IconMenuItem(
-            PAGE_BIRTHDAYS,
+        val SECTION_ITEM_BIRTHDAYS = IconMenuItem(
+            NavigationPage.BIRTHDAYS,
             R.drawable.cake,
             R.string.birthdays
         )
+        val SECTION_ITEM_GROUPS =
+            IconMenuItem(NavigationPage.GROUPS, R.drawable.groups, R.string.groups)
+        val SECTION_ITEM_PHOTOS =
+            IconMenuItem(NavigationPage.PHOTOS, R.drawable.photo_album, R.string.photos)
+        val SECTION_ITEM_VIDEOS =
+            IconMenuItem(NavigationPage.VIDEOS, R.drawable.video, R.string.videos)
+        val SECTION_ITEM_BOOKMARKS =
+            IconMenuItem(NavigationPage.BOOKMARKS, R.drawable.star, R.string.bookmarks)
+        val SECTION_ITEM_AUDIOS =
+            IconMenuItem(NavigationPage.MUSIC, R.drawable.music, R.string.music)
+        val SECTION_ITEM_DOCS =
+            IconMenuItem(NavigationPage.DOCUMENTS, R.drawable.file, R.string.attachment_documents)
+        val SECTION_ITEM_SEARCH =
+            IconMenuItem(NavigationPage.SEARCH, R.drawable.magnify, R.string.search)
+        val SECTION_ITEM_SETTINGS =
+            IconMenuItem(NavigationPage.PREFERENCES, R.drawable.preferences, R.string.settings)
+        val SECTION_ITEM_ACCOUNTS =
+            IconMenuItem(NavigationPage.ACCOUNTS, R.drawable.account_circle, R.string.accounts)
 
-        val SECTION_ITEM_GROUPS: SectionMenuItem =
-            IconMenuItem(PAGE_GROUPS, R.drawable.groups, R.string.groups)
-
-        val SECTION_ITEM_PHOTOS: SectionMenuItem =
-            IconMenuItem(PAGE_PHOTOS, R.drawable.photo_album, R.string.photos)
-
-        val SECTION_ITEM_VIDEOS: SectionMenuItem =
-            IconMenuItem(PAGE_VIDEOS, R.drawable.video, R.string.videos)
-
-        val SECTION_ITEM_BOOKMARKS: SectionMenuItem =
-            IconMenuItem(PAGE_BOOKMARKS, R.drawable.star, R.string.bookmarks)
-
-        val SECTION_ITEM_AUDIOS: SectionMenuItem =
-            IconMenuItem(PAGE_MUSIC, R.drawable.music, R.string.music)
-
-        val SECTION_ITEM_DOCS: SectionMenuItem =
-            IconMenuItem(PAGE_DOCUMENTS, R.drawable.file, R.string.attachment_documents)
-
-        val SECTION_ITEM_SEARCH: SectionMenuItem =
-            IconMenuItem(PAGE_SEARCH, R.drawable.magnify, R.string.search)
-
-        val SECTION_ITEM_SETTINGS: SectionMenuItem =
-            IconMenuItem(PAGE_PREFERENSES, R.drawable.preferences, R.string.settings)
-
-        val SECTION_ITEM_ACCOUNTS: SectionMenuItem =
-            IconMenuItem(PAGE_ACCOUNTS, R.drawable.account_circle, R.string.accounts)
-
-        fun getItemBySwitchableCategory(@SwitchableCategory type: String): AbsMenuItem? {
+        fun getItemBySwitchableCategory(@SwitchableCategory type: String): IconMenuItem? {
             return when (type) {
                 SwitchableCategory.FRIENDS -> SECTION_ITEM_FRIENDS
                 SwitchableCategory.DIALOGS -> SECTION_ITEM_DIALOGS
@@ -148,6 +118,28 @@ abstract class AbsNavigationView : FrameLayout {
                 SwitchableCategory.SEARCH -> SECTION_ITEM_SEARCH
                 SwitchableCategory.SETTINGS -> SECTION_ITEM_SETTINGS
                 SwitchableCategory.ACCOUNTS -> SECTION_ITEM_ACCOUNTS
+                else -> null
+            }
+        }
+
+        fun getItemByPageId(@NavigationPage id: Int): IconMenuItem? {
+            return when (id) {
+                NavigationPage.FRIENDS -> SECTION_ITEM_FRIENDS
+                NavigationPage.DIALOGS -> SECTION_ITEM_DIALOGS
+                NavigationPage.FEED -> SECTION_ITEM_FEED
+                NavigationPage.FEEDBACK -> SECTION_ITEM_FEEDBACK
+                NavigationPage.STORIES -> SECTION_ITEM_STORIES
+                NavigationPage.CLIPS -> SECTION_ITEM_CLIPS
+                NavigationPage.BIRTHDAYS -> SECTION_ITEM_BIRTHDAYS
+                NavigationPage.GROUPS -> SECTION_ITEM_GROUPS
+                NavigationPage.PHOTOS -> SECTION_ITEM_PHOTOS
+                NavigationPage.VIDEOS -> SECTION_ITEM_VIDEOS
+                NavigationPage.MUSIC -> SECTION_ITEM_AUDIOS
+                NavigationPage.DOCUMENTS -> SECTION_ITEM_DOCS
+                NavigationPage.BOOKMARKS -> SECTION_ITEM_BOOKMARKS
+                NavigationPage.SEARCH -> SECTION_ITEM_SEARCH
+                NavigationPage.PREFERENCES -> SECTION_ITEM_SETTINGS
+                NavigationPage.ACCOUNTS -> SECTION_ITEM_ACCOUNTS
                 else -> null
             }
         }

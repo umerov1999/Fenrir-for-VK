@@ -81,11 +81,12 @@ class ConversationMultiAttachmentsPresenter(
         resolveRefreshingView()
         actualDataDisposable.add(
             messagesRepository.getPeerMessages(
-                accountId,
-                peerID,
-                100,
-                offset,
-                null,
+                accountId = accountId,
+                peerId = peerID,
+                count = 100,
+                offset = offset,
+                startMessageId = null,
+                excludeStartMessage = false,
                 cacheData = false, rev = false
             )
                 .fromIOToMain({ data ->

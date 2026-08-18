@@ -69,7 +69,6 @@ import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.CommunityDetails
-import dev.ragnarok.fenrir.model.CryptStatus
 import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.Document.VideoPreview
@@ -622,7 +621,6 @@ object Entity2Model {
             .setDeleted(dbo.isDeleted)
             .setDeletedForAll(dbo.isDeletedForAll)
             .setOriginalId(dbo.originalId)
-            .setCryptStatus(if (dbo.isEncrypted) CryptStatus.ENCRYPTED else CryptStatus.NO_ENCRYPTION)
             .setImportant(dbo.isImportant)
             .setAction(dbo.action)
             .setActionMid(dbo.actionMemberId)

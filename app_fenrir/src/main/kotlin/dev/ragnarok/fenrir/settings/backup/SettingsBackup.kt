@@ -40,7 +40,6 @@ class SettingsBackup {
         var chat_popup_menu: Boolean? = null
         var image_size: String? = null
         var start_news: String? = null
-        var crypt_version: String? = null
         var validate_tls: Boolean? = null
         var photo_preview_size: String? = null
         var viewpager_page_transform: String? = null
@@ -137,7 +136,6 @@ class SettingsBackup {
         var limit_cache_images: String? = null
         var do_not_clear_back_stack: Boolean? = null
         var mention_fave: Boolean? = null
-        var disable_encryption: Boolean? = null
         var audio_save_mode_button: Boolean? = null
         var show_mutual_count: Boolean? = null
         var do_zoom_photo: Boolean? = null
@@ -185,6 +183,7 @@ class SettingsBackup {
         var remember_local_audio_album: Boolean? = null
         var navigation_menu_order: String? = null
         var side_navigation_menu_order: String? = null
+        var bottom_navigation_menu_order: String? = null
     }
 
     fun doBackup(): JsonObject {
