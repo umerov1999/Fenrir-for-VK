@@ -512,7 +512,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     fun fireShowQR(context: Context) {
         val qr = generateQR(
-            "https://vk.ru/" + (if (ownerId < 0) "club" else "id") + abs(
+            "https://${Settings.get().main().domain}/" + (if (ownerId < 0) "club" else "id") + abs(
                 ownerId
             ), context
         )
@@ -654,7 +654,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     fun fireCopyUrlClick() {
         view?.copyToClipboard(
             getString(R.string.link),
-            "https://vk.ru/" + (if (isCommunity) "club" else "id") + abs(
+            "https://${Settings.get().main().domain}/" + (if (isCommunity) "club" else "id") + abs(
                 ownerId
             )
         )

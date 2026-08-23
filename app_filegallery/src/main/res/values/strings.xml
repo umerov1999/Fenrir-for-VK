@@ -374,8 +374,9 @@
     <string name="general_settings">General</string>
     <string name="validate_tls">Certificate Verification</string>
     <string name="validate_tls_summary">Disabling makes you vulnerable</string>
-    <string name="reboot_pc_windows">Restart Windows</string>
-    <string name="reboot_pc_linux">Restart Linux</string>
+    <string name="shutdown">Shutdown</string>
+    <string name="reboot">Reboot</string>
+    <string name="pc">Server (PC):</string>
     <string name="reset_settings">Reset settings</string>
     <string name="wrong_settings_format">This settings format is not supported!</string>
     <string name="files_uploading_notification_title">Uploading files</string>

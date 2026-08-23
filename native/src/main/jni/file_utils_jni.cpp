@@ -32,7 +32,7 @@ listDirRecursive(JNIEnv *env, const std::string &name, jobject listener, int64_t
     }
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_FileUtils_listDirRecursiveNative(JNIEnv *env, jobject, jstring dir,
                                                                  jobject listener) {
     char const *dirString = SafeGetStringUTFChars(env, dir, nullptr);
@@ -44,7 +44,7 @@ Java_dev_ragnarok_fenrir_module_FileUtils_listDirRecursiveNative(JNIEnv *env, jo
     listDirRecursive(env, v, listener, 0);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_FileUtils_listDirRecursiveNativePointer(JNIEnv *env, jobject,
                                                                         jstring dir,
                                                                         jlong pointer) {
@@ -57,7 +57,7 @@ Java_dev_ragnarok_fenrir_module_FileUtils_listDirRecursiveNativePointer(JNIEnv *
     listDirRecursive(env, v, nullptr, pointer);
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_FileUtils_getThreadsCountNative(JNIEnv *, jobject) {
     return (jint) std::thread::hardware_concurrency();
 }

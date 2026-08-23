@@ -68,5 +68,5 @@ interface ILocalServerApi {
     fun fsGet(dir: String?): Flow<List<FileRemote>>
 
     @CheckResult
-    fun rebootPC(type: String?): Flow<Int>
+    fun powerOffPC(type: String): Flow<Int>
 }

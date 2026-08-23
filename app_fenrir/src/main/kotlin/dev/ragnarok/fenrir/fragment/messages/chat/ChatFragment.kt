@@ -60,6 +60,7 @@ import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity
 import dev.ragnarok.fenrir.activity.VideoSelectActivity
 import dev.ragnarok.fenrir.activity.selectprofiles.SelectProfilesActivity
+import dev.ragnarok.fenrir.api.model.longpoll.AbsLongpollEvent
 import dev.ragnarok.fenrir.db.model.AttachmentsTypes
 import dev.ragnarok.fenrir.dialog.ImageSizeAlertDialog
 import dev.ragnarok.fenrir.dialog.LandscapeExpandBottomSheetDialog
@@ -101,8 +102,8 @@ import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.model.Sticker
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.VoiceMessage
-import dev.ragnarok.fenrir.model.WriteText
 import dev.ragnarok.fenrir.model.selection.FileManagerSelectableSource
 import dev.ragnarok.fenrir.model.selection.LocalGallerySelectableSource
 import dev.ragnarok.fenrir.model.selection.LocalPhotosSelectableSource
@@ -179,10 +180,10 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     private var gotoButton: FloatingActionButton? = null
 
-    private var writingMsgGroup: View? = null
-    private var writingMsg: TextView? = null
-    private var writingMsgAva: ImageView? = null
-    private var writingMsgType: ImageView? = null
+    private var typingMsgGroup: View? = null
+    private var typingMsg: TextView? = null
+    private var typingMsgAva: ImageView? = null
+    private var typingMsgType: ImageView? = null
 
     private var toolbarTitle: TextView? = null
     private var toolbarSubTitle: TextView? = null
@@ -392,13 +393,13 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         emptyAnimation = root.findViewById(R.id.fragment_chat_empty_animation)
         toolbarRootView = root.findViewById(R.id.toolbar_root)
 
-        writingMsgGroup = root.findViewById(R.id.writingGroup)
-        writingMsg = root.findViewById(R.id.writing)
-        writingMsgAva = root.findViewById(R.id.writingava)
-        writingMsgType = root.findViewById(R.id.writing_type)
+        typingMsgGroup = root.findViewById(R.id.typing_container)
+        typingMsg = root.findViewById(R.id.typing)
+        typingMsgAva = root.findViewById(R.id.typing_avatar)
+        typingMsgType = root.findViewById(R.id.typing_type)
         inputView = root.findViewById(R.id.input_view)
 
-        writingMsgGroup?.visibility = View.GONE
+        typingMsgGroup?.visibility = View.GONE
 
         gotoButton = root.findViewById(R.id.goto_button)
         gotoButton?.let {
@@ -504,29 +505,56 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
     }
 
-    override fun displayWriting(writeText: WriteText) {
-        if (writeText.getFrom_ids().isEmpty()) {
+    override fun displayTypingMessageOrUploading(typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog) {
+        if (typingMessageOrUploadingInDialog.getFrom_ids().isEmpty()) {
             return
         }
-        writingMsgGroup?.visibility = View.VISIBLE
-        writingMsgGroup?.alpha = 0.0f
-        ObjectAnimator.ofFloat(writingMsgGroup, View.ALPHA, 1f).setDuration(200).start()
-        writingMsg?.setText(if (writeText.isText) R.string.user_type_message else R.string.user_type_voice)
-        writingMsgType?.setImageResource(if (writeText.isText) R.drawable.pencil else R.drawable.voice)
-        writingMsgAva?.setImageResource(R.drawable.background_gray_round)
-        presenter?.resolveWritingInfo(requireActivity(), writeText)
+        typingMsgGroup?.visibility = View.VISIBLE
+        typingMsgGroup?.alpha = 0.0f
+        ObjectAnimator.ofFloat(typingMsgGroup, View.ALPHA, 1f).setDuration(200).start()
+
+        when (typingMessageOrUploadingInDialog.action) {
+            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_DIALOG -> {
+                typingMsg?.setText(R.string.user_recording_voice_message)
+                typingMsgType?.setImageResource(R.drawable.voice)
+            }
+
+            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_DIALOG -> {
+                typingMsg?.setText(R.string.user_uploading_photo)
+                typingMsgType?.setImageResource(R.drawable.ic_notification_upload)
+            }
+
+            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_DIALOG -> {
+                typingMsg?.setText(R.string.user_uploading_video)
+                typingMsgType?.setImageResource(R.drawable.ic_notification_upload)
+            }
+
+            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> {
+                typingMsg?.setText(R.string.user_uploading_file)
+                typingMsgType?.setImageResource(R.drawable.ic_notification_upload)
+            }
+
+            else -> {
+                typingMsg?.setText(R.string.user_typing_message)
+                typingMsgType?.setImageResource(R.drawable.pencil)
+            }
+        }
+        typingMsgAva?.setImageResource(R.drawable.background_gray_round)
+        presenter?.resolveTypingMessageOrUploading(
+            requireActivity(),
+            typingMessageOrUploadingInDialog
+        )
     }
 
     @SuppressLint("SetTextI18n")
-    override fun displayWriting(owner: Owner, count: Int, is_text: Boolean) {
+    override fun displayTypingMessageOrUploading(owner: Owner, count: Int, action: Int) {
         if (count > 1) {
-            writingMsg?.text = getString(R.string.many_users_typed, owner.fullName, count - 1)
+            typingMsg?.text = getString(R.string.many_users_typed, owner.fullName, count - 1)
         } else {
-            writingMsg?.text = owner.fullName
+            typingMsg?.text = owner.fullName
         }
-        writingMsgType?.setImageResource(if (is_text) R.drawable.pencil else R.drawable.voice)
         ViewUtils.displayAvatar(
-            writingMsgAva ?: return, CurrentTheme.createTransformationForAvatar(),
+            typingMsgAva ?: return, CurrentTheme.createTransformationForAvatar(),
             owner.get100photoOrSmaller(), null
         )
     }
@@ -545,12 +573,12 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
     }
 
-    override fun hideWriting() {
+    override fun hideTypingMessageOrUploading() {
         val animator: ObjectAnimator? =
-            ObjectAnimator.ofFloat(writingMsgGroup, View.ALPHA, 0.0f).apply {
-                addListener(object : WeakViewAnimatorAdapter<View?>(writingMsgGroup) {
+            ObjectAnimator.ofFloat(typingMsgGroup, View.ALPHA, 0.0f).apply {
+                addListener(object : WeakViewAnimatorAdapter<View?>(typingMsgGroup) {
                     override fun onAnimationEnd(view: View?) {
-                        writingMsgGroup?.visibility = View.GONE
+                        typingMsgGroup?.visibility = View.GONE
                     }
                 })
                 duration = 200

@@ -425,7 +425,11 @@ class DocsFragment : BaseMvpFragment<DocsListPresenter, IDocListView>(), IDocLis
                 when (items[which].key) {
                     Methods.SHARE_LINK -> shareLink(
                         requireActivity(),
-                        String.format("vk.ru/doc%s_%s", document.ownerId, document.id),
+                        String.format(
+                            "${Settings.get().main().domain}/doc%s_%s",
+                            document.ownerId,
+                            document.id
+                        ),
                         document.title
                     )
 

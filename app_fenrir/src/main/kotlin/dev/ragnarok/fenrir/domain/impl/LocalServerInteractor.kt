@@ -178,8 +178,8 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             .update_file_name(hash, name)
     }
 
-    override fun rebootPC(type: String?): Flow<Int> {
-        return networker.localServerApi().rebootPC(type)
+    override fun powerOffPC(type: String): Flow<Int> {
+        return networker.localServerApi().powerOffPC(type)
     }
 
     override fun fsGet(dir: String?): Flow<List<FileRemote>> {

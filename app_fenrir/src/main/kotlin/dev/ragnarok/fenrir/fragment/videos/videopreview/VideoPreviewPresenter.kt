@@ -249,7 +249,7 @@ class VideoPreviewPresenter(
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText(
             getString(R.string.link),
-            "https://vk.ru/video" + video?.ownerId + "_" + video?.id
+            "https://${Settings.get().main().domain}/video" + video?.ownerId + "_" + video?.id
         )
         clipboard?.setPrimaryClip(clip)
         view?.customToast?.showToast(R.string.copied_url)

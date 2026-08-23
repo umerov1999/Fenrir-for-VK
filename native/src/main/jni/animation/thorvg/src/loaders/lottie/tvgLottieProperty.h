@@ -749,12 +749,7 @@ struct LottieColorStop : LottieProperty
         Array<Fill::ColorStop> result;
 
         for (auto i = 0; i < count; ++i, ++s, ++e) {
-            auto offset = tvg::lerp(s->offset, e->offset, t);
-            auto r = tvg::lerp(s->r, e->r, t);
-            auto g = tvg::lerp(s->g, e->g, t);
-            auto b = tvg::lerp(s->b, e->b, t);
-            auto a = tvg::lerp(s->a, e->a, t);
-            result.push({offset, r, g, b, a});
+            result.push(tvg::lerp(*s, *e, t));
         }
         return fill->colorStops(result.data, count);
     }
@@ -938,61 +933,41 @@ struct LottieTextDoc : LottieProperty
     void prepare() {}
 };
 
-
-struct LottieBitmap : LottieProperty
+struct LottieAsset : LottieProperty, AssetSrc
 {
-    union {
-        char* data = nullptr;
-        char* path;
-    };
-    Picture *picture = nullptr;
-    char* mimeType = nullptr;
-    uint32_t size = 0;
     float width = 0.0f;
     float height = 0.0f;
 
-    LottieBitmap() : LottieProperty(LottieProperty::Type::Image) {}
+    LottieAsset() : LottieProperty(LottieProperty::Type::Image) {}
 
-    LottieBitmap(const LottieBitmap& rhs)
+    LottieAsset(const LottieAsset& rhs)
     {
-        copy(const_cast<LottieBitmap&>(rhs));
-    }
-
-    ~LottieBitmap()
-    {
-        release();
-    }
-
-    void release()
-    {
-        if (picture) {
-            picture->unref();
-            picture = nullptr;
-        }
-
-        tvg::free(data);
-        tvg::free(mimeType);
-
-        data = nullptr;
-        mimeType = nullptr;
+        copy(const_cast<LottieAsset&>(rhs));
     }
 
     uint32_t frameCnt() override { return 0; }
     uint32_t nearest(float frameNo) override { return 0; }
-    float frameNo(int32_t key) override { return 0; }
+    float frameNo(int32_t key) override { return 0.0f; }
     float loop(float frameNo, TVG_UNUSED uint32_t key, TVG_UNUSED Loop mode, TVG_UNUSED float inout) override { return frameNo; }
 
-    void copy(LottieBitmap& rhs, bool shallow = true)
+    void copy(LottieAsset& rhs, bool shallow = true)
     {
         if (LottieProperty::copy(&rhs, shallow)) return;
 
         release();
 
-        if (rhs.picture) {
-            picture = rhs.picture;
-            picture->ref();
+        if (shallow) {
+            data = rhs.data;
+            mimeType = rhs.mimeType;
+            rhs.data = rhs.mimeType = nullptr;
+        } else {
+            // TODO: make it shareable data without copy?
+            if (rhs.size > 0) data = static_cast<char*>(memcpy(tvg::malloc<char>(rhs.size), rhs.data, rhs.size));
+            else path = tvg::duplicate(rhs.path);
+            mimeType = tvg::duplicate(rhs.mimeType);
         }
-
+        size = rhs.size;
+        external = rhs.external;
         width = rhs.width;
         height = rhs.height;
     }

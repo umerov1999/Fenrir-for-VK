@@ -174,8 +174,11 @@
     <string name="attachment_document">Документ</string>
     <string name="attachment_documents">Документы</string>
     <string name="attachment_link">Ссылка</string>
-    <string name="user_type_message">набирает сообщение</string>
-    <string name="user_type_voice">записывает голосовую</string>
+    <string name="user_typing_message">набирает сообщение</string>
+    <string name="user_recording_voice_message">записывает голосовую</string>
+    <string name="user_uploading_photo">загружает фото</string>
+    <string name="user_uploading_video">загружает видео</string>
+    <string name="user_uploading_file">загружает файл</string>
     <string name="many_users_typed">%1$s и ещё %2$d</string>
 
     <string name="load_more">Загрузить ещё</string>
@@ -976,6 +979,8 @@
     <string name="settings_show_logs_title">Логи</string>
     <string name="settings_domain">Домен API VK</string>
     <string name="settings_vk_auth_domain">Домен OAUTH VK</string>
+    <string name="settings_vk_web_auth_domain">Домен веб авторизации VK</string>
+    <string name="settings_vk_domain">Домен VK</string>
     <string name="application_logs">Логи приложения</string>
     <string name="search_option_empty_text">Опции поиска недоступны</string>
     <string name="comment_editing_title">Редактирование</string>
@@ -1693,4 +1698,5 @@
     <string name="auth_validate_sms_help">Ваш код авторизации был отправлен в смс сообщении на номер %1$s</string>
     <string name="auth_validate_callreset_help">Вам сейчас позвонят на %1$s и продиктуют код авторизации (длина: %2$d)</string>
     <string name="auth_validate_codegen_help">Воспользуйтесь кодом из приложения генерации кодов авторизации</string>
+    <string name="call_reset_description">Последние %1$d цифры звонка</string>
 </resources>

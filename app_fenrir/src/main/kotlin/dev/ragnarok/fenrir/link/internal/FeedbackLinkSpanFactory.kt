@@ -6,6 +6,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import androidx.core.util.PatternsCompat
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.settings.Settings
 
 object FeedbackLinkSpanFactory {
     private val MENTIONS_PATTERN: Regex =
@@ -81,7 +82,8 @@ object FeedbackLinkSpanFactory {
                 }
                 val linkSpan2 = LinkSpan(
                     context,
-                    "https://vk.ru/" + res.groupValues.getOrNull(1).orEmpty(),
+                    "https://${Settings.get().main().domain}/" + res.groupValues.getOrNull(1)
+                        .orEmpty(),
                     false
                 )
                 val replace2 = spannableStringBuilder.replace(

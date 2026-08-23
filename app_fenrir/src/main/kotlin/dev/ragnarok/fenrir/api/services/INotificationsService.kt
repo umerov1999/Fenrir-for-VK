@@ -13,17 +13,13 @@ class INotificationsService : IServiceRest() {
     operator fun get(
         count: Int?,
         startFrom: String?,
-        filters: String?,
-        startTime: Long?,
-        endTime: Long?
+        filters: String?
     ): Flow<BaseResponse<NotificationsResponse>> {
         return rest.request(
             "notifications.get", form(
                 "count" to count,
                 "start_from" to startFrom,
                 "filters" to filters,
-                "start_time" to startTime,
-                "end_time" to endTime
             ), base(NotificationsResponse.serializer())
         )
     }
@@ -31,18 +27,12 @@ class INotificationsService : IServiceRest() {
     fun getOfficial(
         count: Int?,
         startFrom: Int?,
-        filters: String?,
-        startTime: Long?,
-        endTime: Long?,
         fields: String?
     ): Flow<BaseResponse<FeedbackVKOfficialList>> {
         return rest.request(
             "notifications.get", form(
                 "count" to count,
                 "start_from" to startFrom,
-                "filters" to filters,
-                "start_time" to startTime,
-                "end_time" to endTime,
                 "fields" to fields
             ), base(FeedbackVKOfficialList.serializer())
         )

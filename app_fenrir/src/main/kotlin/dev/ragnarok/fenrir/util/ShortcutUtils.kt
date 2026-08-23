@@ -64,7 +64,7 @@ object ShortcutUtils {
     ): Flow<Boolean> {
         return Includes.stores.tempStore().addShortcut(
             "fenrir_account_$accountId",
-            url.ifEmpty { VKApiUser.CAMERA_50 }, title
+            url.ifEmpty { VKApiUser.getPhotoLink200() }, title
         ).map {
             createAccountShortcut(context, accountId, title, url)
             true
@@ -111,7 +111,7 @@ object ShortcutUtils {
                 url.nonNullNoEmpty({
                     it
                 }, {
-                    VKApiUser.CAMERA_50
+                    VKApiUser.getPhotoLink200()
                 }), title ?: ("id$ownerId")
             ).map { _ ->
                 createWallShortcut(
@@ -122,7 +122,7 @@ object ShortcutUtils {
                     url.nonNullNoEmpty({
                         it
                     }, {
-                        VKApiUser.CAMERA_50
+                        VKApiUser.getPhotoLink200()
                     })
                 )
                 true
@@ -191,7 +191,7 @@ object ShortcutUtils {
                 url.nonNullNoEmpty({
                     it
                 }, {
-                    VKApiUser.CAMERA_50
+                    VKApiUser.getPhotoLink200()
                 }), title
             ).map {
                 createChatShortcut(context, url, accountId, peerId, title)
@@ -215,7 +215,7 @@ object ShortcutUtils {
     @SuppressLint("ReportShortcutUsage")
     fun addDynamicShortcut(context: Context, accountId: Long, peer: Peer): Flow<Boolean> {
         val app = context.applicationContext
-        return loadRoundAvatar(peer.avaUrl ?: VKApiUser.CAMERA_50)
+        return loadRoundAvatar(peer.avaUrl ?: VKApiUser.getPhotoLink200())
             .flatMapConcat {
                 flow {
                     val manager = app.getSystemService(ShortcutManager::class.java)

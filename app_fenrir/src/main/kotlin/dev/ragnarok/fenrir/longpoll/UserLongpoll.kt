@@ -74,9 +74,9 @@ internal class UserLongpoll(
                 networker.vkDefault(accountId)
                     .messages()
                     .getLongpollServer(true, V)
-                    .fromIOToMain({ info -> onServerInfoReceived(info) }) { throwable ->
+                    .fromIOToMain({ onServerInfoReceived(it) }) {
                         onServerGetError(
-                            throwable
+                            it
                         )
                     })
             return
@@ -91,9 +91,9 @@ internal class UserLongpoll(
                     MODE,
                     V
                 )
-                .fromIOToMain({ updates -> onUpdates(updates) }) { throwable ->
+                .fromIOToMain({ onUpdates(it) }) {
                     onUpdatesGetError(
-                        throwable
+                        it
                     )
                 })
     }
@@ -144,10 +144,9 @@ internal class UserLongpoll(
         private const val TAG = "Longpoll_TAG"
         private const val DELAY_ON_ERROR = 10 * 1000
         private const val V = 10
-        private const val MODE = 2 +  //получать вложения;
-                8 +  // возвращать расширенный набор событий;
-                //32 + //возвращать pts (это требуется для работы метода messages.getLongPollHistory без ограничения в 256 последних событий);
-                64 +  //в событии с кодом 8 (друг стал онлайн) возвращать дополнительные данные в поле $extra (подробнее в разделе Структура событий);
-                128 //возвращать с сообщением параметр random_id (random_id может быть передан при отправке сообщения методом messages.send).
+        private const val MODE = (1 shl 1) or  //получать вложения;
+                (1 shl 3) or // возвращать расширенный набор событий;
+                //(1 shl 5) //возвращать pts (это требуется для работы метода messages.getLongPollHistory без ограничения в 256 последних событий);
+                (1 shl 7) //возвращать с сообщением параметр random_id (random_id может быть передан при отправке сообщения методом messages.send).
     }
 }

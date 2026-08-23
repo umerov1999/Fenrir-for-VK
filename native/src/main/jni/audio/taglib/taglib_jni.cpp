@@ -22,7 +22,7 @@ static string fixCov(const char *str) {
 }
 
 
-extern "C" JNIEXPORT jboolean
+extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_FileUtils_audioTagModifyNative(JNIEnv *env, jobject,
                                                                jstring audio_file,
                                                                jstring cover_file,
@@ -118,7 +118,7 @@ Java_dev_ragnarok_fenrir_module_FileUtils_audioTagModifyNative(JNIEnv *env, jobj
                   TagLib::File::Duplicate);
 }
 
-extern "C" JNIEXPORT jboolean
+extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_FileUtils_audioTagStripNative(JNIEnv *env, jobject,
                                                               jstring audio_file) {
     char const *audio_fileString = SafeGetStringUTFChars(env, audio_file, nullptr);

@@ -173,6 +173,7 @@ static jobject NewReaderResult(JNIEnv *env, const Barcode &result) {
             "I"
             "Ljava/lang/String;"
             "Ljava/lang/String;"
+            "Ljava/lang/String;"
             "I"
             "I"
             "Ljava/lang/String;"
@@ -189,6 +190,7 @@ static jobject NewReaderResult(JNIEnv *env, const Barcode &result) {
                           result.orientation(),
                           valid ? C2JString(env, result.ecLevel()) : nullptr,
                           valid ? C2JString(env, result.symbologyIdentifier()) : nullptr,
+                          valid ? C2JString(env, result.extra()) : nullptr,
                           result.sequenceSize(),
                           result.sequenceIndex(),
                           valid ? C2JString(env, result.sequenceId()) : nullptr,

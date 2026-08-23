@@ -59,7 +59,7 @@ class ReplyFCMMessage {
     }
 
     private fun notifyImpl(context: Context, owner: Owner, bitmap: Bitmap?) {
-        val url = "vk.ru/$place"
+        val url = "${get().main().domain}/$place"
         val commented = findCommentedFrom(url)
         if (commented == null) {
             e(TAG, "Unknown place: $place")

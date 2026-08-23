@@ -478,7 +478,9 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
                         requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                     val clip = ClipData.newPlainText(
                         getString(R.string.link),
-                        "https://vk.ru/video" + video.ownerId + "_" + video.id
+                        "https://${
+                            Settings.get().main().domain
+                        }/video" + video.ownerId + "_" + video.id
                     )
                     clipboard?.setPrimaryClip(clip)
                     customToast?.showToast(R.string.copied_url)
@@ -550,7 +552,9 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
                 when (items[which].key) {
                     Methods.SHARE_LINK -> shareLink(
                         requireActivity(),
-                        "https://vk.ru/video" + video.ownerId + "_" + video.id,
+                        "https://${
+                            Settings.get().main().domain
+                        }/video" + video.ownerId + "_" + video.id,
                         video.title
                     )
 

@@ -338,9 +338,9 @@ bool LottieParser::getValue(RGB32& color)
         if (!nextArrayValue()) return false;
     }
 
-    color.r = REMAP255(getFloat());
-    color.g = REMAP255(getFloat());
-    color.b = REMAP255(getFloat());
+    color.r = remap255<int32_t>(getFloat());
+    color.g = remap255<int32_t>(getFloat());
+    color.b = remap255<int32_t>(getFloat());
 
     while (nextArrayValue()) getFloat(); //drop
     colorReplaceInternal.getCustomColorLottie32(color.r, color.g, color.b);
@@ -999,69 +999,44 @@ void LottieParser::parseVolume(LottieLayer* layer)
     }
 }
 
+bool LottieParser::parseAssetSource(AssetSrc& src, const char* data, const char* subPath, const char* type, bool embedded, bool& external)
+{
+    auto dlen = strlen(data);
+    if (dlen == 0) return false;
+
+    auto typeLen = strlen(type);
+    if (embedded && !strncmp(data, type, typeLen)) {
+        auto mime = data + typeLen;
+        auto semi = strstr(mime, ";");
+        if (!semi) return false;
+        src.mimeType = duplicate(mime, semi - mime);
+        auto b64 = strstr(semi, ",");
+        if (!b64) return false;
+        ++b64;
+        src.size = b64Decode(b64, dlen - (b64 - data), &src.data);
+    } else if (!strncmp(data, "https://", 8) || !strncmp(data, "http://", 7)) {
+        src.path = duplicate(data);
+    } else {
+        auto subPathLen = subPath ? strlen(subPath) : 0;
+        auto len = strlen(dirName) + subPathLen + dlen + 2;
+        src.path = tvg::malloc<char>(len);
+        snprintf(src.path, len, "%s/%s%s", dirName, subPath ? subPath : "", data);
+        external = true;
+    }
+    return true;
+}
 
 void LottieParser::parseAudio(LottieAudio* audio, const char* data, const char* subPath, bool embedded)
 {
-    auto dlen = strlen(data);
-    if (dlen == 0) return;
-
-    if (embedded && !strncmp(data, "data:audio/", 11)) {
-        auto mime = data + 11;
-        auto semi = strstr(mime, ";");
-        if (!semi) return;
-        audio->mimeType = duplicate(mime, semi - mime);
-        auto b64 = strstr(semi, ",");
-        if (!b64) return;
-        ++b64;
-        audio->size = b64Decode(b64, dlen - (b64 - data), &audio->data);
-    } else if (!strncmp(data, "https://", 8) || !strncmp(data, "http://", 7)) {
-        audio->path = duplicate(data);
-    } else {
-        auto subPathLen = subPath ? strlen(subPath) : 0;
-        auto len = strlen(dirName) + subPathLen + dlen + 2;
-        audio->path = tvg::malloc<char>(len);
-        snprintf(audio->path, len, "%s/%s%s", dirName, subPath ? subPath : "", data);
-    }
+    parseAssetSource(audio->src, data, subPath, "data:audio/", embedded, audio->src.external);
 }
 
-
-void LottieParser::parseImage(LottieImage* image, const char* data, const char* subPath, bool embedded, float width, float height)
+void LottieParser::parseImage(LottieImage* image, const char* data, const char* subPath, float width, float height, bool embedded)
 {
-    auto dlen = strlen(data);
-    if (dlen == 0) return;
-
-    auto external = false;
-
-    //embedded image resource. should start with "data:"
-    //header look like "data:image/png;base64," so need to skip till ','.
-    if (embedded && !strncmp(data, "data:image/", 11)) {
-        //figure out the mimetype
-        auto mimeType = data + 11;
-        auto needle = strstr(mimeType, ";");
-        if (!needle) return;
-        image->bitmap.mimeType = duplicate(mimeType, needle - mimeType);
-        //b64 data
-        auto b64Data = strstr(needle, ",");
-        if (!b64Data) return;
-        ++b64Data;
-        size_t length = dlen - (b64Data - data);
-        image->bitmap.size = b64Decode(b64Data, length, &image->bitmap.data);
-    //remote image resource (https:// or http://)
-    } else if (!strncmp(data, "https://", 8) || !strncmp(data, "http://", 7)) {
-        image->bitmap.path = duplicate(data);
-    //external image resource
-    } else {
-        auto subPathLen = subPath ? strlen(subPath) : 0;
-        auto len = strlen(dirName) + subPathLen + dlen + 2;
-        image->bitmap.path = tvg::malloc<char>(len);
-        snprintf(image->bitmap.path, len, "%s/%s%s", dirName, subPath ? subPath : "", data);
-        external = true;
-    }
-    image->bitmap.width = width;
-    image->bitmap.height = height;
-    image->prepare(external);
+    if (!parseAssetSource(image->asset, data, subPath, "data:image/", embedded, image->asset.external)) return;
+    image->asset.width = width;
+    image->asset.height = height;
 }
-
 
 LottieObject* LottieParser::parseAsset()
 {
@@ -1087,7 +1062,7 @@ LottieObject* LottieParser::parseAsset()
                 id = _int2str(getInt());
             }
         }
-        else if (KEY_AS("layers")) obj = parseLayers(comp->root);
+        else if (KEY_AS("layers")) obj = parseLayers();
         else if (KEY_AS("u")) subPath = getString();
         else if (KEY_AS("p")) data = getString();
         else if (KEY_AS("w")) width = getFloat();
@@ -1098,14 +1073,12 @@ LottieObject* LottieParser::parseAsset()
     }
     if (data) {
         if (!strncmp(data, "data:image/", 11) || width != 0.0f || height != 0.0f) {
-            auto asset = new LottieImage;
-            parseImage(asset, data, subPath, embedded, width, height);
-            if (sid) registerSlot(asset, sid, asset->bitmap);
-            obj = asset;
+            obj = new LottieImage;
+            parseImage(static_cast<LottieImage*>(obj), data, subPath, width, height, embedded);
+            if (sid) registerSlot(static_cast<LottieImage*>(obj), sid, static_cast<LottieImage*>(obj)->asset);
         } else if (!strncmp(data, "data:audio/", 11) || !embedded) {
-            auto asset = new LottieAudio;
-            parseAudio(asset, data, subPath, embedded);
-            obj = asset;
+            obj = new LottieAudio;
+            parseAudio(static_cast<LottieAudio*>(obj), data, subPath, embedded);
         } else TVGLOG("LOTTIE", "Unexpected data type");
     }
     if (obj) obj->id = id;
@@ -1139,7 +1112,8 @@ void LottieParser::parseFontData(LottieFont* font, const char* data)
         font->size = b64Decode(data, strlen(data), &font->b64src);
     //external font resource
     } else {
-        font->path = duplicate(data);
+        font->b64src = duplicate(data);
+        font->path = true;
     }
 }
 
@@ -1259,7 +1233,7 @@ LottieObject* LottieParser::parseGroup()
 
 void LottieParser::parseTimeRemap(LottieLayer* layer)
 {
-    parseProperty(layer->timeRemap);
+    parseProperty(layer->timeRemap, layer);
 }
 
 
@@ -1595,12 +1569,11 @@ void LottieParser::parseEffects(LottieLayer* layer)
     }
 }
 
-
-LottieLayer* LottieParser::parseLayer(LottieLayer* precomp)
+LottieLayer* LottieParser::parseLayer(LottieRootLayer* precomp)
 {
     auto layer = new LottieLayer;
 
-    layer->comp = precomp;
+    layer->precomp = precomp;
     context.layer = layer;
 
     auto ddd = false;
@@ -1654,13 +1627,9 @@ LottieLayer* LottieParser::parseLayer(LottieLayer* precomp)
     return layer;
 }
 
-
-LottieLayer* LottieParser::parseLayers(LottieLayer* root)
+LottieRootLayer* LottieParser::parseLayers()
 {
-    auto precomp = new LottieLayer;
-
-    precomp->type = LottieLayer::Precomp;
-    precomp->comp = root;
+    auto precomp = new LottieRootLayer;
 
     enterArray();
     while (nextArrayValue()) {
@@ -1670,7 +1639,6 @@ LottieLayer* LottieParser::parseLayers(LottieLayer* root)
     precomp->prepare();
     return precomp;
 }
-
 
 void LottieParser::postProcess(Array<LottieGlyph*>& glyphs)
 {
@@ -1742,14 +1710,13 @@ LottieProperty* LottieParser::parse(LottieSlot* slot)
             break;
         }
         case LottieProperty::Type::ColorStop: {
-            auto obj = new LottieGradient(&colorReplaceInternal);
+            LottieGradient obj(slot->context.parent->type, &colorReplaceInternal);
             while (auto key = nextObjectKey()) {
-                if (KEY_AS("p")) parseColorStop(obj);
+                if (KEY_AS("p")) parseColorStop(&obj);
                 else skip();
             }
-            obj->prepare();
-            prop = new LottieColorStop(obj->colorStops);
-            delete(obj);
+            obj.prepare();
+            prop = new LottieColorStop(obj.colorStops);
             break;
         }
         case LottieProperty::Type::TextDoc: {
@@ -1764,7 +1731,7 @@ LottieProperty* LottieParser::parse(LottieSlot* slot)
                 else skip();
             }
             if (!obj) return nullptr;
-            prop = new LottieBitmap(static_cast<LottieImage*>(obj)->bitmap);
+            prop = new LottieAsset(static_cast<LottieImage*>(obj)->asset);
             delete(obj);
             break;
         }
@@ -1840,7 +1807,7 @@ bool LottieParser::parse()
         else if (KEY_AS("h")) comp->h = getFloat();
         else if (KEY_AS("nm")) comp->name = getStringCopy();
         else if (KEY_AS("assets")) parseAssets();
-        else if (KEY_AS("layers")) comp->root = parseLayers(comp->root);
+        else if (KEY_AS("layers")) comp->root = parseLayers();
         else if (KEY_AS("fonts")) parseFonts();
         else if (KEY_AS("chars")) parseChars(glyphs);
         else if (KEY_AS("markers")) parseMarkers();

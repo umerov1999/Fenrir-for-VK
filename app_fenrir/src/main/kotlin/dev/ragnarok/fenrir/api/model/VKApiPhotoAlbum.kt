@@ -95,21 +95,4 @@ class VKApiPhotoAlbum
 
     val isSystem: Boolean
         get() = id < 0
-
-    companion object {
-        /**
-         * URL for empty album cover with max width at 75px
-         */
-        const val COVER_S = "https://vk.ru/images/s_noalbum.png"
-
-        /**
-         * URL of empty album cover with max width at 130px
-         */
-        const val COVER_M = "https://vk.ru/images/m_noalbum.png"
-
-        /**
-         * URL of empty album cover with max width at 604px
-         */
-        const val COVER_X = "https://vk.ru/images/x_noalbum.png"
-    }
 }

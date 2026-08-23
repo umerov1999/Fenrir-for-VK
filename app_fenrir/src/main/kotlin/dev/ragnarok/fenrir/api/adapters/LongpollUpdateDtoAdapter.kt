@@ -12,9 +12,7 @@ import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsSetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionEventType
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.UserIsOfflineUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.UserIsOnlineUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.WriteTextInDialogUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.Peer
@@ -84,38 +82,16 @@ class LongpollUpdateDtoAdapter : AbsDtoAdapter<AbsLongpollEvent?>("AbsLongpollEv
                 )
             }
 
-            AbsLongpollEvent.ACTION_USER_WRITE_TEXT_IN_DIALOG -> {
-                val w = WriteTextInDialogUpdate(true)
+            AbsLongpollEvent.ACTION_USER_TYPING_TEXT_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> {
+                val w = TypingMessageOrUploadingInDialogUpdate(action)
                 w.peer_id = optLong(array, 1)
                 w.from_ids = optLongArray(array, 2, longArrayOf())
                 w.from_ids_count = optInt(array, 3)
                 return w
-            }
-
-            AbsLongpollEvent.ACTION_USER_WRITE_VOICE_IN_DIALOG -> {
-                val v = WriteTextInDialogUpdate(false)
-                v.peer_id = optLong(array, 1)
-                v.from_ids = optLongArray(array, 2, longArrayOf())
-                v.from_ids_count = optInt(array, 3)
-                return v
-            }
-
-            AbsLongpollEvent.ACTION_USER_IS_ONLINE -> {
-                val u = UserIsOnlineUpdate()
-                u.userId = -optLong(array, 1)
-                u.platform = optInt(array, 2)
-                u.timestamp = optLong(array, 3)
-                u.app_id = optInt(array, 4)
-                return u
-            }
-
-            AbsLongpollEvent.ACTION_USER_IS_OFFLINE -> {
-                val u1 = UserIsOfflineUpdate()
-                u1.userId = -optLong(array, 1)
-                u1.isTimeout = optInt(array, 2) != 0
-                u1.timestamp = optLong(array, 3)
-                u1.app_id = optInt(array, 4)
-                return u1
             }
 
             AbsLongpollEvent.ACTION_MESSAGES_FLAGS_RESET -> {

@@ -10,6 +10,7 @@ import dev.ragnarok.fenrir.api.Auth
 import dev.ragnarok.fenrir.api.exceptions.NeedValidationException
 import dev.ragnarok.fenrir.api.exceptions.VKIdCaptchaNeedException
 import dev.ragnarok.fenrir.api.interfaces.INetworker
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemProfile
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
@@ -19,6 +20,7 @@ import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayedFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
@@ -41,6 +43,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
     private var backToPasswordOnError = false
     private var requiredVKIdCaptcha: VKIdCaptcha? = null
     private var redirectUrl: String? = null
+    private var tokenNeedCode = false
 
     @AuthFlow
     private var currentFlow: Int = AuthFlow.VALIDATE_ACCOUNT
@@ -101,7 +104,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
             AuthFlow.DO_AUTH -> {
                 view?.setValidationMethods(false, null)
                 view?.setUserNameRootVisible(false)
-                view?.setCodeRootVisible(false)
+                view?.setCodeRootVisible(tokenNeedCode)
                 view?.setPasswordRootVisible(false)
             }
         }
@@ -434,7 +437,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                     }
                     authProfile = it.profile
                     if (authProfile?.photo200.isNullOrEmpty()) {
-                        authProfile?.photo200 = "https://vk.ru/images/camera_200.png"
+                        authProfile?.photo200 = VKApiUser.getPhotoLink200()
                     }
                     resolveProfile()
                     if (validateFlow != "need_password_and_validation" || it.canSkipPassword) {
@@ -476,6 +479,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                 clientId = Constants.API_ID,
                 username = username?.trim(),
                 password = password?.trim(),
+                code = if (tokenNeedCode) validationCode else null,
                 v = Constants.AUTH_API_VERSION,
                 twoFaSupported = true,
                 scope = Auth.scope,
@@ -486,6 +490,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                 sakVersion = Constants.VK_ANDROID_APP_SAK_VERSION,
                 flowType = "tg_flow"
             ).fromIOToMain({
+                tokenNeedCode = false
                 setLoadingNow(false)
                 var twoFa = "yes"
                 for (i in validateMethods.orEmpty()) {
@@ -504,6 +509,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                 )
             }, {
                 setLoadingNow(false)
+                tokenNeedCode = false
 
                 if (it is VKIdCaptchaNeedException) {
                     requiredVKIdCaptcha = VKIdCaptcha(it.redirect_uri, it.domain, null)
@@ -512,21 +518,74 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                         requiredVKIdCaptcha?.domain
                     )
                 } else if (it is NeedValidationException) {
-                    setInfoOrErrorMessage(
-                        ErrorLocalizer.localizeThrowable(
-                            Includes.provideApplicationContext(),
-                            it
-                        ), true
-                    )
-                    redirectUrl = it.validationURL
-                    if (!redirectUrl.isNullOrEmpty()) {
-                        view?.returnSuccessValidation(
-                            redirectUrl,
-                            if (username.nonNullNoEmpty()) username?.trim() else "",
-                            if (password.nonNullNoEmpty()) password?.trim() else "",
-                            "web_validation",
-                            needSavePassword
-                        )
+                    val type = it.validationType
+                    setInfoOrErrorMessage("${it.message} ${it.description}", false)
+
+                    when (type?.lowercase()) {
+                        "2fa_sms", "2fa_callreset", "2fa_app", "2fa_push" -> {
+                            it.sid.nonNullNoEmpty { sid ->
+                                currentSid = sid
+                            }
+                            tokenNeedCode = true
+                            view?.cleanCode()
+                            validationCode = null
+                            resolveFlow()
+                        }
+
+                        "2fa_libverify" -> {
+                            it.sid.nonNullNoEmpty { sid ->
+                                currentSid = sid
+                            }
+                            tokenNeedCode = true
+                            view?.cleanCode()
+                            validationCode = null
+                            resolveFlow()
+                            appendJob(
+                                networker.vkAuth()
+                                    .validatePhone(
+                                        phone = username?.trim(),
+                                        apiId = Constants.API_ID,
+                                        sid = currentSid,
+                                        v = Constants.AUTH_API_VERSION,
+                                        libVerifySupport = true,
+                                        allowCallReset = true
+                                    )
+                                    .delayedFlow(1000)
+                                    .fromIOToMain({ v ->
+                                        v.sid.nonNullNoEmpty { sid ->
+                                            currentSid = sid
+                                        }
+                                        if ("callreset" == v.validationType) {
+                                            setInfoOrErrorMessage(
+                                                Includes.provideApplicationContext()
+                                                    .getString(
+                                                        R.string.call_reset_description,
+                                                        v.codeLength
+                                                    ), false
+                                            )
+                                        }
+                                    }) { e ->
+                                        setInfoOrErrorMessage(
+                                            ErrorLocalizer.localizeThrowable(
+                                                Includes.provideApplicationContext(),
+                                                e
+                                            ), true
+                                        )
+                                    })
+                        }
+
+                        else -> {
+                            redirectUrl = it.validationURL
+                            if (!redirectUrl.isNullOrEmpty()) {
+                                view?.returnSuccessValidation(
+                                    redirectUrl,
+                                    if (username.nonNullNoEmpty()) username?.trim() else "",
+                                    if (password.nonNullNoEmpty()) password?.trim() else "",
+                                    "web_validation",
+                                    needSavePassword
+                                )
+                            }
+                        }
                     }
                 } else {
                     setInfoOrErrorMessage(

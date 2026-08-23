@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.api.interfaces.IAuthApi
 import dev.ragnarok.fenrir.api.model.Error
 import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.api.model.VKApiValidateAccount
+import dev.ragnarok.fenrir.api.model.VKApiValidatePhone
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemCheckOtp
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemSendOtp
@@ -51,6 +52,7 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
         clientId: Int,
         username: String?,
         password: String?,
+        code: String?,
         v: String?,
         twoFaSupported: Boolean,
         scope: String?,
@@ -67,6 +69,7 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                 clientId,
                 username,
                 password,
+                code,
                 v,
                 if (twoFaSupported) 1 else null,
                 scope,
@@ -173,6 +176,33 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                 v
             ).map(extractResponseWithErrorHandling())
         }
+    }
+
+    override fun validatePhone(
+        phone: String?,
+        apiId: Int,
+        sid: String?,
+        v: String?,
+        libVerifySupport: Boolean,
+        allowCallReset: Boolean
+    ): Flow<VKApiValidatePhone> {
+        return service.provideAuthService()
+            .flatMapConcat {
+                it.validatePhone(
+                    phone,
+                    apiId,
+                    sid,
+                    v,
+                    getDeviceId(
+                        Constants.DEFAULT_ACCOUNT_TYPE,
+                        provideApplicationContext()
+                    ),
+                    if (libVerifySupport) 1 else null,
+                    if (allowCallReset) 1 else null,
+                    DEVICE_COUNTRY_CODE
+                )
+                    .map(extractResponseWithErrorHandling())
+            }
     }
 
     override fun sendEcosystemOtp(

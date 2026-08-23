@@ -52,13 +52,13 @@ Result Picture::load(const char* filename, ColorReplace *colorReplacement) noexc
 
 Result Picture::load(const char* data, uint32_t size, const char* mimeType, const char* rpath, bool copy, ColorReplace *colorReplacement) noexcept
 {
-    return to<PictureImpl>(this)->load(data, size, mimeType, rpath, copy, colorReplacement);
+    return to<PictureImpl>(this)->load(data, size, mimeType, rpath, copy ? Ownership::Copy : Ownership::Borrow, colorReplacement);
 }
 
 
 Result Picture::load(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, bool copy) noexcept
 {
-    return to<PictureImpl>(this)->load(data, w, h, cs, copy);
+    return to<PictureImpl>(this)->load(data, w, h, cs, copy ? Ownership::Copy : Ownership::Borrow);
 }
 
 

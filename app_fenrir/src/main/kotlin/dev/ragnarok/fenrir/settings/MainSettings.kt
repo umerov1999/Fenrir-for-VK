@@ -457,7 +457,15 @@ internal class MainSettings(context: Context) : IMainSettings {
 
     override val authDomain: String
         get() = getPreferences(app)
-            .getString("vk_auth_domain", "oauth.vk.ru")!!.trim()
+            .getString("vk_auth_domain", "api.vk.ru/oauth")!!.trim()
+
+    override val authWebDomain: String
+        get() = getPreferences(app)
+            .getString("vk_web_auth_domain", "oauth.vk.ru")!!.trim()
+
+    override val domain: String
+        get() = getPreferences(app)
+            .getString("vk_domain", "vk.ru")!!.trim()
 
     override val isDeveloper_mode: Boolean
         get() = getPreferences(app).getBoolean("developer_mode", Constants.forceDeveloperMode)

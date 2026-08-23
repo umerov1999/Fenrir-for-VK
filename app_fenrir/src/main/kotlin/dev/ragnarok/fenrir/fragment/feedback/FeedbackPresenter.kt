@@ -50,6 +50,7 @@ class FeedbackPresenter(accountId: Long, savedInstanceState: Bundle?) :
             feedbackInteractor.getActualFeedbacks(
                 accountId,
                 COUNT_PER_REQUEST,
+                null,
                 startFrom
             )
                 .fromIOToMain({

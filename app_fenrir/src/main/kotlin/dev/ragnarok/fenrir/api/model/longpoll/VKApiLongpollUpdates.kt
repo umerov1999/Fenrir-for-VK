@@ -13,9 +13,8 @@ class VKApiLongpollUpdates {
 
     var add_message_updates: MutableList<AddMessageUpdate>? = null
 
-    var write_text_in_dialog_updates: MutableList<WriteTextInDialogUpdate>? = null
-    var user_is_online_updates: MutableList<UserIsOnlineUpdate>? = null
-    var user_is_offline_updates: MutableList<UserIsOfflineUpdate>? = null
+    var typing_message_or_uploading_in_dialog_updates: MutableList<TypingMessageOrUploadingInDialogUpdate>? =
+        null
     var message_flags_reset_updates: MutableList<MessageFlagsResetUpdate>? = null
     var message_flags_set_updates: MutableList<MessageFlagsSetUpdate>? = null
     var input_messages_set_read_updates: MutableList<InputMessagesSetReadUpdate>? = null
@@ -24,7 +23,7 @@ class VKApiLongpollUpdates {
     var message_reaction_changed_updates: MutableList<ReactionMessageChangeUpdate>? = null
 
     fun isOnlyAddMessages(): Boolean {
-        return write_text_in_dialog_updates.isNullOrEmpty() && user_is_online_updates.isNullOrEmpty() && user_is_offline_updates.isNullOrEmpty() &&
+        return typing_message_or_uploading_in_dialog_updates.isNullOrEmpty() &&
                 message_flags_reset_updates.isNullOrEmpty() && message_flags_set_updates.isNullOrEmpty() && input_messages_set_read_updates.isNullOrEmpty() &&
                 output_messages_set_read_updates.isNullOrEmpty() && badge_count_change_updates.isNullOrEmpty() && message_reaction_changed_updates.isNullOrEmpty()
     }
@@ -49,14 +48,15 @@ class VKApiLongpollUpdates {
                     update as ReactionMessageChangeUpdate
                 )
 
-            AbsLongpollEvent.ACTION_USER_IS_ONLINE -> user_is_online_updates =
-                addAndReturn(user_is_online_updates, update as UserIsOnlineUpdate)
-
-            AbsLongpollEvent.ACTION_USER_IS_OFFLINE -> user_is_offline_updates =
-                addAndReturn(user_is_offline_updates, update as UserIsOfflineUpdate)
-
-            AbsLongpollEvent.ACTION_USER_WRITE_TEXT_IN_DIALOG, AbsLongpollEvent.ACTION_USER_WRITE_VOICE_IN_DIALOG -> write_text_in_dialog_updates =
-                addAndReturn(write_text_in_dialog_updates, update as WriteTextInDialogUpdate)
+            AbsLongpollEvent.ACTION_USER_TYPING_TEXT_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_DIALOG,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> typing_message_or_uploading_in_dialog_updates =
+                addAndReturn(
+                    typing_message_or_uploading_in_dialog_updates,
+                    update as TypingMessageOrUploadingInDialogUpdate
+                )
 
             AbsLongpollEvent.ACTION_SET_INPUT_MESSAGES_AS_READ -> input_messages_set_read_updates =
                 addAndReturn(input_messages_set_read_updates, update as InputMessagesSetReadUpdate)
@@ -74,10 +74,8 @@ class VKApiLongpollUpdates {
 
     val updatesCount: Int
         get() = safeCountOfMultiple(
-            write_text_in_dialog_updates,
+            typing_message_or_uploading_in_dialog_updates,
             add_message_updates,
-            user_is_online_updates,
-            user_is_offline_updates,
             message_flags_reset_updates,
             message_flags_set_updates,
             input_messages_set_read_updates,

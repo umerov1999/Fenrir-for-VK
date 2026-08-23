@@ -1158,8 +1158,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             enabled.isChecked = settings.enabled
             enabled_audio_local_sync.isChecked = settings.enabled_audio_local_sync
 
-            view.findViewById<MaterialButton>(R.id.reboot_pc_win).setOnClickListener {
-                Includes.networkInterfaces.localServerApi().rebootPC("win")
+            view.findViewById<MaterialButton>(R.id.reboot_pc).setOnClickListener {
+                Includes.networkInterfaces.localServerApi().powerOffPC("reboot")
                     .fromIOToMain({
                         createCustomToast(
                             requireActivity(),
@@ -1168,8 +1168,8 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     }, { createCustomToast(requireActivity(), view)?.showToastThrowable(it) })
             }
 
-            view.findViewById<MaterialButton>(R.id.reboot_pc_linux).setOnClickListener {
-                Includes.networkInterfaces.localServerApi().rebootPC("linux")
+            view.findViewById<MaterialButton>(R.id.shutdown_pc).setOnClickListener {
+                Includes.networkInterfaces.localServerApi().powerOffPC("shutdown")
                     .fromIOToMain({
                         createCustomToast(
                             requireActivity(),

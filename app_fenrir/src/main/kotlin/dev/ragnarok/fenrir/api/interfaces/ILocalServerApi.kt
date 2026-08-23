@@ -66,7 +66,7 @@ interface ILocalServerApi {
     fun update_file_name(hash: String?, name: String?): Flow<Int>
 
     @CheckResult
-    fun rebootPC(type: String?): Flow<Int>
+    fun powerOffPC(type: String): Flow<Int>
 
     @CheckResult
     fun fsGet(dir: String?): Flow<Items<FileRemote>>

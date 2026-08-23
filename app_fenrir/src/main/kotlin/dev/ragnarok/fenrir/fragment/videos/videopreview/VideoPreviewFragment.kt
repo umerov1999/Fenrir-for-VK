@@ -404,7 +404,9 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
                 when (items[which].key) {
                     Methods.SHARE_LINK -> shareLink(
                         requireActivity(),
-                        "https://vk.ru/video" + video.ownerId + "_" + video.id,
+                        "https://${
+                            Settings.get().main().domain
+                        }/video" + video.ownerId + "_" + video.id,
                         video.title
                     )
 

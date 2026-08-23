@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.model.Topic
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
@@ -42,7 +43,7 @@ class TopicsAdapter(
                         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                     val clip = ClipData.newPlainText(
                         context.getString(R.string.link),
-                        "vk.ru/topic" + item.ownerId + "_" + item.id
+                        "${Settings.get().main().domain}/topic" + item.ownerId + "_" + item.id
                     )
                     clipboard?.setPrimaryClip(clip)
                     createCustomToast(context, null)?.showToast(R.string.copied)

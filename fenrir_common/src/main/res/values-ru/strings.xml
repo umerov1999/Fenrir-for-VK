@@ -39,6 +39,7 @@
     <string name="repo_local_server">Репозиторий: https://github.com/umerov1999/FenrirMediaServer/releases</string>
 
     <string name="enabled_local_server">Включен</string>
-    <string name="reboot_pc_windows">Перезапуск Windows</string>
-    <string name="reboot_pc_linux">Перезапуск Linux</string>
+    <string name="shutdown">Выключить</string>
+    <string name="reboot">Перезагрузить</string>
+    <string name="pc">Сервер (ПК):</string>
 </resources>

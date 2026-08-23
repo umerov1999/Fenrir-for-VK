@@ -8,7 +8,7 @@ import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsResetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsSetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.WriteTextInDialogUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Conversation
@@ -23,8 +23,8 @@ import dev.ragnarok.fenrir.model.ReactedMessagesPeers
 import dev.ragnarok.fenrir.model.ReactionAsset
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.SentMsg
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.model.WriteText
 import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -48,7 +48,11 @@ interface IMessagesRepository {
         updates: List<BadgeCountChangeUpdate>?
     ): Flow<Boolean>
 
-    fun handleWriteUpdates(accountId: Long, updates: List<WriteTextInDialogUpdate>?): Flow<Boolean>
+    fun handleTypingMessageOrUploadingInDialogUpdates(
+        accountId: Long,
+        updates: List<TypingMessageOrUploadingInDialogUpdate>?
+    ): Flow<Boolean>
+
     fun handleMessageReactionsChangedUpdates(
         accountId: Long,
         updates: List<ReactionMessageChangeUpdate>?
@@ -57,7 +61,7 @@ interface IMessagesRepository {
     fun observeSentMessages(): SharedFlow<SentMsg>
     fun observePeerUpdates(): SharedFlow<List<PeerUpdate>>
     fun observeMessageUpdates(): SharedFlow<List<MessageUpdate>>
-    fun observeTextWrite(): SharedFlow<List<WriteText>>
+    fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInDialog>>
     fun observePeerDeleting(): SharedFlow<PeerDeleting>
     fun getConversationSingle(accountId: Long, peerId: Long, mode: Mode): Flow<Conversation>
     fun getConversation(accountId: Long, peerId: Long, mode: Mode): Flow<Conversation>

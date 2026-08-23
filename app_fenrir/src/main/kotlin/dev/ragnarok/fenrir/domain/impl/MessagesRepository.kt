@@ -24,7 +24,7 @@ import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsResetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsSetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.WriteTextInDialogUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.MessageEditEntity
@@ -87,8 +87,8 @@ import dev.ragnarok.fenrir.model.ReactionAsset
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.SentMsg
 import dev.ragnarok.fenrir.model.Sex
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.model.WriteText
 import dev.ragnarok.fenrir.model.criteria.DialogsCriteria
 import dev.ragnarok.fenrir.model.criteria.MessagesCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -161,7 +161,8 @@ class MessagesRepository(
     private val peerUpdatePublisher = createPublishSubject<List<PeerUpdate>>()
     private val peerDeletingPublisher = createPublishSubject<PeerDeleting>()
     private val messageUpdatesPublisher = createPublishSubject<List<MessageUpdate>>()
-    private val writeTextPublisher = createPublishSubject<List<WriteText>>()
+    private val typingMessageOrUploadingInDialogPublisher =
+        createPublishSubject<List<TypingMessageOrUploadingInDialog>>()
     private val sentMessagesPublisher = createPublishSubject<SentMsg>()
     private val sendErrorsPublisher = createPublishSubject<Throwable>()
     private val compositeJob = CompositeJob()
@@ -174,8 +175,8 @@ class MessagesRepository(
         return sendErrorsPublisher
     }
 
-    override fun observeTextWrite(): SharedFlow<List<WriteText>> {
-        return writeTextPublisher
+    override fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInDialog>> {
+        return typingMessageOrUploadingInDialogPublisher
     }
 
     private fun onAccountsChanged() {
@@ -337,17 +338,24 @@ class MessagesRepository(
         return applyMessagesPatchesAndPublish(accountId, patches)
     }
 
-    override fun handleWriteUpdates(
+    override fun handleTypingMessageOrUploadingInDialogUpdates(
         accountId: Long,
-        updates: List<WriteTextInDialogUpdate>?
+        updates: List<TypingMessageOrUploadingInDialogUpdate>?
     ): Flow<Boolean> {
         return flow {
             if (updates.nonNullNoEmpty()) {
-                val list: MutableList<WriteText> = ArrayList()
+                val list: MutableList<TypingMessageOrUploadingInDialog> = ArrayList()
                 for (update in updates) {
-                    list.add(WriteText(accountId, update.peer_id, update.from_ids, update.is_text))
+                    list.add(
+                        TypingMessageOrUploadingInDialog(
+                            accountId,
+                            update.peer_id,
+                            update.from_ids,
+                            update.action
+                        )
+                    )
                 }
-                writeTextPublisher.emit(list)
+                typingMessageOrUploadingInDialogPublisher.emit(list)
             }
             emit(true)
         }

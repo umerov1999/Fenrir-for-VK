@@ -361,8 +361,10 @@
                 <data android:host="vk.ru" />
                 <data android:host="vk.cc" />
                 <data android:host="vk.me" />
+                <data android:host="vkvideo.ru" />
                 <data android:host="m.vk.com" />
                 <data android:host="m.vk.ru" />
+                <data android:host="m.vkvideo.ru" />
             </intent-filter>
         </activity>
 

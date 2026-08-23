@@ -2,9 +2,7 @@ package dev.ragnarok.fenrir.longpoll
 
 import dev.ragnarok.fenrir.api.model.longpoll.VKApiLongpollUpdates
 import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
-import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
@@ -12,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 
 class LongPollEventSaver {
     private val messagesInteractor: IMessagesRepository = messages
-    private val ownersRepository: IOwnersRepository = owners
     fun save(accountId: Long, updates: VKApiLongpollUpdates): Flow<Boolean> {
         var completable = emptyTaskFlow()
         if (updates.output_messages_set_read_updates.nonNullNoEmpty() || updates.input_messages_set_read_updates.nonNullNoEmpty()) {
@@ -33,15 +30,6 @@ class LongPollEventSaver {
                 )
             )
         }
-        if (updates.user_is_online_updates.nonNullNoEmpty() || updates.user_is_offline_updates.nonNullNoEmpty()) {
-            completable = completable.andThen(
-                ownersRepository.handleOnlineChanges(
-                    accountId,
-                    updates.user_is_offline_updates,
-                    updates.user_is_online_updates
-                )
-            )
-        }
         if (updates.badge_count_change_updates.nonNullNoEmpty()) {
             completable = completable.andThen(
                 messagesInteractor.handleUnreadBadgeUpdates(
@@ -50,11 +38,11 @@ class LongPollEventSaver {
                 )
             )
         }
-        if (updates.write_text_in_dialog_updates.nonNullNoEmpty()) {
+        if (updates.typing_message_or_uploading_in_dialog_updates.nonNullNoEmpty()) {
             completable = completable.andThen(
-                messagesInteractor.handleWriteUpdates(
+                messagesInteractor.handleTypingMessageOrUploadingInDialogUpdates(
                     accountId,
-                    updates.write_text_in_dialog_updates
+                    updates.typing_message_or_uploading_in_dialog_updates
                 )
             )
         }

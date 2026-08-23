@@ -3,8 +3,6 @@ package dev.ragnarok.fenrir.domain.impl
 import dev.ragnarok.fenrir.api.Fields
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.api.model.longpoll.UserIsOfflineUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.UserIsOnlineUpdate
 import dev.ragnarok.fenrir.db.interfaces.IOwnersStorage
 import dev.ragnarok.fenrir.db.model.UserPatch
 import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
@@ -49,7 +47,6 @@ import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.Unixtime.now
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
@@ -342,54 +339,10 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return applyPatchesThenPublish(accountId, listOf(patch))
     }
 
-    override fun handleOnlineChanges(
-        accountId: Long,
-        offlineUpdates: List<UserIsOfflineUpdate>?,
-        onlineUpdates: List<UserIsOnlineUpdate>?
-    ): Flow<Boolean> {
-        val patches: MutableList<UserPatch> = ArrayList()
-        if (offlineUpdates.nonNullNoEmpty()) {
-            for (update in offlineUpdates) {
-                val lastSeeenUnixtime =
-                    if (update.isTimeout) now() - 5 * 60 else update.timestamp
-                patches.add(
-                    UserPatch(update.userId).setOnlineUpdate(
-                        UserPatch.Online(
-                            false,
-                            lastSeeenUnixtime,
-                            0
-                        )
-                    )
-                )
-            }
-        }
-        if (onlineUpdates.nonNullNoEmpty()) {
-            for (update in onlineUpdates) {
-                patches.add(
-                    UserPatch(update.userId).setOnlineUpdate(
-                        UserPatch.Online(
-                            true,
-                            now(),
-                            update.platform
-                        )
-                    )
-                )
-            }
-        }
-        return applyPatchesThenPublish(accountId, patches)
-    }
-
     private fun applyPatchesThenPublish(accountId: Long, patches: List<UserPatch>): Flow<Boolean> {
         val updates: MutableList<UserUpdate> = ArrayList(patches.size)
         for (patch in patches) {
             val update = UserUpdate(accountId, patch.userId)
-            patch.online.requireNonNull {
-                update.online = UserUpdate.Online(
-                    it.isOnline,
-                    it.lastSeen,
-                    it.platform
-                )
-            }
             patch.status.requireNonNull {
                 update.status = it.status?.let { it1 -> UserUpdate.Status(it1) }
             }

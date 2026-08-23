@@ -67,6 +67,7 @@
     <string name="repo">Repository: https://github.com/umerov1999/Fenrir-for-VK</string>
     <string name="repo_local_server">Repository: https://github.com/umerov1999/FenrirMediaServer/releases</string>
     <string name="enabled_local_server">Enabled</string>
-    <string name="reboot_pc_windows">Reboot Windows</string>
-    <string name="reboot_pc_linux">Reboot Linux</string>
+    <string name="shutdown">Shutdown</string>
+    <string name="reboot">Reboot</string>
+    <string name="pc">Server (PC):</string>
 </resources>

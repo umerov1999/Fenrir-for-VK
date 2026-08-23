@@ -10,7 +10,7 @@ extern jint FFMPEG_JNI_OnLoad(JNIEnv *env);
 
 extern "C" int av_jni_set_java_vm(void *vm, void *log_ctx);
 
-extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
+extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
     JNIEnv *env = nullptr;
     std::random_device dev;
     srand(dev());
@@ -30,7 +30,14 @@ extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
     return JNI_VERSION_1_6;
 }
 
-extern "C" JNIEXPORT void JNI_OnUnload(JavaVM *, void *) {
+extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *, void *) {
     tvg::Initializer::term();
     fenrirNativeThorVGInited = false;
+}
+
+extern "C" char *__cxa_demangle(const char *, char *, size_t *, int *status) {
+    if (status) {
+        *status = -3; // invalid argument -- the handler then prints the mangled name and what()
+    }
+    return nullptr;
 }

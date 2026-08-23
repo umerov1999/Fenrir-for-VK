@@ -623,7 +623,7 @@ class DialogsPresenter(
         val app = applicationContext
         appendJob(
             createChatShortcutRx(
-                app, dialog.imageUrl ?: VKApiUser.CAMERA_50, accountId,
+                app, dialog.imageUrl ?: VKApiUser.getPhotoLink200(), accountId,
                 dialog.peerId, dialog.getDisplayTitle(app) ?: ("id" + dialog.peerId)
             )
                 .fromIOToMain({ onShortcutCreated() }) { throwable ->

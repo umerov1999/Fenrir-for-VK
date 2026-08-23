@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.VKApiValidateAccount
+import dev.ragnarok.fenrir.api.model.VKApiValidatePhone
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemCheckOtp
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemSendOtp
@@ -19,6 +20,7 @@ class IAuthService : IServiceRest() {
         clientId: Int,
         username: String?,
         password: String?,
+        code: String?,
         v: String?,
         twoFaSupported: Int?,
         scope: String?,
@@ -40,6 +42,7 @@ class IAuthService : IServiceRest() {
                 "grant_type" to grantType,
                 "username" to username,
                 "password" to password,
+                "code" to code,
                 "2fa_supported" to twoFaSupported,
                 "anonymous_token" to anonymousToken,
                 "https" to 1,
@@ -113,6 +116,33 @@ class IAuthService : IServiceRest() {
                 "api_id" to apiId
             ),
             base(VKApiValidateAccount.serializer())
+        )
+    }
+
+    fun validatePhone(
+        phone: String?,
+        apiId: Int,
+        sid: String?,
+        v: String?,
+        deviceId: String?,
+        libVerifySupport: Int?,
+        allowCallReset: Int?,
+        lang: String?
+    ): Flow<BaseResponse<VKApiValidatePhone>> {
+        return rest.request(
+            "auth.validatePhone",
+            form(
+                "libverify_support" to libVerifySupport,
+                "allow_callreset" to allowCallReset,
+                "phone" to phone,
+                "api_id" to apiId,
+                "sid" to sid,
+                "v" to v,
+                "device_id" to deviceId,
+                "lang" to lang,
+                "https" to 1
+            ),
+            base(VKApiValidatePhone.serializer())
         )
     }
 

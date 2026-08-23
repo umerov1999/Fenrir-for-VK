@@ -93,6 +93,8 @@ class SettingsBackup {
         var new_loading_dialog: Boolean? = null
         var vk_api_domain: String? = null
         var vk_auth_domain: String? = null
+        var vk_web_auth_domain: String? = null
+        var vk_domain: String? = null
         var developer_mode: Boolean? = null
         var do_logs: Boolean? = null
         var force_cache: Boolean? = null

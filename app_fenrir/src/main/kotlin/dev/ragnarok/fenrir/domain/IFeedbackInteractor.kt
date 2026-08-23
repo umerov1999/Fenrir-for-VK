@@ -10,6 +10,7 @@ interface IFeedbackInteractor {
     fun getActualFeedbacks(
         accountId: Long,
         count: Int,
+        filters: String?,
         startFrom: String?
     ): Flow<Pair<List<Feedback>, String?>>
 

@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.api.model.VKApiMarketAlbum
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.response.GroupByIdResponse
-import dev.ragnarok.fenrir.api.model.response.GroupLongpollServer
 import dev.ragnarok.fenrir.api.model.response.GroupWallInfoResponse
 import dev.ragnarok.fenrir.api.rest.IServiceRest
 import kotlinx.coroutines.flow.Flow
@@ -249,14 +248,6 @@ class IGroupsService : IServiceRest() {
                 "offset" to offset,
                 "count" to count
             ), items(VKApiCommunity.serializer())
-        )
-    }
-
-    fun getLongPollServer(groupId: Long): Flow<BaseResponse<GroupLongpollServer>> {
-        return rest.request(
-            "groups.getLongPollServer",
-            form("group_id" to groupId),
-            base(GroupLongpollServer.serializer())
         )
     }
 

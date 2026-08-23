@@ -20,65 +20,40 @@
  * SOFTWARE.
  */
 
+#ifndef TVG_GIF_ENCODER_H
+#define TVG_GIF_ENCODER_H
 
-//
-// gif.h
-// by Charlie Tangora
-// Public domain.
-// Email me : ctangora -at- gmail -dot- com
-//
-// This file offers a simple, very limited way to create animated GIFs directly in code.
-//
-// Those looking for particular cleverness are likely to be disappointed; it's pretty
-// much a straight-ahead implementation of the GIF format with optional Floyd-Steinberg
-// dithering. (It does at least use delta encoding - only the changed portions of each
-// frame are saved.)
-//
-// So resulting files are often quite large. The hope is that it will be handy nonetheless
-// as a quick and easily-integrated way for programs to spit out animations.
-//
-// Only RGBA8 is currently supported as an input format. (The alpha is ignored.)
-//
-// USAGE:
-// Create a GifWriter struct. Pass it to GifBegin() to initialize and write the header.
-// Pass subsequent frames to GifWriteFrame().
-// Finally, call GifEnd() to close the file handle and free memory.
-//
-
-#ifndef tvgGifEncoder_h
-#define tvgGifEncoder_h
-
-#include <memory.h>
-#include <cstdio>
-#include <cstdint>
-
-
-#define TRANSPARENT_IDX 0
-#define TRANSPARENT_THRESHOLD 127
-#define BIT_DEPTH 8
-
-typedef struct
+struct GifRGB
 {
-    uint8_t r[256];
-    uint8_t g[256];
-    uint8_t b[256];
+    uint8_t r, g, b;
+};
+
+struct GifPalette
+{
+    GifRGB color[256];
 
     // k-d tree over RGB space, organized in heap fashion
     // i.e. left child of node i is node i*2, right child is node i*2+1
     // nodes 256-511 are implicitly the leaves, containing a color
     uint8_t treeSplitElt[256];
     uint8_t treeSplit[256];
-} GifPalette;
+};
 
-
-typedef struct
+struct GifWriter
 {
     FILE* f;
     uint8_t* oldImage;
     uint8_t* tmpImage;
     GifPalette pal;
     bool firstFrame;
-} GifWriter;
+};
+
+//######################################
+#define TRANSPARENT_IDX 0
+#define TRANSPARENT_THRESHOLD 127
+#define BIT_DEPTH 8
+#define LEAF_NODE 0xff
+#define MAX_PAL_COLORS ((1 << BIT_DEPTH) - 1)
 
 // Simple structure to write out the LZW-compressed portion of the image
 // one bit at a time
@@ -99,6 +74,16 @@ typedef struct
     uint16_t m_next[256];
 } GifLzwNode;
 
+// The boxes the quantization cuts the pixels into.
+// Box i covers the pixels [start[i], start[i] + len[i]) of the working image.
+typedef struct
+{
+    int64_t sse[MAX_PAL_COLORS];      // SSE (Sum of Squared Errors) over the box
+    int start[MAX_PAL_COLORS];        // first pixel of this box within tmpImage
+    int len[MAX_PAL_COLORS];          // how many pixels it holds
+    uint8_t axis[MAX_PAL_COLORS];     // the channel carrying most of the error
+    uint8_t avg[MAX_PAL_COLORS * 3];  // the color that represents the box. alpha channel is not included.
+} GifBoxes;
 
 /************************************************************************/
 /* Internal Class Implementation                                        */
@@ -110,15 +95,16 @@ typedef struct
 // this is the major hotspot in the code at the moment.
 static void _getClosestPaletteColor( GifPalette* pPal, int r, int g, int b, int* bestInd, int* bestDiff, int treeRoot )
 {
-    // base case, reached the bottom of the tree
-    if (treeRoot > (1 << BIT_DEPTH) - 1) {
-        int ind = treeRoot-(1 << BIT_DEPTH);
+    // base case, reached a leaf or a node that holds a single color
+    if (treeRoot > (1 << BIT_DEPTH) - 1 || pPal->treeSplitElt[treeRoot] == LEAF_NODE) {
+        // A node marked LEAF_NODE keeps its palette entry in treeSplit
+        int ind = (treeRoot > (1 << BIT_DEPTH) - 1) ? treeRoot - (1 << BIT_DEPTH) : pPal->treeSplit[treeRoot];
         if(ind == TRANSPARENT_IDX) return;
 
         // check whether this color is better than the current winner
-        int r_err = r - ((int32_t)pPal->r[ind]);
-        int g_err = g - ((int32_t)pPal->g[ind]);
-        int b_err = b - ((int32_t)pPal->b[ind]);
+        int r_err = r - ((int32_t)pPal->color[ind].r);
+        int g_err = g - ((int32_t)pPal->color[ind].g);
+        int b_err = b - ((int32_t)pPal->color[ind].b);
         int diff = abs(r_err)+ abs(g_err) + abs(b_err);
 
         if(diff < *bestDiff) {
@@ -149,146 +135,121 @@ static void _getClosestPaletteColor( GifPalette* pPal, int r, int g, int b, int*
     }
 }
 
-
-static void _swapPixels(uint8_t* image, int pixA, int pixB)
+static void _swapPixels(uint8_t* image, int pixA, int pixB, int stride)
 {
-    uint8_t rA = image[pixA*4];
-    uint8_t gA = image[pixA*4+1];
-    uint8_t bA = image[pixA*4+2];
-    uint8_t aA = image[pixA*4+3];
-
-    uint8_t rB = image[pixB*4];
-    uint8_t gB = image[pixB*4+1];
-    uint8_t bB = image[pixB*4+2];
-    uint8_t aB = image[pixA*4+3];
-
-    image[pixA*4] = rB;
-    image[pixA*4+1] = gB;
-    image[pixA*4+2] = bB;
-    image[pixA*4+3] = aB;
-
-    image[pixB*4] = rA;
-    image[pixB*4+1] = gA;
-    image[pixB*4+2] = bA;
-    image[pixB*4+3] = aA;
+    for (int cc = 0; cc < stride; ++cc) {
+        uint8_t temp = image[pixA * stride + cc];
+        image[pixA * stride + cc] = image[pixB * stride + cc];
+        image[pixB * stride + cc] = temp;
+    }
 }
 
-
-// just the partition operation from quicksort
-static int _partition(uint8_t* image, const int left, const int right, const int elt, int pivotIndex)
+// Moves every pixel whose 'elt' component is below splitVal to the front and
+// returns how many were moved. Since the comparison is one-sided, pixels that
+// share the same value always end up on the same side of the boundary.
+static int _partitionByValue(uint8_t* image, int numPixels, int elt, int splitVal)
 {
-    const int pivotValue = image[(pivotIndex)*4+elt];
-    _swapPixels(image, pivotIndex, right-1);
-    int storeIndex = left;
-    bool split = 0;
-
-    for (int ii = left; ii < right - 1; ++ii) {
-        int arrayVal = image[ii*4+elt];
-        if(arrayVal < pivotValue) {
-            _swapPixels(image, ii, storeIndex);
+    int storeIndex = 0;
+    for (int ii = 0; ii < numPixels; ++ii) {
+        if (image[ii * 4 + elt] < splitVal) {
+            _swapPixels(image, ii, storeIndex, 4);
             ++storeIndex;
-        } else if(arrayVal == pivotValue) {
-            if (split) {
-                _swapPixels(image, ii, storeIndex);
-                ++storeIndex;
-            }
-            split = !split;
         }
     }
-    _swapPixels(image, storeIndex, right-1);
     return storeIndex;
 }
 
-
-// Perform an incomplete sort, finding all elements above and below the desired median
-static void _partitionByMedian(uint8_t* image, int left, int right, int com, int neededCenter)
+// Returns the value carried by the count/2-th element along the given channel.
+// 'below' receives how many elements fall strictly under the returned value.
+static int _findMedianValue(const uint8_t* data, int count, int axis, int stride, int* below)
 {
-    if (left < right-1) {
-        int pivotIndex = left + (right-left)/2;
-        pivotIndex = _partition(image, left, right, com, pivotIndex);
+    uint32_t hist[256] = {};
+    for (int ii = 0; ii < count; ++ii)
+        ++hist[data[ii * stride + axis]];
 
-        // Only "sort" the section of the array that contains the median
-        if(pivotIndex > neededCenter) _partitionByMedian(image, left, pivotIndex, com, neededCenter);
-        if(pivotIndex < neededCenter) _partitionByMedian(image, pivotIndex+1, right, com, neededCenter);
-    }
-}
-
-
-// Builds a palette by creating a balanced k-d tree of all pixels in the image
-static void _splitPalette(uint8_t* image, int numPixels, int firstElt, int lastElt, int splitElt, int splitDist, int treeNode, GifPalette* pal)
-{
-    if(lastElt <= firstElt || numPixels == 0) return;
-
-    // base case, bottom of the tree
-    if (lastElt == firstElt + 1) {
-        // otherwise, take the average of all colors in this subcube
-        uint64_t r=0, g=0, b=0;
-        for(int ii=0; ii<numPixels; ++ii) {
-            r += image[ii*4+0];
-            g += image[ii*4+1];
-            b += image[ii*4+2];
+    int acc = 0;
+    for (int v = 0; v < 256; ++v) {
+        acc += hist[v];
+        if (acc > count / 2) {
+            if (below) *below = acc - (int)hist[v];
+            return v;
         }
-
-        r += (uint64_t)numPixels / 2;  // round to nearest
-        g += (uint64_t)numPixels / 2;
-        b += (uint64_t)numPixels / 2;
-
-        r /= (uint64_t)numPixels;
-        g /= (uint64_t)numPixels;
-        b /= (uint64_t)numPixels;
-
-        pal->r[firstElt] = (uint8_t)r;
-        pal->g[firstElt] = (uint8_t)g;
-        pal->b[firstElt] = (uint8_t)b;
-        return;
     }
-
-    // Find the axis with the largest range
-    int minR = 255, maxR = 0;
-    int minG = 255, maxG = 0;
-    int minB = 255, maxB = 0;
-
-    for (int ii=0; ii<numPixels; ++ii) {
-        int r = image[ii*4+0];
-        int g = image[ii*4+1];
-        int b = image[ii*4+2];
-
-        if(r > maxR) maxR = r;
-        if(r < minR) minR = r;
-
-        if(g > maxG) maxG = g;
-        if(g < minG) minG = g;
-
-        if(b > maxB) maxB = b;
-        if(b < minB) minB = b;
-    }
-
-    int rRange = maxR - minR;
-    int gRange = maxG - minG;
-    int bRange = maxB - minB;
-
-    // and split along that axis. (incidentally, this means this isn't a "proper" k-d tree but I don't know what else to call it)
-    int splitCom = 1;
-    if (bRange > gRange) splitCom = 2;
-    if (rRange > bRange && rRange > gRange) splitCom = 0;
-
-    int subPixelsA = numPixels * (splitElt - firstElt) / (lastElt - firstElt);
-    int subPixelsB = numPixels-subPixelsA;
-
-    _partitionByMedian(image, 0, numPixels, splitCom, subPixelsA);
-
-    pal->treeSplitElt[treeNode] = (uint8_t)splitCom;
-    pal->treeSplit[treeNode] = image[subPixelsA*4+splitCom];
-
-    _splitPalette(image, subPixelsA, firstElt, splitElt, splitElt-splitDist, splitDist/2, treeNode*2, pal);
-    _splitPalette(image+subPixelsA*4, subPixelsB, splitElt, lastElt,  splitElt+splitDist, splitDist/2, treeNode*2+1, pal);
+    return 0;
 }
 
+// Computes the SSE, axis and average color of a box.
+// The SSE is how much color error it holds, the axis is the channel holding most of it.
+// A box with one color has an SSE of 0, so it won't be split.
+static void _computeBoxStats(const uint8_t* image, GifBoxes* boxes, int idx)
+{
+    auto pixels = image + boxes->start[idx] * 4;
+    int64_t sum[3] = {};
+    int64_t sqsum[3] = {};
+
+    auto len = boxes->len[idx];
+
+    for (int ii = 0; ii < len; ++ii) {
+        for (int cc = 0; cc < 3; ++cc) {
+            int64_t v = pixels[ii * 4 + cc];
+            sum[cc] += v;
+            sqsum[cc] += v * v;
+        }
+    }
+
+    int64_t worst = -1;
+    boxes->sse[idx] = 0;
+    boxes->axis[idx] = 0;
+
+    // Compute the squared error of each axis
+    // and store average color
+    for (int cc = 0; cc < 3; ++cc) {
+        // sqerr = sqsum - sum*sum/len
+        // sum*sum/len = q*q*len + 2*q*r + r*r/len
+        auto q = sum[cc] / len;
+        auto r = sum[cc] % len;
+        auto sqerr = sqsum[cc] - (q * q * len + 2 * q * r + r * r / len);
+
+        boxes->sse[idx] += sqerr;
+        if (sqerr > worst) {
+            worst = sqerr;
+            boxes->axis[idx] = (uint8_t)cc;
+        }
+        boxes->avg[idx * 3 + cc] = (uint8_t)((sum[cc] + len / 2) / len);
+    }
+}
+
+// Cuts the box in two at the median value of the axis that carries the most error.
+// The left stays in idx, the right goes to rhsIdx.
+static void _splitBox(uint8_t* image, GifBoxes* boxes, int idx, int rhsIdx)
+{
+    auto pixels = image + boxes->start[idx] * 4;
+
+    // Find the median value along that axis from a histogram
+    int below = -1;
+    int splitVal = _findMedianValue(pixels, boxes->len[idx], boxes->axis[idx], 4, &below);
+
+    // If the median is the smallest value in this box,
+    // move the boundary up by one to keep its whole run on the left, otherwise
+    // the left comes out empty and _computeBoxStats will be broken.
+    if (below == 0) ++splitVal;
+
+    auto left = _partitionByValue(pixels, boxes->len[idx], boxes->axis[idx], splitVal);
+
+    boxes->start[rhsIdx] = boxes->start[idx] + left;
+    boxes->len[rhsIdx] = boxes->len[idx] - left;
+
+    boxes->len[idx] = left;
+
+    _computeBoxStats(image, boxes, idx);
+    _computeBoxStats(image, boxes, rhsIdx);
+}
 
 // Finds all pixels that have changed from the previous image and
 // moves them to the from of the buffer.
 // This allows us to build a palette optimized for the colors of the
 // changed pixels only.
+// With no previous frame, every visible pixel counts as changed.
 static int _pickChangedPixels(const uint8_t* lastFrame, uint8_t* frame, int numPixels, bool transparent)
 {
     int numChanged = 0;
@@ -296,7 +257,7 @@ static int _pickChangedPixels(const uint8_t* lastFrame, uint8_t* frame, int numP
 
     for (int ii=0; ii < numPixels; ++ii) {
         if (frame[3] >= TRANSPARENT_THRESHOLD) {
-            if (transparent || (lastFrame[0] != frame[0] || lastFrame[1] != frame[1] || lastFrame[2] != frame[2])) {
+            if (!lastFrame || transparent || (lastFrame[0] != frame[0] || lastFrame[1] != frame[1] || lastFrame[2] != frame[2])) {
                 writeIter[0] = frame[0];
                 writeIter[1] = frame[1];
                 writeIter[2] = frame[2];
@@ -304,17 +265,85 @@ static int _pickChangedPixels(const uint8_t* lastFrame, uint8_t* frame, int numP
                 writeIter += 4;
             }
         }
-        lastFrame += 4;
+        if (lastFrame) lastFrame += 4;
         frame += 4;
     }
 
     return numChanged;
 }
 
+// Builds the k-d tree the lookup walks, over the finished palette colors.
+// Every node splits its colors in half, so the walk never goes deeper than BIT_DEPTH.
+// firstElt/lastElt are the palette slots this subtree owns.
+// The root owns [1, 256), since 0 is reserved for transparency.
+static void _buildSearchTree(GifPalette* pal, uint8_t* colors, int count, int firstElt, int lastElt, int treeRoot)
+{
+    // Nothing left to split
+    if (count == 1) {
+        pal->color[firstElt] = {colors[0], colors[1], colors[2]};
 
-// Creates a palette by placing all the image pixels in a k-d tree and then averaging the blocks at the bottom.
-// This is known as the "modified median split" technique
-static void _makePalette(GifWriter* writer, const uint8_t* lastFrame, const uint8_t* nextFrame, uint32_t width, uint32_t height, int bitDepth, bool transparent)
+        // If current depth is not 8
+        if (treeRoot <= (1 << BIT_DEPTH) - 1) {
+            pal->treeSplitElt[treeRoot] = LEAF_NODE;
+            pal->treeSplit[treeRoot] = (uint8_t)firstElt;
+        }
+
+        // Palette entries in range [firstElt + 1, lastElt) remain the same as prior frame,
+        // but never accessed by _getClosestPaletteColor. So it is safe.
+        // Palette dump may show these unused 'ghost entries'.
+        return;
+    }
+
+    // Cut on the channel the colors are most spread out over
+    uint8_t min[3] = {255, 255, 255};
+    uint8_t max[3] = {0, 0, 0};
+    for (int ii = 0; ii < count; ++ii) {
+        for (int cc = 0; cc < 3; ++cc) {
+            if (colors[ii * 3 + cc] < min[cc]) min[cc] = colors[ii * 3 + cc];
+            if (colors[ii * 3 + cc] > max[cc]) max[cc] = colors[ii * 3 + cc];
+        }
+    }
+
+    // Find the axis with the largest range
+    int axis = 0;
+    for (int cc = 1; cc < 3; ++cc) {
+        if (max[cc] - min[cc] > max[axis] - min[axis])
+            axis = cc;
+    }
+
+    // Find the median value along that axis from a histogram
+    int splitVal = _findMedianValue(colors, count, axis, 3, nullptr);
+
+    // Use Dutch National Flag to reorder colors
+    int low = 0;
+    int mid = 0;
+    int high = count;
+    while (mid < high) {
+        int v = colors[mid * 3 + axis];
+        if (v < splitVal) {
+            _swapPixels(colors, mid, low, 3);
+            ++low;
+            ++mid;
+        } else if (v > splitVal) {
+            --high;
+            _swapPixels(colors, mid, high, 3);
+        } else {
+            ++mid;
+        }
+    }
+
+    auto splitElt = (firstElt + lastElt) / 2;
+
+    pal->treeSplitElt[treeRoot] = (uint8_t)axis;
+    pal->treeSplit[treeRoot] = (uint8_t)splitVal;
+
+    _buildSearchTree(pal, colors, count / 2, firstElt, splitElt, treeRoot * 2);
+    _buildSearchTree(pal, colors + (count / 2) * 3, count - count / 2, splitElt, lastElt, treeRoot * 2 + 1);
+}
+
+// Quantizes the pixels into up to MAX_PAL_COLORS colors by cutting them into boxes in RGB space and averaging each box.
+// A k-d tree is then built over those colors, which is what fills in the palette entries.
+static void _makePalette(GifWriter* writer, const uint8_t* lastFrame, const uint8_t* nextFrame, uint32_t width, uint32_t height, bool transparent)
 {
     auto& pal = writer->pal;
 
@@ -322,31 +351,51 @@ static void _makePalette(GifWriter* writer, const uint8_t* lastFrame, const uint
     memcpy(writer->tmpImage, nextFrame, imageSize);
 
     int numPixels = (int)(width * height);
-    if (lastFrame) numPixels = _pickChangedPixels(lastFrame, writer->tmpImage, numPixels, transparent);
+    numPixels = _pickChangedPixels(lastFrame, writer->tmpImage, numPixels, transparent);
 
-    const int lastElt = 1 << bitDepth;
-    const int splitElt = lastElt/2;
-    const int splitDist = splitElt/2;
+    if (numPixels == 0) return;
 
-    _splitPalette(writer->tmpImage, numPixels, 1, lastElt, splitElt, splitDist, 1, &pal);
+    // Start with a single large box that contains the picked pixels
+    GifBoxes boxes;
+    boxes.start[0] = 0;
+    boxes.len[0] = numPixels;
+    _computeBoxStats(writer->tmpImage, &boxes, 0);
 
-    // add the bottom node for the transparency index
-    pal.treeSplit[1 << (bitDepth-1)] = 0;
-    pal.treeSplitElt[1 << (bitDepth-1)] = 0;
-    pal.r[0] = pal.g[0] = pal.b[0] = 0;
+    int numBoxes = 1;
+
+    // Split boxes until there are MAX_PAL_COLORS of them
+    while (numBoxes < MAX_PAL_COLORS) {
+        // Select the box with the highest error for splitting
+        int target = -1;
+        int64_t worst = 0;
+        for (int ii = 0; ii < numBoxes; ++ii) {
+            if (boxes.sse[ii] > worst) {
+                worst = boxes.sse[ii];
+                target = ii;
+            }
+        }
+
+        // If every box holds a single color
+        if (target < 0) break;
+
+        _splitBox(writer->tmpImage, &boxes, target, numBoxes);
+        ++numBoxes;
+    }
+
+    _buildSearchTree(&pal, boxes.avg, numBoxes, 1, 1 << BIT_DEPTH, 1);
 }
 
 
-void _palettizePixel(const uint8_t* nextFrame, uint8_t* outFrame, GifPalette* pPal)
+static void _palettizePixel(const uint8_t* nextFrame, uint8_t* outFrame, GifPalette* pPal)
 {
     int32_t bestDiff = 1000000;
     int32_t bestInd = 1;
     _getClosestPaletteColor(pPal, nextFrame[0], nextFrame[1], nextFrame[2], &bestInd, &bestDiff, 1);
 
     // Write the resulting color to the output buffer
-    outFrame[0] = pPal->r[bestInd];
-    outFrame[1] = pPal->g[bestInd];
-    outFrame[2] = pPal->b[bestInd];
+    outFrame[0] = pPal->color[bestInd].r;
+    outFrame[1] = pPal->color[bestInd].g;
+    outFrame[2] = pPal->color[bestInd].b;
     outFrame[3] = (uint8_t)bestInd;
 }
 
@@ -439,13 +488,9 @@ static void _writePalette(const GifPalette* pPal, FILE* f)
     fputc(0, f);
 
     for (int ii = 1; ii < (1 << BIT_DEPTH); ++ii) {
-        uint32_t r = pPal->r[ii];
-        uint32_t g = pPal->g[ii];
-        uint32_t b = pPal->b[ii];
-
-        fputc((int)r, f);
-        fputc((int)g, f);
-        fputc((int)b, f);
+        fputc((int)pPal->color[ii].r, f);
+        fputc((int)pPal->color[ii].g, f);
+        fputc((int)pPal->color[ii].b, f);
     }
 }
 
@@ -565,14 +610,14 @@ static void _writeLzwImage(GifWriter* writer, uint32_t width, uint32_t height, u
 /************************************************************************/
 
 
-bool gifBegin(GifWriter* writer, const char* filename, uint32_t width, uint32_t height, uint32_t delay)
+static bool gifBegin(GifWriter* writer, const char* filename, uint32_t width, uint32_t height, uint32_t delay)
 {
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-	writer->f = 0;
+    #if defined(_MSC_VER) && (_MSC_VER >= 1400)
+    writer->f = 0;
     fopen_s(&writer->f, filename, "wb");
-#else
+    #else
     writer->f = fopen(filename, "wb");
-#endif
+    #endif
     if (!writer->f) return false;
 
     writer->firstFrame = true;
@@ -618,18 +663,20 @@ bool gifBegin(GifWriter* writer, const char* filename, uint32_t width, uint32_t 
         fputc(0, writer->f); // block terminator
     }
 
+    memset(&writer->pal, 0, sizeof(GifPalette));
+
     return true;
 }
 
 
-bool gifWriteFrame(GifWriter* writer, const uint8_t* image, uint32_t width, uint32_t height, uint32_t delay, bool transparent)
+static bool gifWriteFrame(GifWriter* writer, const uint8_t* image, uint32_t width, uint32_t height, uint32_t delay, bool transparent)
 {
     if (!writer->f) return false;
 
     const uint8_t* oldImage = writer->firstFrame? nullptr : writer->oldImage;
     writer->firstFrame = false;
 
-    _makePalette(writer, oldImage, image, width, height, 8, transparent);
+    _makePalette(writer, oldImage, image, width, height, transparent);
     _thresholdImage(writer, oldImage, image, width, height, transparent);
     _writeLzwImage(writer, width, height, delay, transparent);
 
@@ -637,7 +684,7 @@ bool gifWriteFrame(GifWriter* writer, const uint8_t* image, uint32_t width, uint
 }
 
 
-bool gifEnd(GifWriter* writer)
+static bool gifEnd(GifWriter* writer)
 {
     if (!writer->f) return false;
 
@@ -652,4 +699,4 @@ bool gifEnd(GifWriter* writer)
     return true;
 }
 
-#endif
+#endif  // TVG_GIF_ENCODER_H

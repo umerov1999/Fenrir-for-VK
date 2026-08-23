@@ -70,12 +70,13 @@ namespace tvg
 {
     enum class FileType
     {
-        Png = 0,
-        Jpg,
-        Webp,
-        Svg,
+        Svg = 0,
         Lot,
         Sfnt,
+        Png,
+        Jpg,
+        Webp,
+        Media,
         Raw,
         Gif,
         Unknown

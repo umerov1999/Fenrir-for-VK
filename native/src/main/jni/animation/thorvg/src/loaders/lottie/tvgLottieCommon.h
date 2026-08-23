@@ -45,12 +45,10 @@ struct PathSet
     }
 };
 
-
 struct RGB32
 {
     int32_t r, g, b;
 };
-
 
 struct ColorStop
 {
@@ -66,7 +64,6 @@ struct ColorStop
         if (rhs.input) TVGERR("LOTTIE", "Must be populated!");
     }
 };
-
 
 struct TextDocument
 {
@@ -96,29 +93,44 @@ struct TextDocument
     }
 };
 
-static inline int32_t REMAP255(float val)
+struct AssetSrc
 {
-    return (int32_t)nearbyintf(val * 255.0f);
-}
+    union {
+        char* data = nullptr;
+        char* path;
+    };
+    char* mimeType = nullptr;
+    uint32_t size = 0;
+    bool external = false;
 
+    ~AssetSrc()
+    {
+        release();
+    }
+
+    void release()
+    {
+        tvg::free(data);
+        tvg::free(mimeType);
+        data = mimeType = nullptr;
+        size = 0;
+    }
+};
 
 static inline RGB32 operator-(const RGB32& lhs, const RGB32& rhs)
 {
     return {lhs.r - rhs.r, lhs.g - rhs.g, lhs.b - rhs.b};
 }
 
-
 static inline RGB32 operator+(const RGB32& lhs, const RGB32& rhs)
 {
     return {lhs.r + rhs.r, lhs.g + rhs.g, lhs.b + rhs.b};
 }
 
-
 static inline RGB32 operator*(const RGB32& lhs, float rhs)
 {
     return {(int32_t)nearbyintf(lhs.r * rhs), (int32_t)nearbyintf(lhs.g * rhs), (int32_t)nearbyintf(lhs.b * rhs)};
 }
-
 
 static inline RGB32 lerp(const RGB32& s, const RGB32& e, float t)
 {
@@ -127,24 +139,6 @@ static inline RGB32 lerp(const RGB32& s, const RGB32& e, float t)
         tvg::clamp((int32_t)(s.g + (e.g - s.g) * t), (int32_t)0, (int32_t)255),
         tvg::clamp((int32_t)(s.b + (e.b - s.b) * t), (int32_t)0, (int32_t)255)
     };
-}
-
-struct Point3
-{
-    float x = 0.0f, y = 0.0f, z = 0.0f;
-};
-
-static inline Point3 operator+(const Point3& a, const Point3& b)
-{
-    return {a.x + b.x, a.y + b.y, a.z + b.z};
-}
-static inline Point3 operator-(const Point3& a, const Point3& b)
-{
-    return {a.x - b.x, a.y - b.y, a.z - b.z};
-}
-static inline Point3 operator*(const Point3& a, float t)
-{
-    return {a.x * t, a.y * t, a.z * t};
 }
 
 }

@@ -466,8 +466,7 @@ static jerry_value_t _effect(const jerry_call_info_t* info, const jerry_value_t 
     return obj;
 }
 
-
-static void _buildLayer(jerry_value_t context, float frameNo, LottieLayer* layer, LottieLayer* comp, LottieExpression* exp)
+static void _buildLayer(jerry_value_t context, float frameNo, LottieLayer* layer, LottieRootLayer* comp, LottieExpression* exp)
 {
     auto width = jerry_number(layer->w);
     jerry_object_set_sz(context, EXP_WIDTH, width);
@@ -886,7 +885,7 @@ static jerry_value_t _layerChild(const jerry_call_info_t* info, const jerry_valu
 static jerry_value_t _layer(const jerry_call_info_t* info, const jerry_value_t args[], const jerry_length_t argsCnt)
 {
     auto data = static_cast<ExpContent*>(jerry_object_get_native_ptr(info->function, &freeCb));
-    auto comp = static_cast<LottieLayer*>(data->obj);
+    auto comp = static_cast<LottieRootLayer*>(data->obj);
 
     //either index or name
     auto layer = jerry_value_is_number(args[0]) ? comp->layerByIdx((uint16_t)jerry_value_as_int32(args[0])) : comp->layerById(_idByName(args[0]));
@@ -1428,8 +1427,7 @@ void LottieExpressions::buildGlobal(Context& context, float frameNo, LottieExpre
     jerry_value_free(outPoint);
 }
 
-
-void LottieExpressions::buildComp(jerry_value_t context, float frameNo, LottieLayer* comp, LottieExpression* exp)
+void LottieExpressions::buildComp(jerry_value_t context, float frameNo, LottieRootLayer* comp, LottieExpression* exp)
 {
     //layer(index) / layer(name) / layer(otherLayer, reIndex)
     auto layer = jerry_function_external(_layer);
@@ -1527,7 +1525,7 @@ jerry_value_t LottieExpressions::evaluate(float frameNo, LottieExpression* exp)
     buildComp(context, exp->comp, frameNo, exp);
 
     //this composition
-    buildComp(context.thisComp, frameNo, exp->layer->comp, exp);
+    buildComp(context.thisComp, frameNo, exp->layer->precomp, exp);
 
     //update global context values
     _buildProperty(frameNo, context.global, exp);

@@ -172,11 +172,6 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 patch.status.requireNonNull {
                     cv.put(UsersColumns.USER_STATUS, it.status)
                 }
-                patch.online.requireNonNull {
-                    cv.put(UsersColumns.ONLINE, it.isOnline)
-                    cv.put(UsersColumns.LAST_SEEN, it.lastSeen)
-                    cv.put(UsersColumns.PLATFORM, it.platform)
-                }
                 if (cv.size() > 0) {
                     operations.add(
                         ContentProviderOperation.newUpdate(uri)

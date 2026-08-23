@@ -65,9 +65,9 @@ import dev.ragnarok.fenrir.model.PeerUpdate
 import dev.ragnarok.fenrir.model.Reaction
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.Sticker
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.UserUpdate
 import dev.ragnarok.fenrir.model.VoiceMessage
-import dev.ragnarok.fenrir.model.WriteText
 import dev.ragnarok.fenrir.module.encoder.ToMp4Audio
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
@@ -316,9 +316,9 @@ class ChatPresenter(
                 .sharedFlowToMain { onUserUpdates(it) })
 
         appendJob(
-            messagesRepository.observeTextWrite()
+            messagesRepository.observeTypingMessageOrUploadingInDialog()
                 .flatMapConcat { it.asFlow() }
-                .sharedFlowToMain { onUserWriteInDialog(it) })
+                .sharedFlowToMain { onTypingMessageOrUploading(it) })
 
         updateSubtitle()
     }
@@ -337,9 +337,9 @@ class ChatPresenter(
         resolveOptionMenu()
     }
 
-    private fun onUserWriteInDialog(writeText: WriteText) {
-        if (peerId == writeText.peerId) {
-            displayUserTextingInToolbar(writeText)
+    private fun onTypingMessageOrUploading(typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog) {
+        if (peerId == typingMessageOrUploadingInDialog.peerId) {
+            displayUserTextingInToolbar(typingMessageOrUploadingInDialog)
         }
     }
 
@@ -630,7 +630,7 @@ class ChatPresenter(
         resolveRecordingTimeView()
         resolveActionMode()
         resolveToolbarSubtitle()
-        hideWriting()
+        hideTypingMessageOrUploading()
         resolveResumePeer()
         resolveInputImagesUploading()
         resolveOptionMenu()
@@ -1431,22 +1431,25 @@ class ChatPresenter(
         return !isGroupChat && Peer.toUserId(peerId) == userId
     }
 
-    private fun displayUserTextingInToolbar(writeText: WriteText) {
+    private fun displayUserTextingInToolbar(typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog) {
         if (!Settings.get().ui().isDisplay_writing)
             return
 
-        view?.displayWriting(writeText)
+        view?.displayTypingMessageOrUploading(typingMessageOrUploadingInDialog)
         toolbarSubtitleHandler.restoreToolbarWithDelay()
     }
 
-    fun resolveWritingInfo(context: Context, writeText: WriteText) {
+    fun resolveTypingMessageOrUploading(
+        context: Context,
+        typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog
+    ) {
         appendJob(
-            OwnerInfo.getRx(context, accountId, writeText.getFrom_ids()[0])
-                .fromIOToMain { t ->
-                    view?.displayWriting(
-                        t.owner,
-                        writeText.getFrom_ids().size,
-                        writeText.isText
+            OwnerInfo.getRx(context, accountId, typingMessageOrUploadingInDialog.getFrom_ids()[0])
+                .fromIOToMain {
+                    view?.displayTypingMessageOrUploading(
+                        it.owner,
+                        typingMessageOrUploadingInDialog.getFrom_ids().size,
+                        typingMessageOrUploadingInDialog.action
                     )
                 }
         )
@@ -1584,8 +1587,8 @@ class ChatPresenter(
         view?.displayToolbarSubtitle(subtitle)
     }
 
-    internal fun hideWriting() {
-        view?.hideWriting()
+    internal fun hideTypingMessageOrUploading() {
+        view?.hideTypingMessageOrUploading()
     }
 
     private fun checkLongpoll() {
@@ -2780,7 +2783,7 @@ class ChatPresenter(
         override fun handleMessage(msg: android.os.Message) {
             reference.get()?.run {
                 when (msg.what) {
-                    RESTORE_TOLLBAR -> hideWriting()
+                    RESTORE_TOLLBAR -> hideTypingMessageOrUploading()
                 }
             }
         }

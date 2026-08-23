@@ -23,20 +23,20 @@
 #include "opus_multistream.h"  // NOLINT
 #include "fenrir_native.h"
 
-#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                                  \
-  extern "C" {                                                                \
-  JNIEXPORT RETURN_TYPE Java_androidx_media3_decoder_opus_OpusDecoder_##NAME( \
-      JNIEnv* env, jobject thiz, ##__VA_ARGS__);                              \
-  }                                                                           \
-  JNIEXPORT RETURN_TYPE Java_androidx_media3_decoder_opus_OpusDecoder_##NAME( \
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                                          \
+  extern "C" {                                                                        \
+  JNIEXPORT RETURN_TYPE JNICALL Java_androidx_media3_decoder_opus_OpusDecoder_##NAME( \
+      JNIEnv* env, jobject thiz, ##__VA_ARGS__);                                      \
+  }                                                                                   \
+  JNIEXPORT RETURN_TYPE JNICALL Java_androidx_media3_decoder_opus_OpusDecoder_##NAME( \
       JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
-#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                                  \
-  extern "C" {                                                                \
-  JNIEXPORT RETURN_TYPE Java_androidx_media3_decoder_opus_OpusLibrary_##NAME( \
-      JNIEnv* env, jobject thiz, ##__VA_ARGS__);                              \
-  }                                                                           \
-  JNIEXPORT RETURN_TYPE Java_androidx_media3_decoder_opus_OpusLibrary_##NAME( \
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                                          \
+  extern "C" {                                                                        \
+  JNIEXPORT RETURN_TYPE JNICALL Java_androidx_media3_decoder_opus_OpusLibrary_##NAME( \
+      JNIEnv* env, jobject thiz, ##__VA_ARGS__);                                      \
+  }                                                                                   \
+  JNIEXPORT RETURN_TYPE JNICALL Java_androidx_media3_decoder_opus_OpusLibrary_##NAME( \
       JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
 // JNI references for SimpleOutputBuffer class.

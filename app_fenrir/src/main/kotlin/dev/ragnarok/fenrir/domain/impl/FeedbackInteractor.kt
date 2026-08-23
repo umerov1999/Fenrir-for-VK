@@ -73,6 +73,13 @@ class FeedbackInteractor(
             }
     }
 
+    override fun hide(accountId: Long, query: String?): Flow<Boolean> {
+        return networker.vkDefault(accountId)
+            .notifications()
+            .hide(query)
+            .ignoreElement()
+    }
+
     override fun getActualFeedbacksOfficial(
         accountId: Long,
         count: Int?,
@@ -80,7 +87,7 @@ class FeedbackInteractor(
     ): Flow<FeedbackVKOfficialList> {
         return networker.vkDefault(accountId)
             .notifications()
-            .getOfficial(count, startFrom, null, null, null)
+            .getOfficial(count, startFrom)
             .flatMapConcat { uit ->
                 cache.notifications()
                     .insertOfficial(accountId, uit.items.orEmpty(), startFrom.orZero() == 0)
@@ -90,20 +97,14 @@ class FeedbackInteractor(
             }
     }
 
-    override fun hide(accountId: Long, query: String?): Flow<Boolean> {
-        return networker.vkDefault(accountId)
-            .notifications()
-            .hide(query)
-            .ignoreElement()
-    }
-
     override fun getActualFeedbacks(
         accountId: Long,
         count: Int,
-        startFrom: String?
+        filters: String?,
+        startFrom: String?,
     ): Flow<Pair<List<Feedback>, String?>> {
         return networker.vkDefault(accountId)
-            .notifications()[count, startFrom, null, null, null]
+            .notifications()[count, startFrom, filters]
             .flatMapConcat { response ->
                 val dtos = listEmptyIfNull(response.notifications)
                 val dbos: MutableList<FeedbackEntity> = ArrayList(dtos.size)

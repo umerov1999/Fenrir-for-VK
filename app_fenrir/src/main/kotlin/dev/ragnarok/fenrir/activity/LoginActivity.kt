@@ -143,7 +143,7 @@ class LoginActivity : AppCompatActivity() {
                 return
             }
             Logger.d(TAG, "url=$url")
-            if (url.startsWith(Auth.redirect_url)) {
+            if (url.startsWith(Auth.getRedirectUrl())) {
                 if (!url.contains("error=")) {
                     val intent = Intent()
                     try {

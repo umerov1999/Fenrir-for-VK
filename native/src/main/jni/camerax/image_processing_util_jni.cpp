@@ -72,7 +72,7 @@ static int Android420ToABGR(const uint8_t* src_y,
                                   height);
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeCopyBetweenByteBufferAndBitmap(
         JNIEnv* env,
         jobject,
@@ -125,7 +125,7 @@ Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeCopyBetw
     return 0;
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeShiftPixel(
         JNIEnv* env,
         jobject,
@@ -216,7 +216,7 @@ Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeShiftPix
  *
  * <p>This is for wrapping JPEG bytes with a media.Image object.
  */
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeWriteJpegToSurface(
         JNIEnv *env,
         jobject,
@@ -268,7 +268,7 @@ Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeWriteJpe
     return 0;
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeConvertAndroid420ToABGR(
         JNIEnv* env,
         jobject,
@@ -409,7 +409,7 @@ Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeConvertA
     return result;
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeConvertAndroid420ToBitmap(
         JNIEnv* env,
         jobject,
@@ -471,7 +471,8 @@ Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeConvertA
     return 0;
 }
 
-extern "C" JNIEXPORT jint Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeRotateYUV(
+extern "C" JNIEXPORT jint JNICALL
+Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeRotateYUV(
         JNIEnv* env,
         jobject,
         jobject src_y,
@@ -651,7 +652,8 @@ extern "C" JNIEXPORT jint Java_dev_ragnarok_fenrir_module_camerax_ImageProcessin
     return result;
 }
 
-extern "C" JNIEXPORT jint Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeGetYUVImageVUOff(
+extern "C" JNIEXPORT jint JNICALL
+Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeGetYUVImageVUOff(
         JNIEnv* env,
         jobject,
         jobject byte_buffer_v,
@@ -666,7 +668,7 @@ extern "C" JNIEXPORT jint Java_dev_ragnarok_fenrir_module_camerax_ImageProcessin
 /**
  * Creates ByteBuffer from the offset of the input byte buffer.
  */
-extern "C" JNIEXPORT jobject
+extern "C" JNIEXPORT jobject JNICALL
 Java_dev_ragnarok_fenrir_module_camerax_ImageProcessingUtilNative_nativeNewDirectByteBuffer(
         JNIEnv *env,
         jobject,

@@ -403,12 +403,12 @@ private:
     int flags;
 };
 
-extern "C" JNIEXPORT jlong
+extern "C" JNIEXPORT jlong JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_init(JNIEnv *, jobject, jint flags) {
     return reinterpret_cast<jlong>(new Parcel(flags));
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_forceDestroy(JNIEnv *, jobject,
                                                                  jlong parcel_native) {
     if (!parcel_native) {
@@ -419,7 +419,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_forceDestroy(JNIEnv *, jobje
     delete parcel;
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_getFlags(JNIEnv *, jobject,
                                                              jlong parcel_native) {
     if (!parcel_native) {
@@ -429,7 +429,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_getFlags(JNIEnv *, jobject,
     return Parcel::getFlags(parcel);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putBoolean(JNIEnv *, jobject,
                                                                jlong parcel_native,
                                                                jboolean value) {
@@ -440,7 +440,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putBoolean(JNIEnv *, jobject
     Parcel::putBoolean(parcel, (int8_t) value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putByte(JNIEnv *, jobject, jlong parcel_native,
                                                             jbyte value) {
     if (!parcel_native) {
@@ -450,7 +450,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putByte(JNIEnv *, jobject, j
     Parcel::putByte(parcel, value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putInt(JNIEnv *, jobject, jlong parcel_native,
                                                            jint value) {
     if (!parcel_native) {
@@ -460,7 +460,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putInt(JNIEnv *, jobject, jl
     Parcel::putInt(parcel, value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putFirstInt(JNIEnv *, jobject,
                                                                 jlong parcel_native,
                                                                 jint value) {
@@ -471,7 +471,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putFirstInt(JNIEnv *, jobjec
     Parcel::putFirstInt(parcel, value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putLong(JNIEnv *, jobject, jlong parcel_native,
                                                             jlong value) {
     if (!parcel_native) {
@@ -481,7 +481,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putLong(JNIEnv *, jobject, j
     Parcel::putLong(parcel, value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putFloat(JNIEnv *, jobject, jlong parcel_native,
                                                              jfloat value) {
     if (!parcel_native) {
@@ -491,7 +491,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putFloat(JNIEnv *, jobject, 
     Parcel::putFloat(parcel, value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putDouble(JNIEnv *, jobject,
                                                               jlong parcel_native,
                                                               jdouble value) {
@@ -502,7 +502,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putDouble(JNIEnv *, jobject,
     Parcel::putDouble(parcel, value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putNullString(JNIEnv *, jobject,
                                                                   jlong parcel_native) {
     if (!parcel_native) {
@@ -512,7 +512,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putNullString(JNIEnv *, jobj
     Parcel::putNullString(parcel);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putString(JNIEnv *env, jobject,
                                                               jlong parcel_native,
                                                               jstring value) {
@@ -527,7 +527,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putString(JNIEnv *env, jobje
     }
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putBinary(JNIEnv *env, jobject,
                                                               jlong parcel_native,
                                                               jbyteArray value) {
@@ -545,7 +545,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putBinary(JNIEnv *env, jobje
     env->ReleaseByteArrayElements(value, buf, JNI_ABORT);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putNullBinary(JNIEnv *, jobject,
                                                                   jlong parcel_native) {
     if (!parcel_native) {
@@ -555,7 +555,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_putNullBinary(JNIEnv *, jobj
     Parcel::putNullBinary(parcel);
 }
 
-extern "C" JNIEXPORT jboolean
+extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readBoolean(JNIEnv *env, jobject,
                                                                 jlong parcel_native,
                                                                 jobject listener) {
@@ -577,7 +577,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readBoolean(JNIEnv *env, job
     return (uint8_t) ret;
 }
 
-extern "C" JNIEXPORT jbyte
+extern "C" JNIEXPORT jbyte JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readByte(JNIEnv *env, jobject,
                                                              jlong parcel_native,
                                                              jobject listener) {
@@ -599,7 +599,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readByte(JNIEnv *env, jobjec
     return ret;
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readInt(JNIEnv *env, jobject,
                                                             jlong parcel_native,
                                                             jobject listener) {
@@ -621,7 +621,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readInt(JNIEnv *env, jobject
     return ret;
 }
 
-extern "C" JNIEXPORT jlong
+extern "C" JNIEXPORT jlong JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readLong(JNIEnv *env, jobject,
                                                              jlong parcel_native,
                                                              jobject listener) {
@@ -643,7 +643,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readLong(JNIEnv *env, jobjec
     return ret;
 }
 
-extern "C" JNIEXPORT jfloat
+extern "C" JNIEXPORT jfloat JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readFloat(JNIEnv *env, jobject,
                                                               jlong parcel_native,
                                                               jobject listener) {
@@ -665,7 +665,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readFloat(JNIEnv *env, jobje
     return ret;
 }
 
-extern "C" JNIEXPORT jdouble
+extern "C" JNIEXPORT jdouble JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readDouble(JNIEnv *env, jobject,
                                                                jlong parcel_native,
                                                                jobject listener) {
@@ -688,7 +688,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readDouble(JNIEnv *env, jobj
     return ret;
 }
 
-extern "C" JNIEXPORT jstring
+extern "C" JNIEXPORT jstring JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readString(JNIEnv *env, jobject,
                                                                jlong parcel_native,
                                                                jobject listener) {
@@ -716,7 +716,7 @@ Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readString(JNIEnv *env, jobj
     return res;
 }
 
-extern "C" JNIEXPORT jbyteArray
+extern "C" JNIEXPORT jbyteArray JNICALL
 Java_dev_ragnarok_fenrir_module_parcel_ParcelNative_readBinary(JNIEnv *env, jobject,
                                                                jlong parcel_native,
                                                                jobject listener) {

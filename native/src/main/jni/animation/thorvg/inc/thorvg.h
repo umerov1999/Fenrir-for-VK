@@ -8,7 +8,7 @@
 
 #define TVG_VERSION_MAJOR 1  // for compile-time checks
 #define TVG_VERSION_MINOR 1  // for compile-time checks
-#define TVG_VERSION_MICRO 0  // for compile-time checks
+#define TVG_VERSION_MICRO 1  // for compile-time checks
 
 #ifdef TVG_API
     #undef TVG_API
@@ -428,7 +428,7 @@ struct TVG_API Paint
      *
      * This is useful for selectively excluding paint objects during rendering.
      *
-     * @param[in] on A boolean flag indicating visibility. The default is @c true.
+     * @param[in] on A boolean flag indicating visibility. The initial value is @c true.
      *               @c true, the object will be rendered by the engine.
      *               @c false, the object will be excluded from the drawing process.
      *
@@ -460,7 +460,7 @@ struct TVG_API Paint
     /**
      * @brief Sets the scale value of the object.
      *
-     * @param[in] factor The value of the scaling factor. The default value is 1.
+     * @param[in] factor The value of the scaling factor. The initial value is 1.
      *
      * @retval Result::InsufficientCondition in case a custom transform is applied.
      * @see Paint::transform()
@@ -1317,7 +1317,7 @@ struct TVG_API Shape : Paint
      * in the path object. A stroke is the outline drawn along the edges of the
      * path's geometry.
      *
-     * @param[in] width The width of the stroke in pixels. Must be positive value. (The default is 0)
+     * @param[in] width The width of the stroke in pixels. Must be positive value. (The initial value is 0)
      *
      * @note A value of @p width 0 disables the stroke.
      *
@@ -1332,12 +1332,12 @@ struct TVG_API Shape : Paint
      * in the path object. The stroke color is used when rendering the outline
      * of the path geometry.
      *
-     * @param[in] r The red color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] g The green color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] b The blue color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The default value is 255.
+     * @param[in] r The red color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] g The green color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] b The blue color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The initial value is 0.
      *
-     * @note If the stroke width is 0 (default), the stroke will not be visible regardless of the color.
+     * @note If the stroke width is 0 (initial value), the stroke will not be visible regardless of the color.
      * @note Either a solid color or a gradient fill is applied, depending on what was set as last.
      *
      * @see strokeWidth()
@@ -1352,7 +1352,7 @@ struct TVG_API Shape : Paint
      *
      * @retval Result::InvalidArgument In case a @c nullptr is passed as the argument.
      *
-     * @note If the stroke width is 0 (default), the stroke will not be visible regardless of the color.
+     * @note If the stroke width is 0 (initial value), the stroke will not be visible regardless of the color.
      * @note Either a solid color or a gradient fill is applied, depending on what was set as last.
      *
      * @see strokeFill(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
@@ -1381,7 +1381,7 @@ struct TVG_API Shape : Paint
     /**
      * @brief Sets the cap style of the stroke in the open sub-paths.
      *
-     * @param[in] cap The cap style value. The default value is @c StrokeCap::Square.
+     * @param[in] cap The cap style value. The initial value is @c StrokeCap::Square.
      *
      */
     Result strokeCap(StrokeCap cap) noexcept;
@@ -1391,7 +1391,7 @@ struct TVG_API Shape : Paint
      *
      * The join style is used for joining the two line segment while stroking the path.
      *
-     * @param[in] join The join style value. The default value is @c StrokeJoin::Bevel.
+     * @param[in] join The join style value. The initial value is @c StrokeJoin::Bevel.
      *
      */
     Result strokeJoin(StrokeJoin join) noexcept;
@@ -1399,7 +1399,7 @@ struct TVG_API Shape : Paint
     /**
      * @brief Sets the stroke miterlimit.
      *
-     * @param[in] miterlimit The miterlimit imposes a limit on the extent of the stroke join, when the @c StrokeJoin::Miter join style is set. The default value is 4.
+     * @param[in] miterlimit The miterlimit imposes a limit on the extent of the stroke join, when the @c StrokeJoin::Miter join style is set. The initial value is 4.
      *
      * @retval Result::InvalidArgument for @p miterlimit values less than zero.
      * 
@@ -1426,10 +1426,10 @@ struct TVG_API Shape : Paint
      *
      * The parts of the shape defined as inner are colored.
      *
-     * @param[in] r The red color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] g The green color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] b The blue color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The default value is 255.
+     * @param[in] r The red color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] g The green color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] b The blue color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] a The alpha channel value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque. The initial value is 0.
      *
      * @note Either a solid color or a gradient fill is applied, depending on what was set as last.
      */
@@ -1450,7 +1450,7 @@ struct TVG_API Shape : Paint
      * @brief Sets the fill rule for the shape.
      *
      * Specifies how the interior of the shape is determined when its path intersects itself.
-     * The default fill rule is @c FillRule::NonZero.
+     * The initial fill rule is @c FillRule::NonZero.
      *
      * @param[in] r The fill rule to apply to the shape.
      */
@@ -1459,7 +1459,7 @@ struct TVG_API Shape : Paint
     /**
      * @brief Sets the rendering order of the stroke and the fill.
      *
-     * @param[in] strokeFirst If @c true the stroke is rendered before the fill, otherwise the stroke is rendered as the second one (the default option).
+     * @param[in] strokeFirst If @c true the stroke is rendered before the fill, otherwise the stroke is rendered as the second one (the initial option).
      *
      * @since 0.10
      */
@@ -1767,7 +1767,7 @@ struct TVG_API Picture : Paint
      * Specifies how the image data should be filtered when it is scaled or transformed
      * during rendering. This affects the visual quality and performance of the output.
      *
-     * @param[in] method The filtering method to apply. Default is @c FilterMethod::Bilinear.
+     * @param[in] method The filtering method to apply. The initial value is @c FilterMethod::Bilinear.
      *
      * @return Always returns @c Result::Success.
      *
@@ -2044,8 +2044,8 @@ struct TVG_API Text : Paint
      * Otherwise, treat it as an anchor within the text bounds which point of
      * the text box is pinned to the paint position.
      *
-     * @param[in] x Horizontal alignment/anchor in [0..1]: 0=left/start, 0.5=center, 1=right/end. (Default is 0)
-     * @param[in] y Vertical alignment/anchor in [0..1]: 0=top, 0.5=middle, 1=bottom. (Default is 0)
+     * @param[in] x Horizontal alignment/anchor in [0..1]: 0=left/start, 0.5=center, 1=right/end. (The initial value is 0)
+     * @param[in] y Vertical alignment/anchor in [0..1]: 0=top, 0.5=middle, 1=bottom. (The initial value is 0)
      *
      * @since 1.0
      *
@@ -2060,8 +2060,8 @@ struct TVG_API Text : Paint
      * the text may wrap/align inside it. If width/height == 0, the axis is
      * unconstrained and @ref align() acts as an anchor on that axis.
      *
-     * @param[in] w Layout width in user space. Use 0 for no horizontal constraint. (Default is 0)
-     * @param[in] h Layout height in user space. Use 0 for no vertical constraint. (Default is 0)
+     * @param[in] w Layout width in user space. Use 0 for no horizontal constraint. (The initial value is 0)
+     * @param[in] h Layout height in user space. Use 0 for no vertical constraint. (The initial value is 0)
      *
      * @note This defines constraints only; alignment/anchoring is controlled by @ref align().
      * @since 1.0
@@ -2078,7 +2078,7 @@ struct TVG_API Text : Paint
      * The wrapping mode determines whether text is truncated, wrapped by character or word,
      * or adjusted automatically. An ellipsis mode is also available for truncation with "...".
      *
-     * @param[in] mode The wrapping strategy to apply. Default is @c TextWrap::None
+     * @param[in] mode The wrapping strategy to apply. The initial value is @c TextWrap::None
      *
      * @see TextWrap
      * @see Text::lines()
@@ -2128,7 +2128,7 @@ struct TVG_API Text : Paint
      * This function adds an outline to the text with the specified width and RGB color.
      * The outline enhances the visibility of the text by rendering a stroke around its glyphs.
      *
-     * @param width The width of the outline. Must be positive value. (The default is 0)
+     * @param width The width of the outline. Must be positive value. (The initial value is 0)
      * @param r     Red component of the outline color (0–255).
      * @param g     Green component of the outline color (0–255).
      * @param b     Blue component of the outline color (0–255).
@@ -2143,9 +2143,9 @@ struct TVG_API Text : Paint
     /**
      * @brief Sets the text color.
      *
-     * @param[in] r The red color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] g The green color channel value in the range [0 ~ 255]. The default value is 0.
-     * @param[in] b The blue color channel value in the range [0 ~ 255]. The default value is 0.
+     * @param[in] r The red color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] g The green color channel value in the range [0 ~ 255]. The initial value is 0.
+     * @param[in] b The blue color channel value in the range [0 ~ 255]. The initial value is 0.
      *
      * @see Text::font()
      * @see Text::outline()
@@ -2180,11 +2180,11 @@ struct TVG_API Text : Paint
      *
      * @param[in] letter The scale factor for letter spacing.
      *                   Values > 1.0 increase spacing, values < 1.0 decrease it.
-     *                   Must be greater than or equal to 0.0. (default: 1.0)
+     *                   Must be greater than or equal to 0.0. The initial value is 1.0.
      *
      * @param[in] line The scale factor for line spacing.
      *                 Values > 1.0 increase line spacing, values < 1.0 decrease it.
-     *                 Must be greater than or equal to 0.0. (default: 1.0)
+     *                 Must be greater than or equal to 0.0. The initial value is 1.0.
      *
      * @since 1.0
      */
@@ -2234,7 +2234,7 @@ struct TVG_API Text : Paint
     Result metrics(const char* ch, GlyphMetrics& metrics, const char** next = nullptr) const noexcept;
 
     /**
-     * @brief Loads a scalable font data (ttf) from a file.
+     * @brief Loads a scalable font data (ttf/otf) from a file.
      *
      * ThorVG efficiently caches the loaded data using the specified @p path as a key.
      * This means that loading the same file again will not result in duplicate operations;
@@ -2252,7 +2252,7 @@ struct TVG_API Text : Paint
     static Result load(const char* filename) noexcept;
 
     /**
-     * @brief Loads a scalable font data (ttf) from a memory block of a given size.
+     * @brief Loads a scalable font data (ttf/otf) from a memory block of a given size.
      *
      * ThorVG efficiently caches the loaded font data using the specified @p name as a key.
      * This means that loading the same fonts again will not result in duplicate operations.

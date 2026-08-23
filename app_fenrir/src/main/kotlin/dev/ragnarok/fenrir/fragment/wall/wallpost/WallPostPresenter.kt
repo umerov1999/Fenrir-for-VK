@@ -356,7 +356,7 @@ class WallPostPresenter(
     }
 
     fun fireCopyLinkClick() {
-        val link = String.format("vk.ru/wall%s_%s", ownerId, postId)
+        val link = String.format("${Settings.get().main().domain}/wall%s_%s", ownerId, postId)
         view?.copyLinkToClipboard(link)
     }
 

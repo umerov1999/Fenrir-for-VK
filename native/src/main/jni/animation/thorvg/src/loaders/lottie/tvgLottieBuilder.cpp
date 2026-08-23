@@ -35,7 +35,7 @@
 /* Internal Class Implementation                                        */
 /************************************************************************/
 
-static bool _buildComposition(LottieComposition* comp, LottieLayer* parent);
+static bool _buildComposition(LottieComposition* comp, LottieRootLayer* parent);
 static bool _draw(LottieGroup* parent, LottieShape* shape, RenderContext* ctx);
 
 static void _dimension3d(LottieTransform* transform, float frameNo, Matrix& m, float angle, LottieTween& tween, LottieExpressions* exps)
@@ -960,8 +960,7 @@ void LottieBuilder::updateSolid(LottieLayer* layer)
     layer->scene->add(solidFill);
 }
 
-
-void LottieBuilder::updateImage(LottieGroup* layer)
+void LottieBuilder::updateImage(LottieLayer* layer, float frameNo)
 {
     if (layer->children.empty()) return;
 
@@ -971,18 +970,18 @@ void LottieBuilder::updateImage(LottieGroup* layer)
         return;
     }
 
-    auto picture = image->bitmap.picture;
+    auto picture = image->get();
     if (!picture) return;
 
     //resolve an image asset if need
-    if (resolver && !image->resolved) {
-        resolver->func(picture, image->bitmap.path, resolver->data);
-        picture->size(image->bitmap.width, image->bitmap.height);
-        image->resolved = true;
+    if (resolver && !image->valid) {
+        resolver->func(picture, image->asset.path, resolver->data);
+        picture->size(image->asset.width, image->asset.height);
+        image->valid = true;
     }
 
-    //LottieImage can be shared among other layers
     layer->scene->add(picture->refCnt() == 1 ? picture : picture->duplicate());
+    image->play((frameNo - layer->inFrame) / (layer->outFrame - layer->inFrame));
 }
 
 
@@ -992,19 +991,18 @@ void LottieBuilder::updateURLFont(LottieLayer* layer, float frameNo, LottieText*
     //TODO: cache the text instance, don't need to reload every frame.
     auto paint = Text::gen();
     if (paint->font(doc.name) != Result::Success) {
-        char* src;
-        bool free = false;
-        if (text->font && text->font->path) src = text->font->path;
-        else {
+        char* src = nullptr;
+        if (text->font && text->font->path) {
+            src = text->font->b64src;
+        } else {
             auto len = (strlen(doc.name) + 6);
             src = tvg::malloc<char>(sizeof(char) * len);
             snprintf(src, len, "name:%s", doc.name);
-            free = true;
         }
         if (!resolver || !resolver->func(paint, src, resolver->data)) {
-            paint->font(nullptr);  //fallback to any available font
+            paint->font(nullptr);  // fallback to any available font
         }
-        if (free) tvg::free(src);
+        if (!text->font || !text->font->path) tvg::free(src);
     }
 
     //text build
@@ -1549,7 +1547,10 @@ void LottieBuilder::updateLayer(LottieComposition* comp, Scene* scene, LottieLay
     layer->scene = nullptr;
 
     //visibility
-    if (frameNo < layer->inFrame || frameNo >= layer->outFrame) return;
+    if (frameNo < layer->inFrame || frameNo >= layer->outFrame) {
+        layer->invalidate();
+        return;
+    }
 
     updateTransform(layer, frameNo);
 
@@ -1580,7 +1581,7 @@ void LottieBuilder::updateLayer(LottieComposition* comp, Scene* scene, LottieLay
             break;
         }
         case LottieLayer::Image: {
-            updateImage(layer);
+            updateImage(layer, frameNo);
             break;
         }
         case LottieLayer::Text: {
@@ -1611,7 +1612,7 @@ static void _buildReference(LottieComposition* comp, LottieLayer* layer)
     ARRAY_FOREACH(p, comp->assets) {
         if (layer->rid != (*p)->id) continue;
         if (layer->type == LottieLayer::Precomp) {
-            auto asset = static_cast<LottieLayer*>(*p);
+            auto asset = static_cast<LottieRootLayer*>(*p);
             if (_buildComposition(comp, asset)) {
                 layer->children = asset->children;
                 layer->reqFragment = asset->reqFragment;
@@ -1648,28 +1649,33 @@ static void _buildHierarchy(LottieGroup* parent, LottieLayer* child)
     }
 }
 
-
 static void _attachFont(LottieComposition* comp, LottieLayer* parent)
 {
-    //TODO: Consider to migrate this attachment to the frame update time.
-    ARRAY_FOREACH(p, parent->children) {
-        auto text = static_cast<LottieText*>(*p);
-        auto& doc = text->doc(0);
-        if (!doc.name) continue;
-        auto len = strlen(doc.name);
-        for (uint32_t i = 0; i < comp->fonts.count; ++i) {
-            auto font = comp->fonts[i];
-            auto len2 = strlen(font->name);
-            if (len == len2 && !strcmp(font->name, doc.name)) {
-                text->font = font;
-                break;
+    if (!parent->children.empty()) {
+        // TODO: Consider to migrate this attachment to the frame update time.
+        auto child = parent->children.first();
+        if (child->type == LottieObject::Text) {
+            auto text = static_cast<LottieText*>(child);
+            auto& doc = text->doc(0);
+            if (doc.name) {
+                auto len = strlen(doc.name);
+                for (uint32_t i = 0; i < comp->fonts.count; ++i) {
+                    auto font = comp->fonts[i];
+                    auto len2 = strlen(font->name);
+                    if (len == len2 && !strcmp(font->name, doc.name)) {
+                        text->font = font;
+                        break;
+                    }
+                }
             }
+            return;
         }
     }
+    // Make the invalid text layer empty to prevent an access during rendering.
+    parent->clear();
 }
 
-
-static bool _buildComposition(LottieComposition* comp, LottieLayer* parent)
+static bool _buildComposition(LottieComposition* comp, LottieRootLayer* parent)
 {
     if (parent->children.count == 0) return false;
     if (parent->buildDone) return true;
@@ -1717,30 +1723,18 @@ void LottieBuilder::updateAudio(LottieComposition* comp, LottieLayer* layer, flo
 
     auto ctrl = layer->audio();
     auto active = frameNo >= layer->inFrame && frameNo < layer->outFrame;
+    auto volume = active ? ctrl->volume(frameNo, tween, exps) : 100.0f;
 
-    auto volume = 100.0f;
-    if (active) volume = tvg::clamp(ctrl->volume(frameNo, tween, exps), 0.0f, 100.0f);
-
-    auto changed = (active != ctrl->prevActive) ||
-                   (active && !tvg::equal(volume, ctrl->prevVolume));
-
-    if (changed) {
-        auto asset = static_cast<LottieAudio*>(layer->children.first());
-
-        LottieAudioResolver info{};
-        info.src      = asset->data;          //identifies the source on both activation and deactivation
-        info.mimeType = asset->mimeType;
-        info.size     = asset->size;
-        info.embedded = (asset->size > 0);
-        info.volume   = volume;
-        info.active   = active;
-        if (active) info.offset = (layer->remap(comp, frameNo, exps) - layer->remap(comp, layer->inFrame, exps)) / comp->frameRate;
-
+    // audio condition is changed
+    if ((active != ctrl->prevActive) || (active && !tvg::equal(volume, ctrl->prevVolume))) {
+        auto& src = static_cast<LottieAudio*>(layer->children.first())->src;
+        auto offset = active ? (layer->remap(comp, frameNo, exps) - layer->remap(comp, layer->inFrame, exps)) / comp->frameRate : 0.0f;
+        LottieAudioResolver info = {src.data, src.mimeType, src.size, offset, volume, active, (src.size > 0)};
         audioResolver.func(info, audioResolver.data);
     }
 
-    ctrl->prevActive = active;
     ctrl->prevVolume = volume;
+    ctrl->prevActive = active;
 }
 
 

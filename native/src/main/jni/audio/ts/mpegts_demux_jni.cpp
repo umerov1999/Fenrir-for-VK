@@ -6,7 +6,7 @@
 #include "MpegTsBitStream.hpp"
 #include "MpegTsDemux.hpp"
 
-extern "C" JNIEXPORT jboolean
+extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_hls_TSDemuxer_unpack(JNIEnv *env, jobject, jstring input,
                                                      jstring output, jboolean info,
                                                      jboolean print_debug) {

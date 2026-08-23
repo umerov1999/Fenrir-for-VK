@@ -28,22 +28,22 @@ extern "C" {
 
 #define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                                   \
   extern "C" {                                                                 \
-  JNIEXPORT RETURN_TYPE                                                        \
+  JNIEXPORT RETURN_TYPE JNICALL                                                \
       Java_androidx_media3_decoder_ffmpeg_FfmpegLibrary_##NAME(JNIEnv *env,    \
                                                                jobject thiz,   \
                                                                ##__VA_ARGS__); \
   }                                                                            \
-  JNIEXPORT RETURN_TYPE                                                        \
+  JNIEXPORT RETURN_TYPE JNICALL                                                \
       Java_androidx_media3_decoder_ffmpeg_FfmpegLibrary_##NAME(                \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
 #define AUDIO_DECODER_FUNC(RETURN_TYPE, NAME, ...)                   \
   extern "C" {                                                       \
-  JNIEXPORT RETURN_TYPE                                              \
+  JNIEXPORT RETURN_TYPE JNICALL                                      \
       Java_androidx_media3_decoder_ffmpeg_FfmpegAudioDecoder_##NAME( \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__);                 \
   }                                                                  \
-  JNIEXPORT RETURN_TYPE                                              \
+  JNIEXPORT RETURN_TYPE JNICALL                                      \
       Java_androidx_media3_decoder_ffmpeg_FfmpegAudioDecoder_##NAME( \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
@@ -221,7 +221,7 @@ AUDIO_DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
     AVCodecID codecId = context->codec_id;
     if (codecId == AV_CODEC_ID_TRUEHD) {
         auto outputFloat =
-        (jboolean) (context->request_sample_fmt == OUTPUT_FORMAT_PCM_FLOAT);
+                (jboolean) (context->request_sample_fmt == OUTPUT_FORMAT_PCM_FLOAT);
         // Release and recreate the context if the codec is TrueHD.
         // TODO: Figure out why flushing doesn't work for this codec.
         releaseContext(context);

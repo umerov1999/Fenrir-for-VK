@@ -49,6 +49,10 @@
     #include "tvgLottieLoader.h"
 #endif
 
+#ifdef THORVG_MEDIA_LOADER_SUPPORT
+    #include "tvgMediaLoader.h"
+#endif
+
 #include "tvgRawLoader.h"
 
 uintptr_t HASH_KEY(const char* data)
@@ -61,7 +65,7 @@ uintptr_t HASH_KEY(const char* data)
 /************************************************************************/
 
 // TODO: remove it.
-atomic<ColorSpace> ImageLoader::cs{ColorSpace::ARGB8888};
+atomic<ColorSpace> BitmapLoader::cs{ColorSpace::ARGB8888};
 
 static Key _key;
 static Inlist<tvg::Loader> _activeLoaders;
@@ -69,104 +73,65 @@ static Inlist<tvg::Loader> _activeLoaders;
 static tvg::Loader* _find(FileType type)
 {
     switch (type) {
-        case FileType::Png: {
-#ifdef THORVG_PNG_LOADER_SUPPORT
-            return new PngLoader;
-#endif
-            break;
-        }
-        case FileType::Jpg: {
-#ifdef THORVG_JPG_LOADER_SUPPORT
-            return new JpgLoader;
-#endif
-            break;
-        }
-        case FileType::Webp: {
-#ifdef THORVG_WEBP_LOADER_SUPPORT
-            return new WebpLoader;
-#endif
-            break;
-        }
-        case FileType::Svg: {
 #ifdef THORVG_SVG_LOADER_SUPPORT
-            return new SvgLoader;
+        case FileType::Svg: return new SvgLoader;
 #endif
-            break;
-        }
-        case FileType::Sfnt: {
-#ifdef THORVG_SFNT_LOADER_SUPPORT
-            return new SfntLoader;
-#endif
-            break;
-        }
-        case FileType::Lot: {
 #ifdef THORVG_LOTTIE_LOADER_SUPPORT
-            return new LottieLoader;
+        case FileType::Lot: return new LottieLoader;
 #endif
-            break;
-        }
-        case FileType::Raw: {
-            return new RawLoader;
-            break;
-        }
-        default: {
-            break;
-        }
+#ifdef THORVG_SFNT_LOADER_SUPPORT
+        case FileType::Sfnt: return new SfntLoader;
+#endif
+#ifdef THORVG_PNG_LOADER_SUPPORT
+        case FileType::Png: return new PngLoader;
+#endif
+#ifdef THORVG_JPG_LOADER_SUPPORT
+        case FileType::Jpg: return new JpgLoader;
+#endif
+#ifdef THORVG_WEBP_LOADER_SUPPORT
+        case FileType::Webp: return new WebpLoader;
+#endif
+#ifdef THORVG_MEDIA_LOADER_SUPPORT
+        case FileType::Media: return MediaLoader::gen();
+#endif
+        case FileType::Raw: return new RawLoader;
+        default: break;
     }
 
 #ifdef THORVG_LOG_ENABLED
-    const char* format;
-    switch (type) {
-        case FileType::Svg: {
-            format = "SVG";
-            break;
+    auto toString = [](FileType type) {
+        switch (type) {
+            case FileType::Svg:  return "SVG";
+            case FileType::Lot:  return "LOT";
+            case FileType::Sfnt: return "SFNT";
+            case FileType::Png:  return "PNG";
+            case FileType::Jpg:  return "JPG";
+            case FileType::Webp: return "WEBP";
+            case FileType::Media: return "MEDIA";
+            case FileType::Raw:  return "RAW";
+            case FileType::Gif:  return "GIF";
+            default:             return "???";
         }
-        case FileType::Sfnt: {
-            format = "SFNT";
-            break;
-        }
-        case FileType::Lot: {
-            format = "LOT";
-            break;
-        }
-        case FileType::Raw: {
-            format = "RAW";
-            break;
-        }
-        case FileType::Png: {
-            format = "PNG";
-            break;
-        }
-        case FileType::Jpg: {
-            format = "JPG";
-            break;
-        }
-        case FileType::Webp: {
-            format = "WEBP";
-            break;
-        }
-        default: {
-            format = "???";
-            break;
-        }
-    }
-    TVGLOG("RENDERER", "%s format is not supported", format);
+    };
+    TVGLOG("RENDERER", "%s format is not supported", toString(type));
 #endif
     return nullptr;
 }
 
 #ifdef THORVG_FILE_IO_SUPPORT
-static tvg::Loader* _findByPath(const char* filename)
+static tvg::Loader* _findByPath(const char* filename, bool& invalid)
 {
     auto ext = fileext(filename);
-    if (!ext) return nullptr;
-
-    if (!strcmp(ext, "svg")) return _find(FileType::Svg);
-    if (!strcmp(ext, "lot") || !strcmp(ext, "json")) return _find(FileType::Lot);
-    if (!strcmp(ext, "png")) return _find(FileType::Png);
-    if (!strcmp(ext, "jpg")) return _find(FileType::Jpg);
-    if (!strcmp(ext, "webp")) return _find(FileType::Webp);
-    if (!strcmp(ext, "ttf") || !strcmp(ext, "ttc") || !strcmp(ext, "otf") || !strcmp(ext, "otc")) return _find(FileType::Sfnt);
+    if (ext) {
+        if (!strcmp(ext, "svg")) return _find(FileType::Svg);
+        if (!strcmp(ext, "lot") || !strcmp(ext, "json")) return _find(FileType::Lot);
+        if (!strcmp(ext, "ttf") || !strcmp(ext, "ttc") || !strcmp(ext, "otf") || !strcmp(ext, "otc")) return _find(FileType::Sfnt);
+        if (!strcmp(ext, "png")) return _find(FileType::Png);
+        if (!strcmp(ext, "jpg")) return _find(FileType::Jpg);
+        if (!strcmp(ext, "webp")) return _find(FileType::Webp);
+        if (!strcmp(ext, "mp4")) return _find(FileType::Media);  // TODO: add common media formats        
+    }
+    invalid = true;  // invalid file path outside ThorVG's scope.
     return nullptr;
 }
 #endif
@@ -178,12 +143,13 @@ static FileType _convert(const char* mimeType)
     auto type = FileType::Unknown;
 
     if (!strcmp(mimeType, "svg") || !strcmp(mimeType, "svg+xml")) type = FileType::Svg;
-    else if (!strcmp(mimeType, "ttf") || !strcmp(mimeType, "otf")) type = FileType::Sfnt;
     else if (!strcmp(mimeType, "lot") || !strcmp(mimeType, "lottie+json")) type = FileType::Lot;
-    else if (!strcmp(mimeType, "raw")) type = FileType::Raw;
+    else if (!strcmp(mimeType, "ttf") || !strcmp(mimeType, "otf")) type = FileType::Sfnt;
     else if (!strcmp(mimeType, "png")) type = FileType::Png;
     else if (!strcmp(mimeType, "jpg") || !strcmp(mimeType, "jpeg")) type = FileType::Jpg;
     else if (!strcmp(mimeType, "webp")) type = FileType::Webp;
+    else if (!strcmp(mimeType, "mp4")) type = FileType::Media;  // TODO: add common media formats
+    else if (!strcmp(mimeType, "raw")) type = FileType::Raw;
     else TVGLOG("RENDERER", "Given mimetype is unknown = \"%s\".", mimeType);
 
     return type;
@@ -235,12 +201,11 @@ bool LoaderMgr::init()
 
 bool LoaderMgr::term()
 {
-    // clean up the remained font loaders which is globally used.
+    // force clean up the font loaders which is globally used.
     INLIST_SAFE_FOREACH(_activeLoaders, loader) {
         if (loader->type != FileType::Sfnt) continue;
-        auto ret = loader->close();
         _activeLoaders.remove(loader);
-        if (ret) delete (loader);
+        delete (loader);
     }
     return true;
 }
@@ -250,22 +215,18 @@ bool LoaderMgr::retrieve(Loader* loader)
     if (!loader) return false;
 
     if (loader->close()) {
-        if (loader->cached) {
-            _activeLoaders.remove(loader);
-        }
+        if (loader->cached) _activeLoaders.remove(loader);
         delete (loader);
     }
     return true;
 }
 
-tvg::Loader* LoaderMgr::loader(const char* filename, const LoaderOps* ops, bool* invalid)
+tvg::Loader* LoaderMgr::loader(const char* filename, const LoaderOps& ops, bool& invalid)
 {
 #ifdef THORVG_FILE_IO_SUPPORT
-    *invalid = false;
-
     if (auto loader = _findFromCache(filename)) return loader;
 
-    if (auto loader = _findByPath(filename)) {
+    if (auto loader = _findByPath(filename, invalid)) {
         if (loader->open(filename, ops)) {
             if (loader->cache(filename)) {
                 ScopedLock lock(_key);
@@ -273,6 +234,7 @@ tvg::Loader* LoaderMgr::loader(const char* filename, const LoaderOps* ops, bool*
             }
             return loader;
         }
+        invalid = true;
         delete (loader);
     }
     // Unknown MimeType. Try with the candidates in the order
@@ -288,7 +250,6 @@ tvg::Loader* LoaderMgr::loader(const char* filename, const LoaderOps* ops, bool*
             delete (loader);
         }
     }
-    *invalid = true;
 #endif
     return nullptr;
 }
@@ -298,19 +259,19 @@ bool LoaderMgr::retrieve(const char* filename)
     return retrieve(_findFromCache(filename));
 }
 
-tvg::Loader* LoaderMgr::loader(const char* data, uint32_t size, const char* mimeType, const LoaderOps* ops, bool copy)
+tvg::Loader* LoaderMgr::loader(const char* data, uint32_t size, const char* mimeType, const LoaderOps& ops)
 {
     // Note that users could use the same data pointer with the different content.
     // Thus caching is only valid for shareable.
-    if (!copy) {
+    if (ops.owner == Ownership::Borrow) {
         if (auto loader = _findFromCache(data, size, mimeType)) return loader;
     }
 
     // Try with the given MimeType
     if (mimeType) {
         if (auto loader = _findByType(mimeType)) {
-            if (loader->open(data, size, ops, copy)) {
-                if (!copy && loader->cache(HASH_KEY(data))) {
+            if (loader->open(data, size, ops)) {
+                if (ops.owner == Ownership::Borrow && loader->cache(HASH_KEY(data))) {
                     ScopedLock lock(_key);
                     _activeLoaders.back(loader);
                 }
@@ -325,8 +286,8 @@ tvg::Loader* LoaderMgr::loader(const char* data, uint32_t size, const char* mime
     for (int i = 0; i < static_cast<int>(FileType::Unknown); i++) {
         auto loader = _find(static_cast<FileType>(i));
         if (!loader) continue;
-        if (loader->open(data, size, ops, copy)) {
-            if (!copy && loader->cache(HASH_KEY(data))) {
+        if (loader->open(data, size, ops)) {
+            if (ops.owner == Ownership::Borrow && loader->cache(HASH_KEY(data))) {
                 ScopedLock lock(_key);
                 _activeLoaders.back(loader);
             }
@@ -337,19 +298,19 @@ tvg::Loader* LoaderMgr::loader(const char* data, uint32_t size, const char* mime
     return nullptr;
 }
 
-tvg::Loader* LoaderMgr::loader(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, bool copy)
+tvg::Loader* LoaderMgr::loader(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, Ownership owner)
 {
     // Note that users could use the same data pointer with the different content.
     // Thus caching is only valid for shareable.
-    if (!copy) {
+    if (owner == Ownership::Borrow) {
         // TODO: should we check premultiplied??
         if (auto loader = _findFromCache((const char*)(data), w * h, "raw")) return loader;
     }
 
     // function is dedicated for raw images only
     auto loader = new RawLoader;
-    if (loader->open(data, w, h, cs, copy)) {
-        if (!copy && loader->cache(HASH_KEY((const char*)data))) {
+    if (loader->open(data, w, h, cs, owner)) {
+        if (owner == Ownership::Borrow && loader->cache(HASH_KEY((const char*)data))) {
             ScopedLock lock(_key);
             _activeLoaders.back(loader);
         }
@@ -359,16 +320,21 @@ tvg::Loader* LoaderMgr::loader(const uint32_t* data, uint32_t w, uint32_t h, Col
     return nullptr;
 }
 
-// loads fonts from memory - loader is cached (regardless of copy value) in order to access it while setting font
-tvg::Loader* LoaderMgr::loader(const char* name, const char* data, uint32_t size, TVG_UNUSED const char* mimeType, const LoaderOps* ops, bool copy)
+// Loads fonts from memory. The loader is always cached so it remains available while setting the font.
+tvg::Loader* LoaderMgr::loader(const char* name, const char* data, uint32_t size, TVG_UNUSED const char* mimeType, const LoaderOps& ops)
 {
 #ifdef THORVG_SFNT_LOADER_SUPPORT
-    // TODO: add check for mimetype ?
-    if (auto loader = font(name)) return loader;
+    if (auto loader = font(name)) {
+        // user owned memory can be freed anytime.
+        if (loader->owner != Ownership::Borrow) {
+            if (ops.owner == Ownership::Transfer) tvg::free((char*)data);
+            return loader;
+        }
+    }
 
     // function is dedicated for SFNT-based font loading
     auto loader = new SfntLoader;
-    if (loader->open(data, size, ops, copy)) {
+    if (loader->open(data, size, ops)) {
         loader->name = duplicate(name);
         loader->cached = true;  // force it.
         ScopedLock lock(_key);

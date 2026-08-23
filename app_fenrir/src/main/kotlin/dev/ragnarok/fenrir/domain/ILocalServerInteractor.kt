@@ -25,7 +25,7 @@ interface ILocalServerInteractor {
     fun delete_media(hash: String?): Flow<Int>
     fun get_file_name(hash: String?): Flow<String>
     fun update_file_name(hash: String?, name: String?): Flow<Int>
-    fun rebootPC(type: String?): Flow<Int>
+    fun powerOffPC(type: String): Flow<Int>
     fun fsGet(dir: String?): Flow<List<FileRemote>>
     fun uploadAudio(hash: String?): Flow<Int>
 }

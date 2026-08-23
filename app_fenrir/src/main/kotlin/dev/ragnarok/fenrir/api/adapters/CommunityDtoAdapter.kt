@@ -69,9 +69,14 @@ class CommunityDtoAdapter : AbsDtoAdapter<VKApiCommunity>("VKApiCommunity") {
         dto.admin_level = optInt(root, Fields.GROUP_FIELDS.ADMIN_LEVEL)
         dto.is_member = optBoolean(root, Fields.GROUP_FIELDS.IS_MEMBER)
         dto.member_status = optInt(root, Fields.GROUP_FIELDS.MEMBER_STATUS)
-        dto.photo_50 = optString(root, Fields.GROUP_FIELDS.PHOTO_50, VKApiCommunity.PHOTO_50)
-        dto.photo_100 = optString(root, Fields.GROUP_FIELDS.PHOTO_100, VKApiCommunity.PHOTO_100)
-        dto.photo_200 = optString(root, Fields.GROUP_FIELDS.PHOTO_200, null)
+        dto.photo_50 =
+            optString(root, Fields.GROUP_FIELDS.PHOTO_50, VKApiCommunity.getPhotoLink50())
+        dto.photo_100 = optString(root, Fields.GROUP_FIELDS.PHOTO_100)
+        dto.photo_200 = optString(root, Fields.GROUP_FIELDS.PHOTO_200)
+        if (dto.photo_200.isNullOrEmpty() && dto.photo_100.isNullOrEmpty() && dto.photo_50 == VKApiCommunity.getPhotoLink50()) {
+            dto.photo_100 = VKApiCommunity.getPhotoLink50()
+            dto.photo_200 = VKApiCommunity.getPhotoLink100()
+        }
         when (optString(root, Fields.GROUP_FIELDS.TYPE, "group")) {
             VKApiCommunity.TYPE_GROUP -> {
                 dto.type = VKApiCommunity.Type.GROUP

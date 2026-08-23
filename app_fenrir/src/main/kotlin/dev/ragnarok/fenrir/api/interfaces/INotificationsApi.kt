@@ -11,17 +11,13 @@ interface INotificationsApi {
 
     @CheckResult
     operator fun get(
-        count: Int?, startFrom: String?, filters: String?,
-        startTime: Long?, endTime: Long?
+        count: Int?, startFrom: String?, filters: String?
     ): Flow<NotificationsResponse>
 
     @CheckResult
     fun getOfficial(
         count: Int?,
-        startFrom: Int?,
-        filters: String?,
-        startTime: Long?,
-        endTime: Long?
+        startFrom: Int?
     ): Flow<FeedbackVKOfficialList>
 
     @CheckResult

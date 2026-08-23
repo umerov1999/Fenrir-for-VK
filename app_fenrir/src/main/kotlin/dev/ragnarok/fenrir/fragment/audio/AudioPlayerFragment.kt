@@ -231,7 +231,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
     private fun fireAudioQR() {
         val audio = MusicPlaybackController.currentAudio ?: return
         val qr = Utils.generateQR(
-            "https://vk.ru/audio/" + audio.ownerId + "_" + audio.id,
+            "https://${Settings.get().main().domain}/audio/" + audio.ownerId + "_" + audio.id,
             requireActivity()
         )
         val dlgAlert = MaterialAlertDialogBuilder(requireActivity())

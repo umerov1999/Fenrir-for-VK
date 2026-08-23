@@ -5,6 +5,7 @@ import android.os.Parcelable
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Document : AbsModel, ParcelNative.ParcelableNative {
@@ -181,7 +182,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
     }
 
     fun generateWebLink(): String {
-        return String.format("vk.ru/doc%s_%s", ownerId, id)
+        return String.format("${Settings.get().main().domain}/doc%s_%s", ownerId, id)
     }
 
     val isGif: Boolean

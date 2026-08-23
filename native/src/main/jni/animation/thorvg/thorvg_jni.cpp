@@ -58,7 +58,7 @@ void getCustomColorSVG(const std::string &name, uint8_t &r, uint8_t &g, uint8_t 
     b = (((uint8_t *) (&(clr)))[0]);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGSVGRender_registerColorsNative(JNIEnv *env,
                                                                                       jobject,
                                                                                       jstring name,
@@ -79,7 +79,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGSVGRender_registerColorsN
     }
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGSVGRender_createBitmapNative(JNIEnv *env,
                                                                                     jobject,
                                                                                     jlong res,
@@ -203,7 +203,7 @@ std::string doDecompressResource(size_t length, char *bytes, bool &orig) {
     return data;
 }
 
-extern "C" JNIEXPORT jlong
+extern "C" JNIEXPORT jlong JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nLoadFromFile(
         JNIEnv *env,
         jobject,
@@ -289,7 +289,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nLoa
     return reinterpret_cast<jlong>(info);
 }
 
-extern "C" JNIEXPORT jlong
+extern "C" JNIEXPORT jlong JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nLoadFromMemory(
         JNIEnv *env,
         jobject,
@@ -347,7 +347,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nLoa
     return reinterpret_cast<jlong>(info);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nDestroy(JNIEnv *,
                                                                                      jobject,
                                                                                      jlong ptr) {
@@ -357,7 +357,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nDes
     delete reinterpret_cast<LottieAnimation *>(ptr);
 }
 
-extern "C" void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nSetBufferSize(
         JNIEnv *env, jobject,
         jlong ptr, jobject bitmap, jfloat width, jfloat height) {
@@ -403,7 +403,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nSet
     }
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nGetFrame(JNIEnv *env,
                                                                                       jobject,
                                                                                       jlong ptr,
@@ -433,8 +433,7 @@ Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottieNativeBindings_nGet
     }
 }
 
-extern "C" JNIEXPORT
-jboolean
+extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_animation_thorvg_ThorVGLottie2Gif_lottie2gif(JNIEnv *env, jobject,
                                                                              jstring srcPath,
                                                                              jint w, jint h,

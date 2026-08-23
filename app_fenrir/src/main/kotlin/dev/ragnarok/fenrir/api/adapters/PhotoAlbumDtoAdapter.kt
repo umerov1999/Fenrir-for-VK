@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.api.model.VKApiPhotoAlbum
 import dev.ragnarok.fenrir.api.model.VKApiPrivacy
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.settings.Settings
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -70,19 +71,19 @@ class PhotoAlbumDtoAdapter : AbsDtoAdapter<VKApiPhotoAlbum>("VKApiPhotoAlbum") {
                 album.photo?.add(
                     PhotoSizeDto.create(
                         PhotoSizeDto.Type.S,
-                        "https://vk.ru/images/s_noalbum.png"
+                        "https://${Settings.get().main().domain}/images/s_noalbum.png"
                     )
                 )
                 album.photo?.add(
                     PhotoSizeDto.create(
                         PhotoSizeDto.Type.M,
-                        "https://vk.ru/images/m_noalbum.png"
+                        "https://${Settings.get().main().domain}/images/m_noalbum.png"
                     )
                 )
                 album.photo?.add(
                     PhotoSizeDto.create(
                         PhotoSizeDto.Type.X,
-                        "https://vk.ru/images/x_noalbum.png"
+                        "https://${Settings.get().main().domain}/images/x_noalbum.png"
                     )
                 )
             }
@@ -91,19 +92,19 @@ class PhotoAlbumDtoAdapter : AbsDtoAdapter<VKApiPhotoAlbum>("VKApiPhotoAlbum") {
             album.photo?.add(
                 PhotoSizeDto.create(
                     PhotoSizeDto.Type.S,
-                    "https://vk.ru/images/s_noalbum.png"
+                    "https://${Settings.get().main().domain}/images/s_noalbum.png"
                 )
             )
             album.photo?.add(
                 PhotoSizeDto.create(
                     PhotoSizeDto.Type.M,
-                    "https://vk.ru/images/m_noalbum.png"
+                    "https://${Settings.get().main().domain}/images/m_noalbum.png"
                 )
             )
             album.photo?.add(
                 PhotoSizeDto.create(
                     PhotoSizeDto.Type.X,
-                    "https://vk.ru/images/x_noalbum.png"
+                    "https://${Settings.get().main().domain}/images/x_noalbum.png"
                 )
             )
         }

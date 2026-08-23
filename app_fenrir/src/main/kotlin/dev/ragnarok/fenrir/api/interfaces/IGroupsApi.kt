@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.api.model.VKApiMarket
 import dev.ragnarok.fenrir.api.model.VKApiMarketAlbum
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.GroupByIdResponse
-import dev.ragnarok.fenrir.api.model.response.GroupLongpollServer
 import kotlinx.coroutines.flow.Flow
 
 interface IGroupsApi {
@@ -122,9 +121,6 @@ interface IGroupsApi {
         ids: Collection<Long>, domains: Collection<String>?,
         groupId: String?, fields: String?
     ): Flow<GroupByIdResponse>
-
-    @CheckResult
-    fun getLongPollServer(groupId: Long): Flow<GroupLongpollServer>
 
     @CheckResult
     fun getChats(groupId: Long, offset: Int?, count: Int?): Flow<Items<VKApiGroupChats>>

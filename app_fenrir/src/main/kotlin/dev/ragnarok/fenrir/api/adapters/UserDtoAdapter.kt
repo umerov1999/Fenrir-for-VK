@@ -34,9 +34,13 @@ class UserDtoAdapter : AbsDtoAdapter<VKApiUser>("VKApiUser") {
         dto.online = optBoolean(root, Fields.USER_FIELDS.ONLINE)
         dto.online_mobile = optBoolean(root, Fields.USER_FIELDS.ONLINE_MOBILE)
         dto.online_app = optInt(root, Fields.USER_FIELDS.ONLINE_APP)
-        dto.photo_50 = optString(root, Fields.USER_FIELDS.PHOTO_50, VKApiUser.CAMERA_50)
+        dto.photo_50 = optString(root, Fields.USER_FIELDS.PHOTO_50, VKApiUser.getPhotoLink50())
         dto.photo_100 = optString(root, Fields.USER_FIELDS.PHOTO_100)
         dto.photo_200 = optString(root, Fields.USER_FIELDS.PHOTO_200)
+        if (dto.photo_200.isNullOrEmpty() && dto.photo_100.isNullOrEmpty() && dto.photo_50 == VKApiUser.getPhotoLink50()) {
+            dto.photo_100 = VKApiUser.getPhotoLink50()
+            dto.photo_200 = VKApiUser.getPhotoLink100()
+        }
         if (hasObject(root, Fields.USER_FIELDS.LAST_SEEN)) {
             val lastSeenRoot = root[Fields.USER_FIELDS.LAST_SEEN]?.jsonObject
             dto.last_seen = optLong(lastSeenRoot, "time")

@@ -9,6 +9,7 @@ import android.webkit.MimeTypeMap
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.model.Owner
@@ -49,7 +50,7 @@ class PostDownload(private val context: Context) {
     }
 
     private fun getAvatarUrl(owner: Owner): String {
-        val AVATAR_USER_DEFAULT = "https://vk.ru/images/camera_200.png?ava=1"
+        val AVATAR_USER_DEFAULT = VKApiUser.getPhotoLink200()
         return owner.maxSquareAvatar ?: AVATAR_USER_DEFAULT
     }
 
@@ -121,7 +122,9 @@ class PostDownload(private val context: Context) {
         msg_html = StringBuilder(
             Apply(
                 "<#PAGE_LINK#>",
-                "https://vk.ru/" + (if (owner.ownerId.orZero() < 0) "club" else "id") + abs(owner.ownerId.orZero()),
+                "https://${
+                    Settings.get().main().domain
+                }/" + (if (owner.ownerId.orZero() < 0) "club" else "id") + abs(owner.ownerId.orZero()),
                 msg_html.toString()
             )
         )
@@ -240,7 +243,9 @@ class PostDownload(private val context: Context) {
                     var atcontent = Image
                     atcontent = Apply(
                         "<#ORIGINAL_IMAGE_LINK#>",
-                        "https://vk.ru/album" + att.ownerId + "_" + att.getObjectId(),
+                        "https://${
+                            Settings.get().main().domain
+                        }/album" + att.ownerId + "_" + att.getObjectId(),
                         atcontent
                     )
                     atcontent = Apply(
@@ -272,7 +277,9 @@ class PostDownload(private val context: Context) {
                     } else {
                         atcontent = Apply(
                             "<#ORIGINAL_IMAGE_LINK#>",
-                            "https://vk.ru/video" + att.video?.ownerId + "_" + att.video?.id,
+                            "https://${
+                                Settings.get().main().domain
+                            }/video" + att.video?.ownerId + "_" + att.video?.id,
                             atcontent
                         )
                         atcontent = Apply("<#IMAGE_LINK#>", att.video?.image, atcontent)
@@ -285,7 +292,9 @@ class PostDownload(private val context: Context) {
                     var atcontent = Image
                     atcontent = Apply(
                         "<#ORIGINAL_IMAGE_LINK#>",
-                        "https://vk.ru/wall" + att.ownerId + "_" + att.vkid,
+                        "https://${
+                            Settings.get().main().domain
+                        }/wall" + att.ownerId + "_" + att.vkid,
                         atcontent
                     )
                     atcontent = Apply(
@@ -326,7 +335,9 @@ class PostDownload(private val context: Context) {
                     var atcontent = Image
                     atcontent = Apply(
                         "<#ORIGINAL_IMAGE_LINK#>",
-                        "https://vk.ru/video" + att.ownerId + "_" + att.id,
+                        "https://${
+                            Settings.get().main().domain
+                        }/video" + att.ownerId + "_" + att.id,
                         atcontent
                     )
                     atcontent = Apply("<#IMAGE_LINK#>", att.image, atcontent)
@@ -404,7 +415,9 @@ class PostDownload(private val context: Context) {
                 main = Apply("<#AVATAR_URL#>", getAvatarUrl(owner), main)
                 main = Apply(
                     "<#PAGE_LINK#>",
-                    "https://vk.ru/" + (if (owner.ownerId < 0) "club" else "id") + abs(
+                    "https://${
+                        Settings.get().main().domain
+                    }/" + (if (owner.ownerId < 0) "club" else "id") + abs(
                         owner.ownerId
                     ),
                     main

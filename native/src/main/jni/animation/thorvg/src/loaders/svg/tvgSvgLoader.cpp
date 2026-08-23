@@ -233,6 +233,32 @@ static int _toOpacity(const char* str)
     return 255;
 }
 
+static SvgFontWeight _toFontWeight(const char* str)
+{
+    if (STR_AS(str, "normal")) return SvgFontWeight::Normal;
+    if (STR_AS(str, "bold")) return SvgFontWeight::Bold;
+    if (STR_AS(str, "inherit")) return SvgFontWeight::Inherit;
+    if (STR_AS(str, "bolder")) return SvgFontWeight::Bolder;
+    if (STR_AS(str, "lighter")) return SvgFontWeight::Lighter;
+
+    char* end = nullptr;
+    auto weight = strtol(str, &end, 10);
+    end = (char*)svgUtilSkipWhiteSpace(end, nullptr);
+    if (*end) return SvgFontWeight::Invalid;
+
+    switch (weight) {
+        case 100: return SvgFontWeight::Weight100;
+        case 200: return SvgFontWeight::Weight200;
+        case 300: return SvgFontWeight::Weight300;
+        case 400: return SvgFontWeight::Normal;
+        case 500: return SvgFontWeight::Weight500;
+        case 600: return SvgFontWeight::Weight600;
+        case 700: return SvgFontWeight::Bold;
+        case 800: return SvgFontWeight::Weight800;
+        case 900: return SvgFontWeight::Weight900;
+        default: return SvgFontWeight::Invalid;
+    }
+}
 
 static SvgMaskType _toMaskType(const char* str)
 {
@@ -461,6 +487,7 @@ static unsigned char _parseColor(const char* value, char** end)
 }
 
 
+// sorted by name
 static constexpr struct
 {
     const char* name;
@@ -491,8 +518,8 @@ static constexpr struct
     { "darkcyan", 0xff008b8b },
     { "darkgoldenrod", 0xffb8860b },
     { "darkgray", 0xffa9a9a9 },
-    { "darkgrey", 0xffa9a9a9 },
     { "darkgreen", 0xff006400 },
+    { "darkgrey", 0xffa9a9a9 },
     { "darkkhaki", 0xffbdb76b },
     { "darkmagenta", 0xff8b008b },
     { "darkolivegreen", 0xff556b2f },
@@ -520,9 +547,9 @@ static constexpr struct
     { "gold", 0xffffd700 },
     { "goldenrod", 0xffdaa520 },
     { "gray", 0xff808080 },
-    { "grey", 0xff808080 },
     { "green", 0xff008000 },
     { "greenyellow", 0xffadff2f },
+    { "grey", 0xff808080 },
     { "honeydew", 0xfff0fff0 },
     { "hotpink", 0xffff69b4 },
     { "indianred", 0xffcd5c5c },
@@ -538,8 +565,8 @@ static constexpr struct
     { "lightcyan", 0xffe0ffff },
     { "lightgoldenrodyellow", 0xfffafad2 },
     { "lightgray", 0xffd3d3d3 },
-    { "lightgrey", 0xffd3d3d3 },
     { "lightgreen", 0xff90ee90 },
+    { "lightgrey", 0xffd3d3d3 },
     { "lightpink", 0xffffb6c1 },
     { "lightsalmon", 0xffffa07a },
     { "lightseagreen", 0xff20b2aa },
@@ -698,14 +725,19 @@ static bool _toColor(const char* str, uint8_t& r, uint8_t&g, uint8_t& b, char** 
             }
         }
     } else {
-        //Handle named color
-        for (unsigned int i = 0; i < (sizeof(colors) / sizeof(colors[0])); i++) {
-            if (!strcasecmp(colors[i].name, str)) {
-                r = ((uint8_t*)(&(colors[i].value)))[2];
-                g = ((uint8_t*)(&(colors[i].value)))[1];
-                b = ((uint8_t*)(&(colors[i].value)))[0];
+        // Handle named color (binary search) - colors[] must remain sorted
+        int low = 0, high = static_cast<int>(sizeof(colors) / sizeof(colors[0])) - 1;
+        while (low <= high) {
+            auto mid = (low + high) / 2;
+            auto cmp = strcasecmp(str, colors[mid].name);
+            if (cmp == 0) {
+                r = ((uint8_t*)(&(colors[mid].value)))[2];
+                g = ((uint8_t*)(&(colors[mid].value)))[1];
+                b = ((uint8_t*)(&(colors[mid].value)))[0];
                 return true;
             }
+            if (cmp < 0) high = mid - 1;
+            else low = mid + 1;
         }
     }
     return false;
@@ -1065,6 +1097,7 @@ static void _handleFilterAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* node, c
 
 static void _handleMaskTypeAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* node, const char* value)
 {
+    if (node->type != SvgNodeType::Mask) return;
     node->node.mask.type = _toMaskType(value);
 }
 
@@ -1102,6 +1135,77 @@ static void _handleTextAnchorAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* nod
     else node->style->textAnchor = 0.0f;
 }
 
+static void _handleFontWeightAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* node, const char* value)
+{
+    node->style->fontWeight = _toFontWeight(value);
+    node->style->flags |= SvgStyleFlags::FontWeight;
+}
+
+static SvgBaseline _toBaseline(const char* str)
+{
+    if (STR_AS(str, "alphabetic")) return SvgBaseline::Alphabetic;
+    if (STR_AS(str, "before-edge") || STR_AS(str, "text-before-edge") || STR_AS(str, "text-top")) return SvgBaseline::BeforeEdge;
+    if (STR_AS(str, "after-edge") || STR_AS(str, "text-after-edge") || STR_AS(str, "ideographic") || STR_AS(str, "text-bottom")) return SvgBaseline::AfterEdge;
+    if (STR_AS(str, "central")) return SvgBaseline::Central;
+    if (STR_AS(str, "middle")) return SvgBaseline::Middle;
+    if (STR_AS(str, "hanging")) return SvgBaseline::Hanging;
+    if (STR_AS(str, "mathematical")) return SvgBaseline::Mathematical;
+    return SvgBaseline::Auto;
+}
+
+static void _handleAlignmentBaselineAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* node, const char* value)
+{
+    node->style->flags |= SvgStyleFlags::AlignmentBaseline;
+    node->style->alignmentBaseline = _toBaseline(value);
+}
+
+static void _handleDominantBaselineAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* node, const char* value)
+{
+    node->style->flags |= SvgStyleFlags::DominantBaseline;
+    node->style->dominantBaseline = _toBaseline(value);
+}
+
+//toFloat() consumes the "em" suffix, so detect font-relative units from the value's tail instead of its end pointer
+static bool _isFontRelativeUnit(const char* value)
+{
+    auto p = value + strlen(value);
+    while (p > value && isspace((unsigned char)p[-1])) --p;
+    auto end = p;
+    while (p > value && isalpha((unsigned char)p[-1])) --p;
+    if (end - p != 2) return false;  //so that "rem" is not mistaken for "em"
+    return !strncmp(p, "em", 2) || !strncmp(p, "ex", 2);
+}
+
+static void _handleLetterSpacingAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* node, const char* value)
+{
+    node->style->flags |= SvgStyleFlags::LetterSpacing;
+    node->style->letterSpacingRelative = false;
+    if (STR_AS(value, "normal")) {
+        node->style->letterSpacing = 0.0f;
+        return;
+    }
+    char* end = nullptr;
+    auto parsed = toFloat(value, &end);
+    auto percentage = _isPercentage(end);
+    node->style->letterSpacingRelative = percentage || _isFontRelativeUnit(value);
+    node->style->letterSpacing = parsed * (percentage ? 0.01f : _unitScale(value, 1.0f));
+}
+
+static void _handleWordSpacingAttr(TVG_UNUSED SvgParserContext* ctx, SvgNode* node, const char* value)
+{
+    node->style->flags |= SvgStyleFlags::WordSpacing;
+    node->style->wordSpacingRelative = false;
+    if (STR_AS(value, "normal")) {
+        node->style->wordSpacing = 0.0f;
+        return;
+    }
+    char* end = nullptr;
+    auto parsed = toFloat(value, &end);
+    auto percentage = _isPercentage(end);
+    node->style->wordSpacingRelative = percentage || _isFontRelativeUnit(value);
+    node->style->wordSpacing = parsed * (percentage ? 0.01f : _unitScale(value, 1.0f));
+}
+
 static void _handleCssClassAttr(SvgParserContext* ctx, SvgNode* node, const char* value)
 {
     auto cssClass = &node->style->cssClass;
@@ -1125,6 +1229,8 @@ static constexpr struct
     styleMethod tagHandler;
     SvgStyleFlags flag;
 } styleTags[] = {
+// hyphenated names below are macro identifiers, not subtraction; keep them intact
+// clang-format off
     STYLE_DEF(color, Color, SvgStyleFlags::Color),
     STYLE_DEF(fill, Fill, SvgStyleFlags::Fill),
     STYLE_DEF(fill-rule, FillRule, SvgStyleFlags::FillRule),
@@ -1146,7 +1252,14 @@ static constexpr struct
     STYLE_DEF(paint-order, PaintOrder, SvgStyleFlags::PaintOrder),
     STYLE_DEF(filter, Filter, SvgStyleFlags::Filter),
     STYLE_DEF(mix-blend-mode, MixBlendMode, SvgStyleFlags::BlendMode),
-    STYLE_DEF(text-anchor, TextAnchor, SvgStyleFlags::TextAnchor)};
+    STYLE_DEF(text-anchor, TextAnchor, SvgStyleFlags::TextAnchor),
+    STYLE_DEF(alignment-baseline, AlignmentBaseline, SvgStyleFlags::AlignmentBaseline),
+    STYLE_DEF(dominant-baseline, DominantBaseline, SvgStyleFlags::DominantBaseline),
+    STYLE_DEF(font-weight, FontWeight, SvgStyleFlags::FontWeight),
+    STYLE_DEF(letter-spacing, LetterSpacing, SvgStyleFlags::LetterSpacing),
+    STYLE_DEF(word-spacing, WordSpacing, SvgStyleFlags::WordSpacing)
+};
+// clang-format on
 
 static SvgXmlSpace _toXmlSpace(const char* str)
 {
@@ -1183,6 +1296,23 @@ static bool _parseStyleAttr(void* data, const char* key, const char* value, bool
                 }
                 value = duplicate(value, size);
                 importance = true;
+            }
+            auto valid = true;
+            if (styleTags[i].flag == SvgStyleFlags::FontWeight) {
+                valid = _toFontWeight(value) != SvgFontWeight::Invalid;
+            } else if (styleTags[i].flag == SvgStyleFlags::DominantBaseline) {
+                // svg 1.1 keyword set only (https://www.w3.org/TR/SVG11/text.html#DominantBaselineProperty):
+                // browsers drop the css-level text-top/text-bottom (https://www.w3.org/TR/css-inline-3/#dominant-baseline-property)
+                if (STR_AS(value, "text-top") || STR_AS(value, "text-bottom")) valid = false;
+                else valid = _toBaseline(value) != SvgBaseline::Auto || STR_AS(value, "auto");
+            } else if (styleTags[i].flag == SvgStyleFlags::LetterSpacing || styleTags[i].flag == SvgStyleFlags::WordSpacing) {
+                char* end = nullptr;
+                toFloat(value, &end);
+                valid = end != value || STR_AS(value, "normal");
+            }
+            if (!valid) {
+                if (importance) tvg::free(const_cast<char*>(value));
+                return true;
             }
             if (style) {
                 if (importance || !(node->style->flagsImportance & styleTags[i].flag)) {
@@ -1415,6 +1545,7 @@ static SvgNode* _createNode(SvgNode* parent, SvgNodeType type)
     node->style->stroke.scale = 1.0;
     node->style->paintOrder = _toPaintOrder("fill stroke");
     node->style->display = true;
+    node->style->fontWeight = SvgFontWeight::Normal;
     node->parent = parent;
     node->type = type;
     node->xmlSpace = SvgXmlSpace::None;
@@ -2928,6 +3059,13 @@ static SvgStyleGradient* _cloneGradient(SvgStyleGradient* from)
 
 static void _styleInherit(SvgStyleProperty* child, const SvgStyleProperty* parent)
 {
+    auto parentWeight = parent ? parent->fontWeight : SvgFontWeight::Normal;
+    if (!(child->flags & SvgStyleFlags::FontWeight) || child->fontWeight == SvgFontWeight::Inherit) child->fontWeight = parentWeight;
+    else if (child->fontWeight == SvgFontWeight::Bolder) child->fontWeight = parentWeight <= SvgFontWeight::Weight300 ? SvgFontWeight::Normal : parentWeight <= SvgFontWeight::Weight500 ? SvgFontWeight::Bold
+                                                                                                                                                                                         : SvgFontWeight::Weight900;
+    else if (child->fontWeight == SvgFontWeight::Lighter) child->fontWeight = parentWeight <= SvgFontWeight::Weight500 ? SvgFontWeight::Weight100 : parentWeight <= SvgFontWeight::Bold ? SvgFontWeight::Normal
+                                                                                                                                                                                        : SvgFontWeight::Bold;
+
     if (!parent) return;
 
     //Inherit the property of parent if not present in child.
@@ -2970,6 +3108,9 @@ static void _styleInherit(SvgStyleProperty* child, const SvgStyleProperty* paren
     if (!(child->stroke.flags & SvgStrokeFlags::Join)) child->stroke.join = parent->stroke.join;
     if (!(child->stroke.flags & SvgStrokeFlags::Miterlimit)) child->stroke.miterlimit = parent->stroke.miterlimit;
     if (!(child->flags & SvgStyleFlags::TextAnchor)) child->textAnchor = parent->textAnchor;
+    if (!(child->flags & SvgStyleFlags::DominantBaseline)) child->dominantBaseline = parent->dominantBaseline;
+    if (!(child->flags & SvgStyleFlags::LetterSpacing)) child->letterSpacing = parent->letterSpacing;
+    if (!(child->flags & SvgStyleFlags::WordSpacing)) child->wordSpacing = parent->wordSpacing;
 }
 
 
@@ -2987,6 +3128,17 @@ static void _styleCopy(SvgStyleProperty* to, const SvgStyleProperty* from)
     if (from->flags & SvgStyleFlags::Display) to->display = from->display;
     if (from->flags & SvgStyleFlags::BlendMode) to->blendMode = from->blendMode;
     if (from->flags & SvgStyleFlags::TextAnchor) to->textAnchor = from->textAnchor;
+    if (from->flags & SvgStyleFlags::AlignmentBaseline) to->alignmentBaseline = from->alignmentBaseline;
+    if (from->flags & SvgStyleFlags::DominantBaseline) to->dominantBaseline = from->dominantBaseline;
+    if (from->flags & SvgStyleFlags::FontWeight) to->fontWeight = from->fontWeight;
+    if (from->flags & SvgStyleFlags::LetterSpacing) {
+        to->letterSpacing = from->letterSpacing;
+        to->letterSpacingRelative = from->letterSpacingRelative;
+    }
+    if (from->flags & SvgStyleFlags::WordSpacing) {
+        to->wordSpacing = from->wordSpacing;
+        to->wordSpacingRelative = from->wordSpacingRelative;
+    }
 
     //Fill
     to->fill.flags = (to->fill.flags | from->fill.flags);
@@ -3284,22 +3436,13 @@ static void _svgLoaderParserXmlOpen(SvgParserContext* ctx, const char* content, 
     SvgNode *node = nullptr, *parent = nullptr;
     attrs = xmlFindAttributesTag(content, length);
 
-    if (!attrs) {
-        //Parse the empty tag
-        attrs = content;
-        while ((attrs != nullptr) && *attrs != '>') attrs++;
-        if (empty) attrs--;
-    }
-
-    if (attrs) {
-        //Find out the tag name starting from content till sz length
-        sz = attrs - content;
-        while ((sz > 0) && (isspace(content[sz - 1]))) sz--;
-        if ((unsigned)sz >= sizeof(tagName)) return;
-        strncpy(tagName, content, sz);
-        tagName[sz] = '\0';
-        attrsLength = length - sz;
-    }
+    //Find out the tag name starting from content till sz length
+    sz = attrs - content;
+    while ((sz > 0) && (isspace((unsigned char)content[sz - 1]))) sz--;
+    if ((unsigned)sz >= sizeof(tagName)) return;
+    strncpy(tagName, content, sz);
+    tagName[sz] = '\0';
+    attrsLength = length - sz;
 
     if (ctx->gradientStack.count > 0 && !ctx->gradientStack.last()) {
         if (!empty) ctx->gradientStack.push(nullptr);
@@ -3398,6 +3541,8 @@ static void _svgLoaderParserXmlOpen(SvgParserContext* ctx, const char* content, 
 static void _svgLoaderParserText(SvgParserContext* ctx, const char* content, unsigned int length)
 {
     auto node = ctx->parser->node;
+
+    if (node->type != SvgNodeType::Text && node->type != SvgNodeType::Tspan) return;
 
     if (_hasTspanChild(node)) {
         auto run = _createNode(node, SvgNodeType::Tspan);
@@ -3580,8 +3725,8 @@ static bool _cssApplyClass(SvgNode* node, const char* classString, SvgNode* styl
 static void _cssApplyStyleToPostponeds(Array<SvgNodeIdPair>& postponeds, SvgNode* style)
 {
     ARRAY_FOREACH(p, postponeds) {
-        auto nodeIdPair = *p;
-        _cssApplyClass(nodeIdPair.node, nodeIdPair.id, style);
+        auto node = p->node;
+        _cssApplyClass(node, node->style->cssClass, style);
     }
 }
 
@@ -3681,6 +3826,14 @@ static bool _svgLoaderParser(void* data, XMLType type, const char* content, unsi
 static void _updateStyle(SvgNode* node, SvgStyleProperty* parentStyle)
 {
     _styleInherit(node->style, parentStyle);
+    if (node->style->letterSpacingRelative) {
+        node->style->letterSpacing *= _findEmBaseFontSize(node);
+        node->style->letterSpacingRelative = false;
+    }
+    if (node->style->wordSpacingRelative) {
+        node->style->wordSpacing *= _findEmBaseFontSize(node);
+        node->style->wordSpacingRelative = false;
+    }
     ARRAY_FOREACH(p, node->child) {
         _updateStyle(*p, node->style);
     }
@@ -3793,20 +3946,12 @@ static bool _svgLoaderParserForValidCheckXmlOpen(SvgParserContext* ctx, const ch
     int attrsLength = 0;
     attrs = xmlFindAttributesTag(content, length);
 
-    if (!attrs) {
-        //Parse the empty tag
-        attrs = content;
-        while ((attrs != nullptr) && *attrs != '>') attrs++;
-    }
-
-    if (attrs) {
-        sz = attrs - content;
-        while ((sz > 0) && (isspace((unsigned char)content[sz - 1]))) sz--;
-        if ((unsigned)sz >= sizeof(tagName)) return false;
-        strncpy(tagName, content, sz);
-        tagName[sz] = '\0';
-        attrsLength = length - sz;
-    }
+    sz = attrs - content;
+    while ((sz > 0) && (isspace((unsigned char)content[sz - 1]))) sz--;
+    if ((unsigned)sz >= sizeof(tagName)) return false;
+    strncpy(tagName, content, sz);
+    tagName[sz] = '\0';
+    attrsLength = length - sz;
 
     if ((method = _findGroupFactory(tagName))) {
         if (!ctx->doc) {
@@ -3840,7 +3985,7 @@ void SvgLoader::clear(bool all)
 
     if (!all) return;
 
-    if (copy) tvg::free((char*)content);
+    if (owner != Ownership::Borrow) tvg::free((char*)content);
 
     if (root) {
         root->unref();
@@ -3849,7 +3994,7 @@ void SvgLoader::clear(bool all)
 
     size = 0;
     content = nullptr;
-    copy = false;
+    owner = Ownership::Borrow;
 }
 
 
@@ -3943,11 +4088,6 @@ void SvgParserContext::clear(bool all)
     }
 }
 
-SvgLoader::SvgLoader() : ImageLoader(FileType::Svg)
-{
-}
-
-
 SvgLoader::~SvgLoader()
 {
     done();
@@ -4024,32 +4164,31 @@ bool SvgLoader::header()
     return true;
 }
 
-bool SvgLoader::open(const char* data, uint32_t size, const LoaderOps* ops, bool copy)
+bool SvgLoader::open(const char* data, uint32_t size, const LoaderOps& ops)
 {
-    if (ops->caller != tvg::Type::Picture) return false;
+    if (ops.caller != tvg::Type::Picture) return false;
 
-    if (copy) {
+    if (ops.owner == Ownership::Copy) {
         content = tvg::malloc<char>(size + 1);
         memcpy((char*)content, data, size);
         content[size] = '\0';
     } else content = (char*)data;
 
     this->size = size;
-    this->copy = copy;
-
-    ctx.accessible = static_cast<const PictureOps*>(ops)->accessible;
+    owner = ops.owner;
+    ctx.accessible = static_cast<const PictureOps*>(&ops)->accessible;
 
     return header();
 }
 
-bool SvgLoader::open(const char* path, TVG_UNUSED const LoaderOps* ops)
+bool SvgLoader::open(const char* path, const LoaderOps& ops)
 {
 #ifdef THORVG_FILE_IO_SUPPORT
-    if (ops->caller != tvg::Type::Picture) return false;
+    if (ops.caller != tvg::Type::Picture) return false;
 
     if ((content = Loader::open(path, size, true))) {
-        ctx.accessible = static_cast<const PictureOps*>(ops)->accessible;
-        copy = true;
+        ctx.accessible = static_cast<const PictureOps*>(&ops)->accessible;
+        owner = Ownership::Transfer;
         return header();
     }
 #endif

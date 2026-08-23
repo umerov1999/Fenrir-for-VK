@@ -67,15 +67,13 @@ struct LottieLoader : AnimLoader, Task
 
     Key key;
     char* dirName = nullptr;            //base resource directory
-
-    bool copy = false;                  //"content" is owned by this loader
     bool build = true;                  //require building the lottie scene
 
     LottieLoader();
     ~LottieLoader();
 
-    bool open(const char* path, const LoaderOps* ops) override;
-    bool open(const char* data, uint32_t size, const LoaderOps* ops, bool copy) override;
+    bool open(const char* path, const LoaderOps& ops) override;
+    bool open(const char* data, uint32_t size, const LoaderOps& ops) override;
     bool resize(Paint* paint, float w, float h) override;
     bool read() override;
     Paint* paint() override;
@@ -90,7 +88,7 @@ struct LottieLoader : AnimLoader, Task
     float totalFrame() override;
     float curFrame() override;
     float duration() override;
-    void sync() override;
+    bool sync() override;
 
     //Marker Supports
     uint32_t markersCnt();

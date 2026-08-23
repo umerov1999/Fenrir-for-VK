@@ -93,12 +93,12 @@ static std::string base36_encode_digit(uint64_t id) {
 }
 */
 
-extern "C" JNIEXPORT jlong
+extern "C" JNIEXPORT jlong JNICALL
 Java_dev_ragnarok_fenrir_module_StringExist_init(JNIEnv *, jobject, jboolean useMutex) {
     return reinterpret_cast<jlong>(new StringExist(useMutex));
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_StringExist_destroy(JNIEnv *, jobject, jlong pointer) {
     if (!pointer) {
         return;
@@ -106,7 +106,7 @@ Java_dev_ragnarok_fenrir_module_StringExist_destroy(JNIEnv *, jobject, jlong poi
     delete reinterpret_cast<StringExist *>(pointer);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_StringExist_clear(JNIEnv *, jobject, jlong pointer) {
     if (!pointer) {
         return;
@@ -115,7 +115,7 @@ Java_dev_ragnarok_fenrir_module_StringExist_clear(JNIEnv *, jobject, jlong point
     content->clear();
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_StringExist_insert(JNIEnv *env, jobject, jlong pointer,
                                                    jstring value) {
     if (!pointer) {
@@ -131,7 +131,7 @@ Java_dev_ragnarok_fenrir_module_StringExist_insert(JNIEnv *env, jobject, jlong p
     content->insert(v);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_StringExist_delete(JNIEnv *env, jobject, jlong pointer,
                                                    jstring value) {
     if (!pointer) {
@@ -147,7 +147,7 @@ Java_dev_ragnarok_fenrir_module_StringExist_delete(JNIEnv *env, jobject, jlong p
     content->remove(v);
 }
 
-extern "C" JNIEXPORT jboolean
+extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_StringExist_has(JNIEnv *env, jobject, jlong pointer, jstring value,
                                                 jboolean contains) {
     if (!pointer) {
@@ -163,7 +163,7 @@ Java_dev_ragnarok_fenrir_module_StringExist_has(JNIEnv *env, jobject, jlong poin
     return content->has(v, contains);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_StringExist_lockMutex(JNIEnv *, jobject, jlong pointer,
                                                       jboolean lock) {
     if (!pointer) {
@@ -173,7 +173,7 @@ Java_dev_ragnarok_fenrir_module_StringExist_lockMutex(JNIEnv *, jobject, jlong p
     content->toggleMutex(lock);
 }
 
-extern "C" JNIEXPORT jlong
+extern "C" JNIEXPORT jlong JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_allocateBuffer(JNIEnv *, jobject, jint size) {
     auto buf = new std::vector<char>;
     if (size > 0) {
@@ -182,7 +182,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_allocateBuffer(JNIEnv *, jobje
     return reinterpret_cast<jlong>(buf);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_putByteArray(JNIEnv *env, jobject, jlong pointer,
                                                                jbyteArray array, jint size) {
     if (!pointer || size <= 0) {
@@ -207,7 +207,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_putByteArray(JNIEnv *env, jobj
     env->ReleaseByteArrayElements(array, buf, JNI_ABORT);
 }
 
-extern "C" JNIEXPORT jbyteArray
+extern "C" JNIEXPORT jbyteArray JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_compressLZ4Buffer(JNIEnv *env, jobject,
                                                                     jlong pointer) {
     if (!pointer) {
@@ -234,7 +234,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_compressLZ4Buffer(JNIEnv *env,
     return d;
 }
 
-extern "C" JNIEXPORT jbyteArray
+extern "C" JNIEXPORT jbyteArray JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_deCompressLZ4Buffer(JNIEnv *env, jobject,
                                                                       jlong pointer) {
     if (!pointer) {
@@ -259,7 +259,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_deCompressLZ4Buffer(JNIEnv *en
     return d;
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_putChar(JNIEnv *, jobject, jlong pointer,
                                                           jbyte value) {
     if (!pointer) {
@@ -273,7 +273,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_putChar(JNIEnv *, jobject, jlo
     bufPointer->push_back(value);
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_endString(JNIEnv *, jobject, jlong pointer) {
     if (!pointer) {
         return;
@@ -286,7 +286,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_endString(JNIEnv *, jobject, j
     (*bufPointer)[bufPointer->size()] = '\0';
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_bufferSize(JNIEnv *, jobject, jlong pointer) {
     if (!pointer) {
         return 0;
@@ -296,7 +296,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_bufferSize(JNIEnv *, jobject, 
     return (int) bufPointer->size();
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT void JNICALL
 Java_dev_ragnarok_fenrir_module_BufferWriteNative_releaseBuffer(JNIEnv *, jobject, jlong pointer) {
     if (!pointer) {
         return;
@@ -305,7 +305,7 @@ Java_dev_ragnarok_fenrir_module_BufferWriteNative_releaseBuffer(JNIEnv *, jobjec
     delete reinterpret_cast<std::vector<char> *>(pointer);
 }
 
-extern "C" JNIEXPORT jstring
+extern "C" JNIEXPORT jstring JNICALL
 Java_dev_ragnarok_fenrir_module_StringHash_getSha1(JNIEnv *env, jobject, jstring value) {
     char const *textString = SafeGetStringUTFChars(env, value, nullptr);
     if (!textString) {
@@ -316,7 +316,7 @@ Java_dev_ragnarok_fenrir_module_StringHash_getSha1(JNIEnv *env, jobject, jstring
     return env->NewStringUTF(SHA1::from_string(v).c_str());
 }
 
-extern "C" JNIEXPORT jstring
+extern "C" JNIEXPORT jstring JNICALL
 Java_dev_ragnarok_fenrir_module_StringHash_getSha1ByteArray(JNIEnv *env, jobject,
                                                             jbyteArray value) {
     jboolean isCopy;
@@ -333,7 +333,7 @@ Java_dev_ragnarok_fenrir_module_StringHash_getSha1ByteArray(JNIEnv *env, jobject
     return env->NewStringUTF(SHA1::from_string(v).c_str());
 }
 
-extern "C" JNIEXPORT jint
+extern "C" JNIEXPORT jint JNICALL
 Java_dev_ragnarok_fenrir_module_StringHash_getCRC32(JNIEnv *env, jobject,
                                                     jstring value) {
     char const *textString = SafeGetStringUTFChars(env, value, nullptr);

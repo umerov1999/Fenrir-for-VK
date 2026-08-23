@@ -38,4 +38,6 @@ interface IDirectAuthIdVKView : IMvpView, IErrorView {
         twoFA: String?,
         isSave: Boolean
     )
+
+    fun cleanCode()
 }

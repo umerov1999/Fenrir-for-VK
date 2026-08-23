@@ -27,13 +27,11 @@ internal class NotificationsApi(accountId: Long, provider: IServiceProvider) :
     override fun get(
         count: Int?,
         startFrom: String?,
-        filters: String?,
-        startTime: Long?,
-        endTime: Long?
+        filters: String?
     ): Flow<NotificationsResponse> {
         return provideService(INotificationsService(), TokenType.USER)
             .flatMapConcat { s ->
-                s[count, startFrom, filters, startTime, endTime]
+                s[count, startFrom, filters]
                     .map(extractResponseWithErrorHandling())
                     .map { response ->
                         val realList: MutableList<VKApiBaseFeedback> =
@@ -55,19 +53,13 @@ internal class NotificationsApi(accountId: Long, provider: IServiceProvider) :
 
     override fun getOfficial(
         count: Int?,
-        startFrom: Int?,
-        filters: String?,
-        startTime: Long?,
-        endTime: Long?
+        startFrom: Int?
     ): Flow<FeedbackVKOfficialList> {
         return provideService(INotificationsService(), TokenType.USER)
             .flatMapConcat {
                 it.getOfficial(
                     count,
                     startFrom,
-                    filters,
-                    startTime,
-                    endTime,
                     FIELDS_BASE_OWNER
                 )
                     .map(extractResponseWithErrorHandling())

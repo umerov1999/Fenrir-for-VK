@@ -182,7 +182,7 @@
         android:src="@drawable/ic_outline_keyboard_arrow_up" />
 
     <RelativeLayout
-        android:id="@+id/writingGroup"
+        android:id="@+id/typing_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/pinned_root_view"
@@ -191,7 +191,7 @@
         android:background="?materialCardBackgroundStyle">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/writingava"
+            android:id="@+id/typing_avatar"
             android:layout_width="@dimen/avatar_size_small"
             android:layout_height="@dimen/avatar_size_small"
             android:layout_marginEnd="4dp"
@@ -199,22 +199,22 @@
             android:padding="8dp" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/writing"
+            android:id="@+id/typing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_toEndOf="@id/writingava"
+            android:layout_toEndOf="@id/typing_avatar"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-            tools:text="@string/user_type_message" />
+            tools:text="@string/user_typing_message" />
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/writing_type"
+            android:id="@+id/typing_type"
             android:layout_width="@dimen/avatar_size_small"
             android:layout_height="@dimen/avatar_size_small"
             android:layout_centerInParent="true"
-            android:layout_toEndOf="@id/writing"
+            android:layout_toEndOf="@id/typing"
             android:contentDescription="@null"
             android:padding="10dp"
             android:src="@drawable/pencil"

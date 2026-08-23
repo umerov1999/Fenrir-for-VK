@@ -142,8 +142,7 @@ struct TextImpl : Text
 
     bool skip(RenderUpdateFlag flag)
     {
-        if (flag == RenderUpdateFlag::None) return true;
-        return false;
+        return (flag == RenderUpdateFlag::None);
     }
 
     void wrapping(TextWrap mode)
@@ -243,6 +242,21 @@ struct TextImpl : Text
     AccessorIterator* iterator()
     {
         return nullptr;
+    }
+
+    static Result load(const char* name, const char* data, uint32_t size, const char* mimeType, Ownership owner) noexcept
+    {
+        if (!name || (size == 0 && data)) return Result::InvalidArguments;
+
+        // unload font
+        if (!data) {
+            if (LoaderMgr::retrieve(LoaderMgr::font(name))) return Result::Success;
+            return Result::InsufficientCondition;
+        }
+
+        LoaderOps ops = {Type::Text, owner};
+        if (!LoaderMgr::loader(name, data, size, mimeType, ops)) return Result::NonSupport;
+        return Result::Success;
     }
 };
 

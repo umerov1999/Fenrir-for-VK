@@ -63,9 +63,9 @@ object VKLinkParser {
         val PATTERN_POLL: Regex = Regex("vk\\.(?:ru|com|me)/poll(-?\\d*)_(\\d*)") //+
         val PATTERN_PHOTO: Regex =
             Regex("vk\\.(?:ru|com|me)/(\\w*)(-)?(\\d)*(\\?z=)?photo(-?\\d*)_(\\d*)") //+
-        val PATTERN_VIDEO: Regex = Regex("vk\\.(?:ru|com|me)/video(-?\\d*)_(\\d*)") //+
+        val PATTERN_VIDEO: Regex = Regex("vk(?:video|)\\.(?:ru|com|me)/video(-?\\d*)_(\\d*)") //+
         val PATTERN_VIDEO_METHOD_2: Regex =
-            Regex("vk\\.(?:ru|com|me)/(\\w*)(-)?(\\d)*(\\?z=)?(video|clip)(-?\\d*)_(\\d*)") //+
+            Regex("vk(?:video|)\\.(?:ru|com|me)/(\\w*)(-)?(\\d)*(\\?z=)?(video|clip)(-?\\d*)_(\\d*)") //+
         val PATTERN_PLAYLIST: Regex =
             Regex("vk\\.(?:ru|com|me)/music/album/(-?\\d*)_(\\d*)_([^&]*)") //+
         val PATTERN_PLAYLIST_ALT: Regex =
@@ -78,8 +78,8 @@ object VKLinkParser {
         val PATTERN_FAVE_WITH_SECTION: Regex = Regex("vk\\.(?:ru|com|me)/fave\\?section=([\\w.]+)")
         val PATTERN_ACCESS_KEY: Regex = Regex("access_key=(\\w+)")
         val PATTERN_VIDEO_ALBUM: Regex =
-            Regex("vk\\.(?:ru|com|me)/videos(-?\\d*)[?]section=album_(\\d*)")
-        val PATTERN_VIDEOS_OWNER: Regex = Regex("vk\\.(?:ru|com|me)/videos(-?\\d*)")
+            Regex("vk(?:video|)\\.(?:ru|com|me)/videos(-?\\d*)[?]section=album_(\\d*)")
+        val PATTERN_VIDEOS_OWNER: Regex = Regex("vk(?:video|)\\.(?:ru|com|me)/videos(-?\\d*)")
 
         //vk.ru/wall-2345345_7834545?reply=15345346
         val PATTERN_WALL_POST_COMMENT: Regex =
@@ -99,9 +99,7 @@ object VKLinkParser {
         val PATTERN_MARKET: Regex = Regex("vk\\.(?:ru|com|me)/market(-?\\d*)")
 
         val COMMON_PATTERN_VK_DOMAIN: Regex =
-            Regex("(vk\\.(?:ru|com|me))")
-        val COMMON_PATTERN_WALL: Regex =
-            Regex("(vk\\.(?:ru|com|me)/wall)")
+            Regex("(vk(?:video|)\\.(?:ru|com|me))")
         val COMMON_PATTERN_BAD: Regex =
             Regex("((?:vk\\.(?:ru|com|me)/?$)|(?:vk\\.(?:ru|com|me)/(?:activation|login|images?(?:$|\\?|/)|search?(?:$|\\?|/)|friends?(?:$|\\?|/)|support?(?:$|\\?|/)|restore?(?:$|\\?|/)|page$|bugs?(?:$|\\?|/)|dev?(?:$|\\?|/)|note\\d.*$))|(?:login\\.vk\\.(?:ru|com|me)))")
         val COMMON_PATTERN_FEED: Regex =

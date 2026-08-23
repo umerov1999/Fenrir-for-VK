@@ -6,13 +6,13 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     set(CMAKE_C_FLAGS "-std=c23 -w -DANDROID -D_LARGEFILE_SOURCE -g -DDEBUG_PLATFORM")
     set(OPTIMIZE_NORMAL "-O0")
     set(OPTIMIZE_FAST "-O0")
-    set(SYM_VISIBILITY "")
 else ()
     set(CMAKE_CXX_FLAGS "-std=c++23 -DANDROID -DFENRIR_NATIVE_LOG_DISABLED -ffunction-sections -fdata-sections -fmerge-all-constants")
     set(CMAKE_C_FLAGS "-std=c23 -w -DANDROID -DFENRIR_NATIVE_LOG_DISABLED -D_LARGEFILE_SOURCE -ffunction-sections -fdata-sections -fmerge-all-constants")
     set(OPTIMIZE_NORMAL "-Os")
     set(OPTIMIZE_FAST "-O3")
-    set(SYM_VISIBILITY "-fvisibility=hidden")
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+    set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 endif ()
 set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
 set(CMAKE_CXX_STANDARD 23)
@@ -35,6 +35,25 @@ foreach (ffmpeg_lib avutil swresample avcodec avformat swscale)
 endforeach ()
 
 add_library(thorvg STATIC
+        animation/thorvg/src/common/tvgCompressor.cpp
+        animation/thorvg/src/common/tvgMath.cpp
+        animation/thorvg/src/common/tvgStr.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieAnimation.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieBuilder.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieExpressions.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieInterpolator.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieLoader.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieModel.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieModifier.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieParser.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieParserHandler.cpp
+        animation/thorvg/src/loaders/raw/tvgRawLoader.cpp
+        animation/thorvg/src/loaders/svg/tvgSvgBuilder.cpp
+        animation/thorvg/src/loaders/svg/tvgSvgCssStyle.cpp
+        animation/thorvg/src/loaders/svg/tvgSvgLoader.cpp
+        animation/thorvg/src/loaders/svg/tvgSvgPath.cpp
+        animation/thorvg/src/loaders/svg/tvgSvgUtil.cpp
+        animation/thorvg/src/loaders/svg/tvgXmlParser.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwBlendOp.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwFill.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwImage.cpp
@@ -59,37 +78,18 @@ add_library(thorvg STATIC
         animation/thorvg/src/renderer/tvgScene.cpp
         animation/thorvg/src/renderer/tvgShape.cpp
         animation/thorvg/src/renderer/tvgTaskScheduler.cpp
-        animation/thorvg/src/renderer/tvgText.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieAnimation.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieBuilder.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieExpressions.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieInterpolator.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieLoader.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieModel.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieModifier.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieParser.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieParserHandler.cpp
-        animation/thorvg/src/loaders/raw/tvgRawLoader.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgBuilder.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgCssStyle.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgLoader.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgPath.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgUtil.cpp
-        animation/thorvg/src/loaders/svg/tvgXmlParser.cpp
-        animation/thorvg/src/common/tvgCompressor.cpp
-        animation/thorvg/src/common/tvgMath.cpp
-        animation/thorvg/src/common/tvgStr.cpp)
+        animation/thorvg/src/renderer/tvgText.cpp)
 
 target_compile_options(thorvg PRIVATE
-        -DTVG_STATIC -DBIG_ENDIAN_COLORS -fno-exceptions -ffast-math ${OPTIMIZE_NORMAL} -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -Woverloaded-virtual -Wno-unused-parameter -Wno-nan-infinity-disabled ${SYM_VISIBILITY})
+        -DTVG_STATIC -DBIG_ENDIAN_COLORS -fno-exceptions -ffast-math ${OPTIMIZE_NORMAL} -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -Woverloaded-virtual -Wno-unused-parameter -Wno-nan-infinity-disabled)
 target_include_directories(thorvg PRIVATE
         animation/thorvg/inc
-        animation/thorvg/src/renderer
-        animation/thorvg/src/renderer/cpu_engine
+        animation/thorvg/src/common
         animation/thorvg/src/loaders/lottie
         animation/thorvg/src/loaders/raw
         animation/thorvg/src/loaders/svg
-        animation/thorvg/src/common)
+        animation/thorvg/src/renderer
+        animation/thorvg/src/renderer/cpu_engine)
 
 if (${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "armeabi-v7a")
     target_compile_definitions(thorvg PRIVATE RAPIDJSON_NEON)
@@ -147,7 +147,7 @@ add_library(libyuv STATIC
         animation/libyuv/source/scale_sme.cc
         animation/libyuv/source/scale_uv.cc
         animation/libyuv/source/video_common.cc)
-target_compile_options(libyuv PRIVATE -ffast-math ${OPTIMIZE_NORMAL} -funroll-loops -fno-strict-aliasing -fno-math-errno ${SYM_VISIBILITY})
+target_compile_options(libyuv PRIVATE -ffast-math ${OPTIMIZE_NORMAL} -funroll-loops -fno-strict-aliasing -fno-math-errno)
 target_include_directories(libyuv PRIVATE animation/libyuv/include)
 if (${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_compile_options(libyuv PRIVATE -march=armv8-a+dotprod+i8mm -DLIBYUV_DISABLE_SVE -DLIBYUV_DISABLE_SME)
@@ -313,7 +313,7 @@ target_include_directories(opus PRIVATE
         audio/opus/libopus/celt
         audio/opus/libopus)
 target_compile_options(opus PRIVATE
-        -ffast-math ${OPTIMIZE_NORMAL} -funroll-loops -ffast-math -fno-strict-aliasing -fno-math-errno ${SYM_VISIBILITY})
+        -ffast-math ${OPTIMIZE_NORMAL} -funroll-loops -ffast-math -fno-strict-aliasing -fno-math-errno)
 set_target_properties(opus PROPERTIES
         ANDROID_ARM_MODE arm)
 
@@ -426,7 +426,7 @@ target_include_directories(common
         compress/zstd/dictBuilder)
 
 target_compile_options(common PRIVATE
-        ${OPTIMIZE_FAST} -DZSTD_MULTITHREAD -DZSTD_LEGACY_SUPPORT=0 -DTAGLIB_STATIC -funroll-loops -fno-strict-aliasing -fno-math-errno -Wno-unused-parameter -Wno-unused-variable ${SYM_VISIBILITY})
+        ${OPTIMIZE_FAST} -DZSTD_MULTITHREAD -DZSTD_LEGACY_SUPPORT=0 -DTAGLIB_STATIC -funroll-loops -fno-strict-aliasing -fno-math-errno -Wno-unused-parameter -Wno-unused-variable)
 
 #####################################################################
 add_library(zxing STATIC
@@ -552,7 +552,7 @@ target_include_directories(zxing
 )
 
 target_compile_options(zxing PRIVATE
-        ${OPTIMIZE_FAST} -DZXING_INTERNAL -funroll-loops -fno-strict-aliasing -fno-math-errno -Wno-unused-parameter -Wno-unused-variable ${SYM_VISIBILITY})
+        ${OPTIMIZE_FAST} -DZXING_INTERNAL -funroll-loops -fno-strict-aliasing -fno-math-errno -Wno-unused-parameter -Wno-unused-variable)
 
 #####################################################################
 add_library(fenrir_jni
@@ -615,5 +615,5 @@ target_link_libraries(fenrir_jni
         PRIVATE zxing)
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_link_options(fenrir_jni PRIVATE "-Wl,--build-id=none")
+    target_link_options(fenrir_jni PRIVATE "-Wl,--build-id=none" "-Wl,--exclude-libs,ALL")
 endif ()

@@ -2,7 +2,12 @@ package dev.ragnarok.fenrir.model
 
 import dev.ragnarok.fenrir.nonNullNoEmpty
 
-class WriteText(val accountId: Long, peerId: Long, from_ids: LongArray?, val isText: Boolean) {
+class TypingMessageOrUploadingInDialog(
+    val accountId: Long,
+    peerId: Long,
+    from_ids: LongArray?,
+    val action: Int
+) {
     val peerId: Long
     private val from_ids: MutableList<Long> = ArrayList()
     fun getFrom_ids(): List<Long> {

@@ -4,7 +4,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.api.model.longpoll.VKApiGroupLongpollUpdates
 import dev.ragnarok.fenrir.api.model.longpoll.VKApiLongpollUpdates
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.realtime.IRealtimeMessagesProcessor
@@ -22,7 +21,7 @@ import java.util.concurrent.Executors
 class AndroidLongpollManager internal constructor(
     private val networker: INetworker,
     private val messagesProcessor: IRealtimeMessagesProcessor
-) : ILongpollManager, UserLongpoll.Callback, GroupLongpoll.Callback {
+) : ILongpollManager, UserLongpoll.Callback {
     private val map: HashMap<Long, LongpollEntry> = HashMap(1)
     private val keepAlivePublisher = createPublishSubject<Long>()
     private val actionsPublisher = createPublishSubject<VKApiLongpollUpdates>()
@@ -107,7 +106,6 @@ class AndroidLongpollManager internal constructor(
         actionsPublisher.myEmit(updates)
     }
 
-    override fun onUpdates(groupId: Long, updates: VKApiGroupLongpollUpdates) {}
     class LongpollEntry(
         val longpoll: ILongpoll,
         manager: AndroidLongpollManager
@@ -176,7 +174,6 @@ class AndroidLongpollManager internal constructor(
             const val PRE_DESTROY = 2
             const val DESTROY = 3
         }
-
     }
 
     companion object {
@@ -184,5 +181,4 @@ class AndroidLongpollManager internal constructor(
         private val MONO_SCHEDULER =
             CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     }
-
 }

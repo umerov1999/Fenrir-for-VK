@@ -349,8 +349,11 @@
     <string name="attachment_document">Document</string>
     <string name="attachment_documents">Documents</string>
     <string name="attachment_link">Link</string>
-    <string name="user_type_message">typing</string>
-    <string name="user_type_voice">recording voice message</string>
+    <string name="user_typing_message">typing</string>
+    <string name="user_recording_voice_message">recording voice message</string>
+    <string name="user_uploading_photo">uploading photo</string>
+    <string name="user_uploading_video">uploading video</string>
+    <string name="user_uploading_file">uploading file</string>
     <string name="many_users_typed">%1$s and %2$d</string>
 
     <string name="load_more">Load more</string>
@@ -1200,6 +1203,8 @@
     <string name="settings_show_logs_title">Logs</string>
     <string name="settings_domain">VK API domain</string>
     <string name="settings_vk_auth_domain">VK OAUTH domain</string>
+    <string name="settings_vk_web_auth_domain">VK Web Auth domain</string>
+    <string name="settings_vk_domain">VK domain</string>
     <string name="application_logs">Application logs</string>
     <string name="search_option_empty_text">No search options available</string>
     <string name="comment_editing_title">Editing</string>
@@ -1934,4 +1939,5 @@
     <string name="auth_validate_sms_help">Your authorization code has been sent via SMS to %1$s</string>
     <string name="auth_validate_callreset_help">Your authorization code will be called to %1$s and dictated to you (length: %2$d)</string>
     <string name="auth_validate_codegen_help">Use the code from the authorization code generator app</string>
+    <string name="call_reset_description">Last %1$d digits of the call</string>
 </resources>

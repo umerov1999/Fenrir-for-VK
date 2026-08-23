@@ -25,12 +25,17 @@
 
 #include "tvgCommon.h"
 #include "tvgStr.h"
+#include "tvgText.h"
 #include "tvgCompressor.h"
 #include "tvgInlist.h"
 #include "tvgRender.h"
 #include "tvgLottieProperty.h"
 #include "tvgLottieRenderPooler.h"
 #include "tvgLottieTween.h"
+
+#ifdef THORVG_MEDIA_LOADER_SUPPORT
+    #include "thorvg_media.h"
+#endif
 
 struct LottieComposition;
 
@@ -49,7 +54,6 @@ struct LottieStroke
         if (dashattr) delete[] dashattr->values;
         delete(dashattr);
     }
-
 
     LottieFloat& dashValue()
     {
@@ -86,6 +90,7 @@ struct LottieEffect
 {
     enum Type : uint8_t {Custom = 5, Tint = 20, Fill, Stroke, Tritone, DropShadow = 25, GaussianBlur = 29};
 
+    LottieEffect(Type type) : type(type) {}
     virtual ~LottieEffect() {}
 
     unsigned long nm;  //encoded by djb2
@@ -108,10 +113,7 @@ struct LottieFxCustom : LottieEffect
     char* name = nullptr;
     Array<Property> props;
 
-    LottieFxCustom()
-    {
-        type = LottieEffect::Custom;
-    }
+    LottieFxCustom() : LottieEffect(LottieEffect::Custom) {}
 
     ~LottieFxCustom()
     {
@@ -162,10 +164,7 @@ struct LottieFxFill : LottieEffect
     //LottieSlider vFeather;
     LottieFloat opacity;
 
-    LottieFxFill()
-    {
-        type = LottieEffect::Fill;
-    }
+    LottieFxFill() : LottieEffect(LottieEffect::Fill) {}
 };
 
 struct LottieFxStroke : LottieEffect
@@ -182,10 +181,7 @@ struct LottieFxStroke : LottieEffect
     //LottieFloat space;
     //LottieInteger style;
 
-    LottieFxStroke()
-    {
-        type = LottieEffect::Stroke;
-    }
+    LottieFxStroke() : LottieEffect(LottieEffect::Stroke) {}
 };
 
 struct LottieFxTint : LottieEffect
@@ -194,10 +190,7 @@ struct LottieFxTint : LottieEffect
     LottieColor white;
     LottieFloat intensity;
 
-    LottieFxTint()
-    {
-        type = LottieEffect::Tint;
-    }
+    LottieFxTint() : LottieEffect(LottieEffect::Tint) {}
 };
 
 struct LottieFxTritone : LottieEffect
@@ -207,10 +200,7 @@ struct LottieFxTritone : LottieEffect
     LottieColor dark;
     LottieOpacity blend;
 
-    LottieFxTritone()
-    {
-        type = LottieEffect::Tritone;
-    }
+    LottieFxTritone() : LottieEffect(LottieEffect::Tritone) {}
 };
 
 struct LottieFxDropShadow : LottieEffect
@@ -221,10 +211,7 @@ struct LottieFxDropShadow : LottieEffect
     LottieFloat distance = 0.0f;
     LottieFloat blurness = 0.0f;
 
-    LottieFxDropShadow()
-    {
-        type = LottieEffect::DropShadow;
-    }
+    LottieFxDropShadow() : LottieEffect(LottieEffect::DropShadow) {}
 };
 
 struct LottieFxGaussianBlur : LottieEffect
@@ -233,10 +220,7 @@ struct LottieFxGaussianBlur : LottieEffect
     LottieInteger direction = 0;
     LottieInteger wrap = 0;
 
-    LottieFxGaussianBlur()
-    {
-        type = LottieEffect::GaussianBlur;
-    }
+    LottieFxGaussianBlur() : LottieEffect(LottieEffect::GaussianBlur) {}
 };
 
 
@@ -249,6 +233,24 @@ struct LottieMask
     bool inverse = false;
 };
 
+// Property (Slot) Override Helper
+struct LottieOverride
+{
+    // Applies a slot property override to the first target with a matching sid.
+    // The original property is either saved as a backup or released before the
+    // override is copied into the target.
+    template<typename T>
+    static bool apply(T& target, LottieProperty* prop, LottieProperty*& backup, bool release)
+    {
+        if (target.sid != prop->sid) return false;
+        if (release) target.release();
+        else backup = new T(target);
+        target.copy(*static_cast<T*>(prop), false);
+        return true;
+    }
+
+#define OVERRIDE(target) LottieOverride::apply(target, prop, backup, release)
+};
 
 struct LottieObject
 {
@@ -278,9 +280,8 @@ struct LottieObject
         Audio
     };
 
-    virtual ~LottieObject()
-    {
-    }
+    LottieObject(Type type) : type(type) {}
+    virtual ~LottieObject() {}
 
     virtual LottieProperty* override(LottieProperty* prop, bool release)
     {
@@ -329,9 +330,8 @@ struct LottieTextRange : LottieObject
     enum Shape : uint8_t { Square = 1, RampUp, RampDown, Triangle, Round, Smooth };
     enum Unit : uint8_t { Percent = 1, Index };
 
-    LottieTextRange()
+    LottieTextRange() : LottieObject(LottieObject::TextRange)
     {
-        LottieObject::type = LottieObject::TextRange;
         style.flags.fillColor = 0;
         style.flags.strokeColor = 0;
         style.flags.strokeWidth = 0;
@@ -380,67 +380,18 @@ struct LottieTextRange : LottieObject
     void color(float frameNo, RGB32& fillColor, RGB32& strokeColor, float factor, LottieTween& tween, LottieExpressions* exps)
     {
         if (style.flags.fillColor) {
-            auto color = style.fillColor(frameNo, tween, exps);
-            fillColor.r = tvg::lerp<uint8_t>(fillColor.r, color.r, factor);
-            fillColor.g = tvg::lerp<uint8_t>(fillColor.g, color.g, factor);
-            fillColor.b = tvg::lerp<uint8_t>(fillColor.b, color.b, factor);
+            fillColor = tvg::lerp(fillColor, style.fillColor(frameNo, tween, exps), factor);
         }
         if (style.flags.strokeColor) {
-            auto color = style.strokeColor(frameNo, tween, exps);
-            strokeColor.r = tvg::lerp<uint8_t>(strokeColor.r, color.r, factor);
-            strokeColor.g = tvg::lerp<uint8_t>(strokeColor.g, color.g, factor);
-            strokeColor.b = tvg::lerp<uint8_t>(strokeColor.b, color.b, factor);
+            strokeColor = tvg::lerp(strokeColor, style.strokeColor(frameNo, tween, exps), factor);
         }
     }
 
     LottieProperty* override(LottieProperty* prop, bool release) override
     {
         LottieProperty* backup = nullptr;
-        if (style.fillColor.sid == prop->sid) {
-            if (release) style.fillColor.release();
-            else backup = new LottieColor(style.fillColor);
-            style.fillColor.copy(*static_cast<LottieColor*>(prop), false);
-        } else if (style.strokeColor.sid == prop->sid) {
-            if (release) style.strokeColor.release();
-            else backup = new LottieColor(style.strokeColor);
-            style.strokeColor.copy(*static_cast<LottieColor*>(prop), false);
-        } else if (style.position.sid == prop->sid) {
-            if (release) style.position.release();
-            else backup = new LottieVector(style.position);
-            style.position.copy(*static_cast<LottieVector*>(prop), false);
-        } else if (style.scale.sid == prop->sid) {
-            if (release) style.scale.release();
-            else backup = new LottieScalar(style.scale);
-            style.scale.copy(*static_cast<LottieScalar*>(prop), false);
-        } else if (style.rotation.sid == prop->sid) {
-            if (release) style.rotation.release();
-            else backup = new LottieFloat(style.rotation);
-            style.rotation.copy(*static_cast<LottieFloat*>(prop), false);
-        } else if (style.letterSpace.sid == prop->sid) {
-            if (release) style.letterSpace.release();
-            else backup = new LottieFloat(style.letterSpace);
-            style.letterSpace.copy(*static_cast<LottieFloat*>(prop), false);
-        } else if (style.lineSpace.sid == prop->sid) {
-            if (release) style.lineSpace.release();
-            else backup = new LottieFloat(style.lineSpace);
-            style.lineSpace.copy(*static_cast<LottieFloat*>(prop), false);
-        } else if (style.strokeWidth.sid == prop->sid) {
-            if (release) style.strokeWidth.release();
-            else backup = new LottieFloat(style.strokeWidth);
-            style.strokeWidth.copy(*static_cast<LottieFloat*>(prop), false);
-        } else if (style.fillOpacity.sid == prop->sid) {
-            if (release) style.fillOpacity.release();
-            else backup = new LottieOpacity(style.fillOpacity);
-            style.fillOpacity.copy(*static_cast<LottieOpacity*>(prop), false);
-        } else if (style.strokeOpacity.sid == prop->sid) {
-            if (release) style.strokeOpacity.release();
-            else backup = new LottieOpacity(style.strokeOpacity);
-            style.strokeOpacity.copy(*static_cast<LottieOpacity*>(prop), false);
-        } else if (style.opacity.sid == prop->sid) {
-            if (release) style.opacity.release();
-            else backup = new LottieOpacity(style.opacity);
-            style.opacity.copy(*static_cast<LottieOpacity*>(prop), false);
-        }
+        OVERRIDE(style.fillColor) || OVERRIDE(style.strokeColor) || OVERRIDE(style.position) || OVERRIDE(style.scale) || OVERRIDE(style.rotation) || OVERRIDE(style.letterSpace) ||
+        OVERRIDE(style.lineSpace) || OVERRIDE(style.strokeWidth) || OVERRIDE(style.fillOpacity) || OVERRIDE(style.strokeOpacity) || OVERRIDE(style.opacity);
         return backup;
     }
 };
@@ -452,20 +403,21 @@ struct LottieFont
 
     ~LottieFont()
     {
-        if (b64src) Text::unload(name);
+        if (path) {
+            Text::unload(name);
+            tvg::free(b64src);
+        } else {
+            Text::load(name, nullptr, size, mime, false);
+        }
+
         ARRAY_FOREACH(p, chars) delete(*p);
         tvg::free(style);
         tvg::free(family);
         tvg::free(name);
-        tvg::free(b64src);
         tvg::free(mime);
     }
 
-    union {
-        char* b64src = nullptr;
-        char* path;
-    };
-
+    char* b64src = nullptr;
     Array<LottieGlyph*> chars;
     char* name = nullptr;
     char* family = nullptr;
@@ -474,8 +426,13 @@ struct LottieFont
     uint32_t size = 0;
     float ascent = 0.0f;
     Origin origin = Local;
+    bool path = false;  // true if the b64src is path
 
-    void prepare();
+    void prepare()
+    {
+        if (path) Text::load(b64src);
+        else TextImpl::load(name, b64src, size, mime, Ownership::Transfer);
+    }
 };
 
 struct LottieMarker
@@ -523,17 +480,12 @@ struct LottieText : LottieObject, LottieRenderPooler<tvg::Shape>
         LottieScalar anchor{};
     } alignOp;
 
-    LottieText()
-    {
-        LottieObject::type = LottieObject::Text;
-    }
+    LottieText() : LottieObject(LottieObject::Text) {}
 
     LottieProperty* override(LottieProperty* prop, bool release) override
     {
         LottieProperty* backup = nullptr;
-        if (release) doc.release();
-        else backup = new LottieTextDoc(doc);
-        doc.copy(*static_cast<LottieTextDoc*>(prop), false);
+        OVERRIDE(doc);
         return backup;
     }
 
@@ -560,10 +512,7 @@ struct LottieTrimpath : LottieObject
 {
     enum Type : uint8_t { Simultaneous = 1, Individual = 2 };
 
-    LottieTrimpath()
-    {
-        LottieObject::type = LottieObject::Trimpath;
-    }
+    LottieTrimpath() : LottieObject(LottieObject::Trimpath) {}
 
     bool mergeable() override
     {
@@ -599,19 +548,13 @@ struct LottieShape : LottieObject, LottieRenderPooler<Shape>
         return true;
     }
 
-    LottieShape(LottieObject::Type type)
-    {
-        LottieObject::type = type;
-    }
+    LottieShape(LottieObject::Type type) : LottieObject(type) {}
 };
 
 
 struct LottieRoundedCorner : LottieObject
 {
-    LottieRoundedCorner()
-    {
-        LottieObject::type = LottieObject::RoundedCorner;
-    }
+    LottieRoundedCorner() : LottieObject(LottieObject::RoundedCorner) {}
 
     LottieProperty* property(uint16_t ix) override
     {
@@ -720,10 +663,7 @@ struct LottieTransform : LottieObject
         delete (ddd);
     }
 
-    LottieTransform()
-    {
-        LottieObject::type = LottieObject::Transform;
-    }
+    LottieTransform() : LottieObject(LottieObject::Transform) {}
 
     bool mergeable() override
     {
@@ -749,31 +689,7 @@ struct LottieTransform : LottieObject
     LottieProperty* override(LottieProperty* prop, bool release) override
     {
         LottieProperty* backup = nullptr;
-        if (rotation.sid == prop->sid) {
-            if (release) rotation.release();
-            else backup = new LottieFloat(rotation);
-            rotation.copy(*static_cast<LottieFloat*>(prop), false);
-        } else if (scale.sid == prop->sid) {
-            if (release) scale.release();
-            else backup = new LottieScalar(scale);
-            scale.copy(*static_cast<LottieScalar*>(prop), false);
-        } else if (position.sid == prop->sid) {
-            if (release) position.release();
-            else backup = new LottieVector(position);
-            position.copy(*static_cast<LottieVector*>(prop), false);
-        } else if (opacity.sid == prop->sid) {
-            if (release) opacity.release();
-            else backup = new LottieOpacity(opacity);
-            opacity.copy(*static_cast<LottieOpacity*>(prop), false);
-        } else if (skewAngle.sid == prop->sid) {
-            if (release) skewAngle.release();
-            else backup = new LottieFloat(skewAngle);
-            skewAngle.copy(*static_cast<LottieFloat*>(prop), false);
-        } else if (skewAxis.sid == prop->sid) {
-            if (release) skewAxis.release();
-            else backup = new LottieFloat(skewAxis);
-            skewAxis.copy(*static_cast<LottieFloat*>(prop), false);
-        }
+        OVERRIDE(rotation) || OVERRIDE(scale) || OVERRIDE(position) || OVERRIDE(opacity) || OVERRIDE(skewAngle) || OVERRIDE(skewAxis);
         return backup;
     }
 
@@ -790,13 +706,15 @@ struct LottieTransform : LottieObject
     struct Dimension3
     {
         LottieFloat rx = 0.0f, ry = 0.0f;  // use the rotation for z rotation
-        LottieScalar3 orient = Point3{0.0f, 0.0f, 0.0f};
+        LottieScalar3 orient = {};
     }* ddd = nullptr;
 };
 
 
 struct LottieSolid : LottieObject 
 {
+    LottieSolid(LottieObject::Type type) : LottieObject(type) {}
+
     LottieColor color = RGB32{255, 255, 255};
     LottieOpacity opacity = 255;
 
@@ -810,15 +728,7 @@ struct LottieSolid : LottieObject
     LottieProperty* override(LottieProperty* prop, bool release) override
     {
         LottieProperty* backup = nullptr;
-        if (color.sid == prop->sid) {
-            if (release) color.release();
-            else backup = new LottieColor(color);
-            color.copy(*static_cast<LottieColor*>(prop), false);
-        } else if (opacity.sid == prop->sid) {
-            if (release) opacity.release();
-            else backup = new LottieOpacity(opacity);
-            opacity.copy(*static_cast<LottieOpacity*>(prop), false);
-        }
+        OVERRIDE(color) || OVERRIDE(opacity);
         return backup;
     }
 };
@@ -826,10 +736,7 @@ struct LottieSolid : LottieObject
 
 struct LottieSolidStroke : LottieSolid, LottieStroke
 {
-    LottieSolidStroke()
-    {
-        LottieObject::type = LottieObject::SolidStroke;
-    }
+    LottieSolidStroke() : LottieSolid(LottieObject::SolidStroke) {}
 
     LottieProperty* property(uint16_t ix) override
     {
@@ -845,10 +752,7 @@ struct LottieSolidStroke : LottieSolid, LottieStroke
 
 struct LottieSolidFill : LottieSolid
 {
-    LottieSolidFill()
-    {
-        LottieObject::type = LottieObject::SolidFill;
-    }
+    LottieSolidFill() : LottieSolid(LottieObject::SolidFill) {}
 
     FillRule rule = FillRule::NonZero;
 };
@@ -856,7 +760,7 @@ struct LottieSolidFill : LottieSolid
 
 struct LottieGradient : LottieObject
 {
-    LottieGradient(ColorReplace* colorReplacement) {
+    LottieGradient(LottieObject::Type type, ColorReplace* colorReplacement) : LottieObject(type) {
         this->colorReplacement = colorReplacement;
     }
     bool prepare()
@@ -890,16 +794,8 @@ struct LottieGradient : LottieObject
     LottieProperty* override(LottieProperty* prop, bool release) override
     {
         LottieProperty* backup = nullptr;
-        if (colorStops.sid == prop->sid) {
-            if (release) colorStops.release();
-            else backup = new LottieColorStop(colorStops);
-            colorStops.copy(*static_cast<LottieColorStop*>(prop), false);
-            prepare();
-        } else if (opacity.sid == prop->sid) {
-            if (release) opacity.release();
-            else backup = new LottieOpacity(opacity);
-            opacity.copy(*static_cast<LottieOpacity*>(prop), false);
-        }
+        if (OVERRIDE(colorStops)) prepare();
+        else OVERRIDE(opacity);
         return backup;
     }
 
@@ -920,10 +816,7 @@ struct LottieGradient : LottieObject
 
 struct LottieGradientFill : LottieGradient
 {
-    LottieGradientFill(ColorReplace* colorReplacement): LottieGradient(colorReplacement)
-    {
-        LottieObject::type = LottieObject::GradientFill;
-    }
+    LottieGradientFill(ColorReplace* colorReplacement): LottieGradient(LottieObject::GradientFill, colorReplacement) {}
 
     FillRule rule = FillRule::NonZero;
 };
@@ -931,10 +824,7 @@ struct LottieGradientFill : LottieGradient
 
 struct LottieGradientStroke : LottieGradient, LottieStroke
 {
-    LottieGradientStroke(ColorReplace* colorReplacement) : LottieGradient(colorReplacement)
-    {
-        LottieObject::type = LottieObject::GradientStroke;
-    }
+    LottieGradientStroke(ColorReplace* colorReplacement) : LottieGradient(LottieObject::GradientStroke, colorReplacement) {}
 
     LottieProperty* property(uint16_t ix) override
     {
@@ -947,50 +837,86 @@ struct LottieGradientStroke : LottieGradient, LottieStroke
     }
 };
 
-
 struct LottieImage : LottieObject
 {
-    LottieBitmap bitmap;
-    bool resolved = false;
+#ifdef THORVG_MEDIA_LOADER_SUPPORT
+    Video* video = nullptr;
+#endif
+    Picture* picture = nullptr;
+    LottieAsset asset;
+    bool valid = false;
+    bool playing = false;
+
+    LottieImage() : LottieObject(LottieObject::Image) {}
+
+    ~LottieImage()
+    {
+        release();
+    }
+
+    void release()
+    {
+#ifdef THORVG_MEDIA_LOADER_SUPPORT
+        delete (video);
+        video = nullptr;
+        picture = nullptr;
+#else
+        if (picture) {
+            picture->unref();
+            picture = nullptr;
+        }
+#endif
+    }
 
     LottieProperty* override(LottieProperty* prop, bool release) override
     {
+        LottieImage::release();
+
         LottieProperty* backup = nullptr;
-        if (release) bitmap.release();
-        else backup = new LottieBitmap(bitmap);
-        bitmap.copy(*static_cast<LottieBitmap*>(prop), false);
+        OVERRIDE(asset);
+        valid = playing = false;
         return backup;
     }
 
-    void prepare(bool external);
-};
+    void stop()
+    {
+#ifdef THORVG_MEDIA_LOADER_SUPPORT
+        if (playing) {
+            video->stop();
+            playing = false;
+        }
+#endif
+    }
 
+    void play(TVG_UNUSED float progress)
+    {
+#ifdef THORVG_MEDIA_LOADER_SUPPORT
+        // tolerance for seeking, to avoid unnecessary seek calls
+        auto time = video->time();
+        auto seek = progress * video->duration();
+        if (fabsf(time - seek) > 1.0f) video->seek(seek);
+        if (!playing) {
+            video->play();
+            playing = true;
+        }
+#endif
+    }
+
+    Picture* get();
+};
 
 struct LottieAudio : LottieObject
 {
-    union {
-        char* data = nullptr;
-        char* path;
-    };
-    char* mimeType = nullptr;
-    uint32_t size = 0;
+    AssetSrc src;
 
-    LottieAudio() { LottieObject::type = LottieObject::Audio; }
+    LottieAudio() : LottieObject(LottieObject::Audio) {}
 
-    ~LottieAudio()
-    {
-        tvg::free(data);
-        tvg::free(mimeType);
-    }
+    // TODO: override?
 };
-
 
 struct LottieRepeater : LottieObject
 {
-    LottieRepeater()
-    {
-        LottieObject::type = LottieObject::Repeater;
-    }
+    LottieRepeater() : LottieObject(LottieObject::Repeater) {}
 
     LottieProperty* property(uint16_t ix) override
     {
@@ -1018,13 +944,9 @@ struct LottieRepeater : LottieObject
     bool inorder = true;        //true: higher,  false: lower
 };
 
-
 struct LottieOffsetPath : LottieObject
 {
-    LottieOffsetPath()
-    {
-        LottieObject::type = LottieObject::OffsetPath;
-    }
+    LottieOffsetPath() : LottieObject(LottieObject::OffsetPath) {}
 
     LottieFloat offset = 0.0f;
     LottieFloat miterLimit = 4.0f;
@@ -1033,20 +955,14 @@ struct LottieOffsetPath : LottieObject
 
 struct LottiePuckerBloat : LottieObject
 {
-    LottiePuckerBloat()
-    {
-        LottieObject::type = LottieObject::PuckerBloat;
-    }
+    LottiePuckerBloat() : LottieObject(LottieObject::PuckerBloat) {}
 
     LottieFloat amount = 0.0f;
 };
 
 struct LottieZigZag : LottieObject
 {
-    LottieZigZag()
-    {
-        LottieObject::type = LottieObject::ZigZag;
-    }
+    LottieZigZag() : LottieObject(LottieObject::ZigZag) {}
 
     LottieFloat amplitude = 0.0f;
     LottieInteger frequency = 0;
@@ -1055,14 +971,15 @@ struct LottieZigZag : LottieObject
 
 struct LottieGroup : LottieObject, LottieRenderPooler<tvg::Shape>
 {
-    LottieGroup();
+    LottieGroup(LottieObject::Type type = LottieObject::Group);
 
     virtual ~LottieGroup()
     {
-        ARRAY_FOREACH(p, children) delete(*p);
+        clear();
     }
 
-    void prepare(LottieObject::Type type = LottieObject::Group);
+    void clear();
+    void prepare();
     bool mergeable() override { return allowMerge; }
     LottieProperty* property(uint16_t ix) override;
 
@@ -1091,8 +1008,33 @@ struct LottieGroup : LottieObject, LottieRenderPooler<tvg::Shape>
     bool allowMerge : 1;    //if this group is consisted of simple (transformed) shapes.
 };
 
+struct LottieRootLayer : LottieGroup
+{
+    LottieFloat timeRemap = -1.0f;
 
-struct LottieLayer : LottieGroup
+    float timeStretch = 1.0f;
+    float w = 0.0f, h = 0.0f;
+    float inFrame = 0.0f;
+    float outFrame = 0.0f;
+    float startFrame = 0.0f;
+
+    bool effect = false;  // true if any effect is activated in its tree
+
+    LottieRootLayer(LottieObject::Type type = LottieObject::Composition) : LottieGroup(type) {}
+
+    float remap(LottieComposition* comp, float frameNo, LottieExpressions* exp);
+    LottieLayer* layerById(unsigned long id);
+    LottieLayer* layerByIdx(int16_t ix);
+
+    LottieProperty* override(LottieProperty* prop, bool release) override
+    {
+        LottieProperty* backup = nullptr;
+        OVERRIDE(timeRemap);
+        return backup;
+    }
+};
+
+struct LottieLayer : LottieRootLayer
 {
     enum Type : uint8_t {Precomp = 0, Solid, Image, Null, Shape, Text, Audio};
 
@@ -1101,25 +1043,18 @@ struct LottieLayer : LottieGroup
 
     bool mergeable() override { return false; }
     void prepare(RGB32* color = nullptr);
-    float remap(LottieComposition* comp, float frameNo, LottieExpressions* exp);
+    void invalidate();
     LottieProperty* property(uint16_t ix) override;
 
     char* name = nullptr;
     LottieLayer* parent = nullptr;
-    LottieFloat timeRemap = -1.0f;
-    LottieLayer* comp = nullptr;  //Precompositor, current layer is belonges.
+    LottieRootLayer* precomp = nullptr;  // precompositor, the current layer is belonges.
     LottieTransform* transform = nullptr;
     Array<LottieMask*> masks;
     Array<LottieEffect*> effects;
     LottieLayer* matteTarget = nullptr;
 
     LottieRenderPooler<tvg::Shape> statical;  //static pooler for solid fill and clipper
-
-    float timeStretch = 1.0f;
-    float w = 0.0f, h = 0.0f;
-    float inFrame = 0.0f;
-    float outFrame = 0.0f;
-    float startFrame = 0.0f;
 
     struct AudioControl {
         LottieFloat volume = 100.0f;
@@ -1140,7 +1075,6 @@ struct LottieLayer : LottieGroup
 
     MaskMethod matteType = MaskMethod::None;
     Type type = Null;
-    bool effect : 1;        // true if any effect is activated in its tree
     bool autoOrient : 1;
     bool matteSrc : 1;
 
@@ -1165,28 +1099,9 @@ struct LottieLayer : LottieGroup
         }
         return nullptr;
     }
-
-    LottieLayer* layerById(unsigned long id)
-    {
-        ARRAY_FOREACH(p, children) {
-            if ((*p)->type != LottieObject::Type::Layer) continue;
-            auto layer = static_cast<LottieLayer*>(*p);
-            if (layer->id == id) return layer;
-        }
-        return nullptr;
-    }
-
-    LottieLayer* layerByIdx(int16_t ix)
-    {
-        ARRAY_FOREACH(p, children) {
-            if ((*p)->type != LottieObject::Type::Layer) continue;
-            auto layer = static_cast<LottieLayer*>(*p);
-            if (layer->ix == ix) return layer;
-        }
-        return nullptr;
-    }
 };
 
+#undef OVERRIDE
 
 struct LottieSlot
 {
@@ -1271,7 +1186,7 @@ struct LottieComposition
         if (frameNo >= root->outFrame) frameNo = root->outFrame - 1;
     }
 
-    LottieLayer* root = nullptr;
+    LottieRootLayer* root = nullptr;
     char* version = nullptr;
     char* name = nullptr;
     float w, h;

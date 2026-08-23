@@ -273,6 +273,10 @@ class DirectAuthIdVKDialog : BaseMvpDialogFragment<DirectAuthIdVKPresenter, IDir
         returnResultAndDismiss(ACTION_VALIDATE_VIA_WEB, data)
     }
 
+    override fun cleanCode() {
+        mCode?.text?.clear()
+    }
+
     private fun returnResultAndDismiss(key: String, data: Bundle) {
         parentFragmentManager.setFragmentResult(key, data)
         dismiss()

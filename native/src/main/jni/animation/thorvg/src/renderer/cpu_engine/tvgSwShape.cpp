@@ -482,8 +482,7 @@ void shapeDelStroke(SwShape& shape)
 void shapeResetStroke(SwShape& shape, const RenderShape* rshape, const Matrix& transform, SwMpool* mpool, unsigned tid)
 {
     if (!shape.stroke) shape.stroke = tvg::calloc<SwStroke>(1, sizeof(SwStroke));
-    auto stroke = shape.stroke;
-    strokeReset(stroke, rshape, transform, mpool, tid);
+    strokeReset(shape.stroke, rshape, transform, mpool, tid);
     rleReset(shape.strokeRle);
 }
 
@@ -539,10 +538,12 @@ void shapeDelFill(SwShape& shape)
 
 bool shapeStrokeBBox(SwShape& shape, const RenderShape* rshape, Point* pt4, const Matrix& m, SwMpool* mpool)
 {
+    // TODO: We can skip generation here if the stroke hasn't been updated.
     if (rshape->strokeWidth() > 0.0f) {
         auto outline = _genOutline(rshape, mpool, 0, rshape->trimpath());
         if (!outline) return false;
 
+        if (!shape.stroke) shape.stroke = tvg::calloc<SwStroke>(1, sizeof(SwStroke));
         strokeReset(shape.stroke, rshape, m, mpool, 0);
         strokeParseOutline(shape.stroke, *outline, mpool, 0);
 

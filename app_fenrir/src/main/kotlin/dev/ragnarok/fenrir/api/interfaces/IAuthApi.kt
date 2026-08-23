@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.VKApiValidateAccount
+import dev.ragnarok.fenrir.api.model.VKApiValidatePhone
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemCheckOtp
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemSendOtp
@@ -19,6 +20,7 @@ interface IAuthApi {
         clientId: Int,
         username: String?,
         password: String?,
+        code: String?,
         v: String?,
         twoFaSupported: Boolean,
         scope: String?,
@@ -53,6 +55,16 @@ interface IAuthApi {
         accessToken: String?,
         v: String?
     ): Flow<VKApiValidateAccount>
+
+    @CheckResult
+    fun validatePhone(
+        phone: String?,
+        apiId: Int,
+        sid: String?,
+        v: String?,
+        libVerifySupport: Boolean,
+        allowCallReset: Boolean
+    ): Flow<VKApiValidatePhone>
 
     @CheckResult
     fun sendEcosystemOtp(

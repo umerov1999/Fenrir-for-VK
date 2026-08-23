@@ -308,7 +308,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                 context,
                 account.getOwnerObjectId(),
                 account.displayName,
-                user.maxSquareAvatar ?: VKApiUser.CAMERA_50
+                user.maxSquareAvatar ?: VKApiUser.getPhotoLink200()
             ).fromIOToMain(
                 {
                     view?.showColoredSnack(R.string.success, "#48BE2D".toColor())

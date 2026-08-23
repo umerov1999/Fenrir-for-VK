@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 import kotlinx.serialization.Serializable
 
@@ -250,7 +251,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
     }
 
     fun generateWebLink(): String {
-        return String.format("vk.ru/photo%s_%s", ownerId, id)
+        return String.format("${Settings.get().main().domain}/photo%s_%s", ownerId, id)
     }
 
     override fun equals(other: Any?): Boolean {

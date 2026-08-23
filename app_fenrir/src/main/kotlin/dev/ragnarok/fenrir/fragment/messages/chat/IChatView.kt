@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.model.ModelsBundle
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.Sticker
-import dev.ragnarok.fenrir.model.WriteText
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.upload.UploadDestination
 
 interface IChatView : IBasicMessageListView, IErrorView, IToastView {
@@ -24,9 +24,9 @@ interface IChatView : IBasicMessageListView, IErrorView, IToastView {
     fun displayToolbarTitle(text: String?)
     fun displayToolbarAvatar(peer: Peer?)
     fun displayToolbarSubtitle(text: String?)
-    fun displayWriting(writeText: WriteText)
-    fun hideWriting()
-    fun displayWriting(owner: Owner, count: Int, is_text: Boolean)
+    fun displayTypingMessageOrUploading(typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog)
+    fun hideTypingMessageOrUploading()
+    fun displayTypingMessageOrUploading(owner: Owner, count: Int, action: Int)
     fun requestRecordPermissions()
     fun displayRecordingDuration(time: Long)
     fun doCloseAfterSend()

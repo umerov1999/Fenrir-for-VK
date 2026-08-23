@@ -12,11 +12,12 @@ open class AbsLongpollEvent(val action: Int) {
         const val ACTION_MESSAGE_EDITED = 5
         const val ACTION_SET_INPUT_MESSAGES_AS_READ = 6
         const val ACTION_SET_OUTPUT_MESSAGES_AS_READ = 7
-        const val ACTION_USER_IS_ONLINE = 8
-        const val ACTION_USER_IS_OFFLINE = 9
         const val ACTION_MESSAGE_CHANGED = 18
-        const val ACTION_USER_WRITE_TEXT_IN_DIALOG = 63
-        const val ACTION_USER_WRITE_VOICE_IN_DIALOG = 64
+        const val ACTION_USER_TYPING_TEXT_IN_DIALOG = 63
+        const val ACTION_USER_RECORDING_VOICE_IN_DIALOG = 64
+        const val ACTION_USER_UPLOADING_PHOTO_IN_DIALOG = 65
+        const val ACTION_USER_UPLOADING_VIDEO_IN_DIALOG = 66
+        const val ACTION_USER_UPLOADING_FILE_IN_DIALOG = 67
         const val ACTION_COUNTER_UNREAD_WAS_CHANGED = 80
         const val ACTION_MESSAGE_REACTION_CHANGE = 601
     }

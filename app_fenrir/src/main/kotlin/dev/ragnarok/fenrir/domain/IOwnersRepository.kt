@@ -1,8 +1,6 @@
 package dev.ragnarok.fenrir.domain
 
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.api.model.longpoll.UserIsOfflineUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.UserIsOnlineUpdate
 import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
 import dev.ragnarok.fenrir.fragment.search.criteria.PeopleSearchCriteria
 import dev.ragnarok.fenrir.model.Community
@@ -84,11 +82,6 @@ interface IOwnersRepository {
 
     fun insertOwners(accountId: Long, entities: OwnerEntities): Flow<Boolean>
     fun handleStatusChange(accountId: Long, userId: Long, status: String?): Flow<Boolean>
-    fun handleOnlineChanges(
-        accountId: Long,
-        offlineUpdates: List<UserIsOfflineUpdate>?,
-        onlineUpdates: List<UserIsOnlineUpdate>?
-    ): Flow<Boolean>
 
     fun observeUpdates(): SharedFlow<List<UserUpdate>>
     fun report(accountId: Long, userId: Long, type: String?, comment: String?): Flow<Int>

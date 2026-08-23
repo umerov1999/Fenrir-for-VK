@@ -56,13 +56,14 @@ struct PictureImpl : Picture
 
     bool skip(RenderUpdateFlag flag)
     {
-        if (flag == RenderUpdateFlag::None) return true;
-        return false;
+        // The media have its own playback update
+        return !loader || (flag == RenderUpdateFlag::None && loader->type != FileType::Media);
     }
 
     bool update(RenderMethod* renderer, const Matrix& transform, Array<RenderData>& clips, uint8_t opacity, RenderUpdateFlag flag, TVG_UNUSED bool clipper)
     {
-        load();
+        flag |= load();
+        if (flag == RenderUpdateFlag::None) return true;
 
         auto pivot = Point{-origin.x * float(w), -origin.y * float(h)};
 
@@ -117,7 +118,7 @@ struct PictureImpl : Picture
     bool intersects(const RenderRegion& region, bool visibleOnly)
     {
         if (!impl.renderer) return false;
-        load();
+        impl.mark(load());
         if (impl.rd) return impl.renderer->intersectsImage(impl.rd, region);
         else if (vector) return PAINT(vector)->intersects(region, visibleOnly);
         return false;
@@ -136,27 +137,28 @@ struct PictureImpl : Picture
     {
         if (vector || bitmap) return Result::InsufficientCondition;
 
-        bool invalid;  //Invalid Path
-        PictureOps ops = {resolver, nullptr, accessible, colorReplacement};
-        auto loader = LoaderMgr::loader(filename, &ops, &invalid);
+        PictureOps ops = {Ownership::Transfer, resolver, nullptr, accessible, colorReplacement};
+        auto invalid = false;  // invalid path
+        auto loader = LoaderMgr::loader(filename, ops, invalid);
+        if (loader) return load(loader);
         if (invalid) return Result::InvalidArguments;
-        return load(loader);
+        return Result::NonSupport;
     }
 
-    Result load(const char* data, uint32_t size, const char* mimeType, const char* rpath, bool copy, ColorReplace *colorReplacement)
+    Result load(const char* data, uint32_t size, const char* mimeType, const char* rpath, const Ownership owner, ColorReplace *colorReplacement)
     {
         if (!data || size <= 0) return Result::InvalidArguments;
         if (vector || bitmap) return Result::InsufficientCondition;
 
-        PictureOps ops = {resolver, rpath, accessible, colorReplacement};
-        return load(LoaderMgr::loader(data, size, mimeType, &ops, copy));
+        PictureOps ops = {owner, resolver, rpath, accessible, colorReplacement};
+        return load(LoaderMgr::loader(data, size, mimeType, ops));
     }
 
-    Result load(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, bool copy)
+    Result load(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, Ownership owner)
     {
         if (!data || w <= 0 || h <= 0 || cs == ColorSpace::Unknown)  return Result::InvalidArguments;
         if (vector) return Result::InsufficientCondition;
-        return load(LoaderMgr::loader(data, w, h, cs, copy));
+        return load(LoaderMgr::loader(data, w, h, cs, owner));
     }
 
     Result set(std::function<bool(Paint* paint, const char* src, void* data)> resolver, void* data)
@@ -178,7 +180,7 @@ struct PictureImpl : Picture
     {
         if (ret) TVGERR("RENDERER", "TODO: duplicate()");
 
-        load();
+        impl.mark(load());
 
         auto picture = Picture::gen();
         auto dup = to<PictureImpl>(picture);
@@ -206,7 +208,7 @@ struct PictureImpl : Picture
 
     AccessorIterator* iterator()
     {
-        load();
+        impl.mark(load());
 
         struct PictureIterator : AccessorIterator
         {
@@ -225,28 +227,17 @@ struct PictureImpl : Picture
         return new PictureIterator(vector);
     }
 
-    uint32_t* data(uint32_t* w, uint32_t* h)
+    RenderUpdateFlag load()
     {
-        //Try it, If not loaded yet.
-        load();
+        if (!loader) return RenderUpdateFlag::None;
 
-        if (loader) {
-            if (w) *w = static_cast<uint32_t>(loader->w);
-            if (h) *h = static_cast<uint32_t>(loader->h);
+        // reload the next frame if any
+        if (vector || bitmap) {
+            // sync call must be guaranteed.
+            if (loader->sync() && bitmap) return RenderUpdateFlag::Image;
+        // load the first frame
         } else {
-            if (w) *w = 0;
-            if (h) *h = 0;
-        }
-        if (bitmap) return bitmap->buf32;
-        else return nullptr;
-    }
-
-    void load()
-    {
-        if (loader) {
-            if (vector) {
-                loader->sync();
-            } else if ((vector = loader->paint())) {
+            if ((vector = loader->paint())) {
                 vector->ref();
                 PAINT(vector)->parent = this;
                 if (w != loader->w || h != loader->h) {
@@ -257,10 +248,12 @@ struct PictureImpl : Picture
                     loader->resize(vector, w, h);
                     resizing = false;
                 }
-            } else if (!bitmap) {
+            } else {
                 bitmap = loader->bitmap();
             }
         }
+        // animations updates the properties essentially. here update is not necessary.
+        return RenderUpdateFlag::None;
     }
 
     void needComposition(uint8_t opacity)
@@ -299,7 +292,8 @@ struct PictureImpl : Picture
     RenderRegion bounds()
     {
         if (vector) return vector->pImpl->bounds();
-        return impl.renderer->region(impl.rd);
+        else if (impl.renderer) return impl.renderer->region(impl.rd);
+        return {};
     }
 
     Result load(Loader* loader)
@@ -335,6 +329,16 @@ struct PictureImpl : Picture
     void access(AccessorCallback& cb)
     {
         if (loader) loader->access(cb);
+    }
+
+    template<class T>
+    T* fetch(FileType expect)
+    {
+        if (loader) {
+            if (loader->type == expect) return static_cast<T*>(loader);
+            TVGERR("RENDERER", "Invalid loaded data type (expected: %d, got: %d)", (int)expect, (int)loader->type);
+        }
+        return nullptr;
     }
 };
 

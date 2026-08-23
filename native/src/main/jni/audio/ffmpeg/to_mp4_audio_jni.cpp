@@ -11,8 +11,8 @@ extern "C" {
 
 #define ERRRET(str) {ret = false; LOGE("%s\n", str); goto out;}
 
-int decode_packet_to_mp4_audio(AVCodecContext *context, AVFrame *frame, AVPacket *packet,
-                               bool &got_frame) {
+static int decode_packet_to_mp4_audio(AVCodecContext *context, AVFrame *frame, AVPacket *packet,
+                                      bool &got_frame) {
     int ret;
     int decoded = packet->size;
     got_frame = false;
@@ -34,8 +34,8 @@ int decode_packet_to_mp4_audio(AVCodecContext *context, AVFrame *frame, AVPacket
     return decoded;
 }
 
-int encode_frame_to_mp4_audio(AVCodecContext *context, AVFrame *frame, AVPacket *packet,
-                              bool &got_packet) {
+static int encode_frame_to_mp4_audio(AVCodecContext *context, AVFrame *frame, AVPacket *packet,
+                                     bool &got_packet) {
     int ret;
     got_packet = false;
 
@@ -56,7 +56,7 @@ int encode_frame_to_mp4_audio(AVCodecContext *context, AVFrame *frame, AVPacket 
     return 0;
 }
 
-bool encode_to_mp4a_to_mp4_audio(const char *src, const char *dst) {
+static bool encode_to_mp4a_to_mp4_audio(const char *src, const char *dst) {
     bool ret = true;
     // Allocate and init re-usable frames
     AVCodecContext *fileCodecContext = nullptr, *audioCodecContext = nullptr;
@@ -258,7 +258,7 @@ bool encode_to_mp4a_to_mp4_audio(const char *src, const char *dst) {
 }
 
 /*
-inline void av_log_to_mp4_audio(void*, int level, const char *fmt, va_list vl)
+static inline void av_log_to_mp4_audio(void*, int level, const char *fmt, va_list vl)
 {
     int android_level = ANDROID_LOG_DEFAULT;
     switch (level) {
@@ -285,7 +285,7 @@ inline void av_log_to_mp4_audio(void*, int level, const char *fmt, va_list vl)
 }
 */
 
-extern "C" JNIEXPORT jboolean
+extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_encoder_ToMp4Audio_encodeToMp4(JNIEnv *env, jobject, jstring input,
                                                                jstring
                                                                output) {

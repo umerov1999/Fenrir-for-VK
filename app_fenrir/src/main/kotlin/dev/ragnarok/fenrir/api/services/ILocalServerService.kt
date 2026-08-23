@@ -135,10 +135,10 @@ class ILocalServerService : IServiceRest() {
         return rest.request("fs.get", form("dir" to dir), items(FileRemote.serializer()))
     }
 
-    fun rebootPC(
-        type: String?
+    fun powerOffPC(
+        type: String
     ): Flow<BaseResponse<Int>> {
-        return rest.request("rebootPC", form("type" to type), baseInt)
+        return rest.request("pc.poweroff", form("type" to type), baseInt)
     }
 
     fun uploadAudio(

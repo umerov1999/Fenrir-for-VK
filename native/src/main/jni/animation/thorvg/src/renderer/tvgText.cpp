@@ -23,7 +23,6 @@
 
 #include "tvgText.h"
 
-
 Text::Text() = default;
 
 
@@ -48,13 +47,10 @@ Result Text::size(float size) noexcept
 Result Text::load(const char* filename) noexcept
 {
 #ifdef THORVG_FILE_IO_SUPPORT
-    bool invalid; //invalid path
-    LoaderOps ops = {Type::Text};
-    auto loader = LoaderMgr::loader(filename, &ops, &invalid);
-    if (loader) {
-        if (loader->sharing > 0) --loader->sharing;   //font loading doesn't mean sharing.
-        return Result::Success;
-    }
+    LoaderOps ops = {Type::Text, Ownership::Transfer};
+    auto invalid = false;   // invalid path
+    auto loader = LoaderMgr::loader(filename, ops, invalid);
+    if (loader) return Result::Success;
     if (invalid) return Result::InvalidArguments;
     else return Result::NonSupport;
 #else
@@ -66,17 +62,7 @@ Result Text::load(const char* filename) noexcept
 
 Result Text::load(const char* name, const char* data, uint32_t size, const char* mimeType, bool copy) noexcept
 {
-    if (!name || (size == 0 && data)) return Result::InvalidArguments;
-
-    //unload font
-    if (!data) {
-        if (LoaderMgr::retrieve(LoaderMgr::font(name))) return Result::Success;
-        return Result::InsufficientCondition;
-    }
-
-    LoaderOps ops = {Type::Text};
-    if (!LoaderMgr::loader(name, data, size, mimeType, &ops, copy)) return Result::NonSupport;
-    return Result::Success;
+    return TextImpl::load(name, data, size, mimeType, copy ? Ownership::Copy : Ownership::Borrow);
 }
 
 

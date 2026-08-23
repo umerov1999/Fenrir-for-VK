@@ -136,10 +136,10 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
             }
     }
 
-    override fun rebootPC(type: String?): Flow<Int> {
+    override fun powerOffPC(type: String): Flow<Int> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.rebootPC(type)
+                it.powerOffPC(type)
                     .map(extractResponseWithErrorHandling())
             }
     }

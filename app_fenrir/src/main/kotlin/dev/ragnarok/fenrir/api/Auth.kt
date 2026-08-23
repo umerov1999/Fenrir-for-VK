@@ -6,20 +6,24 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.api.util.VKStringUtils.extractPattern
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 
 object Auth {
-    const val redirect_url = "https://oauth.vk.ru/blank.html"
     private const val TAG = "Fenrir.Auth"
+
+    fun getRedirectUrl(): String {
+        return "https://${Settings.get().main().authWebDomain}/blank.html"
+    }
 
     @Throws(UnsupportedEncodingException::class)
     fun getUrl(api_id: String, scope: String, groupIds: String?): String {
-        var url = "https://oauth.vk.ru/authorize?client_id=$api_id"
+        var url = "https://${Settings.get().main().authWebDomain}/authorize?client_id=$api_id"
         url = (url + "&display=mobile&scope="
                 + scope + "&redirect_uri=" + URLEncoder.encode(
-            redirect_url,
+            getRedirectUrl(),
             "utf-8"
         ) + "&response_type=token"
                 + "&v=" + URLEncoder.encode(

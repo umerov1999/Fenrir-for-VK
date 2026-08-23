@@ -37,6 +37,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
 import dev.ragnarok.fenrir.place.PlaceUtil.goToPostCreation
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
@@ -338,7 +339,7 @@ class DocPreviewFragment : BaseFragment(), MenuProvider {
     }
 
     private fun genLink(): String {
-        return String.format("vk.ru/doc%s_%s", ownerId, documentId)
+        return String.format("${Settings.get().main().domain}/doc%s_%s", ownerId, documentId)
     }
 
     private fun download() {

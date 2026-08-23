@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.readTypedObjectCompat
+import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Post : AbsModel, Cloneable {
@@ -348,7 +349,7 @@ class Post : AbsModel, Cloneable {
     }
 
     fun generateVkPostLink(): String {
-        return String.format("vk.ru/wall%s_%s", ownerId, vkid)
+        return String.format("${Settings.get().main().domain}/wall%s_%s", ownerId, vkid)
     }
 
     fun hasPhotos(): Boolean {

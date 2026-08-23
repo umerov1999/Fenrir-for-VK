@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.api.model.VKApiMarket
 import dev.ragnarok.fenrir.api.model.VKApiMarketAlbum
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.GroupByIdResponse
-import dev.ragnarok.fenrir.api.model.response.GroupLongpollServer
 import dev.ragnarok.fenrir.api.model.response.GroupWallInfoResponse
 import dev.ragnarok.fenrir.api.services.IGroupsService
 import dev.ragnarok.fenrir.exception.NotFoundException
@@ -280,14 +279,6 @@ internal class GroupsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(IGroupsService(), TokenType.USER)
             .flatMapConcat {
                 it[userId, integerFromBoolean(extended), filter, fields, offset, count]
-                    .map(extractResponseWithErrorHandling())
-            }
-    }
-
-    override fun getLongPollServer(groupId: Long): Flow<GroupLongpollServer> {
-        return provideService(IGroupsService(), TokenType.USER, TokenType.COMMUNITY)
-            .flatMapConcat {
-                it.getLongPollServer(groupId)
                     .map(extractResponseWithErrorHandling())
             }
     }

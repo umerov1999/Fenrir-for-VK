@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.api.model
 import dev.ragnarok.fenrir.api.adapters.CommunityDtoAdapter
 import dev.ragnarok.fenrir.api.model.interfaces.IdentificableOwner
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.settings.Settings
 import kotlinx.serialization.Serializable
 
 /**
@@ -326,8 +327,18 @@ class VKApiCommunity
         const val TYPE_GROUP = "group"
         const val TYPE_PAGE = "page"
         const val TYPE_EVENT = "event"
-        const val PHOTO_50 = "https://vk.ru/images/community_50.gif"
-        const val PHOTO_100 = "https://vk.ru/images/community_100.gif"
+
+        fun getPhotoLink50(): String {
+            return "https://${Settings.get().main().domain}/images/community_50.png?ava=1"
+        }
+
+        fun getPhotoLink100(): String {
+            return "https://${Settings.get().main().domain}/images/community_100.png?ava=1"
+        }
+
+        fun getPhotoLink200(): String {
+            return "https://${Settings.get().main().domain}/images/community_200.png?ava=1"
+        }
 
         fun create(id: Long): VKApiCommunity {
             val community = VKApiCommunity()

@@ -51,6 +51,7 @@ import de.maxr1998.modernpreferences.PreferencesAdapter
 import de.maxr1998.modernpreferences.PreferencesExtra
 import de.maxr1998.modernpreferences.helpers.DISABLED_RESOURCE_ID
 import de.maxr1998.modernpreferences.helpers.accentButtonPref
+import de.maxr1998.modernpreferences.helpers.collapse
 import de.maxr1998.modernpreferences.helpers.colorPick
 import de.maxr1998.modernpreferences.helpers.customText
 import de.maxr1998.modernpreferences.helpers.editText
@@ -1755,31 +1756,64 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             }
 
-            editText("vk_api_domain", parentFragmentManager) {
-                defaultValue = "api.vk.ru"
+            collapse("domains") {
                 titleRes = R.string.settings_domain
                 iconRes = R.drawable.web_settings
-                isTrim = true
-                onTextChanged {
-                    if (it.isNullOrEmpty()) {
-                        commitString("api.vk.ru")
-                        reload()
-                    }
-                    Includes.proxySettings.broadcastUpdate(null)
-                }
-            }
 
-            editText("vk_auth_domain", parentFragmentManager) {
-                defaultValue = "oauth.vk.ru"
-                titleRes = R.string.settings_vk_auth_domain
-                iconRes = R.drawable.web_settings
-                isTrim = true
-                onTextChanged {
-                    if (it.isNullOrEmpty()) {
-                        commitString("oauth.vk.ru")
-                        reload()
+                editText("vk_api_domain", parentFragmentManager) {
+                    defaultValue = "api.vk.ru"
+                    titleRes = R.string.settings_domain
+                    iconRes = R.drawable.web_settings
+                    isTrim = true
+                    onTextChanged {
+                        if (it.isNullOrEmpty()) {
+                            commitString("api.vk.ru")
+                            reload()
+                        }
+                        Includes.proxySettings.broadcastUpdate(null)
                     }
-                    Includes.proxySettings.broadcastUpdate(null)
+                }
+
+                editText("vk_auth_domain", parentFragmentManager) {
+                    defaultValue = "api.vk.ru/oauth"
+                    titleRes = R.string.settings_vk_auth_domain
+                    iconRes = R.drawable.web_settings
+                    isTrim = true
+                    onTextChanged {
+                        if (it.isNullOrEmpty()) {
+                            commitString("api.vk.ru/oauth")
+                            reload()
+                        }
+                        Includes.proxySettings.broadcastUpdate(null)
+                    }
+                }
+
+                editText("vk_web_auth_domain", parentFragmentManager) {
+                    defaultValue = "oauth.vk.ru"
+                    titleRes = R.string.settings_vk_web_auth_domain
+                    iconRes = R.drawable.web_settings
+                    isTrim = true
+                    onTextChanged {
+                        if (it.isNullOrEmpty()) {
+                            commitString("oauth.vk.ru")
+                            reload()
+                        }
+                        Includes.proxySettings.broadcastUpdate(null)
+                    }
+                }
+
+                editText("vk_domain", parentFragmentManager) {
+                    defaultValue = "vk.ru"
+                    titleRes = R.string.settings_vk_domain
+                    iconRes = R.drawable.web_settings
+                    isTrim = true
+                    onTextChanged {
+                        if (it.isNullOrEmpty()) {
+                            commitString("vk.ru")
+                            reload()
+                        }
+                        Includes.proxySettings.broadcastUpdate(null)
+                    }
                 }
             }
 
@@ -2681,9 +2715,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             password.setText(settings.password)
             enabled.isChecked = settings.enabled
 
-            view.findViewById<MaterialButton>(dev.ragnarok.fenrir_common.R.id.reboot_pc_win)
+            view.findViewById<MaterialButton>(dev.ragnarok.fenrir_common.R.id.reboot_pc)
                 .setOnClickListener {
-                    Includes.networkInterfaces.localServerApi().rebootPC("win")
+                    Includes.networkInterfaces.localServerApi().powerOffPC("reboot")
                         .fromIOToMain({
                             createCustomToast(
                                 requireActivity(),
@@ -2692,9 +2726,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                         }, { createCustomToast(requireActivity(), view)?.showToastThrowable(it) })
                 }
 
-            view.findViewById<MaterialButton>(dev.ragnarok.fenrir_common.R.id.reboot_pc_linux)
+            view.findViewById<MaterialButton>(dev.ragnarok.fenrir_common.R.id.shutdown_pc)
                 .setOnClickListener {
-                    Includes.networkInterfaces.localServerApi().rebootPC("linux")
+                    Includes.networkInterfaces.localServerApi().powerOffPC("shutdown")
                         .fromIOToMain({
                             createCustomToast(
                                 requireActivity(),

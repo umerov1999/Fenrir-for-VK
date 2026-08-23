@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.UserDtoAdapter
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.settings.Settings
 import kotlinx.serialization.Serializable
 
 /**
@@ -516,7 +517,18 @@ class VKApiUser
     companion object {
         const val SEX_MAN = 2
         const val SEX_WOMAN = 1
-        const val CAMERA_50 = "https://vk.ru/images/camera_c.gif"
+        fun getPhotoLink50(): String {
+            return "https://${Settings.get().main().domain}/images/camera_50.png?ava=1"
+        }
+
+        fun getPhotoLink100(): String {
+            return "https://${Settings.get().main().domain}/images/camera_100.png?ava=1"
+        }
+
+        fun getPhotoLink200(): String {
+            return "https://${Settings.get().main().domain}/images/camera_200.png?ava=1"
+        }
+
         const val FRIEND_STATUS_IS_NOT_FRIEDND = 0
         const val FRIEND_STATUS_REQUEST_SENT = 1
         const val FRIEND_STATUS_HAS_INPUT_REQUEST = 2

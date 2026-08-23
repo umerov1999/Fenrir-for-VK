@@ -76,26 +76,44 @@
             android:text="@string/enabled"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:padding="4dp"
+            android:text="@string/pc"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textSize="16sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/reboot_pc_win"
+                android:id="@+id/shutdown_pc"
+                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:text="@string/reboot_pc_windows" />
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/shutdown" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/reboot_pc_linux"
+                android:id="@+id/reboot_pc"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:text="@string/reboot_pc_linux" />
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/reboot" />
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
