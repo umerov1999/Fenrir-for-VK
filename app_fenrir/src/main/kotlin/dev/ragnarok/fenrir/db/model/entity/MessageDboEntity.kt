@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import dev.ragnarok.fenrir.model.ChatAction
 import dev.ragnarok.fenrir.model.MessageStatus
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Keep
 @Serializable
@@ -42,6 +43,8 @@ class MessageDboEntity : DboEntity() {
     @MessageStatus
     var status = 0
         private set
+
+    @Transient
     var originalId = 0
         private set
 

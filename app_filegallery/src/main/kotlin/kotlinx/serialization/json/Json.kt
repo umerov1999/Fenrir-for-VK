@@ -4,17 +4,22 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Polymorphic
+import kotlinx.serialization.SerialFormat
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StringFormat
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.json.internal.DescriptorSchemaCache
 import kotlinx.serialization.json.internal.FormatLanguage
 import kotlinx.serialization.json.internal.JsonSerializersModuleValidator
-import kotlinx.serialization.json.internal.JsonToStringWriter
+import kotlinx.serialization.json.internal.LexerMode
 import kotlinx.serialization.json.internal.StreamingJsonDecoder
-import kotlinx.serialization.json.internal.WriteMode
+import kotlinx.serialization.json.internal.StringJsonWriter
 import kotlinx.serialization.json.internal.encodeByWriter
 import kotlinx.serialization.json.internal.lexer.StringJsonLexer
 import kotlinx.serialization.json.internal.readJson
@@ -132,11 +137,8 @@ sealed class Json(
      *
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
-    final override fun <T> encodeToString(
-        serializer: SerializationStrategy<T>,
-        value: T
-    ): String {
-        val result = JsonToStringWriter()
+    final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
+        val result = StringJsonWriter()
         try {
             encodeByWriter(this@Json, result, serializer, value)
             return result.toString()
@@ -164,7 +166,7 @@ sealed class Json(
         @FormatLanguage("json", "", "") string: String
     ): T {
         val lexer = StringJsonLexer(this, string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(this, LexerMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
@@ -175,10 +177,7 @@ sealed class Json(
      *
      * @throws [SerializationException] if the given value cannot be serialized to JSON
      */
-    fun <T> encodeToJsonElement(
-        serializer: SerializationStrategy<T>,
-        value: T
-    ): JsonElement {
+    fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
         return writeJson(this@Json, value, serializer)
     }
 
@@ -251,13 +250,7 @@ sealed class Json(
      * @throws SerializationException in case of any decoding-specific error
      * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
      */
-    inline fun <reified T> decodeFromString(
-        @FormatLanguage(
-            "json",
-            "",
-            ""
-        ) string: String
-    ): T =
+    inline fun <reified T> decodeFromString(@FormatLanguage("json", "", "") string: String): T =
         decodeFromString(serializersModule.serializer(), string)
 }
 
@@ -306,7 +299,7 @@ enum class DecodeSequenceMode {
      * Each individual object in the array is parsed lazily when it is requested from the resulting sequence.
      *
      * The stream is read as multiple JSON objects wrapped into a JSON array.
-     * The stream must start with an array start character  and end with an array end character,
+     * The stream must start with an array start character and end with an array end character,
      * otherwise, [JsonDecodingException] is thrown.
      *
      * Example of `ARRAY_WRAPPED` stream content:
@@ -392,7 +385,7 @@ inline fun <reified T> Json.decodeFromJsonElementOrNull(
  * }
  * ```
  */
-@Suppress("unused")
+@Suppress("unused", "DeprecatedCallableAddReplaceWith")
 @OptIn(ExperimentalSerializationApi::class)
 class JsonBuilder internal constructor(json: Json) {
     /**
@@ -590,8 +583,7 @@ class JsonBuilder internal constructor(json: Json) {
      * @see classDiscriminator
      */
     @ExperimentalSerializationApi
-    var classDiscriminatorMode: ClassDiscriminatorMode =
-        json.configuration.classDiscriminatorMode
+    var classDiscriminatorMode: ClassDiscriminatorMode = json.configuration.classDiscriminatorMode
 
     /**
      * Specifies whether Json instance makes use of [JsonNames] annotation.
@@ -607,9 +599,8 @@ class JsonBuilder internal constructor(json: Json) {
      *
      * `null` by default.
      *
-     * This strategy is applied for all entities that have StructureKind.CLASS.
+     * This strategy is applied for all entities that have [StructureKind.CLASS].
      */
-    @ExperimentalSerializationApi
     var namingStrategy: JsonNamingStrategy? = json.configuration.namingStrategy
 
     /**
@@ -712,28 +703,28 @@ class JsonBuilder internal constructor(json: Json) {
 
     /**
      * Specifies whether actual input data should be included in exception messages.
-     *
+     * 
      * When `false`, exception messages will not contain sensitive input data that could be logged
      * or exposed in error reporting systems. This is the default and recommended setting for production
      * environments where input data may contain sensitive or confidential information.
      * With this setting disabled, [JsonDecodingException.input] will be null and [JsonDecodingException.path]
      * will have `<debug info disabled>` where `Map` keys are supposed to be.
-     *
+     * 
      * When `true`, exception messages will include the actual input data that caused the error,
      * which can be helpful for debugging purposes during development.
-     *
+     * 
      * While in experimental stage, this flag is `true` by default.
      * It will be changed to `false` when API stabilizes to assume data is sensitive and unsafe by default.
-     *
+     * 
      * Example of usage:
      * ```
      * @Serializable
      * data class User(val name: String, val age: Int)
-     *
+     * 
      * val json = Json { exceptionsWithDebugInfo = false }
      * // Exception message will not contain the invalid input string
      * json.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
-     *
+     * 
      * val debugJson = Json { exceptionsWithDebugInfo = true }
      * // Exception message will include `JSON Input: {"name":"John","age":"invalid"}` line
      * debugJson.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
@@ -741,6 +732,19 @@ class JsonBuilder internal constructor(json: Json) {
      */
     @ExperimentalSerializationApi
     var exceptionsWithDebugInfo: Boolean = json.configuration.exceptionsWithDebugInfo
+
+    /**
+     * Specifies the maximum allowed depth for nested structures during JSON deserialization.
+     *
+     * This value defines the limit up to which nested objects, arrays, or other structures can exist in JSON input.
+     * The parser will reject any JSON exceeding the specified nesting depth to prevent potential stack overflow.
+     *
+     * Setting it higher than the default value requires a careful approach and testing. Remember that even if the parser
+     * succeeds with a higher depth limit, created [JsonElement]s may still occasionally throw stack overflow errors
+     * on operations such as `toString()`, making debugging and exception handling harder.
+     */
+    @ExperimentalSerializationApi
+    var maxNestingDepth: Int = json.configuration.maxNestingDepth
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
@@ -784,7 +788,8 @@ class JsonBuilder internal constructor(json: Json) {
             allowTrailingComma,
             allowComments,
             classDiscriminatorMode,
-            exceptionsWithDebugInfo
+            exceptionsWithDebugInfo,
+            maxNestingDepth
         )
     }
 }

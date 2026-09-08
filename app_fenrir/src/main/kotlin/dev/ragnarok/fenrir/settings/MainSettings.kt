@@ -702,7 +702,7 @@ internal class MainSettings(context: Context) : IMainSettings {
     override val isCompress_incoming_traffic: Boolean
         get() = getPreferences(app).getBoolean("compress_incoming_traffic", true)
     override val isCompress_outgoing_traffic: Boolean
-        get() = getPreferences(app).getBoolean("compress_outgoing_traffic", false)
+        get() = getPreferences(app).getBoolean("compress_outgoing_traffic", true)
     override val isDo_not_clear_back_stack: Boolean
         get() = getPreferences(app).getBoolean("do_not_clear_back_stack", false)
     override val isMention_fave: Boolean

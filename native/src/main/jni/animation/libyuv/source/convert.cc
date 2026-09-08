@@ -12,7 +12,6 @@
 
 #include <limits.h>
 
-#include "libyuv/basic_types.h"
 #include "libyuv/convert_from_argb.h"
 #include "libyuv/cpu_id.h"
 #include "libyuv/planar_functions.h"
@@ -2396,7 +2395,7 @@ int ARGBToI420Matrix(const uint8_t* src_argb,
   }
 #endif
 #if defined(HAS_ARGBTOUVMATRIXROW_NEON_I8MM)
-  if (TestCpuFlag(kCpuHasNEON) && TestCpuFlag(kCpuHasNeonI8MM)) {
+  if (TestCpuFlag(kCpuHasNeonI8MM)) {
     ARGBToUVMatrixRow = ARGBToUVMatrixRow_Any_NEON_I8MM;
     if (IS_ALIGNED(width, 16)) {
       ARGBToUVMatrixRow = ARGBToUVMatrixRow_NEON_I8MM;
@@ -2615,7 +2614,7 @@ int ARGBToI420Alpha(const uint8_t* src_argb,
   }
 #endif
 #if defined(HAS_ARGBTOUVMATRIXROW_NEON_I8MM)
-  if (TestCpuFlag(kCpuHasNEON) && TestCpuFlag(kCpuHasNeonI8MM)) {
+  if (TestCpuFlag(kCpuHasNeonI8MM)) {
     ARGBToUVMatrixRow = ARGBToUVMatrixRow_Any_NEON_I8MM;
     if (IS_ALIGNED(width, 16)) {
       ARGBToUVMatrixRow = ARGBToUVMatrixRow_NEON_I8MM;
@@ -3400,6 +3399,14 @@ static int RAWToI444Matrix(const uint8_t* src_raw,
     }
   }
 #endif
+#if defined(HAS_RGBTOYMATRIXROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    RGBToYMatrixRow = RGBToYMatrixRow_Any_LSX;
+    if (IS_ALIGNED(width, 16)) {
+      RGBToYMatrixRow = RGBToYMatrixRow_LSX;
+    }
+  }
+#endif
 #if defined(HAS_RGBTOYMATRIXROW_LASX)
   if (TestCpuFlag(kCpuHasLASX)) {
     RGBToYMatrixRow = RGBToYMatrixRow_Any_LASX;
@@ -3823,6 +3830,14 @@ int RGB24ToJ400(const uint8_t* src_rgb24,
     }
   }
 #endif
+#if defined(HAS_RGBTOYMATRIXROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    RGBToYMatrixRow = RGBToYMatrixRow_Any_LSX;
+    if (IS_ALIGNED(width, 16)) {
+      RGBToYMatrixRow = RGBToYMatrixRow_LSX;
+    }
+  }
+#endif
 #if defined(HAS_RGBTOYMATRIXROW_LASX)
   if (TestCpuFlag(kCpuHasLASX)) {
     RGBToYMatrixRow = RGBToYMatrixRow_Any_LASX;
@@ -3909,6 +3924,14 @@ int RAWToJ400(const uint8_t* src_raw,
     RGBToYMatrixRow = RGBToYMatrixRow_Any_NEON_DotProd;
     if (IS_ALIGNED(width, 16)) {
       RGBToYMatrixRow = RGBToYMatrixRow_NEON_DotProd;
+    }
+  }
+#endif
+#if defined(HAS_RGBTOYMATRIXROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    RGBToYMatrixRow = RGBToYMatrixRow_Any_LSX;
+    if (IS_ALIGNED(width, 16)) {
+      RGBToYMatrixRow = RGBToYMatrixRow_LSX;
     }
   }
 #endif

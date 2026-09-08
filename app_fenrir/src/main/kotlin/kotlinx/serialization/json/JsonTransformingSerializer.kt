@@ -2,13 +2,17 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DeprecatedCallableAddReplaceWith")
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.internal.readJson
 import kotlinx.serialization.json.internal.writeJson
+import kotlinx.serialization.serializer
 
 /**
  * Base class for custom serializers that allows manipulating an abstract JSON
@@ -74,7 +78,7 @@ abstract class JsonTransformingSerializer<T>(
     final override fun deserialize(decoder: Decoder): T {
         val input = decoder.asJsonDecoder()
         val element = input.decodeJsonElement()
-        return input.json.decodeFromJsonElement(tSerializer, transformDeserialize(element))
+        return readJson(input.json, transformDeserialize(element), tSerializer, input)
     }
 
     /**

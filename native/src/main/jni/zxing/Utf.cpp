@@ -10,9 +10,6 @@
 #include "ZXTestSupport.h"
 #include "ZXAlgorithms.h"
 
-#include <cstdint>
-#include <string_view>
-
 using utf8_t = std::u8string_view;
 
 namespace ZXing {
@@ -90,7 +87,7 @@ static size_t Utf8CountCodePoints(utf8_t utf8)
 	return count;
 }
 
-static void AppendFromUtf8(utf8_t utf8, std::wstring& buffer)
+static void AppendFromUtf8(std::wstring& buffer, utf8_t utf8)
 {
 	buffer.reserve(buffer.size() + Utf8CountCodePoints(utf8));
 
@@ -125,14 +122,14 @@ bool IsValidUtf8(ByteView bytes)
 std::wstring FromUtf8(std::string_view utf8)
 {
 	std::wstring str;
-	AppendFromUtf8({reinterpret_cast<const char8_t*>(utf8.data()), utf8.size()}, str);
+	AppendFromUtf8(str, {reinterpret_cast<const char8_t*>(utf8.data()), utf8.size()});
 	return str;
 }
 
 std::wstring FromUtf8(std::u8string_view utf8)
 {
 	std::wstring str;
-	AppendFromUtf8(utf8, str);
+	AppendFromUtf8(str, utf8);
 	return str;
 }
 
@@ -161,37 +158,29 @@ static size_t Utf8CountBytes(std::wstring_view str)
 	return result;
 }
 
-ZXING_EXPORT_TEST_ONLY
-int Utf32ToUtf8(char32_t utf32, char* out)
+void AppendToUtf8(std::string& utf8, char32_t utf32)
 {
-	if (utf32 < 0x80) {
-		*out++ = narrow_cast<char8_t>(utf32);
-		return 1;
+	if (utf32 <= 0x7F) {
+		utf8.push_back(narrow_cast<char>(utf32));
+	} else if (utf32 <= 0x7FF) {
+		utf8.push_back(narrow_cast<char>(0xC0 | (utf32 >> 6)));
+		utf8.push_back(narrow_cast<char>(0x80 | (utf32 & 0x3F)));
+	} else if (utf32 <= 0xFFFF) {
+		utf8.push_back(narrow_cast<char>(0xE0 | (utf32 >> 12)));
+		utf8.push_back(narrow_cast<char>(0x80 | ((utf32 >> 6) & 0x3F)));
+		utf8.push_back(narrow_cast<char>(0x80 | (utf32 & 0x3F)));
+	} else {
+		utf8.push_back(narrow_cast<char>(0xF0 | (utf32 >> 18)));
+		utf8.push_back(narrow_cast<char>(0x80 | ((utf32 >> 12) & 0x3F)));
+		utf8.push_back(narrow_cast<char>(0x80 | ((utf32 >> 6) & 0x3F)));
+		utf8.push_back(narrow_cast<char>(0x80 | (utf32 & 0x3F)));
 	}
-	if (utf32 < 0x800) {
-		*out++ = narrow_cast<char8_t>((utf32 >> 6) | 0xc0);
-		*out++ = narrow_cast<char8_t>((utf32 & 0x3f) | 0x80);
-		return 2;
-	}
-	if (utf32 < 0x10000) {
-		*out++ = narrow_cast<char8_t>((utf32 >> 12) | 0xe0);
-		*out++ = narrow_cast<char8_t>(((utf32 >> 6) & 0x3f) | 0x80);
-		*out++ = narrow_cast<char8_t>((utf32 & 0x3f) | 0x80);
-		return 3;
-	}
-
-	*out++ = narrow_cast<char8_t>((utf32 >> 18) | 0xf0);
-	*out++ = narrow_cast<char8_t>(((utf32 >> 12) & 0x3f) | 0x80);
-	*out++ = narrow_cast<char8_t>(((utf32 >> 6) & 0x3f) | 0x80);
-	*out++ = narrow_cast<char8_t>((utf32 & 0x3f) | 0x80);
-	return 4;
 }
 
-static void AppendToUtf8(std::wstring_view str, std::string& utf8)
+static void AppendToUtf8(std::string& utf8, std::wstring_view str)
 {
 	utf8.reserve(utf8.size() + Utf8CountBytes(str));
 
-	char buffer[4];
 	for (; str.size(); str.remove_prefix(1))
 	{
 		uint32_t cp;
@@ -201,15 +190,14 @@ static void AppendToUtf8(std::wstring_view str, std::string& utf8)
 		} else
 			cp = str.front();
 
-		auto bufLength = Utf32ToUtf8(cp, buffer);
-		utf8.append(buffer, bufLength);
+		AppendToUtf8(utf8, cp);
 	}
 }
 
 std::string ToUtf8(std::wstring_view str)
 {
 	std::string utf8;
-	AppendToUtf8(str, utf8);
+	AppendToUtf8(utf8, str);
 	return utf8;
 }
 

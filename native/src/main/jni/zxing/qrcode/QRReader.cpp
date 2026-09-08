@@ -49,7 +49,7 @@ void logFPSet(const FinderPatternSet& fps [[maybe_unused]])
 		int steps = maxAbsComponent(b - a);
 		PointF dir = bresenhamDirection(PointF(b - a));
 		for (int i = 0; i < steps; ++i)
-			log(a + i * dir, 2);
+			log(a + i * dir, LOG_G);
 	};
 
 	drawLine(fps.bl, fps.tl);

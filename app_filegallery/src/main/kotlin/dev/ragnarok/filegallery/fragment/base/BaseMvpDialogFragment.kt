@@ -38,7 +38,7 @@ abstract class BaseMvpDialogFragment<P : AbsPresenter<V>, V : IMvpView> :
     }
 
     override fun showBottomSheetError(title: String?, description: String?) {
-        if (isAdded) {
+        if (isResumed) {
             val dialog = BottomSheetErrorDialog()
             val bundle = Bundle()
             bundle.putString(Extra.TITLE, title)
@@ -49,7 +49,7 @@ abstract class BaseMvpDialogFragment<P : AbsPresenter<V>, V : IMvpView> :
     }
 
     override fun showBottomSheetError(throwable: Throwable?) {
-        if (isAdded) {
+        if (isResumed) {
             val text = StringBuilder()
             if (throwable !is SocketTimeoutException && throwable !is UnknownHostException) {
                 for (stackTraceElement in (throwable ?: return).stackTrace) {

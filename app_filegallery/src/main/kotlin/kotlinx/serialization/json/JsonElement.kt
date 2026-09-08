@@ -3,9 +3,11 @@
  */
 
 @file:Suppress("unused")
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -140,10 +142,7 @@ fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
 
 /** Used as a marker to indicate during encoding that the [JsonEncoder] should use `encodeInline()` */
 internal val jsonUnquotedLiteralDescriptor: SerialDescriptor =
-    InlinePrimitiveDescriptor(
-        "kotlinx.serialization.json.JsonUnquotedLiteral",
-        String.serializer()
-    )
+    InlinePrimitiveDescriptor("kotlinx.serialization.json.JsonUnquotedLiteral", String.serializer())
 
 
 // JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead

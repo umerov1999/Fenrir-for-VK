@@ -4,7 +4,9 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SealedSerializationApi
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 

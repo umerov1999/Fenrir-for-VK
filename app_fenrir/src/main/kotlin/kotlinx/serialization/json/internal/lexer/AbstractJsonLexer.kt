@@ -143,7 +143,7 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] el
 /**
  * The base class that reads the JSON from the given char sequence source.
  * It has two implementations: one over the raw [String] instance, [StringJsonLexer],
- * and one over an arbitrary stream of data, [ReaderJsonLexer] (JVM-only).
+ * and one over an arbitrary stream of data, [BufferedJsonLexer] (JVM-only).
  *
  * [AbstractJsonLexer] contains base implementation for cold or not performance-sensitive
  * methods on top of [CharSequence], but [StringJsonLexer] overrides some
@@ -152,7 +152,7 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] el
  */
 internal abstract class AbstractJsonLexer(internal val configuration: JsonConfiguration) {
 
-    protected abstract val source: CharSequence
+    internal abstract val source: CharSequence
 
     @JvmField
     internal var currentPosition: Int = 0 // position in source
@@ -213,6 +213,7 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
         }
         return token
     }
+
 
     abstract fun consumeNextToken(expected: Char)
 
@@ -378,6 +379,7 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
             consumeChunk(substring(fromIndex, toIndex))
         }
     }
+
 
     fun consumeString(): String {
         if (peekedString != null) {

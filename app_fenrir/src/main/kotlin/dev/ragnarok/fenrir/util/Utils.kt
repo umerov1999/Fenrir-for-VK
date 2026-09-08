@@ -1007,14 +1007,14 @@ object Utils {
         } else {
             if (device_id.isNullOrEmpty()) {
                 device_id =
-                    PreferenceScreen.getPreferences(context).getString("installation_id", null)
+                    PreferenceScreen.getPreferences(context).getString("device_id", null)
                 if (device_id.isNullOrEmpty()) {
                     val allowedChars = ('a'..'f') + ('0'..'9')
                     device_id = (1..16).map { allowedChars.random() }
                         .joinToString("") + ":" + (1..32).map { allowedChars.random() }
                         .joinToString("")
                     PreferenceScreen.getPreferences(context).edit {
-                        putString("installation_id", device_id)
+                        putString("device_id", device_id)
                     }
                 }
             }

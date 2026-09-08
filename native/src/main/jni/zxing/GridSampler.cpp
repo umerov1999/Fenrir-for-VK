@@ -54,7 +54,7 @@ DetectorResult SampleGrid(const BitMatrix& image, int width, int height, const R
 					return {};
 
 #ifdef PRINT_DEBUG
-				log(p, 3);
+				log(p, LOG_B);
 #endif
 #if 0
 				int sum = 0;
@@ -94,7 +94,7 @@ DetectorResult SampleGrid(const BitMatrix& image, int width, int height, const P
 	for (int y = 0; y <= H; ++y)
 		for (int x = 0; x <= W; ++x) {
 			if (apP(x, y)) {
-				log(*apP(x, y), 2);
+				log(*apP(x, y), LOG_I);
 			} else {
 				log_l("locate failed at %dx%d", x, y);
 				// project the alignment pattern at module coordinates x/y to pixel coordinate based on current mod2Pix

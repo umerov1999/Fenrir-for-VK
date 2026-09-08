@@ -47,6 +47,7 @@ add_library(thorvg STATIC
         animation/thorvg/src/loaders/lottie/tvgLottieModifier.cpp
         animation/thorvg/src/loaders/lottie/tvgLottieParser.cpp
         animation/thorvg/src/loaders/lottie/tvgLottieParserHandler.cpp
+        animation/thorvg/src/loaders/lottie/tvgLottieProperty.cpp
         animation/thorvg/src/loaders/raw/tvgRawLoader.cpp
         animation/thorvg/src/loaders/svg/tvgSvgBuilder.cpp
         animation/thorvg/src/loaders/svg/tvgSvgCssStyle.cpp

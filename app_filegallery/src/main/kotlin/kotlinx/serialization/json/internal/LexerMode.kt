@@ -19,7 +19,7 @@ import kotlinx.serialization.json.internal.lexer.END_LIST
 import kotlinx.serialization.json.internal.lexer.END_OBJ
 import kotlinx.serialization.modules.SerializersModule
 
-internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char) {
+internal enum class LexerMode(@JvmField val begin: Char, @JvmField val end: Char) {
     OBJ(BEGIN_OBJ, END_OBJ),
     LIST(BEGIN_LIST, END_LIST),
     MAP(BEGIN_OBJ, END_OBJ),
@@ -27,12 +27,12 @@ internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun Json.switchMode(desc: SerialDescriptor): WriteMode =
+internal fun Json.modeFor(desc: SerialDescriptor): LexerMode =
     when (desc.kind) {
-        is PolymorphicKind -> WriteMode.POLY_OBJ
-        StructureKind.LIST -> WriteMode.LIST
-        StructureKind.MAP -> selectMapMode(desc, { WriteMode.MAP }, { WriteMode.LIST })
-        else -> WriteMode.OBJ
+        is PolymorphicKind -> LexerMode.POLY_OBJ
+        StructureKind.LIST -> LexerMode.LIST
+        StructureKind.MAP -> selectMapMode(desc, { LexerMode.MAP }, { LexerMode.LIST })
+        else -> LexerMode.OBJ
     }
 
 @OptIn(ExperimentalSerializationApi::class)

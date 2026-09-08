@@ -1,6 +1,8 @@
 package kotlinx.serialization.json
 
-import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.SerialInfo
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.descriptors.SerialDescriptor
 
 
@@ -44,7 +46,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
  * However, there are cases where usage of naming strategies is inevitable, such as interop with an existing API or migrating a large codebase.
  * Therefore, one should carefully weigh the pros and cons before considering adding global naming strategies to an application.
  */
-@ExperimentalSerializationApi
 fun interface JsonNamingStrategy {
     /**
      * Accepts an original [serialName] (defined by property name in the class or [SerialName] annotation) and returns
@@ -70,7 +71,6 @@ fun interface JsonNamingStrategy {
     /**
      * Contains basic, ready to use naming strategies.
      */
-    @ExperimentalSerializationApi
     companion object Builtins {
 
         /**
@@ -97,7 +97,6 @@ fun interface JsonNamingStrategy {
          * and therefore does not support one-to-many and many-to-one character mappings.
          * See the documentation of these functions for details.
          */
-        @ExperimentalSerializationApi
         val SnakeCase: JsonNamingStrategy = object : JsonNamingStrategy {
             override fun serialNameForJson(
                 descriptor: SerialDescriptor,
@@ -133,7 +132,6 @@ fun interface JsonNamingStrategy {
          * and therefore does not support one-to-many and many-to-one character mappings.
          * See the documentation of these functions for details.
          */
-        @ExperimentalSerializationApi
         val KebabCase: JsonNamingStrategy = object : JsonNamingStrategy {
             override fun serialNameForJson(
                 descriptor: SerialDescriptor,

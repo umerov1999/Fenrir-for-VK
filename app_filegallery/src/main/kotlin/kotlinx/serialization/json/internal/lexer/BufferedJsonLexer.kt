@@ -6,17 +6,17 @@ package kotlinx.serialization.json.internal.lexer
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.json.internal.CharArrayPoolBatchSize
 import kotlinx.serialization.json.internal.InternalJsonReader
+import kotlinx.serialization.json.internal.JsonLexerBufferPool
 
 internal const val BATCH_SIZE: Int = 16 * 1024
 private const val DEFAULT_THRESHOLD = 128
 
 /**
  * For some reason this hand-rolled implementation is faster than
- * fun ArrayAsSequence(s: CharArray): CharSequence = java.nio.CharBuffer.wrap(s, 0, length)
+ * fun CharArrayView(s: CharArray): CharSequence = java.nio.CharBuffer.wrap(s, 0, length)
  */
-internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
+internal class CharArrayView(internal val buffer: CharArray) : CharSequence {
     override var length: Int = buffer.size
 
     override fun get(index: Int): Char = buffer[index]
@@ -37,26 +37,26 @@ internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
     override fun toString(): String = substring(0, length)
 }
 
-internal fun ReaderJsonLexer(
+internal fun BufferedJsonLexer(
     json: Json,
     reader: InternalJsonReader,
-    buffer: CharArray = CharArrayPoolBatchSize.take()
+    buffer: CharArray = JsonLexerBufferPool.take()
 ) =
     if (!json.configuration.allowComments)
-        ReaderJsonLexer(reader, buffer, json.configuration)
+        BufferedJsonLexer(reader, buffer, json.configuration)
     else
-        ReaderJsonLexerWithComments(reader, buffer, json.configuration)
+        BufferedJsonLexerWithComments(reader, buffer, json.configuration)
 
-internal open class ReaderJsonLexer(
-    val reader: InternalJsonReader,
-    val buffer: CharArray = CharArrayPoolBatchSize.take(),
+internal open class BufferedJsonLexer(
+    private val reader: InternalJsonReader,
+    private val buffer: CharArray = JsonLexerBufferPool.take(),
     configuration: JsonConfiguration
 ) : AbstractJsonLexer(configuration) {
 
     @JvmField
     protected var threshold: Int = DEFAULT_THRESHOLD // chars
 
-    override val source: ArrayAsSequence = ArrayAsSequence(buffer)
+    override val source: CharArrayView = CharArrayView(buffer)
 
     init {
         preload(0)
@@ -226,6 +226,6 @@ internal open class ReaderJsonLexer(
     override fun peekLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? = null
 
     fun release() {
-        CharArrayPoolBatchSize.release(buffer)
+        JsonLexerBufferPool.release(buffer)
     }
 }

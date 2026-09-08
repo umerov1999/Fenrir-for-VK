@@ -47,7 +47,7 @@ Codeword ReadCodeword(BitMatrixModuleCursorF& cur)
 
 Codeword ReadCodeword(BitMatrixModuleCursorF& cur, int expectedCluster)
 {
-	log(cur.p, 4);
+	log(cur.p, LOG_R);
 	auto start = cur;
 	auto cw = ReadCodeword(cur);
 	if (!cw || cw.cluster != expectedCluster) {

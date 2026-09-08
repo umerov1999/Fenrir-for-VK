@@ -124,7 +124,7 @@ LocalGrid::LocalGrid(const BitMatrix& image, const PerspectiveTransform& mod2Pix
 
 	log_l("LocalGrid @ (%d, %d), initial origin: (%.2f, %.2f), offset: (%d, %d), stepX: (%.2f, %.2f), stepY: (%.2f, %.2f)", center.x,
 		  center.y, origin.x, origin.y, offset.x, offset.y, stepX.x, stepX.y, stepY.x, stepY.y);
-	log(origin, 3);
+	log(origin, LOG_B);
 
 	auto offsets = std::array{-stepX, -stepY, stepX, stepY}; // works better for DataMatrix (especially near the symbol edges)
 	// auto offsets = std::array{-stepX - stepY, stepX - stepY, stepX + stepY, -stepX + stepY};

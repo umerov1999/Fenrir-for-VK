@@ -14,7 +14,7 @@ class VKApiMessage
  */
 {
     /**
-     * Message ID. (Not returned for forwarded messages), positive number
+     * Message ID, positive number
      */
     var id = 0
 

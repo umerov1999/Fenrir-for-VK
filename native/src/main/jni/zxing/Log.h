@@ -17,11 +17,19 @@
 
 namespace ZXing {
 
+enum LogColor : int8_t {
+	LOG_R = 4, // red
+	LOG_G = 2, // green
+	LOG_B = 3, // blue
+	LOG_GR = 1, // gray
+	LOG_I = -1, // inverted
+};
+
 #ifdef PRINT_DEBUG
 
 class LogMatrix
 {
-	using LogBuffer = Matrix<int8_t>;
+	using LogBuffer = Matrix<LogColor>;
 	LogBuffer _log;
 	const BitMatrix* _image = nullptr;
 	int _scale = 1;
@@ -51,11 +59,11 @@ public:
 				if (_scale > 1 && x % _scale == _scale / 2 && y % _scale == _scale / 2)
 					r = g = b = r ? 240 : 45;
 				switch (_log.get(x, y)) {
-				case -1: r = g = b = _scale > 1 ? 255 - r : (r ? 50 : 230); break;
-				case 1: r = g = b = _scale > 1 ? 128 : (r ? 230 : 50); break;
-				case 2: r = b = 50, g = 220; break;
-				case 3: g = r = 100, b = 250; break;
-				case 4: g = b = 100, r = 250; break;
+				case LOG_I: r = g = b = _scale > 1 ? 255 - r : (r ? 50 : 230); break;
+				case LOG_GR: r = g = b = _scale > 1 ? 128 : (r ? 230 : 50); break;
+				case LOG_G: r = b = 50, g = 220; break;
+				case LOG_B: g = r = 100, b = 250; break;
+				case LOG_R: g = b = 100, r = 250; break;
 				}
 				fwrite(&pix, 3, 1, f);
 			}
@@ -63,19 +71,19 @@ public:
 	}
 
 	template <typename T>
-	void operator()(const PointT<T>& p, int color = 1)
+	void operator()(const PointT<T>& p, LogColor color = LOG_GR)
 	{
 		if (_image && _image->isIn(p))
 			_log.set(static_cast<int>(p.x * _scale), static_cast<int>(p.y * _scale), color);
 	}
 
-	void operator()(const PointT<int>& p, int color)
+	void operator()(const PointT<int>& p, LogColor color)
 	{
 		operator()(centered(p), color);
 	}
 
 	template <typename T>
-	void operator()(const std::vector<PointT<T>>& points, int color = 2)
+	void operator()(const std::vector<PointT<T>>& points, LogColor color = LOG_G)
 	{
 		for (auto p : points)
 			operator()(p, color);
@@ -128,7 +136,7 @@ void log_r(const char* prefix, const char* fmt, const Range& values, const char*
 
 #else
 
-template<typename T> void log(PointT<T>, int = 0) {}
+template<typename T> void log(PointT<T>, LogColor = LOG_GR) {}
 inline void log_t(const char*, ...) {}
 inline void log_l(const char* = "", ...) {}
 template<typename Range> void log_r(const char*, const char*, const Range&, const char* = "\n") {}

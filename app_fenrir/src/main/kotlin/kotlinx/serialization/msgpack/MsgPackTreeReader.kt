@@ -88,7 +88,7 @@ internal class MsgPackTreeReader(
     private inline fun readObjectImpl(reader: () -> JsonElement): JsonObject {
         val sz = getMapSize()
         val result = linkedMapOf<String, JsonElement>()
-        for (i in 0 until sz) {
+        (0 until sz).forEach { _ ->
             val keyJ = basicMsgPackDecoder.dataBuffer.peek()
             if (!MsgPackType.String.isString(keyJ)) {
                 throw Exception("Key must be string")
@@ -101,7 +101,7 @@ internal class MsgPackTreeReader(
     private fun readArray(): JsonElement {
         val sz = getArraySize()
         val result = ArrayList<JsonElement>(sz)
-        for (i in 0 until sz) {
+        (0 until sz).forEach { _ ->
             result.add(read())
         }
         return JsonArray(result)

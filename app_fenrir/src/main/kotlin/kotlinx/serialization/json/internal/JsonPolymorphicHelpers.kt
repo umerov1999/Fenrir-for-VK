@@ -7,14 +7,12 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
-import kotlinx.serialization.findPolymorphicSerializer
 import kotlinx.serialization.internal.AbstractPolymorphicSerializer
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
@@ -26,6 +24,7 @@ import kotlinx.serialization.json.JsonEncodingException
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 internal inline fun <T> JsonEncoder.encodePolymorphically(
@@ -52,7 +51,11 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
     val actualSerializer: SerializationStrategy<T> = if (isPolymorphicSerializer) {
         val casted = serializer as AbstractPolymorphicSerializer<Any>
         requireNotNull(value) { "Value for serializer ${serializer.descriptor} should always be non-null. Please report issue to the kotlinx.serialization tracker." }
-        val actual = casted.findPolymorphicSerializer(this, value)
+        val actual = casted.findPolymorphicSerializerOrNull(this, value) ?: throw run {
+            val subClassName = value::class.simpleName ?: value::class.toString()
+            val (message, hint) = subtypeNotRegisteredMessageJson(subClassName, casted.baseClass)
+            JsonEncodingException(message, subClassName, hint)
+        }
         actual as SerializationStrategy<T>
     } else serializer
 
@@ -109,11 +112,11 @@ internal inline fun <T> JsonDecoder.decodeSerializableValuePolymorphic(
 
     @Suppress("UNCHECKED_CAST")
     val actualSerializer =
-        try {
-            deserializer.findPolymorphicSerializer(this, type)
-        } catch (it: SerializationException) { //  Wrap SerializationException into JsonDecodingException to preserve input
-            throw decodingExceptionOf(it.message.orEmpty()) { jsonTree.toString() }
-        } as DeserializationStrategy<T>
+        deserializer.findPolymorphicSerializerOrNull(this, type) as? DeserializationStrategy<T>
+    if (actualSerializer == null) {
+        val (message, hint) = subtypeNotRegisteredMessageJson(type, deserializer.baseClass)
+        throw decodingExceptionOf(message, path(), hint) { jsonTree.toString() }
+    }
     return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer)
 }
 
@@ -136,4 +139,19 @@ internal fun throwJsonElementPolymorphicException(
         hint = "Make sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it.",
         classSerialName = serialName
     )
+}
+
+// When editing these messages, make sure to update AbstractPolymorphicSerializer#throwSubtypeNotRegistered as well.
+internal fun subtypeNotRegisteredMessageJson(
+    subClassName: String?,
+    baseClass: KClass<*>
+): Pair<String, String?> {
+    val scope = "in the polymorphic scope of '${baseClass.simpleName}'"
+    return if (subClassName == null) {
+        "Class discriminator was missing and no default serializers were registered $scope" to null
+    } else {
+        "Serializer for subclass '$subClassName' is not found $scope" to
+                "Check if class with serial name '$subClassName' exists and serializer is registered in a corresponding SerializersModule.\n" +
+                "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'."
+    }
 }

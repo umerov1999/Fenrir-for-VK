@@ -208,12 +208,12 @@ class DirectAuthIdVKDialog : BaseMvpDialogFragment<DirectAuthIdVKPresenter, IDir
         }
     }
 
-    override fun openVKIdCaptcha(redirect_uri: String?, domain: String?) {
-        redirect_uri ?: return
+    override fun openVKIdCaptcha(redirectUri: String?, domain: String?) {
+        redirectUri ?: return
         domain ?: return
         VKCaptcha.openCaptcha(
             domain,
-            redirect_uri, object : VKCaptchaResultListener {
+            redirectUri, object : VKCaptchaResultListener {
                 override fun onResult(result: VKCaptchaResult) {
                     result.token.nonNullNoEmpty {
                         lazyPresenter {
@@ -271,6 +271,10 @@ class DirectAuthIdVKDialog : BaseMvpDialogFragment<DirectAuthIdVKPresenter, IDir
         data.putString(Extra.TWO_FA, twoFA)
         data.putBoolean(Extra.SAVE, isSave)
         returnResultAndDismiss(ACTION_VALIDATE_VIA_WEB, data)
+    }
+
+    override fun cancelAuth() {
+        dismiss()
     }
 
     override fun cleanCode() {

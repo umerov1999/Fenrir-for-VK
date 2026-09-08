@@ -13,7 +13,6 @@
 #include <assert.h>
 #include <string.h>  // For memcpy and memset.
 
-#include "libyuv/basic_types.h"
 #include "libyuv/convert_argb.h"       // For kYuvI601Constants
 #include "libyuv/convert_from_argb.h"  // For ArgbConstants
 
@@ -1785,6 +1784,26 @@ MAKEYUVCONSTANTS(V2020, YG, YB, UB, UG, VG, VR)
   int r16 = y1 + (vi * vr)
 #endif
 
+#if defined(__aarch64__) || defined(__arm__) || defined(__riscv)
+#define LOAD_YUV_CONSTANTS_AR30            \
+  int ub = yuvconstants->kUVCoeff[0];      \
+  int vr = yuvconstants->kUVCoeff[1];      \
+  int ug = yuvconstants->kUVCoeff[2];      \
+  int vg = yuvconstants->kUVCoeff[3];      \
+  int yg = yuvconstants->kRGBCoeffBias[0]; \
+  int bb = yuvconstants->kRGBCoeffBias[1] + 24; \
+  int bg = yuvconstants->kRGBCoeffBias[2] - 24; \
+  int br = yuvconstants->kRGBCoeffBias[3] + 24
+#else
+#define LOAD_YUV_CONSTANTS_AR30      \
+  int ub = yuvconstants->kUVToB[0];  \
+  int ug = yuvconstants->kUVToG[0];  \
+  int vg = yuvconstants->kUVToG[1];  \
+  int vr = yuvconstants->kUVToR[1];  \
+  int yg = yuvconstants->kYToRgb[0]; \
+  int yb = yuvconstants->kYBiasToRgb[0] - 24
+#endif
+
 // C reference code that mimics the YUV assembly.
 // Reads 8 bit YUV and leaves result as 16 bit.
 static __inline void YuvPixel(uint8_t y,
@@ -1810,7 +1829,7 @@ static __inline void YuvPixel8_16(uint8_t y,
                                   int* g,
                                   int* r,
                                   const struct YuvConstants* yuvconstants) {
-  LOAD_YUV_CONSTANTS;
+  LOAD_YUV_CONSTANTS_AR30;
   uint32_t y32 = y * 0x0101;
   CALC_RGB16;
   *b = b16;
@@ -2803,16 +2822,15 @@ void MirrorSplitUVRow_C(const uint8_t* src_uv,
 
 void ARGBMirrorRow_C(const uint8_t* src, uint8_t* dst, int width) {
   int x;
-  const uint32_t* src32 = (const uint32_t*)(src);
-  uint32_t* dst32 = (uint32_t*)(dst);
-  src32 += width - 1;
-  for (x = 0; x < width - 1; x += 2) {
-    dst32[x] = src32[0];
-    dst32[x + 1] = src32[-1];
-    src32 -= 2;
-  }
-  if (width & 1) {
-    dst32[width - 1] = src32[0];
+  const uint8_t* s = src + (ptrdiff_t)(width - 1) * 4;
+  uint8_t* d = dst;
+  for (x = 0; x < width; ++x) {
+    d[0] = s[0];
+    d[1] = s[1];
+    d[2] = s[2];
+    d[3] = s[3];
+    s -= 4;
+    d += 4;
   }
 }
 
@@ -3222,16 +3240,15 @@ void Convert16To8Row_C(const uint16_t* src_y,
   }
 }
 
-// Use scale to convert lsb formats to msb, depending how many bits there are:
-// 1024 = 10 bits
+// Convert 8 bit values to 10, 12 or 16 bits.
 void Convert8To16Row_C(const uint8_t* src_y,
                        uint16_t* dst_y,
-                       int scale,
+                       int bits,
                        int width) {
   int x;
-  scale *= 0x0101;  // replicates the byte.
+  int shift = 16 - bits;
   for (x = 0; x < width; ++x) {
-    dst_y[x] = (src_y[x] * scale) >> 16;
+    dst_y[x] = (src_y[x] * 0x0101) >> shift;
   }
 }
 
@@ -4044,7 +4061,7 @@ void I422ToRGB565Row_SSSE3(const uint8_t* src_y,
   while (width > 0) {
     int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
     I422ToARGBRow_SSSE3(src_y, src_u, src_v, row, yuvconstants, twidth);
-    ARGBToRGB565Row_SSE2(row, dst_rgb565, twidth);
+    ARGBToRGB565Row_C(row, dst_rgb565, twidth);
     src_y += twidth;
     src_u += twidth / 2;
     src_v += twidth / 2;
@@ -4066,7 +4083,7 @@ void I422ToARGB1555Row_SSSE3(const uint8_t* src_y,
   while (width > 0) {
     int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
     I422ToARGBRow_SSSE3(src_y, src_u, src_v, row, yuvconstants, twidth);
-    ARGBToARGB1555Row_SSE2(row, dst_argb1555, twidth);
+    ARGBToARGB1555Row_C(row, dst_argb1555, twidth);
     src_y += twidth;
     src_u += twidth / 2;
     src_v += twidth / 2;
@@ -4088,7 +4105,7 @@ void I422ToARGB4444Row_SSSE3(const uint8_t* src_y,
   while (width > 0) {
     int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
     I422ToARGBRow_SSSE3(src_y, src_u, src_v, row, yuvconstants, twidth);
-    ARGBToARGB4444Row_SSE2(row, dst_argb4444, twidth);
+    ARGBToARGB4444Row_C(row, dst_argb4444, twidth);
     src_y += twidth;
     src_u += twidth / 2;
     src_v += twidth / 2;
@@ -4109,7 +4126,7 @@ void NV12ToRGB565Row_SSSE3(const uint8_t* src_y,
   while (width > 0) {
     int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
     NV12ToARGBRow_SSSE3(src_y, src_uv, row, yuvconstants, twidth);
-    ARGBToRGB565Row_SSE2(row, dst_rgb565, twidth);
+    ARGBToRGB565Row_C(row, dst_rgb565, twidth);
     src_y += twidth;
     src_uv += twidth;
     dst_rgb565 += twidth * 2;

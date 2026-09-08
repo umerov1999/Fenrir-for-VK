@@ -181,9 +181,8 @@ class DBHelper private constructor(context: Context, aid: Long) :
 
     private fun createCountriesTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE [" + CountriesColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
-                " [" + CountriesColumns.NAME + "] TEXT, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY NOT NULL UNIQUE ON CONFLICT REPLACE, " +
+                " [" + CountriesColumns.NAME + "] TEXT);"
         db.execSQL(sql)
     }
 
@@ -206,7 +205,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + PhotosColumns.TAGS + "] INTEGER, " +
                 " [" + PhotosColumns.DELETED + "] BOOLEAN, " +
                 " [" + PhotosColumns.SIZES + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + PhotosColumns.PHOTO_ID + "], [" + PhotosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + PhotosColumns.PHOTO_ID + "], [" + PhotosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -231,7 +230,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + PhotosExtendedColumns.TAGS + "] INTEGER, " +
                 " [" + PhotosExtendedColumns.DELETED + "] BOOLEAN, " +
                 " [" + PhotosExtendedColumns.SIZES + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + PhotosExtendedColumns.PHOTO_ID + "], [" + PhotosExtendedColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + PhotosExtendedColumns.PHOTO_ID + "], [" + PhotosExtendedColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -242,7 +241,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesAttachmentsColumns.DATA + "] BLOB, " +
                 //" [" + MessagesAttachmentsColumns.ATTACHMENT_ID + "] INTEGER, " +
                 //" [" + MessagesAttachmentsColumns.ATTACHMENT_OWNER_ID + "] INTEGER, " +
-                //" CONSTRAINT [] UNIQUE ([" + MessagesAttachmentsColumns.M_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + MessagesAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
+                //" UNIQUE ([" + MessagesAttachmentsColumns.M_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + MessagesAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
                 " FOREIGN KEY([" + MessagesAttachmentsColumns.M_ID + "]) " +
                 " REFERENCES " + MessagesColumns.TABLENAME + "([" + BaseColumns._ID + "]) ON DELETE CASCADE ON UPDATE CASCADE);"
         db.execSQL(sql)
@@ -274,7 +273,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + CommentsColumns.DELETED + "] BOOLEAN, " +
                 " [" + CommentsColumns.TEXT + "] TEXT, " +
                 " [" + CommentsColumns.THREADS + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + CommentsColumns.COMMENT_ID + "]," +
+                " UNIQUE ([" + CommentsColumns.COMMENT_ID + "]," +
                 " [" + CommentsColumns.FROM_ID + "], [" + CommentsColumns.SOURCE_ID + "]," +
                 " [" + CommentsColumns.SOURCE_OWNER_ID + "], [" + CommentsColumns.SOURCE_TYPE + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
@@ -292,7 +291,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + FavePhotosColumns.OWNER_ID + "] INTEGER, " +
                 " [" + FavePhotosColumns.POST_ID + "] INTEGER, " +
                 " [" + FavePhotosColumns.PHOTO + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + FavePhotosColumns.PHOTO_ID + "], [" + FavePhotosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + FavePhotosColumns.PHOTO_ID + "], [" + FavePhotosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
     }
 
@@ -307,7 +306,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + FaveVideosColumns.VIDEO_ID + "] INTEGER, " +
                 " [" + FaveVideosColumns.OWNER_ID + "] INTEGER, " +
                 " [" + FaveVideosColumns.VIDEO + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + FaveVideosColumns.VIDEO_ID + "], [" + FaveVideosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + FaveVideosColumns.VIDEO_ID + "], [" + FaveVideosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
     }
 
@@ -322,7 +321,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + FaveArticlesColumns.ARTICLE_ID + "] INTEGER, " +
                 " [" + FaveArticlesColumns.OWNER_ID + "] INTEGER, " +
                 " [" + FaveArticlesColumns.ARTICLE + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + FaveArticlesColumns.ARTICLE_ID + "], [" + FaveArticlesColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + FaveArticlesColumns.ARTICLE_ID + "], [" + FaveArticlesColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
     }
 
@@ -337,7 +336,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + FaveProductsColumns.PRODUCT_ID + "] INTEGER, " +
                 " [" + FaveProductsColumns.OWNER_ID + "] INTEGER, " +
                 " [" + FaveProductsColumns.PRODUCT + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + FaveProductsColumns.PRODUCT_ID + "], [" + FaveProductsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + FaveProductsColumns.PRODUCT_ID + "], [" + FaveProductsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
     }
 
@@ -352,7 +351,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + FavePostsColumns.POST_ID + "] INTEGER, " +
                 " [" + FavePostsColumns.OWNER_ID + "] INTEGER, " +
                 " [" + FavePostsColumns.POST + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + FavePostsColumns.POST_ID + "], [" + FavePostsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + FavePostsColumns.POST_ID + "], [" + FavePostsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
     }
 
@@ -363,21 +362,19 @@ class DBHelper private constructor(context: Context, aid: Long) :
      */
     private fun createFavePageTable(db: SQLiteDatabase) {
         val create = "CREATE TABLE [" + FavePagesColumns.TABLENAME + "] (" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 " [" + FavePagesColumns.DESCRIPTION + "] TEXT, " +
                 " [" + FavePagesColumns.UPDATED_TIME + "] INTEGER, " +
-                " [" + FavePagesColumns.FAVE_TYPE + "] TEXT, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + FavePagesColumns.FAVE_TYPE + "] TEXT);"
         db.execSQL(create)
     }
 
     private fun createFaveGroupsTable(db: SQLiteDatabase) {
         val create = "CREATE TABLE [" + FavePagesColumns.GROUPSTABLENAME + "] (" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 " [" + FavePagesColumns.DESCRIPTION + "] TEXT, " +
                 " [" + FavePagesColumns.UPDATED_TIME + "] INTEGER, " +
-                " [" + FavePagesColumns.FAVE_TYPE + "] TEXT, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + FavePagesColumns.FAVE_TYPE + "] TEXT);"
         db.execSQL(create)
     }
 
@@ -394,7 +391,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + FaveLinksColumns.TITLE + "] TEXT, " +
                 " [" + FaveLinksColumns.DESCRIPTION + "] TEXT, " +
                 " [" + FaveLinksColumns.PHOTO + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + FaveLinksColumns.LINK_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + FaveLinksColumns.LINK_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
     }
 
@@ -410,7 +407,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + CommentsAttachmentsColumns.DATA + "] BLOB, " +
                 //" [" + CommentsAttachmentsColumns.ATTACHMENT_ID + "] INTEGER, " +
                 //" [" + CommentsAttachmentsColumns.ATTACHMENT_OWNER_ID + "] INTEGER, " +
-                //" CONSTRAINT [] UNIQUE ([" + CommentsAttachmentsColumns.C_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + CommentsAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
+                //" UNIQUE ([" + CommentsAttachmentsColumns.C_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + CommentsAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
                 " FOREIGN KEY([" + CommentsAttachmentsColumns.C_ID + "]) " +
                 " REFERENCES " + CommentsColumns.TABLENAME + "([" + BaseColumns._ID + "]) ON DELETE CASCADE ON UPDATE CASCADE);"
         db.execSQL(sql)
@@ -472,7 +469,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
         db.execSQL(insertZeroRow)
         db.execSQL(insert)
         db.execSQL(delete)
-        //db.execSQL("CREATE INDEX IF NOT EXISTS keys_index ON ${MessagesColumns.TABLENAME} (${MessagesColumns.PEER_ID}, ${MessagesColumns.CONVERSATION_MESSAGE_ID}, ${MessagesColumns.ORIGINAL_ID});")
     }
 
     private fun createFriendListsTable(db: SQLiteDatabase) {
@@ -481,7 +477,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + FriendListsColumns.USER_ID + "] INTEGER, " +
                 " [" + FriendListsColumns.LIST_ID + "] INTEGER, " +
                 " [" + FriendListsColumns.NAME + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + FriendListsColumns.USER_ID + "], [" + FriendListsColumns.LIST_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + FriendListsColumns.USER_ID + "], [" + FriendListsColumns.LIST_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -527,7 +523,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + VideosColumns.LIVE + "] TEXT, " +
                 " [" + VideosColumns.TRAILER + "] TEXT, " +
                 " [" + VideosColumns.TIMELINE_THUMBS + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + VideosColumns.VIDEO_ID + "], [" + VideosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + VideosColumns.VIDEO_ID + "], [" + VideosColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -546,7 +542,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + DocsColumns.PHOTO + "] BLOB, " +
                 " [" + DocsColumns.GRAFFITI + "] BLOB, " +
                 " [" + DocsColumns.VIDEO + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + DocsColumns.DOC_ID + "], [" + DocsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + DocsColumns.DOC_ID + "], [" + DocsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -594,13 +590,13 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + RelationshipsColumns.OBJECT_ID + "] INTEGER NOT NULL, " +
                 " [" + RelationshipsColumns.SUBJECT_ID + "] INTEGER NOT NULL, " +
                 " [" + RelationshipsColumns.TYPE + "] INTEGER, " +
-                " CONSTRAINT [] UNIQUE ([" + RelationshipsColumns.OBJECT_ID + "], [" + RelationshipsColumns.SUBJECT_ID + "], [" + RelationshipsColumns.TYPE + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + RelationshipsColumns.OBJECT_ID + "], [" + RelationshipsColumns.SUBJECT_ID + "], [" + RelationshipsColumns.TYPE + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
     private fun createUsersTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE [" + UsersColumns.TABLENAME + "](" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 " [" + UsersColumns.FIRST_NAME + "] TEXT, " +
                 " [" + UsersColumns.LAST_NAME + "] TEXT, " +
                 " [" + UsersColumns.MAIDEN_NAME + "] TEXT, " +
@@ -624,8 +620,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + UsersColumns.PHOTO_50 + "] TEXT, " +
                 " [" + UsersColumns.PHOTO_100 + "] TEXT, " +
                 " [" + UsersColumns.PHOTO_200 + "] TEXT, " +
-                " [" + UsersColumns.PHOTO_MAX + "] TEXT, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + UsersColumns.PHOTO_MAX + "] TEXT);"
         db.execSQL(sql)
     }
 
@@ -723,13 +718,13 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + PostsColumns.TEXT + "] TEXT, " +
                 " [" + PostsColumns.COPYRIGHT_BLOB + "] BLOB, " +
                 " [" + PostsColumns.POST_SOURCE + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + PostsColumns.POST_ID + "], [" + PostsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + PostsColumns.POST_ID + "], [" + PostsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
     private fun createGroupsTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE [" + GroupsColumns.TABLENAME + "](" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 " [" + GroupsColumns.NAME + "] TEXT, " +
                 " [" + GroupsColumns.SCREEN_NAME + "] TEXT, " +
                 " [" + GroupsColumns.IS_CLOSED + "] INTEGER, " +
@@ -746,24 +741,21 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + GroupsColumns.HAS_UNSEEN_STORIES + "] BOOLEAN, " +
                 " [" + GroupsColumns.PHOTO_50 + "] TEXT, " +
                 " [" + GroupsColumns.PHOTO_100 + "] TEXT, " +
-                " [" + GroupsColumns.PHOTO_200 + "] TEXT, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + GroupsColumns.PHOTO_200 + "] TEXT);"
         db.execSQL(sql)
     }
 
     private fun createGroupsDetTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE [" + GroupsDetailsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE, " +
-                " [" + GroupsDetailsColumns.DATA + "] BLOB, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY NOT NULL UNIQUE ON CONFLICT REPLACE, " +
+                " [" + GroupsDetailsColumns.DATA + "] BLOB);"
         db.execSQL(sql)
     }
 
     private fun createUserDetTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE [" + UsersDetailsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER NOT NULL UNIQUE, " +
-                " [" + UsersDetailsColumns.DATA + "] BLOB, " +
-                " CONSTRAINT [] PRIMARY KEY([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY NOT NULL UNIQUE ON CONFLICT REPLACE, " +
+                " [" + UsersDetailsColumns.DATA + "] BLOB);"
         db.execSQL(sql)
     }
 
@@ -783,7 +775,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + PhotoAlbumsColumns.PRIVACY_VIEW + "] BLOB, " +
                 " [" + PhotoAlbumsColumns.PRIVACY_COMMENT + "] BLOB, " +
                 " [" + PhotoAlbumsColumns.SIZES + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + PhotoAlbumsColumns.ALBUM_ID + "], [" + PhotoAlbumsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + PhotoAlbumsColumns.ALBUM_ID + "], [" + PhotoAlbumsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -797,7 +789,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + VideoAlbumsColumns.IMAGE + "] TEXT, " +
                 " [" + VideoAlbumsColumns.UPDATE_TIME + "] INTEGER, " +
                 " [" + VideoAlbumsColumns.PRIVACY + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + VideoAlbumsColumns.ALBUM_ID + "], [" + VideoAlbumsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + VideoAlbumsColumns.ALBUM_ID + "], [" + VideoAlbumsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -817,7 +809,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + TopicsColumns.FIRST_COMMENT + "] TEXT, " +
                 " [" + TopicsColumns.LAST_COMMENT + "] TEXT, " +
                 " [" + TopicsColumns.ATTACHED_POLL + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + TopicsColumns.TOPIC_ID + "], [" + TopicsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + TopicsColumns.TOPIC_ID + "], [" + TopicsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 

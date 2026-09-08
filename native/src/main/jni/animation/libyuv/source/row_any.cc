@@ -13,8 +13,6 @@
 #include <assert.h>
 #include <string.h>  // For memset.
 
-#include "libyuv/basic_types.h"
-
 #ifdef __cplusplus
 namespace libyuv {
 extern "C" {
@@ -339,8 +337,14 @@ ANY31(I422ToUYVYRow_Any_LASX, I422ToUYVYRow_LASX, 1, 1, 4, 31)
 #ifdef HAS_BLENDPLANEROW_AVX2
 ANY31(BlendPlaneRow_Any_AVX2, BlendPlaneRow_AVX2, 0, 0, 1, 31)
 #endif
+#ifdef HAS_BLENDPLANEROW_AVX512BW
+ANY31(BlendPlaneRow_Any_AVX512BW, BlendPlaneRow_AVX512BW, 0, 0, 1, 63)
+#endif
 #ifdef HAS_BLENDPLANEROW_SSSE3
 ANY31(BlendPlaneRow_Any_SSSE3, BlendPlaneRow_SSSE3, 0, 0, 1, 7)
+#endif
+#ifdef HAS_BLENDPLANEROW_NEON
+ANY31(BlendPlaneRow_Any_NEON, BlendPlaneRow_NEON, 0, 0, 1, 15)
 #endif
 #undef ANY31
 
@@ -704,6 +708,9 @@ ANY21(ARGBAddRow_Any_NEON, ARGBAddRow_NEON, 0, 4, 4, 4, 7)
 #ifdef HAS_ARGBSUBTRACTROW_NEON
 ANY21(ARGBSubtractRow_Any_NEON, ARGBSubtractRow_NEON, 0, 4, 4, 4, 7)
 #endif
+#ifdef HAS_ARGBBLENDROW_LSX
+ANY21(ARGBBlendRow_Any_LSX, ARGBBlendRow_LSX, 0, 4, 4, 4, 7)
+#endif
 #ifdef HAS_ARGBMULTIPLYROW_LSX
 ANY21(ARGBMultiplyRow_Any_LSX, ARGBMultiplyRow_LSX, 0, 4, 4, 4, 3)
 #endif
@@ -1017,8 +1024,10 @@ ANY11(ARGBToRAWRow_Any_AVX2, ARGBToRAWRow_AVX2, 0, 4, 3, 31)
 #if defined(HAS_ARGBTORGB565ROW_AVX2)
 ANY11(ARGBToRGB565Row_Any_AVX2, ARGBToRGB565Row_AVX2, 0, 4, 2, 7)
 #endif
-#if defined(HAS_ARGBTOARGB4444ROW_AVX2)
+#if defined(HAS_ARGBTOARGB1555ROW_AVX2)
 ANY11(ARGBToARGB1555Row_Any_AVX2, ARGBToARGB1555Row_AVX2, 0, 4, 2, 7)
+#endif
+#if defined(HAS_ARGBTOARGB4444ROW_AVX2)
 ANY11(ARGBToARGB4444Row_Any_AVX2, ARGBToARGB4444Row_AVX2, 0, 4, 2, 7)
 #endif
 #if defined(HAS_ABGRTOAR30ROW_SSSE3)
@@ -1068,6 +1077,15 @@ ANY11(RAWToRGBARow_Any_SSSE3, RAWToRGBARow_SSSE3, 0, 3, 4, 15)
 #endif
 #if defined(HAS_RAWTORGB24ROW_SSSE3)
 ANY11(RAWToRGB24Row_Any_SSSE3, RAWToRGB24Row_SSSE3, 0, 3, 3, 7)
+#endif
+#if defined(HAS_RAWTORGB24ROW_AVX2)
+ANY11(RAWToRGB24Row_Any_AVX2, RAWToRGB24Row_AVX2, 0, 3, 3, 31)
+#endif
+#if defined(HAS_RAWTORGB24ROW_AVX512BW)
+ANY11(RAWToRGB24Row_Any_AVX512BW, RAWToRGB24Row_AVX512BW, 0, 3, 3, 63)
+#endif
+#if defined(HAS_RAWTORGB24ROW_AVX512VBMI)
+ANY11(RAWToRGB24Row_Any_AVX512VBMI, RAWToRGB24Row_AVX512VBMI, 0, 3, 3, 63)
 #endif
 #if defined(HAS_RGB565TOARGBROW_AVX2)
 ANY11(RGB565ToARGBRow_Any_AVX2, RGB565ToARGBRow_AVX2, 0, 2, 4, 15)
@@ -1476,7 +1494,7 @@ ANY11T(AB64ToARGBRow_Any_NEON, AB64ToARGBRow_NEON, 8, 4, uint16_t, uint8_t, 7)
 
 // Any 1 to 1 with parameter and shorts.  BPP measures in shorts.
 #define ANY11C(NAMEANY, ANY_SIMD, SBPP, BPP, STYPE, DTYPE, MASK)              \
-  void NAMEANY(const STYPE* src_ptr, DTYPE* dst_ptr, int scale, int width) {  \
+  void NAMEANY(const STYPE* src_ptr, DTYPE* dst_ptr, int value, int width) {  \
     SIMD_ALIGNED(STYPE vin[64]);                                              \
     static_assert((MASK + 1) * SBPP <= sizeof(vin), "vin buffer too small");  \
     SIMD_ALIGNED(DTYPE vout[64]);                                             \
@@ -1485,11 +1503,11 @@ ANY11T(AB64ToARGBRow_Any_NEON, AB64ToARGBRow_NEON, 8, 4, uint16_t, uint8_t, 7)
     int r = width & MASK;                                                     \
     int n = width & ~MASK;                                                    \
     if (n > 0) {                                                              \
-      ANY_SIMD(src_ptr, dst_ptr, scale, n);                                   \
+      ANY_SIMD(src_ptr, dst_ptr, value, n);                                   \
     }                                                                         \
     ptrdiff_t np = n;                                                         \
     memcpy(vin, src_ptr + np, r * SBPP);                                      \
-    ANY_SIMD(vin, vout, scale, MASK + 1);                                     \
+    ANY_SIMD(vin, vout, value, MASK + 1);                                     \
     memcpy(dst_ptr + np, vout, r * BPP);                                      \
   }
 
@@ -1547,6 +1565,15 @@ ANY11C(Convert8To16Row_Any_AVX2,
        uint16_t,
        31)
 #endif
+#ifdef HAS_CONVERT8TO16ROW_AVX512BW
+ANY11C(Convert8To16Row_Any_AVX512BW,
+       Convert8To16Row_AVX512BW,
+       1,
+       2,
+       uint8_t,
+       uint16_t,
+       63)
+#endif
 #ifdef HAS_CONVERT8TO16ROW_NEON
 ANY11C(Convert8To16Row_Any_NEON,
        Convert8To16Row_NEON,
@@ -1555,6 +1582,15 @@ ANY11C(Convert8To16Row_Any_NEON,
        uint8_t,
        uint16_t,
        15)
+#endif
+#ifdef HAS_MULTIPLYROW_16_AVX512BW
+ANY11C(MultiplyRow_16_Any_AVX512BW,
+       MultiplyRow_16_AVX512BW,
+       2,
+       2,
+       uint16_t,
+       uint16_t,
+       63)
 #endif
 #ifdef HAS_MULTIPLYROW_16_AVX2
 ANY11C(MultiplyRow_16_Any_AVX2,
@@ -2331,8 +2367,12 @@ ANY11MC(ARGB4444ToYMatrixRow_Any_NEON, ARGB4444ToYMatrixRow_NEON, 2, 15)
 #ifdef HAS_ARGBTOYMATRIXROW_LSX
 ANY11MC(ARGBToYMatrixRow_Any_LSX, ARGBToYMatrixRow_LSX, 4, 15)
 #endif
+#ifdef HAS_RGBTOYMATRIXROW_LSX
+ANY11MC(RGBToYMatrixRow_Any_LSX, RGBToYMatrixRow_LSX, 3, 15)
+#endif
 #ifdef HAS_ARGBTOYMATRIXROW_LASX
 ANY11MC(ARGBToYMatrixRow_Any_LASX, ARGBToYMatrixRow_LASX, 4, 31)
+ANY11MC(RGBToYMatrixRow_Any_LASX, RGBToYMatrixRow_LASX, 3, 31)
 #endif
 #ifdef HAS_ARGBTOYMATRIXROW_RVV
 ANY11MC(ARGBToYMatrixRow_Any_RVV, ARGBToYMatrixRow_RVV, 4, 15)

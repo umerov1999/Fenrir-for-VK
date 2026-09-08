@@ -881,7 +881,7 @@ static DetectorResult SampleGridCorrected(const BitMatrix& image, int width, int
 			auto p = mod2Pix(PointF{topCenterLUT(x), my});
 			if (!image.isIn(p))
 				return {};
-			log(p, 3);
+			log(p, LOG_B);
 			if (image.get(p))
 				res.set(x, y);
 		}

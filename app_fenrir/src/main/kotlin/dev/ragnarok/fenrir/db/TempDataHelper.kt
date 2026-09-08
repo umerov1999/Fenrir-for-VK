@@ -45,7 +45,7 @@ class TempDataHelper(context: Context) :
                 " [" + ReactionsColumns.STATIC + "] TEXT, " +
                 " [" + ReactionsColumns.SMALL_ANIMATION + "] TEXT, " +
                 " [" + ReactionsColumns.BIG_ANIMATION + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "], [" + ReactionsColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + BaseColumns._ID + "], [" + ReactionsColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -60,7 +60,7 @@ class TempDataHelper(context: Context) :
                 " [" + StickerSetsColumns.ACTIVE + "] BOOLEAN, " +
                 " [" + StickerSetsColumns.ICON + "] BLOB, " +
                 " [" + StickerSetsColumns.STICKERS + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "], [" + StickerSetsColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + BaseColumns._ID + "], [" + StickerSetsColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -75,7 +75,7 @@ class TempDataHelper(context: Context) :
                 " [" + StickerSetsCustomColumns.ACTIVE + "] BOOLEAN, " +
                 " [" + StickerSetsCustomColumns.ICON + "] BLOB, " +
                 " [" + StickerSetsCustomColumns.STICKERS + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "], [" + StickerSetsCustomColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + BaseColumns._ID + "], [" + StickerSetsCustomColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
@@ -85,17 +85,16 @@ class TempDataHelper(context: Context) :
                 " [" + StickersKeywordsColumns.ACCOUNT_ID + "] INTEGER, " +
                 " [" + StickersKeywordsColumns.KEYWORDS + "] BLOB, " +
                 " [" + StickersKeywordsColumns.STICKERS + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "], [" + StickersKeywordsColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
+                " UNIQUE ([" + BaseColumns._ID + "], [" + StickersKeywordsColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }
 
     private fun createTmpDataTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + TempDataColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
                 " [" + TempDataColumns.OWNER_ID + "] INTEGER, " +
                 " [" + TempDataColumns.SOURCE_ID + "] INTEGER, " +
-                " [" + TempDataColumns.DATA + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + TempDataColumns.DATA + "] BLOB);"
         db.execSQL(sql)
     }
 
@@ -104,34 +103,32 @@ class TempDataHelper(context: Context) :
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 " [" + SearchRequestColumns.SOURCE_ID + "] INTEGER, " +
                 " [" + SearchRequestColumns.QUERY + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + SearchRequestColumns.SOURCE_ID + "], [" + SearchRequestColumns.QUERY + "]) ON CONFLICT IGNORE);"
+                " UNIQUE ([" + SearchRequestColumns.SOURCE_ID + "], [" + SearchRequestColumns.QUERY + "]) ON CONFLICT IGNORE);"
         db.execSQL(sql)
     }
 
     private fun createShortcutsColumn(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + ShortcutsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
                 " [" + ShortcutsColumns.ACTION + "] TEXT, " +
                 " [" + ShortcutsColumns.COVER + "] TEXT, " +
-                " [" + ShortcutsColumns.NAME + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + ShortcutsColumns.NAME + "] TEXT);"
         db.execSQL(sql)
     }
 
     private fun createLogsTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + LogsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
                 " [" + LogsColumns.TYPE + "] INTEGER, " +
                 " [" + LogsColumns.DATE + "] INTEGER, " +
                 " [" + LogsColumns.TAG + "] TEXT, " +
-                " [" + LogsColumns.BODY + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + LogsColumns.BODY + "] TEXT);"
         db.execSQL(sql)
     }
 
     private fun createAudiosTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + AudiosColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
                 " [" + AudiosColumns.SOURCE_OWNER_ID + "] INTEGER, " +
                 " [" + AudiosColumns.AUDIO_ID + "] INTEGER, " +
                 " [" + AudiosColumns.AUDIO_OWNER_ID + "] INTEGER, " +
@@ -152,17 +149,15 @@ class TempDataHelper(context: Context) :
                 " [" + AudiosColumns.THUMB_IMAGE_LITTLE + "] TEXT, " +
                 " [" + AudiosColumns.ALBUM_TITLE + "] TEXT, " +
                 " [" + AudiosColumns.IS_HQ + "] BOOLEAN, " +
-                " [" + AudiosColumns.MAIN_ARTISTS + "] BLOB, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + AudiosColumns.MAIN_ARTISTS + "] BLOB);"
         db.execSQL(sql)
     }
 
     private fun createFeedOwnersTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + FeedOwnersColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
                 " [" + FeedOwnersColumns.TITLE + "] TEXT, " +
-                " [" + FeedOwnersColumns.OWNERS_IDS + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + FeedOwnersColumns.OWNERS_IDS + "] TEXT);"
         db.execSQL(sql)
     }
 

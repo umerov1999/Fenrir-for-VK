@@ -11,9 +11,9 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermissionSimple
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.json.internal.OkioSerialReader
-import kotlinx.serialization.json.internal.WriteMode
-import kotlinx.serialization.json.internal.lexer.ReaderJsonLexer
+import kotlinx.serialization.json.internal.LexerMode
+import kotlinx.serialization.json.internal.OkioReader
+import kotlinx.serialization.json.internal.lexer.BufferedJsonLexer
 import okio.buffer
 import okio.source
 import java.io.File
@@ -36,16 +36,16 @@ class FileExistNative : AbsFileExist {
         if (!audios.exists()) {
             return
         }
-        val reader = ReaderJsonLexer(
-            reader = OkioSerialReader(audios.source().buffer()),
+        val reader = BufferedJsonLexer(
+            reader = OkioReader(audios.source().buffer()),
             configuration = kJson.configuration
         )
-        reader.consumeNextToken(WriteMode.LIST.begin)
+        reader.consumeNextToken(LexerMode.LIST.begin)
         while (reader.canConsumeValue()) {
             RemoteAudios.insert(reader.consumeStringLenient().lowercase(Locale.getDefault()))
             reader.tryConsumeComma()
         }
-        reader.consumeNextToken(WriteMode.LIST.end)
+        reader.consumeNextToken(LexerMode.LIST.end)
     }
 
     @Throws(IOException::class)

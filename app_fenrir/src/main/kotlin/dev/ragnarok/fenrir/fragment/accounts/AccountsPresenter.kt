@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.content.edit
+import de.maxr1998.modernpreferences.PreferenceScreen
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes
@@ -503,6 +505,28 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                     view?.customToast?.setDuration(Toast.LENGTH_LONG)
                         ?.showToastWarningBottom(R.string.settings_for_another_client)
                 }
+
+                if (hasObject(obj, "device")) {
+                    val deviceIdInfo = obj["device"]?.jsonObject
+                    val deviceId = deviceIdInfo?.get("device_id")?.asPrimitiveSafe?.contentOrNull
+                    val hiddenDeviceId =
+                        deviceIdInfo?.get("hidden_device_id")?.asPrimitiveSafe?.contentOrNull
+                    if (Settings.get()
+                            .accounts().registered.isEmpty() && deviceId.nonNullNoEmpty()
+                    ) {
+                        PreferenceScreen.getPreferences(provideApplicationContext())
+                            .edit(commit = true) {
+                                putString("device_id", deviceId)
+                            }
+                    }
+                    if (hiddenDeviceId.nonNullNoEmpty()) {
+                        PreferenceScreen.getPreferences(provideApplicationContext())
+                            .edit(commit = true) {
+                                putString("hidden_device_id", hiddenDeviceId)
+                            }
+                    }
+                }
+
                 val reader = obj["fenrir_accounts"]
                 for (i in reader?.jsonArray.orEmpty()) {
                     val elem = i.jsonObject
@@ -723,6 +747,26 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             app.put("api_type", Constants.DEFAULT_ACCOUNT_TYPE)
             app.put("settings_format", Constants.EXPORT_SETTINGS_FORMAT)
             root.put("app", app.build())
+
+            val deviceIdStore = JsonObjectBuilder()
+            val deviceId =
+                Utils.getDeviceId(AccountType.VK_ANDROID, provideApplicationContext())
+            val hiddenDeviceId =
+                Utils.getDeviceId(AccountType.VK_ANDROID_HIDDEN, provideApplicationContext())
+            if (deviceId.nonNullNoEmpty()) {
+                deviceIdStore.put(
+                    "device_id",
+                    deviceId
+                )
+            }
+            if (hiddenDeviceId.nonNullNoEmpty()) {
+                deviceIdStore.put(
+                    "hidden_device_id",
+                    hiddenDeviceId
+                )
+            }
+            root.put("device", deviceIdStore.build())
+
             root.put("fenrir_accounts", arr.build())
             val settings = SettingsBackup().doBackup()
             root.put("settings", settings)

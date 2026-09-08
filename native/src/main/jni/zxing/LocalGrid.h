@@ -58,7 +58,7 @@ public:
 	inline Value get(PointF p) const
 	{
 		auto q = getPos(p);
-		log(q, 4);
+		log(q, LOG_R);
 		return img->isIn(q) ? Value{img->get(q)} : Value{};
 	}
 

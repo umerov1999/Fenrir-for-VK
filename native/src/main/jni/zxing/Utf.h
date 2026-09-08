@@ -7,12 +7,14 @@
 
 #include "Range.h"
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
 namespace ZXing {
 
 bool IsValidUtf8(ByteView bytes);
+void AppendToUtf8(std::string& utf8, char32_t utf32);
 
 std::string ToUtf8(std::wstring_view str);
 std::wstring FromUtf8(std::string_view utf8);

@@ -7,6 +7,8 @@ package kotlinx.serialization.json
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InheritableSerialInfo
 import kotlinx.serialization.SerialInfo
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.SerializationException
 
 /**
  * Indicates that the field can be represented in JSON
@@ -27,9 +29,10 @@ import kotlinx.serialization.SerialInfo
  * println(oldProject) // Also OK
  * ```
  *
- * This annotation has lesser priority than [SerialName].
+ * Specifying this annotation and [SerialName] with the same value leads to unspecified behavior, which is implementation-defined.
  * In practice, this means that if property A has `@SerialName("foo")` annotation, and property B has `@JsonNames("foo")` annotation,
- * Json key `foo` will be deserialized into property A.
+ * Json key `foo` can be deserialized to the last property in the stream, set both properties, or throw an exception about duplicate keys.
+ * This behavior may differ across runtime versions.
  *
  * Using the same alternative name for different properties across one class is prohibited and leads to a deserialization exception.
  *
@@ -70,7 +73,7 @@ annotation class JsonNames(vararg val names: String)
  */
 @InheritableSerialInfo
 @Target(AnnotationTarget.CLASS)
-@ExperimentalSerializationApi
+@ExperimentalSerializationApi // need to take a quick look at #2142 first
 annotation class JsonClassDiscriminator(val discriminator: String)
 
 
@@ -103,5 +106,4 @@ annotation class JsonClassDiscriminator(val discriminator: String)
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS)
-@ExperimentalSerializationApi
 annotation class JsonIgnoreUnknownKeys

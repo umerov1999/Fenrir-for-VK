@@ -5,8 +5,10 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
@@ -35,10 +37,7 @@ import kotlinx.serialization.json.internal.decodingExceptionOf
 @PublishedApi
 internal object JsonElementSerializer : KSerializer<JsonElement> {
     override val descriptor: SerialDescriptor =
-        buildSerialDescriptor(
-            "kotlinx.serialization.json.JsonElement",
-            PolymorphicKind.SEALED
-        ) {
+        buildSerialDescriptor("kotlinx.serialization.json.JsonElement", PolymorphicKind.SEALED) {
             // Resolve cyclic dependency in descriptors by late binding
             element("JsonPrimitive", defer { JsonPrimitiveSerializer.descriptor })
             element("JsonNull", defer { JsonNullSerializer.descriptor })
@@ -69,10 +68,7 @@ internal object JsonElementSerializer : KSerializer<JsonElement> {
 @PublishedApi
 internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     override val descriptor: SerialDescriptor =
-        buildSerialDescriptor(
-            "kotlinx.serialization.json.JsonPrimitive",
-            PrimitiveKind.STRING
-        )
+        buildSerialDescriptor("kotlinx.serialization.json.JsonPrimitive", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: JsonPrimitive) {
         verify(encoder)
@@ -99,10 +95,7 @@ internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 internal object JsonNullSerializer : KSerializer<JsonNull> {
     // technically, JsonNull is an object, but it does not call beginStructure/endStructure at all
     override val descriptor: SerialDescriptor =
-        buildSerialDescriptor(
-            "kotlinx.serialization.json.JsonNull",
-            SerialKind.ENUM
-        )
+        buildSerialDescriptor("kotlinx.serialization.json.JsonNull", SerialKind.ENUM)
 
     override fun serialize(encoder: Encoder, value: JsonNull) {
         verify(encoder)
@@ -122,11 +115,9 @@ internal object JsonNullSerializer : KSerializer<JsonNull> {
 private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor(
-            "kotlinx.serialization.json.JsonLiteral",
-            PrimitiveKind.STRING
-        )
+        PrimitiveSerialDescriptor("kotlinx.serialization.json.JsonLiteral", PrimitiveKind.STRING)
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: JsonLiteral) {
         verify(encoder)
         if (value.isString) {

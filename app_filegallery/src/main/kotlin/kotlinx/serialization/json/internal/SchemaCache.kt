@@ -24,11 +24,7 @@ internal class DescriptorSchemaCache {
         map.getOrPut(descriptor) { createMapForCache(2) }[key as Key<Any>] = value as Any
     }
 
-    fun <T : Any> getOrPut(
-        descriptor: SerialDescriptor,
-        key: Key<T>,
-        defaultValue: () -> T
-    ): T {
+    fun <T : Any> getOrPut(descriptor: SerialDescriptor, key: Key<T>, defaultValue: () -> T): T {
         get(descriptor, key)?.let { return it }
         val value = defaultValue()
         set(descriptor, key, value)

@@ -208,6 +208,7 @@ class FastEdgeToEdgeCounter
 public:
 	FastEdgeToEdgeCounter(const BitMatrixCursorI& cur)
 	{
+		assert(cur.isIn());
 		stride = cur.d.y * cur.img->width() + cur.d.x;
 		p = cur.img->row(cur.p.y).begin() + cur.p.x;
 
@@ -220,6 +221,11 @@ public:
 	{
 		int maxSteps = std::min(stepsToBorder, range);
 		int steps = 0;
+
+		if (maxSteps < 0) // already outside the image
+			return 0;
+
+		// Move forward until we a) find a different pixel value or b) step outside the image or c) reach the range limit.
 		do {
 			if (++steps > maxSteps) {
 				if (maxSteps == stepsToBorder)

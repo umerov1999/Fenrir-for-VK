@@ -32,10 +32,6 @@ object AppTextUtils {
         FULL_LITTLE_DATE = SimpleDateFormat("dd.MM.yy HH:mm", locale)
     }
 
-    fun safeTrim(text: String?, ifNull: String?): String? {
-        return text?.trim() ?: ifNull
-    }
-
     fun reduceStringForPost(input: String?): String? {
         val pp = OwnerLinkSpanFactory.findPatterns(input, owners = true, topics = false)
         var l = 400

@@ -117,7 +117,10 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
     private fun resolveNextFlowButton() {
         when (currentFlow) {
             AuthFlow.VALIDATE_ACCOUNT -> {
-                view?.setNextFlowButtonParams(username.trimmedNonNullNoEmpty(), R.string.next)
+                view?.setNextFlowButtonParams(
+                    true,
+                    if (username.trimmedIsNullOrEmpty()) R.string.cancel else R.string.next
+                )
             }
 
             AuthFlow.SELECT_VALIDATION_METHOD -> {
@@ -216,15 +219,16 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
 
     private fun doValidateAccount() {
         clearInfoError()
+        val tmpUsername = username?.trim()
+        if (tmpUsername.isNullOrEmpty()) {
+            view?.cancelAuth()
+            return
+        }
         validateFlow = null
         val anonymTokenData = Settings.get().accounts().anonymToken
         val anonymToken = anonymTokenData.token
-        val tmpUsername = username
         if (anonymToken.isNullOrEmpty() || !anonymTokenData.isValid()) {
             setInfoOrErrorMessage(R.string.anonym_token_not_valid, true)
-            return
-        }
-        if (tmpUsername.isNullOrEmpty()) {
             return
         }
         setLoadingNow(true)
@@ -233,7 +237,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                 .validateAccount(
                     apiId = Constants.API_ID,
                     supportedWays = "push,email,sms,callreset,password,reserve_code,codegen",
-                    login = tmpUsername.trim(),
+                    login = tmpUsername,
                     forcePassword = false,
                     passkeySupported = false,
                     sakVersion = Constants.VK_ANDROID_APP_SAK_VERSION,

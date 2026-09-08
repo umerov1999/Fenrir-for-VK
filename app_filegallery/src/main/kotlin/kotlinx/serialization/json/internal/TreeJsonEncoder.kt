@@ -40,14 +40,14 @@ fun <T> writeJson(json: Json, value: T, serializer: SerializationStrategy<T>): J
 
 private sealed class AbstractJsonTreeEncoder(
     final override val json: Json,
-    val nodeConsumer: (JsonElement) -> Unit
+    protected val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonEncoder {
 
     final override val serializersModule: SerializersModule
         get() = json.serializersModule
 
     @JvmField
-    val configuration = json.configuration
+    protected val configuration = json.configuration
 
     private var polymorphicDiscriminator: String? = null
     private var polymorphicSerialName: String? = null
@@ -95,17 +95,21 @@ private sealed class AbstractJsonTreeEncoder(
         }
     }
 
-    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
-        if (currentTagOrNull != null || !serializer.descriptor.carrierDescriptor(serializersModule).requiresTopLevelTag) {
-            encodePolymorphically(serializer, value) { discriminatorName, serialName ->
-                polymorphicDiscriminator = discriminatorName
-                polymorphicSerialName = serialName
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T): Unit =
+        withExceptionHandling({ serializer.descriptor.serialName }) {
+            // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
+            if (currentTagOrNull != null || !serializer.descriptor.carrierDescriptor(
+                    serializersModule
+                ).requiresTopLevelTag
+            ) {
+                encodePolymorphically(serializer, value) { discriminatorName, serialName ->
+                    polymorphicDiscriminator = discriminatorName
+                    polymorphicSerialName = serialName
+                }
+            } else JsonPrimitiveEncoder(json, nodeConsumer).run {
+                encodeSerializableValue(serializer, value)
             }
-        } else JsonPrimitiveEncoder(json, nodeConsumer).run {
-            encodeSerializableValue(serializer, value)
         }
-    }
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
         // First encode value, then check, to have a prettier error message
@@ -249,7 +253,7 @@ private open class JsonTreeEncoder(
     json: Json, nodeConsumer: (JsonElement) -> Unit
 ) : AbstractJsonTreeEncoder(json, nodeConsumer) {
 
-    val content: MutableMap<String, JsonElement> = linkedMapOf()
+    protected val content: MutableMap<String, JsonElement> = linkedMapOf()
 
     override fun putElement(key: String, element: JsonElement) {
         content[key] = element

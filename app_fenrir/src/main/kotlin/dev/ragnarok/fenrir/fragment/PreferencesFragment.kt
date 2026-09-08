@@ -2053,7 +2053,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             }
 
             switch("compress_outgoing_traffic") {
-                defaultValue = false
+                defaultValue = true
                 titleRes = R.string.compress_outgoing_traffic
                 onCheckedChange {
                     Utils.isCompressOutgoingTraffic = it

@@ -43,7 +43,7 @@ internal object CharArrayPool : CharArrayPoolBase() {
 }
 
 // Pools char arrays of size 16K
-internal object CharArrayPoolBatchSize : CharArrayPoolBase() {
+internal object JsonLexerBufferPool : CharArrayPoolBase() {
 
     fun take(): CharArray = super.take(BATCH_SIZE)
 
@@ -82,6 +82,7 @@ internal object ByteArrayPool8k : ByteArrayPoolBase() {
 
     fun release(array: ByteArray) = releaseImpl(array)
 }
+
 
 internal object ByteArrayPool : ByteArrayPoolBase() {
     fun take(): ByteArray = super.take(512)

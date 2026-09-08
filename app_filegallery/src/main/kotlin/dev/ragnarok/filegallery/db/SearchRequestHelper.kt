@@ -24,32 +24,30 @@ class SearchRequestHelper(context: Context) :
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 " [" + SearchRequestColumns.SOURCE_ID + "] INTEGER, " +
                 " [" + SearchRequestColumns.QUERY + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + SearchRequestColumns.SOURCE_ID + "], [" + SearchRequestColumns.QUERY + "]) ON CONFLICT IGNORE);"
+                " UNIQUE ([" + SearchRequestColumns.SOURCE_ID + "], [" + SearchRequestColumns.QUERY + "]) ON CONFLICT IGNORE);"
         db.execSQL(sql)
     }
 
     private fun createTagOwnersTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + TagOwnerColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                " [" + TagOwnerColumns.NAME + "] TEXT, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
+                " [" + TagOwnerColumns.NAME + "] TEXT);"
         db.execSQL(sql)
     }
 
     private fun createTagDirsTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + TagDirsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
                 " [" + TagDirsColumns.OWNER_ID + "] INTEGER, " +
                 " [" + TagDirsColumns.NAME + "] TEXT, " +
                 " [" + TagDirsColumns.PATH + "] TEXT, " +
-                " [" + TagDirsColumns.TYPE + "] INTEGER, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + TagDirsColumns.TYPE + "] INTEGER);"
         db.execSQL(sql)
     }
 
     private fun createFilesTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE IF NOT EXISTS [" + FilesColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ON CONFLICT REPLACE, " +
                 " [" + FilesColumns.PARENT_DIR + "] TEXT, " +
                 " [" + FilesColumns.TYPE + "] INTEGER, " +
                 " [" + FilesColumns.IS_DIR + "] INTEGER, " +
@@ -59,8 +57,7 @@ class SearchRequestHelper(context: Context) :
                 " [" + FilesColumns.PARENT_PATH + "] TEXT, " +
                 " [" + FilesColumns.MODIFICATIONS + "] BIGINT, " +
                 " [" + FilesColumns.SIZE + "] BIGINT, " +
-                " [" + FilesColumns.CAN_READ + "] INTEGER, " +
-                " CONSTRAINT [] UNIQUE ([" + BaseColumns._ID + "]) ON CONFLICT REPLACE);"
+                " [" + FilesColumns.CAN_READ + "] INTEGER);"
         db.execSQL(sql)
     }
 

@@ -12,15 +12,15 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.internal.lexer.AbstractJsonLexer
+import kotlinx.serialization.json.internal.lexer.BufferedJsonLexer
 import kotlinx.serialization.json.internal.lexer.COMMA
-import kotlinx.serialization.json.internal.lexer.ReaderJsonLexer
 import kotlinx.serialization.json.internal.lexer.TC_BEGIN_LIST
 import kotlinx.serialization.json.internal.lexer.TC_END_LIST
 
 internal fun <T> JsonIterator(
     mode: DecodeSequenceMode,
     json: Json,
-    lexer: ReaderJsonLexer,
+    lexer: BufferedJsonLexer,
     deserializer: DeserializationStrategy<T>
 ): Iterator<T> = when (lexer.determineFormat(mode)) {
     DecodeSequenceMode.WHITESPACE_SEPARATED -> JsonIteratorWsSeparated(
@@ -36,6 +36,7 @@ internal fun <T> JsonIterator(
 
     DecodeSequenceMode.AUTO_DETECT -> error("AbstractJsonLexer.determineFormat must be called beforehand.")
 }
+
 
 private fun AbstractJsonLexer.determineFormat(suggested: DecodeSequenceMode): DecodeSequenceMode =
     when (suggested) {
@@ -60,11 +61,11 @@ private fun AbstractJsonLexer.tryConsumeStartArray(): Boolean {
 
 private class JsonIteratorWsSeparated<T>(
     private val json: Json,
-    private val lexer: ReaderJsonLexer,
+    private val lexer: BufferedJsonLexer,
     private val deserializer: DeserializationStrategy<T>
 ) : Iterator<T> {
     override fun next(): T =
-        StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        StreamingJsonDecoder(json, LexerMode.OBJ, lexer, deserializer.descriptor, null)
             .decodeSerializableValue(deserializer)
 
     override fun hasNext(): Boolean = lexer.isNotEof()
@@ -72,7 +73,7 @@ private class JsonIteratorWsSeparated<T>(
 
 private class JsonIteratorArrayWrapped<T>(
     private val json: Json,
-    private val lexer: ReaderJsonLexer,
+    private val lexer: BufferedJsonLexer,
     private val deserializer: DeserializationStrategy<T>
 ) : Iterator<T> {
     private var first = true
@@ -84,7 +85,7 @@ private class JsonIteratorArrayWrapped<T>(
         } else {
             lexer.consumeNextToken(COMMA)
         }
-        val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(json, LexerMode.OBJ, lexer, deserializer.descriptor, null)
         return input.decodeSerializableValue(deserializer)
     }
 

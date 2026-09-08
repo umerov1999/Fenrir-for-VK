@@ -6,7 +6,7 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.internal.lexer.BATCH_SIZE
-import kotlinx.serialization.json.internal.lexer.ReaderJsonLexer
+import kotlinx.serialization.json.internal.lexer.BufferedJsonLexer
 import kotlinx.serialization.serializer
 
 internal annotation class JsonFriendModuleApi
@@ -44,60 +44,6 @@ interface InternalJsonReader {
     fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
 }
 
-// Max value for a code  point placed in one Char
-private const val SINGLE_CHAR_MAX_CODEPOINT = Char.MAX_VALUE.code
-
-// Value added to the high UTF-16 surrogate after shifting
-private const val HIGH_SURROGATE_HEADER = 0xd800 - (0x010000 ushr 10)
-
-// Value added to the low UTF-16 surrogate after masking
-private const val LOW_SURROGATE_HEADER = 0xdc00
-
-@JsonFriendModuleApi
-abstract class InternalJsonReaderCodePointImpl : InternalJsonReader {
-    abstract fun exhausted(): Boolean
-    abstract fun nextCodePoint(): Int
-
-    private var bufferedChar: Char? = null
-
-    final override fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int {
-        var i = 0
-
-        if (bufferedChar != null) {
-            buffer[bufferOffset + i] = bufferedChar!!
-            i++
-            bufferedChar = null
-        }
-
-        while (i < count && !exhausted()) {
-            val codePoint = nextCodePoint()
-            if (codePoint <= SINGLE_CHAR_MAX_CODEPOINT) {
-                buffer[bufferOffset + i] = codePoint.toChar()
-                i++
-            } else {
-                // an example of working with surrogates is taken from okio library with minor changes, see https://github.com/square/okio
-                // UTF-16 high surrogate: 110110xxxxxxxxxx (10 bits)
-                // UTF-16 low surrogate:  110111yyyyyyyyyy (10 bits)
-                // Unicode code point:    00010000000000000000 + xxxxxxxxxxyyyyyyyyyy (21 bits)
-                val upChar = ((codePoint ushr 10) + HIGH_SURROGATE_HEADER).toChar()
-                val lowChar = ((codePoint and 0x03ff) + LOW_SURROGATE_HEADER).toChar()
-
-                buffer[bufferOffset + i] = upChar
-                i++
-
-                if (i < count) {
-                    buffer[bufferOffset + i] = lowChar
-                    i++
-                } else {
-                    // if char array is full - buffer lower surrogate
-                    bufferedChar = lowChar
-                }
-            }
-        }
-        return if (i > 0) i else -1
-    }
-}
-
 @JsonFriendModuleApi
 fun <T> encodeByWriter(
     json: Json,
@@ -107,8 +53,8 @@ fun <T> encodeByWriter(
 ) {
     val encoder = StreamingJsonEncoder(
         writer, json,
-        WriteMode.OBJ,
-        arrayOfNulls(WriteMode.entries.size)
+        LexerMode.OBJ,
+        arrayOfNulls(LexerMode.entries.size)
     )
     encoder.encodeSerializableValue(serializer, value)
 }
@@ -119,9 +65,9 @@ fun <T> decodeByReader(
     deserializer: DeserializationStrategy<T>,
     reader: InternalJsonReader
 ): T {
-    val lexer = ReaderJsonLexer(json, reader)
+    val lexer = BufferedJsonLexer(json, reader)
     try {
-        val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(json, LexerMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
@@ -138,7 +84,7 @@ fun <T> decodeToSequenceByReader(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    val lexer = ReaderJsonLexer(
+    val lexer = BufferedJsonLexer(
         json,
         reader,
         CharArray(BATCH_SIZE)

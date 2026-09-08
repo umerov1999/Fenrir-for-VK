@@ -172,7 +172,7 @@ using PatternRAP = std::array<uint16_t, 6>;
 
 static int ReadRAP(BitMatrixModuleCursorF& cur, RAP type)
 {
-	log(cur.p, 2);
+	log(cur.p, LOG_G);
 	auto pattern = cur.readPatternFromBlack<PatternRAP>(cur.ms * 1, cur.ms * (10 + MS_THR), cur.ms * (10 - MS_THR));
 #ifdef USE_E2E_PATTERNS
 	int res = RAPIndex(ToInt(NormalizedE2EPattern<6, 10, 5>(pattern)), type);
@@ -188,7 +188,7 @@ static int ReadRAP(BitMatrixModuleCursorF& cur, RAP type)
 				res = 0;
 		}
 	}
-	log(cur.p, res ? -1 : 1);
+	log(cur.p, res ? LOG_I : LOG_GR);
 	return res;
 }
 
@@ -297,7 +297,7 @@ static Clusters FindCandidates(const BitMatrix& image, bool tryHarder, bool reve
 #endif
 		(std::tie(next, idx) = FindLRAP(next), next.isValid()) {
 			LRAP p{{next.pixelsInFront(), y}, idx, next.sum()};
-			log(centered(PointF(reversed ? width - 1 - p.x : p.x, reversed ? height - 1 - p.y : p.y)), 1);
+			log(centered(PointF(reversed ? width - 1 - p.x : p.x, reversed ? height - 1 - p.y : p.y)));
 
 			// Try to attach this LRAP to an existing cluster by proximity in x/y; prune stale short
 			// clusters and create a new cluster if no suitable match was found.

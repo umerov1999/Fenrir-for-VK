@@ -111,29 +111,33 @@ static std::optional<ConcentricPattern> LocateAztecCenter(const BitMatrix& image
 static std::vector<ConcentricPattern> FindPureFinderPattern(const BitMatrix& image)
 {
 	int left, top, width, height;
-	if (!image.findBoundingBox(left, top, width, height, 11)) {  // 11 is the size of an Aztec Rune, see ISO/IEC 24778:2008(E) Annex A
-		// Runes 68 and 223 have none of their bits set on the bottom row
-		if (image.findBoundingBox(left, top, width, height, 10) && (width == 11) && (height == 10))
-			height = 11;
-		else
-			return {};
-	}	
+	// The smallest possible Aztec symbol is an Aztec Rune (ISO/IEC 24778:2008(E) Annex A) which is 11x11.
+	// The Aztec Runes 68 and 223 have none of their bits set on the bottom row, so the smallest dimension is 10.
+	if (!image.findBoundingBox(left, top, width, height, 10))
+		return {};
 
-	// Symbols can have a blank row or column at the edge (in particular, top and left)
-	if (width < height && image.width() >= height) {
-		left = std::max(0, left - (height - width + 1) / 2); // No real net effect if right edge blank
-		width = height;
-	} else if (height < width && image.height() >= width) {
-		top = std::max(0, top - (width - height + 1) / 2); // No real net effect if bottom edge blank
-		height = width;
+	constexpr auto PATTERN = FixedPattern<7, 7>{1, 1, 1, 1, 1, 1, 1};
+	auto tryLocate = [&](int l, int t, int size) {
+		return LocateConcentricPattern<true>(image, PATTERN, PointF(l + size / 2, t + size / 2), size / 2);
+	};
+
+	// Symbols can have a blank row or column at the edge
+	if (width == height && width >= 11) {
+		if (auto p = tryLocate(left, top, width))
+			return {*p};
+	} else if (width < height && width >= height * 10 / 11 && image.width() >= height) {
+		if (auto p = tryLocate(left, top, height))
+			return {*p};
+		if (auto p = tryLocate(left - (height - width), top, height))
+			return {*p};
+	} else if (height < width && height >= width * 10 / 11 && image.height() >= width) {
+		if (auto p = tryLocate(left, top, width))
+			return {*p};
+		if (auto p = tryLocate(left, top - (width - height), width))
+			return {*p};
 	}
 
-	PointF p(left + width / 2, top + height / 2);
-	constexpr auto PATTERN = FixedPattern<7, 7>{1, 1, 1, 1, 1, 1, 1};
-	if (auto pattern = LocateConcentricPattern(image, PATTERN, p, width))
-		return {*pattern};
-	else
-		return {};
+	return {};
 }
 
 static std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image, bool tryHarder)
@@ -182,7 +186,7 @@ static std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image,
 					++N;
 					auto pattern = LocateConcentricPattern(image, PATTERN, p, image.width() / 3);
 					if (pattern){
-						log(*pattern, 2);
+						log(*pattern, LOG_G);
 						res.push_back(*pattern);
 					}
 				}
@@ -223,11 +227,11 @@ static std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image,
 
 			if (!found) {
 				++N;
-				log(p, 1);
+				log(p, LOG_GR);
 
 				auto pattern = LocateAztecCenter(image, p, next.sum());
 				if (pattern) {
-					log(*pattern, 3);
+					log(*pattern, LOG_B);
 					assert(image.get(*pattern));
 					res.push_back(*pattern);
 				}
@@ -465,7 +469,7 @@ DetectorResults Detect(const BitMatrix& image, bool isPure, bool tryHarder, int 
 					log_l("\nlocate %dx%d", pi.x, pi.y);
 					apP.set(pi.x, pi.y, LocalGrid(image, mod2Pix, PointI(srcQuad[i]), {dim, dim}).findTimingPatternCross(true, 4));
 					dstQuad[i] = apP(pi.x, pi.y).value_or(mod2Pix(srcQuad[i]));
-					log(dstQuad[i], 2);
+					log(dstQuad[i], LOG_G);
 				}
 				mod2Pix = PerspectiveTransform(srcQuad, dstQuad);
 			}

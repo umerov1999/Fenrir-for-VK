@@ -519,7 +519,7 @@ class LinkHelperTextView : WrapWidthTextView, ClickableForegroundColorSpan.OnHas
 
     companion object {
         private val URL_VK_PATTERN: Regex =
-            Regex("(((http|https|rstp)://)?(\\w+.)?vk\\.(ru|com|me|cc)/\\S*)")
+            Regex("(((http|https|rstp)://)?(\\w+.)?vk(video|)\\.(ru|com|me|cc)/\\S*)")
         private val URL_YOUTUBE_PATTERN: Regex =
             Regex("(((http|https|rstp)://)?(\\w+.)?(youtube\\.com|youtu\\.be)/\\S*)")
         private val PHONE_NUMBER_PATTERN: Regex =

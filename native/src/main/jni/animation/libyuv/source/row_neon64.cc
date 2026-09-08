@@ -149,6 +149,13 @@ static const uvec8 kNV21InterleavedTable = {1, 1, 5, 5, 9,  9,  13, 13,
   "ld4r       {v28.16b, v29.16b, v30.16b, v31.16b}, [%[kUVCoeff]] \n" \
   "ld4r       {v24.8h, v25.8h, v26.8h, v27.8h}, [%[kRGBCoeffBias]] \n"
 
+#define YUVTORGB_SETUP_AR30                                           \
+  YUVTORGB_SETUP                                                      \
+  "movi       v2.8h, #24                                          \n" \
+  "add        v25.8h, v25.8h, v2.8h                               \n" \
+  "sub        v26.8h, v26.8h, v2.8h                               \n" \
+  "add        v27.8h, v27.8h, v2.8h                               \n"
+
 // v16.8h: B
 // v17.8h: G
 // v18.8h: R
@@ -586,7 +593,7 @@ void I422ToAR30Row_NEON(const uint8_t* src_y,
   const vec16* rgb_coeff = &yuvconstants->kRGBCoeffBias;
   const uint16_t limit = 0x3ff0;
   asm volatile(
-      YUVTORGB_SETUP
+      YUVTORGB_SETUP_AR30
       "dup         v22.8h, %w[limit]             \n"
       "movi        v23.8h, #0xc0, lsl #8         \n"  // A
       "1:          \n"                                //
@@ -4265,6 +4272,64 @@ void ARGBSubtractRow_NEON(const uint8_t* src_argb,
       : "cc", "memory", "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7");
 }
 
+// Blend 32 pixels at a time.
+// dst = (((a) * src0) + ((255 - a) * src1) + 255) >> 8
+void BlendPlaneRow_NEON(const uint8_t* src0,
+                        const uint8_t* src1,
+                        const uint8_t* alpha,
+                        uint8_t* dst,
+                        int width) {
+  asm volatile(
+      "movi        v15.8h, #255                  \n"
+      "subs        %w4, %w4, #32                 \n"
+      "blt         19f                           \n"
+      "1:                                        \n"
+      "ld1         {v0.16b, v1.16b}, [%0], #32   \n"  // load 32 src0
+      "ld1         {v2.16b, v3.16b}, [%1], #32   \n"  // load 32 src1
+      "ld1         {v4.16b, v5.16b}, [%2], #32   \n"  // load 32 alpha
+      "subs        %w4, %w4, #32                 \n"  // 32 processed per loop
+      "mvn         v6.16b, v4.16b                \n"  // 255 - alpha0
+      "mvn         v7.16b, v5.16b                \n"  // 255 - alpha1
+      "umull       v8.8h, v0.8b, v4.8b           \n"  // low src0 * alpha
+      "prfm        pldl1keep, [%0, 448]          \n"
+      "umull2      v9.8h, v0.16b, v4.16b         \n"  // high src0 * alpha
+      "prfm        pldl1keep, [%1, 448]          \n"
+      "umull       v10.8h, v1.8b, v5.8b          \n"
+      "prfm        pldl1keep, [%2, 448]          \n"
+      "umull2      v11.8h, v1.16b, v5.16b        \n"
+      "umlal       v8.8h, v2.8b, v6.8b           \n"  // low + src1 * (255 - alpha)
+      "umlal2      v9.8h, v2.16b, v6.16b         \n"  // high + src1 * (255 - alpha)
+      "umlal       v10.8h, v3.8b, v7.8b          \n"
+      "umlal2      v11.8h, v3.16b, v7.16b        \n"
+      "addhn       v0.8b, v8.8h, v15.8h          \n"  // (low + 255) >> 8
+      "addhn       v1.8b, v9.8h, v15.8h          \n"  // (high + 255) >> 8
+      "addhn       v2.8b, v10.8h, v15.8h         \n"
+      "addhn       v3.8b, v11.8h, v15.8h         \n"
+      "st1         {v0.8b, v1.8b, v2.8b, v3.8b}, [%3], #32 \n"  // store 32 dst
+      "b.ge        1b                            \n"
+      "19:                                       \n"
+      "adds        %w4, %w4, #32                 \n"
+      "b.le        99f                           \n"
+
+      // 16 pixel tail
+      "ld1         {v0.16b}, [%0], #16           \n"  // load 16 src0
+      "ld1         {v1.16b}, [%1], #16           \n"  // load 16 src1
+      "ld1         {v2.16b}, [%2], #16           \n"  // load 16 alpha
+      "mvn         v3.16b, v2.16b                \n"  // 255 - alpha
+      "umull       v4.8h, v0.8b, v2.8b           \n"  // low src0 * alpha
+      "umull2      v5.8h, v0.16b, v2.16b         \n"  // high src0 * alpha
+      "umlal       v4.8h, v1.8b, v3.8b           \n"  // low + src1 * (255 - alpha)
+      "umlal2      v5.8h, v1.16b, v3.16b         \n"  // high + src1 * (255 - alpha)
+      "addhn       v0.8b, v4.8h, v15.8h          \n"  // (low + 255) >> 8
+      "addhn       v1.8b, v5.8h, v15.8h          \n"  // (high + 255) >> 8
+      "st1         {v0.8b, v1.8b}, [%3], #16     \n"  // store 16 dst
+      "99:                                       \n"
+      : "+r"(src0), "+r"(src1), "+r"(alpha), "+r"(dst), "+r"(width)
+      :
+      : "cc", "memory", "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8",
+        "v9", "v10", "v11", "v15");
+}
+
 // Adds Sobel X and Sobel Y and stores Sobel into ARGB.
 // A = 255
 // R = Sobel
@@ -5204,14 +5269,15 @@ void Convert8To8Row_NEON(const uint8_t* src_y,
 
 // Use scale to convert lsb formats to msb, depending how many bits there are:
 // 1024 = 10 bits
+// 4096 = 12 bits
+// 65536 = 16 bits
 void Convert8To16Row_NEON(const uint8_t* src_y,
                           uint16_t* dst_y,
-                          int scale,
+                          int bits,
                           int width) {
-  // (src * 0x0101 * scale) >> 16.
-  // Since scale is a power of two, compute the shift to use to avoid needing
-  // to widen to int32.
-  const int shift = 15 - __builtin_clz(scale);
+  // (src * 0x0101) >> (16 - bits).
+  // Use negative shift for right shift with ushl.
+  const int shift = bits - 16;
   asm volatile(
       "dup         v2.8h, %w[shift]                 \n"
       "1:          \n"

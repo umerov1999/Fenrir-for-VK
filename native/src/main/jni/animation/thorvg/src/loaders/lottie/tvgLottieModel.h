@@ -528,6 +528,13 @@ struct LottieTrimpath : LottieObject
         return nullptr;
     }
 
+    LottieProperty* override(LottieProperty* prop, bool release) override
+    {
+        LottieProperty* backup = nullptr;
+        OVERRIDE(start) || OVERRIDE(end) || OVERRIDE(offset);
+        return backup;
+    }
+
     void segment(float frameNo, float& start, float& end, LottieTween& tween, LottieExpressions* exps);
 
     LottieFloat start = 0.0f;
@@ -576,6 +583,13 @@ struct LottiePath : LottieShape
         return nullptr;
     }
 
+    LottieProperty* override(LottieProperty* prop, bool release) override
+    {
+        LottieProperty* backup = nullptr;
+        OVERRIDE(pathset);
+        return backup;
+    }
+
     LottiePathSet pathset;
 };
 
@@ -590,6 +604,13 @@ struct LottieRect : LottieShape
         if (size.ix == ix) return &size;
         if (radius.ix == ix) return &radius;
         return nullptr;
+    }
+
+    LottieProperty* override(LottieProperty* prop, bool release) override
+    {
+        LottieProperty* backup = nullptr;
+        OVERRIDE(position) || OVERRIDE(size) || OVERRIDE(radius);
+        return backup;
     }
 
     LottieVector position = Point{0.0f, 0.0f};
@@ -636,6 +657,13 @@ struct LottieEllipse : LottieShape
         if (position.ix == ix) return &position;
         if (size.ix == ix) return &size;
         return nullptr;
+    }
+
+    LottieProperty* override(LottieProperty* prop, bool release) override
+    {
+        LottieProperty* backup = nullptr;
+        OVERRIDE(position) || OVERRIDE(size);
+        return backup;
     }
 
     LottieVector position = Point{0.0f, 0.0f};
@@ -747,6 +775,13 @@ struct LottieSolidStroke : LottieSolid, LottieStroke
         }
         return LottieSolid::property(ix);
     }
+
+    LottieProperty* override(LottieProperty* prop, bool release) override
+    {
+        LottieProperty* backup = nullptr;
+        if (OVERRIDE(width)) return backup;
+        return LottieSolid::override(prop, release);
+    }
 };
 
 
@@ -795,7 +830,7 @@ struct LottieGradient : LottieObject
     {
         LottieProperty* backup = nullptr;
         if (OVERRIDE(colorStops)) prepare();
-        else OVERRIDE(opacity);
+        else OVERRIDE(opacity) || OVERRIDE(start) || OVERRIDE(end) || OVERRIDE(height) || OVERRIDE(angle);
         return backup;
     }
 
@@ -834,6 +869,13 @@ struct LottieGradientStroke : LottieGradient, LottieStroke
                 if (dashattr->values[i].ix == ix) return &dashattr->values[i];
         }
         return LottieGradient::property(ix);
+    }
+
+    LottieProperty* override(LottieProperty* prop, bool release) override
+    {
+        LottieProperty* backup = nullptr;
+        if (OVERRIDE(width)) return backup;
+        return LottieGradient::override(prop, release);
     }
 };
 
@@ -1014,8 +1056,8 @@ struct LottieRootLayer : LottieGroup
 
     float timeStretch = 1.0f;
     float w = 0.0f, h = 0.0f;
-    float inFrame = 0.0f;
-    float outFrame = 0.0f;
+    float inPoint = 0.0f;   // frame when the layer becomes visible
+    float outPoint = 0.0f;  // frame when the layer becomes invisible
     float startFrame = 0.0f;
 
     bool effect = false;  // true if any effect is activated in its tree
@@ -1162,12 +1204,12 @@ struct LottieComposition
 
     float timeAtFrame(float frameNo)
     {
-        return (frameNo - root->inFrame) / frameRate;
+        return (frameNo - root->inPoint) / frameRate;
     }
 
     float frameCnt() const
     {
-        return root->outFrame - root->inFrame;
+        return root->outPoint - root->inPoint;
     }
 
     LottieLayer* asset(unsigned long id)
@@ -1181,9 +1223,9 @@ struct LottieComposition
 
     void clamp(float& frameNo)
     {
-        frameNo += root->inFrame;
-        if (frameNo < root->inFrame) frameNo = root->inFrame;
-        if (frameNo >= root->outFrame) frameNo = root->outFrame - 1;
+        frameNo += root->inPoint;
+        if (frameNo < root->inPoint) frameNo = root->inPoint;
+        if (frameNo > root->outPoint - 1.0f) frameNo = root->outPoint - 1.0f;
     }
 
     LottieRootLayer* root = nullptr;

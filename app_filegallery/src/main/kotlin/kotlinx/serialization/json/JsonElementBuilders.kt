@@ -5,7 +5,6 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -31,6 +30,7 @@ inline fun buildJsonObject(builderAction: JsonObjectBuilder.() -> Unit): JsonObj
     builder.builderAction()
     return builder.build()
 }
+
 
 /**
  * Builds [JsonArray] with the given [builderAction] builder.
@@ -78,22 +78,26 @@ class JsonObjectBuilder @PublishedApi internal constructor() {
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
-fun JsonObjectBuilder.putJsonObject(
+inline fun JsonObjectBuilder.putJsonObject(
     key: String,
     builderAction: JsonObjectBuilder.() -> Unit
-): JsonElement? =
-    put(key, buildJsonObject(builderAction))
+): JsonElement? {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return put(key, buildJsonObject(builderAction))
+}
 
 /**
  * Add the [JSON array][JsonArray] produced by the [builderAction] function to a resulting JSON object using the given [key].
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
-fun JsonObjectBuilder.putJsonArray(
+inline fun JsonObjectBuilder.putJsonArray(
     key: String,
     builderAction: JsonArrayBuilder.() -> Unit
-): JsonElement? =
-    put(key, buildJsonArray(builderAction))
+): JsonElement? {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return put(key, buildJsonArray(builderAction))
+}
 
 /**
  * Add the given boolean [value] to a resulting JSON object using the given [key].
@@ -150,7 +154,6 @@ class JsonArrayBuilder @PublishedApi internal constructor() {
      *
      * @return `true` if the list was changed as the result of the operation.
      */
-    @ExperimentalSerializationApi
     fun addAll(elements: Collection<JsonElement>): Boolean =
         content.addAll(elements)
 
@@ -192,16 +195,20 @@ fun JsonArrayBuilder.add(value: Nothing?): Boolean = add(JsonNull)
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
-fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() -> Unit): Boolean =
-    add(buildJsonObject(builderAction))
+inline fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() -> Unit): Boolean {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return add(buildJsonObject(builderAction))
+}
 
 /**
  * Adds the [JSON array][JsonArray] produced by the [builderAction] function to a resulting JSON array.
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
-fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
-    add(buildJsonArray(builderAction))
+inline fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return add(buildJsonArray(builderAction))
+}
 
 /**
  * Adds the given string [values] to a resulting JSON array.
@@ -209,7 +216,6 @@ fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): B
  * @return `true` if the list was changed as the result of the operation.
  */
 @JvmName("addAllStrings")
-@ExperimentalSerializationApi
 fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 
@@ -219,7 +225,6 @@ fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
  * @return `true` if the list was changed as the result of the operation.
  */
 @JvmName("addAllBooleans")
-@ExperimentalSerializationApi
 fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 
@@ -229,7 +234,6 @@ fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
  * @return `true` if the list was changed as the result of the operation.
  */
 @JvmName("addAllNumbers")
-@ExperimentalSerializationApi
 fun JsonArrayBuilder.addAll(values: Collection<Number?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 

@@ -21,7 +21,7 @@ interface IDirectAuthIdVKView : IMvpView, IErrorView {
     fun setPasswordRootVisible(visible: Boolean)
     fun updateAuthProfile(authProfile: EcosystemProfile?)
     fun onSetInfoOrErrorMessage(currentInfoMessage: String?, currentInfoIsError: Boolean)
-    fun openVKIdCaptcha(redirect_uri: String?, domain: String?)
+    fun openVKIdCaptcha(redirectUri: String?, domain: String?)
     fun returnSuccessToParent(
         userId: Long,
         accessToken: String?,
@@ -40,4 +40,5 @@ interface IDirectAuthIdVKView : IMvpView, IErrorView {
     )
 
     fun cleanCode()
+    fun cancelAuth()
 }

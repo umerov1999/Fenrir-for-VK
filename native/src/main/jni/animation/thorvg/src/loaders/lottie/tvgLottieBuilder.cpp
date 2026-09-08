@@ -955,9 +955,7 @@ void LottieBuilder::updatePrecomp(LottieComposition* comp, LottieLayer* precomp,
 
 void LottieBuilder::updateSolid(LottieLayer* layer)
 {
-    auto solidFill = layer->statical.pooling(true);
-    solidFill->opacity(layer->cache.opacity);
-    layer->scene->add(solidFill);
+    layer->scene->add(layer->statical.pooling(true));
 }
 
 void LottieBuilder::updateImage(LottieLayer* layer, float frameNo)
@@ -981,7 +979,7 @@ void LottieBuilder::updateImage(LottieLayer* layer, float frameNo)
     }
 
     layer->scene->add(picture->refCnt() == 1 ? picture : picture->duplicate());
-    image->play((frameNo - layer->inFrame) / (layer->outFrame - layer->inFrame));
+    image->play((frameNo - layer->inPoint) / (layer->outPoint - layer->inPoint));
 }
 
 
@@ -1353,7 +1351,7 @@ void LottieBuilder::updateText(LottieLayer* layer, float frameNo)
 
 void LottieBuilder::updateMasks(LottieLayer* layer, float frameNo)
 {
-    if (layer->masks.count == 0) return;
+    if (layer->masks.empty()) return;
 
     //Introduce an intermediate scene for embracing matte + masking or precomp clipping + masking replaced by clipping
     if (layer->matteTarget || layer->type == LottieLayer::Precomp) {
@@ -1547,7 +1545,7 @@ void LottieBuilder::updateLayer(LottieComposition* comp, Scene* scene, LottieLay
     layer->scene = nullptr;
 
     //visibility
-    if (frameNo < layer->inFrame || frameNo >= layer->outFrame) {
+    if (frameNo < layer->inPoint || frameNo >= layer->outPoint) {
         layer->invalidate();
         return;
     }
@@ -1722,13 +1720,13 @@ void LottieBuilder::updateAudio(LottieComposition* comp, LottieLayer* layer, flo
     if (layer->children.empty()) return;
 
     auto ctrl = layer->audio();
-    auto active = frameNo >= layer->inFrame && frameNo < layer->outFrame;
+    auto active = frameNo >= layer->inPoint && frameNo < layer->outPoint;
     auto volume = active ? ctrl->volume(frameNo, tween, exps) : 100.0f;
 
     // audio condition is changed
     if ((active != ctrl->prevActive) || (active && !tvg::equal(volume, ctrl->prevVolume))) {
         auto& src = static_cast<LottieAudio*>(layer->children.first())->src;
-        auto offset = active ? (layer->remap(comp, frameNo, exps) - layer->remap(comp, layer->inFrame, exps)) / comp->frameRate : 0.0f;
+        auto offset = active ? (layer->remap(comp, frameNo, exps) - layer->remap(comp, layer->inPoint, exps)) / comp->frameRate : 0.0f;
         LottieAudioResolver info = {src.data, src.mimeType, src.size, offset, volume, active, (src.size > 0)};
         audioResolver.func(info, audioResolver.data);
     }

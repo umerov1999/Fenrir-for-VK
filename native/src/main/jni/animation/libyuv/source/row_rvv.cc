@@ -40,6 +40,18 @@ extern "C" {
     bg = yuvconst->kRGBCoeffBias[2] - 32;                        \
     br = yuvconst->kRGBCoeffBias[3] + 32;                        \
   }
+// Fill YUV -> AR30 conversion constants into vectors
+#define YUVTORGB_SETUP_AR30(yuvconst, ub, vr, ug, vg, yg, bb, bg, br) \
+  {                                                                   \
+    ub = yuvconst->kUVCoeff[0];                                       \
+    vr = yuvconst->kUVCoeff[1];                                       \
+    ug = yuvconst->kUVCoeff[2];                                       \
+    vg = yuvconst->kUVCoeff[3];                                       \
+    yg = yuvconst->kRGBCoeffBias[0];                                  \
+    bb = yuvconst->kRGBCoeffBias[1] + 24;                             \
+    bg = yuvconst->kRGBCoeffBias[2] - 24;                             \
+    br = yuvconst->kRGBCoeffBias[3] + 24;                             \
+  }
 #else
 // Fill YUV -> RGB conversion constants into vectors
 // NOTE: To match behavior on other platforms, vxrm (fixed-point rounding mode
@@ -55,6 +67,19 @@ extern "C" {
     bb = yuvconst->kRGBCoeffBias[1] + 32;                        \
     bg = yuvconst->kRGBCoeffBias[2] - 32;                        \
     br = yuvconst->kRGBCoeffBias[3] + 32;                        \
+  }
+// Fill YUV -> AR30 conversion constants into vectors
+#define YUVTORGB_SETUP_AR30(yuvconst, ub, vr, ug, vg, yg, bb, bg, br) \
+  {                                                                   \
+    asm volatile("csrwi vxrm, 0");                                    \
+    ub = yuvconst->kUVCoeff[0];                                       \
+    vr = yuvconst->kUVCoeff[1];                                       \
+    ug = yuvconst->kUVCoeff[2];                                       \
+    vg = yuvconst->kUVCoeff[3];                                       \
+    yg = yuvconst->kRGBCoeffBias[0];                                  \
+    bb = yuvconst->kRGBCoeffBias[1] + 24;                             \
+    bg = yuvconst->kRGBCoeffBias[2] - 24;                             \
+    br = yuvconst->kRGBCoeffBias[3] + 24;                             \
   }
 #endif
 // Read [2*VLEN/8] Y, [VLEN/8] U and [VLEN/8] V from 422
@@ -701,6 +726,48 @@ void I422ToRGB24Row_RVV(const uint8_t* src_y,
     src_u += vl / 2;
     src_v += vl / 2;
     dst_rgb24 += vl * 3;
+  } while (w > 0);
+}
+#endif
+
+#ifdef HAS_I422TOAR30ROW_RVV
+void I422ToAR30Row_RVV(const uint8_t* src_y,
+                       const uint8_t* src_u,
+                       const uint8_t* src_v,
+                       uint8_t* dst_ar30,
+                       const struct YuvConstants* yuvconstants,
+                       int width) {
+  size_t vl;
+  size_t w = (size_t)width;
+  uint8_t ub, vr, ug, vg;
+  int16_t yg, bb, bg, br;
+  vuint8m2_t v_u, v_v;
+  vuint16m4_t v_y_16, v_g_16, v_b_16, v_r_16;
+  vuint16m4_t v_b_10, v_g_10, v_r_10, v_ra_16;
+  vuint32m8_t v_ar30, v_ra_32;
+  YUVTORGB_SETUP_AR30(yuvconstants, ub, vr, ug, vg, yg, bb, bg, br);
+  do {
+    READYUV422(vl, w, src_y, src_u, src_v, v_u, v_v, v_y_16);
+    YUVTORGB(vl, v_u, v_v, ub, vr, ug, vg, yg, bb, bg, br, v_y_16, v_g_16,
+             v_b_16, v_r_16);
+    v_b_10 =
+        __riscv_vminu_vx_u16m4(__riscv_vsrl_vx_u16m4(v_b_16, 4, vl), 1023, vl);
+    v_g_10 =
+        __riscv_vminu_vx_u16m4(__riscv_vsrl_vx_u16m4(v_g_16, 4, vl), 1023, vl);
+    v_r_10 =
+        __riscv_vminu_vx_u16m4(__riscv_vsrl_vx_u16m4(v_r_16, 4, vl), 1023, vl);
+    v_ar30 = __riscv_vwaddu_vx_u32m8(v_b_10, 0, vl);
+    v_ar30 = __riscv_vwmaccu_vx_u32m8(v_ar30, 1024, v_g_10, vl);
+    v_ra_16 = __riscv_vor_vx_u16m4(v_r_10, 0x0c00, vl);
+    v_ra_32 = __riscv_vwaddu_vx_u32m8(v_ra_16, 0, vl);
+    v_ra_32 = __riscv_vsll_vx_u32m8(v_ra_32, 20, vl);
+    v_ar30 = __riscv_vor_vv_u32m8(v_ar30, v_ra_32, vl);
+    __riscv_vse32_v_u32m8((uint32_t*)dst_ar30, v_ar30, vl);
+    w -= vl;
+    src_y += vl;
+    src_u += vl / 2;
+    src_v += vl / 2;
+    dst_ar30 += vl * 4;
   } while (w > 0);
 }
 #endif
@@ -1806,6 +1873,50 @@ void Convert16To8Row_RVV(const uint16_t* src_y,
     vuint16m4_t v_src = __riscv_vle16_v_u16m4(src_y, vl);
     vuint8m2_t v_dst = __riscv_vnsrl_wx_u8m2(v_src, shift, vl);
     __riscv_vse8_v_u8m2(dst_y, v_dst, vl);
+    w -= vl;
+    src_y += vl;
+    dst_y += vl;
+  } while (w > 0);
+}
+#endif
+
+#ifdef HAS_CONVERT8TO16ROW_RVV
+// Use scale to convert lsb formats to msb, depending how many bits there are:
+// 512 = 9 bits
+// 1024 = 10 bits
+// 4096 = 12 bits
+// 65536 = 16 bits
+void Convert8To16Row_RVV(const uint8_t* src_y,
+                         uint16_t* dst_y,
+                         int bits,
+                         int width) {
+  size_t w = (size_t)width;
+  const int shift = 16 - bits;
+  do {
+    size_t vl = __riscv_vsetvl_e8m2(w);
+    vuint8m2_t v_src = __riscv_vle8_v_u8m2(src_y, vl);
+    vuint16m4_t v_dst = __riscv_vwaddu_vx_u16m4(v_src, 0, vl);
+    v_dst = __riscv_vmul_vx_u16m4(v_dst, 0x0101, vl);
+    v_dst = __riscv_vsrl_vx_u16m4(v_dst, shift, vl);
+    __riscv_vse16_v_u16m4(dst_y, v_dst, vl);
+    w -= vl;
+    src_y += vl;
+    dst_y += vl;
+  } while (w > 0);
+}
+#endif
+
+#ifdef HAS_MULTIPLYROW_16_RVV
+void MultiplyRow_16_RVV(const uint16_t* src_y,
+                        uint16_t* dst_y,
+                        int scale,
+                        int width) {
+  size_t w = (size_t)width;
+  do {
+    size_t vl = __riscv_vsetvl_e16m8(w);
+    vuint16m8_t v_src = __riscv_vle16_v_u16m8(src_y, vl);
+    vuint16m8_t v_dst = __riscv_vmul_vx_u16m8(v_src, (uint16_t)scale, vl);
+    __riscv_vse16_v_u16m8(dst_y, v_dst, vl);
     w -= vl;
     src_y += vl;
     dst_y += vl;

@@ -47,6 +47,7 @@ import dev.ragnarok.fenrir.model.AttachmentEntry
 import dev.ragnarok.fenrir.model.ChatConfig
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.Document
+import dev.ragnarok.fenrir.model.DraftChatPresenterMessage
 import dev.ragnarok.fenrir.model.DraftMessage
 import dev.ragnarok.fenrir.model.EditedMessage
 import dev.ragnarok.fenrir.model.FwdMessages
@@ -140,11 +141,9 @@ class ChatPresenter(
         .build()
     private var endOfContent: Boolean = false
     private var outConfig: ChatConfig
-    private var draftMessageText: String? = null
-    private var draftMessageId: Int? = null
+    private var draftMessage = DraftChatPresenterMessage()
     private var textingNotifier: TextingNotifier
     private var toolbarSubtitleHandler: ToolbarSubtitleHandler = ToolbarSubtitleHandler(this)
-    private var draftMessageDbAttachmentsCount: Int = 0
 
     private var recordingLookup: Lookup
 
@@ -206,7 +205,7 @@ class ChatPresenter(
             outConfig = config
 
             if (config.initialText.nonNullNoEmpty()) {
-                draftMessageText = config.initialText
+                draftMessage.setText(config.initialText)
             }
         } else {
             generatedId = savedInstanceState.getLong(SAVE_ID)
@@ -222,16 +221,16 @@ class ChatPresenter(
         fetchConversationThenCachedThenActual(false)
 
         if (savedInstanceState == null) {
-            tryToRestoreDraftMessage(!draftMessageText.isNullOrEmpty())
+            tryToRestoreDraftMessage(!draftMessage.text.isNullOrEmpty())
         }
 
         resolveAccountHotSwapSupport()
         textingNotifier = TextingNotifier(messagesOwnerId)
 
         val predicate: suspend (IAttachmentsRepository.IBaseEvent) -> Boolean = {
-            draftMessageId != null
+            draftMessage.id != null
                     && it.accountId == messagesOwnerId
-                    && it.attachToId == draftMessageId
+                    && it.attachToId == draftMessage.id
         }
 
         val attachmentsRepository = Includes.attachmentsRepository
@@ -662,13 +661,13 @@ class ChatPresenter(
     }
 
     private fun onRepositoryAttachmentsRemoved() {
-        draftMessageDbAttachmentsCount--
+        draftMessage.dbAttachmentsCountDec()
         resolveAttachmentsCounter()
         resolvePrimaryButton()
     }
 
     private fun onRepositoryAttachmentsAdded(count: Int) {
-        draftMessageDbAttachmentsCount += count
+        draftMessage.dbAttachmentsCountInc(count)
         resolveAttachmentsCounter()
         resolvePrimaryButton()
     }
@@ -928,8 +927,8 @@ class ChatPresenter(
     }
 
     fun fireDraftMessageTextEdited(s: String?) {
-        s ?: run {
-            draftMessageText = null
+        if (s.isNullOrEmpty()) {
+            draftMessage.setText(null)
             return
         }
         if (Peer.isGroupChat(peerId)) {
@@ -947,7 +946,7 @@ class ChatPresenter(
         }
 
         val oldState = canSendNormalMessage()
-        draftMessageText = s
+        draftMessage.setText(s)
         val newState = canSendNormalMessage()
 
         if (oldState != newState) {
@@ -969,13 +968,10 @@ class ChatPresenter(
     }
 
     private fun sendImpl() {
-        val trimmedText = AppTextUtils.safeTrim(draftMessageText, null)
+        val trimmedText = draftMessage.text?.trim()
 
-        val builder = SaveMessageBuilder(messagesOwnerId, peer.id)
-            .also {
-                it.setText(trimmedText)
-                it.setDraftMessageId(draftMessageId)
-            }
+        val builder = SaveMessageBuilder(messagesOwnerId, peer.id).setText(trimmedText)
+            .setDraftMessageId(draftMessage.id)
 
         val fwds = ArrayList<Message>()
 
@@ -991,11 +987,7 @@ class ChatPresenter(
 
         outConfig.models.clear()
         outConfig.setInitialText(null)
-
-        draftMessageId = null
-        draftMessageText = null
-        draftMessageDbAttachmentsCount = 0
-
+        draftMessage.clear()
         view?.resetInputAttachments()
 
         resolveAttachmentsCounter()
@@ -1062,26 +1054,28 @@ class ChatPresenter(
             return
         }
 
-        if (draftMessageId == null) {
-            draftMessageId = Stores.instance
-                .messages()
-                .saveDraftMessageBody(messagesOwnerId, peerId, draftMessageText)
-                .syncSingleSafe()
+        if (draftMessage.id == null) {
+            draftMessage.setId(
+                Stores.instance
+                    .messages()
+                    .saveDraftMessageBody(messagesOwnerId, peerId, draftMessage.text)
+                    .syncSingleSafe()
+            )
         }
 
-        val destination = UploadDestination.forMessage(draftMessageId ?: return)
+        val destination = UploadDestination.forMessage(draftMessage.id ?: return)
         view?.goToMessageAttachmentsEditor(
             accountId,
             messagesOwnerId,
             destination,
-            draftMessageText,
+            draftMessage.text,
             outConfig.models,
             isGroupChat
         )
     }
 
     private fun canSendNormalMessage(): Boolean {
-        return (calculateAttachmentsCount() > 0 && !isReplyMessageCanVoice()) || draftMessageText.trimmedNonNullNoEmpty() || nowUploadingToEditingMessage()
+        return (calculateAttachmentsCount() > 0 && !isReplyMessageCanVoice()) || draftMessage.text.trimmedNonNullNoEmpty() || nowUploadingToEditingMessage()
     }
 
     fun fireKeyboardOpened(opened: Boolean) {
@@ -1096,7 +1090,7 @@ class ChatPresenter(
     }
 
     private fun nowUploadingToEditingMessage(): Boolean {
-        val messageId = draftMessageId ?: return false
+        val messageId = draftMessage.id ?: return false
 
         val current = uploadManager.getCurrent()
         return current.nonEmpty() && current.get()?.destination?.compareTo(
@@ -1118,7 +1112,7 @@ class ChatPresenter(
         edited?.run {
             view?.displayDraftMessageText(text)
         } ?: run {
-            view?.displayDraftMessageText(draftMessageText)
+            view?.displayDraftMessageText(draftMessage.text)
         }
     }
 
@@ -1647,7 +1641,7 @@ class ChatPresenter(
     }
 
     private fun isReplyMessageCanVoice(): Boolean {
-        if (draftMessageDbAttachmentsCount > 0) {
+        if (draftMessage.dbAttachmentsCount > 0) {
             return false
         }
         var outConfigCount = 0
@@ -1677,16 +1671,16 @@ class ChatPresenter(
             }
         }
 
-        return outConfigCount + draftMessageDbAttachmentsCount
+        return outConfigCount + draftMessage.dbAttachmentsCount
     }
 
     private fun onDraftMessageRestored(message: DraftMessage, ignoreBody: Boolean) {
-        if (draftMessageText.isNullOrEmpty()) {
-            draftMessageDbAttachmentsCount = message.attachmentsCount
-            draftMessageId = message.id
+        if (draftMessage.text.isNullOrEmpty()) {
+            draftMessage.setDbAttachmentsCount(message.attachmentsCount)
+            draftMessage.setId(message.id)
 
             if (!ignoreBody) {
-                draftMessageText = message.text
+                draftMessage.setText(message.text)
             }
         }
 
@@ -1696,7 +1690,7 @@ class ChatPresenter(
     }
 
     fun resetDraftMessage() {
-        draftMessageText = null
+        draftMessage.setText(null)
         resolvePrimaryButton()
         resolveDraftMessageText()
     }
@@ -1728,7 +1722,7 @@ class ChatPresenter(
     fun saveDraftMessageBody() {
         Stores.instance
             .messages()
-            .saveDraftMessageBody(messagesOwnerId, peerId, draftMessageText)
+            .saveDraftMessageBody(messagesOwnerId, peerId, draftMessage.text)
             .hiddenIO()
     }
 
@@ -2137,17 +2131,19 @@ class ChatPresenter(
 
         view?.resetUploadImages()
 
-        if (draftMessageId == null) {
-            draftMessageId = Stores.instance
-                .messages()
-                .saveDraftMessageBody(messagesOwnerId, peerId, draftMessageText)
-                .syncSingleSafe()
+        if (draftMessage.id == null) {
+            draftMessage.setId(
+                Stores.instance
+                    .messages()
+                    .saveDraftMessageBody(messagesOwnerId, peerId, draftMessage.text)
+                    .syncSingleSafe()
+            )
         }
 
         val destination = if (is_video) UploadDestination.forMessage(
-            draftMessageId ?: return,
+            draftMessage.id ?: return,
             MessageMethod.VIDEO
-        ) else UploadDestination.forMessage(draftMessageId ?: return)
+        ) else UploadDestination.forMessage(draftMessage.id ?: return)
         val intents = ArrayList<UploadIntent>(streams.size)
 
         if (!is_video) {
@@ -2246,22 +2242,23 @@ class ChatPresenter(
         super.saveState(outState)
         outState.putLong(SAVE_ID, generatedId)
         outState.putParcelable(SAVE_PEER, peer)
-        outState.putString(SAVE_DRAFT_MESSAGE_TEXT, draftMessageText)
-        outState.putInt(SAVE_DRAFT_MESSAGE_ATTACHMENTS_COUNT, draftMessageDbAttachmentsCount)
+        outState.putString(SAVE_DRAFT_MESSAGE_TEXT, draftMessage.text)
+        outState.putInt(SAVE_DRAFT_MESSAGE_ATTACHMENTS_COUNT, draftMessage.dbAttachmentsCount)
         outState.putParcelable(SAVE_CONFIG, outConfig)
         outState.putParcelable(SAVE_CAMERA_FILE_URI, currentPhotoCameraUri)
 
-        draftMessageId?.run {
-            outState.putInt(SAVE_DRAFT_MESSAGE_ID, this)
+        draftMessage.id?.let {
+            outState.putInt(SAVE_DRAFT_MESSAGE_ID, it)
         }
     }
 
     private fun restoreFromInstanceState(state: Bundle) {
-        draftMessageText = state.getString(SAVE_DRAFT_MESSAGE_TEXT)
-        draftMessageDbAttachmentsCount = state.getInt(SAVE_DRAFT_MESSAGE_ATTACHMENTS_COUNT)
+        draftMessage.clear()
+        draftMessage.setText(state.getString(SAVE_DRAFT_MESSAGE_TEXT))
+        draftMessage.setDbAttachmentsCount(state.getInt(SAVE_DRAFT_MESSAGE_ATTACHMENTS_COUNT))
 
         if (state.containsKey(SAVE_DRAFT_MESSAGE_ID)) {
-            draftMessageId = state.getInt(SAVE_DRAFT_MESSAGE_ID)
+            draftMessage.setId(state.getInt(SAVE_DRAFT_MESSAGE_ID))
         }
     }
 

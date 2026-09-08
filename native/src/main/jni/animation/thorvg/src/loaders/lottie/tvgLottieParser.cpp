@@ -552,9 +552,9 @@ LottieRect* LottieParser::parseRect()
 
     while (auto key = nextObjectKey()) {
         if (parseCommon(rect, key)) continue;
-        else if (KEY_AS("s")) parseProperty(rect->size);
-        else if (KEY_AS("p")) parseProperty(rect->position);
-        else if (KEY_AS("r")) parseProperty(rect->radius);
+        else if (KEY_AS("s")) parseProperty(rect->size, rect);
+        else if (KEY_AS("p")) parseProperty(rect->position, rect);
+        else if (KEY_AS("r")) parseProperty(rect->radius, rect);
         else if (parseDirection(rect, key)) continue;
         else skip();
     }
@@ -570,8 +570,8 @@ LottieEllipse* LottieParser::parseEllipse()
 
     while (auto key = nextObjectKey()) {
         if (parseCommon(ellipse, key)) continue;
-        else if (KEY_AS("p")) parseProperty(ellipse->position);
-        else if (KEY_AS("s")) parseProperty(ellipse->size);
+        else if (KEY_AS("p")) parseProperty(ellipse->position, ellipse);
+        else if (KEY_AS("s")) parseProperty(ellipse->size, ellipse);
         else if (parseDirection(ellipse, key)) continue;
         else skip();
     }
@@ -807,7 +807,7 @@ LottieGradientStroke* LottieParser::parseGradientStroke()
         else if (KEY_AS("lc")) stroke->cap = (StrokeCap) (getInt() - 1);
         else if (KEY_AS("lj")) stroke->join = (StrokeJoin) (getInt() - 1);
         else if (KEY_AS("ml")) stroke->miterLimit = getFloat();
-        else if (KEY_AS("w")) parseProperty(stroke->width);
+        else if (KEY_AS("w")) parseProperty(stroke->width, stroke);
         else if (KEY_AS("d")) parseStrokeDash(stroke);
         else parseGradient(stroke, key);
     }
@@ -825,9 +825,9 @@ LottieTrimpath* LottieParser::parseTrimpath()
 
     while (auto key = nextObjectKey()) {
         if (parseCommon(trim, key)) continue;
-        else if (KEY_AS("s")) parseProperty(trim->start);
-        else if (KEY_AS("e")) parseProperty(trim->end);
-        else if (KEY_AS("o")) parseProperty(trim->offset);
+        else if (KEY_AS("s")) parseProperty(trim->start, trim);
+        else if (KEY_AS("e")) parseProperty(trim->end, trim);
+        else if (KEY_AS("o")) parseProperty(trim->offset, trim);
         else if (KEY_AS("m")) trim->type = static_cast<LottieTrimpath::Type>(getInt());
         else skip();
     }
@@ -1598,8 +1598,8 @@ LottieLayer* LottieParser::parseLayer(LottieRootLayer* precomp)
         }
         else if (KEY_AS("ao")) layer->autoOrient = getInt();
         else if (KEY_AS("shapes")) parseShapes(layer->children);
-        else if (KEY_AS("ip")) layer->inFrame = getFloat();
-        else if (KEY_AS("op")) layer->outFrame = getFloat();
+        else if (KEY_AS("ip")) layer->inPoint = getFloat();
+        else if (KEY_AS("op")) layer->outPoint = getFloat();
         else if (KEY_AS("st")) layer->startFrame = getFloat();
         else if (KEY_AS("bm")) layer->blendMethod = (BlendMethod) getInt();
         else if (KEY_AS("parent")) layer->pix = getInt();
@@ -1709,6 +1709,14 @@ LottieProperty* LottieParser::parse(LottieSlot* slot)
             parseSlotProperty(*static_cast<LottieColor*>(prop));
             break;
         }
+        case LottieProperty::Type::PathSet: {
+            prop = new LottiePathSet;
+            while (auto key = nextObjectKey()) {
+                if (KEY_AS("p")) getPathSet(nullptr, *static_cast<LottiePathSet*>(prop));
+                else skip();
+            }
+            break;
+        }
         case LottieProperty::Type::ColorStop: {
             LottieGradient obj(slot->context.parent->type, &colorReplaceInternal);
             while (auto key = nextObjectKey()) {
@@ -1795,14 +1803,14 @@ bool LottieParser::parse()
 
     Array<LottieGlyph*> glyphs;
 
-    auto startFrame = 0.0f;
-    auto endFrame = 0.0f;
+    auto inPoint = 0.0f;
+    auto outPoint = 0.0f;
 
     while (auto key = nextObjectKey()) {
         if (KEY_AS("v")) comp->version = getStringCopy();
         else if (KEY_AS("fr")) comp->frameRate = getFloat();
-        else if (KEY_AS("ip")) startFrame = getFloat();
-        else if (KEY_AS("op")) endFrame = getFloat();
+        else if (KEY_AS("ip")) inPoint = getFloat();
+        else if (KEY_AS("op")) outPoint = getFloat();
         else if (KEY_AS("w")) comp->w = getFloat();
         else if (KEY_AS("h")) comp->h = getFloat();
         else if (KEY_AS("nm")) comp->name = getStringCopy();
@@ -1820,8 +1828,8 @@ bool LottieParser::parse()
         return false;
     }
 
-    comp->root->inFrame = startFrame;
-    comp->root->outFrame = endFrame;
+    comp->root->inPoint = inPoint;
+    comp->root->outPoint = outPoint;
 
     postProcess(glyphs);
 
