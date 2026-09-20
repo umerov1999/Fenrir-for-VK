@@ -28,11 +28,11 @@ class AttachmentsRepository(
     private val removePublishSubject = createPublishSubject<IRemoveEvent>()
     override fun remove(
         accountId: Long,
-        type: Int,
+        @AttachToType type: Int,
         attachToId: Int,
         generatedAttachmentId: Int
     ): Flow<Boolean> {
-        return store.remove(accountId, type, attachToId, generatedAttachmentId)
+        return store.remove(accountId, type, generatedAttachmentId)
             .map {
                 val event =
                     RemoveEvent(accountId, type, attachToId, generatedAttachmentId)
@@ -41,9 +41,17 @@ class AttachmentsRepository(
             }
     }
 
+    override fun removeAll(
+        accountId: Long,
+        @AttachToType type: Int,
+        attachToDbid: Int
+    ): Flow<Boolean> {
+        return store.removeAll(accountId, type, attachToDbid)
+    }
+
     override fun attach(
         accountId: Long,
-        attachToType: Int,
+        @AttachToType attachToType: Int,
         attachToDbid: Int,
         models: List<AbsModel>
     ): Flow<Boolean> {
@@ -64,7 +72,7 @@ class AttachmentsRepository(
 
     override fun getAttachmentsWithIds(
         accountId: Long,
-        attachToType: Int,
+        @AttachToType attachToType: Int,
         attachToDbid: Int
     ): Flow<List<Pair<Int, AbsModel>>> {
         return store.getAttachmentsDbosWithIds(accountId, attachToType, attachToDbid)

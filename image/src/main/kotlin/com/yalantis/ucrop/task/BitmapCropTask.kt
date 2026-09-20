@@ -65,16 +65,16 @@ class BitmapCropTask(
     fun execute() {
         CoroutineScope(Dispatchers.IO).launch {
             doInBackground().catch {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         mCropCallback?.onCropFailure(
                             it
                         )
                     }
                 }
             }.collect {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         val uri = Uri.fromFile(mImageOutputPath?.let { File(it) })
                         mCropCallback?.onBitmapCropped(
                             uri,

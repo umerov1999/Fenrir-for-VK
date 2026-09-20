@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.fragment.base.core.IProgressView
 import dev.ragnarok.fenrir.model.Comment
 
 interface ICommentEditView : IBaseAttachmentsEditView, IProgressView {
-    fun goBackWithResult(comment: Comment)
+    fun goBackWithResult(comment: Comment?)
     fun showConfirmWithoutSavingDialog()
     fun goBack()
 }

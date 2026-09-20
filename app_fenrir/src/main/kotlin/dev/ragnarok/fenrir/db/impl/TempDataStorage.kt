@@ -29,6 +29,7 @@ import dev.ragnarok.fenrir.model.ShortcutStored
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Exestime.log
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
@@ -353,7 +354,7 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
         return flow {
             val db = helper.writableDatabase
             db.transaction {
-                Settings.get().main().set_last_audio_sync(System.currentTimeMillis() / 1000L)
+                Settings.get().main().set_last_audio_sync(UnixTime.now())
                 if (clear) {
                     delete(
                         AudiosColumns.TABLENAME,

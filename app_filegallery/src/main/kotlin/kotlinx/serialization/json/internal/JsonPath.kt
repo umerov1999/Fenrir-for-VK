@@ -106,7 +106,6 @@ internal class JsonPath(configuration: JsonConfiguration) {
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     fun getPath(): String {
         return buildString {
             append("$")
@@ -144,7 +143,6 @@ internal class JsonPath(configuration: JsonConfiguration) {
     }
 
 
-    @OptIn(ExperimentalSerializationApi::class)
     private fun prettyString(it: Any?) = (it as? SerialDescriptor)?.serialName ?: it.toString()
 
     private fun resize() {

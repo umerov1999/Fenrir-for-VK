@@ -112,7 +112,7 @@ class AudiosPresenter(
     private fun requestList(offset: Int, album_id: Int?) {
         setLoadingNow(true)
         audioListDisposable.add(
-            audioInteractor[accountId, album_id, ownerId, offset, GET_COUNT, accessKey]
+            audioInteractor.get(accountId, album_id, ownerId, offset, GET_COUNT, accessKey)
                 .fromIOToMain({
                     onListReceived(
                         offset,
@@ -391,7 +391,7 @@ class AudiosPresenter(
         disposable, SEARCH_VIEW_COUNT, SEARCH_COUNT
     ) {
         override fun search(offset: Int, count: Int): Flow<List<Audio>> {
-            return audioInteractor[accountId, playlistId, ownerId, offset, count, accessKey]
+            return audioInteractor.get(accountId, playlistId, ownerId, offset, count, accessKey)
         }
 
         override fun onError(e: Throwable) {
@@ -433,29 +433,27 @@ class AudiosPresenter(
 
         private fun checkTitleArtists(data: Audio, q: String): Boolean {
             val r = q.split(Regex("( - )|( )|( {2})"), 2).toTypedArray()
-            return if (r.size >= 2) {
-                (safeCheck(
-                    data.artist
-                ) {
-                    data.artist?.lowercase(Locale.getDefault())?.contains(
-                        r[0].lowercase(
-                            Locale.getDefault()
-                        )
-                    ) == true
-                }
-                        || checkArtists(
-                    data.main_artists,
-                    r[0]
-                )) && safeCheck(
-                    data.title
-                ) {
-                    data.title?.lowercase(Locale.getDefault())?.contains(
-                        r[1].lowercase(
-                            Locale.getDefault()
-                        )
-                    ) == true
-                }
-            } else false
+            return r.size >= 2 && (safeCheck(
+                data.artist
+            ) {
+                data.artist?.lowercase(Locale.getDefault())?.contains(
+                    r[0].lowercase(
+                        Locale.getDefault()
+                    )
+                ) == true
+            }
+                    || checkArtists(
+                data.main_artists,
+                r[0]
+            )) && safeCheck(
+                data.title
+            ) {
+                data.title?.lowercase(Locale.getDefault())?.contains(
+                    r[1].lowercase(
+                        Locale.getDefault()
+                    )
+                ) == true
+            }
         }
 
         override fun compare(data: Audio, q: String): Boolean {

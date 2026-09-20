@@ -142,7 +142,7 @@ class CommentEditPresenter(
         showError(t)
     }
 
-    private fun onEditComplete(comment: Comment) {
+    private fun onEditComplete(comment: Comment?) {
         setEditingNow(false)
         canGoBack = true
         view?.goBackWithResult(

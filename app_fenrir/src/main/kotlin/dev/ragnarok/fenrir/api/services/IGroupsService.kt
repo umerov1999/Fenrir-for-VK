@@ -270,7 +270,7 @@ class IGroupsService : IServiceRest() {
     }
 
     //https://vk.ru/dev/groups.get
-    operator fun get(
+    fun get(
         userId: Long?,
         extended: Int?,
         filter: String?,

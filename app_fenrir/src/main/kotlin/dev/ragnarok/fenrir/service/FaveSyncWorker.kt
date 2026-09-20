@@ -304,8 +304,10 @@ class FaveSyncWorker(context: Context, workerParams: WorkerParameters) :
         }
         Thread.sleep(500)
         try {
-            photosInteractor[accountId, id, -7, 100, 0, !Settings.get()
-                .main().isInvertPhotoRev].syncSingle()
+            photosInteractor.get(
+                accountId, id, -7, 100, 0, !Settings.get()
+                    .main().isInvertPhotoRev
+            ).syncSingle()
         } catch (e: Exception) {
             log.append("+++++++++++++++PHOTO_FROM_WALL++++++++++++++++++++++++++++\r\n")
             log.append(
@@ -350,7 +352,7 @@ class FaveSyncWorker(context: Context, workerParams: WorkerParameters) :
         }
         Thread.sleep(500)
         try {
-            videointeractor[accountId, id, -1, 50, 0].syncSingle()
+            videointeractor.get(accountId, id, -1, 50, 0).syncSingle()
         } catch (e: Exception) {
             log.append("+++++++++++++++VIDEOS-1++++++++++++++++++++++++++++\r\n")
             log.append(
@@ -363,7 +365,7 @@ class FaveSyncWorker(context: Context, workerParams: WorkerParameters) :
         }
         Thread.sleep(500)
         try {
-            videointeractor[accountId, id, -2, 50, 0].syncSingle()
+            videointeractor.get(accountId, id, -2, 50, 0).syncSingle()
         } catch (e: Exception) {
             log.append("+++++++++++++++VIDEOS-2++++++++++++++++++++++++++++\r\n")
             log.append(

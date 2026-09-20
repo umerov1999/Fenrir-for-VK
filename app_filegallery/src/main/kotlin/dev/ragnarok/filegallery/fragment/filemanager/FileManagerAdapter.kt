@@ -354,7 +354,8 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
                                 File(audio.file_path ?: return@show)
                             ), MimeTypeMap.getSingleton()
                                 .getMimeTypeFromExtension(File(audio.file_path).extension)
-                        ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        )
+                        intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         context.startActivity(intent_open)
                     }
 
@@ -371,7 +372,8 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
                                 context,
                                 File(audio.file_path)
                             )
-                        ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        )
+                        intent_send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         context.startActivity(intent_send)
                     }
 
@@ -520,7 +522,8 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
                                 File(file.file_path ?: return@show)
                             ), MimeTypeMap.getSingleton()
                                 .getMimeTypeFromExtension(File(file.file_path).extension)
-                        ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        )
+                        intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         context.startActivity(intent_open)
                     }
 
@@ -533,7 +536,8 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
                                 context,
                                 File(file.file_path)
                             )
-                        ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        )
+                        intent_send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         context.startActivity(intent_send)
                     }
 

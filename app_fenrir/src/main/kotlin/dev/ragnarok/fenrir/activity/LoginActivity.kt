@@ -56,7 +56,8 @@ class LoginActivity : AppCompatActivity() {
         webview.settings.userAgentString = getUserAgentByType(Constants.DEFAULT_ACCOUNT_TYPE, true)
 
         //Чтобы получать уведомления об окончании загрузки страницы
-        webview.webViewClient = object : WebViewClientCompat() {
+        webview.webViewClient = @SuppressLint("MissingOnRenderProcessGone")
+        object : WebViewClientCompat() {
             override fun onRenderProcessGone(
                 view: WebView?,
                 detail: RenderProcessGoneDetail?

@@ -153,7 +153,7 @@ class IVideoService : IServiceRest() {
         )
     }
 
-    operator fun get(
+    fun get(
         ownerId: Long?,
         videos: String?,
         albumId: Int?,

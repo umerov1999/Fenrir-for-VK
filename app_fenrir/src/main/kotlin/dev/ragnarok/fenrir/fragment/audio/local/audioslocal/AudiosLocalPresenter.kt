@@ -87,26 +87,24 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
 
     private fun checkTitleArtists(data: Audio, q: String): Boolean {
         val r = q.split(Regex("( - )|( )|( {2})"), 2).toTypedArray()
-        return if (r.size >= 2) {
-            (safeCheck(
-                data.artist
-            ) {
-                data.artist?.lowercase(Locale.getDefault())?.contains(
-                    r[0].lowercase(
-                        Locale.getDefault()
-                    )
-                ) == true
-            }
-                    && safeCheck(
-                data.title
-            ) {
-                data.title?.lowercase(Locale.getDefault())?.contains(
-                    r[1].lowercase(
-                        Locale.getDefault()
-                    )
-                ) == true
-            })
-        } else false
+        return r.size >= 2 && (safeCheck(
+            data.artist
+        ) {
+            data.artist?.lowercase(Locale.getDefault())?.contains(
+                r[0].lowercase(
+                    Locale.getDefault()
+                )
+            ) == true
+        }
+                && safeCheck(
+            data.title
+        ) {
+            data.title?.lowercase(Locale.getDefault())?.contains(
+                r[1].lowercase(
+                    Locale.getDefault()
+                )
+            ) == true
+        })
     }
 
     private fun updateCriteria() {

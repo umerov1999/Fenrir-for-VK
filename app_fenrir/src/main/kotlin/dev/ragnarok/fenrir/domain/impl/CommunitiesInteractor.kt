@@ -31,7 +31,7 @@ class CommunitiesInteractor(private val networker: INetworker, private val store
         store: Boolean
     ): Flow<List<Community>> {
         return networker.vkDefault(accountId)
-            .groups()[userId, true, null, Fields.FIELDS_BASE_GROUP, offset, count]
+            .groups().get(userId, true, null, Fields.FIELDS_BASE_GROUP, offset, count)
             .flatMapConcat { items ->
                 val dtos = listEmptyIfNull(
                     items.items

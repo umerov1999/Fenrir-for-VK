@@ -27,9 +27,7 @@ object BitmapSafeResize {
     fun isOverflowCanvas(resolution: Int): Boolean {
         val canvas = Canvas()
         val maxCanvasSize = canvas.maximumBitmapWidth.coerceAtMost(canvas.maximumBitmapHeight)
-        return if (maxCanvasSize > 0) {
-            maxCanvasSize < resolution
-        } else false
+        return maxCanvasSize in 1..<resolution
     }
 
     fun checkBitmap(bitmap: Bitmap): Bitmap {

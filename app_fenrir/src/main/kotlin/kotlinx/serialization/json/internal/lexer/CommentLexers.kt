@@ -33,8 +33,7 @@ internal class StringJsonLexerWithComments(source: String, configuration: JsonCo
 
     override fun canConsumeValue(): Boolean {
         val current = skipWhitespaces()
-        if (current >= source.length || current == -1) return false
-        return isValidValueStart(source[current])
+        return !(current >= source.length || current == -1) && isValidValueStart(source[current])
     }
 
     override fun consumeNextToken(expected: Char) {
@@ -123,8 +122,7 @@ internal class BufferedJsonLexerWithComments(
         ensureHaveChars()
         val current = skipWhitespaces()
         // skipWhitespaces() calls prefetch() on every iteration, so we can be sure that there's at least THRESHOLD-1 chars in buf when it returns.
-        if (current >= source.length || current == -1) return false
-        return isValidValueStart(source[current])
+        return !(current >= source.length || current == -1) && isValidValueStart(source[current])
     }
 
     override fun consumeNextToken(): Byte {

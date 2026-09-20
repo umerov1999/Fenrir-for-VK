@@ -10,7 +10,7 @@ interface INotificationsApi {
     fun markAsViewed(): Flow<Int>
 
     @CheckResult
-    operator fun get(
+    fun get(
         count: Int?, startFrom: String?, filters: String?
     ): Flow<NotificationsResponse>
 

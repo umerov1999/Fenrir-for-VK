@@ -5,6 +5,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
+import dev.ragnarok.fenrir.util.UnixTime
 import kotlinx.serialization.Serializable
 
 @Keep
@@ -17,7 +18,7 @@ class DeltaOwner : Parcelable {
         private set
 
     constructor() {
-        time = System.currentTimeMillis() / 1000L
+        time = UnixTime.now()
     }
 
     fun setOwner(ownerId: Long): DeltaOwner {

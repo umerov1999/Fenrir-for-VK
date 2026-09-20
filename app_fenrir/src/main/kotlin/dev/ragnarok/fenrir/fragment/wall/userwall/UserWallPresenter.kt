@@ -563,7 +563,7 @@ class UserWallPresenter(
     private fun prepareUserAvatarsAndShow() {
         setLoadingAvatarPhotosNow(true)
         appendJob(
-            photosInteractor[accountId, ownerId, -6, 100, 0, true]
+            photosInteractor.get(accountId, ownerId, -6, 100, 0, true)
                 .fromIOToMain({ photos -> displayUserProfileAlbum(photos) }) { t ->
                     onAvatarAlbumPrepareFailed(
                         t

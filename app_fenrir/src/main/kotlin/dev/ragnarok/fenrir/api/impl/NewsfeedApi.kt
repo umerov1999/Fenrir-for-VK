@@ -89,7 +89,17 @@ internal class NewsfeedApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<NewsfeedResponse> {
         return provideService(INewsfeedService(), TokenType.USER)
             .flatMapConcat {
-                it[filters, integerFromBoolean(returnBanned), startTime, endTime, maxPhotoCount, sourceIds, startFrom, count, fields]
+                it.get(
+                    filters,
+                    integerFromBoolean(returnBanned),
+                    startTime,
+                    endTime,
+                    maxPhotoCount,
+                    sourceIds,
+                    startFrom,
+                    count,
+                    fields
+                )
                     .map(extractResponseWithErrorHandling())
             }
     }

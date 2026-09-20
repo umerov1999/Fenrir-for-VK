@@ -104,7 +104,7 @@ class FeedbackInteractor(
         startFrom: String?,
     ): Flow<Pair<List<Feedback>, String?>> {
         return networker.vkDefault(accountId)
-            .notifications()[count, startFrom, filters]
+            .notifications().get(count, startFrom, filters)
             .flatMapConcat { response ->
                 val dtos = listEmptyIfNull(response.notifications)
                 val dbos: MutableList<FeedbackEntity> = ArrayList(dtos.size)

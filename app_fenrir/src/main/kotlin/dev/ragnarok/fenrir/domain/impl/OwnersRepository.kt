@@ -290,7 +290,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         if (dividedIds.uids.nonNullNoEmpty()) {
             completable = completable.andThen(
                 networker.vkDefault(accountId)
-                    .users()[dividedIds.uids, null, Fields.FIELDS_BASE_USER, null]
+                    .users().get(dividedIds.uids, null, Fields.FIELDS_BASE_USER, null)
                     .flatMapConcat {
                         cache.storeUserDbos(
                             accountId,
@@ -318,10 +318,12 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
             roles.add("moderator")
         }
         return networker.vkDefault(accountId)
-            .groups()[accountId, true, join(
-            roles,
-            ","
-        ) { it }, Fields.FIELDS_BASE_GROUP, null, 1000]
+            .groups().get(
+                accountId, true, join(
+                    roles,
+                    ","
+                ) { it }, Fields.FIELDS_BASE_GROUP, null, 1000
+            )
             .map { obj -> listEmptyIfNull(obj.items) }
             .map { groups ->
                 val owners: MutableList<Owner> = ArrayList(groups.size)
@@ -580,7 +582,7 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         uids: Collection<Long>
     ): Flow<List<User>> {
         return networker.vkDefault(accountId)
-            .users()[uids, null, Fields.FIELDS_BASE_USER, null]
+            .users().get(uids, null, Fields.FIELDS_BASE_USER, null)
             .flatMapConcat { dtos ->
                 cache.storeUserDbos(accountId, mapUsers(dtos))
                     .map {

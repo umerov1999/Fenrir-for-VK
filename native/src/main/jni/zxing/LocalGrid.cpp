@@ -6,6 +6,7 @@
 #include "Log.h"
 #include "StdGenerator.h"
 #include "ZXAlgorithms.h"
+#include "ZXConfig.h"
 
 #include <algorithm>
 #include <optional>
@@ -16,7 +17,7 @@
 namespace ZXing {
 
 // returns the average of the largest cluster of values where cluster is defined as values that are within threshold of each other
-double clusterAvg(std::ranges::range auto& v, double threshold)
+static double clusterAvg(std::ranges::range auto& v, double threshold)
 {
 	std::ranges::sort(v);
 	size_t bestStart = 0, bestLen = 0, start = 0;
@@ -52,7 +53,7 @@ void LocalGrid::adjustOriginAndStep(PointF& step, int radius, const std::span<co
 	struct DistMod {
 		double dist, modSize;
 	};
-	thread_local std::vector<DistMod> distMod;
+	ZX_THREAD_LOCAL std::vector<DistMod> distMod;
 	distMod.clear();
 	distMod.reserve(offsets.size() * radius + 1);
 	for (int r = 0; r <= radius; ++r)
@@ -95,7 +96,7 @@ void LocalGrid::adjustOriginAndStep(PointF& step, int radius, const std::span<co
 	log_l("\nlocal mod size: %.2f", localModSize);
 
 	// ... and use it for the points where we didn't find one
-	thread_local std::vector<double> d;
+	ZX_THREAD_LOCAL std::vector<double> d;
 	d.clear();
 	d.reserve(distMod.size());
 	for (auto& t : distMod) {
@@ -115,15 +116,15 @@ void LocalGrid::adjustOriginAndStep(PointF& step, int radius, const std::span<co
 	}
 }
 
-LocalGrid::LocalGrid(const BitMatrix& image, const PerspectiveTransform& mod2Pix, PointI p, PointI dim, PointI offset)
-	: img(&image), dim(dim), center(p)
+LocalGrid& LocalGrid::at(PointI p, PointI offset)
 {
+	center = p;
 	origin = mod2Pix(centered(p));
 	stepX = mod2Pix(centered(p) + PointF{1, 0}) - origin;
 	stepY = mod2Pix(centered(p) + PointF{0, 1}) - origin;
 
-	log_l("LocalGrid @ (%d, %d), initial origin: (%.2f, %.2f), offset: (%d, %d), stepX: (%.2f, %.2f), stepY: (%.2f, %.2f)", center.x,
-		  center.y, origin.x, origin.y, offset.x, offset.y, stepX.x, stepX.y, stepY.x, stepY.y);
+	log_l("LocalGrid @ (%d, %d), initial origin: (%.1f, %.1f), offset: (%d, %d), stepX: (%.2f, %.2f), stepY: (%.2f, %.2f)",
+		  center.x, center.y, origin.x * 5, origin.y * 5, offset.x, offset.y, stepX.x, stepX.y, stepY.x, stepY.y);
 	log(origin, LOG_B);
 
 	auto offsets = std::array{-stepX, -stepY, stepX, stepY}; // works better for DataMatrix (especially near the symbol edges)
@@ -138,6 +139,7 @@ LocalGrid::LocalGrid(const BitMatrix& image, const PerspectiveTransform& mod2Pix
 		log_l();
 	}
 	origin = getPos(PointF(-offset));
+	return *this;
 }
 
 bool LocalGrid::isTimingPatternCross(PointI p, bool isBlack, int radius, int errorThreshold)
@@ -188,8 +190,8 @@ std::optional<PointF> LocalGrid::findTimingPatternCross(bool isBlack, int radius
 	return {};
 }
 
-bool LocalGrid::findPattern(int radius, PointI timingStart, Directions timingDirs, PointI blackStart, Directions blackDirs,
-							PointI whiteStart, Directions whiteDirs)
+std::optional<PointF> LocalGrid::findPattern(int radius, PointI timingStart, Directions timingDirs, PointI blackStart,
+											 Directions blackDirs, PointI whiteStart, Directions whiteDirs)
 {
 	auto isPatternAt = [&](PointI p) {
 		for (int r = 0; r <= radius; ++r) {
@@ -211,7 +213,7 @@ bool LocalGrid::findPattern(int radius, PointI timingStart, Directions timingDir
 			auto original = origin;
 			origin = getPos(PointF(p));
 			// adjust origin and step with full radius and only in the direction of the timing pattern
-			log_l("found pattern at (%.2f, %.2f)", origin.x, origin.y);
+			log_l("found pattern at (%.1f, %.1f)", origin.x * 5, origin.y * 5);
 			std::vector<PointF> stepsX, stepsY;
 			for (auto d : timingDirs)
 				d.y == 0 ? stepsX.push_back(d.x * stepX) : stepsY.push_back(d.y * stepY);
@@ -221,15 +223,53 @@ bool LocalGrid::findPattern(int radius, PointI timingStart, Directions timingDir
 			if (!stepsY.empty())
 				adjustOriginAndStep(stepY, radius, stepsY);
 			if ((!stepsX.empty() || !stepsY.empty()) && !isPatternAt(PointI{0, 0})) {
+				log(origin, LOG_I);
 				origin = original;
 				log_l("pattern lost after adjusting for timing pattern, reverting origin");
 			}
+			log(origin, LOG_G);
 			log_l();
-			return true;
+			return origin;
 		}
 	}
 	log_l();
-	return false;
+	return {};
+}
+
+std::optional<PointF> LocalGrid::findPattern(int radius, PointI timingStart, std::string_view timingDirs, PointI blackStart,
+											 std::string_view blackDirs, PointI whiteStart, std::string_view whiteDirs)
+{
+	// Convert directions (left/right/up/down) from string to PointI vectors
+	auto s2ps = [](std::string_view dirs) {
+		std::vector<PointI> res;
+		for (auto c : dirs) {
+			switch (c) {
+			case 'l': res.push_back({-1, 0}); break;
+			case 'r': res.push_back({1, 0}); break;
+			case 'u': res.push_back({0, -1}); break;
+			case 'd': res.push_back({0, 1}); break;
+			}
+		}
+		return res;
+	};
+	return findPattern(radius, timingStart, s2ps(timingDirs), blackStart, s2ps(blackDirs), whiteStart, s2ps(whiteDirs));
+}
+
+std::optional<PointF> LocalGrid::findCorner(int radius, PointI out)
+{
+	for (auto p : Spiral(3)) {
+		int quietZone = 0, symbolX = 0, symbolY = 0;
+		for (int r = 0; r <= radius; ++r) {
+			auto q = p + out;
+			PointI dx = PointI{out.x, 0}, dy = PointI{0, out.y};
+			quietZone += get(q - r * dx).isBlack() + get(q - r * dy).isBlack();
+			symbolX += findValue(p - r * dx, dx, Value(true));
+			symbolY += findValue(p - r * dy, dy, Value(true));
+		}
+		if (quietZone == 0 && symbolX > 0 && symbolY > 0)
+			return getPos(PointF(p));
+	}
+	return {};
 }
 
 } // namespace ZXing

@@ -1338,8 +1338,10 @@ public abstract class NavigationBarView extends FrameLayout {
     menu.restorePresenterStates(savedState.menuPresenterState);
   }
 
-  static class SavedState extends AbsSavedState {
-    @Nullable Bundle menuPresenterState;
+  /** @hide */
+  @RestrictTo(LIBRARY_GROUP)
+  protected static class SavedState extends AbsSavedState {
+    @Nullable public Bundle menuPresenterState;
 
     public SavedState(Parcelable superState) {
       super(superState);

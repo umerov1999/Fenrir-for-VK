@@ -9,7 +9,7 @@
 extern "C" JNIEXPORT jboolean JNICALL
 Java_dev_ragnarok_fenrir_module_hls_TSDemuxer_unpack(JNIEnv *env, jobject, jstring input,
                                                      jstring output, jboolean info,
-                                                     jboolean print_debug) {
+                                                     jboolean printDebug) {
     char const *inputString = SafeGetStringUTFChars(env, input, nullptr);
     char const *outputString = SafeGetStringUTFChars(env, output, nullptr);
     std::string inputPath = inputString;
@@ -32,7 +32,7 @@ Java_dev_ragnarok_fenrir_module_hls_TSDemuxer_unpack(JNIEnv *env, jobject, jstri
             break;
         }
     }
-    if (print_debug) {
+    if (printDebug) {
         LOGE("%s", bitStream.errp.str().c_str());
         LOGE("%s", demuxer.errp.str().c_str());
         LOGI("%s", demuxer.wrn.str().c_str());

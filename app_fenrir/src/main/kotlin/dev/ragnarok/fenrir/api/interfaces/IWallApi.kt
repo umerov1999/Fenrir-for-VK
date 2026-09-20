@@ -76,7 +76,7 @@ interface IWallApi {
     ): Flow<Int>
 
     @CheckResult
-    operator fun get(
+    fun get(
         ownerId: Long?, domain: String?, offset: Int?, startFrom: String?, count: Int?,
         filter: String?, extended: Boolean?, fields: String?
     ): Flow<WallResponse>

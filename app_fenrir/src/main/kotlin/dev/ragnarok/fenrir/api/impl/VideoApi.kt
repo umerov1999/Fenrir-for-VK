@@ -124,7 +124,7 @@ internal class VideoApi(accountId: Long, provider: IServiceProvider) :
     }
 
     override
-    operator fun get(
+    fun get(
         ownerId: Long?, ids: Collection<AccessIdPair>?, albumId: Int?,
         count: Int?, offset: Int?, extended: Boolean?
     ): Flow<Items<VKApiVideo>> {
@@ -132,7 +132,9 @@ internal class VideoApi(accountId: Long, provider: IServiceProvider) :
             join(ids, ",") { AccessIdPair.format(it) }
         return provideService(IVideoService(), TokenType.USER)
             .flatMapConcat {
-                it[ownerId, videos, albumId, count, offset, integerFromBoolean(extended)]
+                it.get(
+                    ownerId, videos, albumId, count, offset, integerFromBoolean(extended)
+                )
                     .map(extractResponseWithErrorHandling())
             }
     }

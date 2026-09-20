@@ -53,6 +53,7 @@ import dev.ragnarok.fenrir.settings.backup.SettingsBackup
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.DownloadWorkUtils
 import dev.ragnarok.fenrir.util.ShortcutUtils
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
@@ -619,7 +620,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
     ): Flow<Boolean> {
         return flow {
             delay(data.polling_delay.seconds)
-            if (isActive() && data.expires_in > System.currentTimeMillis() / 1000) {
+            if (isActive() && data.expires_in > UnixTime.now()) {
                 networker.vkAuth().getAuthCodeStatus(
                     q, Constants.API_ID, token, Constants.AUTH_API_VERSION
                 ).catch {
@@ -903,7 +904,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                     Constants.SECRET,
                     Constants.AUTH_API_VERSION
                 ).fromIOToMain({
-                    if (it.token.nonNullNoEmpty() && it.expired_at > System.currentTimeMillis() / 1000) {
+                    if (it.token.nonNullNoEmpty() && it.expired_at > UnixTime.now()) {
                         Settings.get().accounts().anonymToken = AnonymToken().set(it)
                     }
                 }, {

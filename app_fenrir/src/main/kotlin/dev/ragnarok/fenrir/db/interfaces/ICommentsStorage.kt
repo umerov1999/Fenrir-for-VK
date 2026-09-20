@@ -1,8 +1,10 @@
 package dev.ragnarok.fenrir.db.interfaces
 
-import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.db.model.entity.CommentEntity
 import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
+import dev.ragnarok.fenrir.model.AbsModel
+import dev.ragnarok.fenrir.model.Comment
+import dev.ragnarok.fenrir.model.CommentIntent
 import dev.ragnarok.fenrir.model.CommentUpdate
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.DraftComment
@@ -23,10 +25,8 @@ interface ICommentsStorage : IStorage {
 
     fun getDbosByCriteria(criteria: CommentsCriteria): Flow<List<CommentEntity>>
 
-    @CheckResult
     fun findEditingComment(accountId: Long, commented: Commented): Flow<DraftComment?>
 
-    @CheckResult
     fun saveDraftComment(
         accountId: Long,
         commented: Commented,
@@ -37,5 +37,20 @@ interface ICommentsStorage : IStorage {
 
     fun commitMinorUpdate(update: CommentUpdate): Flow<Boolean>
     fun observeMinorUpdates(): SharedFlow<CommentUpdate>
-    fun deleteByDbid(accountId: Long, dbid: Int): Flow<Boolean>
+    fun deleteByDbId(accountId: Long, dbId: Int): Flow<Boolean>
+    fun updateDraftCommentAndGet(
+        accountId: Long,
+        dbId: Int,
+        newCommentId: Int,
+        intent: CommentIntent
+    ): Flow<Comment>
+
+    fun getByDbId(accountId: Long, dbId: Int): Flow<CommentEntity>
+    fun commitEditComment(
+        accountId: Long,
+        commentId: Int,
+        commented: Commented,
+        text: String?,
+        attachments: List<AbsModel>?
+    ): Flow<Comment>
 }

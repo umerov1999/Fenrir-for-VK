@@ -212,7 +212,7 @@ internal class UsersApi(accountId: Long, provider: IServiceProvider) :
             TokenType.SERVICE
         )
             .flatMapConcat {
-                it[join(ids, ","), fields, nameCase]
+                it.get(join(ids, ","), fields, nameCase)
                     .map(extractResponseWithErrorHandling())
             }
     }

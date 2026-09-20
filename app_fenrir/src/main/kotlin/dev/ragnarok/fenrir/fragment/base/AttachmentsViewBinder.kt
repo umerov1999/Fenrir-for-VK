@@ -112,7 +112,8 @@ class AttachmentsViewBinder(
         containers: AttachmentsHolder,
         postsAsLinks: Boolean,
         messageId: Int?,
-        holderPosition: Int?
+        holderPosition: Int?,
+        useCompactVideoLayout: Boolean = false
     ) {
         if (attachments == null) {
             safeRemoveChildrenAndGoneParent(containers.vgAudios)
@@ -148,7 +149,8 @@ class AttachmentsViewBinder(
             containers.vgVideos?.let {
                 photosViewHelper.displayVideos(
                     attachments.postImagesVideos,
-                    it
+                    it,
+                    useCompactVideoLayout
                 )
             }
         }
@@ -604,7 +606,8 @@ class AttachmentsViewBinder(
                 attachmentContainers,
                 postsAsLinks,
                 message.getObjectId(),
-                null
+                null,
+                useCompactVideoLayout = true
             )
         }
     }

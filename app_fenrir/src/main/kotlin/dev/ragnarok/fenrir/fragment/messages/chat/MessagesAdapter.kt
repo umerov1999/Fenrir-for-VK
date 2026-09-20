@@ -414,6 +414,21 @@ class MessagesAdapter(
                         )
                     }
                 }
+            } else {
+                if (!Settings.get().main().isCustomMessageInColor) {
+                    holder.bubble.setNonGradientColor(
+                        CurrentTheme.getColorFromAttrs(
+                            R.attr.message_bubble_color,
+                            context,
+                            "#D4ff0000"
+                        )
+                    )
+                } else {
+                    holder.bubble.setGradientColor(
+                        Settings.get().main().customColorMessageInPrimary,
+                        Settings.get().main().customColorMessageInSecondary
+                    )
+                }
             }
         }
         holder.body.setInterceptSpans(isSupportPopupMenu)

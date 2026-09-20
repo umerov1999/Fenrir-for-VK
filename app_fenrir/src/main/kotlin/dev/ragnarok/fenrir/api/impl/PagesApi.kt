@@ -22,9 +22,17 @@ internal class PagesApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<VKApiWikiPage> {
         return provideService(IPagesService(), TokenType.USER)
             .flatMapConcat {
-                it[ownerId, pageId, integerFromBoolean(global), integerFromBoolean(sitePreview), title, integerFromBoolean(
-                    needSource
-                ), integerFromBoolean(needHtml)]
+                it.get(
+                    ownerId,
+                    pageId,
+                    integerFromBoolean(global),
+                    integerFromBoolean(sitePreview),
+                    title,
+                    integerFromBoolean(
+                        needSource
+                    ),
+                    integerFromBoolean(needHtml)
+                )
                     .map(extractResponseWithErrorHandling())
             }
     }

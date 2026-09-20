@@ -1,6 +1,5 @@
 package kotlinx.serialization.msgpack.internal
 
-import dev.ragnarok.filegallery.orZero
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.builtins.ByteArraySerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -335,14 +334,14 @@ internal class ExtensionTypeDecoder(
     }
 
     override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
-        return size.orZero()
+        return size ?: 0
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         bytesRead += 1
         return dataBuffer.takeNext(
-            size.orZero()
+            size ?: 0
         ) as T
     }
 }

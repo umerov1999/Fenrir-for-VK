@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class IPagesService : IServiceRest() {
     //https://vk.ru/dev/pages.get
-    operator fun get(
+    fun get(
         ownerId: Long,
         pageId: Int,
         global: Int?,

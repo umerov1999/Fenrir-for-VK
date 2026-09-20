@@ -109,10 +109,7 @@ class PreferencesAdapter @VisibleForTesting constructor(
         query: String
     ): Boolean {
         val obj = if (res != DISABLED_RESOURCE_ID) context.resources.getString(res) else str
-        if (obj.isNullOrEmpty()) {
-            return false
-        }
-        return obj.contains(query, true)
+        return !obj.isNullOrEmpty() && obj.contains(query, true)
     }
 
     private fun prefNameHas(context: Context, query: String, preference: Preference): Boolean {

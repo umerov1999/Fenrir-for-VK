@@ -197,7 +197,7 @@ class VideosListPresenter(
         setRequestNow(true)
         val startFrom = if (more) intNextFrom else IntNextFrom(0)
         netDisposable.add(
-            interactor[accountId, ownerId, albumId, COUNT, startFrom.offset]
+            interactor.get(accountId, ownerId, albumId, COUNT, startFrom.offset)
                 .fromIOToMain({
                     val nextFrom = IntNextFrom(startFrom.offset + COUNT)
                     onRequestResposnse(it, startFrom, nextFrom)
@@ -407,7 +407,7 @@ class VideosListPresenter(
         disposable, SEARCH_VIEW_COUNT, SEARCH_COUNT
     ) {
         override fun search(offset: Int, count: Int): Flow<List<Video>> {
-            return interactor[accountId, ownerId, albumId, count, offset]
+            return interactor.get(accountId, ownerId, albumId, count, offset)
         }
 
         override fun onError(e: Throwable) {

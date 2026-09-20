@@ -80,9 +80,7 @@ object ViewHelper {
     }
 
     private fun isViewUnder(view: View?, x: Int, y: Int): Boolean {
-        return if (view == null) {
-            false
-        } else x >= view.left && x < view.right && y >= view.top && y < view.bottom
+        return view != null && x >= view.left && x < view.right && y >= view.top && y < view.bottom
     }
 
     private fun findScrollableInIterativeWay(

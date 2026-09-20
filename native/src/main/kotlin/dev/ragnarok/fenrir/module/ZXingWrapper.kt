@@ -128,7 +128,7 @@ class ZXingWrapper {
         val topRight: Point,
         val bottomRight: Point,
         val bottomLeft: Point,
-        val orientation: Double
+        val rotation: Double
     )
 
     data class ReaderResult(
@@ -136,7 +136,7 @@ class ZXingWrapper {
         val text: String?,
         val contentType: ContentType,
         val position: Position,
-        val orientation: Int,
+        val rotation: Int,
         val ecLevel: String?,
         val symbologyIdentifier: String?,
         private val extraJsonString: String?,

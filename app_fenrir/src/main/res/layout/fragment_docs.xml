@@ -32,6 +32,7 @@
             android:id="@+id/uploads_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="96dp"
+            android:paddingHorizontal="@dimen/tablet_padding"
             android:scrollbars="horizontal" />
 
     </LinearLayout>

@@ -32,10 +32,7 @@ class BirthDayAdapter(private val mContext: Context, private var mData: List<Bir
     }
 
     private fun needShowMonth(position: Int): Boolean {
-        if (position <= 0) {
-            return true
-        }
-        return mData[position].month != mData[position - 1].month
+        return position <= 0 || mData[position].month != mData[position - 1].month
     }
 
     override fun onBindViewHolder(holder: BirthDayHolder, position: Int) {

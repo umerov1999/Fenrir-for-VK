@@ -161,13 +161,15 @@ class FeedInteractor(
 
             else -> {
                 networker.vkDefault(accountId)
-                    .newsfeed()[filters, null, null, null, maxPhotos, if (setOf(
-                        "updates_photos",
-                        "updates_videos",
-                        "updates_full",
-                        "updates_audios"
-                    ).contains(sourceIds)
-                ) null else sourceIds, startFrom, count, Fields.FIELDS_BASE_OWNER]
+                    .newsfeed().get(
+                        filters, null, null, null, maxPhotos, if (setOf(
+                                "updates_photos",
+                                "updates_videos",
+                                "updates_full",
+                                "updates_audios"
+                            ).contains(sourceIds)
+                        ) null else sourceIds, startFrom, count, Fields.FIELDS_BASE_OWNER
+                    )
                     .flatMapConcat { response ->
                         val blockAds = mainSettings.isAd_block_story_news
                         val needStripRepost = mainSettings.isStrip_news_repost

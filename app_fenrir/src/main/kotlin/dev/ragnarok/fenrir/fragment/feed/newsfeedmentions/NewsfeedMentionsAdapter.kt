@@ -358,14 +358,8 @@ class NewsfeedMentionsAdapter(
         }
         val attachments = post.attachments
         // если есть копи-хистори и нет вложений фото-видео в главном посте
-        if (post.getCopyHierarchy()
-                .nonNullNoEmpty() && (attachments == null || (attachments.photos.safeAllIsNullOrEmpty() && attachments.videos.safeAllIsNullOrEmpty()))
-        ) {
-            return true
-        }
-        return if (post.attachments == null) {
-            true
-        } else attachments?.photos.safeAllIsNullOrEmpty() && attachments?.videos.safeAllIsNullOrEmpty()
+        return post.getCopyHierarchy()
+            .nonNullNoEmpty() && (attachments == null || (attachments.photos.safeAllIsNullOrEmpty() && attachments.videos.safeAllIsNullOrEmpty())) || post.attachments == null || attachments?.photos.safeAllIsNullOrEmpty() && attachments?.videos.safeAllIsNullOrEmpty()
     }
 
     override fun getItemCount(): Int {

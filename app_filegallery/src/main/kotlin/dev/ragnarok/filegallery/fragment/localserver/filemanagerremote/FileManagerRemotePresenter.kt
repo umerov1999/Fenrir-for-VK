@@ -115,10 +115,7 @@ class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() 
     }
 
     fun canLoadUp(): Boolean {
-        if (q != null) {
-            return true
-        }
-        return path.nonNullNoEmpty()
+        return q != null || path.nonNullNoEmpty()
     }
 
     fun onClickFile(item: FileRemote) {

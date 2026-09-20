@@ -176,22 +176,18 @@ class SinglePhotoActivity : NoMainActivity(), PlaceProvider, AppStyleable {
         resolveFullscreenViews()
 
         ret.photo.setOnTouchListener { view, event ->
-            if (event.pointerCount >= 2 || view is TouchImageView && view.isZoomed) {
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                        mContentRoot?.requestDisallowInterceptTouchEvent(true)
-                        true
-                    }
-
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        mContentRoot?.requestDisallowInterceptTouchEvent(false)
-                        true
-                    }
-
-                    else -> false
+            (event.pointerCount >= 2 || view is TouchImageView && view.isZoomed) && when (event.action) {
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                    mContentRoot?.requestDisallowInterceptTouchEvent(true)
+                    true
                 }
-            } else {
-                false
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    mContentRoot?.requestDisallowInterceptTouchEvent(false)
+                    true
+                }
+
+                else -> false
             }
         }
     }

@@ -23,6 +23,12 @@
 #include "tvgMath.h"
 #include "tvgSwCommon.h"
 
+#if defined(THORVG_AVX_VECTOR_SUPPORT)
+    #include <immintrin.h>
+#elif defined(THORVG_NEON_VECTOR_SUPPORT)
+    #include <arm_neon.h>
+#endif
+
 /************************************************************************/
 /* Gaussian Blur Implementation                                         */
 /************************************************************************/
@@ -35,13 +41,11 @@ struct SwGaussianBlur
     int extends;
 };
 
-
 static inline int _gaussianEdgeWrap(int end, int idx)
 {
     auto r = idx % (end + 1);
     return (r < 0) ? (end + 1) + r : r;
 }
-
 
 static inline int _gaussianEdgeExtend(int end, int idx)
 {
@@ -50,7 +54,6 @@ static inline int _gaussianEdgeExtend(int end, int idx)
     return idx;
 }
 
-
 template<int border>
 static inline int _gaussianRemap(int end, int idx)
 {
@@ -58,8 +61,6 @@ static inline int _gaussianRemap(int end, int idx)
     return _gaussianEdgeExtend(end, idx);
 }
 
-
-//TODO: SIMD OPTIMIZATION?
 template<int border = 0>
 static void _gaussianFilter(uint8_t* dst, uint8_t* src, int32_t stride, int32_t w, int32_t h, const RenderRegion& bbox, int32_t dimension, bool flipped)
 {
@@ -80,6 +81,61 @@ static void _gaussianFilter(uint8_t* dst, uint8_t* src, int32_t stride, int32_t 
         auto i = p * 4;                 //current index
         auto l = -(dimension + 1);      //left index
         auto r = dimension;             //right index
+#if defined(THORVG_AVX_VECTOR_SUPPORT)
+        auto acc = _mm_setzero_si128();
+        const auto zero = _mm_setzero_si128();
+        const auto scale = _mm_set1_ps(iarr);
+
+        for (int x = l; x < r; ++x) {
+            auto id = (_gaussianRemap<border>(end, x) + p) * 4;
+            uint32_t pixel;
+            memcpy(&pixel, src + id, sizeof(pixel));
+            acc = _mm_add_epi32(acc, _mm_unpacklo_epi16(_mm_unpacklo_epi8(_mm_cvtsi32_si128(pixel), zero), zero));
+        }
+
+        for (int x = 0; x < w; ++x, ++r, ++l) {
+            auto rid = (_gaussianRemap<border>(end, r) + p) * 4;
+            auto lid = (_gaussianRemap<border>(end, l) + p) * 4;
+            uint32_t right, left;
+            memcpy(&right, src + rid, sizeof(right));
+            memcpy(&left, src + lid, sizeof(left));
+            auto added = _mm_unpacklo_epi16(_mm_unpacklo_epi8(_mm_cvtsi32_si128(right), zero), zero);
+            auto removed = _mm_unpacklo_epi16(_mm_unpacklo_epi8(_mm_cvtsi32_si128(left), zero), zero);
+            acc = _mm_add_epi32(acc, _mm_sub_epi32(added, removed));
+            auto values = _mm_cvttps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(acc), scale));
+            auto packed = _mm_packus_epi16(_mm_packs_epi32(values, zero), zero);
+            auto pixel = static_cast<uint32_t>(_mm_cvtsi128_si32(packed));
+            memcpy(dst + i, &pixel, sizeof(pixel));
+            i += 4;
+        }
+#elif defined(THORVG_NEON_VECTOR_SUPPORT)
+        auto acc = vdupq_n_s32(0);
+        const auto scale = vdupq_n_f32(iarr);
+
+        for (int x = l; x < r; ++x) {
+            auto id = (_gaussianRemap<border>(end, x) + p) * 4;
+            uint32_t pixel;
+            memcpy(&pixel, src + id, sizeof(pixel));
+            auto channels = vmovl_u16(vget_low_u16(vmovl_u8(vcreate_u8(pixel))));
+            acc = vaddq_s32(acc, vreinterpretq_s32_u32(channels));
+        }
+
+        for (int x = 0; x < w; ++x, ++r, ++l) {
+            auto rid = (_gaussianRemap<border>(end, r) + p) * 4;
+            auto lid = (_gaussianRemap<border>(end, l) + p) * 4;
+            uint32_t right, left;
+            memcpy(&right, src + rid, sizeof(right));
+            memcpy(&left, src + lid, sizeof(left));
+            auto added = vmovl_u16(vget_low_u16(vmovl_u8(vcreate_u8(right))));
+            auto removed = vmovl_u16(vget_low_u16(vmovl_u8(vcreate_u8(left))));
+            acc = vaddq_s32(acc, vsubq_s32(vreinterpretq_s32_u32(added), vreinterpretq_s32_u32(removed)));
+            auto values = vcvtq_s32_f32(vmulq_f32(vcvtq_f32_s32(acc), scale));
+            auto packed = vmovn_u16(vcombine_u16(vqmovun_s32(values), vdup_n_u16(0)));
+            auto pixel = vget_lane_u32(vreinterpret_u32_u8(packed), 0);
+            memcpy(dst + i, &pixel, sizeof(pixel));
+            i += 4;
+        }
+#else
         int acc[4] = {0, 0, 0, 0};      //sliding accumulator
 
         //initial accumulation
@@ -104,9 +160,83 @@ static void _gaussianFilter(uint8_t* dst, uint8_t* src, int32_t stride, int32_t 
             dst[i++] = static_cast<uint8_t>(acc[2] * iarr);
             dst[i++] = static_cast<uint8_t>(acc[3] * iarr);
         }
+#endif
     }
 }
 
+void _gaussianXYFlip(uint32_t* src, uint32_t* dst, int32_t stride, int32_t w, int32_t h, const RenderRegion& bbox, bool flipped)
+{
+    constexpr int32_t BLOCK = 8;  // experimental decision
+
+    if (flipped) {
+        src += ((bbox.min.x * stride) + bbox.min.y);
+        dst += ((bbox.min.y * stride) + bbox.min.x);
+    } else {
+        src += ((bbox.min.y * stride) + bbox.min.x);
+        dst += ((bbox.min.x * stride) + bbox.min.y);
+    }
+
+    #pragma omp parallel for
+    for (int32_t x = 0; x < w; x += BLOCK) {
+        auto bx = std::min(w, x + BLOCK) - x;
+        auto in = &src[x];
+        auto out = &dst[x * stride];
+        for (int32_t y = 0; y < h; y += BLOCK) {
+            auto p = &in[y * stride];
+            auto q = &out[y];
+            auto by = std::min(h, y + BLOCK) - y;
+            if (bx == BLOCK && by == BLOCK) {
+#if defined(THORVG_AVX_VECTOR_SUPPORT)
+                for (int32_t i = 0; i < BLOCK; i += 4) {
+                    for (int32_t j = 0; j < BLOCK; j += 4) {
+                        auto s = p + i + j * stride;
+                        auto d = q + i * stride + j;
+                        auto r0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s));
+                        auto r1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + stride));
+                        auto r2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + 2 * stride));
+                        auto r3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + 3 * stride));
+                        auto t0 = _mm_unpacklo_epi32(r0, r1);
+                        auto t1 = _mm_unpackhi_epi32(r0, r1);
+                        auto t2 = _mm_unpacklo_epi32(r2, r3);
+                        auto t3 = _mm_unpackhi_epi32(r2, r3);
+                        _mm_storeu_si128(reinterpret_cast<__m128i*>(d), _mm_unpacklo_epi64(t0, t2));
+                        _mm_storeu_si128(reinterpret_cast<__m128i*>(d + stride), _mm_unpackhi_epi64(t0, t2));
+                        _mm_storeu_si128(reinterpret_cast<__m128i*>(d + 2 * stride), _mm_unpacklo_epi64(t1, t3));
+                        _mm_storeu_si128(reinterpret_cast<__m128i*>(d + 3 * stride), _mm_unpackhi_epi64(t1, t3));
+                    }
+                }
+#elif defined(THORVG_NEON_VECTOR_SUPPORT)
+                for (int32_t i = 0; i < BLOCK; i += 4) {
+                    for (int32_t j = 0; j < BLOCK; j += 4) {
+                        auto s = p + i + j * stride;
+                        auto d = q + i * stride + j;
+                        auto r0 = vld1q_u32(s);
+                        auto r1 = vld1q_u32(s + stride);
+                        auto r2 = vld1q_u32(s + 2 * stride);
+                        auto r3 = vld1q_u32(s + 3 * stride);
+                        auto t0 = vtrnq_u32(r0, r1);
+                        auto t1 = vtrnq_u32(r2, r3);
+                        vst1q_u32(d, vcombine_u32(vget_low_u32(t0.val[0]), vget_low_u32(t1.val[0])));
+                        vst1q_u32(d + stride, vcombine_u32(vget_low_u32(t0.val[1]), vget_low_u32(t1.val[1])));
+                        vst1q_u32(d + 2 * stride, vcombine_u32(vget_high_u32(t0.val[0]), vget_high_u32(t1.val[0])));
+                        vst1q_u32(d + 3 * stride, vcombine_u32(vget_high_u32(t0.val[1]), vget_high_u32(t1.val[1])));
+                    }
+                }
+#else
+                for (int32_t i = 0; i < bx; ++i) {
+                    for (int32_t j = 0; j < by; ++j)
+                        q[i * stride + j] = p[j * stride + i];
+                }
+#endif
+                continue;
+            }
+            for (int32_t i = 0; i < bx; ++i) {
+                for (int32_t j = 0; j < by; ++j)
+                    q[i * stride + j] = p[j * stride + i];
+            }
+        }
+    }
+}
 
 //Fast Almost-Gaussian Filtering Method by Peter Kovesi
 static int _gaussianInit(SwGaussianBlur* data, float sigma, int quality)
@@ -133,7 +263,6 @@ static int _gaussianInit(SwGaussianBlur* data, float sigma, int quality)
     return extends;
 }
 
-
 bool effectGaussianBlurRegion(RenderEffectGaussianBlur* params)
 {
     //region expansion for feathering
@@ -152,25 +281,17 @@ bool effectGaussianBlurRegion(RenderEffectGaussianBlur* params)
     return true;
 }
 
-
 void effectGaussianBlurUpdate(RenderEffectGaussianBlur* params, const Matrix& transform)
 {
     if (!params->rd) params->rd = tvg::malloc<SwGaussianBlur>(sizeof(SwGaussianBlur));
     auto rd = static_cast<SwGaussianBlur*>(params->rd);
 
     //compute box kernel sizes
-    auto scale = sqrt(transform.e11 * transform.e11 + transform.e12 * transform.e12);
-    rd->extends = _gaussianInit(rd, std::pow(params->sigma * scale, 2), params->quality);
+    auto scaleSquared = transform.e11 * transform.e11 + transform.e12 * transform.e12;
+    rd->extends = _gaussianInit(rd, params->sigma * params->sigma * scaleSquared, params->quality);
 
-    //invalid
-    if (rd->extends == 0) {
-        params->valid = false;
-        return;
-    }
-
-    params->valid = true;
+    params->valid = (rd->extends > 0);
 }
-
 
 bool effectGaussianBlur(SwCompositor* cmp, SwSurface* surface, const RenderEffectGaussianBlur* params)
 {
@@ -201,7 +322,7 @@ bool effectGaussianBlur(SwCompositor* cmp, SwSurface* surface, const RenderEffec
 
     //vertical. x/y flipping and horionztal access is pretty compatible with the memory architecture.
     if (params->direction != 1) {
-        rasterXYFlip(front, back, stride, w, h, bbox, false);
+        _gaussianXYFlip(front, back, stride, w, h, bbox, false);
         std::swap(front, back);
 
         for (int i = 0; i < data->level; ++i) {
@@ -210,7 +331,7 @@ bool effectGaussianBlur(SwCompositor* cmp, SwSurface* surface, const RenderEffec
             swapped = !swapped;
         }
 
-        rasterXYFlip(front, back, stride, h, w, bbox, true);
+        _gaussianXYFlip(front, back, stride, h, w, bbox, true);
         std::swap(front, back);
     }
 
@@ -227,7 +348,6 @@ struct SwDropShadow : SwGaussianBlur
 {
     SwPoint offset;
 };
-
 
 //TODO: SIMD OPTIMIZATION?
 static void _dropShadowFilter(uint32_t* dst, uint32_t* src, int stride, int w, int h, const RenderRegion& bbox, int32_t dimension, uint32_t color, bool flipped)
@@ -289,7 +409,7 @@ static void _shift(uint32_t** dst, uint32_t** src, int dstride, int sstride, int
     }
 }
 
-
+// TODO: simd & openmp optimization?
 static void _dropShadowNoFilter(uint32_t* dst, uint32_t* src, int dstride, int sstride, int dw, int dh, const RenderRegion& bbox, const SwPoint& offset, uint32_t color, uint8_t opacity, bool direct)
 {
     src += (bbox.min.y * sstride + bbox.min.x);
@@ -311,7 +431,6 @@ static void _dropShadowNoFilter(uint32_t* dst, uint32_t* src, int dstride, int s
     }
 }
 
-
 static void _dropShadowNoFilter(SwImage* dimg, SwImage* simg, const RenderRegion& bbox, const SwPoint& offset, uint32_t color)
 {
     int dstride = dimg->stride;
@@ -324,6 +443,7 @@ static void _dropShadowNoFilter(SwImage* dimg, SwImage* simg, const RenderRegion
     auto src = simg->buf32 + (bbox.min.y * sstride + bbox.min.x);
     auto dst = dimg->buf32 + (bbox.min.y * dstride + bbox.min.x);
 
+    // TODO: simd & openmp optimization?
     for (auto y = 0; y < (bbox.max.y - bbox.min.y); ++y) {
         auto s = src;
         auto d = dst;
@@ -335,7 +455,6 @@ static void _dropShadowNoFilter(SwImage* dimg, SwImage* simg, const RenderRegion
     }
 }
 
-
 static void _dropShadowShift(uint32_t* dst, uint32_t* src, int dstride, int sstride, int dw, int dh, const RenderRegion& bbox, const SwPoint& offset, uint8_t opacity, bool direct)
 {
     src += (bbox.min.y * sstride + bbox.min.x);
@@ -344,6 +463,7 @@ static void _dropShadowShift(uint32_t* dst, uint32_t* src, int dstride, int sstr
     SwSize size;
     _shift(&dst, &src, dstride, sstride, dw, dh, bbox, offset, size);
 
+    // TODO: openmp optimization?
     for (auto y = 0; y < size.h; ++y) {
         if (direct) rasterTranslucentPixel32(dst, src, size.w, opacity);
         else rasterPixel32(dst, src, size.w, opacity);
@@ -351,7 +471,6 @@ static void _dropShadowShift(uint32_t* dst, uint32_t* src, int dstride, int sstr
         dst += dstride;
     }
 }
-
 
 bool effectDropShadowRegion(RenderEffectDropShadow* params)
 {
@@ -372,29 +491,20 @@ bool effectDropShadowRegion(RenderEffectDropShadow* params)
     return true;
 }
 
-
 void effectDropShadowUpdate(RenderEffectDropShadow* params, const Matrix& transform)
 {
+    Point offset;
+    if (!params->update(transform, offset)) return;
+
     if (!params->rd) params->rd = tvg::malloc<SwDropShadow>(sizeof(SwDropShadow));
     auto rd = static_cast<SwDropShadow*>(params->rd);
 
-    //compute box kernel sizes
-    auto scale = sqrt(transform.e11 * transform.e11 + transform.e12 * transform.e12);
-    rd->extends = _gaussianInit(rd, std::pow(params->sigma * scale, 2), params->quality);
+    // The sum of the box radii covers the full blur support.
+    auto scaleSquared = transform.e11 * transform.e11 + transform.e12 * transform.e12;
+    rd->extends = _gaussianInit(rd, params->sigma * params->sigma * scaleSquared, params->quality);
 
-    //invalid
-    if (params->color[3] == 0) {
-        params->valid = false;
-        return;
-    }
-
-    //offset
-    auto radian = tvg::deg2rad(90.0f - params->angle) - tvg::radian(transform);
-    rd->offset = {(int32_t)((params->distance * scale) * cosf(radian)), (int32_t)(-1.0f * (params->distance * scale) * sinf(radian))};
-
-    params->valid = true;
+    rd->offset = {(int32_t)offset.x, (int32_t)offset.y};
 }
-
 
 //A quite same integration with effectGaussianBlur(). See it for detailed comments.
 //surface[0]: the original image, to overlay it into the filtered image.
@@ -444,7 +554,7 @@ bool effectDropShadow(SwCompositor* cmp, SwSurface* surface[2], const RenderEffe
     }
 
     //vertical
-    rasterXYFlip(front, back, stride, w, h, bbox, false);
+    _gaussianXYFlip(front, back, stride, w, h, bbox, false);
     std::swap(front, back);
 
     for (int i = 0; i < data->level; ++i) {
@@ -452,7 +562,7 @@ bool effectDropShadow(SwCompositor* cmp, SwSurface* surface[2], const RenderEffe
         std::swap(front, back);
     }
 
-    rasterXYFlip(front, back, stride, h, w, bbox, true);
+    _gaussianXYFlip(front, back, stride, h, w, bbox, true);
     std::swap(cmp->image.buf32, back);
 
     //draw to the main surface directly
@@ -471,6 +581,7 @@ bool effectDropShadow(SwCompositor* cmp, SwSurface* surface[2], const RenderEffe
     auto s = buffer[0]->buf32 + (bbox.min.y * buffer[0]->stride + bbox.min.x);
     auto d = cmp->image.buf32 + (bbox.min.y * cmp->image.stride + bbox.min.x);
 
+    // TODO: openmp optimization?
     for (auto y = 0; y < h; ++y) {
         rasterTranslucentPixel32(d, s, w, 255);
         s += buffer[0]->stride;
@@ -479,7 +590,6 @@ bool effectDropShadow(SwCompositor* cmp, SwSurface* surface[2], const RenderEffe
 
     return true;
 }
-
 
 /************************************************************************/
 /* Fill Implementation                                                  */
@@ -490,7 +600,7 @@ void effectFillUpdate(RenderEffectFill* params)
     params->valid = true;
 }
 
-
+// TODO: simd & openmp optimization?
 bool effectFill(SwCompositor* cmp, const RenderEffectFill* params, bool direct)
 {
     auto opacity = direct ? MULTIPLY(params->color[3], cmp->opacity) : params->color[3];
@@ -530,7 +640,6 @@ bool effectFill(SwCompositor* cmp, const RenderEffectFill* params, bool direct)
     return true;
 }
 
-
 /************************************************************************/
 /* Tint Implementation                                                  */
 /************************************************************************/
@@ -540,7 +649,7 @@ void effectTintUpdate(RenderEffectTint* params)
     params->valid = (params->intensity > 0);
 }
 
-
+// TODO: simd & openmp optimization?
 bool effectTint(SwCompositor* cmp, const RenderEffectTint* params, bool direct)
 {
     auto& bbox = cmp->bbox;
@@ -584,7 +693,6 @@ bool effectTint(SwCompositor* cmp, const RenderEffectTint* params, bool direct)
     return true;
 }
 
-
 /************************************************************************/
 /* Tritone Implementation                                              */
 /************************************************************************/
@@ -600,13 +708,12 @@ static uint32_t _trintone(uint32_t s, uint32_t m, uint32_t h, int l)
     }
 }
 
-
 void effectTritoneUpdate(RenderEffectTritone* params)
 {
     params->valid = (params->blender < 255);
 }
 
-
+// TODO: simd & openmp optimization?
 bool effectTritone(SwCompositor* cmp, const RenderEffectTritone* params, bool direct)
 {
     auto& bbox = cmp->bbox;

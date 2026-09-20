@@ -224,7 +224,7 @@ class VKPhotosPresenter(
         setRequestNow(true)
         if (albumId != -9001 && albumId != -9000) {
             appendJob(
-                interactor[accountId, ownerId, albumId, COUNT, offset, !invertPhotoRev]
+                interactor.get(accountId, ownerId, albumId, COUNT, offset, !invertPhotoRev)
                     .map { t ->
                         val wrap = wrappersOf(t)
                         MusicPlaybackController.tracksExist.markExistPhotos(wrap)

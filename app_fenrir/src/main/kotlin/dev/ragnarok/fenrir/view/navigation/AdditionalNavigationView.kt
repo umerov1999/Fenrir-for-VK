@@ -335,10 +335,7 @@ class AdditionalNavigationView : AbsNavigationView, MenuListAdapter.ActionListen
     }
 
     override fun checkCloseByClick(ev: MotionEvent): Boolean {
-        if (!isSheetOpen) {
-            return false
-        }
-        return if (ev.action == MotionEvent.ACTION_DOWN && ev.y < y) {
+        return isSheetOpen && if (ev.action == MotionEvent.ACTION_DOWN && ev.y < y) {
             closeSheet()
             true
         } else {

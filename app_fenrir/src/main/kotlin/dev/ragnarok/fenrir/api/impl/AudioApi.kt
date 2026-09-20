@@ -101,12 +101,9 @@ internal class AudioApi(accountId: Long, provider: IServiceProvider) :
                 it.delete(audioId, ownerId)
                     .map(extractResponseWithErrorHandling())
                     .map { s ->
-                        if (s == 1) {
-                            Includes.stores.tempStore().deleteAudio(accountId, audioId, ownerId)
-                                .single()
-                        } else {
-                            false
-                        }
+                        s == 1 && Includes.stores.tempStore()
+                            .deleteAudio(accountId, audioId, ownerId)
+                            .single()
                     }
             }
     }
@@ -292,7 +289,7 @@ internal class AudioApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<Items<VKApiAudio>> {
         return provideService(IAudioService())
             .flatMapConcat {
-                it[playlist_id, ownerId, offset, count, accessKey].map(
+                it.get(playlist_id, ownerId, offset, count, accessKey).map(
                     extractResponseWithErrorHandling()
                 )
             }

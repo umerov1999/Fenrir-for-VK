@@ -30,7 +30,7 @@ interface IDocsApi {
     fun getMessagesUploadServer(peerId: Long?, type: String?): Flow<VKApiDocsUploadServer>
 
     @CheckResult
-    operator fun get(
+    fun get(
         ownerId: Long?,
         count: Int?,
         offset: Int?,

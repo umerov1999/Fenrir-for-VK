@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Block
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2List
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Section
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.ignoreElement
 import kotlinx.coroutines.flow.Flow
@@ -82,7 +83,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
         accessKey: String?
     ): Flow<List<Audio>> {
         return networker.vkDefault(accountId)
-            .audio()[playlist_id, ownerId, offset, count, accessKey]
+            .audio().get(playlist_id, ownerId, offset, count, accessKey)
             .map {
                 listEmptyIfNull(
                     it.items
@@ -347,7 +348,7 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             "my",
             System.nanoTime(),
             audio.duration,
-            System.currentTimeMillis() / 1000
+            UnixTime.now()
         )
         return networker.vkDefault(accountId)
             .audio()

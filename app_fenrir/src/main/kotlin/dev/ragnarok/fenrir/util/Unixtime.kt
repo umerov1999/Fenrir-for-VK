@@ -2,10 +2,9 @@ package dev.ragnarok.fenrir.util
 
 import java.util.Calendar
 
-object Unixtime {
-
+object UnixTime {
     fun now(): Long {
-        return System.currentTimeMillis() / 1000
+        return System.currentTimeMillis() / 1000L
     }
 
     fun of(year: Int, month: Int, day: Int, hour: Int, minute: Int): Long {
@@ -15,6 +14,6 @@ object Unixtime {
         calendar[Calendar.DAY_OF_MONTH] = day
         calendar[Calendar.HOUR_OF_DAY] = hour
         calendar[Calendar.MINUTE] = minute
-        return calendar.timeInMillis / 1000
+        return calendar.timeInMillis / 1000L
     }
 }

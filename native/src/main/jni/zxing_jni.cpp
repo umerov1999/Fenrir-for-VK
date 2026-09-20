@@ -117,7 +117,7 @@ static jobject NewPosition(JNIEnv *env, const Position &position) {
             NewPoint(position[1]),
             NewPoint(position[2]),
             NewPoint(position[3]),
-            position.orientation());
+            position.rotation());
 }
 
 static jbyteArray NewByteArray(JNIEnv *env, const uint8_t *byteArray, size_t bufSize) {
@@ -187,7 +187,7 @@ static jobject NewReaderResult(JNIEnv *env, const Barcode &result) {
                           valid ? C2JString(env, result.text()) : nullptr,
                           NewEnum(env, static_cast<int>(result.contentType()), "ContentType"),
                           NewPosition(env, result.position()),
-                          result.orientation(),
+                          result.rotation(),
                           valid ? C2JString(env, result.ecLevel()) : nullptr,
                           valid ? C2JString(env, result.symbologyIdentifier()) : nullptr,
                           valid ? C2JString(env, result.extra()) : nullptr,

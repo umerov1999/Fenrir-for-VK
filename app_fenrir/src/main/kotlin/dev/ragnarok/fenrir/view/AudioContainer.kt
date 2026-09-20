@@ -79,7 +79,7 @@ class AudioContainer : LinearLayout {
     private var currAudio = currentAudio
     private var holderPosition: Int? = null
     private val isAudio_round_icon: Boolean =
-        if (isInEditMode) true else Settings.get().main().isAudio_round_icon
+        isInEditMode || Settings.get().main().isAudio_round_icon
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)

@@ -16,7 +16,7 @@ interface IFriendsApi {
     ): Flow<OnlineFriendsResponse>
 
     @CheckResult
-    operator fun get(
+    fun get(
         userId: Long?, order: String?, listId: Int?, count: Int?, offset: Int?,
         fields: String?, nameCase: String?
     ): Flow<Items<VKApiUser>>

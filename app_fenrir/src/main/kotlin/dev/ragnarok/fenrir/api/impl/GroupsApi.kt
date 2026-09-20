@@ -278,7 +278,7 @@ internal class GroupsApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<Items<VKApiCommunity>> {
         return provideService(IGroupsService(), TokenType.USER)
             .flatMapConcat {
-                it[userId, integerFromBoolean(extended), filter, fields, offset, count]
+                it.get(userId, integerFromBoolean(extended), filter, fields, offset, count)
                     .map(extractResponseWithErrorHandling())
             }
     }

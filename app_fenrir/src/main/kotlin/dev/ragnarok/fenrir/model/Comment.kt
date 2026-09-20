@@ -18,7 +18,8 @@ class Comment : AbsModel, Identificable {
     /**
      * идентификатор комментария.
      */
-    private var id = 0
+    var id = 0
+        private set
 
     /**
      * идентификатор автора комментария.

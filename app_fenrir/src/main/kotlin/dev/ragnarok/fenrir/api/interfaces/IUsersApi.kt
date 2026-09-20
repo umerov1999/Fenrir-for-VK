@@ -43,7 +43,7 @@ interface IUsersApi {
     ): Flow<Items<VKApiUser>>
 
     @CheckResult
-    operator fun get(
+    fun get(
         userIds: Collection<Long>?, domains: Collection<String>?,
         fields: String?, nameCase: String?
     ): Flow<List<VKApiUser>>

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 NDK_PATH=$1
 HOST_PLATFORM=$2
@@ -47,7 +48,7 @@ TOOLCHAIN_PREFIX="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin"
 for decoder in "${ENABLED_DECODERS[@]}"; do
   COMMON_OPTIONS="${COMMON_OPTIONS} --enable-decoder=${decoder}"
 done
-cd "$HOME/ffmpeg"
+cd "$HOME/ffmpeg" || exit
 ./configure \
   --libdir=android-libs/armeabi-v7a \
   --arch=arm \
@@ -62,7 +63,7 @@ cd "$HOME/ffmpeg"
   --enable-asm \
   --enable-inline-asm \
   ${COMMON_OPTIONS}
-make -j$JOBS
+make -j"$JOBS"
 make install-libs
 make clean
 ./configure \
@@ -80,7 +81,7 @@ make clean
   --enable-asm \
   --enable-inline-asm \
   ${COMMON_OPTIONS}
-make -j$JOBS
+make -j"$JOBS"
 make install-libs
 make clean
 ./configure \
@@ -97,6 +98,6 @@ make clean
   --disable-inline-asm \
   --disable-asm \
   ${COMMON_OPTIONS}
-make -j$JOBS
+make -j"$JOBS"
 make install-libs
 make clean

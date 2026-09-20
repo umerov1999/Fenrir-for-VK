@@ -139,7 +139,6 @@ internal fun SerialDescriptor.getJsonNameIndex(json: Json, name: String): Int {
 /**
  * Throws on [CompositeDecoder.UNKNOWN_NAME]
  */
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getJsonNameIndexOrThrow(
     json: Json,
     name: String,
@@ -165,7 +164,6 @@ internal fun SerialDescriptor.getJsonNameIndexOrThrow(
  * @param onEnumCoercing A callback function to be executed when coercing an enum. Use it to discard incorrect enum constant from the input.
  * @return `true` if value was coerced, `false` otherwise.
  */
-@OptIn(ExperimentalSerializationApi::class)
 internal inline fun Json.tryCoerceValue(
     descriptor: SerialDescriptor,
     index: Int,

@@ -290,9 +290,9 @@ class MusicPlaybackService : MediaSessionService() {
     override fun onDestroy() {
         if (Constants.IS_DEBUG) Logger.d(TAG, "Destroying service")
         shutdownDelayedDisposable.cancel()
+        super.onDestroy()
         mediaSession.release()
         musicPlayer.release()
-        super.onDestroy()
     }
 
     internal fun scheduleDelayedShutdown() {

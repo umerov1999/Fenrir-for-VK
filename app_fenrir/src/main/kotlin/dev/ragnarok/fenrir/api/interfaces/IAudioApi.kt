@@ -91,7 +91,7 @@ interface IAudioApi {
     fun trackEvents(events: String?): Flow<Int>
 
     @CheckResult
-    operator fun get(
+    fun get(
         playlist_id: Int?, ownerId: Long?,
         offset: Int?, count: Int?, accessKey: String?
     ): Flow<Items<VKApiAudio>>

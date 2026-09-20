@@ -178,9 +178,10 @@ struct LottieBuilder
     const AssetResolver* resolver = nullptr;  //do not free this
     AudioResolver audioResolver;
     LottieTween tween;
+    float volume = 1.0f;
 
 private:
-    void updateAudio(LottieComposition* comp, LottieLayer* layer, float frameNo);
+    void updateAudio(LottieComposition* comp, LottieLayer* layer, float frameNo, bool active);
     void appendRect(LottieRect* rect, Shape* shape, Point& pos, Point& size, float r, bool clockwise, RenderContext* ctx);
     void appendCircle(LottieEllipse* ellipse, Shape* shape, Point& center, Point& radius, bool clockwise, RenderContext* ctx);
     bool fragmented(LottieGroup* parent, LottieObject** child, Inlist<RenderContext>& contexts, RenderContext* ctx, RenderFragment fragment);
@@ -189,7 +190,7 @@ private:
     void updateStrokeEffect(LottieLayer* layer, LottieFxStroke* effect, float frameNo);
     void updateEffect(LottieLayer* layer, float frameNo, uint8_t quality);
     void updateLayer(LottieComposition* comp, Scene* scene, LottieLayer* layer, float frameNo);
-    bool updateMatte(LottieComposition* comp, float frameNo, Scene* scene, LottieLayer* layer);
+    bool updateMatte(LottieComposition* comp, float frameNo, LottieLayer* layer);
     void updatePrecomp(LottieComposition* comp, LottieLayer* precomp, float frameNo);
     void updatePrecomp(LottieComposition* comp, LottieLayer* precomp, float frameNo, LottieTween& tween);
     void updateSolid(LottieLayer* layer);

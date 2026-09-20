@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.fragment
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -304,6 +305,7 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
         return true
     }
 
+    @SuppressLint("MissingOnRenderProcessGone")
     private inner class VkLinkSupportWebClient : WebViewClientCompat() {
         override fun onRenderProcessGone(
             view: WebView,

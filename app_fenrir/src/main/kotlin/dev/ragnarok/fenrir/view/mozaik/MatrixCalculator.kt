@@ -16,8 +16,12 @@ class MatrixCalculator(private val count: Int, private val libra: Libra) {
         return result.matrix
     }
 
-    private fun checkAllVariants(rowsCount: Int): Result {
+    private fun checkAllVariants(requestedRowsCount: Int): Result {
         val result = Result()
+        if (count <= 0) {
+            return result
+        }
+        val rowsCount = requestedRowsCount.coerceIn(1, count)
         val rows = Array(rowsCount) { IntArray(count) }
         for (i in rowsCount - 1 downTo 0) {
             val array = IntArray(count)

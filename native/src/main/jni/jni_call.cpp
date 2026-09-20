@@ -6,7 +6,7 @@
 
 bool fenrirNativeThorVGInited = false;
 
-extern jint FFMPEG_JNI_OnLoad(JNIEnv *env);
+extern bool FFMPEG_JNI_OnLoad(JNIEnv *env);
 
 extern "C" int av_jni_set_java_vm(void *vm, void *log_ctx);
 

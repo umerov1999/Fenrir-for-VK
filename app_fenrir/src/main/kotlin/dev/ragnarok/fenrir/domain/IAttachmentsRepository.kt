@@ -17,6 +17,13 @@ interface IAttachmentsRepository {
     ): Flow<Boolean>
 
     @CheckResult
+    fun removeAll(
+        accountId: Long,
+        @AttachToType type: Int,
+        attachToDbid: Int
+    ): Flow<Boolean>
+
+    @CheckResult
     fun attach(
         accountId: Long,
         @AttachToType attachToType: Int,

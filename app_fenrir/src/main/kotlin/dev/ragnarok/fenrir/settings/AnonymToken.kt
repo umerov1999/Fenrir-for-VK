@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.settings
 
 import dev.ragnarok.fenrir.api.model.response.AnonymTokenResponse
+import dev.ragnarok.fenrir.util.UnixTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -21,7 +22,7 @@ class AnonymToken {
     }
 
     fun isExpired(): Boolean {
-        return expired_at <= System.currentTimeMillis() / 1000
+        return expired_at <= UnixTime.now()
     }
 
     fun isEmpty(): Boolean {

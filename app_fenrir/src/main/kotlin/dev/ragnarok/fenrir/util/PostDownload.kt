@@ -458,7 +458,8 @@ class PostDownload(private val context: Context) {
                         context, html
                     ), MimeTypeMap.getSingleton()
                         .getMimeTypeFromExtension(ChatDownloadWorker.getFileExtension(html))
-                ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                )
+                intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 val ReadPendingIntent = PendingIntent.getActivity(
                     context,
                     peer_title.hashCode(),

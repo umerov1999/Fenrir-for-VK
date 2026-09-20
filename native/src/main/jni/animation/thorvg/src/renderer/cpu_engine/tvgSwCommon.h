@@ -29,8 +29,6 @@
 #include "tvgColor.h"
 #include "tvgRender.h"
 
-#define SW_CURVE_TYPE_POINT 0
-#define SW_CURVE_TYPE_CUBIC 1
 #define SW_COLOR_TABLE 1024
 
 struct SwCompositor;
@@ -100,11 +98,18 @@ struct SwSize
 
 struct SwOutline
 {
-    Array<Point> in;        // the outlines' points in float-point form
-    Array<SwPoint> out;     // the outline's points in fixed-point form
-    Array<uint32_t> cntrs;  // the contour end points
-    Array<uint8_t> types;   // curve type
-    Array<bool> closed;     // opened or closed path?
+    /**
+     * A shape refers to the renderer's path as is.
+     * trim, dash, stroke and image build theirs in the per-thread pool path (SwMpool::paths).
+     */
+    const RenderPath* path;
+
+    /**
+     * path->pts transformed into fixed-point form by utilExport().
+     * rle walks path->cmds and reads the coordinates from here.
+     */
+    Array<SwPoint> out;
+
     FillRule fillRule;
 };
 
@@ -187,6 +192,7 @@ struct SwFill
     };
 
     uint32_t ctable[SW_COLOR_TABLE];
+    float extent;
     FillSpread spread;
 
     bool solid = false; //solid color fill with the last color from colorStops
@@ -227,7 +233,7 @@ struct SwStroke
 
 struct SwDashStroke
 {
-    SwOutline* outline = nullptr;
+    RenderPath* path = nullptr;
     float curLen = 0;
     int32_t curIdx = 0;
     Point ptStart = {0, 0};
@@ -330,6 +336,7 @@ struct SwCellPool
 struct SwMpool
 {
     SwOutline* outlines;
+    RenderPath* paths;
     SwStrokeBorder* lBorders;
     SwStrokeBorder* rBorders;
     SwCellPool* cellPools;
@@ -338,6 +345,7 @@ struct SwMpool
     {
         auto allocSize = threads + 1;
         outlines = new SwOutline[allocSize];
+        paths = new RenderPath[allocSize];
         lBorders = new SwStrokeBorder[allocSize];
         rBorders = new SwStrokeBorder[allocSize];
         cellPools = new SwCellPool[allocSize];
@@ -346,6 +354,7 @@ struct SwMpool
     ~SwMpool()
     {
         delete[] (outlines);
+        delete[] (paths);
         delete[] (lBorders);
         delete[] (rBorders);
         delete[] (cellPools);
@@ -358,11 +367,9 @@ struct SwMpool
 
     SwOutline* outline(unsigned idx)
     {
-        outlines[idx].in.clear();
+        paths[idx].clear();
+        outlines[idx].path = &paths[idx];
         outlines[idx].out.clear();
-        outlines[idx].cntrs.clear();
-        outlines[idx].types.clear();
-        outlines[idx].closed.clear();
 
         return &outlines[idx];
     }
@@ -464,13 +471,10 @@ void shapeResetStroke(SwShape& shape, const RenderShape* rshape, const Matrix& t
 bool shapeGenStrokeRle(SwShape& shape, const RenderShape* rshape, const Matrix& transform, const RenderRegion& clipBox, RenderRegion& renderBox, SwMpool* mpool, unsigned tid, bool antiAlias);
 void shapeFree(SwShape& shape);
 void shapeDelStroke(SwShape& shape);
-bool shapeGenFillColors(SwFill*& out, const Fill* fill, const Matrix& transform, SwSurface* surface, uint8_t opacity, bool ctable);
-void shapeResetFill(SwShape& shape);
 bool shapeStrokeBBox(SwShape& shape, const RenderShape* rshape, Point* pt4, const Matrix& m, SwMpool* mpool);
-void shapeDelFill(SwShape& shape);
 
 void strokeReset(SwStroke* stroke, const RenderShape* shape, const Matrix& transform, SwMpool* mpool, unsigned tid);
-bool strokeParseOutline(SwStroke* stroke, const SwOutline& outline, SwMpool* mpool, unsigned tid);
+bool strokeParseOutline(SwStroke* stroke, const SwOutline& outline);
 SwOutline* strokeExportOutline(SwStroke* stroke, SwMpool* mpool, unsigned tid);
 void strokeFree(SwStroke* stroke);
 
@@ -479,10 +483,9 @@ bool imageGenRle(SwImage& image, const RenderRegion& bbox, SwMpool* mpool, unsig
 void imageReset(SwImage& image);
 void imageFree(SwImage& image);
 
-bool fillGenColorTable(SwFill* fill, const Fill* fdata, const Matrix& transform, SwSurface* surface, uint8_t opacity, bool ctable);
+bool fillPrepare(SwFill*& fill, const Fill* fdata, const Matrix& transform, SwSurface* surface, uint8_t opacity, bool ctable);
 const Fill::ColorStop* fillFetchSolid(const SwFill* fill, const Fill* fdata);
 void fillReset(SwFill* fill);
-void fillFree(SwFill* fill);
 
 // OPTIMIZE_ME: Skip the function pointer access
 void fillLinear(const SwFill* fill, uint8_t* dst, uint32_t y, uint32_t x, uint32_t len, SwMask maskOp, uint8_t opacity);                                      // composite masking ver.
@@ -525,7 +528,6 @@ void rasterPixel32(uint32_t* dst, uint32_t val, uint32_t offset, int32_t len);
 void rasterTranslucentPixel32(uint32_t* dst, uint32_t* src, uint32_t len, uint8_t opacity);
 void rasterPixel32(uint32_t* dst, uint32_t* src, uint32_t len, uint8_t opacity);
 void rasterGrayscale8(uint8_t* dst, uint8_t val, uint32_t offset, int32_t len);
-void rasterXYFlip(uint32_t* src, uint32_t* dst, int32_t stride, int32_t w, int32_t h, const RenderRegion& bbox, bool flipped);
 void rasterUnpremultiply(RenderSurface* surface);
 void rasterPremultiply(RenderSurface* surface);
 bool rasterConvertCS(RenderSurface* surface, ColorSpace to);

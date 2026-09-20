@@ -5,11 +5,9 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.internal.ElementMarker
 
-@OptIn(ExperimentalSerializationApi::class)
 internal class JsonElementMarker(descriptor: SerialDescriptor) {
     private val origin: ElementMarker = ElementMarker(descriptor, ::readIfAbsent)
 

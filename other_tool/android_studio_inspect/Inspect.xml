@@ -47,6 +47,7 @@
     <option name="IGNORE_NON_PUBLIC" value="true" />
   </inspection_tool>
   <inspection_tool class="ComponentRegistrationProblems" enabled="false" level="ERROR" enabled_by_default="false" />
+  <inspection_tool class="ComposableCallWithoutComposePlugin" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="ComposePreviewDimensionRespectsLimit" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="ComposePreviewMustBeTopLevelFunction" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="ComposePreviewNeedsComposableAnnotation" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -72,6 +73,7 @@
   <inspection_tool class="FullJavaName" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="FullMethodName" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="FunctionName" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+  <inspection_tool class="GitGraph" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="GlancePreviewDimensionRespectsLimit" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="GlancePreviewMustBeTopLevelFunction" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="GlancePreviewNeedsComposableAnnotation" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -166,12 +168,14 @@
   <inspection_tool class="LoggingPlaceholderCountMatchesArgumentCount" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LoggingSimilarMessage" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
   <inspection_tool class="LoggingStringTemplateAsArgument" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="LombokKotlinCompilerPlugin" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="MarkdownDocumentationCommentsMigration" enabled="false" level="INFORMATION" enabled_by_default="false" />
   <inspection_tool class="MarkdownIncorrectTableFormatting" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
   <inspection_tool class="MarkdownIncorrectlyNumberedListItem" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="MarkdownLinkDestinationWithSpaces" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="MarkdownNoTableBorders" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="MarkdownOutdatedTableOfContents" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="MarkdownTablePipeInCodeSpan" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="MarkdownUnresolvedFileReference" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="MarkdownUnresolvedHeaderReference" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="MarkdownUnresolvedLinkLabel" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -274,11 +278,13 @@
   <inspection_tool class="TaskMissingDescription" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
   <inspection_tool class="TestFailedLine" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="TestFunctionName" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+  <inspection_tool class="ThemeInspection" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="TokenSetInParserDefinition" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="TomlUnresolvedReference" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="TransitionPropertiesLabel" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UElementAsPsi" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UastHintedVisitorAdapterHints" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="UndeclaredGeneric" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UndesirableClassUsage" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UnknownIdInMetaInformation" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="UnnecessarilyQualifiedStaticUsage" enabled="true" level="WARNING" enabled_by_default="true">
@@ -298,6 +304,7 @@
   <inspection_tool class="UnsafeReturnStatementVisitor" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UnsafeVfsRecursion" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UnspecifiedActionsPlace" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="UnusedAttribute" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UnusedMainParameter" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
   <inspection_tool class="UnusedReturnValue" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="UnusedSymbol" enabled="false" level="WARNING" enabled_by_default="false" />

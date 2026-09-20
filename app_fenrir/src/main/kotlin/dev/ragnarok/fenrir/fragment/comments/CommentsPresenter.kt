@@ -61,8 +61,8 @@ import kotlin.math.abs
 class CommentsPresenter(
     private var authorId: Long,
     private val commented: Commented,
-    focusToComment: Int?,
-    commentThread: Int?,
+    private var focusToComment: Int?,
+    private val commentThread: Int?,
     savedInstanceState: Bundle?
 ) : PlaceSupportPresenter<ICommentsView>(
     authorId, savedInstanceState
@@ -72,16 +72,14 @@ class CommentsPresenter(
         CommentsInteractor(networkInterfaces, stores, owners)
     private val stickersInteractor: IStickersInteractor =
         InteractorFactory.createStickersInteractor()
-    private val data: MutableList<Comment>
-    private val CommentThread: Int?
+    private val data: MutableList<Comment> = ArrayList()
     private val stickersWordsDisplayDisposable = CancelableJob()
     private val actualLoadingDisposable = CompositeJob()
     private val deepLookingHolder = CompositeJob()
     private val cacheLoadingDisposable = CompositeJob()
-    private var focusToComment: Int?
     private var commentedState: CommentedState? = null
     private var author: Owner? = null
-    private var directionDesc: Boolean
+    private var directionDesc = Settings.get().main().isCommentsDesc
     private var loadingState = 0
     private var adminLevel = 0
     private var draftCommentText: String? = null
@@ -226,7 +224,7 @@ class CommentsPresenter(
                     -10,
                     COUNT,
                     focusToComment,
-                    CommentThread,
+                    commentThread,
                     true,
                     "asc"
                 )
@@ -239,7 +237,7 @@ class CommentsPresenter(
                     0,
                     COUNT,
                     null,
-                    CommentThread,
+                    commentThread,
                     true,
                     "desc"
                 )
@@ -252,7 +250,7 @@ class CommentsPresenter(
                     0,
                     COUNT,
                     null,
-                    CommentThread,
+                    commentThread,
                     true,
                     "asc"
                 )
@@ -285,7 +283,7 @@ class CommentsPresenter(
                 1,
                 COUNT,
                 first.getObjectId(),
-                CommentThread,
+                commentThread,
                 false,
                 "desc"
             )
@@ -306,7 +304,7 @@ class CommentsPresenter(
                 0,
                 COUNT,
                 last.getObjectId(),
-                CommentThread,
+                commentThread,
                 false,
                 "asc"
             )
@@ -358,9 +356,7 @@ class CommentsPresenter(
         val author = comment.author
 
         // если комментарий от имени сообщества и я админ или модератор, то могу удалить
-        return if (author is Community && author.adminLevel >= VKApiCommunity.AdminLevel.MODERATOR) {
-            true
-        } else comment.fromId == currentSessionUserId || commented.sourceOwnerId == currentSessionUserId || adminLevel >= VKApiCommunity.AdminLevel.MODERATOR
+        return author is Community && author.adminLevel >= VKApiCommunity.AdminLevel.MODERATOR || comment.fromId == currentSessionUserId || commented.sourceOwnerId == currentSessionUserId || adminLevel >= VKApiCommunity.AdminLevel.MODERATOR
     }
 
     private fun canEdit(comment: Comment): Boolean {
@@ -742,12 +738,12 @@ class CommentsPresenter(
         setSendingNow(true)
         val accountId = authorId
         val intent = createCommentIntent()
-        if (intent.replyToComment == null && CommentThread != null) intent.setReplyToComment(
-            CommentThread
+        if (intent.replyToComment == null && commentThread != null) intent.setReplyToComment(
+            commentThread
         )
         appendJob(
-            interactor.send(accountId, commented, CommentThread, intent)
-                .fromIOToMain({ onNormalSendResponse() }) { t ->
+            interactor.send(accountId, commented, commentThread, intent)
+                .fromIOToMain({ onNormalSendResponse(it) }) { t ->
                     onSendError(
                         t
                     )
@@ -756,13 +752,13 @@ class CommentsPresenter(
 
     private fun sendQuickComment(intent: CommentIntent) {
         setSendingNow(true)
-        if (intent.replyToComment == null && CommentThread != null) intent.setReplyToComment(
-            CommentThread
+        if (intent.replyToComment == null && commentThread != null) intent.setReplyToComment(
+            commentThread
         )
         val accountId = authorId
         appendJob(
-            interactor.send(accountId, commented, CommentThread, intent)
-                .fromIOToMain({ onQuickSendResponse() }) { t ->
+            interactor.send(accountId, commented, commentThread, intent)
+                .fromIOToMain({ onQuickSendResponse(it) }) { t ->
                     onSendError(
                         t
                     )
@@ -774,22 +770,34 @@ class CommentsPresenter(
         showError(getCauseIfRuntime(t))
     }
 
-    private fun onQuickSendResponse() {
+    private fun onQuickSendResponse(comment: Comment?) {
         setSendingNow(false)
-        handleCommentAdded()
+        handleCommentAdded(comment)
         replyTo = null
         resolveReplyViews()
         resolveEmptyTextVisibility()
     }
 
-    private fun handleCommentAdded() {
+    private fun handleCommentAdded(comment: Comment?) {
         view?.showCommentSentToast()
-        fireRefreshClick()
+        if (comment == null) {
+            fireRefreshClick()
+        } else {
+            if (!directionDesc) {
+                commentedState?.firstCommentId = comment.id
+                data.add(comment)
+                view?.notifyDataAddedToTop(1)
+            } else {
+                commentedState?.lastCommentId = comment.id
+                data.add(0, comment)
+                view?.notifyDataAddedToBottom(1)
+            }
+        }
     }
 
-    private fun onNormalSendResponse() {
+    private fun onNormalSendResponse(comment: Comment?) {
         setSendingNow(false)
-        handleCommentAdded()
+        handleCommentAdded(comment)
         draftCommentAttachmentsCount = 0
         draftCommentText = null
         draftCommentId = null
@@ -799,6 +807,7 @@ class CommentsPresenter(
         resolveReplyViews()
         resolveSendButtonAvailability()
         resolveEmptyTextVisibility()
+        resolveHeaderFooterViews()
     }
 
     private fun createCommentIntent(): CommentIntent {
@@ -869,7 +878,7 @@ class CommentsPresenter(
         view?.goToCommentEdit(
             accountId,
             comment,
-            CommentThread
+            commentThread
         )
     }
 
@@ -1155,7 +1164,7 @@ class CommentsPresenter(
     }
 
     private class CommentedState(
-        val firstCommentId: Int?,
+        var firstCommentId: Int?,
         var lastCommentId: Int?
     )
 
@@ -1177,10 +1186,6 @@ class CommentsPresenter(
     }
 
     init {
-        this.focusToComment = focusToComment
-        directionDesc = Settings.get().main().isCommentsDesc
-        this.CommentThread = commentThread
-        data = ArrayList()
         val attachmentsRepository = attachmentsRepository
         appendJob(
             attachmentsRepository

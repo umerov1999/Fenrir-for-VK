@@ -5,15 +5,17 @@
     android:id="@+id/message_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_fwd_message_bubble"
     android:orientation="horizontal"
-    android:paddingTop="2dp"
-    android:paddingBottom="4dp">
+    android:padding="8dp"
+    android:paddingTop="1dp"
+    android:paddingBottom="2dp">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/item_fwd_message_avatar"
-        android:layout_width="@dimen/avatar_size_small"
-        android:layout_height="@dimen/avatar_size_small"
-        android:layout_marginTop="6dp"
+        android:layout_width="@dimen/avatar_size_forward"
+        android:layout_height="@dimen/avatar_size_forward"
+        android:layout_marginTop="2dp"
         android:contentDescription="@null" />
 
     <LinearLayout
@@ -33,7 +35,7 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?colorSecondary"
-            android:textSize="12sp"
+            android:textSize="@dimen/font_size_message_author"
             tools:text="Name" />
 
         <dev.ragnarok.fenrir.view.LinkHelperTextView
@@ -42,10 +44,17 @@
             android:layout_height="wrap_content"
             android:gravity="start"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textSize="@dimen/font_size_fwd_message_text"
             tools:text="Message" />
 
+        <LinearLayout
+            android:id="@+id/stickers_attachments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
         <include
-            layout="@layout/fwd_attachment_links"
+            layout="@layout/attachment_links"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -54,11 +63,20 @@
             style="@style/Widget.Material3Expressive.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="6dp"
+            android:insetTop="1dp"
+            android:insetBottom="1dp"
+            android:maxHeight="150dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="2dp"
             android:text="@string/forward_messages_view"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textColor="?colorOnSurface"
+            android:textSize="@dimen/font_size_fwd_minor"
             app:icon="@drawable/ic_fluent_channel_follow_24_regular"
+            app:iconGravity="textStart"
+            app:iconPadding="2dp"
+            app:iconSize="10dp"
             app:iconTint="?colorOnSurface"
             app:strokeColor="?colorOnSurface" />
 
@@ -68,6 +86,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textSize="@dimen/font_size_fwd_minor"
             tools:text="time" />
     </LinearLayout>
 

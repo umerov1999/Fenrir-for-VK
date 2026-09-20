@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused", "TooManyFunctions")
+@file:Suppress("unused", "TooManyFunctions", "UnusedReceiverParameter")
 
 package de.maxr1998.modernpreferences.helpers
 

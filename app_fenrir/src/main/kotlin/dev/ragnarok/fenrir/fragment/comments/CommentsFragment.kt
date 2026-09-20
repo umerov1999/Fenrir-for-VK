@@ -110,12 +110,16 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
             CommentEditFragment.REQUEST_COMMENT_EDIT,
             this
         ) { _, result ->
-            val comment1: Comment? = result.getParcelableCompat(
+            val comment: Comment? = result.getParcelableCompat(
                 Extra.COMMENT
             )
-            if (comment1 != null) {
+            if (comment != null) {
                 lazyPresenter {
-                    fireCommentEditResult(comment1)
+                    fireCommentEditResult(comment)
+                }
+            } else {
+                lazyPresenter {
+                    fireRefreshClick()
                 }
             }
         }

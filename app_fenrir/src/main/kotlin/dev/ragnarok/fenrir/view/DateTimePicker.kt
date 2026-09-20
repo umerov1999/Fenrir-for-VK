@@ -4,7 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import dev.ragnarok.fenrir.util.Logger
-import dev.ragnarok.fenrir.util.Unixtime
+import dev.ragnarok.fenrir.util.UnixTime
 import java.util.Calendar
 import java.util.Date
 
@@ -43,7 +43,7 @@ class DateTimePicker internal constructor(builder: Builder) {
             context,
             { _, newHourOfDay, newMinutes ->
                 callback?.onDateTimeSelected(
-                    Unixtime.of(
+                    UnixTime.of(
                         year,
                         month,
                         day,

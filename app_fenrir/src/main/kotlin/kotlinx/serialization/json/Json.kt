@@ -114,7 +114,6 @@ sealed class Json(
      * println(Json.encodeToString(data))
      * ```
      */
-    @OptIn(ExperimentalSerializationApi::class)
     companion object Default : Json(JsonConfiguration(), EmptySerializersModule())
 
     /**
@@ -794,7 +793,6 @@ class JsonBuilder internal constructor(json: Json) {
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 private class JsonImpl(configuration: JsonConfiguration, module: SerializersModule) :
     Json(configuration, module) {
 

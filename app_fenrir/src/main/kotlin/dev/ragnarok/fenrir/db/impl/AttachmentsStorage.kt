@@ -116,7 +116,6 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     override fun remove(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int,
         generatedAttachmentId: Int
     ): Flow<Boolean> {
         return flow {
@@ -129,6 +128,20 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             } else {
                 throw NotFoundException()
             }
+        }
+    }
+
+    override fun removeAll(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        attachToDbid: Int
+    ): Flow<Boolean> {
+        return flow {
+            val uri = uriForType(attachToType, accountId)
+            val selection = attachToIdColumnFor(attachToType) + " = ?"
+            val args = arrayOf(attachToDbid.toString())
+            val count = context.contentResolver.delete(uri, selection, args)
+            emit(count > 0)
         }
     }
 

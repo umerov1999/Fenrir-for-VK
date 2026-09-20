@@ -9,7 +9,7 @@ import dev.ragnarok.fenrir.model.PhotoTags
 import kotlinx.coroutines.flow.Flow
 
 interface IPhotosInteractor {
-    operator fun get(
+    fun get(
         accountId: Long,
         ownerId: Long,
         albumId: Int,

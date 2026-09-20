@@ -31,7 +31,7 @@ internal class NotificationsApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<NotificationsResponse> {
         return provideService(INotificationsService(), TokenType.USER)
             .flatMapConcat { s ->
-                s[count, startFrom, filters]
+                s.get(count, startFrom, filters)
                     .map(extractResponseWithErrorHandling())
                     .map { response ->
                         val realList: MutableList<VKApiBaseFeedback> =

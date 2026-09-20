@@ -3,7 +3,11 @@ package dev.ragnarok.fenrir.fragment.audio
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Animatable
@@ -11,7 +15,9 @@ import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.media.audiofx.AudioEffect
 import android.net.Uri
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Environment
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +37,10 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso3.BitmapTarget
 import com.squareup.picasso3.Picasso
-import dev.ragnarok.fenrir.*
+import dev.ragnarok.fenrir.Common
+import dev.ragnarok.fenrir.Extra
+import dev.ragnarok.fenrir.Includes
+import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.domain.IAudioInteractor
@@ -43,12 +52,15 @@ import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.media.music.PlayerStatus
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.module.FenrirNative
+import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.BlurTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
@@ -57,6 +69,7 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
@@ -64,7 +77,12 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
 import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.CustomSeekBar
-import dev.ragnarok.fenrir.view.media.*
+import dev.ragnarok.fenrir.view.media.AudioPlayerBackgroundDrawable
+import dev.ragnarok.fenrir.view.media.AudioPlayerCoverDrawable
+import dev.ragnarok.fenrir.view.media.PlayPauseButton
+import dev.ragnarok.fenrir.view.media.RepeatButton
+import dev.ragnarok.fenrir.view.media.RepeatingImageButton
+import dev.ragnarok.fenrir.view.media.ShuffleButton
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieShapeableView
 import kotlinx.coroutines.Job
 import java.io.File
@@ -256,7 +274,9 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
                             Uri.fromFile(file)
                         )
                     )
-                    createCustomToast(requireActivity(), view)?.showToast(R.string.success)
+                    CoroutinesUtils.inMainThread {
+                        createCustomToast(requireActivity(), view)?.showToast(R.string.success)
+                    }
                 } catch (e: IOException) {
                     e.printStackTrace()
                     createCustomToast(requireActivity(), view)?.showToastError("Save Failed")
@@ -856,7 +876,8 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
             intent_send.type = "audio/*"
             intent_send.putExtra(
                 Intent.EXTRA_STREAM, current.url?.toUri()
-            ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            )
+            intent_send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             requireActivity().startActivity(
                 Intent.createChooser(
                     intent_send,

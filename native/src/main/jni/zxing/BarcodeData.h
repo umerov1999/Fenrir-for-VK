@@ -16,7 +16,6 @@
 #include "StructuredAppend.h"
 
 #include <memory>
-#include <mutex>
 #include <numbers>
 #include <string>
 #include <vector>
@@ -37,7 +36,7 @@ namespace ZXing {
 
 struct BarcodeData
 {
-	Content content;
+	Content content = {};
 	Error error = {};
 	Position position = {};
 	BarcodeFormat format = BarcodeFormat::None;
@@ -46,7 +45,6 @@ struct BarcodeData
 	BitMatrix symbol = {};
 #ifdef ZXING_USE_ZINT
 	unique_zint_symbol zint = {};
-	mutable std::unique_ptr<std::mutex> zintMutex = {};
 #endif
 	TextMode defaultTextMode = TextMode::HRI;
 	int lineCount = 0;
@@ -57,7 +55,7 @@ struct BarcodeData
 
 	inline bool isValid() const { return format != BarcodeFormat::None && !content.bytes.empty() && !error; }
 
-	inline int orientation() const { return narrow_cast<int>(std::lround(position.orientation() * 180 / std::numbers::pi)); }
+	inline int rotation() const { return narrow_cast<int>(std::lround(position.rotation() * 180 / std::numbers::pi)); }
 };
 
 using BarcodesData = std::vector<BarcodeData>;

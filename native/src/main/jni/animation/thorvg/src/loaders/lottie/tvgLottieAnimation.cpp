@@ -23,6 +23,8 @@
 #include "tvgCommon.h"
 #include "thorvg_lottie.h"
 #include "tvgLottieLoader.h"
+#include "tvgLottieModel.h"
+#include "tvgLottieBuilder.h"
 #include "tvgAnimation.h"
 
 
@@ -136,6 +138,29 @@ Result LottieAnimation::resolver(std::function<void(const LottieAudioResolver&, 
     FETCH_LOADER(Result::InsufficientCondition);
     loader->resolver(std::move(func), data);
     return Result::Success;
+}
+
+bool LottieAnimation::expressions() noexcept
+{
+#ifdef THORVG_LOTTIE_EXPRESSIONS_SUPPORT
+    return true;
+#else
+    return false;
+#endif
+}
+
+Result LottieAnimation::volume(float value) noexcept
+{
+    FETCH_LOADER(Result::InsufficientCondition);
+    loader->volume(value);
+    return Result::Success;
+}
+
+
+float LottieAnimation::volume() const noexcept
+{
+    FETCH_LOADER(0.0f);
+    return loader->builder->volume;
 }
 
 

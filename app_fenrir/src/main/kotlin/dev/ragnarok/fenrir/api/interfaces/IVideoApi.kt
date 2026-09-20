@@ -54,7 +54,7 @@ interface IVideoApi {
     fun deleteComment(ownerId: Long?, commentId: Int): Flow<Boolean>
 
     @CheckResult
-    operator fun get(
+    fun get(
         ownerId: Long?, ids: Collection<AccessIdPair>?, albumId: Int?,
         count: Int?, offset: Int?, extended: Boolean?
     ): Flow<Items<VKApiVideo>>

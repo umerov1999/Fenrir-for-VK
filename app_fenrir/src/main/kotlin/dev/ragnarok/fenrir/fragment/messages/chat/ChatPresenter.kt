@@ -94,7 +94,7 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.TextingNotifier
-import dev.ragnarok.fenrir.util.Unixtime
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils.addElementToList
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -1493,7 +1493,7 @@ class ChatPresenter(
     }
 
     private fun canEdit(message: Message): Boolean {
-        return message.isOut && Unixtime.now() - message.date < 24 * 60 * 60
+        return message.isOut && UnixTime.now() - message.date < 24 * 60 * 60
                 && !message.isSticker && !message.isVoiceMessage && !message.isGraffiti && !message.isCall
     }
 
@@ -1507,9 +1507,7 @@ class ChatPresenter(
 
     private fun doStar(): Boolean {
         val selectionCount = countOfSelection(data)
-        if (selectionCount <= 0)
-            return false
-        return data.find { it.isSelected }?.isImportant?.let {
+        return selectionCount > 0 && data.find { it.isSelected }?.isImportant?.let {
             !it
         } ?: true
     }

@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.activity.captcha
 
 import android.content.Intent
 import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.activity.captcha.VKCaptcha.passChallenge
 import dev.ragnarok.fenrir.activity.captcha.challenge.CaptchaStorage
 import dev.ragnarok.fenrir.activity.captcha.challenge.VKChallengeResultListener
 import dev.ragnarok.fenrir.activity.captcha.di.DI

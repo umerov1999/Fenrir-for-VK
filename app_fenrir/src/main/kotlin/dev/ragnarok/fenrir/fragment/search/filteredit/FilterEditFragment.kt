@@ -42,6 +42,7 @@ import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.InputTextDialog
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.DateTimePicker
 import java.util.Timer
@@ -339,7 +340,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
 
     override fun onDateOptionClick(dateOption: SimpleDateOption) {
         DateTimePicker.Builder(requireActivity())
-            .setTime(if (dateOption.timeUnix == 0L) System.currentTimeMillis() / 1000 else dateOption.timeUnix)
+            .setTime(if (dateOption.timeUnix == 0L) UnixTime.now() else dateOption.timeUnix)
             .setCallback(object : DateTimePicker.Callback {
                 override fun onDateTimeSelected(unixtime: Long) {
                     dateOption.timeUnix = unixtime

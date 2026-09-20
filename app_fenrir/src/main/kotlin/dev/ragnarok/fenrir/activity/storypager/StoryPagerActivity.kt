@@ -75,6 +75,7 @@ import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.DownloadWorkUtils
 import dev.ragnarok.fenrir.util.HelperSimple
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
@@ -487,7 +488,7 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
         }
         if (story.expires <= 0) mExpires?.visibility = View.GONE else {
             mExpires?.visibility = View.VISIBLE
-            val exp = (story.expires - System.currentTimeMillis() / 1000) / 3600
+            val exp = (story.expires - UnixTime.now()) / 3600
             mExpires?.text = getString(
                 R.string.expires,
                 exp.toString(),
@@ -780,22 +781,18 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
                     .inflate(R.layout.content_photo_page, container, false)
             )
             ret.photo.setOnTouchListener { view, event ->
-                if (event.pointerCount >= 2 || view is TouchImageView && view.isZoomed) {
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                            container.requestDisallowInterceptTouchEvent(true)
-                            true
-                        }
-
-                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                            container.requestDisallowInterceptTouchEvent(false)
-                            true
-                        }
-
-                        else -> false
+                (event.pointerCount >= 2 || view is TouchImageView && view.isZoomed) && when (event.action) {
+                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                        container.requestDisallowInterceptTouchEvent(true)
+                        true
                     }
-                } else {
-                    false
+
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        container.requestDisallowInterceptTouchEvent(false)
+                        true
+                    }
+
+                    else -> false
                 }
             }
             return ret

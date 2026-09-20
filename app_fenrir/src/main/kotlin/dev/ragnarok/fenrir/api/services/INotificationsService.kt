@@ -10,7 +10,7 @@ class INotificationsService : IServiceRest() {
     val markAsViewed: Flow<BaseResponse<Int>>
         get() = rest.request("notifications.markAsViewed", null, baseInt)
 
-    operator fun get(
+    fun get(
         count: Int?,
         startFrom: String?,
         filters: String?

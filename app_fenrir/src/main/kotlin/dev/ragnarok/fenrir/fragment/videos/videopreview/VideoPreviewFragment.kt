@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -19,6 +20,9 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.updateLayoutParams
+import androidx.core.widget.NestedScrollView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.squareup.picasso3.Transformation
 import dev.ragnarok.fenrir.Constants
@@ -101,6 +105,12 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
     private var mVideoPlayIcon: AppCompatImageView? = null
     private var mTextSelectionAllowed = false
 
+    private fun isTabletLandscape(): Boolean {
+        val configuration = resources.configuration
+        return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                configuration.smallestScreenWidthDp >= 600
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().addMenuProvider(this, viewLifecycleOwner)
@@ -163,7 +173,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        mRootView = inflater.inflate(R.layout.fragment_video, container, false)
+        mRootView = inflater.inflate(R.layout.fragment_video_preview, container, false)
         (requireActivity() as AppCompatActivity).setSupportActionBar(mRootView?.findViewById(R.id.toolbar))
 
         mRootView?.let {
@@ -176,6 +186,16 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         }
 
         mPreviewImage = mRootView?.findViewById(R.id.fragment_video_preview_image)
+        if (isTabletLandscape()) {
+            // в ландшафте на планшете вписываем обложку в видимую область
+            mPreviewImage?.setAspectRatioEnabled(false)
+            mRootView?.findViewById<NestedScrollView>(R.id.scroll_view)?.doOnLayout { scroll ->
+                mPreviewImage?.updateLayoutParams {
+                    // видимая область минус вертикальные отступы карточки (94dp(action Bar) + 61dp (like bar) + 48dp(bottom nav))
+                    height = maxOf(scroll.height - Utils.dp(203f), Utils.dp(200f))
+                }
+            }
+        }
         likeButton = mRootView?.findViewById(R.id.like_button)
         val shareButton: CircleCounterButton? = mRootView?.findViewById(R.id.share_button)
         commentsButton = mRootView?.findViewById(R.id.comments_button)

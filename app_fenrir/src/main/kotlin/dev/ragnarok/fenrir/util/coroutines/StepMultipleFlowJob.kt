@@ -26,14 +26,14 @@ class StepMultipleFlowJob {
             for (s in jobList) {
                 CoroutineScope(Dispatchers.IO).launch {
                     s.flow.catch {
-                        if (isActive) {
-                            launch(Dispatchers.Main) {
+                        if (this@launch.isActive) {
+                            this@launch.launch(Dispatchers.Main) {
                                 s.onError(it)
                             }
                         }
                     }.collect {
-                        if (isActive) {
-                            launch(Dispatchers.Main) {
+                        if (this@launch.isActive) {
+                            this@launch.launch(Dispatchers.Main) {
                                 s.onSuccess.invoke(it)
                             }
                         }

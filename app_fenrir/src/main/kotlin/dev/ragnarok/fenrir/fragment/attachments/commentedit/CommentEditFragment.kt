@@ -91,7 +91,7 @@ class CommentEditFragment : AbsAttachmentsEditFragment<CommentEditPresenter, ICo
         return presenter?.onBackPressed() == true
     }
 
-    override fun goBackWithResult(comment: Comment) {
+    override fun goBackWithResult(comment: Comment?) {
         val data = Bundle()
         data.putParcelable(Extra.COMMENT, comment)
         parentFragmentManager.setFragmentResult(REQUEST_COMMENT_EDIT, data)

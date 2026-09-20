@@ -105,15 +105,11 @@ class ReactionContainer : RowLayout {
                 }
             }
             root.setOnLongClickListener {
-                if (reaction.count <= 0) {
-                    false
-                } else {
-                    listener?.onReactionLongClicked(
-                        reaction.reaction_id,
-                        conversation_message_id,
-                        peerId
-                    ) == true
-                }
+                reaction.count > 0 && listener?.onReactionLongClicked(
+                    reaction.reaction_id,
+                    conversation_message_id,
+                    peerId
+                ) == true
             }
         }
     }

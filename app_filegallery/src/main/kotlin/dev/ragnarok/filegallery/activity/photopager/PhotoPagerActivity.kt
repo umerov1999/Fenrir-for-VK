@@ -320,7 +320,8 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
                 }
                 intent_send.putParcelableArrayListExtra(
                     Intent.EXTRA_STREAM, listImage
-                ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                )
+                intent_send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 startActivity(intent_send)
                 return true
             }

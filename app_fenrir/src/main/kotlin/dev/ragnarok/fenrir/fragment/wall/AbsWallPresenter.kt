@@ -58,6 +58,7 @@ import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.intValueNotIn
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
@@ -542,7 +543,9 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                             Uri.fromFile(file)
                         )
                     )
-                    createCustomToast(context, null)?.showToast(R.string.success)
+                    CoroutinesUtils.inMainThread {
+                        createCustomToast(context, null)?.showToast(R.string.success)
+                    }
                 } catch (e: IOException) {
                     e.printStackTrace()
                     createCustomToast(context, null)?.showToastError("Save Failed")

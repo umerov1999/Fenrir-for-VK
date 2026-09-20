@@ -100,9 +100,9 @@ internal class PopupMenuAdapter(
         holder: SectionHeaderViewHolder,
         sectionPosition: Int
     ) {
-        val (data) = sections[sectionPosition]
-        val title = data.title
-        val titleRes = data.titleRes
+        val sectionHeader = sections[sectionPosition]
+        val title = sectionHeader.data.title
+        val titleRes = sectionHeader.data.titleRes
         when {
             title != null -> holder.label.text = title
             titleRes != 0 -> holder.label.setText(titleRes)
@@ -187,8 +187,8 @@ internal class PopupMenuAdapter(
     ) : AbstractItemViewHolder(ui.root, dismissPopupCallback) {
         override fun bindItem(popupMenuItem: MaterialPopupMenu.AbstractPopupMenuItem) {
             super.bindItem(popupMenuItem)
-            val (data) = popupMenuItem as MaterialPopupMenu.PopupMenuRadioGroupItem
-            ui.bindItems(data.radioButtonItems, dismissPopupCallback)
+            val item = popupMenuItem as MaterialPopupMenu.PopupMenuRadioGroupItem
+            ui.bindItems(item.data.radioButtonItems, dismissPopupCallback)
         }
     }
 

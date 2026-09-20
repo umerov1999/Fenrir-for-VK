@@ -46,21 +46,11 @@ class StringExist(useMutex: Boolean) {
     }
 
     fun has(value: String): Boolean {
-        if (value.isEmpty()) {
-            return false
-        }
-        return if (nativePointer != 0L) {
-            has(nativePointer, value, false)
-        } else false
+        return value.isNotEmpty() && nativePointer != 0L && has(nativePointer, value, false)
     }
 
     operator fun contains(value: String): Boolean {
-        if (value.isEmpty()) {
-            return false
-        }
-        return if (nativePointer != 0L) {
-            has(nativePointer, value, true)
-        } else false
+        return value.isNotEmpty() && nativePointer != 0L && has(nativePointer, value, true)
     }
 
     protected fun finalize() {

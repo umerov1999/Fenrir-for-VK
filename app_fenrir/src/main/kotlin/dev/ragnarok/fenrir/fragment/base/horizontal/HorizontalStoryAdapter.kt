@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.model.Story
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
@@ -29,7 +30,7 @@ class HorizontalStoryAdapter(data: MutableList<Story>) :
                 viewHolder.expires.visibility = View.VISIBLE
                 viewHolder.expires.setText(R.string.is_expired)
             } else {
-                val exp = (item.expires - System.currentTimeMillis() / 1000) / 3600
+                val exp = (item.expires - UnixTime.now()) / 3600
                 if (exp <= 0) {
                     viewHolder.expires.visibility = View.INVISIBLE
                 } else {

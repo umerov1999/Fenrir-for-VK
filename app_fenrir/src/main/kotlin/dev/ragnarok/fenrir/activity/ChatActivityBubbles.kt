@@ -224,7 +224,7 @@ class ChatActivityBubbles : NoMainActivity(), PlaceProvider, AppStyleable, Servi
 
     override fun onResume() {
         val data = intent
-        if (data != null && data.extras != null) {
+        if (data?.extras != null) {
             NotificationHelper.setBubbleOpened(
                 (data.extras ?: return).getLong(Extra.ACCOUNT_ID),
                 (data.extras ?: return).getLong(Extra.OWNER_ID)

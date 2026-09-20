@@ -9,11 +9,11 @@ class CommentIntent(val authorId: Long) {
         private set
     var stickerId: Int? = null
         private set
-    var models: List<AbsModel>? = null
+    var attachmentCounts: Int = 0
         private set
 
-    fun setModels(models: List<AbsModel>?): CommentIntent {
-        this.models = models
+    fun setAttachmentCounts(counts: Int): CommentIntent {
+        attachmentCounts = counts
         return this
     }
 

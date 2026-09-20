@@ -20,11 +20,7 @@ namespace ZXing {
 
 std::string ToString(ContentType type)
 {
-	const char* t2s[] = {"Text", "Binary", "Mixed", "GS1", "ISO15434", "UnknownECI"};
-	int idx = static_cast<int>(type);
-	if (idx < 0 || idx >= Size(t2s))
-		return "InvalidContentType";
-	return t2s[idx];
+	return EnumToString(type, {"Text", "Binary", "Mixed", "GS1", "ISO15434", "UnknownECI"});
 }
 
 template <typename FUNC>
@@ -103,6 +99,9 @@ std::string Content::render(bool withECI) const
 		return {};
 
 #ifdef ZXING_READERS
+#if !ZXING_ENABLE_UNICODE
+	bool hasNonUtf8 = false;
+#endif
 	std::string res;
 	res.reserve(bytes.size() * 2);
 	if (withECI)
@@ -119,6 +118,10 @@ std::string Content::render(bool withECI) const
 		// the original ECI for everything else.
 		// first determine how to decode the content (use fallback if unknown)
 		auto inEci = IsText(eci) ? eci : eci == ECI::Unknown ? ToECI(fallbackCS) : ECI::Binary;
+		auto utf8 = BytesToUtf8(bytes.asView(begin, end - begin), inEci);
+#if !ZXING_ENABLE_UNICODE
+		hasNonUtf8 |= utf8.empty();
+#endif
 		if (withECI) {
 			// then find the eci to report back in the ECI designator
 			auto outEci = IsText(inEci) ? ECI::UTF8 : eci;
@@ -127,16 +130,19 @@ std::string Content::render(bool withECI) const
 				res += ToString(outEci);
 			lastECI = outEci;
 
-			for (auto c : BytesToUtf8(bytes.asView(begin, end - begin), inEci)) {
+			for (auto c : utf8) {
 				res += c;
 				if (c == '\\') // in the ECI protocol a '\' (0x5c) has to be doubled, works only because 0x5c can only mean `\`
 					res += c;
 			}
 		} else {
-			res += BytesToUtf8(bytes.asView(begin, end - begin), inEci);
+			res += utf8;
 		}
 	});
-
+#if !ZXING_ENABLE_UNICODE
+	if (hasNonUtf8)
+		return {};
+#endif
 	return res;
 #elif defined(ZXING_USE_ZINT)
 	assert(!utf8Cache.empty());

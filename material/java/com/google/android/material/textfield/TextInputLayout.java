@@ -48,6 +48,9 @@ import androidx.appcompat.widget.AppCompatDrawableManager;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.TintTypedArray;
 import android.text.Editable;
+import android.text.SpanWatcher;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -4676,10 +4679,10 @@ public class TextInputLayout extends LinearLayout implements OnGlobalLayoutListe
       boolean isHintCollapsed = !layout.isHintExpanded();
       boolean showingError = !TextUtils.isEmpty(errorText);
       boolean contentInvalid = showingError || !TextUtils.isEmpty(counterOverflowDesc);
-      String hint = hasHint ? hintText.toString() : "";
+      CharSequence hint = hasHint ? hintText : null;
       if (!TextUtils.isEmpty(helperText)
           && layout.indicatorViewController.helperTextShouldBeShown()) {
-        hint = TextUtils.isEmpty(hint) ? helperText.toString() : (hint + ", " + helperText);
+        hint = TextUtils.isEmpty(hint) ? helperText : TextUtils.concat(hint, ", ", helperText);
       }
 
       // Screen readers should follow visual order of the elements of the text field.
@@ -4687,11 +4690,15 @@ public class TextInputLayout extends LinearLayout implements OnGlobalLayoutListe
 
       // Make sure text field has the appropriate announcements.
       if (showingText) {
-        info.setText(inputText);
+        if (!TextUtils.isEmpty(hint)) {
+          info.setText(safeCloneAndAppend(inputText, hint));
+        } else {
+          info.setText(inputText);
+        }
       } else if (!TextUtils.isEmpty(hint)) {
         info.setText(hint);
         if (isHintCollapsed && placeholderText != null) {
-          info.setText(hint + ", " + placeholderText);
+          info.setText(TextUtils.concat(hint, ", ", placeholderText));
         }
       } else if (placeholderText != null) {
         info.setText(placeholderText);
@@ -4699,12 +4706,9 @@ public class TextInputLayout extends LinearLayout implements OnGlobalLayoutListe
 
       if (!TextUtils.isEmpty(hint)) {
         if (VERSION.SDK_INT >= VERSION_CODES.O) {
-          info.setHintText(hint);
-        } else {
-          // Due to a TalkBack bug, setHintText has no effect in APIs < 26 so we append the hint to
-          // the text announcement. The resulting announcement is the same as in APIs >= 26.
-          String text = showingText ? (inputText + ", " + hint) : hint;
-          info.setText(text);
+          // Always set hintText to null when showingText is true to prevent double reading
+          // on transient TalkBack versions that natively fixed the bug.
+          info.setHintText(showingText ? null : hint);
         }
         info.setShowingHintText(!showingText);
       }
@@ -4718,6 +4722,38 @@ public class TextInputLayout extends LinearLayout implements OnGlobalLayoutListe
       }
 
       layout.endLayout.getEndIconDelegate().onInitializeAccessibilityNodeInfo(host, info);
+    }
+
+    /**
+     * Safely clones the text and appends the hint. Uses a SpannableStringBuilder to manually detach
+     * local SpanWatcher listeners (like SpellCheckerSession) from the EditText text before
+     * appending the hint, preventing "Parse invalid region" crashes. At the same time, it preserves
+     * semantic accessibility spans (like URLSpan and TtsSpan) for TalkBack.
+     */
+    @SuppressWarnings("PatternMatchingInstanceof")
+    private CharSequence safeCloneAndAppend(
+        @Nullable CharSequence inputText, @Nullable CharSequence hint) {
+      if (inputText == null) {
+        return hint == null ? "" : hint;
+      }
+      if (hint == null) {
+        return inputText;
+      }
+
+      if (inputText instanceof Spanned) {
+        Spanned spanned = (Spanned) inputText;
+        SpanWatcher[] watchers = spanned.getSpans(0, spanned.length(), SpanWatcher.class);
+        if (watchers == null || watchers.length == 0) {
+          return TextUtils.concat(inputText, ", ", hint);
+        } else {
+          SpannableStringBuilder ssb = new SpannableStringBuilder(inputText);
+          for (SpanWatcher watcher : watchers) {
+            ssb.removeSpan(watcher);
+          }
+          return ssb.append(", ").append(hint);
+        }
+      }
+      return TextUtils.concat(inputText, ", ", hint);
     }
 
     @Override

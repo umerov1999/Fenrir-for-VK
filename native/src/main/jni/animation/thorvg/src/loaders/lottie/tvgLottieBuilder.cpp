@@ -979,6 +979,7 @@ void LottieBuilder::updateImage(LottieLayer* layer, float frameNo)
     }
 
     layer->scene->add(picture->refCnt() == 1 ? picture : picture->duplicate());
+    image->volume(volume);
     image->play((frameNo - layer->inPoint) / (layer->outPoint - layer->inPoint));
 }
 
@@ -1410,12 +1411,12 @@ void LottieBuilder::updateMasks(LottieLayer* layer, float frameNo)
 }
 
 
-bool LottieBuilder::updateMatte(LottieComposition* comp, float frameNo, Scene* scene, LottieLayer* layer)
+bool LottieBuilder::updateMatte(LottieComposition* comp, float frameNo, LottieLayer* layer)
 {
     auto target = layer->matteTarget;
     if (!target || target->type == LottieLayer::Null) return true;
 
-    updateLayer(comp, scene, target, frameNo);
+    updateLayer(comp, nullptr, target, frameNo);
 
     if (target->scene) {
         layer->scene->mask(target->scene, layer->matteType);
@@ -1537,15 +1538,16 @@ void LottieBuilder::updateEffect(LottieLayer* layer, float frameNo, uint8_t qual
 
 void LottieBuilder::updateLayer(LottieComposition* comp, Scene* scene, LottieLayer* layer, float frameNo)
 {
+    auto active = (frameNo >= layer->inPoint && frameNo < layer->outPoint);
+
     if (layer->type == LottieLayer::Audio) {
-        if (audioResolver.func) updateAudio(comp, layer, frameNo);
+        if (audioResolver.func) updateAudio(comp, layer, frameNo, active);
         return;
     }
 
     layer->scene = nullptr;
 
-    //visibility
-    if (frameNo < layer->inPoint || frameNo >= layer->outPoint) {
+    if (!active) {
         layer->invalidate();
         return;
     }
@@ -1564,7 +1566,7 @@ void LottieBuilder::updateLayer(LottieComposition* comp, Scene* scene, LottieLay
 
     layer->scene->transform(layer->cache.matrix);
 
-    if (!layer->matteSrc && !updateMatte(comp, frameNo, scene, layer)) return;
+    if (!updateMatte(comp, frameNo, layer)) return;
 
     layer->scene->blend(layer->blendMethod);
 
@@ -1601,7 +1603,7 @@ void LottieBuilder::updateLayer(LottieComposition* comp, Scene* scene, LottieLay
 
     updateEffect(layer, frameNo, comp->quality);
 
-    if (!layer->matteSrc) scene->add(layer->scene);
+    if (scene) scene->add(layer->scene);
 }
 
 
@@ -1696,7 +1698,6 @@ static bool _buildComposition(LottieComposition* comp, LottieRootLayer* parent)
         }
 
         if (child->matteTarget) {
-            child->matteTarget->matteSrc = true;
             //parenting
             _buildHierarchy(parent, child->matteTarget);
             //precomp referencing
@@ -1715,23 +1716,25 @@ static bool _buildComposition(LottieComposition* comp, LottieRootLayer* parent)
 /* External Class Implementation                                        */
 /************************************************************************/
 
-void LottieBuilder::updateAudio(LottieComposition* comp, LottieLayer* layer, float frameNo)
+void LottieBuilder::updateAudio(LottieComposition* comp, LottieLayer* layer, float frameNo, bool active)
 {
     if (layer->children.empty()) return;
 
     auto ctrl = layer->audio();
-    auto active = frameNo >= layer->inPoint && frameNo < layer->outPoint;
-    auto volume = active ? ctrl->volume(frameNo, tween, exps) : 100.0f;
+    auto pos = layer->remap(comp, frameNo, exps);
+    if (pos < 0.0f) active = false;    
+
+    auto value = active ? this->volume * ctrl->volume(frameNo, tween, exps) : 100.0f;
 
     // audio condition is changed
-    if ((active != ctrl->prevActive) || (active && !tvg::equal(volume, ctrl->prevVolume))) {
+    if ((active != ctrl->prevActive) || (active && !tvg::equal(value, ctrl->prevVolume))) {
         auto& src = static_cast<LottieAudio*>(layer->children.first())->src;
-        auto offset = active ? (layer->remap(comp, frameNo, exps) - layer->remap(comp, layer->inPoint, exps)) / comp->frameRate : 0.0f;
-        LottieAudioResolver info = {src.data, src.mimeType, src.size, offset, volume, active, (src.size > 0)};
+        auto offset = active ? pos / comp->frameRate : 0.0f;
+        LottieAudioResolver info = {src.data, src.mimeType, src.size, offset, value, active, (src.size > 0)};
         audioResolver.func(info, audioResolver.data);
     }
 
-    ctrl->prevVolume = volume;
+    ctrl->prevVolume = value;
     ctrl->prevActive = active;
 }
 

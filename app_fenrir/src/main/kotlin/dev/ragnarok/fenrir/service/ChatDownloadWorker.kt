@@ -532,7 +532,8 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
                     applicationContext, html
                 ), MimeTypeMap.getSingleton()
                     .getMimeTypeFromExtension(getFileExtension(html))
-            ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            )
+            intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             val ReadPendingIntent = PendingIntent.getActivity(
                 applicationContext,
                 peer_title.hashCode(),
@@ -695,7 +696,8 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
                     applicationContext, html
                 ), MimeTypeMap.getSingleton()
                     .getMimeTypeFromExtension(getFileExtension(html))
-            ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            )
+            intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             val ReadPendingIntent = PendingIntent.getActivity(
                 applicationContext,
                 peer_title.hashCode(),

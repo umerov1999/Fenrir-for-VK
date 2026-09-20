@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface IDocsStorage : IStorage {
     @CheckResult
-    operator fun get(criteria: DocsCriteria): Flow<List<DocumentDboEntity>>
+    fun get(criteria: DocsCriteria): Flow<List<DocumentDboEntity>>
 
     @CheckResult
     fun store(

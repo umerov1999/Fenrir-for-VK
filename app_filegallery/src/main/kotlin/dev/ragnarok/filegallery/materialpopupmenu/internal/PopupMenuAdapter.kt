@@ -28,8 +28,8 @@ internal class PopupMenuAdapter(
 
     init {
         setHasStableIds(false)
-        for (section in sections)
-            for (item in section.items)
+        for ((_, items) in sections)
+            for (item in items)
                 if (item is MaterialPopupMenu.PopupMenuCustomItem)
                     customItems.add(item)
     }

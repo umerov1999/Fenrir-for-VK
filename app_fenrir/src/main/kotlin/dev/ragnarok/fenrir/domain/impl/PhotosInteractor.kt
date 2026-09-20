@@ -53,7 +53,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
         rev: Boolean
     ): Flow<List<Photo>> {
         return networker.vkDefault(accountId)
-            .photos()[ownerId, albumId.toString(), null, rev, offset, count]
+            .photos().get(ownerId, albumId.toString(), null, rev, offset, count)
             .map { items -> listEmptyIfNull(items.items) }
             .flatMapConcat { dtos ->
                 val photos: MutableList<Photo> = ArrayList(dtos.size)

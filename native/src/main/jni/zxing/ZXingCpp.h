@@ -68,7 +68,7 @@ int main()
 	auto options = ZXing::WriterOptions().scale(4).addQuietZones(false);
 	auto svg = ZXing::WriteBarcodeToSVG(barcode, options);
 
-    std::cout << svg << std::endl;
+	std::cout << svg << std::endl;
 
 	return 0;
 }

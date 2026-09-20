@@ -14,13 +14,22 @@ import dev.ragnarok.fenrir.db.interfaces.Cancelable
 import dev.ragnarok.fenrir.db.interfaces.ICommentsStorage
 import dev.ragnarok.fenrir.db.model.entity.CommentEntity
 import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
+import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.mappers.Entity2Model
+import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillCommentOwnerIds
+import dev.ragnarok.fenrir.domain.mappers.Model2Entity
 import dev.ragnarok.fenrir.exception.DatabaseException
+import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.getBlob
 import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.getInt
 import dev.ragnarok.fenrir.getLong
 import dev.ragnarok.fenrir.getString
 import dev.ragnarok.fenrir.ifNonNullNoEmpty
+import dev.ragnarok.fenrir.model.AbsModel
+import dev.ragnarok.fenrir.model.Comment
+import dev.ragnarok.fenrir.model.CommentIntent
 import dev.ragnarok.fenrir.model.CommentUpdate
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.DraftComment
@@ -28,12 +37,16 @@ import dev.ragnarok.fenrir.model.criteria.CommentsCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Exestime.log
-import dev.ragnarok.fenrir.util.Unixtime.now
+import dev.ragnarok.fenrir.util.UnixTime.now
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
+import dev.ragnarok.fenrir.util.VKOwnIds
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
@@ -144,7 +157,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
     override fun getDbosByCriteria(criteria: CommentsCriteria): Flow<List<CommentEntity>> {
         return flow {
             val cursor = createCursorByCriteria(criteria)
-            val cancelation = object : Cancelable {
+            val cancellation = object : Cancelable {
                 override suspend fun canceled(): Boolean = !isActive()
             }
             val dbos: MutableList<CommentEntity> = ArrayList(safeCountOf(cursor))
@@ -158,7 +171,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                             criteria.accountId, cursor,
                             includeAttachments = true,
                             forceAttachments = false,
-                            cancelable = cancelation
+                            cancelable = cancellation
                         )
                     )
                 }
@@ -208,7 +221,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
     ): Flow<Int> {
         return flow {
             val start = System.currentTimeMillis()
-            var id = findEditingCommentId(accountId, commented)
+            var id = findCommentDbId(accountId, CommentsColumns.PROCESSING_COMMENT_ID, commented)
             val contentValues = ContentValues()
             contentValues.put(CommentsColumns.COMMENT_ID, CommentsColumns.PROCESSING_COMMENT_ID)
             contentValues.put(CommentsColumns.TEXT, text)
@@ -223,6 +236,8 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             contentValues.putNull(CommentsColumns.THREADS)
             contentValues.put(CommentsColumns.LIKES, 0)
             contentValues.put(CommentsColumns.USER_LIKES, false)
+            contentValues.put(CommentsColumns.CAN_EDIT, true)
+            contentValues.put(CommentsColumns.CAN_LIKE, true)
             val commentsWithAccountUri = getCommentsContentUriFor(accountId)
             if (id == null) {
                 val uri = contentResolver.insert(commentsWithAccountUri, contentValues)
@@ -250,16 +265,67 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                 cv.put(CommentsColumns.DELETED, it.deleted)
             }
             val uri = getCommentsContentUriFor(update.accountId)
-            val where =
-                CommentsColumns.SOURCE_OWNER_ID + " = ? AND " + CommentsColumns.COMMENT_ID + " = ?"
-            val args =
-                arrayOf(
+            contentResolver.update(
+                uri, cv, CommentsColumns.COMMENT_ID + " = ? AND " +
+                        CommentsColumns.SOURCE_ID + " = ? AND " +
+                        CommentsColumns.SOURCE_OWNER_ID + " = ? AND " +
+                        CommentsColumns.SOURCE_TYPE + " = ?", arrayOf(
+                    update.commentId.toString(),
+                    update.commented.sourceId.toString(),
                     update.commented.sourceOwnerId.toString(),
-                    update.commentId.toString()
+                    update.commented.sourceType.toString()
                 )
-            contentResolver.update(uri, cv, where, args)
+            )
             minorUpdatesPublisher.emit(update)
             emit(true)
+        }
+    }
+
+    override fun commitEditComment(
+        accountId: Long,
+        commentId: Int,
+        commented: Commented,
+        text: String?,
+        attachments: List<AbsModel>?
+    ): Flow<Comment> {
+        return flow {
+            val dbId = findCommentDbId(accountId, commentId, commented) ?: throw NotFoundException()
+
+            val cv = ContentValues()
+            cv.put(CommentsColumns.TEXT, text)
+            cv.put(CommentsColumns.ATTACHMENTS_COUNT, attachments.orEmpty().size)
+            val uri = getCommentsContentUriFor(accountId)
+            contentResolver.update(
+                uri, cv, BaseColumns._ID + " = ?", arrayOf(
+                    dbId.toString()
+                )
+            )
+            emit(dbId)
+        }.flatMapConcat { dbId ->
+            stores.attachments().removeAll(accountId, AttachToType.COMMENT, dbId).andThen(
+                if (attachments.nonNullNoEmpty()) {
+                    stores.attachments().attachDbos(
+                        accountId, AttachToType.COMMENT, dbId,
+                        Model2Entity.buildDboAttachments(attachments)
+                    )
+                } else {
+                    emptyTaskFlow()
+                }
+            ).flatMapConcat {
+                getByDbId(accountId, dbId).flatMapConcat { ce ->
+                    val ownids = VKOwnIds()
+                    fillCommentOwnerIds(ownids, ce)
+                    Repository.owners
+                        .findBaseOwnersDataAsBundle(
+                            accountId,
+                            ownids.all,
+                            IOwnersRepository.MODE_ANY
+                        )
+                        .map { owns ->
+                            Entity2Model.buildCommentFromDbo(ce, owns) ?: throw NotFoundException()
+                        }
+                }
+            }
         }
     }
 
@@ -267,17 +333,86 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
         return minorUpdatesPublisher
     }
 
-    override fun deleteByDbid(accountId: Long, dbid: Int): Flow<Boolean> {
+    override fun deleteByDbId(accountId: Long, dbId: Int): Flow<Boolean> {
         return flow {
             val uri = getCommentsContentUriFor(accountId)
             val where = BaseColumns._ID + " = ?"
-            val args = arrayOf(dbid.toString())
+            val args = arrayOf(dbId.toString())
             contentResolver.delete(uri, where, args)
             emit(true)
         }
     }
 
-    private fun findEditingCommentId(aid: Long, commented: Commented): Int? {
+    override fun updateDraftCommentAndGet(
+        accountId: Long,
+        dbId: Int,
+        newCommentId: Int,
+        intent: CommentIntent
+    ): Flow<Comment> {
+        return flow {
+            val cv = ContentValues()
+            cv.put(CommentsColumns.COMMENT_ID, newCommentId)
+            cv.put(CommentsColumns.DATE, now())
+            cv.put(CommentsColumns.TEXT, intent.message)
+            cv.put(CommentsColumns.ATTACHMENTS_COUNT, intent.attachmentCounts)
+            val uri = getCommentsContentUriFor(accountId)
+            contentResolver.update(
+                uri, cv, BaseColumns._ID + " = ?", arrayOf(
+                    dbId.toString()
+                )
+            )
+            emit(true)
+        }.flatMapConcat {
+            getByDbId(accountId, dbId).flatMapConcat { ce ->
+                val ownids = VKOwnIds()
+                fillCommentOwnerIds(ownids, ce)
+                Repository.owners
+                    .findBaseOwnersDataAsBundle(
+                        accountId,
+                        ownids.all,
+                        IOwnersRepository.MODE_ANY
+                    )
+                    .map { owns ->
+                        Entity2Model.buildCommentFromDbo(ce, owns) ?: throw NotFoundException()
+                    }
+                    .map {
+                        if (intent.stickerId != null) {
+                            it.setText("[sticker]")
+                        }
+                        it
+                    }
+            }
+        }
+    }
+
+    override fun getByDbId(accountId: Long, dbId: Int): Flow<CommentEntity> {
+        return flow {
+            val uri = getCommentsContentUriFor(accountId)
+            val where = BaseColumns._ID + " = ?"
+            val args = arrayOf(dbId.toString())
+            val cursor = contentResolver.query(uri, null, where, args, null)
+            val cancellation = object : Cancelable {
+                override suspend fun canceled(): Boolean = !isActive()
+            }
+            if (cursor != null) {
+                if (cursor.moveToNext()) {
+                    val comment = mapDbo(
+                        accountId, cursor,
+                        includeAttachments = true,
+                        forceAttachments = false,
+                        cancelable = cancellation
+                    )
+                    cursor.close()
+                    emit(comment)
+                    return@flow
+                }
+                cursor.close()
+            }
+            throw NotFoundException()
+        }
+    }
+
+    private fun findCommentDbId(aid: Long, commentId: Int, commented: Commented): Int? {
         val projection = arrayOf(BaseColumns._ID)
         val cursor = contentResolver.query(
             getCommentsContentUriFor(aid), projection,
@@ -285,7 +420,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                     CommentsColumns.SOURCE_ID + " = ? AND " +
                     CommentsColumns.SOURCE_OWNER_ID + " = ? AND " +
                     CommentsColumns.SOURCE_TYPE + " = ?", arrayOf(
-                CommentsColumns.PROCESSING_COMMENT_ID.toString(),
+                commentId.toString(),
                 commented.sourceId.toString(),
                 commented.sourceOwnerId.toString(),
                 commented.sourceType.toString()
@@ -375,6 +510,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             cv.put(CommentsColumns.LIKES, dbo.likesCount)
             cv.put(CommentsColumns.USER_LIKES, dbo.isUserLikes)
             cv.put(CommentsColumns.CAN_LIKE, dbo.isCanLike)
+            cv.put(CommentsColumns.CAN_EDIT, dbo.isCanEdit)
             cv.put(CommentsColumns.ATTACHMENTS_COUNT, dbo.attachmentsCount)
             cv.put(CommentsColumns.SOURCE_ID, sourceId)
             cv.put(CommentsColumns.SOURCE_OWNER_ID, sourceOwnerId)

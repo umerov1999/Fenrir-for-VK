@@ -22,7 +22,7 @@ class IFriendsService : IServiceRest() {
     /*@FormUrlEncoded
     @POST("execute")
     Single<BaseResponse<FriendsWithCountersResponse>> getWithMyCounters(@Field("code") String code);*/
-    operator fun get(
+    fun get(
         userId: Long?,
         order: String?,
         listId: Int?,

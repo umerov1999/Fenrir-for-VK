@@ -3,7 +3,7 @@
     <integer name="files_column_count">4</integer>
     <integer name="articles_column_count">2</integer>
     <integer name="videos_column_count">3</integer>
-    <integer name="photos_column_count">4</integer>
+    <integer name="photos_column_count">6</integer>
     <integer name="local_gallery_column_count">5</integer>
     <integer name="photos_albums_column_count">4</integer>
     <integer name="catalog_2_link_column_count">5</integer>
@@ -13,6 +13,9 @@
 
     <dimen name="navi_drawer_icon_size">20dp</dimen>
     <integer name="privacy_entry_column_count">5</integer>
+
+    <dimen name="chat_padding">26dp</dimen>
+    <dimen name="tablet_padding">160dp</dimen>
 
     <integer name="attachments_editor_column_count">6</integer>
 </resources>

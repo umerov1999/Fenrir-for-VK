@@ -2,6 +2,13 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <LinearLayout
+        android:id="@+id/forward_messages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:orientation="vertical" />
+
     <dev.ragnarok.fenrir.view.mozaik.MozaikLayout
         android:id="@+id/photo_attachments"
         android:layout_width="wrap_content"
@@ -51,12 +58,5 @@
         android:id="@+id/biglinks_attachments"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:id="@+id/forward_messages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="start"
         android:orientation="vertical" />
 </merge>

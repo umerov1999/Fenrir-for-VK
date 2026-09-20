@@ -17,7 +17,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.prefs.DoubleRepresentation
 import kotlinx.serialization.prefs.Preferences
 
-@OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
+@OptIn(InternalSerializationApi::class)
 @Suppress("TooManyFunctions")
 internal class PreferenceDecoder(
     private val preferences: Preferences,

@@ -111,7 +111,7 @@ interface IGroupsApi {
     fun join(groupId: Long, notSure: Int?): Flow<Boolean>
 
     @CheckResult
-    operator fun get(
+    fun get(
         userId: Long?, extended: Boolean?, filter: String?,
         fields: String?, offset: Int?, count: Int?
     ): Flow<Items<VKApiCommunity>>

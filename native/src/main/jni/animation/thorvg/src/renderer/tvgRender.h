@@ -152,6 +152,11 @@ struct RenderRegion
         if (rhs.max.y > max.y) max.y = rhs.max.y;
     }
 
+    bool inside(const Point& pt) const
+    {
+        return (pt.x >= min.x && pt.x < max.x && pt.y >= min.y && pt.y < max.y);
+    }
+
     bool contained(const RenderRegion& rhs) const
     {
         return (min.x <= rhs.min.x && max.x >= rhs.max.x && min.y <= rhs.min.y && max.y >= rhs.max.y);
@@ -530,6 +535,19 @@ struct RenderEffectDropShadow : RenderEffect
     float distance;
     float sigma;
     uint8_t quality;   //0 ~ 100  (optional)
+
+    bool update(const Matrix& transform, Point& offset)
+    {
+        valid = (color[3] != 0);
+        if (!valid) return false;
+
+        // Transform the offset as a direction, without translation.
+        const auto radian = tvg::deg2rad(90.0f - angle);
+        const auto x = distance * cosf(radian);
+        const auto y = -distance * sinf(radian);
+        offset = {transform.e11 * x + transform.e12 * y, transform.e21 * x + transform.e22 * y};
+        return true;
+    }
 
     static RenderEffectDropShadow* gen(va_list& args)
     {

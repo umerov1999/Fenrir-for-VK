@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.orZero
-import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.addZoomableView
 import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.getZoomableViewTag
 import dev.ragnarok.fenrir.view.zoomhelper.ZoomHelper.Companion.skipLayout
 import kotlin.math.abs
@@ -146,9 +145,7 @@ class ZoomHelper {
      * call this method in [Activity.dispatchTouchEvent]
      */
     fun dispatchTouchEvent(ev: MotionEvent, fragment: androidx.fragment.app.Fragment): Boolean {
-        if (fragment.view == null)
-            return false
-        return load(ev, fragment.requireView())
+        return fragment.view != null && load(ev, fragment.requireView())
     }
 
     /**

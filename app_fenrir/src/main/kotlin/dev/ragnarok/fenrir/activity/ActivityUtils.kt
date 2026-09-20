@@ -15,11 +15,11 @@ import dev.ragnarok.fenrir.getParcelableExtraCompat
 
 object ActivityUtils {
     fun isMimeVideo(mime: String?): Boolean {
-        return if (mime.isNullOrEmpty()) false else mime.contains("video/")
+        return !mime.isNullOrEmpty() && mime.contains("video/")
     }
 
     fun isMimeAudio(mime: String?): Boolean {
-        return if (mime.isNullOrEmpty()) false else mime.contains("audio/")
+        return !mime.isNullOrEmpty() && mime.contains("audio/")
     }
 
     fun checkLocalStreams(activity: Activity): StreamData? {
@@ -82,9 +82,9 @@ object ActivityUtils {
                 return true
             }
         }
-        return if (Intent.ACTION_SEND == action) {
-            extras.containsKey(Intent.EXTRA_STREAM) || extras.containsKey(Intent.EXTRA_TEXT)
-        } else false
+        return Intent.ACTION_SEND == action && (extras.containsKey(Intent.EXTRA_STREAM) || extras.containsKey(
+            Intent.EXTRA_TEXT
+        ))
     }
 
     fun resetInputPhotos(activity: Activity) {

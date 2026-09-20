@@ -16,6 +16,11 @@
 
     <dimen name="max_single_image_height_in_messages">400dp</dimen>
 
+    <!--Размер превью видео во вложениях-->
+    <dimen name="video_attachment_width">280dp</dimen>
+    <dimen name="video_attachment_thumb_width">160dp</dimen>
+    <dimen name="video_attachment_height">90dp</dimen>
+
     <integer name="files_column_count">2</integer>
     <integer name="articles_column_count">1</integer>
     <integer name="videos_column_count">2</integer>
@@ -58,12 +63,18 @@
     <dimen name="font_size_subtitle">15sp</dimen>
     <dimen name="font_size_additional">12sp</dimen>
 
+    <dimen name="font_size_message_text">16sp</dimen>
+    <dimen name="font_size_message_author">12sp</dimen>
+    <dimen name="font_size_fwd_message_text">14sp</dimen>
+    <dimen name="font_size_fwd_minor">11sp</dimen>
+
     <dimen name="avatar_size_big">100dp</dimen>
     <dimen name="avatar_size_chat">60dp</dimen>
     <dimen name="avatar_size_usual">48dp</dimen>
     <dimen name="avatar_size_small">36dp</dimen>
     <dimen name="avatar_size_tiny">28dp</dimen>
     <dimen name="avatar_size_min">24dp</dimen>
+    <dimen name="avatar_size_forward">18dp</dimen>
 
     <dimen name="online_dot_size">16dp</dimen>
     <dimen name="online_dot_size_big">24dp</dimen>
@@ -95,4 +106,7 @@
     <dimen name="crash_activity_horizontal_margin">16dp</dimen>
     <dimen name="crash_activity_vertical_margin">16dp</dimen>
     <dimen name="crash_error_activity_error_details_text_size">12sp</dimen>
+
+    <dimen name="chat_padding">0dp</dimen>
+    <dimen name="tablet_padding">0dp</dimen>
 </resources>

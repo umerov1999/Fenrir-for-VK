@@ -72,7 +72,8 @@ class CommunityManagersPresenter(
         val Ids: MutableList<Long> = ArrayList(contacts.size)
         for (it in contacts) Ids.add(it.userId)
         appendJob(
-            networkInterfaces.vkDefault(accountId).users()[Ids, null, Fields.FIELDS_BASE_USER, null]
+            networkInterfaces.vkDefault(accountId).users()
+                .get(Ids, null, Fields.FIELDS_BASE_USER, null)
                 .fromIOToMain({
                     val managers: MutableList<Manager> = ArrayList(it.size)
                     for (user in it) {

@@ -53,7 +53,7 @@ interface ICommentsInteractor {
         commented: Commented,
         commentThread: Int?,
         intent: CommentIntent
-    ): Flow<Comment>
+    ): Flow<Comment?>
 
     fun getAllCommentsRange(
         accountId: Long,
@@ -70,7 +70,7 @@ interface ICommentsInteractor {
         text: String?,
         commentThread: Int?,
         attachments: List<AbsModel>?
-    ): Flow<Comment>
+    ): Flow<Comment?>
 
     fun reportComment(accountId: Long, owner_id: Long, post_id: Int, reason: Int): Flow<Int>
 }

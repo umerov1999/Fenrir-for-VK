@@ -53,14 +53,14 @@ object CoroutinesUtils {
     ): Job {
         return CoroutineScope(Dispatchers.IO).launch {
             catch {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onError(it)
                     }
                 }
             }.collect {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onSuccess(it)
                     }
                 }
@@ -77,8 +77,8 @@ object CoroutinesUtils {
                     it.printStackTrace()
                 }
             }.collect {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onSuccess(it)
                     }
                 }
@@ -238,14 +238,14 @@ object CoroutinesUtils {
     ): Job {
         return scope.launch {
             catch {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onError(it)
                     }
                 }
             }.collect {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onSuccess(it)
                     }
                 }
@@ -263,8 +263,8 @@ object CoroutinesUtils {
                     it.printStackTrace()
                 }
             }.collect {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onSuccess(it)
                     }
                 }
@@ -309,8 +309,8 @@ object CoroutinesUtils {
     ): Job {
         return CoroutineScope(Dispatchers.IO).launch {
             collect {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onSuccess(it)
                     }
                 }

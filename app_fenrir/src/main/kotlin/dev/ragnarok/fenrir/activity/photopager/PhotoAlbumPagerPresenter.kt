@@ -128,7 +128,14 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         changeLoadingNowState(true)
         if (mAlbumId != -9001 && mAlbumId != -9000 && mAlbumId != -311) {
             appendJob(
-                photosInteractor[accountId, mOwnerId, mAlbumId, COUNT_PER_LOAD, mPhotos.size, !invertPhotoRev]
+                photosInteractor.get(
+                    accountId,
+                    mOwnerId,
+                    mAlbumId,
+                    COUNT_PER_LOAD,
+                    mPhotos.size,
+                    !invertPhotoRev
+                )
                     .fromIOToMain({ onActualPhotosReceived(it) }) { t ->
                         onActualDataGetError(
                             t

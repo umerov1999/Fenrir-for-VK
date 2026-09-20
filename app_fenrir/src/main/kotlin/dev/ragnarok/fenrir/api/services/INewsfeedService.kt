@@ -159,7 +159,7 @@ class INewsfeedService : IServiceRest() {
      * new_offset — Contains an offset parameter that is passed to get the next array of news.
      * next_from — Contains a from parameter that is passed to get the next array of news.
     </gid></gid></gid></uid></uid></uid> */
-    operator fun get(
+    fun get(
         filters: String?,
         returnBanned: Int?,
         startTime: Long?,

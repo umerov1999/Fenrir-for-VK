@@ -156,6 +156,7 @@
         android:layout_height="match_parent"
         android:layout_above="@id/input_view"
         android:layout_below="@id/pinned_root_view"
+        android:paddingHorizontal="@dimen/chat_padding"
         android:scrollbars="vertical" />
 
     <androidx.recyclerview.widget.RecyclerView

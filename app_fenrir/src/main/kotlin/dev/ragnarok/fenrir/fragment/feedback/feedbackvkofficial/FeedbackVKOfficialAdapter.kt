@@ -42,10 +42,7 @@ class FeedbackVKOfficialAdapter(
     private val mStartOfToday: Long = Utils.startOfTodayMillis()
     private var clickListener: ClickListener? = null
     fun checkPosition(position: Int): Boolean {
-        if (data == null) {
-            return false
-        }
-        return position >= 0 && (data?.items?.size ?: -1) > position
+        return data != null && position >= 0 && (data?.items?.size ?: -1) > position
     }
 
     fun getByPosition(position: Int): FeedbackVKOfficial? {

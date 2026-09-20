@@ -324,7 +324,7 @@ class IWallService : IServiceRest() {
         )
     }
 
-    operator fun get(
+    fun get(
         ownerId: Long?,
         domain: String?,
         offset: Int?,

@@ -7,12 +7,10 @@ object TSDemuxer {
         input: String,
         output: String,
         info: Boolean,
-        print_debug: Boolean
+        printDebug: Boolean
     ): Boolean
 
-    fun unpackTS(input: String, output: String, info: Boolean, print_debug: Boolean): Boolean {
-        return if (!isNativeLoaded) {
-            false
-        } else unpack(input, output, info, print_debug)
+    fun unpackTS(input: String, output: String, info: Boolean, printDebug: Boolean): Boolean {
+        return isNativeLoaded && unpack(input, output, info, printDebug)
     }
 }

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface ICommentsApi {
     // {"response":{"main":false,"first_id":null,"last_id":null,"admin_level":0},"execute_errors":[{"method":"video.getComments","error_code":18,"error_msg":"User was deleted or banned"},{"method":"video.getComments","error_code":18,"error_msg":"User was deleted or banned"},{"method":"video.getComments","error_code":18,"error_msg":"User was deleted or banned"},{"method":"execute.getComments","error_code":18,"error_msg":"User was deleted or banned"}]}
     @CheckResult
-    operator fun get(
+    fun get(
         sourceType: String?,
         ownerId: Long,
         sourceId: Int,

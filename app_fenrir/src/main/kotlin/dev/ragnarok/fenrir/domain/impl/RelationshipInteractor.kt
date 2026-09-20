@@ -95,7 +95,7 @@ class RelationshipInteractor(
     ): Flow<List<User>> {
         val order = if (accountId == objectId) "hints" else null
         return networker.vkDefault(accountId)
-            .friends()[objectId, order, null, count, offset, Fields.FIELDS_BASE_USER, null]
+            .friends().get(objectId, order, null, count, offset, Fields.FIELDS_BASE_USER, null)
             .map { items -> listEmptyIfNull(items.items) }
             .flatMapConcat { dtos ->
                 val dbos = mapUsers(dtos)
@@ -222,7 +222,7 @@ class RelationshipInteractor(
 
     override fun getFriendsCounters(accountId: Long, userId: Long): Flow<FriendsCounters> {
         return networker.vkDefault(accountId)
-            .users()[listOf(userId), null, "counters", null]
+            .users().get(listOf(userId), null, "counters", null)
             .map { users ->
                 if (users.isEmpty()) {
                     throw NotFoundException()

@@ -13,6 +13,7 @@
 #include "BitMatrixCursor.h"
 #include "ConcentricFinder.h"
 #include "GridSampler.h"
+#include "LocalGrid.h"
 #include "Log.h"
 #include "Matrix.h"
 #include "Pattern.h"
@@ -246,7 +247,8 @@ FinderPatternSets GenerateFinderPatternSets(FinderPatterns& patterns)
 				// Make sure distAB and distBC don't differ more than reasonable:
 				// equivalent to distAB > 2 * distBC || distBC > 2 * distAB but avoids sqrt.
 				// TODO: make sure the constant 2 is not too conservative for reasonably tilted symbols
-				if (useFilters && (distAB2 > 4 * distBC2 || distBC2 > 4 * distAB2)) {
+				int maxRatio = useFilters ? 4 : 8; // be more tolerant but still reject degenerate triangles (especially duplicate FPs)
+				if (distAB2 > maxRatio * distBC2 || distBC2 > maxRatio * distAB2) {
 					stats.rejLegRatio++;
 					continue;
 				}
@@ -824,10 +826,19 @@ DetectorResult SampleMQR(const BitMatrix& image, const ConcentricPattern& fp)
 	for (int i = 0; i < dim; ++i) {
 		auto px = bestPT(centered(PointI{i, dim}));
 		auto py = bestPT(centered(PointI{dim, i}));
-		blackPixels += cur.blackAt(px) && cur.blackAt(py);
+		blackPixels += cur.blackAt(px) + cur.blackAt(py);
 	}
 	if (blackPixels > 2 * dim / 3)
 		return {};
+
+	auto grid = LocalGrid(image, bestPT, {dim, dim});
+
+	auto tr = grid.at({dim - 1, 0}, {-2, 1}).findPattern(3, {1, 0}, "l", {}, "", {1, -1}, "ld");
+	auto bl = grid.at({0, dim - 1}, {1, -2}).findPattern(3, {0, 1}, "u", {}, "", {-1, 1}, "ur");
+	auto br = grid.at({dim - 1, dim - 1}, {-3, -3}).findCorner(5, {1, 1});
+
+	if (tr && bl && br)
+		bestPT = PerspectiveTransform(Rectangle(dim, dim, 0.5), {bestPT({0.5, 0.5}), *tr, *br, *bl});
 
 	return SampleGrid(image, dim, dim, bestPT);
 }

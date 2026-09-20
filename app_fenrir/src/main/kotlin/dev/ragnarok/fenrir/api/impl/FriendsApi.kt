@@ -76,7 +76,7 @@ internal class FriendsApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<Items<VKApiUser>> {
         return provideService(IFriendsService(), TokenType.USER, TokenType.SERVICE)
             .flatMapConcat {
-                it[userId, order, listId, count, offset, fields, nameCase]
+                it.get(userId, order, listId, count, offset, fields, nameCase)
                     .map(extractResponseWithErrorHandling())
             }
     }

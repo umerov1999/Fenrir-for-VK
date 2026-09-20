@@ -110,7 +110,7 @@ interface IPhotosApi {
     ): Flow<List<VKApiPhoto>>
 
     @CheckResult
-    operator fun get(
+    fun get(
         ownerId: Long?, albumId: String?, photoIds: Collection<Int>?, rev: Boolean?,
         offset: Int?, count: Int?
     ): Flow<Items<VKApiPhoto>>

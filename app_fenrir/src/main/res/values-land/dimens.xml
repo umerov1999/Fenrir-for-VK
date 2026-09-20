@@ -14,5 +14,8 @@
     <dimen name="keyboard_height">150dp</dimen>
     <dimen name="keyboard_max_height">480dp</dimen>
 
+    <dimen name="chat_padding">8dp</dimen>
+    <dimen name="tablet_padding">0dp</dimen>
+
     <integer name="attachments_editor_column_count">5</integer>
 </resources>

@@ -33,17 +33,11 @@ class MsgPackDataOutputArrayBuffer : MsgPackDataOutputBuffer() {
     }
 
     override fun addAll(bytes: List<Byte>): Boolean {
-        if (bytes.isNotEmpty()) {
-            return byteArrays.add(bytes.toByteArray())
-        }
-        return true
+        return bytes.isEmpty() || byteArrays.add(bytes.toByteArray())
     }
 
     override fun addAll(bytes: ByteArray): Boolean {
-        if (bytes.isNotEmpty()) {
-            return byteArrays.add(bytes)
-        }
-        return true
+        return bytes.isEmpty() || byteArrays.add(bytes)
     }
 
     override fun toByteArray(): ByteArray {
@@ -98,17 +92,11 @@ class MsgPackDataOutputArrayBufferCompressed : MsgPackDataOutputBuffer() {
     }
 
     override fun addAll(bytes: List<Byte>): Boolean {
-        if (bytes.isNotEmpty()) {
-            return byteArrays.add(bytes.toByteArray())
-        }
-        return true
+        return bytes.isEmpty() || byteArrays.add(bytes.toByteArray())
     }
 
     override fun addAll(bytes: ByteArray): Boolean {
-        if (bytes.isNotEmpty()) {
-            return byteArrays.add(bytes)
-        }
-        return true
+        return bytes.isEmpty() || byteArrays.add(bytes)
     }
 
     override fun toByteArray(): ByteArray {

@@ -21,7 +21,7 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
     IDocsInteractor {
     override fun request(accountId: Long, ownerId: Long, filter: Int): Flow<List<Document>> {
         return networker.vkDefault(accountId)
-            .docs()[ownerId, null, null, filter]
+            .docs().get(ownerId, null, null, filter)
             .map { items ->
                 listEmptyIfNull(
                     items.items
@@ -42,7 +42,7 @@ class DocsInteractor(private val networker: INetworker, private val cache: IDocs
     }
 
     override fun getCacheData(accountId: Long, ownerId: Long, filter: Int): Flow<List<Document>> {
-        return cache[DocsCriteria(accountId, ownerId).setFilter(filter)]
+        return cache.get(DocsCriteria(accountId, ownerId).setFilter(filter))
             .map { entities ->
                 val documents: MutableList<Document> = ArrayList(entities.size)
                 for (entity in entities) {

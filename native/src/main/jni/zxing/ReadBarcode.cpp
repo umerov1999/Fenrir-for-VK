@@ -23,6 +23,10 @@
 #include <memory>
 #include <stdexcept>
 
+#ifdef PRINT_DEBUG
+#include "BitMatrixIO.h"
+#endif
+
 namespace ZXing {
 
 // ==============================================================================
@@ -257,8 +261,12 @@ Barcodes ReadBarcodes(const ImageView& _iv, const ReaderOptions& opts)
 	ImageView iv = SetupLumImageView(_iv, lum, opts);
 	MultiFormatReader reader(opts);
 
-	if (opts.isPure())
-		return {FirstOrDefault(reader.read(*CreateBitmap(opts.binarizer(), iv), 1)).setReaderOptions(opts)};
+	if (opts.isPure()) {
+		auto res = reader.read(*CreateBitmap(opts.binarizer(), iv), 1);
+		if (!res.empty())
+			res.front().setReaderOptions(opts);
+		return res;
+	}
 
 	std::unique_ptr<MultiFormatReader> closedReader;
 #ifdef ZXING_EXPERIMENTAL_API
@@ -276,6 +284,10 @@ Barcodes ReadBarcodes(const ImageView& _iv, const ReaderOptions& opts)
 	int maxSymbols = opts.maxNumberOfSymbols() ? opts.maxNumberOfSymbols() : INT_MAX;
 	for (auto&& iv : pyramid.layers) {
 		auto bitmap = CreateBitmap(opts.binarizer(), iv);
+#ifdef PRINT_DEBUG_
+		static int l = 0;
+		SaveAsPBM(*bitmap->getBitMatrix(), "layer-" + std::to_string(l++) + ".pnm");
+#endif
 		for (int close = 0; close <= (closedReader ? 1 : 0); ++close) {
 			if (close) {
 				// if we already inverted the image in the first round, we need to undo that first

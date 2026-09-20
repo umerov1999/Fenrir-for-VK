@@ -135,7 +135,7 @@ class IAudioService : IServiceRest() {
      * @return Returns the total results number in count field and an array of objects describing audio in items field.
      */
     //https://vk.ru/dev/audio.get
-    operator fun get(
+    fun get(
         playlist_id: Int?,
         ownerId: Long?,
         offset: Int?,

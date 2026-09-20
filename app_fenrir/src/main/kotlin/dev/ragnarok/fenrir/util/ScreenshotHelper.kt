@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.core.graphics.createBitmap
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils
 import dev.ragnarok.fenrir.util.toast.CustomToast
 import java.io.File
 import java.io.FileOutputStream
@@ -45,15 +46,17 @@ object ScreenshotHelper {
                             }
                             val file = File(
                                 saveDir,
-                                "screenshot_" + (System.currentTimeMillis() / 1000) + ".jpg"
+                                "screenshot_" + UnixTime.now() + ".jpg"
                             )
                             val fileOutputStream = FileOutputStream(file)
                             try {
                                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
                                 fileOutputStream.flush()
-                                CustomToast.createCustomToast(activity, null)
-                                    ?.setDuration(Toast.LENGTH_LONG)
-                                    ?.showToastSuccessBottom(activity.getString(R.string.success) + " " + file.absolutePath)
+                                CoroutinesUtils.inMainThread {
+                                    CustomToast.createCustomToast(activity, null)
+                                        ?.setDuration(Toast.LENGTH_LONG)
+                                        ?.showToastSuccessBottom(activity.getString(R.string.success) + " " + file.absolutePath)
+                                }
                                 activity.sendBroadcast(
                                     @Suppress("deprecation")
                                     Intent(

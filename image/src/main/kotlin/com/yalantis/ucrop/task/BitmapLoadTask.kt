@@ -51,16 +51,16 @@ class BitmapLoadTask(
     fun execute() {
         CoroutineScope(Dispatchers.IO).launch {
             doInBackground().catch {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onPostExecute(
                             BitmapWorkerResult(it)
                         )
                     }
                 }
             }.collect {
-                if (isActive) {
-                    launch(Dispatchers.Main) {
+                if (this@launch.isActive) {
+                    this@launch.launch(Dispatchers.Main) {
                         onPostExecute(it)
                     }
                 }

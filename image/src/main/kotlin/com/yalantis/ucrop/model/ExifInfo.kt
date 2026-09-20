@@ -6,7 +6,7 @@ package com.yalantis.ucrop.model
 class ExifInfo(var exifOrientation: Int, var exifDegrees: Int, var exifTranslation: Int) {
 
     override fun equals(other: Any?): Boolean {
-        return if (other !is ExifInfo || exifOrientation != other.exifOrientation || exifDegrees != other.exifDegrees) false else exifTranslation == other.exifTranslation
+        return !(other !is ExifInfo || exifOrientation != other.exifOrientation || exifDegrees != other.exifDegrees) && exifTranslation == other.exifTranslation
     }
 
     override fun hashCode(): Int {

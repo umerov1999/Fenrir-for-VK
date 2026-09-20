@@ -52,6 +52,11 @@ const Position& Barcode::position() const
 	return d->position;
 }
 
+int Barcode::rotation() const
+{
+	return d->rotation();
+}
+
 const std::vector<uint8_t>& Barcode::bytes() const
 {
 	return d->content.bytes;
@@ -84,7 +89,7 @@ bool Barcode::hasECI() const
 
 int Barcode::orientation() const
 {
-	return narrow_cast<int>(std::lround(d->position.orientation() * 180 / std::numbers::pi));
+	return rotation();
 }
 
 bool Barcode::isMirrored() const
@@ -148,16 +153,41 @@ std::string Barcode::extra(std::string_view key) const
 	if (key == "ALL") {
 		if (format() == BarcodeFormat::None)
 			return {};
-		auto res =
-			StrCat("{", JsonProp("Text", text(TextMode::Plain)), JsonProp("HRI", text(TextMode::HRI)),
-				   JsonProp("TextECI", text(TextMode::ECI)), JsonProp("Bytes", text(TextMode::Hex)),
-				   JsonProp("Identifier", symbologyIdentifier()), JsonProp("Format", Name(format())),
-				   JsonProp("Symbology", Name(Symbology(format()))), JsonProp("ContentType", isValid() ? ToString(contentType()) : ""),
-				   JsonProp("Position", ToString(position())), JsonProp("HasECI", hasECI()), JsonProp("IsMirrored", isMirrored()),
-				   JsonProp("IsInverted", isInverted()), d->extra, JsonProp("Error", ToString(error())));
+		auto res = StrCat(
+			"{", JsonProp("Text", text(TextMode::Plain)), JsonProp("HRI", text(TextMode::HRI)),
+			JsonProp("TextECI", text(TextMode::ECI)), JsonProp("Bytes", text(TextMode::Hex)),
+			JsonProp("Identifier", symbologyIdentifier()), JsonProp("Format", Name(format())),
+			JsonProp("Symbology", Name(Symbology(format()))), JsonProp("ContentType", isValid() ? ToString(contentType()) : ""),
+			JsonProp("Position", ToString(position())), JsonProp("Rotation", rotation()), JsonProp("HasECI", hasECI()),
+			JsonProp("IsMirrored", isMirrored()), JsonProp("IsInverted", isInverted()), JsonProp("ReaderInit", readerInit()),
+			JsonProp("IsPartOfSequence", isPartOfSequence()), JsonProp("SequenceSize", sequenceSize(), -1),
+			JsonProp("SequenceIndex", sequenceIndex(), -1), JsonProp("SequenceId", sequenceId()),
+			JsonProp("IsLastInSequence", isLastInSequence()), d->extra, JsonProp("Error", ToString(error())));
 		res.back() = '}';
 		return res;
 	}
+
+	// clang-format off
+	if (key == "TextPlain")        return text(TextMode::Plain);
+	if (key == "TextHRI")          return text(TextMode::HRI);
+	if (key == "TextECI")          return text(TextMode::ECI);
+	if (key == "TextEscaped")      return text(TextMode::Escaped);
+	if (key == "TextHex")          return text(TextMode::Hex);
+	if (key == "Format")           return ToString(format());
+	if (key == "ContentType")      return ToString(contentType());
+	if (key == "Position")         return ToString(position());
+	if (key == "Rotation")         return std::to_string(rotation());
+	if (key == "HasECI")           return hasECI() ? "true" : "false";
+	if (key == "Identifier")       return symbologyIdentifier();
+	if (key == "IsMirrored")       return isMirrored() ? "true" : "false";
+	if (key == "IsInverted")       return isInverted() ? "true" : "false";
+	if (key == "IsPartOfSequence") return isPartOfSequence() ? "true" : "false";
+	if (key == "IsLastInSequence") return isLastInSequence() ? "true" : "false";
+	if (key == "SequenceId")       return sequenceId();
+	if (key == "SequenceIndex")    return std::to_string(sequenceIndex());
+	if (key == "SequenceSize")     return std::to_string(sequenceSize());
+	// clang-format on
+
 	return d->extra.empty() ? ""
 		   : key.empty()    ? StrCat("{", std::string_view(d->extra).substr(0, d->extra.size() - 1), "}") // remove trailing ','
 							: JsonGet<std::string>(d->extra, key).value_or(""); // make sure JsonUnescape() is called
@@ -183,7 +213,7 @@ bool BarcodeData::operator==(const BarcodeData& o) const
 		return IsInside(Center(o.position), position);
 	}
 
-	if (content.bytes != o.content.bytes || error != o.error || orientation() != o.orientation())
+	if (content.bytes != o.content.bytes || error != o.error || rotation() != o.rotation())
 		return false;
 
 	if (lineCount > 1 && o.lineCount > 1)
@@ -219,16 +249,20 @@ Barcode MergeStructuredAppendSequence(const Barcodes& barcodes)
 	std::list<Barcode> allBarcodes(barcodes.begin(), barcodes.end());
 	allBarcodes.sort([](const Barcode& r1, const Barcode& r2) { return r1.sequenceIndex() < r2.sequenceIndex(); });
 
-	Barcode res = allBarcodes.front();
-	for (auto i = std::next(allBarcodes.begin()); i != allBarcodes.end(); ++i)
-		res.d->content.append(i->d->content);
+	const BarcodeData* bd = allBarcodes.front().d.get();
+	Barcode res(BarcodeData{.format = bd->format, .sai = bd->sai});
+	res.d->sai.index = -1; // mark as merged sequence
+	res.d->content.symbology = bd->content.symbology;
+	for (const auto& barcode : allBarcodes)
+		res.d->content.append(barcode.d->content);
 
-	res.d->position = {};
-	res.d->sai.index = -1;
-
-	if (allBarcodes.back().sequenceSize() != Size(allBarcodes) ||
-		!std::all_of(allBarcodes.begin(), allBarcodes.end(),
-					 [&](Barcode& it) { return it.sequenceId() == allBarcodes.front().sequenceId(); }))
+	if (allBarcodes.back().sequenceSize() != Size(allBarcodes))
+		res.d->error = FormatError("incomplete sequence during structured append sequence merging");
+	else if (!std::all_of(allBarcodes.begin(), allBarcodes.end(),
+						  [&](Barcode& it) { return it.format() == allBarcodes.front().format(); }))
+		res.d->error = FormatError("format not matching during structured append sequence merging");
+	else if (!std::all_of(allBarcodes.begin(), allBarcodes.end(),
+						  [&](Barcode& it) { return it.sequenceId() == allBarcodes.front().sequenceId(); }))
 		res.d->error = FormatError("sequenceIDs not matching during structured append sequence merging");
 
 	return res;
@@ -239,7 +273,7 @@ Barcodes MergeStructuredAppendSequences(const Barcodes& barcodes)
 	std::map<std::string, Barcodes> sas;
 	for (auto& barcode : barcodes) {
 		if (barcode.isPartOfSequence())
-			sas[barcode.sequenceId()].push_back(barcode);
+			sas[StrCat(EnumName(barcode.format()), barcode.sequenceId())].push_back(barcode);
 	}
 
 	Barcodes res;

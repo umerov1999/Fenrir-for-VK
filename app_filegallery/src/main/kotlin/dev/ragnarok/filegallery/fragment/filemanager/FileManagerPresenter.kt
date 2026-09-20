@@ -301,10 +301,7 @@ class FileManagerPresenter(
             return true
         }
         val parent = path.parentFile
-        if (base && path.absolutePath == basePath) {
-            return false
-        }
-        return parent != null && parent.canRead()
+        return !(base && path.absolutePath == basePath) && parent != null && parent.canRead()
     }
 
     private fun loadCache(back: Boolean) {

@@ -235,9 +235,9 @@ object Utils {
 
     fun needReloadStickerSets(account_id: Long): Boolean {
         Settings.get().main().get_last_sticker_sets_sync(account_id).let {
-            if (it <= 0 || (System.currentTimeMillis() / 1000L) - it > 900) {
+            if (it <= 0 || UnixTime.now() - it > 900) {
                 Settings.get().main()
-                    .set_last_sticker_sets_sync(account_id, System.currentTimeMillis() / 1000L)
+                    .set_last_sticker_sets_sync(account_id, UnixTime.now())
                 return true
             }
         }
@@ -246,11 +246,11 @@ object Utils {
 
     fun needReloadStickerSetsCustom(account_id: Long): Boolean {
         Settings.get().main().get_last_sticker_sets_custom_sync(account_id).let {
-            if (it <= 0 || (System.currentTimeMillis() / 1000L) - it > 400) {
+            if (it <= 0 || UnixTime.now() - it > 400) {
                 Settings.get().main()
                     .set_last_sticker_sets_custom_sync(
                         account_id,
-                        System.currentTimeMillis() / 1000L
+                        UnixTime.now()
                     )
                 return true
             }
@@ -260,9 +260,9 @@ object Utils {
 
     fun needFetchReactionAssets(account_id: Long): Boolean {
         Settings.get().main().get_last_reaction_assets_sync(account_id).let {
-            if (it <= 0 || (System.currentTimeMillis() / 1000L) - it > 3600) {
+            if (it <= 0 || UnixTime.now() - it > 3600) {
                 Settings.get().main()
-                    .set_last_reaction_assets_sync(account_id, System.currentTimeMillis() / 1000L)
+                    .set_last_reaction_assets_sync(account_id, UnixTime.now())
                 return true
             }
         }
@@ -994,7 +994,7 @@ object Utils {
                 hiddenDevice_id =
                     PreferenceScreen.getPreferences(context).getString("hidden_device_id", null)
                 if (hiddenDevice_id.isNullOrEmpty()) {
-                    val allowedChars = ('a'..'f') + ('0'..'9')
+                    val allowedChars = ('a'..'f').plusElement(('0'..'9'))
                     hiddenDevice_id = (1..16).map { allowedChars.random() }
                         .joinToString("") + ":" + (1..32).map { allowedChars.random() }
                         .joinToString("")
@@ -1009,7 +1009,7 @@ object Utils {
                 device_id =
                     PreferenceScreen.getPreferences(context).getString("device_id", null)
                 if (device_id.isNullOrEmpty()) {
-                    val allowedChars = ('a'..'f') + ('0'..'9')
+                    val allowedChars = ('a'..'f').plusElement(('0'..'9'))
                     device_id = (1..16).map { allowedChars.random() }
                         .joinToString("") + ":" + (1..32).map { allowedChars.random() }
                         .joinToString("")
@@ -1117,7 +1117,8 @@ object Utils {
         sharingIntent.type = mime
         sharingIntent.putExtra(
             Intent.EXTRA_STREAM, FileUtil.getExportedUriForFile(activity, file)
-        ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        )
+        sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         activity.startActivity(
             Intent.createChooser(
                 sharingIntent,
@@ -1455,9 +1456,7 @@ object Utils {
     }
 
     inline fun safeCheck(obj: CharSequence?, crossinline function: () -> Boolean): Boolean {
-        return if (obj.nonNullNoEmpty()) {
-            function.invoke()
-        } else false
+        return obj.nonNullNoEmpty() && function.invoke()
     }
 
     fun clamp(value: Int, min: Int, max: Int): Int {

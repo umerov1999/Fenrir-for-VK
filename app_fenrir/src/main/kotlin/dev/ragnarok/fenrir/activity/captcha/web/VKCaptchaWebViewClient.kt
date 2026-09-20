@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.activity.captcha.web
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
@@ -12,6 +13,7 @@ import dev.ragnarok.fenrir.activity.captcha.VKCaptcha
 import dev.ragnarok.fenrir.activity.captcha.VKCaptchaError
 import dev.ragnarok.fenrir.activity.captcha.VKCaptchaState
 
+@SuppressLint("MissingOnRenderProcessGone")
 internal class VKCaptchaWebViewClient(
     private val onError: () -> Unit,
     private val onPageLoaded: () -> Unit,

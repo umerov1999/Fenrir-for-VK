@@ -85,7 +85,7 @@ internal class DocsApi(accountId: Long, provider: IServiceProvider) : AbsApi(acc
     ): Flow<Items<VKApiDoc>> {
         return provideService(IDocsService(), TokenType.USER)
             .flatMapConcat {
-                it[ownerId, count, offset, type]
+                it.get(ownerId, count, offset, type)
                     .map(extractResponseWithErrorHandling())
             }
     }

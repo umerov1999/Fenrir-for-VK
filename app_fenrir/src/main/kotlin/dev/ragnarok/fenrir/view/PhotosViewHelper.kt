@@ -35,7 +35,11 @@ class PhotosViewHelper internal constructor(
     private val isAutoPlayVideo = Settings.get().main().isAutoplay_video_on_posts
 
     @SuppressLint("SetTextI18n")
-    fun displayVideos(videos: List<PostImage>, container: ViewGroup) {
+    fun displayVideos(
+        videos: List<PostImage>,
+        container: ViewGroup,
+        useCompactLayout: Boolean = false
+    ) {
         if (videos.isEmpty()) {
             if (container.isNotEmpty()) {
                 container.removeAllViews()
@@ -46,9 +50,14 @@ class PhotosViewHelper internal constructor(
         container.visibility = View.VISIBLE
 
         val i = videos.size - container.childCount
+        val layoutRes = if (useCompactLayout) {
+            R.layout.item_video_attachment_compact
+        } else {
+            R.layout.item_video_attachment
+        }
         (0 until i).forEach { _ ->
             val root = LayoutInflater.from(context)
-                .inflate(R.layout.item_video_attachment, container, false)
+                .inflate(layoutRes, container, false)
             container.addView(root)
         }
         if (container.childCount > videos.size) {

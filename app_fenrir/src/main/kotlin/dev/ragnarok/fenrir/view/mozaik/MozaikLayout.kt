@@ -2,12 +2,12 @@ package dev.ragnarok.fenrir.view.mozaik
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.widget.RelativeLayout
 import androidx.core.view.isGone
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.PostImage
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.mozaik.MatrixCalculator.Libra
 import kotlin.math.roundToInt
 
@@ -27,7 +27,7 @@ class MozaikLayout : RelativeLayout {
         //this.maxSingleImageHeight = (int) context.getResources().getDimension(R.dimen.max_single_image_height);
         maxSingleImageHeight = displayHeight
         prefImageSize = context.resources.getDimension(R.dimen.pref_image_size).toInt()
-        spacing = dpToPx(1f).toInt()
+        spacing = Utils.dpToPx(1f, context).toInt()
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
@@ -57,7 +57,10 @@ class MozaikLayout : RelativeLayout {
                 R.styleable.MozaikLayout_prefImageSize,
                 context.resources.getDimension(R.dimen.pref_image_size)
             ).toInt()
-            spacing = a.getDimensionPixelSize(R.styleable.MozaikLayout_spacing, dpToPx(1f).toInt())
+            spacing = a.getDimensionPixelSize(
+                R.styleable.MozaikLayout_spacing,
+                Utils.dpToPx(1f, context).toInt()
+            )
         } finally {
             a.recycle()
         }
@@ -107,6 +110,10 @@ class MozaikLayout : RelativeLayout {
     }
 
     private fun createMatrix(maxWidth: Int): Array<IntArray>? {
+        if (maxWidth <= 0 || photos.isEmpty()) {
+            // панель еще не измерена (например, весовая ширина при первом проходе)
+            return null
+        }
         val prefRowCount = getPreferedRowCount(maxWidth)
 
         //long start = System.currentTimeMillis();
@@ -125,12 +132,16 @@ class MozaikLayout : RelativeLayout {
             proportionDpSum = (proportionDpSum + proportion * dpPerProportion).toInt()
         }
         val maxContainerWidthDp = convertPixtoDip(maxWidthPx)
+        if (maxContainerWidthDp <= 0) {
+            return 1
+        }
         var prefRowCount =
             (proportionDpSum.toDouble() / maxContainerWidthDp.toDouble()).roundToInt()
         if (prefRowCount == 0) {
             prefRowCount = 1
         }
-        return prefRowCount
+        // не даем перебору вариантов выйти за разумные пределы
+        return minOf(prefRowCount, photos.size)
     }
 
     val density: Float
@@ -187,14 +198,6 @@ class MozaikLayout : RelativeLayout {
     fun setPhotos(photos: List<PostImage>) {
         this.photos = photos
         layoutParamsCalculator = null
-    }
-
-    private fun dpToPx(dp: Float): Float {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics
-        )
     }
 
     private fun getLayoutParamsForSingleImage(

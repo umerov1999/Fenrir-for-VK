@@ -65,10 +65,7 @@ abstract class AbsDtoAdapter<T>(name: String) : KSerializer<T> {
                 returns(true) implies (obj != null)
             }
             obj ?: return false
-            if (obj.containsKey(name)) {
-                return checkPrimitive(obj[name])
-            }
-            return false
+            return obj.containsKey(name) && checkPrimitive(obj[name])
         }
 
         fun hasObject(obj: JsonObject?, name: String): Boolean {
@@ -76,10 +73,7 @@ abstract class AbsDtoAdapter<T>(name: String) : KSerializer<T> {
                 returns(true) implies (obj != null)
             }
             obj ?: return false
-            if (obj.containsKey(name)) {
-                return checkObject(obj[name])
-            }
-            return false
+            return obj.containsKey(name) && checkObject(obj[name])
         }
 
         fun hasArray(obj: JsonObject?, name: String): Boolean {
@@ -87,10 +81,7 @@ abstract class AbsDtoAdapter<T>(name: String) : KSerializer<T> {
                 returns(true) implies (obj != null)
             }
             obj ?: return false
-            if (obj.containsKey(name)) {
-                return checkArray(obj[name])
-            }
-            return false
+            return obj.containsKey(name) && checkArray(obj[name])
         }
 
         @JvmOverloads

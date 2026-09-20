@@ -206,6 +206,7 @@ import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.MainActivityTransforms
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
@@ -385,10 +386,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        if (navigationView?.checkCloseByClick(ev) == true) {
-            return true
-        }
-        return if (!isZoomPhoto) {
+        return navigationView?.checkCloseByClick(ev) == true || if (!isZoomPhoto) {
             super.dispatchTouchEvent(ev)
         } else getInstance()?.dispatchTouchEvent(ev, this) == true || super.dispatchTouchEvent(ev)
     }
@@ -619,7 +617,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                                 }
                             })
                     Settings.get().main().last_audio_sync.let {
-                        if (it > 0 && (System.currentTimeMillis() / 1000L) - it > 900) {
+                        if (it > 0 && UnixTime.now() - it > 900) {
                             Settings.get().main().set_last_audio_sync(-1)
                             mCompositeJob.add(
                                 Includes.stores.tempStore().deleteAudios()
@@ -833,7 +831,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                             1 -> {
                                 val clipBoard =
                                     getSystemService(CLIPBOARD_SERVICE) as ClipboardManager?
-                                if (clipBoard != null && clipBoard.primaryClip != null && clipBoard.primaryClip?.itemCount.orZero() > 0 && (clipBoard.primaryClip
+                                if (clipBoard?.primaryClip != null && clipBoard.primaryClip?.itemCount.orZero() > 0 && (clipBoard.primaryClip
                                         ?: return@show).getItemAt(0).text != null
                                 ) {
                                     val temp =
@@ -1026,10 +1024,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             ACTION_OPEN_PLACE == intent.action -> {
                 val place: Place = intent.getParcelableExtraCompat(Extra.PLACE) ?: return false
                 openPlace(place)
-                return if (place.type == Place.CHAT) {
-                    Settings.get().ui().swipes_chat_mode != SwipesChatMode.SLIDR || Settings.get()
-                        .ui().swipes_chat_mode == SwipesChatMode.DISABLED
-                } else true
+                return place.type != Place.CHAT || Settings.get()
+                    .ui().swipes_chat_mode != SwipesChatMode.SLIDR || Settings.get()
+                    .ui().swipes_chat_mode == SwipesChatMode.DISABLED
             }
 
             ACTION_OPEN_AUDIO_PLAYER == intent.action -> {

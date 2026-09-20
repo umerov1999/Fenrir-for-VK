@@ -25,7 +25,7 @@ import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Unixtime.now
+import dev.ragnarok.fenrir.util.UnixTime.now
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
@@ -64,20 +64,13 @@ class PostEditPresenter(
     }
 
     private fun postIsMine(): Boolean {
-        return if (post.creatorId > 0 && post.creatorId == accountId) {
-            true
-        } else post.signerId > 0 && post.signerId == accountId
+        return post.creatorId > 0 && post.creatorId == accountId || post.signerId > 0 && post.signerId == accountId
     }
 
     private fun supportSignerInfoDisplaying(): Boolean {
-        if (!isAddSignatureOptionAvailable()) {
-            return false
-        }
+        return isAddSignatureOptionAvailable() && (postIsSuggest() && !postIsMine() || post.creator != null)
 
         // потому что она может быть недоступна (signer == null)
-        return if (postIsSuggest() && !postIsMine()) {
-            true
-        } else post.creator != null
     }
 
     override fun onGuiCreated(viewHost: IPostEditView) {
@@ -322,14 +315,12 @@ class PostEditPresenter(
         }
 
     private fun supportTimer(): Boolean {
-        return if (owner is Community && (owner as Community).adminLevel < VKApiCommunity.AdminLevel.EDITOR) {
-            // если сообщество и я не одмен, то нет
-            false
-        } else intValueIn(
+        return !(owner is Community && (owner as Community).adminLevel < VKApiCommunity.AdminLevel.EDITOR) && intValueIn(
             post.postType,
             VKApiPost.Type.POSTPONE,
             VKApiPost.Type.SUGGEST
         )
+        // если сообщество и я не админ, то нет
     }
 
     fun fireReadyClick() {

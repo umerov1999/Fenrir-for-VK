@@ -35,11 +35,7 @@ class StoryPagerPresenter(
     private var loadingNow = false
 
     fun isStoryIsVideo(pos: Int): Boolean {
-        return if (mStories.isEmpty()) {
-            false
-        } else {
-            mStories[pos].isStoryIsVideo()
-        }
+        return mStories.isNotEmpty() && mStories[pos].isStoryIsVideo()
     }
 
     fun togglePlaybackSpeed(): Boolean {

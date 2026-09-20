@@ -221,9 +221,7 @@ class CustomQRCodeWriter {
         if ((x < sideQuadSize || x >= input.width - sideQuadSize) && y < sideQuadSize) {
             return false
         }
-        return if (x < sideQuadSize && y >= input.height - sideQuadSize) {
-            false
-        } else x >= 0 && y >= 0 && x < input.width && y < input.height && input[x, y].toInt() == 1
+        return !(x < sideQuadSize && y >= input.height - sideQuadSize) && x >= 0 && y >= 0 && x < input.width && y < input.height && input[x, y].toInt() == 1
     }
 
     companion object {

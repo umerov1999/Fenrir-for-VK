@@ -159,7 +159,7 @@ class IUsersService : IServiceRest() {
      * @return Returns a list of user objects.
      * A deactivated field may be returned with the value deleted or banned if a user has been suspended.
      */
-    operator fun get(
+    fun get(
         userIds: String?,
         fields: String?,
         nameCase: String?

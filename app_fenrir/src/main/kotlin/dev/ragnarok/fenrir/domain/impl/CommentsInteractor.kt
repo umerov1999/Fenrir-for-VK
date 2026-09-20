@@ -35,19 +35,18 @@ import dev.ragnarok.fenrir.model.DraftComment
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.criteria.CommentsCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
-import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyListFlow
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.ignoreElement
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.repeatUntil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
 import kotlin.math.abs
 
 class CommentsInteractor(
@@ -129,7 +128,18 @@ class CommentsInteractor(
         offset: Int
     ): Flow<List<Comment>> {
         return networker.vkDefault(accountId)
-            .comments()["post", ownerId, postId, offset, 100, "desc", null, null, null, Fields.FIELDS_BASE_OWNER]
+            .comments().get(
+                "post",
+                ownerId,
+                postId,
+                offset,
+                100,
+                "desc",
+                null,
+                null,
+                null,
+                Fields.FIELDS_BASE_OWNER
+            )
             .flatMapConcat { response ->
                 val commentDtos =
                     response.main?.comments.orEmpty()
@@ -159,7 +169,18 @@ class CommentsInteractor(
     ): Flow<CommentsBundle> {
         val type = commented.typeForStoredProcedure
         return networker.vkDefault(accountId)
-            .comments()[type, commented.sourceOwnerId, commented.sourceId, offset, count, sort, startCommentId, threadComment, commented.accessKey, Fields.FIELDS_BASE_OWNER]
+            .comments().get(
+                type,
+                commented.sourceOwnerId,
+                commented.sourceId,
+                offset,
+                count,
+                sort,
+                startCommentId,
+                threadComment,
+                commented.accessKey,
+                Fields.FIELDS_BASE_OWNER
+            )
             .flatMapConcat { response ->
                 val commentDtos =
                     response.main?.comments.orEmpty()
@@ -347,7 +368,7 @@ class CommentsInteractor(
         commented: Commented,
         commentThread: Int?,
         intent: CommentIntent
-    ): Flow<Comment> {
+    ): Flow<Comment?> {
         val cachedAttachments: Flow<List<IAttachmentToken>> =
             intent.draftMessageId.requireNonNull({
                 getCachedAttachmentsToken(accountId, it)
@@ -356,29 +377,30 @@ class CommentsInteractor(
             })
         return cachedAttachments
             .flatMapConcat { cachedTokens ->
-                val tokens: MutableList<IAttachmentToken> = ArrayList()
-                tokens.addAll(cachedTokens)
-                intent.models.nonNullNoEmpty {
-                    tokens.addAll(createTokens(it))
-                }
-                sendComment(accountId, commented, intent, tokens)
+                intent.setAttachmentCounts(cachedTokens.size)
+                sendComment(accountId, commented, intent, cachedTokens)
                     .flatMapConcat { id ->
-                        getCommentByIdAndStore(
-                            accountId,
-                            commented,
-                            id,
-                            commentThread,
-                            true
-                        )
-                    }
-                    .map { comment ->
-                        intent.draftMessageId.requireNonNull({
-                            cache.comments()
-                                .deleteByDbid(accountId, it).single()
-                            comment
-                        }, {
-                            comment
-                        })
+                        val dbId = intent.draftMessageId
+                        if (id <= 0) {
+                            throw NotFoundException()
+                        }
+                        if (dbId == null) {
+                            safeDraftComment(
+                                accountId,
+                                commented,
+                                null,
+                                intent.replyToComment.orZero(),
+                                0
+                            )
+                        } else {
+                            flowOf(dbId)
+                        }.flatMapConcat {
+                            if (commentThread != null) {
+                                flowOf(null)
+                            } else {
+                                cache.comments().updateDraftCommentAndGet(accountId, it, id, intent)
+                            }
+                        }
                     }
             }
     }
@@ -432,7 +454,8 @@ class CommentsInteractor(
         return ownersRepository.getBaseOwnerInfo(accountId, accountId, IOwnersRepository.MODE_ANY)
             .flatMapConcat { owner ->
                 networker.vkDefault(accountId)
-                    .groups()[accountId, true, "admin,editor", Fields.FIELDS_BASE_OWNER, null, 1000]
+                    .groups()
+                    .get(accountId, true, "admin,editor", Fields.FIELDS_BASE_OWNER, null, 1000)
                     .map { obj -> obj.items.orEmpty() }
                     .map {
                         val owners: MutableList<Owner> = ArrayList(it.size + 1)
@@ -450,7 +473,7 @@ class CommentsInteractor(
         text: String?,
         commentThread: Int?,
         attachments: List<AbsModel>?
-    ): Flow<Comment> {
+    ): Flow<Comment?> {
         val tokens: MutableList<IAttachmentToken> = ArrayList()
         if (attachments != null) {
             tokens.addAll(createTokens(attachments))
@@ -483,13 +506,12 @@ class CommentsInteractor(
             else -> throw IllegalArgumentException("Unknown commented source type")
         }
         return editSingle.flatMapConcat {
-            getCommentByIdAndStore(
-                accountId,
-                commented,
-                commentId,
-                commentThread,
-                true
-            )
+            if (commentThread != null) {
+                flowOf(null)
+            } else {
+                cache.comments()
+                    .commitEditComment(accountId, commentId, commented, text, attachments)
+            }
         }
     }
 
@@ -654,65 +676,6 @@ class CommentsInteractor(
 
             else -> throw UnsupportedOperationException()
         }
-    }
-
-    private fun getCommentByIdAndStore(
-        accountId: Long,
-        commented: Commented,
-        commentId: Int,
-        commentThread: Int?,
-        storeToCache: Boolean
-    ): Flow<Comment> {
-        val type = commented.typeForStoredProcedure
-        val sourceId = commented.sourceId
-        val ownerId = commented.sourceOwnerId
-        val sourceType = commented.sourceType
-        return networker.vkDefault(accountId)
-            .comments()[type, commented.sourceOwnerId, commented.sourceId, 0, 1, null, commentId, commentThread, commented.accessKey, Fields.FIELDS_BASE_OWNER]
-            .flatMapConcat { response ->
-                if (response.main == null || safeCountOf(response.main?.comments) != 1) {
-                    throw NotFoundException()
-                }
-                val comments = response.main?.comments ?: throw NotFoundException()
-                val users = response.main?.profiles
-                val communities = response.main?.groups
-                val storeCompletable = if (storeToCache) {
-                    val dbos: MutableList<CommentEntity> = ArrayList(comments.size)
-                    for (dto in comments) {
-                        dbos.add(
-                            mapComment(
-                                commented.sourceId,
-                                commented.sourceOwnerId,
-                                commented.sourceType,
-                                commented.accessKey,
-                                dto
-                            )
-                        )
-                    }
-                    cache.comments()
-                        .insert(
-                            accountId,
-                            sourceId,
-                            ownerId,
-                            sourceType,
-                            dbos,
-                            mapOwners(users, communities),
-                            false
-                        )
-                        .ignoreElement()
-                } else {
-                    emptyTaskFlow()
-                }
-                storeCompletable.andThen(
-                    transform(
-                        accountId,
-                        commented,
-                        comments,
-                        users,
-                        communities
-                    )
-                        .map { data -> data[0] })
-            }
     }
 
     override fun reportComment(

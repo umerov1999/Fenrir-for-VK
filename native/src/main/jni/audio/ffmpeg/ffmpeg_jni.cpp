@@ -107,24 +107,6 @@ void logError(const char *functionName, int errorNumber);
  */
 void releaseContext(AVCodecContext *context);
 
-jint FFMPEG_JNI_OnLoad(JNIEnv *env) {
-    jclass clazz =
-            env->FindClass("androidx/media3/decoder/ffmpeg/FfmpegAudioDecoder");
-    if (!clazz) {
-        LOGE("JNI_OnLoad: FindClass failed");
-        return -1;
-    }
-    growOutputBufferMethod =
-            env->GetMethodID(clazz, "growOutputBuffer",
-                             "(Landroidx/media3/decoder/"
-                             "SimpleDecoderOutputBuffer;I)Ljava/nio/ByteBuffer;");
-    if (!growOutputBufferMethod) {
-        LOGE("JNI_OnLoad: GetMethodID failed");
-        return -1;
-    }
-    return JNI_VERSION_1_6;
-}
-
 LIBRARY_FUNC(jstring, ffmpegGetVersion) {
     return env->NewStringUTF(LIBAVCODEC_IDENT);
 }
@@ -412,4 +394,22 @@ void releaseContext(AVCodecContext *context) {
         context->opaque = nullptr;
     }
     avcodec_free_context(&context);
+}
+
+bool FFMPEG_JNI_OnLoad(JNIEnv *env) {
+    jclass clazz =
+            env->FindClass("androidx/media3/decoder/ffmpeg/FfmpegAudioDecoder");
+    if (!clazz) {
+        LOGE("JNI_OnLoad: FindClass failed");
+        return false;
+    }
+    growOutputBufferMethod =
+            env->GetMethodID(clazz, "growOutputBuffer",
+                             "(Landroidx/media3/decoder/"
+                             "SimpleDecoderOutputBuffer;I)Ljava/nio/ByteBuffer;");
+    if (!growOutputBufferMethod) {
+        LOGE("JNI_OnLoad: GetMethodID failed");
+        return false;
+    }
+    return true;
 }

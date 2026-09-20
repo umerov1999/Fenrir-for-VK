@@ -6,7 +6,7 @@ import dev.ragnarok.fenrir.api.rest.IServiceRest
 import kotlinx.coroutines.flow.Flow
 
 class ICommentsService : IServiceRest() {
-    operator fun get(
+    fun get(
         code: String?,
         sourceType: String?,
         ownerId: Long,

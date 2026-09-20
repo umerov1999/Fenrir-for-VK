@@ -9,8 +9,13 @@ interface IAttachmentsStorage : IStorage {
     fun remove(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int,
         generatedAttachmentId: Int
+    ): Flow<Boolean>
+
+    fun removeAll(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        attachToDbid: Int
     ): Flow<Boolean>
 
     fun attachDbos(

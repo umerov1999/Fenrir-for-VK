@@ -377,7 +377,7 @@ static Clusters FindCandidates(const BitMatrix& image, bool tryHarder, bool reve
 #endif
 
 		// remove complete segment if too small, too spread out or contains non-monotonic sequence
-		if (Size(segs) < 3 || std::abs(segs.back().idx - segs.front().idx) > 2 * Size(segs)
+		if (Size(segs) < 3 || std::abs(segs.back().idx - segs.front().idx) > 3 * Size(segs)
 			|| (LRAP_WITH_CW && !std::ranges::is_sorted(segs, {}, &Segment::idx)))
 			return true;
 
@@ -399,7 +399,7 @@ static Clusters FindCandidates(const BitMatrix& image, bool tryHarder, bool reve
 	log_l("\n# found LRAPs: %d", Size(res));
 	for (const auto& cluster : res) {
 		for (auto lrap : cluster)
-			log_l("%d @ %dx%d (width: %d)", lrap.idx, lrap.x, lrap.y, lrap.width);
+			log_l("%d @ %4dx%4d (width: %d)", lrap.idx, lrap.x * 5, lrap.y * 5, lrap.width * 5);
 		log_l();
 	}
 #endif
@@ -420,7 +420,7 @@ static int DetermineNumCols(BitMatrixModuleCursorF& start, const Cluster& lraps)
 			if (!pair.first || !SkipCodeword(cur))
 				continue;
 
-			log_t("\nLRAP: %2d @ %5.1fx%5.1f ", pair.first, cur.p.x, cur.p.y);
+			log_t("\nLRAP: %2d @ %4.0fx%4.0f %3.0f -> ", pair.first, cur.p.x * 5, cur.p.y * 5, cur.ms * 5);
 
 			auto checkRAP = [&](RAP rap, int colI) {
 				--colI;
@@ -521,6 +521,10 @@ static const SymbolInfo& DetermineSymbolInfo(const Matrix<Codeword>& cwMat, cons
 	int rotFam = *rotFamMax && *rotFamMax > Reduce(rotFamHist) / 2 ? static_cast<int>(rotFamMax - rotFamHist.begin()) * 8 : -1;
 	// rotFam = -1; // uncomment to test symbol detection without rotation family filtering
 
+	int numCWs = std::ranges::count_if(cwMat, [](const auto& e) { return e.count > 0; });
+	if (numCWs == 0)
+		return SYMBOLS.front();
+
 	std::vector<int> sightsPerRow(cwMat.height(), 0);
 	for (int y = 1; y < cwMat.height(); ++y)
 		for (int x = 0; x < cwMat.width(); ++x)
@@ -528,8 +532,7 @@ static const SymbolInfo& DetermineSymbolInfo(const Matrix<Codeword>& cwMat, cons
 
 	const SymbolInfo* bestSym = SYMBOLS.data();
 	int minError = std::numeric_limits<int>::max();
-	float meanCount = Reduce(cwMat, 0.f, [](float acc, const Codeword& e) { return acc + e.count; })
-					  / std::ranges::count_if(cwMat, [](const auto& e) { return e.count > 0; });
+	float meanCount = Reduce(cwMat, 0.f, [](float acc, const Codeword& e) { return acc + e.count; }) / numCWs;
 
 	for (const auto& s : SYMBOLS) {
 		if (s.nCols != cwMat.width() || (rotFam != -1 && s.rotFam != rotFam))
@@ -570,6 +573,8 @@ static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 	BitMatrixModuleCursorF startCur(image, centered(lraps.front()), bresenhamDirection(lineR.normal()),
 									lraps.front().width / (10. + 17. * LRAP_WITH_CW));
 	startCur.step(-1);
+	// adjust module size taking the angle between x-axis and lineR.normal() into account (tan(alpha)^2)
+	startCur.ms *= 1.0 / (1 + std::min(std::pow(startCur.d.x, 2), std::pow(startCur.d.y, 2)));
 
 	int nCols = DetermineNumCols(startCur, lraps);
 	log_l("nCols: %d", nCols);
@@ -610,8 +615,9 @@ static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 		auto cur = startCur;
 		log(cur.p);
 
+		log_t("\n%4.0fx%4.0f %2.0f", cur.p.x * 5, cur.p.y * 5, cur.ms * 5);
 		auto li = ReadRAP(cur, RAP::L);
-		// log_l("li: %2d @ (%f, %f)", li, cur.p.x, cur.p.y);
+		log_t(" -> li: %2d @ %4.0fx%4.0f %2.0f   ", li, cur.p.x * 5, cur.p.y * 5, cur.ms * 5);
 		if (!li)
 			continue;
 		startCur.ms = cur.ms;
@@ -663,7 +669,7 @@ static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 			return o;
 		};
 
-		log_t("%2d/%d -> ", li, RAPCluster(li));
+		log_t("|  -> %2d/%d : ", li, RAPCluster(li));
 		for (int x = 0; x < nCols; ++x) {
 			log_t("%3d/%d ", cw[x].codeword, cw[x].cluster);
 			if (cw[x]) {
@@ -681,8 +687,8 @@ static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 					cell.push_back(cw[x]);
 			}
 		}
-		log_l();
 	}
+	log_l();
 
 	Matrix<Codeword> cwMat(nCols, 53, {});
 	std::ranges::transform(histMat, cwMat.begin(), [](std::vector<Codeword>& hist) {
@@ -730,7 +736,7 @@ static BarcodeData ScanCandidate(const BitMatrix& image, const Cluster& lraps)
 
 	// TODO: implement proper handling of ECI Descriptor codeword at the start of the codeword sequence
 	// (see ISO 24728:2006, section 5.2.4.2 ECI Descriptor codeword)
-	DecoderResult decoderResult = Pdf417::DecodeCodewords(codewords, si.nECCs, erasures);
+	DecoderResult decoderResult = Pdf417::DecodeCodewords(codewords, si.nECCs, erasures, true);
 	log_l("size: %dx%d, firstRow: %d, cws: %d, rotFamHist: %d/%d/%d/%d, rotFam: %d, nEECs: %d, erasures: %d, valid: %d", si.nCols,
 		  si.nRows, si.startRow, si.nCWs(), rotFamHist[0], rotFamHist[1], rotFamHist[2], rotFamHist[3], si.rotFam, si.nECCs,
 		  Size(erasures), decoderResult.isValid());

@@ -303,7 +303,7 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
         val photos = join(photoIds, ",")
         return provideService(IPhotosService(), TokenType.USER, TokenType.SERVICE)
             .flatMapConcat {
-                it[ownerId, albumId, photos, integerFromBoolean(rev), 1, 1, offset, count]
+                it.get(ownerId, albumId, photos, integerFromBoolean(rev), 1, 1, offset, count)
                     .map(extractResponseWithErrorHandling())
             }
     }

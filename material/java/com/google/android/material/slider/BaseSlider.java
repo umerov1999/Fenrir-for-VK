@@ -4406,7 +4406,7 @@ abstract class BaseSlider<
       StringBuilder contentDescription = new StringBuilder();
       // Add the content description of the slider.
       if (slider.getContentDescription() != null) {
-        contentDescription.append(slider.getContentDescription()).append(",");
+        contentDescription.append(slider.getContentDescription());
       }
       // Add the range/value to the content description.
       String verbalValue = slider.formatValue(value);
@@ -4418,6 +4418,9 @@ abstract class BaseSlider<
       if (!TextUtils.isEmpty(stateDescription)) {
         info.setStateDescription(stateDescription);
       } else {
+        if (!TextUtils.isEmpty(contentDescription)) {
+          contentDescription.append(",");
+        }
         contentDescription.append(
             String.format(Locale.getDefault(), "%s, %s", verbalValueType, verbalValue));
       }

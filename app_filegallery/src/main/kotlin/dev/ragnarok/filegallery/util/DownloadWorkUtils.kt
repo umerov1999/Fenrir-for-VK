@@ -540,7 +540,8 @@ object DownloadWorkUtils {
                         File(file_v.build())
                     ), MimeTypeMap.getSingleton()
                         .getMimeTypeFromExtension(file_v.ext)
-                ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                )
+                intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 val readPendingIntent = PendingIntent.getActivity(
                     applicationContext,
                     id.hashCode(),
@@ -604,7 +605,8 @@ object DownloadWorkUtils {
                         File(file_v.build())
                     ), MimeTypeMap.getSingleton()
                         .getMimeTypeFromExtension(file_v.ext)
-                ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                )
+                intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 val ReadPendingIntent = PendingIntent.getActivity(
                     applicationContext,
                     id.hashCode(),

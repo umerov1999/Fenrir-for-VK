@@ -39,6 +39,7 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -384,7 +385,7 @@ class PostCreatePresenter(
             return
         }
         val initialTime =
-            if (pPost.date == 0L) System.currentTimeMillis() / 1000 + 2 * 60 * 60 else pPost.date
+            if (pPost.date == 0L) UnixTime.now() + 2 * 60 * 60 else pPost.date
         view?.showEnterTimeDialog(
             initialTime
         )

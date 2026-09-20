@@ -26,7 +26,7 @@ interface INewsfeedApi {
     ): Flow<NewsfeedCommentsResponse>
 
     @CheckResult
-    operator fun get(
+    fun get(
         filters: String?, returnBanned: Boolean?, startTime: Long?, endTime: Long?,
         maxPhotoCount: Int?, sourceIds: String?, startFrom: String?, count: Int?, fields: String?
     ): Flow<NewsfeedResponse>

@@ -103,7 +103,7 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forMessage
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Unixtime.now
+import dev.ragnarok.fenrir.util.UnixTime.now
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.hasFlag

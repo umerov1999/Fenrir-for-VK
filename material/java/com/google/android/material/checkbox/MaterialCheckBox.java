@@ -891,13 +891,13 @@ public class MaterialCheckBox extends AppCompatCheckBox {
      */
     private SavedState(Parcel in) {
       super(in);
-      checkedState = (Integer) in.readValue(getClass().getClassLoader());
+      checkedState = in.readInt();
     }
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
       super.writeToParcel(out, flags);
-      out.writeValue(checkedState);
+      out.writeInt(checkedState);
     }
 
     @Override

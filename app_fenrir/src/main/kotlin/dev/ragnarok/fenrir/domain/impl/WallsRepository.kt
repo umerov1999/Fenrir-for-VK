@@ -176,7 +176,16 @@ class WallsRepository(
         val tmpStartFrom: String? =
             if (Utils.isOfficialVKAccount(accountId)) offset.toString() else null
         return networker.vkDefault(accountId)
-            .wall()[ownerId, null, tmpOffset, tmpStartFrom, count, convertToApiFilter(wallFilter), true, Fields.FIELDS_BASE_OWNER]
+            .wall().get(
+                ownerId,
+                null,
+                tmpOffset,
+                tmpStartFrom,
+                count,
+                convertToApiFilter(wallFilter),
+                true,
+                Fields.FIELDS_BASE_OWNER
+            )
             .flatMapConcat { response ->
                 val owners = transformOwners(response.profiles, response.groups)
                 val dtos = listEmptyIfNull(response.posts)
@@ -213,7 +222,16 @@ class WallsRepository(
         val tmpStartFrom: String? =
             if (Utils.isOfficialVKAccount(accountId)) offset.toString() else null
         return networker.vkDefault(accountId)
-            .wall()[ownerId, null, tmpOffset, tmpStartFrom, count, convertToApiFilter(wallFilter), true, Fields.FIELDS_BASE_OWNER]
+            .wall().get(
+                ownerId,
+                null,
+                tmpOffset,
+                tmpStartFrom,
+                count,
+                convertToApiFilter(wallFilter),
+                true,
+                Fields.FIELDS_BASE_OWNER
+            )
             .flatMapConcat { response ->
                 val owners = transformOwners(response.profiles, response.groups)
                 val dtos = listEmptyIfNull(response.posts)

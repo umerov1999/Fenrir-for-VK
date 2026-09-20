@@ -7,7 +7,7 @@ import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IVideosInteractor {
-    operator fun get(
+    fun get(
         accountId: Long,
         ownerId: Long,
         albumId: Int,

@@ -352,22 +352,18 @@ class GifPagerActivity : AbsDocumentPreviewActivity<GifPagerPresenter, IGifPager
             )
             ret.mGifView.orientationLocked = TouchImageView.OrientationLocked.HORIZONTAL
             ret.mGifView.setOnTouchListener { view, event ->
-                if (event.pointerCount >= 2 || view is TouchImageView && view.isZoomed) {
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                            container.requestDisallowInterceptTouchEvent(true)
-                            true
-                        }
-
-                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                            container.requestDisallowInterceptTouchEvent(false)
-                            true
-                        }
-
-                        else -> false
+                (event.pointerCount >= 2 || view is TouchImageView && view.isZoomed) && when (event.action) {
+                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                        container.requestDisallowInterceptTouchEvent(true)
+                        true
                     }
-                } else {
-                    false
+
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        container.requestDisallowInterceptTouchEvent(false)
+                        true
+                    }
+
+                    else -> false
                 }
             }
             return ret

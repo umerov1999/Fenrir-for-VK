@@ -592,7 +592,7 @@ object DownloadWorkUtils {
                 if (!M3U8(url, file_u.build()).run()) {
                     throw Exception("M3U8 error download")
                 }
-                if (!TSDemuxer.unpackTS(file_u.build(), file, info = false, print_debug = false)) {
+                if (!TSDemuxer.unpackTS(file_u.build(), file, info = false, printDebug = false)) {
                     throw Exception("Error TSDemuxer")
                 }
                 File(file_u.build()).delete()
@@ -854,7 +854,8 @@ object DownloadWorkUtils {
                         File(file_v.build())
                     ), MimeTypeMap.getSingleton()
                         .getMimeTypeFromExtension(file_v.ext)
-                ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                )
+                intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 val readPendingIntent = PendingIntent.getActivity(
                     applicationContext,
                     id.hashCode(),
@@ -1019,7 +1020,8 @@ object DownloadWorkUtils {
                         File(file_v.build())
                     ), MimeTypeMap.getSingleton()
                         .getMimeTypeFromExtension(file_v.ext)
-                ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                )
+                intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 val ReadPendingIntent = PendingIntent.getActivity(
                     applicationContext,
                     id.hashCode(),

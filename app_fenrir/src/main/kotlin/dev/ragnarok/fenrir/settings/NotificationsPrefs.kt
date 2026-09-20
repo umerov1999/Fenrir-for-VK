@@ -37,10 +37,10 @@ class NotificationsPrefs internal constructor(context: Context) : INotificationS
     }
 
     override fun isSilentPeer(aid: Long, peerId: Long): Boolean {
-        if (silentTypes.containsKey(keyFor(aid, peerId))) {
-            return silentTypes[keyFor(aid, peerId)] == true
-        }
-        return false
+        return silentTypes.containsKey(keyFor(aid, peerId)) && silentTypes[keyFor(
+            aid,
+            peerId
+        )] == true
     }
 
     override fun resetAll() {

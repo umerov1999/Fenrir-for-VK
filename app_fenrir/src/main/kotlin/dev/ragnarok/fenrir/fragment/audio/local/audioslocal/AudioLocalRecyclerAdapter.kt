@@ -327,7 +327,8 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                     intent_send.type = "audio/*"
                     intent_send.putExtra(
                         Intent.EXTRA_STREAM, audio.url?.toUri()
-                    ).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    )
+                    intent_send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     mContext.startActivity(
                         Intent.createChooser(
                             intent_send,

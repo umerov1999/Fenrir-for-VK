@@ -399,7 +399,7 @@ class IPhotosService : IServiceRest() {
         )
     }
 
-    operator fun get(
+    fun get(
         ownerId: Long?,
         albumId: String?,
         photoIds: String?,

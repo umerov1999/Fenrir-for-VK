@@ -144,7 +144,7 @@ class IDocsService : IServiceRest() {
      * 8 — unknown.
      * @return Returns the total results number in count field and an array of objects describing documents in items field
      */
-    operator fun get(
+    fun get(
         ownerId: Long?,
         count: Int?,
         offset: Int?,

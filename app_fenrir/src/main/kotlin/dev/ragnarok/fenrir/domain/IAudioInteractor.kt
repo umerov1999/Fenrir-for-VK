@@ -34,7 +34,7 @@ interface IAudioInteractor {
         targetIds: Collection<Long>
     ): Flow<Boolean>
 
-    operator fun get(
+    fun get(
         accountId: Long,
         playlist_id: Int?,
         ownerId: Long,

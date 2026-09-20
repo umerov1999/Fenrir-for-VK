@@ -210,7 +210,7 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
         vHeader.findViewById<ImageView>(R.id.header_navi_menu_open_url).setOnClickListener {
             val clipBoard =
                 context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager?
-            if (clipBoard != null && clipBoard.primaryClip != null && clipBoard.primaryClip?.itemCount.orZero() > 0 && (clipBoard.primaryClip
+            if (clipBoard?.primaryClip != null && clipBoard.primaryClip?.itemCount.orZero() > 0 && (clipBoard.primaryClip
                     ?: return@setOnClickListener).getItemAt(0).text != null
             ) {
                 val temp =
@@ -432,10 +432,7 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
     }
 
     override fun checkCloseByClick(ev: MotionEvent): Boolean {
-        if (!isSheetOpen) {
-            return false
-        }
-        return if (ev.action == MotionEvent.ACTION_DOWN && ev.x > x + width) {
+        return isSheetOpen && if (ev.action == MotionEvent.ACTION_DOWN && ev.x > x + width) {
             closeSheet()
             true
         } else {

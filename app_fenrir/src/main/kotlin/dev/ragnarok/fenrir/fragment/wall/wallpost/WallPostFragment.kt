@@ -324,7 +324,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
             return false;
         }
 
-        long currentUnixtime = System.currentTimeMillis() / 1000;
+        long currentUnixtime = Unixtime.now();
         return (currentUnixtime - post.getDate()) < Constants.HOURS_24_IN_SECONDS;
     }*/
     override fun displayDefaultToolbarTitle() {
