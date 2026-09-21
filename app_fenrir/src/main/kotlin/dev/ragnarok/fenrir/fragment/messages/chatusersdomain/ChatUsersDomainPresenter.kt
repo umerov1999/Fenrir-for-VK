@@ -18,7 +18,7 @@ class ChatUsersDomainPresenter(
     private val original: MutableList<AppChatUser> = ArrayList()
     private var refreshing = false
     private var query: String? = null
-    fun setLoadingNow(loadingNow: Boolean) {
+    private fun setLoadingNow(loadingNow: Boolean) {
         refreshing = loadingNow
         resolveRefreshing()
     }

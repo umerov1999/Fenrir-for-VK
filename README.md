@@ -18,7 +18,8 @@
   2. Android SDK 37.1<br>
   3. Android NDK 30.0.15729638<br>
   4. CMake 4.1.2<br>
-  5. Diffutils
+  5. diffutils
+  6. nasm
   
 <b>Компиляция:</b>
 

@@ -384,7 +384,7 @@ class CommentsInteractor(
                         if (id <= 0) {
                             throw NotFoundException()
                         }
-                        if (dbId == null) {
+                        if (dbId == null && commentThread == null) {
                             safeDraftComment(
                                 accountId,
                                 commented,
@@ -395,10 +395,16 @@ class CommentsInteractor(
                         } else {
                             flowOf(dbId)
                         }.flatMapConcat {
-                            if (commentThread != null) {
-                                flowOf(null)
+                            if (it != null) {
+                                if (commentThread != null) {
+                                    cache.comments()
+                                        .deleteByDbId(accountId, it).map { null }
+                                } else {
+                                    cache.comments()
+                                        .updateDraftCommentAndGet(accountId, it, id, intent)
+                                }
                             } else {
-                                cache.comments().updateDraftCommentAndGet(accountId, it, id, intent)
+                                flowOf(null)
                             }
                         }
                     }

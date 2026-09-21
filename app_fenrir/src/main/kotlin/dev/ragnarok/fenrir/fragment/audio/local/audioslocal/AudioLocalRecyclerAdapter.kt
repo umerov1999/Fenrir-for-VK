@@ -353,7 +353,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                                 createCustomToast(
                                     mContext,
                                     null
-                                )?.showToastError(it.localizedMessage)
+                                )?.showToastThrowable(it)
                             }
                         )
                     }
@@ -372,7 +372,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                         }
                     }
                 } catch (e: Exception) {
-                    createCustomToast(mContext, null)?.showToastError(e.localizedMessage)
+                    createCustomToast(mContext, null)?.showToastThrowable(e)
                 }
 
                 AudioLocalOption.update_time_item_audio -> {
@@ -391,7 +391,7 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                                 createCustomToast(
                                     mContext,
                                     null
-                                )?.showToastError(it.localizedMessage)
+                                )?.showToastThrowable(it)
                             }
                         )
                     }

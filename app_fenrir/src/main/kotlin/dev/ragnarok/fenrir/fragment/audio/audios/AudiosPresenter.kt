@@ -65,7 +65,7 @@ class AudiosPresenter(
     val isNotSearch: Boolean
         get() = !searcher.isSearchMode
 
-    fun setLoadingNow(loadingNow: Boolean) {
+    internal fun setLoadingNow(loadingNow: Boolean) {
         this.loadingNow = loadingNow
         resolveRefreshingView()
     }

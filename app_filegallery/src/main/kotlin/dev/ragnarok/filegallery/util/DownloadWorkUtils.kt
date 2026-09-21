@@ -476,7 +476,7 @@ object DownloadWorkUtils {
                 }
                 inMainThread {
                     CustomToast.createCustomToast(applicationContext, null)
-                        ?.showToastError(R.string.error_with_message, e.localizedMessage)
+                        ?.showToastThrowable(e)
                 }
                 return false
             }

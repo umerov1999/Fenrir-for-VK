@@ -251,7 +251,6 @@
     <string name="cancel">Cancel</string>
     <string name="null_image_link">Missing download link</string>
     <string name="error">Error</string>
-    <string name="error_with_message">Error: %1$s</string>
     <string name="work_manager">FileGallery Work</string>
     <string name="channel_keep_work_manager">WorkManager</string>
     <string name="foreground_downloader">Download Manager</string>

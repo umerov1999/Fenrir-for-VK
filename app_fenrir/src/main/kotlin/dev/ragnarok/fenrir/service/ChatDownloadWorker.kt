@@ -567,7 +567,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
         } catch (e: Throwable) {
             e.printStackTrace()
             inMainThread {
-                createCustomToast(applicationContext, null)?.showToastError(e.localizedMessage)
+                createCustomToast(applicationContext, null)?.showToastThrowable(e)
             }
         }
     }
@@ -731,7 +731,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
         } catch (e: Throwable) {
             e.printStackTrace()
             inMainThread {
-                createCustomToast(applicationContext, null)?.showToastError(e.localizedMessage)
+                createCustomToast(applicationContext, null)?.showToastThrowable(e)
             }
         }
     }

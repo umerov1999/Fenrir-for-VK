@@ -80,7 +80,7 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
         view?.goToLocalAudioAlbums(bucket_id)
     }
 
-    fun setLoadingNow(loadingNow: Boolean) {
+    private fun setLoadingNow(loadingNow: Boolean) {
         this.loadingNow = loadingNow
         resolveRefreshingView()
     }

@@ -518,7 +518,7 @@ open class PhotoPagerPresenter internal constructor(
                 }
 
                 override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-                    view?.customToast?.showToastError(e.localizedMessage)
+                    view?.customToast?.showToastThrowable(e)
                 }
 
                 override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}

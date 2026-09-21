@@ -678,8 +678,8 @@ class UserWallPresenter(
                         R.string.success,
                         true
                     )
-                }) { t ->
-                    view?.showError(t.localizedMessage)
+                }) {
+                    view?.showThrowable(it)
                 })
     }
 

@@ -200,14 +200,14 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             if (uid != null) {
                 if (isSave != null) {
                     presenter?.processNewAccount(
-                        uid,
-                        token,
-                        DEFAULT_ACCOUNT_TYPE,
-                        Login,
-                        Password,
-                        TwoFA,
-                        true,
-                        isSave
+                        uid = uid,
+                        token = token,
+                        type = DEFAULT_ACCOUNT_TYPE,
+                        login = Login,
+                        password = Password,
+                        twoFA = TwoFA,
+                        isCurrent = true,
+                        needSave = isSave
                     )
                 }
             }
@@ -219,7 +219,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
     ) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
             result.data?.getStringExtra(Extra.PATH)
-                ?.let { presenter?.importExchangeToken(requireActivity(), it) }
+                ?.let { presenter?.importExchangeToken(it) }
         }
     }
 
@@ -249,6 +249,10 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             }
             .setNegativeButton(R.string.button_cancel, null)
             .show()
+    }
+
+    override fun displayRefreshing(refreshing: Boolean) {
+        mSwipeRefreshLayout?.isRefreshing = refreshing
     }
 
     override fun onCreateView(
@@ -337,14 +341,14 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
             val TwoFA = result.getString(Extra.TWO_FA)
             val isSave = result.getBoolean(Extra.SAVE)
             presenter?.processNewAccount(
-                uid,
-                token,
-                DEFAULT_ACCOUNT_TYPE,
-                Login,
-                Password,
-                TwoFA,
-                true,
-                isSave
+                uid = uid,
+                token = token,
+                type = DEFAULT_ACCOUNT_TYPE,
+                login = Login,
+                password = Password,
+                twoFA = TwoFA,
+                isCurrent = true,
+                needSave = isSave
             )
         }
 
@@ -445,6 +449,15 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                 text,
                 color, false
             )?.show()
+    }
+
+    override fun showColoredThrowable(throwable: Throwable) {
+        CustomSnackbars.createCustomSnackbars(
+            view,
+            mRecyclerView
+        )
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.showToastThrowable(throwable)
     }
 
     override fun showColoredSnack(
@@ -672,7 +685,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                         createCustomToast(
                             requireActivity(),
                             view
-                        )?.showToastError(e.localizedMessage)
+                        )?.showToastThrowable(e)
                     }
                     dismiss()
                 }.create()
@@ -799,10 +812,6 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
 
     override fun displayData(accounts: List<Account>) {
         mAdapter?.setData(accounts)
-    }
-
-    override fun isLoading(loading: Boolean) {
-        mSwipeRefreshLayout?.isRefreshing = loading
     }
 
     companion object {

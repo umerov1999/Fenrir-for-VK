@@ -275,7 +275,7 @@ object DownloadWorkUtils {
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context, null)
-                ?.showToastError("audio.dumplist: " + e.message)
+                ?.showToastThrowable(e)
             return
         }
     }
@@ -299,7 +299,7 @@ object DownloadWorkUtils {
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context, null)
-                ?.showToastError("Video Error: " + e.message)
+                ?.showToastThrowable(e)
             return
         }
     }
@@ -335,7 +335,7 @@ object DownloadWorkUtils {
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context, null)
-                ?.showToastError("Voice Error: " + e.message)
+                ?.showToastThrowable(e)
             return
         }
     }
@@ -370,7 +370,7 @@ object DownloadWorkUtils {
                 .add(0, Sticker.LocalSticker(result_filename.build(), sticker.isAnimated))
         } catch (e: Exception) {
             CustomToast.createCustomToast(context, null)
-                ?.showToastError("Sticker Error: " + e.message)
+                ?.showToastThrowable(e)
             return
         }
     }
@@ -415,7 +415,7 @@ object DownloadWorkUtils {
                 toDefaultInternalDownloader(context, pUrl, result_filename, "doc")
             }
         } catch (e: Exception) {
-            CustomToast.createCustomToast(context, null)?.showToastError("Docs Error: " + e.message)
+            CustomToast.createCustomToast(context, null)?.showToastThrowable(e)
             return 2
         }
         return 0
@@ -434,7 +434,7 @@ object DownloadWorkUtils {
             }
         } catch (e: Exception) {
             CustomToast.createCustomToast(context, null)
-                ?.showToastError("Photo Error: " + e.message)
+                ?.showToastThrowable(e)
             return
         }
     }
@@ -503,7 +503,7 @@ object DownloadWorkUtils {
             WorkManager.getInstance(context).enqueue(downloadWork.build())
         } catch (e: Exception) {
             CustomToast.createCustomToast(context, null)
-                ?.showToastError("Audio Error: " + e.message)
+                ?.showToastThrowable(e)
             return 3
         }
         return 0
@@ -627,7 +627,7 @@ object DownloadWorkUtils {
                 }
                 inMainThread {
                     CustomToast.createCustomToast(applicationContext, null)
-                        ?.showToastError(R.string.error_with_message, e.localizedMessage)
+                        ?.showToastThrowable(e)
                 }
                 return false
             }
@@ -784,7 +784,7 @@ object DownloadWorkUtils {
                 }
                 inMainThread {
                     CustomToast.createCustomToast(applicationContext, null)
-                        ?.showToastError(R.string.error_with_message, e.localizedMessage)
+                        ?.showToastThrowable(e)
                 }
                 return false
             }
@@ -993,10 +993,7 @@ object DownloadWorkUtils {
                         } catch (e: Throwable) {
                             inMainThread {
                                 CustomToast.createCustomToast(applicationContext, null)
-                                    ?.showToastError(
-                                        R.string.error_with_message,
-                                        e.localizedMessage
-                                    )
+                                    ?.showToastThrowable(e)
                             }
                             e.printStackTrace()
                         }

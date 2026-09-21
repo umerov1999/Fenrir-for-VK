@@ -538,7 +538,7 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                         createCustomToast(
                             requireActivity(),
                             view
-                        )?.showToastError(e.localizedMessage)
+                        )?.showToastThrowable(e)
                     }
                     dismiss()
                 }.create()

@@ -496,7 +496,7 @@ class PostDownload(private val context: Context) {
                 }
                 e.printStackTrace()
                 inMainThread {
-                    CustomToast.createCustomToast(context, null)?.showToastError(e.localizedMessage)
+                    CustomToast.createCustomToast(context, null)?.showToastThrowable(e)
                 }
             }
             emit(true)

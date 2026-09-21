@@ -349,7 +349,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             } catch (e: Exception) {
                 createCustomToast(requireActivity(), view)
                     ?.setDuration(Toast.LENGTH_LONG)
-                    ?.showToastError(e.localizedMessage)
+                    ?.showToastThrowable(e)
             }
         }
     }
@@ -653,7 +653,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                                         createCustomToast(
                                             requireActivity(),
                                             view
-                                        )?.showToast(it.localizedMessage)
+                                        )?.showToastThrowable(it)
                                     })
                         )
                     }
@@ -2322,7 +2322,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                createCustomToast(requireActivity(), view)?.showToastError(e.localizedMessage)
+                createCustomToast(requireActivity(), view)?.showToastThrowable(e)
             }
         }
     }
@@ -3047,7 +3047,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 if (notify) createCustomToast(context, null)?.showToast(R.string.success)
             } catch (e: Exception) {
                 e.printStackTrace()
-                if (notify) createCustomToast(context, null)?.showToastError(e.localizedMessage)
+                if (notify) createCustomToast(context, null)?.showToastThrowable(e)
             }
         }
 

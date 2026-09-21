@@ -22,7 +22,7 @@ class ChatMembersPresenter(accountId: Long, private val chatId: Long, savedInsta
     private var isOwner = false
     private var query: String? = null
 
-    fun setLoadingNow(loadingNow: Boolean) {
+    private fun setLoadingNow(loadingNow: Boolean) {
         refreshing = loadingNow
         resolveRefreshing()
     }

@@ -27,7 +27,7 @@ class AudiosRecommendationPresenter(
     private val audioListDisposable = CompositeJob()
     private var loadingNow = false
     private var doAudioLoadTabs = false
-    fun setLoadingNow(loadingNow: Boolean) {
+    private fun setLoadingNow(loadingNow: Boolean) {
         this.loadingNow = loadingNow
         resolveRefreshingView()
     }

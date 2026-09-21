@@ -62,7 +62,7 @@ class FriendsByPhonesPresenter(accountId: Long, savedInstanceState: Bundle?) :
                 view?.notifyDataSetChanged()
             }
         } catch (e: Exception) {
-            view?.customToast?.showToastError(e.localizedMessage)
+            view?.customToast?.showToastThrowable(e)
         }
     }
 
@@ -92,7 +92,7 @@ class FriendsByPhonesPresenter(accountId: Long, savedInstanceState: Bundle?) :
                 file.absolutePath
             )
         } catch (e: Exception) {
-            view?.customToast?.showToastError(e.localizedMessage)
+            view?.customToast?.showToastThrowable(e)
         } finally {
             Utils.safelyClose(out)
         }

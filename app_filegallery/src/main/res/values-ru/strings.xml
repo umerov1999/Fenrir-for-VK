@@ -131,7 +131,6 @@
     <string name="cancel">Отмена</string>
     <string name="null_image_link">Отсутствует ссылка на скачивание</string>
     <string name="error">Ошибка</string>
-    <string name="error_with_message">Ошибка: %1$s</string>
     <string name="work_manager">FileGallery Work</string>
     <string name="channel_keep_work_manager">WorkManager</string>
     <string name="foreground_downloader">Менеджер загрузок</string>

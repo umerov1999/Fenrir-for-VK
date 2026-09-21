@@ -32,7 +32,7 @@ class AudiosByArtistPresenter(
     val isMyAudio: Boolean
         get() = false
 
-    fun setLoadingNow(loadingNow: Boolean) {
+    private fun setLoadingNow(loadingNow: Boolean) {
         this.loadingNow = loadingNow
         resolveRefreshingView()
     }

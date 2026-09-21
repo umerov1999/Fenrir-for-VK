@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.model.Account
 
 interface IAccountsView : IMvpView, IErrorView, IToastView {
     fun displayData(accounts: List<Account>)
-    fun isLoading(loading: Boolean)
     fun resolveEmptyText(isEmpty: Boolean)
     fun invalidateMenu()
     fun startLoginViaWeb()
@@ -22,5 +21,7 @@ interface IAccountsView : IMvpView, IErrorView, IToastView {
     fun notifyItemRangeRemoved(positionStart: Int, count: Int)
     fun notifyItemRangeInserted(positionStart: Int, count: Int)
     fun showColoredSnack(text: String?, @ColorInt color: Int)
+    fun showColoredThrowable(throwable: Throwable)
     fun showColoredSnack(@StringRes resId: Int, @ColorInt color: Int, vararg params: Any?)
+    fun displayRefreshing(refreshing: Boolean)
 }

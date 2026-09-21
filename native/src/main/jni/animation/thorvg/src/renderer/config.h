@@ -8,7 +8,7 @@
 #define THORVG_THREAD_SUPPORT
 #define THORVG_FILE_IO_SUPPORT
 #if defined(__ARM_NEON__) || defined(__aarch64__)
-#define THORVG_NEON_VECTOR_SUPPORT
+#define THORVG_NEON_SUPPORT
 #else
-//#define THORVG_AVX_VECTOR_SUPPORT
+#define THORVG_AVX_SUPPORT
 #endif

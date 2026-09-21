@@ -1118,7 +1118,6 @@
     <string name="updated_profile_photo_at">%1$s updated profile picture</string>
     <string name="updated_status_at">%1$s updated status</string>
     <string name="messages">Messages</string>
-    <string name="error_with_message">Error: %1$s</string>
     <string name="gif_player">Gif-player</string>
     <string name="recording_time">Recording… %1$s</string>
     <string name="unable_to_play_file">Failed to play file</string>
@@ -1925,6 +1924,8 @@
     <string name="next">Next</string>
     <string name="bottom_navigation_menu_max_5">Only 5 elements allowed!</string>
     <string name="anonym_token_not_valid">Obtaining an anonymous token failed, please restart the application!</string>
+    <string name="auth_access_token_is_empty">Access token is empty!</string>
+    <string name="auth_account_id_is_null">Account id is null!</string>
     <string name="auth_validate_method">Validate method:</string>
     <string name="auth_validate_method_push">Push (%1$s)</string>
     <string name="auth_validate_method_email">Email (%1$s)</string>

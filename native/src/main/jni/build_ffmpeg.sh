@@ -77,6 +77,9 @@ make clean
   --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
   --extra-cflags="$EXTRA_C_FLAGS" \
   --enable-neon \
+  --enable-arm-crc \
+  --enable-dotprod \
+  --enable-i8mm \
   --enable-optimizations \
   --enable-asm \
   --enable-inline-asm \
@@ -94,9 +97,10 @@ make clean
   --ranlib="${TOOLCHAIN_PREFIX}/llvm-ranlib" \
   --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
   --extra-cflags="$EXTRA_C_FLAGS" \
-  --disable-mmx \
-  --disable-inline-asm \
-  --disable-asm \
+  --enable-avx2 \
+  --enable-optimizations \
+  --enable-asm \
+  --enable-inline-asm \
   ${COMMON_OPTIONS}
 make -j"$JOBS"
 make install-libs

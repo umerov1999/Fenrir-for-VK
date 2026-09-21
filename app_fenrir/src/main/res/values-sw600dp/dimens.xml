@@ -21,8 +21,7 @@
 
     <dimen name="chat_padding">30dp</dimen>
 
-    <!--Ширина панели списка диалогов в двухпанельном режиме мессенджера-->
-    <dimen name="tablet_padding">100dp</dimen>
+    <!--dimen name="tablet_padding">100dp</dimen-->
 
     <integer name="attachments_editor_column_count">4</integer>
 </resources>

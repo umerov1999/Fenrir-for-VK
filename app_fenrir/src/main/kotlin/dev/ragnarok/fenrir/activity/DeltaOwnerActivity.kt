@@ -128,7 +128,7 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
                 } ?: DeltaOwner()
             } catch (e: Exception) {
                 e.printStackTrace()
-                CustomToast.createCustomToast(this, null)?.showToastError(e.localizedMessage)
+                CustomToast.createCustomToast(this, null)?.showToastThrowable(e)
                 DeltaOwner()
             }
         } else {
@@ -184,7 +184,7 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
                     } catch (e: Exception) {
                         e.printStackTrace()
                         CustomToast.createCustomToast(this, null)
-                            ?.showToastError(e.localizedMessage)
+                            ?.showToastThrowable(e)
                     } finally {
                         Utils.safelyClose(out)
                     }

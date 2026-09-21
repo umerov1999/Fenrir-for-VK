@@ -45,6 +45,7 @@ import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.model.criteria.DialogsCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.nonNullNoEmptyOr
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.AnonymToken
@@ -99,10 +100,26 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         InteractorFactory.createAccountInteractor()
     private var tempAccountId = 0L
 
+    private var loadingNow = false
+
     override fun onGuiCreated(viewHost: IAccountsView) {
         super.onGuiCreated(viewHost)
         viewHost.displayData(mData)
         view?.resolveEmptyText(mData.isEmpty())
+    }
+
+    override fun onGuiResumed() {
+        super.onGuiResumed()
+        resolveRefreshingView()
+    }
+
+    private fun setLoadingNow(loadingNow: Boolean) {
+        this.loadingNow = loadingNow
+        resolveRefreshingView()
+    }
+
+    private fun resolveRefreshingView() {
+        resumedView?.displayRefreshing(loadingNow)
     }
 
     fun isNotEmptyAccounts(): Boolean {
@@ -125,13 +142,13 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
 
     fun fireLoad(refresh: Boolean) {
         if (!refresh) {
-            view?.isLoading(true)
+            setLoadingNow(true)
         }
         appendJob(
             accountsInteractor
                 .getAll(refresh)
                 .fromIOToMain({
-                    view?.isLoading(false)
+                    setLoadingNow(false)
                     val sz = mData.size
                     mData.clear()
                     view?.notifyItemRangeRemoved(0, sz)
@@ -146,7 +163,9 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                             view?.startDirectLogin()
                         }
                     }
-                }) { view?.isLoading(false) })
+                }) {
+                    setLoadingNow(false)
+                })
     }
 
     private fun indexOf(uid: Long): Int {
@@ -179,9 +198,12 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         val curPush = Settings.get().pushSettings().registered
         Settings.get().pushSettings().registered = null
         if (curPush != null && curPush.userId == account.getOwnerObjectId()) {
+            setLoadingNow(true)
             appendJob(Includes.pushRegistrationResolver.unregister(curPush).fromIOToMain({
+                setLoadingNow(false)
                 doDeleteAccount(account)
             }, {
+                setLoadingNow(false)
                 it.printStackTrace()
                 doDeleteAccount(account)
             }))
@@ -232,16 +254,103 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         view?.resolveEmptyText(mData.isEmpty())
     }
 
+    private fun refreshExpiredToken(userId: Long) {
+        view?.showColoredSnack(R.string.refreshing_token, "#48BE2D".toColor())
+        setLoadingNow(true)
+        appendJob(
+            accountsInteractor.getExchangeToken(userId).fromIOToMain({ t ->
+                setLoadingNow(false)
+                t.token.nonNullNoEmpty { st ->
+                    setLoadingNow(true)
+                    appendJob(
+                        networker.vkDirectAuth(Constants.DEFAULT_ACCOUNT_TYPE)
+                            .authByExchangeToken(
+                                Constants.API_ID,
+                                st,
+                                Auth.scope,
+                                "expired_token",
+                                Utils.getDeviceId(
+                                    Constants.DEFAULT_ACCOUNT_TYPE,
+                                    provideApplicationContext()
+                                ),
+                                Constants.VK_ANDROID_APP_SAK_VERSION,
+                                Constants.API_VERSION
+                            ).fromIOToMain({ p ->
+                                setLoadingNow(false)
+                                val aToken = tryExtractAccessToken(p.resultUrl)
+                                if (aToken.isNullOrEmpty()) {
+                                    view?.showColoredSnack(
+                                        R.string.auth_access_token_is_empty,
+                                        "#ff0000".toColor()
+                                    )
+                                    return@fromIOToMain
+                                }
+                                Settings.get().accounts()
+                                    .storeAccessToken(userId, aToken)
+
+                                view?.showColoredSnack(
+                                    R.string.success,
+                                    "#48BE2D".toColor()
+                                )
+                            }, { e ->
+                                setLoadingNow(false)
+                                view?.showThrowable(e)
+                            })
+                    )
+                }
+            }, {
+                setLoadingNow(false)
+                view?.showThrowable(it)
+            })
+        )
+    }
+
     fun processNewAccount(
         uid: Long,
         token: String?,
         @AccountType type: Int,
-        Login: String?,
-        Password: String?,
-        TwoFA: String?,
+        login: String?,
+        password: String?,
+        twoFA: String?,
         isCurrent: Boolean,
-        needSave: Boolean
+        needSave: Boolean,
+        isActionFetchAccountId: Boolean = false,
+        needRefreshToken: Boolean = false
     ) {
+        if (token.isNullOrEmpty()) {
+            view?.showColoredSnack(R.string.auth_access_token_is_empty, "#ff0000".toColor())
+            return
+        }
+        if (uid == 0L) {
+            if (!isActionFetchAccountId) {
+                setLoadingNow(true)
+                appendJob(
+                    getUserIdByAccessToken(
+                        type,
+                        token
+                    ).fromIOToMain({
+                        setLoadingNow(false)
+                        processNewAccount(
+                            uid = it,
+                            token = token,
+                            type = type,
+                            login = login,
+                            password = password,
+                            twoFA = twoFA,
+                            isCurrent = isCurrent,
+                            needSave = needSave,
+                            isActionFetchAccountId = true
+                        )
+                    }, {
+                        setLoadingNow(false)
+                        view?.showColoredThrowable(it)
+                    })
+                )
+            } else {
+                view?.showColoredSnack(R.string.auth_account_id_is_null, "#ff0000".toColor())
+            }
+            return
+        }
         //Accounts account = new Accounts(token, uid);
 
         // важно!! Если мы получили новый токен, то необходимо удалить запись
@@ -258,7 +367,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         if (needSave) {
             val json = kJson.encodeToString(
                 SaveAccount.serializer(),
-                SaveAccount().set(Login, Password, TwoFA)
+                SaveAccount().set(login, password, twoFA)
             )
             Settings.get()
                 .accounts()
@@ -267,7 +376,17 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         merge(Account(uid, null))
         appendJob(
             mOwnersInteractor.getBaseOwnerInfo(uid, uid, IOwnersRepository.MODE_ANY)
-                .fromIOToMain { merge(Account(uid, it)) })
+                .fromIOToMain({
+                    merge(Account(uid, it))
+                    if (needRefreshToken) {
+                        refreshExpiredToken(uid)
+                    }
+                }, {
+                    if (needRefreshToken) {
+                        refreshExpiredToken(uid)
+                    }
+                })
+        )
     }
 
     fun fireSetAsActive(account: Account) {
@@ -277,27 +396,27 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
     }
 
     fun processAccountByAccessToken(token: String, @AccountType type: Int) {
+        setLoadingNow(true)
         appendJob(
             getUserIdByAccessToken(
                 type,
                 token
-            )
-                .fromIOToMain({
-                    processNewAccount(
-                        it,
-                        token,
-                        type,
-                        null,
-                        null,
-                        "fenrir_app",
-                        isCurrent = false,
-                        needSave = false
-                    )
-                }, { it2 ->
-                    it2.localizedMessage?.let {
-                        view?.showColoredSnack(it, "#ff0000".toColor())
-                    }
-                })
+            ).fromIOToMain({
+                setLoadingNow(false)
+                processNewAccount(
+                    it,
+                    token,
+                    type,
+                    null,
+                    null,
+                    "fenrir_app",
+                    isCurrent = false,
+                    needSave = false
+                )
+            }, {
+                setLoadingNow(false)
+                view?.showColoredThrowable(it)
+            })
         )
     }
 
@@ -316,10 +435,8 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                 {
                     view?.showColoredSnack(R.string.success, "#48BE2D".toColor())
                 }
-            ) { t ->
-                t.localizedMessage?.let {
-                    view?.showColoredSnack(it, "#ff0000".toColor())
-                }
+            ) {
+                view?.showColoredThrowable(it)
             })
     }
 
@@ -329,13 +446,16 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         }
         val accountFromTmp = tempAccountId
         tempAccountId = 0L
+        setLoadingNow(true)
         appendJob(
             accountsInteractor.getExchangeToken(accountFromTmp).fromIOToMain({
+                setLoadingNow(false)
                 if (it.token.nonNullNoEmpty()) {
                     DownloadWorkUtils.CheckDirectory(Settings.get().main().docDir)
                     val file = File(
                         Settings.get().main().docDir, "${accountFromTmp}_exchange_token.json"
                     )
+                    setLoadingNow(true)
                     appendJob(
                         mOwnersInteractor.findBaseOwnersDataAsBundle(
                             Settings.get().accounts().current,
@@ -343,6 +463,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                             IOwnersRepository.MODE_ANY
                         )
                             .fromIOToMain({ own ->
+                                setLoadingNow(false)
                                 saveExchangeToken(
                                     context,
                                     accountFromTmp,
@@ -351,6 +472,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                                     own
                                 )
                             }) { _ ->
+                                setLoadingNow(false)
                                 saveExchangeToken(
                                     context,
                                     accountFromTmp,
@@ -361,6 +483,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                             })
                 }
             }, {
+                setLoadingNow(false)
                 view?.customToast?.showToastError(
                     ErrorLocalizer.localizeThrowable(context, it)
                 )
@@ -420,13 +543,13 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            view?.customToast?.showToastError(e.localizedMessage)
+            view?.customToast?.showToastThrowable(e)
         } finally {
             Utils.safelyClose(out)
         }
     }
 
-    fun importExchangeToken(context: Context, path: String) {
+    fun importExchangeToken(path: String) {
         try {
             val file = File(
                 path
@@ -443,6 +566,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                 val api_ver = elem["api_ver"]?.asPrimitiveSafe?.contentOrNull
                 val sak_version = elem["sak_version"]?.asPrimitiveSafe?.contentOrNull
 
+                setLoadingNow(true)
                 appendJob(
                     networker.vkDirectAuth(type, device).authByExchangeToken(
                         Constants.API_ID,
@@ -453,14 +577,32 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                         sak_version,
                         api_ver
                     ).fromIOToMain({
-                        val aToken = it.resultUrl?.let { it1 -> tryExtractAccessToken(it1) }
-                            ?: return@fromIOToMain
-                        val user_id: Long =
-                            it.resultUrl?.let { it1 -> tryExtractUserId(it1)?.toLong() }
-                                ?: return@fromIOToMain
+                        setLoadingNow(false)
+                        val aToken = tryExtractAccessToken(it.resultUrl)
+                        val userId = tryExtractUserId(it.resultUrl).orZero()
+
+                        if (aToken.isNullOrEmpty()) {
+                            view?.showColoredSnack(
+                                R.string.auth_access_token_is_empty,
+                                "#ff0000".toColor()
+                            )
+                            return@fromIOToMain
+                        }
+
+                        if (device_id.nonNullNoEmpty()) {
+                            Settings.get().accounts().storeDevice(
+                                userId,
+                                device
+                            )
+                        }
 
                         processNewAccount(
-                            user_id, aToken, type, null, null, "fenrir_app",
+                            uid = userId,
+                            token = aToken,
+                            type = type,
+                            login = null,
+                            password = null,
+                            twoFA = "fenrir_app",
                             isCurrent = false,
                             needSave = false
                         )
@@ -468,26 +610,19 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
 
                         if (hasPrimitive(elem, "login")) {
                             Settings.get().accounts().storeLogin(
-                                user_id,
+                                userId,
                                 elem["login"]?.jsonPrimitive?.contentOrNull ?: return@fromIOToMain
                             )
                         }
-                        if (device_id.nonNullNoEmpty()) {
-                            Settings.get().accounts().storeDevice(
-                                user_id,
-                                device
-                            )
-                        }
                     }, {
-                        view?.customToast?.showToastError(
-                            ErrorLocalizer.localizeThrowable(context, it)
-                        )
+                        setLoadingNow(false)
+                        view?.customToast?.showToastThrowable(it)
                     })
                 )
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            view?.customToast?.showToastError(e.localizedMessage)
+            view?.customToast?.showToastThrowable(e)
         }
     }
 
@@ -535,8 +670,22 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                     if (Settings.get().accounts().registered.contains(id)) continue
                     val token = elem["access_token"]?.asPrimitiveSafe?.contentOrNull ?: continue
                     val Type = elem["type"]?.asPrimitiveSafe?.intOrNull ?: continue
+                    if (id == 0L || token.isEmpty()) {
+                        continue
+                    }
+                    if (hasPrimitive(elem, "device")) {
+                        Settings.get().accounts().storeDevice(
+                            id,
+                            elem["device"]?.jsonPrimitive?.contentOrNull ?: continue
+                        )
+                    }
                     processNewAccount(
-                        id, token, Type, null, null, "fenrir_app",
+                        uid = id,
+                        token = token,
+                        type = Type,
+                        login = null,
+                        password = null,
+                        twoFA = "fenrir_app",
                         isCurrent = false,
                         needSave = false
                     )
@@ -544,12 +693,6 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                         Settings.get().accounts().storeLogin(
                             id,
                             elem["login"]?.jsonPrimitive?.contentOrNull ?: continue
-                        )
-                    }
-                    if (hasPrimitive(elem, "device")) {
-                        Settings.get().accounts().storeDevice(
-                            id,
-                            elem["device"]?.jsonPrimitive?.contentOrNull ?: continue
                         )
                     }
                 }
@@ -589,7 +732,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             view?.customToast?.showToast(R.string.accounts_restored)
         } catch (e: Exception) {
             e.printStackTrace()
-            view?.customToast?.showToastError(e.localizedMessage)
+            view?.customToast?.showToastThrowable(e)
         }
     }
 
@@ -598,6 +741,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             path,
             "fenrir_accounts_backup.json"
         )
+        setLoadingNow(true)
         appendJob(
             mOwnersInteractor.findBaseOwnersDataAsBundle(
                 Settings.get().accounts().current,
@@ -605,12 +749,16 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                 IOwnersRepository.MODE_ANY
             )
                 .fromIOToMain({
+                    setLoadingNow(false)
                     saveAccounts(
                         context,
                         file,
                         it
                     )
-                }) { saveAccounts(context, file, null) })
+                }) {
+                    setLoadingNow(false)
+                    saveAccounts(context, file, null)
+                })
     }
 
     private fun checkQRAuthState(
@@ -635,49 +783,15 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                     if (it.access_token.nonNullNoEmpty()) {
                         inMainThread {
                             processNewAccount(
-                                it.user_id,
-                                it.access_token,
-                                Constants.DEFAULT_ACCOUNT_TYPE,
-                                null,
-                                null,
-                                "fenrir_qr",
+                                uid = it.user_id,
+                                token = it.access_token,
+                                type = Constants.DEFAULT_ACCOUNT_TYPE,
+                                login = null,
+                                password = null,
+                                twoFA = "fenrir_qr",
                                 isCurrent = true,
-                                needSave = false
-                            )
-                            view?.showColoredSnack(R.string.refreshing_token, "#48BE2D".toColor())
-                            appendJob(
-                                accountsInteractor.getExchangeToken(it.user_id).fromIOToMain { t ->
-                                    t.token.nonNullNoEmpty { st ->
-                                        appendJob(
-                                            networker.vkDirectAuth(Constants.DEFAULT_ACCOUNT_TYPE)
-                                                .authByExchangeToken(
-                                                    Constants.API_ID,
-                                                    st,
-                                                    Auth.scope,
-                                                    "expired_token",
-                                                    Utils.getDeviceId(
-                                                        Constants.DEFAULT_ACCOUNT_TYPE,
-                                                        provideApplicationContext()
-                                                    ),
-                                                    Constants.VK_ANDROID_APP_SAK_VERSION,
-                                                    Constants.API_VERSION
-                                                ).fromIOToMain({ p ->
-                                                    val aToken = p.resultUrl?.let { it1 ->
-                                                        tryExtractAccessToken(it1)
-                                                    } ?: return@fromIOToMain
-                                                    Settings.get().accounts()
-                                                        .storeAccessToken(it.user_id, aToken)
-
-                                                    view?.showColoredSnack(
-                                                        R.string.success,
-                                                        "#48BE2D".toColor()
-                                                    )
-                                                }, { e ->
-                                                    view?.showThrowable(e)
-                                                })
-                                        )
-                                    }
-                                }
+                                needSave = false,
+                                needRefreshToken = true
                             )
                         }
                         emit(true)
@@ -820,19 +934,30 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            view?.customToast?.showToastError(e.localizedMessage)
+            view?.customToast?.showToastThrowable(e)
         } finally {
             Utils.safelyClose(out)
         }
     }
 
     companion object {
-        internal fun tryExtractAccessToken(url: String): String? {
+        internal fun tryExtractAccessToken(url: String?): String? {
+            if (url.isNullOrEmpty()) {
+                return null
+            }
             return VKStringUtils.extractPattern(url, "access_token=(.*?)&")
         }
 
-        internal fun tryExtractUserId(url: String): String? {
-            return VKStringUtils.extractPattern(url, "user_id=(\\d*)")
+        internal fun tryExtractUserId(url: String?): Long? {
+            if (url.isNullOrEmpty()) {
+                return null
+            }
+            return try {
+                VKStringUtils.extractPattern(url, "user_id=(\\d*)")?.toLong()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
         }
 
         internal fun getUserIdByAccessToken(

@@ -906,7 +906,6 @@
     <string name="updated_profile_photo_at">%1$s обновил(а) фотографию на странице</string>
     <string name="updated_status_at">обновил(а) статус: %1$s</string>
     <string name="messages">Сообщения</string>
-    <string name="error_with_message">Ошибка: %1$s</string>
     <string name="gif_player">Gif-плеер</string>
     <string name="recording_time">Запись… %1$s</string>
     <string name="unable_to_play_file">Не удалось воспроизвести файл</string>
@@ -1684,6 +1683,8 @@
     <string name="next">Далее</string>
     <string name="bottom_navigation_menu_max_5">Допустимо только 5 элементов!</string>
     <string name="anonym_token_not_valid">Получение анонимного токена было неудачно, перезапустите приложение!</string>
+    <string name="auth_access_token_is_empty">Access token пустой!</string>
+    <string name="auth_account_id_is_null">Не могу получить acount id!</string>
     <string name="auth_validate_method">Метод подтверждения:</string>
     <string name="auth_validate_method_push">Push уведомление (%1$s)</string>
     <string name="auth_validate_method_email">Email (%1$s)</string>

@@ -95,7 +95,8 @@ target_include_directories(thorvg PRIVATE
 if (${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "armeabi-v7a")
     target_compile_definitions(thorvg PRIVATE RAPIDJSON_NEON)
 else ()
-    target_compile_definitions(thorvg PRIVATE RAPIDJSON_SSE2)
+    target_compile_definitions(thorvg PRIVATE RAPIDJSON_SSE42)
+    target_compile_options(thorvg PRIVATE -mavx2)
 endif ()
 
 #####################################################################

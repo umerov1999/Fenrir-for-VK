@@ -28,7 +28,7 @@ import java.io.IOException
 object ShortcutUtils {
     private const val MAX_DYNAMIC_COUNT = 5
     private fun getLauncherIconSize(context: Context): Int {
-        return ContextCompat.getDrawable(context, R.mipmap.ic_launcher)!!.intrinsicWidth
+        return ContextCompat.getDrawable(context, R.mipmap.ic_launcher)?.intrinsicWidth ?: 256
     }
 
     @Throws(IOException::class)
