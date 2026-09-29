@@ -213,7 +213,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
     override fun search(
         query: String?,
         peerId: Long?,
-        date: Long?,
+        date: String?,
         previewLength: Int?,
         offset: Int?,
         count: Int?

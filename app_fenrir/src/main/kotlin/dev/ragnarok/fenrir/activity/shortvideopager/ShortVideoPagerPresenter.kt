@@ -264,10 +264,6 @@ class ShortVideoPagerPresenter(
         }
     }
 
-    private fun onLikeError(throwable: Throwable) {
-        showError(throwable)
-    }
-
     fun fireLikeClick() {
         if (Settings.get().main().isDisable_likes || Utils.isHiddenAccount(
                 accountId
@@ -296,7 +292,7 @@ class ShortVideoPagerPresenter(
                                 mCurrentIndex
                             )
                         }
-                    ) { throwable -> onLikeError(Utils.getCauseIfRuntime(throwable)) })
+                    ) { throwable -> showError(throwable) })
         }
     }
 

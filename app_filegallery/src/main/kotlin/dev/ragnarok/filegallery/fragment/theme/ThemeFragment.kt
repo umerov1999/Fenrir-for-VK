@@ -10,7 +10,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.activity.ActivityFeatures
 import dev.ragnarok.filegallery.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.filegallery.fragment.base.compat.AbsMvpFragment
 import dev.ragnarok.filegallery.settings.Settings.get
@@ -49,11 +48,6 @@ class ThemeFragment : AbsMvpFragment<ThemePresenter, IThemeView>(), IThemeView,
         val actionBar = supportToolbarFor(this)
         actionBar?.setTitle(R.string.theme_edit_title)
         actionBar?.subtitle = null
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(requireActivity(), true)
-            .build()
-            .apply(requireActivity())
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?) = ThemePresenter()

@@ -8,7 +8,6 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManagerEditView> {
@@ -164,7 +163,7 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
             )
                 .fromIOToMain({ onSavingComplete() }) { throwable ->
                     onSavingError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }
@@ -188,7 +187,7 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
             )
                 .fromIOToMain({ onSavingComplete() }) { throwable ->
                     onSavingError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }

@@ -37,7 +37,7 @@ object ErrorLocalizer {
                 }
             }
 
-            else -> if (throwable.message.nonNullNoEmpty()) throwable.message!! else throwable.toString()
+            else -> throwable.message.nonNullNoEmpty({ it }, { throwable.toString() })
         }
     }
 }

@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class CreatePollPresenter(
@@ -88,7 +87,7 @@ class CreatePollPresenter(
 
     private fun onPollCreateError(t: Throwable) {
         setCreationNow(false)
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onPollCreated(poll: Poll) {

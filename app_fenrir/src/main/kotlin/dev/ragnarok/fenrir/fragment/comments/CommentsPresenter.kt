@@ -44,7 +44,6 @@ import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -111,7 +110,7 @@ class CommentsPresenter(
     }
 
     private fun onAuthorDataGetError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onAuthorDataReceived(owner: Owner) {
@@ -268,7 +267,7 @@ class CommentsPresenter(
 
     private fun onInitialDataError(throwable: Throwable) {
         setLoadingState(LoadingState.NO)
-        showError(getCauseIfRuntime(throwable))
+        showError(throwable)
     }
 
     private fun loadUp() {
@@ -289,7 +288,7 @@ class CommentsPresenter(
             )
                 .fromIOToMain(
                     { bundle -> onCommentsPortionPortionReceived(bundle) }
-                ) { throwable -> onCommentPortionError(getCauseIfRuntime(throwable)) })
+                ) { throwable -> onCommentPortionError(throwable) })
     }
 
     private fun loadDown() {
@@ -310,7 +309,7 @@ class CommentsPresenter(
             )
                 .fromIOToMain(
                     { bundle -> onCommentsPortionPortionReceived(bundle) }
-                ) { throwable -> onCommentPortionError(getCauseIfRuntime(throwable)) })
+                ) { throwable -> onCommentPortionError(throwable) })
     }
 
     private fun onCommentPortionError(throwable: Throwable) {
@@ -696,7 +695,7 @@ class CommentsPresenter(
                                 R.string.error
                             )
                         }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
                 dialog.dismiss()
             }
@@ -767,7 +766,7 @@ class CommentsPresenter(
 
     private fun onSendError(t: Throwable) {
         setSendingNow(false)
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onQuickSendResponse(comment: Comment?) {

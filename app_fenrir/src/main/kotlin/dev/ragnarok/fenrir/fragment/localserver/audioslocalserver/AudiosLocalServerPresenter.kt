@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.FindAt
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -75,7 +74,7 @@ class AudiosLocalServerPresenter(accountId: Long, savedInstanceState: Bundle?) :
 
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveRefreshingView()
     }
 

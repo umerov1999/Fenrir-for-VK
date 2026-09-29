@@ -15,7 +15,6 @@ import dev.ragnarok.fenrir.model.PhotoAlbumEditor
 import dev.ragnarok.fenrir.model.SimplePrivacy
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.findIndexById
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -79,7 +78,7 @@ class PhotoAlbumsPresenter(
     }
 
     private fun onOwnerGetError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onOwnerInfoReceived(owner: Owner) {
@@ -102,7 +101,7 @@ class PhotoAlbumsPresenter(
 
     private fun onActualAlbumsGetError(t: Throwable) {
         netLoadingNow = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveProgressView()
     }
 
@@ -180,7 +179,7 @@ class PhotoAlbumsPresenter(
                 album.getObjectId()
             )
                 .fromIOToMain({ onAlbumRemoved(albumId, ownerId) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 

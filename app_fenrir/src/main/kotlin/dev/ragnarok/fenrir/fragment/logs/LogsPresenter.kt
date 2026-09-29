@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.LogEvent
 import dev.ragnarok.fenrir.model.LogEventType
 import dev.ragnarok.fenrir.model.LogEventWrapper
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class LogsPresenter(savedInstanceState: Bundle?) :
@@ -55,14 +54,14 @@ class LogsPresenter(savedInstanceState: Bundle?) :
             store.getLogAll(type)
                 .fromIOToMain({ events -> onDataReceived(events) }) { throwable ->
                     onDataReceiveError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }
 
     private fun onDataReceiveError(throwable: Throwable) {
         setLoading(false)
-        view?.showError(throwable.message)
+        view?.showThrowable(throwable)
     }
 
     private fun onDataReceived(events: List<LogEvent>) {

@@ -133,6 +133,18 @@ class NewsDtoAdapter : AbsDtoAdapter<VKApiNews>("VKApiNews") {
                 dto.attachments?.append(it)
             }
         }
+        if (hasObject(root, "clip") && hasArray(root["clip"]?.jsonObject, "items")) {
+            val clipArray = root["clip"]?.jsonObject?.get("items")?.jsonArray
+            if (dto.attachments == null) {
+                dto.attachments = VKApiAttachments()
+            }
+            parseArray(
+                clipArray,
+                null, VKApiVideo.serializer()
+            )?.let {
+                dto.attachments?.append(it)
+            }
+        }
         if (hasObject(root, "friends") && hasArray(root["friends"]?.jsonObject, "items")) {
             val friendsArray = root["friends"]?.jsonObject?.get("items")?.jsonArray
             dto.friends = ArrayList(friendsArray?.size.orZero())

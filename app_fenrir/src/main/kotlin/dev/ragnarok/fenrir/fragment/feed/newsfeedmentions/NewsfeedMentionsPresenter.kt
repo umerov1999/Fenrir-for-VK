@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.domain.IFeedInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.NewsfeedComment
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class NewsfeedMentionsPresenter(
@@ -52,7 +51,7 @@ class NewsfeedMentionsPresenter(
     }
 
     private fun onRequestError(throwable: Throwable) {
-        showError(getCauseIfRuntime(throwable))
+        showError(throwable)
         setLoadingNow(false)
     }
 

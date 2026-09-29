@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Translit.cyr2lat
 import dev.ragnarok.fenrir.util.Translit.lat2cyr
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
@@ -230,7 +229,7 @@ class CommunitiesPresenter(accountId: Long, private val userId: Long, savedInsta
     private fun onSearchError(t: Throwable) {
         netSearchNow = false
         resolveRefreshing()
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onSearchDataReceived(communities: Pair<List<Community>, Boolean>, inc: Int) {

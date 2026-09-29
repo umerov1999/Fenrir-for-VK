@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.fragment.messages.AbsMessageListPresenter
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -38,7 +37,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
         appendJob(
             fInteractor.restoreMessage(accountId, accountId, id)
                 .fromIOToMain({ onMessageRestoredSuccessfully(id) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -86,7 +85,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
 
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveRefreshingView()
     }
 
@@ -119,7 +118,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
                     spam = false
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
         }
     }
@@ -139,7 +138,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
                     forAll = false, spam = true
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
         }
     }

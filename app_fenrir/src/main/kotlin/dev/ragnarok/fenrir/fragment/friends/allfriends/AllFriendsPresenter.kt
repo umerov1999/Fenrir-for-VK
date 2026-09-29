@@ -12,7 +12,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
@@ -72,7 +71,7 @@ class AllFriendsPresenter(accountId: Long, private val userId: Long, savedInstan
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoadingNow = false
         resolveRefreshingView()
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     override fun onGuiCreated(viewHost: IAllFriendsView) {
@@ -250,7 +249,7 @@ class AllFriendsPresenter(accountId: Long, private val userId: Long, savedInstan
 
     private fun onSearchError(t: Throwable) {
         searchRunNow = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onSearchDataReceived(offset: Int, users: List<User>, fullCount: Int) {

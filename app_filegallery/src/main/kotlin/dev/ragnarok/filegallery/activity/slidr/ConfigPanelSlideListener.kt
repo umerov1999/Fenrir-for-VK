@@ -4,7 +4,11 @@ import android.app.Activity
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrConfig
 
 internal class ConfigPanelSlideListener(activity: Activity, private val config: SlidrConfig) :
-    ColorPanelSlideListener(activity, false, true) {
+    ColorPanelSlideListener(
+        activity,
+        config.isFromFromBlackToNormalNavigation(),
+        config.isAlphaForView()
+    ) {
     override fun onStateChanged(state: Int) {
         config.listener?.onSlideStateChanged(state)
     }
@@ -25,8 +29,8 @@ internal class ConfigPanelSlideListener(activity: Activity, private val config: 
         config.listener?.onSlideChange(percent)
     }
 
-    val isFromUnColoredToColoredStatusBar: Boolean
-        get() = config.isFromUnColoredToColoredStatusBar()
+    val isFromFromBlackToNormalNavigation: Boolean
+        get() = config.isFromFromBlackToNormalNavigation()
     val isUseAlpha: Boolean
         get() = config.isAlphaForView()
 }

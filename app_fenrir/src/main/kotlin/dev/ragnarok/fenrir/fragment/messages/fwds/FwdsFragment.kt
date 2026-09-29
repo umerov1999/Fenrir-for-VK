@@ -72,7 +72,6 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

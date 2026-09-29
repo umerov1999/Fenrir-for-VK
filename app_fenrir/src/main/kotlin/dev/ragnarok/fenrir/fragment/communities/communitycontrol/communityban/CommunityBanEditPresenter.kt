@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.model.BlockReason
 import dev.ragnarok.fenrir.model.IdOption
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.util.Logger.wtf
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.text.DateFormat
@@ -178,7 +177,7 @@ class CommunityBanEditPresenter : AccountDependencyPresenter<ICommunityBanEditVi
             )
                 .fromIOToMain({ onAddBanComplete() }) { throwable ->
                     onAddBanError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }

@@ -372,7 +372,7 @@ open class PhotoPagerPresenter internal constructor(
                     )
                 }) { t ->
                     view?.let {
-                        showError(it, Utils.getCauseIfRuntime(t))
+                        showError(it, t)
                     }
                 })
     }
@@ -483,7 +483,7 @@ open class PhotoPagerPresenter internal constructor(
                     view?.let {
                         showError(
                             it,
-                            Utils.getCauseIfRuntime(t)
+                            t
                         )
                     }
                 })
@@ -577,7 +577,7 @@ open class PhotoPagerPresenter internal constructor(
             view?.let {
                 showError(
                     it,
-                    Utils.getCauseIfRuntime(t)
+                    t
                 )
             }
         })

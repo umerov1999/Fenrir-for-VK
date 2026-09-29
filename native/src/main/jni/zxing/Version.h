@@ -9,6 +9,8 @@
 #define ZXING_READERS
 #define ZXING_WRITERS
 
+#define ZXING_ENABLE_UNICODE true
+
 #define ZXING_ENABLE_1D true
 #define ZXING_ENABLE_PDF417 true
 #define ZXING_ENABLE_AZTEC true

@@ -2620,7 +2620,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

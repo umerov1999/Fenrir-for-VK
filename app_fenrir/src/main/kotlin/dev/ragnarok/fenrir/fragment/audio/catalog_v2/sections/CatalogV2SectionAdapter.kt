@@ -819,7 +819,7 @@ class CatalogV2SectionAdapter(
                     audio.setTitle(title).setArtist(artist)
                     notifyItemBindableChanged(position)
                 }) { t ->
-                    clickListener?.onError(Utils.getCauseIfRuntime(t))
+                    clickListener?.onError(t)
                 }
             }
             .setNegativeButton(R.string.button_cancel, null)

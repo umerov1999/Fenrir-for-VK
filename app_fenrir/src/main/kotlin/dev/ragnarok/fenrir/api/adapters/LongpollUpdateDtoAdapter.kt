@@ -183,7 +183,7 @@ class LongpollUpdateDtoAdapter : AbsDtoAdapter<AbsLongpollEvent?>("AbsLongpollEv
         if (update.from == 0L && !Peer.isGroupChat(update.peerId) && !Peer.isContactChat(update.peerId) && !update.isOut) {
             update.from = update.peerId
         }
-        return if (update.messageId != 0) update else null
+        return if (update.messageId != 0 && update.peerId != 0L && update.conversationMessageId != 0) update else null
     }
 
     companion object {

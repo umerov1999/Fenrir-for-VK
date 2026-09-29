@@ -50,23 +50,6 @@ for decoder in "${ENABLED_DECODERS[@]}"; do
 done
 cd "$HOME/ffmpeg" || exit
 ./configure \
-  --libdir=android-libs/armeabi-v7a \
-  --arch=arm \
-  --cpu=armv7-a \
-  --cross-prefix="${TOOLCHAIN_PREFIX}/armv7a-linux-androideabi${ANDROID_PLATFORM}-" \
-  --nm="${TOOLCHAIN_PREFIX}/llvm-nm" \
-  --ar="${TOOLCHAIN_PREFIX}/llvm-ar" \
-  --ranlib="${TOOLCHAIN_PREFIX}/llvm-ranlib" \
-  --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
-  --extra-cflags="-marm -march=armv7-a $EXTRA_C_FLAGS" \
-  --enable-neon \
-  --enable-asm \
-  --enable-inline-asm \
-  ${COMMON_OPTIONS}
-make -j"$JOBS"
-make install-libs
-make clean
-./configure \
   --libdir=android-libs/arm64-v8a \
   --arch=aarch64 \
   --cpu=armv8-a \
@@ -81,6 +64,23 @@ make clean
   --enable-dotprod \
   --enable-i8mm \
   --enable-optimizations \
+  --enable-asm \
+  --enable-inline-asm \
+  ${COMMON_OPTIONS}
+make -j"$JOBS"
+make install-libs
+make clean
+./configure \
+  --libdir=android-libs/armeabi-v7a \
+  --arch=arm \
+  --cpu=armv7-a \
+  --cross-prefix="${TOOLCHAIN_PREFIX}/armv7a-linux-androideabi${ANDROID_PLATFORM}-" \
+  --nm="${TOOLCHAIN_PREFIX}/llvm-nm" \
+  --ar="${TOOLCHAIN_PREFIX}/llvm-ar" \
+  --ranlib="${TOOLCHAIN_PREFIX}/llvm-ranlib" \
+  --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
+  --extra-cflags="-marm -march=armv7-a $EXTRA_C_FLAGS" \
+  --enable-neon \
   --enable-asm \
   --enable-inline-asm \
   ${COMMON_OPTIONS}

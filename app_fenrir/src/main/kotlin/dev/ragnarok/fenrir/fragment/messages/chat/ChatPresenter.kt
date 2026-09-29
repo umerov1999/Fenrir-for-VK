@@ -95,9 +95,9 @@ import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.TextingNotifier
 import dev.ragnarok.fenrir.util.UnixTime
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.addElementToList
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import dev.ragnarok.fenrir.util.Utils.hasFlag
 import dev.ragnarok.fenrir.util.Utils.isHiddenAccount
@@ -892,8 +892,8 @@ class ChatPresenter(
 
     private fun onMessagesGetError(t: Throwable) {
         setNetLoadingNow(false)
-        logThrowable("Chat issues", getCauseIfRuntime(t))
-        showError(view, getCauseIfRuntime(t))
+        logThrowable("Chat issues", t)
+        showError(view, t)
     }
 
     private fun requestMore() {
@@ -1031,9 +1031,9 @@ class ChatPresenter(
 
     private fun onMessageSaveError(throwable: Throwable) {
         view?.run {
-            when (throwable) {
+            when (Utils.getCauseIfRuntime(throwable)) {
                 is UploadNotResolvedException -> showError(R.string.upload_not_resolved_exception_message)
-                else -> showError(throwable.message)
+                else -> showThrowable(throwable)
             }
         }
     }

@@ -69,7 +69,7 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
         ) {
             lazyPresenter { fireCameraPermissionResolved() }
         }
-    private val requestReqadPermission =
+    private val requestReadPermission =
         requestPermissionsAbs(
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         ) {
@@ -292,7 +292,7 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
     }
 
     override fun requestReadExternalStoragePermission() {
-        requestReqadPermission.launch()
+        requestReadPermission.launch()
     }
 
     override fun openCamera(photoCameraUri: Uri) {
@@ -440,17 +440,17 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }
 
     override fun showEnterTimeDialog(initialTimeUnixtime: Long) {
         DateTimePicker.Builder(requireActivity())
+            .setOnlyDate(false)
             .setTime(initialTimeUnixtime)
             .setCallback(object : DateTimePicker.Callback {
-                override fun onDateTimeSelected(unixtime: Long) {
-                    presenter?.fireTimerTimeSelected(unixtime)
+                override fun onDateTimeSelected(unixTime: Long) {
+                    presenter?.fireTimerTimeSelected(unixTime)
                 }
             })
             .show()

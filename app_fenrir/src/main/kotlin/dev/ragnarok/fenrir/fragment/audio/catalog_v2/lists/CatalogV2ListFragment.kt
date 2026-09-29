@@ -248,7 +248,6 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

@@ -14,20 +14,32 @@ import android.graphics.PorterDuffColorFilter
 import android.os.Build
 import android.view.Display
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat.Side.BOTTOM
+import androidx.core.view.WindowInsetsCompat.Side.LEFT
+import androidx.core.view.WindowInsetsCompat.Side.RIGHT
+import androidx.core.view.WindowInsetsCompat.Side.TOP
+import androidx.core.view.insets.ColorProtection
+import androidx.core.view.insets.GradientProtection
+import androidx.core.view.insets.ProtectionLayout
+import androidx.core.view.iterator
 import androidx.media3.common.MediaItem
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.ragnarok.filegallery.BuildConfig
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.R
+import dev.ragnarok.filegallery.applyAlpha
 import dev.ragnarok.filegallery.media.exo.OkHttpDataSource
 import dev.ragnarok.filegallery.model.Lang
 import dev.ragnarok.filegallery.orZero
-import dev.ragnarok.filegallery.settings.Settings.get
+import dev.ragnarok.filegallery.settings.CurrentTheme
+import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.AppTextUtils.updateDateLang
 import dev.ragnarok.filegallery.view.natives.animation.ThorVGLottieView
 import dev.ragnarok.filegallery.view.pager.BackgroundToForegroundTransformer
@@ -410,11 +422,11 @@ object Utils {
     }
 
     val appLocale: Locale
-        get() = getLocaleSettings(get().main().language)
+        get() = getLocaleSettings(Settings.get().main().language)
 
     fun updateActivityContext(base: Context): Context {
-        val size = get().main().fontSize
-        @Lang val lang = get().main().language
+        val size = Settings.get().main().fontSize
+        @Lang val lang = Settings.get().main().language
         val locale = getLocaleSettings(lang)
         updateDateLang(locale)
         return if (size == 0) {
@@ -463,6 +475,40 @@ object Utils {
             Transformers_Types.OFF -> null
             Transformers_Types.ZOOM_OUT_TRANSFORMER -> ZoomOutTransformer()
             else -> null
+        }
+    }
+
+    fun applyEdgeToEdgeActivity(activity: Activity, black: Boolean = false) {
+        val night = black || Settings.get().main().isDarkModeEnabled(activity)
+        val decorView = activity.window.decorView as ViewGroup
+        for (i in decorView) {
+            if (i is ProtectionLayout) {
+                decorView.removeView(i)
+            }
+        }
+        if (!black) {
+            val color = CurrentTheme.getColorBackground(activity).applyAlpha(180)
+            val protections =
+                listOf(
+                    GradientProtection(TOP, color),
+                    ColorProtection(LEFT, color),
+                    ColorProtection(RIGHT, color),
+                    ColorProtection(BOTTOM, color),
+                )
+            decorView.addView(ProtectionLayout(activity, protections).apply { tag = protections })
+        }
+
+        WindowCompat.enableEdgeToEdge(activity.window)
+
+        @Suppress("deprecation")
+        if (black && !hasVanillaIceCreamTarget()) {
+            activity.window.statusBarColor = Color.BLACK
+            activity.window.navigationBarColor = Color.BLACK
+        }
+
+        WindowCompat.getInsetsController(activity.window, activity.window.decorView).apply {
+            isAppearanceLightStatusBars = !night
+            isAppearanceLightNavigationBars = !night
         }
     }
 }

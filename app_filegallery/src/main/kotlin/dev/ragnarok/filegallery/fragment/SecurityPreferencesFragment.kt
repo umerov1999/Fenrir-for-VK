@@ -25,7 +25,6 @@ import de.maxr1998.modernpreferences.helpers.screen
 import de.maxr1998.modernpreferences.helpers.switch
 import de.maxr1998.modernpreferences.preferences.TwoStatePreference
 import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.activity.ActivityFeatures
 import dev.ragnarok.filegallery.activity.ActivityUtils
 import dev.ragnarok.filegallery.activity.CreatePinActivity
 import dev.ragnarok.filegallery.fragment.pin.createpin.CreatePinFragment
@@ -259,11 +258,6 @@ class SecurityPreferencesFragment : AbsPreferencesFragment(),
         }
         searchView?.visibility =
             if (preferencesAdapter?.currentScreen?.getSearchQuery() == null) View.VISIBLE else View.GONE
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(requireActivity(), true)
-            .build()
-            .apply(requireActivity())
     }
 
     override fun onDestroy() {

@@ -12,7 +12,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.PersistentLogger
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.flow
 
@@ -190,7 +189,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         view?.let {
             showError(
                 it,
-                Utils.getCauseIfRuntime(t)
+                t
             )
         }
     }

@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -66,7 +65,7 @@ class FeedbackPresenter(accountId: Long, savedInstanceState: Bundle?) :
         t.printStackTrace()
         netLoadingNow = false
         netLoadingStartFrom = null
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveLoadMoreFooter()
         resolveSwipeRefreshLoadingView()
     }

@@ -76,7 +76,6 @@ class ShortcutsViewFragment : BaseMvpFragment<ShortcutsViewPresenter, IShortcuts
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

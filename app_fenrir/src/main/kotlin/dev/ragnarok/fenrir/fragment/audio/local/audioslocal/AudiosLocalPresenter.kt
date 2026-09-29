@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.upload.UploadIntent
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.findIndexById
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -223,7 +222,7 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
     private fun onListGetError(t: Throwable) {
         setLoadingNow(false)
         showError(
-            getCauseIfRuntime(t)
+            t
         )
     }
 

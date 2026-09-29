@@ -138,7 +138,6 @@ class CommunityControlFragment : Fragment() {
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

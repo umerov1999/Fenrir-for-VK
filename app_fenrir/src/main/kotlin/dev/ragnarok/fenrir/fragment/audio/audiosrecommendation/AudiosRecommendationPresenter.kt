@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -123,7 +122,7 @@ class AudiosRecommendationPresenter(
 
     private fun onListGetError(t: Throwable) {
         setLoadingNow(false)
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     fun fireSelectAll() {

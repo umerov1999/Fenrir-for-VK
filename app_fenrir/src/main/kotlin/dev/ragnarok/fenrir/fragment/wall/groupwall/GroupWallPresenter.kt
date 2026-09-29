@@ -28,7 +28,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
 import dev.ragnarok.fenrir.util.ShortcutUtils.createWallShortcutRx
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlin.math.abs
@@ -102,7 +101,7 @@ class GroupWallPresenter(
                         it.first,
                         it.second
                     )
-                }) { t -> onDetailsGetError(t) })
+                }) { t -> showError(t) })
     }
 
     private fun onFullInfoReceived(community: Community?, details: CommunityDetails?) {
@@ -124,10 +123,6 @@ class GroupWallPresenter(
         resolveCounters()
         resolveBaseCommunityViews()
         resolveMenu()
-    }
-
-    private fun onDetailsGetError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
     }
 
     private fun createPostFilters(): List<PostFilter> {
@@ -204,7 +199,7 @@ class GroupWallPresenter(
         appendJob(
             communitiesInteractor.leave(accountId, groupId)
                 .fromIOToMain({ onLeaveResult() }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -213,7 +208,7 @@ class GroupWallPresenter(
         appendJob(
             communitiesInteractor.join(accountId, groupId)
                 .fromIOToMain({ onJoinResult() }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 

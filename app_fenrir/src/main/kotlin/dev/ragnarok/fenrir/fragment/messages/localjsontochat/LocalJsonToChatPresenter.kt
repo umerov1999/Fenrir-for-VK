@@ -151,8 +151,8 @@ class LocalJsonToChatPresenter(
     }
 
     private fun onActualDataGetError(t: Throwable) {
-        PersistentLogger.logThrowable("LocalJSON issues", Exception(Utils.getCauseIfRuntime(t)))
-        showError(view, Utils.getCauseIfRuntime(t))
+        PersistentLogger.logThrowable("LocalJSON issues", t)
+        showError(view, t)
         isLoading = false
         resolveRefreshingView()
         showEmpty = mPost.isEmpty()

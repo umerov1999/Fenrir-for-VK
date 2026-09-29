@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.FindAtWithContent
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.findIndexById
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -77,7 +76,7 @@ class FavePagesPresenter(
 
     internal fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveRefreshingView()
     }
 
@@ -138,7 +137,7 @@ class FavePagesPresenter(
     }
 
     private fun onCachedGetError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onCachedDataReceived(data: List<FavePage>) {
@@ -201,7 +200,7 @@ class FavePagesPresenter(
         appendJob(
             faveInteractor.removePage(accountId, owner.ownerId, isUser)
                 .fromIOToMain({ onUserRemoved(accountId, owner.ownerId) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -209,7 +208,7 @@ class FavePagesPresenter(
         appendJob(
             faveInteractor.pushFirst(accountId, owner.ownerId)
                 .fromIOToMain({ fireRefresh() }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 

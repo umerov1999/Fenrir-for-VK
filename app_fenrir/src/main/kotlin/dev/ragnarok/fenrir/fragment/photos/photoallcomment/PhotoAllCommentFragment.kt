@@ -173,7 +173,6 @@ class PhotoAllCommentFragment :
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

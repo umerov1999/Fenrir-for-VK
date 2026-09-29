@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -62,7 +61,7 @@ class StoriesViewPresenter(
     }
 
     private fun onDataGetError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
         loadingNow = false
         resolveRefreshingView()
     }

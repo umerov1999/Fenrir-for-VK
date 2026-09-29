@@ -19,8 +19,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
@@ -31,8 +29,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -43,17 +39,14 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.StubAnimatorListener
-import dev.ragnarok.filegallery.activity.ActivityFeatures
 import dev.ragnarok.filegallery.activity.BaseMvpActivity
 import dev.ragnarok.filegallery.activity.VideoPlayerActivity
 import dev.ragnarok.filegallery.activity.slidr.Slidr
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrConfig
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrListener
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrPosition
-import dev.ragnarok.filegallery.applyAlpha
 import dev.ragnarok.filegallery.fragment.AudioPlayerFragment
 import dev.ragnarok.filegallery.fragment.base.horizontal.ImageListAdapter
-import dev.ragnarok.filegallery.listener.AppStyleable
 import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.picasso.PicassoInstance
@@ -61,9 +54,6 @@ import dev.ragnarok.filegallery.place.Place
 import dev.ragnarok.filegallery.place.PlaceFactory
 import dev.ragnarok.filegallery.place.PlaceProvider
 import dev.ragnarok.filegallery.settings.CurrentTheme
-import dev.ragnarok.filegallery.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.DownloadWorkUtils
 import dev.ragnarok.filegallery.util.FileUtil
@@ -78,7 +68,7 @@ import dev.ragnarok.filegallery.view.pager.WeakPicassoLoadCallback
 import kotlin.math.abs
 
 class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>(), IPhotoPagerView,
-    PlaceProvider, AppStyleable, MenuProvider {
+    PlaceProvider, MenuProvider {
     companion object {
         private const val EXTRA_PHOTOS = "photos"
         private const val ACTION_OPEN =
@@ -137,7 +127,7 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
         super.onCreate(savedInstanceState)
         Slidr.attach(
             this,
-            SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+            SlidrConfig.Builder().setAlphaForView(false).fromFromBlackToNormalNavigation(true)
                 .position(SlidrPosition.VERTICAL)
                 .listener(object : SlidrListener {
                     override fun onSlideStateChanged(state: Int) {
@@ -211,6 +201,8 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
             }
             WindowInsetsCompat.CONSUMED
         }
+
+        Utils.applyEdgeToEdgeActivity(this, true)
 
         mLoadingProgressBar = findViewById(R.id.loading_progress_bar)
         mViewPager?.setPageTransformer(
@@ -505,39 +497,6 @@ class PhotoPagerActivity : BaseMvpActivity<PhotoPagerPresenter, IPhotoPagerView>
 
     override fun downloadPhoto(url: String, dir: String, file: String) {
         DownloadWorkUtils.doDownloadPhoto(this, url, dir, file)
-    }
-
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(colored = false, invertIcons = false)
-            .build()
-            .apply(this)
     }
 
     private inner class PhotoViewHolder(view: View) : RecyclerView.ViewHolder(view), Callback {

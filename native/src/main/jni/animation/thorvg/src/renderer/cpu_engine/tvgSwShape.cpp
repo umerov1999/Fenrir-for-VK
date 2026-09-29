@@ -40,8 +40,11 @@ static void _dashLineTo(SwDashStroke& dash, const Point& to, bool validPoint)
     Line cur = {dash.ptCur, to};
     auto len = cur.length();
     if (tvg::zero(len)) {
-        dash.path->moveTo(dash.ptCur);
-    } else if (len <= dash.curLen) {
+        dash.ptCur = to;
+        return;
+    }
+
+    if (len <= dash.curLen) {
         dash.curLen -= len;
         if (!dash.curOpGap) {
             if (dash.move) {
@@ -84,11 +87,12 @@ static void _dashLineTo(SwDashStroke& dash, const Point& to, bool validPoint)
             }
             dash.path->lineTo(cur.pt2);
         }
-        if (dash.curLen < 1.0f && !tvg::zero(len)) {
+        if (dash.curLen < DASH_PATTERN_THRESHOLD && !tvg::zero(len)) {
             //move to next dash
             dash.curIdx = (dash.curIdx + 1) % dash.cnt;
             dash.curLen = dash.pattern[dash.curIdx];
             dash.curOpGap = !dash.curOpGap;
+            dash.move = true;
         }
     }
     dash.ptCur = to;
@@ -98,11 +102,13 @@ static void _dashCubicTo(SwDashStroke& dash, const Point& ctrl1, const Point& ct
 {
     Bezier cur = {dash.ptCur, ctrl1, ctrl2, to};
     auto len = cur.length();
+    if (tvg::zero(len)) {
+        dash.ptCur = to;
+        return;
+    }
 
     //draw the current line fully
-    if (tvg::zero(len)) {
-        dash.path->moveTo(dash.ptCur);
-    } else if (len <= dash.curLen) {
+    if (len <= dash.curLen) {
         dash.curLen -= len;
         if (!dash.curOpGap) {
             if (dash.move) {
@@ -145,19 +151,47 @@ static void _dashCubicTo(SwDashStroke& dash, const Point& ctrl1, const Point& ct
             }
             dash.path->cubicTo(cur.ctrl1, cur.ctrl2, cur.end);
         }
-        if (dash.curLen < 0.1f && !tvg::zero(len)) {
+        if (dash.curLen < DASH_PATTERN_THRESHOLD && !tvg::zero(len)) {
             //move to next dash
             dash.curIdx = (dash.curIdx + 1) % dash.cnt;
             dash.curLen = dash.pattern[dash.curIdx];
             dash.curOpGap = !dash.curOpGap;
+            dash.move = true;
         }
     }
     dash.ptCur = to;
 }
 
-static void _dashClose(SwDashStroke& dash, bool validPoint)
+static void _dashClose(SwDashStroke& dash, bool validPoint, uint32_t cmdBegin, uint32_t ptBegin)
 {
     _dashLineTo(dash, dash.ptStart, validPoint);
+    auto& cmds = dash.path->cmds;
+    auto& pts = dash.path->pts;
+
+    // join the first and the last dashes across the seam only when both touch the start point
+    if (cmds.count > cmdBegin + 1 &&
+        tvg::closed(pts[ptBegin], dash.ptStart, DASH_PATTERN_THRESHOLD) &&
+        tvg::closed(pts.last(), dash.ptStart, DASH_PATTERN_THRESHOLD)) {
+        // locate the end of the first dash
+        auto cmdEnd = cmdBegin + 1, ptEnd = ptBegin + 1;
+        for (; cmdEnd < cmds.count && cmds[cmdEnd] != PathCommand::MoveTo; ++cmdEnd) {
+            ptEnd += (cmds[cmdEnd] == PathCommand::CubicTo) ? 3 : 1;
+        }
+
+        // move the first dash behind the last to join them at the start point
+        if (cmdEnd < cmds.count) {
+            auto rotate = [](auto& arr, uint32_t from, uint32_t to) {
+                arr.grow(to - from);
+                memcpy(arr.end(), arr.begin() + from, (to - from) * sizeof(*arr.data));
+                memmove(arr.begin() + from, arr.begin() + to, (arr.count - from) * sizeof(*arr.data));
+            };
+            cmds[cmdBegin] = PathCommand::LineTo;
+            rotate(pts, ptBegin, ptEnd);
+            rotate(cmds, cmdBegin, cmdEnd);
+        } 
+    }
+    // the next sub-path may continue without moveTo
+    dash.move = true;
 }
 
 static void _dashMoveTo(SwDashStroke& dash, uint32_t offIdx, float offset, const Point& pts)
@@ -208,6 +242,8 @@ static SwOutline* _genDashOutline(const RenderShape* rshape, SwMpool* mpool, uns
 
     auto outline = mpool->outline(tid);
     dash.path = const_cast<RenderPath*>(outline->path);
+    auto cmdBegin = dash.path->cmds.count;
+    auto ptBegin = dash.path->pts.count;
 
     //must begin with moveTo
     if (cmds[0] == PathCommand::MoveTo) {
@@ -221,11 +257,15 @@ static SwOutline* _genDashOutline(const RenderShape* rshape, SwMpool* mpool, uns
     while (--cmdCnt > 0) {
         switch (*cmds) {
             case PathCommand::Close: {
-                _dashClose(dash, validPoint);
+                _dashClose(dash, validPoint, cmdBegin, ptBegin);
+                cmdBegin = dash.path->cmds.count;
+                ptBegin = dash.path->pts.count;
                 break;
             }
             case PathCommand::MoveTo: {
                 _dashMoveTo(dash, offIdx, offset, *pts);
+                cmdBegin = dash.path->cmds.count;
+                ptBegin = dash.path->pts.count;
                 ++pts;
                 break;
             }

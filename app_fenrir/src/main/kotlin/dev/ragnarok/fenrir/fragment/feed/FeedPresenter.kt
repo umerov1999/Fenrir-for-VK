@@ -20,7 +20,6 @@ import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.needReloadNews
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -369,7 +368,7 @@ class FeedPresenter(accountId: Long, savedInstanceState: Bundle?) :
         appendJob(
             faveInteractor.addPost(accountId, ownerId, postId, null)
                 .fromIOToMain({ onPostAddedToBookmarks() }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 

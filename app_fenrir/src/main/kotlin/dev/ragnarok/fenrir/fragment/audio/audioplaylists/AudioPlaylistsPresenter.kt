@@ -16,7 +16,6 @@ import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.FindAtWithContent
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.isValueAssigned
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
@@ -60,7 +59,7 @@ class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstance
     internal fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
         showError(
-            getCauseIfRuntime(t)
+            t
         )
         resolveRefreshingView()
     }
@@ -221,7 +220,7 @@ class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstance
                         root.findViewById<TextInputEditText>(R.id.edit_title).text.toString(),
                         root.findViewById<TextInputEditText>(R.id.edit_description).text.toString()
                     ).fromIOToMain({ fireRefresh() }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
             }
             .setNegativeButton(R.string.button_cancel, null)
@@ -253,7 +252,7 @@ class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstance
                         root.findViewById<TextInputEditText>(R.id.edit_title).text.toString(),
                         root.findViewById<TextInputEditText>(R.id.edit_description).text.toString()
                     ).fromIOToMain({ playlist -> doInsertPlaylist(playlist) }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
             }
             .setNegativeButton(R.string.button_cancel, null)

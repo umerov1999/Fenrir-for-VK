@@ -13,7 +13,6 @@ import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,7 +36,7 @@ class ArtistSearchPresenter(
 
     override fun onSearchError(throwable: Throwable) {
         super.onSearchError(throwable)
-        showError(getCauseIfRuntime(throwable))
+        showError(throwable)
     }
 
     override fun doSearch(

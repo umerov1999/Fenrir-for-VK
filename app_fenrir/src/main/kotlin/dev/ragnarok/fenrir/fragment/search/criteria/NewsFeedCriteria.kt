@@ -9,8 +9,22 @@ import dev.ragnarok.fenrir.fragment.search.options.SimpleGPSOption
 class NewsFeedCriteria : BaseSearchCriteria {
     constructor(query: String?) : super(query) {
         appendOption(SimpleGPSOption(KEY_GPS, R.string.gps, true))
-        appendOption(SimpleDateOption(KEY_START_TIME, R.string.date_start, true))
-        appendOption(SimpleDateOption(KEY_END_TIME, R.string.date_to, true))
+        appendOption(
+            SimpleDateOption(
+                key = KEY_START_TIME,
+                title = R.string.date_start,
+                active = true,
+                onlyDate = false
+            )
+        )
+        appendOption(
+            SimpleDateOption(
+                key = KEY_END_TIME,
+                title = R.string.date_to,
+                active = true,
+                onlyDate = false
+            )
+        )
     }
 
     internal constructor(parcel: Parcel) : super(parcel)

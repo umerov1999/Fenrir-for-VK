@@ -15,7 +15,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import kotlinx.coroutines.flow.filter
@@ -75,7 +74,7 @@ class CommunityBlacklistPresenter(
                             it.first
                         )
                     }
-                ) { throwable -> onRequqestError(getCauseIfRuntime(throwable)) })
+                ) { throwable -> onRequqestError(throwable) })
     }
 
     override fun onGuiCreated(viewHost: ICommunityBlacklistView) {

@@ -58,11 +58,12 @@ abstract class AbsSearchPresenter<V : IBaseSearchView<T>, C : BaseSearchCriteria
                         it.first,
                         it.second
                     )
-                }, { throwable -> onSearchError(throwable) })
+                }, { onSearchError(it) })
         )
     }
 
     open fun onSearchError(throwable: Throwable) {
+        setLoadingNow(false)
         throwable.printStackTrace()
     }
 

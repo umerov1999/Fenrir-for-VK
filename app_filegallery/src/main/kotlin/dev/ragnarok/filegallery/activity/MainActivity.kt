@@ -7,7 +7,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -16,8 +15,6 @@ import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -27,7 +24,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.insets.ProtectionLayout
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -40,7 +36,6 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.activity.photopager.PhotoPagerActivity
-import dev.ragnarok.filegallery.applyAlpha
 import dev.ragnarok.filegallery.fragment.AudioPlayerFragment
 import dev.ragnarok.filegallery.fragment.PreferencesFragment
 import dev.ragnarok.filegallery.fragment.SecurityPreferencesFragment
@@ -49,7 +44,6 @@ import dev.ragnarok.filegallery.fragment.localserver.LocalServerTabsFragment
 import dev.ragnarok.filegallery.fragment.tagdir.TagDirFragment
 import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerFragment
 import dev.ragnarok.filegallery.fragment.theme.ThemeFragment
-import dev.ragnarok.filegallery.listener.AppStyleable
 import dev.ragnarok.filegallery.listener.BackPressCallback
 import dev.ragnarok.filegallery.listener.CanBackPressedCallback
 import dev.ragnarok.filegallery.listener.OnSectionResumeCallback
@@ -68,9 +62,6 @@ import dev.ragnarok.filegallery.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.filegallery.place.PlaceFactory.getPreferencesPlace
 import dev.ragnarok.filegallery.place.PlaceFactory.getTagsPlace
 import dev.ragnarok.filegallery.place.PlaceProvider
-import dev.ragnarok.filegallery.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.filegallery.settings.theme.ThemesController.nextRandom
@@ -90,7 +81,7 @@ import dev.ragnarok.filegallery.util.toast.CustomToast.Companion.createCustomToa
 import java.io.File
 import kotlin.math.max
 
-class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable, PlaceProvider,
+class MainActivity : AppCompatActivity(), OnSectionResumeCallback, PlaceProvider,
     NavigationBarView.OnItemSelectedListener, UpdatableNavigation, ServiceConnection {
     private var mBottomNavigation: BottomNavigationView? = null
     private var mBottomNavigationContainer: ViewGroup? = null
@@ -201,6 +192,8 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
                 WindowInsetsCompat.CONSUMED
             }
         }
+
+        Utils.applyEdgeToEdgeActivity(this)
 
         supportFragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener)
         resolveToolbarNavigationIcon()
@@ -395,30 +388,6 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, AppStyleable,
                 mBottomNavigation?.menu?.findItem(R.id.menu_tags)?.isChecked = true
             }
         }
-    }
-
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
     }
 
     private fun handleIntent(action: String?, main: Boolean) {

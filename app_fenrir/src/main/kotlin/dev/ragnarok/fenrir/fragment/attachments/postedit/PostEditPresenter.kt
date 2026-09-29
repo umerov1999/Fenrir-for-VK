@@ -27,7 +27,6 @@ import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.UnixTime.now
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
@@ -210,7 +209,7 @@ class PostEditPresenter(
                 )
                 .fromIOToMain({ onEditResponse() }) { throwable ->
                     onEditError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }
@@ -231,7 +230,7 @@ class PostEditPresenter(
                 )
                 .fromIOToMain({ onEditResponse() }) { throwable ->
                     onEditError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }

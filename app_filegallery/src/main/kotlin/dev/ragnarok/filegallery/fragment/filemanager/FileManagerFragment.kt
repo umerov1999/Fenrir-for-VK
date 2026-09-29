@@ -35,7 +35,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.StubAnimatorListener
-import dev.ragnarok.filegallery.activity.ActivityFeatures
 import dev.ragnarok.filegallery.activity.EnterPinActivity
 import dev.ragnarok.filegallery.fragment.base.BaseMvpFragment
 import dev.ragnarok.filegallery.fragment.filemanager.FileManagerAdapter.ClickListener
@@ -122,11 +121,6 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         if (requireActivity() is OnSectionResumeCallback) {
             (requireActivity() as OnSectionResumeCallback).onSectionResume(SectionItem.FILE_MANAGER)
         }
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(requireActivity(), true)
-            .build()
-            .apply(requireActivity())
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?) = FileManagerPresenter(

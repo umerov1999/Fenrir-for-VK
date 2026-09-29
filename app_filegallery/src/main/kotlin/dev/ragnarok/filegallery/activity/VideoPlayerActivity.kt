@@ -20,16 +20,12 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.customview.widget.ViewDragHelper
 import dev.ragnarok.fenrir.module.FFmpegOkhttp
 import dev.ragnarok.filegallery.R
@@ -37,19 +33,14 @@ import dev.ragnarok.filegallery.activity.slidr.Slidr
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrConfig
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrListener
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrPosition
-import dev.ragnarok.filegallery.applyAlpha
 import dev.ragnarok.filegallery.getParcelableCompat
 import dev.ragnarok.filegallery.getParcelableExtraCompat
-import dev.ragnarok.filegallery.listener.AppStyleable
 import dev.ragnarok.filegallery.media.video.ExoVideoPlayer
 import dev.ragnarok.filegallery.media.video.IVideoPlayer
 import dev.ragnarok.filegallery.media.video.IVideoPlayer.IVideoSizeChangeListener
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.orZero
 import dev.ragnarok.filegallery.settings.CurrentTheme.getColorPrimary
-import dev.ragnarok.filegallery.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.filegallery.settings.Settings.get
 import dev.ragnarok.filegallery.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.filegallery.toColor
@@ -60,7 +51,7 @@ import dev.ragnarok.filegallery.view.ExpandableSurfaceView
 import dev.ragnarok.filegallery.view.VideoControllerView
 
 class VideoPlayerActivity : AppCompatActivity(),
-    VideoControllerView.MediaPlayerControl, IVideoSizeChangeListener, AppStyleable {
+    VideoControllerView.MediaPlayerControl, IVideoSizeChangeListener {
     private var mDecorView: View? = null
     private var mPlaySpeed: ImageView? = null
     private var mControllerView: VideoControllerView? = null
@@ -147,6 +138,8 @@ class VideoPlayerActivity : AppCompatActivity(),
             WindowInsetsCompat.CONSUMED
         }
 
+        Utils.applyEdgeToEdgeActivity(this, true)
+
         setSupportActionBar(toolbar)
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.drawable.arrow_left)
@@ -167,7 +160,7 @@ class VideoPlayerActivity : AppCompatActivity(),
         if (get().main().isVideo_swipes) {
             Slidr.attach(
                 this,
-                SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+                SlidrConfig.Builder().setAlphaForView(false).fromFromBlackToNormalNavigation(true)
                     .position(SlidrPosition.LEFT)
                     .listener(object : SlidrListener {
                         override fun onSlideStateChanged(state: Int) {
@@ -311,11 +304,6 @@ class VideoPlayerActivity : AppCompatActivity(),
 
     override fun onResume() {
         super.onResume()
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(colored = false, invertIcons = false)
-            .build()
-            .apply(this)
         onStopCalled = false
         val actionBar = supportActionBar
         if (actionBar != null && actionBar.isShowing) {
@@ -471,30 +459,6 @@ class VideoPlayerActivity : AppCompatActivity(),
 
     override fun onVideoSizeChanged(player: IVideoPlayer, w: Int, h: Int) {
         mSurfaceView?.setAspectRatio(w, h)
-    }
-
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
     }
 
     companion object {

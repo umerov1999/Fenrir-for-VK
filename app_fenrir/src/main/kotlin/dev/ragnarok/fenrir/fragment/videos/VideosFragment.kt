@@ -140,7 +140,6 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
             ActivityFeatures.Builder()
                 .begin()
                 .setHideNavigationMenu(false)
-                .setBarsColored(requireActivity(), true)
                 .build()
                 .apply(requireActivity())
         }

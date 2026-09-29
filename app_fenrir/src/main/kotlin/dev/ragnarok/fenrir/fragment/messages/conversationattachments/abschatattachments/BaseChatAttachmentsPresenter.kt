@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.fragment.messages.conversationattachments.abschatatt
 import android.os.Bundle
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
@@ -51,9 +50,7 @@ abstract class BaseChatAttachmentsPresenter<T, V : IBaseChatAttachmentsView<T>> 
                     },
                     { throwable ->
                         onRequestError(
-                            Utils.getCauseIfRuntime(
-                                throwable
-                            )
+                            throwable
                         )
                     })
         )
@@ -63,7 +60,7 @@ abstract class BaseChatAttachmentsPresenter<T, V : IBaseChatAttachmentsView<T>> 
     private fun onRequestError(throwable: Throwable) {
         loadingHolder.clear()
         resolveLoadingView()
-        view?.showError(throwable.message)
+        view?.showThrowable(throwable)
     }
 
     private fun onDataReceived(startFrom: String?, result: Pair<String?, List<T>>) {

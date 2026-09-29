@@ -17,7 +17,6 @@ import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -79,7 +78,7 @@ class WallPostQueryAttachmentsPresenter(
 
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveRefreshingView()
     }
 

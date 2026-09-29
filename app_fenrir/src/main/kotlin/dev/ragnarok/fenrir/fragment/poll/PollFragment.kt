@@ -149,7 +149,6 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

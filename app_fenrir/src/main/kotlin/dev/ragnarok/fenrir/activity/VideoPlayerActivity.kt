@@ -21,8 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -30,8 +28,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.customview.widget.ViewDragHelper.STATE_IDLE
 import com.google.android.material.imageview.ShapeableImageView
 import com.squareup.picasso3.BitmapTarget
@@ -45,11 +41,10 @@ import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
-import dev.ragnarok.fenrir.listener.AppStyleable
+import dev.ragnarok.fenrir.listener.ActivityFuturesListener
 import dev.ragnarok.fenrir.media.video.ExoVideoPlayer
 import dev.ragnarok.fenrir.media.video.IVideoPlayer
 import dev.ragnarok.fenrir.model.Commented
@@ -64,9 +59,6 @@ import dev.ragnarok.fenrir.picasso.transforms.CropTransformation
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.toColor
@@ -80,7 +72,8 @@ import dev.ragnarok.fenrir.view.VideoControllerView
 import kotlin.math.floor
 
 class VideoPlayerActivity : AppCompatActivity(),
-    VideoControllerView.MediaPlayerControl, IVideoPlayer.IVideoSizeChangeListener, AppStyleable {
+    VideoControllerView.MediaPlayerControl, IVideoPlayer.IVideoSizeChangeListener,
+    ActivityFuturesListener {
     private val mCompositeJob = CompositeJob()
     private var mDecorView: View? = null
     private var mPlaySpeed: ImageView? = null
@@ -230,6 +223,8 @@ class VideoPlayerActivity : AppCompatActivity(),
             WindowInsetsCompat.CONSUMED
         }
 
+        Utils.applyEdgeToEdgeActivity(this, true)
+
         setSupportActionBar(toolbar)
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.drawable.arrow_left)
@@ -285,7 +280,7 @@ class VideoPlayerActivity : AppCompatActivity(),
         if (Settings.get().main().isVideo_swipes) {
             attach(
                 this,
-                SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+                SlidrConfig.Builder().setAlphaForView(false).fromFromBlackToNormalNavigation(true)
                     .position(SlidrPosition.LEFT)
                     .listener(object : SlidrListener {
                         override fun onSlideStateChanged(state: Int) {
@@ -441,9 +436,9 @@ class VideoPlayerActivity : AppCompatActivity(),
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(colored = false, invertIcons = false)
             .build()
             .apply(this)
+
         onStopCalled = false
         val actionBar = supportActionBar
         if (actionBar != null && actionBar.isShowing) {
@@ -685,30 +680,6 @@ class VideoPlayerActivity : AppCompatActivity(),
 
     override fun hideMenu(hide: Boolean) {}
     override fun openMenu(open: Boolean) {}
-
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
-    }
 
     companion object {
         const val EXTRA_VIDEO = "video"

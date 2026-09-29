@@ -12,7 +12,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.activity.ActivityFeatures
 import dev.ragnarok.filegallery.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.filegallery.fragment.base.BaseFragment
 import dev.ragnarok.filegallery.fragment.localserver.audioslocalserver.AudiosLocalServerFragment
@@ -140,11 +139,6 @@ class LocalServerTabsFragment : BaseFragment(), BackPressCallback {
         if (requireActivity() is OnSectionResumeCallback) {
             (requireActivity() as OnSectionResumeCallback).onSectionResume(SectionItem.LOCAL_SERVER)
         }
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(requireActivity(), true)
-            .build()
-            .apply(requireActivity())
     }
 
     private inner class Adapter(fragmentActivity: Fragment) :

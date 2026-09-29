@@ -74,7 +74,6 @@ class TopicsFragment : BaseMvpFragment<TopicsPresenter, ITopicsView>(),
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

@@ -8,7 +8,6 @@ import dev.ragnarok.filegallery.fragment.base.RxSupportPresenter
 import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.util.FindAt
-import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CancelableJob
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -55,7 +54,7 @@ class PhotosLocalServerPresenter :
         view?.let {
             showError(
                 it,
-                Utils.getCauseIfRuntime(t)
+                t
             )
         }
         resolveRefreshingView()

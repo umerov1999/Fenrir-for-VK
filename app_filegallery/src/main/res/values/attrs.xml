@@ -15,7 +15,6 @@
     <attr name="materialCardBackgroundStyle" format="reference" />
 
     <attr name="toolbarElevation" format="reference" />
-    <attr name="statusBarNonColoredColor" format="color" />
 
     <declare-styleable name="CircleRoadProgress">
         <attr name="circleCenterPointX" format="float" />

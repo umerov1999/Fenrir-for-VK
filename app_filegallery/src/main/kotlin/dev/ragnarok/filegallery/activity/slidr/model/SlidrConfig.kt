@@ -9,7 +9,7 @@ import dev.ragnarok.filegallery.settings.Settings.get
  * this library
  */
 class SlidrConfig internal constructor() {
-    private var fromUnColoredToColoredStatusBar = false
+    private var fromFromBlackToNormalNavigation = false
     private var sensitivity = 0.5f
     private var scrimColor = -1
     private var scrimStartAlpha = 0.8f
@@ -55,8 +55,8 @@ class SlidrConfig internal constructor() {
     var listener: SlidrListener? = null
         private set
 
-    fun isFromUnColoredToColoredStatusBar(): Boolean {
-        return fromUnColoredToColoredStatusBar
+    fun isFromFromBlackToNormalNavigation(): Boolean {
+        return fromFromBlackToNormalNavigation
     }
 
     /***********************************************************************************************
@@ -64,8 +64,8 @@ class SlidrConfig internal constructor() {
      * Setters
      *
      */
-    fun setFromUnColoredToColoredStatusBar(en: Boolean) {
-        fromUnColoredToColoredStatusBar = en
+    fun setFromFromBlackToNormalNavigation(en: Boolean) {
+        fromFromBlackToNormalNavigation = en
     }
 
     /**
@@ -172,8 +172,8 @@ class SlidrConfig internal constructor() {
      */
     class Builder {
         private val config: SlidrConfig = SlidrConfig()
-        fun fromUnColoredToColoredStatusBar(en: Boolean): Builder {
-            config.fromUnColoredToColoredStatusBar = en
+        fun fromFromBlackToNormalNavigation(en: Boolean): Builder {
+            config.fromFromBlackToNormalNavigation = en
             return this
         }
 

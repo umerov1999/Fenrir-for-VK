@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
+import dev.ragnarok.fenrir.fragment.search.options.SimpleDateOption
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.media.voice.IVoicePlayer
 import dev.ragnarok.fenrir.model.Message
@@ -23,6 +24,9 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
 class MessagesSearchPresenter(
     accountId: Long,
@@ -81,8 +85,28 @@ class MessagesSearchPresenter(
         startFrom: IntNextFrom
     ): Flow<Pair<List<Message>, IntNextFrom>> {
         val offset = startFrom.offset
+        val endDate =
+            criteria.findOptionByKey<SimpleDateOption>(MessageSearchCriteria.KEY_END_TIME)?.timeUnix
+        var dateString: String? = null
+        if (endDate != null) {
+            val dateFormat = SimpleDateFormat("ddMMyyyy", Utils.appLocale)
+            val calendar = Calendar.getInstance()
+            val date = Date()
+            calendar.timeInMillis = System.currentTimeMillis()
+            date.time = endDate * 1000
+            calendar[calendar[Calendar.YEAR], calendar[Calendar.MONTH], calendar[Calendar.DATE], 0, 0] =
+                0
+            dateString = dateFormat.format(date)
+        }
         return messagesInteractor
-            .searchMessages(accountId, criteria.peerId, COUNT, offset, criteria.query)
+            .searchMessages(
+                accountId,
+                criteria.peerId,
+                dateString,
+                COUNT,
+                offset,
+                criteria.query
+            )
             .map { messages -> create(messages, IntNextFrom(offset + COUNT)) }
     }
 

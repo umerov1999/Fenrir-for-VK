@@ -4,21 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.webkit.WebViewClientCompat
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Includes
@@ -32,6 +26,7 @@ import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.fenrir.util.Logger
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
@@ -128,25 +123,7 @@ class ValidateActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
-        val statusBarColor = Color.TRANSPARENT
-        val navigationBarColor = Color.TRANSPARENT
-        val invertIcons = !Settings.get().ui().isDarkModeEnabled(
-            this
-        )
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor,
-            statusBarColor
-        ) else SystemBarStyle.dark(statusBarColor)
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor,
-            navigationBarColor
-        ) else SystemBarStyle.dark(navigationBarColor)
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
+        Utils.applyEdgeToEdgeActivity(this)
     }
 
     internal fun cancel() {

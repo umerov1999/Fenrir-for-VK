@@ -22,7 +22,6 @@ import dev.ragnarok.fenrir.upload.UploadUtils.createIntents
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.findIndexById
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -109,7 +108,7 @@ class DocsListPresenter(
                         Toast.LENGTH_LONG
                     )?.showToastSuccessBottom(R.string.added)
                 }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -208,7 +207,7 @@ class DocsListPresenter(
             docsInteractor.request(accountId, mOwnerId, filter)
                 .fromIOToMain({ data -> onNetDataReceived(data) }) { throwable ->
                     onRequestError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }
@@ -252,7 +251,7 @@ class DocsListPresenter(
             docsInteractor.getCacheData(accountId, mOwnerId, filter)
                 .fromIOToMain({ data -> onCacheDataReceived(data) }) { throwable ->
                     onLoadError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }

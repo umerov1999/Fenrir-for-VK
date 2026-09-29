@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Block
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2RecommendationPlaylist
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2Section
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class CatalogV2SectionPresenter(
@@ -139,7 +138,7 @@ class CatalogV2SectionPresenter(
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
         showError(
-            getCauseIfRuntime(t)
+            t
         )
         resolveRefreshingView()
     }

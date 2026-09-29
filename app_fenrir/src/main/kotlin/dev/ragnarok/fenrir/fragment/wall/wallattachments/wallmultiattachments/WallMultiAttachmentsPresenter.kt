@@ -22,7 +22,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -93,7 +92,7 @@ class WallMultiAttachmentsPresenter(
 
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveRefreshingView()
     }
 

@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
@@ -88,7 +87,7 @@ class FavePhotosPresenter(accountId: Long, savedInstanceState: Bundle?) :
 
     private fun onActualDataGetError(t: Throwable) {
         setRequestNow(false)
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onActualDataReceived(offset: Int, photos: List<Photo>) {

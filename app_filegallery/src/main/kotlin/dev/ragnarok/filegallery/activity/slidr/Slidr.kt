@@ -24,7 +24,7 @@ object Slidr {
      */
     fun attach(
         activity: Activity,
-        fromUnColoredToColoredStatusBar: Boolean = false,
+        fromFromBlackToNormalNavigation: Boolean = false,
         useAlpha: Boolean = true
     ): SlidrInterface {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -39,7 +39,7 @@ object Slidr {
         panel.setOnPanelSlideListener(
             ColorPanelSlideListener(
                 activity,
-                fromUnColoredToColoredStatusBar,
+                fromFromBlackToNormalNavigation,
                 useAlpha
             )
         )

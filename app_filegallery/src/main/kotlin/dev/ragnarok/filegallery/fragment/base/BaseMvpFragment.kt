@@ -7,6 +7,7 @@ import android.widget.CompoundButton
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.Includes.provideApplicationContext
 import dev.ragnarok.filegallery.activity.ActivityUtils.setToolbarSubtitle
@@ -19,6 +20,7 @@ import dev.ragnarok.filegallery.fragment.base.core.IMvpView
 import dev.ragnarok.filegallery.fragment.base.core.IToastView
 import dev.ragnarok.filegallery.fragment.base.core.IToolbarView
 import dev.ragnarok.filegallery.util.ErrorLocalizer.localizeThrowable
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.ViewUtils
 import dev.ragnarok.filegallery.util.toast.AbsCustomToast
 import dev.ragnarok.filegallery.util.toast.CustomToast.Companion.createCustomToast
@@ -55,10 +57,15 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
     }
 
     override fun showBottomSheetError(throwable: Throwable?) {
+        var pThrowable = throwable ?: return
+        pThrowable = Utils.getCauseIfRuntime(pThrowable)
+        if (Constants.IS_DEBUG) {
+            pThrowable.printStackTrace()
+        }
         if (isResumed) {
             val text = StringBuilder()
-            if (throwable !is SocketTimeoutException && throwable !is UnknownHostException) {
-                for (stackTraceElement in (throwable ?: return).stackTrace) {
+            if (pThrowable !is SocketTimeoutException && pThrowable !is UnknownHostException) {
+                for (stackTraceElement in pThrowable.stackTrace) {
                     text.append("    ")
                     text.append(stackTraceElement)
                     text.append("\r\n")
@@ -72,7 +79,7 @@ abstract class BaseMvpFragment<P : AbsPresenter<V>, V : IMvpView> : AbsMvpFragme
             }
 
             showBottomSheetError(
-                localizeThrowable(provideApplicationContext(), throwable),
+                localizeThrowable(provideApplicationContext(), pThrowable),
                 stackTraceString
             )
         }

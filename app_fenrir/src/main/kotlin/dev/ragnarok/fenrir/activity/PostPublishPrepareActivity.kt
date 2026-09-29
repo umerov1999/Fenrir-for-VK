@@ -1,19 +1,13 @@
 package dev.ragnarok.fenrir.activity
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
@@ -81,25 +75,7 @@ class PostPublishPrepareActivity : AppCompatActivity(), RecyclerMenuAdapter.Acti
             WindowInsetsCompat.CONSUMED
         }
 
-        val statusBarColor = Color.TRANSPARENT
-        val navigationBarColor = Color.TRANSPARENT
-        val invertIcons = !Settings.get().ui().isDarkModeEnabled(
-            this
-        )
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor,
-            statusBarColor
-        ) else SystemBarStyle.dark(statusBarColor)
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor,
-            navigationBarColor
-        ) else SystemBarStyle.dark(navigationBarColor)
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
+        Utils.applyEdgeToEdgeActivity(this)
 
         adapter = RecyclerMenuAdapter(R.layout.item_advanced_menu_alternative, emptyList())
         adapter?.setActionListener(this)
@@ -150,7 +126,7 @@ class PostPublishPrepareActivity : AppCompatActivity(), RecyclerMenuAdapter.Acti
     private fun onOwnersGetError(throwable: Throwable) {
         setLoading(false)
         CustomToast.createCustomToast(this, null)?.setDuration(Toast.LENGTH_LONG)
-            ?.showToastError(Utils.firstNonEmptyString(throwable.message, throwable.toString()))
+            ?.showToastThrowable(throwable)
         finish()
     }
 

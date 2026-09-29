@@ -7,26 +7,18 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
-import android.view.ViewGroup
 import android.widget.TextView
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.button.MaterialButton
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.animation.thorvg.ThorVGLottie2Gif
 import dev.ragnarok.fenrir.module.animation.thorvg.ThorVGLottie2Gif.Lottie2GifListener
-import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController.currentStyle
@@ -156,24 +148,7 @@ class LottieActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
-        val statusBarColor = getStatusBarColor(this)
-        val navigationBarColor = getNavigationBarColor(this)
-        val invertIcons = !Settings.get().ui().isDarkModeEnabled(this)
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
+        Utils.applyEdgeToEdgeActivity(this)
         if (savedInstanceState == null) {
             handleIntent(intent)
         } else {

@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.db.model.entity.FeedOwnersEntity
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.util.InputTextDialog
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class FeedOwnerListPresenter(accountId: Long, savedInstanceState: Bundle?) :
@@ -48,7 +47,7 @@ class FeedOwnerListPresenter(accountId: Long, savedInstanceState: Bundle?) :
     }
 
     private fun onRequestError(throwable: Throwable) {
-        showError(getCauseIfRuntime(throwable))
+        showError(throwable)
         setLoadingNow(false)
     }
 

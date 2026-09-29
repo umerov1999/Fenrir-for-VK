@@ -5,34 +5,19 @@ import android.app.Activity
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowCompat
 import dev.ragnarok.filegallery.activity.slidr.widget.SliderPanel.OnPanelSlideListener
-import dev.ragnarok.filegallery.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.filegallery.settings.CurrentTheme.getStatusBarNonColored
+import dev.ragnarok.filegallery.settings.CurrentTheme
 import dev.ragnarok.filegallery.util.Utils
 
 internal open class ColorPanelSlideListener(
     private val activity: Activity,
-    private val isFromUnColoredToColoredStatusBar: Boolean,
-    private val isUseAlpha: Boolean
+    private val fromFromBlackToNormalNavigation: Boolean,
+    private val useAlpha: Boolean
 ) : OnPanelSlideListener {
     private val evaluator = ArgbEvaluator()
-
-    @ColorInt
-    private val statusBarNonColored: Int =
-        if (Utils.hasVanillaIceCreamTarget()) Color.BLACK else getStatusBarNonColored(activity)
-
-    @ColorInt
-    private val statusBarColored: Int =
-        if (Utils.hasVanillaIceCreamTarget()) Color.WHITE else getStatusBarColor(activity)
-
-    @ColorInt
-    private val navigationBarNonColored: Int = Color.BLACK
-
-    @ColorInt
-    private val navigationBarColored: Int =
-        if (Utils.hasVanillaIceCreamTarget()) Color.WHITE else getNavigationBarColor(activity)
+    private val backgroundColor = CurrentTheme.getColorBackground(activity)
+    private var lastInvertColor: Boolean? = null
 
     override fun onStateChanged(state: Int) {
         // Unused.
@@ -47,46 +32,36 @@ internal open class ColorPanelSlideListener(
     }
 
     private fun isDark(@ColorInt color: Int): Boolean {
-        return ColorUtils.calculateLuminance(color) < 0.5
+        return ColorUtils.calculateLuminance(color) < 0.2
     }
 
     override fun onSlideChange(percent: Float) {
         try {
-            if (isFromUnColoredToColoredStatusBar) {
+            if (fromFromBlackToNormalNavigation) {
                 val w = activity.window
                 if (w != null) {
-                    val invertIcons: Boolean
-                    if (Utils.hasVanillaIceCreamTarget()) {
-                        val statusColor =
-                            evaluator.evaluate(percent, Color.WHITE, Color.BLACK) as Int
-                        invertIcons = !isDark(statusColor)
-                    } else {
-                        val statusColor = evaluator.evaluate(
-                            percent,
-                            statusBarColored,
-                            statusBarNonColored
-                        ) as Int
-                        val navigationColor = evaluator.evaluate(
-                            percent,
-                            navigationBarColored,
-                            navigationBarNonColored
-                        ) as Int
+                    val targetColor =
+                        evaluator.evaluate(percent, backgroundColor, Color.BLACK) as Int
+                    if (!Utils.hasVanillaIceCreamTarget()) {
                         @Suppress("deprecation")
-                        w.statusBarColor = statusColor
+                        w.statusBarColor = targetColor
                         @Suppress("deprecation")
-                        w.navigationBarColor = navigationColor
-                        invertIcons = !isDark(statusColor)
+                        w.navigationBarColor = targetColor
                     }
-                    val ins = WindowInsetsControllerCompat(w, w.decorView)
-                    ins.isAppearanceLightStatusBars = invertIcons
-                    ins.isAppearanceLightNavigationBars = invertIcons
+                    val invertIcons = !isDark(targetColor)
+                    if (lastInvertColor != invertIcons) {
+                        lastInvertColor = invertIcons
+                        WindowCompat.getInsetsController(w, w.decorView).apply {
+                            isAppearanceLightStatusBars = invertIcons
+                            isAppearanceLightNavigationBars = invertIcons
+                        }
+                    }
                 }
             }
-            if (isUseAlpha) {
+            if (useAlpha) {
                 activity.window.decorView.rootView.alpha = Utils.clamp(percent, 0f, 1f)
             }
         } catch (_: Exception) {
         }
     }
-
 }

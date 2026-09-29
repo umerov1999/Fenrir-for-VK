@@ -12,7 +12,6 @@ import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.FaveLink
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -52,7 +51,7 @@ class FaveLinksPresenter(accountId: Long, savedInstanceState: Bundle?) :
     private fun onActualGetError(t: Throwable) {
         actualLoading = false
         resolveRefreshingView()
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onActualDataReceived(data: List<FaveLink>, offset: Int) {
@@ -137,7 +136,7 @@ class FaveLinksPresenter(accountId: Long, savedInstanceState: Bundle?) :
         appendJob(
             faveInteractor.removeLink(accountId, id)
                 .fromIOToMain({ onLinkRemoved(accountId, id) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -168,7 +167,7 @@ class FaveLinksPresenter(accountId: Long, savedInstanceState: Bundle?) :
                             .trim()
                     )
                         .fromIOToMain({ fireRefresh() }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
             }
             .setNegativeButton(R.string.button_cancel, null)

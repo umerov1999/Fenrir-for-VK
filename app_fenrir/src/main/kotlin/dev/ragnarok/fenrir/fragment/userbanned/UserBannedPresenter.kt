@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.model.BannedPart
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.findIndexById
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import kotlinx.coroutines.flow.filter
@@ -90,7 +89,7 @@ class UserBannedPresenter(accountId: Long, savedInstanceState: Bundle?) :
             interactor.getBanned(accountId, 50, offset)
                 .fromIOToMain(
                     { part -> onBannedPartReceived(offset, part) }
-                ) { throwable -> onBannedPartGetError(getCauseIfRuntime(throwable)) })
+                ) { throwable -> onBannedPartGetError(throwable) })
     }
 
     fun fireRefresh() {
@@ -105,17 +104,13 @@ class UserBannedPresenter(accountId: Long, savedInstanceState: Bundle?) :
         view?.showSuccessToast()
     }
 
-    private fun onAddError(throwable: Throwable) {
-        showError(throwable)
-    }
-
     fun fireOwnersSelected(owners: ArrayList<Owner>) {
         if (owners.nonNullNoEmpty()) {
             appendJob(
                 interactor.banOwners(accountId, owners)
                     .fromIOToMain({ onAddingComplete() }) { throwable ->
-                        onAddError(
-                            getCauseIfRuntime(throwable)
+                        showError(
+                            throwable
                         )
                     })
         }
@@ -131,16 +126,12 @@ class UserBannedPresenter(accountId: Long, savedInstanceState: Bundle?) :
         view?.showSuccessToast()
     }
 
-    private fun onRemoveError(throwable: Throwable) {
-        showError(throwable)
-    }
-
     fun fireRemoveClick(owner: Owner) {
         appendJob(
             interactor.unbanOwner(accountId, owner.ownerId)
                 .fromIOToMain({ onRemoveComplete() }) { throwable ->
-                    onRemoveError(
-                        getCauseIfRuntime(throwable)
+                    showError(
+                        throwable
                     )
                 })
     }

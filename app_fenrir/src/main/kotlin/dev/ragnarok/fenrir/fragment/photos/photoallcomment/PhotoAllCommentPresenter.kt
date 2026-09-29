@@ -20,7 +20,6 @@ import dev.ragnarok.fenrir.model.WallReply
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -143,7 +142,7 @@ class PhotoAllCommentPresenter(
                         false
                     )
                 }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -188,7 +187,7 @@ class PhotoAllCommentPresenter(
                             )
                             else view?.customToast?.showToast(R.string.error)
                         }, { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
                 )
                 dialog.dismiss()

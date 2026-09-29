@@ -73,14 +73,12 @@ public:
 
         video_stream_idx = -1;
         video_stream = nullptr;
-        audio_stream = nullptr;
     }
 
     AVFormatContext *fmt_ctx = nullptr;
     char *src = nullptr;
     int video_stream_idx = -1;
     AVStream *video_stream = nullptr;
-    AVStream *audio_stream = nullptr;
     AVCodecContext *video_dec_ctx = nullptr;
     // Borrows fmt_ctx and video_dec_ctx; must be deleted before them (see dtor).
     VideoFrameReader *reader = nullptr;
@@ -105,7 +103,7 @@ static enum AVPixelFormat get_format(AVCodecContext *ctx,
     const enum AVPixelFormat *p;
 
     for (p = pix_fmts; *p != -1; p++) {
-        LOGE("available format %d", p);
+        LOGE("available format %d", *p);
     }
 
     return pix_fmts[0];

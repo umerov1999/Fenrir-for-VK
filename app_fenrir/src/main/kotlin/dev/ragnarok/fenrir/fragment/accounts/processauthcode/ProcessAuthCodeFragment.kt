@@ -66,7 +66,6 @@ class ProcessAuthCodeFragment : BaseMvpFragment<ProcessAuthCodePresenter, IProce
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

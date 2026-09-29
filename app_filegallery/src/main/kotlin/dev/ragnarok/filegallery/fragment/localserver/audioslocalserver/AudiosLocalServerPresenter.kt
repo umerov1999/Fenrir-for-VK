@@ -10,7 +10,6 @@ import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.filegallery.settings.Settings.get
 import dev.ragnarok.filegallery.util.FindAt
-import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CancelableJob
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -76,7 +75,7 @@ class AudiosLocalServerPresenter :
         view?.let {
             showError(
                 it,
-                Utils.getCauseIfRuntime(t)
+                t
             )
         }
         resolveRefreshingView()

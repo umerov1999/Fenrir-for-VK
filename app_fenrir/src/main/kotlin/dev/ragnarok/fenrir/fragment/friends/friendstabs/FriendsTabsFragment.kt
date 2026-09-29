@@ -104,7 +104,6 @@ class FriendsTabsFragment : BaseMvpFragment<FriendsTabsPresenter, IFriendsTabsVi
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

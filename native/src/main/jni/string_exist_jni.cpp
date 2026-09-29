@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <utility>
 #include "hash/sha1.hpp"
-#include "hash/crc32.hpp"
+#include "hash/crc.hpp"
 #include "fenrir_native.h"
 
 class StringExist {
@@ -342,5 +342,5 @@ Java_dev_ragnarok_fenrir_module_StringHash_getCRC32(JNIEnv *env, jobject,
     }
     std::string v = textString;
     env->ReleaseStringUTFChars(value, textString);
-    return CRC32::crc32(v);
+    return CRC::crc32(v);
 }

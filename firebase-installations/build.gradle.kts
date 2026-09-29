@@ -55,7 +55,7 @@ android {
     defaultConfig {
         minSdk =
             if (isDevelopBuild()) libs.versions.appMinSDKDevelop.asInt() else libs.versions.appMinSDKNotDevelop.asInt()
-        buildConfigField("String", "VERSION_NAME_INSTALLATION", "19.1.1".commaString())
+        buildConfigField("String", "VERSION_NAME_INSTALLATION", "19.1.2".commaString())
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.collection)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.fragment)
     implementation(libs.firebase.common)
     implementation(libs.firebase.installations.interop)

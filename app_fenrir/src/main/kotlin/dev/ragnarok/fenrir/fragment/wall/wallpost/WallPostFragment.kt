@@ -101,7 +101,6 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

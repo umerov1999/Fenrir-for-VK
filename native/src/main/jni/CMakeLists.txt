@@ -601,6 +601,12 @@ target_include_directories(fenrir_jni
 target_compile_options(fenrir_jni PRIVATE
         ${OPTIMIZE_NORMAL} -funroll-loops -fno-strict-aliasing -fno-math-errno -Wno-unused-parameter -Wno-unused-variable)
 
+if (${ANDROID_ABI} STREQUAL "arm64-v8a")
+    target_compile_options(fenrir_jni PRIVATE -march=armv8-a+sha2)
+elseif (${ANDROID_ABI} STREQUAL "x86_64")
+    target_compile_options(fenrir_jni PRIVATE -msha)
+endif ()
+
 target_link_libraries(fenrir_jni
         PRIVATE android
         PRIVATE jnigraphics

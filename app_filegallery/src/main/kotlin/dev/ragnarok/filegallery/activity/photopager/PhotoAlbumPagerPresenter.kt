@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.filegallery.Includes.networkInterfaces
 import dev.ragnarok.filegallery.api.interfaces.ILocalServerApi
 import dev.ragnarok.filegallery.model.Photo
-import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.flow
 
@@ -29,7 +28,7 @@ class PhotoAlbumPagerPresenter(
     }
 
     private fun onActualDataGetError(t: Throwable) {
-        view?.let { showError(it, Utils.getCauseIfRuntime(t)) }
+        view?.let { showError(it, t) }
     }
 
     override fun close() {

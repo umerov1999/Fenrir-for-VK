@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayedFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -317,7 +318,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                     setInfoOrErrorMessage(
                         ErrorLocalizer.localizeThrowable(
                             Includes.provideApplicationContext(),
-                            it
+                            Utils.getCauseIfRuntime(it)
                         ), true
                     )
                 })
@@ -398,7 +399,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                         setInfoOrErrorMessage(
                             ErrorLocalizer.localizeThrowable(
                                 Includes.provideApplicationContext(),
-                                it
+                                Utils.getCauseIfRuntime(it)
                             ), true
                         )
                     })
@@ -454,7 +455,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                     setInfoOrErrorMessage(
                         ErrorLocalizer.localizeThrowable(
                             Includes.provideApplicationContext(),
-                            it
+                            Utils.getCauseIfRuntime(it)
                         ), true
                     )
                 })
@@ -572,7 +573,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                                         setInfoOrErrorMessage(
                                             ErrorLocalizer.localizeThrowable(
                                                 Includes.provideApplicationContext(),
-                                                e
+                                                Utils.getCauseIfRuntime(e)
                                             ), true
                                         )
                                     })
@@ -595,7 +596,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                     setInfoOrErrorMessage(
                         ErrorLocalizer.localizeThrowable(
                             Includes.provideApplicationContext(),
-                            it
+                            Utils.getCauseIfRuntime(it)
                         ), true
                     )
                     if (backToPasswordOnError) {

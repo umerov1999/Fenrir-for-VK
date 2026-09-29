@@ -85,7 +85,7 @@ interface IMessagesApi {
 
     @CheckResult
     fun search(
-        query: String?, peerId: Long?, date: Long?, previewLength: Int?,
+        query: String?, peerId: Long?, date: String?, previewLength: Int?,
         offset: Int?, count: Int?
     ): Flow<Items<VKApiMessage>>
 

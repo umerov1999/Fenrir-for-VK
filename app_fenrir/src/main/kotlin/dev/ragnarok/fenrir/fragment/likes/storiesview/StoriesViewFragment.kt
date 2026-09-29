@@ -129,7 +129,6 @@ class StoriesViewFragment : BaseMvpFragment<StoriesViewPresenter, IStoriesViewVi
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

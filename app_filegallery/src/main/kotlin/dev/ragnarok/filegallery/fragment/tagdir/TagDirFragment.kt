@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.activity.ActivityFeatures
 import dev.ragnarok.filegallery.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.filegallery.fragment.base.BaseMvpFragment
 import dev.ragnarok.filegallery.listener.OnSectionResumeCallback
@@ -103,11 +102,6 @@ class TagDirFragment : BaseMvpFragment<TagDirPresenter, ITagDirView>(), ITagDirV
         if (requireActivity() is OnSectionResumeCallback) {
             (requireActivity() as OnSectionResumeCallback).onSectionResume(SectionItem.TAGS)
         }
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(requireActivity(), true)
-            .build()
-            .apply(requireActivity())
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?) =

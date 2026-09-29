@@ -80,7 +80,6 @@ class PostEditFragment : AbsPostEditFragment<PostEditPresenter, IPostEditView>()
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

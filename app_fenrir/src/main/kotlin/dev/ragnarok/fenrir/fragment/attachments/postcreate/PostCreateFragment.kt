@@ -97,7 +97,6 @@ class PostCreateFragment : AbsPostEditFragment<PostCreatePresenter, IPostCreateV
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

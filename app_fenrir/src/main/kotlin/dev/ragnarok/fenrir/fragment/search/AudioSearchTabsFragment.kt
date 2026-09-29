@@ -70,7 +70,6 @@ class AudioSearchTabsFragment : Fragment() {
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
         if (requireActivity() is OnSectionResumeCallback) {

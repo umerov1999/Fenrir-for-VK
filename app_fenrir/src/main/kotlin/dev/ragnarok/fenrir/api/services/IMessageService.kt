@@ -318,7 +318,7 @@ class IMessageService : IServiceRest() {
     fun search(
         query: String?,
         peerId: Long?,
-        date: Long?,
+        date: String?,
         previewLength: Int?,
         offset: Int?,
         count: Int?

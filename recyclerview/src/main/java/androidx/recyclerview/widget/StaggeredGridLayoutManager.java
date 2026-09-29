@@ -16,8 +16,7 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -28,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.RestrictTo;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -2122,9 +2120,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
-    @RestrictTo(LIBRARY)
-    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
-            LayoutPrefetchRegistry layoutPrefetchRegistry) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void collectAdjacentPrefetchPositions(int dx, int dy,
+            @SuppressLint("MissingNullability") RecyclerView.State state,
+            @SuppressLint("MissingNullability") LayoutPrefetchRegistry layoutPrefetchRegistry) {
         /* This method uses the simplifying assumption that the next N items (where N = span count)
          * will be assigned, one-to-one, to spans, where ordering is based on which span  extends
          * least beyond the viewport.

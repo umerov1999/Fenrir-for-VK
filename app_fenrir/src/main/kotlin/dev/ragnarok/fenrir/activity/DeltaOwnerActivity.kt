@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.activity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,14 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -30,12 +25,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.fragment.absownerslist.OwnersAdapter
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.kJsonPretty
-import dev.ragnarok.fenrir.listener.AppStyleable
+import dev.ragnarok.fenrir.listener.ActivityFuturesListener
 import dev.ragnarok.fenrir.model.DeltaOwner
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -47,15 +41,11 @@ import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceProvider
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.theme.ThemesController
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateFromUnixTime
 import dev.ragnarok.fenrir.util.DownloadWorkUtils
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.hasVanillaIceCreamTarget
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.toast.CustomToast
@@ -68,7 +58,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import kotlin.math.max
 
-class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
+class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, ActivityFuturesListener {
     private var mToolbar: Toolbar? = null
     private var disposable = CancelableJob()
     private val DOWNLOAD_DATE_FORMAT: DateFormat =
@@ -81,7 +71,7 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
         super.onCreate(savedInstanceState)
         attach(
             this,
-            SlidrConfig.Builder().fromUnColoredToColoredStatusBar(true)
+            SlidrConfig.Builder().fromFromBlackToNormalNavigation(true)
                 .position(SlidrPosition.LEFT).scrimColor(CurrentTheme.getColorBackground(this))
                 .build()
         )
@@ -104,6 +94,8 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
             )
             WindowInsetsCompat.CONSUMED
         }
+
+        Utils.applyEdgeToEdgeActivity(this)
 
         supportActionBar?.title = null
         supportActionBar?.subtitle = null
@@ -240,13 +232,6 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
         ) { tab, position ->
             tab.text = adapter.DeltaOwner.content[position].name
         }.attach()
-
-        @Suppress("deprecation")
-        if (!hasVanillaIceCreamTarget()) {
-            val w = window
-            w.statusBarColor = getStatusBarColor(this)
-            w.navigationBarColor = getNavigationBarColor(this)
-        }
     }
 
     private class RecyclerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -307,30 +292,6 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, AppStyleable {
     override fun onDestroy() {
         super.onDestroy()
         disposable.cancel()
-    }
-
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
     }
 
     companion object {

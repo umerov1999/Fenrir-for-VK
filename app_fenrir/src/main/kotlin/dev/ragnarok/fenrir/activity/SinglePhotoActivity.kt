@@ -11,19 +11,14 @@ import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.RelativeLayout
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Rotatable
@@ -35,17 +30,13 @@ import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
-import dev.ragnarok.fenrir.listener.AppStyleable
+import dev.ragnarok.fenrir.listener.ActivityFuturesListener
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
@@ -65,7 +56,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class SinglePhotoActivity : NoMainActivity(), PlaceProvider, AppStyleable {
+class SinglePhotoActivity : NoMainActivity(), PlaceProvider, ActivityFuturesListener {
     private var url: String? = null
     private var prefix: String? = null
     private var photo_prefix: String? = null
@@ -105,6 +96,9 @@ class SinglePhotoActivity : NoMainActivity(), PlaceProvider, AppStyleable {
             }
             WindowInsetsCompat.CONSUMED
         }
+
+        Utils.applyEdgeToEdgeActivity(this, true)
+
         url?.let {
             canDownload = !it.contains("content://") && !it.contains("file://")
             mDownload?.visibility =
@@ -119,7 +113,7 @@ class SinglePhotoActivity : NoMainActivity(), PlaceProvider, AppStyleable {
         val mContentRoot = findViewById<RelativeLayout>(R.id.photo_single_root)
         attach(
             this,
-            SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+            SlidrConfig.Builder().setAlphaForView(false).fromFromBlackToNormalNavigation(true)
                 .position(SlidrPosition.VERTICAL)
                 .listener(object : SlidrListener {
                     override fun onSlideStateChanged(state: Int) {
@@ -432,36 +426,11 @@ class SinglePhotoActivity : NoMainActivity(), PlaceProvider, AppStyleable {
     override fun hideMenu(hide: Boolean) {}
     override fun openMenu(open: Boolean) {}
 
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
-    }
-
     override fun onResume() {
         super.onResume()
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(colored = false, invertIcons = false)
             .build()
             .apply(this)
     }

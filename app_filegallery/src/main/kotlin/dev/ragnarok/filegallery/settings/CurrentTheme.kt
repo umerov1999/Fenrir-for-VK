@@ -108,16 +108,6 @@ object CurrentTheme {
         )
     }
 
-    @Suppress("deprecation")
-    fun getStatusBarColor(context: Context): Int {
-        return getColorFromAttrs(android.R.attr.statusBarColor, context, "#000000")
-    }
-
-    @Suppress("deprecation")
-    fun getNavigationBarColor(context: Context): Int {
-        return getColorFromAttrs(android.R.attr.navigationBarColor, context, "#000000")
-    }
-
     fun getColorSecondary(context: Context?): Int {
         return context?.let {
             getColorFromAttrs(
@@ -126,10 +116,6 @@ object CurrentTheme {
                 "#000000"
             )
         } ?: Color.TRANSPARENT
-    }
-
-    fun getStatusBarNonColored(context: Context): Int {
-        return getColorFromAttrs(R.attr.statusBarNonColoredColor, context, "#000000")
     }
 
     fun getColorFromAttrs(resId: Int, context: Context, defaultColor: String): Int {

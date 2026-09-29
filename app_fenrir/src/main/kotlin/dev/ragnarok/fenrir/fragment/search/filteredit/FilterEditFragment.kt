@@ -340,10 +340,11 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
 
     override fun onDateOptionClick(dateOption: SimpleDateOption) {
         DateTimePicker.Builder(requireActivity())
+            .setOnlyDate(dateOption.onlyDate)
             .setTime(if (dateOption.timeUnix == 0L) UnixTime.now() else dateOption.timeUnix)
             .setCallback(object : DateTimePicker.Callback {
-                override fun onDateTimeSelected(unixtime: Long) {
-                    dateOption.timeUnix = unixtime
+                override fun onDateTimeSelected(unixTime: Long) {
+                    dateOption.timeUnix = unixTime
                     mergeDateOptionValue(dateOption)
                 }
             })

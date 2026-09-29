@@ -64,7 +64,6 @@ import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.Includes
 import dev.ragnarok.filegallery.Includes.provideApplicationContext
 import dev.ragnarok.filegallery.R
-import dev.ragnarok.filegallery.activity.ActivityFeatures
 import dev.ragnarok.filegallery.activity.ActivityUtils
 import dev.ragnarok.filegallery.activity.EnterPinActivity
 import dev.ragnarok.filegallery.activity.FileManagerSelectActivity
@@ -1064,11 +1063,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
         }
         searchView?.visibility =
             if (preferencesAdapter?.currentScreen?.getSearchQuery() == null) View.VISIBLE else View.GONE
-        ActivityFeatures.Builder()
-            .begin()
-            .setBarsColored(requireActivity(), true)
-            .build()
-            .apply(requireActivity())
     }
 
     class PlayerBackgroundDialog : DialogFragment() {

@@ -13,8 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.RelativeLayout
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
@@ -22,8 +20,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import dev.ragnarok.fenrir.Extra
@@ -33,11 +29,10 @@ import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.docs.absdocumentpreview.AbsDocumentPreviewActivity
 import dev.ragnarok.fenrir.getParcelableArrayListCompat
-import dev.ragnarok.fenrir.listener.AppStyleable
+import dev.ragnarok.fenrir.listener.ActivityFuturesListener
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -46,9 +41,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceProvider
-import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.Utils
@@ -56,7 +48,7 @@ import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.TouchImageView
 
 class GifPagerActivity : AbsDocumentPreviewActivity<GifPagerPresenter, IGifPagerView>(),
-    IGifPagerView, PlaceProvider, AppStyleable {
+    IGifPagerView, PlaceProvider, ActivityFuturesListener {
     private var mViewPager: ViewPager2? = null
     private var mToolbar: Toolbar? = null
     private var mButtonsRoot: View? = null
@@ -91,7 +83,7 @@ class GifPagerActivity : AbsDocumentPreviewActivity<GifPagerPresenter, IGifPager
         )
         attach(
             this,
-            SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+            SlidrConfig.Builder().setAlphaForView(false).fromFromBlackToNormalNavigation(true)
                 .position(SlidrPosition.VERTICAL)
                 .listener(object : SlidrListener {
                     override fun onSlideStateChanged(state: Int) {
@@ -170,6 +162,8 @@ class GifPagerActivity : AbsDocumentPreviewActivity<GifPagerPresenter, IGifPager
             }
             WindowInsetsCompat.CONSUMED
         }
+
+        Utils.applyEdgeToEdgeActivity(this, true)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -207,36 +201,11 @@ class GifPagerActivity : AbsDocumentPreviewActivity<GifPagerPresenter, IGifPager
     override fun hideMenu(hide: Boolean) {}
     override fun openMenu(open: Boolean) {}
 
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
-    }
-
     override fun onResume() {
         super.onResume()
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(colored = false, invertIcons = false)
             .build()
             .apply(this)
     }

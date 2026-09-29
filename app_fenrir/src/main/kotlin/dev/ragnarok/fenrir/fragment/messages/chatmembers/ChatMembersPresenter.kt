@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils.findIndexById
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.util.Locale
 
@@ -130,7 +129,7 @@ class ChatMembersPresenter(accountId: Long, private val chatId: Long, savedInsta
         appendJob(
             messagesInteractor.removeChatMember(accountId, chatId, userId)
                 .fromIOToMain({ onUserRemoved(userId) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -169,7 +168,7 @@ class ChatMembersPresenter(accountId: Long, private val chatId: Long, savedInsta
     }
 
     private fun onChatUsersAddError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
         requestData() // refresh data
     }
 

@@ -16,6 +16,7 @@ import androidx.core.graphics.ColorUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.Includes
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.settings.CurrentTheme
@@ -231,23 +232,28 @@ class CustomSnackbars private constructor(private val view: View, private var an
     }
 
     override fun showToastThrowable(throwable: Throwable?) {
+        var pThrowable = throwable ?: return
+        pThrowable = Utils.getCauseIfRuntime(pThrowable)
+        if (Constants.IS_DEBUG) {
+            pThrowable.printStackTrace()
+        }
         val ret = coloredSnack(
             ErrorLocalizer.localizeThrowable(
                 Includes.provideApplicationContext(),
-                throwable
+                pThrowable
             ), "#F44336".toColor(), true
         )
-        if (throwable !is SocketTimeoutException && throwable !is UnknownHostException) {
+        if (pThrowable !is SocketTimeoutException && pThrowable !is UnknownHostException) {
             ret.setAction(R.string.more_info) {
                 val text = StringBuilder()
                 text.append(
                     ErrorLocalizer.localizeThrowable(
                         Includes.provideApplicationContext(),
-                        throwable
+                        pThrowable
                     )
                 )
                 text.append("\r\n")
-                for (stackTraceElement in (throwable ?: return@setAction).stackTrace) {
+                for (stackTraceElement in pThrowable.stackTrace) {
                     text.append("    ")
                     text.append(stackTraceElement)
                     text.append("\r\n")

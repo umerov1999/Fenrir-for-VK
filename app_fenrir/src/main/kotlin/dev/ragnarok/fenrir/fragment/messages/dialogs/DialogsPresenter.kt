@@ -153,7 +153,7 @@ class DialogsPresenter(
             messagesInteractor.getDialogs(dialogsOwnerId, COUNT, lastMid)
                 .fromIOToMain(
                     { onNextDialogsResponse(it) }
-                ) { throwable -> onDialogsGetError(getCauseIfRuntime(throwable)) })
+                ) { throwable -> onDialogsGetError(throwable) })
     }
 
     private fun onNextDialogsResponse(data: List<Dialog>) {
@@ -576,7 +576,7 @@ class DialogsPresenter(
                         targetTitle
                     )
                 }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -627,7 +627,7 @@ class DialogsPresenter(
                 dialog.peerId, dialog.getDisplayTitle(app) ?: ("id" + dialog.peerId)
             )
                 .fromIOToMain({ onShortcutCreated() }) { throwable ->
-                    view?.showError(throwable.message)
+                    view?.showThrowable(throwable)
                 })
     }
 

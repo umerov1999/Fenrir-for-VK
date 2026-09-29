@@ -63,7 +63,7 @@ class CommunityOptionsPresenter(
                 settings.age, mObsceneFilter, mObsceneStopWords, mObsceneStopWordsText
             )
                 .fromIOToMain({ onEditComplete() }, {
-                    onEditError(Utils.getCauseIfRuntime(it))
+                    onEditError(it)
                 })
         )
     }

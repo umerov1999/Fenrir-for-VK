@@ -86,7 +86,6 @@ class CommentCreateFragment :
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
         if (requireActivity() is OnSectionResumeCallback) {

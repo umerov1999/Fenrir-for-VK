@@ -8,7 +8,6 @@ import dev.ragnarok.fenrir.fragment.absownerslist.SimpleOwnersPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.Utils.indexOfOwner
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -85,7 +84,7 @@ class FollowersPresenter(accountId: Long, private val userId: Long, savedInstanc
 
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         resolveRefreshingView()
     }
 
@@ -158,7 +157,7 @@ class FollowersPresenter(accountId: Long, private val userId: Long, savedInstanc
 
     private fun onCacheDataGetError(t: Throwable) {
         cacheLoadingNow = false
-        showError(getCauseIfRuntime(t))
+        showError(t)
         if (isNotFriendShow) {
             offset = 0
             requestActualData(false)

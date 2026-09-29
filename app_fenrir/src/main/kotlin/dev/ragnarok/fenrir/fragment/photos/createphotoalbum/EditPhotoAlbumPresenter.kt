@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.PhotoAlbum
 import dev.ragnarok.fenrir.model.PhotoAlbumEditor
 import dev.ragnarok.fenrir.orZero
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.view.steppers.impl.CreatePhotoAlbumStepsHost
 import dev.ragnarok.fenrir.view.steppers.impl.CreatePhotoAlbumStepsHost.PhotoAlbumState
@@ -118,7 +117,7 @@ class EditPhotoAlbumPresenter : AccountDependencyPresenter<IEditPhotoAlbumView> 
                 )
                     .fromIOToMain({ t -> view?.goToEditedAlbum(accountId, album, t) }) { l ->
                         showError(
-                            getCauseIfRuntime(l)
+                            l
                         )
                     }
             }?.let { appendJob(it) }
@@ -135,7 +134,7 @@ class EditPhotoAlbumPresenter : AccountDependencyPresenter<IEditPhotoAlbumView> 
                     commentsDisabled
                 )
                     .fromIOToMain({ album -> view?.goToAlbum(accountId, album) }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
         }
     }

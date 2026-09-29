@@ -8,7 +8,6 @@ import dev.ragnarok.fenrir.domain.IDocsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Document
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 open class BaseDocumentPresenter<V : IBasicDocumentView>(
@@ -32,7 +31,7 @@ open class BaseDocumentPresenter<V : IBasicDocumentView>(
                 .fromIOToMain({
                     onDocAddedSuccessfully()
                 }) {
-                    showError(getCauseIfRuntime(it))
+                    showError(it)
                 })
     }
 
@@ -45,7 +44,7 @@ open class BaseDocumentPresenter<V : IBasicDocumentView>(
     }
 
     private fun onDocDeleteError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onDocDeleteSuccessfully() {

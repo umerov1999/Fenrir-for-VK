@@ -1247,13 +1247,14 @@ class MessagesRepository(
     override fun searchMessages(
         accountId: Long,
         peerId: Long?,
+        date: String?,
         count: Int,
         offset: Int,
         q: String?
     ): Flow<List<Message>> {
         return networker.vkDefault(accountId)
             .messages()
-            .search(q, peerId, null, null, offset, count)
+            .search(q, peerId, date, null, offset, count)
             .map { items ->
                 listEmptyIfNull(
                     items.items

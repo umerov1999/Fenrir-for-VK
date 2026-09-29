@@ -21,7 +21,6 @@ class ReactedPeersFragment : AbsOwnersListFragment<ReactedPeersPresenter, ISimpl
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

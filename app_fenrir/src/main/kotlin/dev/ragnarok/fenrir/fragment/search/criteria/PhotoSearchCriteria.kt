@@ -17,8 +17,22 @@ class PhotoSearchCriteria : BaseSearchCriteria {
         appendOption(sort)
         appendOption(SimpleNumberOption(KEY_RADIUS, R.string.radius, true, 5000))
         appendOption(SimpleGPSOption(KEY_GPS, R.string.gps, true))
-        appendOption(SimpleDateOption(KEY_START_TIME, R.string.date_start, true))
-        appendOption(SimpleDateOption(KEY_END_TIME, R.string.date_to, true))
+        appendOption(
+            SimpleDateOption(
+                key = KEY_START_TIME,
+                title = R.string.date_start,
+                active = true,
+                onlyDate = true
+            )
+        )
+        appendOption(
+            SimpleDateOption(
+                key = KEY_END_TIME,
+                title = R.string.date_to,
+                active = true,
+                onlyDate = true
+            )
+        )
     }
 
     internal constructor(parcel: Parcel) : super(parcel)

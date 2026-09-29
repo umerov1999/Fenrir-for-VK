@@ -8,7 +8,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
@@ -20,8 +19,6 @@ import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -30,8 +27,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -55,7 +50,6 @@ import dev.ragnarok.fenrir.activity.gifpager.GifPagerActivity
 import dev.ragnarok.fenrir.activity.photopager.PhotoPagerActivity.Companion.newInstance
 import dev.ragnarok.fenrir.activity.shortvideopager.ShortVideoPagerActivity
 import dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity
-import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.dialog.ResolveDomainDialog
 import dev.ragnarok.fenrir.domain.InteractorFactory
@@ -156,7 +150,7 @@ import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.getParcelableExtraCompat
 import dev.ragnarok.fenrir.link.LinkHelper
-import dev.ragnarok.fenrir.listener.AppStyleable
+import dev.ragnarok.fenrir.listener.ActivityFuturesListener
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.CanBackPressedCallback
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
@@ -191,9 +185,6 @@ import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceProvider
-import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.settings.SwipesChatMode
@@ -226,7 +217,7 @@ import kotlinx.coroutines.flow.filter
 import kotlin.math.max
 
 open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSectionResumeCallback,
-    AppStyleable, PlaceProvider, ServiceConnection, UpdatableNavigation,
+    ActivityFuturesListener, PlaceProvider, ServiceConnection, UpdatableNavigation,
     NavigationBarView.OnItemSelectedListener {
     private val mCompositeJob = CompositeJob()
     private val postResumeActions: MutableList<Action<MainActivity>> = ArrayList(0)
@@ -539,7 +530,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         mAccountId = Settings.get()
             .accounts()
             .current
-        setStatusbarColored(true, Settings.get().ui().isDarkModeEnabled(this))
+
         val mDrawerLayout = findViewById<DrawerLayout>(R.id.my_drawer_layout)
 
         mViewFragment = findViewById(mainContainerViewId)
@@ -586,6 +577,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
 
         refreshBottomMenu()
         createInsetListener()
+        Utils.applyEdgeToEdgeActivity(this)
 
         supportFragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener)
         resolveToolbarNavigationIcon()
@@ -1426,30 +1418,6 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             .replace(mainContainerViewId, fragment)
             .addToBackStack(null)
             .commitAllowingStateLoss()
-    }
-
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
     }
 
     override fun hideMenu(hide: Boolean) {

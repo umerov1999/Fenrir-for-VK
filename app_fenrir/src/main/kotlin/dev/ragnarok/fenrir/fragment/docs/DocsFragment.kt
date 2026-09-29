@@ -474,7 +474,6 @@ class DocsFragment : BaseMvpFragment<DocsListPresenter, IDocListView>(), IDocLis
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

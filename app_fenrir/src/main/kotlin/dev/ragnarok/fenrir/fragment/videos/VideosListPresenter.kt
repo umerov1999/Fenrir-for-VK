@@ -26,7 +26,6 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.FindAtWithContent
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.findIndexById
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -355,7 +354,7 @@ class VideosListPresenter(
                             position
                         )
                     }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
             }
             .setNegativeButton(R.string.button_cancel, null)
@@ -372,7 +371,7 @@ class VideosListPresenter(
                 netDisposable.add(
                     interactor.addToMy(accountId, accountId, video.ownerId, video.id)
                         .fromIOToMain({ onAddComplete() }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
             }
 
@@ -389,7 +388,7 @@ class VideosListPresenter(
                                 position
                             )
                         }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
             }
 

@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.fragment.search.criteria
 
 import android.os.Parcel
 import android.os.Parcelable
+import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.fragment.search.options.SimpleDateOption
 import dev.ragnarok.fenrir.readObjectLong
 import dev.ragnarok.fenrir.writeObjectLong
 
@@ -10,8 +12,14 @@ class MessageSearchCriteria : BaseSearchCriteria {
         private set
 
     constructor(query: String?) : super(query) {
-        // for test
-        //appendOption(new SimpleBooleanOption(1, R.string.photo, true));
+        appendOption(
+            SimpleDateOption(
+                key = KEY_END_TIME,
+                title = R.string.date_to,
+                active = true,
+                onlyDate = true
+            )
+        )
     }
 
     internal constructor(parcel: Parcel) : super(parcel) {
@@ -32,13 +40,19 @@ class MessageSearchCriteria : BaseSearchCriteria {
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<MessageSearchCriteria> {
-        override fun createFromParcel(parcel: Parcel): MessageSearchCriteria {
-            return MessageSearchCriteria(parcel)
-        }
+    companion object {
+        const val KEY_END_TIME = 1
 
-        override fun newArray(size: Int): Array<MessageSearchCriteria?> {
-            return arrayOfNulls(size)
-        }
+        @JvmField
+        val CREATOR: Parcelable.Creator<MessageSearchCriteria> =
+            object : Parcelable.Creator<MessageSearchCriteria> {
+                override fun createFromParcel(parcel: Parcel): MessageSearchCriteria {
+                    return MessageSearchCriteria(parcel)
+                }
+
+                override fun newArray(size: Int): Array<MessageSearchCriteria?> {
+                    return arrayOfNulls(size)
+                }
+            }
     }
 }

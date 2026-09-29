@@ -162,6 +162,7 @@ interface IMessagesRepository {
     fun searchMessages(
         accountId: Long,
         peerId: Long?,
+        date: String?,
         count: Int,
         offset: Int,
         q: String?

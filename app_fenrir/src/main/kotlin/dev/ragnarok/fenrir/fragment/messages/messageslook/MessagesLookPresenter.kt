@@ -13,7 +13,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Side
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
@@ -126,17 +125,17 @@ class MessagesLookPresenter(
     private fun onDataGetError(t: Throwable) {
         loadingState.FooterDisable()
         loadingState.HeaderDisable()
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onUpDataGetError(t: Throwable) {
         loadingState.FooterEnable()
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun onDownDataGetError(t: Throwable) {
         loadingState.HeaderEnable()
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     fun fireDeleteForMeClick(ids: ArrayList<Int>) {
@@ -202,7 +201,7 @@ class MessagesLookPresenter(
                     spam = false
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
         }
     }
@@ -222,7 +221,7 @@ class MessagesLookPresenter(
                     forAll = false, spam = true
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
         }
     }
@@ -270,7 +269,7 @@ class MessagesLookPresenter(
         appendJob(
             messagesInteractor.restoreMessage(accountId, peer.id, id)
                 .fromIOToMain({ onMessageRestoredSuccessfully(id) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 

@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.FeedOwners
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class FeedOwnersPresenter(accountId: Long, val listDbId: Long, savedInstanceState: Bundle?) :
@@ -49,7 +48,7 @@ class FeedOwnersPresenter(accountId: Long, val listDbId: Long, savedInstanceStat
     }
 
     private fun onRequestError(throwable: Throwable) {
-        showError(getCauseIfRuntime(throwable))
+        showError(throwable)
         setLoadingNow(false)
     }
 

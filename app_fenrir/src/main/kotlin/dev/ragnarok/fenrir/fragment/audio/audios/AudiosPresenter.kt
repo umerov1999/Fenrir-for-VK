@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.FindAtWithContent
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.HelperSimple.hasHelp
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -175,7 +174,7 @@ class AudiosPresenter(
 
     internal fun onListGetError(t: Throwable) {
         setLoadingNow(false)
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     fun fireSelectAll() {
@@ -259,7 +258,7 @@ class AudiosPresenter(
                     )
                         .fromIOToMain({ t -> loadedPlaylist(t) }) { t ->
                             showError(
-                                getCauseIfRuntime(t)
+                                t
                             )
                         })
             }
@@ -325,7 +324,7 @@ class AudiosPresenter(
                         root.findViewById<TextInputEditText>(R.id.edit_artist).text.toString(),
                         root.findViewById<TextInputEditText>(R.id.edit_title).text.toString()
                     ).fromIOToMain({ fireRefresh() }) { t ->
-                        showError(getCauseIfRuntime(t))
+                        showError(t)
                     })
             }
             .setNegativeButton(R.string.button_cancel, null)

@@ -30,6 +30,10 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
         return items[position]
     }
 
+    fun getRawItem(position: Int): T {
+        return items[position - headersCount]
+    }
+
     fun getItemRawPosition(position: Int): Int {
         return position - headers.size
     }

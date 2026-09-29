@@ -18,7 +18,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import kotlinx.coroutines.flow.filter
@@ -175,7 +174,7 @@ class CommunityManagersPresenter(
             )
                 .fromIOToMain({ onRemoveComplete() }) { throwable ->
                     onRemoveError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }

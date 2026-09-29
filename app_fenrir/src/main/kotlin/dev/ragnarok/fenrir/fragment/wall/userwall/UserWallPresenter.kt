@@ -39,7 +39,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ShortcutUtils.createWallShortcutRx
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.singletonArrayList
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
@@ -162,7 +161,7 @@ class UserWallPresenter(
     }
 
     private fun onDetailsGetError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun syncFiltersWithSelectedMode() {
@@ -440,7 +439,7 @@ class UserWallPresenter(
         appendJob(
             relationshipInteractor.deleteFriends(accountId, ownerId)
                 .fromIOToMain({ responseCode -> onFriendsDeleteResult(responseCode) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -449,7 +448,7 @@ class UserWallPresenter(
             accountInteractor.changeStatus(accountId, newValue)
                 .fromIOToMain({ onStatusChanged(newValue) }) { t ->
                     showError(
-                        getCauseIfRuntime(t)
+                        t
                     )
                 })
     }
@@ -519,7 +518,7 @@ class UserWallPresenter(
         appendJob(
             relationshipInteractor.addFriend(accountId, ownerId, text, follow)
                 .fromIOToMain({ resultCode -> onAddFriendResult(resultCode) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -573,7 +572,7 @@ class UserWallPresenter(
 
     private fun onAvatarAlbumPrepareFailed(t: Throwable) {
         setLoadingAvatarPhotosNow(false)
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun resolveProgressDialogView() {
@@ -646,7 +645,7 @@ class UserWallPresenter(
                                 R.string.error
                             )
                         }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
                 dialog.dismiss()
             }

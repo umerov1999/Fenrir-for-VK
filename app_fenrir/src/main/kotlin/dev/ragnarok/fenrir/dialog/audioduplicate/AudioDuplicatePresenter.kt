@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.media.music.PlayerStatus
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getBitrate
 import dev.ragnarok.fenrir.util.Mp3InfoHelper.getLength
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
@@ -168,7 +167,7 @@ class AudioDuplicatePresenter(
         view?.let {
             showError(
                 it,
-                Utils.getCauseIfRuntime(t)
+                t
             )
         }
     }

@@ -9,28 +9,35 @@ import java.util.Calendar
 import java.util.Date
 
 class DateTimePicker internal constructor(builder: Builder) {
-    private val time: Long = builder.pTime
+    private val timeMillis: Long = builder.timeMillis
     private val context: Context = builder.context
-    private val callback: Callback? = builder.pCallback
+    private val callback: Callback? = builder.callback
+    private val onlyDate: Boolean = builder.onlyDate
     internal fun show() {
         val calendar = Calendar.getInstance()
-        calendar.timeInMillis = time
+        calendar.timeInMillis = timeMillis
         val year = calendar[Calendar.YEAR]
         val month = calendar[Calendar.MONTH]
         val day = calendar[Calendar.DAY_OF_MONTH]
         val hours = calendar[Calendar.HOUR_OF_DAY]
         val minutes = calendar[Calendar.MINUTE]
-        Logger.d(TAG, "onTimerClick, init time: " + Date(time))
+        Logger.d(TAG, "onTimerClick, init time: " + Date(timeMillis))
         DatePickerDialog(
             context,
             { _, newYear, newMonth, newDay ->
-                showTime(
-                    newYear,
-                    newMonth,
-                    newDay,
-                    hours,
-                    minutes
-                )
+                if (onlyDate) {
+                    callback?.onDateTimeSelected(
+                        UnixTime.of(
+                            newYear,
+                            newMonth,
+                            newDay,
+                            0,
+                            0
+                        )
+                    )
+                } else {
+                    showTime(newYear, newMonth, newDay, hours, minutes)
+                }
             },
             year,
             month,
@@ -59,19 +66,29 @@ class DateTimePicker internal constructor(builder: Builder) {
     }
 
     interface Callback {
-        fun onDateTimeSelected(unixtime: Long)
+        fun onDateTimeSelected(unixTime: Long)
     }
 
     class Builder(val context: Context) {
-        var pCallback: Callback? = null
-        var pTime: Long
-        fun setTime(unixtime: Long): Builder {
-            pTime = unixtime * 1000
+        var callback: Callback? = null
+            private set
+        var timeMillis: Long
+            private set
+        var onlyDate: Boolean
+            private set
+
+        fun setTime(unixTime: Long): Builder {
+            timeMillis = unixTime * 1000
+            return this
+        }
+
+        fun setOnlyDate(onlyDate: Boolean): Builder {
+            this.onlyDate = onlyDate
             return this
         }
 
         fun setCallback(callback: Callback?): Builder {
-            this.pCallback = callback
+            this.callback = callback
             return this
         }
 
@@ -80,7 +97,8 @@ class DateTimePicker internal constructor(builder: Builder) {
         }
 
         init {
-            pTime = System.currentTimeMillis()
+            timeMillis = System.currentTimeMillis()
+            onlyDate = false
         }
     }
 

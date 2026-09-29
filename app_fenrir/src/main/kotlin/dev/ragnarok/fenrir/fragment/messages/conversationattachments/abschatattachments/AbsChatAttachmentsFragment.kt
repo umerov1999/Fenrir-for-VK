@@ -91,7 +91,6 @@ abstract class AbsChatAttachmentsFragment<T, P : BaseChatAttachmentsPresenter<T,
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class VideoPreviewPresenter(
@@ -67,7 +66,7 @@ class VideoPreviewPresenter(
                 )
                     .fromIOToMain({ onVideoAddedToBookmarks() }) { t ->
                         showError(
-                            getCauseIfRuntime(t)
+                            t
                         )
                     })
         } else {
@@ -79,7 +78,7 @@ class VideoPreviewPresenter(
                 )
                     .fromIOToMain({ onVideoAddedToBookmarks() }) { t ->
                         showError(
-                            getCauseIfRuntime(t)
+                            t
                         )
                     })
         }
@@ -103,7 +102,7 @@ class VideoPreviewPresenter(
                             root.findViewById<TextInputEditText>(R.id.edit_title).text.toString(),
                             root.findViewById<TextInputEditText>(R.id.edit_description).text.toString()
                         ).fromIOToMain({ refreshVideoInfo() }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
                 }
                 .setNegativeButton(R.string.button_cancel, null)
@@ -204,7 +203,7 @@ class VideoPreviewPresenter(
             interactor.getById(accountId, ownerId, videoId, accessKey, false)
                 .fromIOToMain({ video -> onActualInfoReceived(video) }) { throwable ->
                     onVideoInfoGetError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }
@@ -221,16 +220,12 @@ class VideoPreviewPresenter(
         view?.showSuccessToast()
     }
 
-    private fun onAddError(throwable: Throwable) {
-        showError(throwable)
-    }
-
     fun fireAddToMyClick() {
         appendJob(
             interactor.addToMy(accountId, accountId, ownerId, videoId)
                 .fromIOToMain({ onAddComplete() }) { throwable ->
-                    onAddError(
-                        getCauseIfRuntime(throwable)
+                    showError(
+                        throwable
                     )
                 })
     }
@@ -239,8 +234,8 @@ class VideoPreviewPresenter(
         appendJob(
             interactor.delete(accountId, videoId, ownerId, accountId)
                 .fromIOToMain({ onAddComplete() }) { throwable ->
-                    onAddError(
-                        getCauseIfRuntime(throwable)
+                    showError(
+                        throwable
                     )
                 })
     }
@@ -293,10 +288,6 @@ class VideoPreviewPresenter(
         }
     }
 
-    private fun onLikeError(throwable: Throwable) {
-        showError(throwable)
-    }
-
     fun fireLikeClick() {
         if (Settings.get().main().isDisable_likes || Utils.isHiddenAccount(
                 accountId
@@ -310,7 +301,7 @@ class VideoPreviewPresenter(
                 interactor.likeOrDislike(accountId, ownerId, videoId, accessKey, add)
                     .fromIOToMain(
                         { pair: Pair<Int, Boolean> -> onLikesResponse(pair.first, pair.second) }
-                    ) { throwable -> onLikeError(getCauseIfRuntime(throwable)) })
+                    ) { throwable -> showError(throwable) })
         }
     }
 

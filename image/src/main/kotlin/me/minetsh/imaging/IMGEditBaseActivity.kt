@@ -3,19 +3,14 @@ package me.minetsh.imaging
 import android.content.DialogInterface
 import android.content.DialogInterface.OnShowListener
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.widget.RadioGroup
 import android.widget.ViewSwitcher
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import me.minetsh.imaging.core.IMGMode
 import me.minetsh.imaging.core.IMGText
 import me.minetsh.imaging.view.IMGColorGroup
@@ -66,24 +61,7 @@ abstract class IMGEditBaseActivity : AppCompatActivity(), IMGTextEditDialog.Call
         findViewById<View>(R.id.tv_done).setOnClickListener { onDoneClick() }
         findViewById<View>(R.id.tv_cancel).setOnClickListener { onCancelClick() }
 
-        val statusBarColor = Color.TRANSPARENT
-        val navigationBarColor = Color.TRANSPARENT
-        val invertIcons = false
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor,
-            statusBarColor
-        ) else SystemBarStyle.dark(statusBarColor)
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor,
-            navigationBarColor
-        ) else SystemBarStyle.dark(navigationBarColor)
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
+        WindowCompat.enableEdgeToEdge(window)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.item_root)) { v, windowInsets ->
             val insets =

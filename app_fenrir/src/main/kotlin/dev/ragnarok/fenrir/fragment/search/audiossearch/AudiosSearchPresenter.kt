@@ -15,7 +15,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -42,7 +41,7 @@ class AudiosSearchPresenter(
 
     override fun onSearchError(throwable: Throwable) {
         super.onSearchError(throwable)
-        showError(getCauseIfRuntime(throwable))
+        showError(throwable)
     }
 
     override fun doSearch(

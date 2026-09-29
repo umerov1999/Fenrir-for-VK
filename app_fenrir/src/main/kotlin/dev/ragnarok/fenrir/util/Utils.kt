@@ -31,6 +31,7 @@ import android.util.SparseArray
 import android.util.TypedValue
 import android.view.Display
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
@@ -42,6 +43,15 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import androidx.core.util.size
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat.Side.BOTTOM
+import androidx.core.view.WindowInsetsCompat.Side.LEFT
+import androidx.core.view.WindowInsetsCompat.Side.RIGHT
+import androidx.core.view.WindowInsetsCompat.Side.TOP
+import androidx.core.view.insets.ColorProtection
+import androidx.core.view.insets.GradientProtection
+import androidx.core.view.insets.ProtectionLayout
+import androidx.core.view.iterator
 import androidx.media3.common.MediaItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -67,6 +77,7 @@ import dev.ragnarok.fenrir.api.model.VKApiOwner
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.interfaces.Identificable
 import dev.ragnarok.fenrir.api.model.interfaces.IdentificableOwner
+import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.media.exo.OkHttpDataSource
 import dev.ragnarok.fenrir.model.ISelectable
@@ -1951,5 +1962,39 @@ object Utils {
             return StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         }
         return LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+    }
+
+    fun applyEdgeToEdgeActivity(activity: Activity, black: Boolean = false) {
+        val night = black || Settings.get().ui().isDarkModeEnabled(activity)
+        val decorView = activity.window.decorView as ViewGroup
+        for (i in decorView) {
+            if (i is ProtectionLayout) {
+                decorView.removeView(i)
+            }
+        }
+        if (!black) {
+            val color = CurrentTheme.getColorBackground(activity).applyAlpha(180)
+            val protections =
+                listOf(
+                    GradientProtection(TOP, color),
+                    ColorProtection(LEFT, color),
+                    ColorProtection(RIGHT, color),
+                    ColorProtection(BOTTOM, color),
+                )
+            decorView.addView(ProtectionLayout(activity, protections).apply { tag = protections })
+        }
+
+        WindowCompat.enableEdgeToEdge(activity.window)
+
+        @Suppress("deprecation")
+        if (black && !hasVanillaIceCreamTarget()) {
+            activity.window.statusBarColor = Color.BLACK
+            activity.window.navigationBarColor = Color.BLACK
+        }
+
+        WindowCompat.getInsetsController(activity.window, activity.window.decorView).apply {
+            isAppearanceLightStatusBars = !night
+            isAppearanceLightNavigationBars = !night
+        }
     }
 }

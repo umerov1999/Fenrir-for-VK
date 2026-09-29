@@ -42,7 +42,6 @@ import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
@@ -495,7 +494,7 @@ class PostCreatePresenter(
 
     private fun onPostPublishError(t: Throwable) {
         changePublishingNowState(false)
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     private fun releasePostDataAsync() {

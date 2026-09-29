@@ -206,7 +206,6 @@ abstract class AbsSearchFragment<P : AbsSearchPresenter<V, *, T, *>, V : IBaseSe
             ActivityFeatures.Builder()
                 .begin()
                 .setHideNavigationMenu(false)
-                .setBarsColored(requireActivity(), true)
                 .build()
                 .apply(requireActivity())
             if (requireActivity() is OnSectionResumeCallback) {

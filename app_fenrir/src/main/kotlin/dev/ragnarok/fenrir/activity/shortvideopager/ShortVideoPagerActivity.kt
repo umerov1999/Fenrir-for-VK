@@ -15,8 +15,6 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatImageView
@@ -26,8 +24,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.insets.ProtectionLayout
-import androidx.core.view.iterator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
@@ -42,10 +38,9 @@ import dev.ragnarok.fenrir.activity.slidr.Slidr
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
-import dev.ragnarok.fenrir.listener.AppStyleable
+import dev.ragnarok.fenrir.listener.ActivityFuturesListener
 import dev.ragnarok.fenrir.media.story.IStoryPlayer
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Video
@@ -54,9 +49,6 @@ import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.place.PlaceProvider
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.settings.CurrentTheme.getNavigationBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarColor
-import dev.ragnarok.fenrir.settings.CurrentTheme.getStatusBarNonColored
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
@@ -75,7 +67,7 @@ import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 import java.lang.ref.WeakReference
 
 class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShortVideoPagerView>(),
-    IShortVideoPagerView, PlaceProvider, AppStyleable {
+    IShortVideoPagerView, PlaceProvider, ActivityFuturesListener {
     private val mHolderSparseArray = SparseArray<WeakReference<Holder>>()
     private var mViewPager: ViewPager2? = null
     private var mToolbar: Toolbar? = null
@@ -165,7 +157,7 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
 
         Slidr.attach(
             this,
-            SlidrConfig.Builder().setAlphaForView(false).fromUnColoredToColoredStatusBar(true)
+            SlidrConfig.Builder().setAlphaForView(false).fromFromBlackToNormalNavigation(true)
                 .position(SlidrPosition.LEFT)
                 .listener(object : SlidrListener {
                     override fun onSlideStateChanged(state: Int) {
@@ -233,6 +225,8 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
             }
             WindowInsetsCompat.CONSUMED
         }
+
+        Utils.applyEdgeToEdgeActivity(this, true)
     }
 
     override fun displayLikes(count: Int, userLikes: Boolean) {
@@ -338,30 +332,6 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
     override fun hideMenu(hide: Boolean) {}
     override fun openMenu(open: Boolean) {}
 
-    override fun setStatusbarColored(colored: Boolean, invertIcons: Boolean) {
-        val statusBarColor = if (colored) getStatusBarColor(this) else getStatusBarNonColored(
-            this
-        )
-        val navigationBarColor = if (colored) getNavigationBarColor(this) else Color.BLACK
-
-        val statusBarStyle = if (invertIcons) SystemBarStyle.light(
-            statusBarColor.applyAlpha(180),
-            statusBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(statusBarColor.applyAlpha(180))
-        val navigationBarStyle = if (invertIcons) SystemBarStyle.light(
-            navigationBarColor.applyAlpha(180),
-            navigationBarColor.applyAlpha(180)
-        ) else SystemBarStyle.dark(navigationBarColor.applyAlpha(180))
-
-        for (i in (window.decorView as ViewGroup)) {
-            if (i is ProtectionLayout) {
-                (window.decorView as ViewGroup).removeView(i)
-            }
-        }
-
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
-    }
-
     private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -385,7 +355,6 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(true)
-            .setBarsColored(colored = false, invertIcons = false)
             .build()
             .apply(this)
     }

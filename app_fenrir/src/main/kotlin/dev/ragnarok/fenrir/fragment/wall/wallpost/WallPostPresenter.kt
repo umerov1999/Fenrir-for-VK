@@ -25,7 +25,6 @@ import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
@@ -284,13 +283,13 @@ class WallPostPresenter(
                 appendJob(
                     faveInteractor.addPost(accountId, ownerId, postId, null)
                         .fromIOToMain({ onPostAddedToBookmarks() }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
             } else {
                 appendJob(
                     faveInteractor.removePost(accountId, ownerId, postId)
                         .fromIOToMain({ onPostAddedToBookmarks() }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
             }
         }
@@ -321,7 +320,7 @@ class WallPostPresenter(
         appendJob(
             completable
                 .fromIOToMain({ onDeleteOrRestoreComplete(delete) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -343,7 +342,7 @@ class WallPostPresenter(
         appendJob(
             wallInteractor.pinUnpin(accountId, ownerId, postId, pin)
                 .fromIOToMain({ onPinOrUnpinComplete(pin) }) { t ->
-                    showError(getCauseIfRuntime(t))
+                    showError(t)
                 })
     }
 
@@ -387,7 +386,7 @@ class WallPostPresenter(
                                 R.string.error
                             )
                         }) { t ->
-                            showError(getCauseIfRuntime(t))
+                            showError(t)
                         })
                 dialog.dismiss()
             }

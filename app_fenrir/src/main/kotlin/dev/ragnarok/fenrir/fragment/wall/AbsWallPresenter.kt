@@ -52,7 +52,6 @@ import dev.ragnarok.fenrir.util.Utils.checkEditInfo
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
 import dev.ragnarok.fenrir.util.Utils.generateQR
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.intValueNotIn
@@ -202,7 +201,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     }
 
     internal fun onExecuteError(t: Throwable) {
-        showError(getCauseIfRuntime(t))
+        showError(t)
     }
 
     internal abstract fun getOwner(): Owner
@@ -299,7 +298,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     private fun onActualDataGetError(throwable: Throwable) {
         setRequestNow(false)
-        showError(getCauseIfRuntime(throwable))
+        showError(throwable)
     }
 
     private fun isExist(post: Post): Boolean {

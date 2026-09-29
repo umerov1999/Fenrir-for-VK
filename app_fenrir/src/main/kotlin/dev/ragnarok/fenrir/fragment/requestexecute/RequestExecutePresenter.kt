@@ -17,7 +17,6 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -71,7 +70,7 @@ class RequestExecutePresenter(accountId: Long, savedInstanceState: Bundle?) :
             executeSingle(accountId, trimmedMethod, params)
                 .fromIOToMain({ onRequestResponse(it) }) { throwable ->
                     onRequestError(
-                        getCauseIfRuntime(throwable)
+                        throwable
                     )
                 })
     }

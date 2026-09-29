@@ -735,7 +735,6 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

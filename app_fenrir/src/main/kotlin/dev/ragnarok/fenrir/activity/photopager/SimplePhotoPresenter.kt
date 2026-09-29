@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.model.AccessIdPairModel
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.flow
 
@@ -78,7 +77,7 @@ class SimplePhotoPresenter : PhotoPagerPresenter {
                     view?.let {
                         showError(
                             it,
-                            Utils.getCauseIfRuntime(t)
+                            t
                         )
                     }
                 })

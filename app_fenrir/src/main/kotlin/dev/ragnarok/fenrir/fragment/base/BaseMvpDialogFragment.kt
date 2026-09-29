@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.fragment.base
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.dialog.BottomSheetErrorDialog
@@ -13,6 +14,7 @@ import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.core.IProgressView
 import dev.ragnarok.fenrir.fragment.base.core.IToastView
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
 import dev.ragnarok.fenrir.util.toast.AbsCustomToast
 import dev.ragnarok.fenrir.util.toast.CustomToast
@@ -52,10 +54,15 @@ abstract class BaseMvpDialogFragment<P : AbsPresenter<V>, V : IMvpView> :
     }
 
     override fun showBottomSheetError(throwable: Throwable?) {
+        var pThrowable = throwable ?: return
+        pThrowable = Utils.getCauseIfRuntime(pThrowable)
+        if (Constants.IS_DEBUG) {
+            pThrowable.printStackTrace()
+        }
         if (isResumed) {
             val text = StringBuilder()
-            if (throwable !is SocketTimeoutException && throwable !is UnknownHostException) {
-                for (stackTraceElement in (throwable ?: return).stackTrace) {
+            if (pThrowable !is SocketTimeoutException && pThrowable !is UnknownHostException) {
+                for (stackTraceElement in pThrowable.stackTrace) {
                     text.append("    ")
                     text.append(stackTraceElement)
                     text.append("\r\n")
@@ -69,7 +76,7 @@ abstract class BaseMvpDialogFragment<P : AbsPresenter<V>, V : IMvpView> :
             }
 
             showBottomSheetError(
-                localizeThrowable(provideApplicationContext(), throwable),
+                localizeThrowable(provideApplicationContext(), pThrowable),
                 stackTraceString
             )
         }

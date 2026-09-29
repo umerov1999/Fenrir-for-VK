@@ -19,7 +19,7 @@ import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarSubtitle
 import dev.ragnarok.fenrir.activity.ActivityUtils.setToolbarTitle
 import dev.ragnarok.fenrir.activity.DeltaOwnerActivity
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
-import dev.ragnarok.fenrir.listener.AppStyleable
+import dev.ragnarok.fenrir.listener.ActivityFuturesListener
 import dev.ragnarok.fenrir.listener.BackPressCallback
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.model.Community
@@ -101,7 +101,6 @@ class CommunitiesFragment : BaseMvpFragment<CommunitiesPresenter, ICommunitiesVi
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }
@@ -208,8 +207,8 @@ class CommunitiesFragment : BaseMvpFragment<CommunitiesPresenter, ICommunitiesVi
     }
 
     override fun onBackButtonClick() {
-        if (requireActivity().supportFragmentManager.backStackEntryCount == 1 && requireActivity() is AppStyleable) {
-            (requireActivity() as AppStyleable).openMenu(true)
+        if (requireActivity().supportFragmentManager.backStackEntryCount == 1 && requireActivity() is ActivityFuturesListener) {
+            (requireActivity() as ActivityFuturesListener).openMenu(true)
         } else {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }

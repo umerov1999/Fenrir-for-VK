@@ -441,7 +441,6 @@ class DialogsFragment : BaseMvpFragment<DialogsPresenter, IDialogsView>(), IDial
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }

@@ -102,7 +102,6 @@ class LogsFragment : BaseMvpFragment<LogsPresenter, ILogsView>(), ILogsView,
         ActivityFeatures.Builder()
             .begin()
             .setHideNavigationMenu(false)
-            .setBarsColored(requireActivity(), true)
             .build()
             .apply(requireActivity())
     }
