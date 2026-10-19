@@ -105,9 +105,10 @@ class FriendsByPhonesPresenter(accountId: Long, savedInstanceState: Bundle?) :
             view?.notifyDataSetChanged()
             return
         }
+        val locale = Utils.appLocale
         for (i in data) {
-            if (query?.lowercase(Locale.getDefault())?.let {
-                    i.title?.lowercase(Locale.getDefault())?.contains(it)
+            if (query?.lowercase(locale)?.let {
+                    i.title?.lowercase(locale)?.contains(it)
                 } == true
             ) {
                 dataSearch.add(i)

@@ -138,7 +138,8 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
     private fun queryMessagesByCriteria(criteria: MessagesCriteria): Cursor? {
         val where: String
         val args: Array<String>
-        if (criteria.startMessageId == null) {
+        val startMessageId = criteria.startMessageId
+        if (startMessageId == null) {
             where = MessagesColumns.PEER_ID + " = ?" +
                     " AND " + MessagesColumns.ATTACH_TO + " = ?" +
                     " AND " + MessagesColumns.STATUS + " != ?"
@@ -153,7 +154,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                     " AND " + MessagesColumns.STATUS + " != ?"
             args = arrayOf(
                 criteria.peerId.toString(),
-                "0", criteria.startMessageId.toString(), MessageStatus.EDITING.toString()
+                "0", startMessageId.toString(), MessageStatus.EDITING.toString()
             )
         }
         val uri = getMessageContentUriFor(criteria.accountId)

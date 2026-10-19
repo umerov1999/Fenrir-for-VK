@@ -20,7 +20,7 @@ import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformOwners
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillCommentOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.FeedbackEntity2Model.buildFeedback
-import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.model.criteria.NotificationsCriteria
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.orZero
@@ -62,15 +62,10 @@ class FeedbackInteractor(
             }
     }
 
-    override fun getCachedFeedbacksOfficial(accountId: Long): Flow<FeedbackVKOfficialList> {
+    override fun getCachedFeedbacksOfficial(accountId: Long): Flow<List<FeedbackVKOfficial>> {
         val criteria = NotificationsCriteria(accountId)
         return cache.notifications()
             .findByCriteriaOfficial(criteria)
-            .map { dbos ->
-                val ret = FeedbackVKOfficialList()
-                ret.items = ArrayList(dbos)
-                ret
-            }
     }
 
     override fun hide(accountId: Long, query: String?): Flow<Boolean> {
@@ -84,13 +79,13 @@ class FeedbackInteractor(
         accountId: Long,
         count: Int?,
         startFrom: Int?
-    ): Flow<FeedbackVKOfficialList> {
+    ): Flow<List<FeedbackVKOfficial>> {
         return networker.vkDefault(accountId)
             .notifications()
             .getOfficial(count, startFrom)
             .flatMapConcat { uit ->
                 cache.notifications()
-                    .insertOfficial(accountId, uit.items.orEmpty(), startFrom.orZero() == 0)
+                    .insertOfficial(accountId, uit, startFrom.orZero() == 0)
                     .map {
                         uit
                     }

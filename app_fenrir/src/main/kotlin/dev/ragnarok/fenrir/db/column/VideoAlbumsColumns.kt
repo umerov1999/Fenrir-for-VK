@@ -29,7 +29,7 @@ object VideoAlbumsColumns : BaseColumns {
         cv.put(IMAGE, p.image)
         cv.put(COUNT, p.count)
         cv.put(UPDATE_TIME, p.updated_time)
-        cv.put(PRIVACY, if (p.privacy == null) null else p.privacy.toString())
+        cv.put(PRIVACY, p.privacy?.toString())
         return cv
     }
 }

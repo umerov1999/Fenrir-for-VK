@@ -420,7 +420,7 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
             }
         } else {
             Avatar?.let { with().cancelRequest(it) }
-            if (!peer.getTitle().isNullOrEmpty()) {
+            if (peer.getTitle().nonNullNoEmpty()) {
                 var name = peer.getTitle()
                 EmptyAvatar?.visibility = View.VISIBLE
                 if (name?.length.orZero() > 2) name = name?.substring(0, 2)

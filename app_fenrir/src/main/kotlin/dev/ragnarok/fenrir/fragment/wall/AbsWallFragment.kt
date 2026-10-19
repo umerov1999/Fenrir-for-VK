@@ -183,7 +183,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                 val file = result.data?.getStringExtra(Extra.PATH)
                 val video: LocalVideo? = result.data?.getParcelableExtraCompat(Extra.VIDEO)
                 lazyPresenter {
-                    fireStorySelected(requireActivity(), localPhotos, file, video)
+                    fireStorySelected(requireActivity(), localPhotos, file, video?.data)
                 }
             }
         }
@@ -578,7 +578,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                 val clipBoard =
                     requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                 if (clipBoard?.primaryClip?.itemCount.orZero() > 0) {
-                    val temp = clipBoard?.primaryClip?.getItemAt(0)?.text.toString()
+                    val temp = clipBoard?.primaryClip?.getItemAt(0)?.text?.toString()?.trim()
                     LinkHelper.openUrl(
                         requireActivity(),
                         presenter?.accountId ?: Settings.get().accounts().current,

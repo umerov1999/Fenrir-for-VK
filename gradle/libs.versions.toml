@@ -31,7 +31,6 @@ customviewPoolingcontainerVersion = "1.1.0"
 documentfileVersion = "1.1.0"
 #noinspection GradleDependency
 datastoreVersion = "1.0.0"
-drawerlayoutVersion = "1.2.0"
 dynamicanimationVersion = "1.1.0"
 emoji2Version = "1.7.0"
 exifinterfaceVersion = "1.4.2"
@@ -63,7 +62,7 @@ autoValueVersion = "1.11.1"
 
 # Common Libraries
 gmsServicesVersion = "4.5.0"
-kotlinVersion = "2.4.20"
+kotlinVersion = "2.4.21-RC"
 kotlinCoroutinesVersion = "1.11.0"
 kotlinSerializerVersion = "1.12.0-RC"
 kotlinAtomicfuVersion = "0.33.0"
@@ -71,9 +70,9 @@ daggerVersion = "2.60.1"
 kspVersion = "2.3.12"
 okhttpLibraryVersion = "5.5.0"
 okioVersion = "3.18.2"
-guavaVersion = "33.7.1-android"
+guavaVersion = "33.7.2-android"
 errorProneVersion = "2.50.0"
-checkerQualAndroidVersion = "4.2.3"
+checkerQualAndroidVersion = "4.3.0"
 jspecifyAnnotationVersion = "1.0.1"
 desugarLibraryVersion = "2.1.5"
 
@@ -113,7 +112,6 @@ androidx-customview = { group = "androidx.customview", name = "customview", vers
 androidx-customview-poolingcontainer = { group = "androidx.customview", name = "customview-poolingcontainer", version.ref = "customviewPoolingcontainerVersion" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastoreVersion" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfileVersion" }
-androidx-drawerlayout = { group = "androidx.drawerlayout", name = "drawerlayout", version.ref = "drawerlayoutVersion" }
 androidx-dynamicanimation = { group = "androidx.dynamicanimation", name = "dynamicanimation", version.ref = "dynamicanimationVersion" }
 androidx-emoji2 = { group = "androidx.emoji2", name = "emoji2", version.ref = "emoji2Version" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterfaceVersion" }

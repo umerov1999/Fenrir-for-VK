@@ -182,7 +182,7 @@ class AttachmentsDtoAdapter : AbsDtoAdapter<VKApiAttachments>("VKApiAttachments"
                     type,
                     VKApiAttachment.IGNORE_ATTACHMENTS
                 ) -> {
-                    VKApiNotSupported(type, o.toString())
+                    VKApiNotSupported(type, o?.toString())
                 }
 
                 else -> {

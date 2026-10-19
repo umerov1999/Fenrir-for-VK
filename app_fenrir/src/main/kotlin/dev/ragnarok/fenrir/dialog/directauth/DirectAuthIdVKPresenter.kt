@@ -199,18 +199,18 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
     }
 
     fun fireUserNameEdit(sequence: CharSequence?) {
-        username = sequence.toString()
+        username = sequence?.toString()
         resolveNextFlowButton()
     }
 
     fun firePasswordEdit(s: CharSequence?) {
-        password = s.toString()
+        password = s?.toString()
         resolveNextFlowButton()
         resolveSavePasswordVisibility()
     }
 
     fun fireValidationCodeEdit(s: CharSequence?) {
-        validationCode = s.toString()
+        validationCode = s?.toString()
         resolveNextFlowButton()
     }
 
@@ -581,7 +581,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
 
                         else -> {
                             redirectUrl = it.validationURL
-                            if (!redirectUrl.isNullOrEmpty()) {
+                            if (redirectUrl.nonNullNoEmpty()) {
                                 view?.returnSuccessValidation(
                                     redirectUrl,
                                     if (username.nonNullNoEmpty()) username?.trim() else "",

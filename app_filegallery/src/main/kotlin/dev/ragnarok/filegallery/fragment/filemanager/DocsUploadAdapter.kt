@@ -50,7 +50,7 @@ class DocsUploadAdapter(
             }
         }
         holder.status.setTextColor(titleColor)
-        holder.title.text = upload.fileUri.toString()
+        holder.title.text = upload.fileUri?.toString()
         holder.buttonDelete.setOnClickListener { actionListener.onRemoveClick(upload) }
     }
 

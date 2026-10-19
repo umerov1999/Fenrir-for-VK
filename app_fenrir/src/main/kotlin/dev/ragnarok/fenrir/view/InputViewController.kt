@@ -51,7 +51,7 @@ class InputViewController(
     private val mRecordResumePause: ImageView
     private val mTextWatcher: TextWatcherAdapter = object : TextWatcherAdapter() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            callback.onInputTextChanged(s.toString())
+            callback.onInputTextChanged(s?.toString())
         }
     }
     private val mIconColorActive: Int = CurrentTheme.getColorPrimary(activity)
@@ -222,7 +222,7 @@ class InputViewController(
     }
 
     private val text: String
-        get() = mInputField.text.toString()
+        get() = mInputField.text?.toString().orEmpty()
     private val trimmedText: String
         get() = text.trim()
 
@@ -238,7 +238,7 @@ class InputViewController(
     fun appendTextQuietly(text: String?) {
         if (text != null) {
             mInputField.removeTextChangedListener(mTextWatcher)
-            var txt = Utils.firstNonEmptyString(mInputField.text.toString(), " ")
+            var txt = Utils.firstNonEmptyString(mInputField.text?.toString(), " ")
             if ((txt ?: return).lastIndexOf('@') != -1) {
                 txt = txt.dropLast(1)
             }

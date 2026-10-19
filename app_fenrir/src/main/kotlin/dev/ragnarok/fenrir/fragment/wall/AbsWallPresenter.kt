@@ -400,12 +400,16 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
             R.layout.spinner_item,
             context.resources.getStringArray(R.array.array_sex)
         )
+        val sexTmp = when {
+            p.sex !in 0..2 -> 0
+            else -> p.sex
+        }
 
         root.findViewById<MaterialAutoCompleteTextView>(R.id.sex)
-            .setText(spinnerItems.getItem(p.sex - 1))
+            .setText(spinnerItems.getItem(sexTmp))
         root.findViewById<MaterialAutoCompleteTextView>(R.id.sex)
             .setAdapter(spinnerItems)
-        var selectedItem = p.sex - 1
+        var selectedItem = sexTmp
         root.findViewById<MaterialAutoCompleteTextView>(R.id.sex)
             .setOnItemClickListener { _, _, position, _ ->
                 selectedItem = position
@@ -420,31 +424,31 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                     InteractorFactory.createAccountInteractor().saveProfileInfo(
                         accountId,
                         checkEditInfo(
-                            root.findViewById<TextInputEditText>(R.id.edit_first_name).editableText.toString()
-                                .trim(), p.first_name
+                            root.findViewById<TextInputEditText>(R.id.edit_first_name).text?.toString()
+                                ?.trim(), p.first_name
                         ),
                         checkEditInfo(
-                            root.findViewById<TextInputEditText>(R.id.edit_last_name).editableText.toString()
-                                .trim(), p.last_name
+                            root.findViewById<TextInputEditText>(R.id.edit_last_name).text?.toString()
+                                ?.trim(), p.last_name
                         ),
                         checkEditInfo(
-                            root.findViewById<TextInputEditText>(R.id.edit_maiden_name).editableText.toString()
-                                .trim(), p.maiden_name
+                            root.findViewById<TextInputEditText>(R.id.edit_maiden_name).text?.toString()
+                                ?.trim(), p.maiden_name
                         ),
                         checkEditInfo(
-                            root.findViewById<TextInputEditText>(R.id.edit_screen_name).editableText.toString()
-                                .trim(), p.screen_name
+                            root.findViewById<TextInputEditText>(R.id.edit_screen_name).text?.toString()
+                                ?.trim(), p.screen_name
                         ),
                         checkEditInfo(
-                            root.findViewById<TextInputEditText>(R.id.edit_bdate).editableText.toString()
-                                .trim(), p.bdate
+                            root.findViewById<TextInputEditText>(R.id.edit_bdate).text?.toString()
+                                ?.trim(), p.bdate
                         ),
                         checkEditInfo(
-                            root.findViewById<TextInputEditText>(R.id.edit_home_town).editableText.toString()
-                                .trim(), p.home_town
+                            root.findViewById<TextInputEditText>(R.id.edit_home_town).text?.toString()
+                                ?.trim(), p.home_town
                         ),
                         checkEditInfo(
-                            selectedItem + 1,
+                            selectedItem,
                             p.sex
                         )
                     )
@@ -816,7 +820,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         context: Context,
         localPhotos: ArrayList<LocalPhoto>?,
         file: String?,
-        video: LocalVideo?
+        videoUri: Uri?
     ) {
         when {
             file.nonNullNoEmpty() -> doUploadStoryFile(context, file)
@@ -824,8 +828,8 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
                 doUploadStoryPhotos(localPhotos)
             }
 
-            video != null -> {
-                doUploadStoryVideo(video.data.toString())
+            videoUri != null -> {
+                doUploadStoryVideo(videoUri.toString())
             }
         }
     }

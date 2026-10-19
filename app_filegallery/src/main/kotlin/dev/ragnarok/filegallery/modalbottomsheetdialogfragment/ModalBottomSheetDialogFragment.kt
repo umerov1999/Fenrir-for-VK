@@ -24,6 +24,7 @@ import com.squareup.picasso3.Callback
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.getParcelableArrayListCompat
 import dev.ragnarok.filegallery.nonNullNoEmpty
+import dev.ragnarok.filegallery.orEmpty
 import dev.ragnarok.filegallery.picasso.PicassoInstance
 import dev.ragnarok.filegallery.picasso.transforms.PolyTransformation
 import dev.ragnarok.filegallery.settings.CurrentTheme
@@ -161,7 +162,7 @@ class ModalBottomSheetDialogFragment : BottomSheetDialogFragment() {
             val item = menu.getItem(i)
             val option = Option(
                 item.itemId,
-                if (item.title == null) "" else item.title.toString(),
+                item.title?.toString(),
                 item.icon,
                 false
             )

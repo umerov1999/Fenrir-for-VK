@@ -12,6 +12,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
@@ -276,7 +277,7 @@ class AllFriendsPresenter(accountId: Long, private val userId: Long, savedInstan
     private fun reFillCache() {
         data[SEARCH_CACHE].users.clear()
         val db: List<User> = data[ALL].users
-        val preparedQ = q?.lowercase(Locale.getDefault())?.trim() ?: ""
+        val preparedQ = q?.lowercase(Utils.appLocale)?.trim() ?: ""
         var count = 0
         for (user in db) {
             if (allow(user, preparedQ)) {
@@ -343,7 +344,7 @@ class AllFriendsPresenter(accountId: Long, private val userId: Long, savedInstan
         private const val WEB_SEARCH_DELAY = 1000
         private const val WEB_SEARCH_COUNT_PER_LOAD = 100
         internal fun allow(user: User, preparedQ: String): Boolean {
-            val full = user.fullName.lowercase(Locale.getDefault())
+            val full = user.fullName.lowercase(Utils.appLocale)
             return full.contains(preparedQ)
         }
     }

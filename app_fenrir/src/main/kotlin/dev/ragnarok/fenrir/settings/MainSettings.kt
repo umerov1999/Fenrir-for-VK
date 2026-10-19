@@ -15,6 +15,7 @@ import dev.ragnarok.fenrir.api.model.SlidrSettings
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.Lang
 import dev.ragnarok.fenrir.model.ParserType
+import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -982,6 +983,34 @@ internal class MainSettings(context: Context) : IMainSettings {
             "only_not_viewed_followers",
             false
         )
+
+    override fun autoScrollToUnreadMessageInChats(peerId: Long): Boolean {
+        val mode = try {
+            getPreferences(app).getString("autoscroll_to_unread_message_in_chats", "1")?.trim()
+                ?.toInt()
+                ?: 1
+        } catch (_: Exception) {
+            1
+        }
+        return when {
+            mode <= 0 || mode == 2 && !Peer.isGroupChat(peerId) -> false
+            else -> true
+        }
+    }
+
+    override fun scrollToBeginningWhenSentInChats(peerId: Long): Boolean {
+        val mode = try {
+            getPreferences(app).getString("scroll_to_beginning_when_sent_in_chats", "1")?.trim()
+                ?.toInt()
+                ?: 1
+        } catch (_: Exception) {
+            1
+        }
+        return when {
+            mode <= 0 || mode == 2 && !Peer.isGroupChat(peerId) -> false
+            else -> true
+        }
+    }
 
     companion object {
         private const val KEY_IMAGE_SIZE = "image_size"

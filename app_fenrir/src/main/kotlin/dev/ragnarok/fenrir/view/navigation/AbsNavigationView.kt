@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.FrameLayout
-import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.drawerlayout.DrawerLayout
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.NavigationPage

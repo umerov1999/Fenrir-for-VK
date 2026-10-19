@@ -121,12 +121,13 @@ object Translit {
         if (s.isNullOrEmpty()) {
             return s
         }
+        val locale = Utils.appLocale
         val sb = StringBuilder(s.length * 2)
         for (ch in s.toCharArray()) {
             val upCh = Character.toUpperCase(ch)
             var lat = cyr2lat(upCh)
             if (ch != upCh) {
-                lat = lat.lowercase(Locale.getDefault())
+                lat = lat.lowercase(locale)
             }
             sb.append(lat)
         }

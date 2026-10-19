@@ -25,6 +25,7 @@ import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.FindAtWithContent
 import dev.ragnarok.fenrir.util.Pair
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
@@ -341,9 +342,9 @@ class VideosListPresenter(
             .setCancelable(true)
             .setView(root)
             .setPositiveButton(R.string.button_ok) { _, _ ->
-                val title = root.findViewById<TextInputEditText>(R.id.edit_title).text.toString()
+                val title = root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()
                 val description =
-                    root.findViewById<TextInputEditText>(R.id.edit_description).text.toString()
+                    root.findViewById<TextInputEditText>(R.id.edit_description).text?.toString()
                 appendJob(
                     interactor.edit(
                         accountId, video.ownerId, video.id,
@@ -436,18 +437,18 @@ class VideosListPresenter(
             return (safeCheck(
                 data.title
             ) {
-                data.title?.lowercase(Locale.getDefault())?.contains(
+                data.title?.lowercase(Utils.appLocale)?.contains(
                     q.lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             }
                     || safeCheck(
                 data.description
             ) {
-                data.description?.lowercase(Locale.getDefault())?.contains(
+                data.description?.lowercase(Utils.appLocale)?.contains(
                     q.lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             })

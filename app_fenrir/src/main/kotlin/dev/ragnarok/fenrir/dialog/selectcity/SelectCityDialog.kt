@@ -40,7 +40,7 @@ class SelectCityDialog : AccountDependencyDialogFragment(), CitiesAdapter.Listen
         input.setText(filter)
         input.addTextChangedListener(object : TextWatcherAdapter() {
             override fun afterTextChanged(s: Editable?) {
-                filter = s.toString()
+                filter = s?.toString()?.trim()
                 mHandler.removeCallbacks(mRunSearchRunnable)
                 mHandler.postDelayed(mRunSearchRunnable, RUN_SEARCH_DELAY.toLong())
             }

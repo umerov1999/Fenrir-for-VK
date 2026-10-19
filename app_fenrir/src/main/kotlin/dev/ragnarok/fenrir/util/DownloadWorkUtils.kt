@@ -313,10 +313,10 @@ object DownloadWorkUtils {
                 .main().isDownload_voice_ogg)
         ) {
             extDownload = "ogg"
-            urlDownload = (doc.linkOgg ?: return)
+            urlDownload = doc.linkOgg ?: return
         } else {
             extDownload = "mp3"
-            urlDownload = doc.linkMp3.toString()
+            urlDownload = doc.linkMp3 ?: return
         }
         val result_filename = DownloadInfo(
             makeLegalFilename("Голосовуха " + doc.ownerId + "_" + doc.id, null),

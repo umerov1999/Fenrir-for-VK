@@ -47,6 +47,7 @@ import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
@@ -67,10 +68,11 @@ class FeedInteractor(
         if (rgx.isNullOrEmpty()) {
             return false
         }
+        val locale = Utils.appLocale
         dto.text.nonNullNoEmpty {
             for (i in rgx) {
-                if (it.lowercase(Locale.getDefault())
-                        .contains(i.lowercase(Locale.getDefault()))
+                if (it.lowercase(locale)
+                        .contains(i.lowercase(locale))
                 ) {
                     return true
                 }
@@ -79,9 +81,10 @@ class FeedInteractor(
         dto.copy_history.nonNullNoEmpty {
             for (i in it) {
                 i.text.nonNullNoEmpty { pit ->
+                    val locale = Utils.appLocale
                     for (s in rgx) {
-                        if (pit.lowercase(Locale.getDefault())
-                                .contains(s.lowercase(Locale.getDefault()))
+                        if (pit.lowercase(locale)
+                                .contains(s.lowercase(locale))
                         ) {
                             return true
                         }

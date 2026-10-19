@@ -42,6 +42,7 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.util.Action
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateFromUnixTime
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.hasScopedStorage
 import dev.ragnarok.fenrir.view.DateTimePicker
 import dev.ragnarok.fenrir.view.WeakRunnable
@@ -395,7 +396,7 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
                 mTimerTextInfo?.text =
                     getString(
                         R.string.will_be_posted_at,
-                        formattedTime.lowercase(Locale.getDefault())
+                        formattedTime.lowercase(Utils.appLocale)
                     )
                 mTimerTextInfo?.visibility = View.VISIBLE
             } else {

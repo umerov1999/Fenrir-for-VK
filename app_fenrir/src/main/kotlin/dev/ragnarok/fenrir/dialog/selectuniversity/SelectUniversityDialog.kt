@@ -40,7 +40,7 @@ class SelectUniversityDialog : AccountDependencyDialogFragment(), UniversitiesAd
         input.setText(filter)
         input.addTextChangedListener(object : TextWatcherAdapter() {
             override fun afterTextChanged(s: Editable?) {
-                filter = s.toString()
+                filter = s?.toString()?.trim()
                 mHandler.removeCallbacks(runSearchRunnable)
                 mHandler.postDelayed(runSearchRunnable, RUN_SEARCH_DELAY.toLong())
             }

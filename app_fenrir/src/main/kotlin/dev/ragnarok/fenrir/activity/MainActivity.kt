@@ -27,7 +27,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
@@ -36,6 +35,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.drawerlayout.DrawerLayout
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import dev.ragnarok.fenrir.Extra
@@ -201,7 +201,6 @@ import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayedFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
@@ -399,6 +398,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         insets.right,
                         imeFixedBottom
                     )
+                    navigationView?.setPadding(insets.left, insets.top, insets.right, 0)
                     mViewFragment?.setPadding(
                         insets.left,
                         0,
@@ -827,7 +827,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                                         ?: return@show).getItemAt(0).text != null
                                 ) {
                                     val temp =
-                                        clipBoard.primaryClip?.getItemAt(0)?.text.toString()
+                                        clipBoard.primaryClip?.getItemAt(0)?.text?.toString()?.trim()
                                     LinkHelper.openUrl(
                                         this@MainActivity,
                                         mAccountId,
@@ -1054,7 +1054,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 LinkHelper.openUrl(
                     this,
                     mAccountId,
-                    data.toString(),
+                    data?.toString(),
                     isMain = isMain,
                     actionOpen = true
                 )
@@ -1398,12 +1398,9 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         mCompositeJob.add(
             InteractorFactory.createFeedbackInteractor()
                 .markAsViewed(mAccountId)
-                .delayedFlow(1000)
                 .fromIOToMain {
-                    if (it) {
-                        mBottomNavigation?.removeBadge(NavigationPage.FEEDBACK)
-                        navigationView?.onUnreadNotificationsCountChange(0)
-                    }
+                    mBottomNavigation?.removeBadge(NavigationPage.FEEDBACK)
+                    navigationView?.onUnreadNotificationsCountChange(0)
                 }
         )
     }

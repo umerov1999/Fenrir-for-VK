@@ -36,6 +36,8 @@ class SettingsBackup {
         var notification_bubbles: Boolean? = null
         var messages_menu_down: Boolean? = null
         var expand_voice_transcript: Boolean? = null
+        var autoscroll_to_unread_message_in_chats: String? = null
+        var scroll_to_beginning_when_sent_in_chats: String? = null
         var chat_popup_menu: Boolean? = null
         var image_size: String? = null
         var start_news: String? = null

@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
-import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import kotlinx.coroutines.flow.Flow
 
 interface INotificationsApi {
@@ -18,7 +18,7 @@ interface INotificationsApi {
     fun getOfficial(
         count: Int?,
         startFrom: Int?
-    ): Flow<FeedbackVKOfficialList>
+    ): Flow<List<FeedbackVKOfficial>>
 
     @CheckResult
     fun hide(query: String?): Flow<Int>

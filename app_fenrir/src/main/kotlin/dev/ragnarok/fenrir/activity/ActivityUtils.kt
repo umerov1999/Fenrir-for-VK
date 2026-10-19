@@ -12,14 +12,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.getParcelableExtraCompat
+import dev.ragnarok.fenrir.nonNullNoEmpty
 
 object ActivityUtils {
     fun isMimeVideo(mime: String?): Boolean {
-        return !mime.isNullOrEmpty() && mime.contains("video/")
+        return mime.nonNullNoEmpty() && mime.contains("video/")
     }
 
     fun isMimeAudio(mime: String?): Boolean {
-        return !mime.isNullOrEmpty() && mime.contains("audio/")
+        return mime.nonNullNoEmpty() && mime.contains("audio/")
     }
 
     fun checkLocalStreams(activity: Activity): StreamData? {

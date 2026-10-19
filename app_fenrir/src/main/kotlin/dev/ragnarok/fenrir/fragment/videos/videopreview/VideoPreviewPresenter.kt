@@ -99,8 +99,8 @@ class VideoPreviewPresenter(
                     appendJob(
                         interactor.edit(
                             accountId, vd.ownerId, vd.id,
-                            root.findViewById<TextInputEditText>(R.id.edit_title).text.toString(),
-                            root.findViewById<TextInputEditText>(R.id.edit_description).text.toString()
+                            root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()?.trim(),
+                            root.findViewById<TextInputEditText>(R.id.edit_description).text?.toString()?.trim()
                         ).fromIOToMain({ refreshVideoInfo() }) { t ->
                             showError(t)
                         })

@@ -191,12 +191,12 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
             result.append(if (!firstTime) "\n" else "")
             result.append(body)
             if (message.isVoiceMessage) {
-                if (!body.isNullOrEmpty()) {
+                if (body.nonNullNoEmpty()) {
                     result.append("\n\n")
                 }
                 var firstTimeVoice = true
                 for (vs in message.attachments?.voiceMessages.orEmpty()) {
-                    if (!vs.transcript.isNullOrEmpty()) {
+                    if (vs.transcript.nonNullNoEmpty()) {
                         result.append(if (!firstTimeVoice) "\n" else "")
                         result.append(vs.transcript)
                         firstTimeVoice = false

@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.module.StringExist
 import dev.ragnarok.filegallery.Includes.stores
 import dev.ragnarok.filegallery.settings.Settings.get
 import dev.ragnarok.filegallery.util.AppPerms.hasReadWriteStoragePermission
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -16,7 +17,7 @@ class FileExistNative : AbsFileExist {
     private val CachedAudios = StringExist(true)
     private val CachedTags = StringExist(true)
     override fun addAudio(file: String) {
-        CachedAudios.insert(file.lowercase(Locale.getDefault()))
+        CachedAudios.insert(file.lowercase(Utils.appLocale))
     }
 
     override fun findAllAudios(context: Context): Flow<Boolean> {
@@ -33,14 +34,14 @@ class FileExistNative : AbsFileExist {
             }
             CachedAudios.clear()
             for (u in file_list) {
-                if (u.isFile) CachedAudios.insert(u.name.lowercase(Locale.getDefault()))
+                if (u.isFile) CachedAudios.insert(u.name.lowercase(Utils.appLocale))
             }
             emit(true)
         }
     }
 
     override fun isExistAllAudio(file: String): Boolean {
-        val res = file.lowercase(Locale.getDefault())
+        val res = file.lowercase(Utils.appLocale)
         return CachedAudios.has(res)
     }
 

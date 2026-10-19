@@ -883,7 +883,7 @@ object Utils {
 
     fun firstNonEmptyString(vararg array: String?): String? {
         for (s in array) {
-            if (!s.isNullOrEmpty()) {
+            if (s.nonNullNoEmpty()) {
                 return s
             }
         }
@@ -1806,23 +1806,23 @@ object Utils {
         customToast: AbsCustomToast?,
         video: Video
     ) {
-        if (!video.live.isNullOrEmpty()) {
+        if (video.live.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.live, true, video.title)
-        } else if (!video.mp4link2160.isNullOrEmpty()) {
+        } else if (video.mp4link2160.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.mp4link2160, false, video.title)
-        } else if (!video.mp4link1440.isNullOrEmpty()) {
+        } else if (video.mp4link1440.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.mp4link1440, false, video.title)
-        } else if (!video.mp4link1080.isNullOrEmpty()) {
+        } else if (video.mp4link1080.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.mp4link1080, false, video.title)
-        } else if (!video.mp4link720.isNullOrEmpty()) {
+        } else if (video.mp4link720.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.mp4link720, false, video.title)
-        } else if (!video.mp4link480.isNullOrEmpty()) {
+        } else if (video.mp4link480.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.mp4link480, false, video.title)
-        } else if (!video.mp4link360.isNullOrEmpty()) {
+        } else if (video.mp4link360.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.mp4link360, false, video.title)
-        } else if (!video.mp4link240.isNullOrEmpty()) {
+        } else if (video.mp4link240.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.mp4link240, false, video.title)
-        } else if (!video.hls.isNullOrEmpty()) {
+        } else if (video.hls.nonNullNoEmpty()) {
             playDirectVkLinkInExternalPlayer(context, video.hls, true, video.title)
         } else if (video.externalLink.nonNullNoEmpty()) {
             if (video.externalLink?.contains("youtube") == true) {
@@ -1867,23 +1867,23 @@ object Utils {
             doAutoPlayVideoExternalPlayer(context, customToast, video)
             return
         }
-        if (!video.live.isNullOrEmpty()) {
+        if (video.live.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_LIVE)
-        } else if (!video.hls.isNullOrEmpty()) {
+        } else if (video.hls.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_HLS)
-        } else if (!video.mp4link2160.isNullOrEmpty()) {
+        } else if (video.mp4link2160.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_2160)
-        } else if (!video.mp4link1440.isNullOrEmpty()) {
+        } else if (video.mp4link1440.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_1440)
-        } else if (!video.mp4link1080.isNullOrEmpty()) {
+        } else if (video.mp4link1080.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_1080)
-        } else if (!video.mp4link720.isNullOrEmpty()) {
+        } else if (video.mp4link720.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_720)
-        } else if (!video.mp4link480.isNullOrEmpty()) {
+        } else if (video.mp4link480.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_480)
-        } else if (!video.mp4link360.isNullOrEmpty()) {
+        } else if (video.mp4link360.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_360)
-        } else if (!video.mp4link240.isNullOrEmpty()) {
+        } else if (video.mp4link240.nonNullNoEmpty()) {
             openVideoInternal(context, video, InternalVideoSize.SIZE_240)
         } else if (video.externalLink.nonNullNoEmpty()) {
             if (video.externalLink?.contains("youtube") == true) {
@@ -1930,30 +1930,30 @@ object Utils {
         val kb: Long = 1024
         return when {
             Bytes >= tb -> String.format(
-                Locale.getDefault(),
+                appLocale,
                 "%.2f TB",
                 Bytes.toDouble() / tb
             )
 
             Bytes >= gb -> String.format(
-                Locale.getDefault(),
+                appLocale,
                 "%.2f GB",
                 Bytes.toDouble() / gb
             )
 
             Bytes >= mb -> String.format(
-                Locale.getDefault(),
+                appLocale,
                 "%.2f MB",
                 Bytes.toDouble() / mb
             )
 
             Bytes >= kb -> String.format(
-                Locale.getDefault(),
+                appLocale,
                 "%.2f KB",
                 Bytes.toDouble() / kb
             )
 
-            else -> String.format(Locale.getDefault(), "%d Bytes", Bytes)
+            else -> String.format(appLocale, "%d Bytes", Bytes)
         }
     }
 

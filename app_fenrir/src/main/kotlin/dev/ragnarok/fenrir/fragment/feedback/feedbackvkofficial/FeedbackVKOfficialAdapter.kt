@@ -20,11 +20,9 @@ import dev.ragnarok.fenrir.ifNonNull
 import dev.ragnarok.fenrir.ifNonNullNoEmpty
 import dev.ragnarok.fenrir.link.internal.FeedbackLinkSpanFactory
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial
-import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.place.PlaceFactory.getSimpleGalleryPlace
 import dev.ragnarok.fenrir.requireNonNull
@@ -35,18 +33,18 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
 class FeedbackVKOfficialAdapter(
-    private var data: FeedbackVKOfficialList?,
+    private var items: List<FeedbackVKOfficial>,
     private val context: Context
 ) : RecyclerView.Adapter<FeedbackVKOfficialAdapter.Holder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val mStartOfToday: Long = Utils.startOfTodayMillis()
     private var clickListener: ClickListener? = null
     fun checkPosition(position: Int): Boolean {
-        return data != null && position >= 0 && (data?.items?.size ?: -1) > position
+        return position >= 0 && items.size > position
     }
 
-    fun getByPosition(position: Int): FeedbackVKOfficial? {
-        return data?.items?.get(position)
+    fun getByPosition(position: Int): FeedbackVKOfficial {
+        return items[position]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -146,7 +144,6 @@ class FeedbackVKOfficialAdapter(
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        val items = data?.items ?: return
         val page = items[position]
         val previous = if (position == 0) null else items[position - 1]
         val lastMessageJavaTime = page.time * 1000
@@ -450,11 +447,11 @@ class FeedbackVKOfficialAdapter(
     }
 
     override fun getItemCount(): Int {
-        return data?.items?.size.orZero()
+        return items.size
     }
 
-    fun setData(data: FeedbackVKOfficialList) {
-        this.data = data
+    fun setData(items: List<FeedbackVKOfficial>) {
+        this.items = items
         notifyDataSetChanged()
     }
 

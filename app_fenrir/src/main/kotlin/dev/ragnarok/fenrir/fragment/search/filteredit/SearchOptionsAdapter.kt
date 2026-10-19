@@ -138,7 +138,7 @@ class SearchOptionsAdapter(items: MutableList<BaseOption>) :
     }
 
     private fun bindSimpleNumberHolder(option: SimpleNumberOption, holder: NormalHolder) {
-        holder.value.text = if (option.value == null) null else option.value.toString()
+        holder.value.text = option.value?.toString()
         holder.title.setText(option.title)
         holder.delete.visibility = if (option.value == null) View.INVISIBLE else View.VISIBLE
         holder.itemView.setOnClickListener {

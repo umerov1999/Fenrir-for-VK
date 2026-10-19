@@ -405,7 +405,7 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
         }
     }
 
-    override fun setEpmtyTextVisible(visible: Boolean) {
+    override fun setEmptyTextVisible(visible: Boolean) {
         mEmptyView?.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
@@ -500,7 +500,7 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
             contextView,
             comment
         )
-        if (!comment.text.isNullOrEmpty()) {
+        if (comment.text.nonNullNoEmpty()) {
             menus.add(
                 OptionRequest(
                     CommentsOption.copy_item_comment,

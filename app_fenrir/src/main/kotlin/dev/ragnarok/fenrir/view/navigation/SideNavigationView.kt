@@ -11,9 +11,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.drawerlayout.DrawerLayout
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.domain.IOwnersRepository
@@ -214,7 +214,7 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
                     ?: return@setOnClickListener).getItemAt(0).text != null
             ) {
                 val temp =
-                    clipBoard.primaryClip?.getItemAt(0)?.text.toString()
+                    clipBoard.primaryClip?.getItemAt(0)?.text?.toString()?.trim()
                 LinkHelper.openUrl(
                     context,
                     mAccountId,

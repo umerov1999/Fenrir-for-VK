@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.getString
 import dev.ragnarok.fenrir.ifNonNull
 import dev.ragnarok.fenrir.model.criteria.TopicsCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,7 @@ internal class TopicsStorage(base: AppStorages) : AbsStorage(base), ITopicsStore
             if (criteria.range != null) {
                 val range = criteria.range
                 where = BaseColumns._ID + " >= ? AND " + BaseColumns._ID + " <= ?"
-                args = arrayOf(range?.first.toString(), range?.last.toString())
+                args = arrayOf(range?.first.orZero().toString(), (range?.last ?: Int.MAX_VALUE).toString())
             } else {
                 where = TopicsColumns.OWNER_ID + " = ?"
                 args = arrayOf(criteria.ownerId.toString())

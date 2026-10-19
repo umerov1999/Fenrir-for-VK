@@ -13,6 +13,7 @@ import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.util.AppTextUtils
+import dev.ragnarok.fenrir.util.Utils
 import java.util.Locale
 
 class DocsAdapter(data: MutableList<Document>) :
@@ -24,7 +25,7 @@ class DocsAdapter(data: MutableList<Document>) :
 
     override fun onBindItemViewHolder(viewHolder: DocViewHolder, position: Int, type: Int) {
         val item = getItem(position)
-        val targetExt = item.ext?.uppercase(Locale.getDefault())
+        val targetExt = item.ext?.uppercase(Utils.appLocale)
         viewHolder.tvExt.text = targetExt
         viewHolder.tvTitle.text = item.title
         viewHolder.tvSize.text = AppTextUtils.getSizeString(item.size)

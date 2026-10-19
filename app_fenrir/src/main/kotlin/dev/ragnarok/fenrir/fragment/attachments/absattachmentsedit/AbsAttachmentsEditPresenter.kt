@@ -347,7 +347,7 @@ abstract class AbsAttachmentsEditPresenter<V : IBaseAttachmentsEditView> interna
     }
 
     fun fireTextChanged(s: CharSequence?) {
-        textBody = s.toString()
+        textBody = s?.toString()
     }
 
     fun fireVkPhotosSelected(photos: ArrayList<Photo>) {

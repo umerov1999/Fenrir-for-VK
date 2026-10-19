@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.getString
 import dev.ragnarok.fenrir.ifNonNull
 import dev.ragnarok.fenrir.model.criteria.FeedCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +42,7 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
                     uri,
                     null,
                     BaseColumns._ID + " >= ? AND " + BaseColumns._ID + " <= ?",
-                    arrayOf(range?.first.toString(), range?.last.toString()),
+                    arrayOf(range?.first.orZero().toString(), (range?.last ?: Int.MAX_VALUE).toString()),
                     null
                 )
             } else {

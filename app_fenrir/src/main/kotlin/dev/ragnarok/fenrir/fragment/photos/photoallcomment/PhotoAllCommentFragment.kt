@@ -29,6 +29,7 @@ import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialog
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.menu.options.CommentsPhotoOption
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
@@ -207,7 +208,7 @@ class PhotoAllCommentFragment :
                 true
             )
         )
-        if (!comment.text.isNullOrEmpty()) {
+        if (comment.text.nonNullNoEmpty()) {
             menus.add(
                 OptionRequest(
                     CommentsPhotoOption.copy_item_comment,

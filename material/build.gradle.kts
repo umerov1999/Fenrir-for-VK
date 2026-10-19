@@ -34,6 +34,7 @@ val srcDirs = arrayOf(
     "com/google/android/material/divider",
     "com/google/android/material/dockedtoolbar",
     "com/google/android/material/drawable",
+    "com/google/android/material/drawerlayout",
     "com/google/android/material/elevation",
     "com/google/android/material/expandable",
     "com/google/android/material/floatingactionbutton",
@@ -146,7 +147,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.common)
-    implementation(libs.androidx.drawerlayout)
     implementation(libs.errorprone.annotations)
     implementation(libs.androidx.resourceinspection.annotation)
     implementation(project(":recyclerview"))

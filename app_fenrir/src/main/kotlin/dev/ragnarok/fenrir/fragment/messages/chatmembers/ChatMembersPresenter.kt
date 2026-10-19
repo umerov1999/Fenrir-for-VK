@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.util.Locale
@@ -41,12 +42,13 @@ class ChatMembersPresenter(accountId: Long, private val chatId: Long, savedInsta
             view?.notifyDataSetChanged()
             return
         }
+        val locale = Utils.appLocale
         for (i in original) {
             val user = i.member
-            if (query?.lowercase(Locale.getDefault())?.let {
-                    user?.fullName?.lowercase(Locale.getDefault())?.contains(it)
-                } == true || query?.lowercase(Locale.getDefault())?.let {
-                    user?.domain?.lowercase(Locale.getDefault())?.contains(
+            if (query?.lowercase(locale)?.let {
+                    user?.fullName?.lowercase(locale)?.contains(it)
+                } == true || query?.lowercase(locale)?.let {
+                    user?.domain?.lowercase(locale)?.contains(
                         it
                     )
                 } == true

@@ -42,10 +42,6 @@ import java.util.Date
 import java.util.Locale
 
 object DownloadWorkUtils {
-    @SuppressLint("ConstantLocale")
-    private val DOWNLOAD_DATE_FORMAT: DateFormat =
-        SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-
     internal fun createNotification(
         context: Context,
         title: String?,
@@ -270,7 +266,7 @@ object DownloadWorkUtils {
             return 1
         }
         if (download_status) {
-            result_filename.setFile(result_filename.file + ("." + DOWNLOAD_DATE_FORMAT.format(Date())))
+            result_filename.setFile(result_filename.file + ("." + SimpleDateFormat("yyyyMMdd_HHmmss", Utils.appLocale).format(Date())))
         }
         try {
             val downloadWork = OneTimeWorkRequest.Builder(TrackDownloadWorker::class)

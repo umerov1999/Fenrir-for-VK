@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.api.model.VKApiCountry
 import dev.ragnarok.fenrir.api.model.VKApiCover
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.kJson
+import dev.ragnarok.fenrir.util.Utils
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -29,7 +30,7 @@ class CommunityDtoAdapter : AbsDtoAdapter<VKApiCommunity>("VKApiCommunity") {
         dto.screen_name = optString(
             root,
             Fields.GROUP_FIELDS.SCREEN_NAME,
-            String.format(Locale.getDefault(), "club%d", abs(dto.id))
+            String.format(Utils.appLocale, "club%d", abs(dto.id))
         )
         if (hasObject(root, Fields.GROUP_FIELDS.MENU)) {
             val pMenu = root[Fields.GROUP_FIELDS.MENU]?.jsonObject

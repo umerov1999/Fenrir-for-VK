@@ -24,11 +24,11 @@ class AddProxyPresenter(savedInstanceState: Bundle?) :
     }
 
     fun fireAddressEdit(s: CharSequence?) {
-        address = s.toString()
+        address = s?.toString()
     }
 
     fun firePortEdit(s: CharSequence?) {
-        port = s.toString()
+        port = s?.toString()
     }
 
     fun fireAuthChecked(isChecked: Boolean) {
@@ -40,11 +40,11 @@ class AddProxyPresenter(savedInstanceState: Bundle?) :
     }
 
     fun fireUsernameEdit(s: CharSequence?) {
-        userName = s.toString()
+        userName = s?.toString()
     }
 
     fun firePassEdit(s: CharSequence?) {
-        pass = s.toString()
+        pass = s?.toString()
     }
 
     private fun validateData(): Boolean {

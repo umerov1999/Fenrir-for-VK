@@ -5,6 +5,7 @@ import dev.ragnarok.filegallery.Includes.stores
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.settings.Settings.get
 import dev.ragnarok.filegallery.util.AppPerms.hasReadWriteStoragePermission
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -32,7 +33,7 @@ class FileExistJVM : AbsFileExist {
         if (!setBusy(true)) {
             return
         }
-        CachedAudios.add(file.lowercase(Locale.getDefault()))
+        CachedAudios.add(file.lowercase(Utils.appLocale))
         setBusy(false)
     }
 
@@ -55,8 +56,9 @@ class FileExistJVM : AbsFileExist {
                 return@flow
             }
             CachedAudios.clear()
+            val locale = Utils.appLocale
             for (u in file_list) {
-                if (u.isFile) CachedAudios.add(u.name.lowercase(Locale.getDefault()))
+                if (u.isFile) CachedAudios.add(u.name.lowercase(locale))
             }
             setBusy(false)
             emit(true)
@@ -68,7 +70,7 @@ class FileExistJVM : AbsFileExist {
             if (isBusy) {
                 return false
             }
-            val res = file.lowercase(Locale.getDefault())
+            val res = file.lowercase(Utils.appLocale)
             if (CachedAudios.nonNullNoEmpty()) {
                 for (i in CachedAudios) {
                     if (i == res) {

@@ -117,6 +117,7 @@ import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.model.SwitchableCategory
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.EllipseTransformation
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
@@ -1166,6 +1167,30 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             }
 
             singleChoice(
+                "autoscroll_to_unread_message_in_chats",
+                selItems(
+                    R.array.array_autoscroll_in_chats_names,
+                    R.array.array_autoscroll_in_chats_items
+                ),
+                parentFragmentManager
+            ) {
+                initialSelection = "1"
+                titleRes = R.string.autoscroll_to_unread_message_in_chats
+            }
+
+            singleChoice(
+                "scroll_to_beginning_when_sent_in_chats",
+                selItems(
+                    R.array.array_autoscroll_in_chats_names,
+                    R.array.array_autoscroll_in_chats_items
+                ),
+                parentFragmentManager
+            ) {
+                initialSelection = "1"
+                titleRes = R.string.scroll_to_beginning_when_sent_in_chats
+            }
+
+            singleChoice(
                 "chat_background",
                 selItems(R.array.array_chat_background_names, R.array.array_chat_background_items),
                 parentFragmentManager
@@ -1868,7 +1893,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onTextBeforeChanged { its ->
                     var sz = -1
                     try {
-                        sz = its.toString().trim().toInt()
+                        sz = its?.toString()?.trim()?.toInt().orZero()
                     } catch (_: NumberFormatException) {
                     }
                     if (BitmapSafeResize.isOverflowCanvas(sz) || sz in 0..99) {
@@ -1893,7 +1918,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 onTextBeforeChanged { its ->
                     var sz = -1
                     try {
-                        sz = its.toString().trim().toInt()
+                        sz = its?.toString()?.trim()?.toInt().orZero()
                     } catch (_: NumberFormatException) {
                     }
                     if (CoverSafeResize.isOverflowCanvas(sz) || sz in 0..99) {
@@ -2742,9 +2767,9 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 .setNegativeButton(R.string.button_cancel, null)
                 .setPositiveButton(R.string.button_ok) { _, _ ->
                     val enabledVal = enabled.isChecked
-                    val urlVal = url.editableText.toString()
-                    val passVal = password.editableText.toString()
-                    if (enabledVal && (urlVal.isEmpty() || passVal.isEmpty())) {
+                    val urlVal = url.text?.toString()?.trim()
+                    val passVal = password.text?.toString()?.trim()
+                    if (enabledVal && (urlVal.isNullOrEmpty() || passVal.isNullOrEmpty())) {
                         return@setPositiveButton
                     }
                     val srv = LocalServerSettings()

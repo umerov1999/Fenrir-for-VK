@@ -30,7 +30,7 @@ class CenteredToolbar : MaterialToolbar {
     }
 
     override fun getTitle(): CharSequence {
-        return tvTitle?.text.toString()
+        return tvTitle?.text?.toString().orEmpty()
     }
 
     override fun setTitle(@StringRes resId: Int) {
@@ -42,7 +42,7 @@ class CenteredToolbar : MaterialToolbar {
     }
 
     override fun getSubtitle(): CharSequence {
-        return tvSubtitle?.text.toString()
+        return tvSubtitle?.text?.toString().orEmpty()
     }
 
     override fun setSubtitle(@StringRes resId: Int) {

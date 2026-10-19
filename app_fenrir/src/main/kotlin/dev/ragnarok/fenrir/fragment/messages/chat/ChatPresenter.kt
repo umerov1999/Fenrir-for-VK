@@ -221,7 +221,7 @@ class ChatPresenter(
         fetchConversationThenCachedThenActual(false)
 
         if (savedInstanceState == null) {
-            tryToRestoreDraftMessage(!draftMessage.text.isNullOrEmpty())
+            tryToRestoreDraftMessage(draftMessage.text.nonNullNoEmpty())
         }
 
         resolveAccountHotSwapSupport()
@@ -772,7 +772,9 @@ class ChatPresenter(
             if (!chronologyInvert && !isCache) {
                 conversation?.unreadCount?.let {
                     if (conversation?.unreadCount.orZero() <= messages.size) {
-                        view?.scrollToUnread(it, true)
+                        if (Settings.get().main().autoScrollToUnreadMessageInChats(peerId)) {
+                            view?.scrollToUnread(it, true)
+                        }
                     } else {
                         view?.goToUnreadMessages(
                             accountId,
@@ -1041,7 +1043,9 @@ class ChatPresenter(
     private fun onMessageSaveSuccess(message: Message) {
         addMessageToList(message)
         view?.notifyDataChanged()
-        view?.scrollTo(0)
+        if (Settings.get().main().scrollToBeginningWhenSentInChats(peerId)) {
+            view?.scrollTo(0)
+        }
     }
 
     private fun startSendService() {
@@ -1145,7 +1149,9 @@ class ChatPresenter(
     }
 
     fun sendRecordingMessageImpl(file: File) {
-        view?.scrollTo(0)
+        if (Settings.get().main().scrollToBeginningWhenSentInChats(peerId)) {
+            view?.scrollTo(0)
+        }
         val builder = SaveMessageBuilder(messagesOwnerId, peerId).setVoiceMessageFile(file)
         if (isReplyMessageCanVoice()) {
             val fwds = ArrayList<Message>()
@@ -2311,7 +2317,9 @@ class ChatPresenter(
     }
 
     fun fireSendMyStickerClick(file: Sticker.LocalSticker) {
-        view?.scrollTo(0)
+        if (Settings.get().main().scrollToBeginningWhenSentInChats(peerId)) {
+            view?.scrollTo(0)
+        }
         netLoadingDisposable += checkGraffitiMessage(file)
             .fromIOToMain({
                 if (it.nonEmpty()) {
@@ -2346,7 +2354,9 @@ class ChatPresenter(
     }
 
     fun fireStickerSendClick(sticker: Sticker) {
-        view?.scrollTo(0)
+        if (Settings.get().main().scrollToBeginningWhenSentInChats(peerId)) {
+            view?.scrollTo(0)
+        }
         val builder = SaveMessageBuilder(messagesOwnerId, peerId).attach(sticker)
 
         val fwds = ArrayList<Message>()
@@ -2429,7 +2439,9 @@ class ChatPresenter(
             LinkHelper.openUrl(context, accountId, item.link)
             return
         }
-        view?.scrollTo(0)
+        if (Settings.get().main().scrollToBeginningWhenSentInChats(peerId)) {
+            view?.scrollTo(0)
+        }
         val builder =
             SaveMessageBuilder(messagesOwnerId, peerId).setPayload(item.payload).setText(item.label)
         sendMessage(builder)

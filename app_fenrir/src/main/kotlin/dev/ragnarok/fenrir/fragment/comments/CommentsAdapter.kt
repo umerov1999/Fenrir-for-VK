@@ -31,6 +31,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory.getCommentsThreadPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.CommentContainer
 import dev.ragnarok.fenrir.view.LinkHelperTextView
@@ -194,7 +195,7 @@ class CommentsAdapter(
         if (comment.replyToUser == 0L) {
             return SpannableStringBuilder(time)
         }
-        val commentText = context.getString(R.string.comment).lowercase(Locale.getDefault())
+        val commentText = context.getString(R.string.comment).lowercase(Utils.appLocale)
         val target = context.getString(R.string.in_response_to, time, commentText)
         val start = target.indexOf(commentText)
         val spannable = SpannableStringBuilder(target)

@@ -37,6 +37,7 @@ import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.applyAlpha
 import dev.ragnarok.filegallery.media.exo.OkHttpDataSource
 import dev.ragnarok.filegallery.model.Lang
+import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.orZero
 import dev.ragnarok.filegallery.settings.CurrentTheme
 import dev.ragnarok.filegallery.settings.Settings
@@ -133,7 +134,7 @@ object Utils {
 
     fun firstNonEmptyString(vararg array: String?): String? {
         for (s in array) {
-            if (!s.isNullOrEmpty()) {
+            if (s.nonNullNoEmpty()) {
                 return s
             }
         }

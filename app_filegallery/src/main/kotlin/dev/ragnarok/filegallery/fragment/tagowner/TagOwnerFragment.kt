@@ -58,8 +58,8 @@ class TagOwnerFragment : BaseMvpFragment<TagOwnerPresenter, ITagOwnerView>(), IT
                 .setView(view)
                 .setPositiveButton(R.string.button_ok) { _, _ ->
                     presenter?.addOwner(
-                        view.findViewById<TextInputEditText>(R.id.edit_name).text.toString()
-                            .trim()
+                        view.findViewById<TextInputEditText>(R.id.edit_name).text?.toString()
+                            ?.trim()
                     )
                 }
                 .setNegativeButton(R.string.button_cancel, null)
@@ -119,8 +119,8 @@ class TagOwnerFragment : BaseMvpFragment<TagOwnerPresenter, ITagOwnerView>(), IT
             .setView(view)
             .setPositiveButton(R.string.button_ok) { _, _ ->
                 presenter?.renameTagOwner(
-                    view.findViewById<TextInputEditText>(R.id.edit_name).text.toString()
-                        .trim(), owner
+                    view.findViewById<TextInputEditText>(R.id.edit_name).text?.toString()
+                        ?.trim(), owner
                 )
             }
             .setNegativeButton(R.string.button_cancel, null)

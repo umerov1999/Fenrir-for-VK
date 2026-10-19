@@ -388,7 +388,7 @@ class CommentsPresenter(
     }
 
     private fun resolveEmptyTextVisibility() {
-        view?.setEpmtyTextVisible(loadingState == LoadingState.NO && data.isEmpty())
+        view?.setEmptyTextVisible(loadingState == LoadingState.NO && data.isEmpty())
     }
 
     private fun resolveHeaderFooterViews() {

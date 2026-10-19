@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.model.FileItem
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Pair
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -60,16 +61,16 @@ class FileManagerSelectPresenter(
         if (isLoading) {
             return
         }
-        val query = str?.trim()
+        var query: String? = str?.trim()
+        if (query.isNullOrEmpty()) {
+            query = null
+        }
         if (safeEquals(query, this.q)) {
             return
         }
-        q = if (query.isNullOrEmpty()) {
-            null
-        } else {
-            query
-        }
-        if (q == null) {
+        val locale = Utils.appLocale
+        q = query
+        if (query == null) {
             fileListSearch.clear()
             view?.resolveEmptyText(fileList.isEmpty())
             view?.displayData(fileList)
@@ -80,15 +81,15 @@ class FileManagerSelectPresenter(
                 if (i.file_name.isEmpty()) {
                     continue
                 }
-                if (i.file_name.lowercase(Locale.getDefault())
-                        .contains(q?.lowercase(Locale.getDefault()).toString())
+                if (i.file_name.lowercase(locale)
+                        .contains(query.lowercase(locale))
                 ) {
                     fileListSearch.add(i)
                 }
             }
             view?.resolveEmptyText(fileListSearch.isEmpty())
             view?.displayData(fileListSearch)
-            view?.updatePathString(q ?: return)
+            view?.updatePathString(query)
         }
     }
 

@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Pair
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.flow
@@ -64,16 +65,16 @@ class FileManagerRemotePresenter(
         if (isLoading) {
             return
         }
-        val query = str?.trim()
+        var query: String? = str?.trim()
+        if (query.isNullOrEmpty()) {
+            query = null
+        }
         if (safeEquals(query, this.q)) {
             return
         }
-        q = if (query.isNullOrEmpty()) {
-            null
-        } else {
-            query
-        }
-        if (q == null) {
+        val locale = Utils.appLocale
+        q = query
+        if (query == null) {
             fileListSearch.clear()
             view?.resolveEmptyText(fileList.isEmpty())
             view?.displayData(fileList)
@@ -84,15 +85,15 @@ class FileManagerRemotePresenter(
                 if (i.file_name.isNullOrEmpty()) {
                     continue
                 }
-                if (i.file_name?.lowercase(Locale.getDefault())
-                        ?.contains(q?.lowercase(Locale.getDefault()).toString()) == true
+                if (i.file_name?.lowercase(locale)
+                        ?.contains(query.lowercase(locale)) == true
                 ) {
                     fileListSearch.add(i)
                 }
             }
             view?.resolveEmptyText(fileListSearch.isEmpty())
             view?.displayData(fileListSearch)
-            view?.updatePathString(q ?: return)
+            view?.updatePathString(query)
         }
     }
 

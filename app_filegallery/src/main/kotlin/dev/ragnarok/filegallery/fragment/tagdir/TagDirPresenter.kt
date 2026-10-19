@@ -12,6 +12,7 @@ import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.model.tags.TagDir
 import dev.ragnarok.filegallery.util.Objects
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.util.Locale
 
@@ -29,16 +30,16 @@ class TagDirPresenter(private val owner_id: Long) :
     }
 
     fun doSearch(str: String?) {
-        val query = str?.trim()
+        var query: String? = str?.trim()
+        if (query.isNullOrEmpty()) {
+            query = null
+        }
         if (Objects.safeEquals(query, this.q)) {
             return
         }
-        q = if (query.isNullOrEmpty()) {
-            null
-        } else {
-            query
-        }
-        if (q == null) {
+        q = query
+        val locale = Utils.appLocale
+        if (query == null) {
             tagDirDataSearch.clear()
             view?.displayData(tagDirData)
         } else {
@@ -47,8 +48,8 @@ class TagDirPresenter(private val owner_id: Long) :
                 if (i.name.isNullOrEmpty()) {
                     continue
                 }
-                if (i.name?.lowercase(Locale.getDefault())
-                        ?.contains(q?.lowercase(Locale.getDefault()).toString()) == true
+                if (i.name?.lowercase(locale)
+                        ?.contains(query.lowercase(locale)) == true
                 ) {
                     tagDirDataSearch.add(i)
                 }

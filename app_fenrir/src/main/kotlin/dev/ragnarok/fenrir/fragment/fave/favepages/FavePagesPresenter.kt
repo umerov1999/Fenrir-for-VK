@@ -254,9 +254,9 @@ class FavePagesPresenter(
             return data.owner != null && safeCheck(
                 data.owner?.fullName
             ) {
-                data.owner?.fullName?.lowercase(Locale.getDefault())?.contains(
+                data.owner?.fullName?.lowercase(Utils.appLocale)?.contains(
                     q.lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             }

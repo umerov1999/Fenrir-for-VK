@@ -264,15 +264,15 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
     }
 
     fun firePositionEdit(s: CharSequence?) {
-        position = s.toString()
+        position = s?.toString()
     }
 
     fun fireEmailEdit(s: CharSequence?) {
-        email = s.toString()
+        email = s?.toString()
     }
 
     fun firePhoneEdit(s: CharSequence?) {
-        phone = s.toString()
+        phone = s?.toString()
     }
 
     companion object {

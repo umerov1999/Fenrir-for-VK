@@ -6,6 +6,7 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.database.Country
 import dev.ragnarok.fenrir.util.Objects.safeEquals
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.util.Locale
 
@@ -39,10 +40,10 @@ class CountriesPresenter(private val accountId: Long, savedInstanceState: Bundle
     }
 
     fun fireFilterEdit(text: CharSequence?) {
-        if (safeEquals(text.toString(), filter)) {
+        if (safeEquals(text?.toString()?.trim(), filter)) {
             return
         }
-        filter = text.toString()
+        filter = text?.toString()?.trim()
         reFillFilteredData()
         view?.notifyDataSetChanged()
     }
@@ -54,9 +55,9 @@ class CountriesPresenter(private val accountId: Long, savedInstanceState: Bundle
             filtered.addAll(countries)
             return
         }
-        val lowerFilter = pFilter.lowercase(Locale.getDefault())
+        val lowerFilter = pFilter.lowercase(Utils.appLocale)
         for (country in countries) {
-            if (country.title?.lowercase(Locale.getDefault())?.contains(lowerFilter) == true) {
+            if (country.title?.lowercase(Utils.appLocale)?.contains(lowerFilter) == true) {
                 filtered.add(country)
             }
         }

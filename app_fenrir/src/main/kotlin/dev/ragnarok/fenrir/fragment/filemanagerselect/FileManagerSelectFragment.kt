@@ -137,7 +137,7 @@ class FileManagerSelectFragment :
         mySearchView?.setLeftIcon(R.drawable.magnify)
         mySearchView?.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
             override fun onBackButtonClick() {
-                presenter?.doSearch(mySearchView?.text.toString())
+                presenter?.doSearch(mySearchView?.text?.toString())
             }
         })
 

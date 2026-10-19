@@ -275,7 +275,7 @@ class FilterEditFragment : BottomSheetDialogFragment(), OptionClickListener {
             .setTitleRes(option.title)
             .setAllowEmpty(true)
             .setInputType(InputType.TYPE_CLASS_NUMBER)
-            .setValue(if (option.value == null) null else option.value.toString())
+            .setValue(option.value?.toString())
             .setCallback(object : InputTextDialog.Callback {
                 override fun onChanged(newValue: String?) {
                     option.value = getIntFromEditable(newValue)

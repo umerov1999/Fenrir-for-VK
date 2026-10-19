@@ -56,7 +56,7 @@ class SpotsDialog internal constructor(
     }
 
     override fun setMessage(message: CharSequence?) {
-        this.message = message.toString()
+        this.message = message?.toString()
         if (isShowing) initMessage()
     }
 

@@ -49,7 +49,7 @@ interface ICommentsView : IAttachmentsPlacesView, IMvpView, IErrorView,
         @StringRes gotoSourceText: Int?
     )
 
-    fun setEpmtyTextVisible(visible: Boolean)
+    fun setEmptyTextVisible(visible: Boolean)
     fun setCenterProgressVisible(visible: Boolean)
     fun displayDeepLookingCommentProgress()
     fun dismissDeepLookingCommentProgress()

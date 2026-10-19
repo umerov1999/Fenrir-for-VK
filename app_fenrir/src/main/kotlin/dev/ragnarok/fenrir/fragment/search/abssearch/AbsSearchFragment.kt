@@ -119,9 +119,9 @@ abstract class AbsSearchFragment<P : AbsSearchPresenter<V, *, T, *>, V : IBaseSe
         })
         searchView.setOnBackButtonClickListener(object : OnBackButtonClickListener {
             override fun onBackButtonClick() {
-                if (searchView.text.nonNullNoEmpty() && searchView.text.trimmedNonNullNoEmpty()) {
+                if (searchView.text.trimmedNonNullNoEmpty()) {
                     lazyPresenter {
-                        fireTextQueryEdit(searchView.text.toString())
+                        fireTextQueryEdit(searchView.text?.toString()?.trim())
                     }
                 }
             }

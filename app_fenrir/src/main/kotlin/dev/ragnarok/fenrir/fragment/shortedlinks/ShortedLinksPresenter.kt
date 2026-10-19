@@ -102,7 +102,7 @@ class ShortedLinksPresenter(accountId: Long, savedInstanceState: Bundle?) :
     }
 
     fun fireInputEdit(s: CharSequence?) {
-        mInput = s.toString()
+        mInput = s?.toString()
     }
 
     fun fireShort() {

@@ -164,7 +164,7 @@ class EditPhotoAlbumPresenter : AccountDependencyPresenter<IEditPhotoAlbumView> 
     }
 
     fun fireTitleEdit(text: CharSequence?) {
-        state()?.setTitle(text.toString())
+        state()?.setTitle(text?.toString())
         view?.updateStepButtonsAvailability(
             CreatePhotoAlbumStepsHost.STEP_TITLE_AND_DESCRIPTION
         )

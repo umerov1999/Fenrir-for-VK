@@ -39,7 +39,7 @@ class InputWallOffsetDialog internal constructor(
             input.error = null
             var newValue: Int = -1
             try {
-                newValue = input.text.toString().trim().toInt()
+                newValue = input.text?.toString()?.trim()?.toInt().orZero()
             } catch (e: Exception) {
                 input.error = e.localizedMessage
                 input.requestFocus()
@@ -81,7 +81,7 @@ class InputWallOffsetDialog internal constructor(
             override fun afterTextChanged(s: Editable?) {
                 disposable.cancel()
                 try {
-                    val mQuery = s.toString().trim().toInt()
+                    val mQuery = s?.toString()?.trim()?.toInt().orZero()
                     if (mQuery >= 0) {
                         disposable += Repository.walls.getWall(
                             accountId,

@@ -260,6 +260,8 @@ interface ISettings {
         val currentParser: Int
         var catalogV2ListSort: List<Int>
         val isOnlyNotViewedFollowers: Boolean
+        fun autoScrollToUnreadMessageInChats(peerId: Long): Boolean
+        fun scrollToBeginningWhenSentInChats(peerId: Long): Boolean
     }
 
     interface INotificationSettings {

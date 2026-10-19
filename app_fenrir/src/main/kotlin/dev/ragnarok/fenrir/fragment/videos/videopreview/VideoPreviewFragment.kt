@@ -982,7 +982,7 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
             bundle.putLong(Extra.ACCOUNT_ID, accountId)
             bundle.putLong(Extra.OWNER_ID, ownerId)
             bundle.putInt(EXTRA_VIDEO_ID, videoId)
-            if (!accessKey.isNullOrEmpty()) {
+            if (accessKey.nonNullNoEmpty()) {
                 bundle.putString(Extra.ACCESS_KEY, accessKey)
             }
             if (video != null) {

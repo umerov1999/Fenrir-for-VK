@@ -26,8 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.graphics.ColorUtils;
-import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.animation.AnimationUtils;
+import com.google.android.material.drawerlayout.DrawerLayout;
 
 /**
  * Class for utilities related to {@link DrawerLayout}.

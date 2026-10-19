@@ -66,8 +66,8 @@ class IMGTextEditDialog(context: Context, callback: Callback?) : Dialog(
     }
 
     private fun onDone() {
-        val text = mEditText?.text.toString()
-        if (text.isNotEmpty() && mCallback != null) {
+        val text = mEditText?.text?.toString()
+        if (!text.isNullOrEmpty() && mCallback != null) {
             mCallback.onText(mEditText?.currentTextColor?.let { IMGText(text, it) })
         }
         dismiss()

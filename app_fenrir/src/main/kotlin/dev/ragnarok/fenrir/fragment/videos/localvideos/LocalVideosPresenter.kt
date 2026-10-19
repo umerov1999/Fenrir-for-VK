@@ -5,7 +5,9 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.LocalVideo
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -36,19 +38,20 @@ class LocalVideosPresenter(savedInstanceState: Bundle?) :
         }
         this.q = query
         mLocalVideos_search.clear()
-        if (!this.q.isNullOrEmpty()) {
+        if (this.q.nonNullNoEmpty()) {
+            val locale = Utils.appLocale
             for (i in mLocalVideos) {
                 if (i.title.isNullOrEmpty()) {
                     continue
                 }
-                if (this.q?.lowercase(Locale.getDefault())
-                        ?.let { i.title?.lowercase(Locale.getDefault())?.contains(it) } == true
+                if (this.q?.lowercase(locale)
+                        ?.let { i.title?.lowercase(locale)?.contains(it) } == true
                 ) {
                     mLocalVideos_search.add(i)
                 }
             }
         }
-        if (!this.q.isNullOrEmpty()) view?.displayData(
+        if (this.q.nonNullNoEmpty()) view?.displayData(
             mLocalVideos_search
         )
         else view?.displayData(mLocalVideos)
@@ -64,7 +67,7 @@ class LocalVideosPresenter(savedInstanceState: Bundle?) :
         mLocalVideos.addAll(data)
         resolveListData()
         resolveEmptyTextVisibility()
-        if (!q.isNullOrEmpty()) {
+        if (q.nonNullNoEmpty()) {
             fireSearchRequestChanged(q, true)
         }
     }

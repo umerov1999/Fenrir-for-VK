@@ -149,9 +149,9 @@ class CatalogV2SectionFragment :
             mySearchView?.setOnBackButtonClickListener(object :
                 MySearchView.OnBackButtonClickListener {
                 override fun onBackButtonClick() {
-                    if (mySearchView?.text.nonNullNoEmpty() && mySearchView?.text.trimmedNonNullNoEmpty()) {
+                    if (mySearchView?.text.trimmedNonNullNoEmpty()) {
                         presenter?.fireSearchRequestSubmitted(
-                            mySearchView?.text.toString()
+                            mySearchView?.text?.toString()?.trim()
                         )
                     }
                 }

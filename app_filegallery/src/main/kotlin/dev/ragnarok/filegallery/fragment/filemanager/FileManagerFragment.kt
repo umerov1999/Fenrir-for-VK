@@ -176,7 +176,7 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         mySearchView?.setLeftIcon(R.drawable.magnify)
         mySearchView?.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
             override fun onBackButtonClick() {
-                presenter?.doSearch(mySearchView?.text.toString(), true)
+                presenter?.doSearch(mySearchView?.text?.toString(), true)
             }
         })
 

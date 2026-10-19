@@ -262,7 +262,7 @@ class PostCreatePresenter(
         val postpone = post.postType == VKApiPost.Type.POSTPONE
         setTimerValue(if (postpone) post.date else null)
         setTextBody(post.text)
-        if (!links.isNullOrEmpty()) {
+        if (links.nonNullNoEmpty()) {
             setTextBody(links)
             links = null
         }
@@ -536,7 +536,9 @@ class PostCreatePresenter(
         walls = Repository.walls
         this.ownerId = ownerId
         this.editingType = editingType
-        if (!links.isNullOrEmpty()) this.links = links
+        if (links.nonNullNoEmpty()) {
+            this.links = links
+        }
         if (savedInstanceState == null && bundle != null) {
             for (i in bundle) {
                 data.add(AttachmentEntry(false, i))

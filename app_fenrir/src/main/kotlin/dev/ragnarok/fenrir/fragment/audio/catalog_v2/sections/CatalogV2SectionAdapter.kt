@@ -806,9 +806,9 @@ class CatalogV2SectionAdapter(
             .setView(root)
             .setPositiveButton(R.string.button_ok) { _, _ ->
                 val artist =
-                    root.findViewById<TextInputEditText>(R.id.edit_artist).text.toString()
+                    root.findViewById<TextInputEditText>(R.id.edit_artist).text?.toString()
                 val title =
-                    root.findViewById<TextInputEditText>(R.id.edit_title).text.toString()
+                    root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()
                 audioListDisposable += mAudioInteractor.edit(
                     account_id,
                     audio.ownerId,

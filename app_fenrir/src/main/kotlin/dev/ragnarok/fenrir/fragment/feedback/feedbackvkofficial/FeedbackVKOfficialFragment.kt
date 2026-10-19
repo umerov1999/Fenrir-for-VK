@@ -28,7 +28,7 @@ import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial.ActionBrowserURL
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial.ActionMessage
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial.ActionURL
-import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getMessagesLookupPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
@@ -78,7 +78,7 @@ class FeedbackVKOfficialFragment :
                     .setCancelable(true)
                     .setPositiveButton(R.string.button_yes) { _, _ ->
                         val notification = mAdapter?.getByPosition(o)
-                        if (notification != null && !notification.hideQuery.isNullOrEmpty()) {
+                        if (notification != null && notification.hideQuery.nonNullNoEmpty()) {
                             presenter?.hideNotification(
                                 o,
                                 notification.hideQuery
@@ -97,18 +97,10 @@ class FeedbackVKOfficialFragment :
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = FeedbackVKOfficialAdapter(null, requireActivity())
+        mAdapter = FeedbackVKOfficialAdapter(emptyList(), requireActivity())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
-        resolveEmptyText()
         return root
-    }
-
-    private fun resolveEmptyText() {
-        if (mEmpty != null && mAdapter != null) {
-            mEmpty?.visibility =
-                if (mAdapter?.itemCount == 0) View.VISIBLE else View.GONE
-        }
     }
 
     override fun onResume() {
@@ -129,39 +121,34 @@ class FeedbackVKOfficialFragment :
             .apply(requireActivity())
     }
 
-    override fun displayData(pages: FeedbackVKOfficialList) {
-        if (mAdapter != null) {
-            mAdapter?.setData(pages)
-            resolveEmptyText()
-        }
+    override fun displayData(list: List<FeedbackVKOfficial>) {
+        mAdapter?.setData(list)
     }
 
-    override fun notifyFirstListReceived() {
-        if (mAdapter != null) {
-            mAdapter?.notifyDataSetChanged()
-            resolveEmptyText()
-        }
-        if (requireActivity() is OnSectionResumeCallback) {
-            (requireActivity() as OnSectionResumeCallback).readAllNotifications()
-        }
+    override fun setEmptyTextVisible(visible: Boolean) {
+        mEmpty?.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     override fun notifyDataAdded(position: Int, count: Int) {
-        if (mAdapter != null) {
-            mAdapter?.notifyItemRangeInserted(position, count)
-            resolveEmptyText()
-        }
+        mAdapter?.notifyItemRangeInserted(position, count)
     }
 
     override fun notifyItemRemoved(position: Int) {
-        if (mAdapter != null) {
-            mAdapter?.notifyItemRemoved(position)
-            resolveEmptyText()
-        }
+        mAdapter?.notifyItemRemoved(position)
+    }
+
+    override fun notifyDataSetChanges() {
+        mAdapter?.notifyDataSetChanged()
     }
 
     override fun showRefreshing(refreshing: Boolean) {
         mSwipeRefreshLayout?.isRefreshing = refreshing
+    }
+
+    override fun notifyMarkViewedNotifications() {
+        if (requireActivity() is OnSectionResumeCallback) {
+            (requireActivity() as OnSectionResumeCallback).readAllNotifications()
+        }
     }
 
     override fun openOwnerWall(ownerId: Long) {

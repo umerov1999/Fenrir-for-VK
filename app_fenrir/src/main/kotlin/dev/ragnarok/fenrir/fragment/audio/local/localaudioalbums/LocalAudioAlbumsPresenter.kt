@@ -4,9 +4,11 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.LocalImageAlbum
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.PersistentLogger
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.util.Locale
 
@@ -24,19 +26,20 @@ class LocalAudioAlbumsPresenter(private val currentId: Int, savedInstanceState: 
         }
         this.q = query
         mLocalImageAlbums_Search.clear()
-        if (!this.q.isNullOrEmpty()) {
+        if (this.q.nonNullNoEmpty()) {
+            val locale = Utils.appLocale
             for (i in mLocalImageAlbums) {
                 if (i.name.isNullOrEmpty()) {
                     continue
                 }
-                if (this.q?.lowercase(Locale.getDefault())
-                        ?.let { i.name?.lowercase(Locale.getDefault())?.contains(it) } == true
+                if (this.q?.lowercase(locale)
+                        ?.let { i.name?.lowercase(locale)?.contains(it) } == true
                 ) {
                     mLocalImageAlbums_Search.add(i)
                 }
             }
         }
-        if (!this.q.isNullOrEmpty()) view?.displayData(
+        if (this.q.nonNullNoEmpty()) view?.displayData(
             mLocalImageAlbums_Search
         )
         else view?.displayData(
@@ -111,7 +114,7 @@ class LocalAudioAlbumsPresenter(private val currentId: Int, savedInstanceState: 
         mLocalImageAlbums.addAll(data)
         view?.notifyDataChanged()
         resolveEmptyTextView()
-        if (!q.isNullOrEmpty()) {
+        if (q.nonNullNoEmpty()) {
             fireSearchRequestChanged(q, true)
         }
     }

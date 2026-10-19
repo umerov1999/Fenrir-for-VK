@@ -207,7 +207,7 @@ class CommunityBanEditPresenter : AccountDependencyPresenter<ICommunityBanEditVi
     }
 
     fun fireCommentEdit(s: CharSequence?) {
-        comment = s.toString()
+        comment = s?.toString()
     }
 
     fun fireBlockForClick() {

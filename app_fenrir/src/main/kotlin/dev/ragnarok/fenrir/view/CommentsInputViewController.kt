@@ -38,7 +38,7 @@ class CommentsInputViewController(
     private val mButtonSend: ImageView = rootView.findViewById(R.id.buttonSend)
     private val mTextWatcher: TextWatcherAdapter = object : TextWatcherAdapter() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            callback.onInputTextChanged(s.toString())
+            callback.onInputTextChanged(s?.toString())
         }
     }
     private val mIconColorActive: Int = CurrentTheme.getColorPrimary(activity)

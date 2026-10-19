@@ -166,8 +166,8 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                                                 listDisposable.set(
                                                     mVideoInteractor.update_file_name(
                                                         hash2,
-                                                        root.findViewById<TextInputEditText>(R.id.edit_file_name).text.toString()
-                                                            .trim()
+                                                        root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
+                                                            ?.trim()
                                                     )
                                                         .fromIOToMain({
                                                             createCustomToast(

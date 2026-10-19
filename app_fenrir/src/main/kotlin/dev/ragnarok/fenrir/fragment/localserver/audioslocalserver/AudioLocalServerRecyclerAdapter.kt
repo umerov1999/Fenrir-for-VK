@@ -314,8 +314,8 @@ class AudioLocalServerRecyclerAdapter(
                                 .setPositiveButton(R.string.button_ok) { _, _ ->
                                     audioListDisposable += mAudioInteractor.update_file_name(
                                         hash2,
-                                        root.findViewById<TextInputEditText>(R.id.edit_file_name).text.toString()
-                                            .trim()
+                                        root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
+                                            ?.trim()
                                     )
                                         .fromIOToMain({
                                             createCustomToast(mContext, null)?.showToast(

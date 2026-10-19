@@ -58,6 +58,10 @@ abstract class FindAtWithContent<T>(
     }
 
     private fun progress(searched: Int) {
+        val tmpQ = q
+        if (tmpQ.isNullOrEmpty()) {
+            return
+        }
         disposable.add(
             search(offset, searchCount).fromIOToMain({
                 offset += searchCount
@@ -68,7 +72,7 @@ abstract class FindAtWithContent<T>(
                     cached.addAll(it)
                     val result: MutableList<T> = ArrayList()
                     for (i in it) {
-                        if (compare(i, q ?: return@fromIOToMain)) {
+                        if (compare(i, tmpQ)) {
                             result.add(i)
                         }
                     }

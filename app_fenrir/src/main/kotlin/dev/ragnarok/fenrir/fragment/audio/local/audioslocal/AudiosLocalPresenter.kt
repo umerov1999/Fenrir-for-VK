@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forRemotePlay
 import dev.ragnarok.fenrir.upload.UploadIntent
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.util.Pair
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -89,18 +90,18 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
         return r.size >= 2 && (safeCheck(
             data.artist
         ) {
-            data.artist?.lowercase(Locale.getDefault())?.contains(
+            data.artist?.lowercase(Utils.appLocale)?.contains(
                 r[0].lowercase(
-                    Locale.getDefault()
+                    Utils.appLocale
                 )
             ) == true
         }
                 && safeCheck(
             data.title
         ) {
-            data.title?.lowercase(Locale.getDefault())?.contains(
+            data.title?.lowercase(Utils.appLocale)?.contains(
                 r[1].lowercase(
-                    Locale.getDefault()
+                    Utils.appLocale
                 )
             ) == true
         })
@@ -116,15 +117,16 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
             return
         }
         query?.let {
+            val locale = Utils.appLocale
             for (i in origin_audios) {
                 if (safeCheck(i.title) {
-                        i.title?.lowercase(Locale.getDefault())?.contains(
-                            it.lowercase(Locale.getDefault())
+                        i.title?.lowercase(locale)?.contains(
+                            it.lowercase(locale)
                         ) == true
                     }
                     || safeCheck(i.artist) {
-                        i.artist?.lowercase(Locale.getDefault())?.contains(
-                            it.lowercase(Locale.getDefault())
+                        i.artist?.lowercase(locale)?.contains(
+                            it.lowercase(locale)
                         ) == true
                     } || checkTitleArtists(i, it)
                 ) {

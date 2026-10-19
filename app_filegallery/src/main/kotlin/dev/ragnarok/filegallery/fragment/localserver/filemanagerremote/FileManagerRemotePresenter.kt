@@ -13,6 +13,7 @@ import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.util.Objects.safeEquals
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.util.Locale
 
@@ -56,16 +57,16 @@ class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() 
         if (isLoading) {
             return
         }
-        val query = str?.trim()
+        var query: String? = str?.trim()
+        if (query.isNullOrEmpty()) {
+            query = null
+        }
         if (safeEquals(query, this.q)) {
             return
         }
-        q = if (query.isNullOrEmpty()) {
-            null
-        } else {
-            query
-        }
-        if (q == null) {
+        val locale = Utils.appLocale
+        q = query
+        if (query == null) {
             fileListSearch.clear()
             view?.resolveEmptyText(fileList.isEmpty())
             view?.displayData(fileList)
@@ -76,15 +77,15 @@ class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() 
                 if (i.file_name.isNullOrEmpty()) {
                     continue
                 }
-                if (i.file_name?.lowercase(Locale.getDefault())
-                        ?.contains(q?.lowercase(Locale.getDefault()).toString()) == true
+                if (i.file_name?.lowercase(locale)
+                        ?.contains(query.lowercase(locale)) == true
                 ) {
                     fileListSearch.add(i)
                 }
             }
             view?.resolveEmptyText(fileListSearch.isEmpty())
             view?.displayData(fileListSearch)
-            view?.updatePathString(q ?: return)
+            view?.updatePathString(query)
         }
     }
 

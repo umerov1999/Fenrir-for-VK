@@ -17,6 +17,7 @@ import dev.ragnarok.filegallery.model.FileType
 import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.model.tags.TagOwner
+import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.orZero
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.upload.IUploadManager
@@ -27,6 +28,7 @@ import dev.ragnarok.filegallery.upload.UploadIntent
 import dev.ragnarok.filegallery.upload.UploadResult
 import dev.ragnarok.filegallery.util.Objects.safeEquals
 import dev.ragnarok.filegallery.util.Pair
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import kotlinx.coroutines.flow.Flow
@@ -105,16 +107,16 @@ class FileManagerPresenter(
         if (isLoading) {
             return
         }
-        val query = str?.trim()
+        var query: String? = str?.trim()
+        if (query.isNullOrEmpty()) {
+            query = null
+        }
         if (safeEquals(query, this.q) && !global) {
             return
         }
-        q = if (query.isNullOrEmpty()) {
-            null
-        } else {
-            query
-        }
-        if (q == null) {
+        val locale = Utils.appLocale
+        q = query
+        if (query == null) {
             fileListSearch.clear()
             view?.resolveEmptyText(fileList.isEmpty())
             view?.displayData(fileList)
@@ -126,15 +128,15 @@ class FileManagerPresenter(
                     if (i.file_name.isNullOrEmpty()) {
                         continue
                     }
-                    if (i.file_name.lowercase(Locale.getDefault())
-                            .contains(q?.lowercase(Locale.getDefault()).toString())
+                    if (i.file_name.lowercase(locale)
+                            .contains(query.lowercase(locale))
                     ) {
                         fileListSearch.add(i)
                     }
                 }
                 view?.resolveEmptyText(fileListSearch.isEmpty())
                 view?.displayData(fileListSearch)
-                view?.updatePathString(q ?: return)
+                view?.updatePathString(query)
             } else {
                 isLoading = true
                 view?.resolveEmptyText(false)
@@ -146,7 +148,7 @@ class FileManagerPresenter(
                     view?.resolveEmptyText(fileListSearch.isEmpty())
                     view?.resolveLoading(isLoading)
                     view?.displayData(fileListSearch)
-                    view?.updatePathString(q ?: return@fromIOToMain)
+                    view?.updatePathString(query)
                 }, {
                     view?.showThrowable(it)
                     isLoading = false
@@ -381,6 +383,7 @@ class FileManagerPresenter(
 
     private fun searchFile(files: ArrayList<FileItem>, dir: File) {
         if (dir.exists() && dir.canRead()) {
+            val locale = Utils.appLocale
             val fList = dir.list(filter)
             if (fList != null) {
                 for (i in fList.indices) {
@@ -392,8 +395,9 @@ class FileManagerPresenter(
                     val canRead = file.canRead()
                     val mod = file.lastModified()
 
-                    if (file.name.lowercase(Locale.getDefault())
-                            .contains(q?.lowercase(Locale.getDefault()).toString())
+                    val tmpQ = q
+                    if (tmpQ.nonNullNoEmpty() && file.name.lowercase(locale)
+                            .contains(tmpQ.lowercase(locale))
                     ) {
                         files.add(
                             FileItem(

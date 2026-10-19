@@ -36,6 +36,7 @@ import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.AudioPlaylist
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
@@ -427,7 +428,7 @@ class AudiosFragment : BaseMvpFragment<AudiosPresenter, IAudiosView>(), IAudiosV
             if (albumId != null) {
                 args.putInt(Extra.ALBUM_ID, albumId)
             }
-            if (!access_key.isNullOrEmpty()) {
+            if (access_key.nonNullNoEmpty()) {
                 args.putString(Extra.ACCESS_KEY, access_key)
             }
             return args

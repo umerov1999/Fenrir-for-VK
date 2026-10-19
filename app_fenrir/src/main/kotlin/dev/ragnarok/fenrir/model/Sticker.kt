@@ -98,7 +98,7 @@ class Sticker : AbsModel {
     }
 
     val isAnimated: Boolean
-        get() = !animations.isNullOrEmpty() || animationUrl.nonNullNoEmpty()
+        get() = animations.nonNullNoEmpty() || animationUrl.nonNullNoEmpty()
 
     fun setImages(images: List<Image>?): Sticker {
         this.images = images

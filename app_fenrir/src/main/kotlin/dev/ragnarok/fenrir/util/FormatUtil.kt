@@ -8,13 +8,12 @@ import java.util.Date
 import java.util.Locale
 
 object FormatUtil {
-
     fun formatCommunityBanInfo(
         context: Context, adminId: Long, adminName: String?,
         endDate: Long, adminClickListener: OwnerLinkSpanFactory.ActionListener?
     ): CharSequence? {
         val endDateString: String = if (endDate == 0L) {
-            context.getString(R.string.forever).lowercase(Locale.getDefault())
+            context.getString(R.string.forever).lowercase(Utils.appLocale)
         } else {
             val date = Date(endDate * 1000)
             val formattedDate = DateFormat.getDateInstance().format(date)

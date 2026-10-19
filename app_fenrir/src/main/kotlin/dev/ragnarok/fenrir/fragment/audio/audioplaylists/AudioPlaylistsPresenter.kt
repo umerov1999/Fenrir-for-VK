@@ -16,6 +16,7 @@ import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.FindAtWithContent
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.isValueAssigned
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
@@ -217,8 +218,8 @@ class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstance
                 appendJob(
                     fInteractor.editPlaylist(
                         accountId, album.owner_id, album.id,
-                        root.findViewById<TextInputEditText>(R.id.edit_title).text.toString(),
-                        root.findViewById<TextInputEditText>(R.id.edit_description).text.toString()
+                        root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString(),
+                        root.findViewById<TextInputEditText>(R.id.edit_description).text?.toString()
                     ).fromIOToMain({ fireRefresh() }) { t ->
                         showError(t)
                     })
@@ -249,8 +250,8 @@ class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstance
                 appendJob(
                     fInteractor.createPlaylist(
                         accountId, owner_id,
-                        root.findViewById<TextInputEditText>(R.id.edit_title).text.toString(),
-                        root.findViewById<TextInputEditText>(R.id.edit_description).text.toString()
+                        root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString(),
+                        root.findViewById<TextInputEditText>(R.id.edit_description).text?.toString()
                     ).fromIOToMain({ playlist -> doInsertPlaylist(playlist) }) { t ->
                         showError(t)
                     })
@@ -365,27 +366,27 @@ class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstance
             return (safeCheck(
                 data.title
             ) {
-                data.title?.lowercase(Locale.getDefault())?.contains(
+                data.title?.lowercase(Utils.appLocale)?.contains(
                     q.lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             }
                     || safeCheck(
                 data.artist_name
             ) {
-                data.artist_name?.lowercase(Locale.getDefault())?.contains(
+                data.artist_name?.lowercase(Utils.appLocale)?.contains(
                     q.lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             }
                     || safeCheck(
                 data.getDescriptionOrSubtitle()
             ) {
-                data.getDescriptionOrSubtitle()?.lowercase(Locale.getDefault())?.contains(
+                data.getDescriptionOrSubtitle()?.lowercase(Utils.appLocale)?.contains(
                     q.lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             })

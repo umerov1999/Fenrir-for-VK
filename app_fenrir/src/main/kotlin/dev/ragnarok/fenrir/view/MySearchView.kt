@@ -131,7 +131,7 @@ class MySearchView : FrameLayout {
         mButtonAdditional = findViewById(R.id.additional)
         mInput?.addTextChangedListener(object : TextWatcherAdapter() {
             override fun afterTextChanged(s: Editable?) {
-                mOnQueryChangeListener?.onQueryTextChange(s.toString())
+                mOnQueryChangeListener?.onQueryTextChange(s?.toString())
                 resolveCloseButton()
             }
         })

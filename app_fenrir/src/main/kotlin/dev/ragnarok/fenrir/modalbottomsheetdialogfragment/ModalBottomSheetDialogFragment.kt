@@ -161,7 +161,7 @@ class ModalBottomSheetDialogFragment : BottomSheetDialogFragment() {
             val item = menu.getItem(i)
             val option = Option(
                 item.itemId,
-                if (item.title == null) "" else item.title.toString(),
+                item.title?.toString(),
                 item.icon,
                 false
             )

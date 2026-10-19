@@ -17,6 +17,7 @@ import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -46,11 +47,12 @@ class RequestExecutePresenter(accountId: Long, savedInstanceState: Bundle?) :
         }
         val params: MutableMap<String, String> = HashMap()
         if (trimmedBody.nonNullNoEmpty()) {
+            val locale = Utils.appLocale
             try {
                 val lines = trimmedBody.split(Regex("\\r?\\n")).toTypedArray()
                 for (line in lines) {
                     val parts = line.split(Regex("=>")).toTypedArray()
-                    val name = parts[0].lowercase(Locale.getDefault()).trim()
+                    val name = parts[0].lowercase(locale).trim()
                     var value = parts[1].trim()
                     value = value.replace("\"".toRegex(), "")
                     if ((name == "user_id" || name == "peer_id" || name == "peer_ids" || name == "owner_id") && (value.equals(
@@ -196,11 +198,11 @@ class RequestExecutePresenter(accountId: Long, savedInstanceState: Bundle?) :
     }
 
     fun fireMethodEdit(s: CharSequence?) {
-        method = s.toString()
+        method = s?.toString()
     }
 
     fun fireBodyEdit(s: CharSequence?) {
-        body = s.toString()
+        body = s?.toString()
     }
 
     fun fireCopyClick() {

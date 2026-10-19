@@ -406,7 +406,7 @@ class DocPreviewFragment : BaseFragment(), MenuProvider {
             args.putLong(Extra.ACCOUNT_ID, accountId)
             args.putInt(Extra.DOC_ID, docId)
             args.putLong(Extra.OWNER_ID, docOwnerId)
-            if (!accessKey.isNullOrEmpty()) {
+            if (accessKey.nonNullNoEmpty()) {
                 args.putString(Extra.ACCESS_KEY, accessKey)
             }
             if (document != null) {

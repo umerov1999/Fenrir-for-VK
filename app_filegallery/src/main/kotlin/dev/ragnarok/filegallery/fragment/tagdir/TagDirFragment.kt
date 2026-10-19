@@ -61,7 +61,7 @@ class TagDirFragment : BaseMvpFragment<TagDirPresenter, ITagDirView>(), ITagDirV
         mySearchView.setLeftIcon(R.drawable.magnify)
         mySearchView.setOnBackButtonClickListener(object : MySearchView.OnBackButtonClickListener {
             override fun onBackButtonClick() {
-                presenter?.doSearch(mySearchView.text.toString())
+                presenter?.doSearch(mySearchView.text?.toString())
             }
         })
         mySearchView.setOnQueryTextListener(object : MySearchView.OnQueryTextListener {

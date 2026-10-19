@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.util
 
+import dev.ragnarok.fenrir.nonNullNoEmpty
+
 /**
  * Helper class for join collections to strings
  */
@@ -22,7 +24,7 @@ object VKStringUtils {
 
     fun firstNonEmptyString(vararg array: String?): String? {
         for (s in array) {
-            if (!s.isNullOrEmpty()) {
+            if (s.nonNullNoEmpty()) {
                 return s
             }
         }

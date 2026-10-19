@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.model.wrappers.SelectablePhotoWrapper
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermissionSimple
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -59,8 +60,9 @@ class FileExistJVM : AbsFileExist {
                 configuration = kJson.configuration
             )
             reader.consumeNextToken(LexerMode.LIST.begin)
+            val locale = Utils.appLocale
             while (reader.canConsumeValue()) {
-                RemoteAudios.add(reader.consumeStringLenient().lowercase(Locale.getDefault()))
+                RemoteAudios.add(reader.consumeStringLenient().lowercase(locale))
                 reader.tryConsumeComma()
             }
             reader.consumeNextToken(LexerMode.LIST.end)
@@ -141,7 +143,7 @@ class FileExistJVM : AbsFileExist {
         if (!setBusy(true)) {
             return
         }
-        CachedAudios.add(file.lowercase(Locale.getDefault()))
+        CachedAudios.add(file.lowercase(Utils.appLocale))
         setBusy(false)
     }
 
@@ -149,7 +151,7 @@ class FileExistJVM : AbsFileExist {
         if (!setBusy(true)) {
             return
         }
-        CachedPhotos.add(file.lowercase(Locale.getDefault()))
+        CachedPhotos.add(file.lowercase(Utils.appLocale))
         setBusy(false)
     }
 
@@ -173,8 +175,9 @@ class FileExistJVM : AbsFileExist {
                 return@flow
             }
             CachedAudios.clear()
+            val locale = Utils.appLocale
             for (u in file_list) {
-                if (u.isFile) CachedAudios.add(u.name.lowercase(Locale.getDefault()))
+                if (u.isFile) CachedAudios.add(u.name.lowercase(locale))
             }
             setBusy(false)
             emit(true)
@@ -200,7 +203,7 @@ class FileExistJVM : AbsFileExist {
             if (isBusy) {
                 return false
             }
-            val res = file.lowercase(Locale.getDefault())
+            val res = file.lowercase(Utils.appLocale)
             if (RemoteAudios.nonNullNoEmpty()) {
                 for (i in RemoteAudios) {
                     if (i == res) {
@@ -217,7 +220,7 @@ class FileExistJVM : AbsFileExist {
             if (isBusy) {
                 return 0
             }
-            val res = file.lowercase(Locale.getDefault())
+            val res = file.lowercase(Utils.appLocale)
             if (CachedAudios.nonNullNoEmpty()) {
                 for (i in CachedAudios) {
                     if (i == res) {

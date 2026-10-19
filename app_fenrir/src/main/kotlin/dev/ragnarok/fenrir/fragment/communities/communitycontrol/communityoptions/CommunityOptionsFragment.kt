@@ -92,13 +92,13 @@ class CommunityOptionsFragment :
 
         root.findViewById<View>(R.id.button_save).setOnClickListener {
             presenter?.fireButtonSaveClick(
-                mName?.editableText.toString().trim(),
-                mDescription?.editableText.toString().trim(),
-                mAddress?.editableText.toString().trim(),
-                mWebsite?.editableText.toString().trim(),
+                mName?.text?.toString()?.trim(),
+                mDescription?.text?.toString()?.trim(),
+                mAddress?.text?.toString()?.trim(),
+                mWebsite?.text?.toString()?.trim(),
                 if (mObsceneFilter?.isChecked == true) 1 else 0,
                 if (mObsceneStopWords?.isChecked == true) 1 else 0,
-                mObsceneStopWordsEditText?.editableText.toString().trim()
+                mObsceneStopWordsEditText?.text?.toString()?.trim()
             )
         }
         return root

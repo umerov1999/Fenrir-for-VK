@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.domain
 
-import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
@@ -18,9 +18,9 @@ interface IFeedbackInteractor {
         accountId: Long,
         count: Int?,
         startFrom: Int?
-    ): Flow<FeedbackVKOfficialList>
+    ): Flow<List<FeedbackVKOfficial>>
 
-    fun getCachedFeedbacksOfficial(accountId: Long): Flow<FeedbackVKOfficialList>
+    fun getCachedFeedbacksOfficial(accountId: Long): Flow<List<FeedbackVKOfficial>>
     fun markAsViewed(accountId: Long): Flow<Boolean>
     fun hide(accountId: Long, query: String?): Flow<Boolean>
 }

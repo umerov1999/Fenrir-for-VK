@@ -7,6 +7,7 @@ import dev.ragnarok.filegallery.fragment.base.RxSupportPresenter
 import dev.ragnarok.filegallery.model.FileItemSelect
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.Objects.safeEquals
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -57,16 +58,16 @@ class FileManagerSelectPresenter(
         if (isLoading) {
             return
         }
-        val query = str?.trim()
+        var query: String? = str?.trim()
+        if (query.isNullOrEmpty()) {
+            query = null
+        }
         if (safeEquals(query, this.q)) {
             return
         }
-        q = if (query.isNullOrEmpty()) {
-            null
-        } else {
-            query
-        }
-        if (q == null) {
+        q = query
+        val locale = Utils.appLocale
+        if (query == null) {
             fileListSearch.clear()
             view?.resolveEmptyText(fileList.isEmpty())
             view?.displayData(fileList)
@@ -77,15 +78,15 @@ class FileManagerSelectPresenter(
                 if (i.file_name.isNullOrEmpty()) {
                     continue
                 }
-                if (i.file_name.lowercase(Locale.getDefault())
-                        .contains(q?.lowercase(Locale.getDefault()).toString())
+                if (i.file_name.lowercase(locale)
+                        .contains(query.lowercase(locale))
                 ) {
                     fileListSearch.add(i)
                 }
             }
             view?.resolveEmptyText(fileListSearch.isEmpty())
             view?.displayData(fileListSearch)
-            view?.updatePathString(q ?: return)
+            view?.updatePathString(query)
         }
     }
 

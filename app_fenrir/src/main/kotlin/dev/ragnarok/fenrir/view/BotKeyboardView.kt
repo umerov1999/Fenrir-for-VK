@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.Keyboard
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.toColor
@@ -105,7 +106,7 @@ class BotKeyboardView : NestedScrollView {
         container?.removeAllViews()
         buttonViews.clear()
         scrollTo(0, 0)
-        if (!buttons.isNullOrEmpty()) {
+        if (buttons.nonNullNoEmpty()) {
             buttonHeight = if (!isFullSize) 42 else 42f.coerceAtLeast(
                 (panelHeight - Utils.dp(30f) - (botButtons?.size.orZero() - 1) * Utils.dp(10f)).toFloat() / (botButtons?.size
                     ?: 1) / Utils.density

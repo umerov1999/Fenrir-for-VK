@@ -32,6 +32,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.AppTextUtils
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import java.util.Locale
 
@@ -210,7 +211,7 @@ class CommentContainer : LinearLayout {
         if (comment.replyToUser == 0L) {
             return SpannableStringBuilder(time)
         }
-        val commentText = context.getString(R.string.comment).lowercase(Locale.getDefault())
+        val commentText = context.getString(R.string.comment).lowercase(Utils.appLocale)
         val target = context.getString(R.string.in_response_to, time, commentText)
         val start = target.indexOf(commentText)
         val spannable = SpannableStringBuilder(target)

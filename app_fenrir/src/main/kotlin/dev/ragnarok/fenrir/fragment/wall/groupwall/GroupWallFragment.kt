@@ -524,9 +524,9 @@ class GroupWallFragment : AbsWallFragment<IGroupWallView, GroupWallPresenter>(),
                 .setPositiveButton(R.string.button_ok) { _, _ ->
                     try {
                         val access_token =
-                            root.findViewById<TextInputEditText>(R.id.edit_access_token).text.toString()
-                                .trim()
-                        if (access_token.isNotEmpty()) {
+                            root.findViewById<TextInputEditText>(R.id.edit_access_token).text?.toString()
+                                ?.trim()
+                        if (access_token.nonNullNoEmpty()) {
                             val res = Bundle()
                             res.putString(Extra.TOKEN, access_token)
                             parentFragmentManager.setFragmentResult(

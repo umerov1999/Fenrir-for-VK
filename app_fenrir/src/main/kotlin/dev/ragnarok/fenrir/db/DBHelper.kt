@@ -85,7 +85,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
     override fun onCreate(db: SQLiteDatabase) {
         createUsersTable(db)
         createMessagesTable(db)
-        createAttachmentsTable(db)
+        createMessagesAttachmentsTable(db)
         createDialogTable(db)
         createPeersTable(db)
         createPhotoTable(db)
@@ -234,7 +234,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
         db.execSQL(sql)
     }
 
-    private fun createAttachmentsTable(db: SQLiteDatabase) {
+    private fun createMessagesAttachmentsTable(db: SQLiteDatabase) {
         val sql = "CREATE TABLE [" + MessagesAttachmentsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 " [" + MessagesAttachmentsColumns.M_ID + "] INTEGER, " +

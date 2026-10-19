@@ -30,11 +30,7 @@ class LocalPhoto : Parcelable, Comparable<LocalPhoto>, ISelectable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeLong(imageId)
-        if (fullImageUri == null) {
-            dest.writeString("null")
-        } else {
-            dest.writeString(fullImageUri.toString())
-        }
+        dest.writeString(fullImageUri?.toString())
         dest.putBoolean(selected)
         dest.writeInt(index)
     }

@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Translit.cyr2lat
 import dev.ragnarok.fenrir.util.Translit.lat2cyr
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
@@ -348,9 +349,9 @@ class CommunitiesPresenter(accountId: Long, private val userId: Long, savedInsta
             if (filter.trimmedIsNullOrEmpty()) {
                 return true
             }
-            val lower = filter.lowercase(Locale.getDefault()).trim()
+            val lower = filter.lowercase(Utils.appLocale).trim()
             community.fullName.nonNullNoEmpty {
-                val lowername = it.lowercase(Locale.getDefault())
+                val lowername = it.lowercase(Utils.appLocale)
                 if (lowername.contains(lower)) {
                     return true
                 }
@@ -370,7 +371,7 @@ class CommunitiesPresenter(accountId: Long, private val userId: Long, savedInsta
                 } catch (_: Exception) {
                 }
             }
-            return community.domain.nonNullNoEmpty() && community.domain?.lowercase(Locale.getDefault())
+            return community.domain.nonNullNoEmpty() && community.domain?.lowercase(Utils.appLocale)
                 ?.contains(lower) == true
         }
 

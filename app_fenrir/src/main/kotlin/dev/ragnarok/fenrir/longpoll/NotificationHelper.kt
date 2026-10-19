@@ -225,7 +225,7 @@ object NotificationHelper {
             )
         }
         if (message.attachments?.hasAttachments == true) {
-            messageText += if (!message.attachments?.stickers.isNullOrEmpty()) " " + context.getString(
+            messageText += if (message.attachments?.stickers.nonNullNoEmpty()) " " + context.getString(
                 R.string.notif_sticker
             ) else if (!message.attachments?.voiceMessages
                     .isNullOrEmpty()
@@ -594,8 +594,7 @@ object NotificationHelper {
         accountId: Long
     ) {
         try {
-            val person_name =
-                if (person.name != null) person.name.toString() else context.getString(R.string.error)
+            val person_name = person.name ?: context.getString(R.string.error)
             val id = "fenrir_peer_" + peer.id + "_aid_" + accountId
             val shortcutBuilder = ShortcutInfoCompat.Builder(context, id)
                 .setShortLabel(person_name.trim())

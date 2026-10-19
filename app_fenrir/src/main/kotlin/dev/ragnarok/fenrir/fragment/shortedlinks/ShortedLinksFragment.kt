@@ -27,6 +27,7 @@ import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.ShortLink
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.settings.Settings
@@ -75,8 +76,8 @@ class ShortedLinksFragment : BaseMvpFragment<ShortedLinksPresenter, IShortedLink
         do_Validate?.isEnabled = false
         mLink?.addTextChangedListener(object : TextWatcherAdapter() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                do_Validate?.isEnabled = !s.isNullOrEmpty()
-                do_Short?.isEnabled = !s.isNullOrEmpty()
+                do_Validate?.isEnabled = s.nonNullNoEmpty()
+                do_Short?.isEnabled = s.nonNullNoEmpty()
                 presenter?.fireInputEdit(
                     s
                 )

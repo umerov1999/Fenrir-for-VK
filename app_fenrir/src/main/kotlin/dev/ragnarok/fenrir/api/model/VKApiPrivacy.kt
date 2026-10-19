@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.PrivacyDtoAdapter
 import dev.ragnarok.fenrir.api.util.VKStringUtils.join
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import kotlinx.serialization.Serializable
 
 @Serializable(with = PrivacyDtoAdapter::class)
@@ -17,7 +18,7 @@ class VKApiPrivacy(var category: String?) {
         val typeValue = category
         val entriesLine = join(", ", entries)
         val option = ArrayList<String?>()
-        if (!typeValue.isNullOrEmpty()) {
+        if (typeValue.nonNullNoEmpty()) {
             option.add(typeValue)
         }
         if (entriesLine.isNotEmpty()) {

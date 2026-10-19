@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.AppChatUser
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import java.util.Locale
 
@@ -32,12 +33,13 @@ class ChatUsersDomainPresenter(
             view?.notifyDataSetChanged()
             return
         }
+        val locale = Utils.appLocale
         for (i in original) {
             val user = i.member
-            if (query?.lowercase(Locale.getDefault())?.let {
-                    user?.fullName?.lowercase(Locale.getDefault())?.contains(it)
-                } == true || query?.lowercase(Locale.getDefault())?.let {
-                    user?.domain?.lowercase(Locale.getDefault())?.contains(
+            if (query?.lowercase(locale)?.let {
+                    user?.fullName?.lowercase(locale)?.contains(it)
+                } == true || query?.lowercase(locale)?.let {
+                    user?.domain?.lowercase(locale)?.contains(
                         it
                     )
                 } == true

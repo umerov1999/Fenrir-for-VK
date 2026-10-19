@@ -34,7 +34,7 @@ class PushRegistrationResolver(
         val can = available != null && available.userId == accountId
         d(
             TAG, "canReceivePushNotification, reason: " + can.toString()
-                .uppercase(Locale.getDefault())
+                .uppercase(Utils.appLocale)
         )
         return can
     }

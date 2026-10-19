@@ -84,8 +84,9 @@ class WallPostQueryAttachmentsPresenter(
 
     private fun doCompare(data: String?, str: List<String>): Boolean {
         data ?: return false
+        val locale = Utils.appLocale
         for (i in str) {
-            if (data.lowercase(Locale.getDefault()).contains(i)) {
+            if (data.lowercase(locale).contains(i)) {
                 return true
             }
         }
@@ -237,8 +238,9 @@ class WallPostQueryAttachmentsPresenter(
             2
         )
         val str = (Query ?: return).split(Regex("\\|")).toTypedArray()
+        val locale = Utils.appLocale
         for (i in str.indices) {
-            str[i] = str[i].trim().lowercase(Locale.getDefault())
+            str[i] = str[i].trim().lowercase(locale)
         }
         val ids: MutableList<Long> = ArrayList()
         for (cc in str) {

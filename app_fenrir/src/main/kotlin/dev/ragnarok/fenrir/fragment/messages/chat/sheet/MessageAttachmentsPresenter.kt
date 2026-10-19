@@ -213,7 +213,7 @@ class MessageAttachmentsPresenter(
         photos: ArrayList<Photo>?,
         localPhotos: ArrayList<LocalPhoto>?,
         file: String?,
-        video: LocalVideo?
+        videoUri: Uri?
     ) {
         when {
             file.nonNullNoEmpty() -> doUploadFile(context, file)
@@ -225,8 +225,8 @@ class MessageAttachmentsPresenter(
                 doUploadPhotos(localPhotos)
             }
 
-            video != null -> {
-                doUploadVideo(video.data.toString())
+            videoUri != null -> {
+                doUploadVideo(videoUri.toString())
             }
         }
     }

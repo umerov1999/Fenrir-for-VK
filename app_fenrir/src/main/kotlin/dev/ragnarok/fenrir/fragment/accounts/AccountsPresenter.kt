@@ -516,10 +516,10 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             root.put("last_access_token", Settings.get().accounts().getAccessToken(user_id))
             val login = Settings.get().accounts().getLogin(user_id)
             val device = Settings.get().accounts().getDevice(user_id)
-            if (!login.isNullOrEmpty()) {
+            if (login.nonNullNoEmpty()) {
                 root.put("login", login)
             }
-            if (!device.isNullOrEmpty()) {
+            if (device.nonNullNoEmpty()) {
                 root.put("device", device)
             }
             val bytes = kJsonPretty.printJsonElement(root.build()).toByteArray(
@@ -849,10 +849,10 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                 temp.put("avatar", owner?.maxSquareAvatar)
                 val login = Settings.get().accounts().getLogin(i)
                 val device = Settings.get().accounts().getDevice(i)
-                if (!login.isNullOrEmpty()) {
+                if (login.nonNullNoEmpty()) {
                     temp.put("login", login)
                 }
-                if (!device.isNullOrEmpty()) {
+                if (device.nonNullNoEmpty()) {
                     temp.put("device", device)
                 }
                 arr.add(temp.build())

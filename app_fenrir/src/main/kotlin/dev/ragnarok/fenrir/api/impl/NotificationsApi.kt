@@ -7,8 +7,9 @@ import dev.ragnarok.fenrir.api.interfaces.INotificationsApi
 import dev.ragnarok.fenrir.api.model.feedback.VKApiBaseFeedback
 import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
 import dev.ragnarok.fenrir.api.services.INotificationsService
-import dev.ragnarok.fenrir.model.FeedbackVKOfficialList
+import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.requireNonNull
+import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -54,15 +55,17 @@ internal class NotificationsApi(accountId: Long, provider: IServiceProvider) :
     override fun getOfficial(
         count: Int?,
         startFrom: Int?
-    ): Flow<FeedbackVKOfficialList> {
+    ): Flow<List<FeedbackVKOfficial>> {
         return provideService(INotificationsService(), TokenType.USER)
             .flatMapConcat {
                 it.getOfficial(
                     count,
                     startFrom,
                     FIELDS_BASE_OWNER
-                )
-                    .map(extractResponseWithErrorHandling())
+                ).map(extractResponseWithErrorHandling())
+                    .map { dto ->
+                        listEmptyIfNull(dto.items)
+                    }
             }
     }
 

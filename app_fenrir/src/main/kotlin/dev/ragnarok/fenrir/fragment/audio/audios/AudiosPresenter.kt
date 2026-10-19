@@ -21,6 +21,7 @@ import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.FindAtWithContent
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.HelperSimple.hasHelp
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -321,8 +322,8 @@ class AudiosPresenter(
                         accountId,
                         audio.ownerId,
                         audio.id,
-                        root.findViewById<TextInputEditText>(R.id.edit_artist).text.toString(),
-                        root.findViewById<TextInputEditText>(R.id.edit_title).text.toString()
+                        root.findViewById<TextInputEditText>(R.id.edit_artist).text?.toString(),
+                        root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()
                     ).fromIOToMain({ fireRefresh() }) { t ->
                         showError(t)
                     })
@@ -420,9 +421,10 @@ class AudiosPresenter(
             if (data.isNullOrEmpty()) {
                 return false
             }
+            val locale = Utils.appLocale
             for (i in data.values) {
-                if (i.lowercase(Locale.getDefault())
-                        .contains(q.lowercase(Locale.getDefault()))
+                if (i.lowercase(locale)
+                        .contains(q.lowercase(locale))
                 ) {
                     return true
                 }
@@ -435,9 +437,9 @@ class AudiosPresenter(
             return r.size >= 2 && (safeCheck(
                 data.artist
             ) {
-                data.artist?.lowercase(Locale.getDefault())?.contains(
+                data.artist?.lowercase(Utils.appLocale)?.contains(
                     r[0].lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             }
@@ -447,9 +449,9 @@ class AudiosPresenter(
             )) && safeCheck(
                 data.title
             ) {
-                data.title?.lowercase(Locale.getDefault())?.contains(
+                data.title?.lowercase(Utils.appLocale)?.contains(
                     r[1].lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             }
@@ -461,15 +463,15 @@ class AudiosPresenter(
             } else safeCheck(
                 data.title
             ) {
-                data.title?.lowercase(Locale.getDefault())
-                    ?.contains(q.lowercase(Locale.getDefault())) == true
+                data.title?.lowercase(Utils.appLocale)
+                    ?.contains(q.lowercase(Utils.appLocale)) == true
             }
                     || safeCheck(
                 data.artist
             ) {
-                data.artist?.lowercase(Locale.getDefault())?.contains(
+                data.artist?.lowercase(Utils.appLocale)?.contains(
                     q.lowercase(
-                        Locale.getDefault()
+                        Utils.appLocale
                     )
                 ) == true
             }

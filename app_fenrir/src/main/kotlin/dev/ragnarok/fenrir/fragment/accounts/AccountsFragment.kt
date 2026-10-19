@@ -589,7 +589,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                         .setPositiveButton(R.string.button_ok) { _, _ ->
                             Settings.get().accounts().storeDevice(
                                 account.getOwnerObjectId(),
-                                root.findViewById<TextInputEditText>(R.id.editText).editableText.toString()
+                                root.findViewById<TextInputEditText>(R.id.editText).text?.toString()?.trim()
                             )
                             Includes.proxySettings.broadcastUpdate(null)
                         }
@@ -663,8 +663,8 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                 .setPositiveButton(R.string.button_ok) { _, _ ->
                     try {
                         val access_token =
-                            root.findViewById<TextInputEditText>(R.id.edit_access_token).text.toString()
-                                .trim()
+                            root.findViewById<TextInputEditText>(R.id.edit_access_token).text?.toString()
+                                ?.trim()
                         val types = intArrayOf(
                             AccountType.VK_ANDROID,
                             AccountType.KATE,
@@ -672,7 +672,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                             AccountType.KATE_HIDDEN,
                             AccountType.IOS_HIDDEN
                         )
-                        if (access_token.isNotEmpty() && selectedItem >= 0 && selectedItem < types.size) {
+                        if (access_token.nonNullNoEmpty() && selectedItem >= 0 && selectedItem < types.size) {
                             val res = Bundle()
                             res.putString(Extra.TOKEN, access_token)
                             res.putInt(Extra.TYPE, types[selectedItem])

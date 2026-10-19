@@ -81,6 +81,12 @@
         <item>Всё видео в постах (расходует трафик, высокая нагрузка)</item>
     </string-array>
 
+    <string-array name="array_autoscroll_in_chats_names">
+        <item>Выключить.</item>
+        <item>Везде</item>
+        <item>Только беседы</item>
+    </string-array>
+
     <string-array name="array_accounts_input">
         <item>VK Android</item>
         <item>Kate</item>
@@ -90,6 +96,7 @@
     </string-array>
 
     <string-array name="array_sex">
+        <item>Не задан</item>
         <item>Женский</item>
         <item>Мужской</item>
     </string-array>
@@ -1700,4 +1707,6 @@
     <string name="auth_validate_callreset_help">Вам сейчас позвонят на %1$s и продиктуют код авторизации (длина: %2$d)</string>
     <string name="auth_validate_codegen_help">Воспользуйтесь кодом из приложения генерации кодов авторизации</string>
     <string name="call_reset_description">Последние %1$d цифры звонка</string>
+    <string name="autoscroll_to_unread_message_in_chats">Автопрокрутка к непрочитанному сообщению</string>
+    <string name="scroll_to_beginning_when_sent_in_chats">Прокручивать к началу после отправки</string>
 </resources>

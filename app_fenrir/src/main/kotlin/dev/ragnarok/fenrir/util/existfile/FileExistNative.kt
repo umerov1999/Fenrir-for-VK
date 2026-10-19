@@ -8,6 +8,7 @@ import dev.ragnarok.fenrir.module.FileUtils
 import dev.ragnarok.fenrir.module.StringExist
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermissionSimple
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -41,8 +42,9 @@ class FileExistNative : AbsFileExist {
             configuration = kJson.configuration
         )
         reader.consumeNextToken(LexerMode.LIST.begin)
+        val locale = Utils.appLocale
         while (reader.canConsumeValue()) {
-            RemoteAudios.insert(reader.consumeStringLenient().lowercase(Locale.getDefault()))
+            RemoteAudios.insert(reader.consumeStringLenient().lowercase(locale))
             reader.tryConsumeComma()
         }
         reader.consumeNextToken(LexerMode.LIST.end)
@@ -80,11 +82,11 @@ class FileExistNative : AbsFileExist {
     }
 
     override fun addAudio(file: String) {
-        CachedAudios.insert(file.lowercase(Locale.getDefault()))
+        CachedAudios.insert(file.lowercase(Utils.appLocale))
     }
 
     override fun addPhoto(file: String) {
-        CachedPhotos.insert(file.lowercase(Locale.getDefault()))
+        CachedPhotos.insert(file.lowercase(Utils.appLocale))
     }
 
     override fun findAllAudios(context: Context): Flow<Boolean> {
@@ -101,8 +103,9 @@ class FileExistNative : AbsFileExist {
                 return@flow
             }
             CachedAudios.clear()
+            val locale = Utils.appLocale
             for (u in file_list) {
-                if (u.isFile) CachedAudios.insert(u.name.lowercase(Locale.getDefault()))
+                if (u.isFile) CachedAudios.insert(u.name.lowercase(locale))
             }
             emit(true)
         }
@@ -118,11 +121,11 @@ class FileExistNative : AbsFileExist {
     }
 
     override fun isExistRemoteAudio(file: String): Boolean {
-        return RemoteAudios.has(file.lowercase(Locale.getDefault()))
+        return RemoteAudios.has(file.lowercase(Utils.appLocale))
     }
 
     override fun isExistAllAudio(file: String): Int {
-        val res = file.lowercase(Locale.getDefault())
+        val res = file.lowercase(Utils.appLocale)
         if (CachedAudios.has(res)) {
             return 1
         }

@@ -97,7 +97,7 @@ class DocLink(val attachment: AbsModel) {
                 title = (attachment as Link).title
                 if (title.isNullOrEmpty()) {
                     title = "[" + context.getString(R.string.attachment_link)
-                        .lowercase(Locale.getDefault()) + "]"
+                        .lowercase(Utils.appLocale) + "]"
                 }
                 return title
             }
