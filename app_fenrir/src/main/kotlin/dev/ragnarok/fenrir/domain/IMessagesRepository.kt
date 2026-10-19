@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.Dialog
-import dev.ragnarok.fenrir.model.Keyboard
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.MessageUpdate
 import dev.ragnarok.fenrir.model.Peer
@@ -69,9 +68,9 @@ interface IMessagesRepository {
     fun observeMessageUpdates(): SharedFlow<MessageUpdate>
     fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInDialog>>
     fun observePeerDeleting(): SharedFlow<PeerDeleting>
-    fun getConversationSingle(accountId: Long, peerId: Long, mode: Mode): Flow<Conversation>
-    fun getConversation(accountId: Long, peerId: Long, mode: Mode): Flow<Conversation>
-    fun edit(
+    fun getConversationByIdSingle(accountId: Long, peerId: Long, mode: Mode): Flow<Conversation>
+    fun getConversationById(accountId: Long, peerId: Long, mode: Mode): Flow<Conversation>
+    fun editMessage(
         accountId: Long,
         message: Message,
         text: String?,
@@ -96,7 +95,7 @@ interface IMessagesRepository {
      * @param accountId идентификатор аккаунта
      * @return диалоги
      */
-    fun getCachedDialogs(accountId: Long): Flow<List<Dialog>>
+    fun getCachedConversations(accountId: Long): Flow<List<Dialog>>
     fun getMessagesFromLocalJSon(
         accountId: Long,
         context: Context
@@ -146,8 +145,14 @@ interface IMessagesRepository {
         offset: Int?,
     ): Flow<List<Message>>
 
-    fun getDialogs(accountId: Long, count: Int, startPeerId: Long?, startCmId: Int?): Flow<List<Dialog>>
-    fun insertDialog(accountId: Long, dialog: Dialog): Flow<Boolean>
+    fun getConversations(
+        accountId: Long,
+        count: Int,
+        startPeerId: Long?,
+        startCmId: Int?
+    ): Flow<List<Dialog>>
+
+    fun insertConversation(accountId: Long, dialog: Dialog): Flow<Boolean>
     fun findCachedMessages(accountId: Long, cmIds: List<Pair<Long, Int>>): Flow<List<Message>>
     fun put(builder: SaveMessageBuilder): Flow<Message>
     fun sendUnsentMessage(accountIds: Collection<Long>): Flow<SentMsg>
@@ -176,13 +181,13 @@ interface IMessagesRepository {
     fun removeChatMember(accountId: Long, chatId: Long, userId: Long): Flow<Boolean>
     fun addChatUsers(accountId: Long, chatId: Long, users: List<User>): Flow<List<AppChatUser>>
     fun deleteChatPhoto(accountId: Long, chatId: Long): Flow<Boolean>
-    fun deleteDialog(accountId: Long, peedId: Long): Flow<Boolean>
+    fun deleteConversation(accountId: Long, peedId: Long): Flow<Boolean>
     fun deleteMessages(
         accountId: Long,
         peerId: Long,
-        ids: Collection<Int>,
-        forAll: Boolean,
-        spam: Boolean
+        cmIds: Collection<Int>,
+        deleteForAll: Boolean,
+        spam: Boolean?
     ): Flow<Boolean>
 
     fun restoreMessage(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean>
@@ -190,9 +195,9 @@ interface IMessagesRepository {
     fun createGroupChat(accountId: Long, users: Collection<Long>, title: String?): Flow<Long>
     fun recogniseAudioMessage(
         accountId: Long,
-        peerId: Long?,
-        cmId: Int?,
-        audioMessageId: String?
+        audioMessageId: String?,
+        cmId: Int,
+        peerId: Long
     ): Flow<Int>
 
     fun setMemberRole(
@@ -202,7 +207,7 @@ interface IMessagesRepository {
         isAdmin: Boolean
     ): Flow<Boolean>
 
-    fun markAsRead(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean>
+    fun markAsRead(accountId: Long, peerId: Long, startMessageId: Int): Flow<Boolean>
     fun markAsImportant(
         accountId: Long,
         peerId: Long,
@@ -210,7 +215,7 @@ interface IMessagesRepository {
         important: Int?
     ): Flow<Boolean>
 
-    fun pin(accountId: Long, peerId: Long, message: Message?): Flow<Boolean>
+    fun pinMessage(accountId: Long, peerId: Long, message: Message?): Flow<Boolean>
     fun pinUnPinConversation(accountId: Long, peerId: Long, pin: Boolean): Flow<Boolean>
     fun markAsListened(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean>
     fun sendOrDeleteReaction(

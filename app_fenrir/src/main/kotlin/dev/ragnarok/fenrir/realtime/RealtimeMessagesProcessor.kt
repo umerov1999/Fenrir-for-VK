@@ -229,7 +229,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                 completable = completable.andThen(
                     networker.vkDefault(result.accountId)
                         .messages()
-                        .getById(key, values)
+                        .getByConversationMessageId(key, values)
                         .map {
                             result.appendDtos(it)
                             true

@@ -15,7 +15,6 @@ import dev.ragnarok.fenrir.api.model.response.ConversationMembersResponse
 import dev.ragnarok.fenrir.api.model.response.ConversationsResponse
 import dev.ragnarok.fenrir.api.model.response.DialogsResponse
 import dev.ragnarok.fenrir.api.model.response.ItemsProfilesGroupsResponse
-import dev.ragnarok.fenrir.api.model.response.LongpollHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.MessageDeleteResponse
 import dev.ragnarok.fenrir.api.model.response.MessageHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
@@ -47,14 +46,14 @@ class IMessageService : IServiceRest() {
         )
     }
 
-    fun pin(
+    fun pinMessage(
         peerId: Long,
-        messageId: Int
+        cmId: Int
     ): Flow<BaseResponse<VKApiMessage>> {
         return rest.request(
             "messages.pin", form(
                 "peer_id" to peerId,
-                "message_id" to messageId
+                "cmid" to cmId
             ), base(VKApiMessage.serializer())
         )
     }
@@ -67,11 +66,11 @@ class IMessageService : IServiceRest() {
         return rest.request("messages.unpinConversation", form("peer_id" to peerId), baseInt)
     }
 
-    fun markAsListened(message_id: Int): Flow<BaseResponse<Int>> {
-        return rest.request("messages.markAsListened", form("message_id" to message_id), baseInt)
+    fun markAsListened(peerId: Long, cmId: Int): Flow<BaseResponse<Int>> {
+        return rest.request("messages.markAsListened", form("peer_id" to peerId, "cmid" to cmId), baseInt)
     }
 
-    fun unpin(peerId: Long): Flow<BaseResponse<Int>> {
+    fun unpinMessage(peerId: Long): Flow<BaseResponse<Int>> {
         return rest.request("messages.unpin", form("peer_id" to peerId), baseInt)
     }
 
@@ -154,13 +153,13 @@ class IMessageService : IServiceRest() {
     }
 
     fun getConversationMembers(
-        peer_id: Long?,
+        peerId: Long?,
         fields: String?
     ): Flow<BaseResponse<ConversationMembersResponse>> {
         return rest.request(
             "messages.getConversationMembers",
             form(
-                "peer_id" to peer_id,
+                "peer_id" to peerId,
                 "fields" to fields
             ),
             base(ConversationMembersResponse.serializer())
@@ -211,7 +210,7 @@ class IMessageService : IServiceRest() {
      * @param peerId Destination ID.
      * @return 1
      */
-    fun deleteDialog(peerId: Long): Flow<BaseResponse<ConversationDeleteResult>> {
+    fun deleteConversation(peerId: Long): Flow<BaseResponse<ConversationDeleteResult>> {
         return rest.request(
             "messages.deleteConversation",
             form("peer_id" to peerId),
@@ -222,29 +221,33 @@ class IMessageService : IServiceRest() {
     /**
      * Restores a deleted message.
      *
-     * @param messageId ID of a previously-deleted message to restore
+     * @param peerId Peer ID.
+     * @param cmId ID of a previously-deleted message to restore
      * @return 1
      */
-    fun restore(messageId: Int): Flow<BaseResponse<Int>> {
-        return rest.request("messages.restore", form("message_id" to messageId), baseInt)
+    fun restoreMessage(peerId: Long, cmId: Int): Flow<BaseResponse<Int>> {
+        return rest.request("messages.restore", form("peer_id" to peerId, "cmid" to cmId), baseInt)
     }
 
     /**
      * Deletes one or more messages.
      *
-     * @param messageIds Message IDs. List of comma-separated positive numbers
+     * @param peerId Peer ID.
+     * @param cmIds Conversations Message IDs. List of comma-separated positive numbers
      * @param spam       1 — to mark message as spam.
      * @return 1
      */
-    fun delete(
-        messageIds: String?,
+    fun deleteMessages(
+        peerId: Long,
+        cmIds: String?,
         deleteForAll: Int?,
         spam: Int?
     ): Flow<BaseResponse<List<MessageDeleteResponse>>> {
         return rest.request(
             "messages.delete",
             form(
-                "message_ids" to messageIds,
+                "peer_id" to peerId,
+                "cmids" to cmIds,
                 "delete_for_all" to deleteForAll,
                 "spam" to spam
             ),
@@ -256,12 +259,12 @@ class IMessageService : IServiceRest() {
      * Marks messages as read.
      *
      * @param peerId         Destination ID.
-     * @param startMessageId Message ID to start from
+     * @param startMessageId(replace up_to_cmid) Message ID to start from
      * @return 1
      */
     fun markAsRead(
-        peerId: Long?,
-        startMessageId: Int?
+        peerId: Long,
+        startMessageId: Int
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "messages.markAsRead", form(
@@ -271,6 +274,13 @@ class IMessageService : IServiceRest() {
         )
     }
 
+    /**
+     * Marks messages as important.
+     *
+     * @param messageIds         Messages Ids.
+     * @param important 1 - add, 0 - del
+     * @return 1
+     */
     fun markAsImportant(
         messageIds: String?,
         important: Int?
@@ -308,18 +318,16 @@ class IMessageService : IServiceRest() {
      * @param query         Search query string
      * @param peerId        Destination ID
      * @param date          Date to search message before in Unixtime
-     * @param previewLength Number of characters after which to truncate a previewed message.
      * To preview the full message, specify 0
      * NOTE: Messages are not truncated by default. Messages are truncated by words
      * @param offset        Offset needed to return a specific subset of messages.
      * @param count         Number of messages to return
      * @return list of the current user's private messages
      */
-    fun search(
+    fun searchMessages(
         query: String?,
         peerId: Long?,
         date: String?,
-        previewLength: Int?,
         offset: Int?,
         count: Int?
     ): Flow<BaseResponse<Items<VKApiMessage>>> {
@@ -328,62 +336,9 @@ class IMessageService : IServiceRest() {
                 "q" to query,
                 "peer_id" to peerId,
                 "date" to date,
-                "preview_length" to previewLength,
                 "offset" to offset,
                 "count" to count
             ), items(VKApiMessage.serializer())
-        )
-    }
-
-    /**
-     * Returns updates in user's private messages.
-     * To speed up handling of private messages, it can be useful to cache previously loaded messages
-     * on a user's mobile device/desktop, to prevent re-receipt at each call.
-     * With this method, you can synchronize a local copy of the message list with the actual version.
-     *
-     * @param ts            Last value of the ts parameter returned from the Long Poll server or by using
-     * @param pts           Last value of pts parameter returned from the Long Poll server or by using
-     * @param previewLength Number of characters after which to truncate a previewed message.
-     * To preview the full message, specify 0.
-     * NOTE: Messages are not truncated by default. Messages are truncated by words.
-     * @param onlines       1 — to return history with online users only
-     * @param fields        Additional profile fileds to return. List of comma-separated words, default
-     * @param eventsLimit   Maximum number of events to return.
-     * @param msgsLimit     Maximum number of messages to return.
-     * @param maxMsgId      Maximum ID of the message among existing ones in the local copy.
-     * Both messages received with API methods (for example, messages.getDialogs, messages.getHistory),
-     * and data received from a Long Poll server (events with code 4) are taken into account.
-     * @return an object that contains the following fields:
-     * history — An array similar to updates field returned from the Long Poll server, with these exceptions:
-     * For events with code 4 (addition of a new message), there are no fields except the first three.
-     * There are no events with codes 8, 9 (friend goes online/offline) or with codes 61, 62 (typing during conversation/chat).
-     * messages — An array of private message objects that were found among events with code 4
-     * (addition of a new message) from the history field. Each object of message contains a set
-     * of fields described here. The first array element is the total number of messages.
-     */
-    fun getLongPollHistory(
-        ts: Long?,
-        pts: Long?,
-        previewLength: Int?,
-        onlines: Int?,
-        fields: String?,
-        eventsLimit: Int?,
-        msgsLimit: Int?,
-        maxMsgId: Int?
-    ): Flow<BaseResponse<LongpollHistoryResponse>> {
-        return rest.request(
-            "messages.getLongPollHistory",
-            form(
-                "ts" to ts,
-                "pts" to pts,
-                "preview_length" to previewLength,
-                "onlines" to onlines,
-                "fields" to fields,
-                "events_limit" to eventsLimit,
-                "msgs_limit" to msgsLimit,
-                "max_msg_id" to maxMsgId
-            ),
-            base(LongpollHistoryResponse.serializer())
         )
     }
 
@@ -392,7 +347,7 @@ class IMessageService : IServiceRest() {
      *
      * @param peerId     Peer ID.
      * @param mediaType  Type of media files to return: photo, video, audio, doc, link.
-     * @param startFrom  Message ID to start return results from.
+     * @param startFrom  String to start return results from.
      * @param count      Number of objects to return. Maximum value 200, default 30
      * @param photoSizes 1 — to return photo sizes in a special format
      * @param fields     Additional profile fields to return
@@ -405,8 +360,8 @@ class IMessageService : IServiceRest() {
         startFrom: String?,
         count: Int?,
         photoSizes: Int?,
-        preserve_order: Int?,
-        max_forwards_level: Int?,
+        preserveOrder: Int?,
+        maxForwardsLevel: Int?,
         fields: String?
     ): Flow<BaseResponse<AttachmentsHistoryResponse>> {
         return rest.request(
@@ -418,8 +373,8 @@ class IMessageService : IServiceRest() {
                 "count" to count,
                 "photo_sizes" to photoSizes,
                 "fields" to fields,
-                "preserve_order" to preserve_order,
-                "max_forwards_level" to max_forwards_level
+                "preserve_order" to preserveOrder,
+                "max_forwards_level" to maxForwardsLevel
             ),
             base(AttachmentsHistoryResponse.serializer())
         )
@@ -436,7 +391,7 @@ class IMessageService : IServiceRest() {
      * @param longitude       Geographical longitude of a check-in, in degrees (from -180 to 180).
      * @param attachment      (Required if message is not set.) List of objects attached to the message,
      * separated by commas, in the following format: {type}{owner_id}_{media_id}_{access_key}
-     * @param forwardMessages ID of forwarded messages, separated with a comma.
+     * @param forward         json content of forwarding.
      * Listed messages of the sender will be shown in the message body at the recipient's.
      * @param stickerId       Sticker id
      * @return sent message ID.
@@ -449,10 +404,9 @@ class IMessageService : IServiceRest() {
         latitude: Double?,
         longitude: Double?,
         attachment: String?,
-        forwardMessages: String?,
+        forward: String?,
         stickerId: Int?,
-        payload: String?,
-        reply_to: Int?
+        payload: String?
     ): Flow<BaseResponse<List<SendMessageResponse>>> {
         return rest.request(
             "messages.send", form(
@@ -463,10 +417,9 @@ class IMessageService : IServiceRest() {
                 "lat" to latitude,
                 "long" to longitude,
                 "attachment" to attachment,
-                "forward_messages" to forwardMessages,
+                "forward" to forward,
                 "sticker_id" to stickerId,
-                "payload" to payload,
-                "reply_to" to reply_to
+                "payload" to payload
             ), baseList(SendMessageResponse.serializer())
         )
     }
@@ -476,27 +429,24 @@ class IMessageService : IServiceRest() {
      *
      * @param peerId   Peer ID.
      * @param cmIds    Conversation message IDs. List of comma-separated positive numbers
-     * @param previewLength Number of characters after which to truncate a previewed message.
      * To preview the full message, specify 0.
      * NOTE: Messages are not truncated by default. Messages are truncated by words.
      * @return a list of message objects.
      */
-    fun getById(
+    fun getByConversationMessageId(
         peerId: Long,
         cmIds: String?,
-        previewLength: Int?
     ): Flow<BaseResponse<Items<VKApiMessage>>> {
         return rest.request(
-            "messages.getById", form(
-                "cmids" to cmIds,
-                "peer_id" to peerId,
-                "preview_length" to previewLength
+            "messages.getByConversationMessageId", form(
+                "conversation_message_ids" to cmIds,
+                "peer_id" to peerId
             ), items(VKApiMessage.serializer())
         )
     }
 
     //https://vk.ru/dev/messages.getConversations
-    fun getDialogs(
+    fun getConversations(
         offset: Int?,
         count: Int?,
         startMessageId: Int?,
@@ -557,7 +507,7 @@ class IMessageService : IServiceRest() {
      * 0 — return messages in reverse chronological order.
      * @return Returns a list of message objects.
      */
-    fun getHistory(
+    fun getPeerMessages(
         offset: Int?,
         count: Int?,
         peerId: Long,
@@ -613,7 +563,7 @@ class IMessageService : IServiceRest() {
         )
     }
 
-    //https://vk.ru/dev/messages.searchDialogs
+    //https://vk.ru/dev/messages.searchConversations
     fun searchConversations(
         q: String?,
         count: Int?,
@@ -633,80 +583,82 @@ class IMessageService : IServiceRest() {
     }
 
     fun recogniseAudioMessage(
-        message_id: Int?,
-        audio_message_id: String?
+        audioMessageId: String?,
+        cmId: Int,
+        peerId: Long
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "messages.recogniseAudioMessage", form(
-                "message_id" to message_id,
-                "audio_message_id" to audio_message_id
+                "audio_message_id" to audioMessageId,
+                "cmid" to cmId,
+                "peer_id" to peerId
             ), baseInt
         )
     }
 
     fun setMemberRole(
-        peer_id: Long?,
-        member_id: Long?,
+        peerId: Long?,
+        memberId: Long?,
         role: String?
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "messages.setMemberRole", form(
-                "peer_id" to peer_id,
-                "member_id" to member_id,
+                "peer_id" to peerId,
+                "member_id" to memberId,
                 "role" to role
             ), baseInt
         )
     }
 
     fun getReactionsAssets(
-        client_version: Int?
+        clientVersion: Int?
     ): Flow<BaseResponse<Assets<VKApiReactionAsset>>> {
         return rest.request(
             "messages.getReactionsAssets", form(
-                "client_version" to client_version
+                "client_version" to clientVersion
             ), assets(VKApiReactionAsset.serializer())
         )
     }
 
     fun sendReaction(
-        peer_id: Long,
-        cmid: Int,
-        reaction_id: Int
+        peerId: Long,
+        cmId: Int,
+        reactionId: Int
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "messages.sendReaction", form(
-                "peer_id" to peer_id,
-                "cmid" to cmid,
-                "reaction_id" to reaction_id
+                "peer_id" to peerId,
+                "cmid" to cmId,
+                "reaction_id" to reactionId
             ), baseInt
         )
     }
 
     fun deleteReaction(
-        peer_id: Long,
-        cmid: Int
+        peerId: Long,
+        cmId: Int
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "messages.deleteReaction", form(
-                "peer_id" to peer_id,
-                "cmid" to cmid
+                "peer_id" to peerId,
+                "cmid" to cmId
             ), baseInt
         )
     }
 
     //messages.getMessageReadPeers
     fun getReactedPeers(
-        peer_id: Long,
-        cmid: Int,
-        reaction_id: Int?,
+        peerId: Long,
+        cmId: Int,
+        reactionId: Int?,
         extended: Int?,
         fields: String?
     ): Flow<BaseResponse<ReactedMessagesPeersResponse>> {
         return rest.request(
             "messages.getReactedPeers", form(
-                "peer_id" to peer_id,
-                "cmid" to cmid,
-                "reaction_id" to reaction_id,
+                "peer_id" to peerId,
+                "cmid" to cmId,
+                "reaction_id" to reactionId,
                 "extended" to extended,
                 "fields" to fields
             ), base(ReactedMessagesPeersResponse.serializer())

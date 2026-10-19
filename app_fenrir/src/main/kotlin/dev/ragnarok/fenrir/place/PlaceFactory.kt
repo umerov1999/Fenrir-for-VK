@@ -366,11 +366,11 @@ object PlaceFactory {
     fun getMessagesLookupPlace(
         aid: Long,
         peerId: Long,
-        focusMessageId: Int,
+        focusCmId: Int,
         message: Message?
     ): Place {
         return Place(Place.MESSAGE_LOOKUP)
-            .setArguments(MessagesLookFragment.buildArgs(aid, peerId, focusMessageId, message))
+            .setArguments(MessagesLookFragment.buildArgs(aid, peerId, focusCmId, message))
     }
 
     fun getWallSearchCommentsAttachmentsPlace(

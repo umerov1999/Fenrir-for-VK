@@ -20,14 +20,12 @@ import dev.ragnarok.fenrir.api.model.response.ConversationMembersResponse
 import dev.ragnarok.fenrir.api.model.response.ConversationsResponse
 import dev.ragnarok.fenrir.api.model.response.DialogsResponse
 import dev.ragnarok.fenrir.api.model.response.ItemsProfilesGroupsResponse
-import dev.ragnarok.fenrir.api.model.response.LongpollHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.MessageDeleteResponse
 import dev.ragnarok.fenrir.api.model.response.MessageHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import dev.ragnarok.fenrir.api.services.IMessageService
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.checkInt
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.ignoreElement
@@ -41,15 +39,15 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
         return provideService(IMessageService(), *tokenTypes)
     }
 
-    override fun edit(
+    override fun editMessage(
         peerId: Long,
         cmId: Int,
         message: String?,
-        attachments: List<IAttachmentToken>?,
-        keepFwd: Boolean,
+        attachment: List<IAttachmentToken>?,
+        keepForwardMessages: Boolean,
         keepSnippets: Boolean?
     ): Flow<Boolean> {
-        val atts = join(attachments, ",") {
+        val attrs = join(attachment, ",") {
             formatAttachmentToken(it)
         }
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
@@ -58,8 +56,8 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
                     peerId,
                     cmId,
                     message,
-                    atts,
-                    integerFromBoolean(keepFwd),
+                    attrs,
+                    integerFromBoolean(keepForwardMessages),
                     integerFromBoolean(keepSnippets)
                 )
                     .map(extractResponseWithErrorHandling())
@@ -98,23 +96,23 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
         chatId: Long?,
         chatIds: Collection<Long>?,
         fields: String?,
-        name_case: String?
+        nameCase: String?
     ): Flow<List<VKApiChat>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat { s ->
-                s.getChat(chatId, join(chatIds, ","), fields, name_case)
+                s.getChat(chatId, join(chatIds, ","), fields, nameCase)
                     .map(extractResponseWithErrorHandling())
                     .map { listEmptyIfNull(it.chats) }
             }
     }
 
     override fun getConversationMembers(
-        peer_id: Long?,
+        peerId: Long?,
         fields: String?
     ): Flow<ConversationMembersResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.getConversationMembers(peer_id, fields)
+                it.getConversationMembers(peerId, fields)
                     .map(extractResponseWithErrorHandling())
             }
     }
@@ -136,48 +134,54 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun recogniseAudioMessage(message_id: Int?, audio_message_id: String?): Flow<Int> {
+    override fun recogniseAudioMessage(
+        audioMessageId: String?,
+        cmId: Int,
+        peerId: Long
+    ): Flow<Int> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.recogniseAudioMessage(message_id, audio_message_id)
+                it.recogniseAudioMessage(audioMessageId, cmId, peerId)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override fun setMemberRole(peer_id: Long?, member_id: Long?, role: String?): Flow<Int> {
+    override fun setMemberRole(peerId: Long?, memberId: Long?, role: String?): Flow<Int> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.setMemberRole(peer_id, member_id, role)
+                it.setMemberRole(peerId, memberId, role)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override fun deleteDialog(peerId: Long): Flow<ConversationDeleteResult> {
+    override fun deleteConversation(peerId: Long): Flow<ConversationDeleteResult> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.deleteDialog(peerId)
+                it.deleteConversation(peerId)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override fun restore(messageId: Int): Flow<Boolean> {
+    override fun restoreMessage(peerId: Long, cmId: Int): Flow<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.restore(messageId)
+                it.restoreMessage(peerId, cmId)
                     .map(extractResponseWithErrorHandling())
                     .checkInt()
             }
     }
 
-    override fun delete(
-        messageIds: Collection<Int>,
-        deleteForAll: Boolean?,
+    override fun deleteMessages(
+        peerId: Long,
+        cmIds: Collection<Int>,
+        deleteForAll: Boolean,
         spam: Boolean?
     ): Flow<List<MessageDeleteResponse>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.delete(
-                    join(messageIds, ","),
+                it.deleteMessages(
+                    peerId,
+                    join(cmIds, ","),
                     integerFromBoolean(deleteForAll),
                     integerFromBoolean(spam)
                 )
@@ -185,7 +189,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun markAsRead(peerId: Long?, startMessageId: Int?): Flow<Boolean> {
+    override fun markAsRead(peerId: Long, startMessageId: Int): Flow<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
                 it.markAsRead(peerId, startMessageId)
@@ -211,50 +215,29 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun search(
+    override fun searchMessages(
         query: String?,
         peerId: Long?,
         date: String?,
-        previewLength: Int?,
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiMessage>> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.search(query, peerId, date, previewLength, offset, count)
+                it.searchMessages(query, peerId, date, offset, count)
                     .map(extractResponseWithErrorHandling())
             }
 
-    }
-
-    override fun getLongPollHistory(
-        ts: Long?,
-        pts: Long?,
-        previewLength: Int?,
-        onlines: Boolean?,
-        fields: String?,
-        eventsLimit: Int?,
-        msgsLimit: Int?,
-        max_msg_id: Int?
-    ): Flow<LongpollHistoryResponse> {
-        return serviceRx(TokenType.USER, TokenType.COMMUNITY)
-            .flatMapConcat {
-                it.getLongPollHistory(
-                    ts, pts, previewLength, integerFromBoolean(onlines), fields,
-                    eventsLimit, msgsLimit, max_msg_id
-                )
-                    .map(extractResponseWithErrorHandling())
-            }
     }
 
     override fun getHistoryAttachments(
         peerId: Long,
         mediaType: String?,
         startFrom: String?,
-        photoSizes: Int?,
-        preserve_order: Int?,
-        max_forwards_level: Int?,
         count: Int?,
+        photoSizes: Int?,
+        preserveOrder: Int?,
+        maxForwardsLevel: Int?,
         fields: String?
     ): Flow<AttachmentsHistoryResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
@@ -265,8 +248,8 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
                     startFrom,
                     count,
                     photoSizes,
-                    preserve_order,
-                    max_forwards_level,
+                    preserveOrder,
+                    maxForwardsLevel,
                     fields
                 )
                     .map(extractResponseWithErrorHandling())
@@ -280,13 +263,12 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
         message: String?,
         latitude: Double?,
         longitude: Double?,
-        attachments: Collection<IAttachmentToken>?,
-        forwardMessages: Collection<Pair<Long, Int>>?,
+        attachment: Collection<IAttachmentToken>?,
+        forward: String?,
         stickerId: Int?,
-        payload: String?,
-        reply_to: Int?
+        payload: String?
     ): Flow<SendMessageResponse> {
-        val atts = join(attachments, ",") {
+        val attrs = join(attachment, ",") {
             formatAttachmentToken(it)
         }
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
@@ -298,13 +280,10 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
                     message,
                     latitude,
                     longitude,
-                    atts,
-                    join(forwardMessages, ",") {
-                        it.second.toString()
-                    },
+                    attrs,
+                    forward,
                     stickerId,
-                    payload,
-                    reply_to
+                    payload
                 )
                     .map(extractResponseWithErrorHandling())
                     .map {
@@ -322,7 +301,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun getConversations(
+    override fun getConversationsById(
         peers: List<Long>,
         extended: Boolean?,
         fields: String?
@@ -335,7 +314,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun getDialogs(
+    override fun getConversations(
         offset: Int?,
         count: Int?,
         startMessageId: Int?,
@@ -344,25 +323,31 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<DialogsResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.getDialogs(offset, count, startMessageId, integerFromBoolean(extended), fields)
+                it.getConversations(
+                    offset,
+                    count,
+                    startMessageId,
+                    integerFromBoolean(extended),
+                    fields
+                )
                     .map(extractResponseWithErrorHandling())
             }
 
     }
 
-    override fun unpin(peerId: Long): Flow<Boolean> {
+    override fun unpinMessage(peerId: Long): Flow<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.unpin(peerId)
+                it.unpinMessage(peerId)
                     .map(extractResponseWithErrorHandling())
                     .ignoreElement()
             }
     }
 
-    override fun pin(peerId: Long, messageId: Int): Flow<Boolean> {
+    override fun pinMessage(peerId: Long, cmId: Int): Flow<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.pin(peerId, messageId)
+                it.pinMessage(peerId, cmId)
                     .map(extractResponseWithErrorHandling())
                     .ignoreElement()
             }
@@ -377,26 +362,29 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun markAsListened(message_id: Int): Flow<Boolean> {
+    override fun markAsListened(peerId: Long, cmId: Int): Flow<Boolean> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.markAsListened(message_id)
+                it.markAsListened(peerId, cmId)
                     .map(extractResponseWithErrorHandling())
                     .ignoreElement()
             }
     }
 
-    override fun getById(peerId: Long, cmIds: Collection<Int>?): Flow<List<VKApiMessage>> {
+    override fun getByConversationMessageId(
+        peerId: Long,
+        cmIds: Collection<Int>?
+    ): Flow<List<VKApiMessage>> {
         val ids = join(cmIds, ",")
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat { s ->
-                s.getById(peerId,  ids, null)
+                s.getByConversationMessageId(peerId, ids)
                     .map(extractResponseWithErrorHandling())
                     .map { listEmptyIfNull(it.items) }
             }
     }
 
-    override fun getHistory(
+    override fun getPeerMessages(
         offset: Int?,
         count: Int?,
         peerId: Long,
@@ -407,7 +395,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
     ): Flow<MessageHistoryResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.getHistory(
+                it.getPeerMessages(
                     offset,
                     count,
                     peerId,
@@ -479,27 +467,27 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun sendOrDeleteReaction(peer_id: Long, cmid: Int, reaction_id: Int?): Flow<Int> {
+    override fun sendOrDeleteReaction(peerId: Long, cmId: Int, reactionId: Int?): Flow<Int> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                if (reaction_id != null) it.sendReaction(peer_id, cmid, reaction_id)
+                if (reactionId != null) it.sendReaction(peerId, cmId, reactionId)
                     .map(extractResponseWithErrorHandling()) else it.deleteReaction(
-                    peer_id,
-                    cmid
+                    peerId,
+                    cmId
                 ).map(extractResponseWithErrorHandling())
             }
     }
 
     override fun getReactedPeers(
-        peer_id: Long,
-        cmid: Int,
-        reaction_id: Int?,
+        peerId: Long,
+        cmId: Int,
+        reactionId: Int?,
         extended: Boolean?,
         fields: String?
     ): Flow<ReactedMessagesPeersResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.getReactedPeers(peer_id, cmid, reaction_id, integerFromBoolean(extended), fields)
+                it.getReactedPeers(peerId, cmId, reactionId, integerFromBoolean(extended), fields)
                     .map(extractResponseWithErrorHandling())
             }
     }

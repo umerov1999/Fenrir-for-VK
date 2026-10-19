@@ -395,9 +395,9 @@ class ChatPresenter(
         appendJob(
             messagesRepository.recogniseAudioMessage(
                 accountId,
-                peerId,
+                voiceMessageId,
                 cmId,
-                voiceMessageId
+                peerId
             )
                 .fromIOToMain({ }, { t -> showError(view, t) })
         )
@@ -405,7 +405,7 @@ class ChatPresenter(
 
     fun removeDialog() {
         appendJob(
-            messagesRepository.deleteDialog(accountId, peerId)
+            messagesRepository.deleteConversation(accountId, peerId)
                 .fromIOToMain(
                     { onDialogRemovedSuccessfully(accountId) },
                     { t -> showError(view, t) })
@@ -482,7 +482,7 @@ class ChatPresenter(
     }
 
     private fun fetchConversationThenCachedThenActual(refresh: Boolean) {
-        fetchConversationDisposable += messagesRepository.getConversationSingle(
+        fetchConversationDisposable += messagesRepository.getConversationByIdSingle(
             messagesOwnerId,
             peer.id,
             if (refresh) Mode.NET else Mode.ANY
@@ -1960,7 +1960,7 @@ class ChatPresenter(
             appendJob(
                 messagesRepository.deleteMessages(
                     messagesOwnerId, peerId, sent,
-                    forAll = false,
+                    deleteForAll = false,
                     spam = true
                 )
                     .fromIOToMain(dummy()) { t -> showError(view, t) }
@@ -2001,12 +2001,12 @@ class ChatPresenter(
         }
         val message = messages.removeAt(0)
         appendJob(
-            messagesRepository.edit(
+            messagesRepository.editMessage(
                 messagesOwnerId, message, "Ragnarök",
                 emptyList(), false
             )
                 .fromIOToMain({
-                    result.add(it.getObjectId())
+                    result.add(it.cmId)
                     onMessageEdited(it)
                     superDeleteEditRecursive(messages, result)
                 }, { onMessageEditFail(it) })
@@ -2129,7 +2129,7 @@ class ChatPresenter(
         view?.notifyChatResume(accountId, peerId, peer.getTitle(), peer.avaUrl)
     }
 
-    private fun uploadStreamsImpl(streams: List<Uri>, size: Int?, is_video: Boolean) {
+    private fun uploadStreamsImpl(streams: List<Uri>, size: Int?, isVideo: Boolean) {
         outConfig.setUploadFiles(null)
         outConfig.setUploadFilesMimeType(null)
 
@@ -2144,14 +2144,14 @@ class ChatPresenter(
             )
         }
 
-        val destination = if (is_video) UploadDestination.forMessage(
+        val destination = if (isVideo) UploadDestination.forMessage(
             draftMessage.cmId ?: return,
             MessageMethod.VIDEO,
             peerId
         ) else UploadDestination.forMessage(draftMessage.cmId ?: return, peerId)
         val intents = ArrayList<UploadIntent>(streams.size)
 
-        if (!is_video) {
+        if (!isVideo) {
             for (uri in streams) {
                 intents.add(
                     UploadIntent(messagesOwnerId, destination)
@@ -2517,7 +2517,7 @@ class ChatPresenter(
             }
 
             appendJob(
-                messagesRepository.edit(accountId, message, text, models, keepForward)
+                messagesRepository.editMessage(accountId, message, text, models, keepForward)
                     .fromIOToMain({ onMessageEdited(it) }, { t -> onMessageEditFail(t) })
             )
         }
@@ -2590,11 +2590,11 @@ class ChatPresenter(
             netLoadingDisposable += Repository.owners.getFullUserInfo(accountId, uId, MODE_NET)
                 .fromIOToMain({ info ->
                     run {
-                        val Dmn: String = if (info.first?.domain == null)
+                        val domainTmp: String = if (info.first?.domain == null)
                             "@id$uId,"
                         else
                             "@" + info.first.domain + ","
-                        view?.appendMessageText(Dmn)
+                        view?.appendMessageText(domainTmp)
                     }
                 }, { })
         }
@@ -2719,7 +2719,7 @@ class ChatPresenter(
 
     private fun doPin(message: Message?) {
         appendJob(
-            messagesRepository.pin(accountId, peerId, message)
+            messagesRepository.pinMessage(accountId, peerId, message)
                 .fromIOToMain(dummy()) { onPinFail(it) }
         )
     }

@@ -120,7 +120,7 @@ class MessagesSearchPresenter(
 
     fun fireMessageLongClick(message: Message) {
         appendJob(
-            messagesInteractor.getConversationSingle(
+            messagesInteractor.getConversationByIdSingle(
                 accountId, message.peerId,
                 Mode.NET
             ).fromIOToMain({
@@ -211,7 +211,7 @@ class MessagesSearchPresenter(
 
     fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            messages.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
+            messages.recogniseAudioMessage(accountId, voiceMessageId, cmId, peerId)
                 .hiddenIO()
         )
     }

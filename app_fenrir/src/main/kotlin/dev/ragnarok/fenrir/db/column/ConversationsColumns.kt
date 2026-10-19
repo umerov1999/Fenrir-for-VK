@@ -5,8 +5,8 @@ import android.provider.BaseColumns
 import dev.ragnarok.fenrir.api.model.VKApiChat
 import dev.ragnarok.fenrir.model.Peer
 
-object DialogsColumns : BaseColumns {
-    const val TABLENAME = "dialogs"
+object ConversationsColumns : BaseColumns {
+    const val TABLENAME = "conversations"
     const val UNREAD = "unread"
     const val TITLE = "title"
     const val IN_READ_CM_ID = "in_read_cm_id"

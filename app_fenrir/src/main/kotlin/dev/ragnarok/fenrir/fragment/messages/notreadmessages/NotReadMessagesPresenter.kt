@@ -84,7 +84,7 @@ class NotReadMessagesPresenter(
         appendJob(
             messagesInteractor.deleteMessages(
                 accountId, peer.id, ids,
-                forAll = false,
+                deleteForAll = false,
                 spam = false
             )
                 .fromIOToMain(dummy()) { t ->
@@ -136,7 +136,7 @@ class NotReadMessagesPresenter(
                     accountId,
                     peer.id,
                     ids,
-                    forAll = false,
+                    deleteForAll = false,
                     spam = false
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
@@ -157,7 +157,7 @@ class NotReadMessagesPresenter(
             appendJob(
                 messagesInteractor.deleteMessages(
                     accountId, peer.id, ids,
-                    forAll = false, spam = true
+                    deleteForAll = false, spam = true
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
                         showError(t)
@@ -296,7 +296,7 @@ class NotReadMessagesPresenter(
                 messagesInteractor.markAsRead(accountId, peer.id, message.cmId)
                     .fromIOToMain({
                         appendJob(
-                            messagesInteractor.getConversationSingle(
+                            messagesInteractor.getConversationByIdSingle(
                                 accountId,
                                 peer.id, Mode.NET
                             )
@@ -414,7 +414,7 @@ class NotReadMessagesPresenter(
 
     fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            messages.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
+            messages.recogniseAudioMessage(accountId, voiceMessageId, cmId, peerId)
                 .hiddenIO()
         )
     }

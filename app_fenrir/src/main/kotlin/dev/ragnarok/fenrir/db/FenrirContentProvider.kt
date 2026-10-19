@@ -18,7 +18,7 @@ import androidx.core.net.toUri
 import dev.ragnarok.fenrir.BuildConfig
 import dev.ragnarok.fenrir.db.column.CommentsColumns
 import dev.ragnarok.fenrir.db.column.CountriesColumns
-import dev.ragnarok.fenrir.db.column.DialogsColumns
+import dev.ragnarok.fenrir.db.column.ConversationsColumns
 import dev.ragnarok.fenrir.db.column.DocsColumns
 import dev.ragnarok.fenrir.db.column.FaveArticlesColumns
 import dev.ragnarok.fenrir.db.column.FaveLinksColumns
@@ -726,40 +726,40 @@ class FenrirContentProvider : ContentProvider() {
 
             sDialogsProjectionMap = HashMap()
             sDialogsProjectionMap[BaseColumns._ID] =
-                DialogsColumns.FULL_ID
-            sDialogsProjectionMap[DialogsColumns.UNREAD] =
-                DialogsColumns.FULL_UNREAD
-            sDialogsProjectionMap[DialogsColumns.TITLE] = DialogsColumns.FULL_TITLE
-            sDialogsProjectionMap[DialogsColumns.IN_READ_CM_ID] =
-                DialogsColumns.FULL_IN_READ_CM_ID
-            sDialogsProjectionMap[DialogsColumns.OUT_READ_CM_ID] = DialogsColumns.FULL_OUT_READ_CM_ID
-            sDialogsProjectionMap[DialogsColumns.PHOTO_50] = DialogsColumns.FULL_PHOTO_50
-            sDialogsProjectionMap[DialogsColumns.PHOTO_100] = DialogsColumns.FULL_PHOTO_100
-            sDialogsProjectionMap[DialogsColumns.PHOTO_200] =
-                DialogsColumns.FULL_PHOTO_200
-            sDialogsProjectionMap[DialogsColumns.ACL] = DialogsColumns.FULL_ACL
-            sDialogsProjectionMap[DialogsColumns.LAST_CM_ID] =
-                DialogsColumns.FULL_LAST_CM_ID
-            sDialogsProjectionMap[DialogsColumns.IS_GROUP_CHANNEL] =
-                DialogsColumns.FULL_IS_GROUP_CHANNEL
-            sDialogsProjectionMap[DialogsColumns.MAJOR_ID] = DialogsColumns.FULL_MAJOR_ID
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_FROM_ID] =
-                MessagesColumns.FULL_FROM_ID + " AS " + DialogsColumns.FOREIGN_MESSAGE_FROM_ID
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_TEXT] =
-                MessagesColumns.FULL_TEXT + " AS " + DialogsColumns.FOREIGN_MESSAGE_TEXT
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_DATE] =
-                MessagesColumns.FULL_DATE + " AS " + DialogsColumns.FOREIGN_MESSAGE_DATE
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_OUT] =
-                MessagesColumns.FULL_OUT + " AS " + DialogsColumns.FOREIGN_MESSAGE_OUT
+                ConversationsColumns.FULL_ID
+            sDialogsProjectionMap[ConversationsColumns.UNREAD] =
+                ConversationsColumns.FULL_UNREAD
+            sDialogsProjectionMap[ConversationsColumns.TITLE] = ConversationsColumns.FULL_TITLE
+            sDialogsProjectionMap[ConversationsColumns.IN_READ_CM_ID] =
+                ConversationsColumns.FULL_IN_READ_CM_ID
+            sDialogsProjectionMap[ConversationsColumns.OUT_READ_CM_ID] = ConversationsColumns.FULL_OUT_READ_CM_ID
+            sDialogsProjectionMap[ConversationsColumns.PHOTO_50] = ConversationsColumns.FULL_PHOTO_50
+            sDialogsProjectionMap[ConversationsColumns.PHOTO_100] = ConversationsColumns.FULL_PHOTO_100
+            sDialogsProjectionMap[ConversationsColumns.PHOTO_200] =
+                ConversationsColumns.FULL_PHOTO_200
+            sDialogsProjectionMap[ConversationsColumns.ACL] = ConversationsColumns.FULL_ACL
+            sDialogsProjectionMap[ConversationsColumns.LAST_CM_ID] =
+                ConversationsColumns.FULL_LAST_CM_ID
+            sDialogsProjectionMap[ConversationsColumns.IS_GROUP_CHANNEL] =
+                ConversationsColumns.FULL_IS_GROUP_CHANNEL
+            sDialogsProjectionMap[ConversationsColumns.MAJOR_ID] = ConversationsColumns.FULL_MAJOR_ID
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_FROM_ID] =
+                MessagesColumns.FULL_FROM_ID + " AS " + ConversationsColumns.FOREIGN_MESSAGE_FROM_ID
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_TEXT] =
+                MessagesColumns.FULL_TEXT + " AS " + ConversationsColumns.FOREIGN_MESSAGE_TEXT
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_DATE] =
+                MessagesColumns.FULL_DATE + " AS " + ConversationsColumns.FOREIGN_MESSAGE_DATE
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_OUT] =
+                MessagesColumns.FULL_OUT + " AS " + ConversationsColumns.FOREIGN_MESSAGE_OUT
             //sDialogsProjectionMap.put(DialogsColumns.FOREIGN_MESSAGE_READ_STATE, MessageColumns.FULL_READ_STATE + " AS " + DialogsColumns.FOREIGN_MESSAGE_READ_STATE);
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB] =
-                MessagesColumns.FULL_ATTACHMENTS_BLOB + " AS " + DialogsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_FWD_BLOB] =
-                MessagesColumns.FULL_FORWARD_BLOB + " AS " + DialogsColumns.FOREIGN_MESSAGE_FWD_BLOB
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_ACTION] =
-                MessagesColumns.FULL_ACTION + " AS " + DialogsColumns.FOREIGN_MESSAGE_ACTION
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_VERSION] =
-                MessagesColumns.FULL_VERSION + " AS " + DialogsColumns.FOREIGN_MESSAGE_VERSION
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB] =
+                MessagesColumns.FULL_ATTACHMENTS_BLOB + " AS " + ConversationsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_FWD_BLOB] =
+                MessagesColumns.FULL_FORWARD_BLOB + " AS " + ConversationsColumns.FOREIGN_MESSAGE_FWD_BLOB
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_ACTION] =
+                MessagesColumns.FULL_ACTION + " AS " + ConversationsColumns.FOREIGN_MESSAGE_ACTION
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_VERSION] =
+                MessagesColumns.FULL_VERSION + " AS " + ConversationsColumns.FOREIGN_MESSAGE_VERSION
 
             sPeersProjectionMap = HashMap()
             sPeersProjectionMap[BaseColumns._ID] = PeersColumns.FULL_ID
@@ -1270,7 +1270,7 @@ class FenrirContentProvider : ContentProvider() {
             }
 
             URI_DIALOGS -> {
-                rowId = db.replace(DialogsColumns.TABLENAME, null, values)
+                rowId = db.replace(ConversationsColumns.TABLENAME, null, values)
                 resultUri = ContentUris.withAppendedId(DIALOGS_CONTENT_URI, rowId)
             }
 
@@ -1482,7 +1482,7 @@ class FenrirContentProvider : ContentProvider() {
 
             URI_DIALOGS -> {
                 _QB.tables =
-                    DialogsColumns.TABLENAME + " LEFT OUTER JOIN " + MessagesColumns.TABLENAME + " ON " + DialogsColumns.FULL_LAST_CM_ID + " = " + MessagesColumns.FULL_CONVERSATION_MESSAGE_ID + " AND " + DialogsColumns.FULL_ID + " = " + MessagesColumns.FULL_PEER_ID
+                    ConversationsColumns.TABLENAME + " LEFT OUTER JOIN " + MessagesColumns.TABLENAME + " ON " + ConversationsColumns.FULL_LAST_CM_ID + " = " + MessagesColumns.FULL_CONVERSATION_MESSAGE_ID + " AND " + ConversationsColumns.FULL_ID + " = " + MessagesColumns.FULL_PEER_ID
                 _QB.projectionMap = sDialogsProjectionMap
                 URI_DIALOGS
             }
@@ -1792,7 +1792,7 @@ class FenrirContentProvider : ContentProvider() {
                 tbName = MessagesColumns.TABLENAME
             }
 
-            URI_DIALOGS -> tbName = DialogsColumns.TABLENAME
+            URI_DIALOGS -> tbName = ConversationsColumns.TABLENAME
             URI_RELATIVESHIP -> tbName = RelationshipsColumns.TABLENAME
             URI_POSTS -> tbName = PostsColumns.TABLENAME
             URI_POSTS_ID -> {
@@ -1897,7 +1897,7 @@ class FenrirContentProvider : ContentProvider() {
                 tbName = GroupsColumns.TABLENAME
             }
 
-            URI_DIALOGS -> tbName = DialogsColumns.TABLENAME
+            URI_DIALOGS -> tbName = ConversationsColumns.TABLENAME
             URI_PEERS -> tbName = PeersColumns.TABLENAME
             URI_POSTS -> tbName = PostsColumns.TABLENAME
             URI_POSTS_ID -> {

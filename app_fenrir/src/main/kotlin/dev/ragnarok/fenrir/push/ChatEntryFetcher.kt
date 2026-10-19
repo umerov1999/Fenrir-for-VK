@@ -33,7 +33,7 @@ object ChatEntryFetcher {
             }
 
             PeerType.CHAT, PeerType.CONTACT -> return messages
-                .getConversation(accountId, peerId, Mode.ANY)
+                .getConversationById(accountId, peerId, Mode.ANY)
                 .flatMapConcat { chat ->
                     loadRoundedImageRx(app, chat.imageUrl, R.drawable.ic_group_chat)
                         .map { Optional.wrap(it) }

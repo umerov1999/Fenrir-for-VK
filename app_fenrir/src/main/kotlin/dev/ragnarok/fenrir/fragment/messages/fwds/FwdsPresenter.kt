@@ -10,7 +10,7 @@ class FwdsPresenter(accountId: Long, messages: List<Message>, savedInstanceState
     AbsMessageListPresenter<IFwdsView>(accountId, savedInstanceState) {
     fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            messages.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
+            messages.recogniseAudioMessage(accountId, voiceMessageId, cmId, peerId)
                 .hiddenIO()
         )
     }

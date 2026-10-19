@@ -57,7 +57,7 @@ firebaseInstallationsInteropVersion = "18.0.0"
 firebaseComponentsVersion = "20.0.0"
 firebaseAnnotationsVersion = "18.0.0"
 playServicesTasksVersion = "18.4.1"
-playServicesBase = "18.11.0"
+playServicesBase = "18.11.1"
 autoValueVersion = "1.11.1"
 
 # Common Libraries

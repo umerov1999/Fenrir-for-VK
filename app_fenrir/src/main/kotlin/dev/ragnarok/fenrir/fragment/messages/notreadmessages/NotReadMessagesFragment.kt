@@ -614,7 +614,7 @@ class NotReadMessagesFragment :
     companion object {
         fun buildArgs(
             accountId: Long,
-            focusMessageId: Int,
+            focusCmId: Int,
             incoming: Int,
             outgoing: Int,
             unreadCount: Int,
@@ -622,7 +622,7 @@ class NotReadMessagesFragment :
         ): Bundle {
             val args = Bundle()
             args.putLong(Extra.ACCOUNT_ID, accountId)
-            args.putInt(Extra.FOCUS_TO, focusMessageId)
+            args.putInt(Extra.FOCUS_TO, focusCmId)
             args.putInt(Extra.INCOMING, incoming)
             args.putInt(Extra.OUTGOING, outgoing)
             args.putInt(Extra.COUNT, unreadCount)

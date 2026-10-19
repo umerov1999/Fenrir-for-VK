@@ -33,7 +33,7 @@ class MessagesLookPresenter(
 
     private fun fetchConversationThenActual(needFetchChat: Boolean) {
         appendJob(
-            messagesInteractor.getConversationSingle(
+            messagesInteractor.getConversationByIdSingle(
                 accountId,
                 peer.id,
                 Mode.ANY
@@ -146,7 +146,7 @@ class MessagesLookPresenter(
         appendJob(
             messagesInteractor.deleteMessages(
                 accountId, peer.id, ids,
-                forAll = false, spam = false
+                deleteForAll = false, spam = false
             )
                 .fromIOToMain(dummy()) { t ->
                     showError(t)
@@ -197,7 +197,7 @@ class MessagesLookPresenter(
                     accountId,
                     peer.id,
                     ids,
-                    forAll = false,
+                    deleteForAll = false,
                     spam = false
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
@@ -218,7 +218,7 @@ class MessagesLookPresenter(
             appendJob(
                 messagesInteractor.deleteMessages(
                     accountId, peer.id, ids,
-                    forAll = false, spam = true
+                    deleteForAll = false, spam = true
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
                         showError(t)
@@ -388,7 +388,7 @@ class MessagesLookPresenter(
 
     fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            messages.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
+            messages.recogniseAudioMessage(accountId, voiceMessageId, cmId, peerId)
                 .hiddenIO()
         )
     }

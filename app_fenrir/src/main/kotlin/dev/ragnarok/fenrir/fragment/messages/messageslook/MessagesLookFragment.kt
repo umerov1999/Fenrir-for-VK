@@ -586,13 +586,13 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
         fun buildArgs(
             accountId: Long,
             peerId: Long,
-            focusMessageId: Int,
+            focusCmId: Int,
             message: Message?
         ): Bundle {
             val args = Bundle()
             args.putLong(Extra.ACCOUNT_ID, accountId)
             args.putLong(Extra.PEER_ID, peerId)
-            args.putInt(Extra.FOCUS_TO, focusMessageId)
+            args.putInt(Extra.FOCUS_TO, focusCmId)
             if (message != null) {
                 args.putParcelable(Extra.MESSAGE, message)
             }

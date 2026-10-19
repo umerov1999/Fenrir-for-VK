@@ -114,7 +114,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
                     accountId,
                     accountId,
                     ids,
-                    forAll = false,
+                    deleteForAll = false,
                     spam = false
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
@@ -135,7 +135,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
             appendJob(
                 fInteractor.deleteMessages(
                     accountId, accountId, ids,
-                    forAll = false, spam = true
+                    deleteForAll = false, spam = true
                 )
                     .fromIOToMain({ onMessagesDeleteSuccessfully(ids) }) { t ->
                         showError(t)
@@ -199,7 +199,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
 
     fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            fInteractor.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
+            fInteractor.recogniseAudioMessage(accountId, voiceMessageId, cmId, peerId)
                 .hiddenIO()
         )
     }

@@ -8,7 +8,7 @@ import androidx.core.database.sqlite.transaction
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.db.column.CommentsColumns
 import dev.ragnarok.fenrir.db.column.CountriesColumns
-import dev.ragnarok.fenrir.db.column.DialogsColumns
+import dev.ragnarok.fenrir.db.column.ConversationsColumns
 import dev.ragnarok.fenrir.db.column.DocsColumns
 import dev.ragnarok.fenrir.db.column.FaveArticlesColumns
 import dev.ragnarok.fenrir.db.column.FaveLinksColumns
@@ -124,7 +124,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
             execSQL("DROP TRIGGER IF EXISTS zero_msg_del")
 
             execSQL("DROP TABLE IF EXISTS " + CommentsColumns.TABLENAME)
-            execSQL("DROP TABLE IF EXISTS " + DialogsColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + ConversationsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + PeersColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + DocsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + GroupsColumns.TABLENAME)
@@ -487,19 +487,19 @@ class DBHelper private constructor(context: Context, aid: Long) :
     }
 
     private fun createDialogTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + DialogsColumns.TABLENAME + "] (\n" +
+        val sql = "CREATE TABLE [" + ConversationsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE AUTOINCREMENT NOT NULL UNIQUE, " +
-                " [" + DialogsColumns.MAJOR_ID + "] INTEGER, " +
-                " [" + DialogsColumns.LAST_CM_ID + "] INTEGER, " +
-                " [" + DialogsColumns.UNREAD + "] INTEGER, " +
-                " [" + DialogsColumns.IN_READ_CM_ID + "] INTEGER, " +
-                " [" + DialogsColumns.OUT_READ_CM_ID + "] INTEGER, " +
-                " [" + DialogsColumns.IS_GROUP_CHANNEL + "] BOOLEAN, " +
-                " [" + DialogsColumns.ACL + "] INTEGER, " +
-                " [" + DialogsColumns.TITLE + "] TEXT, " +
-                " [" + DialogsColumns.PHOTO_50 + "] TEXT, " +
-                " [" + DialogsColumns.PHOTO_100 + "] TEXT, " +
-                " [" + DialogsColumns.PHOTO_200 + "] TEXT);"
+                " [" + ConversationsColumns.MAJOR_ID + "] INTEGER, " +
+                " [" + ConversationsColumns.LAST_CM_ID + "] INTEGER, " +
+                " [" + ConversationsColumns.UNREAD + "] INTEGER, " +
+                " [" + ConversationsColumns.IN_READ_CM_ID + "] INTEGER, " +
+                " [" + ConversationsColumns.OUT_READ_CM_ID + "] INTEGER, " +
+                " [" + ConversationsColumns.IS_GROUP_CHANNEL + "] BOOLEAN, " +
+                " [" + ConversationsColumns.ACL + "] INTEGER, " +
+                " [" + ConversationsColumns.TITLE + "] TEXT, " +
+                " [" + ConversationsColumns.PHOTO_50 + "] TEXT, " +
+                " [" + ConversationsColumns.PHOTO_100 + "] TEXT, " +
+                " [" + ConversationsColumns.PHOTO_200 + "] TEXT);"
         db.execSQL(sql)
     }
 

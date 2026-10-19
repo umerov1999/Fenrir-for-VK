@@ -135,7 +135,7 @@ class DialogsPresenter(
         }
         setNetLoadingNow(true)
         netDisposable.add(
-            messagesInteractor.getDialogs(dialogsOwnerId, COUNT, null, null)
+            messagesInteractor.getConversations(dialogsOwnerId, COUNT, null, null)
                 .fromIOToMain({ onDialogsFirstResponse(it) }) { t ->
                     onDialogsGetError(
                         t
@@ -151,7 +151,7 @@ class DialogsPresenter(
         val lastCmId = lastDialogCmId ?: return
         setNetLoadingNow(true)
         netDisposable.add(
-            messagesInteractor.getDialogs(dialogsOwnerId, COUNT, lastDialogPeerId, lastCmId)
+            messagesInteractor.getConversations(dialogsOwnerId, COUNT, lastDialogPeerId, lastCmId)
                 .fromIOToMain(
                     { onNextDialogsResponse(it) }
                 ) { throwable -> onDialogsGetError(throwable) })
@@ -189,7 +189,7 @@ class DialogsPresenter(
     private fun removeDialog(peeId: Long) {
         val accountId = dialogsOwnerId
         appendJob(
-            messagesInteractor.deleteDialog(accountId, peeId)
+            messagesInteractor.deleteConversation(accountId, peeId)
                 .fromIOToMain({ onDialogRemovedSuccessfully(accountId, peeId) }) { t ->
                     showError(t)
                 })
@@ -206,7 +206,7 @@ class DialogsPresenter(
         cacheNowLoading = true
         resolveRefreshingView()
         cacheLoadingDisposable.add(
-            messagesInteractor.getCachedDialogs(dialogsOwnerId)
+            messagesInteractor.getCachedConversations(dialogsOwnerId)
                 .fromIOToMain({ onCachedDataReceived(it) }) { ignored ->
                     ignored.printStackTrace()
                     onCachedDataReceived(emptyList())
@@ -427,7 +427,7 @@ class DialogsPresenter(
                         .fromIOToMain { o ->
                             dialog.setInterlocutor(o)
                             appendJob(
-                                messages.insertDialog(accountId, dialog)
+                                messages.insertConversation(accountId, dialog)
                                     .fromIOToMain {
                                         dialogs.add(dialog)
                                         dialogs.sortWith(compareByDescending<Dialog> { it.majorId }
