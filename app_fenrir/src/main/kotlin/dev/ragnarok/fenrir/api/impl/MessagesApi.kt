@@ -27,6 +27,7 @@ import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import dev.ragnarok.fenrir.api.services.IMessageService
+import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.checkInt
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.ignoreElement
@@ -273,9 +274,17 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
     }
 
     override fun send(
-        randomId: Long?, peerId: Long?, domain: String?, message: String?,
-        latitude: Double?, longitude: Double?, attachments: Collection<IAttachmentToken>?,
-        forwardMessages: Collection<Int>?, stickerId: Int?, payload: String?, reply_to: Int?
+        randomId: Long?,
+        peerId: Long?,
+        domain: String?,
+        message: String?,
+        latitude: Double?,
+        longitude: Double?,
+        attachments: Collection<IAttachmentToken>?,
+        forwardMessages: Collection<Pair<Long, Int>>?,
+        stickerId: Int?,
+        payload: String?,
+        reply_to: Int?
     ): Flow<SendMessageResponse> {
         val atts = join(attachments, ",") {
             formatAttachmentToken(it)
@@ -290,7 +299,9 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
                     latitude,
                     longitude,
                     atts,
-                    join(forwardMessages, ","),
+                    join(forwardMessages, ",") {
+                        it.second.toString()
+                    },
                     stickerId,
                     payload,
                     reply_to
@@ -375,8 +386,10 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun getById(identifiers: Collection<Int>?): Flow<List<VKApiMessage>> {
-        val ids = join(identifiers, ",")
+    override fun getById(identifiers: Collection<Pair<Long, Int>>?): Flow<List<VKApiMessage>> {
+        val ids = join(identifiers, ",") {
+            it.second.toString()
+        }
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat { s ->
                 s.getById(ids, null)

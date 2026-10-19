@@ -143,11 +143,11 @@ interface IMessagesRepository {
 
     fun getDialogs(accountId: Long, count: Int, startMessageId: Int?): Flow<List<Dialog>>
     fun insertDialog(accountId: Long, dialog: Dialog): Flow<Boolean>
-    fun findCachedMessages(accountId: Long, ids: List<Int>): Flow<List<Message>>
+    fun findCachedMessages(accountId: Long, ids: List<Pair<Long, Int>>): Flow<List<Message>>
     fun put(builder: SaveMessageBuilder): Flow<Message>
     fun sendUnsentMessage(accountIds: Collection<Long>): Flow<SentMsg>
-    fun enqueueAgain(accountId: Long, messageId: Int): Flow<Boolean>
-    fun enqueueAgainList(accountId: Long, ids: Collection<Int>): Flow<Boolean>
+    fun enqueueAgain(accountId: Long, peerId: Long, messageId: Int): Flow<Boolean>
+    fun enqueueAgainList(accountId: Long, peerId: Long, ids: Collection<Int>): Flow<Boolean>
 
     /**
      * Поиск диалогов
@@ -186,14 +186,14 @@ interface IMessagesRepository {
     fun createGroupChat(accountId: Long, users: Collection<Long>, title: String?): Flow<Long>
     fun recogniseAudioMessage(
         accountId: Long,
-        message_id: Int?,
-        audio_message_id: String?
+        messageId: Int?,
+        audioMessageId: String?
     ): Flow<Int>
 
     fun setMemberRole(
         accountId: Long,
-        chat_id: Long,
-        member_id: Long,
+        chatId: Long,
+        memberId: Long,
         isAdmin: Boolean
     ): Flow<Boolean>
 
@@ -207,17 +207,17 @@ interface IMessagesRepository {
 
     fun pin(accountId: Long, peerId: Long, message: Message?): Flow<Boolean>
     fun pinUnPinConversation(accountId: Long, peerId: Long, peen: Boolean): Flow<Boolean>
-    fun markAsListened(accountId: Long, message_id: Int): Flow<Boolean>
+    fun markAsListened(accountId: Long, messageId: Int): Flow<Boolean>
     fun sendOrDeleteReaction(
         accountId: Long,
-        peer_id: Long, cmid: Int, reaction_id: Int?
+        peerId: Long, cMid: Int, reactionId: Int?
     ): Flow<Boolean>
 
     fun getReactionsAssets(accountId: Long): Flow<List<ReactionAsset>>
     fun getReactedPeers(
         accountId: Long,
-        peer_id: Long,
-        cmid: Int,
-        reaction_id: Int?
+        peerId: Long,
+        cMid: Int,
+        reactionId: Int?
     ): Flow<List<ReactedMessagesPeers>>
 }

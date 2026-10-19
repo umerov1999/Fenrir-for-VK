@@ -1,7 +1,13 @@
 package dev.ragnarok.fenrir.db
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.ContentProvider
+import android.content.ContentProviderOperation
+import android.content.ContentProviderResult
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.OperationApplicationException
+import android.content.UriMatcher
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
@@ -10,7 +16,34 @@ import android.net.Uri
 import android.provider.BaseColumns
 import androidx.core.net.toUri
 import dev.ragnarok.fenrir.BuildConfig
-import dev.ragnarok.fenrir.db.column.*
+import dev.ragnarok.fenrir.db.column.CommentsColumns
+import dev.ragnarok.fenrir.db.column.CountriesColumns
+import dev.ragnarok.fenrir.db.column.DialogsColumns
+import dev.ragnarok.fenrir.db.column.DocsColumns
+import dev.ragnarok.fenrir.db.column.FaveArticlesColumns
+import dev.ragnarok.fenrir.db.column.FaveLinksColumns
+import dev.ragnarok.fenrir.db.column.FavePagesColumns
+import dev.ragnarok.fenrir.db.column.FavePhotosColumns
+import dev.ragnarok.fenrir.db.column.FavePostsColumns
+import dev.ragnarok.fenrir.db.column.FaveProductsColumns
+import dev.ragnarok.fenrir.db.column.FaveVideosColumns
+import dev.ragnarok.fenrir.db.column.FriendListsColumns
+import dev.ragnarok.fenrir.db.column.GroupsColumns
+import dev.ragnarok.fenrir.db.column.GroupsDetailsColumns
+import dev.ragnarok.fenrir.db.column.MessagesColumns
+import dev.ragnarok.fenrir.db.column.NewsColumns
+import dev.ragnarok.fenrir.db.column.NotificationsColumns
+import dev.ragnarok.fenrir.db.column.PeersColumns
+import dev.ragnarok.fenrir.db.column.PhotoAlbumsColumns
+import dev.ragnarok.fenrir.db.column.PhotosColumns
+import dev.ragnarok.fenrir.db.column.PhotosExtendedColumns
+import dev.ragnarok.fenrir.db.column.PostsColumns
+import dev.ragnarok.fenrir.db.column.RelationshipsColumns
+import dev.ragnarok.fenrir.db.column.TopicsColumns
+import dev.ragnarok.fenrir.db.column.UsersColumns
+import dev.ragnarok.fenrir.db.column.UsersDetailsColumns
+import dev.ragnarok.fenrir.db.column.VideoAlbumsColumns
+import dev.ragnarok.fenrir.db.column.VideosColumns
 import dev.ragnarok.fenrir.db.column.attachments.CommentsAttachmentsColumns
 import dev.ragnarok.fenrir.db.column.attachments.MessagesAttachmentsColumns
 import dev.ragnarok.fenrir.db.column.attachments.WallsAttachmentsColumns
@@ -685,8 +718,8 @@ class FenrirContentProvider : ContentProvider() {
             sMessagesAttachmentsProjectionMap[BaseColumns._ID] = MessagesAttachmentsColumns.FULL_ID
             sMessagesAttachmentsProjectionMap[MessagesAttachmentsColumns.M_ID] =
                 MessagesAttachmentsColumns.FULL_M_ID
-            sMessagesAttachmentsProjectionMap[MessagesAttachmentsColumns.DATA] =
-                MessagesAttachmentsColumns.FULL_DATA
+            sMessagesAttachmentsProjectionMap[MessagesAttachmentsColumns.M_DATA] =
+                MessagesAttachmentsColumns.FULL_M_DATA
 
             sPhotosProjectionMap = HashMap()
             sPhotosProjectionMap[BaseColumns._ID] =
@@ -949,8 +982,8 @@ class FenrirContentProvider : ContentProvider() {
                 WallsAttachmentsColumns.FULL_ID
             sPostsMessagesAttachmentsProjectionMap[WallsAttachmentsColumns.P_ID] =
                 WallsAttachmentsColumns.FULL_P_ID
-            sPostsMessagesAttachmentsProjectionMap[WallsAttachmentsColumns.DATA] =
-                WallsAttachmentsColumns.FULL_DATA
+            sPostsMessagesAttachmentsProjectionMap[WallsAttachmentsColumns.P_DATA] =
+                WallsAttachmentsColumns.FULL_P_DATA
 
             sGroupsProjectionMap = HashMap()
             sGroupsProjectionMap[BaseColumns._ID] = GroupsColumns.FULL_ID
@@ -1015,8 +1048,8 @@ class FenrirContentProvider : ContentProvider() {
                 CommentsAttachmentsColumns.FULL_ID
             sCommentsMessagesAttachmentsProjectionMap[CommentsAttachmentsColumns.C_ID] =
                 CommentsAttachmentsColumns.FULL_C_ID
-            sCommentsMessagesAttachmentsProjectionMap[CommentsAttachmentsColumns.DATA] =
-                CommentsAttachmentsColumns.FULL_DATA
+            sCommentsMessagesAttachmentsProjectionMap[CommentsAttachmentsColumns.C_DATA] =
+                CommentsAttachmentsColumns.FULL_C_DATA
 
             sPhotoAlbumsProjectionMap = HashMap()
             sPhotoAlbumsProjectionMap[PhotoAlbumsColumns.ALBUM_ID] =
@@ -1576,7 +1609,7 @@ class FenrirContentProvider : ContentProvider() {
 
             URI_DIALOGS -> {
                 _QB.tables =
-                    DialogsColumns.TABLENAME + " LEFT OUTER JOIN " + MessagesColumns.TABLENAME + " ON " + DialogsColumns.FULL_LAST_MESSAGE_ID + " = " + MessagesColumns.FULL_ID
+                    DialogsColumns.TABLENAME + " LEFT OUTER JOIN " + MessagesColumns.TABLENAME + " ON " + DialogsColumns.FULL_LAST_MESSAGE_ID + " = " + MessagesColumns.FULL_ID + " AND " + DialogsColumns.FULL_ID + " = " + MessagesColumns.FULL_PEER_ID
                 _QB.projectionMap = sDialogsProjectionMap
                 URI_DIALOGS
             }

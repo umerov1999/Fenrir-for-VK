@@ -40,6 +40,7 @@ class AudioToMessageUploadable(
     ): Flow<UploadResult<Audio>> {
         val accountId = upload.accountId
         val messageId = upload.destination.id
+        val peerId = upload.destination.ownerId
         val serverSingle = if (initialServer == null) {
             networker.vkDefault(accountId)
                 .audio()
@@ -105,6 +106,7 @@ class AudioToMessageUploadable(
                                                 messagesStorage,
                                                 accountId,
                                                 messageId,
+                                                peerId,
                                                 audio
                                             ).map {
                                                 result
@@ -129,11 +131,11 @@ class AudioToMessageUploadable(
     companion object {
         fun attachIntoDatabaseRx(
             repository: IAttachmentsRepository, storage: IMessagesStorage,
-            accountId: Long, messageId: Int, audio: Audio
+            accountId: Long, messageId: Int, peerId: Long, audio: Audio
         ): Flow<Boolean> {
             return repository
                 .attach(accountId, AttachToType.MESSAGE, messageId, listOf(audio))
-                .andThen(storage.notifyMessageHasAttachments(accountId, messageId))
+                .andThen(storage.notifyMessageHasAttachments(accountId, messageId, peerId))
         }
     }
 }

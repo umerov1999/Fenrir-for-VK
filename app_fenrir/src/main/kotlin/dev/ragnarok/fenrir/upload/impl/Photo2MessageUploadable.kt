@@ -38,6 +38,7 @@ class Photo2MessageUploadable(
     ): Flow<UploadResult<Photo>> {
         val accountId = upload.accountId
         val messageId = upload.destination.id
+        val peerId = upload.destination.ownerId
         val serverSingle = if (initialServer != null) {
             toFlow(initialServer)
         } else {
@@ -82,6 +83,7 @@ class Photo2MessageUploadable(
                                                     messagesStorage,
                                                     accountId,
                                                     messageId,
+                                                    peerId,
                                                     photo
                                                 ).map {
                                                     result
@@ -107,11 +109,11 @@ class Photo2MessageUploadable(
     companion object {
         fun attachIntoDatabaseRx(
             repository: IAttachmentsRepository, storage: IMessagesStorage,
-            accountId: Long, messageId: Int, photo: Photo
+            accountId: Long, messageId: Int, peerId: Long, photo: Photo
         ): Flow<Boolean> {
             return repository
                 .attach(accountId, AttachToType.MESSAGE, messageId, listOf(photo))
-                .andThen(storage.notifyMessageHasAttachments(accountId, messageId))
+                .andThen(storage.notifyMessageHasAttachments(accountId, messageId, peerId))
         }
     }
 }

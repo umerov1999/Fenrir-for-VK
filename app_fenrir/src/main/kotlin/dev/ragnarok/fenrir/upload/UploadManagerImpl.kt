@@ -569,8 +569,8 @@ class UploadManagerImpl(
                     }
                 }
 
-                Method.STORY, Method.REMOTE_PLAY_AUDIO, Method.TO_MESSAGE -> {}
-                Method.PHOTO_TO_PROFILE, Method.PHOTO_TO_CHAT -> builder.append(
+                Method.STORY, Method.REMOTE_PLAY_AUDIO -> {}
+                Method.TO_MESSAGE, Method.PHOTO_TO_PROFILE, Method.PHOTO_TO_CHAT -> builder.append(
                     Extra.OWNER_ID
                 ).append(dest.ownerId)
             }

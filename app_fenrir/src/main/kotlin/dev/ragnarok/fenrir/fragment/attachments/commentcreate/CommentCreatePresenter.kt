@@ -36,7 +36,7 @@ class CommentCreatePresenter(
         UploadDestination.forComment(commentId, sourceOwnerId)
     private val attachmentsRepository: IAttachmentsRepository = Includes.attachmentsRepository
     private fun filterAttachEvents(event: IBaseEvent): Boolean {
-        return event.accountId == accountId && event.attachToId == commentId && event.attachToType == AttachToType.COMMENT
+        return event.accountId == accountId && event.attachToDbId == commentId && event.attachToType == AttachToType.COMMENT
     }
 
     private fun handleAttachmentRemoving(event: IRemoveEvent) {
@@ -98,10 +98,10 @@ class CommentCreatePresenter(
     override fun onAttachmentRemoveClick(index: Int, attachment: AttachmentEntry) {
         if (attachment.optionalId != 0) {
             attachmentsRepository.remove(
-                accountId,
-                AttachToType.COMMENT,
-                commentId,
-                attachment.optionalId
+                accountId = accountId,
+                type = AttachToType.COMMENT,
+                attachToDbId = commentId,
+                generatedAttachmentId = attachment.optionalId
             ).hiddenIO()
             // из списка не удаляем, так как удаление из репозитория "слушается"
             // (будет удалено асинхронно и после этого удалится из списка)
@@ -113,10 +113,10 @@ class CommentCreatePresenter(
 
     override fun onModelsAdded(models: List<AbsModel>) {
         attachmentsRepository.attach(
-            accountId,
-            AttachToType.COMMENT,
-            commentId,
-            models
+            accountId = accountId,
+            attachToType = AttachToType.COMMENT,
+            attachToDbId = commentId,
+            models = models
         ).hiddenIO()
     }
 

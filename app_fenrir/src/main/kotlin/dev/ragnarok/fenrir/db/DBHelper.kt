@@ -238,7 +238,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
         val sql = "CREATE TABLE [" + MessagesAttachmentsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 " [" + MessagesAttachmentsColumns.M_ID + "] INTEGER, " +
-                " [" + MessagesAttachmentsColumns.DATA + "] BLOB, " +
+                " [" + MessagesAttachmentsColumns.M_DATA + "] BLOB, " +
                 //" [" + MessagesAttachmentsColumns.ATTACHMENT_ID + "] INTEGER, " +
                 //" [" + MessagesAttachmentsColumns.ATTACHMENT_OWNER_ID + "] INTEGER, " +
                 //" UNIQUE ([" + MessagesAttachmentsColumns.M_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + MessagesAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
@@ -404,7 +404,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
         val sql = "CREATE TABLE [" + CommentsAttachmentsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 " [" + CommentsAttachmentsColumns.C_ID + "] INTEGER, " +
-                " [" + CommentsAttachmentsColumns.DATA + "] BLOB, " +
+                " [" + CommentsAttachmentsColumns.C_DATA + "] BLOB, " +
                 //" [" + CommentsAttachmentsColumns.ATTACHMENT_ID + "] INTEGER, " +
                 //" [" + CommentsAttachmentsColumns.ATTACHMENT_OWNER_ID + "] INTEGER, " +
                 //" UNIQUE ([" + CommentsAttachmentsColumns.C_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + CommentsAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
@@ -422,7 +422,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
         val sql = "CREATE TABLE [" + WallsAttachmentsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 " [" + WallsAttachmentsColumns.P_ID + "] INTEGER, " +
-                " [" + WallsAttachmentsColumns.DATA + "] BLOB, " +
+                " [" + WallsAttachmentsColumns.P_DATA + "] BLOB, " +
                 " FOREIGN KEY([" + WallsAttachmentsColumns.P_ID + "]) " +
                 " REFERENCES " + PostsColumns.TABLENAME + "([" + BaseColumns._ID + "]) ON DELETE CASCADE ON UPDATE CASCADE);"
         db.execSQL(sql)
@@ -459,16 +459,15 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.KEYBOARD + "] BLOB, " +
                 " [" + MessagesColumns.REACTIONS + "] BLOB, " +
                 " [" + MessagesColumns.PAYLOAD + "] TEXT);"
-        val insertZeroRow =
-            "INSERT INTO " + MessagesColumns.TABLENAME + " (" + BaseColumns._ID + ") VALUES (0)"
-        val insert =
-            "INSERT INTO " + MessagesColumns.TABLENAME + " (" + BaseColumns._ID + ") VALUES (1000000000)"
-        val delete =
-            "DELETE FROM " + MessagesColumns.TABLENAME + " WHERE " + BaseColumns._ID + " = 1000000000"
         db.execSQL(create)
-        db.execSQL(insertZeroRow)
-        db.execSQL(insert)
-        db.execSQL(delete)
+        db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (0)")
+        db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (1000000000)")
+        db.execSQL("DELETE FROM ${MessagesColumns.TABLENAME} WHERE ${BaseColumns._ID} = 1000000000")
+
+        db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_message_ids ON ${MessagesColumns.TABLENAME} (${BaseColumns._ID}, ${MessagesColumns.PEER_ID});")
+        db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_conversation_message_ids ON ${MessagesColumns.TABLENAME} (${MessagesColumns.CONVERSATION_MESSAGE_ID}, ${MessagesColumns.PEER_ID});")
+        db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_peer_ids ON ${MessagesColumns.TABLENAME} (${MessagesColumns.PEER_ID});")
+        db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_statuses ON ${MessagesColumns.TABLENAME} (${MessagesColumns.STATUS});")
     }
 
     private fun createFriendListsTable(db: SQLiteDatabase) {

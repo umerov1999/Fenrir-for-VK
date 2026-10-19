@@ -5,8 +5,8 @@ import android.provider.BaseColumns
 object MessagesAttachmentsColumns : BaseColumns {
     const val TABLENAME = "messages_attachments"
     const val M_ID = "message_id"
-    const val DATA = "data"
+    const val M_DATA = "messages_attachment_data"
     const val FULL_ID = TABLENAME + "." + BaseColumns._ID
     const val FULL_M_ID = "$TABLENAME.$M_ID"
-    const val FULL_DATA = "$TABLENAME.$DATA"
+    const val FULL_M_DATA = "$TABLENAME.$M_DATA"
 }

@@ -185,6 +185,7 @@ class MessageAttachmentsFragment :
     override fun getPresenterFactory(saveInstanceState: Bundle?): MessageAttachmentsPresenter {
         val accountId = requireArguments().getLong(Extra.ACCOUNT_ID)
         val messageId = requireArguments().getInt(Extra.MESSAGE_ID)
+        val peerId = requireArguments().getLong(Extra.PEER_ID)
         val messageOwnerId = requireArguments().getLong(Extra.OWNER_ID)
         val bundle: ModelsBundle = requireArguments().getParcelableCompat(Extra.BUNDLE)!!
         val isGroupChat = requireArguments().getBoolean(Extra.IS_CHAT)
@@ -192,6 +193,7 @@ class MessageAttachmentsFragment :
             accountId,
             messageOwnerId,
             messageId,
+            peerId,
             bundle,
             isGroupChat,
             saveInstanceState
@@ -349,6 +351,7 @@ class MessageAttachmentsFragment :
             accountId: Long,
             messageOwnerId: Long,
             messageId: Int,
+            peerId: Long,
             bundle: ModelsBundle?,
             isGroupChat: Boolean
         ): MessageAttachmentsFragment {
@@ -356,6 +359,7 @@ class MessageAttachmentsFragment :
             args.putLong(Extra.ACCOUNT_ID, accountId)
             args.putInt(Extra.MESSAGE_ID, messageId)
             args.putLong(Extra.OWNER_ID, messageOwnerId)
+            args.putLong(Extra.PEER_ID, peerId)
             args.putBoolean(Extra.IS_CHAT, isGroupChat)
             args.putParcelable(Extra.BUNDLE, bundle)
             val fragment = MessageAttachmentsFragment()

@@ -22,6 +22,7 @@ import dev.ragnarok.fenrir.api.model.response.MessageHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
+import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IMessagesApi {
@@ -116,7 +117,7 @@ interface IMessagesApi {
     fun send(
         randomId: Long?, peerId: Long?, domain: String?, message: String?,
         latitude: Double?, longitude: Double?, attachments: Collection<IAttachmentToken>?,
-        forwardMessages: Collection<Int>?, stickerId: Int?, payload: String?, reply_to: Int?
+        forwardMessages: Collection<Pair<Long, Int>>?, stickerId: Int?, payload: String?, reply_to: Int?
     ): Flow<SendMessageResponse>
 
     @CheckResult
@@ -136,7 +137,7 @@ interface IMessagesApi {
     ): Flow<ItemsProfilesGroupsResponse<VKApiConversation>>
 
     @CheckResult
-    fun getById(identifiers: Collection<Int>?): Flow<List<VKApiMessage>>
+    fun getById(identifiers: Collection<Pair<Long, Int>>?): Flow<List<VKApiMessage>>
 
     @CheckResult
     fun getHistory(

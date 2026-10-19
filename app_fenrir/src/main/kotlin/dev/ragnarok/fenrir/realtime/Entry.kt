@@ -6,17 +6,17 @@ import dev.ragnarok.fenrir.util.Utils.safeCountOf
 
 class Entry(val accountId: Long, val id: Int, val isIgnoreIfExists: Boolean) {
     val updates: FullAndNonFullUpdates = FullAndNonFullUpdates()
-    fun has(id: Int): Boolean {
+    fun has(id: Int, peerId: Long): Boolean {
         if (updates.hasNonFullMessages()) {
             for (nonFullId in updates.nonFull.orEmpty()) {
-                if (id == nonFullId.messageId) {
+                if (id == nonFullId.messageId && peerId == nonFullId.peerId) {
                     return true
                 }
             }
         }
         if (updates.hasFullMessages()) {
             for (update in updates.fullMessages.orEmpty()) {
-                if (update.messageId == id) {
+                if (update.messageId == id && peerId == update.peerId) {
                     return true
                 }
             }
@@ -36,9 +36,10 @@ class Entry(val accountId: Long, val id: Int, val isIgnoreIfExists: Boolean) {
         }
     }
 
-    fun append(messageId: Int) {
+    fun append(messageId: Int, peerId: Long) {
         val u = AddMessageUpdate()
         u.messageId = messageId
+        u.peerId = peerId
         updates.prepareNonFull().add(u)
     }
 

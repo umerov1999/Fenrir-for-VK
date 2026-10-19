@@ -21,6 +21,7 @@ import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.Utils.collectIds
+import dev.ragnarok.fenrir.util.Utils.collectPairedIds
 import dev.ragnarok.fenrir.util.Utils.removeIf
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
@@ -65,14 +66,14 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
         return id
     }
 
-    private fun hasInQueueOrCurrent(id: Int): Boolean {
+    private fun hasInQueueOrCurrent(id: Int, peerId: Long): Boolean {
         synchronized(stateLock) {
             val c = current
-            if (c != null && c.has(id)) {
+            if (c != null && c.has(id, peerId)) {
                 return true
             }
             for (q in queue) {
-                if (q.has(id)) {
+                if (q.has(id, peerId)) {
                     return true
                 }
             }
@@ -88,13 +89,13 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
         conversationMessageId: Int,
         ignoreIfExists: Boolean
     ): Int {
-        if (hasInQueueOrCurrent(messageId)) {
+        if (hasInQueueOrCurrent(messageId, peerId)) {
             throw QueueContainsException()
         }
-        d(TAG, "Register entry, aid: $accountId, mid: $messageId, ignoreIfExists: $ignoreIfExists")
+        d(TAG, "Register entry, aid: $accountId, peer_id: $peerId, mid: $messageId, ignoreIfExists: $ignoreIfExists")
         val id = ID_GENERATOR.incrementAndGet()
         val entry = Entry(accountId, id, ignoreIfExists)
-        entry.append(messageId)
+        entry.append(messageId, peerId)
         addToQueue(entry)
         startIfNotStarted()
         return id
@@ -171,13 +172,13 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
                 val updates = it.updates
                 if (updates.hasFullMessages()) {
                     for (update in updates.fullMessages.orEmpty()) {
-                        result.add(update.messageId)
+                        result.add(update.messageId, update.peerId)
                             .setDto(Dto2Model.transform(it.accountId, update))
                     }
                 }
                 if (updates.hasNonFullMessages()) {
                     for (update in updates.nonFull.orEmpty()) {
-                        result.add(update.messageId)
+                        result.add(update.messageId, update.peerId)
                             .setBackup(Dto2Model.transform(it.accountId, update))
                     }
                 }
@@ -217,7 +218,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
     private fun andStore(): suspend (TmpResult) -> Flow<TmpResult> = { result ->
         // если в исходных данных недостаточно инфы - получаем нужные данные с api
         val needGetFromNet =
-            collectIds(result.data) {
+            collectPairedIds(result.data) {
                 it.dto == null
             }
         if (needGetFromNet.isEmpty()) {
@@ -242,7 +243,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
         messagesInteractor.insertMessages(result.accountId, result.collectDtos())
             .flatMapConcat {
                 // собственно, получение из локальной базы
-                val ids = collectIds(result.data) {
+                val ids = collectPairedIds(result.data) {
                     true
                 }
                 messagesInteractor

@@ -33,6 +33,7 @@ import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
+import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.ShortcutUtils.addDynamicShortcut
 import dev.ragnarok.fenrir.util.ShortcutUtils.createChatShortcutRx
@@ -361,9 +362,9 @@ class DialogsPresenter(
         val accountId = update.accountId
         val peerId = update.peerId
         if (update.lastMessage != null) {
-            val id = listOf((update.lastMessage ?: return).messageId)
+            val messageId = update.lastMessage?.messageId ?: return
             appendJob(
-                messagesInteractor.findCachedMessages(accountId, id)
+                messagesInteractor.findCachedMessages(accountId, listOf(Pair(peerId, messageId)))
                     .fromIOToMain { messages ->
                         if (messages.isEmpty()) {
                             onDialogDeleted(accountId, peerId)

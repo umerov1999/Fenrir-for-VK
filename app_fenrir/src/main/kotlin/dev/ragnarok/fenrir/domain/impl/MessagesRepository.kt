@@ -246,22 +246,24 @@ class MessagesRepository(
     private fun onUploadSuccess(upload: Upload) {
         val accountId = upload.accountId
         val messagesId = upload.destination.id
+        val peerId = upload.destination.ownerId
         compositeJob.add(
             uploadManager[accountId, upload.destination]
                 .flatMapConcat { uploads ->
                     if (uploads.isNotEmpty()) {
                         toFlow(false)
                     } else {
-                        storages.messages().getMessageStatus(accountId, messagesId)
+                        storages.messages().getMessageStatus(accountId, messagesId, peerId)
                             .flatMapConcat { status ->
                                 if (status != MessageStatus.WAITING_FOR_UPLOAD) {
                                     toFlow(false)
                                 } else {
                                     changeMessageStatus(
-                                        accountId,
-                                        messagesId,
-                                        MessageStatus.QUEUE,
-                                        null, null
+                                        accountId = accountId,
+                                        messageId = messagesId,
+                                        peerId = peerId,
+                                        status = MessageStatus.QUEUE,
+                                        vkid = null, cmid = null
                                     ).map {
                                         true
                                     }
@@ -607,7 +609,7 @@ class MessagesRepository(
                 keepForwardMessages,
                 null
             )
-            .andThen(getById(accountId, message.getObjectId()))
+            .andThen(getById(accountId, message.peerId, message.getObjectId()))
     }
 
     override fun getCachedPeerMessages(
@@ -616,7 +618,7 @@ class MessagesRepository(
     ): Flow<List<Message>> {
         val criteria = MessagesCriteria(accountId, peerId)
         return storages.messages()
-            .getByCriteria(criteria, withAtatchments = true, withForwardMessages = true)
+            .getByCriteria(criteria = criteria, withAtatchments = true, withForwardMessages = true)
             .flatMapConcat(entities2Models(accountId))
     }
 
@@ -685,10 +687,10 @@ class MessagesRepository(
             }
     }
 
-    private fun getById(accountId: Long, messageId: Int): Flow<Message> {
+    private fun getById(accountId: Long, peerId: Long, messageId: Int): Flow<Message> {
         return networker.vkDefault(accountId)
             .messages()
-            .getById(listOf(messageId))
+            .getById(listOf(Pair(peerId, messageId)))
             .map { dtos ->
                 mapAll(dtos) {
                     mapMessage(
@@ -1033,10 +1035,15 @@ class MessagesRepository(
 
     override fun findCachedMessages(
         accountId: Long,
-        ids: List<Int>
+        ids: List<Pair<Long, Int>>
     ): Flow<List<Message>> {
         return storages.messages()
-            .findMessagesByIds(accountId, ids, withAttachments = true, withForwardMessages = true)
+            .findMessagesByIds(
+                accountId = accountId,
+                ids = ids,
+                withAttachments = true,
+                withForwardMessages = true
+            )
             .flatMapConcat(entities2Models(accountId))
     }
 
@@ -1083,7 +1090,7 @@ class MessagesRepository(
                 }
                 patch.setText(builder.text)
                 val storeSingle = if (draftMessageId != null) {
-                    storages.messages().applyPatch(accountId, draftMessageId, patch)
+                    storages.messages().applyPatch(accountId, draftMessageId, peerId, patch)
                 } else {
                     storages.messages().insert(accountId, peerId, patch)
                 }
@@ -1091,7 +1098,7 @@ class MessagesRepository(
                     .flatMapConcat { resultMid ->
                         storages.messages()
                             .findMessagesByIds(
-                                accountId, listOf(resultMid),
+                                accountId, listOf(Pair(peerId, resultMid)),
                                 withAttachments = true, withForwardMessages = true
                             )
                             .flatMapConcat(entities2Models(accountId))
@@ -1108,6 +1115,7 @@ class MessagesRepository(
     private fun changeMessageStatus(
         accountId: Long,
         messageId: Int,
+        peerId: Long,
         @MessageStatus status: Int,
         vkid: Int?,
         cmid: Int?
@@ -1115,14 +1123,21 @@ class MessagesRepository(
         val update = MessageUpdate(accountId, messageId)
         update.setStatusUpdate(StatusUpdate(status, vkid))
         return storages.messages()
-            .changeMessageStatus(accountId, messageId, status, vkid, cmid)
+            .changeMessageStatus(
+                accountId = accountId,
+                messageId = messageId,
+                peerId = peerId,
+                status = status,
+                vkid = vkid,
+                cmid = cmid
+            )
             .map {
                 messageUpdatesPublisher.emit(listOf(update))
                 true
             }
     }
 
-    override fun enqueueAgainList(accountId: Long, ids: Collection<Int>): Flow<Boolean> {
+    override fun enqueueAgainList(accountId: Long, peerId: Long, ids: Collection<Int>): Flow<Boolean> {
         val updates = ArrayList<MessageUpdate>(ids.size)
         for (i in ids) {
             val update = MessageUpdate(accountId, i)
@@ -1130,15 +1145,15 @@ class MessagesRepository(
             updates.add(update)
         }
         return storages.messages()
-            .changeMessagesStatus(accountId, ids, MessageStatus.QUEUE)
+            .changeMessagesStatus(accountId, peerId, ids, MessageStatus.QUEUE)
             .map {
                 messageUpdatesPublisher.emit(updates)
                 true
             }
     }
 
-    override fun enqueueAgain(accountId: Long, messageId: Int): Flow<Boolean> {
-        return changeMessageStatus(accountId, messageId, MessageStatus.QUEUE, null, null)
+    override fun enqueueAgain(accountId: Long, peerId: Long, messageId: Int): Flow<Boolean> {
+        return changeMessageStatus(accountId, messageId, peerId, MessageStatus.QUEUE, null, null)
     }
 
     override fun sendUnsentMessage(accountIds: Collection<Long>): Flow<SentMsg> {
@@ -1156,7 +1171,7 @@ class MessagesRepository(
                     } else {
                         val dbid = entity.id
                         val peerId = entity.peerId
-                        changeMessageStatus(accountId, dbid, MessageStatus.SENDING, null, null)
+                        changeMessageStatus(accountId, dbid, peerId, MessageStatus.SENDING, null, null)
                             .andThen(
                                 internalSend(accountId, entity)
                                     .flatMapConcat { vkid ->
@@ -1166,6 +1181,7 @@ class MessagesRepository(
                                         changeMessageStatus(
                                             accountId,
                                             dbid,
+                                            peerId,
                                             MessageStatus.SENT,
                                             vkid.message_id,
                                             vkid.conversation_message_id
@@ -1190,6 +1206,7 @@ class MessagesRepository(
                                         changeMessageStatus(
                                             accountId,
                                             dbid,
+                                            peerId,
                                             MessageStatus.ERROR,
                                             null, null
                                         ).syncSingleSafe()
@@ -1435,11 +1452,11 @@ class MessagesRepository(
 
     override fun sendOrDeleteReaction(
         accountId: Long,
-        peer_id: Long, cmid: Int, reaction_id: Int?
+        peerId: Long, cMid: Int, reactionId: Int?
     ): Flow<Boolean> {
         return networker.vkDefault(accountId)
             .messages()
-            .sendOrDeleteReaction(peer_id, cmid, reaction_id)
+            .sendOrDeleteReaction(peerId, cMid, reactionId)
             .ignoreElement()
     }
 
@@ -1451,11 +1468,11 @@ class MessagesRepository(
 
     override fun markAsListened(
         accountId: Long,
-        message_id: Int
+        messageId: Int
     ): Flow<Boolean> {
         return networker.vkDefault(accountId)
             .messages()
-            .markAsListened(message_id)
+            .markAsListened(messageId)
     }
 
     override fun markAsImportant(
@@ -1562,23 +1579,23 @@ class MessagesRepository(
 
     override fun recogniseAudioMessage(
         accountId: Long,
-        message_id: Int?,
-        audio_message_id: String?
+        messageId: Int?,
+        audioMessageId: String?
     ): Flow<Int> {
         return networker.vkDefault(accountId)
             .messages()
-            .recogniseAudioMessage(message_id, audio_message_id)
+            .recogniseAudioMessage(messageId, audioMessageId)
     }
 
     override fun setMemberRole(
         accountId: Long,
-        chat_id: Long,
-        member_id: Long,
+        chatId: Long,
+        memberId: Long,
         isAdmin: Boolean
     ): Flow<Boolean> {
         return networker.vkDefault(accountId)
             .messages()
-            .setMemberRole(Peer.fromChatId(chat_id), member_id, if (isAdmin) "admin" else "member")
+            .setMemberRole(Peer.fromChatId(chatId), memberId, if (isAdmin) "admin" else "member")
             .ignoreElement()
     }
 
@@ -1623,13 +1640,13 @@ class MessagesRepository(
 
     override fun getReactedPeers(
         accountId: Long,
-        peer_id: Long,
-        cmid: Int,
-        reaction_id: Int?
+        peerId: Long,
+        cMid: Int,
+        reactionId: Int?
     ): Flow<List<ReactedMessagesPeers>> {
         return networker.vkDefault(accountId)
             .messages()
-            .getReactedPeers(peer_id, cmid, reaction_id, true, Fields.FIELDS_BASE_OWNER)
+            .getReactedPeers(peerId, cMid, reactionId, true, Fields.FIELDS_BASE_OWNER)
             .flatMapConcat {
                 val dtos: List<VKApiReactedMessagesPeers> =
                     listEmptyIfNull(it.reactions)
@@ -1705,7 +1722,7 @@ class MessagesRepository(
                                         null,
                                         stickerId,
                                         dbo.payload,
-                                        if (it.first) it.second.requireNonEmpty()[0] else null
+                                        if (it.first) it.second.requireNonEmpty()[0].second else null
                                     )
                             }
                     }
@@ -1735,7 +1752,7 @@ class MessagesRepository(
                                 if (!it.first) it.second.get() else null,
                                 null,
                                 dbo.payload,
-                                if (it.first) it.second.requireNonEmpty()[0] else null
+                                if (it.first) it.second.requireNonEmpty()[0].second else null
                             )
                     }
             }
@@ -1744,7 +1761,7 @@ class MessagesRepository(
     private fun checkForwardMessages(
         accountId: Long,
         dbo: MessageDboEntity
-    ): Flow<Pair<Boolean, Optional<List<Int>>>> {
+    ): Flow<Pair<Boolean, Optional<List<Pair<Long, Int>>>>> {
         return if (dbo.forwardCount == 0) {
             toFlow(Pair(false, Optional.empty()))
         } else storages.messages()
@@ -1809,7 +1826,7 @@ class MessagesRepository(
     private fun getTargetMessageStatus(builder: SaveMessageBuilder): Flow<Int> {
         val accountId = builder.accountId
         val destination =
-            forMessage(builder.draftMessageId ?: return toFlow(MessageStatus.QUEUE))
+            forMessage(builder.draftMessageId ?: return toFlow(MessageStatus.QUEUE), builder.peerId)
         return uploadManager[accountId, destination]
             .map { uploads ->
                 if (uploads.isEmpty()) {

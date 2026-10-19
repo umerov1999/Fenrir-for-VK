@@ -15,27 +15,27 @@ interface IAttachmentsStorage : IStorage {
     fun removeAll(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int
+        attachToDbId: Int
     ): Flow<Boolean>
 
     fun attachDbos(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int,
+        attachToDbId: Int,
         entities: List<DboEntity>
     ): Flow<IntArray>
 
-    fun getCount(accountId: Long, @AttachToType attachToType: Int, attachToDbid: Int): Flow<Int>
+    fun getCount(accountId: Long, @AttachToType attachToType: Int, attachToDbId: Int): Flow<Int>
     fun getAttachmentsDbosWithIds(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int
+        attachToDbId: Int
     ): Flow<List<Pair<Int, DboEntity>>>
 
     suspend fun getAttachmentsDbosSync(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int,
+        attachToDbId: Int,
         cancelable: Cancelable
     ): MutableList<DboEntity>
 }

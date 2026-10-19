@@ -27,7 +27,7 @@ interface IMessagesStorage : IStorage {
     ): Flow<List<MessageDboEntity>>
 
     fun insert(accountId: Long, peerId: Long, patch: MessageEditEntity): Flow<Int>
-    fun applyPatch(accountId: Long, messageId: Int, patch: MessageEditEntity): Flow<Int>
+    fun applyPatch(accountId: Long, messageId: Int, peerId: Long, patch: MessageEditEntity): Flow<Int>
 
     @CheckResult
     fun findDraftMessage(accountId: Long, peerId: Long): Flow<DraftMessage?>
@@ -37,13 +37,14 @@ interface IMessagesStorage : IStorage {
 
     //@CheckResult
     //Maybe<Integer> getDraftMessageId(int accountId, int peerId);
-    fun getMessageStatus(accountId: Long, dbid: Int): Flow<Int>
+    fun getMessageStatus(accountId: Long, dbid: Int, peerId: Long): Flow<Int>
     fun applyPatches(accountId: Long, patches: Collection<MessagePatch>): Flow<Boolean>
 
     @CheckResult
     fun changeMessageStatus(
         accountId: Long,
         messageId: Int,
+        peerId: Long,
         @MessageStatus status: Int,
         vkid: Int?,
         cmid: Int?
@@ -52,6 +53,7 @@ interface IMessagesStorage : IStorage {
     @CheckResult
     fun changeMessagesStatus(
         accountId: Long,
+        peerId: Long,
         ids: Collection<Int>,
         @MessageStatus status: Int
     ): Flow<Boolean>
@@ -59,11 +61,11 @@ interface IMessagesStorage : IStorage {
     //@CheckResult
     //Completable updateMessageFlag(int accountId, int messageId, Collection<Pair<Integer, Boolean>> values);
     @CheckResult
-    fun deleteMessage(accountId: Long, messageId: Int): Flow<Boolean>
+    fun deleteMessage(accountId: Long, messageId: Int, peerId: Long): Flow<Boolean>
     fun findLastSentMessageIdForPeer(accountId: Long, peerId: Long): Flow<Optional<Int>>
     fun findMessagesByIds(
         accountId: Long,
-        ids: List<Int>,
+        ids: List<Pair<Long, Int>>,
         withAttachments: Boolean,
         withForwardMessages: Boolean
     ): Flow<List<MessageDboEntity>>
@@ -74,7 +76,7 @@ interface IMessagesStorage : IStorage {
         withForwardMessages: Boolean
     ): Flow<Optional<Pair<Long, MessageDboEntity>>>
 
-    fun notifyMessageHasAttachments(accountId: Long, messageId: Int): Flow<Boolean>
+    fun notifyMessageHasAttachments(accountId: Long, messageId: Int, peerId: Long): Flow<Boolean>
 
     ///**
     // * Получить список сообщений, которые "приаттаччены" к сообщению с идентификатором attachTo
@@ -92,13 +94,13 @@ interface IMessagesStorage : IStorage {
     @CheckResult
     fun getForwardMessageIds(
         accountId: Long,
-        attachTo: Int,
-        pair: Long
-    ): Flow<Pair<Boolean, List<Int>>>
+        attachToDbId: Int,
+        peerId: Long
+    ): Flow<Pair<Boolean, List<Pair<Long, Int>>>>
 
     //Observable<MessageUpdate> observeMessageUpdates();
-    fun getMissingMessages(accountId: Long, ids: Collection<Int>): Flow<List<Int>>
+    fun getMissingMessages(accountId: Long, ids: Collection<Pair<Long, Int>>): Flow<Collection<Pair<Long, Int>>>
 
     @CheckResult
-    fun deleteMessages(accountId: Long, ids: Collection<Int>): Flow<Boolean>
+    fun deleteMessages(accountId: Long, ids: Collection<Pair<Long, Int>>): Flow<Boolean>
 }

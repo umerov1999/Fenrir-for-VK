@@ -325,7 +325,7 @@ class PostCreatePresenter(
 
     private fun filterAttachmentEvents(event: IBaseEvent): Boolean {
         val pPost = post ?: return false
-        return event.attachToType == AttachToType.POST && event.accountId == accountId && event.attachToId == pPost.dbid
+        return event.attachToType == AttachToType.POST && event.accountId == accountId && event.attachToDbId == pPost.dbid
     }
 
     private fun onRepositoryAttachmentsAdded(d: List<Pair<Int, AbsModel>>) {
@@ -354,7 +354,12 @@ class PostCreatePresenter(
     override fun onModelsAdded(models: List<AbsModel>) {
         val pPost = post ?: return
         appendJob(
-            attachmentsRepository.attach(accountId, AttachToType.POST, pPost.dbid, models)
+            attachmentsRepository.attach(
+                accountId = accountId,
+                attachToType = AttachToType.POST,
+                attachToDbId = pPost.dbid,
+                models = models
+            )
                 .hiddenIO()
         )
     }
@@ -364,10 +369,10 @@ class PostCreatePresenter(
         if (attachment.optionalId != 0) {
             appendJob(
                 attachmentsRepository.remove(
-                    accountId,
-                    AttachToType.POST,
-                    pPost.dbid,
-                    attachment.optionalId
+                    accountId = accountId,
+                    type = AttachToType.POST,
+                    attachToDbId = pPost.dbid,
+                    generatedAttachmentId = attachment.optionalId
                 ).hiddenIO()
             )
         } else {

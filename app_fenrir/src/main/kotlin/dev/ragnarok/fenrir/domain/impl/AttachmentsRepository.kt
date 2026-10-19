@@ -29,13 +29,13 @@ class AttachmentsRepository(
     override fun remove(
         accountId: Long,
         @AttachToType type: Int,
-        attachToId: Int,
+        attachToDbId: Int,
         generatedAttachmentId: Int
     ): Flow<Boolean> {
         return store.remove(accountId, type, generatedAttachmentId)
             .map {
                 val event =
-                    RemoveEvent(accountId, type, attachToId, generatedAttachmentId)
+                    RemoveEvent(accountId, type, attachToDbId, generatedAttachmentId)
                 removePublishSubject.emit(event)
                 true
             }
@@ -44,19 +44,19 @@ class AttachmentsRepository(
     override fun removeAll(
         accountId: Long,
         @AttachToType type: Int,
-        attachToDbid: Int
+        attachToDbId: Int
     ): Flow<Boolean> {
-        return store.removeAll(accountId, type, attachToDbid)
+        return store.removeAll(accountId, type, attachToDbId)
     }
 
     override fun attach(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int,
+        attachToDbId: Int,
         models: List<AbsModel>
     ): Flow<Boolean> {
         val entities = buildDboAttachments(models)
-        return store.attachDbos(accountId, attachToType, attachToDbid, entities)
+        return store.attachDbos(accountId, attachToType, attachToDbId, entities)
             .map { ids ->
                 val events: MutableList<Pair<Int, AbsModel>> = ArrayList(models.size)
                 for (i in models.indices) {
@@ -64,7 +64,7 @@ class AttachmentsRepository(
                     val generatedId = ids[i]
                     events.add(create(generatedId, model))
                 }
-                val event = AddEvent(accountId, attachToType, attachToDbid, events)
+                val event = AddEvent(accountId, attachToType, attachToDbId, events)
                 addPublishSubject.emit(event)
                 true
             }
@@ -73,9 +73,9 @@ class AttachmentsRepository(
     override fun getAttachmentsWithIds(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int
+        attachToDbId: Int
     ): Flow<List<Pair<Int, AbsModel>>> {
-        return store.getAttachmentsDbosWithIds(accountId, attachToType, attachToDbid)
+        return store.getAttachmentsDbosWithIds(accountId, attachToType, attachToDbId)
             .flatMapConcat { pairs ->
                 val ids = VKOwnIds()
                 for (pair in pairs) {
@@ -105,21 +105,21 @@ class AttachmentsRepository(
     private class AddEvent(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToId: Int,
+        attachToDbId: Int,
         override val attachments: List<Pair<Int, AbsModel>>
-    ) : Event(accountId, attachToType, attachToId), IAddEvent
+    ) : Event(accountId, attachToType, attachToDbId), IAddEvent
 
     private open class Event(
         override val accountId: Long,
         @param:AttachToType override val attachToType: Int,
-        override val attachToId: Int
+        override val attachToDbId: Int
     ) : IBaseEvent
 
     private inner class RemoveEvent(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToId: Int,
+        attachToDbId: Int,
         override val generatedId: Int
-    ) : Event(accountId, attachToType, attachToId), IRemoveEvent
+    ) : Event(accountId, attachToType, attachToDbId), IRemoveEvent
 
 }

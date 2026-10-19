@@ -201,7 +201,7 @@ class CommentsPresenter(
     }
 
     private fun filterAttachmentEvent(event: IBaseEvent): Boolean {
-        return draftCommentId != null && event.attachToType == AttachToType.COMMENT && event.accountId == authorId && event.attachToId == draftCommentId
+        return draftCommentId != null && event.attachToType == AttachToType.COMMENT && event.accountId == authorId && event.attachToDbId == draftCommentId
     }
 
     private fun restoreDraftCommentSync() {

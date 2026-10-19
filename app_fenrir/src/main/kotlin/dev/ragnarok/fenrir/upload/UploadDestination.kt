@@ -73,7 +73,6 @@ open class UploadDestination : Parcelable {
     }
 
     companion object {
-        const val WITHOUT_OWNER = 0L
         private const val NO_ID = 0
         private const val NO_ID_L = 0L
 
@@ -99,10 +98,10 @@ open class UploadDestination : Parcelable {
             )
         }
 
-        fun forChatPhoto(chat_id: Long): UploadDestination {
+        fun forChatPhoto(chatId: Long): UploadDestination {
             return UploadDestination(
                 NO_ID,
-                chat_id,
+                chatId,
                 Method.PHOTO_TO_CHAT,
                 MessageMethod.NULL,
                 null
@@ -139,13 +138,13 @@ open class UploadDestination : Parcelable {
             )
         }
 
-        fun forStory(@MessageMethod msg_method: Int, ref: String?): UploadDestination {
-            return UploadDestination(NO_ID, NO_ID_L, Method.STORY, msg_method, ref)
+        fun forStory(@MessageMethod msgMethod: Int, ref: String?): UploadDestination {
+            return UploadDestination(NO_ID, NO_ID_L, Method.STORY, msgMethod, ref)
         }
 
-        fun forVideo(is_public: Int, ownerId: Long): UploadDestination {
+        fun forVideo(isPublic: Int, ownerId: Long): UploadDestination {
             return UploadDestination(
-                is_public,
+                isPublic,
                 ownerId,
                 Method.VIDEO,
                 MessageMethod.NULL,
@@ -153,18 +152,18 @@ open class UploadDestination : Parcelable {
             )
         }
 
-        fun forMessage(mdbid: Int): UploadDestination {
+        fun forMessage(mDbId: Int, mPeerId: Long): UploadDestination {
             return UploadDestination(
-                mdbid, WITHOUT_OWNER,
+                mDbId, mPeerId,
                 Method.TO_MESSAGE, MessageMethod.PHOTO,
                 null
             )
         }
 
-        fun forMessage(mdbid: Int, @MessageMethod msg_method: Int): UploadDestination {
+        fun forMessage(mDbId: Int, @MessageMethod msgMethod: Int, mPeerId: Long): UploadDestination {
             return UploadDestination(
-                mdbid, WITHOUT_OWNER,
-                Method.TO_MESSAGE, msg_method,
+                mDbId, mPeerId,
+                Method.TO_MESSAGE, msgMethod,
                 null
             )
         }
@@ -179,8 +178,8 @@ open class UploadDestination : Parcelable {
             )
         }
 
-        fun forPost(dbid: Int, ownerId: Long, @MessageMethod msg_method: Int): UploadDestination {
-            return UploadDestination(dbid, ownerId, Method.TO_WALL, msg_method, null)
+        fun forPost(dbId: Int, ownerId: Long, @MessageMethod msgMethod: Int): UploadDestination {
+            return UploadDestination(dbId, ownerId, Method.TO_WALL, msgMethod, null)
         }
 
         fun forPost(dbid: Int, ownerId: Long): UploadDestination {

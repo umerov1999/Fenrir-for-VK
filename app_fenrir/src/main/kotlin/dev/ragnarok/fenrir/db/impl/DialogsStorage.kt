@@ -118,11 +118,11 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 )
                 entity.message?.let {
                     MessagesStorage.appendDboOperation(
-                        accountId,
-                        it,
-                        operations,
-                        null,
-                        null
+                        accountId = accountId,
+                        dbo = it,
+                        target = operations,
+                        attachToDbId = null,
+                        attachToIndex = null
                     )
                 }
             }

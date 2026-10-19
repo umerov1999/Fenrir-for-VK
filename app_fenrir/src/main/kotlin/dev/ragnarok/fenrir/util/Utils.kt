@@ -77,6 +77,7 @@ import dev.ragnarok.fenrir.api.model.VKApiOwner
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.interfaces.Identificable
 import dev.ragnarok.fenrir.api.model.interfaces.IdentificableOwner
+import dev.ragnarok.fenrir.api.model.interfaces.IdentificablePair
 import dev.ragnarok.fenrir.applyAlpha
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import dev.ragnarok.fenrir.media.exo.OkHttpDataSource
@@ -348,6 +349,38 @@ object Utils {
     }
 
     inline fun <reified T : Identificable> countOf(
+        data: Collection<T?>?,
+        predicate: (T) -> Boolean
+    ): Int {
+        data ?: return 0
+        var count = 0
+        for (t in data) {
+            if (t?.let { predicate.invoke(it) } == true) {
+                count++
+            }
+        }
+        return count
+    }
+
+    inline fun <reified T : IdentificablePair> collectPairedIds(
+        data: Collection<T?>?,
+        predicate: (T) -> Boolean
+    ): List<Pair<Long, Int>> {
+        data ?: return emptyList()
+        val count = countOfPaired(data, predicate)
+        if (count == 0) {
+            return emptyList()
+        }
+        val ids: MutableList<Pair<Long, Int>> = ArrayList(count)
+        for (t in data) {
+            if (t?.let { predicate.invoke(it) } == true) {
+                ids.add(Pair(t.getObjectOwnerId(), t.getObjectId()))
+            }
+        }
+        return ids
+    }
+
+    inline fun <reified T : IdentificablePair> countOfPaired(
         data: Collection<T?>?,
         predicate: (T) -> Boolean
     ): Int {

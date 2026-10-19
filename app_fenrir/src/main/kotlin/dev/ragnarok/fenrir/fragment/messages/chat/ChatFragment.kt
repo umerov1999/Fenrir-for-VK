@@ -1376,6 +1376,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             accountId,
             messageOwnerId,
             destination.id,
+            destination.ownerId,
             attachments,
             isGroupChat
         )

@@ -362,7 +362,12 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         if (includeAttachments && (attachmentsCount > 0 || forceAttachments)) {
             val attachments: MutableList<DboEntity> = stores
                 .attachments()
-                .getAttachmentsDbosSync(accountId, AttachToType.POST, dbid, cancelable)
+                .getAttachmentsDbosSync(
+                    accountId = accountId,
+                    attachToType = AttachToType.POST,
+                    attachToDbId = dbid,
+                    cancelable = cancelable
+                )
 
             // Так как история репостов хранится вместе с вложениями,
             // в этом месте пересохраняем эту историю в другой список
@@ -411,22 +416,22 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             dbo.getAttachments().nonNullNoEmpty {
                 for (attachmentEntity in it) {
                     appendAttachOperationWithBackReference(
-                        operations,
-                        accountId,
-                        AttachToType.POST,
-                        mainPostHeaderIndex,
-                        attachmentEntity
+                        operations = operations,
+                        accountId = accountId,
+                        attachToType = AttachToType.POST,
+                        attachToBackReferenceIndex = mainPostHeaderIndex,
+                        dboEntity = attachmentEntity
                     )
                 }
             }
             dbo.copyHierarchy.nonNullNoEmpty {
                 for (copyDbo in it) {
                     appendAttachOperationWithBackReference(
-                        operations,
-                        accountId,
-                        AttachToType.POST,
-                        mainPostHeaderIndex,
-                        copyDbo
+                        operations = operations,
+                        accountId = accountId,
+                        attachToType = AttachToType.POST,
+                        attachToBackReferenceIndex = mainPostHeaderIndex,
+                        dboEntity = copyDbo
                     )
                 }
             }

@@ -230,7 +230,7 @@ class ChatPresenter(
         val predicate: suspend (IAttachmentsRepository.IBaseEvent) -> Boolean = {
             draftMessage.id != null
                     && it.accountId == messagesOwnerId
-                    && it.attachToId == draftMessage.id
+                    && it.attachToDbId == draftMessage.id
         }
 
         val attachmentsRepository = Includes.attachmentsRepository
@@ -569,7 +569,10 @@ class ChatPresenter(
             view?.displayToolbarAvatar(peer)
         } else {
             edited?.run {
-                if (message.getObjectId() == destination.id && destination.method == Method.TO_MESSAGE) {
+                if (message.getObjectId() == destination.id
+                    && message.peerId == destination.ownerId
+                    && destination.method == Method.TO_MESSAGE
+                ) {
                     val photo: AbsModel = pair.second.result as AbsModel
                     val sizeBefore = attachments.size
 
@@ -602,7 +605,9 @@ class ChatPresenter(
             val filtered = uploads
                 .asSequence()
                 .filter { u ->
-                    u.destination.id == message.getObjectId() && u.destination.method == Method.TO_MESSAGE
+                    u.destination.id == message.getObjectId()
+                            && u.destination.ownerId == message.peerId
+                            && u.destination.method == Method.TO_MESSAGE
                 }.map {
                     AttachmentEntry(true, it)
                 }.toList()
@@ -678,11 +683,11 @@ class ChatPresenter(
             .flatMapConcat { t ->
                 val list = t.toMutableList()
                 val iterator = list.iterator()
-                val delete: ArrayList<Int> = ArrayList()
+                val delete: MutableList<Pair<Long, Int>> = ArrayList()
                 while (iterator.hasNext()) {
                     val kk = iterator.next()
                     if (kk.status == MessageStatus.SENDING) {
-                        delete.add(kk.getObjectId())
+                        delete.add(Pair(kk.peerId, kk.getObjectId()))
                         iterator.remove()
                     }
                 }
@@ -745,7 +750,7 @@ class ChatPresenter(
             }
             for (selected in selectedList) {
                 for (item in messages) {
-                    if (item.getObjectId() == selected.getObjectId()) {
+                    if (item.getObjectId() == selected.getObjectId() && item.peerId == selected.peerId) {
                         item.isSelected = true
                         break
                     }
@@ -837,7 +842,7 @@ class ChatPresenter(
         }
         var st = emptyTaskFlow()
         if (list.isNotEmpty()) {
-            st = st.andThen(messagesRepository.enqueueAgainList(messagesOwnerId, list))
+            st = st.andThen(messagesRepository.enqueueAgainList(messagesOwnerId, peerId, list))
         }
         return st.map {
             list.isNotEmpty()
@@ -876,7 +881,6 @@ class ChatPresenter(
     private fun requestFromNet(startMessageId: Int?) {
         setNetLoadingNow(true)
 
-        val peerId = this.peerId
         netLoadingDisposable += messagesRepository.getPeerMessages(
             accountId = messagesOwnerId,
             peerId = peerId,
@@ -903,9 +907,9 @@ class ChatPresenter(
         requestFromNet(lastId)
     }
 
-    private fun onMessagesRestoredSuccessfully(id: Int) {
+    private fun onMessagesRestoredSuccessfully(id: Int, peerId: Long) {
         data.find {
-            it.getObjectId() == id
+            it.getObjectId() == id && it.peerId == peerId
         }?.run {
             setDeleted(false)
             setDeletedForAll(false)
@@ -1067,7 +1071,7 @@ class ChatPresenter(
             )
         }
 
-        val destination = UploadDestination.forMessage(draftMessage.id ?: return)
+        val destination = UploadDestination.forMessage(draftMessage.id ?: return, peerId)
         view?.goToMessageAttachmentsEditor(
             accountId,
             messagesOwnerId,
@@ -1099,7 +1103,7 @@ class ChatPresenter(
         val current = uploadManager.getCurrent()
         return current.nonEmpty() && current.get()?.destination?.compareTo(
             messageId,
-            UploadDestination.WITHOUT_OWNER,
+            peerId,
             Method.TO_MESSAGE
         ) == true
     }
@@ -1797,14 +1801,14 @@ class ChatPresenter(
     }
 
     fun fireMessageRestoreClick(message: Message) {
-        restoreMessage(message.getObjectId())
-    }
-
-    private fun restoreMessage(messageId: Int) {
         appendJob(
-            messagesRepository.restoreMessage(messagesOwnerId, peerId, messageId)
+            messagesRepository.restoreMessage(
+                messagesOwnerId,
+                message.peerId,
+                message.getObjectId()
+            )
                 .fromIOToMain(
-                    { onMessagesRestoredSuccessfully(messageId) },
+                    { onMessagesRestoredSuccessfully(message.getObjectId(), message.peerId) },
                     { t -> showError(view, t) })
         )
     }
@@ -2027,13 +2031,13 @@ class ChatPresenter(
     }
 
     private fun cancelWaitingForUploadMessage(messageId: Int) {
-        val destination = UploadDestination.forMessage(messageId)
+        val destination = UploadDestination.forMessage(messageId, peerId)
         uploadManager.cancelAll(messagesOwnerId, destination)
     }
 
     fun fireSendAgainClick(message: Message) {
         appendJob(
-            messagesRepository.enqueueAgain(messagesOwnerId, message.getObjectId())
+            messagesRepository.enqueueAgain(messagesOwnerId, peerId, message.getObjectId())
                 .fromIOToMain({ startSendService() }, { logThrowable("ChatPresenter", it) })
         )
     }
@@ -2041,7 +2045,7 @@ class ChatPresenter(
     private fun deleteMessageFromDbAsync(message: Message) {
         Stores.instance
             .messages()
-            .deleteMessage(messagesOwnerId, message.getObjectId())
+            .deleteMessage(messagesOwnerId, message.getObjectId(), message.peerId)
             .hiddenIO()
     }
 
@@ -2146,8 +2150,9 @@ class ChatPresenter(
 
         val destination = if (is_video) UploadDestination.forMessage(
             draftMessage.id ?: return,
-            MessageMethod.VIDEO
-        ) else UploadDestination.forMessage(draftMessage.id ?: return)
+            MessageMethod.VIDEO,
+            peerId
+        ) else UploadDestination.forMessage(draftMessage.id ?: return, peerId)
         val intents = ArrayList<UploadIntent>(streams.size)
 
         if (!is_video) {
@@ -2475,7 +2480,7 @@ class ChatPresenter(
 
     private fun cancelMessageEditing(): Boolean {
         edited?.run {
-            val destination = UploadDestination.forMessage(message.getObjectId())
+            val destination = UploadDestination.forMessage(message.getObjectId(), message.peerId)
 
             edited = null
             resolveDraftMessageText()
@@ -2601,7 +2606,7 @@ class ChatPresenter(
 
     fun fireFilePhotoForUploadSelected(file: String?, imageSize: Int) {
         edited?.run {
-            val destination = UploadDestination.forMessage(message.getObjectId())
+            val destination = UploadDestination.forMessage(message.getObjectId(), message.peerId)
             val intent = UploadIntent(accountId, destination)
                 .setAutoCommit(false)
                 .setFileUri(file?.toUri()).setSize(imageSize)
@@ -2612,7 +2617,11 @@ class ChatPresenter(
     fun fireFileVideoForUploadSelected(file: String?) {
         edited?.run {
             val destination =
-                UploadDestination.forMessage(message.getObjectId(), MessageMethod.VIDEO)
+                UploadDestination.forMessage(
+                    message.getObjectId(),
+                    MessageMethod.VIDEO,
+                    message.peerId
+                )
             val intent = UploadIntent(accountId, destination)
                 .setAutoCommit(false)
                 .setFileUri(file?.toUri())
@@ -2623,7 +2632,11 @@ class ChatPresenter(
     fun fireFileAudioForUploadSelected(file: String?) {
         edited?.run {
             val destination =
-                UploadDestination.forMessage(message.getObjectId(), MessageMethod.AUDIO)
+                UploadDestination.forMessage(
+                    message.getObjectId(),
+                    MessageMethod.AUDIO,
+                    message.peerId
+                )
             val intent = UploadIntent(accountId, destination)
                 .setAutoCommit(false)
                 .setFileUri(file?.toUri())
@@ -2653,7 +2666,8 @@ class ChatPresenter(
     fun fireEditLocalPhotosSelected(localPhotos: List<LocalPhoto>, imageSize: Int) {
         edited?.run {
             if (localPhotos.isNotEmpty()) {
-                val destination = UploadDestination.forMessage(message.getObjectId())
+                val destination =
+                    UploadDestination.forMessage(message.getObjectId(), message.peerId)
 
                 val intents = localPhotos.map {
                     UploadIntent(accountId, destination).apply {
@@ -2672,7 +2686,11 @@ class ChatPresenter(
     fun fireEditLocalVideoSelected(video: LocalVideo) {
         edited?.run {
             val destination =
-                UploadDestination.forMessage(message.getObjectId(), MessageMethod.VIDEO)
+                UploadDestination.forMessage(
+                    message.getObjectId(),
+                    MessageMethod.VIDEO,
+                    message.peerId
+                )
 
             val intents = UploadIntent(accountId, destination).apply {
                 pAutoCommit = false

@@ -39,6 +39,7 @@ class VideoToMessageUploadable(
     ): Flow<UploadResult<Video>> {
         val accountId = upload.accountId
         val messageId = upload.destination.id
+        val peerId = upload.destination.ownerId
         val serverSingle = networker.vkDefault(accountId)
             .video()
             .getVideoServer(1, null, UploadUtils.findFileName(context, upload.fileUri))
@@ -84,6 +85,7 @@ class VideoToMessageUploadable(
                                     messagesStorage,
                                     accountId,
                                     messageId,
+                                    peerId,
                                     video
                                 ).map {
                                     result
@@ -106,11 +108,11 @@ class VideoToMessageUploadable(
     companion object {
         fun attachIntoDatabaseRx(
             repository: IAttachmentsRepository, storage: IMessagesStorage,
-            accountId: Long, messageId: Int, video: Video
+            accountId: Long, messageId: Int, peerId: Long, video: Video
         ): Flow<Boolean> {
             return repository
                 .attach(accountId, AttachToType.MESSAGE, messageId, listOf(video))
-                .andThen(storage.notifyMessageHasAttachments(accountId, messageId))
+                .andThen(storage.notifyMessageHasAttachments(accountId, messageId, peerId))
         }
     }
 }

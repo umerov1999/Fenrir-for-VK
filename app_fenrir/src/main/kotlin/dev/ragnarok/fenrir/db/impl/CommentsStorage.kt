@@ -96,11 +96,11 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                 dbo.getAttachments().nonNullNoEmpty {
                     for (attachmentEntity in it) {
                         appendAttachOperationWithBackReference(
-                            operations,
-                            accountId,
-                            AttachToType.COMMENT,
-                            mainPostHeaderIndex,
-                            attachmentEntity
+                            operations = operations,
+                            accountId = accountId,
+                            attachToType = AttachToType.COMMENT,
+                            attachToBackReferenceIndex = mainPostHeaderIndex,
+                            dboEntity = attachmentEntity
                         )
                     }
                 }
@@ -207,7 +207,11 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             emit(comment)
         }.map { comment ->
             comment?.setAttachmentsCount(
-                stores.attachments().getCount(accountId, AttachToType.COMMENT, comment.id).single()
+                stores.attachments().getCount(
+                    accountId = accountId,
+                    attachToType = AttachToType.COMMENT,
+                    attachToDbId = comment.id,
+                ).single()
             )
         }
     }
@@ -302,11 +306,17 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             )
             emit(dbId)
         }.flatMapConcat { dbId ->
-            stores.attachments().removeAll(accountId, AttachToType.COMMENT, dbId).andThen(
+            stores.attachments().removeAll(
+                accountId = accountId,
+                attachToType = AttachToType.COMMENT,
+                attachToDbId = dbId,
+            ).andThen(
                 if (attachments.nonNullNoEmpty()) {
                     stores.attachments().attachDbos(
-                        accountId, AttachToType.COMMENT, dbId,
-                        Model2Entity.buildDboAttachments(attachments)
+                        accountId = accountId,
+                        attachToType = AttachToType.COMMENT,
+                        attachToDbId = dbId,
+                        entities = Model2Entity.buildDboAttachments(attachments)
                     )
                 } else {
                     emptyTaskFlow()
@@ -478,7 +488,12 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             dbo.setAttachments(
                 stores
                     .attachments()
-                    .getAttachmentsDbosSync(accountId, AttachToType.COMMENT, dbid, cancelable)
+                    .getAttachmentsDbosSync(
+                        accountId = accountId,
+                        attachToType = AttachToType.COMMENT,
+                        attachToDbId = dbid,
+                        cancelable = cancelable
+                    )
             )
         }
         return dbo

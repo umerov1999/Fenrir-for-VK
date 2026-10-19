@@ -31,7 +31,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     override fun attachDbos(
         accountId: Long,
         attachToType: Int,
-        attachToDbid: Int,
+        attachToDbId: Int,
         entities: List<DboEntity>
     ): Flow<IntArray> {
         return flow {
@@ -43,7 +43,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
                     operations,
                     accountId,
                     attachToType,
-                    attachToDbid,
+                    attachToDbId,
                     entity
                 )
             }
@@ -61,10 +61,10 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     override fun getAttachmentsDbosWithIds(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int
+        attachToDbId: Int
     ): Flow<List<Pair<Int, DboEntity>>> {
         return flow {
-            val cursor = createCursor(accountId, attachToType, attachToDbid)
+            val cursor = createCursor(accountId, attachToType, attachToDbId)
             val dbos: MutableList<Pair<Int, DboEntity>> = ArrayList(safeCountOf(cursor))
             if (cursor != null) {
                 while (cursor.moveToNext()) {
@@ -83,21 +83,25 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         }
     }
 
-    private fun createCursor(accountId: Long, attachToType: Int, attachToDbid: Int): Cursor? {
+    private fun createCursor(
+        accountId: Long,
+        attachToType: Int,
+        attachToDbId: Int,
+    ): Cursor? {
         val uri = uriForType(attachToType, accountId)
         return contentResolver.query(
             uri, null,
-            attachToIdColumnFor(attachToType) + " = ?", arrayOf(attachToDbid.toString()), null
+            attachToIdColumnFor(attachToType) + " = ?", arrayOf(attachToDbId.toString()), null
         )
     }
 
     override suspend fun getAttachmentsDbosSync(
         accountId: Long,
         attachToType: Int,
-        attachToDbid: Int,
+        attachToDbId: Int,
         cancelable: Cancelable
     ): MutableList<DboEntity> {
-        val cursor = createCursor(accountId, attachToType, attachToDbid)
+        val cursor = createCursor(accountId, attachToType, attachToDbId)
         val entities: MutableList<DboEntity> = ArrayList(safeCountOf(cursor))
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -134,22 +138,22 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     override fun removeAll(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbid: Int
+        attachToDbId: Int
     ): Flow<Boolean> {
         return flow {
             val uri = uriForType(attachToType, accountId)
             val selection = attachToIdColumnFor(attachToType) + " = ?"
-            val args = arrayOf(attachToDbid.toString())
+            val args = arrayOf(attachToDbId.toString())
             val count = context.contentResolver.delete(uri, selection, args)
             emit(count > 0)
         }
     }
 
-    override fun getCount(accountId: Long, attachToType: Int, attachToDbid: Int): Flow<Int> {
+    override fun getCount(accountId: Long, attachToType: Int, attachToDbId: Int): Flow<Int> {
         return flow {
             val uri = uriForType(attachToType, accountId)
             val selection = attachToIdColumnFor(attachToType) + " = ?"
-            val args = arrayOf(attachToDbid.toString())
+            val args = arrayOf(attachToDbId.toString())
             val cursor = contentResolver.query(uri, null, selection, args, null)
             val count = safeCountOf(cursor)
             cursor?.close()
@@ -174,8 +178,11 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         }
 
         fun appendAttachOperationWithBackReference(
-            operations: MutableList<ContentProviderOperation>, accountId: Long,
-            @AttachToType attachToType: Int, attachToBackReferenceIndex: Int, dboEntity: DboEntity
+            operations: MutableList<ContentProviderOperation>,
+            accountId: Long,
+            @AttachToType attachToType: Int,
+            attachToBackReferenceIndex: Int,
+            dboEntity: DboEntity
         ) {
             val cv = ContentValues()
             cv.put(dataColumnFor(attachToType), serializeDbo(dboEntity))
@@ -193,10 +200,10 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         fun appendAttachOperationWithStableAttachToId(
             operations: MutableList<ContentProviderOperation>,
             accountId: Long, @AttachToType attachToType: Int,
-            attachToDbid: Int, dboEntity: DboEntity
+            attachToDbId: Int, dboEntity: DboEntity
         ): Int {
             val cv = ContentValues()
-            cv.put(attachToIdColumnFor(attachToType), attachToDbid)
+            cv.put(attachToIdColumnFor(attachToType), attachToDbId)
             cv.put(dataColumnFor(attachToType), serializeDbo(dboEntity))
             return addToListAndReturnIndex(
                 operations, ContentProviderOperation.newInsert(uriForType(attachToType, accountId))
@@ -223,9 +230,9 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
         internal fun dataColumnFor(@AttachToType type: Int): String {
             return when (type) {
-                AttachToType.COMMENT -> CommentsAttachmentsColumns.DATA
-                AttachToType.MESSAGE -> MessagesAttachmentsColumns.DATA
-                AttachToType.POST -> WallsAttachmentsColumns.DATA
+                AttachToType.COMMENT -> CommentsAttachmentsColumns.C_DATA
+                AttachToType.MESSAGE -> MessagesAttachmentsColumns.M_DATA
+                AttachToType.POST -> WallsAttachmentsColumns.P_DATA
                 else -> throw IllegalArgumentException()
             }
         }

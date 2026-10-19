@@ -16,7 +16,6 @@ import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AttachmentEntry
 import dev.ragnarok.fenrir.model.LocalPhoto
-import dev.ragnarok.fenrir.model.LocalVideo
 import dev.ragnarok.fenrir.model.ModelsBundle
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -47,13 +46,14 @@ class MessageAttachmentsPresenter(
     private val accountId: Long,
     private val messageOwnerId: Long,
     private val messageId: Int,
+    private val peerId: Long,
     bundle: ModelsBundle?,
     private val isGroupChat: Boolean,
     savedInstanceState: Bundle?
 ) : RxSupportPresenter<IMessageAttachmentsView>(savedInstanceState) {
     private val entries: MutableList<AttachmentEntry> = ArrayList()
     private val attachmentsRepository: IAttachmentsRepository = Includes.attachmentsRepository
-    private val destination: UploadDestination = UploadDestination.forMessage(messageId)
+    private val destination: UploadDestination = UploadDestination.forMessage(messageId, peerId)
     private val uploadManager: IUploadManager = Includes.uploadManager
     private var currentPhotoCameraUri: Uri? = null
     private fun handleInputModels(bundle: ModelsBundle?) {
@@ -168,7 +168,11 @@ class MessageAttachmentsPresenter(
 
     private fun createLoadAllSingle(): Flow<List<AttachmentEntry>> {
         return attachmentsRepository
-            .getAttachmentsWithIds(messageOwnerId, AttachToType.MESSAGE, messageId)
+            .getAttachmentsWithIds(
+                accountId = messageOwnerId,
+                attachToType = AttachToType.MESSAGE,
+                attachToDbId = messageId
+            )
             .map { entities2entries(it) }
             .zip(
                 uploadManager[messageOwnerId, destination]
@@ -350,21 +354,27 @@ class MessageAttachmentsPresenter(
         val intents: List<UploadIntent> = when (type) {
             0 -> {
                 UploadUtils.createIntents(
-                    messageOwnerId, UploadDestination.forMessage(
-                        messageId, MessageMethod.VIDEO
-                    ), file, size, true
+                    accountId = messageOwnerId, destination = UploadDestination.forMessage(
+                        messageId, MessageMethod.VIDEO, peerId
+                    ), file = file, size = size, autoCommit = true
                 )
             }
 
             1 -> {
-                UploadUtils.createIntents(messageOwnerId, destination, file, size, true)
+                UploadUtils.createIntents(
+                    accountId = messageOwnerId,
+                    destination = destination,
+                    file = file,
+                    size = size,
+                    autoCommit = true
+                )
             }
 
             else -> {
                 UploadUtils.createIntents(
-                    messageOwnerId, UploadDestination.forMessage(
-                        messageId, MessageMethod.AUDIO
-                    ), file, size, true
+                    accountId = messageOwnerId, destination = UploadDestination.forMessage(
+                        messageId, MessageMethod.AUDIO, peerId
+                    ), file = file, size = size, autoCommit = true
                 )
             }
         }
@@ -373,7 +383,11 @@ class MessageAttachmentsPresenter(
 
     private fun doUploadVideo(file: String) {
         val intents = UploadUtils.createVideoIntents(
-            messageOwnerId, UploadDestination.forMessage(messageId, MessageMethod.VIDEO), file, true
+            messageOwnerId, UploadDestination.forMessage(
+                mDbId = messageId,
+                msgMethod = MessageMethod.VIDEO,
+                mPeerId = peerId
+            ), file, true
         )
         uploadManager.enqueue(intents)
     }
@@ -404,10 +418,10 @@ class MessageAttachmentsPresenter(
     fun fireRemoveClick(entry: AttachmentEntry) {
         if (entry.optionalId != 0) {
             attachmentsRepository.remove(
-                messageOwnerId,
-                AttachToType.MESSAGE,
-                messageId,
-                entry.optionalId
+                accountId = messageOwnerId,
+                type = AttachToType.MESSAGE,
+                attachToDbId = messageId,
+                generatedAttachmentId = entry.optionalId
             ).hiddenIO()
             return
         }
@@ -558,10 +572,10 @@ class MessageAttachmentsPresenter(
 
     fun fireAttachmentsSelected(attachments: ArrayList<out AbsModel>) {
         attachmentsRepository.attach(
-            messageOwnerId,
-            AttachToType.MESSAGE,
-            messageId,
-            attachments
+            accountId = messageOwnerId,
+            attachToType = AttachToType.MESSAGE,
+            attachToDbId = messageId,
+            models = attachments
         ).hiddenIO()
     }
 
@@ -594,7 +608,7 @@ class MessageAttachmentsPresenter(
             handleInputModels(bundle)
         }
         val predicate: suspend (IBaseEvent) -> Boolean =
-            { it.attachToType == AttachToType.MESSAGE && it.attachToId == messageId && it.accountId == messageOwnerId }
+            { it.attachToType == AttachToType.MESSAGE && it.attachToDbId == messageId && it.accountId == messageOwnerId }
         appendJob(
             attachmentsRepository
                 .observeAdding()
