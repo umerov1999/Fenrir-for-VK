@@ -27,7 +27,7 @@ class AudioDuplicatePresenter(
     private val old_audio: Audio,
     savedInstanceState: Bundle?
 ) : RxSupportPresenter<IAudioDuplicateView>(savedInstanceState) {
-    private val mAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val mAudioInteractor = InteractorFactory.audio
     private val mPlayerDisposable = CancelableJob()
     private var audioListDisposable = CancelableJob()
     private var oldBitrate: Int? = null

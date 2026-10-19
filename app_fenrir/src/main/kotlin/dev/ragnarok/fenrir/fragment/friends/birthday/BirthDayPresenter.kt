@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.friends.birthday
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.BirthDay
 import dev.ragnarok.fenrir.model.User

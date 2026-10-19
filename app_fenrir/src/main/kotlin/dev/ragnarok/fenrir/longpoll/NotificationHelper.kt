@@ -281,7 +281,7 @@ object NotificationHelper {
                 val cont = doDownloadDataNotification(
                     context,
                     url,
-                    "notif_" + accountId + "_" + message.getObjectId()
+                    "notif_${accountId}_${message.peerId}_${message.cmId}"
                 )
                 if (cont != null) {
                     h_inbox.setData(cont.mime, cont.uri_data)
@@ -292,7 +292,7 @@ object NotificationHelper {
                 val cont = doDownloadDataNotification(
                     context,
                     url,
-                    "notif_" + accountId + "_" + message.getObjectId()
+                    "notif_${accountId}_${message.peerId}_${message.cmId}"
                 )
                 if (cont != null) {
                     h_inbox.setData(cont.mime, cont.uri_data)
@@ -303,7 +303,7 @@ object NotificationHelper {
                 val cont = doDownloadDataNotification(
                     context,
                     url,
-                    "notif_" + accountId + "_" + message.getObjectId()
+                    "notif_${accountId}_${message.peerId}_${message.cmId}"
                 )
                 if (cont != null) {
                     h_inbox.setData(cont.mime, cont.uri_data)
@@ -385,17 +385,17 @@ object NotificationHelper {
             .setLabel(context.resources.getString(R.string.reply))
             .build()
         val ReadIntent =
-            intentForReadMessage(context, accountId, message.peerId, message.getObjectId())
+            intentForReadMessage(context, accountId, message.peerId, message.messageId)
         val directIntent = intentForAddMessage(context, accountId, message.peerId, message)
         val ReadPendingIntent = PendingIntent.getService(
             context,
-            message.getObjectId(),
+            "${message.peerId}_${message.cmId}".hashCode(),
             ReadIntent,
             makeImmutablePendingIntent(PendingIntent.FLAG_CANCEL_CURRENT)
         )
         val directPendingIntent = PendingIntent.getService(
             context,
-            message.getObjectId(),
+            "${message.peerId}_${message.cmId}".hashCode(),
             directIntent,
             makeMutablePendingIntent(PendingIntent.FLAG_UPDATE_CURRENT)
         )
@@ -416,7 +416,7 @@ object NotificationHelper {
         intent.putExtra(Extra.PLACE, chatPlace)
         val contentIntent = PendingIntent.getActivity(
             context,
-            message.getObjectId(),
+            "${message.peerId}_${message.cmId}".hashCode(),
             intent,
             makeImmutablePendingIntent(PendingIntent.FLAG_CANCEL_CURRENT)
         )

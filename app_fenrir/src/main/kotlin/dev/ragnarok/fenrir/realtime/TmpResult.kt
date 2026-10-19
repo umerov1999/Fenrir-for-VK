@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.realtime
 
 import dev.ragnarok.fenrir.api.model.VKApiMessage
-import dev.ragnarok.fenrir.api.model.interfaces.Identificable
 import dev.ragnarok.fenrir.api.model.interfaces.IdentificablePair
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.util.Pair
@@ -48,13 +47,13 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
     fun setMissingIds(ids: Collection<Pair<Long, Int>>): TmpResult {
         for (msg in data) {
             var has = false
-            for(tId in ids) {
+            for (tId in ids) {
                 if (tId.first == msg.peerId && tId.second == msg.cmId) {
                     has = true
                     break
                 }
             }
-            msg.setAlreadyExists(has)
+            msg.setAlreadyExists(!has)
         }
         return this
     }
@@ -78,7 +77,7 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
         return "[$id] -> $data"
     }
 
-    class Msg internal constructor(val cmId: Int, val peerId: Long): IdentificablePair {
+    class Msg internal constructor(val cmId: Int, val peerId: Long) : IdentificablePair {
         var isAlreadyExists = false
             private set
         var message: Message? = null

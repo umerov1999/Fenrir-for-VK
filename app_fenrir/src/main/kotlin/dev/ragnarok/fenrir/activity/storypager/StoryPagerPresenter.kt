@@ -29,7 +29,7 @@ class StoryPagerPresenter(
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IStoryPagerView>(accountId, savedInstanceState),
     IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener {
-    private val storiesInteractor = InteractorFactory.createStoriesInteractor()
+    private val storiesInteractor = InteractorFactory.story
     private var mStoryPlayer: IStoryPlayer? = null
     private var isPlayBackSpeed = false
     private var loadingNow = false

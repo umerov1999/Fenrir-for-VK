@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.feedback.feedbackvkofficial
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IFeedbackInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFeedbackInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.util.Utils
@@ -12,7 +12,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 class FeedbackVKOfficialPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IFeedbackVKOfficialView>(accountId, savedInstanceState) {
     private val items: MutableList<FeedbackVKOfficial> = ArrayList()
-    private val fInteractor: IFeedbackInteractor = InteractorFactory.createFeedbackInteractor()
+    private val fInteractor: IFeedbackInteractor = InteractorFactory.feedback
     private val actualDataDisposable = CompositeJob()
     private val cacheDataDisposable = CompositeJob()
     private var actualDataReceived = false

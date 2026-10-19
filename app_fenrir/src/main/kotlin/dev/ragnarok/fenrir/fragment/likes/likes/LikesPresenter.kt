@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.likes.likes
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.absownerslist.ISimpleOwnersView
 import dev.ragnarok.fenrir.fragment.absownerslist.SimpleOwnersPresenter
 import dev.ragnarok.fenrir.model.Owner
@@ -18,7 +18,7 @@ class LikesPresenter(
     private val filter: String?,
     savedInstanceState: Bundle?
 ) : SimpleOwnersPresenter<ISimpleOwnersView>(accountId, savedInstanceState) {
-    private val likesInteractor: ILikesInteractor = InteractorFactory.createLikesInteractor()
+    private val likesInteractor: ILikesInteractor = InteractorFactory.like
     private val netDisposable = CompositeJob()
     private var endOfContent = false
     private var loadingNow = false

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.fave.favephotos
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.flow
 
 class FavePhotosPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IFavePhotosView>(accountId, savedInstanceState) {
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val mPhotos: ArrayList<Photo> = ArrayList()
     private val cacheDisposable = CompositeJob()
     private val netDisposable = CompositeJob()

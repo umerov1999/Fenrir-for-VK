@@ -53,7 +53,7 @@ class WallReply : AbsModel, Identificable {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}_${postId}"
+        return "wallreply_${id}_${ownerId}_${postId}"
     }
 
     val attachmentsCount: Int

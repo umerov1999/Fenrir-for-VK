@@ -14,8 +14,9 @@ import dev.ragnarok.fenrir.db.model.entity.PhotoDboEntity
 import dev.ragnarok.fenrir.db.model.entity.PostDboEntity
 import dev.ragnarok.fenrir.db.model.entity.UserEntity
 import dev.ragnarok.fenrir.db.model.entity.VideoDboEntity
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapArticle
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapCommunity
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapFavePage
@@ -87,7 +88,7 @@ class FaveInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ids.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map { transformAttachmentsPosts(dtos, it) }
@@ -111,7 +112,7 @@ class FaveInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ids.all,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .map {
                         val posts: MutableList<Post> = ArrayList()

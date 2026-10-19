@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.interfaces.IMessagesApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.Assets
 import dev.ragnarok.fenrir.api.model.Error
 import dev.ragnarok.fenrir.api.model.Items
@@ -235,9 +235,10 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
         mediaType: String?,
         startFrom: String?,
         count: Int?,
-        photoSizes: Int?,
-        preserveOrder: Int?,
+        photoSizes: Boolean?,
+        preserveOrder: Boolean?,
         maxForwardsLevel: Int?,
+        extended: Boolean?,
         fields: String?
     ): Flow<AttachmentsHistoryResponse> {
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
@@ -247,9 +248,10 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
                     mediaType,
                     startFrom,
                     count,
-                    photoSizes,
-                    preserveOrder,
+                    integerFromBoolean(photoSizes),
+                    integerFromBoolean(preserveOrder),
                     maxForwardsLevel,
+                    integerFromBoolean(extended),
                     fields
                 )
                     .map(extractResponseWithErrorHandling())

@@ -17,8 +17,8 @@ import android.provider.BaseColumns
 import androidx.core.net.toUri
 import dev.ragnarok.fenrir.BuildConfig
 import dev.ragnarok.fenrir.db.column.CommentsColumns
-import dev.ragnarok.fenrir.db.column.CountriesColumns
 import dev.ragnarok.fenrir.db.column.ConversationsColumns
+import dev.ragnarok.fenrir.db.column.CountriesColumns
 import dev.ragnarok.fenrir.db.column.DocsColumns
 import dev.ragnarok.fenrir.db.column.FaveArticlesColumns
 import dev.ragnarok.fenrir.db.column.FaveLinksColumns
@@ -615,6 +615,8 @@ class FenrirContentProvider : ContentProvider() {
             sMessagesProjectionMap[MessagesColumns.CONVERSATION_MESSAGE_ID] =
                 MessagesColumns.FULL_CONVERSATION_MESSAGE_ID
             sMessagesProjectionMap[MessagesColumns.PEER_ID] = MessagesColumns.FULL_PEER_ID
+            sMessagesProjectionMap[MessagesColumns.MESSAGE_ID] =
+                MessagesColumns.FULL_MESSAGE_ID
             sMessagesProjectionMap[MessagesColumns.FROM_ID] = MessagesColumns.FULL_FROM_ID
             sMessagesProjectionMap[MessagesColumns.DATE] = MessagesColumns.FULL_DATE
             //sMessagesProjectionMap.put(MessageColumns.READ_STATE, MessageColumns.FULL_READ_STATE);
@@ -639,10 +641,12 @@ class FenrirContentProvider : ContentProvider() {
                 MessagesColumns.FULL_ACTION_MID
             sMessagesProjectionMap[MessagesColumns.ACTION_EMAIL] = MessagesColumns.FULL_ACTION_EMAIL
             sMessagesProjectionMap[MessagesColumns.ACTION_TEXT] = MessagesColumns.FULL_ACTION_TEXT
-            sMessagesProjectionMap[MessagesColumns.PHOTO_50] =
-                MessagesColumns.FULL_PHOTO_50
-            sMessagesProjectionMap[MessagesColumns.PHOTO_100] = MessagesColumns.FULL_PHOTO_100
-            sMessagesProjectionMap[MessagesColumns.PHOTO_200] = MessagesColumns.FULL_PHOTO_200
+            sMessagesProjectionMap[MessagesColumns.ACTION_PHOTO_50] =
+                MessagesColumns.FULL_ACTION_PHOTO_50
+            sMessagesProjectionMap[MessagesColumns.ACTION_PHOTO_100] =
+                MessagesColumns.FULL_ACTION_PHOTO_100
+            sMessagesProjectionMap[MessagesColumns.ACTION_PHOTO_200] =
+                MessagesColumns.FULL_ACTION_PHOTO_200
             sMessagesProjectionMap[MessagesColumns.RANDOM_ID] =
                 MessagesColumns.FULL_RANDOM_ID
             sMessagesProjectionMap[MessagesColumns.EXTRAS] = MessagesColumns.FULL_EXTRAS
@@ -732,9 +736,12 @@ class FenrirContentProvider : ContentProvider() {
             sDialogsProjectionMap[ConversationsColumns.TITLE] = ConversationsColumns.FULL_TITLE
             sDialogsProjectionMap[ConversationsColumns.IN_READ_CM_ID] =
                 ConversationsColumns.FULL_IN_READ_CM_ID
-            sDialogsProjectionMap[ConversationsColumns.OUT_READ_CM_ID] = ConversationsColumns.FULL_OUT_READ_CM_ID
-            sDialogsProjectionMap[ConversationsColumns.PHOTO_50] = ConversationsColumns.FULL_PHOTO_50
-            sDialogsProjectionMap[ConversationsColumns.PHOTO_100] = ConversationsColumns.FULL_PHOTO_100
+            sDialogsProjectionMap[ConversationsColumns.OUT_READ_CM_ID] =
+                ConversationsColumns.FULL_OUT_READ_CM_ID
+            sDialogsProjectionMap[ConversationsColumns.PHOTO_50] =
+                ConversationsColumns.FULL_PHOTO_50
+            sDialogsProjectionMap[ConversationsColumns.PHOTO_100] =
+                ConversationsColumns.FULL_PHOTO_100
             sDialogsProjectionMap[ConversationsColumns.PHOTO_200] =
                 ConversationsColumns.FULL_PHOTO_200
             sDialogsProjectionMap[ConversationsColumns.ACL] = ConversationsColumns.FULL_ACL
@@ -742,7 +749,14 @@ class FenrirContentProvider : ContentProvider() {
                 ConversationsColumns.FULL_LAST_CM_ID
             sDialogsProjectionMap[ConversationsColumns.IS_GROUP_CHANNEL] =
                 ConversationsColumns.FULL_IS_GROUP_CHANNEL
-            sDialogsProjectionMap[ConversationsColumns.MAJOR_ID] = ConversationsColumns.FULL_MAJOR_ID
+            sDialogsProjectionMap[ConversationsColumns.MAJOR_ID] =
+                ConversationsColumns.FULL_MAJOR_ID
+            sDialogsProjectionMap[ConversationsColumns.MINOR_ID] =
+                ConversationsColumns.FULL_MINOR_ID
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_LOCAL_ID] =
+                MessagesColumns.FULL_ID + " AS " + ConversationsColumns.FOREIGN_MESSAGE_LOCAL_ID
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_ID] =
+                MessagesColumns.FULL_MESSAGE_ID + " AS " + ConversationsColumns.FOREIGN_MESSAGE_ID
             sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_FROM_ID] =
                 MessagesColumns.FULL_FROM_ID + " AS " + ConversationsColumns.FOREIGN_MESSAGE_FROM_ID
             sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_TEXT] =
@@ -758,6 +772,12 @@ class FenrirContentProvider : ContentProvider() {
                 MessagesColumns.FULL_FORWARD_BLOB + " AS " + ConversationsColumns.FOREIGN_MESSAGE_FWD_BLOB
             sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_ACTION] =
                 MessagesColumns.FULL_ACTION + " AS " + ConversationsColumns.FOREIGN_MESSAGE_ACTION
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_IMPORTANT] =
+                MessagesColumns.FULL_IMPORTANT + " AS " + ConversationsColumns.FOREIGN_MESSAGE_IMPORTANT
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_RANDOM_ID] =
+                MessagesColumns.FULL_RANDOM_ID + " AS " + ConversationsColumns.FOREIGN_MESSAGE_RANDOM_ID
+            sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_UPDATE_TIME] =
+                MessagesColumns.FULL_UPDATE_TIME + " AS " + ConversationsColumns.FOREIGN_MESSAGE_UPDATE_TIME
             sDialogsProjectionMap[ConversationsColumns.FOREIGN_MESSAGE_VERSION] =
                 MessagesColumns.FULL_VERSION + " AS " + ConversationsColumns.FOREIGN_MESSAGE_VERSION
 
@@ -781,6 +801,7 @@ class FenrirContentProvider : ContentProvider() {
                 PeersColumns.FULL_IS_GROUP_CHANNEL
             sPeersProjectionMap[PeersColumns.KEYBOARD] = PeersColumns.FULL_KEYBOARD
             sPeersProjectionMap[PeersColumns.MAJOR_ID] = PeersColumns.FULL_MAJOR_ID
+            sPeersProjectionMap[PeersColumns.MINOR_ID] = PeersColumns.FULL_MINOR_ID
 
             sDocsProjectionMap = HashMap()
             sDocsProjectionMap[BaseColumns._ID] = DocsColumns.FULL_ID
@@ -1682,7 +1703,7 @@ class FenrirContentProvider : ContentProvider() {
             when (_TableType) {
                 URI_USERS -> UsersColumns.FULL_LAST_NAME + " ASC"
                 URI_GROUPS -> GroupsColumns.FULL_NAME + " ASC"
-                URI_MESSAGES -> "${MessagesColumns.FULL_STATUS}, ${MessagesColumns.FULL_CONVERSATION_MESSAGE_ID} ASC"
+                URI_MESSAGES -> "${MessagesColumns.FULL_STATUS}, ${MessagesColumns.FULL_MESSAGE_ID} ASC"
                 URI_PHOTOS -> PhotosColumns.FULL_ID + " ASC"
                 URI_PHOTOS_EXTENDED -> PhotosExtendedColumns.FULL_ID + " ASC"
                 URI_DIALOGS -> MessagesColumns.FULL_DATE + " DESC"

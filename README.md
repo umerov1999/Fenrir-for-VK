@@ -14,9 +14,9 @@
 
 <b>Инструкция по сборке:</b><br>
 Требуется:<br>
-  1. Android Studio Quail 4 2026.1.4 или выше. Kotlin 2.4.*<br>
-  2. Android SDK 37.1<br>
-  3. Android NDK 30.0.15729638<br>
+  1. Android Studio Rabbit 1 2026.2.1 или выше. Kotlin 2.4.*<br>
+  2. Android SDK 37.2<br>
+  3. Android NDK 30.0.16248370<br>
   4. CMake 4.1.2<br>
   5. diffutils
   6. nasm

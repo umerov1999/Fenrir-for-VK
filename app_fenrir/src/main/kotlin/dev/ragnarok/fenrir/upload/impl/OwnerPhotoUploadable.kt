@@ -4,7 +4,7 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.upload.IUploadable
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import java.io.InputStream
+import okio.Source
 import kotlin.coroutines.cancellation.CancellationException
 
 class OwnerPhotoUploadable(
@@ -41,10 +41,11 @@ class OwnerPhotoUploadable(
             toFlow(initialServer)
         }
         return serverSingle.flatMapConcat { server ->
-            var inputStream: InputStream? = null
+            var input: Source? = null
             try {
-                inputStream = UploadUtils.openStream(context, upload.fileUri, upload.size)
-                if (inputStream == null) {
+                val tmpSources = UploadUtils.openSource(context, upload.fileUri, upload.size)
+                input = tmpSources.second
+                if (input == null) {
                     toFlowThrowable(
                         NotFoundException(
                             "Unable to open InputStream, URI: ${upload.fileUri}"
@@ -54,10 +55,11 @@ class OwnerPhotoUploadable(
                     networker.uploads()
                         .uploadOwnerPhotoRx(
                             server.url ?: throw NotFoundException("Upload url empty!"),
-                            inputStream,
+                            input,
+                            tmpSources.first,
                             listener
                         )
-                        .onCompletion { safelyClose(inputStream) }
+                        .onCompletion { safelyClose(input) }
                         .flatMapConcat { dto ->
                             if (dto.photo.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
@@ -79,7 +81,7 @@ class OwnerPhotoUploadable(
                         }
                 }
             } catch (e: Exception) {
-                safelyClose(inputStream)
+                safelyClose(input)
                 if (e is CancellationException) {
                     throw e
                 }

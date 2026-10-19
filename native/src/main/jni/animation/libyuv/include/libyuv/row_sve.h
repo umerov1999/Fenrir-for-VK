@@ -1767,9 +1767,9 @@ static inline void P410ToARGBRow_SVE_SC(const uint16_t* src_y,
       : [src_y] "+r"(src_y),                                // %[src_y]
         [src_uv] "+r"(src_uv),                              // %[src_uv]
         [dst_argb] "+r"(dst_argb),                          // %[dst_argb]
-        [width] "+r"(width)                                 // %[width]
-      : [vl] "r"(vl),                                       // %[vl]
-        [kUVCoeff] "r"(&yuvconstants->kUVCoeff),            // %[kUVCoeff]
+        [width] "+r"(width),                                // %[width]
+        [vl] "+r"(vl)                                       // %[vl]
+      : [kUVCoeff] "r"(&yuvconstants->kUVCoeff),            // %[kUVCoeff]
         [kRGBCoeffBias] "r"(&yuvconstants->kRGBCoeffBias),  // %[kRGBCoeffBias]
         [width_last_y] "r"(width_last_y)                    // %[width_last_y]
       : "cc", "memory", YUVTORGB_SVE_REGS);
@@ -1818,9 +1818,9 @@ static inline void P410ToAR30Row_SVE_SC(const uint16_t* src_y,
       : [src_y] "+r"(src_y),                                // %[src_y]
         [src_uv] "+r"(src_uv),                              // %[src_uv]
         [dst_ar30] "+r"(dst_ar30),                          // %[dst_ar30]
-        [width] "+r"(width)                                 // %[width]
-      : [vl] "r"(vl),                                       // %[vl]
-        [kUVCoeff] "r"(&yuvconstants->kUVCoeff),            // %[kUVCoeff]
+        [width] "+r"(width),                                // %[width]
+        [vl] "+r"(vl)                                       // %[vl]
+      : [kUVCoeff] "r"(&yuvconstants->kUVCoeff),            // %[kUVCoeff]
         [kRGBCoeffBias] "r"(&yuvconstants->kRGBCoeffBias),  // %[kRGBCoeffBias]
         [width_last_y] "r"(width_last_y),                   // %[width_last_y]
         [limit] "r"(limit)                                  // %[limit]
@@ -2150,33 +2150,38 @@ static inline void ARGBToUVMatrixRow_SVE_SC(const uint8_t* src_argb,
         "z27", "p0", "p1", "p2", "p3", "p4", "p5");
 }
 
-#define ARGBTOYMATRIX_SVE(p1, p2, p3, p4, p5)                               \
-  "ld1w     {z0.s}, " p1 "/z, [%[src]]             \n" /* load 4*vl pixels */\
-  "ld1w     {z1.s}, " p2 "/z, [%[src], #1, mul vl] \n"                       \
-  "ld1w     {z2.s}, " p3 "/z, [%[src], #2, mul vl] \n"                       \
-  "ld1w     {z3.s}, " p4 "/z, [%[src], #3, mul vl] \n"                       \
-  "incb     %[src], all, mul #4                    \n"                       \
-  "mov      z16.b, #0                              \n"                       \
-  "mov      z17.b, #0                              \n"                       \
-  "mov      z18.b, #0                              \n"                       \
-  "mov      z19.b, #0                              \n"                       \
-  "udot     z16.s, z0.b, z24.b                     \n"                       \
-  "udot     z17.s, z1.b, z24.b                     \n"                       \
-  "udot     z18.s, z2.b, z24.b                     \n"                       \
-  "udot     z19.s, z3.b, z24.b                     \n"                       \
-  "uzp1     z16.h, z16.h, z17.h                    \n"                       \
-  "uzp1     z18.h, z18.h, z19.h                    \n"                       \
-  "addhnb   z16.b, z16.h, z25.h                    \n"                       \
-  "addhnb   z18.b, z18.h, z25.h                    \n"                       \
-  "uzp1     z20.b, z16.b, z18.b                    \n"                       \
-  "st1b     {z20.b}, " p5 ", [%[dst_y]]            \n"                       \
-  "incb     %[dst_y]                               \n"                       \
+#define ARGBTOYMATRIX_SVE(p1, p2, p3, p4, p5)          \
+  "ld1w     {z0.s}, " p1                               \
+  "/z, [%[src]]             \n" /* load 4*vl pixels */ \
+  "ld1w     {z1.s}, " p2                               \
+  "/z, [%[src], #1, mul vl] \n"                        \
+  "ld1w     {z2.s}, " p3                               \
+  "/z, [%[src], #2, mul vl] \n"                        \
+  "ld1w     {z3.s}, " p4                               \
+  "/z, [%[src], #3, mul vl] \n"                        \
+  "incb     %[src], all, mul #4                    \n" \
+  "mov      z16.b, #0                              \n" \
+  "mov      z17.b, #0                              \n" \
+  "mov      z18.b, #0                              \n" \
+  "mov      z19.b, #0                              \n" \
+  "udot     z16.s, z0.b, z24.b                     \n" \
+  "udot     z17.s, z1.b, z24.b                     \n" \
+  "udot     z18.s, z2.b, z24.b                     \n" \
+  "udot     z19.s, z3.b, z24.b                     \n" \
+  "uzp1     z16.h, z16.h, z17.h                    \n" \
+  "uzp1     z18.h, z18.h, z19.h                    \n" \
+  "addhnb   z16.b, z16.h, z25.h                    \n" \
+  "addhnb   z18.b, z18.h, z25.h                    \n" \
+  "uzp1     z20.b, z16.b, z18.b                    \n" \
+  "st1b     {z20.b}, " p5                              \
+  ", [%[dst_y]]            \n"                         \
+  "incb     %[dst_y]                               \n" \
   "subs     %w[width], %w[width], %w[vl], lsl #2   \n"
 
 static inline void ARGBToYMatrixRow_SVE_SC(const uint8_t* src_argb,
-                                          uint8_t* dst_y,
-                                          int width,
-                                          const struct ArgbConstants* c)
+                                           uint8_t* dst_y,
+                                           int width,
+                                           const struct ArgbConstants* c)
     STREAMING_COMPATIBLE {
   uint64_t vl;
   asm("cntw %x0" : "=r"(vl));
@@ -2217,6 +2222,93 @@ static inline void ARGBToYMatrixRow_SVE_SC(const uint8_t* src_argb,
         [vl3] "r"(vl * 3)                // %[vl3]
       : "cc", "memory", "z0", "z1", "z2", "z3", "z16", "z17", "z18", "z19",
         "z20", "z24", "z25", "p0", "p1", "p2", "p3", "p4", "p5");
+}
+
+#define SSIM4X4_SVE                                       \
+  "add      %[tmp_a], %[src_a], %[stride_a]           \n" \
+  "add      %[tmp_b], %[src_b], %[stride_b]           \n" \
+  "ld1w     {z0.s}, p0/z, [%[src_a]]                  \n" \
+  "ld1w     {z1.s}, p0/z, [%[tmp_a]]                  \n" \
+  "add      %[tmp_a], %[tmp_a], %[stride_a]           \n" \
+  "ld1w     {z4.s}, p0/z, [%[src_b]]                  \n" \
+  "ld1w     {z5.s}, p0/z, [%[tmp_b]]                  \n" \
+  "add      %[tmp_b], %[tmp_b], %[stride_b]           \n" \
+  "ld1w     {z2.s}, p0/z, [%[tmp_a]]                  \n" \
+  "add      %[tmp_a], %[tmp_a], %[stride_a]           \n" \
+  "ld1w     {z3.s}, p0/z, [%[tmp_a]]                  \n" \
+  "ld1w     {z6.s}, p0/z, [%[tmp_b]]                  \n" \
+  "add      %[tmp_b], %[tmp_b], %[stride_b]           \n" \
+  "ld1w     {z7.s}, p0/z, [%[tmp_b]]                  \n" \
+  "incb     %[src_a]                                  \n" \
+  "incb     %[src_b]                                  \n" \
+  "mov      z16.s, #0                                 \n" \
+  "mov      z17.s, #0                                 \n" \
+  "mov      z18.s, #0                                 \n" \
+  "mov      z19.s, #0                                 \n" \
+  "udot     z16.s, z0.b, z20.b                        \n" \
+  "udot     z17.s, z4.b, z20.b                        \n" \
+  "udot     z18.s, z0.b, z0.b                         \n" \
+  "udot     z19.s, z0.b, z4.b                         \n" \
+  "udot     z16.s, z1.b, z20.b                        \n" \
+  "udot     z17.s, z5.b, z20.b                        \n" \
+  "udot     z18.s, z1.b, z1.b                         \n" \
+  "udot     z19.s, z1.b, z5.b                         \n" \
+  "udot     z16.s, z2.b, z20.b                        \n" \
+  "udot     z17.s, z6.b, z20.b                        \n" \
+  "udot     z18.s, z2.b, z2.b                         \n" \
+  "udot     z19.s, z2.b, z6.b                         \n" \
+  "udot     z16.s, z3.b, z20.b                        \n" \
+  "udot     z17.s, z7.b, z20.b                        \n" \
+  "udot     z18.s, z3.b, z3.b                         \n" \
+  "udot     z19.s, z3.b, z7.b                         \n" \
+  "udot     z18.s, z4.b, z4.b                         \n" \
+  "udot     z18.s, z5.b, z5.b                         \n" \
+  "udot     z18.s, z6.b, z6.b                         \n" \
+  "udot     z18.s, z7.b, z7.b                         \n" \
+  "subs     %w[width], %w[width], %w[vl]              \n" \
+  "st4w     {z16.s, z17.s, z18.s, z19.s}, p0, [%[dst]]\n" \
+  "incb     %[dst], all, mul #4                       \n"
+
+static inline void Ssim4x4Row_SVE_SC(const uint8_t* src_a,
+                                     int stride_a,
+                                     const uint8_t* src_b,
+                                     int stride_b,
+                                     uint32_t* dst,
+                                     int width) STREAMING_COMPATIBLE {
+  uint64_t vl;
+  const uint8_t* tmp_a;
+  const uint8_t* tmp_b;
+  width >>= 2;
+  asm volatile(
+      "cntw     %x[vl]                                  \n"
+      "mov      z20.b, #1                               \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "ptrue    p0.s                                    \n"
+      "1:                                               \n"  //
+      SSIM4X4_SVE
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.eq     99f                                     \n"
+
+      "whilelt  p0.s, wzr, %w[width]                    \n"  //
+      SSIM4X4_SVE
+
+      "99:                                              \n"
+      : [src_a] "+r"(src_a),                  // %[src_a]
+        [src_b] "+r"(src_b),                  // %[src_b]
+        [dst] "+r"(dst),                      // %[dst]
+        [width] "+r"(width),                  // %[width]
+        [vl] "=&r"(vl),                       // %[vl]
+        [tmp_a] "=&r"(tmp_a),                 // %[tmp_a]
+        [tmp_b] "=&r"(tmp_b)                  // %[tmp_b]
+      : [stride_a] "r"((ptrdiff_t)stride_a),  // %[stride_a]
+        [stride_b] "r"((ptrdiff_t)stride_b)   // %[stride_b]
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "z16",
+        "z17", "z18", "z19", "z20", "p0");
 }
 
 #endif  // !defined(LIBYUV_DISABLE_SVE) && defined(__aarch64__)

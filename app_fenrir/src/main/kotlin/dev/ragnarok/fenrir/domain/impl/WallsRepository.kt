@@ -8,8 +8,9 @@ import dev.ragnarok.fenrir.db.interfaces.IWallStorage.IClearWallTask
 import dev.ragnarok.fenrir.db.model.PostPatch
 import dev.ragnarok.fenrir.db.model.PostUpdate
 import dev.ragnarok.fenrir.db.model.entity.PostDboEntity
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapOwners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapPost
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
@@ -201,7 +202,7 @@ class WallsRepository(
                     .findBaseOwnersDataAsBundle(
                         accountId,
                         ids.all,
-                        IOwnersRepository.MODE_ANY,
+                        FetchMode.ANY,
                         owners
                     )
                     .map { bundle ->
@@ -244,7 +245,7 @@ class WallsRepository(
                     .findBaseOwnersDataAsBundle(
                         accountId,
                         ids.all,
-                        IOwnersRepository.MODE_ANY,
+                        FetchMode.ANY,
                         owners
                     )
                     .flatMapConcat { bundle ->
@@ -276,7 +277,7 @@ class WallsRepository(
             val ids = VKOwnIds()
             fillOwnerIds(ids, it)
             ownersRepository
-                .findBaseOwnersDataAsBundle(accountId, ids.all, IOwnersRepository.MODE_ANY)
+                .findBaseOwnersDataAsBundle(accountId, ids.all, FetchMode.ANY)
                 .map { owners ->
                     val posts: MutableList<Post> = ArrayList(it.size)
                     for (dbo in it) {
@@ -290,7 +291,7 @@ class WallsRepository(
         val ids = VKOwnIds()
         fillPostOwnerIds(ids, it)
         ownersRepository
-            .findBaseOwnersDataAsBundle(accountId, ids.all, IOwnersRepository.MODE_ANY)
+            .findBaseOwnersDataAsBundle(accountId, ids.all, FetchMode.ANY)
             .map { owners ->
                 buildPostFromDbo(
                     it, owners
@@ -374,7 +375,7 @@ class WallsRepository(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ids.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map { bundle -> transform(dto, bundle) }
@@ -527,7 +528,7 @@ class WallsRepository(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ids.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map { ownersBundle ->

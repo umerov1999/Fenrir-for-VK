@@ -88,8 +88,8 @@ class MessagesSearchFragment :
         return MessagesSearchPresenter(accountId, c, saveInstanceState)
     }
 
-    override fun goToMessagesLookup(accountId: Long, peerId: Long, messageId: Int) {
-        getMessagesLookupPlace(accountId, peerId, messageId, null).tryOpenWith(requireActivity())
+    override fun goToMessagesLookup(accountId: Long, peerId: Long, cmId: Int) {
+        getMessagesLookupPlace(accountId, peerId, cmId, null).tryOpenWith(requireActivity())
     }
 
     override fun goToPeerLookup(accountId: Long, peer: Peer) {

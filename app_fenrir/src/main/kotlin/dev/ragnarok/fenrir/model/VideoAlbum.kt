@@ -50,7 +50,7 @@ class VideoAlbum : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "videoalbum_${id}_${ownerId}"
     }
 
     fun setTitle(title: String?): VideoAlbum {

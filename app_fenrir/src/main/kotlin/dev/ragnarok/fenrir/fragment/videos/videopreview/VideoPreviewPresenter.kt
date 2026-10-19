@@ -8,11 +8,12 @@ import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IVideosInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Commented
@@ -32,8 +33,8 @@ class VideoPreviewPresenter(
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IVideoPreviewView>(accountId, savedInstanceState) {
     private val accessKey: String? = if (video != null) video.accessKey else aKey
-    private val interactor: IVideosInteractor = InteractorFactory.createVideosInteractor()
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val interactor: IVideosInteractor = InteractorFactory.video
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val ownerInteractor: IOwnersRepository = owners
     private var video: Video? = null
     private var owner: Owner? = null
@@ -99,8 +100,10 @@ class VideoPreviewPresenter(
                     appendJob(
                         interactor.edit(
                             accountId, vd.ownerId, vd.id,
-                            root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()?.trim(),
-                            root.findViewById<TextInputEditText>(R.id.edit_description).text?.toString()?.trim()
+                            root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()
+                                ?.trim(),
+                            root.findViewById<TextInputEditText>(R.id.edit_description).text?.toString()
+                                ?.trim()
                         ).fromIOToMain({ refreshVideoInfo() }) { t ->
                             showError(t)
                         })
@@ -142,7 +145,7 @@ class VideoPreviewPresenter(
                 ownerInteractor.getBaseOwnerInfo(
                     accountId,
                     ownerId,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .fromIOToMain({ info -> onOwnerReceived(info) }) { e ->
                         showError(e)

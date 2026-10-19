@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.userbanned
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.Includes.blacklistRepository
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.BannedPart
 import dev.ragnarok.fenrir.model.Owner
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 
 class UserBannedPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IUserBannedView>(accountId, savedInstanceState) {
-    private val interactor: IAccountsInteractor = InteractorFactory.createAccountInteractor()
+    private val interactor: IAccountsInteractor = InteractorFactory.account
     private val owners: MutableList<Owner> = ArrayList()
     private var endOfContent = false
     private var loadinNow = false

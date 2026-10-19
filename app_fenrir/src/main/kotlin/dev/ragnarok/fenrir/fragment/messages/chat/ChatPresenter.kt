@@ -25,12 +25,11 @@ import dev.ragnarok.fenrir.api.model.AttachmentTokens
 import dev.ragnarok.fenrir.api.model.AttachmentsTokenCreator
 import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken
 import dev.ragnarok.fenrir.db.Stores
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.IOwnersRepository.Companion.MODE_NET
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
-import dev.ragnarok.fenrir.domain.Mode
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.fragment.messages.AbsMessageListPresenter
@@ -120,11 +119,11 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import okio.Source
+import okio.source
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicLong
 
@@ -145,8 +144,8 @@ class ChatPresenter(
     private var recordingLookup: Lookup
 
     private val messagesRepository: IMessagesRepository = Repository.messages
-    private val stickersInteractor = InteractorFactory.createStickersInteractor()
-    private val utilsInteractor = InteractorFactory.createUtilsInteractor()
+    private val stickersInteractor = InteractorFactory.sticker
+    private val utilsInteractor = InteractorFactory.utils
     private val longpollManager: ILongpollManager = LongpollInstance.longpollManager
     private val uploadManager: IUploadManager = Includes.uploadManager
 
@@ -366,7 +365,7 @@ class ChatPresenter(
         val message = data[position]
         when (message.status) {
             MessageStatus.SENDING, MessageStatus.QUEUE, MessageStatus.WAITING_FOR_UPLOAD -> {
-                val index = indexOf(message.getObjectId())
+                val index = indexOf(message.cmId)
                 if (index != -1) {
                     data.removeAt(index)
                     view?.notifyItemsRemoved(index, 1)
@@ -470,6 +469,10 @@ class ChatPresenter(
                 conversation?.setMajorId(majorId)
             }
 
+            update.minorId?.run {
+                conversation?.setMinorId(minorId)
+            }
+
             update.botKeyboard?.run {
                 conversation?.setCurrentKeyboard(Entity2Model.buildKeyboardFromDbo(keyboard))
                 resolveCurrentKeyboard()
@@ -485,7 +488,7 @@ class ChatPresenter(
         fetchConversationDisposable += messagesRepository.getConversationByIdSingle(
             messagesOwnerId,
             peer.id,
-            if (refresh) Mode.NET else Mode.ANY
+            if (refresh) FetchMode.NET else FetchMode.ANY
         )
             .fromIOToMain({ onConversationFetched(refresh, it) }, { onConversationFetchFail(it) })
     }
@@ -576,7 +579,7 @@ class ChatPresenter(
             view?.displayToolbarAvatar(peer)
         } else {
             edited?.run {
-                if (message.getObjectId() == destination.id
+                if (message.cmId == destination.id
                     && message.peerId == destination.ownerId
                     && destination.method == Method.TO_MESSAGE
                 ) {
@@ -612,7 +615,7 @@ class ChatPresenter(
             val filtered = uploads
                 .asSequence()
                 .filter { u ->
-                    u.destination.id == message.getObjectId()
+                    u.destination.id == message.cmId
                             && u.destination.ownerId == message.peerId
                             && u.destination.method == Method.TO_MESSAGE
                 }.map {
@@ -695,7 +698,7 @@ class ChatPresenter(
                 while (iterator.hasNext()) {
                     val kk = iterator.next()
                     if (kk.status == MessageStatus.SENDING) {
-                        delete.add(Pair(kk.peerId, kk.getObjectId()))
+                        delete.add(Pair(kk.peerId, kk.cmId))
                         iterator.remove()
                     }
                 }
@@ -758,7 +761,7 @@ class ChatPresenter(
             }
             for (selected in selectedList) {
                 for (item in messages) {
-                    if (item.getObjectId() == selected.getObjectId() && item.peerId == selected.peerId) {
+                    if (item.cmId == selected.cmId && item.peerId == selected.peerId) {
                         item.isSelected = true
                         break
                     }
@@ -770,7 +773,7 @@ class ChatPresenter(
             }
             for (reactionEditMode in reactionEditModeList) {
                 for (item in messages) {
-                    if (item.getObjectId() == reactionEditMode.getObjectId()) {
+                    if (item.cmId == reactionEditMode.cmId) {
                         item.setReactionEditMode(true)
                         break
                     }
@@ -844,7 +847,7 @@ class ChatPresenter(
         val list: ArrayList<Int> = ArrayList()
         for (i: Message in data) {
             if (i.status == MessageStatus.ERROR) {
-                list.add(i.getObjectId())
+                list.add(i.cmId)
             }
         }
         var st = emptyTaskFlow()
@@ -910,13 +913,13 @@ class ChatPresenter(
     }
 
     private fun requestMore() {
-        val lastId = if (data.isNotEmpty()) data[data.size - 1].getObjectId() else null
+        val lastId = if (data.isNotEmpty()) data[data.size - 1].cmId else null
         requestFromNet(lastId)
     }
 
-    private fun onMessagesRestoredSuccessfully(id: Int, peerId: Long) {
+    private fun onMessagesRestoredSuccessfully(cmId: Int, peerId: Long) {
         val index = data.indexOfFirst {
-            it.getObjectId() == id && it.peerId == peerId
+            it.cmId == cmId && it.peerId == peerId
         }
         if (index >= 0) {
             data[index].setDeleted(false)
@@ -1289,7 +1292,7 @@ class ChatPresenter(
 
     private fun addMessageToList(message: Message): Int {
         val index = addElementToList(message, data, compareByDescending<Message> { it.status }
-            .thenByDescending { it.getObjectId() })
+            .thenByDescending { it.cmId })
         resolveEmptyTextVisibility()
         return index
     }
@@ -1397,7 +1400,7 @@ class ChatPresenter(
         }
 
         val index = data.indexOfFirst {
-            it.getObjectId() == message.getObjectId()
+            it.cmId == message.cmId
         }
 
         if (index != -1) {
@@ -1748,7 +1751,7 @@ class ChatPresenter(
             view?.notifyDataChanged()
 
             appendJob(
-                messagesRepository.markAsRead(messagesOwnerId, peer.id, message.cmId)
+                messagesRepository.markAsRead(messagesOwnerId, peer.id, message.messageId)
                     .fromIOToMain(dummy()) { t -> showError(view, t) }
             )
             return true
@@ -1766,7 +1769,7 @@ class ChatPresenter(
             view?.notifyDataChanged()
 
             appendJob(
-                messagesRepository.markAsRead(messagesOwnerId, peer.id, last.cmId)
+                messagesRepository.markAsRead(messagesOwnerId, peer.id, last.messageId)
                     .fromIOToMain(dummy()) { t -> showError(view, t) }
             )
         }
@@ -1798,10 +1801,10 @@ class ChatPresenter(
             messagesRepository.restoreMessage(
                 messagesOwnerId,
                 message.peerId,
-                message.getObjectId()
+                message.cmId
             )
                 .fromIOToMain(
-                    { onMessagesRestoredSuccessfully(message.getObjectId(), message.peerId) },
+                    { onMessagesRestoredSuccessfully(message.cmId, message.peerId) },
                     { t -> showError(view, t) })
         )
     }
@@ -1824,7 +1827,7 @@ class ChatPresenter(
     }
 
     fun fireActionModeStarClick() {
-        val sent = ArrayList<Int>(0)
+        val importantIds = ArrayList<Int>(0)
         val iterator = data.iterator()
         var hasChanged = false
         var isImportant = false
@@ -1837,14 +1840,14 @@ class ChatPresenter(
                 hasChanged = true
                 isImportant = message.isImportant
             }
-            sent.add(message.getObjectId())
+            importantIds.add(message.messageId)
         }
-        if (sent.nonNullNoEmpty()) {
+        if (importantIds.nonNullNoEmpty()) {
             appendJob(
                 messagesRepository.markAsImportant(
                     messagesOwnerId,
                     peer.id,
-                    sent,
+                    importantIds,
                     if (!isImportant) 1 else 0
                 ).fromIOToMain(dummy()) { t -> showError(view, t) }
             )
@@ -1892,7 +1895,7 @@ class ChatPresenter(
                 }
 
                 MessageStatus.WAITING_FOR_UPLOAD -> {
-                    cancelWaitingForUploadMessage(message.getObjectId())
+                    cancelWaitingForUploadMessage(message.cmId)
                     deleteMessageFromDbAsync(message)
                     iterator.remove()
                     hasChanged = true
@@ -1933,7 +1936,7 @@ class ChatPresenter(
             when (message.status) {
                 MessageStatus.SENT -> {
                     if (!message.isOut) {
-                        sent.add(message.getObjectId())
+                        sent.add(message.cmId)
                     }
                 }
 
@@ -1944,7 +1947,7 @@ class ChatPresenter(
                 }
 
                 MessageStatus.WAITING_FOR_UPLOAD -> {
-                    cancelWaitingForUploadMessage(message.getObjectId())
+                    cancelWaitingForUploadMessage(message.cmId)
                     deleteMessageFromDbAsync(message)
                     iterator.remove()
                     hasChanged = true
@@ -1987,7 +1990,7 @@ class ChatPresenter(
 
         val messages: ArrayList<Int> = ArrayList(ids.size)
         for (tmp in ids) {
-            messages.add(tmp.getObjectId())
+            messages.add(tmp.cmId)
         }
         normalDelete(messages, forAll == 1)
     }
@@ -2030,7 +2033,7 @@ class ChatPresenter(
 
     fun fireSendAgainClick(message: Message) {
         appendJob(
-            messagesRepository.enqueueAgain(messagesOwnerId, peerId, message.getObjectId())
+            messagesRepository.enqueueAgain(messagesOwnerId, peerId, message.cmId)
                 .fromIOToMain({ startSendService() }, { logThrowable("ChatPresenter", it) })
         )
     }
@@ -2038,12 +2041,12 @@ class ChatPresenter(
     private fun deleteMessageFromDbAsync(message: Message) {
         Stores.instance
             .messages()
-            .deleteMessage(messagesOwnerId, message.getObjectId(), message.peerId)
+            .deleteMessage(messagesOwnerId, message.cmId, message.peerId)
             .hiddenIO()
     }
 
     fun fireErrorMessageDeleteClick(message: Message) {
-        val index = indexOf(message.getObjectId())
+        val index = indexOf(message.cmId)
         if (index != -1) {
             data.removeAt(index)
             view?.notifyItemsRemoved(index, 1)
@@ -2187,7 +2190,7 @@ class ChatPresenter(
     }
 
     fun fireMessagesLookup(message: Message) {
-        view?.goToMessagesLookup(accountId, message.peerId, message.getObjectId(), message)
+        view?.goToMessagesLookup(accountId, message.peerId, message.cmId, message)
     }
 
     fun fireChatTitleTyped(newValue: String) {
@@ -2276,17 +2279,18 @@ class ChatPresenter(
             )
                 .flatMapConcat { server ->
                     val file = File(filePath.path)
-                    var inputStream: InputStream? = null
+                    var inputSource: Source? = null
                     try {
-                        inputStream = FileInputStream(file)
+                        inputSource = file.source()
                         Includes.networkInterfaces.uploads()
                             .uploadDocumentRx(
                                 server.url ?: throw NotFoundException("Upload url empty!"),
                                 if (filePath.isAnimated) filePath.animationName else file.name,
-                                inputStream,
+                                inputSource,
+                                file.length(),
                                 null
                             )
-                            .onCompletion { safelyClose(inputStream) }
+                            .onCompletion { safelyClose(inputSource) }
                             .flatMapConcat { uploadDto ->
                                 if (uploadDto.file.isNullOrEmpty()) {
                                     toFlowThrowable(NotFoundException("VK doesn't upload this file"))
@@ -2309,7 +2313,7 @@ class ChatPresenter(
                                 }
                             }
                     } catch (e: FileNotFoundException) {
-                        safelyClose(inputStream)
+                        safelyClose(inputSource)
                         toFlowThrowable(e)
                     }
                 }
@@ -2535,7 +2539,7 @@ class ChatPresenter(
         resolvePrimaryButton()
 
         val index = data.indexOfFirst {
-            it.getObjectId() == message.getObjectId()
+            it.cmId == message.cmId
         }
 
         if (index != -1) {
@@ -2587,7 +2591,7 @@ class ChatPresenter(
 
     fun fireLongAvatarClick(uId: Long) {
         if (uId > 0) {
-            netLoadingDisposable += Repository.owners.getFullUserInfo(accountId, uId, MODE_NET)
+            netLoadingDisposable += Repository.owners.getFullUserInfo(accountId, uId, FetchMode.NET)
                 .fromIOToMain({ info ->
                     run {
                         val domainTmp: String = if (info.first?.domain == null)

@@ -4,10 +4,12 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
+import dev.ragnarok.fenrir.contentLength
+import dev.ragnarok.fenrir.db.AttachmentFor
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Video
+import dev.ragnarok.fenrir.toSource
 import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.Method
 import dev.ragnarok.fenrir.upload.Upload
@@ -20,9 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
+import okio.Source
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
 
@@ -43,16 +43,13 @@ class Video2WallUploadable(
             .video()
             .getVideoServer(1, groupId, UploadUtils.findFileName(context, upload.fileUri))
         return serverSingle.flatMapConcat { server ->
-            var inputStream: InputStream? = null
+            var inputSource: Source? = null
             try {
                 val uri = upload.fileUri
-                val file = File(uri?.path ?: throw NotFoundException("uri.path is empty"))
-                inputStream = if (file.isFile) {
-                    FileInputStream(file)
-                } else {
-                    context.contentResolver.openInputStream(uri)
-                }
-                if (inputStream == null) {
+                val size =
+                    uri?.contentLength(context) ?: throw NotFoundException("uri.path is empty")
+                inputSource = uri.toSource(context)
+                if (inputSource == null) {
                     toFlowThrowable(
                         NotFoundException(
                             "Unable to open InputStream, URI: $uri"
@@ -64,10 +61,11 @@ class Video2WallUploadable(
                         .uploadVideoRx(
                             server.url ?: throw NotFoundException("Upload url empty!"),
                             filename,
-                            inputStream,
+                            inputSource,
+                            size,
                             listener
                         )
-                        .onCompletion { safelyClose(inputStream) }
+                        .onCompletion { safelyClose(inputSource) }
                         .flatMapConcat { dto ->
                             val video =
                                 Video().setId(dto.video_id).setOwnerId(dto.owner_id).setTitle(
@@ -86,7 +84,7 @@ class Video2WallUploadable(
                         }
                 }
             } catch (e: Exception) {
-                safelyClose(inputStream)
+                safelyClose(inputSource)
                 if (e is CancellationException) {
                     throw e
                 }
@@ -104,10 +102,10 @@ class Video2WallUploadable(
         val dest = upload.destination
         return when (dest.method) {
             Method.TO_COMMENT -> repository
-                .attach(accountId, AttachToType.COMMENT, dest.id, null, listOf(video))
+                .attach(accountId, AttachmentFor.COMMENT, dest.id, null, listOf(video))
 
             Method.TO_WALL -> repository
-                .attach(accountId, AttachToType.POST, dest.id, null, listOf(video))
+                .attach(accountId, AttachmentFor.POST, dest.id, null, listOf(video))
 
             else -> toFlowThrowable(UnsupportedOperationException())
         }

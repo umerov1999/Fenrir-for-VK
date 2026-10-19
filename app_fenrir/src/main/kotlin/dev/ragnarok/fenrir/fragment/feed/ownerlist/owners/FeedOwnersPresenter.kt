@@ -4,8 +4,8 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.interfaces.ITempDataStorage
-import dev.ragnarok.fenrir.domain.IFeedInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFeedInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.FeedOwners
 import dev.ragnarok.fenrir.model.Owner
@@ -16,7 +16,7 @@ class FeedOwnersPresenter(accountId: Long, val listDbId: Long, savedInstanceStat
     AccountDependencyPresenter<IFeedOwnersView>(accountId, savedInstanceState) {
     private val data = FeedOwners(-1)
     private val tempDataStorage: ITempDataStorage = Includes.stores.tempStore()
-    private val feedInteractor: IFeedInteractor = InteractorFactory.createFeedInteractor()
+    private val feedInteractor: IFeedInteractor = InteractorFactory.feed
     private var loadingNow = false
     private fun setLoadingNow(loadingNow: Boolean) {
         this.loadingNow = loadingNow

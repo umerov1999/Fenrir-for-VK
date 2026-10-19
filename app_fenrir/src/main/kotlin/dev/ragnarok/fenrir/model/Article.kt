@@ -60,7 +60,7 @@ class Article : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "article_${id}_${ownerId}"
     }
 
     fun setOwnerName(owner_name: String?): Article {

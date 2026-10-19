@@ -42,7 +42,7 @@ class ConversationDocsFragment :
     override fun onDocLongClick(index: Int, doc: Document): Boolean {
         presenter?.fireGoToMessagesLookup(
             doc.msgPeerId,
-            doc.msgId
+            doc.msgCmId
         )
         return true
     }

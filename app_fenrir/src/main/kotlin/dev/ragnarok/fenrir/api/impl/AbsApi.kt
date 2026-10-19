@@ -2,10 +2,10 @@ package dev.ragnarok.fenrir.api.impl
 
 import android.os.SystemClock
 import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.api.IServiceProvider
-import dev.ragnarok.fenrir.api.OutOfDateException
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.exceptions.ApiException
+import dev.ragnarok.fenrir.api.exceptions.OutOfDateException
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.Error
 import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken

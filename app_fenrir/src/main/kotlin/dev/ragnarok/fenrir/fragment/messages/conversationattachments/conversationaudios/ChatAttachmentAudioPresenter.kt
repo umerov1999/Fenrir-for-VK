@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.fragment.messages.conversationattachments.conversati
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
@@ -30,9 +29,16 @@ class ChatAttachmentAudioPresenter(peerId: Long, accountId: Long, savedInstanceS
         peerId: Long,
         nextFrom: String?
     ): Flow<Pair<String?, List<Audio>>> {
-        return get().vkDefault(accountId)
-            .messages()
-            .getHistoryAttachments(peerId, VKApiAttachment.TYPE_AUDIO, nextFrom, 0, 1, 45, 50, null)
+        return messageRepository.getHistoryAttachments(
+            accountId = accountId,
+            peerId = peerId,
+            mediaType = VKApiAttachment.TYPE_AUDIO,
+            startFrom = nextFrom,
+            count = 50,
+            photoSizes = true,
+            preserveOrder = true,
+            maxForwardsLevel = 45
+        )
             .map { response ->
                 val audios: MutableList<Audio> = ArrayList(
                     Utils.safeCountOf(response.items)

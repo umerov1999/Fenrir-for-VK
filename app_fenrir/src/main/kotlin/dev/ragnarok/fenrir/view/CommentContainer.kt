@@ -34,7 +34,6 @@ import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
-import java.util.Locale
 
 class CommentContainer : LinearLayout {
     private var transformation: Transformation? = null

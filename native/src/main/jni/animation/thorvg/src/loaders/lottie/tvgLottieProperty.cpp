@@ -348,39 +348,31 @@ void LottiePathSet::modifiedPath(float frameNo, RenderPath& out, Matrix* transfo
     float t;
 
     if (dispatch(frameNo, path, frame, t)) {
-        if (modifier) {
-            RenderPath in;
-            path->convert(in);
-            modifier->path(in, out, transform);
-            in.dismiss();
-        } else {
-            _copy(path, out.cmds);
-            _copy(path, out.pts, transform);
-        }
+        RenderPath in;
+        path->convert(in);
+        modifier->path(in, out, transform);
+        in.dismiss();
         return;
     }
 
     // interpolation
+    RenderPath in;
+    in.cmds.data = frame->value.cmds;
+    in.cmds.count = frame->value.cmdsCnt;
+    in.pts.reserve(frame->value.ptsCnt);
+
     auto s = frame->value.pts;
     auto e = (frame + 1)->value.pts;
-    auto backup = frame->value.pts;
-    frame->value.pts = tvg::malloc<Point>(frame->value.ptsCnt * sizeof(Point));
-    auto p = frame->value.pts;
 
-    for (auto i = 0; i < frame->value.ptsCnt; ++i, ++s, ++e, ++p) {
-        *p = tvg::lerp(*s, *e, t);
-        if (transform) *p *= *transform;
+    for (auto i = 0; i < frame->value.ptsCnt; ++i, ++s, ++e) {
+        auto pt = tvg::lerp(*s, *e, t);
+        if (transform) pt *= *transform;
+        in.pts.push(pt);
     }
 
-    if (modifier) {
-        RenderPath in;
-        frame->value.convert(in);
-        modifier->path(in, out, nullptr);
-        in.dismiss();
-    }
+    modifier->path(in, out, nullptr);
 
-    std::swap(frame->value.pts, backup);
-    tvg::free(backup);
+    in.cmds.data = nullptr;
 }
 
 void LottiePathSet::release()

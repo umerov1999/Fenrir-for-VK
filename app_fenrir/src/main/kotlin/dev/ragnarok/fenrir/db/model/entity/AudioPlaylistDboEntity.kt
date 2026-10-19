@@ -122,6 +122,6 @@ class AudioPlaylistDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "audioplaylist_${id}_${ownerId}"
     }
 }

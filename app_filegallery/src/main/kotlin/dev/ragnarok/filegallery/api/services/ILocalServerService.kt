@@ -130,19 +130,19 @@ class ILocalServerService : IServiceRest() {
         )
     }
 
-    fun update_time(hash: String?): Flow<BaseResponse<Int>> {
+    fun updateTime(hash: String?): Flow<BaseResponse<Int>> {
         return rest.request("update_time", form("hash" to hash), baseInt)
     }
 
-    fun delete_media(hash: String?): Flow<BaseResponse<Int>> {
+    fun deleteMedia(hash: String?): Flow<BaseResponse<Int>> {
         return rest.request("delete_media", form("hash" to hash), baseInt)
     }
 
-    fun get_file_name(hash: String?): Flow<BaseResponse<String>> {
+    fun getFileName(hash: String?): Flow<BaseResponse<String>> {
         return rest.request("get_file_name", form("hash" to hash), baseString)
     }
 
-    fun update_file_name(
+    fun updateFileName(
         hash: String?,
         name: String?
     ): Flow<BaseResponse<Int>> {

@@ -20,8 +20,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.squareup.picasso3.Transformation
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.link.VKLinkParser
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.canPlayAfterCurrent
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
@@ -289,7 +289,7 @@ class AudioLocalServerRecyclerAdapter(
                     if (hash.isNullOrEmpty()) {
                         return@show
                     }
-                    audioListDisposable += mAudioInteractor.update_time(hash).fromIOToMain(
+                    audioListDisposable += mAudioInteractor.updateTime(hash).fromIOToMain(
                         { createCustomToast(mContext, null)?.showToast(R.string.success) }) { t ->
                         createCustomToast(mContext, null)?.showToastThrowable(t)
                     }
@@ -300,7 +300,7 @@ class AudioLocalServerRecyclerAdapter(
                     if (hash2.isNullOrEmpty()) {
                         return@show
                     }
-                    audioListDisposable += mAudioInteractor.get_file_name(hash2).fromIOToMain(
+                    audioListDisposable += mAudioInteractor.getFileName(hash2).fromIOToMain(
                         { t ->
                             val root =
                                 View.inflate(mContext, R.layout.entry_file_name, null)
@@ -312,7 +312,7 @@ class AudioLocalServerRecyclerAdapter(
                                 .setCancelable(true)
                                 .setView(root)
                                 .setPositiveButton(R.string.button_ok) { _, _ ->
-                                    audioListDisposable += mAudioInteractor.update_file_name(
+                                    audioListDisposable += mAudioInteractor.updateFileName(
                                         hash2,
                                         root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                             ?.trim()
@@ -345,7 +345,7 @@ class AudioLocalServerRecyclerAdapter(
                         if (hash1.isNullOrEmpty()) {
                             return@setPositiveButton
                         }
-                        audioListDisposable += mAudioInteractor.delete_media(hash1).fromIOToMain(
+                        audioListDisposable += mAudioInteractor.deleteMedia(hash1).fromIOToMain(
                             {
                                 createCustomToast(
                                     mContext,
@@ -599,6 +599,6 @@ class AudioLocalServerRecyclerAdapter(
 
     init {
         currAudio = currentAudio
-        mAudioInteractor = InteractorFactory.createLocalServerInteractor()
+        mAudioInteractor = InteractorFactory.localServer
     }
 }

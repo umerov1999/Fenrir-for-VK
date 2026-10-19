@@ -2,10 +2,10 @@ package dev.ragnarok.fenrir.fragment.fave.faveposts
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.db.model.PostUpdate
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.settings.Settings
@@ -19,7 +19,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 class FavePostsPresenter(accountId: Long, savedInstanceState: Bundle?) :
     PlaceSupportPresenter<IFavePostsView>(accountId, savedInstanceState) {
     private val posts: MutableList<Post> = ArrayList()
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val wallInteractor: IWallsRepository = walls
     private val cacheCompositeDisposable = CompositeJob()
     private var requestNow = false

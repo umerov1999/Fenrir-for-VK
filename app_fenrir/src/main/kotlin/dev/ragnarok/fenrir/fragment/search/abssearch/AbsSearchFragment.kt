@@ -23,7 +23,6 @@ import dev.ragnarok.fenrir.fragment.search.options.BaseOption
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.messages.importantmessages
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.messages.AbsMessageListPresenter
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -33,10 +33,10 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
     }
 
     fun fireMessageRestoreClick(message: Message) {
-        val id = message.getObjectId()
+        val cmId = message.cmId
         appendJob(
-            fInteractor.restoreMessage(accountId, accountId, id)
-                .fromIOToMain({ onMessageRestoredSuccessfully(id) }) { t ->
+            fInteractor.restoreMessage(accountId, accountId, cmId)
+                .fromIOToMain({ onMessageRestoredSuccessfully(cmId) }) { t ->
                     showError(t)
                 })
     }
@@ -51,13 +51,13 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
             view?.goToMessagesLookup(
                 accountId,
                 message.peerId,
-                message.getObjectId()
+                message.cmId
             )
         }
     }
 
-    private fun onMessageRestoredSuccessfully(id: Int) {
-        val message = findById(id)
+    private fun onMessageRestoredSuccessfully(cmId: Int) {
+        val message = findById(cmId)
         if (message != null) {
             message.setDeleted(false)
             safeNotifyDataChanged()
@@ -105,7 +105,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
         val ids = ArrayList<Int>(data.size)
         for (i in data) {
             if (i.isSelected) {
-                ids.add(i.getObjectId())
+                ids.add(i.cmId)
             }
         }
         if (ids.nonNullNoEmpty()) {
@@ -128,7 +128,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
         val ids = ArrayList<Int>(data.size)
         for (i in data) {
             if (i.isSelected) {
-                ids.add(i.getObjectId())
+                ids.add(i.cmId)
             }
         }
         if (ids.nonNullNoEmpty()) {
@@ -182,7 +182,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
             fInteractor.markAsImportant(
                 accountId,
                 msg.peerId,
-                setOf(msg.getObjectId()),
+                setOf(msg.cmId),
                 0
             )
                 .fromIOToMain({

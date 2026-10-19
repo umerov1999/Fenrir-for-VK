@@ -38,6 +38,6 @@ class CallDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${initiator_id}_${receiver_id}_$state"
+        return "call_${initiator_id}_${receiver_id}_$state"
     }
 }

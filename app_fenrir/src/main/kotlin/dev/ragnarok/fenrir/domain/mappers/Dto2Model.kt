@@ -324,11 +324,12 @@ object Dto2Model {
     fun transform(accountUid: Long, update: AddMessageUpdate): VKApiMessage {
         val message = VKApiMessage()
         message.conversation_message_id = update.cmId
+        message.peer_id = update.peerId
+        message.message_id = update.minorId
         message.out = update.isOut
         message.important = update.important
         message.deleted = update.deleted
         //message.read_state = !update.unread;
-        message.peer_id = update.peerId
         message.from_id =
             if (message.out) accountUid else if (Peer.isGroupChat(update.peerId) || Peer.isContactChat(
                     update.peerId
@@ -340,10 +341,10 @@ object Dto2Model {
         message.action_mid = update.sourceMid
         message.action_text = update.sourceText
         message.action = update.sourceAct
-        message.random_id = update.random_id
+        message.random_id = update.randomId
         message.keyboard = update.keyboard
         message.payload = update.payload
-        message.update_time = update.edit_time
+        message.update_time = update.editTime
         return message
     }
 
@@ -431,6 +432,7 @@ object Dto2Model {
         }
         dto.sort_id.requireNonNull {
             entity.setMajorId(it.major_id)
+            entity.setMinorId(it.minor_id)
         }
         entity.setCurrentKeyboard(mapKeyboard(dto.current_keyboard))
         return entity
@@ -478,6 +480,7 @@ object Dto2Model {
         }
         dto.conversation?.sort_id.requireNonNull {
             dialog.setMajorId(it.major_id)
+            dialog.setMinorId(it.minor_id)
         }
         return dialog
     }
@@ -537,6 +540,7 @@ object Dto2Model {
 
     fun transform(aid: Long, message: VKApiMessage, owners: IOwnersBundle): Message {
         val appMessage = Message(message.conversation_message_id)
+            .setMessageId(message.message_id)
             .setAccountId(aid)
             .setText(message.text) //.setTitle(message.title)
             .setPeerId(message.peer_id)
@@ -551,9 +555,9 @@ object Dto2Model {
             .setActionMid(message.action_mid)
             .setActionEmail(message.action_email)
             .setActionText(message.action_text)
-            .setPhoto50(message.action_photo_50)
-            .setPhoto100(message.action_photo_100)
-            .setPhoto200(message.action_photo_200)
+            .setActionPhoto50(message.action_photo_50)
+            .setActionPhoto100(message.action_photo_100)
+            .setActionPhoto200(message.action_photo_200)
             .setSender(owners.getById(message.from_id))
             .setPayload(message.payload)
             .setKeyboard(transformKeyboard(message.keyboard))

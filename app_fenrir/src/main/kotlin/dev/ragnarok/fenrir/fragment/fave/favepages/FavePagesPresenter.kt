@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.fave.favepages
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.FavePage
 import dev.ragnarok.fenrir.model.Owner
@@ -17,7 +17,6 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
 import kotlinx.coroutines.flow.Flow
-import java.util.Locale
 import kotlin.math.abs
 
 class FavePagesPresenter(
@@ -27,7 +26,7 @@ class FavePagesPresenter(
 ) :
     AccountDependencyPresenter<IFavePagesView>(accountId, savedInstanceState) {
     private val pages: MutableList<FavePage> = ArrayList()
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val cacheDisposable = CompositeJob()
     private val actualDataDisposable = CompositeJob()
     private val searcher: FindPage = FindPage(actualDataDisposable)

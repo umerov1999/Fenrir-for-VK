@@ -1,7 +1,5 @@
 package dev.ragnarok.fenrir.util
 
-import java.util.Locale
-
 object Translit {
 
     fun lat2cyr(s: String?): String? {

@@ -5,8 +5,8 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
-import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.place.PlaceFactory.getExternalLinkPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
@@ -22,7 +22,7 @@ class ResolveDomainDialog : AccountDependencyDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAccountId = requireArguments().getLong(Extra.ACCOUNT_ID)
-        mUtilsInteractor = InteractorFactory.createUtilsInteractor()
+        mUtilsInteractor = InteractorFactory.utils
         url = requireArguments().getString(Extra.URL)
         domain = requireArguments().getString(Extra.DOMAIN)
     }

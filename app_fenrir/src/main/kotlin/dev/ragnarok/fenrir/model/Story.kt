@@ -103,7 +103,7 @@ class Story : AbsModel, ParcelNative.ParcelableNative {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "story_${id}_${ownerId}"
     }
 
     fun setPhoto(photo: Photo?): Story {

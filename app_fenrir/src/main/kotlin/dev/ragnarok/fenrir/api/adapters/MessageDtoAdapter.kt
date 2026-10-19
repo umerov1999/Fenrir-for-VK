@@ -28,8 +28,10 @@ class MessageDtoAdapter : AbsDtoAdapter<VKApiMessage>("VKApiMessage") {
         } else {
             dto.conversation_message_id = optInt(root, "id")
         }
-        dto.out = optBoolean(root, "out")
         dto.peer_id = optLong(root, "peer_id")
+        dto.message_id = optInt(root, "id")
+
+        dto.out = optBoolean(root, "out")
         dto.from_id =
             if (root.has("from_id")) optLong(root, "from_id") else optLong(root, "user_id")
         dto.date = optLong(root, "date")

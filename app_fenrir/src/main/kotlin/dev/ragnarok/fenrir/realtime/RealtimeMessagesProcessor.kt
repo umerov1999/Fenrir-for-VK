@@ -7,10 +7,10 @@ import dev.ragnarok.fenrir.Includes.stores
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.longpoll.AddMessageUpdate
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.longpoll.LongPollNotificationHelper
 import dev.ragnarok.fenrir.model.Peer
@@ -86,6 +86,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
         accountId: Long,
         cmId: Int,
         peerId: Long,
+        minorId: Int,
         ignoreIfExists: Boolean
     ): Int {
         if (hasInQueueOrCurrent(cmId, peerId)) {
@@ -97,7 +98,7 @@ internal class RealtimeMessagesProcessor : IRealtimeMessagesProcessor {
         )
         val id = ID_GENERATOR.incrementAndGet()
         val entry = Entry(accountId, id, ignoreIfExists)
-        entry.append(cmId, peerId)
+        entry.append(cmId, peerId, minorId)
         addToQueue(entry)
         startIfNotStarted()
         return id

@@ -43,8 +43,8 @@ import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.api.exceptions.ApiException
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
 import dev.ragnarok.fenrir.materialpopupmenu.popupMenu
@@ -167,7 +167,7 @@ class AudioPlayerFragment : BottomSheetDialogFragment(), CustomSeekBar.CustomSee
         }
 
     }
-    private var mAudioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private var mAudioInteractor: IAudioInteractor = InteractorFactory.audio
     private var mAccountId = 0L
     private val mBroadcastJob = CompositeJob()
     private val mCompositeJob = CompositeJob()

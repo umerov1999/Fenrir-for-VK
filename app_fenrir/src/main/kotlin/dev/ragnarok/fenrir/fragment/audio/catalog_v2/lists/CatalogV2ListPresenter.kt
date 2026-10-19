@@ -4,8 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.ifNonNullNoEmpty
 import dev.ragnarok.fenrir.model.AudioArtist
@@ -32,7 +32,7 @@ class CatalogV2ListPresenter(
     context: Context,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<ICatalogV2ListView>(accountId, savedInstanceState) {
-    private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     private val mSections: ArrayList<CatalogV2List.CatalogV2ListItem> =
         ArrayList()
     private val netDisposable = CompositeJob()

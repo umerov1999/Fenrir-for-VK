@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.domain.IPollInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IPollInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUsers

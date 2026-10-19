@@ -7,12 +7,13 @@ import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.interfaces.IAttachmentToken
 import dev.ragnarok.fenrir.api.model.response.DefaultCommentsResponse
-import dev.ragnarok.fenrir.db.AttachToType
+import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.CommentEntity
 import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
-import dev.ragnarok.fenrir.domain.ICommentsInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.ICommentsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapComment
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapOwners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.buildComment
@@ -64,7 +65,7 @@ class CommentsInteractor(
                     fillCommentOwnerIds(ownids, c)
                 }
                 ownersRepository
-                    .findBaseOwnersDataAsBundle(accountId, ownids.all, IOwnersRepository.MODE_ANY)
+                    .findBaseOwnersDataAsBundle(accountId, ownids.all, FetchMode.ANY)
                     .map {
                         val comments: MutableList<Comment> = ArrayList(dbos.size)
                         for (dbo in dbos) {
@@ -105,7 +106,7 @@ class CommentsInteractor(
             .findBaseOwnersDataAsBundle(
                 accountId,
                 ownids.all,
-                IOwnersRepository.MODE_ANY,
+                FetchMode.ANY,
                 transformOwners(users, groups)
             )
             .map {
@@ -418,7 +419,7 @@ class CommentsInteractor(
         return cache.attachments()
             .getAttachmentsFromBlob(
                 accountId = accountId,
-                attachToType = AttachToType.COMMENT,
+                attachmentFor = AttachmentFor.COMMENT,
                 attachToDbId = commentDbId,
                 attachToElement = null
             )
@@ -462,7 +463,7 @@ class CommentsInteractor(
     }
 
     override fun getAvailableAuthors(accountId: Long): Flow<List<Owner>> {
-        return ownersRepository.getBaseOwnerInfo(accountId, accountId, IOwnersRepository.MODE_ANY)
+        return ownersRepository.getBaseOwnerInfo(accountId, accountId, FetchMode.ANY)
             .flatMapConcat { owner ->
                 networker.vkDefault(accountId)
                     .groups()

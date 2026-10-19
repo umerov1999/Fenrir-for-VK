@@ -4,12 +4,14 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
+import dev.ragnarok.fenrir.contentLength
 import dev.ragnarok.fenrir.db.interfaces.IDocsStorage
 import dev.ragnarok.fenrir.db.model.entity.DocumentDboEntity
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Document
+import dev.ragnarok.fenrir.toSource
 import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadResult
@@ -21,9 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
+import okio.Source
 import kotlin.coroutines.cancellation.CancellationException
 
 class DocumentUploadable(
@@ -47,16 +47,13 @@ class DocumentUploadable(
             toFlow(initialServer)
         }
         return serverSingle.flatMapConcat { server ->
-            var inputStream: InputStream? = null
+            var inputSource: Source? = null
             try {
                 val uri = upload.fileUri
-                val file = File(uri?.path ?: throw NotFoundException("uri.path is empty"))
-                inputStream = if (file.isFile) {
-                    FileInputStream(file)
-                } else {
-                    context.contentResolver.openInputStream(uri)
-                }
-                if (inputStream == null) {
+                val size =
+                    uri?.contentLength(context) ?: throw NotFoundException("uri.path is empty")
+                inputSource = uri.toSource(context)
+                if (inputSource == null) {
                     toFlowThrowable(
                         NotFoundException(
                             "Unable to open InputStream, URI: $uri"
@@ -68,10 +65,11 @@ class DocumentUploadable(
                         .uploadDocumentRx(
                             server.url ?: throw NotFoundException("Upload url empty!"),
                             filename,
-                            inputStream,
+                            inputSource,
+                            size,
                             listener
                         )
-                        .onCompletion { safelyClose(inputStream) }
+                        .onCompletion { safelyClose(inputSource) }
                         .flatMapConcat { dto ->
                             if (dto.file.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
@@ -106,7 +104,7 @@ class DocumentUploadable(
                         }
                 }
             } catch (e: Exception) {
-                safelyClose(inputStream)
+                safelyClose(inputSource)
                 if (e is CancellationException) {
                     throw e
                 }

@@ -5,8 +5,8 @@ import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.attachments.abspostedit.AbsPostEditPresenter
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.AbsModel

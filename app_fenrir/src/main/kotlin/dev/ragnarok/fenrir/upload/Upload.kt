@@ -79,7 +79,7 @@ open class Upload : AbsModel, Identificable {
     }
 
     override fun getAttachmentKey(): String {
-        return id.toString()
+        return "upload_${id}"
     }
 
     override fun getObjectId(): Int {

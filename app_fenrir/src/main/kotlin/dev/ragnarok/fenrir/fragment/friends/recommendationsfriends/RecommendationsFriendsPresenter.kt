@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.friends.recommendationsfriends
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
 import dev.ragnarok.fenrir.fragment.absownerslist.ISimpleOwnersView
 import dev.ragnarok.fenrir.fragment.absownerslist.SimpleOwnersPresenter
 import dev.ragnarok.fenrir.model.User
@@ -12,7 +12,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 class RecommendationsFriendsPresenter(accountId: Long, savedInstanceState: Bundle?) :
     SimpleOwnersPresenter<ISimpleOwnersView>(accountId, savedInstanceState) {
     private val relationshipInteractor: IRelationshipInteractor =
-        InteractorFactory.createRelationshipInteractor()
+        InteractorFactory.relationship
     private val actualDataDisposable = CompositeJob()
     private var actualDataLoading = false
     private var doLoadTabs = false

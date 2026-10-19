@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.likes.reactions
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.absownerslist.ISimpleOwnersView
 import dev.ragnarok.fenrir.fragment.absownerslist.SimpleOwnersPresenter
 import dev.ragnarok.fenrir.model.ReactedMessagesPeers

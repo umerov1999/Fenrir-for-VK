@@ -79,7 +79,7 @@ class PostDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "post_${id}_${ownerId}"
     }
 
     fun setCopyright(copyright: CopyrightDboEntity?): PostDboEntity {

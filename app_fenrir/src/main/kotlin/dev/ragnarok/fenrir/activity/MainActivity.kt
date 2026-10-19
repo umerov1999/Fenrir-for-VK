@@ -600,7 +600,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                     mCompositeJob.add(
                         MusicPlaybackController.tracksExist.findAllAudios(this)
                             .andThen(
-                                InteractorFactory.createStickersInteractor()
+                                InteractorFactory.sticker
                                     .placeToStickerCache(this)
                             )
                             .fromIOToMain(dummy()) { t ->
@@ -707,7 +707,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 .main().isBe_online && !Utils.isHiddenAccount(mAccountId) && Utils.needSetOnline()
         ) {
             mCompositeJob.add(
-                InteractorFactory.createAccountInteractor().setOnline(mAccountId).hiddenIO()
+                InteractorFactory.account.setOnline(mAccountId).hiddenIO()
             )
         }
     }
@@ -811,7 +811,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         when (option.id) {
                             0 -> {
                                 mCompositeJob.add(
-                                    InteractorFactory.createAccountInteractor()
+                                    InteractorFactory.account
                                         .setOffline(mAccountId)
                                         .fromIOToMain({ onSetOffline(it) }) {
                                             onSetOffline(
@@ -827,7 +827,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                                         ?: return@show).getItemAt(0).text != null
                                 ) {
                                     val temp =
-                                        clipBoard.primaryClip?.getItemAt(0)?.text?.toString()?.trim()
+                                        clipBoard.primaryClip?.getItemAt(0)?.text?.toString()
+                                            ?.trim()
                                     LinkHelper.openUrl(
                                         this@MainActivity,
                                         mAccountId,
@@ -1396,7 +1397,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             return
         }
         mCompositeJob.add(
-            InteractorFactory.createFeedbackInteractor()
+            InteractorFactory.feedback
                 .markAsViewed(mAccountId)
                 .fromIOToMain {
                     mBottomNavigation?.removeBadge(NavigationPage.FEEDBACK)
@@ -1448,7 +1449,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 .main().isBe_online && !Utils.isHiddenAccount(mAccountId) && Utils.needSetOnline()
         ) {
             mCompositeJob.add(
-                InteractorFactory.createAccountInteractor().setOnline(mAccountId).hiddenIO()
+                InteractorFactory.account.setOnline(mAccountId).hiddenIO()
             )
         }
         when (place.type) {

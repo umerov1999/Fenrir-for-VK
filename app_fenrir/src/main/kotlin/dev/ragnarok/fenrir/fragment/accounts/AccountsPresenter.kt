@@ -27,10 +27,11 @@ import dev.ragnarok.fenrir.api.rest.HttpException
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.db.DBHelper
 import dev.ragnarok.fenrir.db.model.entity.DialogDboEntity
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.exception.UnauthorizedException
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.isMsgPack
@@ -97,7 +98,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
     private val mOwnersInteractor: IOwnersRepository = Repository.owners
     private val networker: INetworker = Includes.networkInterfaces
     private val accountsInteractor: IAccountsInteractor =
-        InteractorFactory.createAccountInteractor()
+        InteractorFactory.account
     private var tempAccountId = 0L
 
     private var loadingNow = false
@@ -375,7 +376,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
         }
         merge(Account(uid, null))
         appendJob(
-            mOwnersInteractor.getBaseOwnerInfo(uid, uid, IOwnersRepository.MODE_ANY)
+            mOwnersInteractor.getBaseOwnerInfo(uid, uid, FetchMode.ANY)
                 .fromIOToMain({
                     merge(Account(uid, it))
                     if (needRefreshToken) {
@@ -460,7 +461,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                         mOwnersInteractor.findBaseOwnersDataAsBundle(
                             Settings.get().accounts().current,
                             Settings.get().accounts().registered,
-                            IOwnersRepository.MODE_ANY
+                            FetchMode.ANY
                         )
                             .fromIOToMain({ own ->
                                 setLoadingNow(false)
@@ -746,7 +747,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
             mOwnersInteractor.findBaseOwnersDataAsBundle(
                 Settings.get().accounts().current,
                 Settings.get().accounts().registered,
-                IOwnersRepository.MODE_ANY
+                FetchMode.ANY
             )
                 .fromIOToMain({
                     setLoadingNow(false)

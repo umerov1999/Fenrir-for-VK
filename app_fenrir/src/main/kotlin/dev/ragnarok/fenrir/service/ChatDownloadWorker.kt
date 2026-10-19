@@ -21,8 +21,8 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.model.Message

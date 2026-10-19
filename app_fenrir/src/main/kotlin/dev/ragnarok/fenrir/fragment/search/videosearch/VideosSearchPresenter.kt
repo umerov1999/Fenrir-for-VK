@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.search.videosearch
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.VideoSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
@@ -26,7 +26,7 @@ class VideosSearchPresenter(
     criteria,
     savedInstanceState
 ) {
-    private val videosInteractor: IVideosInteractor = InteractorFactory.createVideosInteractor()
+    private val videosInteractor: IVideosInteractor = InteractorFactory.video
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
 

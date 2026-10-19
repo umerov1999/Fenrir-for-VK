@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.search.audiossearch
 
 import android.content.Context
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
@@ -27,7 +27,7 @@ class AudiosSearchPresenter(
     criteria,
     savedInstanceState
 ) {
-    private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
 

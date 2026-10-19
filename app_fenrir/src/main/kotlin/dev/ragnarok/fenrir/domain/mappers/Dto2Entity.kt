@@ -894,6 +894,7 @@ object Dto2Entity {
         }
         dto.sort_id.requireNonNull {
             entity.setMajorId(it.major_id)
+            entity.setMinorId(it.minor_id)
         }
         entity.setCurrentKeyboard(mapKeyboard(dto.current_keyboard))
         return entity
@@ -934,6 +935,7 @@ object Dto2Entity {
         }
         dto.conversation?.sort_id.requireNonNull {
             entity.setMajorId(it.major_id)
+            entity.setMinorId(it.minor_id)
         }
         entity.setCurrentKeyboard(mapKeyboard(dto.conversation?.current_keyboard))
         return entity
@@ -1490,6 +1492,7 @@ object Dto2Entity {
             }
         }
         val entity = MessageDboEntity().set(dto.conversation_message_id, dto.peer_id, dto.from_id)
+            .setMessageId(dto.message_id)
             .setDate(dto.date)
             .setOut(dto.out)
             .setText(dto.text)
@@ -1502,9 +1505,9 @@ object Dto2Entity {
             .setActionMemberId(dto.action_mid)
             .setActionEmail(dto.action_email)
             .setActionText(dto.action_text)
-            .setPhoto50(dto.action_photo_50)
-            .setPhoto100(dto.action_photo_100)
-            .setPhoto200(dto.action_photo_200)
+            .setActionPhoto50(dto.action_photo_50)
+            .setActionPhoto100(dto.action_photo_100)
+            .setActionPhoto200(dto.action_photo_200)
             .setRandomId(randomId)
             .setUpdateTime(dto.update_time)
             .setPayload(dto.payload)

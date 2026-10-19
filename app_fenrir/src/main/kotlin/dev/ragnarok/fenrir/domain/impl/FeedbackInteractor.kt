@@ -12,8 +12,9 @@ import dev.ragnarok.fenrir.db.model.entity.feedback.NewCommentEntity
 import dev.ragnarok.fenrir.db.model.entity.feedback.PostFeedbackEntity
 import dev.ragnarok.fenrir.db.model.entity.feedback.ReplyCommentEntity
 import dev.ragnarok.fenrir.db.model.entity.feedback.UsersEntity
-import dev.ragnarok.fenrir.domain.IFeedbackInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IFeedbackInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.buildFeedbackDbo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapOwners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformOwners
@@ -50,7 +51,7 @@ class FeedbackInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     criteria.accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .map {
                         val feedbacks: MutableList<Feedback> = ArrayList(dbos.size)
@@ -118,7 +119,7 @@ class FeedbackInteractor(
                             .findBaseOwnersDataAsBundle(
                                 accountId,
                                 ownIds.all,
-                                IOwnersRepository.MODE_ANY,
+                                FetchMode.ANY,
                                 owners
                             )
                             .map {

@@ -120,7 +120,7 @@ class Post : AbsModel, Cloneable {
     }
 
     override fun getAttachmentKey(): String {
-        return "${vkid}_${ownerId}"
+        return "post_${vkid}_${ownerId}"
     }
 
     fun setSource(source: PostSource?): Post {

@@ -42,7 +42,7 @@ class ShortLink : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$url"
+        return "shortlink_$url"
     }
 
     fun setShort_url(short_url: String?): ShortLink {

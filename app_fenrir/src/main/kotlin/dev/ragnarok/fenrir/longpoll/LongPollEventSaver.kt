@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.longpoll
 
 import dev.ragnarok.fenrir.api.model.longpoll.VKApiLongpollUpdates
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
@@ -43,6 +43,14 @@ class LongPollEventSaver {
                 messagesInteractor.handlePinConversationUpdates(
                     accountId,
                     updates.pinConversationUpdates
+                )
+            )
+        }
+        if (updates.minorIdConversationUpdates.nonNullNoEmpty()) {
+            completable = completable.andThen(
+                messagesInteractor.handleMinorIdConversationUpdates(
+                    accountId,
+                    updates.minorIdConversationUpdates
                 )
             )
         }

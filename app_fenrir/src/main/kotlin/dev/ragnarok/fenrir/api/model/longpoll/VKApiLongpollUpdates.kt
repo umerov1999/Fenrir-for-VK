@@ -22,6 +22,7 @@ class VKApiLongpollUpdates {
     var badgeCountChangeUpdates: MutableList<BadgeCountChangeUpdate>? = null
     var messageReactionChangedUpdates: MutableList<ReactionMessageChangeUpdate>? = null
     var pinConversationUpdates: MutableList<PinConversationUpdate>? = null
+    var minorIdConversationUpdates: MutableList<MinorIdUpdate>? = null
 
     fun isOnlyAddMessages(): Boolean {
         return typingMessageOrUploadingInDialogUpdates.isNullOrEmpty() &&
@@ -31,7 +32,8 @@ class VKApiLongpollUpdates {
                 outputMessagesSetReadUpdates.isNullOrEmpty() &&
                 badgeCountChangeUpdates.isNullOrEmpty() &&
                 messageReactionChangedUpdates.isNullOrEmpty() &&
-                pinConversationUpdates.isNullOrEmpty()
+                pinConversationUpdates.isNullOrEmpty() &&
+                minorIdConversationUpdates.isNullOrEmpty()
     }
 
     //public VkApiLongpollUpdates(int account_id) {
@@ -75,8 +77,12 @@ class VKApiLongpollUpdates {
 
             AbsLongpollEvent.ACTION_COUNTER_UNREAD_WAS_CHANGED -> badgeCountChangeUpdates =
                 addAndReturn(badgeCountChangeUpdates, update as BadgeCountChangeUpdate)
+
             AbsLongpollEvent.ACTION_PIN_CONVERSATION -> pinConversationUpdates =
                 addAndReturn(pinConversationUpdates, update as PinConversationUpdate)
+
+            AbsLongpollEvent.ACTION_CHANGE_MINOR_ID -> minorIdConversationUpdates =
+                addAndReturn(minorIdConversationUpdates, update as MinorIdUpdate)
         }
     }
 
@@ -90,7 +96,8 @@ class VKApiLongpollUpdates {
             outputMessagesSetReadUpdates,
             badgeCountChangeUpdates,
             messageReactionChangedUpdates,
-            pinConversationUpdates
+            pinConversationUpdates,
+            minorIdConversationUpdates
         )
     val isEmpty: Boolean
         get() = updatesCount == 0

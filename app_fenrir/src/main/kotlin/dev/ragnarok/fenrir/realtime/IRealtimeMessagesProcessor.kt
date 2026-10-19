@@ -13,6 +13,7 @@ interface IRealtimeMessagesProcessor {
         accountId: Long,
         cmId: Int,
         peerId: Long,
+        minorId: Int,
         ignoreIfExists: Boolean
     ): Int
 

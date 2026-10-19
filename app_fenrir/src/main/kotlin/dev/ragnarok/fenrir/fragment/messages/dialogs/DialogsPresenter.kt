@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiUser
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IStickersInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
+import dev.ragnarok.fenrir.domain.interfaces.IStickersInteractor
 import dev.ragnarok.fenrir.exception.UnauthorizedException
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.fragment.messages.dialogs.IDialogsView.IContextView
@@ -30,9 +30,6 @@ import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AssertUtils.assertPositive
 import dev.ragnarok.fenrir.util.HelperSimple
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.ShortcutUtils.addDynamicShortcut
@@ -135,7 +132,7 @@ class DialogsPresenter(
         }
         setNetLoadingNow(true)
         netDisposable.add(
-            messagesInteractor.getConversations(dialogsOwnerId, COUNT, null, null)
+            messagesInteractor.getConversations(dialogsOwnerId, COUNT, null)
                 .fromIOToMain({ onDialogsFirstResponse(it) }) { t ->
                     onDialogsGetError(
                         t
@@ -148,10 +145,10 @@ class DialogsPresenter(
         if (netLoadingNow) {
             return
         }
-        val lastCmId = lastDialogCmId ?: return
+        val lastMessageId = lastDialogMessageId ?: return
         setNetLoadingNow(true)
         netDisposable.add(
-            messagesInteractor.getConversations(dialogsOwnerId, COUNT, lastDialogPeerId, lastCmId)
+            messagesInteractor.getConversations(dialogsOwnerId, COUNT, lastMessageId)
                 .fromIOToMain(
                     { onNextDialogsResponse(it) }
                 ) { throwable -> onDialogsGetError(throwable) })
@@ -370,15 +367,14 @@ class DialogsPresenter(
                             onDialogDeleted(accountId, peerId)
                         } else {
                             onActualMessagePeerMessageReceived(
-                                accountId, peerId, update, wrap(
-                                    messages[0]
-                                )
+                                accountId, peerId, update,
+                                messages[0]
                             )
                         }
                     }
             )
         } else {
-            onActualMessagePeerMessageReceived(accountId, peerId, update, empty())
+            onActualMessagePeerMessageReceived(accountId, peerId, update, null)
         }
     }
 
@@ -386,7 +382,7 @@ class DialogsPresenter(
         accountId: Long,
         peerId: Long,
         update: PeerUpdate,
-        messageOptional: Optional<Message>
+        message: Message?
     ) {
         if (accountId != dialogsOwnerId) {
             return
@@ -405,9 +401,12 @@ class DialogsPresenter(
         if (update.majorId != null) {
             dialog.setMajorId(update.majorId?.majorId ?: return)
         }
-        if (messageOptional.nonEmpty()) {
-            val message = messageOptional.get()
-            dialog.setLastCmId((message ?: return).getObjectId())
+        if (update.minorId != null) {
+            dialog.setMinorId(update.minorId?.minorId ?: return)
+        }
+        if (message != null) {
+            dialog.setLastCmId(message.cmId)
+            dialog.setMinorId(message.messageId)
             dialog.setMessage(message)
             if (dialog.isChat) {
                 dialog.setInterlocutor(message.sender)
@@ -418,12 +417,12 @@ class DialogsPresenter(
         }
         if (index != -1) {
             dialogs.sortWith(compareByDescending<Dialog> { it.majorId }
-                .thenByDescending { it.lastMessageDate })
+                .thenByDescending { it.minorId })
             safeNotifyDataSetChanged()
         } else {
             if (Peer.isGroup(peerId) || Peer.isUser(peerId)) {
                 appendJob(
-                    owners.getBaseOwnerInfo(accountId, peerId, IOwnersRepository.MODE_ANY)
+                    owners.getBaseOwnerInfo(accountId, peerId, FetchMode.ANY)
                         .fromIOToMain { o ->
                             dialog.setInterlocutor(o)
                             appendJob(
@@ -431,7 +430,7 @@ class DialogsPresenter(
                                     .fromIOToMain {
                                         dialogs.add(dialog)
                                         dialogs.sortWith(compareByDescending<Dialog> { it.majorId }
-                                            .thenByDescending { it.lastMessageDate })
+                                            .thenByDescending { it.minorId })
                                         safeNotifyDataSetChanged()
                                     }
                             )
@@ -440,7 +439,7 @@ class DialogsPresenter(
             } else {
                 dialogs.add(dialog)
                 dialogs.sortWith(compareByDescending<Dialog> { it.majorId }
-                    .thenByDescending { it.lastMessageDate })
+                    .thenByDescending { it.minorId })
                 safeNotifyDataSetChanged()
             }
         }
@@ -557,16 +556,9 @@ class DialogsPresenter(
         }
     }
 
-    private val lastDialogCmId: Int?
+    private val lastDialogMessageId: Int?
         get() = try {
-            dialogs[dialogs.size - 1].lastCmId
-        } catch (_: Exception) {
-            null
-        }
-
-    private val lastDialogPeerId: Long?
-        get() = try {
-            dialogs[dialogs.size - 1].peerId
+            dialogs[dialogs.size - 1].message?.messageId
         } catch (_: Exception) {
             null
         }
@@ -713,7 +705,7 @@ class DialogsPresenter(
             messagesInteractor.markAsRead(
                 accountId,
                 dialog.peerId,
-                dialog.lastCmId
+                dialog.minorId
             )
                 .fromIOToMain({
                     view?.customToast?.showToastSuccessBottom(
@@ -758,8 +750,8 @@ class DialogsPresenter(
         dialogsOwnerId = savedInstanceState?.getLong(SAVE_DIALOGS_OWNER_ID)
             ?: initialDialogsOwnerId
         messagesInteractor = messages
-        stickerInteractor = InteractorFactory.createStickersInteractor()
-        accountsInteractor = InteractorFactory.createAccountInteractor()
+        stickerInteractor = InteractorFactory.sticker
+        accountsInteractor = InteractorFactory.account
         longpollManager = LongpollInstance.longpollManager
         appendJob(
             messagesInteractor

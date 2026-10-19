@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.audio.audiosbyartist
 import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
@@ -22,7 +22,7 @@ class AudiosByArtistPresenter(
     savedInstanceState: Bundle?
 ) :
     AccountDependencyPresenter<IAudiosByArtistView>(accountId, savedInstanceState) {
-    private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     private val audios: ArrayList<Audio> = ArrayList()
     private val audioListDisposable = CompositeJob()
     private var actualReceived = false

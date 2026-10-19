@@ -4,7 +4,7 @@ import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.db.interfaces.IDocsStorage
 import dev.ragnarok.fenrir.db.model.entity.DocumentDboEntity
-import dev.ragnarok.fenrir.domain.IDocsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IDocsInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapDoc
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildDocumentFromDbo

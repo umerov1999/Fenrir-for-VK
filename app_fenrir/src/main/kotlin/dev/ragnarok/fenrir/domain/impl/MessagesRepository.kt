@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
+import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Fields
@@ -22,10 +23,12 @@ import dev.ragnarok.fenrir.api.model.longpoll.BadgeCountChangeUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.InputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsResetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsSetUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.MinorIdUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.PinConversationUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
+import dev.ragnarok.fenrir.api.model.response.AttachmentsHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.MessageEditEntity
@@ -37,10 +40,10 @@ import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
 import dev.ragnarok.fenrir.db.model.entity.PeerDialogEntity
 import dev.ragnarok.fenrir.db.model.entity.ReactionAssetEntity
 import dev.ragnarok.fenrir.db.model.entity.StickerDboEntity
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.InteractorFactory.createAccountInteractor
-import dev.ragnarok.fenrir.domain.Mode
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapDialog
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapMessage
@@ -68,6 +71,7 @@ import dev.ragnarok.fenrir.kJsonNotPretty
 import dev.ragnarok.fenrir.longpoll.NotificationHelper.tryCancelNotificationForPeer
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AppChatUser
+import dev.ragnarok.fenrir.model.Chat
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.IOwnersBundle
@@ -93,10 +97,10 @@ import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.model.criteria.DialogsCriteria
 import dev.ragnarok.fenrir.model.criteria.MessagesCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.push.OwnerInfo
 import dev.ragnarok.fenrir.push.OwnerInfo.Companion.getRx
 import dev.ragnarok.fenrir.requireNonNull
-import dev.ragnarok.fenrir.settings.ISettings.IAccountsSettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.IUploadManager
 import dev.ragnarok.fenrir.upload.Method
@@ -143,18 +147,15 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.single
 import kotlinx.serialization.json.decodeFromBufferedSource
+import okio.Source
 import okio.buffer
 import okio.source
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.io.InputStream
 import java.util.LinkedList
 import java.util.concurrent.Executors
-import kotlin.math.abs
 
 class MessagesRepository(
-    private val accountsSettings: IAccountsSettings,
     private val networker: INetworker,
     private val ownersRepository: IOwnersRepository,
     private val storages: IStorages,
@@ -172,7 +173,8 @@ class MessagesRepository(
         CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     private val handler = InternalHandler(this)
     private var nowSending = false
-    private var registeredAccounts: List<Long>? = null
+
+    //private var registeredAccounts: List<Long>? = null
     override fun observeMessagesSendErrors(): SharedFlow<Throwable> {
         return sendErrorsPublisher
     }
@@ -181,9 +183,11 @@ class MessagesRepository(
         return typingMessageOrUploadingInDialogPublisher
     }
 
+    /*
     private fun onAccountsChanged() {
         registeredAccounts = accountsSettings.registered
     }
+     */
 
     override fun runSendingQueue() {
         handler.runSend()
@@ -198,17 +202,26 @@ class MessagesRepository(
             return
         }
         nowSending = true
-        sendMessage(registeredAccounts())
+        //sendMessage(registeredAccounts())
+        sendMessage(listOf(Settings.get().accounts().current))
     }
 
+    /*
     private fun registeredAccounts(): List<Long>? {
         if (registeredAccounts == null) {
             registeredAccounts = accountsSettings.registered
         }
         return registeredAccounts
     }
+     */
 
     private fun onMessageSent(msg: SentMsg) {
+        if (!Settings.get().main().isBe_online || isHiddenAccount(msg.accountId)) {
+            compositeJob.add(
+                InteractorFactory.account.setOffline(msg.accountId)
+                    .fromScopeToMain(senderScheduler, dummy())
+            )
+        }
         nowSending = false
         sentMessagesPublisher.myEmit(msg)
         send()
@@ -219,9 +232,9 @@ class MessagesRepository(
         nowSending = false
         if (cause is NotFoundException) {
             val accountId = Settings.get().accounts().current
-            if (!Settings.get().main().isBe_online || isHiddenAccount(accountId)) {
+            if (!Settings.get().main().isBe_online || !isHiddenAccount(accountId)) {
                 compositeJob.add(
-                    createAccountInteractor().setOffline(accountId)
+                    InteractorFactory.account.setOffline(accountId)
                         .fromScopeToMain(senderScheduler, dummy())
                 )
             }
@@ -265,7 +278,8 @@ class MessagesRepository(
                                         dbCmId = cmId,
                                         peerId = peerId,
                                         status = MessageStatus.QUEUE,
-                                        vkCmId = null
+                                        vkCmId = null,
+                                        vkMessageId = null
                                     ).map {
                                         true
                                     }
@@ -450,6 +464,19 @@ class MessagesRepository(
         return applyPeerUpdatesAndPublish(accountId, patches)
     }
 
+    override fun handleMinorIdConversationUpdates(
+        accountId: Long,
+        updates: List<MinorIdUpdate>?
+    ): Flow<Boolean> {
+        val patches: MutableList<PeerPatch> = ArrayList()
+        if (updates.nonNullNoEmpty()) {
+            for (update in updates) {
+                patches.add(PeerPatch(update.peerId).withMinorId(update.minorId))
+            }
+        }
+        return applyPeerUpdatesAndPublish(accountId, patches)
+    }
+
     override fun observeSentMessages(): SharedFlow<SentMsg> {
         return sentMessagesPublisher
     }
@@ -469,19 +496,19 @@ class MessagesRepository(
     override fun getConversationByIdSingle(
         accountId: Long,
         peerId: Long,
-        mode: Mode
+        fetchMode: FetchMode
     ): Flow<Conversation> {
         val cached = getCachedConversationById(accountId, peerId)
         val actual = getActualConversationById(accountId, peerId)
-        when (mode) {
-            Mode.ANY -> return cached.flatMapConcat { optional ->
+        when (fetchMode) {
+            FetchMode.ANY -> return cached.flatMapConcat { optional ->
                 if (optional.isEmpty) actual else toFlow(
                     optional.requireNonEmpty()
                 )
             }
 
-            Mode.NET -> return actual
-            Mode.CACHE -> return cached
+            FetchMode.NET -> return actual
+            FetchMode.CACHE -> return cached
                 .map { optional ->
                     if (optional.isEmpty) {
                         throw NotFoundException()
@@ -492,7 +519,7 @@ class MessagesRepository(
 
             else -> {}
         }
-        throw IllegalArgumentException("Unsupported mode: $mode")
+        throw IllegalArgumentException("Unsupported mode: $fetchMode")
     }
 
     private fun getCachedConversationById(
@@ -544,20 +571,20 @@ class MessagesRepository(
     override fun getConversationById(
         accountId: Long,
         peerId: Long,
-        mode: Mode
+        fetchMode: FetchMode
     ): Flow<Conversation> {
         val cached = getCachedConversationById(accountId, peerId)
         val actual = getActualConversationById(accountId, peerId)
-        return when (mode) {
-            Mode.ANY -> cached
+        return when (fetchMode) {
+            FetchMode.ANY -> cached
                 .flatMapConcat { optional ->
                     if (optional.isEmpty) actual else toFlow(
                         optional.requireNonEmpty()
                     )
                 }
 
-            Mode.NET -> actual
-            Mode.CACHE -> cached
+            FetchMode.NET -> actual
+            FetchMode.CACHE -> cached
                 .map { optional ->
                     if (optional.isEmpty) {
                         throw NotFoundException()
@@ -566,7 +593,7 @@ class MessagesRepository(
                     }
                 }
 
-            Mode.CACHE_THEN_ACTUAL -> {
+            FetchMode.CACHE_THEN_ACTUAL -> {
                 val cachedFlowable = cached
                     .filter { it.nonEmpty() }
                     .map { it.requireNonEmpty() }
@@ -592,7 +619,7 @@ class MessagesRepository(
         ownersRepository.findBaseOwnersDataAsBundle(
             accountId,
             owners.all,
-            IOwnersRepository.MODE_ANY,
+            FetchMode.ANY,
             existingOwners
         ).map { bundle -> entity2Model(accountId, entity, bundle) }
     }
@@ -604,6 +631,9 @@ class MessagesRepository(
         attachments: List<AbsModel>,
         keepForwardMessages: Boolean
     ): Flow<Message> {
+        if (isHiddenAccount(accountId) && !Constants.IS_DEBUG) {
+            throw UnsupportedOperationException()
+        }
         val attachmentTokens = createTokens(attachments)
         return networker.vkDefault(accountId)
             .messages()
@@ -654,7 +684,7 @@ class MessagesRepository(
                     ownersRepository.findBaseOwnersDataAsBundle(
                         accountId,
                         ids.all,
-                        IOwnersRepository.MODE_ANY,
+                        FetchMode.ANY,
                         emptyList()
                     )
                         .map {
@@ -682,7 +712,7 @@ class MessagesRepository(
                     }
                 }
                 ownersRepository
-                    .findBaseOwnersDataAsBundle(accountId, ownIds.all, IOwnersRepository.MODE_ANY)
+                    .findBaseOwnersDataAsBundle(accountId, ownIds.all, FetchMode.ANY)
                     .map { owners ->
                         val dialogs: MutableList<Dialog> = ArrayList(dbos.size)
                         for (dbo in dbos) {
@@ -726,7 +756,7 @@ class MessagesRepository(
                 .findBaseOwnersDataAsBundle(
                     accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                 .map { owners ->
                     val messages: MutableList<Message> =
@@ -767,6 +797,7 @@ class MessagesRepository(
                         for (state in peerStates) {
                             var unread = state.unreadCount
                             var cmId = state.lastCmId
+                            var minorId = state.minorId
                             var keyboard: VKApiConversation.CurrentKeyboard? = null
                             for (m in messages) {
                                 if (m.peer_id != state.peerId) {
@@ -782,11 +813,14 @@ class MessagesRepository(
                                         keyboard = m.keyboard
                                     }
                                     cmId = m.conversation_message_id
+                                    if (m.message_id > minorId) {
+                                        minorId = m.message_id
+                                    }
                                 }
                             }
                             val patch = PeerPatch(state.peerId)
                                 .withUnreadCount(unread)
-                                .withLastCmId(cmId)
+                                .withLastMessage(cmId, minorId)
                             if (keyboard != null) {
                                 patch.withKeyboard(Dto2Entity.mapKeyboard(keyboard))
                             }
@@ -821,6 +855,9 @@ class MessagesRepository(
             }
             p.majorId.requireNonNull {
                 update.majorId = PeerUpdate.MajorId(it.majorId)
+            }
+            p.minorId.requireNonNull {
+                update.minorId = PeerUpdate.MinorId(it.minorId)
             }
             p.botKeyboard.requireNonNull {
                 update.botKeyboard = PeerUpdate.BotKeyboard(it.keyboard)
@@ -858,7 +895,7 @@ class MessagesRepository(
                             .findBaseOwnersDataAsBundle(
                                 accountId,
                                 ownerIds.all,
-                                IOwnersRepository.MODE_ANY,
+                                FetchMode.ANY,
                                 existsOwners
                             )
                             .flatMapConcat {
@@ -925,7 +962,10 @@ class MessagesRepository(
                     patch = PeerPatch(peerId)
                         .withOutReadCmId(conversation.outReadCmId)
                         .withInReadCmId(conversation.inReadCmId)
-                        .withLastCmId(conversation.lastCmId)
+                        .withLastMessage(
+                            conversation.lastCmId,
+                            conversation.sort_id?.minor_id.orZero()
+                        )
                         .withUnreadCount(conversation.unreadCount)
                 }
                 if (excludeStartMessage && startCmId != null && dtos.nonNullNoEmpty() && startCmId == dtos[0].conversation_message_id) {
@@ -956,7 +996,7 @@ class MessagesRepository(
                             .findBaseOwnersDataAsBundle(
                                 accountId,
                                 ownerIds.all,
-                                IOwnersRepository.MODE_ANY,
+                                FetchMode.ANY,
                                 existsOwners
                             )
                             .flatMapConcat {
@@ -995,16 +1035,15 @@ class MessagesRepository(
     override fun getConversations(
         accountId: Long,
         count: Int,
-        startPeerId: Long?,
-        startCmId: Int?
+        startMessageId: Int?
     ): Flow<List<Dialog>> {
-        val clear = startCmId == null
+        val clear = startMessageId == null
         val dialogsStore = storages.dialogs()
         return networker.vkDefault(accountId)
             .messages()
-            .getConversations(null, count, startCmId, true, Fields.FIELDS_BASE_OWNER)
+            .getConversations(null, count, startMessageId, true, Fields.FIELDS_BASE_OWNER)
             .map { response ->
-                if (startCmId != null && safeCountOf(response.dialogs) > 0) {
+                if (startMessageId != null && safeCountOf(response.dialogs) > 0) {
                     // remove first item, because we will have duplicate with previous response
                     response.dialogs?.removeAt(0)
                 }
@@ -1028,7 +1067,7 @@ class MessagesRepository(
                     .findBaseOwnersDataAsBundle(
                         accountId,
                         ownerIds,
-                        IOwnersRepository.MODE_ANY,
+                        FetchMode.ANY,
                         existsOwners
                     )
                     .flatMapConcat { owners ->
@@ -1138,7 +1177,8 @@ class MessagesRepository(
         dbCmId: Int,
         peerId: Long,
         @MessageStatus status: Int,
-        vkCmId: Int?
+        vkCmId: Int?,
+        vkMessageId: Int?
     ): Flow<Boolean> {
         val update = MessageUpdate(accountId, dbCmId, peerId)
         update.setStatusUpdate(StatusUpdate(status, vkCmId))
@@ -1148,7 +1188,8 @@ class MessagesRepository(
                 dbCmId = dbCmId,
                 peerId = peerId,
                 status = status,
-                vkCmId = vkCmId
+                vkCmId = vkCmId,
+                vkMessageId = vkMessageId
             )
             .map {
                 messageUpdatesPublisher.emit(update)
@@ -1183,7 +1224,8 @@ class MessagesRepository(
             dbCmId = cmId,
             peerId = peerId,
             status = MessageStatus.QUEUE,
-            vkCmId = null
+            vkCmId = null,
+            vkMessageId = null
         )
     }
 
@@ -1202,51 +1244,64 @@ class MessagesRepository(
                     } else {
                         val dbid = entity.cmId
                         val peerId = entity.peerId
-                        changeMessageStatus(
-                            accountId = accountId,
-                            dbCmId = dbid,
-                            peerId = peerId,
-                            status = MessageStatus.SENDING,
-                            vkCmId = null,
-                        )
-                            .andThen(
-                                internalSend(accountId, entity)
-                                    .flatMapConcat { vkid ->
-                                        val patch = PeerPatch(entity.peerId)
-                                            .withLastCmId(vkid.conversation_message_id)
-                                            .withUnreadCount(0)
-                                        changeMessageStatus(
-                                            accountId,
-                                            dbid,
-                                            peerId,
-                                            MessageStatus.SENT,
-                                            vkid.conversation_message_id
-                                        )
-                                            .andThen(
-                                                applyPeerUpdatesAndPublish(
-                                                    accountId,
-                                                    listOf(patch)
-                                                )
-                                            )
-                                            .map {
-                                                SentMsg(
-                                                    dbid,
+                        if (isHiddenAccount(accountId) && !Constants.IS_DEBUG) {
+                            storages.messages().deleteMessage(accountId, dbid, peerId)
+                                .flatMapConcat {
+                                    toFlowThrowable(UnsupportedOperationException())
+                                }
+                        } else {
+                            changeMessageStatus(
+                                accountId = accountId,
+                                dbCmId = dbid,
+                                peerId = peerId,
+                                status = MessageStatus.SENDING,
+                                vkCmId = null,
+                                vkMessageId = null
+                            )
+                                .andThen(
+                                    internalSend(accountId, entity)
+                                        .flatMapConcat { vkid ->
+                                            val patch = PeerPatch(entity.peerId)
+                                                .withLastMessage(
                                                     vkid.conversation_message_id,
-                                                    peerId,
-                                                    accountId
+                                                    vkid.message_id
                                                 )
-                                            }
-                                    }
-                                    .catch {
-                                        changeMessageStatus(
-                                            accountId = accountId,
-                                            dbCmId = dbid,
-                                            peerId = peerId,
-                                            status = MessageStatus.ERROR,
-                                            vkCmId = null
-                                        ).syncSingleSafe()
-                                        throw it
-                                    })
+                                                .withUnreadCount(0)
+                                            changeMessageStatus(
+                                                accountId = accountId,
+                                                dbCmId = dbid,
+                                                peerId = peerId,
+                                                status = MessageStatus.SENT,
+                                                vkCmId = vkid.conversation_message_id,
+                                                vkMessageId = vkid.message_id
+                                            )
+                                                .andThen(
+                                                    applyPeerUpdatesAndPublish(
+                                                        accountId,
+                                                        listOf(patch)
+                                                    )
+                                                )
+                                                .map {
+                                                    SentMsg(
+                                                        dbid,
+                                                        vkid.conversation_message_id,
+                                                        peerId,
+                                                        accountId
+                                                    )
+                                                }
+                                        }
+                                        .catch {
+                                            changeMessageStatus(
+                                                accountId = accountId,
+                                                dbCmId = dbid,
+                                                peerId = peerId,
+                                                status = MessageStatus.ERROR,
+                                                vkCmId = null,
+                                                vkMessageId = null
+                                            ).syncSingleSafe()
+                                            throw it
+                                        })
+                        }
                     }
                 }
             }
@@ -1278,7 +1333,7 @@ class MessagesRepository(
                     .findBaseOwnersDataAsBundle(
                         accountId,
                         ownerIds,
-                        IOwnersRepository.MODE_ANY,
+                        FetchMode.ANY,
                         existsOwners
                     )
                     .map { bundle ->
@@ -1315,7 +1370,7 @@ class MessagesRepository(
             .flatMapConcat { dtos ->
                 val ids = VKOwnIds().append(dtos)
                 ownersRepository
-                    .findBaseOwnersDataAsBundle(accountId, ids.all, IOwnersRepository.MODE_ANY)
+                    .findBaseOwnersDataAsBundle(accountId, ids.all, FetchMode.ANY)
                     .map {
                         val data: MutableList<Message> =
                             ArrayList(dtos.size)
@@ -1350,7 +1405,7 @@ class MessagesRepository(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownerIds,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     existsOwners
                 )
                     .map { ownersBundle ->
@@ -1392,7 +1447,7 @@ class MessagesRepository(
         users: List<User>
     ): Flow<List<AppChatUser>> {
         val api = networker.vkDefault(accountId).messages()
-        return ownersRepository.getBaseOwnerInfo(accountId, accountId, IOwnersRepository.MODE_ANY)
+        return ownersRepository.getBaseOwnerInfo(accountId, accountId, FetchMode.ANY)
             .flatMapConcat { iam ->
                 var completable = emptyTaskFlow()
                 val data: MutableList<AppChatUser> = ArrayList()
@@ -1489,6 +1544,9 @@ class MessagesRepository(
         accountId: Long,
         peerId: Long, cmId: Int, reactionId: Int?
     ): Flow<Boolean> {
+        if (isHiddenAccount(accountId) && !Constants.IS_DEBUG) {
+            throw UnsupportedOperationException()
+        }
         return networker.vkDefault(accountId)
             .messages()
             .sendOrDeleteReaction(peerId, cmId, reactionId)
@@ -1496,6 +1554,9 @@ class MessagesRepository(
     }
 
     override fun pinUnPinConversation(accountId: Long, peerId: Long, pin: Boolean): Flow<Boolean> {
+        if (isHiddenAccount(accountId) && !Constants.IS_DEBUG) {
+            throw UnsupportedOperationException()
+        }
         return networker.vkDefault(accountId)
             .messages()
             .pinUnPinConversation(peerId, pin)
@@ -1516,16 +1577,7 @@ class MessagesRepository(
         return networker.vkDefault(accountId)
             .messages()
             .markAsImportant(ids, important)
-            .flatMapConcat { result ->
-                val patches: MutableList<MessagePatch> = ArrayList(result.size)
-                for (entry in result) {
-                    val marked = important == 1
-                    val patch = MessagePatch(entry, peerId)
-                    patch.important = Important(marked)
-                    patches.add(patch)
-                }
-                applyMessagesPatchesAndPublish(accountId, patches)
-            }
+            .ignoreElement()
     }
 
     private fun applyMessagesPatchesAndPublish(
@@ -1563,7 +1615,7 @@ class MessagesRepository(
         return storages.messages()
             .findLastSentCmIdForPeer(accountId, peerId)
             .flatMapConcat {
-                if (it.isEmpty) {
+                if (it == null) {
                     val deleting = PeerDeleting(accountId, peerId)
                     storages.dialogs().removePeerWithId(accountId, peerId)
                         .map {
@@ -1571,7 +1623,7 @@ class MessagesRepository(
                             true
                         }
                 } else {
-                    val patch = PeerPatch(peerId).withLastCmId(it.requireNonEmpty())
+                    val patch = PeerPatch(peerId).withLastMessage(it.first, it.second)
                     applyPeerUpdatesAndPublish(accountId, listOf(patch))
                 }
             }
@@ -1661,7 +1713,7 @@ class MessagesRepository(
         } else {
             networker.vkDefault(accountId)
                 .messages()
-                .pinMessage(peerId, message.getObjectId())
+                .pinMessage(peerId, message.cmId)
         }
         val patch = PeerPatch(peerId)
             .withPin(if (message == null) null else buildMessageEntity(message))
@@ -1698,7 +1750,7 @@ class MessagesRepository(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownerIds,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     existsOwners
                 )
                     .map { ownersBundle ->
@@ -1716,6 +1768,53 @@ class MessagesRepository(
             }
     }
 
+    override fun getHistoryAttachments(
+        accountId: Long,
+        peerId: Long,
+        mediaType: String?,
+        startFrom: String?,
+        count: Int?,
+        photoSizes: Boolean?,
+        preserveOrder: Boolean?,
+        maxForwardsLevel: Int?
+    ): Flow<AttachmentsHistoryResponse> {
+        return networker.vkDefault(accountId)
+            .messages()
+            .getHistoryAttachments(
+                peerId,
+                mediaType,
+                startFrom,
+                count,
+                photoSizes,
+                preserveOrder,
+                maxForwardsLevel,
+                null,
+                null
+            )
+    }
+
+    override fun getChatById(accountId: Long, peerId: Long): Flow<Chat> {
+        return storages.dialogs()
+            .findChatById(accountId, peerId)
+            .flatMapConcat { optional ->
+                if (optional.nonEmpty()) {
+                    toFlow(optional.requireNonEmpty())
+                } else {
+                    val chatId = Peer.toChatId(peerId)
+                    networker.vkDefault(accountId)
+                        .messages()
+                        .getChat(chatId, null, null, null)
+                        .map { chats ->
+                            if (chats.isEmpty()) {
+                                throw NotFoundException()
+                            }
+                            chats[0]
+                        }
+                        .map { transform(it) }
+                }
+            }
+    }
+
     private fun internalSend(accountId: Long, dbo: MessageDboEntity): Flow<SendMessageResponse> {
         if (dbo.extras.isNullOrEmpty() && dbo.getAttachments()
                 .isNullOrEmpty() && dbo.forwardMessages.isNullOrEmpty()
@@ -1723,7 +1822,7 @@ class MessagesRepository(
             return networker.vkDefault(accountId)
                 .messages()
                 .send(
-                    (abs(dbo.cmId) + dbo.peerId),
+                    dbo.makeRandomId(),
                     dbo.peerId,
                     null,
                     dbo.text,
@@ -1746,7 +1845,7 @@ class MessagesRepository(
                         return networker.vkDefault(accountId)
                             .messages()
                             .send(
-                                (abs(dbo.cmId) + dbo.peerId),
+                                dbo.makeRandomId(),
                                 dbo.peerId,
                                 null,
                                 null,
@@ -1773,7 +1872,7 @@ class MessagesRepository(
                 networker.vkDefault(accountId)
                     .messages()
                     .send(
-                        (abs(dbo.cmId) + dbo.peerId),
+                        dbo.makeRandomId(),
                         dbo.peerId,
                         null,
                         dbo.text,
@@ -1821,17 +1920,18 @@ class MessagesRepository(
             return docsApi.getMessagesUploadServer(dbo.peerId, "audio_message")
                 .flatMapConcat { server ->
                     val file = File(filePath ?: throw NotFoundException("filePath is empty"))
-                    var inputStream: InputStream? = null
+                    var inputSource: Source? = null
                     try {
-                        inputStream = FileInputStream(file)
+                        inputSource = file.source()
                         networker.uploads()
                             .uploadDocumentRx(
                                 server.url ?: throw NotFoundException("Upload url empty!"),
                                 file.name,
-                                inputStream,
+                                inputSource,
+                                file.length(),
                                 null
                             )
-                            .onCompletion { safelyClose(inputStream) }
+                            .onCompletion { safelyClose(inputSource) }
                             .flatMapConcat { uploadDto ->
                                 docsApi
                                     .save(uploadDto.file, null, null)
@@ -1850,7 +1950,7 @@ class MessagesRepository(
                                     }
                             }
                     } catch (e: FileNotFoundException) {
-                        safelyClose(inputStream)
+                        safelyClose(inputSource)
                         toFlowThrowable(e)
                     }
                 }
@@ -1992,11 +2092,13 @@ class MessagesRepository(
                     )
                 }
         )
+        /*
         compositeJob.add(
             accountsSettings.observeRegistered
                 .sharedFlowToMain {
                     onAccountsChanged()
                 }
         )
+         */
     }
 }

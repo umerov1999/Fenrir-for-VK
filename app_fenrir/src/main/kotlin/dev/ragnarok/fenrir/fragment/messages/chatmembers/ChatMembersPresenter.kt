@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.messages.chatmembers
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Owner
@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class ChatMembersPresenter(accountId: Long, private val chatId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IChatMembersView>(accountId, savedInstanceState) {

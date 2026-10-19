@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IVideoApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiVideo

@@ -46,7 +46,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         private set
     var postId = 0
         private set
-    var msgId = 0
+    var msgCmId = 0
         private set
     var msgPeerId = 0L
         private set
@@ -74,7 +74,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         isDeleted = parcel.readBoolean()
         postId = parcel.readInt()
         repostsCount = parcel.readInt()
-        msgId = parcel.readInt()
+        msgCmId = parcel.readInt()
         msgPeerId = parcel.readLong()
         photoTags = parcel.readParcelableList(PhotoTags.NativeCreator)
         showPhotoTags = parcel.readBoolean()
@@ -98,7 +98,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         isDeleted = parcel.getBoolean()
         postId = parcel.readInt()
         repostsCount = parcel.readInt()
-        msgId = parcel.readInt()
+        msgCmId = parcel.readInt()
         msgPeerId = parcel.readLong()
         photoTags = parcel.createTypedArrayList(PhotoTags.CREATOR)
         showPhotoTags = parcel.getBoolean()
@@ -110,7 +110,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "photo_${id}_${ownerId}"
     }
 
     override fun getObjectId(): Int {
@@ -216,8 +216,8 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         return this
     }
 
-    fun setMsgId(msgId: Int): Photo {
-        this.msgId = msgId
+    fun setMsgCmId(msgCmId: Int): Photo {
+        this.msgCmId = msgCmId
         return this
     }
 
@@ -248,7 +248,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         parcel.putBoolean(isDeleted)
         parcel.writeInt(postId)
         parcel.writeInt(repostsCount)
-        parcel.writeInt(msgId)
+        parcel.writeInt(msgCmId)
         parcel.writeLong(msgPeerId)
         parcel.writeTypedList(photoTags)
         parcel.putBoolean(showPhotoTags)
@@ -286,7 +286,7 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         dest.writeBoolean(isDeleted)
         dest.writeInt(postId)
         dest.writeInt(repostsCount)
-        dest.writeInt(msgId)
+        dest.writeInt(msgCmId)
         dest.writeLong(msgPeerId)
         dest.writeParcelableList(photoTags)
         dest.writeBoolean(showPhotoTags)

@@ -9,9 +9,9 @@ import dev.ragnarok.fenrir.db.model.PhotoPatch
 import dev.ragnarok.fenrir.db.model.PhotoPatch.Like
 import dev.ragnarok.fenrir.db.model.entity.PhotoAlbumDboEntity
 import dev.ragnarok.fenrir.db.model.entity.PhotoDboEntity
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.buildPhotoAlbumDbo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapPhoto
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.buildComment
@@ -256,7 +256,7 @@ class PhotosInteractor(private val networker: INetworker, private val cache: ISt
                     .findBaseOwnersDataAsBundle(
                         accountId,
                         ownids.all,
-                        IOwnersRepository.MODE_ANY,
+                        FetchMode.ANY,
                         emptyList()
                     )
                     .map { bundle ->

@@ -186,6 +186,9 @@ class VKApiConversation {
     class SortElement {
         @SerialName("major_id")
         var major_id = 0
+
+        @SerialName("minor_id")
+        var minor_id = 0
     }
 
     @Serializable

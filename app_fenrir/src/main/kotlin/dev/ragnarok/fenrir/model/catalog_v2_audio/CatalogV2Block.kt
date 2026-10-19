@@ -209,7 +209,7 @@ class CatalogV2Block : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "block_$id"
     }
 
     override fun describeContents(): Int {

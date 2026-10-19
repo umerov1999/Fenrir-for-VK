@@ -65,7 +65,7 @@ interface IAudioApi {
     @CheckResult
     fun editPlaylist(
         ownerId: Long,
-        playlist_id: Int,
+        playlistId: Int,
         title: String?,
         description: String?
     ): Flow<Int>
@@ -73,32 +73,32 @@ interface IAudioApi {
     @CheckResult
     fun removeFromPlaylist(
         ownerId: Long,
-        playlist_id: Int,
-        audio_ids: Collection<AccessIdPair>
+        playlistId: Int,
+        audioIds: Collection<AccessIdPair>
     ): Flow<Int>
 
     @CheckResult
     fun addToPlaylist(
         ownerId: Long,
-        playlist_id: Int,
-        audio_ids: Collection<AccessIdPair>
+        playlistId: Int,
+        audioIds: Collection<AccessIdPair>
     ): Flow<List<AddToPlaylistResponse>>
 
     @CheckResult
-    fun reorder(ownerId: Long, audio_id: Int, before: Int?, after: Int?): Flow<Int>
+    fun reorder(ownerId: Long, audioId: Int, before: Int?, after: Int?): Flow<Int>
 
     @CheckResult
     fun trackEvents(events: String?): Flow<Int>
 
     @CheckResult
     fun get(
-        playlist_id: Int?, ownerId: Long?,
+        playlistId: Int?, ownerId: Long?,
         offset: Int?, count: Int?, accessKey: String?
     ): Flow<Items<VKApiAudio>>
 
     @CheckResult
     fun getAudiosByArtist(
-        artist_id: String?,
+        artistId: String?,
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiAudio>>
@@ -110,21 +110,21 @@ interface IAudioApi {
     ): Flow<List<VKApiAudio>>
 
     @CheckResult
-    fun deletePlaylist(playlist_id: Int, ownerId: Long): Flow<Int>
+    fun deletePlaylist(playlistId: Int, ownerId: Long): Flow<Int>
 
     @CheckResult
     fun followPlaylist(
-        playlist_id: Int,
+        playlistId: Int,
         ownerId: Long,
         accessKey: String?
     ): Flow<VKApiAudioPlaylist>
 
     @CheckResult
-    fun clonePlaylist(playlist_id: Int, ownerId: Long): Flow<VKApiAudioPlaylist>
+    fun clonePlaylist(playlistId: Int, ownerId: Long): Flow<VKApiAudioPlaylist>
 
     @CheckResult
     fun getPlaylistById(
-        playlist_id: Int,
+        playlistId: Int,
         ownerId: Long,
         accessKey: String?
     ): Flow<VKApiAudioPlaylist>
@@ -145,7 +145,7 @@ interface IAudioApi {
     fun getLyrics(audio: Audio): Flow<VKApiLyrics>
 
     @CheckResult
-    fun getPlaylists(owner_id: Long, offset: Int, count: Int): Flow<Items<VKApiAudioPlaylist>>
+    fun getPlaylists(ownerId: Long, offset: Int, count: Int): Flow<Items<VKApiAudioPlaylist>>
 
     @CheckResult
     fun getPlaylistsCustom(code: String?): Flow<ServicePlaylistResponse>
@@ -164,22 +164,22 @@ interface IAudioApi {
 
     @CheckResult
     fun getCatalogV2Sections(
-        owner_id: Long, artist_id: String?, url: String?, query: String?, context: String?
+        ownerId: Long, artistId: String?, url: String?, query: String?, context: String?
     ): Flow<VKApiCatalogV2ListResponse>
 
     @CheckResult
     fun getCatalogV2Section(
-        section_id: String,
-        start_from: String?
+        sectionId: String,
+        startFrom: String?
     ): Flow<VKApiCatalogV2SectionResponse>
 
     @CheckResult
     fun getCatalogV2BlockItems(
-        block_id: String, start_from: String?
+        blockId: String, startFrom: String?
     ): Flow<VKApiCatalogV2BlockResponse>
 
     @CheckResult
     fun getArtistById(
-        artist_id: String
+        artistId: String
     ): Flow<ArtistInfo>
 }

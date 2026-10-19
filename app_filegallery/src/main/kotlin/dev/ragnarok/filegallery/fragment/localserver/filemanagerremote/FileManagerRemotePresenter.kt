@@ -15,7 +15,6 @@ import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.util.Objects.safeEquals
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() {
     private val fileList: ArrayList<FileRemote> = ArrayList()

@@ -9,16 +9,17 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
-import dev.ragnarok.fenrir.domain.IStoriesShortVideosInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IStoriesShortVideosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.friends.friendstabs.FriendsTabsFragment
 import dev.ragnarok.fenrir.fragment.wall.AbsWallPresenter
 import dev.ragnarok.fenrir.fragment.wall.IWallView
@@ -53,12 +54,12 @@ class UserWallPresenter(
     private val filters: MutableList<PostFilter> = ArrayList()
     private val ownersRepository: IOwnersRepository = owners
     private val storiesInteractor: IStoriesShortVideosInteractor =
-        InteractorFactory.createStoriesInteractor()
+        InteractorFactory.story
     private val relationshipInteractor: IRelationshipInteractor =
-        InteractorFactory.createRelationshipInteractor()
-    private val accountInteractor: IAccountsInteractor = InteractorFactory.createAccountInteractor()
-    private val photosInteractor: IPhotosInteractor = InteractorFactory.createPhotosInteractor()
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+        InteractorFactory.relationship
+    private val accountInteractor: IAccountsInteractor = InteractorFactory.account
+    private val photosInteractor: IPhotosInteractor = InteractorFactory.photo
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val wallsRepository: IWallsRepository = walls
     var user: User
         private set
@@ -111,7 +112,7 @@ class UserWallPresenter(
             ownersRepository.getFullUserInfo(
                 accountId,
                 ownerId,
-                IOwnersRepository.MODE_CACHE
+                FetchMode.CACHE
             )
                 .fromIOToMain({
                     onFullInfoReceived(it.first, it.second)
@@ -125,7 +126,7 @@ class UserWallPresenter(
             ownersRepository.getFullUserInfo(
                 accountId,
                 ownerId,
-                IOwnersRepository.MODE_NET
+                FetchMode.NET
             )
                 .fromIOToMain({
                     onFullInfoReceived(

@@ -31,7 +31,7 @@ class AudioArtistDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "audioartist_$id"
     }
 
     @Keep

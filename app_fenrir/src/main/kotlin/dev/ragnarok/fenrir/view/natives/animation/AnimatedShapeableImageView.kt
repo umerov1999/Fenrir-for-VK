@@ -291,7 +291,7 @@ open class AnimatedShapeableImageView @JvmOverloads constructor(
             return
         }
         mDisposable?.set(
-            InteractorFactory.createVideosInteractor().getById(
+            InteractorFactory.video.getById(
                 Settings.get().accounts().current,
                 video.ownerId,
                 video.id,

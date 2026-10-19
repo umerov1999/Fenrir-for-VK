@@ -1,13 +1,12 @@
 package dev.ragnarok.fenrir.fragment.messages.chatusersdomain
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class ChatUsersDomainPresenter(
     accountId: Long,

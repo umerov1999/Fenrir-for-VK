@@ -54,16 +54,16 @@ interface ILocalServerApi {
     ): Flow<Items<VKApiPhoto>>
 
     @CheckResult
-    fun update_time(hash: String?): Flow<Int>
+    fun updateTime(hash: String?): Flow<Int>
 
     @CheckResult
-    fun delete_media(hash: String?): Flow<Int>
+    fun deleteMedia(hash: String?): Flow<Int>
 
     @CheckResult
-    fun get_file_name(hash: String?): Flow<String>
+    fun getFileName(hash: String?): Flow<String>
 
     @CheckResult
-    fun update_file_name(hash: String?, name: String?): Flow<Int>
+    fun updateFileName(hash: String?, name: String?): Flow<Int>
 
     @CheckResult
     fun powerOffPC(type: String): Flow<Int>

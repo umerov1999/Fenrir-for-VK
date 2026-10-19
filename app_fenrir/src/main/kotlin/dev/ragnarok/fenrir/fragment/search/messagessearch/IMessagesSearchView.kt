@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Peer
 
 interface IMessagesSearchView : IBaseSearchView<Message> {
-    fun goToMessagesLookup(accountId: Long, peerId: Long, messageId: Int)
+    fun goToMessagesLookup(accountId: Long, peerId: Long, cmId: Int)
     fun configNowVoiceMessagePlaying(
         id: Int,
         progress: Float,

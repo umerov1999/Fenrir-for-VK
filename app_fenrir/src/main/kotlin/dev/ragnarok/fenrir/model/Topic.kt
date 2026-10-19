@@ -61,7 +61,7 @@ class Topic : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "topic_${id}_${ownerId}"
     }
 
     fun setTitle(title: String?): Topic {

@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.search.artistsearch
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiArtist
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.ArtistSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
@@ -26,7 +26,7 @@ class ArtistSearchPresenter(
     criteria,
     savedInstanceState
 ) {
-    private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
 

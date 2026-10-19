@@ -18,7 +18,7 @@ class GiftItemDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "giftitem_$id"
     }
 
     fun setId(id: Int): GiftItemDboEntity {

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IUploadRestProvider
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.IUploadApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IUploadRestProvider
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.upload.UploadAudioDto
 import dev.ragnarok.fenrir.api.model.upload.UploadChatPhotoDto
@@ -25,7 +25,7 @@ import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.put
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import java.io.InputStream
+import okio.Source
 
 class UploadApi internal constructor(private val provider: IUploadRestProvider) : IUploadApi {
     private fun service(): Flow<IUploadService> {
@@ -39,11 +39,12 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
     override fun uploadDocumentRx(
         server: String,
         filename: String?,
-        doc: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadDocDto> {
         val body = ProgressRequestBody(
-            doc, wrapPercentageListener(listener),
+            source, size, wrapPercentageListener(listener),
             "*/*".toMediaTypeOrNull()
         )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("file", filename, body)
@@ -55,11 +56,12 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
     override fun uploadAudioRx(
         server: String,
         filename: String?,
-        inputStream: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadAudioDto> {
         val body = ProgressRequestBody(
-            inputStream, wrapPercentageListener(listener),
+            source, size, wrapPercentageListener(listener),
             "*/*".toMediaTypeOrNull()
         )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("file", filename, body)
@@ -71,11 +73,12 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
     override fun remotePlayAudioRx(
         server: String,
         filename: String?,
-        inputStream: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<BaseResponse<Int>> {
         val body = ProgressRequestBody(
-            inputStream, wrapPercentageListener(listener),
+            source, size, wrapPercentageListener(listener),
             "*/*".toMediaTypeOrNull()
         )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("audio", filename, body)
@@ -87,12 +90,13 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
     override fun uploadStoryRx(
         server: String,
         filename: String?,
-        inputStream: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?,
         isVideo: Boolean
     ): Flow<String> {
         val body = ProgressRequestBody(
-            inputStream, wrapPercentageListener(listener),
+            source, size, wrapPercentageListener(listener),
             "*/*".toMediaTypeOrNull()
         )
         val part: MultipartBody.Part =
@@ -136,11 +140,12 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
     override fun uploadVideoRx(
         server: String,
         filename: String?,
-        video: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadVideoDto> {
         val body = ProgressRequestBody(
-            video, wrapPercentageListener(listener),
+            source, size, wrapPercentageListener(listener),
             "*/*".toMediaTypeOrNull()
         )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("file", filename, body)
@@ -151,12 +156,13 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
 
     override fun uploadOwnerPhotoRx(
         server: String,
-        photo: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadOwnerPhotoDto> {
         val body =
             ProgressRequestBody(
-                photo, wrapPercentageListener(listener),
+                source, size, wrapPercentageListener(listener),
                 "image/*".toMediaTypeOrNull()
             )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("photo", "photo.jpg", body)
@@ -167,12 +173,13 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
 
     override fun uploadChatPhotoRx(
         server: String,
-        photo: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadChatPhotoDto> {
         val body =
             ProgressRequestBody(
-                photo, wrapPercentageListener(listener),
+                source, size, wrapPercentageListener(listener),
                 "image/*".toMediaTypeOrNull()
             )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("photo", "photo.jpg", body)
@@ -183,12 +190,13 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
 
     override fun uploadPhotoToWallRx(
         server: String,
-        photo: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadPhotoToWallDto> {
         val body =
             ProgressRequestBody(
-                photo, wrapPercentageListener(listener),
+                source, size, wrapPercentageListener(listener),
                 "image/*".toMediaTypeOrNull()
             )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("photo", "photo.jpg", body)
@@ -199,12 +207,13 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
 
     override fun uploadPhotoToMessageRx(
         server: String,
-        inputStream: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadPhotoToMessageDto> {
         val body =
             ProgressRequestBody(
-                inputStream, wrapPercentageListener(listener),
+                source, size, wrapPercentageListener(listener),
                 "image/*".toMediaTypeOrNull()
             )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("photo", "photo.jpg", body)
@@ -215,12 +224,13 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
 
     override fun uploadPhotoToAlbumRx(
         server: String,
-        file1: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<UploadPhotoToAlbumDto> {
         val body =
             ProgressRequestBody(
-                file1, wrapPercentageListener(listener),
+                source, size, wrapPercentageListener(listener),
                 "image/*".toMediaTypeOrNull()
             )
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("file1", "photo.jpg", body)

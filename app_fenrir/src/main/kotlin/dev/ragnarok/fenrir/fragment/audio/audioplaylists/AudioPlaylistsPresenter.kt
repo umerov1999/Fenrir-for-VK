@@ -8,8 +8,8 @@ import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.AudioPlaylist
@@ -24,13 +24,12 @@ import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
-import java.util.Locale
 
 class AudioPlaylistsPresenter(accountId: Long, val owner_id: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IAudioPlaylistsView>(accountId, savedInstanceState) {
     private val addon: MutableList<AudioPlaylist> = ArrayList()
     private val playlists: MutableList<AudioPlaylist> = ArrayList()
-    private val fInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val fInteractor: IAudioInteractor = InteractorFactory.audio
     private val searcher: FindPlaylist = FindPlaylist(compositeJob)
     private var actualDataDisposable = CancelableJob()
     private var pending_to_add: AudioPlaylist? = null

@@ -5,7 +5,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
-import dev.ragnarok.fenrir.db.AttachToType
+import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.db.FenrirContentProvider
 import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getCommentsContentUriFor
 import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getMessageContentUriFor
@@ -29,15 +29,15 @@ import kotlinx.serialization.msgpack.MsgPack
 internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttachmentsStorage {
     override fun getAttachmentsFromBlob(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         where: String,
         args: Array<String>?
     ): Flow<List<DboEntity>?> {
         return flow {
-            val uri = uriForType(attachToType, accountId)
+            val uri = uriForType(attachmentFor, accountId)
             val cursor = contentResolver.query(
                 uri,
-                arrayOf(dataColumnFor(attachToType)),
+                arrayOf(dataColumnFor(attachmentFor)),
                 where,
                 args,
                 null
@@ -46,7 +46,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             if (isActive()) {
                 if (cursor != null) {
                     if (cursor.moveToNext()) {
-                        ret = mapAttachmentsFromBlob(cursor, attachToType)
+                        ret = mapAttachmentsFromBlob(cursor, attachmentFor)
                     }
                     cursor.close()
                 }
@@ -57,16 +57,16 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun getAttachmentsFromBlob(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?
     ): Flow<List<DboEntity>?> {
         return getAttachmentsFromBlob(
             accountId,
-            attachToType,
-            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+            attachmentFor,
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachmentFor)} = ? AND ${
                 elementIdForType(
-                    attachToType
+                    attachmentFor
                 )
             } = ?" else "${BaseColumns._ID} = ?",
             args = if (attachToElement != null) arrayOf(
@@ -78,16 +78,16 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun remove(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachmentKey: String,
         where: String,
         args: Array<String>?
     ): Flow<Boolean> {
         return flow {
-            val uri = uriForType(attachToType, accountId)
+            val uri = uriForType(attachmentFor, accountId)
             val cursor = contentResolver.query(
                 uri,
-                arrayOf(dataColumnFor(attachToType)),
+                arrayOf(dataColumnFor(attachmentFor)),
                 where,
                 args,
                 null
@@ -96,7 +96,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             if (isActive()) {
                 if (cursor != null) {
                     if (cursor.moveToNext()) {
-                        result = mapAttachmentsFromBlob(cursor, attachToType)
+                        result = mapAttachmentsFromBlob(cursor, attachmentFor)
                     }
                     cursor.close()
                 }
@@ -116,7 +116,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         }.flatMapConcat {
             attachToBlobSync(
                 cv = null,
-                attachToType = attachToType,
+                attachmentFor = attachmentFor,
                 attachmentsEntities = it,
                 where = where,
                 args = args,
@@ -128,18 +128,18 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun remove(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachmentKey: String,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
         return remove(
             accountId = accountId,
-            attachToType = attachToType,
+            attachmentFor = attachmentFor,
             attachmentKey = attachmentKey,
-            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachmentFor)} = ? AND ${
                 elementIdForType(
-                    attachToType
+                    attachmentFor
                 )
             } = ?" else "${BaseColumns._ID} = ?",
             args = if (attachToElement != null) arrayOf(
@@ -151,16 +151,16 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun removeAll(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         where: String,
         args: Array<String>?
     ): Flow<Boolean> {
         return flow {
             val cv = ContentValues()
-            cv.putNull(dataColumnFor(attachToType))
+            cv.putNull(dataColumnFor(attachmentFor))
             val operations = ArrayList<ContentProviderOperation>()
             operations.add(
-                ContentProviderOperation.newUpdate(uriForType(attachToType, accountId))
+                ContentProviderOperation.newUpdate(uriForType(attachmentFor, accountId))
                     .withSelection(where, args).build()
             )
             contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
@@ -170,16 +170,16 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun removeAll(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
         return removeAll(
             accountId,
-            attachToType,
-            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+            attachmentFor,
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachmentFor)} = ? AND ${
                 elementIdForType(
-                    attachToType
+                    attachmentFor
                 )
             } = ?" else "${BaseColumns._ID} = ?",
             args = if (attachToElement != null) arrayOf(
@@ -191,15 +191,15 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun getAttachmentsCount(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         where: String,
         args: Array<String>?
     ): Flow<Int> {
         return flow {
-            val uri = uriForType(attachToType, accountId)
+            val uri = uriForType(attachmentFor, accountId)
             val cursor = contentResolver.query(
                 uri,
-                arrayOf(dataColumnFor(attachToType)),
+                arrayOf(dataColumnFor(attachmentFor)),
                 where,
                 args,
                 null
@@ -208,7 +208,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             if (isActive()) {
                 if (cursor != null) {
                     if (cursor.moveToNext()) {
-                        count = mapAttachmentsFromBlob(cursor, attachToType)?.size.orZero()
+                        count = mapAttachmentsFromBlob(cursor, attachmentFor)?.size.orZero()
                     }
                     cursor.close()
                 }
@@ -219,16 +219,16 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun getAttachmentsCount(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?
     ): Flow<Int> {
         return getAttachmentsCount(
             accountId,
-            attachToType,
-            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+            attachmentFor,
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachmentFor)} = ? AND ${
                 elementIdForType(
-                    attachToType
+                    attachmentFor
                 )
             } = ?" else "${BaseColumns._ID} = ?",
             args = if (attachToElement != null) arrayOf(
@@ -240,7 +240,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun attachToBlobSync(
         cv: ContentValues?,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachmentsEntities: List<DboEntity>?,
         where: String?,
         args: Array<String>?,
@@ -250,10 +250,10 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         return flow {
             val tmpAttachmentsEntities = ArrayList(attachmentsEntities.orEmpty())
             if (!replace && where.nonNullNoEmpty() && accountId != null) {
-                val uri = uriForType(attachToType, accountId)
+                val uri = uriForType(attachmentFor, accountId)
                 val cursor = contentResolver.query(
                     uri,
-                    arrayOf(dataColumnFor(attachToType)),
+                    arrayOf(dataColumnFor(attachmentFor)),
                     where,
                     args,
                     null
@@ -261,7 +261,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
                 if (isActive()) {
                     if (cursor != null) {
                         if (cursor.moveToNext()) {
-                            val attachmentsEntity = mapAttachmentsFromBlob(cursor, attachToType)
+                            val attachmentsEntity = mapAttachmentsFromBlob(cursor, attachmentFor)
                             if (attachmentsEntity.nonNullNoEmpty()) {
                                 tmpAttachmentsEntities.addAll(0, attachmentsEntity)
                             }
@@ -276,12 +276,12 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
                 throw UnsupportedOperationException()
             }
 
-            putAttachmentsToBlob(tmpCv, attachToType, tmpAttachmentsEntities)
+            putAttachmentsToBlob(tmpCv, attachmentFor, tmpAttachmentsEntities)
 
             if (cv == null && where.nonNullNoEmpty() && accountId != null) {
                 val operations = ArrayList<ContentProviderOperation>()
                 operations.add(
-                    ContentProviderOperation.newUpdate(uriForType(attachToType, accountId))
+                    ContentProviderOperation.newUpdate(uriForType(attachmentFor, accountId))
                         .withSelection(where, args).withValues(tmpCv).build()
                 )
                 contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
@@ -292,7 +292,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
     override fun attachToBlobSync(
         cv: ContentValues?,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachmentsEntities: List<DboEntity>?,
         attachToDbId: Int?,
         attachToElement: Pair<Long, Int>?,
@@ -302,7 +302,7 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         return if (attachToDbId == null && attachToElement == null) {
             attachToBlobSync(
                 cv = cv,
-                attachToType = attachToType,
+                attachmentFor = attachmentFor,
                 attachmentsEntities = attachmentsEntities,
                 where = null,
                 args = null,
@@ -312,11 +312,11 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         } else {
             attachToBlobSync(
                 cv = cv,
-                attachToType = attachToType,
+                attachmentFor = attachmentFor,
                 attachmentsEntities = attachmentsEntities,
-                where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+                where = if (attachToElement != null) "${elementOwnerIdForType(attachmentFor)} = ? AND ${
                     elementIdForType(
-                        attachToType
+                        attachmentFor
                     )
                 } = ?" else "${BaseColumns._ID} = ?",
                 args = if (attachToElement != null) arrayOf(
@@ -352,9 +352,9 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
         fun mapAttachmentsFromBlob(
             cursor: Cursor,
-            @AttachToType attachToType: Int
+            attachmentFor: AttachmentFor,
         ): List<DboEntity>? {
-            return mapAttachmentsFromBlobWithColumn(cursor, dataColumnFor(attachToType))
+            return mapAttachmentsFromBlobWithColumn(cursor, dataColumnFor(attachmentFor))
         }
 
         fun putAttachmentsToBlob(cv: ContentValues, column: String, dbos: List<DboEntity>?) {
@@ -373,45 +373,41 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
 
         fun putAttachmentsToBlob(
             cv: ContentValues,
-            @AttachToType attachToType: Int,
+            attachmentFor: AttachmentFor,
             dbos: List<DboEntity>?
         ) {
-            putAttachmentsToBlob(cv, dataColumnFor(attachToType), dbos)
+            putAttachmentsToBlob(cv, dataColumnFor(attachmentFor), dbos)
         }
 
-        internal fun elementIdForType(@AttachToType type: Int): String {
-            return when (type) {
-                AttachToType.COMMENT -> CommentsColumns.COMMENT_ID
-                AttachToType.MESSAGE -> MessagesColumns.CONVERSATION_MESSAGE_ID
-                AttachToType.POST -> PostsColumns.POST_ID
-                else -> throw IllegalArgumentException()
+        internal fun elementIdForType(attachmentFor: AttachmentFor): String {
+            return when (attachmentFor) {
+                AttachmentFor.COMMENT -> CommentsColumns.COMMENT_ID
+                AttachmentFor.MESSAGE -> MessagesColumns.CONVERSATION_MESSAGE_ID
+                AttachmentFor.POST -> PostsColumns.POST_ID
             }
         }
 
-        internal fun elementOwnerIdForType(@AttachToType type: Int): String {
-            return when (type) {
-                AttachToType.COMMENT -> CommentsColumns.SOURCE_ID
-                AttachToType.MESSAGE -> MessagesColumns.PEER_ID
-                AttachToType.POST -> PostsColumns.OWNER_ID
-                else -> throw IllegalArgumentException()
+        internal fun elementOwnerIdForType(attachmentFor: AttachmentFor): String {
+            return when (attachmentFor) {
+                AttachmentFor.COMMENT -> CommentsColumns.SOURCE_ID
+                AttachmentFor.MESSAGE -> MessagesColumns.PEER_ID
+                AttachmentFor.POST -> PostsColumns.OWNER_ID
             }
         }
 
-        internal fun uriForType(@AttachToType type: Int, accountId: Long): Uri {
-            return when (type) {
-                AttachToType.COMMENT -> getCommentsContentUriFor(accountId)
-                AttachToType.MESSAGE -> getMessageContentUriFor(accountId)
-                AttachToType.POST -> getPostsContentUriFor(accountId)
-                else -> throw IllegalArgumentException()
+        internal fun uriForType(attachmentFor: AttachmentFor, accountId: Long): Uri {
+            return when (attachmentFor) {
+                AttachmentFor.COMMENT -> getCommentsContentUriFor(accountId)
+                AttachmentFor.MESSAGE -> getMessageContentUriFor(accountId)
+                AttachmentFor.POST -> getPostsContentUriFor(accountId)
             }
         }
 
-        internal fun dataColumnFor(@AttachToType type: Int): String {
-            return when (type) {
-                AttachToType.COMMENT -> CommentsColumns.ATTACHMENTS_BLOB
-                AttachToType.MESSAGE -> MessagesColumns.ATTACHMENTS_BLOB
-                AttachToType.POST -> PostsColumns.ATTACHMENTS_BLOB
-                else -> throw IllegalArgumentException()
+        internal fun dataColumnFor(attachmentFor: AttachmentFor): String {
+            return when (attachmentFor) {
+                AttachmentFor.COMMENT -> CommentsColumns.ATTACHMENTS_BLOB
+                AttachmentFor.MESSAGE -> MessagesColumns.ATTACHMENTS_BLOB
+                AttachmentFor.POST -> PostsColumns.ATTACHMENTS_BLOB
             }
         }
     }

@@ -6,7 +6,7 @@ import android.net.Uri
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.EditingPostType
@@ -30,7 +30,7 @@ object PlaceUtil {
         ids.add(accountId)
         ids.add(ownerId)
         val disposable = owners
-            .findBaseOwnersDataAsBundle(accountId, ids, IOwnersRepository.MODE_NET)
+            .findBaseOwnersDataAsBundle(accountId, ids, FetchMode.NET)
             .fromIOToMain({ owners ->
                 val attrs = WallEditorAttrs(owners.getById(ownerId), owners.getById(accountId))
                 val d = dialogWeakReference.get()
@@ -72,7 +72,7 @@ object PlaceUtil {
         ids.add(accountId)
         ids.add(ownerId)
         val disposable = owners
-            .findBaseOwnersDataAsBundle(accountId, ids, IOwnersRepository.MODE_NET)
+            .findBaseOwnersDataAsBundle(accountId, ids, FetchMode.NET)
             .fromIOToMain({ owners ->
                 val attrs = WallEditorAttrs(owners.getById(ownerId), owners.getById(accountId))
                 val d = dialogWeakReference.get()

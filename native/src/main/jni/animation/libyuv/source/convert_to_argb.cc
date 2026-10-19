@@ -65,6 +65,11 @@ static int NV16ToARGB(const uint8_t* src_y,
     }
   }
 #endif
+#if defined(HAS_NV12TOARGBROW_AVX512BW)
+  if (TestCpuFlag(kCpuHasAVX512BW)) {
+    NV12ToARGBRow = NV12ToARGBRow_AVX512BW;
+  }
+#endif
 #if defined(HAS_NV12TOARGBROW_NEON)
   if (TestCpuFlag(kCpuHasNEON)) {
     NV12ToARGBRow = NV12ToARGBRow_Any_NEON;
@@ -104,6 +109,14 @@ static int NV16ToARGB(const uint8_t* src_y,
     NV12ToARGBRow = NV12ToARGBRow_RVV;
   }
 #endif
+#if defined(HAS_NV12TOARGBROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    NV12ToARGBRow = NV12ToARGBRow_Any_WASMSIMD;
+    if (IS_ALIGNED(width, 8)) {
+      NV12ToARGBRow = NV12ToARGBRow_WASMSIMD;
+    }
+  }
+#endif
 
   for (y = 0; y < height; ++y) {
     NV12ToARGBRow(src_y, src_uv, dst_argb, &kYuvI601Constants, width);
@@ -123,9 +136,9 @@ static int NV24ToARGB(const uint8_t* src_y,
                       int width,
                       int height) {
   int y;
-  void (*I444ToARGBRow)(
-      const uint8_t* y_buf, const uint8_t* u_buf, const uint8_t* v_buf,
-      uint8_t* rgb_buf, const struct YuvConstants* yuvconstants, int width) =
+  void (*I444ToARGBRow)(const uint8_t* y_buf, const uint8_t* u_buf,
+                        const uint8_t* v_buf, uint8_t* rgb_buf,
+                        const struct YuvConstants* yuvconstants, int width) =
       I444ToARGBRow_C;
   void (*SplitUVRow)(const uint8_t* src_uv, uint8_t* dst_u, uint8_t* dst_v,
                      int width) = SplitUVRow_C;
@@ -151,6 +164,14 @@ static int NV24ToARGB(const uint8_t* src_y,
     I444ToARGBRow = I444ToARGBRow_Any_AVX2;
     if (IS_ALIGNED(width, 16)) {
       I444ToARGBRow = I444ToARGBRow_AVX2;
+    }
+  }
+#endif
+#if defined(HAS_I444TOARGBROW_AVX512BW)
+  if (TestCpuFlag(kCpuHasAVX512BW)) {
+    I444ToARGBRow = I444ToARGBRow_Any_AVX512BW;
+    if (IS_ALIGNED(width, 32)) {
+      I444ToARGBRow = I444ToARGBRow_AVX512BW;
     }
   }
 #endif
@@ -207,6 +228,14 @@ static int NV24ToARGB(const uint8_t* src_y,
     SplitUVRow = SplitUVRow_Any_AVX2;
     if (IS_ALIGNED(width, 32)) {
       SplitUVRow = SplitUVRow_AVX2;
+    }
+  }
+#endif
+#if defined(HAS_SPLITUVROW_AVX512BW)
+  if (TestCpuFlag(kCpuHasAVX512BW)) {
+    SplitUVRow = SplitUVRow_Any_AVX512BW;
+    if (IS_ALIGNED(width, 64)) {
+      SplitUVRow = SplitUVRow_AVX512BW;
     }
   }
 #endif
@@ -293,8 +322,7 @@ int ConvertToARGB(const uint8_t* sample,
   // and then rotate the ARGB to the final destination buffer.
   // For in-place conversion, if destination dst_argb is same as source sample,
   // also enable temporary buffer.
-  int need_buf =
-      (rotation && format != FOURCC_ARGB) || dst_argb == sample;
+  int need_buf = (rotation && format != FOURCC_ARGB) || dst_argb == sample;
   uint8_t* dest_argb = dst_argb;
   int dest_dst_stride_argb = dst_stride_argb;
   uint8_t* rotate_buffer = NULL;
@@ -428,8 +456,7 @@ int ConvertToARGB(const uint8_t* sample,
       break;
     case FOURCC_NV24:
       src = sample + ((ptrdiff_t)src_width * crop_y + crop_x);
-      src_uv = sample +
-               (ptrdiff_t)aligned_src_width * abs_src_height +
+      src_uv = sample + (ptrdiff_t)aligned_src_width * abs_src_height +
                (ptrdiff_t)aligned_src_width * 2 * crop_y +
                (ptrdiff_t)crop_x * 2;
       r = NV24ToARGB(src, src_width, src_uv, aligned_src_width * 2, dst_argb,

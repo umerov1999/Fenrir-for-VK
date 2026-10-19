@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.api.interfaces
 
 import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.api.IOtherVKRestProvider
-import dev.ragnarok.fenrir.api.IVKRestProvider
+import dev.ragnarok.fenrir.api.interfaces.providers.IOtherVKRestProvider
+import dev.ragnarok.fenrir.api.interfaces.providers.IVKRestProvider
 
 interface INetworker {
     fun getVkRestProvider(): IVKRestProvider

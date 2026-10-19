@@ -7,8 +7,8 @@ import android.provider.BaseColumns
 import androidx.core.database.sqlite.transaction
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.db.column.CommentsColumns
-import dev.ragnarok.fenrir.db.column.CountriesColumns
 import dev.ragnarok.fenrir.db.column.ConversationsColumns
+import dev.ragnarok.fenrir.db.column.CountriesColumns
 import dev.ragnarok.fenrir.db.column.DocsColumns
 import dev.ragnarok.fenrir.db.column.FaveArticlesColumns
 import dev.ragnarok.fenrir.db.column.FaveLinksColumns
@@ -378,6 +378,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 " [" + MessagesColumns.CONVERSATION_MESSAGE_ID + "] INTEGER NOT NULL, " +
                 " [" + MessagesColumns.PEER_ID + "] INTEGER INTEGER NOT NULL, " +
+                " [" + MessagesColumns.MESSAGE_ID + "] INTEGER, " +
                 " [" + MessagesColumns.FROM_ID + "] INTEGER, " +
                 " [" + MessagesColumns.RANDOM_ID + "] INTEGER, " +
                 " [" + MessagesColumns.DATE + "] INTEGER, " +
@@ -392,9 +393,9 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.ACTION_MID + "] INTEGER, " +
                 " [" + MessagesColumns.ACTION_EMAIL + "] TEXT, " +
                 " [" + MessagesColumns.ACTION_TEXT + "] TEXT, " +
-                " [" + MessagesColumns.PHOTO_50 + "] TEXT, " +
-                " [" + MessagesColumns.PHOTO_100 + "] TEXT, " +
-                " [" + MessagesColumns.PHOTO_200 + "] TEXT, " +
+                " [" + MessagesColumns.ACTION_PHOTO_50 + "] TEXT, " +
+                " [" + MessagesColumns.ACTION_PHOTO_100 + "] TEXT, " +
+                " [" + MessagesColumns.ACTION_PHOTO_200 + "] TEXT, " +
                 " [" + MessagesColumns.TEXT + "] TEXT, " +
                 " [" + MessagesColumns.EXTRAS + "] BLOB, " +
                 " [" + MessagesColumns.KEYBOARD + "] BLOB, " +
@@ -490,6 +491,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
         val sql = "CREATE TABLE [" + ConversationsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE AUTOINCREMENT NOT NULL UNIQUE, " +
                 " [" + ConversationsColumns.MAJOR_ID + "] INTEGER, " +
+                " [" + ConversationsColumns.MINOR_ID + "] INTEGER, " +
                 " [" + ConversationsColumns.LAST_CM_ID + "] INTEGER, " +
                 " [" + ConversationsColumns.UNREAD + "] INTEGER, " +
                 " [" + ConversationsColumns.IN_READ_CM_ID + "] INTEGER, " +
@@ -507,6 +509,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
         val sql = "CREATE TABLE [" + PeersColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE NOT NULL UNIQUE, " +
                 " [" + PeersColumns.MAJOR_ID + "] INTEGER, " +
+                " [" + PeersColumns.MINOR_ID + "] INTEGER, " +
                 " [" + PeersColumns.LAST_CM_ID + "] INTEGER, " +
                 " [" + PeersColumns.UNREAD + "] INTEGER, " +
                 " [" + PeersColumns.IN_READ_CM_ID + "] INTEGER, " +

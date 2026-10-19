@@ -118,7 +118,7 @@ class CatalogV2RecommendationPlaylist : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${owner_id}"
+        return "recommendationplaylist_${id}_${owner_id}"
     }
 
     fun setScroll() {

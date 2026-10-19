@@ -2,10 +2,10 @@ package dev.ragnarok.fenrir.fragment.search.newsfeedsearch
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.domain.IFeedInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IFeedInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.StringNextFrom
@@ -32,7 +32,7 @@ class NewsFeedSearchPresenter(
     criteria,
     savedInstanceState
 ) {
-    private val feedInteractor: IFeedInteractor = InteractorFactory.createFeedInteractor()
+    private val feedInteractor: IFeedInteractor = InteractorFactory.feed
     private val walls: IWallsRepository = Repository.walls
 
     override fun readParcelSaved(savedInstanceState: Bundle, key: String): NewsFeedCriteria? {

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.search.peoplesearch
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.PeopleSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom

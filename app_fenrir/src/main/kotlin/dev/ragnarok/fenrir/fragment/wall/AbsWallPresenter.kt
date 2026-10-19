@@ -19,18 +19,17 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
 import dev.ragnarok.fenrir.db.model.PostUpdate
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IStoriesShortVideosInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IStoriesShortVideosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.EditingPostType
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.LocalPhoto
-import dev.ragnarok.fenrir.model.LocalVideo
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.Story
@@ -208,14 +207,14 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     fun fireAddToBlacklistClick() {
         appendJob(
-            InteractorFactory.createAccountInteractor()
+            InteractorFactory.account
                 .banOwners(accountId, listOf(getOwner()))
                 .fromIOToMain({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
 
     fun fireRemoveBlacklistClick() {
         appendJob(
-            InteractorFactory.createAccountInteractor()
+            InteractorFactory.account
                 .unbanOwner(accountId, ownerId)
                 .fromIOToMain({ onExecuteComplete() }) { t -> onExecuteError(t) })
     }
@@ -421,7 +420,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
             .setView(root)
             .setPositiveButton(R.string.button_ok) { _, _ ->
                 appendJob(
-                    InteractorFactory.createAccountInteractor().saveProfileInfo(
+                    InteractorFactory.account.saveProfileInfo(
                         accountId,
                         checkEditInfo(
                             root.findViewById<TextInputEditText>(R.id.edit_first_name).text?.toString()
@@ -468,7 +467,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     fun fireEdit(context: Context) {
         appendJob(
-            InteractorFactory.createAccountInteractor().getProfileInfo(accountId)
+            InteractorFactory.account.getProfileInfo(accountId)
                 .fromIOToMain { t -> fireEdit(context, t) })
     }
 
@@ -967,7 +966,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
         wallFilter = WallCriteria.MODE_ALL
         walls = Repository.walls
         ownersRepository = owners
-        storiesInteractor = InteractorFactory.createStoriesInteractor()
+        storiesInteractor = InteractorFactory.story
         loadWallCachedData()
         if (!Settings.get().main().isDisable_history) {
             appendJob(

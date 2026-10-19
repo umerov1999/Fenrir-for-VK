@@ -4,12 +4,14 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.contentLength
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Story
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.toSource
 import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.MessageMethod
 import dev.ragnarok.fenrir.upload.Upload
@@ -23,9 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
+import okio.Source
 import kotlin.coroutines.cancellation.CancellationException
 
 class StoryUploadable(private val context: Context, private val networker: INetworker) :
@@ -48,16 +48,13 @@ class StoryUploadable(private val context: Context, private val networker: INetw
             toFlow(initialServer)
         }
         return serverSingle.flatMapConcat { server ->
-            var inputStream: InputStream? = null
+            var inputSource: Source? = null
             try {
                 val uri = upload.fileUri
-                val file = File(uri?.path ?: throw NotFoundException("uri.path is empty"))
-                inputStream = if (file.isFile) {
-                    FileInputStream(file)
-                } else {
-                    context.contentResolver.openInputStream(uri)
-                }
-                if (inputStream == null) {
+                val size =
+                    uri?.contentLength(context) ?: throw NotFoundException("uri.path is empty")
+                inputSource = uri.toSource(context)
+                if (inputSource == null) {
                     toFlowThrowable(
                         NotFoundException(
                             "Unable to open InputStream, URI: $uri"
@@ -69,11 +66,12 @@ class StoryUploadable(private val context: Context, private val networker: INetw
                         .uploadStoryRx(
                             server.url ?: throw NotFoundException("Upload url empty!"),
                             filename,
-                            inputStream,
+                            inputSource,
+                            size,
                             listener,
                             upload.destination.messageMethod == MessageMethod.VIDEO
                         )
-                        .onCompletion { safelyClose(inputStream) }
+                        .onCompletion { safelyClose(inputSource) }
                         .flatMapConcat { dto ->
                             networker
                                 .vkDefault(accountId)
@@ -89,7 +87,7 @@ class StoryUploadable(private val context: Context, private val networker: INetw
                                         owners.findBaseOwnersDataAsBundle(
                                             accountId, listOf(
                                                 Settings.get().accounts().current
-                                            ), IOwnersRepository.MODE_ANY, null
+                                            ), FetchMode.ANY, null
                                         ).map {
                                             val document =
                                                 Dto2Model.transformStory(tmpList[0], it)
@@ -100,7 +98,7 @@ class StoryUploadable(private val context: Context, private val networker: INetw
                         }
                 }
             } catch (e: Exception) {
-                safelyClose(inputStream)
+                safelyClose(inputSource)
                 if (e is CancellationException) {
                     throw e
                 }

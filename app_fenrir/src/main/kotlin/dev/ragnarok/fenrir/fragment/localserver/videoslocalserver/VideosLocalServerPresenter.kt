@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.localserver.videoslocalserver
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -16,7 +16,7 @@ class VideosLocalServerPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IVideosLocalServerView>(accountId, savedInstanceState) {
     private val videos: MutableList<Video> = ArrayList()
     private val fInteractor: ILocalServerInteractor =
-        InteractorFactory.createLocalServerInteractor()
+        InteractorFactory.localServer
     private var actualDataDisposable = CancelableJob()
     private var Foffset = 0
     private var actualDataReceived = false

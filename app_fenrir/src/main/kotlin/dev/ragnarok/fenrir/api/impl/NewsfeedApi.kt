@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.api.Fields
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.INewsfeedApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.response.IgnoreItemResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedBanResponse
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse

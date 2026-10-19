@@ -22,7 +22,7 @@ class GeoDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "geo_$id"
     }
 
     fun setLatitude(latitude: String?): GeoDboEntity {

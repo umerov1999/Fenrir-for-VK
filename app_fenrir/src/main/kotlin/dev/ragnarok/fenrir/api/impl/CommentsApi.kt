@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.Constants
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.ICommentsApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.response.CustomCommentsResponse
 import dev.ragnarok.fenrir.api.services.ICommentsService
 import dev.ragnarok.fenrir.orZero

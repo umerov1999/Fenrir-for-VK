@@ -17,17 +17,18 @@ import androidx.work.WorkerParameters
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.interfaces.ITempDataStorage
-import dev.ragnarok.fenrir.domain.IBoardInteractor
-import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
-import dev.ragnarok.fenrir.domain.IDocsInteractor
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
-import dev.ragnarok.fenrir.domain.IVideosInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IBoardInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ICommunitiesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IDocsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.model.DocFilter
@@ -51,17 +52,17 @@ class FaveSyncWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
     private val ownersRepository: IOwnersRepository = Repository.owners
     private val relationshipInteractor: IRelationshipInteractor =
-        InteractorFactory.createRelationshipInteractor()
+        InteractorFactory.relationship
     private val wallRepository: IWallsRepository = Repository.walls
     private val communitiesInteractor: ICommunitiesInteractor =
-        InteractorFactory.createCommunitiesInteractor()
-    private val faves: IFaveInteractor = InteractorFactory.createFaveInteractor()
+        InteractorFactory.community
+    private val faves: IFaveInteractor = InteractorFactory.fave
     private val shortcuts: ITempDataStorage = Includes.stores.tempStore()
-    private val board: IBoardInteractor = InteractorFactory.createBoardInteractor()
+    private val board: IBoardInteractor = InteractorFactory.board
     private val mNotifyManager = createNotificationManager(applicationContext)
-    private val photosInteractor: IPhotosInteractor = InteractorFactory.createPhotosInteractor()
-    private val videointeractor: IVideosInteractor = InteractorFactory.createVideosInteractor()
-    private val docsInteractor: IDocsInteractor = InteractorFactory.createDocsInteractor()
+    private val photosInteractor: IPhotosInteractor = InteractorFactory.photo
+    private val videointeractor: IVideosInteractor = InteractorFactory.video
+    private val docsInteractor: IDocsInteractor = InteractorFactory.doc
     private fun createNotificationManager(context: Context): NotificationManagerCompat {
         val mNotifyManager = NotificationManagerCompat.from(context)
         mNotifyManager.createNotificationChannel(
@@ -113,13 +114,13 @@ class FaveSyncWorker(context: Context, workerParams: WorkerParameters) :
                 ownersRepository.getFullUserInfo(
                     accountId,
                     id,
-                    IOwnersRepository.MODE_NET
+                    FetchMode.NET
                 ).syncSingle()
             } else {
                 ownersRepository.getFullCommunityInfo(
                     accountId,
                     abs(id),
-                    IOwnersRepository.MODE_NET
+                    FetchMode.NET
                 ).syncSingle()
             }
         } catch (e: Exception) {

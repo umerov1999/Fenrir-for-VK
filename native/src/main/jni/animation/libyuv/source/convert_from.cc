@@ -799,6 +799,14 @@ static int I4xxToPxxx(const uint8_t* src_y,
     Convert8To16Row = Convert8To16Row_RVV;
   }
 #endif
+#if defined(HAS_CONVERT8TO16ROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    Convert8To16Row = Convert8To16Row_Any_WASMSIMD;
+    if (IS_ALIGNED(uv_width, 16)) {
+      Convert8To16Row = Convert8To16Row_WASMSIMD;
+    }
+  }
+#endif
 #if defined(HAS_MERGEUVROW_16_AVX2)
   if (TestCpuFlag(kCpuHasAVX2)) {
     MergeUVRow_16 = MergeUVRow_16_Any_AVX2;
@@ -957,8 +965,8 @@ static int I420ToPxxx(const uint8_t* src_y,
                    dst_uv_width, width, height, dst_uv_width, abs_height);
     if (!r) {
       r = i4xx_to_pxxx(src_y, src_stride_y, tmp_u, dst_uv_width, tmp_v,
-                       dst_uv_width, dst_y, dst_stride_y, dst_uv,
-                       dst_stride_uv, width, height);
+                       dst_uv_width, dst_y, dst_stride_y, dst_uv, dst_stride_uv,
+                       width, height);
     }
   }
   free_aligned_buffer_64(plane_u);

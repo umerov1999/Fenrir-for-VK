@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.io.FilenameFilter
-import java.util.Locale
 
 class FileManagerSelectPresenter(
     private var path: File,

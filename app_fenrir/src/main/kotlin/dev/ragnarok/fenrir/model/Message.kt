@@ -19,6 +19,8 @@ class Message : AbsModel, Identificable, ISelectable {
         private set
     var cmId: Int
         private set
+    var messageId: Int = 0
+        private set
     var text: String? = null
         private set
     var peerId = 0L
@@ -68,11 +70,11 @@ class Message : AbsModel, Identificable, ISelectable {
         private set
     var actionText: String? = null
         private set
-    var photo50: String? = null
+    var actionPhoto50: String? = null
         private set
-    var photo100: String? = null
+    var actionPhoto100: String? = null
         private set
-    var photo200: String? = null
+    var actionPhoto200: String? = null
         private set
     private var actionUser: Owner? = null
     var randomId: Long = 0
@@ -91,8 +93,9 @@ class Message : AbsModel, Identificable, ISelectable {
     internal constructor(parcel: Parcel) {
         accountId = parcel.readLong()
         cmId = parcel.readInt()
-        text = parcel.readString()
         peerId = parcel.readLong()
+        messageId = parcel.readInt()
+        text = parcel.readString()
         senderId = parcel.readLong()
         isOut = parcel.getBoolean()
         isImportant = parcel.getBoolean()
@@ -110,9 +113,9 @@ class Message : AbsModel, Identificable, ISelectable {
         actionMid = parcel.readLong()
         actionEmail = parcel.readString()
         actionText = parcel.readString()
-        photo50 = parcel.readString()
-        photo100 = parcel.readString()
-        photo200 = parcel.readString()
+        actionPhoto50 = parcel.readString()
+        actionPhoto100 = parcel.readString()
+        actionPhoto200 = parcel.readString()
         actionUser = ParcelableOwnerWrapper.readOwner(parcel)
         sender = ParcelableOwnerWrapper.readOwner(parcel)
         randomId = parcel.readLong()
@@ -131,7 +134,7 @@ class Message : AbsModel, Identificable, ISelectable {
     }
 
     override fun getAttachmentKey(): String {
-        return "${cmId}_${peerId}"
+        return "message_${cmId}_${peerId}"
     }
 
     fun getReactionById(id: Int): Reaction? {
@@ -211,12 +214,13 @@ class Message : AbsModel, Identificable, ISelectable {
         return 0
     }
 
-    override fun getObjectId(): Int {
-        return cmId
-    }
-
     fun setCmId(cmId: Int): Message {
         this.cmId = cmId
+        return this
+    }
+
+    fun setMessageId(messageId: Int): Message {
+        this.messageId = messageId
         return this
     }
 
@@ -279,18 +283,18 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    fun setPhoto50(photo50: String?): Message {
-        this.photo50 = photo50
+    fun setActionPhoto50(actionPhoto50: String?): Message {
+        this.actionPhoto50 = actionPhoto50
         return this
     }
 
-    fun setPhoto100(photo100: String?): Message {
-        this.photo100 = photo100
+    fun setActionPhoto100(actionPhoto100: String?): Message {
+        this.actionPhoto100 = actionPhoto100
         return this
     }
 
-    fun setPhoto200(photo200: String?): Message {
-        this.photo200 = photo200
+    fun setActionPhoto200(actionPhoto200: String?): Message {
+        this.actionPhoto200 = actionPhoto200
         return this
     }
 
@@ -371,8 +375,9 @@ class Message : AbsModel, Identificable, ISelectable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(accountId)
         parcel.writeInt(cmId)
-        parcel.writeString(text)
         parcel.writeLong(peerId)
+        parcel.writeInt(messageId)
+        parcel.writeString(text)
         parcel.writeLong(senderId)
         parcel.putBoolean(isOut)
         parcel.putBoolean(isImportant)
@@ -388,9 +393,9 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeLong(actionMid)
         parcel.writeString(actionEmail)
         parcel.writeString(actionText)
-        parcel.writeString(photo50)
-        parcel.writeString(photo100)
-        parcel.writeString(photo200)
+        parcel.writeString(actionPhoto50)
+        parcel.writeString(actionPhoto100)
+        parcel.writeString(actionPhoto200)
         ParcelableOwnerWrapper.writeOwner(parcel, flags, actionUser)
         ParcelableOwnerWrapper.writeOwner(parcel, flags, sender)
         parcel.writeLong(randomId)
@@ -504,6 +509,10 @@ class Message : AbsModel, Identificable, ISelectable {
     fun setReactions(reactions: ArrayList<Reaction>?): Message {
         this.reactions = reactions
         return this
+    }
+
+    override fun getObjectId(): Int {
+        return cmId
     }
 
     object Extra {

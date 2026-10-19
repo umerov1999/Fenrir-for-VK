@@ -56,7 +56,7 @@ class NotificationIntentService : IntentService(NotificationIntentService::class
                 val accountId = extras.getLong(Extra.ACCOUNT_ID)
                 val hash = extras.getString(Extra.HASH)
                 hash.ifNonNullNoEmpty({
-                    InteractorFactory.createAccountInteractor()
+                    InteractorFactory.account
                         .validateAction(accountId, true, it).syncSingleSafe()
                 }, {})
             }

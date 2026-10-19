@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IOtherVKRestProvider
 import dev.ragnarok.fenrir.api.interfaces.ILongpollApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IOtherVKRestProvider
 import dev.ragnarok.fenrir.api.model.longpoll.VKApiLongpollUpdates
 import dev.ragnarok.fenrir.api.services.ILongpollUpdatesService
 import kotlinx.coroutines.flow.Flow

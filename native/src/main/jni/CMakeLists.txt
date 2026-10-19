@@ -61,6 +61,8 @@ add_library(thorvg STATIC
         animation/thorvg/src/renderer/cpu_engine/tvgSwMemPool.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwPostEffect.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwRaster.cpp
+        animation/thorvg/src/renderer/cpu_engine/tvgSwRasterCore.cpp
+        animation/thorvg/src/renderer/cpu_engine/tvgSwRasterSimd.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwRenderer.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwRle.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwShape.cpp
@@ -122,10 +124,13 @@ add_library(libyuv STATIC
         animation/libyuv/source/rotate.cc
         animation/libyuv/source/rotate_common.cc
         animation/libyuv/source/rotate_gcc.cc
-        animation/libyuv/source/rotate_sme.cc
+        animation/libyuv/source/rotate_lasx.cc
         animation/libyuv/source/rotate_lsx.cc
         animation/libyuv/source/rotate_neon64.cc
         animation/libyuv/source/rotate_neon.cc
+        animation/libyuv/source/rotate_rvv.cc
+        animation/libyuv/source/rotate_sme.cc
+        animation/libyuv/source/rotate_sve.cc
         animation/libyuv/source/row_any.cc
         animation/libyuv/source/row_common.cc
         animation/libyuv/source/row_gcc.cc

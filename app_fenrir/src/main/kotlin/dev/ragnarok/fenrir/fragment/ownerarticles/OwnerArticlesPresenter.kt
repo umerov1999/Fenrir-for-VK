@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.ownerarticles
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Article
 import dev.ragnarok.fenrir.model.Photo
@@ -14,7 +14,7 @@ class OwnerArticlesPresenter(
     private val ownerId: Long,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IOwnerArticlesView>(accountId, savedInstanceState) {
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val mArticles: ArrayList<Article> = ArrayList()
     private val netDisposable = CompositeJob()
     private var mEndOfContent = false

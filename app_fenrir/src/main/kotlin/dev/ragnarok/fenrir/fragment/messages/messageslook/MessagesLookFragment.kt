@@ -394,10 +394,8 @@ class MessagesLookFragment : PlaceSupportMvpFragment<MessagesLookPresenter, IMes
     }
 
     override fun onMessageDelete(message: Message) {
-        val ids = ArrayList<Int>()
-        ids.add(message.getObjectId())
         presenter?.fireDeleteForMeClick(
-            ids
+            arrayListOf(message.cmId)
         )
     }
 

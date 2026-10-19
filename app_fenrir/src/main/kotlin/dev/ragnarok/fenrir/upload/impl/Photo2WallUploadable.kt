@@ -5,8 +5,8 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
+import dev.ragnarok.fenrir.db.AttachmentFor
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Photo
@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import java.io.InputStream
+import okio.Source
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
 
@@ -49,10 +49,11 @@ class Photo2WallUploadable(
                 .getWallUploadServer(groupId)
         }
         return serverSingle.flatMapConcat { server ->
-            var inputStream: InputStream? = null
+            var input: Source? = null
             try {
-                inputStream = UploadUtils.openStream(context, upload.fileUri, upload.size)
-                if (inputStream == null) {
+                val tmpSources = UploadUtils.openSource(context, upload.fileUri, upload.size)
+                input = tmpSources.second
+                if (input == null) {
                     toFlowThrowable(
                         NotFoundException(
                             "Unable to open InputStream, URI: ${upload.fileUri}"
@@ -62,10 +63,11 @@ class Photo2WallUploadable(
                     networker.uploads()
                         .uploadPhotoToWallRx(
                             server.url ?: throw NotFoundException("Upload url empty!"),
-                            inputStream,
+                            input,
+                            tmpSources.first,
                             listener
                         )
-                        .onCompletion { safelyClose(inputStream) }
+                        .onCompletion { safelyClose(input) }
                         .flatMapConcat { dto ->
                             if (dto.photo.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
@@ -107,7 +109,7 @@ class Photo2WallUploadable(
                         }
                 }
             } catch (e: Exception) {
-                safelyClose(inputStream)
+                safelyClose(input)
                 if (e is CancellationException) {
                     throw e
                 }
@@ -125,10 +127,10 @@ class Photo2WallUploadable(
         val dest = upload.destination
         return when (dest.method) {
             Method.TO_COMMENT -> repository
-                .attach(accountId, AttachToType.COMMENT, dest.id, null, listOf(photo))
+                .attach(accountId, AttachmentFor.COMMENT, dest.id, null, listOf(photo))
 
             Method.TO_WALL -> repository
-                .attach(accountId, AttachToType.POST, dest.id, null, listOf(photo))
+                .attach(accountId, AttachmentFor.POST, dest.id, null, listOf(photo))
 
             else -> toFlowThrowable(UnsupportedOperationException())
         }

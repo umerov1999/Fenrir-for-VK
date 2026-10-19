@@ -24,7 +24,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlowThrowable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.onCompletion
-import java.io.InputStream
+import okio.Source
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
 
@@ -51,10 +51,11 @@ class Photo2AlbumUploadable(
                 .getUploadServer(albumId, groupId)
         }
         return serverSingle.flatMapConcat { server ->
-            var inputStream: InputStream? = null
+            var input: Source? = null
             try {
-                inputStream = UploadUtils.openStream(context, upload.fileUri, upload.size)
-                if (inputStream == null) {
+                val tmpSources = UploadUtils.openSource(context, upload.fileUri, upload.size)
+                input = tmpSources.second
+                if (input == null) {
                     toFlowThrowable(
                         NotFoundException(
                             "Unable to open InputStream, URI: ${upload.fileUri}"
@@ -64,10 +65,11 @@ class Photo2AlbumUploadable(
                     networker.uploads()
                         .uploadPhotoToAlbumRx(
                             server.url ?: throw NotFoundException("Upload url empty!"),
-                            inputStream,
+                            input,
+                            tmpSources.first,
                             listener
                         )
-                        .onCompletion { safelyClose(inputStream) }
+                        .onCompletion { safelyClose(input) }
                         .flatMapConcat { dto ->
                             var latitude: Double? = null
                             var longitude: Double? = null
@@ -126,7 +128,7 @@ class Photo2AlbumUploadable(
                         }
                 }
             } catch (e: Exception) {
-                safelyClose(inputStream)
+                safelyClose(input)
                 if (e is CancellationException) {
                     throw e
                 }

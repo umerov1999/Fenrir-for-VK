@@ -5,15 +5,15 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Constants.DEVICE_COUNTRY_CODE
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
-import dev.ragnarok.fenrir.api.IDirectLoginServiceProvider
-import dev.ragnarok.fenrir.api.OutOfDateException
 import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.exceptions.AuthException
 import dev.ragnarok.fenrir.api.exceptions.NeedValidationException
+import dev.ragnarok.fenrir.api.exceptions.OutOfDateException
 import dev.ragnarok.fenrir.api.exceptions.VKIdCaptchaNeedException
 import dev.ragnarok.fenrir.api.impl.AbsApi.Companion.RANDOM
 import dev.ragnarok.fenrir.api.impl.AbsApi.Companion.lock
 import dev.ragnarok.fenrir.api.interfaces.IAuthApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IDirectLoginServiceProvider
 import dev.ragnarok.fenrir.api.model.Error
 import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.api.model.VKApiValidateAccount

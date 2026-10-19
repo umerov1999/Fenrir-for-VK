@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.domain.impl
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.db.interfaces.IDatabaseStore
 import dev.ragnarok.fenrir.db.model.entity.CountryDboEntity
-import dev.ragnarok.fenrir.domain.IDatabaseInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
 import dev.ragnarok.fenrir.model.City
 import dev.ragnarok.fenrir.model.database.Chair
 import dev.ragnarok.fenrir.model.database.Country

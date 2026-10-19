@@ -32,7 +32,7 @@ class VideoViewHolder(itemView: View) : IViewHolder(itemView) {
     private val isAutoPlayVideo = Settings.get().main().isAutoplay_video_on_posts
 
     private fun doAutoplayVideo(context: Context, video: Video) {
-        InteractorFactory.createVideosInteractor()
+        InteractorFactory.video
             .getById(
                 Settings.get().accounts().current,
                 video.ownerId,

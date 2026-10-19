@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.communities.communitycontrol.communitymanag
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
-import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
@@ -38,7 +38,7 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
             adminLevel = convertRoleToAdminLevel(manager.role.orEmpty())
         }
         showAsContact = manager.isDisplayAsContact
-        interactor = InteractorFactory.createGroupSettingsInteractor()
+        interactor = InteractorFactory.groupSettings
         adding = false
         if (savedInstanceState != null) {
             restoreState(savedInstanceState)
@@ -63,7 +63,7 @@ class CommunityManagerEditPresenter : AccountDependencyPresenter<ICommunityManag
         this.groupId = groupId
         adminLevel = VKApiCommunity.AdminLevel.MODERATOR
         showAsContact = false
-        interactor = InteractorFactory.createGroupSettingsInteractor()
+        interactor = InteractorFactory.groupSettings
         adding = true
         savedInstanceState?.let { restoreState(it) }
     }

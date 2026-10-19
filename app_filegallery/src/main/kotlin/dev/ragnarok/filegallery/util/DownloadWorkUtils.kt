@@ -36,10 +36,8 @@ import okhttp3.Request
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 object DownloadWorkUtils {
     internal fun createNotification(
@@ -266,7 +264,12 @@ object DownloadWorkUtils {
             return 1
         }
         if (download_status) {
-            result_filename.setFile(result_filename.file + ("." + SimpleDateFormat("yyyyMMdd_HHmmss", Utils.appLocale).format(Date())))
+            result_filename.setFile(
+                result_filename.file + ("." + SimpleDateFormat(
+                    "yyyyMMdd_HHmmss",
+                    Utils.appLocale
+                ).format(Date()))
+            )
         }
         try {
             val downloadWork = OneTimeWorkRequest.Builder(TrackDownloadWorker::class)

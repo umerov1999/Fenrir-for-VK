@@ -16,8 +16,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
 import com.google.android.material.drawerlayout.DrawerLayout
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.SwitchableCategory
@@ -178,7 +179,7 @@ class AdditionalNavigationView : AbsNavigationView, MenuListAdapter.ActionListen
                 ownersRepository.getBaseOwnerInfo(
                     mAccountId,
                     mAccountId,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .fromIOToMain { user -> refreshHeader(user) }
             )

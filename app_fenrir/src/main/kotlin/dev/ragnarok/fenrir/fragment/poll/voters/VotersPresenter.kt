@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.poll.voters
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IPollInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IPollInteractor
 import dev.ragnarok.fenrir.fragment.absownerslist.ISimpleOwnersView
 import dev.ragnarok.fenrir.fragment.absownerslist.SimpleOwnersPresenter
 import dev.ragnarok.fenrir.model.User
@@ -20,7 +20,7 @@ class VotersPresenter(
 ) :
     SimpleOwnersPresenter<ISimpleOwnersView>(accountId, savedInstanceState) {
     private val pollsInteractor: IPollInteractor =
-        InteractorFactory.createPollInteractor()
+        InteractorFactory.poll
     private val actualDataDisposable = CompositeJob()
     private var endOfContent = false
     private var actualDataLoading = false

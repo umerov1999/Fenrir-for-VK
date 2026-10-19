@@ -102,7 +102,7 @@ object LinkHelper {
             return
         }
         if (link.contains("vk.cc")) {
-            InteractorFactory.createUtilsInteractor().checkLink(accountId, link)
+            InteractorFactory.utils.checkLink(accountId, link)
                 .fromIOToMain({ t ->
                     if ("banned" == t.status) {
                         createCustomToast(context, null)?.showToastError(R.string.link_banned)
@@ -119,7 +119,7 @@ object LinkHelper {
                     }
                 }) { e -> createCustomToast(context, null)?.showToastThrowable(e) }
         } else if (link.contains("vk.me")) {
-            InteractorFactory.createUtilsInteractor().joinChatByInviteLink(accountId, link)
+            InteractorFactory.utils.joinChatByInviteLink(accountId, link)
                 .fromIOToMain({ t ->
                     getChatPlace(
                         accountId,
@@ -163,7 +163,7 @@ object LinkHelper {
 
             AbsLink.ARTICLE_LINK -> {
                 val articleLink = link as ArticleLink
-                InteractorFactory.createFaveInteractor()
+                InteractorFactory.fave
                     .getByLinksArticles(accountId, articleLink.url).fromIOToMain({
                         if (it.isEmpty()) {
                             getExternalLinkPlace(accountId, articleLink.url).tryOpenWith(context)
@@ -392,7 +392,7 @@ object LinkHelper {
 
             AbsLink.AUDIO_TRACK -> {
                 val audioLink = link as AudioTrackLink
-                InteractorFactory.createAudioInteractor().getById(
+                InteractorFactory.audio.getById(
                     accountId,
                     listOf(Audio().setId(audioLink.trackId).setOwnerId(audioLink.ownerId))
                 )
@@ -404,7 +404,7 @@ object LinkHelper {
 
             AbsLink.STORY -> {
                 val storyLink = link as StoryLink
-                InteractorFactory.createStoriesInteractor().getStoryById(
+                InteractorFactory.story.getStoryById(
                     accountId,
                     listOf(AccessIdPair(storyLink.storyId, storyLink.ownerId, storyLink.access_key))
                 )

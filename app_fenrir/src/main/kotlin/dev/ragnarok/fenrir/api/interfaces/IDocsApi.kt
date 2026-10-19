@@ -27,7 +27,7 @@ interface IDocsApi {
     fun getUploadServer(groupId: Long?): Flow<VKApiDocsUploadServer>
 
     @CheckResult
-    fun getMessagesUploadServer(peerId: Long?, type: String?): Flow<VKApiDocsUploadServer>
+    fun getMessagesUploadServer(peerId: Long, type: String?): Flow<VKApiDocsUploadServer>
 
     @CheckResult
     fun get(

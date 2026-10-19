@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
-import java.util.Locale
 
 class DocsAdapter(data: MutableList<Document>) :
     RecyclerBindableAdapter<Document, DocsAdapter.DocViewHolder>(data) {

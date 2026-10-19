@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.messages.localjsontochat
 import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.Peer

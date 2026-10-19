@@ -34,7 +34,7 @@ interface IAttachmentsPlacesView {
     )
 
     fun openPost(accountId: Long, post: Post)
-    fun goToMessagesLookupFWD(accountId: Long, peerId: Long, messageId: Int)
+    fun goToMessagesLookupFWD(accountId: Long, peerId: Long, cmId: Int)
     fun goWallReplyOpen(accountId: Long, reply: WallReply)
     fun openDocPreview(accountId: Long, document: Document)
     fun openOwnerWall(accountId: Long, ownerId: Long)

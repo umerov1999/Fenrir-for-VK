@@ -42,7 +42,10 @@ internal class FeedStorage(base: AppStorages) : AbsStorage(base), IFeedStorage {
                     uri,
                     null,
                     BaseColumns._ID + " >= ? AND " + BaseColumns._ID + " <= ?",
-                    arrayOf(range?.first.orZero().toString(), (range?.last ?: Int.MAX_VALUE).toString()),
+                    arrayOf(
+                        range?.first.orZero().toString(),
+                        (range?.last ?: Int.MAX_VALUE).toString()
+                    ),
                     null
                 )
             } else {

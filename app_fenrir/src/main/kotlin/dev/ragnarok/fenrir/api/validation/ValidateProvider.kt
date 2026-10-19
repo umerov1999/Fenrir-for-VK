@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import dev.ragnarok.fenrir.activity.ValidateActivity
-import dev.ragnarok.fenrir.api.OutOfDateException
+import dev.ragnarok.fenrir.api.exceptions.OutOfDateException
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.inMainThread
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.myEmit

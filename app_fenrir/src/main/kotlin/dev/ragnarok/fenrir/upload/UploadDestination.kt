@@ -160,7 +160,11 @@ open class UploadDestination : Parcelable {
             )
         }
 
-        fun forMessage(mCmId: Int, @MessageMethod msgMethod: Int, mPeerId: Long): UploadDestination {
+        fun forMessage(
+            mCmId: Int,
+            @MessageMethod msgMethod: Int,
+            mPeerId: Long
+        ): UploadDestination {
             return UploadDestination(
                 mCmId, mPeerId,
                 Method.TO_MESSAGE, msgMethod,

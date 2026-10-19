@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IPhotosApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiComment
@@ -232,7 +232,7 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun getOwnerPhotoUploadServer(ownerId: Long?): Flow<VKApiOwnerPhotoUploadServer> {
+    override fun getOwnerPhotoUploadServer(ownerId: Long): Flow<VKApiOwnerPhotoUploadServer> {
         return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
                 it.getOwnerPhotoUploadServer(ownerId)
@@ -240,10 +240,10 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun getChatUploadServer(chat_id: Long?): Flow<VKApiChatPhotoUploadServer> {
+    override fun getChatUploadServer(chatId: Long): Flow<VKApiChatPhotoUploadServer> {
         return provideService(IPhotosService(), TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.getChatUploadServer(chat_id)
+                it.getChatUploadServer(chatId)
                     .map(extractResponseWithErrorHandling())
             }
     }
@@ -325,23 +325,24 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
     override fun getAll(
         ownerId: Long?,
         extended: Int?,
-        photo_sizes: Int?,
+        photoSizes: Int?,
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiPhoto>> {
         return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
-                it.getAll(ownerId, extended, photo_sizes, offset, count, 0, 1, 0)
+                it.getAll(ownerId, extended, photoSizes, offset, count, 0, 1, 0)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override val messagesUploadServer: Flow<VKApiPhotoMessageServer>
-        get() = provideService(IPhotosService(), TokenType.USER, TokenType.COMMUNITY)
+    override fun getMessagesUploadServer(peerId: Long): Flow<VKApiPhotoMessageServer> {
+        return provideService(IPhotosService(), TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.messagesUploadServer
+                it.getMessagesUploadServer(peerId)
                     .map(extractResponseWithErrorHandling())
             }
+    }
 
     override fun saveMessagesPhoto(
         server: Long?,
@@ -378,12 +379,12 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
 
     override fun getTags(
         ownerId: Long?,
-        photo_id: Int?,
-        access_key: String?
+        photoId: Int?,
+        accessKey: String?
     ): Flow<List<VKApiPhotoTags>> {
         return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
-                it.getTags(ownerId, photo_id, access_key).map(
+                it.getTags(ownerId, photoId, accessKey).map(
                     extractResponseWithErrorHandling()
                 )
             }
@@ -391,14 +392,14 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
 
     override fun getAllComments(
         ownerId: Long?,
-        album_id: Int?,
-        need_likes: Int?,
+        albumId: Int?,
+        needLikes: Int?,
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiComment>> {
         return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
-                it.getAllComments(ownerId, album_id, need_likes, offset, count).map(
+                it.getAllComments(ownerId, albumId, needLikes, offset, count).map(
                     extractResponseWithErrorHandling()
                 )
             }
@@ -406,8 +407,8 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
 
     override fun search(
         q: String?,
-        lat_gps: Double?,
-        long_gps: Double?,
+        latGps: Double?,
+        longGps: Double?,
         sort: Int?,
         radius: Int?,
         startTime: Long?,
@@ -419,8 +420,8 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
             .flatMapConcat {
                 it.search(
                     q,
-                    lat_gps,
-                    long_gps,
+                    latGps,
+                    longGps,
                     sort,
                     radius,
                     startTime,

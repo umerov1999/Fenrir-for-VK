@@ -288,7 +288,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                 }
                                 audioListDisposable.set(
                                     Includes.networkInterfaces.localServerApi()
-                                        .delete_media(hash1)
+                                        .deleteMedia(hash1)
                                         .fromIOToMain(
                                             {
                                                 CustomToast.createCustomToast(
@@ -312,7 +312,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         }
                         audioListDisposable.set(
                             Includes.networkInterfaces.localServerApi()
-                                .update_time(hash)
+                                .updateTime(hash)
                                 .fromIOToMain(
                                     {
                                         CustomToast.createCustomToast(
@@ -332,7 +332,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         }
                         audioListDisposable.set(
                             Includes.networkInterfaces.localServerApi()
-                                .get_file_name(hash2)
+                                .getFileName(hash2)
                                 .fromIOToMain(
                                     { t ->
                                         val root =
@@ -352,7 +352,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                             .setPositiveButton(R.string.button_ok) { _, _ ->
                                                 audioListDisposable.set(
                                                     Includes.networkInterfaces.localServerApi()
-                                                        .update_file_name(
+                                                        .updateFileName(
                                                             hash2,
                                                             root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                                                 ?.trim()
@@ -508,7 +508,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                 }
                                 audioListDisposable.set(
                                     Includes.networkInterfaces.localServerApi()
-                                        .delete_media(hash1)
+                                        .deleteMedia(hash1)
                                         .fromIOToMain(
                                             {
                                                 CustomToast.createCustomToast(
@@ -532,7 +532,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         }
                         audioListDisposable.set(
                             Includes.networkInterfaces.localServerApi()
-                                .update_time(hash)
+                                .updateTime(hash)
                                 .fromIOToMain(
                                     {
                                         CustomToast.createCustomToast(
@@ -552,7 +552,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         }
                         audioListDisposable.set(
                             Includes.networkInterfaces.localServerApi()
-                                .get_file_name(hash2)
+                                .getFileName(hash2)
                                 .fromIOToMain(
                                     { t ->
                                         val root =
@@ -572,7 +572,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                             .setPositiveButton(R.string.button_ok) { _, _ ->
                                                 audioListDisposable.set(
                                                     Includes.networkInterfaces.localServerApi()
-                                                        .update_file_name(
+                                                        .updateFileName(
                                                             hash2,
                                                             root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                                                 ?.trim()

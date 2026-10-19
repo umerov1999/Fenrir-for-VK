@@ -13,7 +13,7 @@ class VideoAlbumDboEntity(val id: Int, val ownerId: Long) : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "videoalbum_${id}_${ownerId}"
     }
 
     fun setTitle(title: String?): VideoAlbumDboEntity {

@@ -122,7 +122,7 @@ abstract class AccountDependencyDialogFragment : BaseDialogFragment(), OnAttachm
 
     override fun onVideoPlay(video: Video) {
         appendJob(
-            InteractorFactory.createVideosInteractor()
+            InteractorFactory.video
                 .getById(accountId, video.ownerId, video.id, video.accessKey, false)
                 .fromIOToMain({
                     Utils.doAutoPlayVideo(
@@ -150,7 +150,7 @@ abstract class AccountDependencyDialogFragment : BaseDialogFragment(), OnAttachm
     }
 
     override fun onGoToMessagesLookup(message: Message) {
-        getMessagesLookupPlace(accountId, message.peerId, message.getObjectId(), null).tryOpenWith(
+        getMessagesLookupPlace(accountId, message.peerId, message.cmId, null).tryOpenWith(
             requireActivity()
         )
     }
@@ -187,7 +187,7 @@ abstract class AccountDependencyDialogFragment : BaseDialogFragment(), OnAttachm
 
     override fun onNarrativeOpen(narratives: Narratives) {
         appendJob(
-            InteractorFactory.createStoriesInteractor()
+            InteractorFactory.story
                 .getStoryById(accountId, narratives.getStoriesIds())
                 .fromIOToMain {
                     if (it.nonNullNoEmpty()) {

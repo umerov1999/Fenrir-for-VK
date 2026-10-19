@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.UserAgentTool
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
+import dev.ragnarok.fenrir.api.interfaces.providers.IUploadRestProvider
 import dev.ragnarok.fenrir.api.rest.SimplePostHttp
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings

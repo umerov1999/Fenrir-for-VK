@@ -6,9 +6,9 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService
 import dev.ragnarok.fenrir.model.Audio

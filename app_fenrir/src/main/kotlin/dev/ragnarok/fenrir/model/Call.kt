@@ -36,7 +36,7 @@ class Call : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${initiator_id}_${receiver_id}_$state"
+        return "call_${initiator_id}_${receiver_id}_$state"
     }
 
     fun setInitiator_id(initiator_id: Long): Call {

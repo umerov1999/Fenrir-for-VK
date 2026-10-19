@@ -663,7 +663,7 @@ class UserDetailsPresenter(
         createData()
         view?.notifyChanges()
         appendJob(
-            InteractorFactory.createPhotosInteractor().get(accountId, user.ownerId, -6, 50, 0, true)
+            InteractorFactory.photo.get(accountId, user.ownerId, -6, 50, 0, true)
                 .fromIOToMain { displayUserProfileAlbum(it) }
         )
     }

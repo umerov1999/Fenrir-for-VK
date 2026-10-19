@@ -148,7 +148,6 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.work.runtime)
-    implementation(libs.androidx.drawerlayout)
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.collection)
     implementation(libs.androidx.savedstate)

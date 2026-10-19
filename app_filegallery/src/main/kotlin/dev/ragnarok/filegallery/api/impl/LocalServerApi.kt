@@ -1,8 +1,8 @@
 package dev.ragnarok.filegallery.api.impl
 
-import dev.ragnarok.filegallery.api.ILocalServerServiceProvider
 import dev.ragnarok.filegallery.api.PercentagePublisher
 import dev.ragnarok.filegallery.api.interfaces.ILocalServerApi
+import dev.ragnarok.filegallery.api.interfaces.providers.ILocalServerServiceProvider
 import dev.ragnarok.filegallery.api.model.Items
 import dev.ragnarok.filegallery.api.model.response.BaseResponse
 import dev.ragnarok.filegallery.api.util.ProgressRequestBody
@@ -105,34 +105,34 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
             }
     }
 
-    override fun update_time(hash: String?): Flow<Int> {
+    override fun updateTime(hash: String?): Flow<Int> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.update_time(hash)
+                it.updateTime(hash)
                     .map(extractResponseWithErrorHandlingSimple())
             }
     }
 
-    override fun delete_media(hash: String?): Flow<Int> {
+    override fun deleteMedia(hash: String?): Flow<Int> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.delete_media(hash)
+                it.deleteMedia(hash)
                     .map(extractResponseWithErrorHandlingSimple())
             }
     }
 
-    override fun get_file_name(hash: String?): Flow<String> {
+    override fun getFileName(hash: String?): Flow<String> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.get_file_name(hash)
+                it.getFileName(hash)
                     .map(extractResponseWithErrorHandlingSimple())
             }
     }
 
-    override fun update_file_name(hash: String?, name: String?): Flow<Int> {
+    override fun updateFileName(hash: String?, name: String?): Flow<Int> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.update_file_name(hash, name)
+                it.updateFileName(hash, name)
                     .map(extractResponseWithErrorHandlingSimple())
             }
     }

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.db.interfaces
 
-import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.db.model.MessageEditEntity
 import dev.ragnarok.fenrir.db.model.MessagePatch
 import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
@@ -44,6 +43,7 @@ interface IMessagesStorage : IStorage {
         peerId: Long,
         @MessageStatus status: Int,
         vkCmId: Int?,
+        vkMessageId: Int?
     ): Flow<Boolean>
 
     fun changeMessagesStatus(
@@ -56,7 +56,7 @@ interface IMessagesStorage : IStorage {
     //@CheckResult
     //Completable updateMessageFlag(int accountId, int cmId, Collection<Pair<Integer, Boolean>> values);
     fun deleteMessage(accountId: Long, cmId: Int, peerId: Long): Flow<Boolean>
-    fun findLastSentCmIdForPeer(accountId: Long, peerId: Long): Flow<Optional<Int>>
+    fun findLastSentCmIdForPeer(accountId: Long, peerId: Long): Flow<Pair<Int, Int>?>
     fun findMessagesByIds(
         accountId: Long,
         cmIds: List<Pair<Long, Int>>,
@@ -71,7 +71,10 @@ interface IMessagesStorage : IStorage {
     ): Flow<Optional<Pair<Long, MessageDboEntity>>>
 
     //Observable<MessageUpdate> observeMessageUpdates();
-    fun getMissingMessages(accountId: Long, cmIds: Collection<Pair<Long, Int>>): Flow<Collection<Pair<Long, Int>>>
+    fun getMissingMessages(
+        accountId: Long,
+        cmIds: Collection<Pair<Long, Int>>
+    ): Flow<Collection<Pair<Long, Int>>>
 
     fun deleteMessages(accountId: Long, cmIds: Collection<Pair<Long, Int>>): Flow<Boolean>
 }

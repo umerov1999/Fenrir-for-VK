@@ -12,15 +12,16 @@ import dev.ragnarok.fenrir.Includes.stores
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
-import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IAddEvent
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
-import dev.ragnarok.fenrir.domain.ICommentsInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IStickersInteractor
+import dev.ragnarok.fenrir.db.AttachmentFor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.CommentsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IAddEvent
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IBaseEvent
+import dev.ragnarok.fenrir.domain.interfaces.ICommentsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IStickersInteractor
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.fragment.comments.ICommentsView.ICommentContextView
@@ -70,7 +71,7 @@ class CommentsPresenter(
     private val interactor: ICommentsInteractor =
         CommentsInteractor(networkInterfaces, stores, owners)
     private val stickersInteractor: IStickersInteractor =
-        InteractorFactory.createStickersInteractor()
+        InteractorFactory.sticker
     private val data: MutableList<Comment> = ArrayList()
     private val stickersWordsDisplayDisposable = CancelableJob()
     private val actualLoadingDisposable = CompositeJob()
@@ -94,7 +95,7 @@ class CommentsPresenter(
             ownersRepository.getBaseOwnerInfo(
                 accountId,
                 authorId,
-                IOwnersRepository.MODE_ANY
+                FetchMode.ANY
             )
                 .fromIOToMain({ owner -> onAuthorDataReceived(owner) }) { t ->
                     onAuthorDataGetError(
@@ -201,7 +202,7 @@ class CommentsPresenter(
     }
 
     private fun filterAttachmentEvent(event: IBaseEvent): Boolean {
-        return draftCommentId != null && event.attachToType == AttachToType.COMMENT && event.accountId == authorId && event.attachToDbId == draftCommentId
+        return draftCommentId != null && event.attachmentFor == AttachmentFor.COMMENT && event.accountId == authorId && event.attachToDbId == draftCommentId
     }
 
     private fun restoreDraftCommentSync() {
@@ -1006,7 +1007,7 @@ class CommentsPresenter(
             val ids: MutableSet<Long> = HashSet()
             ids.add(accountId)
             ids.add(commented.sourceOwnerId)
-            ownersRepository.findBaseOwnersDataAsList(accountId, ids, IOwnersRepository.MODE_ANY)
+            ownersRepository.findBaseOwnersDataAsList(accountId, ids, FetchMode.ANY)
         }
         appendJob(
             single

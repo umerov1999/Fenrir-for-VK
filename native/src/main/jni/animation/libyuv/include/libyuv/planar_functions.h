@@ -52,15 +52,17 @@ void Convert16To8Plane(const uint16_t* src_y,
                        int height);
 
 // Convert 8 bit Y to 10/12/16 bit.
-// "bits" accepts bit depths (10, 12, 16) or legacy scale values (1024, 4096, 65536).
+// "bits" accepts bit depths (10, 12, 16) or legacy scale values (1024, 4096,
+// 65536).
 LIBYUV_API
-void Convert8To16Plane(const uint8_t* src_y,
-                       int src_stride_y,
-                       uint16_t* dst_y,
-                       int dst_stride_y,
-                       int bits,  // 10, 12, 16 bits (or 1024, 4096, 65536 scale)
-                       int width,
-                       int height);
+void Convert8To16Plane(
+    const uint8_t* src_y,
+    int src_stride_y,
+    uint16_t* dst_y,
+    int dst_stride_y,
+    int bits,  // 10, 12, 16 bits (or 1024, 4096, 65536 scale)
+    int width,
+    int height);
 
 LIBYUV_API
 void Convert8To8Plane(const uint8_t* src_y,
@@ -606,6 +608,15 @@ void MirrorPlane(const uint8_t* src_y,
                  int dst_stride_y,
                  int width,
                  int height);
+
+// Mirror a plane of 16-bit data.
+LIBYUV_API
+void MirrorPlane_16(const uint16_t* src_y,
+                    int src_stride_y,
+                    uint16_t* dst_y,
+                    int dst_stride_y,
+                    int width,
+                    int height);
 
 // Mirror a plane of UV data.
 LIBYUV_API

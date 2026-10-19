@@ -13,8 +13,8 @@ import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
-import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
 import dev.ragnarok.fenrir.fragment.search.filteredit.FilterEditFragment
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.City
@@ -27,7 +27,7 @@ class SelectCityDialog : AccountDependencyDialogFragment(), CitiesAdapter.Listen
     private var mAdapter: CitiesAdapter? = null
     private var filter: String? = null
     private val databaseInteractor: IDatabaseInteractor =
-        InteractorFactory.createDatabaseInteractor()
+        InteractorFactory.database
     private val mRunSearchRunnable = Runnable { request(0) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

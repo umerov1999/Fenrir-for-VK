@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.search.dialogssearch
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IMessagesRepository
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.DialogsSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom

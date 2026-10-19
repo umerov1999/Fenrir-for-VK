@@ -597,7 +597,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 iconRes = R.drawable.feed_settings
                 onClick {
                     disposables.add(
-                        InteractorFactory.createAccountInteractor()
+                        InteractorFactory.account
                             .getPushSettings(accountId)
                             .fromIOToMain(
                                 {

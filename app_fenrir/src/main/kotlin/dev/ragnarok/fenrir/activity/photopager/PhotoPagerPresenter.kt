@@ -18,10 +18,10 @@ import com.squareup.picasso3.Picasso.LoadedFrom
 import dev.ragnarok.fenrir.App.Companion.instance
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.CameraScanActivity
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.model.AccessIdPairModel
@@ -54,7 +54,7 @@ open class PhotoPagerPresenter internal constructor(
     private val read_only: Boolean,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IPhotoPagerView>(accountId, savedInstanceState) {
-    protected val photosInteractor: IPhotosInteractor = InteractorFactory.createPhotosInteractor()
+    protected val photosInteractor: IPhotosInteractor = InteractorFactory.photo
     protected var currentIndex = 0
     private var mLoadingNow = false
     private var mFullScreen = false
@@ -258,7 +258,7 @@ open class PhotoPagerPresenter internal constructor(
     private fun getOwnerForPhoto(context: Context, photo: Photo, album: PhotoAlbum?) {
         appendJob(
             owners.findBaseOwnersDataAsBundle(
-                accountId, setOf(photo.ownerId), IOwnersRepository.MODE_ANY
+                accountId, setOf(photo.ownerId), FetchMode.ANY
             )
                 .fromIOToMain({
                     showPhotoInfo(
@@ -331,7 +331,7 @@ open class PhotoPagerPresenter internal constructor(
                                 mPhotos[currentIndex].let { uit ->
                                     uit.setShowPhotoTags(old.showPhotoTags)
                                     uit.setPhotoTags(old.photoTags)
-                                    uit.setMsgId(old.msgId)
+                                    uit.setMsgCmId(old.msgCmId)
                                     uit.setDeleted(old.isDeleted)
                                     uit.setMsgPeerId(old.msgPeerId)
                                 }
@@ -635,7 +635,7 @@ open class PhotoPagerPresenter internal constructor(
         }
         if (photo.photoTags.isNullOrEmpty()) {
             appendJob(
-                InteractorFactory.createPhotosInteractor()
+                InteractorFactory.photo
                     .getTags(accountId, photo.ownerId, photo.getObjectId(), photo.accessKey)
                     .fromIOToMain({
                         photo.setPhotoTags(it)
@@ -659,7 +659,7 @@ open class PhotoPagerPresenter internal constructor(
         val photo = current
         if (photo.photoTags.isNullOrEmpty()) {
             appendJob(
-                InteractorFactory.createPhotosInteractor()
+                InteractorFactory.photo
                     .getTags(accountId, photo.ownerId, photo.getObjectId(), photo.accessKey)
                     .fromIOToMain({
                         photo.setPhotoTags(it)

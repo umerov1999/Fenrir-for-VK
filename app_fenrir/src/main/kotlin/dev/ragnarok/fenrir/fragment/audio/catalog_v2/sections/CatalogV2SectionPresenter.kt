@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AbsModelType
@@ -23,7 +23,7 @@ class CatalogV2SectionPresenter(
 ) :
     AccountDependencyPresenter<ICatalogV2SectionView>(accountId, savedInstanceState) {
     private val pages: MutableList<AbsModel> = ArrayList()
-    private val fInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val fInteractor: IAudioInteractor = InteractorFactory.audio
     private var doAudioLoadTabs = false
     private var actualDataLoading = false
     private var actualBlockLoading = false

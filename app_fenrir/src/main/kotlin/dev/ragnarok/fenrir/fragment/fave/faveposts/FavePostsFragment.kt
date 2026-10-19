@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.ILikesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportMvpFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener

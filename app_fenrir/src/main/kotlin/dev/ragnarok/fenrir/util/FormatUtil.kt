@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.link.internal.OwnerLinkSpanFactory
 import java.text.DateFormat
 import java.util.Date
-import java.util.Locale
 
 object FormatUtil {
     fun formatCommunityBanInfo(

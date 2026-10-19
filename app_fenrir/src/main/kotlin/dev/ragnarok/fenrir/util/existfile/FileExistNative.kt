@@ -19,7 +19,6 @@ import okio.buffer
 import okio.source
 import java.io.File
 import java.io.IOException
-import java.util.Locale
 import kotlin.math.abs
 
 class FileExistNative : AbsFileExist {

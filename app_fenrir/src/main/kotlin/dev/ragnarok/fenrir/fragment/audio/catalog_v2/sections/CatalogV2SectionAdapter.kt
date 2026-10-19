@@ -30,8 +30,8 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.api.exceptions.ApiException
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.holders.IViewHolder
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
@@ -106,7 +106,7 @@ class CatalogV2SectionAdapter(
 ) : RecyclerBindableAdapter<AbsModel, IViewHolder>(data) {
     private var clickListener: ClickListener? = null
     private var disposable = CancelableJob()
-    private val mAudioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val mAudioInteractor: IAudioInteractor = InteractorFactory.audio
 
     private val isLongPressDownload: Boolean = Settings.get().main().isUse_long_click_download
     private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.communities
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ICommunitiesInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.DataWrapper
@@ -24,7 +24,6 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import java.util.Locale
 
 class CommunitiesPresenter(accountId: Long, private val userId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<ICommunitiesView>(accountId, savedInstanceState) {
@@ -32,7 +31,7 @@ class CommunitiesPresenter(accountId: Long, private val userId: Long, savedInsta
     private val filtered: DataWrapper<Community> = DataWrapper(ArrayList(0), false)
     private val search: DataWrapper<Community> = DataWrapper(ArrayList(0), false)
     private val communitiesInteractor: ICommunitiesInteractor =
-        InteractorFactory.createCommunitiesInteractor()
+        InteractorFactory.community
     private val actualDisposable = CompositeJob()
     private val cacheDisposable = CompositeJob()
     private val netSearchDisposable = CompositeJob()

@@ -18,7 +18,7 @@ class Link : AbsModel {
         private set
     var previewPhoto: String? = null
         private set
-    var msgId = 0
+    var msgCmId = 0
         private set
     var msgPeerId = 0L
         private set
@@ -31,7 +31,7 @@ class Link : AbsModel {
         description = parcel.readString()
         previewPhoto = parcel.readString()
         photo = parcel.readTypedObjectCompat(Photo.CREATOR)
-        msgId = parcel.readInt()
+        msgCmId = parcel.readInt()
         msgPeerId = parcel.readLong()
     }
 
@@ -42,7 +42,7 @@ class Link : AbsModel {
         parcel.writeString(description)
         parcel.writeString(previewPhoto)
         parcel.writeTypedObjectCompat(photo, flags)
-        parcel.writeInt(msgId)
+        parcel.writeInt(msgCmId)
         parcel.writeLong(msgPeerId)
     }
 
@@ -52,7 +52,7 @@ class Link : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$url"
+        return "link_$url"
     }
 
     fun setUrl(url: String?): Link {
@@ -85,8 +85,8 @@ class Link : AbsModel {
         return this
     }
 
-    fun setMsgId(msgId: Int): Link {
-        this.msgId = msgId
+    fun setMsgCmId(msgCmId: Int): Link {
+        this.msgCmId = msgCmId
         return this
     }
 

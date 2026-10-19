@@ -41,6 +41,8 @@ class Conversation(val id: Long) {
         private set
     var majorId = 0
         private set
+    var minorId = 0
+        private set
 
     fun setAcl(acl: Int): Conversation {
         this.acl = acl
@@ -154,6 +156,11 @@ class Conversation(val id: Long) {
 
     fun setMajorId(majorId: Int): Conversation {
         this.majorId = majorId
+        return this
+    }
+
+    fun setMinorId(minorId: Int): Conversation {
+        this.minorId = minorId
         return this
     }
 

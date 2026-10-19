@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.narratives
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IStoriesShortVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IStoriesShortVideosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Narratives
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -15,7 +15,7 @@ class NarrativesPresenter(
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<INarrativesView>(accountId, savedInstanceState) {
     private val storiesInteractor: IStoriesShortVideosInteractor =
-        InteractorFactory.createStoriesInteractor()
+        InteractorFactory.story
     private val mNarratives: ArrayList<Narratives> = ArrayList()
     private val netDisposable = CompositeJob()
     private var mEndOfContent = false

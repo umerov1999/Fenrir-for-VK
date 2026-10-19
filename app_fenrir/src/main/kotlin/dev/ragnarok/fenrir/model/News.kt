@@ -199,7 +199,7 @@ class News : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${sourceId}_${postId}"
+        return "news_${sourceId}_${postId}"
     }
 
     fun setCopyright(copyright: Copyright?): News {

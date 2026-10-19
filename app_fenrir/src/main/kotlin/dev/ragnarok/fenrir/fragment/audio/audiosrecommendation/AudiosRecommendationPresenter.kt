@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.audio.audiosrecommendation
 
 import android.content.Context
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
@@ -21,7 +21,7 @@ class AudiosRecommendationPresenter(
     private val option_menu_id: Int,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IAudiosRecommendationView>(accountId, savedInstanceState) {
-    private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     private val audios: ArrayList<Audio> = ArrayList()
     private val audioListDisposable = CompositeJob()
     private var loadingNow = false

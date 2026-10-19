@@ -28,7 +28,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
-import java.util.Locale
 
 class DocLink(val attachment: AbsModel) {
     @AttachmentsTypes

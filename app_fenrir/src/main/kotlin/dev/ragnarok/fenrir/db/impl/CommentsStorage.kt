@@ -5,7 +5,7 @@ import android.content.ContentProviderResult
 import android.content.ContentValues
 import android.database.Cursor
 import android.provider.BaseColumns
-import dev.ragnarok.fenrir.db.AttachToType
+import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.db.FenrirContentProvider
 import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getCommentsContentUriFor
 import dev.ragnarok.fenrir.db.column.CommentsColumns
@@ -13,12 +13,11 @@ import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.mapAttachmentsFr
 import dev.ragnarok.fenrir.db.interfaces.ICommentsStorage
 import dev.ragnarok.fenrir.db.model.entity.CommentEntity
 import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillCommentOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity
-import dev.ragnarok.fenrir.exception.DatabaseException
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.getBlob
 import dev.ragnarok.fenrir.getBoolean
@@ -85,7 +84,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                 val dbo = dbos[i]
                 val cv = getCV(sourceId, sourceOwnerId, sourceType, dbo)
                 stores.attachments()
-                    .attachToBlobSync(cv, AttachToType.COMMENT, dbo.getAttachments())
+                    .attachToBlobSync(cv, AttachmentFor.COMMENT, dbo.getAttachments())
                     .syncSingleSafe()
 
                 val mainPostHeaderOperation = ContentProviderOperation
@@ -192,7 +191,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             comment?.setAttachmentsCount(
                 stores.attachments().getAttachmentsCount(
                     accountId = accountId,
-                    attachToType = AttachToType.COMMENT,
+                    attachmentFor = AttachmentFor.COMMENT,
                     attachToDbId = comment.id,
                     attachToElement = null
                 ).single()
@@ -283,7 +282,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
 
             stores.attachments().attachToBlobSync(
                 cv,
-                AttachToType.COMMENT,
+                AttachmentFor.COMMENT,
                 Model2Entity.buildDboAttachments(attachments.orEmpty())
             ).syncSingleSafe()
 
@@ -302,7 +301,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                     .findBaseOwnersDataAsBundle(
                         accountId,
                         ownids.all,
-                        IOwnersRepository.MODE_ANY
+                        FetchMode.ANY
                     )
                     .map { owns ->
                         Entity2Model.buildCommentFromDbo(ce, owns) ?: throw NotFoundException()
@@ -351,7 +350,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                     .findBaseOwnersDataAsBundle(
                         accountId,
                         ownids.all,
-                        IOwnersRepository.MODE_ANY
+                        FetchMode.ANY
                     )
                     .map { owns ->
                         Entity2Model.buildCommentFromDbo(ce, owns) ?: throw NotFoundException()
@@ -441,7 +440,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             )
         }
         dbo.setAttachments(
-            mapAttachmentsFromBlob(cursor, AttachToType.COMMENT)
+            mapAttachmentsFromBlob(cursor, AttachmentFor.COMMENT)
         )
         return dbo
     }

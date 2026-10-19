@@ -5,8 +5,8 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.model.Link

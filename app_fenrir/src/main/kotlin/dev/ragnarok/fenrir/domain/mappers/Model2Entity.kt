@@ -116,6 +116,7 @@ object Model2Entity {
             .setPhoto100(model.photo100)
             .setPhoto200(model.photo200)
             .setMajorId(model.majorId)
+            .setMinorId(model.minorId)
     }
 
     fun buildReactionAssetEntity(dto: ReactionAsset): ReactionAssetEntity {
@@ -129,7 +130,8 @@ object Model2Entity {
     }
 
     fun buildMessageEntity(message: Message): MessageDboEntity {
-        return MessageDboEntity().set(message.getObjectId(), message.peerId, message.senderId)
+        return MessageDboEntity().set(message.cmId, message.peerId, message.senderId)
+            .setMessageId(message.messageId)
             .setDate(message.date)
             .setOut(message.isOut)
             .setText(message.text)
@@ -141,9 +143,9 @@ object Model2Entity {
             .setActionMemberId(message.actionMid)
             .setActionEmail(message.actionEmail)
             .setActionText(message.actionText)
-            .setPhoto50(message.photo50)
-            .setPhoto100(message.photo100)
-            .setPhoto200(message.photo200)
+            .setActionPhoto50(message.actionPhoto50)
+            .setActionPhoto100(message.actionPhoto100)
+            .setActionPhoto200(message.actionPhoto200)
             .setRandomId(message.randomId)
             .setExtras(message.extras)
             .setAttachments(message.attachments?.let { buildEntityAttachments(it) })

@@ -50,8 +50,8 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.UserAgentTool
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.getParcelableArrayListExtraCompat
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.model.Audio
@@ -441,7 +441,7 @@ class MusicPlaybackService : MediaSessionService() {
                 )
         ).build()
         private val cancelableJob = CancelableJob()
-        private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+        private val audioInteractor: IAudioInteractor = InteractorFactory.audio
         var isPreparing = false
             private set
         var isPrepared = false

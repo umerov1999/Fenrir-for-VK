@@ -13,8 +13,8 @@ import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.service.ErrorLocalizer.localizeThrowable
 import dev.ragnarok.fenrir.service.NotificationIntentService.Companion.intentForRetryUpload

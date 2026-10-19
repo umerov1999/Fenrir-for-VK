@@ -1,10 +1,10 @@
 package dev.ragnarok.fenrir.fragment.communities.groupchats
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.GroupChats
 import dev.ragnarok.fenrir.model.LoadMoreState
@@ -14,7 +14,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 class GroupChatsPresenter(accountId: Long, private val groupId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IGroupChatsView>(accountId, savedInstanceState) {
     private val chats: MutableList<GroupChats> = ArrayList()
-    private val utilsInteractor: IUtilsInteractor = InteractorFactory.createUtilsInteractor()
+    private val utilsInteractor: IUtilsInteractor = InteractorFactory.utils
     private val owners: IOwnersRepository = Repository.owners
     private val netDisposable = CompositeJob()
     private var endOfContent = false

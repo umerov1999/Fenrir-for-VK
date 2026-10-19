@@ -5,7 +5,9 @@ import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.domain.impl.MessagesRepository
 import dev.ragnarok.fenrir.domain.impl.OwnersRepository
 import dev.ragnarok.fenrir.domain.impl.WallsRepository
-import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 
 object Repository {
     val owners: IOwnersRepository by lazy {
@@ -18,7 +20,6 @@ object Repository {
 
     val messages: IMessagesRepository by lazy {
         MessagesRepository(
-            Settings.get().accounts(),
             Includes.networkInterfaces,
             owners,
             Includes.stores,

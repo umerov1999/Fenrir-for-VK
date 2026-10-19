@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.topics
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IBoardInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IBoardInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Topic
@@ -12,7 +12,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 class TopicsPresenter(accountId: Long, private val ownerId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<ITopicsView>(accountId, savedInstanceState) {
     private val topics: MutableList<Topic> = ArrayList()
-    private val boardInteractor: IBoardInteractor = InteractorFactory.createBoardInteractor()
+    private val boardInteractor: IBoardInteractor = InteractorFactory.board
     private val cacheDisposable = CompositeJob()
     private val netDisposable = CompositeJob()
     private var endOfContent = false

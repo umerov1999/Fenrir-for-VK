@@ -29,7 +29,7 @@ class Event : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "event_$id"
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

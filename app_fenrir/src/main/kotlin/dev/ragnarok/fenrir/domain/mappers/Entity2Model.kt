@@ -562,6 +562,7 @@ object Entity2Model {
             .setInReadCmId(entity.inReadCmId)
             .setGroupChannel(entity.isGroupChannel)
             .setMajorId(entity.majorId)
+            .setMinorId(entity.minorId)
         when (Peer.getType(entity.peerId)) {
             PeerType.GROUP, PeerType.USER -> dialog.setInterlocutor(owners.getById(dialog.peerId))
             PeerType.CHAT, PeerType.CONTACT -> dialog.setInterlocutor(message?.senderId?.let {
@@ -608,6 +609,7 @@ object Entity2Model {
 
     fun message(accountId: Long, dbo: MessageDboEntity, owners: IOwnersBundle): Message {
         val message = Message(dbo.cmId)
+            .setMessageId(dbo.messageId)
             .setAccountId(accountId)
             .setText(dbo.text)
             .setPeerId(dbo.peerId)
@@ -622,9 +624,9 @@ object Entity2Model {
             .setActionMid(dbo.actionMemberId)
             .setActionEmail(dbo.actionEmail)
             .setActionText(dbo.actionText)
-            .setPhoto50(dbo.photo50)
-            .setPhoto100(dbo.photo100)
-            .setPhoto200(dbo.photo200)
+            .setActionPhoto50(dbo.actionPhoto50)
+            .setActionPhoto100(dbo.actionPhoto100)
+            .setActionPhoto200(dbo.actionPhoto200)
             .setSender(owners.getById(dbo.fromId))
             .setRandomId(dbo.randomId)
             .setUpdateTime(dbo.updateTime)

@@ -77,7 +77,7 @@ class CatalogV2ArtistItem : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "artist_${id}"
     }
 
     class CatalogV2Cover : Parcelable {

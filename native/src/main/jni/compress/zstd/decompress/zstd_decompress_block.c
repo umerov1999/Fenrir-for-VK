@@ -15,6 +15,7 @@
 *  Dependencies
 *********************************************************/
 #include "../common/zstd_deps.h"   /* ZSTD_memcpy, ZSTD_memmove, ZSTD_memset */
+#include "../common/bmi2.h"
 #include "../common/compiler.h"    /* prefetch */
 #include "../common/mem.h"         /* low level memory routines */
 #include <stddef.h>
@@ -620,6 +621,8 @@ BMI2_TARGET_ATTRIBUTE static void ZSTD_buildFSETable_body_bmi2(ZSTD_seqSymbol* d
     ZSTD_buildFSETable_body(dt, normalizedCounter, maxSymbolValue,
             baseValue, nbAdditionalBits, tableLog, wksp, wkspSize);
 }
+#else
+#define ZSTD_buildFSETable_body_bmi2 ZSTD_buildFSETable_body_default
 #endif
 
 void ZSTD_buildFSETable(ZSTD_seqSymbol* dt,
@@ -627,13 +630,11 @@ void ZSTD_buildFSETable(ZSTD_seqSymbol* dt,
             const U32* baseValue, const U8* nbAdditionalBits,
             unsigned tableLog, void* wksp, size_t wkspSize, int bmi2)
 {
-#if DYNAMIC_BMI2
-    if (bmi2) {
+    if (ZSTD_USE_BMI2(bmi2)) {
         ZSTD_buildFSETable_body_bmi2(dt, normalizedCounter, maxSymbolValue,
                 baseValue, nbAdditionalBits, tableLog, wksp, wkspSize);
         return;
     }
-#endif
     (void)bmi2;
     ZSTD_buildFSETable_body_default(dt, normalizedCounter, maxSymbolValue,
             baseValue, nbAdditionalBits, tableLog, wksp, wkspSize);
@@ -1360,13 +1361,6 @@ ZSTD_decodeSequence(seqState_t* seqState, const ZSTD_longOffset_e longOffsets, c
         BYTE const ofBits = ofDInfo->nbAdditionalBits;
         BYTE const totalBits = llBits+mlBits+ofBits;
 
-        U16 const llNext = llDInfo->nextState;
-        U16 const mlNext = mlDInfo->nextState;
-        U16 const ofNext = ofDInfo->nextState;
-        U32 const llnbBits = llDInfo->nbBits;
-        U32 const mlnbBits = mlDInfo->nbBits;
-        U32 const ofnbBits = ofDInfo->nbBits;
-
         assert(llBits <= MaxLLBits);
         assert(mlBits <= MaxMLBits);
         assert(ofBits <= MaxOff);
@@ -1434,10 +1428,13 @@ ZSTD_decodeSequence(seqState_t* seqState, const ZSTD_longOffset_e longOffsets, c
 
         if (!isLastSeq) {
             /* Don't update FSE state for last sequence. */
-            ZSTD_updateFseStateWithDInfo(&seqState->stateLL, &seqState->DStream, llNext, llnbBits);    /* <=  9 bits */
-            ZSTD_updateFseStateWithDInfo(&seqState->stateML, &seqState->DStream, mlNext, mlnbBits);    /* <=  9 bits */
+            ZSTD_updateFseStateWithDInfo(&seqState->stateLL, &seqState->DStream,
+                                         llDInfo->nextState, llDInfo->nbBits);    /* <=  9 bits */
+            ZSTD_updateFseStateWithDInfo(&seqState->stateML, &seqState->DStream,
+                                         mlDInfo->nextState, mlDInfo->nbBits);    /* <=  9 bits */
             if (MEM_32bits()) BIT_reloadDStream(&seqState->DStream);    /* <= 18 bits */
-            ZSTD_updateFseStateWithDInfo(&seqState->stateOffb, &seqState->DStream, ofNext, ofnbBits);  /* <=  8 bits */
+            ZSTD_updateFseStateWithDInfo(&seqState->stateOffb, &seqState->DStream,
+                                         ofDInfo->nextState, ofDInfo->nbBits);    /* <=  8 bits */
             BIT_reloadDStream(&seqState->DStream);
         }
     }
@@ -2035,6 +2032,16 @@ ZSTD_decompressSequencesLong_bmi2(ZSTD_DCtx* dctx,
 }
 #endif /* ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT */
 
+#else
+
+#ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG
+#define ZSTD_decompressSequences_bmi2 ZSTD_decompressSequences_default
+#define ZSTD_decompressSequencesSplitLitBuffer_bmi2 ZSTD_decompressSequencesSplitLitBuffer_default
+#endif
+#ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT
+#define ZSTD_decompressSequencesLong_bmi2 ZSTD_decompressSequencesLong_default
+#endif
+
 #endif /* DYNAMIC_BMI2 */
 
 #ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG
@@ -2044,11 +2051,9 @@ ZSTD_decompressSequences(ZSTD_DCtx* dctx, void* dst, size_t maxDstSize,
                    const ZSTD_longOffset_e isLongOffset)
 {
     DEBUGLOG(5, "ZSTD_decompressSequences");
-#if DYNAMIC_BMI2
-    if (ZSTD_DCtx_get_bmi2(dctx)) {
+    if (ZSTD_USE_BMI2(ZSTD_DCtx_get_bmi2(dctx))) {
         return ZSTD_decompressSequences_bmi2(dctx, dst, maxDstSize, seqStart, seqSize, nbSeq, isLongOffset);
     }
-#endif
     return ZSTD_decompressSequences_default(dctx, dst, maxDstSize, seqStart, seqSize, nbSeq, isLongOffset);
 }
 static size_t
@@ -2057,11 +2062,9 @@ ZSTD_decompressSequencesSplitLitBuffer(ZSTD_DCtx* dctx, void* dst, size_t maxDst
                                  const ZSTD_longOffset_e isLongOffset)
 {
     DEBUGLOG(5, "ZSTD_decompressSequencesSplitLitBuffer");
-#if DYNAMIC_BMI2
-    if (ZSTD_DCtx_get_bmi2(dctx)) {
+    if (ZSTD_USE_BMI2(ZSTD_DCtx_get_bmi2(dctx))) {
         return ZSTD_decompressSequencesSplitLitBuffer_bmi2(dctx, dst, maxDstSize, seqStart, seqSize, nbSeq, isLongOffset);
     }
-#endif
     return ZSTD_decompressSequencesSplitLitBuffer_default(dctx, dst, maxDstSize, seqStart, seqSize, nbSeq, isLongOffset);
 }
 #endif /* ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG */
@@ -2080,11 +2083,9 @@ ZSTD_decompressSequencesLong(ZSTD_DCtx* dctx,
                              const ZSTD_longOffset_e isLongOffset)
 {
     DEBUGLOG(5, "ZSTD_decompressSequencesLong");
-#if DYNAMIC_BMI2
-    if (ZSTD_DCtx_get_bmi2(dctx)) {
+    if (ZSTD_USE_BMI2(ZSTD_DCtx_get_bmi2(dctx))) {
         return ZSTD_decompressSequencesLong_bmi2(dctx, dst, maxDstSize, seqStart, seqSize, nbSeq, isLongOffset);
     }
-#endif
   return ZSTD_decompressSequencesLong_default(dctx, dst, maxDstSize, seqStart, seqSize, nbSeq, isLongOffset);
 }
 #endif /* ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT */

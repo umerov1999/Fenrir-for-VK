@@ -44,7 +44,7 @@ class MarketDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${owner_id}"
+        return "market_${id}_${owner_id}"
     }
 
     fun setPhotos(photos: List<PhotoDboEntity>?): MarketDboEntity {

@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.domain.impl
 import dev.ragnarok.fenrir.api.Fields
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor.DeletedCodes
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor.DeletedCodes
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapUsers
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUsers

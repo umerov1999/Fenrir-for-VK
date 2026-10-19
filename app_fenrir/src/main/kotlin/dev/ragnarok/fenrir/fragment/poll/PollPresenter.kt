@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.poll
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IPollInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IPollInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -161,7 +161,7 @@ class PollPresenter(accountId: Long, private var mPoll: Poll, savedInstanceState
 
     init {
         mTempCheckedId = arrayToSet(mPoll.myAnswerIds)
-        pollInteractor = InteractorFactory.createPollInteractor()
+        pollInteractor = InteractorFactory.poll
         refreshPollData()
     }
 }

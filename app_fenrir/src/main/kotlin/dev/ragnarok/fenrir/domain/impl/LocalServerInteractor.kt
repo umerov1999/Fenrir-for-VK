@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.db.model.entity.VideoDboEntity
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapVideo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.model.Audio
@@ -158,24 +158,24 @@ class LocalServerInteractor(private val networker: INetworker) : ILocalServerInt
             }
     }
 
-    override fun update_time(hash: String?): Flow<Int> {
+    override fun updateTime(hash: String?): Flow<Int> {
         return networker.localServerApi()
-            .update_time(hash)
+            .updateTime(hash)
     }
 
-    override fun delete_media(hash: String?): Flow<Int> {
+    override fun deleteMedia(hash: String?): Flow<Int> {
         return networker.localServerApi()
-            .delete_media(hash)
+            .deleteMedia(hash)
     }
 
-    override fun get_file_name(hash: String?): Flow<String> {
+    override fun getFileName(hash: String?): Flow<String> {
         return networker.localServerApi()
-            .get_file_name(hash)
+            .getFileName(hash)
     }
 
-    override fun update_file_name(hash: String?, name: String?): Flow<Int> {
+    override fun updateFileName(hash: String?, name: String?): Flow<Int> {
         return networker.localServerApi()
-            .update_file_name(hash, name)
+            .updateFileName(hash, name)
     }
 
     override fun powerOffPC(type: String): Flow<Int> {

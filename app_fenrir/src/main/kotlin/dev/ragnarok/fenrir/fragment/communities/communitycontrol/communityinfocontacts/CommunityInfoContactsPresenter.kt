@@ -5,9 +5,9 @@ import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.stores
 import dev.ragnarok.fenrir.api.Fields
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
-import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.GroupSettingsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUser
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Community

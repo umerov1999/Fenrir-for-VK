@@ -27,6 +27,8 @@ class PeerDialogEntity(val peerId: Long) {
         private set
     var majorId = 0
         private set
+    var minorId = 0
+        private set
 
     fun setAcl(acl: Int): PeerDialogEntity {
         this.acl = acl
@@ -90,6 +92,11 @@ class PeerDialogEntity(val peerId: Long) {
 
     fun setMajorId(majorId: Int): PeerDialogEntity {
         this.majorId = majorId
+        return this
+    }
+
+    fun setMinorId(minorId: Int): PeerDialogEntity {
+        this.minorId = minorId
         return this
     }
 }

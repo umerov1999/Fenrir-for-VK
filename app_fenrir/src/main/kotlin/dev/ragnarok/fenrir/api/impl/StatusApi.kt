@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IStatusApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.services.IStatusService
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.checkInt
 import kotlinx.coroutines.flow.Flow

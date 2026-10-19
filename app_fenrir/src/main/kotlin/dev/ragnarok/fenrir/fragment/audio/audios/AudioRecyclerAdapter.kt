@@ -21,8 +21,8 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.RecyclerBindableAdapter
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
@@ -76,7 +76,7 @@ class AudioRecyclerAdapter(
     playlist_id: Int?
 ) : RecyclerBindableAdapter<Audio, AudioRecyclerAdapter.AudioHolder>(data) {
     private val mContext: Context = context
-    private val mAudioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val mAudioInteractor: IAudioInteractor = InteractorFactory.audio
     private val playlist_id: Int?
     private val isLongPressDownload: Boolean = Settings.get().main().isUse_long_click_download
     private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon

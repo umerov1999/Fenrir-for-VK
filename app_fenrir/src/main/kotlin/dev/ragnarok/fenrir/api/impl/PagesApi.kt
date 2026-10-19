@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IPagesApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.VKApiWikiPage
 import dev.ragnarok.fenrir.api.services.IPagesService
 import kotlinx.coroutines.flow.Flow

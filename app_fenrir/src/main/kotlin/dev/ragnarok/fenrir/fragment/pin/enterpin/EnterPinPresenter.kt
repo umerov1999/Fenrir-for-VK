@@ -5,8 +5,9 @@ import android.os.Handler
 import android.os.Looper
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.settings.ISettings
@@ -32,7 +33,7 @@ class EnterPinPresenter(savedState: Bundle?) : RxSupportPresenter<IEnterPinView>
                 ownersRepository.getBaseOwnerInfo(
                     accountId,
                     accountId,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .fromIOToMain({ owner -> onOwnerInfoReceived(owner) }) { })
         }

@@ -2,9 +2,9 @@ package dev.ragnarok.fenrir.fragment.search.wallsearch
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.db.model.PostUpdate
-import dev.ragnarok.fenrir.domain.ILikesInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.WallSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom

@@ -8,12 +8,12 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.ActivityUtils.isMimeVideo
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IRemoveEvent
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IBaseEvent
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IRemoveEvent
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.attachments.abspostedit.AbsPostEditPresenter
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AttachmentEntry
@@ -272,7 +272,7 @@ class PostCreatePresenter(
         return attachmentsRepository
             .getAttachments(
                 accountId = accountId,
-                attachToType = AttachToType.POST,
+                attachmentFor = AttachmentFor.POST,
                 attachToDbId = postDbid,
                 attachToElement = null
             )
@@ -329,7 +329,7 @@ class PostCreatePresenter(
 
     private fun filterAttachmentEvents(event: IBaseEvent): Boolean {
         val pPost = post ?: return false
-        return event.attachToType == AttachToType.POST && event.accountId == accountId && event.attachToDbId == pPost.dbid
+        return event.attachmentFor == AttachmentFor.POST && event.accountId == accountId && event.attachToDbId == pPost.dbid
     }
 
     private fun onRepositoryAttachmentsAdded(dtos: List<AbsModel>) {
@@ -359,7 +359,7 @@ class PostCreatePresenter(
         appendJob(
             attachmentsRepository.attach(
                 accountId = accountId,
-                attachToType = AttachToType.POST,
+                attachmentFor = AttachmentFor.POST,
                 attachToDbId = pPost.dbid,
                 attachToElement = null,
                 models = models
@@ -373,7 +373,7 @@ class PostCreatePresenter(
             appendJob(
                 attachmentsRepository.remove(
                     accountId = accountId,
-                    attachToType = AttachToType.POST,
+                    attachmentFor = AttachmentFor.POST,
                     attachmentKey = attachment.attachment.getAttachmentKey(),
                     attachToDbId = pPost.dbid,
                     attachToElement = null

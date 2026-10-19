@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.poll.createpoll
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IPollInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IPollInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -15,7 +15,7 @@ class CreatePollPresenter(
     savedInstanceState: Bundle?
 ) :
     AccountDependencyPresenter<ICreatePollView>(accountId, savedInstanceState) {
-    private val pollInteractor: IPollInteractor = InteractorFactory.createPollInteractor()
+    private val pollInteractor: IPollInteractor = InteractorFactory.poll
     private var mQuestion: String? = null
     private var mOptions: Array<String?> = arrayOfNulls(10)
     private var mAnonymous = false

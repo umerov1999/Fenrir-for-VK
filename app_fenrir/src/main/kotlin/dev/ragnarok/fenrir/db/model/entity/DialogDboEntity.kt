@@ -34,9 +34,11 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         private set
     var majorId = 0
         private set
+    var minorId = 0
+        private set
 
     override fun getAttachmentKey(): String {
-        return "$peerId"
+        return "conversation_$peerId"
     }
 
     fun setAcl(acl: Int): DialogDboEntity {
@@ -94,6 +96,7 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
             .setCurrentKeyboard(currentKeyboard)
             .setGroupChannel(isGroupChannel)
             .setMajorId(majorId)
+            .setMinorId(minorId)
     }
 
     fun setPhoto100(photo100: String?): DialogDboEntity {
@@ -126,4 +129,8 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         return this
     }
 
+    fun setMinorId(minorId: Int): DialogDboEntity {
+        this.minorId = minorId
+        return this
+    }
 }

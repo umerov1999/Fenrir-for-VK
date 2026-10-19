@@ -4,8 +4,8 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.App.Companion.instance
 import dev.ragnarok.fenrir.Includes.storyPlayerFactory
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.media.story.IStoryPlayer
 import dev.ragnarok.fenrir.media.story.IStoryPlayer.IStatusChangeListener
@@ -27,8 +27,8 @@ class ShortVideoPagerPresenter(
     IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener {
     private var mShortVideoPlayer: IStoryPlayer? = null
     private val mShortVideos: ArrayList<Video> = ArrayList()
-    private val shortVideosInteractor = InteractorFactory.createStoriesInteractor()
-    private val interactor: IVideosInteractor = InteractorFactory.createVideosInteractor()
+    private val shortVideosInteractor = InteractorFactory.story
+    private val interactor: IVideosInteractor = InteractorFactory.video
     private var mCurrentIndex = -1
     private var nextFrom: String? = null
     private var isEndContent: Boolean = false

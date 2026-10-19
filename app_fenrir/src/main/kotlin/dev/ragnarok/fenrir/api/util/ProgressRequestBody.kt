@@ -2,35 +2,40 @@ package dev.ragnarok.fenrir.api.util
 
 import okhttp3.MediaType
 import okhttp3.RequestBody
+import okio.Buffer
 import okio.BufferedSink
+import okio.Source
 import java.io.IOException
-import java.io.InputStream
 
 class ProgressRequestBody(
-    private val stream: InputStream,
+    private val source: Source,
+    private val size: Long,
     private val listener: UploadCallbacks?,
     private val mediaType: MediaType?
 ) : RequestBody() {
-    override fun contentType(): MediaType {
-        return mediaType!!
+    override fun contentType(): MediaType? {
+        return mediaType
     }
 
     @Throws(IOException::class)
     override fun contentLength(): Long {
-        return stream.available().toLong()
+        return size
     }
 
     @Throws(IOException::class)
     override fun writeTo(sink: BufferedSink) {
-        val fileLength = stream.available().toLong()
-        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-        var uploaded: Long = 0
+        val buffer = Buffer()
+        var uploaded = 0L
         try {
-            var read: Int
-            while (stream.read(buffer).also { read = it } != -1) {
-                listener?.onProgressUpdate((100 * uploaded / fileLength).toInt())
-                uploaded += read.toLong()
-                sink.write(buffer, 0, read)
+            source.use { v ->
+                while (true) {
+                    val read = v.read(buffer, DEFAULT_BUFFER_SIZE)
+                    if (read == -1L) break
+                    sink.write(buffer, read)
+                    uploaded += read
+                    listener?.onProgressUpdate((100 * uploaded.toDouble() / size.toDouble()).toInt())
+                    buffer.clear()
+                }
             }
             listener?.onProgressUpdate(100)
         } catch (e: Exception) {
@@ -40,7 +45,7 @@ class ProgressRequestBody(
                 throw IOException(e)
             }
         } finally {
-            stream.close()
+            source.close()
         }
     }
 
@@ -49,6 +54,6 @@ class ProgressRequestBody(
     }
 
     companion object {
-        private const val DEFAULT_BUFFER_SIZE = 2048
+        private const val DEFAULT_BUFFER_SIZE = 8192L
     }
 }

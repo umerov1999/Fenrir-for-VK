@@ -15,6 +15,7 @@ object ConversationsColumns : BaseColumns {
     const val PHOTO_100 = "photo_100"
     const val PHOTO_200 = "photo_200"
     const val MAJOR_ID = "major_id"
+    const val MINOR_ID = "minor_id"
     const val LAST_CM_ID = "last_cm_id"
     const val ACL = "acl"
     const val IS_GROUP_CHANNEL = "is_group_channel"
@@ -30,15 +31,19 @@ object ConversationsColumns : BaseColumns {
     const val FULL_ACL = "$TABLENAME.$ACL"
     const val FULL_IS_GROUP_CHANNEL = "$TABLENAME.$IS_GROUP_CHANNEL"
     const val FULL_MAJOR_ID = "$TABLENAME.$MAJOR_ID"
+    const val FULL_MINOR_ID = "$TABLENAME.$MINOR_ID"
+    const val FOREIGN_MESSAGE_LOCAL_ID = "message_local_id"
+    const val FOREIGN_MESSAGE_ID = "message_id"
     const val FOREIGN_MESSAGE_FROM_ID = "message_from_id"
     const val FOREIGN_MESSAGE_TEXT = "message_text"
     const val FOREIGN_MESSAGE_DATE = "message_date"
     const val FOREIGN_MESSAGE_OUT = "message_out"
-
-    //public static final String FOREIGN_MESSAGE_READ_STATE = "message_read_state";
     const val FOREIGN_MESSAGE_ATTACHMENTS_BLOB = "message_attachments_blob"
     const val FOREIGN_MESSAGE_FWD_BLOB = "message_forward_blob"
     const val FOREIGN_MESSAGE_ACTION = "message_action"
+    const val FOREIGN_MESSAGE_IMPORTANT = "message_important"
+    const val FOREIGN_MESSAGE_RANDOM_ID = "message_random_id"
+    const val FOREIGN_MESSAGE_UPDATE_TIME = "message_update_time"
     const val FOREIGN_MESSAGE_VERSION = "message_version"
 
     fun getCV(chat: VKApiChat): ContentValues {

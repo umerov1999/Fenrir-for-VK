@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.fragment.messages.conversationattachments.conversati
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiVideo
 import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
@@ -30,9 +29,16 @@ class ChatAttachmentVideoPresenter(peerId: Long, accountId: Long, savedInstanceS
         peerId: Long,
         nextFrom: String?
     ): Flow<Pair<String?, List<Video>>> {
-        return get().vkDefault(accountId)
-            .messages()
-            .getHistoryAttachments(peerId, VKApiAttachment.TYPE_VIDEO, nextFrom, 1, 1, 45, 50, null)
+        return messageRepository.getHistoryAttachments(
+            accountId = accountId,
+            peerId = peerId,
+            mediaType = VKApiAttachment.TYPE_VIDEO,
+            startFrom = nextFrom,
+            count = 50,
+            photoSizes = true,
+            preserveOrder = true,
+            maxForwardsLevel = 45
+        )
             .map { response ->
                 val videos: MutableList<Video> = ArrayList(
                     Utils.safeCountOf(response.items)
@@ -42,7 +48,7 @@ class ChatAttachmentVideoPresenter(peerId: Long, accountId: Long, savedInstanceS
                         if (one.entry != null && one.entry?.attachment is VKApiVideo) {
                             val dto = one.entry?.attachment as VKApiVideo
                             videos.add(
-                                Dto2Model.transform(dto).setMsgId(one.messageId)
+                                Dto2Model.transform(dto).setMsgCmId(one.cmId)
                                     .setMsgPeerId(peerId)
                             )
                         }

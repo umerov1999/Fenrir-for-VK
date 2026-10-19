@@ -1,8 +1,6 @@
 package dev.ragnarok.fenrir.api.impl
 
 import android.annotation.SuppressLint
-import dev.ragnarok.fenrir.api.IServiceProvider
-import dev.ragnarok.fenrir.api.IVKRestProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IAccountApi
 import dev.ragnarok.fenrir.api.interfaces.IAccountApis
@@ -29,6 +27,8 @@ import dev.ragnarok.fenrir.api.interfaces.IUsersApi
 import dev.ragnarok.fenrir.api.interfaces.IUtilsApi
 import dev.ragnarok.fenrir.api.interfaces.IVideoApi
 import dev.ragnarok.fenrir.api.interfaces.IWallApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
+import dev.ragnarok.fenrir.api.interfaces.providers.IVKRestProvider
 import dev.ragnarok.fenrir.api.rest.IServiceRest
 import dev.ragnarok.fenrir.api.rest.SimplePostHttp
 import dev.ragnarok.fenrir.exception.TokenTypeInvalidException

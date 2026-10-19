@@ -7,5 +7,5 @@ import dev.ragnarok.fenrir.model.Message
 interface IImportantMessagesView : IBasicMessageListView, IErrorView {
     fun showRefreshing(refreshing: Boolean)
     fun forwardMessages(accountId: Long, messages: ArrayList<Message>)
-    fun goToMessagesLookup(accountId: Long, peerId: Long, messageId: Int)
+    fun goToMessagesLookup(accountId: Long, peerId: Long, cmId: Int)
 }

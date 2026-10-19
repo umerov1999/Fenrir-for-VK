@@ -86,10 +86,10 @@ interface IPhotosApi {
     ): Flow<UploadOwnerPhotoResponse>
 
     @CheckResult
-    fun getOwnerPhotoUploadServer(ownerId: Long?): Flow<VKApiOwnerPhotoUploadServer>
+    fun getOwnerPhotoUploadServer(ownerId: Long): Flow<VKApiOwnerPhotoUploadServer>
 
     @CheckResult
-    fun getChatUploadServer(chat_id: Long?): Flow<VKApiChatPhotoUploadServer>
+    fun getChatUploadServer(chatId: Long): Flow<VKApiChatPhotoUploadServer>
 
     @CheckResult
     fun setChatPhoto(file: String?): Flow<UploadChatPhotoResponse>
@@ -128,13 +128,13 @@ interface IPhotosApi {
     fun getAll(
         ownerId: Long?,
         extended: Int?,
-        photo_sizes: Int?,
+        photoSizes: Int?,
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiPhoto>>
 
-    @get:CheckResult
-    val messagesUploadServer: Flow<VKApiPhotoMessageServer>
+    @CheckResult
+    fun getMessagesUploadServer(peerId: Long): Flow<VKApiPhotoMessageServer>
 
     @CheckResult
     fun saveMessagesPhoto(server: Long?, photo: String?, hash: String?): Flow<List<VKApiPhoto>>
@@ -146,13 +146,13 @@ interface IPhotosApi {
     ): Flow<Items<VKApiPhotoAlbum>>
 
     @CheckResult
-    fun getTags(ownerId: Long?, photo_id: Int?, access_key: String?): Flow<List<VKApiPhotoTags>>
+    fun getTags(ownerId: Long?, photoId: Int?, accessKey: String?): Flow<List<VKApiPhotoTags>>
 
     @CheckResult
     fun getAllComments(
         ownerId: Long?,
-        album_id: Int?,
-        need_likes: Int?,
+        albumId: Int?,
+        needLikes: Int?,
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiComment>>
@@ -160,8 +160,8 @@ interface IPhotosApi {
     @CheckResult
     fun search(
         q: String?,
-        lat_gps: Double?,
-        long_gps: Double?,
+        latGps: Double?,
+        longGps: Double?,
         sort: Int?,
         radius: Int?,
         startTime: Long?,

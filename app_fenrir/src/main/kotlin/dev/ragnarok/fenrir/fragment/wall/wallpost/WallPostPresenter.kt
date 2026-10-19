@@ -6,12 +6,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPostSource
 import dev.ragnarok.fenrir.db.model.PostUpdate
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Commented
@@ -36,7 +37,7 @@ class WallPostPresenter(
 ) : PlaceSupportPresenter<IWallPostView>(accountId, savedInstanceState) {
     private val wallInteractor: IWallsRepository = walls
     private val ownersRepository: IOwnersRepository = owners
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private var post: Post? = null
     private var owner: Owner? = null
     private var loadingPostNow = false
@@ -73,7 +74,7 @@ class WallPostPresenter(
                 ownersRepository.getBaseOwnerInfo(
                     accountId,
                     ownerId,
-                    IOwnersRepository.MODE_NET
+                    FetchMode.NET
                 )
                     .fromIOToMain { owner -> onOwnerInfoReceived(owner) }
             )

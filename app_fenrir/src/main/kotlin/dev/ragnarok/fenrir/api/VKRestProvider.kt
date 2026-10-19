@@ -2,6 +2,8 @@ package dev.ragnarok.fenrir.api
 
 import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.AccountType
+import dev.ragnarok.fenrir.api.interfaces.providers.IVKMethodHttpClientFactory
+import dev.ragnarok.fenrir.api.interfaces.providers.IVKRestProvider
 import dev.ragnarok.fenrir.api.rest.SimplePostHttp
 import dev.ragnarok.fenrir.settings.IProxySettings
 import dev.ragnarok.fenrir.settings.Settings

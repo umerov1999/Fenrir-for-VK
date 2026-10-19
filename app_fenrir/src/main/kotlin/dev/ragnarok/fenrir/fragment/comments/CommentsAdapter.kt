@@ -36,7 +36,6 @@ import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.CommentContainer
 import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
-import java.util.Locale
 
 class CommentsAdapter(
     private val context: Context,

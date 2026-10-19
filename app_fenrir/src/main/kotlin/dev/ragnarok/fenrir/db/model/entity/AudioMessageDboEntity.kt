@@ -69,6 +69,6 @@ class AudioMessageDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "voice_${id}_${ownerId}"
     }
 }

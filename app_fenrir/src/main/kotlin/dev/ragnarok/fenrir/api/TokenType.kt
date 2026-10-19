@@ -16,17 +16,19 @@ annotation class TokenType {
         fun getString(@TokenType vararg tokenPolicy: Int): String {
             val str = StringBuilder("[")
             var first = true
-            for(i in tokenPolicy) {
-                if(first) {
+            for (i in tokenPolicy) {
+                if (first) {
                     first = false
                 } else {
                     str.append(", ")
                 }
-                str.append(when(i) {
-                    USER -> "user"
-                    COMMUNITY -> "community"
-                    else -> "unknow"
-                })
+                str.append(
+                    when (i) {
+                        USER -> "user"
+                        COMMUNITY -> "community"
+                        else -> "unknow"
+                    }
+                )
             }
             str.append("]")
             return str.toString()

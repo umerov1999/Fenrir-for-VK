@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
 import java.io.File
-import java.util.Locale
 
 class FileExistNative : AbsFileExist {
     private val CachedAudios = StringExist(true)

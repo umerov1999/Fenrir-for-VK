@@ -41,7 +41,7 @@ object RefreshToken {
         }
         val gms = TokenModKate.requestToken() ?: return false
         val token =
-            InteractorFactory.createAccountInteractor().refreshToken(account, gms, null, null, null)
+            InteractorFactory.account.refreshToken(account, gms, null, null, null)
                 .syncSingleSafe()?.token
         Log.w("refresh", "$oldToken $token $gms")
         if (oldToken == token || token.isNullOrEmpty()) {
@@ -57,7 +57,7 @@ object RefreshToken {
         }
         val gms = TokenModOfficialVK.requestToken() ?: return false
         val timestamp = System.currentTimeMillis()
-        val token = InteractorFactory.createAccountInteractor().refreshToken(
+        val token = InteractorFactory.account.refreshToken(
             account,
             gms[0],
             gms[1],

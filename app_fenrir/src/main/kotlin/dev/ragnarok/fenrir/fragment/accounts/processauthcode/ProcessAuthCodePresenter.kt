@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.accounts.processauthcode
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiProcessAuthCode
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Icon
 import dev.ragnarok.fenrir.model.Text
@@ -18,7 +18,7 @@ class ProcessAuthCodePresenter(
     savedInstanceState: Bundle?
 ) :
     AccountDependencyPresenter<IProcessAuthCodeView>(accountId, savedInstanceState) {
-    private val pInteractor: IAccountsInteractor = InteractorFactory.createAccountInteractor()
+    private val pInteractor: IAccountsInteractor = InteractorFactory.account
     private val items: MutableList<AdvancedItem> = ArrayList()
     private var actionState = 0
 

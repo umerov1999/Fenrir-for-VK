@@ -92,7 +92,7 @@ class VideoDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "video_${id}_${ownerId}"
     }
 
     fun setAlbumId(albumId: Int): VideoDboEntity {

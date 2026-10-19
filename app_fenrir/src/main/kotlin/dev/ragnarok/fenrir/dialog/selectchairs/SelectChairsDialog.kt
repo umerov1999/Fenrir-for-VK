@@ -9,8 +9,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
-import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
 import dev.ragnarok.fenrir.fragment.search.filteredit.FilterEditFragment
 import dev.ragnarok.fenrir.model.database.Chair
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -20,7 +20,7 @@ class SelectChairsDialog : AccountDependencyDialogFragment(), ChairsAdapter.List
     private var mData: ArrayList<Chair>? = null
     private var mAdapter: ChairsAdapter? = null
     private val mDatabaseInteractor: IDatabaseInteractor =
-        InteractorFactory.createDatabaseInteractor()
+        InteractorFactory.database
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

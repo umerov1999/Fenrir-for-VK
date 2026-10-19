@@ -108,31 +108,31 @@ struct RenderContext
         fragment = rhs.fragment;
 
         // copy modifiers
-        auto m = rhs.modifiers;
-        while (m) {
+        auto tail = &modifiers;
+        for (auto m = rhs.modifiers; m; m = m->next) {
             switch (m->type) {
                 case LottieModifier::Type::Roundness: {
                     auto roundness = static_cast<LottieRoundnessModifier*>(m);
-                    update(new LottieRoundnessModifier(roundness->r));
+                    *tail = new LottieRoundnessModifier(roundness->r);
                     break;
                 }
                 case LottieModifier::Type::Offset: {
                     auto offset = static_cast<LottieOffsetModifier*>(m);
-                    update(new LottieOffsetModifier(offset->offset, offset->miterLimit, offset->join));
+                    *tail = new LottieOffsetModifier(offset->offset, offset->miterLimit, offset->join);
                     break;
                 }
                 case LottieModifier::Type::PuckerBloat: {
                     auto pucker = static_cast<LottiePuckerBloatModifier*>(m);
-                    update(new LottiePuckerBloatModifier(pucker->amount));
+                    *tail = new LottiePuckerBloatModifier(pucker->amount);
                     break;
                 }
                 case LottieModifier::Type::ZigZag: {
                     auto zigzag = static_cast<LottieZigZagModifier*>(m);
-                    update(new LottieZigZagModifier(zigzag->amp, zigzag->freq, zigzag->point));
+                    *tail = new LottieZigZagModifier(zigzag->amp, zigzag->freq, zigzag->point);
                     break;
                 }
             }
-            m = m->next;
+            tail = &(*tail)->next;
         }
 
         if (rhs.transform) {
@@ -143,8 +143,8 @@ struct RenderContext
 
     void update(LottieModifier* next)
     {
-        if (modifiers) modifiers = modifiers->decorate(next);
-        else modifiers = next;
+        next->next = modifiers;
+        modifiers = next;
     }
 };
 
@@ -213,7 +213,7 @@ private:
     void updatePath(LottieGroup* parent, LottieObject** child, float frameNo, Inlist<RenderContext>& contexts, RenderContext* ctx);
     void updatePolystar(LottieGroup* parent, LottieObject** child, float frameNo, Inlist<RenderContext>& contexts, RenderContext* ctx);
     void updateStar(LottiePolyStar* star, float frameNo, Matrix* transform, Shape* merging, RenderContext* ctx, LottieTween& tween, LottieExpressions* exps);
-    void updatePolygon(LottieGroup* parent, LottiePolyStar* star, float frameNo, Matrix* transform, Shape* merging, RenderContext* ctx, LottieTween& tween, LottieExpressions* exps);
+    void updatePolygon(LottiePolyStar* star, float frameNo, Matrix* transform, Shape* merging, RenderContext* ctx, LottieTween& tween, LottieExpressions* exps);
     void updateTrimpath(LottieGroup* parent, LottieObject** child, float frameNo, Inlist<RenderContext>& contexts, RenderContext* ctx);
     void updateRepeater(LottieGroup* parent, LottieObject** child, float frameNo, Inlist<RenderContext>& contexts, RenderContext* ctx);
     void updateRoundedCorner(LottieGroup* parent, LottieObject** child, float frameNo, Inlist<RenderContext>& contexts, RenderContext* ctx);

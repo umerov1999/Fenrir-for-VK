@@ -1,13 +1,13 @@
 package dev.ragnarok.filegallery.api.impl
 
-import dev.ragnarok.filegallery.api.ILocalServerRestProvider
-import dev.ragnarok.filegallery.api.ILocalServerServiceProvider
-import dev.ragnarok.filegallery.api.IUploadRestProvider
 import dev.ragnarok.filegallery.api.LocalServerRestProvider
 import dev.ragnarok.filegallery.api.UploadRestProvider
 import dev.ragnarok.filegallery.api.interfaces.ILocalServerApi
 import dev.ragnarok.filegallery.api.interfaces.INetworker
 import dev.ragnarok.filegallery.api.interfaces.IUploadApi
+import dev.ragnarok.filegallery.api.interfaces.providers.ILocalServerRestProvider
+import dev.ragnarok.filegallery.api.interfaces.providers.ILocalServerServiceProvider
+import dev.ragnarok.filegallery.api.interfaces.providers.IUploadRestProvider
 import dev.ragnarok.filegallery.api.services.ILocalServerService
 import dev.ragnarok.filegallery.settings.ISettings.IMainSettings
 import kotlinx.coroutines.flow.Flow

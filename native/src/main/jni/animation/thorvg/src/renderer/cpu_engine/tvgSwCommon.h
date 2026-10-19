@@ -29,6 +29,10 @@
 #include "tvgColor.h"
 #include "tvgRender.h"
 
+#ifdef THORVG_OPENMP_SUPPORT
+    #include <omp.h>
+#endif
+
 #define SW_COLOR_TABLE 1024
 
 struct SwCompositor;
@@ -121,8 +125,8 @@ struct SwSpan
 
     bool fetch(const RenderRegion& bbox, int32_t& x, int32_t& len) const
     {
-        x = std::max((int32_t)this->x, bbox.min.x);
-        len = std::min((int32_t)(this->x + this->len), bbox.max.x) - x;
+        x = std::max((int32_t)this->x, bbox.xMin);
+        len = std::min((int32_t)(this->x + this->len), bbox.xMax) - x;
         return (len > 0) ? true : false;
     }
 };
@@ -133,7 +137,7 @@ struct SwRle
 
     const SwSpan* fetch(const RenderRegion& bbox, const SwSpan** end) const
     {
-        return fetch(bbox.min.y, bbox.max.y - 1, end);
+        return fetch(bbox.yMin, bbox.yMax - 1, end);
     }
 
     const SwSpan* fetch(int32_t min, int32_t max, const SwSpan** end) const
@@ -452,6 +456,18 @@ static inline uint32_t PREMULTIPLY(uint32_t c, uint8_t a)
     return (c & 0xff000000) + ((((c >> 8) & 0xff) * a) & 0xff00) + ((((c & 0x00ff00ff) * a) >> 8) & 0x00ff00ff);
 }
 
+static inline uint32_t UNPREMULTIPLY(uint32_t data)
+{
+    auto a = A(data);
+    if (a == 255 || a == 0) return data;
+
+    uint8_t r = std::min(C1(data) * 255u / a, 255u);
+    uint8_t g = std::min(C2(data) * 255u / a, 255u);
+    uint8_t b = std::min(C3(data) * 255u / a, 255u);
+
+    return JOIN(a, r, g, b);
+}
+
 static inline uint32_t opBlendInterp(uint32_t s, uint32_t d, uint8_t a)
 {
     return INTERPOLATE(s, d, a);
@@ -517,6 +533,7 @@ void mpoolInit(uint32_t threads);
 void mpoolTerm();
 SwMpool* mpoolReq();
 
+void rasterInit();
 Result rasterCompositor(SwSurface* surface);
 bool rasterShape(SwSurface* surface, SwShape* shape, const RenderRegion& bbox, RenderColor& c);
 bool rasterTexmapPolygon(SwSurface* surface, const SwImage& image, const Matrix& transform, const RenderRegion& bbox, uint8_t opacity);
@@ -528,15 +545,13 @@ bool rasterStroke(SwSurface* surface, SwShape* shape, const RenderRegion& bbox, 
 bool rasterGradientShape(SwSurface* surface, SwShape* shape, const RenderRegion& bbox, const Fill* fdata, uint8_t opacity);
 bool rasterGradientStroke(SwSurface* surface, SwShape* shape, const RenderRegion& bbox, const Fill* fdata, uint8_t opacity);
 bool rasterClear(SwSurface* surface, uint32_t x, uint32_t y, uint32_t w, uint32_t h);
-void rasterPixel32(uint32_t* dst, uint32_t val, uint32_t offset, int32_t len);
-void rasterTranslucentPixel32(uint32_t* dst, uint32_t* src, uint32_t len, uint8_t opacity);
-void rasterPixel32(uint32_t* dst, uint32_t* src, uint32_t len, uint8_t opacity);
-void rasterGrayscale8(uint8_t* dst, uint8_t val, uint32_t offset, int32_t len);
-void rasterUnpremultiply(RenderSurface* surface);
-void rasterPremultiply(RenderSurface* surface);
+void rasterUnpremultiplySurface(RenderSurface* surface);
+void rasterPremultiplySurface(RenderSurface* surface);
 bool rasterConvertCS(RenderSurface* surface, ColorSpace to);
-uint32_t rasterUnpremultiply(uint32_t data);
 
+bool effectMotionBlur(SwCompositor* cmp, SwSurface* surface, const RenderEffectMotionBlur* params);
+bool effectMotionBlurRegion(RenderEffectMotionBlur* params);
+void effectMotionBlurUpdate(RenderEffectMotionBlur* params, const Matrix& transform);
 bool effectGaussianBlur(SwCompositor* cmp, SwSurface* surface, const RenderEffectGaussianBlur* params);
 bool effectGaussianBlurRegion(RenderEffectGaussianBlur* effect);
 void effectGaussianBlurUpdate(RenderEffectGaussianBlur* effect, const Matrix& transform);

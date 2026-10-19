@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.search.communitiessearch
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ICommunitiesInteractor
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.GroupSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
@@ -25,7 +25,7 @@ class CommunitiesSearchPresenter(
     savedInstanceState
 ) {
     private val communitiesInteractor: ICommunitiesInteractor =
-        InteractorFactory.createCommunitiesInteractor()
+        InteractorFactory.community
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
 

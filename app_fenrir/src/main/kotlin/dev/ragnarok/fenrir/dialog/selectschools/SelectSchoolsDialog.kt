@@ -13,8 +13,8 @@ import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
-import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
 import dev.ragnarok.fenrir.fragment.search.filteredit.FilterEditFragment
 import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.model.database.School
@@ -24,7 +24,7 @@ class SelectSchoolsDialog : AccountDependencyDialogFragment(), SchoolsAdapter.Li
     private val mHandler = Handler(Looper.getMainLooper())
     private var schoolId = 0
     private var mDatabaseInteractor: IDatabaseInteractor =
-        InteractorFactory.createDatabaseInteractor()
+        InteractorFactory.database
     private var mData: ArrayList<School>? = null
     private var mAdapter: SchoolsAdapter? = null
     private var filter: String? = null

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.fave.faveproducts
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Market
 import dev.ragnarok.fenrir.util.Utils
@@ -11,7 +11,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class FaveProductsPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IFaveProductsView>(accountId, savedInstanceState) {
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val mMarkets: ArrayList<Market> = ArrayList()
     private val cacheDisposable = CompositeJob()
     private val netDisposable = CompositeJob()

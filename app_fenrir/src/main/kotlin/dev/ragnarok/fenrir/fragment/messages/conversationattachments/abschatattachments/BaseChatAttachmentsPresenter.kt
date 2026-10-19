@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.fragment.messages.conversationattachments.abschatattachments
 
 import android.os.Bundle
+import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -14,6 +15,7 @@ abstract class BaseChatAttachmentsPresenter<T, V : IBaseChatAttachmentsView<T>> 
     private var nextFrom: String? = null
     private var endOfContent = false
     private var loadingHolder = CompositeJob()
+    protected var messageRepository = Repository.messages
     override fun onGuiCreated(viewHost: V) {
         super.onGuiCreated(viewHost)
         viewHost.displayAttachments(data)

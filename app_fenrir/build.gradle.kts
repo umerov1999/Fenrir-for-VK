@@ -49,7 +49,6 @@ android {
         versionCode = libs.versions.appVersionCode.asInt()
         versionName = libs.versions.appVersionName.get()
 
-        buildConfigField("String", "SERVICE_TOKEN", libs.versions.vkServiceToken.commaString())
         buildConfigField("String", "FAKE_ABI", libs.versions.fakeAbi.commaString())
         buildConfigField("String", "FAKE_DEVICE", libs.versions.fakeDevice.commaString())
         buildConfigField("int", "TARGET_SDK", libs.versions.appTargetSDK.get())
@@ -189,7 +188,6 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.work.runtime)
-    implementation(libs.androidx.drawerlayout)
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.collection)
     implementation(libs.androidx.savedstate)

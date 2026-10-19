@@ -922,7 +922,7 @@ object DownloadWorkUtils {
             val mode = audio.needRefresh()
             if (mode.first) {
                 val link: String? = InteractorFactory
-                    .createAudioInteractor()
+                    .audio
                     .getByIdOld(account_id, listOf(audio), mode.second)
                     .map { e ->
                         e[0].url.nonNullNoEmpty({ l -> l }, { audio.url.orEmpty() })
@@ -957,7 +957,7 @@ object DownloadWorkUtils {
                             val pathCover = cover_file.build()
                             var ifGenre: String? = null
                             val commentText = if (audio.lyricsId != 0) {
-                                val LyricString: String? = InteractorFactory.createAudioInteractor()
+                                val LyricString: String? = InteractorFactory.audio
                                     .getLyrics(account_id, audio).syncSingleSafe()
                                 if (LyricString.isNullOrEmpty()) {
                                     Audio.AudioCommentTag(audio.ownerId, audio.id).toText()

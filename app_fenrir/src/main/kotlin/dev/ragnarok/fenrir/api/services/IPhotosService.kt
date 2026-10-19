@@ -280,13 +280,13 @@ class IPhotosService : IServiceRest() {
     fun getById(
         photos: String?,
         extended: Int?,
-        photo_sizes: Int?
+        photoSizes: Int?
     ): Flow<BaseResponse<List<VKApiPhoto>>> {
         return rest.request(
             "photos.getById", form(
                 "photos" to photos,
                 "extended" to extended,
-                "photo_sizes" to photo_sizes
+                "photo_sizes" to photoSizes
             ), baseList(VKApiPhoto.serializer())
         )
     }
@@ -327,7 +327,7 @@ class IPhotosService : IServiceRest() {
         )
     }
 
-    fun getOwnerPhotoUploadServer(ownerId: Long?): Flow<BaseResponse<VKApiOwnerPhotoUploadServer>> {
+    fun getOwnerPhotoUploadServer(ownerId: Long): Flow<BaseResponse<VKApiOwnerPhotoUploadServer>> {
         return rest.request(
             "photos.getOwnerPhotoUploadServer",
             form("owner_id" to ownerId),
@@ -335,10 +335,10 @@ class IPhotosService : IServiceRest() {
         )
     }
 
-    fun getChatUploadServer(chat_id: Long?): Flow<BaseResponse<VKApiChatPhotoUploadServer>> {
+    fun getChatUploadServer(chatId: Long): Flow<BaseResponse<VKApiChatPhotoUploadServer>> {
         return rest.request(
             "photos.getChatUploadServer",
-            form("chat_id" to chat_id),
+            form("chat_id" to chatId),
             base(VKApiChatPhotoUploadServer.serializer())
         )
     }
@@ -444,33 +444,34 @@ class IPhotosService : IServiceRest() {
     fun getAll(
         ownerId: Long?,
         extended: Int?,
-        photo_sizes: Int?,
+        photoSizes: Int?,
         offset: Int?,
         count: Int?,
-        no_service_albums: Int?,
-        need_hidden: Int?,
-        skip_hidden: Int?
+        noServiceAlbums: Int?,
+        needHidden: Int?,
+        skipHidden: Int?
     ): Flow<BaseResponse<Items<VKApiPhoto>>> {
         return rest.request(
             "photos.getAll", form(
                 "owner_id" to ownerId,
                 "extended" to extended,
-                "photo_sizes" to photo_sizes,
+                "photo_sizes" to photoSizes,
                 "offset" to offset,
                 "count" to count,
-                "no_service_albums" to no_service_albums,
-                "need_hidden" to need_hidden,
-                "skip_hidden" to skip_hidden
+                "no_service_albums" to noServiceAlbums,
+                "need_hidden" to needHidden,
+                "skip_hidden" to skipHidden
             ), items(VKApiPhoto.serializer())
         )
     }
 
-    val messagesUploadServer: Flow<BaseResponse<VKApiPhotoMessageServer>>
-        get() = rest.request(
+    fun getMessagesUploadServer(peerId: Long): Flow<BaseResponse<VKApiPhotoMessageServer>> {
+        return rest.request(
             "photos.getMessagesUploadServer",
-            null,
+            form("peer_id" to peerId),
             base(VKApiPhotoMessageServer.serializer())
         )
+    }
 
     fun saveMessagesPhoto(
         server: Long?,
@@ -510,30 +511,30 @@ class IPhotosService : IServiceRest() {
 
     fun getTags(
         ownerId: Long?,
-        photo_id: Int?,
-        access_key: String?
+        photoId: Int?,
+        accessKey: String?
     ): Flow<BaseResponse<List<VKApiPhotoTags>>> {
         return rest.request(
             "photos.getTags", form(
                 "owner_id" to ownerId,
-                "photo_id" to photo_id,
-                "access_key" to access_key
+                "photo_id" to photoId,
+                "access_key" to accessKey
             ), baseList(VKApiPhotoTags.serializer())
         )
     }
 
     fun getAllComments(
         ownerId: Long?,
-        album_id: Int?,
-        need_likes: Int?,
+        albumId: Int?,
+        needLikes: Int?,
         offset: Int?,
         count: Int?
     ): Flow<BaseResponse<Items<VKApiComment>>> {
         return rest.request(
             "photos.getAllComments", form(
                 "owner_id" to ownerId,
-                "album_id" to album_id,
-                "need_likes" to need_likes,
+                "album_id" to albumId,
+                "need_likes" to needLikes,
                 "offset" to offset,
                 "count" to count
             ), items(VKApiComment.serializer())
@@ -542,24 +543,24 @@ class IPhotosService : IServiceRest() {
 
     fun search(
         q: String?,
-        lat_gps: Double?,
-        long_gps: Double?,
+        latGps: Double?,
+        longGps: Double?,
         sort: Int?,
         radius: Int?,
-        start_time: Long?,
-        end_time: Long?,
+        startTime: Long?,
+        endTime: Long?,
         offset: Int?,
         count: Int?
     ): Flow<BaseResponse<Items<VKApiPhoto>>> {
         return rest.request(
             "photos.search", form(
                 "q" to q,
-                "lat" to lat_gps,
-                "long" to long_gps,
+                "lat" to latGps,
+                "long" to longGps,
                 "sort" to sort,
                 "radius" to radius,
-                "start_time" to start_time,
-                "end_time" to end_time,
+                "start_time" to startTime,
+                "end_time" to endTime,
                 "offset" to offset,
                 "count" to count
             ), items(VKApiPhoto.serializer())

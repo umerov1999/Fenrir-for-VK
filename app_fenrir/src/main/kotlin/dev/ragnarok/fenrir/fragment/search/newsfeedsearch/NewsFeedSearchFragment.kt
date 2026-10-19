@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import dev.ragnarok.fenrir.Extra
-import dev.ragnarok.fenrir.domain.ILikesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchFragment
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
 import dev.ragnarok.fenrir.fragment.wall.WallAdapter

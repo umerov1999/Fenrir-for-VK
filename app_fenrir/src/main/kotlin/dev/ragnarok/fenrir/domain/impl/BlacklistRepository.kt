@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.domain.impl
 
-import dev.ragnarok.fenrir.domain.IBlacklistRepository
+import dev.ragnarok.fenrir.domain.interfaces.IBlacklistRepository
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Pair.Companion.create

@@ -24,6 +24,9 @@ import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
+import okio.Buffer
+import okio.Source
+import okio.source
 import java.io.File
 import java.io.Serializable
 import kotlin.contracts.contract
@@ -704,4 +707,32 @@ fun String.filePathToUri(): Uri? {
         e.printStackTrace()
     }
     return null
+}
+
+fun Uri.contentLength(context: Context): Long {
+    val buffer = Buffer()
+    var total = -1L
+    val file = File(path ?: return -1L)
+    if (file.isFile) {
+        return file.length()
+    }
+    val source = context.contentResolver.openInputStream(this)?.source()
+    source?.use { source ->
+        total = 0L
+        while (true) {
+            val read = source.read(buffer, 8192L)
+            if (read == -1L) break
+            total += read
+            buffer.clear()
+        }
+    }
+    return total
+}
+
+fun Uri.toSource(context: Context): Source? {
+    val file = File(path ?: return null)
+    if (file.isFile) {
+        return file.source()
+    }
+    return context.contentResolver.openInputStream(this)?.source()
 }

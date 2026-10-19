@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class LocalAudioAlbumsPresenter(private val currentId: Int, savedInstanceState: Bundle?) :
     RxSupportPresenter<ILocalAudioAlbumsView>(savedInstanceState) {

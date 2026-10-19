@@ -28,7 +28,7 @@ class StoryDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "story_${id}_${ownerId}"
     }
 
     fun setPhoto(photo: PhotoDboEntity?): StoryDboEntity {

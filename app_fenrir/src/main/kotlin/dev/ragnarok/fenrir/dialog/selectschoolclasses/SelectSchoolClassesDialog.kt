@@ -9,8 +9,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.base.AccountDependencyDialogFragment
-import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
 import dev.ragnarok.fenrir.fragment.search.filteredit.FilterEditFragment
 import dev.ragnarok.fenrir.model.database.SchoolClazz
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -18,7 +18,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 class SelectSchoolClassesDialog : AccountDependencyDialogFragment(), SchoolClassesAdapter.Listener {
     private var schoolClassesId = 0
     private var mDatabaseInteractor: IDatabaseInteractor =
-        InteractorFactory.createDatabaseInteractor()
+        InteractorFactory.database
     private var mData: ArrayList<SchoolClazz>? = null
     private var mAdapter: SchoolClassesAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {

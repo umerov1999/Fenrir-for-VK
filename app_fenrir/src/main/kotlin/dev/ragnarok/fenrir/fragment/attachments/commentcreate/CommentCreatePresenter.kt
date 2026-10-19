@@ -2,11 +2,11 @@ package dev.ragnarok.fenrir.fragment.attachments.commentcreate
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IAddEvent
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IRemoveEvent
+import dev.ragnarok.fenrir.db.AttachmentFor
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IAddEvent
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IBaseEvent
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IRemoveEvent
 import dev.ragnarok.fenrir.fragment.attachments.absattachmentsedit.AbsAttachmentsEditPresenter
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AttachmentEntry
@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.upload.UploadUtils
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.removeIf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
@@ -36,7 +35,7 @@ class CommentCreatePresenter(
         UploadDestination.forComment(commentId, sourceOwnerId)
     private val attachmentsRepository: IAttachmentsRepository = Includes.attachmentsRepository
     private fun filterAttachEvents(event: IBaseEvent): Boolean {
-        return event.accountId == accountId && event.attachToDbId == commentId && event.attachToType == AttachToType.COMMENT
+        return event.accountId == accountId && event.attachToDbId == commentId && event.attachmentFor == AttachmentFor.COMMENT
     }
 
     private fun handleAttachmentRemoving(event: IRemoveEvent) {
@@ -66,7 +65,7 @@ class CommentCreatePresenter(
         return attachmentsRepository
             .getAttachments(
                 accountId = accountId,
-                attachToType = AttachToType.COMMENT,
+                attachmentFor = AttachmentFor.COMMENT,
                 attachToDbId = commentId,
                 attachToElement = null
             )
@@ -104,7 +103,7 @@ class CommentCreatePresenter(
         if (attachment.stored) {
             attachmentsRepository.remove(
                 accountId = accountId,
-                attachToType = AttachToType.COMMENT,
+                attachmentFor = AttachmentFor.COMMENT,
                 attachmentKey = attachment.attachment.getAttachmentKey(),
                 attachToDbId = commentId,
                 attachToElement = null
@@ -120,7 +119,7 @@ class CommentCreatePresenter(
     override fun onModelsAdded(models: List<AbsModel>) {
         attachmentsRepository.attach(
             accountId = accountId,
-            attachToType = AttachToType.COMMENT,
+            attachmentFor = AttachmentFor.COMMENT,
             attachToDbId = commentId,
             attachToElement = null,
             models = models

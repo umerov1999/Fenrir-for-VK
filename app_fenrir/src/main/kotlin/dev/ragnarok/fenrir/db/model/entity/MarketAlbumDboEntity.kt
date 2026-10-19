@@ -24,7 +24,7 @@ class MarketAlbumDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "${id}_${owner_id}"
+        return "marketalbum_${id}_${owner_id}"
     }
 
     fun set(id: Int, owner_id: Long): MarketAlbumDboEntity {

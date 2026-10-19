@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.api.model.longpoll.BadgeCountChangeUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.InputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsResetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsSetUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.MinorIdUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.PinConversationUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionEventType
@@ -102,6 +103,13 @@ class LongpollUpdateDtoAdapter : AbsDtoAdapter<AbsLongpollEvent?>("AbsLongpollEv
                 return if (update.peerId != 0L) update else null
             }
 
+            AbsLongpollEvent.ACTION_CHANGE_MINOR_ID -> {
+                val update = MinorIdUpdate()
+                update.peerId = optLong(array, 1)
+                update.minorId = optInt(array, 2)
+                return if (update.peerId != 0L) update else null
+            }
+
             AbsLongpollEvent.ACTION_MESSAGES_FLAGS_RESET -> {
                 val update = MessageFlagsResetUpdate()
                 update.cmId = optInt(array, 1)
@@ -149,6 +157,7 @@ class LongpollUpdateDtoAdapter : AbsDtoAdapter<AbsLongpollEvent?>("AbsLongpollEv
         val update = AddMessageUpdate()
         val flags = optInt(array, 2)
         update.cmId = optInt(array, 1)
+        update.minorId = optInt(array, 3)
         update.peerId = optLong(array, 4)
         update.timestamp = optLong(array, 5)
         update.text = VKStringUtils.unescape(optString(array, 6))
@@ -185,8 +194,8 @@ class LongpollUpdateDtoAdapter : AbsDtoAdapter<AbsLongpollEvent?>("AbsLongpollEv
                 update.reply = reply
             }
         }
-        update.random_id = optString(array, 9) // ok
-        update.edit_time = optLong(array, 11)
+        update.randomId = optString(array, 9) // ok
+        update.editTime = optLong(array, 11)
         if (update.from == 0L && !Peer.isGroupChat(update.peerId) && !Peer.isContactChat(update.peerId) && !update.isOut) {
             update.from = update.peerId
         }

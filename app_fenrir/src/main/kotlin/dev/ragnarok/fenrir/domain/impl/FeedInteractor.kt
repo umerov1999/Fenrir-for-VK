@@ -12,8 +12,9 @@ import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse.TopicDto
 import dev.ragnarok.fenrir.api.model.response.NewsfeedCommentsResponse.VideoDto
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.NewsDboEntity
-import dev.ragnarok.fenrir.domain.IFeedInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IFeedInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapNews
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapOwners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.buildComment
@@ -56,7 +57,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
-import java.util.Locale
 
 class FeedInteractor(
     private val networker: INetworker,
@@ -145,7 +145,7 @@ class FeedInteractor(
                             ownersRepository.findBaseOwnersDataAsBundle(
                                 accountId,
                                 ownIds.all,
-                                IOwnersRepository.MODE_ANY,
+                                FetchMode.ANY,
                                 owners
                             )
                                 .map {
@@ -202,7 +202,7 @@ class FeedInteractor(
                                 ownersRepository.findBaseOwnersDataAsBundle(
                                     accountId,
                                     ownIds.all,
-                                    IOwnersRepository.MODE_ANY,
+                                    FetchMode.ANY,
                                     owners
                                 )
                                     .map {
@@ -261,7 +261,7 @@ class FeedInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map {
@@ -310,7 +310,7 @@ class FeedInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .map {
                         val news: MutableList<News> = ArrayList(dbos.size)
@@ -347,7 +347,7 @@ class FeedInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map { bundle ->
@@ -383,7 +383,7 @@ class FeedInteractor(
                         val owner = ownersRepository.getBaseOwnerInfo(
                             accountId,
                             id,
-                            if (refresh) IOwnersRepository.MODE_NET else IOwnersRepository.MODE_ANY
+                            if (refresh) FetchMode.NET else FetchMode.ANY
                         ).catch { emit(if (id > 0) User(id) else Community(-id)) }.single()
                         listOwners.add(owner)
                     }

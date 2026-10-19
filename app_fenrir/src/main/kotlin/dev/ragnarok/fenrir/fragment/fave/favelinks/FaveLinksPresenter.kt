@@ -6,8 +6,8 @@ import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.FaveLink
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -17,7 +17,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class FaveLinksPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IFaveLinksView>(accountId, savedInstanceState) {
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val links: MutableList<FaveLink> = ArrayList()
     private val cacheDisposable = CompositeJob()
     private val actualDisposable = CompositeJob()

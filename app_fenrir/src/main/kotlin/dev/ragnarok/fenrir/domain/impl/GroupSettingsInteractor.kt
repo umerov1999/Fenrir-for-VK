@@ -7,8 +7,9 @@ import dev.ragnarok.fenrir.api.model.GroupSettingsDto.PublicCategory
 import dev.ragnarok.fenrir.api.model.VKApiCommunity.Contact
 import dev.ragnarok.fenrir.db.interfaces.IOwnersStorage
 import dev.ragnarok.fenrir.db.model.BanAction
-import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IGroupSettingsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformCommunity
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUser
 import dev.ragnarok.fenrir.exception.NotFoundException
@@ -158,7 +159,7 @@ class GroupSettingsInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ids.all,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .map { bundle ->
                         val infos: MutableList<Banned> = ArrayList(items.size)

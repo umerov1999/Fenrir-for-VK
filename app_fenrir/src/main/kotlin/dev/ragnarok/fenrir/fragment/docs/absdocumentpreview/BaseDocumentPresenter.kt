@@ -4,8 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IDocsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDocsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -14,7 +14,7 @@ open class BaseDocumentPresenter<V : IBasicDocumentView>(
     accountId: Long,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<V>(accountId, savedInstanceState) {
-    private val docsInteractor: IDocsInteractor = InteractorFactory.createDocsInteractor()
+    private val docsInteractor: IDocsInteractor = InteractorFactory.doc
     fun fireWritePermissionResolved(context: Context, view: View?) {
         onWritePermissionResolved(context, view)
     }

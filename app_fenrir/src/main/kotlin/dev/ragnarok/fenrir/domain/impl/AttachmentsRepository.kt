@@ -1,12 +1,13 @@
 package dev.ragnarok.fenrir.domain.impl
 
-import dev.ragnarok.fenrir.db.AttachToType
+import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.db.interfaces.IAttachmentsStorage
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IAddEvent
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IRemoveEvent
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IAddEvent
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IBaseEvent
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IRemoveEvent
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildAttachmentFromDbo
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildDboAttachments
@@ -28,14 +29,14 @@ class AttachmentsRepository(
     private val removePublishSubject = createPublishSubject<IRemoveEvent>()
     override fun remove(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachmentKey: String,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
         return store.remove(
             accountId = accountId,
-            attachToType = attachToType,
+            attachmentFor = attachmentFor,
             attachmentKey = attachmentKey,
             attachToDbId = attachToDbId,
             attachToElement = attachToElement
@@ -44,7 +45,7 @@ class AttachmentsRepository(
                 val event =
                     RemoveEvent(
                         accountId = accountId,
-                        attachToType = attachToType,
+                        attachmentFor = attachmentFor,
                         attachToDbId = attachToDbId,
                         attachToElement = attachToElement,
                         attachmentKey = attachmentKey,
@@ -56,16 +57,16 @@ class AttachmentsRepository(
 
     override fun removeAll(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
-        return store.removeAll(accountId, attachToType, attachToDbId, attachToElement)
+        return store.removeAll(accountId, attachmentFor, attachToDbId, attachToElement)
     }
 
     override fun attach(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?,
         models: List<AbsModel>
@@ -73,7 +74,7 @@ class AttachmentsRepository(
         val entities = buildDboAttachments(models)
         return store.attachToBlobSync(
             cv = null,
-            attachToType = attachToType,
+            attachmentFor = attachmentFor,
             attachmentsEntities = entities,
             attachToDbId = attachToDbId,
             attachToElement = attachToElement,
@@ -81,7 +82,8 @@ class AttachmentsRepository(
             accountId = accountId
         )
             .map {
-                val event = AddEvent(accountId, attachToType, attachToDbId, attachToElement, models)
+                val event =
+                    AddEvent(accountId, attachmentFor, attachToDbId, attachToElement, models)
                 addPublishSubject.emit(event)
                 true
             }
@@ -89,11 +91,11 @@ class AttachmentsRepository(
 
     override fun getAttachments(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?
     ): Flow<List<AbsModel>?> {
-        return store.getAttachmentsFromBlob(accountId, attachToType, attachToDbId, attachToElement)
+        return store.getAttachmentsFromBlob(accountId, attachmentFor, attachToDbId, attachToElement)
             .flatMapConcat { dbos ->
                 if (dbos.isNullOrEmpty()) {
                     toFlow(null)
@@ -103,7 +105,7 @@ class AttachmentsRepository(
                         fillOwnerIds(ids, dbo)
                     }
                     ownersRepository
-                        .findBaseOwnersDataAsBundle(accountId, ids.all, IOwnersRepository.MODE_ANY)
+                        .findBaseOwnersDataAsBundle(accountId, ids.all, FetchMode.ANY)
                         .map {
                             val models: MutableList<AbsModel> = ArrayList(dbos.size)
                             for (dbo in dbos) {
@@ -125,24 +127,24 @@ class AttachmentsRepository(
 
     private class AddEvent(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?,
         override val attachments: List<AbsModel>
-    ) : Event(accountId, attachToType, attachToDbId, attachToElement), IAddEvent
+    ) : Event(accountId, attachmentFor, attachToDbId, attachToElement), IAddEvent
 
     private open class Event(
         override val accountId: Long,
-        @param:AttachToType override val attachToType: Int,
+        override val attachmentFor: AttachmentFor,
         override val attachToDbId: Int,
         override val attachToElement: Pair<Long, Int>?
     ) : IBaseEvent
 
     private class RemoveEvent(
         accountId: Long,
-        @AttachToType attachToType: Int,
+        attachmentFor: AttachmentFor,
         attachToDbId: Int,
         attachToElement: Pair<Long, Int>?,
         override val attachmentKey: String,
-    ) : Event(accountId, attachToType, attachToDbId, attachToElement), IRemoveEvent
+    ) : Event(accountId, attachmentFor, attachToDbId, attachToElement), IRemoveEvent
 }

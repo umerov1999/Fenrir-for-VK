@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.push
 import android.content.Context
 import android.graphics.Bitmap
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Owner
@@ -26,7 +26,7 @@ class OwnerInfo private constructor(val owner: Owner, val avatar: Bitmap?) {
         fun getRx(context: Context, accountId: Long, ownerId: Long): Flow<OwnerInfo> {
             val app = context.applicationContext
             val interactor = owners
-            return interactor.getBaseOwnerInfo(accountId, ownerId, IOwnersRepository.MODE_ANY)
+            return interactor.getBaseOwnerInfo(accountId, ownerId, FetchMode.ANY)
                 .flatMapConcat { owner ->
                     flow {
                         emit(

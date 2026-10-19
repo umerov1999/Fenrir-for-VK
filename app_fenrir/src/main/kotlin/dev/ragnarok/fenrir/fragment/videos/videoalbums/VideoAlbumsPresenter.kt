@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.videos.videoalbums
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.VideoAlbum
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -15,7 +15,7 @@ class VideoAlbumsPresenter(
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IVideoAlbumsView>(accountId, savedInstanceState) {
     private val data: MutableList<VideoAlbum> = ArrayList()
-    private val videosInteractor: IVideosInteractor = InteractorFactory.createVideosInteractor()
+    private val videosInteractor: IVideosInteractor = InteractorFactory.video
     private val netDisposable = CompositeJob()
     private val cacheDisposable = CompositeJob()
     private var endOfContent = false

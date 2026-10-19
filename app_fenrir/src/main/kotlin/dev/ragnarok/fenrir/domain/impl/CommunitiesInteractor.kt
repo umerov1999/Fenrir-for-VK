@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.domain.impl
 import dev.ragnarok.fenrir.api.Fields
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ICommunitiesInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapCommunities
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformCommunities
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildCommunitiesFromDbos

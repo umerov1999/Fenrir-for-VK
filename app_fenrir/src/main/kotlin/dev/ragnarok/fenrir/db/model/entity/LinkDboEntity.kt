@@ -22,7 +22,7 @@ class LinkDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "$url"
+        return "link_$url"
     }
 
     fun setUrl(url: String?): LinkDboEntity {

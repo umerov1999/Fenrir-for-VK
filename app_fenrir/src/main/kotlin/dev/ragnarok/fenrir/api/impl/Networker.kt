@@ -1,11 +1,6 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.api.IDirectLoginServiceProvider
-import dev.ragnarok.fenrir.api.ILocalServerServiceProvider
-import dev.ragnarok.fenrir.api.IOtherVKRestProvider
-import dev.ragnarok.fenrir.api.IUploadRestProvider
-import dev.ragnarok.fenrir.api.IVKRestProvider
 import dev.ragnarok.fenrir.api.OtherVKRestProvider
 import dev.ragnarok.fenrir.api.UploadRestProvider
 import dev.ragnarok.fenrir.api.VKMethodHttpClientFactory
@@ -16,6 +11,11 @@ import dev.ragnarok.fenrir.api.interfaces.ILocalServerApi
 import dev.ragnarok.fenrir.api.interfaces.ILongpollApi
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.interfaces.IUploadApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IDirectLoginServiceProvider
+import dev.ragnarok.fenrir.api.interfaces.providers.ILocalServerServiceProvider
+import dev.ragnarok.fenrir.api.interfaces.providers.IOtherVKRestProvider
+import dev.ragnarok.fenrir.api.interfaces.providers.IUploadRestProvider
+import dev.ragnarok.fenrir.api.interfaces.providers.IVKRestProvider
 import dev.ragnarok.fenrir.api.services.IAuthService
 import dev.ragnarok.fenrir.api.services.ILocalServerService
 import dev.ragnarok.fenrir.settings.IProxySettings

@@ -2,11 +2,12 @@ package dev.ragnarok.fenrir.fragment.photos.vkphotoalbums
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
-import dev.ragnarok.fenrir.domain.IUtilsInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Owner
@@ -24,9 +25,9 @@ class PhotoAlbumsPresenter(
     params: AdditionalParams?,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IPhotoAlbumsView>(accountId, savedInstanceState) {
-    private val photosInteractor: IPhotosInteractor = InteractorFactory.createPhotosInteractor()
+    private val photosInteractor: IPhotosInteractor = InteractorFactory.photo
     private val ownersRepository: IOwnersRepository = owners
-    private val utilsInteractor: IUtilsInteractor = InteractorFactory.createUtilsInteractor()
+    private val utilsInteractor: IUtilsInteractor = InteractorFactory.utils
     private val mOwnerId: Long = ownerId
     private val netDisposable = CompositeJob()
     private val cacheDisposable = CompositeJob()
@@ -68,7 +69,7 @@ class PhotoAlbumsPresenter(
             ownersRepository.getBaseOwnerInfo(
                 accountId,
                 mOwnerId,
-                IOwnersRepository.MODE_ANY
+                FetchMode.ANY
             )
                 .fromIOToMain({ owner -> onOwnerInfoReceived(owner) }) { t ->
                     onOwnerGetError(

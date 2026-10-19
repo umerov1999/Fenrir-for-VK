@@ -130,7 +130,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                             return@show
                         }
                         listDisposable.set(
-                            mVideoInteractor.update_time(hash)
+                            mVideoInteractor.updateTime(hash)
                                 .fromIOToMain(
                                     {
                                         createCustomToast(
@@ -148,7 +148,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                             return@show
                         }
                         listDisposable.set(
-                            mVideoInteractor.get_file_name(hash2)
+                            mVideoInteractor.getFileName(hash2)
                                 .fromIOToMain(
                                     { t ->
                                         val root = View.inflate(
@@ -164,7 +164,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                                             .setView(root)
                                             .setPositiveButton(R.string.button_ok) { _, _ ->
                                                 listDisposable.set(
-                                                    mVideoInteractor.update_file_name(
+                                                    mVideoInteractor.updateFileName(
                                                         hash2,
                                                         root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                                             ?.trim()
@@ -202,7 +202,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                                 return@setPositiveButton
                             }
                             listDisposable.set(
-                                mVideoInteractor.delete_media(hash1)
+                                mVideoInteractor.deleteMedia(hash1)
                                     .fromIOToMain(
                                         {
                                             createCustomToast(

@@ -12,8 +12,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.link.VKLinkParser
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
@@ -31,7 +31,7 @@ import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 class LocalServerVideosAdapter(private val context: Context, private var data: List<Video>) :
     RecyclerView.Adapter<LocalServerVideosAdapter.Holder>() {
     private val mVideoInteractor: ILocalServerInteractor =
-        InteractorFactory.createLocalServerInteractor()
+        InteractorFactory.localServer
     private var videoOnClickListener: VideoOnClickListener? = null
     private var listDisposable = CancelableJob()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -138,7 +138,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                         if (hash.isNullOrEmpty()) {
                             return@show
                         }
-                        listDisposable += mVideoInteractor.update_time(hash).fromIOToMain(
+                        listDisposable += mVideoInteractor.updateTime(hash).fromIOToMain(
                             {
                                 createCustomToast(context, null)?.showToast(R.string.success)
                             }) { t ->
@@ -151,7 +151,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                         if (hash2.isNullOrEmpty()) {
                             return@show
                         }
-                        listDisposable += mVideoInteractor.get_file_name(hash2).fromIOToMain(
+                        listDisposable += mVideoInteractor.getFileName(hash2).fromIOToMain(
                             { t ->
                                 val root = View.inflate(
                                     context, R.layout.entry_file_name, null
@@ -165,7 +165,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                                     .setCancelable(true)
                                     .setView(root)
                                     .setPositiveButton(R.string.button_ok) { _, _ ->
-                                        listDisposable += mVideoInteractor.update_file_name(
+                                        listDisposable += mVideoInteractor.updateFileName(
                                             hash2,
                                             root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                                 ?.trim()
@@ -202,7 +202,7 @@ class LocalServerVideosAdapter(private val context: Context, private var data: L
                             if (hash1.isNullOrEmpty()) {
                                 return@setPositiveButton
                             }
-                            listDisposable += mVideoInteractor.delete_media(hash1).fromIOToMain(
+                            listDisposable += mVideoInteractor.deleteMedia(hash1).fromIOToMain(
                                 {
                                     createCustomToast(context, null)?.showToast(R.string.success)
                                 }) { o ->

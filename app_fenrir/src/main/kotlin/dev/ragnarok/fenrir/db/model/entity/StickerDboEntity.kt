@@ -29,7 +29,7 @@ class StickerDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "sticker_$id"
     }
 
     fun setAnimationUrl(animationUrl: String?): StickerDboEntity {

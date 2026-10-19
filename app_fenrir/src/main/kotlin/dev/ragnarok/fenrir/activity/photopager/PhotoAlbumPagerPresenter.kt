@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.activity.photopager
 import android.os.Bundle
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.TmpSource
 import dev.ragnarok.fenrir.module.FenrirNative
@@ -32,7 +32,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         invertPhotoRev: Boolean,
         savedInstanceState: Bundle?
     ) : super(ArrayList<Photo>(0), accountId, readOnly, savedInstanceState) {
-        localServerInteractor = InteractorFactory.createLocalServerInteractor()
+        localServerInteractor = InteractorFactory.localServer
         mOwnerId = ownerId
         mAlbumId = albumId
         canLoad = true
@@ -55,7 +55,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         invertPhotoRev: Boolean,
         savedInstanceState: Bundle?
     ) : super(ArrayList<Photo>(0), accountId, readOnly, savedInstanceState) {
-        localServerInteractor = InteractorFactory.createLocalServerInteractor()
+        localServerInteractor = InteractorFactory.localServer
         mOwnerId = ownerId
         mAlbumId = albumId
         canLoad = true
@@ -74,7 +74,7 @@ class PhotoAlbumPagerPresenter : PhotoPagerPresenter {
         invertPhotoRev: Boolean,
         savedInstanceState: Bundle?
     ) : super(ArrayList<Photo>(0), accountId, readOnly, savedInstanceState) {
-        localServerInteractor = InteractorFactory.createLocalServerInteractor()
+        localServerInteractor = InteractorFactory.localServer
         mOwnerId = ownerId
         mAlbumId = albumId
         canLoad = true

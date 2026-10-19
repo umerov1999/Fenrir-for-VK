@@ -48,7 +48,7 @@ class VoiceMessage : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "voice_${id}_${ownerId}"
     }
 
     fun setWasListened(listened: Boolean): VoiceMessage {

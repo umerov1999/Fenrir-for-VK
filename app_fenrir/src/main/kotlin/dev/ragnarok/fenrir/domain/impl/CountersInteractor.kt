@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.api.interfaces.INetworker
-import dev.ragnarok.fenrir.domain.ICountersInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ICountersInteractor
 import dev.ragnarok.fenrir.model.SectionCounters
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

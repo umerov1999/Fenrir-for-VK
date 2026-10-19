@@ -98,9 +98,10 @@ interface IMessagesApi {
         mediaType: String?,
         startFrom: String?,
         count: Int?,
-        photoSizes: Int?,
-        preserveOrder: Int?,
+        photoSizes: Boolean?,
+        preserveOrder: Boolean?,
         maxForwardsLevel: Int?,
+        extended: Boolean?,
         fields: String?
     ): Flow<AttachmentsHistoryResponse>
 

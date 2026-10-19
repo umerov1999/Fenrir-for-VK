@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.videos.videoalbumsbyvideo
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.VideoAlbum
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -17,7 +17,7 @@ class VideoAlbumsByVideoPresenter(
     private val videoOwnerId: Long = owner
     private val videoId: Int = video
     private val data: MutableList<VideoAlbum> = ArrayList()
-    private val videosInteractor: IVideosInteractor = InteractorFactory.createVideosInteractor()
+    private val videosInteractor: IVideosInteractor = InteractorFactory.video
     private var netLoadingNow = false
     private fun resolveRefreshingView() {
         view?.displayLoading(

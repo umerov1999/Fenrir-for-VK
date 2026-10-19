@@ -8,6 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
+#include "libyuv/compare_row.h"
 #include "libyuv/row.h"
 #include "libyuv/row_sve.h"
 
@@ -15,6 +16,13 @@
 namespace libyuv {
 extern "C" {
 #endif
+
+// Note: every register written by an inline asm block (vector, general
+// purpose, mask/predicate, "cc" for flags and "memory" for stores) must be
+// listed in its clobber list, even when the ABI treats it as caller-saved.
+// With LTO/LTCG the compiler may keep values live in any register across the
+// asm statement, and other OS ABIs (e.g. Windows) differ in which registers
+// are callee-saved. List "memory" first, then "cc", then registers.
 
 #if !defined(LIBYUV_DISABLE_SME) && defined(CLANG_HAS_SME) && \
     defined(__aarch64__)
@@ -1114,6 +1122,17 @@ __arm_locally_streaming void ARGBToYMatrixRow_SME(
     const struct ArgbConstants* c) {
   ARGBToYMatrixRow_SVE_SC(src_argb, dst_y, width, c);
 }
+
+#ifdef HAS_SSIM4X4ROW_SME
+__arm_locally_streaming void Ssim4x4Row_SME(const uint8_t* src_a,
+                                            int stride_a,
+                                            const uint8_t* src_b,
+                                            int stride_b,
+                                            uint32_t* dst,
+                                            int width) {
+  Ssim4x4Row_SVE_SC(src_a, stride_a, src_b, stride_b, dst, width);
+}
+#endif  // HAS_SSIM4X4ROW_SME
 
 #endif  // !defined(LIBYUV_DISABLE_SME) && defined(CLANG_HAS_SME) &&
         // defined(__aarch64__)

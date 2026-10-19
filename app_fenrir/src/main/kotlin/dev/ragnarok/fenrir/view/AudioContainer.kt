@@ -24,8 +24,8 @@ import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.AudioSearchCriteria
@@ -71,7 +71,7 @@ import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
 class AudioContainer : LinearLayout {
     private val mAudioInteractor: IAudioInteractor by lazy {
-        InteractorFactory.createAudioInteractor()
+        InteractorFactory.audio
     }
     private var mPlayerDisposable = CancelableJob()
     private var audioListDisposable = CancelableJob()

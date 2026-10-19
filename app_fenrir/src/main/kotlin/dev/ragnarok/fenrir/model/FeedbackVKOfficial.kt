@@ -57,13 +57,13 @@ class FeedbackVKOfficial {
     @Keep
     @Serializable
     @SerialName("action_message")
-    class ActionMessage(private val peerId: Long, private val messageId: Int) : Action() {
+    class ActionMessage(private val peerId: Long, private val cmId: Int) : Action() {
         fun getPeerId(): Long {
             return peerId
         }
 
-        fun getMessageId(): Int {
-            return messageId
+        fun getCmId(): Int {
+            return cmId
         }
 
         override fun getActionType(): Int {

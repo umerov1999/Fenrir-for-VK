@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.UserAgentTool
-import dev.ragnarok.fenrir.api.ILocalServerServiceProvider
 import dev.ragnarok.fenrir.api.interfaces.ILocalServerApi
+import dev.ragnarok.fenrir.api.interfaces.providers.ILocalServerServiceProvider
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.api.model.VKApiPhoto
@@ -104,34 +104,34 @@ internal class LocalServerApi(private val service: ILocalServerServiceProvider) 
             }
     }
 
-    override fun update_time(hash: String?): Flow<Int> {
+    override fun updateTime(hash: String?): Flow<Int> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.update_time(hash)
+                it.updateTime(hash)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override fun delete_media(hash: String?): Flow<Int> {
+    override fun deleteMedia(hash: String?): Flow<Int> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.delete_media(hash)
+                it.deleteMedia(hash)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override fun get_file_name(hash: String?): Flow<String> {
+    override fun getFileName(hash: String?): Flow<String> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.get_file_name(hash)
+                it.getFileName(hash)
                     .map(extractResponseWithErrorHandling())
             }
     }
 
-    override fun update_file_name(hash: String?, name: String?): Flow<Int> {
+    override fun updateFileName(hash: String?, name: String?): Flow<Int> {
         return service.provideLocalServerService()
             .flatMapConcat {
-                it.update_file_name(hash, name)
+                it.updateFileName(hash, name)
                     .map(extractResponseWithErrorHandling())
             }
     }

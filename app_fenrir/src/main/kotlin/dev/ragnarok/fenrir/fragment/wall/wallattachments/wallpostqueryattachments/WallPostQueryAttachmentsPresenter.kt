@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.wall.wallattachments.wallpostqueryattachmen
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository.walls
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.Article
 import dev.ragnarok.fenrir.model.Document
@@ -22,7 +22,6 @@ import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class WallPostQueryAttachmentsPresenter(
     accountId: Long,

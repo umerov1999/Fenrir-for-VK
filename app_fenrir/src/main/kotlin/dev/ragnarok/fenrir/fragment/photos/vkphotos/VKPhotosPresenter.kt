@@ -6,10 +6,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
@@ -87,7 +88,7 @@ class VKPhotosPresenter(
                 ownersRepository.getBaseOwnerInfo(
                     accountId,
                     ownerId,
-                    IOwnersRepository.MODE_NET
+                    FetchMode.NET
                 )
                     .fromIOToMain { owner -> onActualOwnerInfoReceived(owner) }
             )
@@ -589,7 +590,7 @@ class VKPhotosPresenter(
 
     init {
         invertPhotoRev = Settings.get().main().isInvertPhotoRev
-        interactor = InteractorFactory.createPhotosInteractor()
+        interactor = InteractorFactory.photo
         ownersRepository = owners
         uploadManager = Includes.uploadManager
         destination = forPhotoAlbum(albumId, ownerId)

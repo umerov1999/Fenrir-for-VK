@@ -32,7 +32,7 @@ import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.dialog.PostShareDialog.Methods
-import dev.ragnarok.fenrir.domain.ILikesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.base.MenuAdapter
 import dev.ragnarok.fenrir.getParcelableCompat

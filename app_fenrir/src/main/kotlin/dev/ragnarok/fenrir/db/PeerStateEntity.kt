@@ -9,6 +9,8 @@ class PeerStateEntity(val peerId: Long) {
         private set
     var outReadCmId = 0
         private set
+    var minorId = 0
+        private set
 
     fun setUnreadCount(unreadCount: Int): PeerStateEntity {
         this.unreadCount = unreadCount
@@ -27,6 +29,11 @@ class PeerStateEntity(val peerId: Long) {
 
     fun setOutReadCmId(outReadCmId: Int): PeerStateEntity {
         this.outReadCmId = outReadCmId
+        return this
+    }
+
+    fun setMinorId(minorId: Int): PeerStateEntity {
+        this.minorId = minorId
         return this
     }
 }

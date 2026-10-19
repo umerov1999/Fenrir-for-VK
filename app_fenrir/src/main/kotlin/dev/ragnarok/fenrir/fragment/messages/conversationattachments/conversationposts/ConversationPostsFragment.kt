@@ -42,7 +42,7 @@ class ConversationPostsFragment :
     override fun onGoLinkConversation(doc: Link) {
         presenter?.fireGoToMessagesLookup(
             doc.msgPeerId,
-            doc.msgId
+            doc.msgCmId
         )
     }
 }

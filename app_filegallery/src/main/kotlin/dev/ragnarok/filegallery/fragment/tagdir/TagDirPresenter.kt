@@ -14,7 +14,6 @@ import dev.ragnarok.filegallery.model.tags.TagDir
 import dev.ragnarok.filegallery.util.Objects
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class TagDirPresenter(private val owner_id: Long) :
     RxSupportPresenter<ITagDirView>() {

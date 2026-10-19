@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.feed.feedbanned
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IFeedInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFeedInteractor
 import dev.ragnarok.fenrir.fragment.absownerslist.ISimpleOwnersView
 import dev.ragnarok.fenrir.fragment.absownerslist.SimpleOwnersPresenter
 import dev.ragnarok.fenrir.model.Owner
@@ -17,7 +17,7 @@ class FeedBannedPresenter(
 ) :
     SimpleOwnersPresenter<ISimpleOwnersView>(accountId, savedInstanceState) {
     private val feedInteractor: IFeedInteractor =
-        InteractorFactory.createFeedInteractor()
+        InteractorFactory.feed
     private val actualDataDisposable = CompositeJob()
     private var endOfContent = false
     private var actualDataLoading = false

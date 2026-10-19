@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.db.interfaces.ITempDataStorage
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.ShortcutStored
@@ -57,7 +57,7 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
                     Repository.owners.getBaseOwnerInfo(
                         Settings.get().accounts().current,
                         id,
-                        IOwnersRepository.MODE_NET
+                        FetchMode.NET
                     )
                         .fromIOToMain({ its ->
                             appendJob(
@@ -96,7 +96,7 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
                     Repository.owners.getBaseOwnerInfo(
                         Settings.get().accounts().current,
                         id,
-                        IOwnersRepository.MODE_NET
+                        FetchMode.NET
                     )
                         .fromIOToMain({ its ->
                             appendJob(

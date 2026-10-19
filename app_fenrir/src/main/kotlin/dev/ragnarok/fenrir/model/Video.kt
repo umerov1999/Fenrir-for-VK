@@ -82,7 +82,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         private set
     var live: String? = null
         private set
-    var msgId = 0
+    var msgCmId = 0
         private set
     var msgPeerId = 0L
         private set
@@ -131,7 +131,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         isCanAdd = parcel.getBoolean()
         private = parcel.getBoolean()
         isFavorite = parcel.getBoolean()
-        msgId = parcel.readInt()
+        msgCmId = parcel.readInt()
         msgPeerId = parcel.readLong()
         trailer = parcel.readString()
         timelineThumbs = parcel.readTypedObjectCompat(VideoTimeline.CREATOR)
@@ -175,7 +175,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         isCanAdd = parcel.readBoolean()
         private = parcel.readBoolean()
         isFavorite = parcel.readBoolean()
-        msgId = parcel.readInt()
+        msgCmId = parcel.readInt()
         msgPeerId = parcel.readLong()
         trailer = parcel.readString()
         timelineThumbs = parcel.readParcelable(VideoTimeline.NativeCreator)
@@ -198,7 +198,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "video_${id}_${ownerId}"
     }
 
     fun setPrivacyView(privacyView: SimplePrivacy?): Video {
@@ -248,7 +248,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         parcel.putBoolean(isCanAdd)
         parcel.putBoolean(private)
         parcel.putBoolean(isFavorite)
-        parcel.writeInt(msgId)
+        parcel.writeInt(msgCmId)
         parcel.writeLong(msgPeerId)
         parcel.writeString(trailer)
         parcel.writeTypedObjectCompat(timelineThumbs, flags)
@@ -292,7 +292,7 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         dest.writeBoolean(isCanAdd)
         dest.writeBoolean(private)
         dest.writeBoolean(isFavorite)
-        dest.writeInt(msgId)
+        dest.writeInt(msgCmId)
         dest.writeLong(msgPeerId)
         dest.writeString(trailer)
         dest.writeParcelable(timelineThumbs)
@@ -483,8 +483,8 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         return this
     }
 
-    fun setMsgId(msgId: Int): Video {
-        this.msgId = msgId
+    fun setMsgCmId(msgCmId: Int): Video {
+        this.msgCmId = msgCmId
         return this
     }
 

@@ -108,7 +108,9 @@ class SpotsDialog internal constructor(
     class Builder {
         private lateinit var context: Context
         private var message: String? = null
-        private var messageId = 0
+
+        @StringRes
+        private var messageRes = 0
         private var cancelable = true // default dialog behaviour
         private var cancelListener: DialogInterface.OnCancelListener? = null
         fun setContext(context: Context): Builder {
@@ -121,8 +123,8 @@ class SpotsDialog internal constructor(
             return this
         }
 
-        fun setMessage(@StringRes messageId: Int): Builder {
-            this.messageId = messageId
+        fun setMessage(@StringRes messageRes: Int): Builder {
+            this.messageRes = messageRes
             return this
         }
 
@@ -142,14 +144,14 @@ class SpotsDialog internal constructor(
             ) {
                 return SpotsDialog(
                     context,
-                    (if (messageId != 0) context.getString(messageId) else message),
+                    (if (messageRes != 0) context.getString(messageRes) else message),
                     cancelable,
                     cancelListener
                 )
             }
             val root = View.inflate(context, R.layout.dialog_progress, null)
             root.findViewById<MaterialTextView>(R.id.item_progress_text).text =
-                if (messageId != 0) context.getString(messageId) else message
+                if (messageRes != 0) context.getString(messageRes) else message
             val anim: ThorVGLottieView = root.findViewById(R.id.lottie_animation)
             anim.fromRes(
                 dev.ragnarok.fenrir_common.R.raw.s_loading,

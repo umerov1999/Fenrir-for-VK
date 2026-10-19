@@ -8,7 +8,7 @@
 
 #define TVG_VERSION_MAJOR 1  // for compile-time checks
 #define TVG_VERSION_MINOR 1  // for compile-time checks
-#define TVG_VERSION_MICRO 2  // for compile-time checks
+#define TVG_VERSION_MICRO 3  // for compile-time checks
 
 #ifdef TVG_API
     #undef TVG_API
@@ -85,9 +85,12 @@ struct Shape;
 /**
  * @defgroup ThorVG ThorVG
  * @brief ThorVG classes and enumerations providing C++ APIs.
+ *
+ *  @note Memory allocation failure is not guaranteed to be recoverable:
+ *        functions declared \c noexcept may terminate the process instead of returning a failure value.
+ *        Do not rely on \c nullptr or @ref Result::FailedAllocation unless the individual API documents it.
+ * \{
  */
-
-/**@{*/
 
 /**
  * @brief Enumeration specifying the result from the APIs.
@@ -119,6 +122,8 @@ enum struct ColorSpace : uint8_t
     ABGR8888S,     ///< The channels are joined in the order: alpha, blue, green, red. Colors are un-alpha-premultiplied. @since 0.12
     ARGB8888S,     ///< The channels are joined in the order: alpha, red, green, blue. Colors are un-alpha-premultiplied. @since 0.12
     Grayscale8,    ///< Single channel, 1 byte per pixel 8-bit grayscale.
+    XBGR8888,      ///< 32-bit opaque color in the order: unused, blue, green, red. @note Experimental API
+    XRGB8888,      ///< 32-bit opaque color in the order: unused, red, green, blue. @note Experimental API
     Unknown = 255  ///< Unknown channel data. This is reserved for an initial ColorSpace value. @since 1.0
 };
 
@@ -278,14 +283,14 @@ enum struct BlendMethod : uint8_t
  */
 enum struct SceneEffect : uint8_t
 {
-    Clear = 0,         ///< Clear all previously applied scene effects, restoring the scene to its original state.
-    GaussianBlur,      ///< Apply a blur effect with a Gaussian filter. Param(4) = {sigma(double)[> 0], direction(int)[both: 0 / horizontal: 1 / vertical: 2], border(int)[duplicate: 0 / wrap: 1], quality(int)[0 - 100]}
-    DropShadow,        ///< Apply a drop shadow effect with a Gaussian Blur filter. Param(8) = {color_R(int)[0 - 255], color_G(int)[0 - 255], color_B(int)[0 - 255], opacity(int)[0 - 255], angle(double)[0 - 360], distance(double), blur_sigma(double)[> 0], quality(int)[0 - 100]}
-    Fill,              ///< Override the scene content color with a given fill information. Param(4) = {color_R(int)[0 - 255], color_G(int)[0 - 255], color_B(int)[0 - 255], opacity(int)[0 - 255]}
-    Tint,              ///< Tinting the current scene color with a given black, white color parameters. Param(7) = {black_R(int)[0 - 255], black_G(int)[0 - 255], black_B(int)[0 - 255], white_R(int)[0 - 255], white_G(int)[0 - 255], white_B(int)[0 - 255], intensity(double)[0 - 100]}
-    Tritone            ///< Apply a tritone color effect to the scene using three color parameters for shadows, midtones, and highlights. A blending factor determines the mix between the original color and the tritone colors. Param(9) = {Shadow_R(int)[0 - 255], Shadow_G(int)[0 - 255], Shadow_B(int)[0 - 255], Midtone_R(int)[0 - 255], Midtone_G(int)[0 - 255], Midtone_B(int)[0 - 255], Highlight_R(int)[0 - 255], Highlight_G(int)[0 - 255], Highlight_B(int)[0 - 255], Blend(int)[0 - 255]}
+    Clear = 0,     ///< Clear all previously applied scene effects, restoring the scene to its original state.
+    GaussianBlur,  ///< Apply a blur effect with a Gaussian filter. Param(4) = {sigma(double)[>= 0], direction(int)[both: 0 / horizontal: 1 / vertical: 2], border(int)[unused], quality(int)[0 - 100]}
+    DropShadow,    ///< Apply a drop shadow effect with a Gaussian Blur filter. Param(8) = {color_R(int)[0 - 255], color_G(int)[0 - 255], color_B(int)[0 - 255], opacity(int)[0 - 255], angle(double)[0 - 360], distance(double), blur_sigma(double)[> 0], quality(int)[0 - 100]}
+    Fill,          ///< Override the scene content color with a given fill information. Param(4) = {color_R(int)[0 - 255], color_G(int)[0 - 255], color_B(int)[0 - 255], opacity(int)[0 - 255]}
+    Tint,          ///< Tinting the current scene color with a given black, white color parameters. Param(7) = {black_R(int)[0 - 255], black_G(int)[0 - 255], black_B(int)[0 - 255], white_R(int)[0 - 255], white_G(int)[0 - 255], white_B(int)[0 - 255], intensity(double)[0 - 100]}
+    Tritone,       ///< Apply a tritone color effect to the scene using three color parameters for shadows, midtones, and highlights. A blending factor determines the mix between the original color and the tritone colors. Param(9) = {Shadow_R(int)[0 - 255], Shadow_G(int)[0 - 255], Shadow_B(int)[0 - 255], Midtone_R(int)[0 - 255], Midtone_G(int)[0 - 255], Midtone_B(int)[0 - 255], Highlight_R(int)[0 - 255], Highlight_G(int)[0 - 255], Highlight_B(int)[0 - 255], Blend(int)[0 - 255]}
+    MotionBlur     ///< Apply a centered linear motion blur. Param(3) = {distance(double)[>= 0, scene-local units], angle(double)[degrees, clockwise from the positive X axis], quality(int)[0 - 100]} @note Experimental API
 };
-
 
 /**
  * @brief Enumeration that defines methods used for wrapping text.
@@ -357,6 +362,18 @@ struct Matrix
     float e31, e32, e33;
 };
 
+/**
+ * @brief A data structure representing an axis-aligned rectangular region.
+ *
+ * The region is defined by its minimum and maximum x and y coordinates.
+ *
+ * @note Experimental API
+ */
+struct Region
+{
+    int32_t xMin, yMin;
+    int32_t xMax, yMax;
+};
 
 /**
  * @brief Describes the font metrics of a text object.
@@ -1045,6 +1062,36 @@ struct TVG_API Canvas
      * @see Canvas::draw()
      */
     Result sync() noexcept;
+
+    /**
+     * @brief Returns the number of dirty regions of the canvas.
+     *
+     * @return The number of regions available for retrieval.
+     *
+     * @note If the active rendering backend does not support @c EngineOption::SmartRender, this function returns 1.
+     * @note This function must be called after @ref Canvas::draw() and before @ref Canvas::sync().
+     * @note Experimental API
+     *
+     * @see Canvas::dirtyRegions(Region*, uint32_t)
+     */
+    uint32_t dirtyRegions() const noexcept;
+
+    /**
+     * @brief Retrieves the dirty regions of the canvas.
+     *
+     * @param[out] regions An array to receive the dirty regions.
+     * @param[in] cnt The number of Region elements that the array can hold.
+     *
+     * @retval Result::InvalidArguments If @p regions is @c nullptr or @p cnt is zero.
+     * @retval Result::InsufficientCondition If called outside the interval after Canvas::draw() and before Canvas::sync().
+     *
+     * @note If the active rendering backend does not support @c EngineOption::SmartRender,
+     *       a single region covering the entire render target is returned.
+     * @note Experimental API
+     *
+     * @see Canvas::dirtyRegions()
+     */
+    Result dirtyRegions(Region* regions, uint32_t cnt) const noexcept;
 
     _TVG_PUBLIC_DTOR_PIMPL(Canvas);
 };
@@ -1801,6 +1848,7 @@ struct TVG_API Picture : Paint
      * @param[in] copy If @c true, the data is copied into the engine's local buffer. If @c false, the data is not copied.
      *
      * @note If the memory data pointed to by @p data is modified, calling this API will re-upload the updated content to the canvas.
+     * @note @c ColorSpace::XBGR8888 and @c ColorSpace::XRGB8888 overwrite fully covered pixels without alpha blending.
      *
      * @since 0.9
      */
@@ -2536,13 +2584,14 @@ struct TVG_API WgCanvas final : Canvas
      * @param[in] target Either WGPUSurface or WGPUTexture, serving as handles to a presentable surface or texture.
      * @param[in] w The width of the target.
      * @param[in] h The height of the target.
-     * @param[in] cs Specifies how the pixel values should be interpreted. Currently, it allows @c ColorSpace::ABGR8888 and @c ColorSpace::ABGR8888S.
+     * @param[in] cs Specifies how the pixel values should be interpreted. Currently, it allows @c ColorSpace::ABGR8888, @c ColorSpace::ABGR8888S, and @c ColorSpace::XBGR8888.
      * @param[in] type @c 0: surface, @c 1: texture are used as pesentable target.
      *
      * @retval Result::InsufficientCondition if the canvas is performing rendering. Please ensure the canvas is synced.
      * @retval Result::NonSupport In case the wg engine is not supported.
      *
-     * @warning Regardless of the value of @p cs, this target API uses the default alpha mode.
+     * @warning For alpha formats, this target API uses the default alpha mode.
+     * @note @c ColorSpace::XBGR8888 selects opaque surface composition and ignores output alpha. This format requires @p type to be @c 0.
      *
      * @see WgCanvas::target(const Context&, void*, uint32_t, uint32_t, ColorSpace, int)
      * @see Canvas::viewport()
@@ -2559,7 +2608,7 @@ struct TVG_API WgCanvas final : Canvas
      * @param[in] target Either WGPUSurface or WGPUTexture, serving as handles to a presentable surface or texture.
      * @param[in] w The width of the target.
      * @param[in] h The height of the target.
-     * @param[in] cs Specifies how the pixel values should be interpreted. Currently, it allows @c ColorSpace::ABGR8888 and @c ColorSpace::ABGR8888S.
+     * @param[in] cs Specifies how the pixel values should be interpreted. Currently, it allows @c ColorSpace::ABGR8888, @c ColorSpace::ABGR8888S, and @c ColorSpace::XBGR8888.
      * @param[in] type @c 0: surface, @c 1: texture are used as pesentable target.
      *
      * @retval Result::InsufficientCondition if the canvas is performing rendering. Please ensure the canvas is synced.
@@ -2568,6 +2617,7 @@ struct TVG_API WgCanvas final : Canvas
      * @see Canvas::viewport()
      * @see Canvas::sync()
      *
+     * @note @c ColorSpace::XBGR8888 selects opaque surface composition and ignores output alpha. This format requires @p type to be @c 0.
      * @note Experimental API
      */
     Result target(const Context& context, void* target, uint32_t w, uint32_t h, ColorSpace cs, int type = 0) noexcept;
@@ -2604,18 +2654,19 @@ struct TVG_API Initializer final
     /**
      * @brief Initializes the ThorVG engine runtime.
      *
-     * ThorVG requires an active runtime environment for rendering operations.
-     * This function sets up an internal task scheduler and creates a specified number
-     * of worker threads to enable parallel rendering.
+     * Sets up the internal task scheduler and launches the specified
+     * number of worker threads for parallel rendering operations.
      *
-     * @param[in] threads The number of worker threads to launch.
-     *                    A value of 0 indicates that only the main thread will be used.
+     * @param[in] threads The number of worker threads to create.
+     *                    A value of 0 disables worker threads, executing rendering tasks on the calling thread.
      *
      * @return Result indicating success or failure of initialization.
      *
-     * @note This function uses internal reference counting to allow multiple init() calls.
-     *       However, the number of threads is fixed during the first successful initialization
-     *       and cannot be changed in subsequent calls.
+     * @note Initialization is reference-counted. Each successful call increments the reference count.
+     *       The worker thread count is determined by the first successful initialization and remains
+     *       unchanged until the engine is fully terminated.
+     *
+     * @warning Each pair of init() and term() calls must be made from the same thread.
      *
      * @see Initializer::term()
      */
@@ -2624,12 +2675,15 @@ struct TVG_API Initializer final
     /**
      * @brief Terminates the ThorVG engine.
      *
-     * Cleans up resources and stops any internal threads initialized by init().
+     * Releases internal resources and shuts down worker threads initialized by Initializer::init().
      *
-     * @retval Result::InsufficientCondition Returned if there is nothing to terminate (e.g., init() was not called).
+     * @retval Result::InsufficientCondition If the engine is not initialized.
      *
-     * @note The initializer maintains a reference count for safe repeated use.
-     *       Only the final call to term() will fully shut down the engine.
+     * @note Initialization is reference-counted. Each call to term() decrements the reference count,
+     *       and the engine is fully terminated only when the count reaches zero.
+     *
+     * @warning Each pair of init() and term() calls must be made from the same thread.
+     *
      * @see Initializer::init()
      */
     static Result term() noexcept;

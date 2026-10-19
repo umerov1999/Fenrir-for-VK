@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IDocsApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiDoc
@@ -59,7 +59,7 @@ internal class DocsApi(accountId: Long, provider: IServiceProvider) : AbsApi(acc
     }
 
     override fun getMessagesUploadServer(
-        peerId: Long?,
+        peerId: Long,
         type: String?
     ): Flow<VKApiDocsUploadServer> {
         return provideService(IDocsService(), TokenType.USER, TokenType.COMMUNITY)

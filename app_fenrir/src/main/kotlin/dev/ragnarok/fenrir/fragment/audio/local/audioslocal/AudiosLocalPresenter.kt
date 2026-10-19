@@ -27,7 +27,6 @@ import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import kotlinx.coroutines.flow.filter
-import java.util.Locale
 
 class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IAudiosLocalView>(accountId, savedInstanceState) {

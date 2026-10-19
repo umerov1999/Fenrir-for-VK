@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.UserAgentTool
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
+import dev.ragnarok.fenrir.api.interfaces.providers.IVKMethodHttpClientFactory
 import dev.ragnarok.fenrir.model.ProxyConfig
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.UncompressDefaultInterceptor

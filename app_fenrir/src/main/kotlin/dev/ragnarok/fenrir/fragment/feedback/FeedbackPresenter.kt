@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.feedback
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IFeedbackInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFeedbackInteractor
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.feedback.Feedback
@@ -14,7 +14,7 @@ class FeedbackPresenter(accountId: Long, savedInstanceState: Bundle?) :
     PlaceSupportPresenter<IFeedbackView>(accountId, savedInstanceState) {
     private val mData: MutableList<Feedback> = ArrayList()
     private val feedbackInteractor: IFeedbackInteractor =
-        InteractorFactory.createFeedbackInteractor()
+        InteractorFactory.feedback
     private val cacheDisposable = CompositeJob()
     private val netDisposable = CompositeJob()
     private var mNextFrom: String? = null

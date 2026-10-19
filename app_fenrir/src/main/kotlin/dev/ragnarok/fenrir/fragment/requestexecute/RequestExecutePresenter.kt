@@ -28,7 +28,6 @@ import kotlinx.serialization.msgpack.MsgPack
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Locale
 
 class RequestExecutePresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IRequestExecuteView>(accountId, savedInstanceState) {

@@ -136,7 +136,7 @@ class IAudioService : IServiceRest() {
      */
     //https://vk.ru/dev/audio.get
     fun get(
-        playlist_id: Int?,
+        playlistId: Int?,
         ownerId: Long?,
         offset: Int?,
         count: Int?,
@@ -145,7 +145,7 @@ class IAudioService : IServiceRest() {
         return rest.request(
             "audio.get",
             form(
-                "playlist_id" to playlist_id,
+                "playlist_id" to playlistId,
                 "owner_id" to ownerId,
                 "offset" to offset,
                 "count" to count,
@@ -156,36 +156,36 @@ class IAudioService : IServiceRest() {
 
     //https://vk.ru/dev/audio.getAudiosByArtist
     fun getAudiosByArtist(
-        artist_id: String?,
+        artistId: String?,
         offset: Int?,
         count: Int?
     ): Flow<BaseResponse<Items<VKApiAudio>>> {
         return rest.request(
             "audio.getAudiosByArtist",
-            form("artist_id" to artist_id, "offset" to offset, "count" to count),
+            form("artist_id" to artistId, "offset" to offset, "count" to count),
             items(VKApiAudio.serializer())
         )
     }
 
     fun getPopular(
-        only_eng: Int?,
+        onlyEng: Int?,
         genre: Int?,
         count: Int?
     ): Flow<BaseResponse<List<VKApiAudio>>> {
         return rest.request(
             "audio.getPopular",
-            form("only_eng" to only_eng, "genre_id" to genre, "count" to count),
+            form("only_eng" to onlyEng, "genre_id" to genre, "count" to count),
             baseList(VKApiAudio.serializer())
         )
     }
 
     fun getRecommendations(
-        user_id: Long?,
+        userId: Long?,
         count: Int?
     ): Flow<BaseResponse<Items<VKApiAudio>>> {
         return rest.request(
             "audio.getRecommendations",
-            form("user_id" to user_id, "count" to count),
+            form("user_id" to userId, "count" to count),
             items(VKApiAudio.serializer())
         )
     }
@@ -229,13 +229,13 @@ class IAudioService : IServiceRest() {
     }
 
     fun getPlaylists(
-        owner_id: Long,
+        ownerId: Long,
         offset: Int,
         count: Int
     ): Flow<BaseResponse<Items<VKApiAudioPlaylist>>> {
         return rest.request(
             "audio.getPlaylists",
-            form("owner_id" to owner_id, "offset" to offset, "count" to count),
+            form("owner_id" to ownerId, "offset" to offset, "count" to count),
             items(VKApiAudioPlaylist.serializer())
         )
     }
@@ -245,47 +245,47 @@ class IAudioService : IServiceRest() {
     }
 
     fun deletePlaylist(
-        playlist_id: Int,
+        playlistId: Int,
         ownerId: Long
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "audio.deletePlaylist",
-            form("playlist_id" to playlist_id, "owner_id" to ownerId),
+            form("playlist_id" to playlistId, "owner_id" to ownerId),
             baseInt
         )
     }
 
     fun followPlaylist(
-        playlist_id: Int,
+        playlistId: Int,
         ownerId: Long,
         accessKey: String?
     ): Flow<BaseResponse<VKApiAudioPlaylist>> {
         return rest.request(
             "audio.followPlaylist",
-            form("playlist_id" to playlist_id, "owner_id" to ownerId, "access_key" to accessKey),
+            form("playlist_id" to playlistId, "owner_id" to ownerId, "access_key" to accessKey),
             base(VKApiAudioPlaylist.serializer())
         )
     }
 
     fun clonePlaylist(
-        playlist_id: Int,
+        playlistId: Int,
         ownerId: Long
     ): Flow<BaseResponse<VKApiAudioPlaylist>> {
         return rest.request(
             "audio.savePlaylistAsCopy",
-            form("playlist_id" to playlist_id, "owner_id" to ownerId),
+            form("playlist_id" to playlistId, "owner_id" to ownerId),
             base(VKApiAudioPlaylist.serializer())
         )
     }
 
     fun getPlaylistById(
-        playlist_id: Int,
+        playlistId: Int,
         ownerId: Long,
         accessKey: String?
     ): Flow<BaseResponse<VKApiAudioPlaylist>> {
         return rest.request(
             "audio.getPlaylistById",
-            form("playlist_id" to playlist_id, "owner_id" to ownerId, "access_key" to accessKey),
+            form("playlist_id" to playlistId, "owner_id" to ownerId, "access_key" to accessKey),
             base(VKApiAudioPlaylist.serializer())
         )
     }
@@ -349,7 +349,7 @@ class IAudioService : IServiceRest() {
 
     fun editPlaylist(
         ownerId: Long,
-        playlist_id: Int,
+        playlistId: Int,
         title: String?,
         description: String?
     ): Flow<BaseResponse<Int>> {
@@ -357,7 +357,7 @@ class IAudioService : IServiceRest() {
             "audio.editPlaylist",
             form(
                 "owner_id" to ownerId,
-                "playlist_id" to playlist_id,
+                "playlist_id" to playlistId,
                 "title" to title,
                 "description" to description
             ), baseInt
@@ -366,31 +366,31 @@ class IAudioService : IServiceRest() {
 
     fun removeFromPlaylist(
         ownerId: Long,
-        playlist_id: Int,
-        audio_ids: String?
+        playlistId: Int,
+        audioIds: String?
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "audio.removeFromPlaylist",
-            form("owner_id" to ownerId, "playlist_id" to playlist_id, "audio_ids" to audio_ids),
+            form("owner_id" to ownerId, "playlist_id" to playlistId, "audio_ids" to audioIds),
             baseInt
         )
     }
 
     fun addToPlaylist(
         ownerId: Long,
-        playlist_id: Int,
-        audio_ids: String?
+        playlistId: Int,
+        audioIds: String?
     ): Flow<BaseResponse<List<AddToPlaylistResponse>>> {
         return rest.request(
             "audio.addToPlaylist",
-            form("owner_id" to ownerId, "playlist_id" to playlist_id, "audio_ids" to audio_ids),
+            form("owner_id" to ownerId, "playlist_id" to playlistId, "audio_ids" to audioIds),
             baseList(AddToPlaylistResponse.serializer())
         )
     }
 
     fun reorder(
         ownerId: Long,
-        audio_id: Int,
+        audioId: Int,
         before: Int?,
         after: Int?
     ): Flow<BaseResponse<Int>> {
@@ -398,7 +398,7 @@ class IAudioService : IServiceRest() {
             "audio.reorder",
             form(
                 "owner_id" to ownerId,
-                "audio_id" to audio_id,
+                "audio_id" to audioId,
                 "before" to before,
                 "after" to after
             ),
@@ -411,46 +411,46 @@ class IAudioService : IServiceRest() {
     }
 
     fun getCatalogV2Sections(
-        owner_id: Long,
-        need_blocks: Int,
+        ownerId: Long,
+        needBlocks: Int,
         url: String?
     ): Flow<BaseResponse<VKApiCatalogV2ListResponse>> {
         return rest.request(
             "catalog.getAudio",
-            form("owner_id" to owner_id, "need_blocks" to need_blocks, "url" to url),
+            form("owner_id" to ownerId, "need_blocks" to needBlocks, "url" to url),
             base(VKApiCatalogV2ListResponse.serializer())
         )
     }
 
     fun getCatalogV2Artist(
-        artist_id: String,
-        need_blocks: Int
+        artistId: String,
+        needBlocks: Int
     ): Flow<BaseResponse<VKApiCatalogV2ListResponse>> {
         return rest.request(
             "catalog.getAudioArtist",
-            form("artist_id" to artist_id, "need_blocks" to need_blocks),
+            form("artist_id" to artistId, "need_blocks" to needBlocks),
             base(VKApiCatalogV2ListResponse.serializer())
         )
     }
 
     fun getCatalogV2Section(
-        section_id: String,
-        start_from: String?
+        sectionId: String,
+        startFrom: String?
     ): Flow<BaseResponse<VKApiCatalogV2SectionResponse>> {
         return rest.request(
             "catalog.getSection",
-            form("section_id" to section_id, "start_from" to start_from),
+            form("section_id" to sectionId, "start_from" to startFrom),
             base(VKApiCatalogV2SectionResponse.serializer())
         )
     }
 
     fun getCatalogV2BlockItems(
-        block_id: String,
-        start_from: String?
+        blockId: String,
+        startFrom: String?
     ): Flow<BaseResponse<VKApiCatalogV2BlockResponse>> {
         return rest.request(
             "catalog.getBlockItems",
-            form("block_id" to block_id, "start_from" to start_from),
+            form("block_id" to blockId, "start_from" to startFrom),
             base(VKApiCatalogV2BlockResponse.serializer())
         )
     }
@@ -458,21 +458,21 @@ class IAudioService : IServiceRest() {
     fun getCatalogV2AudioSearch(
         query: String?,
         context: String?,
-        need_blocks: Int
+        needBlocks: Int
     ): Flow<BaseResponse<VKApiCatalogV2ListResponse>> {
         return rest.request(
             "catalog.getAudioSearch",
-            form("query" to query, "context" to context, "need_blocks" to need_blocks),
+            form("query" to query, "context" to context, "need_blocks" to needBlocks),
             base(VKApiCatalogV2ListResponse.serializer())
         )
     }
 
     fun getArtistById(
-        artist_id: String
+        artistId: String
     ): Flow<BaseResponse<ArtistInfo>> {
         return rest.request(
             "audio.getArtistById",
-            form("artist_id" to artist_id),
+            form("artist_id" to artistId),
             base(ArtistInfo.serializer())
         )
     }

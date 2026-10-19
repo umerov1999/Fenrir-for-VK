@@ -130,7 +130,7 @@ extern "C" {
 /*------   Version   ------*/
 #define LZ4_VERSION_MAJOR    1    /* for breaking interface changes  */
 #define LZ4_VERSION_MINOR   10    /* for new (non-breaking) interface capabilities */
-#define LZ4_VERSION_RELEASE  0    /* for tweaks, bug-fixes, or development */
+#define LZ4_VERSION_RELEASE  1    /* for tweaks, bug-fixes, or development */
 
 #define LZ4_VERSION_NUMBER (LZ4_VERSION_MAJOR *100*100 + LZ4_VERSION_MINOR *100 + LZ4_VERSION_RELEASE)
 
@@ -230,8 +230,8 @@ LZ4LIB_API int LZ4_compressBound(int inputSize);
     The larger the acceleration value, the faster the algorithm, but also the lesser the compression.
     It's a trade-off. It can be fine tuned, with each successive value providing roughly +~3% to speed.
     An acceleration value of "1" is the same as regular LZ4_compress_default()
-    Values <= 0 will be replaced by LZ4_ACCELERATION_DEFAULT (currently == 1, see lz4.c).
-    Values > LZ4_ACCELERATION_MAX will be replaced by LZ4_ACCELERATION_MAX (currently == 65537, see lz4.c).
+    Values <= 0 will be replaced by LZ4_ACCELERATION_DEFAULT (currently == 1, see LZ4_STATIC_LINKING_ONLY section).
+    Values > LZ4_ACCELERATION_MAX will be replaced by LZ4_ACCELERATION_MAX (currently == 65537, see LZ4_STATIC_LINKING_ONLY section).
 */
 LZ4LIB_API int LZ4_compress_fast (const char* src, char* dst, int srcSize, int dstCapacity, int acceleration);
 
@@ -488,9 +488,10 @@ LZ4LIB_API int LZ4_setStreamDecode (LZ4_streamDecode_t* LZ4_streamDecode, const 
  *  to be compatible with any source respecting maxBlockSize condition.
  * @return : minimum ring buffer size,
  *           or 0 if there is an error (invalid maxBlockSize).
+ *  Note : the former margin (+14 instead of +64) is too small for decoders >= v1.9.0.
  */
 LZ4LIB_API int LZ4_decoderRingBufferSize(int maxBlockSize);
-#define LZ4_DECODER_RING_BUFFER_SIZE(maxBlockSize) (65536 + 14 + (maxBlockSize))  /* for static allocation; maxBlockSize presumed valid */
+#define LZ4_DECODER_RING_BUFFER_SIZE(maxBlockSize) (65536 + 64 + (maxBlockSize))  /* for static allocation; maxBlockSize presumed valid */
 
 /*! LZ4_decompress_safe_continue() :
  *  This decoding function allows decompression of consecutive blocks in "streaming" mode.
@@ -520,9 +521,10 @@ LZ4LIB_API int LZ4_decoderRingBufferSize(int maxBlockSize);
  *  - Synchronized mode :
  *    Decompression buffer size is _exactly_ the same as compression buffer size,
  *    and follows exactly same update rule (block boundaries at same positions),
- *    and decoding function is provided with exact decompressed size of each block (exception for last block of the stream),
+ *    and decoding function is provided with exact decompressed size of each block, including the last one
+ *    (decoding may write up to dst + dstCapacity, over data still referenced),
  *    _then_ decoding & encoding ring buffer can have any size, including small ones ( < 64 KB).
- *  - Decompression buffer is larger than encoding buffer, by a minimum of maxBlockSize more bytes.
+ *  - Decompression buffer is larger than encoding buffer, by a minimum of maxBlockSize + 64 bytes.
  *    In which case, encoding and decoding buffers do not need to be synchronized,
  *    and encoding ring buffer can have any size, including small ones ( < 64 KB).
  *
@@ -598,6 +600,14 @@ LZ4_decompress_safe_partial_usingDict(const char* src, char* dst,
 #else
 # define LZ4LIB_STATIC_API
 #endif
+
+/*! LZ4_ACCELERATION_DEFAULT, LZ4_ACCELERATION_MAX :
+ *  "acceleration" values <= 0 are replaced by LZ4_ACCELERATION_DEFAULT.
+ *  Values > LZ4_ACCELERATION_MAX are replaced by LZ4_ACCELERATION_MAX :
+ *  higher values make no difference (fix #876).
+ */
+#define LZ4_ACCELERATION_DEFAULT 1
+#define LZ4_ACCELERATION_MAX 65537
 
 
 /*! LZ4_compress_fast_extState_fastReset() :

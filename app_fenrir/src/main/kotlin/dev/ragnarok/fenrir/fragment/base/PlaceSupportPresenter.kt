@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.base
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.ILikesInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.search.SearchContentType
 import dev.ragnarok.fenrir.fragment.search.criteria.NewsFeedCriteria
@@ -52,7 +52,7 @@ abstract class PlaceSupportPresenter<V>(accountId: Long, savedInstanceState: Bun
 
     fun fireNarrativeClick(narratives: Narratives) {
         appendJob(
-            InteractorFactory.createStoriesInteractor()
+            InteractorFactory.story
                 .getStoryById(accountId, narratives.getStoriesIds())
                 .fromIOToMain {
                     if (it.nonNullNoEmpty()) {
@@ -91,8 +91,8 @@ abstract class PlaceSupportPresenter<V>(accountId: Long, savedInstanceState: Bun
         )
     }
 
-    fun fireGoToMessagesLookup(peerId: Long, msgId: Int) {
-        view?.goToMessagesLookupFWD(accountId, peerId, msgId)
+    fun fireGoToMessagesLookup(peerId: Long, cmId: Int) {
+        view?.goToMessagesLookupFWD(accountId, peerId, cmId)
     }
 
     fun fireForwardMessagesClick(messages: ArrayList<Message>) {
@@ -109,7 +109,7 @@ abstract class PlaceSupportPresenter<V>(accountId: Long, savedInstanceState: Bun
 
     fun fireVideoPlay(apiVideo: Video) {
         appendJob(
-            InteractorFactory.createVideosInteractor()
+            InteractorFactory.video
                 .getById(accountId, apiVideo.ownerId, apiVideo.id, apiVideo.accessKey, false)
                 .fromIOToMain({
                     view?.playVideo(accountId, it)
@@ -169,13 +169,13 @@ abstract class PlaceSupportPresenter<V>(accountId: Long, savedInstanceState: Bun
     fun fireFaveArticleClick(article: Article) {
         if (!article.isFavorite) {
             appendJob(
-                InteractorFactory.createFaveInteractor()
+                InteractorFactory.fave
                     .addArticle(accountId, article.uRL)
                     .hiddenIO()
             )
         } else {
             appendJob(
-                InteractorFactory.createFaveInteractor()
+                InteractorFactory.fave
                     .removeArticle(accountId, article.ownerId, article.id)
                     .hiddenIO()
             )

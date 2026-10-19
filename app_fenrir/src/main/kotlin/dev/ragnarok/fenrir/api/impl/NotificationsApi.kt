@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.api.Fields.FIELDS_BASE_OWNER
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.INotificationsApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.feedback.VKApiBaseFeedback
 import dev.ragnarok.fenrir.api.model.response.NotificationsResponse
 import dev.ragnarok.fenrir.api.services.INotificationsService

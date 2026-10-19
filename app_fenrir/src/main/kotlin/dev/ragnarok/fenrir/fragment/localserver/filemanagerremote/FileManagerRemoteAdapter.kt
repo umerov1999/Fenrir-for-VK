@@ -17,8 +17,8 @@ import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.link.VKLinkParser
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
 import dev.ragnarok.fenrir.media.music.PlayerStatus
@@ -53,7 +53,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
     private var mPlayerDisposable = CancelableJob()
     private var audioListDisposable = CancelableJob()
     private var currAudio: Audio? = MusicPlaybackController.currentAudio
-    private val factory: ILocalServerInteractor = InteractorFactory.createLocalServerInteractor()
+    private val factory: ILocalServerInteractor = InteractorFactory.localServer
 
     fun setItems(data: List<FileRemote>) {
         this.data = data
@@ -340,7 +340,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                     return@setPositiveButton
                                 }
                                 audioListDisposable += factory
-                                    .delete_media(hash1)
+                                    .deleteMedia(hash1)
                                     .fromIOToMain(
                                         {
                                             createCustomToast(
@@ -361,7 +361,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         if (hash.isNullOrEmpty()) {
                             return@show
                         }
-                        audioListDisposable += factory.update_time(hash)
+                        audioListDisposable += factory.updateTime(hash)
                             .fromIOToMain(
                                 { createCustomToast(context, null)?.showToast(R.string.success) }) {
                                 createCustomToast(context, null)?.showToastThrowable(it)
@@ -374,7 +374,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         if (hash2.isNullOrEmpty()) {
                             return@show
                         }
-                        audioListDisposable += factory.get_file_name(hash2)
+                        audioListDisposable += factory.getFileName(hash2)
                             .fromIOToMain(
                                 { t ->
                                     val root =
@@ -393,7 +393,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                         .setView(root)
                                         .setPositiveButton(R.string.button_ok) { _, _ ->
                                             audioListDisposable += factory
-                                                .update_file_name(
+                                                .updateFileName(
                                                     hash2,
                                                     root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                                         ?.trim()
@@ -545,7 +545,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                     return@setPositiveButton
                                 }
                                 audioListDisposable += factory
-                                    .delete_media(hash1)
+                                    .deleteMedia(hash1)
                                     .fromIOToMain(
                                         {
                                             createCustomToast(
@@ -566,7 +566,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         if (hash.isNullOrEmpty()) {
                             return@show
                         }
-                        audioListDisposable += factory.update_time(hash)
+                        audioListDisposable += factory.updateTime(hash)
                             .fromIOToMain(
                                 { createCustomToast(context, null)?.showToast(R.string.success) }) {
                                 createCustomToast(context, null)?.showToastThrowable(it)
@@ -579,7 +579,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                         if (hash2.isNullOrEmpty()) {
                             return@show
                         }
-                        audioListDisposable += factory.get_file_name(hash2)
+                        audioListDisposable += factory.getFileName(hash2)
                             .fromIOToMain(
                                 { t ->
                                     val root =
@@ -598,7 +598,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
                                         .setView(root)
                                         .setPositiveButton(R.string.button_ok) { _, _ ->
                                             audioListDisposable += factory
-                                                .update_file_name(
+                                                .updateFileName(
                                                     hash2,
                                                     root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                                         ?.trim()

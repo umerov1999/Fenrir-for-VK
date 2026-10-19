@@ -48,7 +48,7 @@ class CommunityOptionsPresenter(
         mObsceneStopWordsText: String?
     ) {
         appendJob(
-            InteractorFactory.createGroupSettingsInteractor().edit(
+            InteractorFactory.groupSettings.edit(
                 accountId,
                 community.id,
                 name,

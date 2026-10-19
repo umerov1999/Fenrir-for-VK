@@ -3,10 +3,10 @@ package dev.ragnarok.fenrir.fragment.products.marketview
 import android.content.Context
 import android.os.Bundle
 import dev.ragnarok.fenrir.api.model.AccessIdPair
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Market
 import dev.ragnarok.fenrir.model.Peer
@@ -18,7 +18,7 @@ class MarketViewPresenter(
     private var mMarket: Market,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IMarketViewView>(accountId, savedInstanceState) {
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val ownerInteractor: IOwnersRepository = owners
     private var loadingNow = false
     private fun setLoadingNow(loadingNow: Boolean) {

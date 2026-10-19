@@ -5,7 +5,7 @@ import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.VideoAlbumDboEntity
 import dev.ragnarok.fenrir.db.model.entity.VideoDboEntity
-import dev.ragnarok.fenrir.domain.IVideosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.buildVideoAlbumDbo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapVideo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform

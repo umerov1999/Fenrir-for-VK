@@ -1,10 +1,11 @@
 package dev.ragnarok.fenrir.fragment.friends.friendstabs
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.FriendsCounters
@@ -18,7 +19,7 @@ class FriendsTabsPresenter(
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IFriendsTabsView>(accountId, savedInstanceState) {
     private val relationshipInteractor: IRelationshipInteractor =
-        InteractorFactory.createRelationshipInteractor()
+        InteractorFactory.relationship
     private val ownersRepository: IOwnersRepository = owners
     private var counters: FriendsCounters? = null
     private var owner: Owner? = null
@@ -27,7 +28,7 @@ class FriendsTabsPresenter(
             ownersRepository.getBaseOwnerInfo(
                 accountId,
                 userId,
-                IOwnersRepository.MODE_ANY
+                FetchMode.ANY
             )
                 .fromIOToMain { owner -> onOwnerInfoReceived(owner) })
     }

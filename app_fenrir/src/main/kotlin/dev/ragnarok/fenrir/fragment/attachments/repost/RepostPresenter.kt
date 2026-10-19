@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.attachments.repost
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.attachments.absattachmentsedit.AbsAttachmentsEditPresenter
 import dev.ragnarok.fenrir.model.AttachmentEntry
 import dev.ragnarok.fenrir.model.Post

@@ -5,6 +5,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 
 class AddMessageUpdate : AbsLongpollEvent(ACTION_MESSAGE_ADDED) {
     var cmId = 0
+    var minorId = 0
     var timestamp: Long = 0
     var text: String? = null
     var from = 0L
@@ -21,8 +22,8 @@ class AddMessageUpdate : AbsLongpollEvent(ACTION_MESSAGE_ADDED) {
     var payload: String? = null
     var reply: String? = null
     var peerId = 0L
-    var random_id: String? = null
-    var edit_time: Long = 0
+    var randomId: String? = null
+    var editTime: Long = 0
 
     fun hasMedia(): Boolean {
         return hasMedia
@@ -39,5 +40,5 @@ class AddMessageUpdate : AbsLongpollEvent(ACTION_MESSAGE_ADDED) {
     val isServiceMessage: Boolean
         get() = sourceAct.nonNullNoEmpty()
     val isFull: Boolean
-        get() = !hasMedia() && !hasFwds() && !hasReply() && !isServiceMessage
+        get() = !hasMedia() && !hasFwds() && !hasReply() && !isServiceMessage && minorId != 0
 }

@@ -64,7 +64,7 @@ class WikiPage : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "wiki_${id}_${ownerId}"
     }
 
     fun setCreatorId(creatorId: Long): WikiPage {

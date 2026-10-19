@@ -6,15 +6,16 @@ import androidx.annotation.StringRes
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiCommunity
-import dev.ragnarok.fenrir.domain.ICommunitiesInteractor
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IStoriesShortVideosInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
 import dev.ragnarok.fenrir.domain.impl.GroupSettingsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ICommunitiesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IStoriesShortVideosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.wall.AbsWallPresenter
 import dev.ragnarok.fenrir.fragment.wall.groupwall.IGroupWallView.IOptionMenuView
 import dev.ragnarok.fenrir.model.Community
@@ -80,7 +81,7 @@ class GroupWallPresenter(
             ownersRepository.getFullCommunityInfo(
                 accountId,
                 abs(ownerId),
-                IOwnersRepository.MODE_CACHE
+                FetchMode.CACHE
             )
                 .fromIOToMain {
                     onFullInfoReceived(it.first, it.second)
@@ -94,7 +95,7 @@ class GroupWallPresenter(
             ownersRepository.getFullCommunityInfo(
                 accountId,
                 abs(ownerId),
-                IOwnersRepository.MODE_NET
+                FetchMode.NET
             )
                 .fromIOToMain({
                     onFullInfoReceived(
@@ -613,9 +614,9 @@ class GroupWallPresenter(
         community = pCommunity ?: Community(abs(ownerId))
         details = CommunityDetails()
         ownersRepository = owners
-        storiesInteractor = InteractorFactory.createStoriesInteractor()
-        faveInteractor = InteractorFactory.createFaveInteractor()
-        communitiesInteractor = InteractorFactory.createCommunitiesInteractor()
+        storiesInteractor = InteractorFactory.story
+        faveInteractor = InteractorFactory.fave
+        communitiesInteractor = InteractorFactory.community
         settings = Includes.settings.accounts()
         wallsRepository = walls
         filters = ArrayList()

@@ -6,11 +6,11 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.interfaces.ITempDataStorage
 import dev.ragnarok.fenrir.db.model.PostUpdate
 import dev.ragnarok.fenrir.db.model.entity.FeedOwnersEntity
-import dev.ragnarok.fenrir.domain.IFaveInteractor
-import dev.ragnarok.fenrir.domain.IFeedInteractor
-import dev.ragnarok.fenrir.domain.IWallsRepository
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IFeedInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.FeedSource
 import dev.ragnarok.fenrir.model.LoadMoreState
@@ -28,8 +28,8 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 
 class FeedPresenter(accountId: Long, savedInstanceState: Bundle?) :
     PlaceSupportPresenter<IFeedView>(accountId, savedInstanceState) {
-    private val feedInteractor: IFeedInteractor = InteractorFactory.createFeedInteractor()
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val feedInteractor: IFeedInteractor = InteractorFactory.feed
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val tempDataStorage: ITempDataStorage = Includes.stores.tempStore()
     private val walls: IWallsRepository = Repository.walls
     private val mFeed: MutableList<News> = ArrayList()

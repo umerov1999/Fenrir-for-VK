@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.localserver.audioslocalserver
 
 import android.content.Context
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
@@ -20,7 +20,7 @@ class AudiosLocalServerPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IAudiosLocalServerView>(accountId, savedInstanceState) {
     private val audios: MutableList<Audio> = ArrayList()
     private val fInteractor: ILocalServerInteractor =
-        InteractorFactory.createLocalServerInteractor()
+        InteractorFactory.localServer
     private var actualDataDisposable = CancelableJob()
     private var Foffset = 0
     private var actualDataReceived = false

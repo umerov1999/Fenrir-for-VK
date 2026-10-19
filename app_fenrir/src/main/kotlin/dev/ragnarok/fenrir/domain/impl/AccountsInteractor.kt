@@ -10,9 +10,10 @@ import dev.ragnarok.fenrir.api.model.VKApiProfileInfo
 import dev.ragnarok.fenrir.api.model.VKApiUser
 import dev.ragnarok.fenrir.api.model.response.PushSettingsResponse.ConversationsPush.ConversationPushItem
 import dev.ragnarok.fenrir.db.impl.ContactsUtils
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
-import dev.ragnarok.fenrir.domain.IBlacklistRepository
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IBlacklistRepository
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.model.Account
 import dev.ragnarok.fenrir.model.BannedPart
@@ -182,7 +183,7 @@ class AccountsInteractor(
                 val owner = ownersRepository.getBaseOwnerInfo(
                     id,
                     id,
-                    if (refresh) IOwnersRepository.MODE_NET else IOwnersRepository.MODE_ANY
+                    if (refresh) FetchMode.NET else FetchMode.ANY
                 ).catch { emit(if (id > 0) User(id) else Community(-id)) }.single()
 
                 val account = Account(id, owner)

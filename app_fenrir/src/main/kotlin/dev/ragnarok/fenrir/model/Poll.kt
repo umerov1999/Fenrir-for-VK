@@ -101,7 +101,7 @@ class Poll : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "poll_${id}_${ownerId}"
     }
 
     fun setClosed(closed: Boolean): Poll {
@@ -226,7 +226,7 @@ class Poll : AbsModel {
         }
 
         override fun getAttachmentKey(): String {
-            return "$id"
+            return "pollanswer_$id"
         }
 
         fun setText(text: String?): Answer {
@@ -292,7 +292,7 @@ class Poll : AbsModel {
         }
 
         override fun getAttachmentKey(): String {
-            return "$id"
+            return "pollbackground_$id"
         }
 
         fun getColors(): IntArray {
@@ -370,7 +370,7 @@ class Poll : AbsModel {
         }
 
         override fun getAttachmentKey(): String {
-            return "${color}_${position}"
+            return "pollbackgroundpoint_${color}_${position}"
         }
 
         fun setColor(@ColorInt color: Int): PollBackgroundPoint {

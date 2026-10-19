@@ -7,8 +7,9 @@ import dev.ragnarok.fenrir.api.model.response.VKApiChatResponse
 import dev.ragnarok.fenrir.api.model.response.VKApiLinkResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.FriendListEntity
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IUtilsInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildCommunityFromDbo
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.map
@@ -57,7 +58,7 @@ class UtilsInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     uids,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .flatMapConcat { owners ->
                         findFriendListsByIds(accountId, accountId, listsIds)
@@ -112,7 +113,7 @@ class UtilsInteractor(
                                         ownersRepository.getBaseOwnerInfo(
                                             accountId,
                                             userId,
-                                            IOwnersRepository.MODE_ANY
+                                            FetchMode.ANY
                                         )
                                             .map { pp -> wrap(pp) }
                                     }
@@ -124,7 +125,7 @@ class UtilsInteractor(
                                         ownersRepository.getBaseOwnerInfo(
                                             accountId,
                                             ownerId,
-                                            IOwnersRepository.MODE_ANY
+                                            FetchMode.ANY
                                         )
                                             .map { pp -> wrap(pp) }
                                     }

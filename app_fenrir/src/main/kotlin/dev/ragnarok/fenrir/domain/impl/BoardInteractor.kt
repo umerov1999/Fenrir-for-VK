@@ -4,8 +4,9 @@ import dev.ragnarok.fenrir.api.Fields
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.db.interfaces.IStorages
 import dev.ragnarok.fenrir.db.model.entity.TopicDboEntity
-import dev.ragnarok.fenrir.domain.IBoardInteractor
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IBoardInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.buildTopicDbo
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapOwners
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformOwners
@@ -38,7 +39,7 @@ class BoardInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ids.all,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .map {
                         val topics: MutableList<Topic> = ArrayList(dbos.size)
@@ -100,7 +101,7 @@ class BoardInteractor(
                         ownersRepository.findBaseOwnersDataAsBundle(
                             accountId,
                             ownerIds.all,
-                            IOwnersRepository.MODE_ANY,
+                            FetchMode.ANY,
                             owners
                         )
                             .map {

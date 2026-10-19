@@ -12,7 +12,6 @@ import dev.ragnarok.fenrir.util.Utils
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-import java.util.Locale
 import kotlin.math.abs
 
 class CommunityDtoAdapter : AbsDtoAdapter<VKApiCommunity>("VKApiCommunity") {

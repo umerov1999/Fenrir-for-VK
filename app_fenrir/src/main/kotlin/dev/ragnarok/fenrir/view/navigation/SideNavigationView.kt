@@ -16,9 +16,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.drawerlayout.DrawerLayout
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.model.DrawerCategory
 import dev.ragnarok.fenrir.model.Owner
@@ -198,7 +199,7 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
 
         vHeader.findViewById<ImageView>(R.id.header_navi_menu_offline).setOnClickListener {
             mCompositeJob.add(
-                InteractorFactory.createAccountInteractor()
+                InteractorFactory.account
                     .setOffline(mAccountId)
                     .fromIOToMain({ onSetOffline(it) }) {
                         onSetOffline(
@@ -278,7 +279,7 @@ class SideNavigationView : AbsNavigationView, MenuListAdapter.ActionListener {
                 ownersRepository.getBaseOwnerInfo(
                     mAccountId,
                     mAccountId,
-                    IOwnersRepository.MODE_ANY
+                    FetchMode.ANY
                 )
                     .fromIOToMain { user -> refreshHeader(user) }
             )

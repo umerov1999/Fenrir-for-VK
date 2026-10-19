@@ -3,6 +3,7 @@ package dev.ragnarok.filegallery.api
 import android.annotation.SuppressLint
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.api.HttpLoggerAndParser.serverHeader
+import dev.ragnarok.filegallery.api.interfaces.providers.ILocalServerRestProvider
 import dev.ragnarok.filegallery.api.rest.SimplePostHttp
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.settings.ISettings.IMainSettings

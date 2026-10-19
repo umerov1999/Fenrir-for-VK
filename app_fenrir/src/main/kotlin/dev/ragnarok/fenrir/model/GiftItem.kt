@@ -26,7 +26,7 @@ class GiftItem : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "giftitem_$id"
     }
 
     constructor(id: Int) {

@@ -20,7 +20,7 @@ class NarrativesDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "${id}_${owner_id}"
+        return "narratives_${id}_${owner_id}"
     }
 
     fun setId(id: Int): NarrativesDboEntity {

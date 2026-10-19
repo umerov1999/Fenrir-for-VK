@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.likes.storiesview
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IStoriesShortVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IStoriesShortVideosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -17,7 +17,7 @@ class StoriesViewPresenter(
 ) : AccountDependencyPresenter<IStoriesViewView>(accountId, savedInstanceState) {
     val data: MutableList<Pair<Owner, Boolean>> = ArrayList()
     private val storiesInteractor: IStoriesShortVideosInteractor =
-        InteractorFactory.createStoriesInteractor()
+        InteractorFactory.story
     private val netDisposable = CompositeJob()
     private var endOfContent = false
     private var loadingNow = false

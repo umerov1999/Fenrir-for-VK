@@ -8,8 +8,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IVideosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.model.Video
@@ -36,14 +36,13 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
-import java.util.Locale
 
 class VideosListPresenter(
     accountId: Long, val ownerId: Long, val albumId: Int, private val action: String?,
     private val albumTitle: String?, context: Context, savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IVideosListView>(accountId, savedInstanceState) {
     private val data: MutableList<Video>
-    private val interactor: IVideosInteractor = InteractorFactory.createVideosInteractor()
+    private val interactor: IVideosInteractor = InteractorFactory.video
     private val uploadManager: IUploadManager = Includes.uploadManager
     private val destination: UploadDestination = forVideo(
         if (IVideosListView.ACTION_SELECT.equals(action, ignoreCase = true)) 0 else 1,
@@ -321,7 +320,7 @@ class VideosListPresenter(
 
     fun fireVideoPlay(video: Video) {
         appendJob(
-            InteractorFactory.createVideosInteractor()
+            InteractorFactory.video
                 .getById(accountId, video.ownerId, video.id, video.accessKey, false)
                 .fromIOToMain({
                     view?.goPlayVideo(accountId, it)

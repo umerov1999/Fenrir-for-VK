@@ -110,19 +110,19 @@ class ILocalServerService : IServiceRest() {
         )
     }
 
-    fun update_time(hash: String?): Flow<BaseResponse<Int>> {
+    fun updateTime(hash: String?): Flow<BaseResponse<Int>> {
         return rest.request("update_time", form("hash" to hash), baseInt)
     }
 
-    fun delete_media(hash: String?): Flow<BaseResponse<Int>> {
+    fun deleteMedia(hash: String?): Flow<BaseResponse<Int>> {
         return rest.request("delete_media", form("hash" to hash), baseInt)
     }
 
-    fun get_file_name(hash: String?): Flow<BaseResponse<String>> {
+    fun getFileName(hash: String?): Flow<BaseResponse<String>> {
         return rest.request("get_file_name", form("hash" to hash), baseString)
     }
 
-    fun update_file_name(
+    fun updateFileName(
         hash: String?,
         name: String?
     ): Flow<BaseResponse<Int>> {
@@ -143,12 +143,12 @@ class ILocalServerService : IServiceRest() {
 
     fun uploadAudio(
         hash: String?,
-        access_token: String?,
-        user_agent: String?
+        accessToken: String?,
+        userAgent: String?
     ): Flow<BaseResponse<Int>> {
         return rest.request(
             "audio.upload",
-            form("hash" to hash, "access_token" to access_token, "user_agent" to user_agent),
+            form("hash" to hash, "access_token" to accessToken, "user_agent" to userAgent),
             baseInt
         )
     }

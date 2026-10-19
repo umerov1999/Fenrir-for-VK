@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.api.Fields
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IAccountApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.CountersDto
 import dev.ragnarok.fenrir.api.model.RefreshToken
 import dev.ragnarok.fenrir.api.model.VKApiProcessAuthCode

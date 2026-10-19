@@ -35,6 +35,9 @@ extern "C" {
 #ifndef HAS_SCALEUVDOWNEVEN
 #define HAS_SCALEUVDOWNEVEN 1
 #endif
+#ifndef HAS_SCALEUVBOX
+#define HAS_SCALEUVBOX 1
+#endif
 #ifndef HAS_SCALEUVBILINEARDOWN
 #define HAS_SCALEUVBILINEARDOWN 1
 #endif
@@ -48,9 +51,7 @@ extern "C" {
 #define HAS_SCALEPLANEVERTICAL 1
 #endif
 
-static __inline int Abs(int v) {
-  return v >= 0 ? v : -v;
-}
+#define MIN1(x) ((x) < 1 ? 1 : (x))
 
 // ScaleUV, 1/2
 // This is an optimized version for scaling down a UV to 1/2 of
@@ -249,6 +250,155 @@ static int ScaleUVDown4Box(int src_width,
 }
 #endif  // HAS_SCALEUVDOWN4BOX
 
+// ScaleUV, any dimensions, box filter.
+// The counterpart of ScalePlaneBox in scale.cc. Rows are summed into 16 bit
+// accumulators, then each destination pixel averages its box of source pixels.
+#if HAS_SCALEUVBOX
+static void ScaleUVAddCols1_C(int dst_width,
+                              int boxheight,
+                              int x,
+                              int dx,
+                              const uint16_t* src_uv,
+                              uint8_t* dst_uv) {
+  int i, j;
+  int boxwidth = MIN1(dx >> 16);
+  int scaleval = 65536 / (boxwidth * boxheight);
+  x >>= 16;
+  for (i = 0; i < dst_width; ++i) {
+    int u = 0;
+    int v = 0;
+    for (j = 0; j < boxwidth; ++j) {
+      u += src_uv[(x + j) * 2];
+      v += src_uv[(x + j) * 2 + 1];
+    }
+    x += boxwidth;
+    *dst_uv++ = (uint8_t)(u * scaleval >> 16);
+    *dst_uv++ = (uint8_t)(v * scaleval >> 16);
+  }
+}
+
+static void ScaleUVAddCols2_C(int dst_width,
+                              int boxheight,
+                              int x,
+                              int dx,
+                              const uint16_t* src_uv,
+                              uint8_t* dst_uv) {
+  int i, j;
+  int minboxwidth = dx >> 16;
+  int scaletbl[2];
+  scaletbl[0] = 65536 / (MIN1(minboxwidth) * boxheight);
+  scaletbl[1] = 65536 / (MIN1(minboxwidth + 1) * boxheight);
+  for (i = 0; i < dst_width; ++i) {
+    int ix = x >> 16;
+    int u = 0;
+    int v = 0;
+    int boxwidth;
+    int scaleval;
+    x += dx;
+    boxwidth = MIN1((x >> 16) - ix);
+    assert((boxwidth - minboxwidth == 0) || (boxwidth - minboxwidth == 1));
+    scaleval = scaletbl[boxwidth - minboxwidth];
+    for (j = 0; j < boxwidth; ++j) {
+      u += src_uv[(ix + j) * 2];
+      v += src_uv[(ix + j) * 2 + 1];
+    }
+    *dst_uv++ = (uint8_t)(u * scaleval >> 16);
+    *dst_uv++ = (uint8_t)(v * scaleval >> 16);
+  }
+}
+
+static int ScaleUVBox(int src_width,
+                      int src_height,
+                      int dst_width,
+                      int dst_height,
+                      ptrdiff_t src_stride,
+                      ptrdiff_t dst_stride,
+                      const uint8_t* src_uv,
+                      uint8_t* dst_uv,
+                      int x,
+                      int dx,
+                      int y,
+                      int dy) {
+  int j, k;
+  const uint32_t max_y = (uint32_t)src_height << 16;
+  // Sized on src_width to keep ScaleAddRow aligned.
+  const int row_samples = src_width * 2;
+  {
+    // Row accumulator, two uint16_t per source pixel.
+    align_buffer_64(row16, row_samples * 2);
+    if (!row16)
+      return 1;
+    {
+      void (*ScaleUVAddCols)(int dst_width, int boxheight, int x, int dx,
+                             const uint16_t* src_uv, uint8_t* dst_uv) =
+          (dx & 0xffff) ? ScaleUVAddCols2_C : ScaleUVAddCols1_C;
+      // Summing a row is position wise, so an interleaved UV row can be fed to
+      // the plane accumulator as src_width * 2 samples.
+      void (*ScaleAddRow)(const uint8_t* src_ptr, uint16_t* dst_ptr,
+                          int src_width) = ScaleAddRow_C;
+#if defined(HAS_SCALEADDROW_SSE2)
+      if (TestCpuFlag(kCpuHasSSE2)) {
+        ScaleAddRow = ScaleAddRow_Any_SSE2;
+        if (IS_ALIGNED(row_samples, 16)) {
+          ScaleAddRow = ScaleAddRow_SSE2;
+        }
+      }
+#endif
+#if defined(HAS_SCALEADDROW_AVX2)
+      if (TestCpuFlag(kCpuHasAVX2)) {
+        ScaleAddRow = ScaleAddRow_Any_AVX2;
+        if (IS_ALIGNED(row_samples, 32)) {
+          ScaleAddRow = ScaleAddRow_AVX2;
+        }
+      }
+#endif
+#if defined(HAS_SCALEADDROW_NEON)
+      if (TestCpuFlag(kCpuHasNEON)) {
+        ScaleAddRow = ScaleAddRow_Any_NEON;
+        if (IS_ALIGNED(row_samples, 16)) {
+          ScaleAddRow = ScaleAddRow_NEON;
+        }
+      }
+#endif
+#if defined(HAS_SCALEADDROW_LSX)
+      if (TestCpuFlag(kCpuHasLSX)) {
+        ScaleAddRow = ScaleAddRow_Any_LSX;
+        if (IS_ALIGNED(row_samples, 16)) {
+          ScaleAddRow = ScaleAddRow_LSX;
+        }
+      }
+#endif
+#if defined(HAS_SCALEADDROW_RVV)
+      if (TestCpuFlag(kCpuHasRVV)) {
+        ScaleAddRow = ScaleAddRow_RVV;
+      }
+#endif
+
+      uint32_t uy = y;
+      for (j = 0; j < dst_height; ++j) {
+        int boxheight;
+        int iy = uy >> 16;
+        const uint8_t* src = src_uv + iy * src_stride;
+        uy += dy;
+        if (uy > max_y) {
+          uy = max_y;
+        }
+        boxheight = MIN1((int)(uy >> 16) - iy);
+        memset(row16, 0, row_samples * 2);
+        for (k = 0; k < boxheight; ++k) {
+          ScaleAddRow(src, (uint16_t*)(row16), row_samples);
+          src += src_stride;
+        }
+        ScaleUVAddCols(dst_width, boxheight, x, dx, (uint16_t*)(row16), dst_uv);
+        dst_uv += dst_stride;
+      }
+    }
+    free_aligned_buffer_64(row16);
+  }
+  return 0;
+}
+#endif  // HAS_SCALEUVBOX
+
 // ScaleUV Even
 // This is an optimized version for scaling down a UV to even
 // multiple of its original size.
@@ -372,6 +522,11 @@ static int ScaleUVBilinearDown(int src_width,
     }
   }
 #endif
+#if defined(HAS_INTERPOLATEROW_AVX512BW)
+  if (TestCpuFlag(kCpuHasAVX512BW)) {
+    InterpolateRow = InterpolateRow_AVX512BW;
+  }
+#endif
 #if defined(HAS_INTERPOLATEROW_NEON)
   if (TestCpuFlag(kCpuHasNEON)) {
     InterpolateRow = InterpolateRow_Any_NEON;
@@ -393,14 +548,30 @@ static int ScaleUVBilinearDown(int src_width,
 #if defined(HAS_INTERPOLATEROW_LSX)
   if (TestCpuFlag(kCpuHasLSX)) {
     InterpolateRow = InterpolateRow_Any_LSX;
-    if (IS_ALIGNED(clip_src_width, 32)) {
+    if (IS_ALIGNED(clip_src_width, 16)) {
       InterpolateRow = InterpolateRow_LSX;
+    }
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_LASX)
+  if (TestCpuFlag(kCpuHasLASX)) {
+    InterpolateRow = InterpolateRow_Any_LASX;
+    if (IS_ALIGNED(clip_src_width, 32)) {
+      InterpolateRow = InterpolateRow_LASX;
     }
   }
 #endif
 #if defined(HAS_INTERPOLATEROW_RVV)
   if (TestCpuFlag(kCpuHasRVV)) {
     InterpolateRow = InterpolateRow_RVV;
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    InterpolateRow = InterpolateRow_Any_WASMSIMD;
+    if (IS_ALIGNED(clip_src_width, 16)) {
+      InterpolateRow = InterpolateRow_WASMSIMD;
+    }
   }
 #endif
 #if defined(HAS_SCALEUVFILTERCOLS_SSSE3)
@@ -419,27 +590,28 @@ static int ScaleUVBilinearDown(int src_width,
   // TODO(fbarchard): Consider not allocating row buffer for kFilterLinear.
   // Allocate a row of UV.
   {
-    const int max_y = (src_height - 1) << 16;
+    const uint32_t max_y = (uint32_t)(src_height - 1) << 16;
+    uint32_t uy = y;
     align_buffer_64(row, clip_src_width * 2);
     if (!row)
       return 1;
-    if (y > max_y) {
-      y = max_y;
+    if (uy > max_y) {
+      uy = max_y;
     }
     for (j = 0; j < dst_height; ++j) {
-      int yi = y >> 16;
+      int yi = uy >> 16;
       const uint8_t* src = src_uv + yi * src_stride;
       if (filtering == kFilterLinear) {
         ScaleUVFilterCols(dst_uv, src, dst_width, x, dx);
       } else {
-        int yf = (y >> 8) & 255;
+        int yf = (uy >> 8) & 255;
         InterpolateRow(row, src, src_stride, clip_src_width, yf);
         ScaleUVFilterCols(dst_uv, row, dst_width, x, dx);
       }
       dst_uv += dst_stride;
-      y += dy;
-      if (y > max_y) {
-        y = max_y;
+      uy += dy;
+      if (uy > max_y) {
+        uy = max_y;
       }
     }
     free_aligned_buffer_64(row);
@@ -476,13 +648,19 @@ static int ScaleUVBilinearUp(int src_width,
   void (*ScaleUVFilterCols)(uint8_t* dst_uv, const uint8_t* src_uv,
                             int dst_width, int x, int dx) =
       filtering ? ScaleUVFilterCols_C : ScaleUVCols_C;
-  const int max_y = (src_height - 1) << 16;
+  const uint32_t max_y = (uint32_t)(src_height - 1) << 16;
+  uint32_t uy = y;
 #if defined(HAS_INTERPOLATEROW_AVX2)
   if (TestCpuFlag(kCpuHasAVX2)) {
     InterpolateRow = InterpolateRow_Any_AVX2;
     if (IS_ALIGNED(dst_width, 16)) {
       InterpolateRow = InterpolateRow_AVX2;
     }
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_AVX512BW)
+  if (TestCpuFlag(kCpuHasAVX512BW)) {
+    InterpolateRow = InterpolateRow_AVX512BW;
   }
 #endif
 #if defined(HAS_INTERPOLATEROW_NEON)
@@ -511,9 +689,25 @@ static int ScaleUVBilinearUp(int src_width,
     }
   }
 #endif
+#if defined(HAS_INTERPOLATEROW_LASX)
+  if (TestCpuFlag(kCpuHasLASX)) {
+    InterpolateRow = InterpolateRow_Any_LASX;
+    if (IS_ALIGNED(dst_width, 32)) {
+      InterpolateRow = InterpolateRow_LASX;
+    }
+  }
+#endif
 #if defined(HAS_INTERPOLATEROW_RVV)
   if (TestCpuFlag(kCpuHasRVV)) {
     InterpolateRow = InterpolateRow_RVV;
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    InterpolateRow = InterpolateRow_Any_WASMSIMD;
+    if (IS_ALIGNED(dst_width, 8)) {
+      InterpolateRow = InterpolateRow_WASMSIMD;
+    }
   }
 #endif
   if (src_width >= 32768) {
@@ -554,12 +748,12 @@ static int ScaleUVBilinearUp(int src_width,
 #endif
   }
 
-  if (y > max_y) {
-    y = max_y;
+  if (uy > max_y) {
+    uy = max_y;
   }
 
   {
-    int yi = y >> 16;
+    int yi = uy >> 16;
     const uint8_t* src = src_uv + yi * src_stride;
 
     // Allocate 2 rows of UV.
@@ -588,30 +782,31 @@ static int ScaleUVBilinearUp(int src_width,
     // 1. Scale the next source row into the older buffer (rowptr).
     // 2. Swap buffer pointers (rowptr += rowstride; rowstride = -rowstride;)
     //    so rowptr points to yi and (rowptr + rowstride) points to yi + 1.
-    // 3. Advance src by 1 row if row yi + 2 exists ((y + 65536) < max_y),
-    //    otherwise clamp src at (src_height - 1) to avoid reading out of bounds.
+    // 3. Advance src by 1 row if row yi + 2 exists ((uy + 65536) < max_y),
+    //    otherwise clamp src at (src_height - 1) to avoid reading out of
+    //    bounds.
     for (j = 0; j < dst_height; ++j) {
-      if (y > max_y) {
-        y = max_y;
+      if (uy > max_y) {
+        uy = max_y;
       }
-      yi = y >> 16;
+      yi = uy >> 16;
       if (yi != lasty) {
         ScaleUVFilterCols(rowptr, src, dst_width, x, dx);
         rowptr += rowstride;
         rowstride = -rowstride;
         lasty = yi;
-        if ((y + 65536) < max_y) {
+        if ((uy + 65536) < max_y) {
           src += src_stride;
         }
       }
       if (filtering == kFilterLinear) {
         InterpolateRow(dst_uv, rowptr, 0, dst_width * 2, 0);
       } else {
-        int yf = (y >> 8) & 255;
+        int yf = (uy >> 8) & 255;
         InterpolateRow(dst_uv, rowptr, rowstride, dst_width * 2, yf);
       }
       dst_uv += dst_stride;
-      y += dy;
+      uy += dy;
     }
     free_aligned_buffer_64(row);
   }
@@ -635,8 +830,6 @@ static void ScaleUVLinearUp2(int src_width,
   void (*ScaleRowUp)(const uint8_t* src_uv, uint8_t* dst_uv, int dst_width) =
       ScaleUVRowUp2_Linear_Any_C;
   int i;
-  int y;
-  int dy;
 
   // This function can only scale up by 2 times horizontally.
   (void)src_width;
@@ -669,12 +862,13 @@ static void ScaleUVLinearUp2(int src_width,
   if (dst_height == 1) {
     ScaleRowUp(src_uv + ((src_height - 1) / 2) * src_stride, dst_uv, dst_width);
   } else {
-    dy = FixedDiv(src_height - 1, dst_height - 1);
-    y = (1 << 15) - 1;
+    uint32_t uy = (1 << 15) - 1;
+    int dy = FixedDiv(src_height - 1, dst_height - 1);
     for (i = 0; i < dst_height; ++i) {
-      ScaleRowUp(src_uv + (y >> 16) * src_stride, dst_uv, dst_width);
+      int yi = uy >> 16;
+      ScaleRowUp(src_uv + yi * src_stride, dst_uv, dst_width);
       dst_uv += dst_stride;
-      y += dy;
+      uy += dy;
     }
   }
 }
@@ -687,8 +881,8 @@ static void ScaleUVBilinearUp2(int src_width,
                                int src_height,
                                int dst_width,
                                int dst_height,
-                               int src_stride,
-                               int dst_stride,
+                               ptrdiff_t src_stride,
+                               ptrdiff_t dst_stride,
                                const uint8_t* src_ptr,
                                uint8_t* dst_ptr) {
   void (*Scale2RowUp)(const uint8_t* src_ptr, ptrdiff_t src_stride,
@@ -755,8 +949,6 @@ static void ScaleUVLinearUp2_16(int src_width,
   void (*ScaleRowUp)(const uint16_t* src_uv, uint16_t* dst_uv, int dst_width) =
       ScaleUVRowUp2_Linear_16_Any_C;
   int i;
-  int y;
-  int dy;
 
   // This function can only scale up by 2 times horizontally.
   (void)src_width;
@@ -783,12 +975,13 @@ static void ScaleUVLinearUp2_16(int src_width,
   if (dst_height == 1) {
     ScaleRowUp(src_uv + ((src_height - 1) / 2) * src_stride, dst_uv, dst_width);
   } else {
-    dy = FixedDiv(src_height - 1, dst_height - 1);
-    y = (1 << 15) - 1;
+    uint32_t uy = (1 << 15) - 1;
+    int dy = FixedDiv(src_height - 1, dst_height - 1);
     for (i = 0; i < dst_height; ++i) {
-      ScaleRowUp(src_uv + (y >> 16) * src_stride, dst_uv, dst_width);
+      int yi = uy >> 16;
+      ScaleRowUp(src_uv + yi * src_stride, dst_uv, dst_width);
       dst_uv += dst_stride;
-      y += dy;
+      uy += dy;
     }
   }
 }
@@ -801,8 +994,8 @@ static void ScaleUVBilinearUp2_16(int src_width,
                                   int src_height,
                                   int dst_width,
                                   int dst_height,
-                                  int src_stride,
-                                  int dst_stride,
+                                  ptrdiff_t src_stride,
+                                  ptrdiff_t dst_stride,
                                   const uint16_t* src_ptr,
                                   uint16_t* dst_ptr) {
   void (*Scale2RowUp)(const uint16_t* src_ptr, ptrdiff_t src_stride,
@@ -891,10 +1084,12 @@ static void ScaleUVSimple(int src_width,
 #endif
   }
 
+  uint32_t uy = y;
   for (j = 0; j < dst_height; ++j) {
-    ScaleUVCols(dst_uv, src_uv + (y >> 16) * src_stride, dst_width, x, dx);
+    int yi = uy >> 16;
+    ScaleUVCols(dst_uv, src_uv + yi * src_stride, dst_width, x, dx);
     dst_uv += dst_stride;
-    y += dy;
+    uy += dy;
   }
 }
 
@@ -962,7 +1157,6 @@ static int ScaleUV(const uint8_t* src,
   int y = 0;
   int dx = 0;
   int dy = 0;
-  // UV does not support box filter yet, but allow the user to pass it.
   // Simplify filtering when possible.
   filtering = ScaleFilterReduce(src_width, src_height, dst_width, dst_height,
                                 filtering);
@@ -975,7 +1169,6 @@ static int ScaleUV(const uint8_t* src,
   }
   ScaleSlope(src_width, src_height, dst_width, dst_height, filtering, &x, &y,
              &dx, &dy);
-  src_width = Abs(src_width);
   if (clip_x) {
     int64_t clipf = (int64_t)(clip_x)*dx;
     x += (clipf & 0xffff);
@@ -988,6 +1181,16 @@ static int ScaleUV(const uint8_t* src,
     src += (clipf >> 16) * (ptrdiff_t)src_stride;
     dst += clip_y * (ptrdiff_t)dst_stride;
   }
+
+#if HAS_SCALEUVBOX
+  // Exactly 4 goes to the faster ScaleUVDown4Box below. Clipping is excluded
+  // because whole source rows are accumulated.
+  if (filtering == kFilterBox && !(dx == 0x40000 && dy == 0x40000) &&
+      clip_x == 0 && clip_y == 0) {
+    return ScaleUVBox(src_width, src_height, clip_width, clip_height,
+                      src_stride, dst_stride, src, dst, x, dx, y, dy);
+  }
+#endif
 
   // Special case for integer step values.
   if (((dx | dy) & 0xffff) == 0) {
@@ -1106,8 +1309,8 @@ int UVScale_16(const uint16_t* src_uv,
                enum FilterMode filtering) {
   int dy = 0;
 
-  if (!src_uv || src_width <= 0 || src_height == 0 || src_height == INT_MIN ||
-      src_width > 32768 || src_height > 32768 || !dst_uv || dst_width <= 0 ||
+  if (!src_uv || src_width <= 0 || src_height == 0 || src_width > 32768 ||
+      src_height < -32768 || src_height > 32768 || !dst_uv || dst_width <= 0 ||
       dst_height <= 0) {
     return -1;
   }
@@ -1123,7 +1326,6 @@ int UVScale_16(const uint16_t* src_uv,
     src_uv = src_uv + (src_height - 1) * (ptrdiff_t)src_stride_uv;
     src_stride_uv = -src_stride_uv;
   }
-  src_width = Abs(src_width);
 
 #ifdef HAS_UVCOPY
   if (!filtering && src_width == dst_width && (src_height % dst_height == 0)) {

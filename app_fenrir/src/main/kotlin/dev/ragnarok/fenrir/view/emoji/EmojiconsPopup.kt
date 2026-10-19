@@ -143,7 +143,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
         val accountId = Settings.get()
             .accounts()
             .current
-        val stickerSets = InteractorFactory.createStickersInteractor()
+        val stickerSets = InteractorFactory.sticker
             .getStickerSets(accountId)
             .syncSingleSafe()
         val view = LayoutInflater.from(mContext).inflate(R.layout.emojicons, parent, false)

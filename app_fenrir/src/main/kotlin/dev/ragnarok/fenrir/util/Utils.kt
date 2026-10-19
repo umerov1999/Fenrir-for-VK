@@ -122,6 +122,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import okio.Source
 import java.io.BufferedInputStream
 import java.io.Closeable
 import java.io.File
@@ -392,7 +393,7 @@ object Utils {
         val ids = HashMap<Long, ArrayList<Int>>(count)
         for (t in data) {
             if (t?.let { predicate.invoke(it) } == true) {
-                ids.getOrPut(t.getObjectOwnerId(), { ArrayList() }).add(t.getObjectId())
+                ids.getOrPut(t.getObjectOwnerId()) { ArrayList() }.add(t.getObjectId())
             }
         }
         return ids
@@ -646,6 +647,15 @@ object Utils {
         if (closeable != null) {
             try {
                 closeable.close()
+            } catch (_: IOException) {
+            }
+        }
+    }
+
+    fun safelyClose(source: Source?) {
+        if (source != null) {
+            try {
+                source.close()
             } catch (_: IOException) {
             }
         }

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.fave.favevideos
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IFaveInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -10,7 +10,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class FaveVideosPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IFaveVideosView>(accountId, savedInstanceState) {
-    private val faveInteractor: IFaveInteractor = InteractorFactory.createFaveInteractor()
+    private val faveInteractor: IFaveInteractor = InteractorFactory.fave
     private val mVideos: ArrayList<Video> = ArrayList()
     private val cacheDisposable = CompositeJob()
     private val netDisposable = CompositeJob()
@@ -134,7 +134,7 @@ class FaveVideosPresenter(accountId: Long, savedInstanceState: Bundle?) :
 
     fun fireVideoPlay(video: Video) {
         appendJob(
-            InteractorFactory.createVideosInteractor()
+            InteractorFactory.video
                 .getById(accountId, video.ownerId, video.id, video.accessKey, false)
                 .fromIOToMain({
                     view?.goPlayVideo(accountId, it)

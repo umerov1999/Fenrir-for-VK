@@ -38,7 +38,7 @@ class Sticker : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "sticker_$id"
     }
 
     fun getImage(prefSize: Int, isNight: Boolean): Image {

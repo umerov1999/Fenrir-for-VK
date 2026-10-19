@@ -90,7 +90,7 @@ class DocumentDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "doc_${id}_${ownerId}"
     }
 
     @Keep

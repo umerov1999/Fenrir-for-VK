@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.fragment.messages.conversationattachments.conversati
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.api.Apis.get
 import dev.ragnarok.fenrir.api.model.VKApiDoc
 import dev.ragnarok.fenrir.api.model.interfaces.VKApiAttachment
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
@@ -30,9 +29,16 @@ class ChatAttachmentDocsPresenter(peerId: Long, accountId: Long, savedInstanceSt
         peerId: Long,
         nextFrom: String?
     ): Flow<Pair<String?, List<Document>>> {
-        return get().vkDefault(accountId)
-            .messages()
-            .getHistoryAttachments(peerId, VKApiAttachment.TYPE_DOC, nextFrom, 1, 1, 45, 50, null)
+        return messageRepository.getHistoryAttachments(
+            accountId = accountId,
+            peerId = peerId,
+            mediaType = VKApiAttachment.TYPE_DOC,
+            startFrom = nextFrom,
+            count = 50,
+            photoSizes = true,
+            preserveOrder = true,
+            maxForwardsLevel = 45
+        )
             .map { response ->
                 val docs: MutableList<Document> = ArrayList(
                     Utils.safeCountOf(response.items)
@@ -42,7 +48,7 @@ class ChatAttachmentDocsPresenter(peerId: Long, accountId: Long, savedInstanceSt
                         if (one.entry != null && one.entry?.attachment is VKApiDoc) {
                             val dto = one.entry?.attachment as VKApiDoc
                             docs.add(
-                                Dto2Model.transform(dto).setMsgId(one.messageId)
+                                Dto2Model.transform(dto).setMsgCmId(one.cmId)
                                     .setMsgPeerId(peerId)
                             )
                         }

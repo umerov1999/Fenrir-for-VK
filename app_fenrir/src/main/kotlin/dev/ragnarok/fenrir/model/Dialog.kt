@@ -40,6 +40,8 @@ class Dialog : IdentificableOwner, Parcelable {
         private set
     var majorId = 0
         private set
+    var minorId = 0
+        private set
 
     constructor()
     internal constructor(parcel: Parcel) {
@@ -55,6 +57,7 @@ class Dialog : IdentificableOwner, Parcelable {
         inReadCmId = parcel.readInt()
         outReadCmId = parcel.readInt()
         majorId = parcel.readInt()
+        minorId = parcel.readInt()
         isGroupChannel = parcel.getBoolean()
     }
 
@@ -235,6 +238,11 @@ class Dialog : IdentificableOwner, Parcelable {
         return this
     }
 
+    fun setMinorId(minorId: Int): Dialog {
+        this.minorId = minorId
+        return this
+    }
+
     override fun getOwnerObjectId(): Long {
         return peerId
     }
@@ -256,6 +264,7 @@ class Dialog : IdentificableOwner, Parcelable {
         dest.writeInt(inReadCmId)
         dest.writeInt(outReadCmId)
         dest.writeInt(majorId)
+        dest.writeInt(minorId)
         dest.putBoolean(isGroupChannel)
     }
 

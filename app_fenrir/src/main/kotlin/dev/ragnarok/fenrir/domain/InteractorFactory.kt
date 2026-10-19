@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.domain.impl.AudioInteractor
 import dev.ragnarok.fenrir.domain.impl.BoardInteractor
 import dev.ragnarok.fenrir.domain.impl.CommunitiesInteractor
 import dev.ragnarok.fenrir.domain.impl.DatabaseInteractor
-import dev.ragnarok.fenrir.domain.impl.DialogsInteractor
 import dev.ragnarok.fenrir.domain.impl.DocsInteractor
 import dev.ragnarok.fenrir.domain.impl.FaveInteractor
 import dev.ragnarok.fenrir.domain.impl.FeedInteractor
@@ -25,67 +24,82 @@ import dev.ragnarok.fenrir.domain.impl.StickersInteractor
 import dev.ragnarok.fenrir.domain.impl.StoriesShortVideosInteractor
 import dev.ragnarok.fenrir.domain.impl.UtilsInteractor
 import dev.ragnarok.fenrir.domain.impl.VideosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IBoardInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ICommunitiesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IDocsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IFaveInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IFeedInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IFeedbackInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IGroupSettingsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IPollInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IStickersInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IStoriesShortVideosInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IVideosInteractor
 import dev.ragnarok.fenrir.settings.Settings
 
 object InteractorFactory {
-    fun createStickersInteractor(): IStickersInteractor {
-        return StickersInteractor(networkInterfaces, stores.stickers())
+    val sticker: IStickersInteractor by lazy {
+        StickersInteractor(networkInterfaces, stores.stickers())
     }
 
-    fun createPollInteractor(): IPollInteractor {
-        return PollInteractor(networkInterfaces)
+    val poll: IPollInteractor by lazy {
+        PollInteractor(networkInterfaces)
     }
 
-    fun createDocsInteractor(): IDocsInteractor {
-        return DocsInteractor(networkInterfaces, stores.docs())
+    val doc: IDocsInteractor by lazy {
+        DocsInteractor(networkInterfaces, stores.docs())
     }
 
-    fun createLikesInteractor(): ILikesInteractor {
-        return LikesInteractor(networkInterfaces)
+    val like: ILikesInteractor by lazy {
+        LikesInteractor(networkInterfaces)
     }
 
-    fun createFeedbackInteractor(): IFeedbackInteractor {
-        return FeedbackInteractor(stores, networkInterfaces, owners)
+    val feedback: IFeedbackInteractor by lazy {
+        FeedbackInteractor(stores, networkInterfaces, owners)
     }
 
-    fun createDatabaseInteractor(): IDatabaseInteractor {
-        return DatabaseInteractor(stores.database(), networkInterfaces)
+    val database: IDatabaseInteractor by lazy {
+        DatabaseInteractor(stores.database(), networkInterfaces)
     }
 
-    fun createCommunitiesInteractor(): ICommunitiesInteractor {
-        return CommunitiesInteractor(networkInterfaces, stores)
+    val community: ICommunitiesInteractor by lazy {
+        CommunitiesInteractor(networkInterfaces, stores)
     }
 
-    fun createBoardInteractor(): IBoardInteractor {
-        return BoardInteractor(networkInterfaces, stores, owners)
+    val board: IBoardInteractor by lazy {
+        BoardInteractor(networkInterfaces, stores, owners)
     }
 
-    fun createUtilsInteractor(): IUtilsInteractor {
-        return UtilsInteractor(networkInterfaces, stores, owners)
+    val utils: IUtilsInteractor by lazy {
+        UtilsInteractor(networkInterfaces, stores, owners)
     }
 
-    fun createRelationshipInteractor(): IRelationshipInteractor {
-        return RelationshipInteractor(stores, networkInterfaces)
+    val relationship: IRelationshipInteractor by lazy {
+        RelationshipInteractor(stores, networkInterfaces)
     }
 
-    fun createFeedInteractor(): IFeedInteractor {
-        return FeedInteractor(networkInterfaces, stores, Settings.get().main(), owners)
+    val feed: IFeedInteractor by lazy {
+        FeedInteractor(networkInterfaces, stores, Settings.get().main(), owners)
     }
 
-    fun createGroupSettingsInteractor(): IGroupSettingsInteractor {
-        return GroupSettingsInteractor(networkInterfaces, stores.owners(), owners)
+    val groupSettings: IGroupSettingsInteractor by lazy {
+        GroupSettingsInteractor(networkInterfaces, stores.owners(), owners)
     }
 
-    fun createDialogsInteractor(): IDialogsInteractor {
-        return DialogsInteractor(networkInterfaces, stores)
+    val video: IVideosInteractor by lazy {
+        VideosInteractor(networkInterfaces, stores)
     }
 
-    fun createVideosInteractor(): IVideosInteractor {
-        return VideosInteractor(networkInterfaces, stores)
-    }
-
-    fun createAccountInteractor(): IAccountsInteractor {
-        return AccountsInteractor(
+    val account: IAccountsInteractor by lazy {
+        AccountsInteractor(
             networkInterfaces,
             settings.accounts(),
             blacklistRepository,
@@ -93,23 +107,23 @@ object InteractorFactory {
         )
     }
 
-    fun createPhotosInteractor(): IPhotosInteractor {
-        return PhotosInteractor(networkInterfaces, stores)
+    val photo: IPhotosInteractor by lazy {
+        PhotosInteractor(networkInterfaces, stores)
     }
 
-    fun createFaveInteractor(): IFaveInteractor {
-        return FaveInteractor(networkInterfaces, stores, owners)
+    val fave: IFaveInteractor by lazy {
+        FaveInteractor(networkInterfaces, stores, owners)
     }
 
-    fun createLocalServerInteractor(): ILocalServerInteractor {
-        return LocalServerInteractor(networkInterfaces)
+    val localServer: ILocalServerInteractor by lazy {
+        LocalServerInteractor(networkInterfaces)
     }
 
-    fun createAudioInteractor(): IAudioInteractor {
-        return AudioInteractor(networkInterfaces)
+    val audio: IAudioInteractor by lazy {
+        AudioInteractor(networkInterfaces)
     }
 
-    fun createStoriesInteractor(): IStoriesShortVideosInteractor {
-        return StoriesShortVideosInteractor(networkInterfaces, owners)
+    val story: IStoriesShortVideosInteractor by lazy {
+        StoriesShortVideosInteractor(networkInterfaces, owners)
     }
 }

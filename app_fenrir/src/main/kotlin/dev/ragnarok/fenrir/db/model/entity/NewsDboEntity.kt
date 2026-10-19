@@ -58,7 +58,7 @@ class NewsDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "${sourceId}_${postId}"
+        return "news_${sourceId}_${postId}"
     }
 
     fun setDonut(donut: Boolean): NewsDboEntity {

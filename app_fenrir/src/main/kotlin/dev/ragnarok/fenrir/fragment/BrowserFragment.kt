@@ -30,8 +30,8 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.UserAgentTool
 import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
-import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
 import dev.ragnarok.fenrir.link.LinkHelper.openLinkInBrowser
 import dev.ragnarok.fenrir.link.LinkHelper.openVKLink
@@ -57,7 +57,7 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
     private var mAccountId = 0L
     private var title: String? = null
     private var webState: Bundle? = null
-    private var mUtilsInteractor: IUtilsInteractor = InteractorFactory.createUtilsInteractor()
+    private var mUtilsInteractor: IUtilsInteractor = InteractorFactory.utils
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAccountId = requireArguments().getLong(Extra.ACCOUNT_ID)

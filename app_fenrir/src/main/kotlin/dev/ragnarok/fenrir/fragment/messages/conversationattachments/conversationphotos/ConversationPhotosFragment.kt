@@ -77,7 +77,7 @@ class ConversationPhotosFragment :
     override fun onGoPhotoConversation(photo: Photo) {
         presenter?.fireGoToMessagesLookup(
             photo.msgPeerId,
-            photo.msgId
+            photo.msgCmId
         )
     }
 }

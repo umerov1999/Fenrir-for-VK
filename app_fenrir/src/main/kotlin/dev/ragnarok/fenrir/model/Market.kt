@@ -78,7 +78,7 @@ class Market : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${owner_id}"
+        return "market_${id}_${owner_id}"
     }
 
     fun setAccess_key(access_key: String?): Market {

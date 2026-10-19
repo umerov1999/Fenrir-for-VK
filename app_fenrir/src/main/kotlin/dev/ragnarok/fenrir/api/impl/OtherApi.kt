@@ -1,7 +1,7 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.api.IVKRestProvider
 import dev.ragnarok.fenrir.api.interfaces.IOtherApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IVKRestProvider
 import dev.ragnarok.fenrir.api.rest.HttpException
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Optional

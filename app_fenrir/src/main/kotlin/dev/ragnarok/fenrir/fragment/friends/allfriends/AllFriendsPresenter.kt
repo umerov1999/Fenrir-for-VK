@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.friends.allfriends
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
@@ -18,12 +18,11 @@ import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.flatMapConcat
-import java.util.Locale
 
 class AllFriendsPresenter(accountId: Long, private val userId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IAllFriendsView>(accountId, savedInstanceState) {
     private val relationshipInteractor: IRelationshipInteractor =
-        InteractorFactory.createRelationshipInteractor()
+        InteractorFactory.relationship
     private val data: ArrayList<UsersPart> = ArrayList(3)
     private val actualDataDisposable = CompositeJob()
     private val cacheDisposable = CompositeJob()

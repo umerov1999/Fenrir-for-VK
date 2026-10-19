@@ -1027,10 +1027,10 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     override fun goToMessagesLookup(
         accountId: Long,
         peerId: Long,
-        messageId: Int,
+        cmId: Int,
         message: Message
     ) {
-        PlaceFactory.getMessagesLookupPlace(accountId, peerId, messageId, message)
+        PlaceFactory.getMessagesLookupPlace(accountId, peerId, cmId, message)
             .tryOpenWith(requireActivity())
     }
 
@@ -1050,7 +1050,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     override fun goToUnreadMessages(
         accountId: Long,
-        messageId: Int,
+        cmId: Int,
         incoming: Int,
         outgoing: Int,
         unreadCount: Int,
@@ -1068,7 +1068,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             Extra.PLACE,
             PlaceFactory.getUnreadMessagesPlace(
                 accountId,
-                messageId,
+                cmId,
                 incoming,
                 outgoing,
                 unreadCount,

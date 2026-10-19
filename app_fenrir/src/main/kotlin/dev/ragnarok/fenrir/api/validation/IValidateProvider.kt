@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.api.validation
 
-import dev.ragnarok.fenrir.api.OutOfDateException
+import dev.ragnarok.fenrir.api.exceptions.OutOfDateException
 import kotlinx.coroutines.flow.SharedFlow
 
 interface IValidateProvider {

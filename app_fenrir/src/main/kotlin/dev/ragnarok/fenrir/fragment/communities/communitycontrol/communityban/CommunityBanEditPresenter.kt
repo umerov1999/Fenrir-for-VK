@@ -2,8 +2,8 @@ package dev.ragnarok.fenrir.fragment.communities.communitycontrol.communityban
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Banned
 import dev.ragnarok.fenrir.model.BlockReason
@@ -46,7 +46,7 @@ class CommunityBanEditPresenter : AccountDependencyPresenter<ICommunityBanEditVi
         comment = info.comment
         showCommentToUser = info.isCommentVisible
         index = 0
-        interactor = InteractorFactory.createGroupSettingsInteractor()
+        interactor = InteractorFactory.groupSettings
     }
 
     constructor(
@@ -61,7 +61,7 @@ class CommunityBanEditPresenter : AccountDependencyPresenter<ICommunityBanEditVi
         index = 0
         blockFor = BlockFor(BlockFor.FOREVER) // by default
         reason = BlockReason.OTHER
-        interactor = InteractorFactory.createGroupSettingsInteractor()
+        interactor = InteractorFactory.groupSettings
     }
 
     private fun currentBanned(): Owner {

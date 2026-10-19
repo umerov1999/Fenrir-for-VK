@@ -11,9 +11,10 @@ import kotlinx.serialization.Serializable
 class FCMMessage {
     var peerId = 0L
     var cmId = 0
+    var message_id = 0
     fun notify(accountId: Long) {
         try {
-            realtimeMessages.process(accountId, cmId, peerId, true)
+            realtimeMessages.process(accountId, cmId, peerId, message_id, true)
         } catch (e: QueueContainsException) {
             e.printStackTrace()
         }
@@ -29,6 +30,9 @@ class FCMMessage {
 
         @SerialName("chat_id")
         var chat_id = 0
+
+        @SerialName("msg_id")
+        var msg_id = 0
     }
 
     companion object {
@@ -37,7 +41,9 @@ class FCMMessage {
             val data = remote.data
             val context: MessageContext =
                 kJson.decodeFromString(MessageContext.serializer(), data["context"] ?: return null)
-            message.peerId = if (context.chat_id == 0) context.sender_id else Peer.fromChatId(context.chat_id.toLong())
+            message.message_id = context.msg_id
+            message.peerId =
+                if (context.chat_id == 0) context.sender_id else Peer.fromChatId(context.chat_id.toLong())
             message.cmId = context.conversation_message_id
             if (message.cmId == 0 || message.peerId == 0L) {
                 return null

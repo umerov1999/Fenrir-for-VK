@@ -589,7 +589,8 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                         .setPositiveButton(R.string.button_ok) { _, _ ->
                             Settings.get().accounts().storeDevice(
                                 account.getOwnerObjectId(),
-                                root.findViewById<TextInputEditText>(R.id.editText).text?.toString()?.trim()
+                                root.findViewById<TextInputEditText>(R.id.editText).text?.toString()
+                                    ?.trim()
                             )
                             Includes.proxySettings.broadcastUpdate(null)
                         }

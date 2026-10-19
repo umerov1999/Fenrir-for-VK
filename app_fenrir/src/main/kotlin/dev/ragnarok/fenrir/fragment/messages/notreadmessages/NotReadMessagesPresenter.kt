@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.fragment.messages.notreadmessages
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.Mode
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.messages.AbsMessageListPresenter
 import dev.ragnarok.fenrir.model.LoadMoreState
 import dev.ragnarok.fenrir.model.Message
@@ -127,7 +127,7 @@ class NotReadMessagesPresenter(
         val ids = ArrayList<Int>(data.size)
         for (i in data) {
             if (i.isSelected) {
-                ids.add(i.getObjectId())
+                ids.add(i.cmId)
             }
         }
         if (ids.nonNullNoEmpty()) {
@@ -150,7 +150,7 @@ class NotReadMessagesPresenter(
         val ids = ArrayList<Int>(data.size)
         for (i in data) {
             if (i.isSelected) {
-                ids.add(i.getObjectId())
+                ids.add(i.cmId)
             }
         }
         if (ids.nonNullNoEmpty()) {
@@ -188,9 +188,9 @@ class NotReadMessagesPresenter(
     }
 
     private val lastCmId: Int?
-        get() = if (data.isEmpty()) null else data[data.size - 1].getObjectId()
+        get() = if (data.isEmpty()) null else data[data.size - 1].cmId
     private val firstCmId: Int?
-        get() = if (data.isEmpty()) null else data[0].getObjectId()
+        get() = if (data.isEmpty()) null else data[0].cmId
 
     override fun onActionModeForwardClick() {
         super.onActionModeForwardClick()
@@ -204,10 +204,10 @@ class NotReadMessagesPresenter(
     }
 
     fun fireMessageRestoreClick(message: Message) {
-        val id = message.getObjectId()
+        val cmId = message.cmId
         appendJob(
-            messagesInteractor.restoreMessage(accountId, peer.id, id)
-                .fromIOToMain({ onMessageRestoredSuccessfully(id) }) { t ->
+            messagesInteractor.restoreMessage(accountId, peer.id, cmId)
+                .fromIOToMain({ onMessageRestoredSuccessfully(cmId) }) { t ->
                     showError(t)
                 })
     }
@@ -293,12 +293,12 @@ class NotReadMessagesPresenter(
             lastReadId.incoming = message.cmId
             view?.notifyDataChanged()
             appendJob(
-                messagesInteractor.markAsRead(accountId, peer.id, message.cmId)
+                messagesInteractor.markAsRead(accountId, peer.id, message.messageId)
                     .fromIOToMain({
                         appendJob(
                             messagesInteractor.getConversationByIdSingle(
                                 accountId,
-                                peer.id, Mode.NET
+                                peer.id, FetchMode.NET
                             )
                                 .fromIOToMain({ e ->
                                     unreadCount = e.unreadCount
@@ -348,7 +348,8 @@ class NotReadMessagesPresenter(
             loadingState.HeaderEnable()
         }
         data.addAll(0, messages)
-        view?.notifyItemsAdded(0,
+        view?.notifyItemsAdded(
+            0,
             messages.size
         )
     }

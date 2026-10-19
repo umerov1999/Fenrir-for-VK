@@ -4,7 +4,6 @@ import dev.ragnarok.fenrir.api.model.VKApiChat
 import dev.ragnarok.fenrir.db.PeerStateEntity
 import dev.ragnarok.fenrir.db.model.PeerPatch
 import dev.ragnarok.fenrir.db.model.entity.DialogDboEntity
-import dev.ragnarok.fenrir.db.model.entity.KeyboardEntity
 import dev.ragnarok.fenrir.db.model.entity.PeerDialogEntity
 import dev.ragnarok.fenrir.model.Chat
 import dev.ragnarok.fenrir.model.criteria.DialogsCriteria

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.communities.communitycontrol.communitymembers
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.settings.Settings
@@ -16,7 +16,7 @@ class CommunityMembersPresenter(
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<ICommunityMembersView>(accountId, savedInstanceState) {
     private val relationshipInteractor: IRelationshipInteractor =
-        InteractorFactory.createRelationshipInteractor()
+        InteractorFactory.relationship
     private val mMembers: ArrayList<Owner> = ArrayList()
     private val netDisposable = CompositeJob()
     private var mEndOfContent = false

@@ -404,8 +404,6 @@ static bool _draw(LottieGroup* parent, LottieShape* shape, RenderContext* ctx)
 
 static void _repeat(LottieGroup* parent, Shape* path, LottieRenderPooler<Shape>* pooler, RenderContext* ctx)
 {
-    path->ref();  //prevent pooler returns the same path.
-
     Array<Shape*> propagators;
     propagators.push(ctx->propagator);
     Array<Shape*> shapes;
@@ -455,7 +453,6 @@ static void _repeat(LottieGroup* parent, Shape* path, LottieRenderPooler<Shape>*
         }
         shapes.clear();
     }
-    path->unref();
 }
 
 void LottieBuilder::appendRect(LottieRect* rect, Shape* shape, Point& pos, Point& size, float r, bool clockwise, RenderContext* ctx)
@@ -490,9 +487,11 @@ void LottieBuilder::updateRect(LottieGroup* parent, LottieObject** child, float 
         appendRect(rect, ctx->merging, pos, size, r, rect->clockwise, ctx);
     } else {
         auto shape = rect->pooling();
+        shape->ref();  //prevent modifiers from reusing the output shape.
         shape->reset();
         appendRect(rect, shape, pos, size, r, rect->clockwise, ctx);
         _repeat(parent, shape, rect, ctx);
+        shape->unref();
     }
 }
 
@@ -527,9 +526,11 @@ void LottieBuilder::updateEllipse(LottieGroup* parent, LottieObject** child, flo
         appendCircle(ellipse, ctx->merging, pos, size, ellipse->clockwise, ctx);
     } else {
         auto shape = ellipse->pooling();
+        shape->ref();  //prevent modifiers from reusing the output shape.
         shape->reset();
         appendCircle(ellipse, shape, pos, size, ellipse->clockwise, ctx);
         _repeat(parent, shape, ellipse, ctx);
+        shape->unref();
     }
 }
 
@@ -544,9 +545,11 @@ void LottieBuilder::updatePath(LottieGroup* parent, LottieObject** child, float 
         PAINT(ctx->merging)->mark(RenderUpdateFlag::Path);
     } else {
         auto shape = path->pooling();
+        shape->ref();  //prevent modifiers from reusing the output shape.
         shape->reset();
         path->pathset(frameNo, to<ShapeImpl>(shape)->rs.path, ctx->transform, tween, exps, ctx->modifiers);
         _repeat(parent, shape, path, ctx);
+        shape->unref();
     }
 }
 
@@ -562,6 +565,8 @@ void LottieBuilder::updateStar(LottiePolyStar* star, float frameNo, Matrix* tran
     static constexpr auto POLYSTAR_MAGIC_NUMBER = 0.47829f / 0.28f;
 
     auto ptsCnt = star->ptsCnt(frameNo, tween, exps);
+    if (ptsCnt < 1.0f) return;
+
     auto innerRadius = star->innerRadius(frameNo, tween, exps);
     auto outerRadius = star->outerRadius(frameNo, tween, exps);
     auto innerRoundness = star->innerRoundness(frameNo, tween, exps) * 0.01f;
@@ -670,11 +675,13 @@ void LottieBuilder::updateStar(LottiePolyStar* star, float frameNo, Matrix* tran
     if (ctx->modifiers) ctx->modifiers->polystar(to<ShapeImpl>(shape)->rs.path, to<ShapeImpl>(merging)->rs.path, outerRoundness, hasRoundness);
 }
 
-void LottieBuilder::updatePolygon(LottieGroup* parent, LottiePolyStar* star, float frameNo, Matrix* transform, Shape* merging, RenderContext* ctx, LottieTween& tween, LottieExpressions* exps)
+void LottieBuilder::updatePolygon(LottiePolyStar* star, float frameNo, Matrix* transform, Shape* merging, RenderContext* ctx, LottieTween& tween, LottieExpressions* exps)
 {
     static constexpr auto POLYGON_MAGIC_NUMBER = 0.25f;
 
-    auto ptsCnt = size_t(floor(star->ptsCnt(frameNo, tween, exps)));
+    auto ptsCnt = int(floor(star->ptsCnt(frameNo, tween, exps)));
+    if (ptsCnt < 1) return;
+
     auto radius = star->outerRadius(frameNo, tween, exps);
     auto outerRoundness = star->outerRoundness(frameNo, tween, exps) * 0.01f;
 
@@ -706,7 +713,7 @@ void LottieBuilder::updatePolygon(LottieGroup* parent, LottiePolyStar* star, flo
     shape->moveTo(in.x, in.y);
 
     auto coeff = anglePerPoint * radius * outerRoundness * POLYGON_MAGIC_NUMBER;
-    for (size_t i = 0; i < ptsCnt; i++) {
+    for (int i = 0; i < ptsCnt; i++) {
         auto previousX = x;
         auto previousY = y;
         x = (radius * cosf(angle));
@@ -755,14 +762,16 @@ void LottieBuilder::updatePolystar(LottieGroup* parent, LottieObject** child, fl
     if (ctx->repeaters.empty()) {
         _draw(parent, star, ctx);
         if (star->type == LottiePolyStar::Star) updateStar(star, frameNo, (identity ? nullptr : &matrix), ctx->merging, ctx, tween, exps);
-        else updatePolygon(parent, star, frameNo, (identity  ? nullptr : &matrix), ctx->merging, ctx, tween, exps);
+        else updatePolygon(star, frameNo, (identity  ? nullptr : &matrix), ctx->merging, ctx, tween, exps);
         PAINT(ctx->merging)->mark(RenderUpdateFlag::Path);
     } else {
         auto shape = star->pooling();
+        shape->ref();  //prevent modifiers from reusing the output shape.
         shape->reset();
         if (star->type == LottiePolyStar::Star) updateStar(star, frameNo, (identity ? nullptr : &matrix), shape, ctx, tween, exps);
-        else updatePolygon(parent, star, frameNo, (identity  ? nullptr : &matrix), shape, ctx, tween, exps);
+        else updatePolygon(star, frameNo, (identity  ? nullptr : &matrix), shape, ctx, tween, exps);
         _repeat(parent, shape, star, ctx);
+        shape->unref();
     }
 }
 
@@ -1720,6 +1729,12 @@ void LottieBuilder::updateAudio(LottieComposition* comp, LottieLayer* layer, flo
 {
     if (layer->children.empty()) return;
 
+    auto audio = static_cast<LottieAudio*>(layer->children.first());
+    if (audio->type != LottieObject::Type::Audio) {
+        TVGERR("LOTTIE", "Expected audio data.");
+        return;
+    }
+
     auto ctrl = layer->audio();
     auto pos = layer->remap(comp, frameNo, exps);
     if (pos < 0.0f) active = false;    
@@ -1728,7 +1743,7 @@ void LottieBuilder::updateAudio(LottieComposition* comp, LottieLayer* layer, flo
 
     // audio condition is changed
     if ((active != ctrl->prevActive) || (active && !tvg::equal(value, ctrl->prevVolume))) {
-        auto& src = static_cast<LottieAudio*>(layer->children.first())->src;
+        auto& src = audio->src;
         auto offset = active ? pos / comp->frameRate : 0.0f;
         LottieAudioResolver info = {src.data, src.mimeType, src.size, offset, value, active, (src.size > 0)};
         audioResolver.func(info, audioResolver.data);

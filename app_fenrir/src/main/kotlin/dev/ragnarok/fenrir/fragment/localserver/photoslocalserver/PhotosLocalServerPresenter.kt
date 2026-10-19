@@ -3,8 +3,8 @@ package dev.ragnarok.fenrir.fragment.localserver.photoslocalserver
 import android.os.Bundle
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
-import dev.ragnarok.fenrir.domain.ILocalServerInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.TmpSource
@@ -26,7 +26,7 @@ class PhotosLocalServerPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IPhotosLocalServerView>(accountId, savedInstanceState) {
     private val photos: MutableList<Photo> = ArrayList()
     private val fInteractor: ILocalServerInteractor =
-        InteractorFactory.createLocalServerInteractor()
+        InteractorFactory.localServer
     private var actualDataDisposable = CancelableJob()
     private var Foffset = 0
     private var actualDataReceived = false

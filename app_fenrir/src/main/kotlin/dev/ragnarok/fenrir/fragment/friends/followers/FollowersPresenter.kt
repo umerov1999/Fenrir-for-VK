@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.fragment.friends.followers
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
-import dev.ragnarok.fenrir.domain.IRelationshipInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IRelationshipInteractor
 import dev.ragnarok.fenrir.fragment.absownerslist.SimpleOwnersPresenter
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
@@ -16,9 +16,9 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 class FollowersPresenter(accountId: Long, private val userId: Long, savedInstanceState: Bundle?) :
     SimpleOwnersPresenter<IFollowersView>(accountId, savedInstanceState) {
     private val relationshipInteractor: IRelationshipInteractor =
-        InteractorFactory.createRelationshipInteractor()
+        InteractorFactory.relationship
     private val accountsInteractor: IAccountsInteractor =
-        InteractorFactory.createAccountInteractor()
+        InteractorFactory.account
     private val actualDataDisposable = CompositeJob()
     private val cacheDisposable = CompositeJob()
     private val isNotFriendShow: Boolean = Settings.get().main().isOwnerInChangesMonitor(userId)

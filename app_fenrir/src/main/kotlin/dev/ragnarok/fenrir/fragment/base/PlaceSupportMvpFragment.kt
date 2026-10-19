@@ -6,7 +6,7 @@ import android.view.View
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity
 import dev.ragnarok.fenrir.dialog.PostShareDialog
-import dev.ragnarok.fenrir.domain.ILikesInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ILikesInteractor
 import dev.ragnarok.fenrir.fragment.base.AttachmentsViewBinder.OnAttachmentsActionCallback
 import dev.ragnarok.fenrir.fragment.base.core.IMvpView
 import dev.ragnarok.fenrir.fragment.base.listener.OwnerClickListener
@@ -130,8 +130,8 @@ abstract class PlaceSupportMvpFragment<P : PlaceSupportPresenter<V>, V> : BaseMv
         presenter?.fireGoToMessagesLookup(message)
     }
 
-    override fun goToMessagesLookupFWD(accountId: Long, peerId: Long, messageId: Int) {
-        PlaceFactory.getMessagesLookupPlace(accountId, peerId, messageId, null)
+    override fun goToMessagesLookupFWD(accountId: Long, peerId: Long, cmId: Int) {
+        PlaceFactory.getMessagesLookupPlace(accountId, peerId, cmId, null)
             .tryOpenWith(requireActivity())
     }
 

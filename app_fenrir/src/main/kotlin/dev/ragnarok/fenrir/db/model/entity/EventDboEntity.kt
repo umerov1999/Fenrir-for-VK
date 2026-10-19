@@ -16,7 +16,7 @@ class EventDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "event_$id"
     }
 
     fun setId(id: Long): EventDboEntity {

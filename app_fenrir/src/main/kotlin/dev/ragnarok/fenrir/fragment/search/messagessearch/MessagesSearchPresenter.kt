@@ -2,9 +2,9 @@ package dev.ragnarok.fenrir.fragment.search.messagessearch
 
 import android.os.Bundle
 import dev.ragnarok.fenrir.Includes
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.Mode
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.MessageSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
@@ -122,7 +122,7 @@ class MessagesSearchPresenter(
         appendJob(
             messagesInteractor.getConversationByIdSingle(
                 accountId, message.peerId,
-                Mode.NET
+                FetchMode.NET
             ).fromIOToMain({
                 view?.goToPeerLookup(
                     accountId,
@@ -136,7 +136,7 @@ class MessagesSearchPresenter(
         view?.goToMessagesLookup(
             accountId,
             message.peerId,
-            message.getObjectId()
+            message.cmId
         )
     }
 

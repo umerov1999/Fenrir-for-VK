@@ -100,7 +100,7 @@ class FeedbackVKOfficialDtoAdapter :
                     val contextItem = actionItem["context"]?.jsonObject
                     dto.action = ActionMessage(
                         optLong(contextItem, "peer_id", 0),
-                        optInt(contextItem, "id", 0)
+                        optInt(contextItem, "conversation_message_id", 0)
                     )
                 }
             }

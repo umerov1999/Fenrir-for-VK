@@ -7,8 +7,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IAudioInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
@@ -30,7 +30,6 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
 import kotlinx.coroutines.flow.Flow
-import java.util.Locale
 
 class AudiosPresenter(
     accountId: Long,
@@ -40,7 +39,7 @@ class AudiosPresenter(
     private val iSSelectMode: Boolean,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IAudiosView>(accountId, savedInstanceState) {
-    private val audioInteractor: IAudioInteractor = InteractorFactory.createAudioInteractor()
+    private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     private val audios: ArrayList<Audio> = ArrayList()
     val playlistId: Int? = albumId
     private val audioListDisposable = CompositeJob()

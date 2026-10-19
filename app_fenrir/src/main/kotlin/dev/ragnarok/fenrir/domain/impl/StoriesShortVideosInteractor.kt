@@ -5,8 +5,9 @@ import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.api.model.VKApiStory
 import dev.ragnarok.fenrir.api.model.response.StoryBlockResponse
-import dev.ragnarok.fenrir.domain.IOwnersRepository
-import dev.ragnarok.fenrir.domain.IStoriesShortVideosInteractor
+import dev.ragnarok.fenrir.domain.FetchMode
+import dev.ragnarok.fenrir.domain.interfaces.IOwnersRepository
+import dev.ragnarok.fenrir.domain.interfaces.IStoriesShortVideosInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transform
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformNarrative
@@ -105,7 +106,7 @@ class StoriesShortVideosInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map { owners1 ->
@@ -141,7 +142,7 @@ class StoriesShortVideosInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map { owners1 ->
@@ -180,7 +181,7 @@ class StoriesShortVideosInteractor(
                 ownersRepository.findBaseOwnersDataAsBundle(
                     accountId,
                     ownIds.all,
-                    IOwnersRepository.MODE_ANY,
+                    FetchMode.ANY,
                     owners
                 )
                     .map { owners1 ->

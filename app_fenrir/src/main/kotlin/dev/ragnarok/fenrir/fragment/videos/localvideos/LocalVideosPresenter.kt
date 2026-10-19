@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class LocalVideosPresenter(savedInstanceState: Bundle?) :
     RxSupportPresenter<ILocalVideosView>(savedInstanceState) {

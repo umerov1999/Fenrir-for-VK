@@ -6,8 +6,8 @@ import android.net.Uri
 import android.os.Bundle
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IAccountsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IAccountsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.kJsonPretty
@@ -21,14 +21,13 @@ import okio.buffer
 import okio.source
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Locale
 
 class FriendsByPhonesPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IFriendsByPhonesView>(accountId, savedInstanceState) {
     private val data: MutableList<ContactConversation> = ArrayList()
     private val dataSearch: MutableList<ContactConversation> = ArrayList()
     private val accountsInteractor: IAccountsInteractor =
-        InteractorFactory.createAccountInteractor()
+        InteractorFactory.account
     private var netLoadingNow = false
     private var query: String? = null
     private fun resolveRefreshingView() {

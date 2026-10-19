@@ -9,9 +9,14 @@ import kotlinx.serialization.Transient
 @Keep
 @Serializable
 class MessageDboEntity : DboEntity {
+    @Transient
+    var localId = -1L
+        private set
     var cmId = 0
         private set
     var peerId = 0L
+        private set
+    var messageId = 0
         private set
     var fromId = 0L
         private set
@@ -35,9 +40,11 @@ class MessageDboEntity : DboEntity {
         private set
     var version = 0
         private set
+
     @MessageStatus
     var status = 0
         private set
+
     @ChatAction
     var action = 0
         private set
@@ -47,11 +54,11 @@ class MessageDboEntity : DboEntity {
         private set
     var actionText: String? = null
         private set
-    var photo50: String? = null
+    var actionPhoto50: String? = null
         private set
-    var photo100: String? = null
+    var actionPhoto100: String? = null
         private set
-    var photo200: String? = null
+    var actionPhoto200: String? = null
         private set
     var randomId: Long = 0
         private set
@@ -72,8 +79,27 @@ class MessageDboEntity : DboEntity {
         return this
     }
 
+    fun setCmId(cmId: Int): MessageDboEntity {
+        this.cmId = cmId
+        return this
+    }
+
+    fun setLocalId(localId: Long): MessageDboEntity {
+        this.localId = localId
+        return this
+    }
+
+    fun makeRandomId(): Long {
+        return localId + 1000000000
+    }
+
+    fun setMessageId(messageId: Int): MessageDboEntity {
+        this.messageId = messageId
+        return this
+    }
+
     override fun getAttachmentKey(): String {
-        return "${cmId}_${peerId}"
+        return "message_${cmId}_${peerId}"
     }
 
     fun setUpdateTime(updateTime: Long): MessageDboEntity {
@@ -146,18 +172,18 @@ class MessageDboEntity : DboEntity {
         return this
     }
 
-    fun setPhoto50(photo50: String?): MessageDboEntity {
-        this.photo50 = photo50
+    fun setActionPhoto50(actionPhoto50: String?): MessageDboEntity {
+        this.actionPhoto50 = actionPhoto50
         return this
     }
 
-    fun setPhoto100(photo100: String?): MessageDboEntity {
-        this.photo100 = photo100
+    fun setActionPhoto100(actionPhoto100: String?): MessageDboEntity {
+        this.actionPhoto100 = actionPhoto100
         return this
     }
 
-    fun setPhoto200(photo200: String?): MessageDboEntity {
-        this.photo200 = photo200
+    fun setActionPhoto200(actionPhoto200: String?): MessageDboEntity {
+        this.actionPhoto200 = actionPhoto200
         return this
     }
 

@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.MessageDtoAdapter
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -15,7 +14,7 @@ class VKApiMessage
  */
 {
     /**
-     * Conversation Message ID, positive number
+     * Conversation message ID, positive number
      */
     var conversation_message_id = 0
 
@@ -23,6 +22,11 @@ class VKApiMessage
      * For an incoming message, the user ID of the author. For an outgoing message, the user ID of the receiver.
      */
     var peer_id = 0L
+
+    /**
+     * Message ID, positive number
+     */
+    var message_id = 0
 
     /**
      * For an incoming message, the user ID of the author. For an outgoing message, the user ID of the receiver.

@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.shortedlinks
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IUtilsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.ShortLink
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -13,7 +13,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 class ShortedLinksPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IShortedLinksView>(accountId, savedInstanceState) {
     private val links: MutableList<ShortLink> = ArrayList()
-    private val fInteractor: IUtilsInteractor = InteractorFactory.createUtilsInteractor()
+    private val fInteractor: IUtilsInteractor = InteractorFactory.utils
     private val actualDataDisposable = CompositeJob()
     private var actualDataReceived = false
     private var endOfContent = false

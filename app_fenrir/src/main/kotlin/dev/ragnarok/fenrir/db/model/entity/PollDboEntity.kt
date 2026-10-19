@@ -47,7 +47,7 @@ class PollDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "poll_${id}_${ownerId}"
     }
 
     fun setMultiple(multiple: Boolean): PollDboEntity {

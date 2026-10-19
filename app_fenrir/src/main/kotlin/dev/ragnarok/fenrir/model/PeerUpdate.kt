@@ -11,6 +11,7 @@ class PeerUpdate(val accountId: Long, val peerId: Long) {
     var title: Title? = null
     var botKeyboard: BotKeyboard? = null
     var majorId: MajorId? = null
+    var minorId: MinorId? = null
 
     class Read(val cmId: Int)
     class Unread(val count: Int)
@@ -19,4 +20,5 @@ class PeerUpdate(val accountId: Long, val peerId: Long) {
     class Title(val title: String?)
     class BotKeyboard(val keyboard: KeyboardEntity?)
     class MajorId(val majorId: Int)
+    class MinorId(val minorId: Int)
 }

@@ -67,7 +67,11 @@ class IMessageService : IServiceRest() {
     }
 
     fun markAsListened(peerId: Long, cmId: Int): Flow<BaseResponse<Int>> {
-        return rest.request("messages.markAsListened", form("peer_id" to peerId, "cmid" to cmId), baseInt)
+        return rest.request(
+            "messages.markAsListened",
+            form("peer_id" to peerId, "cmid" to cmId),
+            baseInt
+        )
     }
 
     fun unpinMessage(peerId: Long): Flow<BaseResponse<Int>> {
@@ -362,6 +366,7 @@ class IMessageService : IServiceRest() {
         photoSizes: Int?,
         preserveOrder: Int?,
         maxForwardsLevel: Int?,
+        extended: Int?,
         fields: String?
     ): Flow<BaseResponse<AttachmentsHistoryResponse>> {
         return rest.request(
@@ -372,6 +377,7 @@ class IMessageService : IServiceRest() {
                 "start_from" to startFrom,
                 "count" to count,
                 "photo_sizes" to photoSizes,
+                "extended" to extended,
                 "fields" to fields,
                 "preserve_order" to preserveOrder,
                 "max_forwards_level" to maxForwardsLevel

@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.fragment.messages.messageslook
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IMessagesRepository
-import dev.ragnarok.fenrir.domain.Mode
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.messages
+import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.fragment.messages.AbsMessageListPresenter
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.LoadMoreState
@@ -36,7 +36,7 @@ class MessagesLookPresenter(
             messagesInteractor.getConversationByIdSingle(
                 accountId,
                 peer.id,
-                Mode.ANY
+                FetchMode.ANY
             )
                 .fromIOToMain(
                     { onConversationFetched(needFetchChat, it) },
@@ -188,7 +188,7 @@ class MessagesLookPresenter(
         val ids = ArrayList<Int>(data.size)
         for (i in data) {
             if (i.isSelected) {
-                ids.add(i.getObjectId())
+                ids.add(i.cmId)
             }
         }
         if (ids.nonNullNoEmpty()) {
@@ -211,7 +211,7 @@ class MessagesLookPresenter(
         val ids = ArrayList<Int>(data.size)
         for (i in data) {
             if (i.isSelected) {
-                ids.add(i.getObjectId())
+                ids.add(i.cmId)
             }
         }
         if (ids.nonNullNoEmpty()) {
@@ -249,9 +249,9 @@ class MessagesLookPresenter(
     }
 
     private val lastCmId: Int?
-        get() = if (data.isEmpty()) null else data[data.size - 1].getObjectId()
+        get() = if (data.isEmpty()) null else data[data.size - 1].cmId
     private val firstCmId: Int?
-        get() = if (data.isEmpty()) null else data[0].getObjectId()
+        get() = if (data.isEmpty()) null else data[0].cmId
 
     override fun onActionModeForwardClick() {
         super.onActionModeForwardClick()
@@ -265,16 +265,16 @@ class MessagesLookPresenter(
     }
 
     fun fireMessageRestoreClick(message: Message) {
-        val id = message.getObjectId()
+        val cmId = message.cmId
         appendJob(
-            messagesInteractor.restoreMessage(accountId, peer.id, id)
-                .fromIOToMain({ onMessageRestoredSuccessfully(id) }) { t ->
+            messagesInteractor.restoreMessage(accountId, peer.id, cmId)
+                .fromIOToMain({ onMessageRestoredSuccessfully(cmId) }) { t ->
                     showError(t)
                 })
     }
 
-    private fun onMessageRestoredSuccessfully(id: Int) {
-        val message = findById(id)
+    private fun onMessageRestoredSuccessfully(cmId: Int) {
+        val message = findById(cmId)
         if (message != null) {
             message.setDeleted(false)
             safeNotifyDataChanged()
@@ -322,7 +322,8 @@ class MessagesLookPresenter(
             loadingState.HeaderEnable()
         }
         data.addAll(0, messages)
-        view?.notifyItemsAdded(0,
+        view?.notifyItemsAdded(
+            0,
             messages.size
         )
     }

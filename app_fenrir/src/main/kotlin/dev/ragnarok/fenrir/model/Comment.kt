@@ -123,7 +123,7 @@ class Comment : AbsModel, Identificable {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${commented.sourceId}_${commented.sourceOwnerId}"
+        return "comment_${id}_${commented.sourceId}_${commented.sourceOwnerId}"
     }
 
     override fun getObjectId(): Int {

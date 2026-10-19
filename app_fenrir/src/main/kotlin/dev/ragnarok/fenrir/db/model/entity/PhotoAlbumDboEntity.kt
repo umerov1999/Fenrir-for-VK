@@ -42,7 +42,7 @@ class PhotoAlbumDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "photoalbum_${id}_${ownerId}"
     }
 
     fun setSize(size: Int): PhotoAlbumDboEntity {

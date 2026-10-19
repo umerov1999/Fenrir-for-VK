@@ -1,8 +1,8 @@
 package dev.ragnarok.fenrir.fragment.search.photosearch
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
 import dev.ragnarok.fenrir.fragment.search.abssearch.AbsSearchPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.PhotoSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
@@ -31,7 +31,7 @@ class PhotoSearchPresenter(
     criteria,
     savedInstanceState
 ) {
-    private val photoInteractor: IPhotosInteractor = InteractorFactory.createPhotosInteractor()
+    private val photoInteractor: IPhotosInteractor = InteractorFactory.photo
     override val initialNextFrom: IntNextFrom
         get() = IntNextFrom(0)
 

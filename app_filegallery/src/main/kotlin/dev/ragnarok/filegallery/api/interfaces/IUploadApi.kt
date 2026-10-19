@@ -4,14 +4,15 @@ import androidx.annotation.CheckResult
 import dev.ragnarok.filegallery.api.PercentagePublisher
 import dev.ragnarok.filegallery.api.model.response.BaseResponse
 import kotlinx.coroutines.flow.Flow
-import java.io.InputStream
+import okio.Source
 
 interface IUploadApi {
     @CheckResult
     fun remotePlayAudioRx(
         server: String,
         filename: String?,
-        inputStream: InputStream,
+        source: Source,
+        size: Long,
         listener: PercentagePublisher?
     ): Flow<BaseResponse<Int>>
 }

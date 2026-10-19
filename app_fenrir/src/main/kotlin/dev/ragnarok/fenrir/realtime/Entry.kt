@@ -36,10 +36,11 @@ class Entry(val accountId: Long, val id: Int, val isIgnoreIfExists: Boolean) {
         }
     }
 
-    fun append(cmId: Int, peerId: Long) {
+    fun append(cmId: Int, peerId: Long, minorId: Int) {
         val u = AddMessageUpdate()
         u.cmId = cmId
         u.peerId = peerId
+        u.minorId = minorId
         updates.prepareNonFull().add(u)
     }
 

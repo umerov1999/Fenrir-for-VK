@@ -32,7 +32,7 @@ class ConversationVideosFragment :
     override fun onVideoLongClick(position: Int, video: Video): Boolean {
         presenter?.fireGoToMessagesLookup(
             video.msgPeerId,
-            video.msgId
+            video.msgCmId
         )
         return true
     }

@@ -5,8 +5,8 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IDocsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDocsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.model.DocFilter
 import dev.ragnarok.fenrir.model.Document
@@ -39,7 +39,7 @@ class DocsListPresenter(
     private val mDocuments: MutableList<Document> = ArrayList()
     private val mAction: String? = action
     private val filters: MutableList<DocFilter>
-    private val docsInteractor: IDocsInteractor = InteractorFactory.createDocsInteractor()
+    private val docsInteractor: IDocsInteractor = InteractorFactory.doc
     private val uploadManager: IUploadManager = Includes.uploadManager
     private val destination: UploadDestination = forDocuments(ownerId)
     private val uploadsData: MutableList<Upload> = ArrayList(0)
@@ -94,7 +94,7 @@ class DocsListPresenter(
     }
 
     fun fireAddDocument(doc: Document) {
-        val docsInteractor = InteractorFactory.createDocsInteractor()
+        val docsInteractor = InteractorFactory.doc
         val accessKey = doc.accessKey
         appendJob(
             docsInteractor.add(

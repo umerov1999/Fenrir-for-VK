@@ -259,7 +259,7 @@ class AudioLocalServerRecyclerAdapter(
                         return@show
                     }
                     audioListDisposable.set(
-                        mAudioInteractor.update_time(hash)
+                        mAudioInteractor.updateTime(hash)
                             .fromIOToMain(
                                 {
                                     createCustomToast(
@@ -279,7 +279,7 @@ class AudioLocalServerRecyclerAdapter(
                         return@show
                     }
                     audioListDisposable.set(
-                        mAudioInteractor.get_file_name(hash2)
+                        mAudioInteractor.getFileName(hash2)
                             .fromIOToMain(
                                 { t ->
                                     val root =
@@ -294,7 +294,7 @@ class AudioLocalServerRecyclerAdapter(
                                         .setView(root)
                                         .setPositiveButton(R.string.button_ok) { _, _ ->
                                             audioListDisposable.set(
-                                                mAudioInteractor.update_file_name(
+                                                mAudioInteractor.updateFileName(
                                                     hash2,
                                                     root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
                                                         ?.trim()
@@ -335,7 +335,7 @@ class AudioLocalServerRecyclerAdapter(
                             return@setPositiveButton
                         }
                         audioListDisposable.set(
-                            mAudioInteractor.delete_media(hash1)
+                            mAudioInteractor.deleteMedia(hash1)
                                 .fromIOToMain(
                                     {
                                         createCustomToast(

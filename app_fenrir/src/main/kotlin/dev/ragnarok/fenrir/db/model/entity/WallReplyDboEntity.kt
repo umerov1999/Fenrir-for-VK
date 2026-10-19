@@ -33,7 +33,7 @@ class WallReplyDboEntity : DboEntity {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}_${postId}"
+        return "wallreply_${id}_${ownerId}_${postId}"
     }
 
     fun setOwnerId(owner_id: Long): WallReplyDboEntity {

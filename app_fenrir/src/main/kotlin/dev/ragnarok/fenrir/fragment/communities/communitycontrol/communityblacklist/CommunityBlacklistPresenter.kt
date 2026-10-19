@@ -5,9 +5,9 @@ import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.stores
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.model.BanAction
-import dev.ragnarok.fenrir.domain.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.GroupSettingsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IGroupSettingsInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
 import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.model.Banned

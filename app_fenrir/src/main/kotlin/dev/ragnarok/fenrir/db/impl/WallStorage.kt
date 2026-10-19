@@ -5,13 +5,12 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.provider.BaseColumns
 import dev.ragnarok.fenrir.api.model.VKApiPost
-import dev.ragnarok.fenrir.db.AttachToType
+import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.db.FenrirContentProvider
 import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPostsContentUriFor
 import dev.ragnarok.fenrir.db.column.PostsColumns
 import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.mapAttachmentsFromBlob
 import dev.ragnarok.fenrir.db.impl.OwnersStorage.Companion.appendOwnersInsertOperations
-import dev.ragnarok.fenrir.db.interfaces.Cancelable
 import dev.ragnarok.fenrir.db.interfaces.IWallStorage
 import dev.ragnarok.fenrir.db.interfaces.IWallStorage.IClearWallTask
 import dev.ragnarok.fenrir.db.model.PostPatch
@@ -28,7 +27,6 @@ import dev.ragnarok.fenrir.ifNonNull
 import dev.ragnarok.fenrir.model.EditingPostType
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
@@ -40,7 +38,6 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.msgpack.MsgPack
-import kotlin.collections.orEmpty
 
 internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
     override fun storeWallEntities(
@@ -58,7 +55,8 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 val cv = createCv(dbo)
                 val attachments = ArrayList<DboEntity>(dbo.getAttachments().orEmpty())
                 attachments.addAll(dbo.copyHierarchy.orEmpty())
-                stores.attachments().attachToBlobSync(cv, AttachToType.POST, attachments).syncSingleSafe()
+                stores.attachments().attachToBlobSync(cv, AttachmentFor.POST, attachments)
+                    .syncSingleSafe()
 
                 val mainPostHeaderOperation = ContentProviderOperation
                     .newInsert(getPostsContentUriFor(accountId))
@@ -91,7 +89,8 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
 
             val attachments = ArrayList<DboEntity>(post.getAttachments().orEmpty())
             attachments.addAll(post.copyHierarchy.orEmpty())
-            stores.attachments().attachToBlobSync(cv, AttachToType.POST, attachments).syncSingleSafe()
+            stores.attachments().attachToBlobSync(cv, AttachmentFor.POST, attachments)
+                .syncSingleSafe()
 
             if (post.dbid > 0) {
                 cv.put(BaseColumns._ID, post.dbid)
@@ -341,7 +340,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         val copiesDbos: MutableList<PostDboEntity> = ArrayList(0)
         if (includeAttachments) {
             val attachments: MutableList<DboEntity> =
-                ArrayList(mapAttachmentsFromBlob(cursor, AttachToType.POST).orEmpty())
+                ArrayList(mapAttachmentsFromBlob(cursor, AttachmentFor.POST).orEmpty())
 
             // Так как история репостов хранится вместе с вложениями,
             // в этом месте пересохраняем эту историю в другой список

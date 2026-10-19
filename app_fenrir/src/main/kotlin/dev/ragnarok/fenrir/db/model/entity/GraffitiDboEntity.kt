@@ -22,7 +22,7 @@ class GraffitiDboEntity : DboEntity {
         private set
 
     override fun getAttachmentKey(): String {
-        return "${id}_${owner_id}"
+        return "graffiti_${id}_${owner_id}"
     }
 
     fun setId(id: Int): GraffitiDboEntity {

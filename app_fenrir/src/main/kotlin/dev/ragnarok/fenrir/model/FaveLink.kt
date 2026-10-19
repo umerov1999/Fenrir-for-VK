@@ -34,7 +34,7 @@ class FaveLink : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "$id"
+        return "favelink_$id"
     }
 
     fun setUrl(url: String?): FaveLink {

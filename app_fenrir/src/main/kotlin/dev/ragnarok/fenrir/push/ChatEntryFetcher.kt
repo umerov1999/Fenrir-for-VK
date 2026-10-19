@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.push
 import android.content.Context
 import android.graphics.Bitmap
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.Mode
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.PeerType
@@ -33,7 +33,7 @@ object ChatEntryFetcher {
             }
 
             PeerType.CHAT, PeerType.CONTACT -> return messages
-                .getConversationById(accountId, peerId, Mode.ANY)
+                .getConversationById(accountId, peerId, FetchMode.ANY)
                 .flatMapConcat { chat ->
                     loadRoundedImageRx(app, chat.imageUrl, R.drawable.ic_group_chat)
                         .map { Optional.wrap(it) }

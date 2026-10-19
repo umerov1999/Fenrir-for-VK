@@ -10,12 +10,12 @@ import dev.ragnarok.fenrir.api.validation.VKIdCaptchaProvider
 import dev.ragnarok.fenrir.api.validation.ValidateProvider
 import dev.ragnarok.fenrir.db.impl.AppStorages
 import dev.ragnarok.fenrir.db.interfaces.IStorages
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IBlacklistRepository
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.Repository.walls
 import dev.ragnarok.fenrir.domain.impl.AttachmentsRepository
 import dev.ragnarok.fenrir.domain.impl.BlacklistRepository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IBlacklistRepository
 import dev.ragnarok.fenrir.media.story.AppStoryPlayerFactory
 import dev.ragnarok.fenrir.media.story.IStoryPlayerFactory
 import dev.ragnarok.fenrir.media.voice.IVoicePlayerFactory

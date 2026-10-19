@@ -5,9 +5,11 @@ import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
 import dev.ragnarok.fenrir.api.model.server.VKApiAudioUploadServer
+import dev.ragnarok.fenrir.contentLength
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.toSource
 import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadResult
@@ -18,9 +20,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlowThrowable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
+import okio.Source
 import java.net.URLEncoder
 
 class RemoteAudioPlayUploadable(private val context: Context, private val networker: INetworker) :
@@ -30,24 +30,20 @@ class RemoteAudioPlayUploadable(private val context: Context, private val networ
         initialServer: UploadServer?,
         listener: PercentagePublisher?
     ): Flow<UploadResult<Audio>> {
-        var inputStream: InputStream? = null
-        val local_settings = Settings.get().main().localServer
+        var inputSource: Source? = null
+        val localSettings = Settings.get().main().localServer
         return try {
-            var server_url = firstNonEmptyString(
-                local_settings.url,
+            var serverUrl = firstNonEmptyString(
+                localSettings.url,
                 "https://debug.dev"
             ) + "/method/audio.remoteplay"
-            if (local_settings.password != null) {
-                server_url += "?password=" + URLEncoder.encode(local_settings.password, "utf-8")
+            if (localSettings.password != null) {
+                serverUrl += "?password=" + URLEncoder.encode(localSettings.password, "utf-8")
             }
             val uri = upload.fileUri
-            val file = File(uri?.path ?: throw NotFoundException("uri.path is empty"))
-            inputStream = if (file.isFile) {
-                FileInputStream(file)
-            } else {
-                context.contentResolver.openInputStream(uri)
-            }
-            if (inputStream == null) {
+            val size = uri?.contentLength(context) ?: throw NotFoundException("uri.path is empty")
+            inputSource = uri.toSource(context)
+            if (inputSource == null) {
                 return toFlowThrowable(
                     NotFoundException(
                         "Unable to open InputStream, URI: $uri"
@@ -58,17 +54,17 @@ class RemoteAudioPlayUploadable(private val context: Context, private val networ
                 context, uri
             )
             networker.uploads()
-                .remotePlayAudioRx(server_url, filename, inputStream, listener)
-                .onCompletion { safelyClose(inputStream) }
+                .remotePlayAudioRx(serverUrl, filename, inputSource, size, listener)
+                .onCompletion { safelyClose(inputSource) }
                 .map { dto ->
                     UploadResult(
-                        VKApiAudioUploadServer(server_url), Audio().setId(
+                        VKApiAudioUploadServer(serverUrl), Audio().setId(
                             dto.response ?: throw NotFoundException()
                         )
                     )
                 }
         } catch (e: Exception) {
-            safelyClose(inputStream)
+            safelyClose(inputSource)
             toFlowThrowable(e)
         }
     }

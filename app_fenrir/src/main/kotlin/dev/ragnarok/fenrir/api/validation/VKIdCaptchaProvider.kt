@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.api.validation
 import dev.ragnarok.fenrir.activity.captcha.VKCaptcha
 import dev.ragnarok.fenrir.activity.captcha.VKCaptchaResult
 import dev.ragnarok.fenrir.activity.captcha.VKCaptchaResultListener
-import dev.ragnarok.fenrir.api.OutOfDateException
+import dev.ragnarok.fenrir.api.exceptions.OutOfDateException
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import java.util.Collections
 

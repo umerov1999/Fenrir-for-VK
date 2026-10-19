@@ -57,7 +57,7 @@ class FFmpegOkhttp(val pUrl: String, val pHeaders: String?) {
                     okhttpClose()
                     -5
                 } else {
-                    mimeType = response?.body?.contentType().toString()
+                    mimeType = response?.body?.contentType()?.toString()
                     contentSize = response?.body?.contentLength() ?: 0
                     if (contentSize <= 0) {
                         contentSize = Long.MAX_VALUE

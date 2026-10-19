@@ -33,7 +33,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         private set
     var graffiti: Graffiti? = null
         private set
-    var msgId = 0
+    var msgCmId = 0
         private set
     var msgPeerId = 0L
         private set
@@ -56,7 +56,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         photoPreview = parcel.readTypedObjectCompat(PhotoSizes.CREATOR)
         videoPreview = parcel.readTypedObjectCompat(VideoPreview.CREATOR)
         graffiti = parcel.readTypedObjectCompat(Graffiti.CREATOR)
-        msgId = parcel.readInt()
+        msgCmId = parcel.readInt()
         msgPeerId = parcel.readLong()
     }
 
@@ -73,7 +73,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         photoPreview = parcel.readParcelable(PhotoSizes.NativeCreator)
         videoPreview = parcel.readParcelable(VideoPreview.NativeCreator)
         graffiti = parcel.readParcelable(Graffiti.NativeCreator)
-        msgId = parcel.readInt()
+        msgCmId = parcel.readInt()
         msgPeerId = parcel.readLong()
     }
 
@@ -90,7 +90,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         parcel.writeTypedObjectCompat(photoPreview, flags)
         parcel.writeTypedObjectCompat(videoPreview, flags)
         parcel.writeTypedObjectCompat(graffiti, flags)
-        parcel.writeInt(msgId)
+        parcel.writeInt(msgCmId)
         parcel.writeLong(msgPeerId)
     }
 
@@ -107,7 +107,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         dest.writeParcelable(photoPreview)
         dest.writeParcelable(videoPreview)
         dest.writeParcelable(graffiti)
-        dest.writeInt(msgId)
+        dest.writeInt(msgCmId)
         dest.writeLong(msgPeerId)
     }
 
@@ -117,7 +117,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
     }
 
     override fun getAttachmentKey(): String {
-        return "${id}_${ownerId}"
+        return "doc_${id}_${ownerId}"
     }
 
     fun getPreviewWithSize(@PhotoSize size: Int, excludeNonAspectRatio: Boolean): String? {
@@ -196,8 +196,8 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         return videoPreview?.src.nonNullNoEmpty()
     }
 
-    fun setMsgId(msgId: Int): Document {
-        this.msgId = msgId
+    fun setMsgCmId(msgCmId: Int): Document {
+        this.msgCmId = msgCmId
         return this
     }
 
@@ -245,7 +245,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         }
 
         override fun getAttachmentKey(): String {
-            return "$src"
+            return "graffiti_$src"
         }
 
         fun setSrc(src: String?): Graffiti {
@@ -332,7 +332,7 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         }
 
         override fun getAttachmentKey(): String {
-            return "$src"
+            return "video_preview_$src"
         }
 
         fun setSrc(src: String?): VideoPreview {

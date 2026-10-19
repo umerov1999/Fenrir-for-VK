@@ -7,9 +7,9 @@ import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository.IBaseEvent
+import dev.ragnarok.fenrir.db.AttachmentFor
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository.IBaseEvent
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.getParcelableCompat
@@ -171,7 +171,7 @@ class MessageAttachmentsPresenter(
         return attachmentsRepository
             .getAttachments(
                 accountId = messageOwnerId,
-                attachToType = AttachToType.MESSAGE,
+                attachmentFor = AttachmentFor.MESSAGE,
                 attachToDbId = 0,
                 attachToElement = Pair(peerId, cmId)
             )
@@ -421,7 +421,7 @@ class MessageAttachmentsPresenter(
         if (entry.stored) {
             attachmentsRepository.remove(
                 accountId = messageOwnerId,
-                attachToType = AttachToType.MESSAGE,
+                attachmentFor = AttachmentFor.MESSAGE,
                 attachmentKey = entry.attachment.getAttachmentKey(),
                 attachToDbId = 0,
                 attachToElement = Pair(peerId, cmId)
@@ -576,7 +576,7 @@ class MessageAttachmentsPresenter(
     fun fireAttachmentsSelected(attachments: ArrayList<out AbsModel>) {
         attachmentsRepository.attach(
             accountId = messageOwnerId,
-            attachToType = AttachToType.MESSAGE,
+            attachmentFor = AttachmentFor.MESSAGE,
             attachToDbId = 0,
             attachToElement = Pair(peerId, cmId),
             models = attachments
@@ -612,10 +612,12 @@ class MessageAttachmentsPresenter(
             handleInputModels(bundle)
         }
         val predicate: suspend (IBaseEvent) -> Boolean =
-            { it.attachToType == AttachToType.MESSAGE &&
-                    it.attachToElement?.first == peerId &&
-                    it.attachToElement?.second == cmId &&
-                    it.accountId == messageOwnerId }
+            {
+                it.attachmentFor == AttachmentFor.MESSAGE &&
+                        it.attachToElement?.first == peerId &&
+                        it.attachToElement?.second == cmId &&
+                        it.accountId == messageOwnerId
+            }
         appendJob(
             attachmentsRepository
                 .observeAdding()

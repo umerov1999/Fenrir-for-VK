@@ -390,7 +390,7 @@ object PlaceFactory {
 
     fun getUnreadMessagesPlace(
         aid: Long,
-        focusMessageId: Int,
+        focusCmId: Int,
         incoming: Int,
         outgoing: Int,
         unreadCount: Int,
@@ -400,7 +400,7 @@ object PlaceFactory {
             .setArguments(
                 NotReadMessagesFragment.buildArgs(
                     aid,
-                    focusMessageId,
+                    focusCmId,
                     incoming,
                     outgoing,
                     unreadCount,

@@ -4,9 +4,9 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.stores
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.ICommentsInteractor
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.CommentsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ICommentsInteractor
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.Comment
 import dev.ragnarok.fenrir.model.CommentedType

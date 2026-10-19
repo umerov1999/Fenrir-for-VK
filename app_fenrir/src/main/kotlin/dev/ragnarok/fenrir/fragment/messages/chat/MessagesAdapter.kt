@@ -271,7 +271,7 @@ class MessagesAdapter(
         holder.important.visibility = if (message.isImportant) View.VISIBLE else View.GONE
         bindStatusText(holder.status, message.status, message.date, message.updateTime)
         var read =
-            if (message.isOut) lastReadId.outgoing >= message.getObjectId() else lastReadId.incoming >= message.getObjectId()
+            if (message.isOut) lastReadId.outgoing >= message.cmId else lastReadId.incoming >= message.cmId
         if (disableRead) read = true
         bindReadState(holder.itemView, message.status == MessageStatus.SENT && read)
         if (message.isSelected) {
@@ -484,7 +484,7 @@ class MessagesAdapter(
             }
         })
         var read =
-            if (message.isOut) lastReadId.outgoing >= message.getObjectId() else lastReadId.incoming >= message.getObjectId()
+            if (message.isOut) lastReadId.outgoing >= message.cmId else lastReadId.incoming >= message.cmId
         if (disableRead) read = true
         bindReadState(holder.itemView, message.status == MessageStatus.SENT && read)
         holder.tvAction.precompute(message.getServiceText(context))

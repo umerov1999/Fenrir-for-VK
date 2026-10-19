@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.flow
-import java.util.Locale
 
 class FileManagerRemotePresenter(
     savedInstanceState: Bundle?
@@ -266,7 +265,7 @@ class FileManagerRemotePresenter(
         view?.resolveEmptyText(false)
         view?.resolveLoading(isLoading)
         appendJob(
-            InteractorFactory.createLocalServerInteractor().fsGet(buildPath()).fromIOToMain({
+            InteractorFactory.localServer.fsGet(buildPath()).fromIOToMain({
                 fileList.clear()
                 fileList.addAll(it)
                 isLoading = false

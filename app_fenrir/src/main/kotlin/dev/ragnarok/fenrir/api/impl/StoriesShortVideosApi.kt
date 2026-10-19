@@ -1,9 +1,9 @@
 package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.api.Fields
-import dev.ragnarok.fenrir.api.IServiceProvider
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IStoriesShortVideosApi
+import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.api.model.Items
 import dev.ragnarok.fenrir.api.model.VKApiNarratives

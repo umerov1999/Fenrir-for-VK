@@ -10,11 +10,15 @@ import android.util.Log
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
+import dev.ragnarok.fenrir.contentLength
 import dev.ragnarok.fenrir.getString
 import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.IOUtils.closeStreamQuietly
 import dev.ragnarok.fenrir.util.IOUtils.recycleBitmapQuietly
+import dev.ragnarok.fenrir.util.Pair
+import okio.Source
+import okio.source
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -105,23 +109,24 @@ object UploadUtils {
     }
 
     @Throws(IOException::class)
-    fun openStream(context: Context, uri: Uri?, size: Int): InputStream? {
+    fun openSource(context: Context, uri: Uri?, size: Int): Pair<Long, Source?> {
+        val originalLength = uri?.contentLength(context) ?: -1L
         val originalStream: InputStream?
-        val filef = File((uri ?: return null).path ?: return null)
-        originalStream = if (filef.isFile) {
-            FileInputStream(filef)
+        val file = File((uri ?: return Pair(-1, null)).path ?: return Pair(-1, null))
+        originalStream = if (file.isFile) {
+            FileInputStream(file)
         } else {
             context.contentResolver.openInputStream(uri)
         }
         if (size == Upload.IMAGE_SIZE_FULL || size == Upload.IMAGE_SIZE_CROPPING) {
-            return originalStream
+            return Pair(originalLength, originalStream?.source())
         }
         var bitmap = BitmapFactory.decodeStream(originalStream)
         var originalExif: ExifInterface? = null
         val matrix = Matrix()
         var bApply = false
         try {
-            originalExif = ExifInterface(createStream(context, uri) ?: return null)
+            originalExif = ExifInterface(createStream(context, uri) ?: return Pair(-1, null))
             if (originalExif.rotationDegrees != 0) {
                 matrix.preRotate(originalExif.rotationDegrees.toFloat())
                 bApply = true
@@ -142,15 +147,15 @@ object UploadUtils {
             if (!tempFile.createNewFile()) {
                 throw IOException("Unable to create new file")
             }
-            val ostream = FileOutputStream(tempFile)
+            val oStream = FileOutputStream(tempFile)
             target = scaleDown(bitmap, size.toFloat(), true)
-            target.compress(Bitmap.CompressFormat.JPEG, 100, ostream)
-            ostream.flush()
-            ostream.close()
+            target.compress(Bitmap.CompressFormat.JPEG, 100, oStream)
+            oStream.flush()
+            oStream.close()
             if (originalExif != null) {
                 copyExif(originalExif, bitmap.width, bitmap.height, tempFile)
             }
-            FileInputStream(tempFile)
+            Pair(tempFile.length(), tempFile.source())
         } finally {
             recycleBitmapQuietly(bitmap)
             recycleBitmapQuietly(target)

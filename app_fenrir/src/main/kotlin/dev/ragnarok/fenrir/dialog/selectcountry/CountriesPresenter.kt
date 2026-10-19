@@ -1,14 +1,13 @@
 package dev.ragnarok.fenrir.dialog.selectcountry
 
 import android.os.Bundle
-import dev.ragnarok.fenrir.domain.IDatabaseInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.database.Country
 import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
-import java.util.Locale
 
 class CountriesPresenter(private val accountId: Long, savedInstanceState: Bundle?) :
     RxSupportPresenter<ICountriesView>(savedInstanceState) {
@@ -86,7 +85,7 @@ class CountriesPresenter(private val accountId: Long, savedInstanceState: Bundle
     init {
         countries = ArrayList()
         filtered = ArrayList()
-        databaseInteractor = InteractorFactory.createDatabaseInteractor()
+        databaseInteractor = InteractorFactory.database
         requestData()
     }
 }

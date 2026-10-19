@@ -9,12 +9,20 @@
  */
 
 #include "libyuv/row_sve.h"
+#include "libyuv/compare_row.h"
 #include "libyuv/row.h"
 
 #ifdef __cplusplus
 namespace libyuv {
 extern "C" {
 #endif
+
+// Note: every register written by an inline asm block (vector, general
+// purpose, mask/predicate, "cc" for flags and "memory" for stores) must be
+// listed in its clobber list, even when the ABI treats it as caller-saved.
+// With LTO/LTCG the compiler may keep values live in any register across the
+// asm statement, and other OS ABIs (e.g. Windows) differ in which registers
+// are callee-saved. List "memory" first, then "cc", then registers.
 
 #if !defined(LIBYUV_DISABLE_SVE) && defined(__aarch64__)
 
@@ -1184,13 +1192,13 @@ void HalfMergeUVRow_SVE2(const uint8_t* src_u,
       "st1b     {z1.b}, p0, [%[dst_uv]]                 \n"
 
       "99:                                              \n"
-      : [src_u] "+r"(src_u),      // %[src_u]
-        [src_u1] "+r"(src_u1),    // %[src_u1]
-        [src_v] "+r"(src_v),      // %[src_v]
-        [src_v1] "+r"(src_v1),    // %[src_v1]
-        [dst_uv] "+r"(dst_uv),    // %[dst_uv]
-        [width] "+r"(width),      // %[width]
-        [vl] "=&r"(vl)            // %[vl]
+      : [src_u] "+r"(src_u),    // %[src_u]
+        [src_u1] "+r"(src_u1),  // %[src_u1]
+        [src_v] "+r"(src_v),    // %[src_v]
+        [src_v1] "+r"(src_v1),  // %[src_v1]
+        [dst_uv] "+r"(dst_uv),  // %[dst_uv]
+        [width] "+r"(width),    // %[width]
+        [vl] "=&r"(vl)          // %[vl]
       :
       : "cc", "memory", "z1", "z2", "z3", "z4", "z5", "z6", "p0");
 }
@@ -1229,10 +1237,7 @@ void CopyRow_SVE2(const uint8_t* src, uint8_t* dst, int width) {
       "b.gt     3b                                      \n"
 
       "99:                                              \n"
-      : [src] "+r"(src),
-        [dst] "+r"(dst),
-        [width] "+r"(width),
-        [vl] "=&r"(vl),
+      : [src] "+r"(src), [dst] "+r"(dst), [width] "+r"(width), [vl] "=&r"(vl),
         [vl2] "=&r"(vl2)
       :
       : "cc", "memory", "z0", "z1", "p0");
@@ -1285,11 +1290,8 @@ void InterpolateRow_SVE2(uint8_t* dst_ptr,
         "st1b     {z2.b}, p0, [%[dst_ptr]]                \n"
 
         "99:                                              \n"
-        : [src_ptr] "+r"(src_ptr),
-          [src_ptr1] "+r"(src_ptr1),
-          [dst_ptr] "+r"(dst_ptr),
-          [width] "+r"(width),
-          [vl] "=&r"(vl)
+        : [src_ptr] "+r"(src_ptr), [src_ptr1] "+r"(src_ptr1),
+          [dst_ptr] "+r"(dst_ptr), [width] "+r"(width), [vl] "=&r"(vl)
         :
         : "cc", "memory", "z2", "z3", "p0");
     return;
@@ -1711,17 +1713,28 @@ void HalfWidthRow_16To8_SVE2(const uint16_t* src_uv,
       "st1b     {z0.h}, p2, [%[dst_ptr]]                \n"
 
       "99:                                              \n"
-      : [src_ptr] "+r"(src_uv),        // %[src_ptr]
-        [src_ptr1] "+r"(src_uv1),      // %[src_ptr1]
-        [dst_ptr] "+r"(dst_uv),        // %[dst_ptr]
-        [width] "+r"(width),           // %[width]
-        [vl] "=&r"(vl),                // %[vl]
-        [vl_input] "=&r"(vl_input)     // %[vl_input]
-      : [shift] "r"(shift)             // %[shift]
+      : [src_ptr] "+r"(src_uv),     // %[src_ptr]
+        [src_ptr1] "+r"(src_uv1),   // %[src_ptr1]
+        [dst_ptr] "+r"(dst_uv),     // %[dst_ptr]
+        [width] "+r"(width),        // %[width]
+        [vl] "=&r"(vl),             // %[vl]
+        [vl_input] "=&r"(vl_input)  // %[vl_input]
+      : [shift] "r"(shift)          // %[shift]
       : "cc", "memory", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "z31",
         "p0", "p1", "p2");
 }
 #endif  // HAS_HALFWIDTHROW_16TO8_SVE2
+
+#ifdef HAS_SSIM4X4ROW_SVE2
+void Ssim4x4Row_SVE2(const uint8_t* src_a,
+                     int stride_a,
+                     const uint8_t* src_b,
+                     int stride_b,
+                     uint32_t* dst,
+                     int width) {
+  Ssim4x4Row_SVE_SC(src_a, stride_a, src_b, stride_b, dst, width);
+}
+#endif  // HAS_SSIM4X4ROW_SVE2
 
 #endif  // !defined(LIBYUV_DISABLE_SVE) && defined(__aarch64__)
 

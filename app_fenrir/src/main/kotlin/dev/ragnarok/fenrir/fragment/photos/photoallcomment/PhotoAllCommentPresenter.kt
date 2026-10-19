@@ -7,11 +7,11 @@ import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.Includes.stores
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
-import dev.ragnarok.fenrir.domain.ICommentsInteractor
-import dev.ragnarok.fenrir.domain.IPhotosInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.domain.impl.CommentsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.ICommentsInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IPhotosInteractor
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.model.AccessIdPairModel
@@ -29,7 +29,7 @@ class PhotoAllCommentPresenter(
     private val owner_id: Long,
     savedInstanceState: Bundle?
 ) : PlaceSupportPresenter<IPhotoAllCommentView>(accountId, savedInstanceState) {
-    private val photosInteractor: IPhotosInteractor = InteractorFactory.createPhotosInteractor()
+    private val photosInteractor: IPhotosInteractor = InteractorFactory.photo
     private val interactor: ICommentsInteractor =
         CommentsInteractor(networkInterfaces, stores, owners)
     private val mComments: ArrayList<Comment> = ArrayList()

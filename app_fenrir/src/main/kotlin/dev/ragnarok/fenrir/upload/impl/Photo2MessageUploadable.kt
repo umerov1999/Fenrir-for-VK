@@ -4,9 +4,8 @@ import android.content.Context
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
-import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.db.interfaces.IMessagesStorage
-import dev.ragnarok.fenrir.domain.IAttachmentsRepository
+import dev.ragnarok.fenrir.db.AttachmentFor
+import dev.ragnarok.fenrir.domain.interfaces.IAttachmentsRepository
 import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Photo
@@ -16,14 +15,13 @@ import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.safelyClose
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlowThrowable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import java.io.InputStream
+import okio.Source
 import kotlin.coroutines.cancellation.CancellationException
 
 class Photo2MessageUploadable(
@@ -44,13 +42,14 @@ class Photo2MessageUploadable(
         } else {
             networker.vkDefault(accountId)
                 .photos()
-                .messagesUploadServer
+                .getMessagesUploadServer(peerId)
         }
         return serverSingle.flatMapConcat { server ->
-            var inputStream: InputStream? = null
+            var input: Source? = null
             try {
-                inputStream = UploadUtils.openStream(context, upload.fileUri, upload.size)
-                if (inputStream == null) {
+                val tmpSources = UploadUtils.openSource(context, upload.fileUri, upload.size)
+                input = tmpSources.second
+                if (input == null) {
                     toFlowThrowable(
                         NotFoundException(
                             "Unable to open InputStream, URI: ${upload.fileUri}"
@@ -60,10 +59,11 @@ class Photo2MessageUploadable(
                     networker.uploads()
                         .uploadPhotoToMessageRx(
                             server.url ?: throw NotFoundException("Upload url empty!"),
-                            inputStream,
+                            input,
+                            tmpSources.first,
                             listener
                         )
-                        .onCompletion { safelyClose(inputStream) }
+                        .onCompletion { safelyClose(input) }
                         .flatMapConcat { dto ->
                             if (dto.photo.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
@@ -96,7 +96,7 @@ class Photo2MessageUploadable(
                         }
                 }
             } catch (e: Exception) {
-                safelyClose(inputStream)
+                safelyClose(input)
                 if (e is CancellationException) {
                     throw e
                 }
@@ -106,12 +106,12 @@ class Photo2MessageUploadable(
     }
 
     companion object {
-        fun attachIntoDatabaseRx(
+        internal fun attachIntoDatabaseRx(
             repository: IAttachmentsRepository,
             accountId: Long, cmId: Int, peerId: Long, photo: Photo
         ): Flow<Boolean> {
             return repository
-                .attach(accountId, AttachToType.MESSAGE, 0, Pair(peerId, cmId), listOf(photo))
+                .attach(accountId, AttachmentFor.MESSAGE, 0, Pair(peerId, cmId), listOf(photo))
         }
     }
 }

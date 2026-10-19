@@ -24,7 +24,7 @@ namespace ZXing::QRCode {
 static BarcodeData readPure(const BitMatrix* binImg, const ReaderOptions& _opts)
 {
 	DetectorResult detectorResult;
-	if (_opts.hasFormat(BarcodeFormat::QRCode))
+	if (_opts.hasFormat(BarcodeFormat::QRCodeModel1 | BarcodeFormat::QRCodeModel2))
 		detectorResult = DetectPureQR(*binImg);
 	if (_opts.hasFormat(BarcodeFormat::MicroQRCode) && !detectorResult.isValid())
 		detectorResult = DetectPureMQR(*binImg);
@@ -40,22 +40,6 @@ static BarcodeData readPure(const BitMatrix* binImg, const ReaderOptions& _opts)
 																				  : BarcodeFormat::QRCode;
 
 	return MatrixBarcode(std::move(decoderResult), std::move(detectorResult), format);
-}
-
-void logFPSet(const FinderPatternSet& fps [[maybe_unused]])
-{
-#ifdef PRINT_DEBUG
-	auto drawLine = [](PointF a, PointF b) {
-		int steps = maxAbsComponent(b - a);
-		PointF dir = bresenhamDirection(PointF(b - a));
-		for (int i = 0; i < steps; ++i)
-			log(a + i * dir, LOG_G);
-	};
-
-	drawLine(fps.bl, fps.tl);
-	drawLine(fps.tl, fps.tr);
-	drawLine(fps.tr, fps.bl);
-#endif
 }
 
 BarcodesData Reader::read(const BinaryBitmap& image, int maxSymbols) const
@@ -82,7 +66,9 @@ BarcodesData Reader::read(const BinaryBitmap& image, int maxSymbols) const
 			if (Contains(usedFPs, fpSet.bl) || Contains(usedFPs, fpSet.tl) || Contains(usedFPs, fpSet.tr))
 				continue;
 
-			logFPSet(fpSet);
+			log(fpSet.bl, fpSet.tl);
+			log(fpSet.tl, fpSet.tr);
+			log(fpSet.tr, fpSet.bl);
 
 			for (auto&& detectorResult: SampleQR(*binImg, fpSet)) {
 				auto decoderResult = Decode(detectorResult.bits());

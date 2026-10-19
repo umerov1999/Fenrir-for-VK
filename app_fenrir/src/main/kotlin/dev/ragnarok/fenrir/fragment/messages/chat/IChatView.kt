@@ -90,10 +90,10 @@ interface IChatView : IBasicMessageListView, IErrorView, IToastView {
 
     fun scrollTo(position: Int)
     fun showSnackbar(@StringRes res: Int, isLong: Boolean)
-    fun goToMessagesLookup(accountId: Long, peerId: Long, messageId: Int, message: Message)
+    fun goToMessagesLookup(accountId: Long, peerId: Long, cmId: Int, message: Message)
     fun goToUnreadMessages(
         accountId: Long,
-        messageId: Int,
+        cmId: Int,
         incoming: Int,
         outgoing: Int,
         unreadCount: Int,

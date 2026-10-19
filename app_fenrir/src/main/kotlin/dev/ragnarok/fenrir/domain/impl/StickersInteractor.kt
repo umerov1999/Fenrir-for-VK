@@ -10,7 +10,7 @@ import dev.ragnarok.fenrir.api.model.response.HasNewStickersResponse
 import dev.ragnarok.fenrir.db.interfaces.IStickersStorage
 import dev.ragnarok.fenrir.db.model.entity.StickerSetEntity
 import dev.ragnarok.fenrir.db.model.entity.StickersKeywordsEntity
-import dev.ragnarok.fenrir.domain.IStickersInteractor
+import dev.ragnarok.fenrir.domain.interfaces.IStickersInteractor
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapSticker
 import dev.ragnarok.fenrir.domain.mappers.Dto2Entity.mapStickerSet
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.map

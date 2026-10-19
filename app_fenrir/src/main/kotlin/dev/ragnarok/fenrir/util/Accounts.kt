@@ -9,7 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.IOwnersRepository
+import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
@@ -30,7 +30,7 @@ object Accounts {
         }
         val user = try {
             owners
-                .getBaseOwnerInfo(aid, aid, IOwnersRepository.MODE_CACHE)
+                .getBaseOwnerInfo(aid, aid, FetchMode.CACHE)
                 .syncSingle()
         } catch (_: Exception) {
             // NotFountException

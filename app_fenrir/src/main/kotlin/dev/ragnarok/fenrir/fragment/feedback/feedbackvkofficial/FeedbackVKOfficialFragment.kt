@@ -179,7 +179,7 @@ class FeedbackVKOfficialFragment :
                 getMessagesLookupPlace(
                     Settings.get().accounts().current,
                     msg.getPeerId(),
-                    msg.getMessageId(),
+                    msg.getCmId(),
                     null
                 ).tryOpenWith(requireActivity())
             }

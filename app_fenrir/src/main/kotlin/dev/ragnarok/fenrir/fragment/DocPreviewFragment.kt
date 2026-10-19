@@ -22,8 +22,8 @@ import dev.ragnarok.fenrir.activity.ActivityFeatures
 import dev.ragnarok.fenrir.activity.ActivityUtils.supportToolbarFor
 import dev.ragnarok.fenrir.activity.SendAttachmentsActivity.Companion.startForSendAttachments
 import dev.ragnarok.fenrir.dialog.PostShareDialog.Methods
-import dev.ragnarok.fenrir.domain.IDocsInteractor
 import dev.ragnarok.fenrir.domain.InteractorFactory
+import dev.ragnarok.fenrir.domain.interfaces.IDocsInteractor
 import dev.ragnarok.fenrir.fragment.base.BaseFragment
 import dev.ragnarok.fenrir.fragment.base.MenuAdapter
 import dev.ragnarok.fenrir.getParcelableCompat
@@ -71,7 +71,7 @@ class DocPreviewFragment : BaseFragment(), MenuProvider {
     private var tvSubtitle: LinkHelperTextView? = null
     private var mLoadingNow = false
     private var deleted = false
-    private val docsInteractor: IDocsInteractor = InteractorFactory.createDocsInteractor()
+    private val docsInteractor: IDocsInteractor = InteractorFactory.doc
     private fun doDownloadDoc() {
         document?.let { dc ->
             if (doDownloadDoc(requireActivity(), dc, false) == 1) {
@@ -365,7 +365,7 @@ class DocPreviewFragment : BaseFragment(), MenuProvider {
     }
 
     private fun doAddYourSelf() {
-        val docsInteractor = InteractorFactory.createDocsInteractor()
+        val docsInteractor = InteractorFactory.doc
         val accessKey = document?.accessKey
         appendJob(
             docsInteractor.add(accountId, documentId, ownerId, accessKey)

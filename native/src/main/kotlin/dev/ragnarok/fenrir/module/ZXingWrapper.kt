@@ -75,7 +75,7 @@ class ZXingWrapper {
     }
 
     enum class TextMode {
-        PLAIN, ECI, HRI, HEX, HEX_ECI
+        PLAIN, ECI, HRI, ESCAPED, HEX, HEX_ECI
     }
 
     enum class ErrorType {
@@ -107,7 +107,7 @@ class ZXingWrapper {
         var maxNumberOfSymbols: Int = 0xff,
         var returnErrors: Boolean = false,
         var eanAddOnSymbol: EanAddOnSymbol = EanAddOnSymbol.IGNORE,
-        var textMode: TextMode = TextMode.HRI
+        var textMode: TextMode = TextMode.ESCAPED
     )
 
     data class QRWriterOptions(
