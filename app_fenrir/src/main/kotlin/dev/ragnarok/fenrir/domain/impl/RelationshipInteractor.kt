@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.domain.mappers.Dto2Model.transformUsers
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildOwnerUsersFromDbo
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildUsersFromDbo
 import dev.ragnarok.fenrir.exception.NotFoundException
-import dev.ragnarok.fenrir.exception.UnepectedResultException
 import dev.ragnarok.fenrir.model.FriendsCounters
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
@@ -275,7 +274,7 @@ class RelationshipInteractor(
                         DeletedCodes.SUGGESTION_DELETED
                     }
 
-                    else -> throw UnepectedResultException()
+                    else -> throw UnsupportedOperationException()
                 }
             }
     }

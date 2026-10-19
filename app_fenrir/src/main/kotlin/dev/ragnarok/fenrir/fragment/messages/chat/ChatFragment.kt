@@ -851,22 +851,20 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         recyclerView?.adapter = adapter
     }
 
-    override fun notifyMessagesUpAdded(position: Int, count: Int) {
-        adapter?.run {
-            notifyItemRangeChanged(position + headersCount, count) //+header if exist
-        }
+    override fun notifyItemsAdded(position: Int, count: Int) {
+        adapter?.notifyItemBindableRangeInserted(position, count)
+    }
+
+    override fun notifyItemsRemoved(position: Int, count: Int) {
+        adapter?.notifyItemBindableRangeRemoved(position, count)
     }
 
     override fun notifyDataChanged() {
         adapter?.notifyDataSetChanged()
     }
 
-    override fun notifyItemChanged(index: Int) {
-        adapter?.notifyItemBindableChanged(index)
-    }
-
-    override fun notifyMessagesDownAdded(count: Int) {
-
+    override fun notifyItemsChanged(index: Int, count: Int) {
+        adapter?.notifyItemBindableRangeChanged(index, count)
     }
 
     override fun configNowVoiceMessagePlaying(
@@ -1668,12 +1666,6 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             }
             .setCancelable(true)
             .show()
-    }
-
-    override fun notifyItemRemoved(position: Int) {
-        adapter?.run {
-            notifyItemRemoved(position + headersCount) // +headers count
-        }
     }
 
     override fun configOptionMenu(

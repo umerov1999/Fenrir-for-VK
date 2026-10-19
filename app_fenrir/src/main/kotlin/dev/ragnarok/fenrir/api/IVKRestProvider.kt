@@ -8,7 +8,6 @@ import okhttp3.OkHttpClient
 interface IVKRestProvider {
     fun provideNormalRest(accountId: Long): Flow<SimplePostHttp>
     fun provideCustomRest(accountId: Long, token: String): Flow<SimplePostHttp>
-    fun provideServiceRest(): Flow<SimplePostHttp>
     fun provideNormalHttpClient(accountId: Long): Flow<OkHttpClient.Builder>
     fun provideRawHttpClient(
         @AccountType type: Int,

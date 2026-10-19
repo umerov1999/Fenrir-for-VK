@@ -115,7 +115,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
     }
 
     fun safeNotifyItemChanged(index: Int) {
-        view?.notifyItemChanged(index)
+        view?.notifyItemsChanged(index, 1)
     }
 
     fun fireMessageLongClick(message: Message, position: Int) {

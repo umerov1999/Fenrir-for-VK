@@ -224,15 +224,6 @@ class NotReadMessagesFragment :
         mEndlessRecyclerOnScrollListener?.let { mRecyclerView?.addOnScrollListener(it) }
     }
 
-    override fun notifyMessagesUpAdded(position: Int, count: Int) {
-        mMessagesAdapter?.notifyItemRangeInserted(position + 1, count) //+header
-    }
-
-    override fun notifyMessagesDownAdded(count: Int) {
-        mMessagesAdapter?.notifyItemRemoved(0)
-        mMessagesAdapter?.notifyItemRangeInserted(0, count + 1) //+header
-    }
-
     override fun configNowVoiceMessagePlaying(
         id: Int,
         progress: Float,
@@ -317,8 +308,16 @@ class NotReadMessagesFragment :
         }
     }
 
-    override fun notifyItemChanged(index: Int) {
-        mMessagesAdapter?.notifyItemBindableChanged(index)
+    override fun notifyItemsAdded(position: Int, count: Int) {
+        mMessagesAdapter?.notifyItemBindableRangeInserted(position, count)
+    }
+
+    override fun notifyItemsRemoved(position: Int, count: Int) {
+        mMessagesAdapter?.notifyItemBindableRangeRemoved(position, count)
+    }
+
+    override fun notifyItemsChanged(index: Int, count: Int) {
+        mMessagesAdapter?.notifyItemBindableRangeChanged(index, count)
     }
 
     override fun notifyDataChanged() {

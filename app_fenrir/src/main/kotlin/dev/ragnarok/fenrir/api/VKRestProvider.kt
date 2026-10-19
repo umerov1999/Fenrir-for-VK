@@ -17,12 +17,8 @@ class VKRestProvider(
     private val clientFactory: IVKMethodHttpClientFactory
 ) : IVKRestProvider {
     private val restCacheLock = Any()
-    private val serviceRestLock = Any()
 
     private val restCache = Collections.synchronizedMap(HashMap<Long, SimplePostHttp>(1))
-
-    @Volatile
-    private var serviceRest: SimplePostHttp? = null
     private fun onProxySettingsChanged() {
         synchronized(restCacheLock) {
             for ((_, value) in restCache) {
@@ -60,22 +56,6 @@ class VKRestProvider(
                 proxyManager.activeProxy
             )
             emit(createDefaultVkApiRest(client))
-        }
-    }
-
-    override fun provideServiceRest(): Flow<SimplePostHttp> {
-        return flow {
-            if (serviceRest == null) {
-                synchronized(serviceRestLock) {
-                    if (serviceRest == null) {
-                        val client = clientFactory.createServiceVkHttpClient(
-                            proxyManager.activeProxy
-                        )
-                        serviceRest = createDefaultVkApiRest(client)
-                    }
-                }
-            }
-            emit(serviceRest ?: return@flow)
         }
     }
 

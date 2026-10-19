@@ -75,7 +75,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
         } else {
             val startSize = data.size
             data.addAll(recv)
-            view?.notifyDataAdded(
+            view?.notifyItemsAdded(
                 startSize,
                 recv.size
             )

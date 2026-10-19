@@ -56,6 +56,10 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             for (i in posts.indices) {
                 val dbo = posts[i]
                 val cv = createCv(dbo)
+                val attachments = ArrayList<DboEntity>(dbo.getAttachments().orEmpty())
+                attachments.addAll(dbo.copyHierarchy.orEmpty())
+                stores.attachments().attachToBlobSync(cv, AttachToType.POST, attachments).syncSingleSafe()
+
                 val mainPostHeaderOperation = ContentProviderOperation
                     .newInsert(getPostsContentUriFor(accountId))
                     .withValues(cv)
@@ -63,10 +67,6 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 val mainPostHeaderIndex =
                     addToListAndReturnIndex(operations, mainPostHeaderOperation)
                 indexes[i] = mainPostHeaderIndex
-
-                val attachments = ArrayList<DboEntity>(dbo.getAttachments().orEmpty())
-                attachments.addAll(dbo.copyHierarchy.orEmpty())
-                stores.attachments().attachToBlobSync(cv, AttachToType.POST, attachments).syncSingleSafe()
             }
             if (owners != null) {
                 appendOwnersInsertOperations(operations, accountId, owners)
@@ -123,7 +123,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             cv.put(PostsColumns.OWNER_ID, ownerId)
             cv.put(PostsColumns.FROM_ID, authorId)
             val resultUri = contentResolver.insert(uri, cv)
-            emit(resultUri?.lastPathSegment?.toInt().orZero())
+            emit(extractId(resultUri))
         }
     }
 

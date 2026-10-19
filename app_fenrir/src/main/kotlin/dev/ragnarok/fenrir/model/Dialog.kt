@@ -140,7 +140,7 @@ class Dialog : IdentificableOwner, Parcelable {
     }
 
     val forwardMessagesCount: Int
-        get() = message?.forwardMessagesCount.orZero()
+        get() = message?.fwd?.size.orZero()
 
     fun hasAttachments(): Boolean {
         return message?.attachments?.hasAttachments == true

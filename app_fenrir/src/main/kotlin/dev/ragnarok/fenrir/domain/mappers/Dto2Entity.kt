@@ -941,7 +941,7 @@ object Dto2Entity {
         return entity
     }
 
-    private fun mapKeyboard(keyboard: CurrentKeyboard?): KeyboardEntity? {
+    fun mapKeyboard(keyboard: CurrentKeyboard?): KeyboardEntity? {
         if (keyboard == null || keyboard.buttons.isNullOrEmpty()) {
             return null
         }
@@ -1499,9 +1499,7 @@ object Dto2Entity {
             .setKeyboard(mapKeyboard(dto.keyboard))
             .setDeleted(dto.deleted)
             .setDeletedForAll(false) // cant be deleted for all?
-            .setForwardCount(safeCountOf(dto.fwd_messages))
             .setStatus(MessageStatus.SENT) // only sent can be
-            .setOriginalId(dto.id)
             .setAction(Message.fromApiChatAction(dto.action))
             .setActionMemberId(dto.action_mid)
             .setActionEmail(dto.action_email)

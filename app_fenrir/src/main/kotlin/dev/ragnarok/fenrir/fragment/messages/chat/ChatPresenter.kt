@@ -33,7 +33,6 @@ import dev.ragnarok.fenrir.domain.Mode
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model
 import dev.ragnarok.fenrir.exception.NotFoundException
-import dev.ragnarok.fenrir.exception.UploadNotResolvedException
 import dev.ragnarok.fenrir.fragment.messages.AbsMessageListPresenter
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.link.LinkHelper
@@ -68,7 +67,6 @@ import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.Sticker
 import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.UserUpdate
-import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.module.encoder.ToMp4Audio
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
@@ -95,7 +93,6 @@ import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.TextingNotifier
 import dev.ragnarok.fenrir.util.UnixTime
-import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.addElementToList
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getSelected
@@ -371,7 +368,7 @@ class ChatPresenter(
                 val index = indexOf(message.getObjectId())
                 if (index != -1) {
                     data.removeAt(index)
-                    view?.notifyItemRemoved(index)
+                    view?.notifyItemsRemoved(index, 1)
                 }
                 deleteMessageFromDbAsync(message)
                 return
@@ -466,6 +463,11 @@ class ChatPresenter(
                 peer.setTitle(title)
                 resolveToolbarTitle()
             }
+
+            update.botKeyboard?.run {
+                conversation?.setCurrentKeyboard(Entity2Model.buildKeyboardFromDbo(keyboard))
+                resolveCurrentKeyboard()
+            }
         }
 
         if (requireListUpdate) {
@@ -502,8 +504,7 @@ class ChatPresenter(
             resolveToolbarSubtitle()
             resolveToolbarTitle()
         }
-        view?.convertToKeyboard(data.currentKeyboard)
-
+        resolveCurrentKeyboard()
         resolvePinnedMessageView()
         resolveInputView()
 
@@ -638,6 +639,7 @@ class ChatPresenter(
         resolveResumePeer()
         resolveInputImagesUploading()
         resolveOptionMenu()
+        resolveCurrentKeyboard()
     }
 
     private fun resolvePinnedMessageView() {
@@ -794,9 +796,8 @@ class ChatPresenter(
                 }
             }
         } else {
-            val startSize = data.size
             data.addAll(messages)
-            view?.notifyMessagesUpAdded(startSize, messages.size)
+            view?.notifyDataChanged()
         }
 
         resolveEmptyTextVisibility()
@@ -908,12 +909,13 @@ class ChatPresenter(
     }
 
     private fun onMessagesRestoredSuccessfully(id: Int, peerId: Long) {
-        data.find {
+        val index = data.indexOfFirst {
             it.getObjectId() == id && it.peerId == peerId
-        }?.run {
-            setDeleted(false)
-            setDeletedForAll(false)
-            view?.notifyDataChanged()
+        }
+        if(index >= 0) {
+            data[index].setDeleted(false)
+            data[index].setDeletedForAll(false)
+            view?.notifyItemsChanged(index, 1)
         }
     }
 
@@ -1036,17 +1038,12 @@ class ChatPresenter(
     }
 
     private fun onMessageSaveError(throwable: Throwable) {
-        view?.run {
-            when (Utils.getCauseIfRuntime(throwable)) {
-                is UploadNotResolvedException -> showError(R.string.upload_not_resolved_exception_message)
-                else -> showThrowable(throwable)
-            }
-        }
+        view?.showThrowable(throwable)
     }
 
     private fun onMessageSaveSuccess(message: Message) {
-        addMessageToList(message)
-        view?.notifyDataChanged()
+        val s = addMessageToList(message)
+        view?.notifyItemsAdded(s, 1)
         if (Settings.get().main().scrollToBeginningWhenSentInChats(peerId)) {
             view?.scrollTo(0)
         }
@@ -1284,10 +1281,11 @@ class ChatPresenter(
         }
     }
 
-    private fun addMessageToList(message: Message) {
-        addElementToList(message, data, compareByDescending<Message> { it.status }
+    private fun addMessageToList(message: Message): Int {
+        val index = addElementToList(message, data, compareByDescending<Message> { it.status }
             .thenByDescending { it.getObjectId() })
         resolveEmptyTextVisibility()
+        return index
     }
 
     private fun onMessagesUpdate(updates: List<MessageUpdate>) {
@@ -1337,7 +1335,7 @@ class ChatPresenter(
                     data[targetIndex].setDeleted(it.deleted)
                     data[targetIndex].setDeletedForAll(it.deletedForAll)
                     if (!needReload) {
-                        view?.notifyItemChanged(targetIndex)
+                        view?.notifyItemsChanged(targetIndex, 1)
                     }
                 }
             }
@@ -1347,7 +1345,7 @@ class ChatPresenter(
                 if (targetIndex != -1) {
                     data[targetIndex].setImportant(it.important)
                     if (!needReload) {
-                        view?.notifyItemChanged(targetIndex)
+                        view?.notifyItemsChanged(targetIndex, 1)
                     }
                 }
             }
@@ -1367,7 +1365,7 @@ class ChatPresenter(
                     }
                     data[targetIndex].setReactionEditMode(false)
                     if (!needReload) {
-                        view?.notifyItemChanged(targetIndex)
+                        view?.notifyItemsChanged(targetIndex, 1)
                     }
                 }
             }
@@ -1384,7 +1382,7 @@ class ChatPresenter(
 
         if (!Settings.get().main().isExpand_voice_transcript) {
             message.attachments?.voiceMessages?.let {
-                for (i: VoiceMessage in it) {
+                for (i in it) {
                     i.setShowTranscript(true)
                 }
             }
@@ -1415,15 +1413,7 @@ class ChatPresenter(
 
         addMessageToList(message)
         view?.notifyDataChanged()
-        if (!message.isOut && message.keyboard != null && !(message.keyboard
-                ?: return).inline && message.keyboard?.buttons.nonNullNoEmpty()
-        ) {
-            conversation?.setCurrentKeyboard(message.keyboard)
-            fetchConversationDisposable += Repository.messages
-                .updateDialogKeyboard(accountId, peerId, message.keyboard)
-                .hiddenIO()
-            view?.convertToKeyboard(message.keyboard)
-        }
+
         if (Settings.get().main().isAuto_read && !Processors.realtimeMessages
                 .isNotificationIntercepted(accountId, peerId)
         ) {
@@ -1749,13 +1739,13 @@ class ChatPresenter(
     private fun readUnreadMessagesUpIfExists(message: Message): Boolean {
         if (isHiddenAccount(messagesOwnerId) || isHiddenAccount(accountId)) return false
 
-        if (!message.isOut && message.originalId > lastReadId.incoming) {
-            lastReadId.incoming = message.originalId
+        if (!message.isOut && message.id > lastReadId.incoming) {
+            lastReadId.incoming = message.id
 
             view?.notifyDataChanged()
 
             appendJob(
-                messagesRepository.markAsRead(messagesOwnerId, peer.id, message.originalId)
+                messagesRepository.markAsRead(messagesOwnerId, peer.id, message.id)
                     .fromIOToMain(dummy()) { t -> showError(view, t) }
             )
             return true
@@ -1767,13 +1757,13 @@ class ChatPresenter(
         if (isHiddenAccount(messagesOwnerId) || isHiddenAccount(accountId)) return
         val last = if (data.nonNullNoEmpty()) data[0] else return
 
-        if (!last.isOut && last.originalId > lastReadId.incoming) {
-            lastReadId.incoming = last.originalId
+        if (!last.isOut && last.id > lastReadId.incoming) {
+            lastReadId.incoming = last.id
 
             view?.notifyDataChanged()
 
             appendJob(
-                messagesRepository.markAsRead(messagesOwnerId, peer.id, last.originalId)
+                messagesRepository.markAsRead(messagesOwnerId, peer.id, last.id)
                     .fromIOToMain(dummy()) { t -> showError(view, t) }
             )
         }
@@ -2053,7 +2043,7 @@ class ChatPresenter(
         val index = indexOf(message.getObjectId())
         if (index != -1) {
             data.removeAt(index)
-            view?.notifyItemRemoved(index)
+            view?.notifyItemsRemoved(index, 1)
         }
 
         deleteMessageFromDbAsync(message)
@@ -2128,9 +2118,12 @@ class ChatPresenter(
         }
     }
 
+    private fun resolveCurrentKeyboard() {
+        view?.convertToKeyboard(conversation?.currentKeyboard)
+    }
+
     private fun resolveResumePeer() {
         view?.notifyChatResume(accountId, peerId, peer.getTitle(), peer.avaUrl)
-        view?.convertToKeyboard(conversation?.currentKeyboard)
     }
 
     private fun uploadStreamsImpl(streams: List<Uri>, size: Int?, is_video: Boolean) {
@@ -2433,7 +2426,7 @@ class ChatPresenter(
                                 }
                                 data[res].setReactionId(0)
                             }
-                            view?.notifyItemChanged(res)
+                            view?.notifyItemsChanged(res, 1)
                         }
                     }
             }, { onConversationFetchFail(it) })
@@ -2544,7 +2537,7 @@ class ChatPresenter(
 
         if (index != -1) {
             data[index] = message
-            view?.notifyDataChanged()
+            view?.notifyItemsChanged(index, 1)
         }
     }
 

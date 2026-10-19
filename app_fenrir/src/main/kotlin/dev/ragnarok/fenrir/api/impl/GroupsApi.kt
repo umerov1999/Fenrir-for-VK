@@ -189,7 +189,6 @@ internal class GroupsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IGroupsService(),
             TokenType.USER,
-            TokenType.SERVICE,
             TokenType.COMMUNITY
         )
             .flatMapConcat {
@@ -219,8 +218,7 @@ internal class GroupsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IGroupsService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.getMembers(groupId, sort, offset, count, fields, filter)
@@ -295,8 +293,7 @@ internal class GroupsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IGroupsService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.getById(join(pds, ","), groupId, fields)

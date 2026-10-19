@@ -31,6 +31,7 @@ import dev.ragnarok.fenrir.api.interfaces.IVideoApi
 import dev.ragnarok.fenrir.api.interfaces.IWallApi
 import dev.ragnarok.fenrir.api.rest.IServiceRest
 import dev.ragnarok.fenrir.api.rest.SimplePostHttp
+import dev.ragnarok.fenrir.exception.TokenTypeInvalidException
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.util.Utils
@@ -211,16 +212,20 @@ internal class VKApies private constructor(
                     val isCommunity = aid < 0
                     when {
                         isCommunity && Utils.intValueIn(TokenType.COMMUNITY, *tokenPolicy)
-                                || !isCommunity && Utils.intValueIn(TokenType.USER, *tokenPolicy) -> {
+                                || !isCommunity && Utils.intValueIn(
+                            TokenType.USER,
+                            *tokenPolicy
+                        ) -> {
                             provider.provideNormalRest(aid)
                         }
 
-                        !isCommunity && Utils.intValueIn(TokenType.SERVICE, *tokenPolicy) -> {
-                            provider.provideServiceRest()
-                        }
-
                         else -> {
-                            toFlowThrowable(UnsupportedOperationException("Unsupported account $aid with token policy: " + TokenType.getString(*tokenPolicy)))
+                            toFlowThrowable(
+                                TokenTypeInvalidException(
+                                    aid,
+                                    TokenType.getString(*tokenPolicy)
+                                )
+                            )
                         }
                     }
                 }

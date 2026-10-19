@@ -12,7 +12,6 @@ interface IVKMethodHttpClientFactory {
         config: ProxyConfig?
     ): OkHttpClient.Builder
 
-    fun createServiceVkHttpClient(config: ProxyConfig?): OkHttpClient.Builder
     fun createRawVkApiOkHttpClient(
         @AccountType type: Int,
         customDeviceName: String?,

@@ -1010,7 +1010,7 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
                         if (it.isEmpty()) -1 else it[0].id
                     }, { -1 })
                     if (o < 0) {
-                        throw UnauthorizedException("Token error")
+                        throw UnauthorizedException()
                     }
                     o
                 }

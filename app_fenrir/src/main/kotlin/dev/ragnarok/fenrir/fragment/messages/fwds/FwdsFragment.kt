@@ -127,16 +127,20 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
         mAdapter?.refetchReactionCache(accountId)
     }
 
-    override fun notifyMessagesUpAdded(position: Int, count: Int) {
-        // not supported
+    override fun notifyItemsAdded(position: Int, count: Int) {
+        mAdapter?.notifyItemBindableRangeInserted(position, count)
+    }
+
+    override fun notifyItemsRemoved(position: Int, count: Int) {
+        mAdapter?.notifyItemBindableRangeRemoved(position, count)
+    }
+
+    override fun notifyItemsChanged(index: Int, count: Int) {
+        mAdapter?.notifyItemBindableRangeChanged(index, count)
     }
 
     override fun notifyDataChanged() {
         mAdapter?.notifyDataSetChanged()
-    }
-
-    override fun notifyMessagesDownAdded(count: Int) {
-        // not supported
     }
 
     override fun configNowVoiceMessagePlaying(
@@ -179,10 +183,6 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
 
     override fun finishActionMode() {
         // not supported
-    }
-
-    override fun notifyItemChanged(index: Int) {
-        mAdapter?.notifyItemBindableChanged(index)
     }
 
     override fun getPresenterFactory(saveInstanceState: Bundle?): FwdsPresenter {

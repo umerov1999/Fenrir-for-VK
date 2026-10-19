@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.api
 
 import dev.ragnarok.fenrir.AccountType
-import dev.ragnarok.fenrir.BuildConfig
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.UserAgentTool
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
@@ -38,18 +37,6 @@ class VKMethodHttpClientFactory : IVKMethodHttpClientFactory {
                 Settings.get().accounts().getType(accountId),
                 Settings.get().accounts().getDevice(accountId),
                 accountId
-            ), config
-        )
-    }
-
-    override fun createServiceVkHttpClient(config: ProxyConfig?): OkHttpClient.Builder {
-        return createDefaultVkApiOkHttpClient(
-            CustomTokenVKApiInterceptor(
-                BuildConfig.SERVICE_TOKEN,
-                Constants.API_VERSION,
-                Constants.DEFAULT_ACCOUNT_TYPE,
-                null,
-                null
             ), config
         )
     }

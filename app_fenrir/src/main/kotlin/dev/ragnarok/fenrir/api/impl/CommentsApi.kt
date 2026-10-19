@@ -26,7 +26,7 @@ internal class CommentsApi(accountId: Long, provider: IServiceProvider) :
         fields: String?
     ): Flow<CustomCommentsResponse> {
         val thread_id = threadComment.orZero()
-        return provideService(ICommentsService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(ICommentsService(), TokenType.USER)
             .flatMapConcat {
                 it.get(
                     "var comment_id = Args.comment_id;\n" +

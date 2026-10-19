@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.db.model
 
+import dev.ragnarok.fenrir.db.model.entity.KeyboardEntity
 import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
 
 class PeerPatch(val id: Long) {
@@ -12,6 +13,8 @@ class PeerPatch(val id: Long) {
     var lastMessage: LastMessage? = null
         private set
     var pin: Pin? = null
+        private set
+    var botKeyboard: BotKeyboard? = null
         private set
     var title: Title? = null
         private set
@@ -43,6 +46,11 @@ class PeerPatch(val id: Long) {
         return this
     }
 
+    fun withKeyboard(keyboard: KeyboardEntity?): PeerPatch {
+        botKeyboard = BotKeyboard(keyboard)
+        return this
+    }
+
     fun withTitle(title: String?): PeerPatch {
         this.title = Title(title)
         return this
@@ -51,6 +59,7 @@ class PeerPatch(val id: Long) {
     class Title internal constructor(val title: String?)
     class Unread internal constructor(val count: Int)
     class Pin internal constructor(val pinned: MessageDboEntity?)
+    class BotKeyboard internal constructor(val keyboard: KeyboardEntity?)
     class LastMessage internal constructor(val id: Int)
     class ReadTo(val id: Int)
 }

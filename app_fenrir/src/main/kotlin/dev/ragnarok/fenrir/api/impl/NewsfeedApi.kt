@@ -58,7 +58,7 @@ internal class NewsfeedApi(accountId: Long, provider: IServiceProvider) :
         startFrom: String?,
         fields: String?
     ): Flow<NewsfeedSearchResponse> {
-        return provideService(INewsfeedService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(INewsfeedService(), TokenType.USER)
             .flatMapConcat {
                 it.search(
                     query, integerFromBoolean(extended), count, latitude, longitude,

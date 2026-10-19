@@ -180,7 +180,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
         )
         val message =
             StringBuilder(i.text.orEmpty())
-        if (!isSub && i.forwardMessagesCount > 0) {
+        if (!isSub && i.fwd.nonNullNoEmpty()) {
             for (s in i.fwd.orEmpty()) {
                 val fwd = Build_Message(s, true)
                 var result_msgs = "<ul><#MESSAGE_LIST#></ul>"
@@ -387,7 +387,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
         }
         msg_html =
             StringBuilder(Apply("<#SUB_CONTENT#>", Attachments.toString(), msg_html.toString()))
-        if (isSub && i.forwardMessagesCount > 0) {
+        if (isSub && i.fwd.nonNullNoEmpty()) {
             for (s in i.fwd.orEmpty()) {
                 val fwd = Build_Message(s, true)
                 msg_html.append(fwd)

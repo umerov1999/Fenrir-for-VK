@@ -228,8 +228,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             val commentsWithAccountUri = getCommentsContentUriFor(accountId)
             if (id == null) {
                 val uri = contentResolver.insert(commentsWithAccountUri, contentValues)
-                    ?: throw DatabaseException("Result URI is null")
-                id = uri.pathSegments[1].toInt()
+                id = extractId(uri)
             } else {
                 contentResolver.update(
                     commentsWithAccountUri, contentValues,

@@ -124,10 +124,6 @@ class ImportantMessagesFragment :
             .apply(requireActivity())
     }
 
-    override fun notifyItemChanged(index: Int) {
-        mAdapter?.notifyItemBindableChanged(index)
-    }
-
     override fun onAvatarClick(message: Message, userId: Long, position: Int) {
         onOpenOwner(userId)
     }
@@ -187,25 +183,24 @@ class ImportantMessagesFragment :
         mAdapter?.refetchReactionCache(accountId)
     }
 
-    override fun notifyDataAdded(position: Int, count: Int) {
-        mAdapter?.notifyItemRangeInserted(position, count)
-    }
-
     override fun forwardMessages(accountId: Long, messages: ArrayList<Message>) {
         startForSendAttachments(requireActivity(), accountId, FwdMessages(messages))
     }
 
-    override fun notifyMessagesUpAdded(position: Int, count: Int) {
-        mAdapter?.notifyItemRangeInserted(position + 1, count) //+header
+    override fun notifyItemsAdded(position: Int, count: Int) {
+        mAdapter?.notifyItemBindableRangeInserted(position, count)
+    }
+
+    override fun notifyItemsRemoved(position: Int, count: Int) {
+        mAdapter?.notifyItemBindableRangeRemoved(position, count)
+    }
+
+    override fun notifyItemsChanged(index: Int, count: Int) {
+        mAdapter?.notifyItemBindableRangeChanged(index, count)
     }
 
     override fun notifyDataChanged() {
         mAdapter?.notifyDataSetChanged()
-    }
-
-    override fun notifyMessagesDownAdded(count: Int) {
-        mAdapter?.notifyItemRemoved(0)
-        mAdapter?.notifyItemRangeInserted(0, count + 1) //+header
     }
 
     override fun configNowVoiceMessagePlaying(

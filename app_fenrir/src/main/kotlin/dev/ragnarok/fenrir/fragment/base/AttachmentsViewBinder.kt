@@ -575,7 +575,7 @@ class AttachmentsViewBinder(
                 AppTextUtils.getDateFromUnixTime(message.date)
             val tvFwds: MaterialButton = itemView.findViewById(R.id.item_forward_message_fwds)
             tvFwds.visibility =
-                if (message.forwardMessagesCount > 0) View.VISIBLE else View.GONE
+                if (message.fwd.nonNullNoEmpty()) View.VISIBLE else View.GONE
             tvFwds.setOnClickListener {
                 message.fwd?.let { it1 -> mAttachmentsActionCallback?.onForwardMessagesOpen(it1) }
             }

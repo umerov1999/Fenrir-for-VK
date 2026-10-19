@@ -5,6 +5,9 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.rest.HttpException
 import dev.ragnarok.fenrir.exception.NotFoundException
+import dev.ragnarok.fenrir.exception.TokenTypeInvalidException
+import dev.ragnarok.fenrir.exception.UnauthorizedException
+import dev.ragnarok.fenrir.exception.UploadNotResolvedException
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -20,6 +23,22 @@ object ErrorLocalizer {
             is ApiException -> {
                 val error = throwable.error
                 api().getMessage(context, error.errorCode, error.errorMsg) ?: "null"
+            }
+
+            is UnauthorizedException -> {
+                context.getString(R.string.api_error_5)
+            }
+
+            is UploadNotResolvedException -> {
+                context.getString(R.string.upload_not_resolved_exception_message)
+            }
+
+            is TokenTypeInvalidException -> {
+                context.getString(
+                    R.string.token_type_invalid_exception,
+                    throwable.accountId,
+                    throwable.tokenPolicy
+                )
             }
 
             is SocketTimeoutException -> {

@@ -26,7 +26,7 @@ internal class BoardApi(accountId: Long, provider: IServiceProvider) :
         sort: String?,
         fields: String?
     ): Flow<DefaultCommentsResponse> {
-        return provideService(IBoardService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IBoardService(), TokenType.USER)
             .flatMapConcat {
                 it.getComments(
                     groupId,
@@ -66,7 +66,7 @@ internal class BoardApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?, count: Int?, extended: Boolean?,
         preview: Int?, previewLength: Int?, fields: String?
     ): Flow<TopicsResponse> {
-        return provideService(IBoardService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IBoardService(), TokenType.USER)
             .flatMapConcat { s ->
                 s.getTopics(
                     groupId,

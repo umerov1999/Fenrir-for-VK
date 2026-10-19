@@ -902,7 +902,7 @@
     <string name="remove_chat_user_commit">Do you really want to exclude the user %1$s from chat?</string>
     <string name="confirmation">Confirmation</string>
     <string name="add_to_home_screen">Add to home screen</string>
-    <string name="welcome_hint">Press the middle button to login :)</string>
+    <string name="welcome_hint">Press the middle button to login</string>
     <string name="poll">Poll</string>
     <string name="new_poll">New poll</string>
     <string name="poll_question">Pool question</string>
@@ -1956,4 +1956,5 @@
     <string name="call_reset_description">Last %1$d digits of the call</string>
     <string name="autoscroll_to_unread_message_in_chats">Autoscroll to unread message</string>
     <string name="scroll_to_beginning_when_sent_in_chats">Scroll to beginning when sent</string>
+    <string name="token_type_invalid_exception">Unsupported account %1$d with token policy: %2$s</string>
 </resources>

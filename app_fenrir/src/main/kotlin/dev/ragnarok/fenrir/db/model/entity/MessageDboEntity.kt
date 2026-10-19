@@ -29,23 +29,15 @@ class MessageDboEntity : DboEntity {
         private set
     var isDeletedForAll = false
         private set
-    var forwardCount = 0
-        private set
     var keyboard: KeyboardEntity? = null
         private set
     var reactions: List<ReactionEntity>? = null
         private set
     var reaction_id = 0
         private set
-
     @MessageStatus
     var status = 0
         private set
-
-    @Transient
-    var originalId = 0
-        private set
-
     @ChatAction
     var action = 0
         private set
@@ -129,18 +121,8 @@ class MessageDboEntity : DboEntity {
         return this
     }
 
-    fun setForwardCount(forwardCount: Int): MessageDboEntity {
-        this.forwardCount = forwardCount
-        return this
-    }
-
     fun setStatus(status: Int): MessageDboEntity {
         this.status = status
-        return this
-    }
-
-    fun setOriginalId(originalId: Int): MessageDboEntity {
-        this.originalId = originalId
         return this
     }
 

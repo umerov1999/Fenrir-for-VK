@@ -1,6 +1,6 @@
 [versions]
 # APP
-developerBuild = "true"
+developerBuild = "false"
 
 agpVersion = "9.4.1"
 appCompileSDK = "37.2"
@@ -84,7 +84,6 @@ vkClientSecret = "hHbZxrka2uZ6jB1inYsH"
 vkGroupAdminAppId = "2685278"
 kateAppId = "2685278"
 kateClientSecret = "lxhD8OD7dMsqtXIm5IUY"
-vkServiceToken = "7915b3df7915b3df7915b3dfd9794b73c0779157915b3df20c283430d77571be482c8b3"
 fakeAbi = "arm64-v8a"
 fakeDevice = "SAMSUNG SM-G980F"
 

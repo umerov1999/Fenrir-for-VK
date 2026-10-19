@@ -4,15 +4,14 @@ import androidx.annotation.IntDef
 
 @IntDef(
     TokenType.USER,
-    TokenType.COMMUNITY,
-    TokenType.SERVICE
+    TokenType.COMMUNITY
 )
 @Retention(AnnotationRetention.SOURCE)
 annotation class TokenType {
     companion object {
         const val USER = 0
         const val COMMUNITY = 1
-        const val SERVICE = 2
+        //const val SERVICE = 2
 
         fun getString(@TokenType vararg tokenPolicy: Int): String {
             val str = StringBuilder("[")
@@ -26,7 +25,6 @@ annotation class TokenType {
                 str.append(when(i) {
                     USER -> "user"
                     COMMUNITY -> "community"
-                    SERVICE -> "service"
                     else -> "unknow"
                 })
             }

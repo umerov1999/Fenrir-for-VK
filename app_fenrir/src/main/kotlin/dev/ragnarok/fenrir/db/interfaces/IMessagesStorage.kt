@@ -29,10 +29,8 @@ interface IMessagesStorage : IStorage {
     fun insert(accountId: Long, peerId: Long, patch: MessageEditEntity): Flow<Int>
     fun applyPatch(accountId: Long, messageId: Int, peerId: Long, patch: MessageEditEntity): Flow<Int>
 
-    @CheckResult
     fun findDraftMessage(accountId: Long, peerId: Long): Flow<DraftMessage?>
 
-    @CheckResult
     fun saveDraftMessageBody(accountId: Long, peerId: Long, text: String?): Flow<Int>
 
     //@CheckResult
@@ -40,7 +38,6 @@ interface IMessagesStorage : IStorage {
     fun getMessageStatus(accountId: Long, dbid: Int, peerId: Long): Flow<Int>
     fun applyPatches(accountId: Long, patches: Collection<MessagePatch>): Flow<Boolean>
 
-    @CheckResult
     fun changeMessageStatus(
         accountId: Long,
         messageId: Int,
@@ -50,7 +47,6 @@ interface IMessagesStorage : IStorage {
         cmid: Int?
     ): Flow<Boolean>
 
-    @CheckResult
     fun changeMessagesStatus(
         accountId: Long,
         peerId: Long,
@@ -60,7 +56,6 @@ interface IMessagesStorage : IStorage {
 
     //@CheckResult
     //Completable updateMessageFlag(int accountId, int messageId, Collection<Pair<Integer, Boolean>> values);
-    @CheckResult
     fun deleteMessage(accountId: Long, messageId: Int, peerId: Long): Flow<Boolean>
     fun findLastSentMessageIdForPeer(accountId: Long, peerId: Long): Flow<Optional<Int>>
     fun findMessagesByIds(
@@ -76,29 +71,8 @@ interface IMessagesStorage : IStorage {
         withForwardMessages: Boolean
     ): Flow<Optional<Pair<Long, MessageDboEntity>>>
 
-    ///**
-    // * Получить список сообщений, которые "приаттаччены" к сообщению с идентификатором attachTo
-    // *
-    // * @param accountId          идентификатор аккаунта
-    // * @param attachTo           идентификатор сообщения
-    // * @param includeFwd         если true - рекурсивно загрузить всю иерархию сообщений (вложенные во вложенных и т.д.)
-    // * @param includeAttachments - если true - включить вложения к пересланным сообщениям
-    // * @param forceAttachments   если true - то алгоритм проигнорирует значение в HAS_ATTACHMENTS
-    // *                           и в любом случае будет делать выборку из таблицы вложений
-    // * @return список сообщений
-    // */
-    //@CheckResult
-    //Single<List<Message>> getForwardMessages(int accountId, int attachTo, boolean includeFwd, boolean includeAttachments, boolean forceAttachments);
-    @CheckResult
-    fun getForwardMessageIds(
-        accountId: Long,
-        attachToDbId: Int,
-        peerId: Long
-    ): Flow<Pair<Boolean, List<Pair<Long, Int>>>>
-
     //Observable<MessageUpdate> observeMessageUpdates();
     fun getMissingMessages(accountId: Long, ids: Collection<Pair<Long, Int>>): Flow<Collection<Pair<Long, Int>>>
 
-    @CheckResult
     fun deleteMessages(accountId: Long, ids: Collection<Pair<Long, Int>>): Flow<Boolean>
 }

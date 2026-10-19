@@ -624,15 +624,12 @@ class FenrirContentProvider : ContentProvider() {
             sMessagesProjectionMap[MessagesColumns.DELETED_FOR_ALL] =
                 MessagesColumns.FULL_DELETED_FOR_ALL
             sMessagesProjectionMap[MessagesColumns.IMPORTANT] = MessagesColumns.FULL_IMPORTANT
-            sMessagesProjectionMap[MessagesColumns.FORWARD_COUNT] =
-                MessagesColumns.FULL_FORWARD_COUNT
+            sMessagesProjectionMap[MessagesColumns.FORWARD_BLOB] =
+                MessagesColumns.FULL_FORWARD_BLOB
             sMessagesProjectionMap[MessagesColumns.ATTACHMENTS_BLOB] =
                 MessagesColumns.FULL_ATTACHMENTS_BLOB
             sMessagesProjectionMap[MessagesColumns.STATUS] =
                 MessagesColumns.FULL_STATUS
-            sMessagesProjectionMap[MessagesColumns.ATTACH_TO] = MessagesColumns.FULL_ATTACH_TO
-            sMessagesProjectionMap[MessagesColumns.ORIGINAL_ID] =
-                MessagesColumns.FULL_ORIGINAL_ID
             sMessagesProjectionMap[MessagesColumns.UPDATE_TIME] = MessagesColumns.FULL_UPDATE_TIME
             sMessagesProjectionMap[MessagesColumns.ACTION] =
                 MessagesColumns.FULL_ACTION
@@ -758,8 +755,8 @@ class FenrirContentProvider : ContentProvider() {
             //sDialogsProjectionMap.put(DialogsColumns.FOREIGN_MESSAGE_READ_STATE, MessageColumns.FULL_READ_STATE + " AS " + DialogsColumns.FOREIGN_MESSAGE_READ_STATE);
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB] =
                 MessagesColumns.FULL_ATTACHMENTS_BLOB + " AS " + DialogsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_FWD_COUNT] =
-                MessagesColumns.FULL_FORWARD_COUNT + " AS " + DialogsColumns.FOREIGN_MESSAGE_FWD_COUNT
+            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_FWD_BLOB] =
+                MessagesColumns.FULL_FORWARD_BLOB + " AS " + DialogsColumns.FOREIGN_MESSAGE_FWD_BLOB
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_CMID] =
                 MessagesColumns.FULL_CONVERSATION_MESSAGE_ID + " AS " + DialogsColumns.FOREIGN_MESSAGE_CMID
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_ACTION] =

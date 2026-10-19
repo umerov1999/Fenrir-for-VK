@@ -8,10 +8,10 @@ import dev.ragnarok.fenrir.model.Message
 
 interface IBasicMessageListView : IMvpView, IAttachmentsPlacesView,
     IToastView {
-    fun notifyMessagesUpAdded(position: Int, count: Int)
+    fun notifyItemsAdded(position: Int, count: Int)
+    fun notifyItemsRemoved(position: Int, count: Int)
+    fun notifyItemsChanged(index: Int, count: Int)
     fun notifyDataChanged()
-    fun notifyItemChanged(index: Int)
-    fun notifyMessagesDownAdded(count: Int)
     fun configNowVoiceMessagePlaying(
         id: Int,
         progress: Float,

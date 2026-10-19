@@ -309,7 +309,7 @@ class MessagesLookPresenter(
         }
         val size = data.size
         data.addAll(messages)
-        view?.notifyMessagesUpAdded(
+        view?.notifyItemsAdded(
             size,
             messages.size
         )
@@ -322,7 +322,7 @@ class MessagesLookPresenter(
             loadingState.HeaderEnable()
         }
         data.addAll(0, messages)
-        view?.notifyMessagesDownAdded(
+        view?.notifyItemsAdded(0,
             messages.size
         )
     }

@@ -17,7 +17,8 @@ import dev.ragnarok.fenrir.writeTypedObjectCompat
 class Message : AbsModel, Identificable, ISelectable {
     var accountId = 0L
         private set
-    private var id: Int
+    var id: Int
+        private set
     var text: String? = null
         private set
     var peerId = 0L
@@ -40,8 +41,6 @@ class Message : AbsModel, Identificable, ISelectable {
     var isDeleted = false
         private set
     var isDeletedForAll = false
-        private set
-    var originalId = 0
         private set
     var isImportant = false
         private set
@@ -82,8 +81,6 @@ class Message : AbsModel, Identificable, ISelectable {
         private set
     var sender: Owner? = null
         private set
-    var forwardMessagesCount = 0
-        private set
     var updateTime: Long = 0
         private set
 
@@ -109,7 +106,6 @@ class Message : AbsModel, Identificable, ISelectable {
         isDeletedForAll = parcel.getBoolean()
         attachments = parcel.readTypedObjectCompat(Attachments.CREATOR)
         fwd = parcel.createTypedArrayList(CREATOR)
-        originalId = parcel.readInt()
         @ChatAction val tmpChatAction = parcel.readInt()
         action = tmpChatAction
         actionMid = parcel.readLong()
@@ -122,7 +118,6 @@ class Message : AbsModel, Identificable, ISelectable {
         sender = ParcelableOwnerWrapper.readOwner(parcel)
         randomId = parcel.readLong()
         extras = parcel.readIntStringMap()
-        forwardMessagesCount = parcel.readInt()
         updateTime = parcel.readLong()
         payload = parcel.readString()
         keyboard = parcel.readTypedObjectCompat(Keyboard.CREATOR)
@@ -157,11 +152,6 @@ class Message : AbsModel, Identificable, ISelectable {
             }
         }
         return null
-    }
-
-    fun setForwardMessagesCount(forwardMessagesCount: Int): Message {
-        this.forwardMessagesCount = forwardMessagesCount
-        return this
     }
 
     fun setText(text: String?): Message {
@@ -262,11 +252,6 @@ class Message : AbsModel, Identificable, ISelectable {
             reactions = ArrayList(capacity)
         }
         return reactions!!
-    }
-
-    fun setOriginalId(originalId: Int): Message {
-        this.originalId = originalId
-        return this
     }
 
     fun setImportant(important: Boolean): Message {
@@ -398,7 +383,6 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.putBoolean(isDeletedForAll)
         parcel.writeTypedObjectCompat(attachments, flags)
         parcel.writeTypedList(fwd)
-        parcel.writeInt(originalId)
         parcel.writeInt(action)
         parcel.writeLong(actionMid)
         parcel.writeString(actionEmail)
@@ -410,7 +394,6 @@ class Message : AbsModel, Identificable, ISelectable {
         ParcelableOwnerWrapper.writeOwner(parcel, flags, sender)
         parcel.writeLong(randomId)
         parcel.writeIntStringMap(extras)
-        parcel.writeInt(forwardMessagesCount)
         parcel.writeLong(updateTime)
         parcel.writeString(payload)
         parcel.writeTypedObjectCompat(keyboard, flags)

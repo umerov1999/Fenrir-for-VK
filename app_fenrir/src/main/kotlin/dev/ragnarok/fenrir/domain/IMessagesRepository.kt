@@ -158,7 +158,6 @@ interface IMessagesRepository {
      * @return список найденных диалогов
      */
     fun searchConversations(accountId: Long, count: Int, q: String?): Flow<List<Conversation>>
-    fun updateDialogKeyboard(accountId: Long, peerId: Long, keyboard: Keyboard?): Flow<Boolean>
     fun searchMessages(
         accountId: Long,
         peerId: Long?,

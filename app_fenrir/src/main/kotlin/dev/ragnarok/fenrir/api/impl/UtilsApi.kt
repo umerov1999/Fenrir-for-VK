@@ -20,8 +20,7 @@ internal class UtilsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IUtilsService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.resolveScreenName(screenName)
@@ -33,8 +32,7 @@ internal class UtilsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IUtilsService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.getShortLink(url, t_private)
@@ -62,8 +60,7 @@ internal class UtilsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IUtilsService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.checkLink(url)
@@ -91,8 +88,7 @@ internal class UtilsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IUtilsService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.customScript(code)
@@ -104,8 +100,7 @@ internal class UtilsApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IUtilsService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.getServerTime()

@@ -158,13 +158,13 @@ class DBHelper private constructor(context: Context, aid: Long) :
     private fun createZeroMessageProtectionTriggers(db: SQLiteDatabase) {
         val sqlUpdate =
             "CREATE TRIGGER zero_msg_upd BEFORE UPDATE ON " + MessagesColumns.TABLENAME + " FOR EACH ROW " +
-                    "WHEN OLD." + BaseColumns._ID + " = 0 BEGIN " +
-                    "   SELECT RAISE(ABORT, 'Cannot update record with _id=0');" +
+                    "WHEN OLD.${BaseColumns._ID} = 0 OR OLD.${MessagesColumns.PEER_ID} = 0 BEGIN " +
+                    "   SELECT RAISE(ABORT, 'Cannot update record with _id=0 or peer_id=0');" +
                     "END;"
         val sqlDelete =
             "CREATE TRIGGER zero_msg_del BEFORE DELETE ON " + MessagesColumns.TABLENAME + " FOR EACH ROW " +
-                    "WHEN OLD." + BaseColumns._ID + " = 0 BEGIN " +
-                    "   SELECT RAISE(ABORT, 'Cannot delete record with _id=0');" +
+                    "WHEN OLD.${BaseColumns._ID} = 0 OR OLD.${MessagesColumns.PEER_ID} = 0 BEGIN " +
+                    "   SELECT RAISE(ABORT, 'Cannot delete record with _id=0 or peer_id=0');" +
                     "END;"
         db.execSQL(sqlUpdate)
         db.execSQL(sqlDelete)
@@ -376,8 +376,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
     private fun createMessagesTable(db: SQLiteDatabase) {
         val create = "CREATE TABLE [" + MessagesColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE AUTOINCREMENT NOT NULL UNIQUE, " +
-                " [" + MessagesColumns.ATTACH_TO + "] INTEGER REFERENCES " + MessagesColumns.TABLENAME + "([" + BaseColumns._ID + "]) ON DELETE CASCADE ON UPDATE CASCADE, " +
-                " [" + MessagesColumns.ORIGINAL_ID + "] INTEGER, " +
                 " [" + MessagesColumns.CONVERSATION_MESSAGE_ID + "] INTEGER, " +
                 " [" + MessagesColumns.PEER_ID + "] INTEGER, " +
                 " [" + MessagesColumns.FROM_ID + "] INTEGER, " +
@@ -388,7 +386,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.DELETED + "] BOOLEAN, " +
                 " [" + MessagesColumns.DELETED_FOR_ALL + "] BOOLEAN, " +
                 " [" + MessagesColumns.IMPORTANT + "] BOOLEAN, " +
-                " [" + MessagesColumns.FORWARD_COUNT + "] INTEGER, " +
                 " [" + MessagesColumns.STATUS + "] INTEGER, " +
                 " [" + MessagesColumns.REACTION_ID + "] INTEGER, " +
                 " [" + MessagesColumns.ACTION + "] INTEGER, " +
@@ -403,7 +400,8 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.KEYBOARD + "] BLOB, " +
                 " [" + MessagesColumns.REACTIONS + "] BLOB, " +
                 " [" + MessagesColumns.PAYLOAD + "] TEXT, " +
-                " [" + MessagesColumns.ATTACHMENTS_BLOB + "] BLOB);"
+                " [" + MessagesColumns.ATTACHMENTS_BLOB + "] BLOB, " +
+                " [" + MessagesColumns.FORWARD_BLOB + "] BLOB);"
         db.execSQL(create)
         db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (0)")
         db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (1000000000)")

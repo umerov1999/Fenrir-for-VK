@@ -18,7 +18,7 @@ internal class LikesApi(accountId: Long, provider: IServiceProvider) :
         filter: String?, friendsOnly: Boolean?, offset: Int?,
         count: Int?, skipOwn: Boolean?, fields: String?
     ): Flow<LikesListResponse> {
-        return provideService(ILikesService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(ILikesService(), TokenType.USER)
             .flatMapConcat {
                 it.getList(
                     type, ownerId, itemId, pageUrl, filter, integerFromBoolean(friendsOnly),

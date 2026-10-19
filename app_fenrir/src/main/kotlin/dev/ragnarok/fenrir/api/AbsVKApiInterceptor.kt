@@ -44,7 +44,7 @@ abstract class AbsVKApiInterceptor(private val version: String) :
     override fun intercept(chain: Interceptor.Chain): Response {
         var vkAccessToken: String = token.nonNullNoEmpty(
             { it },
-            { throw UnauthorizedException("No authorization! Please, login and retry") })
+            { throw UnauthorizedException() })
         val original: Request = chain.request()
 
         val formBuilder = FormBody.Builder()

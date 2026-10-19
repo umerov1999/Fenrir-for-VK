@@ -692,7 +692,7 @@
     <string name="remove_chat_user_commit">Вы действительно хотите исключить пользователя %1$s из беседы?</string>
     <string name="confirmation">Подтверждение</string>
     <string name="add_to_home_screen">Добавить на главный экран</string>
-    <string name="welcome_hint">Нажмите на среднюю кнопку для авторизации :)</string>
+    <string name="welcome_hint">Нажмите на среднюю кнопку для авторизации</string>
     <string name="poll">Опрос</string>
     <string name="new_poll">Новый опрос</string>
     <string name="poll_question">Тема опроса</string>
@@ -1709,4 +1709,5 @@
     <string name="call_reset_description">Последние %1$d цифры звонка</string>
     <string name="autoscroll_to_unread_message_in_chats">Автопрокрутка к непрочитанному сообщению</string>
     <string name="scroll_to_beginning_when_sent_in_chats">Прокручивать к началу после отправки</string>
+    <string name="token_type_invalid_exception">Аккаунт %1$d не совместим с политикой токенов: %2$s</string>
 </resources>

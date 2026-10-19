@@ -20,12 +20,6 @@ interface IDialogsStorage : IStorage {
     fun setUnreadDialogsCount(accountId: Long, unreadCount: Int)
     fun findPeerDialog(accountId: Long, peerId: Long): Flow<Optional<PeerDialogEntity>>
     fun savePeerDialog(accountId: Long, entity: PeerDialogEntity): Flow<Boolean>
-    fun updateDialogKeyboard(
-        accountId: Long,
-        peerId: Long,
-        keyboardEntity: KeyboardEntity?
-    ): Flow<Boolean>
-
     fun getDialogs(criteria: DialogsCriteria): Flow<List<DialogDboEntity>>
     fun removePeerWithId(accountId: Long, peerId: Long): Flow<Boolean>
     fun insertDialogs(

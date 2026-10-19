@@ -23,7 +23,7 @@ internal class UsersApi(accountId: Long, provider: IServiceProvider) :
         fields: String?,
         nameCase: String?
     ): Flow<VKApiUser> {
-        return provideService(IUsersService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IUsersService(), TokenType.USER)
             .flatMapConcat {
                 it.getUserWallInfo(
                     "var user_id = Args.user_id;\n" +
@@ -65,7 +65,7 @@ internal class UsersApi(accountId: Long, provider: IServiceProvider) :
         fields: String?,
         nameCase: String?
     ): Flow<Items<VKApiUser>> {
-        return provideService(IUsersService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IUsersService(), TokenType.USER)
             .flatMapConcat {
                 it.getFollowers(userId, offset, count, fields, nameCase)
                     .map(extractResponseWithErrorHandling())
@@ -208,8 +208,7 @@ internal class UsersApi(accountId: Long, provider: IServiceProvider) :
         return provideService(
             IUsersService(),
             TokenType.USER,
-            TokenType.COMMUNITY,
-            TokenType.SERVICE
+            TokenType.COMMUNITY
         )
             .flatMapConcat {
                 it.get(join(ids, ","), fields, nameCase)

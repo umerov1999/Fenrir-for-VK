@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPeersContentUri
 import dev.ragnarok.fenrir.db.PeerStateEntity
 import dev.ragnarok.fenrir.db.column.DialogsColumns
 import dev.ragnarok.fenrir.db.column.DialogsColumns.getCV
+import dev.ragnarok.fenrir.db.column.MessagesColumns
 import dev.ragnarok.fenrir.db.column.PeersColumns
 import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.mapAttachmentsFromBlobWithColumn
 import dev.ragnarok.fenrir.db.interfaces.IDialogsStorage
@@ -47,6 +48,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.myEmit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.msgpack.MsgPack
 
 internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsStorage {
@@ -76,7 +78,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                     if (!isActive()) {
                         break
                     }
-                    dbos.add(mapEntity(cursor))
+                    dbos.add(mapEntity(criteria.accountId, cursor))
                 }
                 cursor.close()
             }
@@ -122,9 +124,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                         attachments = stores.attachments(),
                         accountId = accountId,
                         dbo = it,
-                        target = operations,
-                        attachToDbId = null,
-                        attachToIndex = null
+                        target = operations
                     )
                 }
             }
@@ -196,35 +196,6 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             val operations = ArrayList<ContentProviderOperation>()
             operations.add(
                 ContentProviderOperation.newInsert(uri).withValues(createPeerCv(entity)).build()
-            )
-            contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
-            emit(true)
-        }
-    }
-
-    override fun updateDialogKeyboard(
-        accountId: Long,
-        peerId: Long,
-        keyboardEntity: KeyboardEntity?
-    ): Flow<Boolean> {
-        return flow {
-            val uri = getPeersContentUriFor(accountId)
-            val args = arrayOf(peerId.toString())
-            val operations = ArrayList<ContentProviderOperation>(1)
-            val cv = ContentValues()
-            keyboardEntity.ifNonNull({
-                cv.put(
-                    PeersColumns.KEYBOARD,
-                    MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
-                )
-            }, {
-                cv.putNull(PeersColumns.KEYBOARD)
-            })
-            operations.add(
-                ContentProviderOperation.newUpdate(uri)
-                    .withSelection(BaseColumns._ID + " = ?", args)
-                    .withValues(cv)
-                    .build()
             )
             contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
             emit(true)
@@ -415,6 +386,16 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                         peerscv.putNull(PeersColumns.PINNED)
                     })
                 }
+                patch.botKeyboard.requireNonNull {
+                    it.keyboard.ifNonNull({
+                        peerscv.put(
+                            PeersColumns.KEYBOARD,
+                            MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
+                        )
+                    }, {
+                        peerscv.putNull(PeersColumns.KEYBOARD)
+                    })
+                }
                 patch.title.requireNonNull {
                     peerscv.put(PeersColumns.TITLE, it.title)
                     dialogscv.put(DialogsColumns.TITLE, it.title)
@@ -472,13 +453,32 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         }
     }
 
-    private fun mapEntity(cursor: Cursor): DialogDboEntity {
+    private fun mapEntity(accountId: Long, cursor: Cursor): DialogDboEntity {
         @ChatAction val action =
             cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_ACTION)
         val messageId = cursor.getInt(DialogsColumns.LAST_MESSAGE_ID)
         val peerId = cursor.getLong(BaseColumns._ID)
         val fromId =
             cursor.getLong(DialogsColumns.FOREIGN_MESSAGE_FROM_ID)
+
+        val forwardsJson =
+            cursor.getBlob(DialogsColumns.FOREIGN_MESSAGE_FWD_BLOB)
+        val forwards = if (forwardsJson.nonNullNoEmpty()) {
+            val forwardsEntity =
+                MsgPack.decodeFromByteArrayEx(
+                    ListSerializer(MessageDboEntity.serializer()),
+                    forwardsJson
+                )
+            forwardsEntity.ifEmpty {
+                null
+            }
+        } else {
+            null
+        }
+        for (i in forwards.orEmpty()) {
+            i.setOut(i.fromId == accountId)
+        }
+
         val message = MessageDboEntity().set(messageId, peerId, fromId)
             .setText(cursor.getString(DialogsColumns.FOREIGN_MESSAGE_TEXT))
             .setDate(cursor.getLong(DialogsColumns.FOREIGN_MESSAGE_DATE))
@@ -489,7 +489,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                     DialogsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB
                 )
             )
-            .setForwardCount(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_FWD_COUNT))
+            .setForwardMessages(forwards)
             .setConversationMessageId(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_CMID))
             .setAction(action)
         return DialogDboEntity(peerId)

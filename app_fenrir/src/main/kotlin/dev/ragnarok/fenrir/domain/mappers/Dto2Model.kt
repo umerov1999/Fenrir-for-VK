@@ -547,10 +547,8 @@ object Dto2Model {
             .setOut(message.out)
             .setStatus(MessageStatus.SENT)
             .setDate(message.date)
-            .setForwardMessagesCount(safeCountOf(message.fwd_messages))
             .setDeleted(message.deleted)
             .setDeletedForAll(false) // cant be deleted from api?
-            .setOriginalId(message.id)
             .setImportant(message.important)
             .setAction(Message.fromApiChatAction(message.action))
             .setActionMid(message.action_mid)

@@ -218,10 +218,10 @@ object NotificationHelper {
         var messageText =
             message.text
         if (messageText == null) messageText = ""
-        if (message.forwardMessagesCount > 0) {
+        if (message.fwd.nonNullNoEmpty()) {
             messageText += " " + context.getString(
                 R.string.notif_forward,
-                message.forwardMessagesCount
+                message.fwd?.size.orZero()
             )
         }
         if (message.attachments?.hasAttachments == true) {

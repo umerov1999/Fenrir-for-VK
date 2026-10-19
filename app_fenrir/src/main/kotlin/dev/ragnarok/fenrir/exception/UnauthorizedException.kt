@@ -1,5 +1,3 @@
 package dev.ragnarok.fenrir.exception
 
-import java.io.IOException
-
-class UnauthorizedException(message: String?) : IOException(message)
+class UnauthorizedException : Exception("No authorization! Please, login and retry")

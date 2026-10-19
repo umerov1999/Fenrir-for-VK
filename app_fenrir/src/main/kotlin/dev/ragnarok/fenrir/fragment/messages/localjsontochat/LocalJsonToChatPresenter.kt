@@ -43,7 +43,7 @@ class LocalJsonToChatPresenter(
         get() = AttachmentType
 
     private fun isAttachments(message: Message): Boolean {
-        if (message.forwardMessagesCount > 0 && message.fwd != null && AttachmentType == 8)
+        if (message.fwd.nonNullNoEmpty() && AttachmentType == 8)
             return true
         else if (AttachmentType == 8)
             return false
@@ -90,7 +90,7 @@ class LocalJsonToChatPresenter(
     }
 
     private fun checkFWD(message: Message) {
-        if (AttachmentType == 8 || message.forwardMessagesCount <= 0) {
+        if (AttachmentType == 8 || message.fwd.isNullOrEmpty()) {
             return
         }
         for (i in message.fwd.orEmpty()) {

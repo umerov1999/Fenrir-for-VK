@@ -20,7 +20,7 @@ class FwdMessages : AbsModel {
     }
 
     override fun getAttachmentKey(): String {
-        return "fwd_" + fwds.getOrNull(0)?.originalId + "_" + fwds.getOrNull(0)?.peerId
+        return "fwd_" + fwds.getOrNull(0)?.id + "_" + fwds.getOrNull(0)?.peerId
     }
 
     override fun describeContents(): Int {

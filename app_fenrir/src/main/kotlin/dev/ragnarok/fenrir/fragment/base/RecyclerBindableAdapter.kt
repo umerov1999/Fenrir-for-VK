@@ -77,10 +77,7 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
     }
 
     fun notifyItemBindableRemoved(position: Int) {
-        notifyItemRemoved(position + headersCount)
-        val positionStart = position + headersCount
-        val itemCount = items.size - position
-        notifyItemRangeChanged(positionStart, itemCount)
+        notifyItemRangeRemoved(position + headersCount, 1)
     }
 
     fun notifyItemBindableRangeRemoved(position: Int, count: Int) {
@@ -88,7 +85,12 @@ abstract class RecyclerBindableAdapter<T, VH : RecyclerView.ViewHolder>(private 
     }
 
     fun notifyItemBindableRangeInserted(position: Int, count: Int) {
-        notifyItemRangeInserted(position + headersCount, count)
+        if (position == 0 && headersCount > 0) {
+            notifyItemRangeRemoved(position, headersCount)
+            notifyItemRangeInserted(position, count + headersCount)
+        } else {
+            notifyItemRangeInserted(position + headersCount, count)
+        }
     }
 
     fun notifyItemBindableRangeChanged(position: Int, count: Int) {

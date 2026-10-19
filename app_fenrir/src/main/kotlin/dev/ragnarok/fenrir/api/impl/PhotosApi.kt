@@ -196,7 +196,7 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
             ids,
             ","
         ) { pair -> pair.ownerId.toString() + "_" + pair.id + if (pair.accessKey == null) "" else "_" + pair.accessKey }
-        return provideService(IPhotosService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat { s ->
                 s.getById(line, 1, 1)
                     .map(extractResponseWithErrorHandling())
@@ -301,7 +301,7 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
         rev: Boolean?, offset: Int?, count: Int?
     ): Flow<Items<VKApiPhoto>> {
         val photos = join(photoIds, ",")
-        return provideService(IPhotosService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
                 it.get(ownerId, albumId, photos, integerFromBoolean(rev), 1, 1, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -361,7 +361,7 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
         needCovers: Boolean?
     ): Flow<Items<VKApiPhotoAlbum>> {
         val ids = join(albumIds, ",")
-        return provideService(IPhotosService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
                 it.getAlbums(
                     ownerId,
@@ -415,7 +415,7 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiPhoto>> {
-        return provideService(IPhotosService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
                 it.search(
                     q,

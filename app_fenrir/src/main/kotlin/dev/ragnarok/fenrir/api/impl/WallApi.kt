@@ -27,7 +27,7 @@ internal class WallApi(accountId: Long, provider: IServiceProvider) : AbsApi(acc
         extended: Boolean?,
         fields: String?
     ): Flow<WallSearchResponse> {
-        return provideService(IWallService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IWallService(), TokenType.USER)
             .flatMapConcat {
                 it.search(
                     ownerId, null, query, integerFromBoolean(ownersOnly),
@@ -242,7 +242,7 @@ internal class WallApi(accountId: Long, provider: IServiceProvider) : AbsApi(acc
         extended: Boolean?,
         fields: String?
     ): Flow<WallResponse> {
-        return provideService(IWallService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IWallService(), TokenType.USER)
             .flatMapConcat {
                 it.get(
                     ownerId,
@@ -265,7 +265,7 @@ internal class WallApi(accountId: Long, provider: IServiceProvider) : AbsApi(acc
         fields: String?
     ): Flow<PostsResponse> {
         val line = join(ids, ",") { orig -> orig.ownerId.toString() + "_" + orig.id }
-        return provideService(IWallService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IWallService(), TokenType.USER)
             .flatMapConcat {
                 it.getById(
                     line,
@@ -314,7 +314,7 @@ internal class WallApi(accountId: Long, provider: IServiceProvider) : AbsApi(acc
         startCommentId: Int?, offset: Int?, count: Int?,
         sort: String?, extended: Boolean?, fields: String?
     ): Flow<DefaultCommentsResponse> {
-        return provideService(IWallService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IWallService(), TokenType.USER)
             .flatMapConcat {
                 it.getComments(
                     ownerId,

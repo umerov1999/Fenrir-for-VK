@@ -32,6 +32,7 @@ import dev.ragnarok.fenrir.db.model.MessagePatch
 import dev.ragnarok.fenrir.db.model.MessagePatch.Important
 import dev.ragnarok.fenrir.db.model.PeerPatch
 import dev.ragnarok.fenrir.db.model.entity.DialogDboEntity
+import dev.ragnarok.fenrir.db.model.entity.KeyboardEntity
 import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
 import dev.ragnarok.fenrir.db.model.entity.PeerDialogEntity
 import dev.ragnarok.fenrir.db.model.entity.ReactionAssetEntity
@@ -361,15 +362,6 @@ class MessagesRepository(
             }
             emit(true)
         }
-    }
-
-    override fun updateDialogKeyboard(
-        accountId: Long,
-        peerId: Long,
-        keyboard: Keyboard?
-    ): Flow<Boolean> {
-        return storages.dialogs()
-            .updateDialogKeyboard(accountId, peerId, buildKeyboardEntity(keyboard))
     }
 
     override fun handleUnreadBadgeUpdates(
@@ -744,7 +736,7 @@ class MessagesRepository(
     override fun insertMessages(accountId: Long, messages: List<VKApiMessage>): Flow<Boolean> {
         return toFlow(messages)
             .map(DTO_TO_DBO)
-            .flatMapConcat { dbos -> storages.messages().insert(accountId, dbos) }
+            .flatMapConcat { storages.messages().insert(accountId, it) }
             .flatMapConcat {
                 val peers: MutableSet<Long> = HashSet()
                 for (m in messages) {
@@ -757,22 +749,30 @@ class MessagesRepository(
                         for (state in peerStates) {
                             var unread = state.unreadCount
                             var messageId = state.lastMessageId
+                            var keyboard: VKApiConversation.CurrentKeyboard? = null
                             for (m in messages) {
-                                if (m.peer_id != state.peerId) continue
+                                if (m.peer_id != state.peerId) {
+                                    continue
+                                }
                                 if (m.out) {
                                     unread = 0
                                 } else {
                                     unread++
                                 }
                                 if (m.id > messageId) {
+                                    if (!m.out && m.keyboard != null && m.keyboard?.inline == false && m.keyboard?.buttons.nonNullNoEmpty()) {
+                                        keyboard = m.keyboard
+                                    }
                                     messageId = m.id
                                 }
                             }
-                            patches.add(
-                                PeerPatch(state.peerId)
-                                    .withUnreadCount(unread)
-                                    .withLastMessage(messageId)
-                            )
+                            val patch = PeerPatch(state.peerId)
+                                .withUnreadCount(unread)
+                                .withLastMessage(messageId)
+                            if (keyboard != null) {
+                                patch.withKeyboard(Dto2Entity.mapKeyboard(keyboard))
+                            }
+                            patches.add(patch)
                         }
                         applyPeerUpdatesAndPublish(accountId, patches)
                     }
@@ -800,6 +800,9 @@ class MessagesRepository(
             }
             p.title.requireNonNull {
                 update.title = PeerUpdate.Title(it.title)
+            }
+            p.botKeyboard.requireNonNull {
+                update.botKeyboard = PeerUpdate.BotKeyboard(it.keyboard)
             }
             updates.add(update)
         }
@@ -1076,8 +1079,6 @@ class MessagesRepository(
                     val fwddbos: MutableList<MessageDboEntity> = ArrayList(fwds.size)
                     for (message in fwds) {
                         val fwddbo = buildMessageEntity(message)
-                        fwddbo.setOriginalId(message.getObjectId()) // сохранить original_id необходимо, так как при вставке в таблицу _ID потеряется
-
                         // fixes
                         if (fwddbo.isOut) {
                             fwddbo.setFromId(accountId)
@@ -1137,7 +1138,11 @@ class MessagesRepository(
             }
     }
 
-    override fun enqueueAgainList(accountId: Long, peerId: Long, ids: Collection<Int>): Flow<Boolean> {
+    override fun enqueueAgainList(
+        accountId: Long,
+        peerId: Long,
+        ids: Collection<Int>
+    ): Flow<Boolean> {
         val updates = ArrayList<MessageUpdate>(ids.size)
         for (i in ids) {
             val update = MessageUpdate(accountId, i)
@@ -1159,7 +1164,7 @@ class MessagesRepository(
     override fun sendUnsentMessage(accountIds: Collection<Long>): Flow<SentMsg> {
         val store = storages.messages()
         return store
-            .findFirstUnsentMessage(accountIds, withAttachments = true, withForwardMessages = false)
+            .findFirstUnsentMessage(accountIds, withAttachments = true, withForwardMessages = true)
             .flatMapConcat { optional ->
                 if (optional.isEmpty) {
                     toFlowThrowable(NotFoundException())
@@ -1171,7 +1176,14 @@ class MessagesRepository(
                     } else {
                         val dbid = entity.id
                         val peerId = entity.peerId
-                        changeMessageStatus(accountId, dbid, peerId, MessageStatus.SENDING, null, null)
+                        changeMessageStatus(
+                            accountId,
+                            dbid,
+                            peerId,
+                            MessageStatus.SENDING,
+                            null,
+                            null
+                        )
                             .andThen(
                                 internalSend(accountId, entity)
                                     .flatMapConcat { vkid ->
@@ -1683,7 +1695,7 @@ class MessagesRepository(
 
     private fun internalSend(accountId: Long, dbo: MessageDboEntity): Flow<SendMessageResponse> {
         if (dbo.extras.isNullOrEmpty() && dbo.getAttachments()
-                .isNullOrEmpty() && dbo.forwardCount == 0
+                .isNullOrEmpty() && dbo.forwardMessages.isNullOrEmpty()
         ) {
             return networker.vkDefault(accountId)
                 .messages()
@@ -1707,24 +1719,23 @@ class MessagesRepository(
                 for (a in att) {
                     if (a is StickerDboEntity) {
                         val stickerId = a.id
-                        return checkForwardMessages(accountId, dbo)
-                            .flatMapConcat {
-                                networker.vkDefault(accountId)
-                                    .messages()
-                                    .send(
-                                        dbo.id.toLong(),
-                                        dbo.peerId,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        stickerId,
-                                        dbo.payload,
-                                        if (it.first) it.second.requireNonEmpty()[0].second else null
-                                    )
-                            }
+                        val fwds = checkForwardMessages(dbo)
+
+                        return networker.vkDefault(accountId)
+                            .messages()
+                            .send(
+                                dbo.id.toLong(),
+                                dbo.peerId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                stickerId,
+                                dbo.payload,
+                                if (fwds.first) fwds.second?.getOrNull(0)?.second else null
+                            )
                     }
                     attachments.add(createToken(a))
                 }
@@ -1737,41 +1748,42 @@ class MessagesRepository(
                 if (optionalToken.nonEmpty()) {
                     attachments.add(optionalToken.requireNonEmpty())
                 }
-                checkForwardMessages(accountId, dbo)
-                    .flatMapConcat {
-                        networker.vkDefault(accountId)
-                            .messages()
-                            .send(
-                                dbo.id.toLong(),
-                                dbo.peerId,
-                                null,
-                                dbo.text,
-                                null,
-                                null,
-                                attachments,
-                                if (!it.first) it.second.get() else null,
-                                null,
-                                dbo.payload,
-                                if (it.first) it.second.requireNonEmpty()[0].second else null
-                            )
-                    }
+                val fwds = checkForwardMessages(dbo)
+                networker.vkDefault(accountId)
+                    .messages()
+                    .send(
+                        dbo.id.toLong(),
+                        dbo.peerId,
+                        null,
+                        dbo.text,
+                        null,
+                        null,
+                        attachments,
+                        if (!fwds.first) fwds.second else null,
+                        null,
+                        dbo.payload,
+                        if (fwds.first) fwds.second?.getOrNull(0)?.second else null
+                    )
             }
     }
 
-    private fun checkForwardMessages(
-        accountId: Long,
-        dbo: MessageDboEntity
-    ): Flow<Pair<Boolean, Optional<List<Pair<Long, Int>>>>> {
-        return if (dbo.forwardCount == 0) {
-            toFlow(Pair(false, Optional.empty()))
-        } else storages.messages()
-            .getForwardMessageIds(accountId, dbo.id, dbo.peerId)
-            .map {
-                Pair(
-                    it.first,
-                    Optional.wrap(it.second)
-                )
+    private fun checkForwardMessages(dbo: MessageDboEntity): Pair<Boolean, List<Pair<Long, Int>>?> {
+        val forwards = dbo.forwardMessages
+        if (forwards.isNullOrEmpty()) {
+            return Pair(false, null)
+        }
+        val ids = ArrayList<Pair<Long, Int>>(forwards.size)
+        var fromPeer: Long? = null
+        var isFirst = true
+        for (i in dbo.forwardMessages.orEmpty()) {
+            val tmpFromPeer = i.peerId
+            if (isFirst) {
+                isFirst = false
+                fromPeer = tmpFromPeer
             }
+            ids.add(Pair(tmpFromPeer, i.id))
+        }
+        return Pair(ids.size == 1 && dbo.peerId == fromPeer, ids)
     }
 
     private fun checkVoiceMessage(

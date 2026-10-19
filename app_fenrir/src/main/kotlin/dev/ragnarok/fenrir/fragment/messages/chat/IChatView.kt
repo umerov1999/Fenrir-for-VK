@@ -45,7 +45,6 @@ interface IChatView : IBasicMessageListView, IErrorView, IToastView {
     )
 
     fun showErrorSendDialog(message: Message)
-    fun notifyItemRemoved(position: Int)
 
     fun configOptionMenu(
         canLeaveChat: Boolean,

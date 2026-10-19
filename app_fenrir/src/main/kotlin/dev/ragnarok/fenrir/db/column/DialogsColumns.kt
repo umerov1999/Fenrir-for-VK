@@ -39,7 +39,7 @@ object DialogsColumns : BaseColumns {
 
     //public static final String FOREIGN_MESSAGE_READ_STATE = "message_read_state";
     const val FOREIGN_MESSAGE_ATTACHMENTS_BLOB = "message_attachments_blob"
-    const val FOREIGN_MESSAGE_FWD_COUNT = "message_forward_count"
+    const val FOREIGN_MESSAGE_FWD_BLOB = "message_forward_blob"
     const val FOREIGN_MESSAGE_CMID = "message_forward_conversation_message_id"
     const val FOREIGN_MESSAGE_ACTION = "message_action"
 

@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.map
 internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
     AbsApi(accountId, provider), IDatabaseApi {
     override fun getCitiesById(cityIds: Collection<Int>): Flow<List<VKApiCity>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat { s ->
                 s.getCitiesById(join(cityIds, ",") { it.toString() })
                     .map(extractResponseWithErrorHandling())
@@ -32,7 +32,7 @@ internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiCountry>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat {
                 it.getCountries(integerFromBoolean(needAll), code, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -40,7 +40,7 @@ internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
     }
 
     override fun getSchoolClasses(countryId: Int?): Flow<List<SchoolClazzDto>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat {
                 it.getSchoolClasses(countryId)
                     .map(extractResponseWithErrorHandling())
@@ -48,7 +48,7 @@ internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
     }
 
     override fun getChairs(facultyId: Int, offset: Int?, count: Int?): Flow<Items<ChairDto>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat {
                 it.getChairs(facultyId, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -60,7 +60,7 @@ internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Flow<Items<FacultyDto>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat {
                 it.getFaculties(universityId, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -74,7 +74,7 @@ internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Flow<Items<UniversityDto>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat {
                 it.getUniversities(query, countryId, cityId, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -87,7 +87,7 @@ internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Flow<Items<SchoolDto>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat {
                 it.getSchools(query, cityId, offset, count)
                     .map(extractResponseWithErrorHandling())
@@ -102,7 +102,7 @@ internal class DatabaseApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?,
         count: Int?
     ): Flow<Items<VKApiCity>> {
-        return provideService(IDatabaseService(), TokenType.USER, TokenType.SERVICE)
+        return provideService(IDatabaseService(), TokenType.USER)
             .flatMapConcat {
                 it.getCities(
                     countryId,

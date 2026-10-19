@@ -289,11 +289,11 @@ class NotReadMessagesPresenter(
     private fun readUnreadMessagesUpIfExists(message: Message): Boolean {
         if (isHiddenAccount(accountId)) return false
 
-        if (!message.isOut && message.originalId > lastReadId.incoming) {
-            lastReadId.incoming = message.originalId
+        if (!message.isOut && message.id > lastReadId.incoming) {
+            lastReadId.incoming = message.id
             view?.notifyDataChanged()
             appendJob(
-                messagesInteractor.markAsRead(accountId, peer.id, message.originalId)
+                messagesInteractor.markAsRead(accountId, peer.id, message.id)
                     .fromIOToMain({
                         appendJob(
                             messagesInteractor.getConversationSingle(
@@ -322,7 +322,7 @@ class NotReadMessagesPresenter(
         }
         val size = data.size
         data.addAll(messages)
-        view?.notifyMessagesUpAdded(
+        view?.notifyItemsAdded(
             size,
             messages.size
         )
@@ -348,7 +348,7 @@ class NotReadMessagesPresenter(
             loadingState.HeaderEnable()
         }
         data.addAll(0, messages)
-        view?.notifyMessagesDownAdded(
+        view?.notifyItemsAdded(0,
             messages.size
         )
     }
