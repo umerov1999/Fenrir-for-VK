@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("poll")
-class PollDboEntity : DboEntity() {
+class PollDboEntity : DboEntity {
     var isClosed = false
     var authorId = 0L
     var isCanVote = false
@@ -44,6 +44,10 @@ class PollDboEntity : DboEntity() {
         this.id = id
         this.ownerId = ownerId
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
     }
 
     fun setMultiple(multiple: Boolean): PollDboEntity {

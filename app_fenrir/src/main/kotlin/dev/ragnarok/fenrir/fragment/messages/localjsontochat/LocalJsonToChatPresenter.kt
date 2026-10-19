@@ -47,7 +47,7 @@ class LocalJsonToChatPresenter(
             return true
         else if (AttachmentType == 8)
             return false
-        if (!message.isHasAttachments || message.attachments == null)
+        if (message.attachments == null || message.attachments?.hasAttachments == true)
             return false
         when (AttachmentType) {
             1 -> {

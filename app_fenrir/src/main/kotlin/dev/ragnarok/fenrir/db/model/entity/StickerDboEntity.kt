@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("sticker")
-class StickerDboEntity : DboEntity() {
+class StickerDboEntity : DboEntity {
     var id = 0
         private set
 
@@ -26,6 +26,10 @@ class StickerDboEntity : DboEntity() {
     fun setId(id: Int): StickerDboEntity {
         this.id = id
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "$id"
     }
 
     fun setAnimationUrl(animationUrl: String?): StickerDboEntity {

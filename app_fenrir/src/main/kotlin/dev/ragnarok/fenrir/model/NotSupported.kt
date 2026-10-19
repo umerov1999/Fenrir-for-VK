@@ -25,6 +25,10 @@ class NotSupported : AbsModel {
         return AbsModelType.MODEL_NOT_SUPPORTED
     }
 
+    override fun getAttachmentKey(): String {
+        return "not_supported_$type"
+    }
+
     fun setType(type: String?): NotSupported {
         this.type = type
         return this

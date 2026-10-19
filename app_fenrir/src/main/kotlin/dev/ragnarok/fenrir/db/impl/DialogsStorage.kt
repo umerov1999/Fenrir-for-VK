@@ -15,6 +15,7 @@ import dev.ragnarok.fenrir.db.PeerStateEntity
 import dev.ragnarok.fenrir.db.column.DialogsColumns
 import dev.ragnarok.fenrir.db.column.DialogsColumns.getCV
 import dev.ragnarok.fenrir.db.column.PeersColumns
+import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.mapAttachmentsFromBlobWithColumn
 import dev.ragnarok.fenrir.db.interfaces.IDialogsStorage
 import dev.ragnarok.fenrir.db.model.PeerPatch
 import dev.ragnarok.fenrir.db.model.entity.DialogDboEntity
@@ -118,6 +119,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 )
                 entity.message?.let {
                     MessagesStorage.appendDboOperation(
+                        attachments = stores.attachments(),
                         accountId = accountId,
                         dbo = it,
                         target = operations,
@@ -481,7 +483,12 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             .setText(cursor.getString(DialogsColumns.FOREIGN_MESSAGE_TEXT))
             .setDate(cursor.getLong(DialogsColumns.FOREIGN_MESSAGE_DATE))
             .setOut(cursor.getBoolean(DialogsColumns.FOREIGN_MESSAGE_OUT))
-            .setHasAttachments(cursor.getBoolean(DialogsColumns.FOREIGN_MESSAGE_HAS_ATTACHMENTS))
+            .setAttachments(
+                mapAttachmentsFromBlobWithColumn(
+                    cursor,
+                    DialogsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB
+                )
+            )
             .setForwardCount(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_FWD_COUNT))
             .setConversationMessageId(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_CMID))
             .setAction(action)

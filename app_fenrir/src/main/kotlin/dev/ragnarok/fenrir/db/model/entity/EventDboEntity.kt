@@ -7,13 +7,17 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("event")
-class EventDboEntity : DboEntity() {
+class EventDboEntity : DboEntity {
     var id = 0L
         private set
     var button_text: String? = null
         private set
     var text: String? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
 
     fun setId(id: Long): EventDboEntity {
         this.id = id

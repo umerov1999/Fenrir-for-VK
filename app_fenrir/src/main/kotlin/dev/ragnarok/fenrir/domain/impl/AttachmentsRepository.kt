@@ -11,10 +11,9 @@ import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildAttachmentFromDbo
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildDboAttachments
 import dev.ragnarok.fenrir.model.AbsModel
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -28,14 +27,24 @@ class AttachmentsRepository(
     private val removePublishSubject = createPublishSubject<IRemoveEvent>()
     override fun remove(
         accountId: Long,
-        @AttachToType type: Int,
-        attachToDbId: Int,
-        generatedAttachmentId: Int
+        @AttachToType attachToType: Int,
+        attachmentKey: String,
+        attachToDbId: Int
     ): Flow<Boolean> {
-        return store.remove(accountId, type, generatedAttachmentId)
+        return store.remove(
+            accountId = accountId,
+            attachToType = attachToType,
+            attachmentKey = attachmentKey,
+            attachToDbId = attachToDbId
+        )
             .map {
                 val event =
-                    RemoveEvent(accountId, type, attachToDbId, generatedAttachmentId)
+                    RemoveEvent(
+                        accountId = accountId,
+                        attachToType = attachToType,
+                        attachToDbId = attachToDbId,
+                        attachmentKey = attachmentKey,
+                    )
                 removePublishSubject.emit(event)
                 true
             }
@@ -43,10 +52,10 @@ class AttachmentsRepository(
 
     override fun removeAll(
         accountId: Long,
-        @AttachToType type: Int,
+        @AttachToType attachToType: Int,
         attachToDbId: Int
     ): Flow<Boolean> {
-        return store.removeAll(accountId, type, attachToDbId)
+        return store.removeAll(accountId, attachToType, attachToDbId)
     }
 
     override fun attach(
@@ -56,41 +65,45 @@ class AttachmentsRepository(
         models: List<AbsModel>
     ): Flow<Boolean> {
         val entities = buildDboAttachments(models)
-        return store.attachDbos(accountId, attachToType, attachToDbId, entities)
-            .map { ids ->
-                val events: MutableList<Pair<Int, AbsModel>> = ArrayList(models.size)
-                for (i in models.indices) {
-                    val model = models[i]
-                    val generatedId = ids[i]
-                    events.add(create(generatedId, model))
-                }
-                val event = AddEvent(accountId, attachToType, attachToDbId, events)
+        return store.attachToBlobSync(
+            cv = null,
+            attachToType = attachToType,
+            attachmentsEntities = entities,
+            attachToDbId = attachToDbId,
+            replace = false,
+            accountId = accountId
+        )
+            .map {
+                val event = AddEvent(accountId, attachToType, attachToDbId, models)
                 addPublishSubject.emit(event)
                 true
             }
     }
 
-    override fun getAttachmentsWithIds(
+    override fun getAttachments(
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int
-    ): Flow<List<Pair<Int, AbsModel>>> {
-        return store.getAttachmentsDbosWithIds(accountId, attachToType, attachToDbId)
-            .flatMapConcat { pairs ->
-                val ids = VKOwnIds()
-                for (pair in pairs) {
-                    fillOwnerIds(ids, pair.second)
-                }
-                ownersRepository
-                    .findBaseOwnersDataAsBundle(accountId, ids.all, IOwnersRepository.MODE_ANY)
-                    .map {
-                        val models: MutableList<Pair<Int, AbsModel>> = ArrayList(pairs.size)
-                        for (pair in pairs) {
-                            val model = buildAttachmentFromDbo(pair.second, it)
-                            models.add(create(pair.first, model))
-                        }
-                        models
+    ): Flow<List<AbsModel>?> {
+        return store.getAttachmentsFromBlob(accountId, attachToType, attachToDbId)
+            .flatMapConcat { dbos ->
+                if (dbos.isNullOrEmpty()) {
+                    toFlow(null)
+                } else {
+                    val ids = VKOwnIds()
+                    for (dbo in dbos) {
+                        fillOwnerIds(ids, dbo)
                     }
+                    ownersRepository
+                        .findBaseOwnersDataAsBundle(accountId, ids.all, IOwnersRepository.MODE_ANY)
+                        .map {
+                            val models: MutableList<AbsModel> = ArrayList(dbos.size)
+                            for (dbo in dbos) {
+                                models.add(buildAttachmentFromDbo(dbo, it))
+                            }
+                            models
+                        }
+                }
             }
     }
 
@@ -106,7 +119,7 @@ class AttachmentsRepository(
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int,
-        override val attachments: List<Pair<Int, AbsModel>>
+        override val attachments: List<AbsModel>
     ) : Event(accountId, attachToType, attachToDbId), IAddEvent
 
     private open class Event(
@@ -118,8 +131,6 @@ class AttachmentsRepository(
     private inner class RemoveEvent(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int,
-        override val generatedId: Int
+        attachToDbId: Int, override val attachmentKey: String,
     ) : Event(accountId, attachToType, attachToDbId), IRemoveEvent
-
 }

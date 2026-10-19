@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("geo")
-class GeoDboEntity : DboEntity() {
+class GeoDboEntity : DboEntity {
     var latitude: String? = null
         private set
     var longitude: String? = null
@@ -20,6 +20,10 @@ class GeoDboEntity : DboEntity() {
         private set
     var id: Int = 0
         private set
+
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
 
     fun setLatitude(latitude: String?): GeoDboEntity {
         this.latitude = latitude

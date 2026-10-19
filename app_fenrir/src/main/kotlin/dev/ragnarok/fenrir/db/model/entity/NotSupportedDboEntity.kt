@@ -7,11 +7,15 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("not_supported")
-class NotSupportedDboEntity : DboEntity() {
+class NotSupportedDboEntity : DboEntity {
     var type: String? = null
         private set
     var body: String? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "not_supported_$type"
+    }
 
     fun setType(type: String?): NotSupportedDboEntity {
         this.type = type

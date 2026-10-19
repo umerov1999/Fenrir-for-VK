@@ -7,131 +7,147 @@ import android.net.Uri
 import android.provider.BaseColumns
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.FenrirContentProvider
-import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getCommentsAttachmentsContentUriFor
-import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getMessagesAttachmentsContentUriFor
-import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPostsAttachmentsContentUriFor
-import dev.ragnarok.fenrir.db.column.attachments.CommentsAttachmentsColumns
-import dev.ragnarok.fenrir.db.column.attachments.MessagesAttachmentsColumns
-import dev.ragnarok.fenrir.db.column.attachments.WallsAttachmentsColumns
-import dev.ragnarok.fenrir.db.interfaces.Cancelable
+import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getCommentsContentUriFor
+import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getMessageContentUriFor
+import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPostsContentUriFor
+import dev.ragnarok.fenrir.db.column.CommentsColumns
+import dev.ragnarok.fenrir.db.column.MessagesColumns
+import dev.ragnarok.fenrir.db.column.PostsColumns
 import dev.ragnarok.fenrir.db.interfaces.IAttachmentsStorage
 import dev.ragnarok.fenrir.db.model.entity.DboEntity
-import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.getBlob
-import dev.ragnarok.fenrir.getInt
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
-import dev.ragnarok.fenrir.util.Utils.safeCountOf
+import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.msgpack.MsgPack
 
 internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttachmentsStorage {
-    override fun attachDbos(
+    override fun getAttachmentsFromBlob(
         accountId: Long,
-        attachToType: Int,
-        attachToDbId: Int,
-        entities: List<DboEntity>
-    ): Flow<IntArray> {
+        @AttachToType attachToType: Int,
+        where: String,
+        args: Array<String>?
+    ): Flow<List<DboEntity>?> {
         return flow {
-            val operations = ArrayList<ContentProviderOperation>(entities.size)
-            val indexes = IntArray(entities.size)
-            for (i in entities.indices) {
-                val entity = entities[i]
-                indexes[i] = appendAttachOperationWithStableAttachToId(
-                    operations,
-                    accountId,
-                    attachToType,
-                    attachToDbId,
-                    entity
-                )
+            val uri = uriForType(attachToType, accountId)
+            val cursor = contentResolver.query(
+                uri,
+                arrayOf(dataColumnFor(attachToType)),
+                where,
+                args,
+                null
+            )
+            var ret: List<DboEntity>? = null
+            if (isActive()) {
+                if (cursor != null) {
+                    if (cursor.moveToNext()) {
+                        ret = mapAttachmentsFromBlob(cursor, attachToType)
+                    }
+                    cursor.close()
+                }
             }
-            val results = contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
-            val ids = IntArray(entities.size)
-            for (i in indexes.indices) {
-                val result = results[indexes[i]]
-                val dbid = result.uri?.pathSegments?.get(1)?.toInt()
-                ids[i] = dbid ?: continue
-            }
-            emit(ids)
+            emit(ret)
         }
     }
 
-    override fun getAttachmentsDbosWithIds(
+    override fun getAttachmentsFromBlob(
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int
-    ): Flow<List<Pair<Int, DboEntity>>> {
-        return flow {
-            val cursor = createCursor(accountId, attachToType, attachToDbId)
-            val dbos: MutableList<Pair<Int, DboEntity>> = ArrayList(safeCountOf(cursor))
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    if (!isActive()) {
-                        break
-                    }
-                    val id = cursor.getInt(idColumnFor(attachToType))
-                    val json =
-                        cursor.getBlob(dataColumnFor(attachToType))
-                    val entity = deserializeDbo(json ?: continue)
-                    dbos.add(create(id, entity))
-                }
-                cursor.close()
-            }
-            emit(dbos)
-        }
-    }
-
-    private fun createCursor(
-        accountId: Long,
-        attachToType: Int,
-        attachToDbId: Int,
-    ): Cursor? {
-        val uri = uriForType(attachToType, accountId)
-        return contentResolver.query(
-            uri, null,
-            attachToIdColumnFor(attachToType) + " = ?", arrayOf(attachToDbId.toString()), null
+    ): Flow<List<DboEntity>?> {
+        return getAttachmentsFromBlob(
+            accountId,
+            attachToType,
+            BaseColumns._ID + " = ?",
+            arrayOf(attachToDbId.toString())
         )
-    }
-
-    override suspend fun getAttachmentsDbosSync(
-        accountId: Long,
-        attachToType: Int,
-        attachToDbId: Int,
-        cancelable: Cancelable
-    ): MutableList<DboEntity> {
-        val cursor = createCursor(accountId, attachToType, attachToDbId)
-        val entities: MutableList<DboEntity> = ArrayList(safeCountOf(cursor))
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                if (cancelable.canceled()) {
-                    break
-                }
-                val json =
-                    cursor.getBlob(dataColumnFor(attachToType))
-                entities.add(deserializeDbo(json ?: continue))
-            }
-            cursor.close()
-        }
-        return entities
     }
 
     override fun remove(
         accountId: Long,
         @AttachToType attachToType: Int,
-        generatedAttachmentId: Int
+        attachmentKey: String,
+        where: String,
+        args: Array<String>?
     ): Flow<Boolean> {
         return flow {
             val uri = uriForType(attachToType, accountId)
-            val selection = idColumnFor(attachToType) + " = ?"
-            val args = arrayOf(generatedAttachmentId.toString())
-            val count = context.contentResolver.delete(uri, selection, args)
-            if (count > 0) {
-                emit(true)
-            } else {
-                throw NotFoundException()
+            val cursor = contentResolver.query(
+                uri,
+                arrayOf(dataColumnFor(attachToType)),
+                where,
+                args,
+                null
+            )
+            var result: List<DboEntity>? = null
+            if (isActive()) {
+                if (cursor != null) {
+                    if (cursor.moveToNext()) {
+                        result = mapAttachmentsFromBlob(cursor, attachToType)
+                    }
+                    cursor.close()
+                }
             }
+            if (result.nonNullNoEmpty()) {
+                val res = ArrayList(result)
+                for (i in res.indices) {
+                    if (res[i].getAttachmentKey() == attachmentKey) {
+                        res.removeAt(i)
+                        break
+                    }
+                }
+                emit(res)
+            } else {
+                emit(null)
+            }
+        }.flatMapConcat {
+            attachToBlobSync(
+                cv = null,
+                attachToType = attachToType,
+                attachmentsEntities = it,
+                where = where,
+                args = args,
+                replace = true,
+                accountId = accountId
+            )
+        }
+    }
+
+    override fun remove(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        attachmentKey: String,
+        attachToDbId: Int
+    ): Flow<Boolean> {
+        return remove(
+            accountId = accountId,
+            attachToType = attachToType,
+            attachmentKey = attachmentKey,
+            where = BaseColumns._ID + " = ?",
+            args = arrayOf(attachToDbId.toString())
+        )
+    }
+
+    override fun removeAll(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        where: String,
+        args: Array<String>?
+    ): Flow<Boolean> {
+        return flow {
+            val cv = ContentValues()
+            cv.putNull(dataColumnFor(attachToType))
+            val operations = ArrayList<ContentProviderOperation>()
+            operations.add(
+                ContentProviderOperation.newUpdate(uriForType(attachToType, accountId))
+                    .withSelection(where, args).build()
+            )
+            contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
+            emit(true)
         }
     }
 
@@ -140,109 +156,204 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         @AttachToType attachToType: Int,
         attachToDbId: Int
     ): Flow<Boolean> {
-        return flow {
-            val uri = uriForType(attachToType, accountId)
-            val selection = attachToIdColumnFor(attachToType) + " = ?"
-            val args = arrayOf(attachToDbId.toString())
-            val count = context.contentResolver.delete(uri, selection, args)
-            emit(count > 0)
-        }
+        return removeAll(
+            accountId,
+            attachToType,
+            BaseColumns._ID + " = ?",
+            arrayOf(attachToDbId.toString())
+        )
     }
 
-    override fun getCount(accountId: Long, attachToType: Int, attachToDbId: Int): Flow<Int> {
+    override fun getAttachmentsCount(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        where: String,
+        args: Array<String>?
+    ): Flow<Int> {
         return flow {
             val uri = uriForType(attachToType, accountId)
-            val selection = attachToIdColumnFor(attachToType) + " = ?"
-            val args = arrayOf(attachToDbId.toString())
-            val cursor = contentResolver.query(uri, null, selection, args, null)
-            val count = safeCountOf(cursor)
-            cursor?.close()
+            val cursor = contentResolver.query(
+                uri,
+                arrayOf(dataColumnFor(attachToType)),
+                where,
+                args,
+                null
+            )
+            var count = 0
+            if (isActive()) {
+                if (cursor != null) {
+                    if (cursor.moveToNext()) {
+                        count = mapAttachmentsFromBlob(cursor, attachToType)?.size.orZero()
+                    }
+                    cursor.close()
+                }
+            }
             emit(count)
         }
     }
 
+    override fun getAttachmentsCount(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        attachToDbId: Int
+    ): Flow<Int> {
+        return getAttachmentsCount(
+            accountId,
+            attachToType,
+            BaseColumns._ID + " = ?",
+            arrayOf(attachToDbId.toString())
+        )
+    }
+
+    override fun attachToBlobSync(
+        cv: ContentValues?,
+        @AttachToType attachToType: Int,
+        attachmentsEntities: List<DboEntity>?,
+        where: String?,
+        args: Array<String>?,
+        replace: Boolean,
+        accountId: Long?
+    ): Flow<Boolean> {
+        return flow {
+            val tmpAttachmentsEntities = ArrayList(attachmentsEntities.orEmpty())
+            if (!replace && where.nonNullNoEmpty() && accountId != null) {
+                val uri = uriForType(attachToType, accountId)
+                val cursor = contentResolver.query(
+                    uri,
+                    arrayOf(dataColumnFor(attachToType)),
+                    where,
+                    args,
+                    null
+                )
+                if (isActive()) {
+                    if (cursor != null) {
+                        if (cursor.moveToNext()) {
+                            val attachmentsEntity = mapAttachmentsFromBlob(cursor, attachToType)
+                            if (attachmentsEntity.nonNullNoEmpty()) {
+                                tmpAttachmentsEntities.addAll(0, attachmentsEntity)
+                            }
+                        }
+                        cursor.close()
+                    }
+                }
+            }
+            val tmpCv = cv ?: if (where.nonNullNoEmpty() && accountId != null) {
+                ContentValues()
+            } else {
+                throw UnsupportedOperationException()
+            }
+
+            putAttachmentsToBlob(tmpCv, attachToType, tmpAttachmentsEntities)
+
+            if (cv == null && where.nonNullNoEmpty() && accountId != null) {
+                val operations = ArrayList<ContentProviderOperation>()
+                operations.add(
+                    ContentProviderOperation.newUpdate(uriForType(attachToType, accountId))
+                        .withSelection(where, args).withValues(tmpCv).build()
+                )
+                contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
+            }
+            emit(true)
+        }
+    }
+
+    override fun attachToBlobSync(
+        cv: ContentValues?,
+        @AttachToType attachToType: Int,
+        attachmentsEntities: List<DboEntity>?,
+        attachToDbId: Int?,
+        replace: Boolean,
+        accountId: Long?
+    ): Flow<Boolean> {
+        return if (attachToDbId == null) {
+            attachToBlobSync(
+                cv = cv,
+                attachToType = attachToType,
+                attachmentsEntities = attachmentsEntities,
+                where = null,
+                args = null,
+                replace = replace,
+                accountId = accountId
+            )
+        } else {
+            attachToBlobSync(
+                cv = cv,
+                attachToType = attachToType,
+                attachmentsEntities = attachmentsEntities,
+                where = BaseColumns._ID + " = ?",
+                args = arrayOf(attachToDbId.toString()),
+                replace = replace,
+                accountId = accountId
+            )
+        }
+    }
+
     companion object {
+        fun mapAttachmentsFromBlobWithColumn(
+            cursor: Cursor,
+            column: String
+        ): List<DboEntity>? {
+            val attachmentsJson =
+                cursor.getBlob(column)
+            return if (attachmentsJson.nonNullNoEmpty()) {
+                val attachmentsEntity =
+                    MsgPack.decodeFromByteArrayEx(
+                        ListSerializer(DboEntity.serializer()),
+                        attachmentsJson
+                    )
+                attachmentsEntity.ifEmpty {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+
+        fun mapAttachmentsFromBlob(
+            cursor: Cursor,
+            @AttachToType attachToType: Int
+        ): List<DboEntity>? {
+            return mapAttachmentsFromBlobWithColumn(cursor, dataColumnFor(attachToType))
+        }
+
+        fun putAttachmentsToBlob(cv: ContentValues, column: String, dbos: List<DboEntity>?) {
+            if (dbos.nonNullNoEmpty()) {
+                cv.put(
+                    column,
+                    MsgPack.encodeToByteArrayEx(
+                        ListSerializer(DboEntity.serializer()),
+                        dbos
+                    )
+                )
+            } else {
+                cv.putNull(column)
+            }
+        }
+
+        fun putAttachmentsToBlob(
+            cv: ContentValues,
+            @AttachToType attachToType: Int,
+            dbos: List<DboEntity>?
+        ) {
+            putAttachmentsToBlob(cv, dataColumnFor(attachToType), dbos)
+        }
+
         internal fun uriForType(@AttachToType type: Int, accountId: Long): Uri {
             return when (type) {
-                AttachToType.COMMENT -> getCommentsAttachmentsContentUriFor(
-                    accountId
-                )
-
-                AttachToType.MESSAGE -> getMessagesAttachmentsContentUriFor(
-                    accountId
-                )
-
-                AttachToType.POST -> getPostsAttachmentsContentUriFor(accountId)
-                else -> throw IllegalArgumentException()
-            }
-        }
-
-        fun appendAttachOperationWithBackReference(
-            operations: MutableList<ContentProviderOperation>,
-            accountId: Long,
-            @AttachToType attachToType: Int,
-            attachToBackReferenceIndex: Int,
-            dboEntity: DboEntity
-        ) {
-            val cv = ContentValues()
-            cv.put(dataColumnFor(attachToType), serializeDbo(dboEntity))
-            operations.add(
-                ContentProviderOperation.newInsert(uriForType(attachToType, accountId))
-                    .withValues(cv)
-                    .withValueBackReference(
-                        attachToIdColumnFor(attachToType),
-                        attachToBackReferenceIndex
-                    )
-                    .build()
-            )
-        }
-
-        fun appendAttachOperationWithStableAttachToId(
-            operations: MutableList<ContentProviderOperation>,
-            accountId: Long, @AttachToType attachToType: Int,
-            attachToDbId: Int, dboEntity: DboEntity
-        ): Int {
-            val cv = ContentValues()
-            cv.put(attachToIdColumnFor(attachToType), attachToDbId)
-            cv.put(dataColumnFor(attachToType), serializeDbo(dboEntity))
-            return addToListAndReturnIndex(
-                operations, ContentProviderOperation.newInsert(uriForType(attachToType, accountId))
-                    .withValues(cv)
-                    .build()
-            )
-        }
-
-        internal fun idColumnFor(@AttachToType type: Int): String {
-            when (type) {
-                AttachToType.COMMENT, AttachToType.MESSAGE, AttachToType.POST -> return BaseColumns._ID
-            }
-            throw IllegalArgumentException()
-        }
-
-        internal fun attachToIdColumnFor(@AttachToType type: Int): String {
-            return when (type) {
-                AttachToType.COMMENT -> CommentsAttachmentsColumns.C_ID
-                AttachToType.MESSAGE -> MessagesAttachmentsColumns.M_ID
-                AttachToType.POST -> WallsAttachmentsColumns.P_ID
+                AttachToType.COMMENT -> getCommentsContentUriFor(accountId)
+                AttachToType.MESSAGE -> getMessageContentUriFor(accountId)
+                AttachToType.POST -> getPostsContentUriFor(accountId)
                 else -> throw IllegalArgumentException()
             }
         }
 
         internal fun dataColumnFor(@AttachToType type: Int): String {
             return when (type) {
-                AttachToType.COMMENT -> CommentsAttachmentsColumns.C_DATA
-                AttachToType.MESSAGE -> MessagesAttachmentsColumns.M_DATA
-                AttachToType.POST -> WallsAttachmentsColumns.P_DATA
+                AttachToType.COMMENT -> CommentsColumns.ATTACHMENTS_BLOB
+                AttachToType.MESSAGE -> MessagesColumns.ATTACHMENTS_BLOB
+                AttachToType.POST -> PostsColumns.ATTACHMENTS_BLOB
                 else -> throw IllegalArgumentException()
             }
-        }
-
-        private fun serializeDbo(dboEntity: DboEntity): ByteArray {
-            return MsgPack.encodeToByteArrayEx(DboEntity.serializer(), dboEntity)
-        }
-
-        internal fun deserializeDbo(json: ByteArray): DboEntity {
-            return MsgPack.decodeFromByteArrayEx(DboEntity.serializer(), json)
         }
     }
 }

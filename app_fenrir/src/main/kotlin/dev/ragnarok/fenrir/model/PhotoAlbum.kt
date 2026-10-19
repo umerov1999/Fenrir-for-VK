@@ -77,6 +77,10 @@ class PhotoAlbum : AbsModel, ISomeones {
         return AbsModelType.MODEL_PHOTO_ALBUM
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
+    }
+
     override fun getObjectId(): Int {
         return id
     }

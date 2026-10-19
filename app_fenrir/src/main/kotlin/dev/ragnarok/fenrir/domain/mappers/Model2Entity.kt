@@ -138,7 +138,6 @@ object Model2Entity {
             .setDeleted(message.isDeleted)
             .setDeletedForAll(message.isDeletedForAll)
             .setForwardCount(message.forwardMessagesCount)
-            .setHasAttachments(message.isHasAttachments)
             .setStatus(message.status)
             .setOriginalId(message.originalId)
             .setAction(message.action)

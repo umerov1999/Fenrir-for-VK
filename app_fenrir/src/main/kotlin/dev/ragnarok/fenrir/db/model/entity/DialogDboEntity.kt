@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-class DialogDboEntity(val peerId: Long) : DboEntity() {
+class DialogDboEntity(val peerId: Long) : DboEntity {
     var title: String? = null
         private set
     var unreadCount = 0
@@ -36,6 +36,10 @@ class DialogDboEntity(val peerId: Long) : DboEntity() {
         private set
     var minor_id = 0
         private set
+
+    override fun getAttachmentKey(): String {
+        return "$peerId"
+    }
 
     fun setAcl(acl: Int): DialogDboEntity {
         this.acl = acl

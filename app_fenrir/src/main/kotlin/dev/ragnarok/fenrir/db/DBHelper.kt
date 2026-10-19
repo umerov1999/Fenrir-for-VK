@@ -34,9 +34,6 @@ import dev.ragnarok.fenrir.db.column.UsersColumns
 import dev.ragnarok.fenrir.db.column.UsersDetailsColumns
 import dev.ragnarok.fenrir.db.column.VideoAlbumsColumns
 import dev.ragnarok.fenrir.db.column.VideosColumns
-import dev.ragnarok.fenrir.db.column.attachments.CommentsAttachmentsColumns
-import dev.ragnarok.fenrir.db.column.attachments.MessagesAttachmentsColumns
-import dev.ragnarok.fenrir.db.column.attachments.WallsAttachmentsColumns
 import dev.ragnarok.fenrir.module.FenrirNative
 import java.util.concurrent.ConcurrentHashMap
 
@@ -85,19 +82,16 @@ class DBHelper private constructor(context: Context, aid: Long) :
     override fun onCreate(db: SQLiteDatabase) {
         createUsersTable(db)
         createMessagesTable(db)
-        createMessagesAttachmentsTable(db)
         createDialogTable(db)
         createPeersTable(db)
         createPhotoTable(db)
         createPhotoExtendedTable(db)
         createDocsTable(db)
         createVideosTable(db)
-        createPostAttachmentsTable(db)
         createPostsTable(db)
         createGroupsTable(db)
         createRelationshipTable(db)
         createCommentsTable(db)
-        createCommentsAttachmentsTable(db)
         createPhotoAlbumsTable(db)
         createNewsTable(db)
         createGroupsDetTable(db)
@@ -129,8 +123,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
             execSQL("DROP TRIGGER IF EXISTS zero_msg_upd")
             execSQL("DROP TRIGGER IF EXISTS zero_msg_del")
 
-            execSQL("DROP TABLE IF EXISTS " + MessagesAttachmentsColumns.TABLENAME)
-            execSQL("DROP TABLE IF EXISTS " + CommentsAttachmentsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + CommentsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + DialogsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + PeersColumns.TABLENAME)
@@ -142,7 +134,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
             execSQL("DROP TABLE IF EXISTS " + PhotoAlbumsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + PhotosColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + PhotosExtendedColumns.TABLENAME)
-            execSQL("DROP TABLE IF EXISTS " + WallsAttachmentsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + PostsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + RelationshipsColumns.TABLENAME)
             execSQL("DROP TABLE IF EXISTS " + UsersColumns.TABLENAME)
@@ -234,19 +225,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
         db.execSQL(sql)
     }
 
-    private fun createMessagesAttachmentsTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + MessagesAttachmentsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                " [" + MessagesAttachmentsColumns.M_ID + "] INTEGER, " +
-                " [" + MessagesAttachmentsColumns.M_DATA + "] BLOB, " +
-                //" [" + MessagesAttachmentsColumns.ATTACHMENT_ID + "] INTEGER, " +
-                //" [" + MessagesAttachmentsColumns.ATTACHMENT_OWNER_ID + "] INTEGER, " +
-                //" UNIQUE ([" + MessagesAttachmentsColumns.M_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_ID + "], [" + MessagesAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + MessagesAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
-                " FOREIGN KEY([" + MessagesAttachmentsColumns.M_ID + "]) " +
-                " REFERENCES " + MessagesColumns.TABLENAME + "([" + BaseColumns._ID + "]) ON DELETE CASCADE ON UPDATE CASCADE);"
-        db.execSQL(sql)
-    }
-
     /**
      * Создание таблицы комментариев
      *
@@ -269,10 +247,10 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + CommentsColumns.USER_LIKES + "] BOOLEAN, " +
                 " [" + CommentsColumns.CAN_LIKE + "] BOOLEAN, " +
                 " [" + CommentsColumns.CAN_EDIT + "] BOOLEAN, " +
-                " [" + CommentsColumns.ATTACHMENTS_COUNT + "] INTEGER, " +
                 " [" + CommentsColumns.DELETED + "] BOOLEAN, " +
                 " [" + CommentsColumns.TEXT + "] TEXT, " +
                 " [" + CommentsColumns.THREADS + "] BLOB, " +
+                " [" + CommentsColumns.ATTACHMENTS_BLOB + "] BLOB, " +
                 " UNIQUE ([" + CommentsColumns.COMMENT_ID + "]," +
                 " [" + CommentsColumns.FROM_ID + "], [" + CommentsColumns.SOURCE_ID + "]," +
                 " [" + CommentsColumns.SOURCE_OWNER_ID + "], [" + CommentsColumns.SOURCE_TYPE + "]) ON CONFLICT REPLACE);"
@@ -395,39 +373,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
         db.execSQL(create)
     }
 
-    /**
-     * Создание таблицы вложений для комментариев
-     *
-     * @param db БД
-     */
-    private fun createCommentsAttachmentsTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + CommentsAttachmentsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                " [" + CommentsAttachmentsColumns.C_ID + "] INTEGER, " +
-                " [" + CommentsAttachmentsColumns.C_DATA + "] BLOB, " +
-                //" [" + CommentsAttachmentsColumns.ATTACHMENT_ID + "] INTEGER, " +
-                //" [" + CommentsAttachmentsColumns.ATTACHMENT_OWNER_ID + "] INTEGER, " +
-                //" UNIQUE ([" + CommentsAttachmentsColumns.C_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_ID + "], [" + CommentsAttachmentsColumns.ATTACHMENT_OWNER_ID + "], [" + CommentsAttachmentsColumns.TYPE + "]) ON CONFLICT REPLACE," +
-                " FOREIGN KEY([" + CommentsAttachmentsColumns.C_ID + "]) " +
-                " REFERENCES " + CommentsColumns.TABLENAME + "([" + BaseColumns._ID + "]) ON DELETE CASCADE ON UPDATE CASCADE);"
-        db.execSQL(sql)
-    }
-
-    /**
-     * Создание таблицы вложений для постов
-     *
-     * @param db БД
-     */
-    private fun createPostAttachmentsTable(db: SQLiteDatabase) {
-        val sql = "CREATE TABLE [" + WallsAttachmentsColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                " [" + WallsAttachmentsColumns.P_ID + "] INTEGER, " +
-                " [" + WallsAttachmentsColumns.P_DATA + "] BLOB, " +
-                " FOREIGN KEY([" + WallsAttachmentsColumns.P_ID + "]) " +
-                " REFERENCES " + PostsColumns.TABLENAME + "([" + BaseColumns._ID + "]) ON DELETE CASCADE ON UPDATE CASCADE);"
-        db.execSQL(sql)
-    }
-
     private fun createMessagesTable(db: SQLiteDatabase) {
         val create = "CREATE TABLE [" + MessagesColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE AUTOINCREMENT NOT NULL UNIQUE, " +
@@ -444,7 +389,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.DELETED_FOR_ALL + "] BOOLEAN, " +
                 " [" + MessagesColumns.IMPORTANT + "] BOOLEAN, " +
                 " [" + MessagesColumns.FORWARD_COUNT + "] INTEGER, " +
-                " [" + MessagesColumns.HAS_ATTACHMENTS + "] BOOLEAN, " +
                 " [" + MessagesColumns.STATUS + "] INTEGER, " +
                 " [" + MessagesColumns.REACTION_ID + "] INTEGER, " +
                 " [" + MessagesColumns.ACTION + "] INTEGER, " +
@@ -458,7 +402,8 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.EXTRAS + "] BLOB, " +
                 " [" + MessagesColumns.KEYBOARD + "] BLOB, " +
                 " [" + MessagesColumns.REACTIONS + "] BLOB, " +
-                " [" + MessagesColumns.PAYLOAD + "] TEXT);"
+                " [" + MessagesColumns.PAYLOAD + "] TEXT, " +
+                " [" + MessagesColumns.ATTACHMENTS_BLOB + "] BLOB);"
         db.execSQL(create)
         db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (0)")
         db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (1000000000)")
@@ -706,7 +651,6 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + PostsColumns.REPOSTS_COUNT + "] INTEGER, " +
                 " [" + PostsColumns.USER_REPOSTED + "] BOOLEAN, " +
                 " [" + PostsColumns.POST_TYPE + "] TEXT, " +
-                " [" + PostsColumns.ATTACHMENTS_COUNT + "] INTEGER, " +
                 " [" + PostsColumns.SIGNED_ID + "] INTEGER, " +
                 " [" + PostsColumns.CREATED_BY + "] INTEGER, " +
                 " [" + PostsColumns.CAN_PIN + "] BOOLEAN, " +
@@ -717,6 +661,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + PostsColumns.TEXT + "] TEXT, " +
                 " [" + PostsColumns.COPYRIGHT_BLOB + "] BLOB, " +
                 " [" + PostsColumns.POST_SOURCE + "] BLOB, " +
+                " [" + PostsColumns.ATTACHMENTS_BLOB + "] BLOB, " +
                 " UNIQUE ([" + PostsColumns.POST_ID + "], [" + PostsColumns.OWNER_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }

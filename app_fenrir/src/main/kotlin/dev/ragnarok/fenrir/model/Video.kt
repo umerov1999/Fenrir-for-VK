@@ -197,6 +197,10 @@ class Video : AbsModel, ParcelNative.ParcelableNative {
         return AbsModelType.MODEL_VIDEO
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
+    }
+
     fun setPrivacyView(privacyView: SimplePrivacy?): Video {
         this.privacyView = privacyView
         return this

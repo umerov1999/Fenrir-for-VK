@@ -205,25 +205,22 @@ internal class VKApies private constructor(
                     if (customAccessToken.nonNullNoEmpty()) {
                         provider.provideCustomRest(aid, customAccessToken)
                     } else {
-                        toFlowThrowable(UnsupportedOperationException("Invalid Custom access_token!"))
+                        toFlowThrowable(UnsupportedOperationException("Invalid custom access_token!"))
                     }
                 } else {
                     val isCommunity = aid < 0
                     when {
-                        isCommunity && Utils.intValueIn(TokenType.COMMUNITY, *tokenPolicy) -> {
+                        isCommunity && Utils.intValueIn(TokenType.COMMUNITY, *tokenPolicy)
+                                || !isCommunity && Utils.intValueIn(TokenType.USER, *tokenPolicy) -> {
                             provider.provideNormalRest(aid)
                         }
 
-                        Utils.intValueIn(TokenType.USER, *tokenPolicy) -> {
-                            provider.provideNormalRest(aid)
-                        }
-
-                        Utils.intValueIn(TokenType.SERVICE, *tokenPolicy) -> {
+                        !isCommunity && Utils.intValueIn(TokenType.SERVICE, *tokenPolicy) -> {
                             provider.provideServiceRest()
                         }
 
                         else -> {
-                            toFlowThrowable(UnsupportedOperationException("Unsupported account_id: $aid with token_policy: " + tokenPolicy.contentToString()))
+                            toFlowThrowable(UnsupportedOperationException("Unsupported account $aid with token policy: " + TokenType.getString(*tokenPolicy)))
                         }
                     }
                 }

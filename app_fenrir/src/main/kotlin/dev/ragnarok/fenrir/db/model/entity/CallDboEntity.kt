@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("call")
-class CallDboEntity : DboEntity() {
+class CallDboEntity : DboEntity {
     var initiator_id = 0L
         private set
     var receiver_id = 0L
@@ -35,5 +35,9 @@ class CallDboEntity : DboEntity() {
     fun setState(state: String?): CallDboEntity {
         this.state = state
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${initiator_id}_${receiver_id}_$state"
     }
 }

@@ -83,6 +83,10 @@ class AudioPlaylist : AbsModel {
         return AbsModelType.MODEL_AUDIO_PLAYLIST
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${owner_id}"
+    }
+
     fun setId(id: Int): AudioPlaylist {
         this.id = id
         return this

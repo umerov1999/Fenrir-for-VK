@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("audio_artist")
-class AudioArtistDboEntity : DboEntity() {
+class AudioArtistDboEntity : DboEntity {
     var id: String? = null
         private set
     var name: String? = null
@@ -28,6 +28,10 @@ class AudioArtistDboEntity : DboEntity() {
     fun setPhoto(photo: List<AudioArtistImageEntity>?): AudioArtistDboEntity {
         this.photo = photo
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "$id"
     }
 
     @Keep

@@ -616,7 +616,6 @@ object Entity2Model {
             .setOut(dbo.isOut)
             .setStatus(dbo.status)
             .setDate(dbo.date)
-            .setHasAttachments(dbo.isHasAttachments)
             .setForwardMessagesCount(dbo.forwardCount)
             .setDeleted(dbo.isDeleted)
             .setDeletedForAll(dbo.isDeletedForAll)

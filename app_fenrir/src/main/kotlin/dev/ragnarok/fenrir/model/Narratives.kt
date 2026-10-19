@@ -73,6 +73,10 @@ class Narratives : AbsModel {
         return AbsModelType.MODEL_NARRATIVE
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${owner_id}"
+    }
+
     override fun equals(other: Any?): Boolean {
         return other is Narratives && id == other.id && owner_id == other.owner_id
     }

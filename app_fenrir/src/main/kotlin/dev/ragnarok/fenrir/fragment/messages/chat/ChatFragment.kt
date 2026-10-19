@@ -1091,7 +1091,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 )
 
                 pinnedTitle?.text = sender?.fullName
-                if (text.isNullOrEmpty() && pinned.isHasAttachments) {
+                if (text.isNullOrEmpty() && pinned.attachments?.hasAttachments == true) {
                     setText(getString(R.string.attachments))
                 }
                 pinnedSubtitle?.text = OwnerLinkSpanFactory.withSpans(

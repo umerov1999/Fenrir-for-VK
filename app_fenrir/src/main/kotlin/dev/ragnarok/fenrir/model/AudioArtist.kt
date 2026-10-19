@@ -25,6 +25,10 @@ class AudioArtist : AbsModel {
         return AbsModelType.MODEL_AUDIO_ARTIST
     }
 
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
+
     fun setName(name: String?): AudioArtist {
         this.name = name
         return this

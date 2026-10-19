@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("narrative")
-class NarrativesDboEntity : DboEntity() {
+class NarrativesDboEntity : DboEntity {
     var id: Int = 0
     var owner_id: Long = 0L
     var accessKey: String? = null
@@ -18,6 +18,10 @@ class NarrativesDboEntity : DboEntity() {
         private set
     var stories: IntArray? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${owner_id}"
+    }
 
     fun setId(id: Int): NarrativesDboEntity {
         this.id = id

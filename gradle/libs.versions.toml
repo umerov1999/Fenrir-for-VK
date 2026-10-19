@@ -1,6 +1,6 @@
 [versions]
 # APP
-developerBuild = "false"
+developerBuild = "true"
 
 agpVersion = "9.4.1"
 appCompileSDK = "37.2"
@@ -41,7 +41,7 @@ media3Version = "1.11.1"
 resourceInspectionAnnotationVersion = "1.0.1"
 savedStateVersion = "1.6.0-alpha04"
 swiperefreshlayoutVersion = "1.2.0"
-tracingVersion = "2.0.3"
+tracingVersion = "2.0.4"
 transitionVersion = "1.7.2"
 vectordrawableVersion = "1.2.0"
 webkitVersion = "1.18.0-rc01"

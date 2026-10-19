@@ -9,7 +9,7 @@ import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.FenrirContentProvider
 import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPostsContentUriFor
 import dev.ragnarok.fenrir.db.column.PostsColumns
-import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.appendAttachOperationWithBackReference
+import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.mapAttachmentsFromBlob
 import dev.ragnarok.fenrir.db.impl.OwnersStorage.Companion.appendOwnersInsertOperations
 import dev.ragnarok.fenrir.db.interfaces.Cancelable
 import dev.ragnarok.fenrir.db.interfaces.IWallStorage
@@ -34,11 +34,13 @@ import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.msgpack.MsgPack
+import kotlin.collections.orEmpty
 
 internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
     override fun storeWallEntities(
@@ -61,7 +63,10 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 val mainPostHeaderIndex =
                     addToListAndReturnIndex(operations, mainPostHeaderOperation)
                 indexes[i] = mainPostHeaderIndex
-                appendDboAttachmentsAndCopies(dbo, operations, accountId, mainPostHeaderIndex)
+
+                val attachments = ArrayList<DboEntity>(dbo.getAttachments().orEmpty())
+                attachments.addAll(dbo.copyHierarchy.orEmpty())
+                stores.attachments().attachToBlobSync(cv, AttachToType.POST, attachments).syncSingleSafe()
             }
             if (owners != null) {
                 appendOwnersInsertOperations(operations, accountId, owners)
@@ -83,6 +88,11 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             val uri = getPostsContentUriFor(accountId)
             val operations = ArrayList<ContentProviderOperation>()
             val cv = createCv(post)
+
+            val attachments = ArrayList<DboEntity>(post.getAttachments().orEmpty())
+            attachments.addAll(post.copyHierarchy.orEmpty())
+            stores.attachments().attachToBlobSync(cv, AttachToType.POST, attachments).syncSingleSafe()
+
             if (post.dbid > 0) {
                 cv.put(BaseColumns._ID, post.dbid)
 
@@ -98,7 +108,6 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 .withValues(cv)
                 .build()
             val mainPostIndex = addToListAndReturnIndex(operations, main)
-            appendDboAttachmentsAndCopies(post, operations, accountId, mainPostIndex)
             val results =
                 context.contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
             val dbid = extractId(results[mainPostIndex])
@@ -153,9 +162,6 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
 
     override fun findPostById(accountId: Long, dbid: Int): Flow<Optional<PostDboEntity>> {
         return flow {
-            val cancelable = object : Cancelable {
-                override suspend fun canceled(): Boolean = !isActive()
-            }
             val uri = getPostsContentUriFor(accountId)
             val where = BaseColumns._ID + " = ?"
             val args = arrayOf(dbid.toString())
@@ -163,12 +169,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             var dbo: PostDboEntity? = null
             if (cursor != null) {
                 if (cursor.moveToNext()) {
-                    dbo = mapDbo(
-                        accountId, cursor,
-                        includeAttachments = true,
-                        forceAttachments = true,
-                        cancelable = cancelable
-                    )
+                    dbo = mapDbo(cursor = cursor, includeAttachments = true)
                 }
                 cursor.close()
             }
@@ -194,14 +195,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             var dbo: PostDboEntity? = null
             if (cursor != null) {
                 if (cursor.moveToNext()) {
-                    dbo = mapDbo(
-                        accountId,
-                        cursor,
-                        includeAttachment,
-                        includeAttachment,
-                        object : Cancelable {
-                            override suspend fun canceled(): Boolean = !isActive()
-                        })
+                    dbo = mapDbo(cursor, includeAttachment)
                 }
                 cursor.close()
             }
@@ -211,11 +205,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
 
     override fun findDbosByCriteria(criteria: WallCriteria): Flow<List<PostDboEntity>> {
         return flow {
-            val accountId = criteria.accountId
             val cursor = buildCursor(criteria)
-            val cancelable = object : Cancelable {
-                override suspend fun canceled(): Boolean = !isActive()
-            }
             val dbos: MutableList<PostDboEntity> = ArrayList(safeCountOf(cursor))
             if (cursor != null) {
                 while (cursor.moveToNext()) {
@@ -223,12 +213,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                         break
                     }
                     dbos.add(
-                        mapDbo(
-                            accountId, cursor,
-                            includeAttachments = true,
-                            forceAttachments = false,
-                            cancelable = cancelable
-                        )
+                        mapDbo(cursor = cursor, includeAttachments = true)
                     )
                 }
                 cursor.close()
@@ -307,16 +292,11 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         )
     }
 
-    private suspend fun mapDbo(
-        accountId: Long,
+    private fun mapDbo(
         cursor: Cursor,
         includeAttachments: Boolean,
-        forceAttachments: Boolean,
-        cancelable: Cancelable
     ): PostDboEntity {
         val dbid = cursor.getInt(BaseColumns._ID)
-        val attachmentsCount =
-            cursor.getInt(PostsColumns.ATTACHMENTS_COUNT)
         val postId = cursor.getInt(PostsColumns.POST_ID)
         val ownerId = cursor.getLong(PostsColumns.OWNER_ID)
         val dbo = PostDboEntity().set(postId, ownerId)
@@ -359,15 +339,9 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             )
         }
         val copiesDbos: MutableList<PostDboEntity> = ArrayList(0)
-        if (includeAttachments && (attachmentsCount > 0 || forceAttachments)) {
-            val attachments: MutableList<DboEntity> = stores
-                .attachments()
-                .getAttachmentsDbosSync(
-                    accountId = accountId,
-                    attachToType = AttachToType.POST,
-                    attachToDbId = dbid,
-                    cancelable = cancelable
-                )
+        if (includeAttachments) {
+            val attachments: MutableList<DboEntity> =
+                ArrayList(mapAttachmentsFromBlob(cursor, AttachToType.POST).orEmpty())
 
             // Так как история репостов хранится вместе с вложениями,
             // в этом месте пересохраняем эту историю в другой список
@@ -409,33 +383,6 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
          * Идентификатор для сохранения временных постов, репостов, шаринга и прочего
          */
         private const val TEMP_POST_ID = -2
-        internal fun appendDboAttachmentsAndCopies(
-            dbo: PostDboEntity, operations: MutableList<ContentProviderOperation>,
-            accountId: Long, mainPostHeaderIndex: Int
-        ) {
-            dbo.getAttachments().nonNullNoEmpty {
-                for (attachmentEntity in it) {
-                    appendAttachOperationWithBackReference(
-                        operations = operations,
-                        accountId = accountId,
-                        attachToType = AttachToType.POST,
-                        attachToBackReferenceIndex = mainPostHeaderIndex,
-                        dboEntity = attachmentEntity
-                    )
-                }
-            }
-            dbo.copyHierarchy.nonNullNoEmpty {
-                for (copyDbo in it) {
-                    appendAttachOperationWithBackReference(
-                        operations = operations,
-                        accountId = accountId,
-                        attachToType = AttachToType.POST,
-                        attachToBackReferenceIndex = mainPostHeaderIndex,
-                        dboEntity = copyDbo
-                    )
-                }
-            }
-        }
 
         internal fun createCv(dbo: PostDboEntity): ContentValues {
             val cv = ContentValues()
@@ -464,9 +411,6 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             cv.put(PostsColumns.IS_PINNED, dbo.isPinned)
             cv.put(PostsColumns.IS_DONUT, dbo.isDonut)
             cv.put(PostsColumns.DELETED, dbo.isDeleted)
-            val attachmentsCount = safeCountOf(dbo.getAttachments())
-            val copiesCount = safeCountOf(dbo.copyHierarchy)
-            cv.put(PostsColumns.ATTACHMENTS_COUNT, attachmentsCount + copiesCount)
             dbo.source.ifNonNull({
                 cv.put(
                     PostsColumns.POST_SOURCE,

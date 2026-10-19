@@ -37,6 +37,10 @@ class Sticker : AbsModel {
         return AbsModelType.MODEL_STICKER
     }
 
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
+
     fun getImage(prefSize: Int, isNight: Boolean): Image {
         return if (isNight) getImage(prefSize, imagesWithBackground) else getImage(prefSize, images)
     }

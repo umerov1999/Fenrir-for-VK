@@ -12,7 +12,7 @@ import kotlin.random.Random
 class AttachmentEntry : Parcelable {
     val id: Int
     val attachment: AbsModel
-    var optionalId = 0
+    var stored = false
         private set
     var isCanDelete: Boolean
         private set
@@ -30,7 +30,7 @@ class AttachmentEntry : Parcelable {
         if (id > ID_GEN.toInt()) {
             ID_GEN.set(id)
         }
-        optionalId = parcel.readInt()
+        stored = parcel.getBoolean()
         isCanDelete = parcel.getBoolean()
         isAccompanying = parcel.getBoolean()
         val wrapper: ParcelableModelWrapper =
@@ -48,8 +48,8 @@ class AttachmentEntry : Parcelable {
         return this
     }
 
-    fun setOptionalId(optionalId: Int): AttachmentEntry {
-        this.optionalId = optionalId
+    fun setStored(stored: Boolean): AttachmentEntry {
+        this.stored = stored
         return this
     }
 
@@ -59,7 +59,7 @@ class AttachmentEntry : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(id)
-        dest.writeInt(optionalId)
+        dest.putBoolean(stored)
         dest.putBoolean(isCanDelete)
         dest.putBoolean(isAccompanying)
         dest.writeTypedObjectCompat(ParcelableModelWrapper.wrap(attachment), flags)

@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("audio_message")
-class AudioMessageDboEntity : DboEntity() {
+class AudioMessageDboEntity : DboEntity {
     var id = 0
         private set
     var ownerId = 0L
@@ -66,5 +66,9 @@ class AudioMessageDboEntity : DboEntity() {
     fun setAccessKey(accessKey: String?): AudioMessageDboEntity {
         this.accessKey = accessKey
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
     }
 }

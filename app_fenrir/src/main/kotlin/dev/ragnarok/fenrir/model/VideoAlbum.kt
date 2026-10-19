@@ -49,6 +49,10 @@ class VideoAlbum : AbsModel {
         return AbsModelType.MODEL_VIDEO_ALBUM
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
+    }
+
     fun setTitle(title: String?): VideoAlbum {
         this.title = title
         return this

@@ -198,6 +198,10 @@ class News : AbsModel {
         return AbsModelType.MODEL_NEWS
     }
 
+    override fun getAttachmentKey(): String {
+        return "${sourceId}_${postId}"
+    }
+
     fun setCopyright(copyright: Copyright?): News {
         this.copyright = copyright
         return this

@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("graffiti")
-class GraffitiDboEntity : DboEntity() {
+class GraffitiDboEntity : DboEntity {
     var id = 0
         private set
     var owner_id = 0L
@@ -20,6 +20,10 @@ class GraffitiDboEntity : DboEntity() {
         private set
     var access_key: String? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${owner_id}"
+    }
 
     fun setId(id: Int): GraffitiDboEntity {
         this.id = id

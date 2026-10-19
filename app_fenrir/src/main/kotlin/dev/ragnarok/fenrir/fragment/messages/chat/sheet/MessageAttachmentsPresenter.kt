@@ -19,6 +19,7 @@ import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.model.ModelsBundle
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.IUploadManager
 import dev.ragnarok.fenrir.upload.IUploadManager.IProgressUpdate
@@ -142,9 +143,9 @@ class MessageAttachmentsPresenter(
         }
     }
 
-    private fun onAttachmentRemoved(optionId: Int) {
+    private fun onAttachmentRemoved(key: String) {
         for (i in entries.indices) {
-            if (entries[i].optionalId == optionId) {
+            if (entries[i].attachment.getAttachmentKey() == key) {
                 entries.removeAt(i)
                 view?.notifyEntryRemoved(
                     i
@@ -155,8 +156,8 @@ class MessageAttachmentsPresenter(
         resolveEmptyViewVisibility()
     }
 
-    private fun onAttachmentsAdded(pairs: List<Pair<Int, AbsModel>>) {
-        onDataReceived(entities2entries(pairs))
+    private fun onAttachmentsAdded(dtos: List<AbsModel>) {
+        onDataReceived(entities2entries(dtos))
     }
 
     private fun loadData() {
@@ -168,7 +169,7 @@ class MessageAttachmentsPresenter(
 
     private fun createLoadAllSingle(): Flow<List<AttachmentEntry>> {
         return attachmentsRepository
-            .getAttachmentsWithIds(
+            .getAttachments(
                 accountId = messageOwnerId,
                 attachToType = AttachToType.MESSAGE,
                 attachToDbId = messageId
@@ -416,12 +417,12 @@ class MessageAttachmentsPresenter(
     }
 
     fun fireRemoveClick(entry: AttachmentEntry) {
-        if (entry.optionalId != 0) {
+        if (entry.stored) {
             attachmentsRepository.remove(
                 accountId = messageOwnerId,
-                type = AttachToType.MESSAGE,
-                attachToDbId = messageId,
-                generatedAttachmentId = entry.optionalId
+                attachToType = AttachToType.MESSAGE,
+                attachmentKey = entry.attachment.getAttachmentKey(),
+                attachToDbId = messageId
             ).hiddenIO()
             return
         }
@@ -582,12 +583,12 @@ class MessageAttachmentsPresenter(
     companion object {
         private const val SAVE_CAMERA_FILE_URI = "save_camera_file_uri"
         private const val SAVE_ACCOMPANYING_ENTRIES = "save_accompanying_entries"
-        internal fun entities2entries(pairs: List<Pair<Int, AbsModel>>): List<AttachmentEntry> {
-            val entries: MutableList<AttachmentEntry> = ArrayList(pairs.size)
-            for (pair in pairs) {
+        internal fun entities2entries(dtos: List<AbsModel>?): List<AttachmentEntry> {
+            val entries: MutableList<AttachmentEntry> = ArrayList(dtos?.size.orZero())
+            for (dto in dtos.orEmpty()) {
                 entries.add(
-                    AttachmentEntry(true, pair.second)
-                        .setOptionalId(pair.first)
+                    AttachmentEntry(true, dto)
+                        .setStored(true)
                 )
             }
             return entries
@@ -618,7 +619,7 @@ class MessageAttachmentsPresenter(
             attachmentsRepository
                 .observeRemoving()
                 .filter(predicate)
-                .sharedFlowToMain { onAttachmentRemoved(it.generatedId) })
+                .sharedFlowToMain { onAttachmentRemoved(it.attachmentKey) })
         appendJob(
             uploadManager.observeAdding()
                 .sharedFlowToMain { onUploadsAdded(it) })

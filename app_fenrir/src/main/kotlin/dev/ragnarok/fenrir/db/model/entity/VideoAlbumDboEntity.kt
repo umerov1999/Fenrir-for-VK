@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.db.model.entity
 
-class VideoAlbumDboEntity(val id: Int, val ownerId: Long) : DboEntity() {
+class VideoAlbumDboEntity(val id: Int, val ownerId: Long) : DboEntity {
     var title: String? = null
         private set
     var image: String? = null
@@ -11,6 +11,10 @@ class VideoAlbumDboEntity(val id: Int, val ownerId: Long) : DboEntity() {
         private set
     var privacy: PrivacyEntity? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
+    }
 
     fun setTitle(title: String?): VideoAlbumDboEntity {
         this.title = title

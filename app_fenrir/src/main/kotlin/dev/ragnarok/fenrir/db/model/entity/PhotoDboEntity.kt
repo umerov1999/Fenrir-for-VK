@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("photo")
-class PhotoDboEntity : DboEntity() {
+class PhotoDboEntity : DboEntity {
     var id = 0
         private set
     var ownerId = 0L
@@ -47,6 +47,10 @@ class PhotoDboEntity : DboEntity() {
         this.id = id
         this.ownerId = ownerId
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
     }
 
     fun setSizes(sizes: PhotoSizeEntity?): PhotoDboEntity {

@@ -143,7 +143,7 @@ class Dialog : IdentificableOwner, Parcelable {
         get() = message?.forwardMessagesCount.orZero()
 
     fun hasAttachments(): Boolean {
-        return message?.isHasAttachments == true
+        return message?.attachments?.hasAttachments == true
     }
 
     val lastMessageText: String?

@@ -416,11 +416,11 @@ class CommentsInteractor(
         commentDbId: Int
     ): Flow<List<IAttachmentToken>> {
         return cache.attachments()
-            .getAttachmentsDbosWithIds(accountId, AttachToType.COMMENT, commentDbId)
+            .getAttachmentsFromBlob(accountId, AttachToType.COMMENT, commentDbId)
             .map {
-                val tokens: MutableList<IAttachmentToken> = ArrayList(it.size)
-                for (pair in it) {
-                    tokens.add(createToken(pair.second))
+                val tokens: MutableList<IAttachmentToken> = ArrayList(it?.size.orZero())
+                for (s in it.orEmpty()) {
+                    tokens.add(createToken(s))
                 }
                 tokens
             }

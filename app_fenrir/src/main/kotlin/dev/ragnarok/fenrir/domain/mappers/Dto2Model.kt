@@ -547,7 +547,6 @@ object Dto2Model {
             .setOut(message.out)
             .setStatus(MessageStatus.SENT)
             .setDate(message.date)
-            .setHasAttachments(message.attachments != null && message.attachments?.nonEmpty() == true)
             .setForwardMessagesCount(safeCountOf(message.fwd_messages))
             .setDeleted(message.deleted)
             .setDeletedForAll(false) // cant be deleted from api?

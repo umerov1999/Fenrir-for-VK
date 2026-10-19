@@ -189,7 +189,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
             }
         }
         var AttacmentHeader = "<p class=\"attachments\">Вложения: <#ATTACHMENT_TYPE#></p>"
-        if (i.isHasAttachments && i.attachments != null) {
+        if (i.attachments != null && i.attachments?.hasAttachments == true) {
             var HasPhotos = false
             var HasVideos = false
             var HasStory = false
@@ -231,7 +231,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
         msg_html =
             StringBuilder(Apply("<#MESSAGE_CONTENT#>", message.toString(), msg_html.toString()))
         val Attachments = StringBuilder()
-        if (i.isHasAttachments) {
+        if (i.attachments?.hasAttachments == true) {
             val Image =
                 "\"<a href=\"<#ORIGINAL_IMAGE_LINK#>\"><div data-href=\"<#IMAGE_LINK#>\" class=\"progressive replace\"><img class=\"preview\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAVSURBVBhXY/z//z8DAwMTEDMwMAAAJAYDAbrboo8AAAAASUVORK5CYII=\"/></div></a>\""
             i.attachments?.links.nonNullNoEmpty {

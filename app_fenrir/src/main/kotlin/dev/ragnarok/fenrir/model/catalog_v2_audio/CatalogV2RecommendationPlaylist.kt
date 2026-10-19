@@ -117,6 +117,10 @@ class CatalogV2RecommendationPlaylist : AbsModel {
         return AbsModelType.MODEL_CATALOG_V2_RECOMMENDATION_PLAYLIST
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${owner_id}"
+    }
+
     fun setScroll() {
         scrollToIt = true
     }

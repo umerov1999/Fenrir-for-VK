@@ -122,6 +122,10 @@ class Comment : AbsModel, Identificable {
         return AbsModelType.MODEL_COMMENT
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${commented.sourceId}_${commented.sourceOwnerId}"
+    }
+
     override fun getObjectId(): Int {
         return id
     }

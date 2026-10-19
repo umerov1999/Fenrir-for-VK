@@ -32,6 +32,10 @@ class Chat : AbsModel {
         return AbsModelType.MODEL_CHAT
     }
 
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
+
     fun setTitle(title: String?): Chat {
         this.title = title
         return this

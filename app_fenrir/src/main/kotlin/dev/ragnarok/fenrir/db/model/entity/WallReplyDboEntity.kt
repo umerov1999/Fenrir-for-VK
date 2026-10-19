@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("wall_reply")
-class WallReplyDboEntity : DboEntity() {
+class WallReplyDboEntity : DboEntity {
     var id = 0
         private set
     var fromId = 0L
@@ -30,6 +30,10 @@ class WallReplyDboEntity : DboEntity() {
     fun setId(id: Int): WallReplyDboEntity {
         this.id = id
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}_${postId}"
     }
 
     fun setOwnerId(owner_id: Long): WallReplyDboEntity {

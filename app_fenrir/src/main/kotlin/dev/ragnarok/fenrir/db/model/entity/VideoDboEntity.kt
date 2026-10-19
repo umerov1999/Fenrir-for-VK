@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("video")
-class VideoDboEntity : DboEntity() {
+class VideoDboEntity : DboEntity {
     var id = 0
         private set
     var ownerId = 0L
@@ -89,6 +89,10 @@ class VideoDboEntity : DboEntity() {
         this.id = id
         this.ownerId = ownerId
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
     }
 
     fun setAlbumId(albumId: Int): VideoDboEntity {

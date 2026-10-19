@@ -1,7 +1,9 @@
 package dev.ragnarok.fenrir.domain
 
+import android.content.ContentValues
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.db.AttachToType
+import dev.ragnarok.fenrir.db.model.entity.DboEntity
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
@@ -11,15 +13,15 @@ interface IAttachmentsRepository {
     @CheckResult
     fun remove(
         accountId: Long,
-        @AttachToType type: Int,
-        attachToDbId: Int,
-        generatedAttachmentId: Int
+        @AttachToType attachToType: Int,
+        attachmentKey: String,
+        attachToDbId: Int
     ): Flow<Boolean>
 
     @CheckResult
     fun removeAll(
         accountId: Long,
-        @AttachToType type: Int,
+        @AttachToType attachToType: Int,
         attachToDbId: Int
     ): Flow<Boolean>
 
@@ -31,11 +33,12 @@ interface IAttachmentsRepository {
         models: List<AbsModel>
     ): Flow<Boolean>
 
-    fun getAttachmentsWithIds(
+    @CheckResult
+    fun getAttachments(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
-    ): Flow<List<Pair<Int, AbsModel>>>
+        attachToDbId: Int,
+    ): Flow<List<AbsModel>?>
 
     fun observeAdding(): SharedFlow<IAddEvent>
     fun observeRemoving(): SharedFlow<IRemoveEvent>
@@ -48,10 +51,10 @@ interface IAttachmentsRepository {
     }
 
     interface IRemoveEvent : IBaseEvent {
-        val generatedId: Int
+        val attachmentKey: String
     }
 
     interface IAddEvent : IBaseEvent {
-        val attachments: List<Pair<Int, AbsModel>>
+        val attachments: List<AbsModel>
     }
 }

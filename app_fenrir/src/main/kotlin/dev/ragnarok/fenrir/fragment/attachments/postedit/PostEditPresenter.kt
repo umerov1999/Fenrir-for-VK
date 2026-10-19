@@ -346,12 +346,12 @@ class PostEditPresenter(
         view?.showEnterTimeDialog(initialDate)
     }
 
-    override fun fireTimerTimeSelected(unixtime: Long) {
-        if (!validatePublishDate(unixtime)) {
+    override fun fireTimerTimeSelected(unixTime: Long) {
+        if (!validatePublishDate(unixTime)) {
             view?.showError(R.string.date_is_invalid)
             return
         }
-        setTimerValue(unixtime)
+        setTimerValue(unixTime)
     }
 
     override fun onPollCreateClick() {

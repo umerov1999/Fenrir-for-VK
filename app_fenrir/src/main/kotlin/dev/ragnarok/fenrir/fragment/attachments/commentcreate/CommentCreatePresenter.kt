@@ -43,7 +43,7 @@ class CommentCreatePresenter(
         if (removeIf(
                 data
             ) {
-                it.optionalId == event.generatedId
+                it.attachment.getAttachmentKey() == event.attachmentKey
             }
         ) {
             safeNotifyDataSetChanged()
@@ -54,17 +54,17 @@ class CommentCreatePresenter(
         addAll(event.attachments)
     }
 
-    private fun addAll(d: List<Pair<Int, AbsModel>>) {
+    private fun addAll(dtos: List<AbsModel>) {
         val size = data.size
-        for (pair in d) {
-            data.add(AttachmentEntry(true, pair.second).setOptionalId(pair.first))
+        for (dto in dtos) {
+            data.add(AttachmentEntry(true, dto).setStored(true))
         }
-        safelyNotifyItemsAdded(size, d.size)
+        safelyNotifyItemsAdded(size, dtos.size)
     }
 
     private fun attachmentsSingle(): Flow<List<AttachmentEntry>> {
         return attachmentsRepository
-            .getAttachmentsWithIds(accountId, AttachToType.COMMENT, commentId)
+            .getAttachments(accountId, AttachToType.COMMENT, commentId)
             .map { createFrom(it, true) }
     }
 
@@ -96,12 +96,12 @@ class CommentCreatePresenter(
     }
 
     override fun onAttachmentRemoveClick(index: Int, attachment: AttachmentEntry) {
-        if (attachment.optionalId != 0) {
+        if (attachment.stored) {
             attachmentsRepository.remove(
                 accountId = accountId,
-                type = AttachToType.COMMENT,
-                attachToDbId = commentId,
-                generatedAttachmentId = attachment.optionalId
+                attachToType = AttachToType.COMMENT,
+                attachmentKey = attachment.attachment.getAttachmentKey(),
+                attachToDbId = commentId
             ).hiddenIO()
             // из списка не удаляем, так как удаление из репозитория "слушается"
             // (будет удалено асинхронно и после этого удалится из списка)

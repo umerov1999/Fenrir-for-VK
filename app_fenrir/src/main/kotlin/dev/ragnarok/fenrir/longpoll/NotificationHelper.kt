@@ -275,7 +275,7 @@ object NotificationHelper {
                 .setIcon(IconCompat.createWithBitmap(if (message.senderId == accountId) acc_avatar else avatar))
                 .setKey(message.senderId.toString()).build()
         )
-        if (message.isHasAttachments && message.attachments != null) {
+        if (message.attachments != null && message.attachments?.hasAttachments == true) {
             if (message.attachments?.stickers.nonNullNoEmpty()) {
                 val url = message.attachments?.stickers?.get(0)?.getImageLight(256)?.url
                 val cont = doDownloadDataNotification(

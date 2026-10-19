@@ -109,6 +109,10 @@ class Photo : AbsModel, ISomeones, ParcelNative.ParcelableNative {
         return AbsModelType.MODEL_PHOTO
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
+    }
+
     override fun getObjectId(): Int {
         return id
     }

@@ -116,6 +116,10 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         return AbsModelType.MODEL_DOCUMENT
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
+    }
+
     fun getPreviewWithSize(@PhotoSize size: Int, excludeNonAspectRatio: Boolean): String? {
         return photoPreview?.getUrlForSize(
             size,
@@ -240,6 +244,10 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
             return AbsModelType.MODEL_DOCUMENT_GRAFFITI
         }
 
+        override fun getAttachmentKey(): String {
+            return "$src"
+        }
+
         fun setSrc(src: String?): Graffiti {
             this.src = src
             return this
@@ -321,6 +329,10 @@ class Document : AbsModel, ParcelNative.ParcelableNative {
         @AbsModelType
         override fun getModelType(): Int {
             return AbsModelType.MODEL_DOCUMENT_VIDEO_PREVIEW
+        }
+
+        override fun getAttachmentKey(): String {
+            return "$src"
         }
 
         fun setSrc(src: String?): VideoPreview {

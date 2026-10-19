@@ -13,5 +13,25 @@ annotation class TokenType {
         const val USER = 0
         const val COMMUNITY = 1
         const val SERVICE = 2
+
+        fun getString(@TokenType vararg tokenPolicy: Int): String {
+            val str = StringBuilder("[")
+            var first = true
+            for(i in tokenPolicy) {
+                if(first) {
+                    first = false
+                } else {
+                    str.append(", ")
+                }
+                str.append(when(i) {
+                    USER -> "user"
+                    COMMUNITY -> "community"
+                    SERVICE -> "service"
+                    else -> "unknow"
+                })
+            }
+            str.append("]")
+            return str.toString()
+        }
     }
 }

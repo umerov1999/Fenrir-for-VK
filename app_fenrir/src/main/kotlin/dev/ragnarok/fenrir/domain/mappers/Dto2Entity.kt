@@ -831,7 +831,6 @@ object Dto2Entity {
             .setCanLike(comment.can_like)
             .setCanEdit(comment.can_edit)
             .setDeleted(false)
-            .setAttachmentsCount(comment.attachmentsCount)
             .setAttachments(attachmentsEntities)
             .setThreadsCount(comment.threads_count)
             .setThreads(
@@ -1501,7 +1500,6 @@ object Dto2Entity {
             .setDeleted(dto.deleted)
             .setDeletedForAll(false) // cant be deleted for all?
             .setForwardCount(safeCountOf(dto.fwd_messages))
-            .setHasAttachments(dto.attachments != null && dto.attachments?.nonEmpty() == true)
             .setStatus(MessageStatus.SENT) // only sent can be
             .setOriginalId(dto.id)
             .setAction(Message.fromApiChatAction(dto.action))
@@ -1522,11 +1520,7 @@ object Dto2Entity {
                 ) {
                     mapReaction(it)
                 })
-        if (entity.isHasAttachments) {
-            entity.setAttachments(dto.attachments?.let { mapAttachmentsList(it) })
-        } else {
-            entity.setAttachments(null)
-        }
+        entity.setAttachments(dto.attachments?.let { mapAttachmentsList(it) })
         entity.setForwardMessages(dto.fwd_messages.transformNonNullNullable({
             if (it.size == 1) {
                 listOf(mapMessage(it[0]))

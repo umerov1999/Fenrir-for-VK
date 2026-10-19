@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("market_album")
-class MarketAlbumDboEntity : DboEntity() {
+class MarketAlbumDboEntity : DboEntity {
     var id = 0
         private set
     var owner_id = 0L
@@ -22,6 +22,10 @@ class MarketAlbumDboEntity : DboEntity() {
         private set
     var updated_time: Long = 0
         private set
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${owner_id}"
+    }
 
     fun set(id: Int, owner_id: Long): MarketAlbumDboEntity {
         this.id = id

@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("link")
-class LinkDboEntity : DboEntity() {
+class LinkDboEntity : DboEntity {
     var url: String? = null
         private set
     var title: String? = null
@@ -20,6 +20,10 @@ class LinkDboEntity : DboEntity() {
         private set
     var photo: PhotoDboEntity? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "$url"
+    }
 
     fun setUrl(url: String?): LinkDboEntity {
         this.url = url

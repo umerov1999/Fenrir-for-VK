@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("audio")
-class AudioDboEntity : DboEntity() {
+class AudioDboEntity : DboEntity {
     var id = 0
         private set
     var ownerId = 0L
@@ -136,5 +136,9 @@ class AudioDboEntity : DboEntity() {
     fun setMain_artists(main_artists: Map<String, String>?): AudioDboEntity {
         this.main_artists = main_artists
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
     }
 }

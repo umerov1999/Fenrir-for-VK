@@ -374,6 +374,9 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
     }
 
     fun refreshReactionsIfNeed() {
+        if (accountId <= 0) {
+            return
+        }
         if (Utils.needReloadReactionAssets(accountId)) {
             appendJob(Repository.messages.getReactionsAssets(accountId).fromIOToMain({
                 if (Utils.getReactionsAssets()[accountId] == null) {

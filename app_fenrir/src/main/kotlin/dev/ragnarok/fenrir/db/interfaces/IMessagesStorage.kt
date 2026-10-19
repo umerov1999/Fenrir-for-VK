@@ -76,8 +76,6 @@ interface IMessagesStorage : IStorage {
         withForwardMessages: Boolean
     ): Flow<Optional<Pair<Long, MessageDboEntity>>>
 
-    fun notifyMessageHasAttachments(accountId: Long, messageId: Int, peerId: Long): Flow<Boolean>
-
     ///**
     // * Получить список сообщений, которые "приаттаччены" к сообщению с идентификатором attachTo
     // *

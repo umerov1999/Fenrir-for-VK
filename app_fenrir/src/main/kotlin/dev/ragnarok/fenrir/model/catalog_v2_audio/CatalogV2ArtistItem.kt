@@ -76,6 +76,10 @@ class CatalogV2ArtistItem : AbsModel {
         return AbsModelType.MODEL_AUDIO_CATALOG_V2_ARTIST
     }
 
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
+
     class CatalogV2Cover : Parcelable {
         var width: Int = 0
         var url: String? = null

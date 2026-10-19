@@ -53,9 +53,6 @@ class CommentEntity {
     var isDeleted = false
         private set
 
-    var attachmentsCount = 0
-        private set
-
     var threadsCount = 0
         private set
 
@@ -139,11 +136,6 @@ class CommentEntity {
 
     fun setDeleted(deleted: Boolean): CommentEntity {
         isDeleted = deleted
-        return this
-    }
-
-    fun setAttachmentsCount(attachmentsCount: Int): CommentEntity {
-        this.attachmentsCount = attachmentsCount
         return this
     }
 

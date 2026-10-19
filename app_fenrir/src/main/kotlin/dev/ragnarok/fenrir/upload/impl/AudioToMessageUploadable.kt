@@ -129,13 +129,12 @@ class AudioToMessageUploadable(
     }
 
     companion object {
-        fun attachIntoDatabaseRx(
+        private fun attachIntoDatabaseRx(
             repository: IAttachmentsRepository, storage: IMessagesStorage,
             accountId: Long, messageId: Int, peerId: Long, audio: Audio
         ): Flow<Boolean> {
             return repository
                 .attach(accountId, AttachToType.MESSAGE, messageId, listOf(audio))
-                .andThen(storage.notifyMessageHasAttachments(accountId, messageId, peerId))
         }
     }
 }

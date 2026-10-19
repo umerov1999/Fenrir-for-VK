@@ -3,7 +3,7 @@ package dev.ragnarok.fenrir.db.model.entity
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 
-class NewsDboEntity : DboEntity() {
+class NewsDboEntity : DboEntity {
     var type: String? = null
         private set
     var sourceId = 0L
@@ -56,6 +56,10 @@ class NewsDboEntity : DboEntity() {
         private set
     var copyright: CopyrightDboEntity? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "${sourceId}_${postId}"
+    }
 
     fun setDonut(donut: Boolean): NewsDboEntity {
         this.isDonut = donut

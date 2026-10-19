@@ -71,6 +71,10 @@ class Geo : AbsModel {
         return AbsModelType.MODEL_GEO
     }
 
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
+
     override fun describeContents(): Int {
         return 0
     }

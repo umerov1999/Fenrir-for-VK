@@ -67,4 +67,8 @@ sealed class Owner : AbsModel, IdentificableOwner, ParcelNative.ParcelableNative
         get() {
             throw UnsupportedOperationException()
         }
+
+    override fun getAttachmentKey(): String {
+        return "$ownerId"
+    }
 }

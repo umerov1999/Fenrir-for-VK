@@ -5,4 +5,5 @@ import android.os.Parcelable
 interface AbsModel : Parcelable {
     @AbsModelType
     fun getModelType(): Int
+    fun getAttachmentKey(): String
 }

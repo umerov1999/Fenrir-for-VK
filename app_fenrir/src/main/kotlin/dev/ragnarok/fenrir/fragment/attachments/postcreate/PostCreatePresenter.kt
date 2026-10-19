@@ -38,7 +38,6 @@ import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import dev.ragnarok.fenrir.util.Optional.Companion.wrap
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
@@ -185,7 +184,7 @@ class PostCreatePresenter(
             return copyToArrayListWithPredicate(data) {
                 // сохраняем только те, что не лежат в базе
                 val model = it.attachment
-                model !is Upload && it.optionalId == 0
+                model !is Upload && !it.stored
             }
         }
 
@@ -271,7 +270,11 @@ class PostCreatePresenter(
 
     private fun attachmentsSingle(postDbid: Int): Flow<List<AttachmentEntry>> {
         return attachmentsRepository
-            .getAttachmentsWithIds(accountId, AttachToType.POST, postDbid)
+            .getAttachments(
+                accountId = accountId,
+                attachToType = AttachToType.POST,
+                attachToDbId = postDbid
+            )
             .map { createFrom(it, true) }
     }
 
@@ -298,7 +301,7 @@ class PostCreatePresenter(
         val info = findInfoByPredicate(
             data
         ) {
-            it.optionalId == event.generatedId
+            it.attachment.getAttachmentKey() == event.attachmentKey
         }
         if (info != null) {
             val entry = info.second
@@ -328,17 +331,16 @@ class PostCreatePresenter(
         return event.attachToType == AttachToType.POST && event.accountId == accountId && event.attachToDbId == pPost.dbid
     }
 
-    private fun onRepositoryAttachmentsAdded(d: List<Pair<Int, AbsModel>>) {
+    private fun onRepositoryAttachmentsAdded(dtos: List<AbsModel>) {
         var pollAdded = false
         val size = data.size
-        for (pair in d) {
-            val model = pair.second
+        for (model in dtos) {
             if (model is Poll) {
                 pollAdded = true
             }
-            data.add(AttachmentEntry(true, model).setOptionalId(pair.first))
+            data.add(AttachmentEntry(true, model))
         }
-        safelyNotifyItemsAdded(size, d.size)
+        safelyNotifyItemsAdded(size, dtos.size)
         if (pollAdded) {
             resolveSupportButtons()
         }
@@ -359,20 +361,19 @@ class PostCreatePresenter(
                 attachToType = AttachToType.POST,
                 attachToDbId = pPost.dbid,
                 models = models
-            )
-                .hiddenIO()
+            ).hiddenIO()
         )
     }
 
     override fun onAttachmentRemoveClick(index: Int, attachment: AttachmentEntry) {
         val pPost = post ?: return
-        if (attachment.optionalId != 0) {
+        if (attachment.stored) {
             appendJob(
                 attachmentsRepository.remove(
                     accountId = accountId,
-                    type = AttachToType.POST,
-                    attachToDbId = pPost.dbid,
-                    generatedAttachmentId = attachment.optionalId
+                    attachToType = AttachToType.POST,
+                    attachmentKey = attachment.attachment.getAttachmentKey(),
+                    attachToDbId = pPost.dbid
                 ).hiddenIO()
             )
         } else {
@@ -395,11 +396,11 @@ class PostCreatePresenter(
         )
     }
 
-    override fun fireTimerTimeSelected(unixtime: Long) {
+    override fun fireTimerTimeSelected(unixTime: Long) {
         val pPost = post ?: return
         pPost.setPostType(VKApiPost.Type.POSTPONE)
-        pPost.setDate(unixtime)
-        setTimerValue(unixtime)
+        pPost.setDate(unixTime)
+        setTimerValue(unixTime)
     }
 
     private fun resolveSupportButtons() {

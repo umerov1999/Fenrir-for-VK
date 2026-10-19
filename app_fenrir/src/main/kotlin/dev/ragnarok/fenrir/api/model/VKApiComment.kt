@@ -67,14 +67,5 @@ class VKApiComment
     var threads_count = 0
     var threads: List<VKApiComment>? = null
     var pid = 0
-    val attachmentsCount: Int
-        get() = attachments?.size().orZero()
 
-    fun hasAttachments(): Boolean {
-        return attachmentsCount > 0
-    }
-
-    fun hasThreads(): Boolean {
-        return threads.nonNullNoEmpty()
-    }
 }

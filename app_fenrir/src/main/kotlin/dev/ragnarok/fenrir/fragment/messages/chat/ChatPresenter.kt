@@ -1016,7 +1016,7 @@ class ChatPresenter(
         messagesRepository.put(builder)
             .fromIOToMain({
                 if (Settings.get()
-                        .main().isOver_ten_attach && it.isHasAttachments && it.attachments?.size()
+                        .main().isOver_ten_attach && it.attachments?.size()
                         .orZero() > 10
                 ) {
                     val temp = it.attachments?.toList()

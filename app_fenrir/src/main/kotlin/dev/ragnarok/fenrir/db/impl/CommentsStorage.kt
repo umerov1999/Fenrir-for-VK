@@ -9,8 +9,7 @@ import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.FenrirContentProvider
 import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getCommentsContentUriFor
 import dev.ragnarok.fenrir.db.column.CommentsColumns
-import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.appendAttachOperationWithBackReference
-import dev.ragnarok.fenrir.db.interfaces.Cancelable
+import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.mapAttachmentsFromBlob
 import dev.ragnarok.fenrir.db.interfaces.ICommentsStorage
 import dev.ragnarok.fenrir.db.model.entity.CommentEntity
 import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
@@ -34,16 +33,14 @@ import dev.ragnarok.fenrir.model.CommentUpdate
 import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.DraftComment
 import dev.ragnarok.fenrir.model.criteria.CommentsCriteria
-import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Exestime.log
 import dev.ragnarok.fenrir.util.UnixTime.now
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.VKOwnIds
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -86,24 +83,18 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             val indexes = IntArray(dbos.size)
             for (i in dbos.indices) {
                 val dbo = dbos[i]
+                val cv = getCV(sourceId, sourceOwnerId, sourceType, dbo)
+                stores.attachments()
+                    .attachToBlobSync(cv, AttachToType.COMMENT, dbo.getAttachments())
+                    .syncSingleSafe()
+
                 val mainPostHeaderOperation = ContentProviderOperation
                     .newInsert(getCommentsContentUriFor(accountId))
-                    .withValues(getCV(sourceId, sourceOwnerId, sourceType, dbo))
+                    .withValues(cv)
                     .build()
                 val mainPostHeaderIndex =
                     addToListAndReturnIndex(operations, mainPostHeaderOperation)
                 indexes[i] = mainPostHeaderIndex
-                dbo.getAttachments().nonNullNoEmpty {
-                    for (attachmentEntity in it) {
-                        appendAttachOperationWithBackReference(
-                            operations = operations,
-                            accountId = accountId,
-                            attachToType = AttachToType.COMMENT,
-                            attachToBackReferenceIndex = mainPostHeaderIndex,
-                            dboEntity = attachmentEntity
-                        )
-                    }
-                }
             }
             if (owners != null) {
                 OwnersStorage.appendOwnersInsertOperations(operations, accountId, owners)
@@ -157,9 +148,6 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
     override fun getDbosByCriteria(criteria: CommentsCriteria): Flow<List<CommentEntity>> {
         return flow {
             val cursor = createCursorByCriteria(criteria)
-            val cancellation = object : Cancelable {
-                override suspend fun canceled(): Boolean = !isActive()
-            }
             val dbos: MutableList<CommentEntity> = ArrayList(safeCountOf(cursor))
             if (cursor != null) {
                 while (cursor.moveToNext()) {
@@ -167,12 +155,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                         break
                     }
                     dbos.add(
-                        mapDbo(
-                            criteria.accountId, cursor,
-                            includeAttachments = true,
-                            forceAttachments = false,
-                            cancelable = cancellation
-                        )
+                        mapDbo(cursor)
                     )
                 }
                 cursor.close()
@@ -207,7 +190,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             emit(comment)
         }.map { comment ->
             comment?.setAttachmentsCount(
-                stores.attachments().getCount(
+                stores.attachments().getAttachmentsCount(
                     accountId = accountId,
                     attachToType = AttachToType.COMMENT,
                     attachToDbId = comment.id,
@@ -297,7 +280,13 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
 
             val cv = ContentValues()
             cv.put(CommentsColumns.TEXT, text)
-            cv.put(CommentsColumns.ATTACHMENTS_COUNT, attachments.orEmpty().size)
+
+            stores.attachments().attachToBlobSync(
+                cv,
+                AttachToType.COMMENT,
+                Model2Entity.buildDboAttachments(attachments.orEmpty())
+            ).syncSingleSafe()
+
             val uri = getCommentsContentUriFor(accountId)
             contentResolver.update(
                 uri, cv, BaseColumns._ID + " = ?", arrayOf(
@@ -306,35 +295,18 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             )
             emit(dbId)
         }.flatMapConcat { dbId ->
-            stores.attachments().removeAll(
-                accountId = accountId,
-                attachToType = AttachToType.COMMENT,
-                attachToDbId = dbId,
-            ).andThen(
-                if (attachments.nonNullNoEmpty()) {
-                    stores.attachments().attachDbos(
-                        accountId = accountId,
-                        attachToType = AttachToType.COMMENT,
-                        attachToDbId = dbId,
-                        entities = Model2Entity.buildDboAttachments(attachments)
+            getByDbId(accountId, dbId).flatMapConcat { ce ->
+                val ownids = VKOwnIds()
+                fillCommentOwnerIds(ownids, ce)
+                Repository.owners
+                    .findBaseOwnersDataAsBundle(
+                        accountId,
+                        ownids.all,
+                        IOwnersRepository.MODE_ANY
                     )
-                } else {
-                    emptyTaskFlow()
-                }
-            ).flatMapConcat {
-                getByDbId(accountId, dbId).flatMapConcat { ce ->
-                    val ownids = VKOwnIds()
-                    fillCommentOwnerIds(ownids, ce)
-                    Repository.owners
-                        .findBaseOwnersDataAsBundle(
-                            accountId,
-                            ownids.all,
-                            IOwnersRepository.MODE_ANY
-                        )
-                        .map { owns ->
-                            Entity2Model.buildCommentFromDbo(ce, owns) ?: throw NotFoundException()
-                        }
-                }
+                    .map { owns ->
+                        Entity2Model.buildCommentFromDbo(ce, owns) ?: throw NotFoundException()
+                    }
             }
         }
     }
@@ -364,7 +336,6 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             cv.put(CommentsColumns.COMMENT_ID, newCommentId)
             cv.put(CommentsColumns.DATE, now())
             cv.put(CommentsColumns.TEXT, intent.message)
-            cv.put(CommentsColumns.ATTACHMENTS_COUNT, intent.attachmentCounts)
             val uri = getCommentsContentUriFor(accountId)
             contentResolver.update(
                 uri, cv, BaseColumns._ID + " = ?", arrayOf(
@@ -401,17 +372,9 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             val where = BaseColumns._ID + " = ?"
             val args = arrayOf(dbId.toString())
             val cursor = contentResolver.query(uri, null, where, args, null)
-            val cancellation = object : Cancelable {
-                override suspend fun canceled(): Boolean = !isActive()
-            }
             if (cursor != null) {
                 if (cursor.moveToNext()) {
-                    val comment = mapDbo(
-                        accountId, cursor,
-                        includeAttachments = true,
-                        forceAttachments = false,
-                        cancelable = cancellation
-                    )
+                    val comment = mapDbo(cursor)
                     cursor.close()
                     emit(comment)
                     return@flow
@@ -446,16 +409,9 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
         return result
     }
 
-    private suspend fun mapDbo(
-        accountId: Long,
-        cursor: Cursor,
-        includeAttachments: Boolean,
-        forceAttachments: Boolean,
-        cancelable: Cancelable
+    private fun mapDbo(
+        cursor: Cursor
     ): CommentEntity {
-        val attachmentsCount =
-            cursor.getInt(CommentsColumns.ATTACHMENTS_COUNT)
-        val dbid = cursor.getInt(BaseColumns._ID)
         val sourceId = cursor.getInt(CommentsColumns.SOURCE_ID)
         val sourceOwnerId =
             cursor.getLong(CommentsColumns.SOURCE_OWNER_ID)
@@ -484,18 +440,9 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                 )
             )
         }
-        if (includeAttachments && (attachmentsCount > 0 || forceAttachments)) {
-            dbo.setAttachments(
-                stores
-                    .attachments()
-                    .getAttachmentsDbosSync(
-                        accountId = accountId,
-                        attachToType = AttachToType.COMMENT,
-                        attachToDbId = dbid,
-                        cancelable = cancelable
-                    )
-            )
-        }
+        dbo.setAttachments(
+            mapAttachmentsFromBlob(cursor, AttachToType.COMMENT)
+        )
         return dbo
     }
 
@@ -526,7 +473,6 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
             cv.put(CommentsColumns.USER_LIKES, dbo.isUserLikes)
             cv.put(CommentsColumns.CAN_LIKE, dbo.isCanLike)
             cv.put(CommentsColumns.CAN_EDIT, dbo.isCanEdit)
-            cv.put(CommentsColumns.ATTACHMENTS_COUNT, dbo.attachmentsCount)
             cv.put(CommentsColumns.SOURCE_ID, sourceId)
             cv.put(CommentsColumns.SOURCE_OWNER_ID, sourceOwnerId)
             cv.put(CommentsColumns.SOURCE_TYPE, sourceType)

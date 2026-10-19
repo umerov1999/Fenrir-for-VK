@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.db.interfaces
 
+import android.content.ContentValues
 import dev.ragnarok.fenrir.db.AttachToType
 import dev.ragnarok.fenrir.db.model.entity.DboEntity
 import dev.ragnarok.fenrir.util.Pair
@@ -9,7 +10,23 @@ interface IAttachmentsStorage : IStorage {
     fun remove(
         accountId: Long,
         @AttachToType attachToType: Int,
-        generatedAttachmentId: Int
+        attachmentKey: String,
+        where: String,
+        args: Array<String>? = null
+    ): Flow<Boolean>
+
+    fun remove(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        attachmentKey: String,
+        attachToDbId: Int
+    ): Flow<Boolean>
+
+    fun removeAll(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        where: String,
+        args: Array<String>? = null
     ): Flow<Boolean>
 
     fun removeAll(
@@ -18,24 +35,48 @@ interface IAttachmentsStorage : IStorage {
         attachToDbId: Int
     ): Flow<Boolean>
 
-    fun attachDbos(
+    fun getAttachmentsFromBlob(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int,
-        entities: List<DboEntity>
-    ): Flow<IntArray>
+        where: String,
+        args: Array<String>? = null
+    ): Flow<List<DboEntity>?>
 
-    fun getCount(accountId: Long, @AttachToType attachToType: Int, attachToDbId: Int): Flow<Int>
-    fun getAttachmentsDbosWithIds(
+    fun getAttachmentsFromBlob(
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int
-    ): Flow<List<Pair<Int, DboEntity>>>
+    ): Flow<List<DboEntity>?>
 
-    suspend fun getAttachmentsDbosSync(
+    fun getAttachmentsCount(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int,
-        cancelable: Cancelable
-    ): MutableList<DboEntity>
+        attachToDbId: Int
+    ): Flow<Int>
+
+    fun getAttachmentsCount(
+        accountId: Long,
+        @AttachToType attachToType: Int,
+        where: String,
+        args: Array<String>? = null
+    ): Flow<Int>
+
+    fun attachToBlobSync(
+        cv: ContentValues?,
+        @AttachToType attachToType: Int,
+        attachmentsEntities: List<DboEntity>?,
+        where: String? = null,
+        args: Array<String>? = null,
+        replace: Boolean = false,
+        accountId: Long? = null
+    ): Flow<Boolean>
+
+    fun attachToBlobSync(
+        cv: ContentValues?,
+        @AttachToType attachToType: Int,
+        attachmentsEntities: List<DboEntity>?,
+        attachToDbId: Int? = null,
+        replace: Boolean = false,
+        accountId: Long? = null
+    ): Flow<Boolean>
 }

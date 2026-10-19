@@ -22,7 +22,6 @@ import dev.ragnarok.fenrir.util.AppPerms.hasCameraPermission
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.FileUtil.createImageFile
 import dev.ragnarok.fenrir.util.FileUtil.getExportedUriForFile
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
 import dev.ragnarok.fenrir.util.Utils.safeCountOfMultiple
 import java.io.File
@@ -387,7 +386,7 @@ abstract class AbsAttachmentsEditPresenter<V : IBaseAttachmentsEditView> interna
         return -1
     }
 
-    open fun fireTimerTimeSelected(unixtime: Long) {
+    open fun fireTimerTimeSelected(unixTime: Long) {
         throw UnsupportedOperationException()
     }
 
@@ -405,12 +404,12 @@ abstract class AbsAttachmentsEditPresenter<V : IBaseAttachmentsEditView> interna
         }
 
         fun createFrom(
-            pairs: List<Pair<Int, AbsModel>>,
+            models: List<AbsModel>?,
             canDelete: Boolean
         ): List<AttachmentEntry> {
-            val data: MutableList<AttachmentEntry> = ArrayList(pairs.size)
-            for (pair in pairs) {
-                data.add(AttachmentEntry(canDelete, pair.second).setOptionalId(pair.first))
+            val data: MutableList<AttachmentEntry> = ArrayList(models?.size.orZero())
+            for (model in models.orEmpty()) {
+                data.add(AttachmentEntry(canDelete, model).setStored(true))
             }
             return data
         }

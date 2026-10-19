@@ -55,6 +55,10 @@ class CatalogV2Link : AbsModel {
         return AbsModelType.MODEL_CATALOG_V2_LINK
     }
 
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
+
     override fun describeContents(): Int {
         return 0
     }

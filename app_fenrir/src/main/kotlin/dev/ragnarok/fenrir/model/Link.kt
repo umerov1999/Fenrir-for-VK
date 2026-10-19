@@ -51,6 +51,10 @@ class Link : AbsModel {
         return AbsModelType.MODEL_LINK
     }
 
+    override fun getAttachmentKey(): String {
+        return "$url"
+    }
+
     fun setUrl(url: String?): Link {
         this.url = url
         return this

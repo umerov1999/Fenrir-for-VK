@@ -113,7 +113,6 @@ class Photo2MessageUploadable(
         ): Flow<Boolean> {
             return repository
                 .attach(accountId, AttachToType.MESSAGE, messageId, listOf(photo))
-                .andThen(storage.notifyMessageHasAttachments(accountId, messageId, peerId))
         }
     }
 }

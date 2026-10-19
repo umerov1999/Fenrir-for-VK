@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("topic")
-class TopicDboEntity : DboEntity() {
+class TopicDboEntity : DboEntity {
     var id = 0
         private set
     var ownerId = 0L
@@ -39,6 +39,10 @@ class TopicDboEntity : DboEntity() {
         this.id = id
         this.ownerId = ownerId
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
     }
 
     fun setTitle(title: String?): TopicDboEntity {

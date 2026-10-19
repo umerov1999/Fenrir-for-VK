@@ -52,6 +52,10 @@ class WallReply : AbsModel, Identificable {
         return AbsModelType.MODEL_WALL_REPLY
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}_${postId}"
+    }
+
     val attachmentsCount: Int
         get() = attachments?.size().orZero()
 

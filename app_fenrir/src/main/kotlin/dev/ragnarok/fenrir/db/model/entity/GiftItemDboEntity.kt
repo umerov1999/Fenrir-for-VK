@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("gift_item")
-class GiftItemDboEntity : DboEntity() {
+class GiftItemDboEntity : DboEntity {
     var id = 0
         private set
     var thumb256: String? = null
@@ -16,6 +16,10 @@ class GiftItemDboEntity : DboEntity() {
         private set
     var thumb48: String? = null
         private set
+
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
 
     fun setId(id: Int): GiftItemDboEntity {
         this.id = id

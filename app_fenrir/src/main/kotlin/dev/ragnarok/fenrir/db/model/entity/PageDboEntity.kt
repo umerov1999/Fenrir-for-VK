@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 @SerialName("page")
-class PageDboEntity : DboEntity() {
+class PageDboEntity : DboEntity {
     var id = 0
         private set
     var ownerId = 0L
@@ -35,6 +35,10 @@ class PageDboEntity : DboEntity() {
         this.id = id
         this.ownerId = ownerId
         return this
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
     }
 
     fun setCreatorId(creatorId: Long): PageDboEntity {

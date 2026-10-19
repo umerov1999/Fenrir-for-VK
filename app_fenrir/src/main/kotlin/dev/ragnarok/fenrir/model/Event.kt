@@ -28,6 +28,10 @@ class Event : AbsModel {
         return AbsModelType.MODEL_EVENT
     }
 
+    override fun getAttachmentKey(): String {
+        return "$id"
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(button_text)

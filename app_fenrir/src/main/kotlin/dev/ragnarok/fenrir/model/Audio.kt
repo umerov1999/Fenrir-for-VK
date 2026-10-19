@@ -130,6 +130,10 @@ class Audio : AbsModel {
         return AbsModelType.MODEL_AUDIO
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${ownerId}"
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeLong(ownerId)

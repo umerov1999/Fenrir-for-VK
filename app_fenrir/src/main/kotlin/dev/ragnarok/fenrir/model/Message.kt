@@ -84,8 +84,6 @@ class Message : AbsModel, Identificable, ISelectable {
         private set
     var forwardMessagesCount = 0
         private set
-    var isHasAttachments = false
-        private set
     var updateTime: Long = 0
         private set
 
@@ -125,7 +123,6 @@ class Message : AbsModel, Identificable, ISelectable {
         randomId = parcel.readLong()
         extras = parcel.readIntStringMap()
         forwardMessagesCount = parcel.readInt()
-        isHasAttachments = parcel.getBoolean()
         updateTime = parcel.readLong()
         payload = parcel.readString()
         keyboard = parcel.readTypedObjectCompat(Keyboard.CREATOR)
@@ -136,6 +133,10 @@ class Message : AbsModel, Identificable, ISelectable {
     @AbsModelType
     override fun getModelType(): Int {
         return AbsModelType.MODEL_MESSAGE
+    }
+
+    override fun getAttachmentKey(): String {
+        return "${conversation_message_id}_${peerId}"
     }
 
     fun getReactionById(id: Int): Reaction? {
@@ -156,11 +157,6 @@ class Message : AbsModel, Identificable, ISelectable {
             }
         }
         return null
-    }
-
-    fun setHasAttachments(hasAttachments: Boolean): Message {
-        isHasAttachments = hasAttachments
-        return this
     }
 
     fun setForwardMessagesCount(forwardMessagesCount: Int): Message {
@@ -415,7 +411,6 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeLong(randomId)
         parcel.writeIntStringMap(extras)
         parcel.writeInt(forwardMessagesCount)
-        parcel.putBoolean(isHasAttachments)
         parcel.writeLong(updateTime)
         parcel.writeString(payload)
         parcel.writeTypedObjectCompat(keyboard, flags)
@@ -450,12 +445,8 @@ class Message : AbsModel, Identificable, ISelectable {
     val messageTypeByAttachments: Int
         get() {
             when {
-                !isHasAttachments -> {
-                    return MessageType.NO
-                }
-
                 attachments == null || attachments?.isEmptyAttachments == true -> {
-                    return MessageType.OTHERS
+                    return MessageType.NO
                 }
 
                 isSticker -> {

@@ -33,6 +33,10 @@ class Gift : AbsModel {
         return AbsModelType.MODEL_GIFT
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${fromId}"
+    }
+
     constructor(id: Int) {
         this.id = id
     }

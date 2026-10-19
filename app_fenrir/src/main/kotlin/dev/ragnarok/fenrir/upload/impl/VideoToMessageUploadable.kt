@@ -112,7 +112,6 @@ class VideoToMessageUploadable(
         ): Flow<Boolean> {
             return repository
                 .attach(accountId, AttachToType.MESSAGE, messageId, listOf(video))
-                .andThen(storage.notifyMessageHasAttachments(accountId, messageId, peerId))
         }
     }
 }

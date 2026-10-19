@@ -41,6 +41,10 @@ class Graffiti : AbsModel {
         return AbsModelType.MODEL_GRAFFITI
     }
 
+    override fun getAttachmentKey(): String {
+        return "${id}_${owner_id}"
+    }
+
     fun setId(id: Int): Graffiti {
         this.id = id
         return this

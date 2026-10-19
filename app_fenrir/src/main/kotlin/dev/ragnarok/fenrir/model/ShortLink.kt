@@ -41,6 +41,10 @@ class ShortLink : AbsModel {
         return AbsModelType.MODEL_SHORT_LINK
     }
 
+    override fun getAttachmentKey(): String {
+        return "$url"
+    }
+
     fun setShort_url(short_url: String?): ShortLink {
         this.short_url = short_url
         return this

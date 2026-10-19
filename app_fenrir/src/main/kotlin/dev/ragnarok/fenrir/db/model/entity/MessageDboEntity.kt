@@ -8,7 +8,7 @@ import kotlinx.serialization.Transient
 
 @Keep
 @Serializable
-class MessageDboEntity : DboEntity() {
+class MessageDboEntity : DboEntity {
     var id = 0
         private set
     var peerId = 0L
@@ -30,8 +30,6 @@ class MessageDboEntity : DboEntity() {
     var isDeletedForAll = false
         private set
     var forwardCount = 0
-        private set
-    var isHasAttachments = false
         private set
     var keyboard: KeyboardEntity? = null
         private set
@@ -82,6 +80,10 @@ class MessageDboEntity : DboEntity() {
         return this
     }
 
+    override fun getAttachmentKey(): String {
+        return "${conversation_message_id}_${peerId}"
+    }
+
     fun setUpdateTime(updateTime: Long): MessageDboEntity {
         this.updateTime = updateTime
         return this
@@ -129,11 +131,6 @@ class MessageDboEntity : DboEntity() {
 
     fun setForwardCount(forwardCount: Int): MessageDboEntity {
         this.forwardCount = forwardCount
-        return this
-    }
-
-    fun setHasAttachments(hasAttachments: Boolean): MessageDboEntity {
-        isHasAttachments = hasAttachments
         return this
     }
 
