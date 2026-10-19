@@ -84,7 +84,7 @@ class ConversationMultiAttachmentsPresenter(
                 peerId = peerID,
                 count = 100,
                 offset = offset,
-                startMessageId = null,
+                startCmId = null,
                 excludeStartMessage = false,
                 cacheData = false, rev = false
             )

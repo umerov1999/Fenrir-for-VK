@@ -194,6 +194,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                     accountId = accountId,
                     attachToType = AttachToType.COMMENT,
                     attachToDbId = comment.id,
+                    attachToElement = null
                 ).single()
             )
         }

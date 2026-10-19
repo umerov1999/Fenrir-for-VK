@@ -11,6 +11,7 @@ import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildAttachmentFromDbo
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildDboAttachments
 import dev.ragnarok.fenrir.model.AbsModel
+import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
@@ -29,13 +30,15 @@ class AttachmentsRepository(
         accountId: Long,
         @AttachToType attachToType: Int,
         attachmentKey: String,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
         return store.remove(
             accountId = accountId,
             attachToType = attachToType,
             attachmentKey = attachmentKey,
-            attachToDbId = attachToDbId
+            attachToDbId = attachToDbId,
+            attachToElement = attachToElement
         )
             .map {
                 val event =
@@ -43,6 +46,7 @@ class AttachmentsRepository(
                         accountId = accountId,
                         attachToType = attachToType,
                         attachToDbId = attachToDbId,
+                        attachToElement = attachToElement,
                         attachmentKey = attachmentKey,
                     )
                 removePublishSubject.emit(event)
@@ -53,15 +57,17 @@ class AttachmentsRepository(
     override fun removeAll(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
-        return store.removeAll(accountId, attachToType, attachToDbId)
+        return store.removeAll(accountId, attachToType, attachToDbId, attachToElement)
     }
 
     override fun attach(
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?,
         models: List<AbsModel>
     ): Flow<Boolean> {
         val entities = buildDboAttachments(models)
@@ -70,11 +76,12 @@ class AttachmentsRepository(
             attachToType = attachToType,
             attachmentsEntities = entities,
             attachToDbId = attachToDbId,
+            attachToElement = attachToElement,
             replace = false,
             accountId = accountId
         )
             .map {
-                val event = AddEvent(accountId, attachToType, attachToDbId, models)
+                val event = AddEvent(accountId, attachToType, attachToDbId, attachToElement, models)
                 addPublishSubject.emit(event)
                 true
             }
@@ -83,9 +90,10 @@ class AttachmentsRepository(
     override fun getAttachments(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<List<AbsModel>?> {
-        return store.getAttachmentsFromBlob(accountId, attachToType, attachToDbId)
+        return store.getAttachmentsFromBlob(accountId, attachToType, attachToDbId, attachToElement)
             .flatMapConcat { dbos ->
                 if (dbos.isNullOrEmpty()) {
                     toFlow(null)
@@ -119,18 +127,22 @@ class AttachmentsRepository(
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?,
         override val attachments: List<AbsModel>
-    ) : Event(accountId, attachToType, attachToDbId), IAddEvent
+    ) : Event(accountId, attachToType, attachToDbId, attachToElement), IAddEvent
 
     private open class Event(
         override val accountId: Long,
         @param:AttachToType override val attachToType: Int,
-        override val attachToDbId: Int
+        override val attachToDbId: Int,
+        override val attachToElement: Pair<Long, Int>?
     ) : IBaseEvent
 
-    private inner class RemoveEvent(
+    private class RemoveEvent(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int, override val attachmentKey: String,
-    ) : Event(accountId, attachToType, attachToDbId), IRemoveEvent
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?,
+        override val attachmentKey: String,
+    ) : Event(accountId, attachToType, attachToDbId, attachToElement), IRemoveEvent
 }

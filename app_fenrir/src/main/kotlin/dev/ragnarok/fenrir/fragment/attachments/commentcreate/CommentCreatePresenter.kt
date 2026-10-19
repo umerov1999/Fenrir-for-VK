@@ -64,7 +64,12 @@ class CommentCreatePresenter(
 
     private fun attachmentsSingle(): Flow<List<AttachmentEntry>> {
         return attachmentsRepository
-            .getAttachments(accountId, AttachToType.COMMENT, commentId)
+            .getAttachments(
+                accountId = accountId,
+                attachToType = AttachToType.COMMENT,
+                attachToDbId = commentId,
+                attachToElement = null
+            )
             .map { createFrom(it, true) }
     }
 
@@ -101,7 +106,8 @@ class CommentCreatePresenter(
                 accountId = accountId,
                 attachToType = AttachToType.COMMENT,
                 attachmentKey = attachment.attachment.getAttachmentKey(),
-                attachToDbId = commentId
+                attachToDbId = commentId,
+                attachToElement = null
             ).hiddenIO()
             // из списка не удаляем, так как удаление из репозитория "слушается"
             // (будет удалено асинхронно и после этого удалится из списка)
@@ -116,6 +122,7 @@ class CommentCreatePresenter(
             accountId = accountId,
             attachToType = AttachToType.COMMENT,
             attachToDbId = commentId,
+            attachToElement = null,
             models = models
         ).hiddenIO()
     }

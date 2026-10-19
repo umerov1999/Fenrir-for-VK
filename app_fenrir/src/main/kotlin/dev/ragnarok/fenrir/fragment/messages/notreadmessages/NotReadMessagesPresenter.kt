@@ -31,7 +31,7 @@ class NotReadMessagesPresenter(
     private val messagesInteractor: IMessagesRepository = messages
     private val loadingState: LOADING_STATE
     private val peer: Peer
-    private var mFocusMessageId = 0
+    private var mFocusCmId = 0
     private var unreadCount: Int
     override fun onGuiCreated(viewHost: INotReadMessagesView) {
         super.onGuiCreated(viewHost)
@@ -48,7 +48,7 @@ class NotReadMessagesPresenter(
                 peerId = peer.id,
                 count = COUNT,
                 offset = -COUNT / 2,
-                startMessageId = mFocusMessageId,
+                startCmId = mFocusCmId,
                 excludeStartMessage = false,
                 cacheData = false,
                 rev = false
@@ -102,7 +102,7 @@ class NotReadMessagesPresenter(
 
     private fun loadMoreDown() {
         if (!loadingState.canLoadingHeader()) return
-        val targetMessageId = firstMessageId
+        val targetFirstCmId = firstCmId
         loadingState.headerLoading()
         appendJob(
             messagesInteractor.getPeerMessages(
@@ -110,7 +110,7 @@ class NotReadMessagesPresenter(
                 peerId = peer.id,
                 count = COUNT,
                 offset = -COUNT,
-                startMessageId = targetMessageId,
+                startCmId = targetFirstCmId,
                 excludeStartMessage = true,
                 cacheData = false,
                 rev = false
@@ -167,7 +167,7 @@ class NotReadMessagesPresenter(
 
     private fun loadMoreUp() {
         if (!loadingState.canLoadingFooter()) return
-        val targetLastMessageId = lastMessageId ?: return
+        val targetLastCmId = lastCmId ?: return
         loadingState.footerLoading()
         appendJob(
             messagesInteractor.getPeerMessages(
@@ -175,7 +175,7 @@ class NotReadMessagesPresenter(
                 peerId = peer.id,
                 count = COUNT,
                 offset = 0,
-                startMessageId = targetLastMessageId,
+                startCmId = targetLastCmId,
                 excludeStartMessage = true,
                 cacheData = false,
                 rev = false
@@ -187,9 +187,9 @@ class NotReadMessagesPresenter(
                 })
     }
 
-    private val lastMessageId: Int?
+    private val lastCmId: Int?
         get() = if (data.isEmpty()) null else data[data.size - 1].getObjectId()
-    private val firstMessageId: Int?
+    private val firstCmId: Int?
         get() = if (data.isEmpty()) null else data[0].getObjectId()
 
     override fun onActionModeForwardClick() {
@@ -233,10 +233,10 @@ class NotReadMessagesPresenter(
         data.addAll(messages)
         view?.notifyDataChanged()
         loadingState.reset()
-        val index = indexOf(messages, mFocusMessageId)
+        val index = indexOf(messages, mFocusCmId)
         if (index != -1) {
             view?.focusTo(index)
-        } else if (mFocusMessageId == 0) {
+        } else if (mFocusCmId == 0) {
             view?.focusTo(
                 messages.size - 1
             )
@@ -289,11 +289,11 @@ class NotReadMessagesPresenter(
     private fun readUnreadMessagesUpIfExists(message: Message): Boolean {
         if (isHiddenAccount(accountId)) return false
 
-        if (!message.isOut && message.id > lastReadId.incoming) {
-            lastReadId.incoming = message.id
+        if (!message.isOut && message.cmId > lastReadId.incoming) {
+            lastReadId.incoming = message.cmId
             view?.notifyDataChanged()
             appendJob(
-                messagesInteractor.markAsRead(accountId, peer.id, message.id)
+                messagesInteractor.markAsRead(accountId, peer.id, message.cmId)
                     .fromIOToMain({
                         appendJob(
                             messagesInteractor.getConversationSingle(
@@ -412,9 +412,9 @@ class NotReadMessagesPresenter(
         }
     }
 
-    fun fireTranscript(voiceMessageId: String?, messageId: Int) {
+    fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            messages.recogniseAudioMessage(accountId, messageId, voiceMessageId)
+            messages.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
                 .hiddenIO()
         )
     }
@@ -448,7 +448,7 @@ class NotReadMessagesPresenter(
             }
         })
         if (savedInstanceState == null) {
-            mFocusMessageId = focusTo
+            mFocusCmId = focusTo
             initRequest()
         }
     }

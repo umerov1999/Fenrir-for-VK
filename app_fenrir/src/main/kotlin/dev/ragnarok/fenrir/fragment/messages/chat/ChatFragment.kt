@@ -1124,13 +1124,15 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
     override fun onVoicePlayButtonClick(
         voiceHolderId: Int,
         voiceMessageId: Int,
-        messageId: Int,
+        peerId: Long,
+        cmId: Int,
         voiceMessage: VoiceMessage
     ) {
         presenter?.fireVoicePlayButtonClick(
             voiceHolderId,
             voiceMessageId,
-            messageId,
+            peerId,
+            cmId,
             voiceMessage
         )
     }
@@ -1139,8 +1141,8 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         presenter?.fireVoicePlaybackSpeed()
     }
 
-    override fun onTranscript(voiceMessageId: String, messageId: Int) {
-        presenter?.fireTranscript(voiceMessageId, messageId)
+    override fun onTranscript(voiceMessageId: String, peerId: Long, cmId: Int) {
+        presenter?.fireTranscript(voiceMessageId, peerId, cmId)
     }
 
     override fun onPlayPositionChanged(position: Long) {
@@ -1460,11 +1462,11 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     override fun showReactedPeers(
         accountId: Long,
-        reaction_id: Int?,
-        conversation_message_id: Int,
+        reactionId: Int?,
+        cmId: Int,
         peerId: Long
     ) {
-        PlaceFactory.getReactedPeersPlace(accountId, peerId, conversation_message_id, reaction_id)
+        PlaceFactory.getReactedPeersPlace(accountId, peerId, cmId, reactionId)
             .tryOpenWith(requireActivity())
     }
 
@@ -2203,16 +2205,16 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
     }
 
-    override fun onReactionClicked(reaction_id: Int?, conversation_message_id: Int, peerId: Long) {
-        presenter?.fireReactionClicked(reaction_id, conversation_message_id, peerId)
+    override fun onReactionClicked(reactionId: Int?, cmId: Int, peerId: Long) {
+        presenter?.fireReactionClicked(reactionId, cmId, peerId)
     }
 
     override fun onReactionLongClicked(
-        reaction_id: Int?,
-        conversation_message_id: Int,
+        reactionId: Int?,
+        cmId: Int,
         peerId: Long
     ): Boolean {
-        presenter?.fireReactionLongClicked(reaction_id, conversation_message_id, peerId)
+        presenter?.fireReactionLongClicked(reactionId, cmId, peerId)
         return true
     }
 

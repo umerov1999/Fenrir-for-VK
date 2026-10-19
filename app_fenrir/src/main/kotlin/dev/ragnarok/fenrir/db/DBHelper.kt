@@ -158,12 +158,12 @@ class DBHelper private constructor(context: Context, aid: Long) :
     private fun createZeroMessageProtectionTriggers(db: SQLiteDatabase) {
         val sqlUpdate =
             "CREATE TRIGGER zero_msg_upd BEFORE UPDATE ON " + MessagesColumns.TABLENAME + " FOR EACH ROW " +
-                    "WHEN OLD.${BaseColumns._ID} = 0 OR OLD.${MessagesColumns.PEER_ID} = 0 BEGIN " +
+                    "WHEN OLD.${MessagesColumns.CONVERSATION_MESSAGE_ID} = 0 OR OLD.${MessagesColumns.PEER_ID} = 0 BEGIN " +
                     "   SELECT RAISE(ABORT, 'Cannot update record with _id=0 or peer_id=0');" +
                     "END;"
         val sqlDelete =
             "CREATE TRIGGER zero_msg_del BEFORE DELETE ON " + MessagesColumns.TABLENAME + " FOR EACH ROW " +
-                    "WHEN OLD.${BaseColumns._ID} = 0 OR OLD.${MessagesColumns.PEER_ID} = 0 BEGIN " +
+                    "WHEN OLD.${MessagesColumns.CONVERSATION_MESSAGE_ID} = 0 OR OLD.${MessagesColumns.PEER_ID} = 0 BEGIN " +
                     "   SELECT RAISE(ABORT, 'Cannot delete record with _id=0 or peer_id=0');" +
                     "END;"
         db.execSQL(sqlUpdate)
@@ -375,9 +375,9 @@ class DBHelper private constructor(context: Context, aid: Long) :
 
     private fun createMessagesTable(db: SQLiteDatabase) {
         val create = "CREATE TABLE [" + MessagesColumns.TABLENAME + "] (\n" +
-                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE AUTOINCREMENT NOT NULL UNIQUE, " +
-                " [" + MessagesColumns.CONVERSATION_MESSAGE_ID + "] INTEGER, " +
-                " [" + MessagesColumns.PEER_ID + "] INTEGER, " +
+                " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                " [" + MessagesColumns.CONVERSATION_MESSAGE_ID + "] INTEGER NOT NULL, " +
+                " [" + MessagesColumns.PEER_ID + "] INTEGER INTEGER NOT NULL, " +
                 " [" + MessagesColumns.FROM_ID + "] INTEGER, " +
                 " [" + MessagesColumns.RANDOM_ID + "] INTEGER, " +
                 " [" + MessagesColumns.DATE + "] INTEGER, " +
@@ -400,15 +400,13 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + MessagesColumns.KEYBOARD + "] BLOB, " +
                 " [" + MessagesColumns.REACTIONS + "] BLOB, " +
                 " [" + MessagesColumns.PAYLOAD + "] TEXT, " +
+                " [" + MessagesColumns.VERSION + "] INTEGER, " +
                 " [" + MessagesColumns.ATTACHMENTS_BLOB + "] BLOB, " +
-                " [" + MessagesColumns.FORWARD_BLOB + "] BLOB);"
+                " [" + MessagesColumns.FORWARD_BLOB + "] BLOB, " +
+                " UNIQUE ([" + MessagesColumns.PEER_ID + "], [" + MessagesColumns.CONVERSATION_MESSAGE_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(create)
-        db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (0)")
-        db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${BaseColumns._ID}) VALUES (1000000000)")
-        db.execSQL("DELETE FROM ${MessagesColumns.TABLENAME} WHERE ${BaseColumns._ID} = 1000000000")
+        db.execSQL("INSERT INTO ${MessagesColumns.TABLENAME} (${MessagesColumns.PEER_ID}, ${MessagesColumns.CONVERSATION_MESSAGE_ID}) VALUES (0, 0)")
 
-        db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_message_ids ON ${MessagesColumns.TABLENAME} (${BaseColumns._ID}, ${MessagesColumns.PEER_ID});")
-        db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_conversation_message_ids ON ${MessagesColumns.TABLENAME} (${MessagesColumns.CONVERSATION_MESSAGE_ID}, ${MessagesColumns.PEER_ID});")
         db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_peer_ids ON ${MessagesColumns.TABLENAME} (${MessagesColumns.PEER_ID});")
         db.execSQL("CREATE INDEX idx_${MessagesColumns.TABLENAME}_statuses ON ${MessagesColumns.TABLENAME} (${MessagesColumns.STATUS});")
     }
@@ -492,11 +490,10 @@ class DBHelper private constructor(context: Context, aid: Long) :
         val sql = "CREATE TABLE [" + DialogsColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE AUTOINCREMENT NOT NULL UNIQUE, " +
                 " [" + DialogsColumns.MAJOR_ID + "] INTEGER, " +
-                " [" + DialogsColumns.MINOR_ID + "] INTEGER, " +
-                " [" + DialogsColumns.LAST_MESSAGE_ID + "] INTEGER, " +
+                " [" + DialogsColumns.LAST_CM_ID + "] INTEGER, " +
                 " [" + DialogsColumns.UNREAD + "] INTEGER, " +
-                " [" + DialogsColumns.IN_READ + "] INTEGER, " +
-                " [" + DialogsColumns.OUT_READ + "] INTEGER, " +
+                " [" + DialogsColumns.IN_READ_CM_ID + "] INTEGER, " +
+                " [" + DialogsColumns.OUT_READ_CM_ID + "] INTEGER, " +
                 " [" + DialogsColumns.IS_GROUP_CHANNEL + "] BOOLEAN, " +
                 " [" + DialogsColumns.ACL + "] INTEGER, " +
                 " [" + DialogsColumns.TITLE + "] TEXT, " +
@@ -510,11 +507,10 @@ class DBHelper private constructor(context: Context, aid: Long) :
         val sql = "CREATE TABLE [" + PeersColumns.TABLENAME + "] (\n" +
                 " [" + BaseColumns._ID + "] INTEGER PRIMARY KEY ON CONFLICT REPLACE NOT NULL UNIQUE, " +
                 " [" + PeersColumns.MAJOR_ID + "] INTEGER, " +
-                " [" + PeersColumns.MINOR_ID + "] INTEGER, " +
-                " [" + PeersColumns.LAST_MESSAGE_ID + "] INTEGER, " +
+                " [" + PeersColumns.LAST_CM_ID + "] INTEGER, " +
                 " [" + PeersColumns.UNREAD + "] INTEGER, " +
-                " [" + PeersColumns.IN_READ + "] INTEGER, " +
-                " [" + PeersColumns.OUT_READ + "] INTEGER, " +
+                " [" + PeersColumns.IN_READ_CM_ID + "] INTEGER, " +
+                " [" + PeersColumns.OUT_READ_CM_ID + "] INTEGER, " +
                 " [" + PeersColumns.IS_GROUP_CHANNEL + "] BOOLEAN, " +
                 " [" + PeersColumns.ACL + "] INTEGER, " +
                 " [" + PeersColumns.TITLE + "] TEXT, " +

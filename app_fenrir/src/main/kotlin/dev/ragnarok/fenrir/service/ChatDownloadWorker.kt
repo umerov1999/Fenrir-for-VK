@@ -477,7 +477,7 @@ class ChatDownloadWorker(context: Context, workerParams: WorkerParameters) :
                         peerId = owner_id,
                         count = 200,
                         offset = offset,
-                        startMessageId = null,
+                        startCmId = null,
                         excludeStartMessage = false,
                         cacheData = false,
                         rev = false

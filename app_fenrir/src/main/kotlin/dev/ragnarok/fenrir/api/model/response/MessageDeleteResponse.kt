@@ -8,9 +8,6 @@ class MessageDeleteResponse {
     @SerialName("conversation_message_id")
     var conversation_message_id: Int = 0
 
-    @SerialName("message_id")
-    var message_id: Int = 0
-
     @SerialName("peer_id")
     var peer_id: Long = 0L
 

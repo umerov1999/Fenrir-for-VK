@@ -8,18 +8,18 @@ import dev.ragnarok.fenrir.util.Pair
 
 class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
     val data: MutableList<Msg> = ArrayList(capacity)
-    fun prepare(id: Int, peerId: Long): Msg {
+    fun prepare(cmId: Int, peerId: Long): Msg {
         for (m in data) {
-            if (m.id == id && m.peerId == peerId) {
+            if (m.cmId == cmId && m.peerId == peerId) {
                 return m
             }
         }
-        return add(id, peerId)
+        return add(cmId, peerId)
     }
 
     fun appendDtos(dtos: List<VKApiMessage>): TmpResult {
         for (dto in dtos) {
-            prepare(dto.id, dto.peer_id).setDto(dto)
+            prepare(dto.conversation_message_id, dto.peer_id).setDto(dto)
         }
         return this
     }
@@ -39,8 +39,8 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
         return dtos
     }
 
-    fun add(id: Int, peerId: Long): Msg {
-        val msg = Msg(id, peerId)
+    fun add(cmId: Int, peerId: Long): Msg {
+        val msg = Msg(cmId, peerId)
         data.add(msg)
         return msg
     }
@@ -49,7 +49,7 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
         for (msg in data) {
             var has = false
             for(tId in ids) {
-                if (tId.first == msg.peerId && tId.second == msg.id) {
+                if (tId.first == msg.peerId && tId.second == msg.cmId) {
                     has = true
                     break
                 }
@@ -65,11 +65,11 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
                 return emptyList()
             }
             if (data.size == 1) {
-                return listOf(Pair(data[0].peerId, data[0].id))
+                return listOf(Pair(data[0].peerId, data[0].cmId))
             }
             val ids: MutableList<Pair<Long, Int>> = ArrayList(data.size)
             for (msg in data) {
-                ids.add(Pair(msg.peerId, msg.id))
+                ids.add(Pair(msg.peerId, msg.cmId))
             }
             return ids
         }
@@ -78,7 +78,7 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
         return "[$id] -> $data"
     }
 
-    class Msg internal constructor(val id: Int, val peerId: Long): IdentificablePair {
+    class Msg internal constructor(val cmId: Int, val peerId: Long): IdentificablePair {
         var isAlreadyExists = false
             private set
         var message: Message? = null
@@ -116,7 +116,7 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
         }
 
         override fun getObjectId(): Int {
-            return id
+            return cmId
         }
     }
 }

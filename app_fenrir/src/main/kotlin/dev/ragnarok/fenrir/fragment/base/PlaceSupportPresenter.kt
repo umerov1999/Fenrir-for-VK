@@ -87,7 +87,7 @@ abstract class PlaceSupportPresenter<V>(accountId: Long, savedInstanceState: Bun
         view?.goToMessagesLookupFWD(
             accountId,
             message.peerId,
-            message.id
+            message.cmId
         )
     }
 

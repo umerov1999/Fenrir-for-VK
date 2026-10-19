@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
+import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
@@ -28,8 +29,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class Photo2MessageUploadable(
     private val context: Context,
     private val networker: INetworker,
-    private val attachmentsRepository: IAttachmentsRepository,
-    private val messagesStorage: IMessagesStorage
+    private val attachmentsRepository: IAttachmentsRepository
 ) : IUploadable<Photo> {
     override fun doUpload(
         upload: Upload,
@@ -37,7 +37,7 @@ class Photo2MessageUploadable(
         listener: PercentagePublisher?
     ): Flow<UploadResult<Photo>> {
         val accountId = upload.accountId
-        val messageId = upload.destination.id
+        val cmId = upload.destination.id
         val peerId = upload.destination.ownerId
         val serverSingle = if (initialServer != null) {
             toFlow(initialServer)
@@ -80,9 +80,8 @@ class Photo2MessageUploadable(
                                             if (upload.isAutoCommit) {
                                                 attachIntoDatabaseRx(
                                                     attachmentsRepository,
-                                                    messagesStorage,
                                                     accountId,
-                                                    messageId,
+                                                    cmId,
                                                     peerId,
                                                     photo
                                                 ).map {
@@ -108,11 +107,11 @@ class Photo2MessageUploadable(
 
     companion object {
         fun attachIntoDatabaseRx(
-            repository: IAttachmentsRepository, storage: IMessagesStorage,
-            accountId: Long, messageId: Int, peerId: Long, photo: Photo
+            repository: IAttachmentsRepository,
+            accountId: Long, cmId: Int, peerId: Long, photo: Photo
         ): Flow<Boolean> {
             return repository
-                .attach(accountId, AttachToType.MESSAGE, messageId, listOf(photo))
+                .attach(accountId, AttachToType.MESSAGE, 0, Pair(peerId, cmId), listOf(photo))
         }
     }
 }

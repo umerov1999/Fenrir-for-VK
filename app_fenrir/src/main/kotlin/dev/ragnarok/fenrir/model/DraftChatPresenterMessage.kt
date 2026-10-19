@@ -6,7 +6,7 @@ import dev.ragnarok.fenrir.readObjectInteger
 import dev.ragnarok.fenrir.writeObjectInteger
 
 class DraftChatPresenterMessage : Parcelable {
-    var id: Int? = null
+    var cmId: Int? = null
         private set
     var text: String? = null
         private set
@@ -15,13 +15,13 @@ class DraftChatPresenterMessage : Parcelable {
 
     constructor()
     internal constructor(parcel: Parcel) {
-        id = parcel.readObjectInteger()
+        cmId = parcel.readObjectInteger()
         text = parcel.readString()
         dbAttachmentsCount = parcel.readInt()
     }
 
-    fun setId(id: Int?): DraftChatPresenterMessage {
-        this.id = id
+    fun setCmId(cmId: Int?): DraftChatPresenterMessage {
+        this.cmId = cmId
         return this
     }
 
@@ -50,7 +50,7 @@ class DraftChatPresenterMessage : Parcelable {
     }
 
     fun clear(): DraftChatPresenterMessage {
-        id = null
+        cmId = null
         text = null
         dbAttachmentsCount = 0
         return this
@@ -61,7 +61,7 @@ class DraftChatPresenterMessage : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeObjectInteger(id)
+        dest.writeObjectInteger(cmId)
         dest.writeString(text)
         dest.writeInt(dbAttachmentsCount)
     }

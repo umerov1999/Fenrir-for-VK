@@ -550,7 +550,7 @@ object Entity2Model {
     ): Dialog {
         val message = entity.message?.let { message(accountId, it, owners) }
         val dialog = Dialog()
-            .setLastMessageId(entity.lastMessageId)
+            .setLastCmId(entity.lastCmId)
             .setPeerId(entity.peerId)
             .setPhoto50(entity.photo50)
             .setPhoto100(entity.photo100)
@@ -558,11 +558,10 @@ object Entity2Model {
             .setTitle(entity.title)
             .setMessage(message)
             .setUnreadCount(entity.unreadCount)
-            .setOutRead(entity.outRead)
-            .setInRead(entity.inRead)
+            .setOutReadCmId(entity.outReadCmId)
+            .setInReadCmId(entity.inReadCmId)
             .setGroupChannel(entity.isGroupChannel)
-            .setMajor_id(entity.major_id)
-            .setMinor_id(entity.minor_id)
+            .setMajorId(entity.majorId)
         when (Peer.getType(entity.peerId)) {
             PeerType.GROUP, PeerType.USER -> dialog.setInterlocutor(owners.getById(dialog.peerId))
             PeerType.CHAT, PeerType.CONTACT -> dialog.setInterlocutor(message?.senderId?.let {
@@ -608,7 +607,7 @@ object Entity2Model {
     }
 
     fun message(accountId: Long, dbo: MessageDboEntity, owners: IOwnersBundle): Message {
-        val message = Message(dbo.id)
+        val message = Message(dbo.cmId)
             .setAccountId(accountId)
             .setText(dbo.text)
             .setPeerId(dbo.peerId)
@@ -631,8 +630,8 @@ object Entity2Model {
             .setUpdateTime(dbo.updateTime)
             .setPayload(dbo.payload)
             .setKeyboard(buildKeyboardFromDbo(dbo.keyboard))
-            .setConversationMessageId(dbo.conversation_message_id)
-            .setReactionId(dbo.reaction_id)
+            .setReactionId(dbo.reactionId)
+            .setVersion(dbo.version)
         if (dbo.actionMemberId != 0L) {
             message.setActionUser(owners.getById(dbo.actionMemberId))
         }

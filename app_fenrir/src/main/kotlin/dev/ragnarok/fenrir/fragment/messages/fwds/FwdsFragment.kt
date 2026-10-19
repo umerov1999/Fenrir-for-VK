@@ -202,13 +202,15 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
     override fun onVoicePlayButtonClick(
         voiceHolderId: Int,
         voiceMessageId: Int,
-        messageId: Int,
+        peerId: Long,
+        cmId: Int,
         voiceMessage: VoiceMessage
     ) {
         presenter?.fireVoicePlayButtonClick(
             voiceHolderId,
             voiceMessageId,
-            messageId,
+            peerId,
+            cmId,
             voiceMessage
         )
     }
@@ -217,10 +219,11 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
         presenter?.fireVoicePlaybackSpeed()
     }
 
-    override fun onTranscript(voiceMessageId: String, messageId: Int) {
+    override fun onTranscript(voiceMessageId: String, peerId: Long, cmId: Int) {
         presenter?.fireTranscript(
             voiceMessageId,
-            messageId
+            peerId,
+            cmId
         )
     }
 

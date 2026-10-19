@@ -114,7 +114,7 @@ internal class UserLongpoll(
     }
 
     private fun fixUpdates(updates: VKApiLongpollUpdates) {
-        updates.add_message_updates.nonNullNoEmpty {
+        updates.addMessageUpdates.nonNullNoEmpty {
             for (update in it) {
                 if (update.peerId == accountId) {
                     update.isOut = true
@@ -143,7 +143,7 @@ internal class UserLongpoll(
     companion object {
         private const val TAG = "Longpoll_TAG"
         private const val DELAY_ON_ERROR = 10 * 1000
-        private const val V = 10
+        private const val V = 21
         private const val MODE = (1 shl 1) or  //получать вложения;
                 (1 shl 3) or // возвращать расширенный набор событий;
                 //(1 shl 5) //возвращать pts (это требуется для работы метода messages.getLongPollHistory без ограничения в 256 последних событий);

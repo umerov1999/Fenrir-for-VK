@@ -55,7 +55,7 @@ class ReactionContainer : RowLayout {
         isEdit: Boolean,
         myReactionSend: Int,
         reactionsData: List<ReactionWithAsset>?,
-        conversation_message_id: Int, peerId: Long,
+        cmId: Int, peerId: Long,
         listener: ReactionClicked?
     ) {
         if (reactionsData.isNullOrEmpty()) {
@@ -101,13 +101,13 @@ class ReactionContainer : RowLayout {
                 if (isEdit) {
                     val res: Int? =
                         if (reaction.reaction_id != myReactionSend) reaction.reaction_id else null
-                    listener?.onReactionClicked(res, conversation_message_id, peerId)
+                    listener?.onReactionClicked(res, cmId, peerId)
                 }
             }
             root.setOnLongClickListener {
                 reaction.count > 0 && listener?.onReactionLongClicked(
                     reaction.reaction_id,
-                    conversation_message_id,
+                    cmId,
                     peerId
                 ) == true
             }
@@ -115,10 +115,10 @@ class ReactionContainer : RowLayout {
     }
 
     interface ReactionClicked {
-        fun onReactionClicked(reaction_id: Int?, conversation_message_id: Int, peerId: Long)
+        fun onReactionClicked(reactionId: Int?, cmId: Int, peerId: Long)
         fun onReactionLongClicked(
-            reaction_id: Int?,
-            conversation_message_id: Int,
+            reactionId: Int?,
+            cmId: Int,
             peerId: Long
         ): Boolean
     }

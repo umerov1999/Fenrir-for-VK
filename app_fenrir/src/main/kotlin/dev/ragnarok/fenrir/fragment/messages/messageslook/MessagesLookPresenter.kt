@@ -29,7 +29,7 @@ class MessagesLookPresenter(
     private val messagesInteractor: IMessagesRepository = messages
     private val peer = Peer(peerId)
     private val loadingState: LOADING_STATE
-    private var mFocusMessageId = 0
+    private var mFocusCmId = 0
 
     private fun fetchConversationThenActual(needFetchChat: Boolean) {
         appendJob(
@@ -60,8 +60,8 @@ class MessagesLookPresenter(
             peer.setAvaUrl(data.imageUrl)
         }
         view?.displayToolbarAvatar(accountId, peer)
-        lastReadId.incoming = data.inRead
-        lastReadId.outgoing = data.outRead
+        lastReadId.incoming = data.inReadCmId
+        lastReadId.outgoing = data.outReadCmId
         if (needFetchChat) {
             initRequest()
         }
@@ -110,7 +110,7 @@ class MessagesLookPresenter(
                 peerId = peer.id,
                 count = COUNT,
                 offset = -COUNT / 2,
-                startMessageId = mFocusMessageId,
+                startCmId = mFocusCmId,
                 excludeStartMessage = false,
                 cacheData = false,
                 rev = false
@@ -163,7 +163,7 @@ class MessagesLookPresenter(
 
     private fun loadMoreDown() {
         if (!loadingState.canLoadingHeader()) return
-        val targetMessageId = firstMessageId ?: return
+        val targetStarCmId = firstCmId ?: return
         loadingState.headerLoading()
         appendJob(
             messagesInteractor.getPeerMessages(
@@ -171,7 +171,7 @@ class MessagesLookPresenter(
                 peerId = peer.id,
                 count = COUNT,
                 offset = -COUNT,
-                startMessageId = targetMessageId,
+                startCmId = targetStarCmId,
                 excludeStartMessage = true,
                 cacheData = false,
                 rev = false
@@ -228,7 +228,7 @@ class MessagesLookPresenter(
 
     private fun loadMoreUp() {
         if (!loadingState.canLoadingFooter()) return
-        val targetLastMessageId = lastMessageId ?: return
+        val targetStartCmId = lastCmId ?: return
         loadingState.footerLoading()
         appendJob(
             messagesInteractor.getPeerMessages(
@@ -236,7 +236,7 @@ class MessagesLookPresenter(
                 peerId = peer.id,
                 count = COUNT,
                 offset = 0,
-                startMessageId = targetLastMessageId,
+                startCmId = targetStartCmId,
                 excludeStartMessage = true,
                 cacheData = false,
                 rev = false
@@ -248,9 +248,9 @@ class MessagesLookPresenter(
                 })
     }
 
-    private val lastMessageId: Int?
+    private val lastCmId: Int?
         get() = if (data.isEmpty()) null else data[data.size - 1].getObjectId()
-    private val firstMessageId: Int?
+    private val firstCmId: Int?
         get() = if (data.isEmpty()) null else data[0].getObjectId()
 
     override fun onActionModeForwardClick() {
@@ -293,10 +293,10 @@ class MessagesLookPresenter(
         data.addAll(messages)
         view?.notifyDataChanged()
         loadingState.reset()
-        val index = indexOf(messages, mFocusMessageId)
+        val index = indexOf(messages, mFocusCmId)
         if (index != -1) {
             view?.focusTo(index)
-        } else if (mFocusMessageId == 0) {
+        } else if (mFocusCmId == 0) {
             view?.focusTo(messages.size - 1)
         }
     }
@@ -386,9 +386,9 @@ class MessagesLookPresenter(
         }
     }
 
-    fun fireTranscript(voiceMessageId: String?, messageId: Int) {
+    fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            messages.recogniseAudioMessage(accountId, messageId, voiceMessageId)
+            messages.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
                 .hiddenIO()
         )
     }
@@ -420,14 +420,14 @@ class MessagesLookPresenter(
         })
         if (savedInstanceState == null) {
             if (message != null && focusTo == 0) {
-                mFocusMessageId = 0
+                mFocusCmId = 0
                 data.clear()
                 data.add(message)
                 view?.notifyDataChanged()
                 view?.focusTo(0)
                 fetchConversationThenActual(false)
             } else {
-                mFocusMessageId = focusTo
+                mFocusCmId = focusTo
                 fetchConversationThenActual(true)
             }
         }

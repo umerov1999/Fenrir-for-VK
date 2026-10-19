@@ -23,7 +23,11 @@ class MessageDtoAdapter : AbsDtoAdapter<VKApiMessage>("VKApiMessage") {
         }
         val dto = VKApiMessage()
         val root = json.jsonObject
-        dto.id = optInt(root, "id")
+        if (root.contains("conversation_message_id")) {
+            dto.conversation_message_id = optInt(root, "conversation_message_id")
+        } else {
+            dto.conversation_message_id = optInt(root, "id")
+        }
         dto.out = optBoolean(root, "out")
         dto.peer_id = optLong(root, "peer_id")
         dto.from_id =
@@ -83,8 +87,8 @@ class MessageDtoAdapter : AbsDtoAdapter<VKApiMessage>("VKApiMessage") {
         dto.random_id = optString(root, "random_id")
         dto.payload = optString(root, "payload")
         dto.update_time = optLong(root, "update_time")
-        dto.conversation_message_id = optInt(root, "conversation_message_id")
         dto.reaction_id = optInt(root, "reaction_id")
+        dto.version = optInt(root, "version")
         if (hasArray(root, "reactions")) {
             val reactionArray = root["reactions"]?.jsonArray
             dto.reactions = ArrayList(reactionArray?.size.orZero())

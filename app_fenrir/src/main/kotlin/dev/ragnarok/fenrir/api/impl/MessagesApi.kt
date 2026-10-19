@@ -43,7 +43,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
 
     override fun edit(
         peerId: Long,
-        messageId: Int,
+        cmId: Int,
         message: String?,
         attachments: List<IAttachmentToken>?,
         keepFwd: Boolean,
@@ -56,7 +56,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             .flatMapConcat {
                 it.editMessage(
                     peerId,
-                    messageId,
+                    cmId,
                     message,
                     atts,
                     integerFromBoolean(keepFwd),
@@ -386,13 +386,11 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun getById(identifiers: Collection<Pair<Long, Int>>?): Flow<List<VKApiMessage>> {
-        val ids = join(identifiers, ",") {
-            it.second.toString()
-        }
+    override fun getById(peerId: Long, cmIds: Collection<Int>?): Flow<List<VKApiMessage>> {
+        val ids = join(cmIds, ",")
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat { s ->
-                s.getById(ids, null)
+                s.getById(peerId,  ids, null)
                     .map(extractResponseWithErrorHandling())
                     .map { listEmptyIfNull(it.items) }
             }
@@ -402,7 +400,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
         offset: Int?,
         count: Int?,
         peerId: Long,
-        startMessageId: Int?,
+        startCmId: Int?,
         rev: Boolean?,
         extended: Boolean?,
         fields: String?
@@ -413,7 +411,7 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
                     offset,
                     count,
                     peerId,
-                    startMessageId,
+                    startCmId,
                     integerFromBoolean(rev),
                     integerFromBoolean(extended),
                     fields
@@ -437,7 +435,6 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
     override fun getImportantMessages(
         offset: Int?,
         count: Int?,
-        startMessageId: Int?,
         extended: Boolean?,
         fields: String?
     ): Flow<MessageImportantResponse> {
@@ -446,7 +443,6 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
                 it.getImportantMessages(
                     offset,
                     count,
-                    startMessageId,
                     integerFromBoolean(extended),
                     fields
                 )

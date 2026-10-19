@@ -612,6 +612,8 @@ class FenrirContentProvider : ContentProvider() {
 
             sMessagesProjectionMap = HashMap()
             sMessagesProjectionMap[BaseColumns._ID] = MessagesColumns.FULL_ID
+            sMessagesProjectionMap[MessagesColumns.CONVERSATION_MESSAGE_ID] =
+                MessagesColumns.FULL_CONVERSATION_MESSAGE_ID
             sMessagesProjectionMap[MessagesColumns.PEER_ID] = MessagesColumns.FULL_PEER_ID
             sMessagesProjectionMap[MessagesColumns.FROM_ID] = MessagesColumns.FULL_FROM_ID
             sMessagesProjectionMap[MessagesColumns.DATE] = MessagesColumns.FULL_DATE
@@ -647,10 +649,9 @@ class FenrirContentProvider : ContentProvider() {
             sMessagesProjectionMap[MessagesColumns.PAYLOAD] =
                 MessagesColumns.FULL_PAYLOAD
             sMessagesProjectionMap[MessagesColumns.KEYBOARD] = MessagesColumns.FULL_KEYBOARD
-            sMessagesProjectionMap[MessagesColumns.CONVERSATION_MESSAGE_ID] =
-                MessagesColumns.FULL_CONVERSATION_MESSAGE_ID
             sMessagesProjectionMap[MessagesColumns.REACTIONS] = MessagesColumns.FULL_REACTIONS
             sMessagesProjectionMap[MessagesColumns.REACTION_ID] = MessagesColumns.FULL_REACTION_ID
+            sMessagesProjectionMap[MessagesColumns.VERSION] = MessagesColumns.FULL_VERSION
 
             sPhotosProjectionMap = HashMap()
             sPhotosProjectionMap[BaseColumns._ID] =
@@ -729,21 +730,19 @@ class FenrirContentProvider : ContentProvider() {
             sDialogsProjectionMap[DialogsColumns.UNREAD] =
                 DialogsColumns.FULL_UNREAD
             sDialogsProjectionMap[DialogsColumns.TITLE] = DialogsColumns.FULL_TITLE
-            sDialogsProjectionMap[DialogsColumns.IN_READ] =
-                DialogsColumns.FULL_IN_READ
-            sDialogsProjectionMap[DialogsColumns.OUT_READ] = DialogsColumns.FULL_OUT_READ
+            sDialogsProjectionMap[DialogsColumns.IN_READ_CM_ID] =
+                DialogsColumns.FULL_IN_READ_CM_ID
+            sDialogsProjectionMap[DialogsColumns.OUT_READ_CM_ID] = DialogsColumns.FULL_OUT_READ_CM_ID
             sDialogsProjectionMap[DialogsColumns.PHOTO_50] = DialogsColumns.FULL_PHOTO_50
             sDialogsProjectionMap[DialogsColumns.PHOTO_100] = DialogsColumns.FULL_PHOTO_100
             sDialogsProjectionMap[DialogsColumns.PHOTO_200] =
                 DialogsColumns.FULL_PHOTO_200
             sDialogsProjectionMap[DialogsColumns.ACL] = DialogsColumns.FULL_ACL
-            sDialogsProjectionMap[DialogsColumns.LAST_MESSAGE_ID] =
-                DialogsColumns.FULL_LAST_MESSAGE_ID
+            sDialogsProjectionMap[DialogsColumns.LAST_CM_ID] =
+                DialogsColumns.FULL_LAST_CM_ID
             sDialogsProjectionMap[DialogsColumns.IS_GROUP_CHANNEL] =
                 DialogsColumns.FULL_IS_GROUP_CHANNEL
             sDialogsProjectionMap[DialogsColumns.MAJOR_ID] = DialogsColumns.FULL_MAJOR_ID
-            sDialogsProjectionMap[DialogsColumns.MINOR_ID] =
-                DialogsColumns.FULL_MINOR_ID
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_FROM_ID] =
                 MessagesColumns.FULL_FROM_ID + " AS " + DialogsColumns.FOREIGN_MESSAGE_FROM_ID
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_TEXT] =
@@ -757,32 +756,31 @@ class FenrirContentProvider : ContentProvider() {
                 MessagesColumns.FULL_ATTACHMENTS_BLOB + " AS " + DialogsColumns.FOREIGN_MESSAGE_ATTACHMENTS_BLOB
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_FWD_BLOB] =
                 MessagesColumns.FULL_FORWARD_BLOB + " AS " + DialogsColumns.FOREIGN_MESSAGE_FWD_BLOB
-            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_CMID] =
-                MessagesColumns.FULL_CONVERSATION_MESSAGE_ID + " AS " + DialogsColumns.FOREIGN_MESSAGE_CMID
             sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_ACTION] =
                 MessagesColumns.FULL_ACTION + " AS " + DialogsColumns.FOREIGN_MESSAGE_ACTION
+            sDialogsProjectionMap[DialogsColumns.FOREIGN_MESSAGE_VERSION] =
+                MessagesColumns.FULL_VERSION + " AS " + DialogsColumns.FOREIGN_MESSAGE_VERSION
 
             sPeersProjectionMap = HashMap()
             sPeersProjectionMap[BaseColumns._ID] = PeersColumns.FULL_ID
             sPeersProjectionMap[PeersColumns.UNREAD] =
                 PeersColumns.FULL_UNREAD
             sPeersProjectionMap[PeersColumns.TITLE] = PeersColumns.FULL_TITLE
-            sPeersProjectionMap[PeersColumns.IN_READ] = PeersColumns.FULL_IN_READ
-            sPeersProjectionMap[PeersColumns.OUT_READ] =
-                PeersColumns.FULL_OUT_READ
+            sPeersProjectionMap[PeersColumns.IN_READ_CM_ID] = PeersColumns.FULL_IN_READ_CM_ID
+            sPeersProjectionMap[PeersColumns.OUT_READ_CM_ID] =
+                PeersColumns.FULL_OUT_READ_CM_ID
             sPeersProjectionMap[PeersColumns.PHOTO_50] = PeersColumns.FULL_PHOTO_50
             sPeersProjectionMap[PeersColumns.PHOTO_100] = PeersColumns.FULL_PHOTO_100
             sPeersProjectionMap[PeersColumns.PHOTO_200] =
                 PeersColumns.FULL_PHOTO_200
             sPeersProjectionMap[PeersColumns.PINNED] = PeersColumns.FULL_PINNED
-            sPeersProjectionMap[PeersColumns.LAST_MESSAGE_ID] =
-                PeersColumns.FULL_LAST_MESSAGE_ID
+            sPeersProjectionMap[PeersColumns.LAST_CM_ID] =
+                PeersColumns.FULL_LAST_CM_ID
             sPeersProjectionMap[PeersColumns.ACL] = PeersColumns.FULL_ACL
             sPeersProjectionMap[PeersColumns.IS_GROUP_CHANNEL] =
                 PeersColumns.FULL_IS_GROUP_CHANNEL
             sPeersProjectionMap[PeersColumns.KEYBOARD] = PeersColumns.FULL_KEYBOARD
             sPeersProjectionMap[PeersColumns.MAJOR_ID] = PeersColumns.FULL_MAJOR_ID
-            sPeersProjectionMap[PeersColumns.MINOR_ID] = PeersColumns.FULL_MINOR_ID
 
             sDocsProjectionMap = HashMap()
             sDocsProjectionMap[BaseColumns._ID] = DocsColumns.FULL_ID
@@ -1484,7 +1482,7 @@ class FenrirContentProvider : ContentProvider() {
 
             URI_DIALOGS -> {
                 _QB.tables =
-                    DialogsColumns.TABLENAME + " LEFT OUTER JOIN " + MessagesColumns.TABLENAME + " ON " + DialogsColumns.FULL_LAST_MESSAGE_ID + " = " + MessagesColumns.FULL_ID + " AND " + DialogsColumns.FULL_ID + " = " + MessagesColumns.FULL_PEER_ID
+                    DialogsColumns.TABLENAME + " LEFT OUTER JOIN " + MessagesColumns.TABLENAME + " ON " + DialogsColumns.FULL_LAST_CM_ID + " = " + MessagesColumns.FULL_CONVERSATION_MESSAGE_ID + " AND " + DialogsColumns.FULL_ID + " = " + MessagesColumns.FULL_PEER_ID
                 _QB.projectionMap = sDialogsProjectionMap
                 URI_DIALOGS
             }
@@ -1684,7 +1682,7 @@ class FenrirContentProvider : ContentProvider() {
             when (_TableType) {
                 URI_USERS -> UsersColumns.FULL_LAST_NAME + " ASC"
                 URI_GROUPS -> GroupsColumns.FULL_NAME + " ASC"
-                URI_MESSAGES -> MessagesColumns.FULL_STATUS + ", " + MessagesColumns.FULL_ID + " ASC"
+                URI_MESSAGES -> "${MessagesColumns.FULL_STATUS}, ${MessagesColumns.FULL_CONVERSATION_MESSAGE_ID} ASC"
                 URI_PHOTOS -> PhotosColumns.FULL_ID + " ASC"
                 URI_PHOTOS_EXTENDED -> PhotosExtendedColumns.FULL_ID + " ASC"
                 URI_DIALOGS -> MessagesColumns.FULL_DATE + " DESC"

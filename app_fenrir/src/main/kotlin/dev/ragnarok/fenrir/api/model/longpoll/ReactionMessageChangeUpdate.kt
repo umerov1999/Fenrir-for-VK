@@ -4,8 +4,8 @@ import dev.ragnarok.fenrir.api.model.VKApiReaction
 
 class ReactionMessageChangeUpdate(
     @param:ReactionEventType val event_type_of_reaction: Int,
-    val peer_id: Long,
-    val conversation_message_id: Int,
+    val peerId: Long,
+    val cmId: Int,
     val myReaction: Int,
     val myReactionChanged: Boolean,
     val arrayReactionList: ArrayList<VKApiReaction>

@@ -3,11 +3,11 @@ package dev.ragnarok.fenrir.db
 class PeerStateEntity(val peerId: Long) {
     var unreadCount = 0
         private set
-    var lastMessageId = 0
+    var lastCmId = 0
         private set
-    var inRead = 0
+    var inReadCmId = 0
         private set
-    var outRead = 0
+    var outReadCmId = 0
         private set
 
     fun setUnreadCount(unreadCount: Int): PeerStateEntity {
@@ -15,18 +15,18 @@ class PeerStateEntity(val peerId: Long) {
         return this
     }
 
-    fun setLastMessageId(lastMessageId: Int): PeerStateEntity {
-        this.lastMessageId = lastMessageId
+    fun setLastCmId(lastCmId: Int): PeerStateEntity {
+        this.lastCmId = lastCmId
         return this
     }
 
-    fun setInRead(inRead: Int): PeerStateEntity {
-        this.inRead = inRead
+    fun setInReadCmId(inReadCmId: Int): PeerStateEntity {
+        this.inReadCmId = inReadCmId
         return this
     }
 
-    fun setOutRead(outRead: Int): PeerStateEntity {
-        this.outRead = outRead
+    fun setOutReadCmId(outReadCmId: Int): PeerStateEntity {
+        this.outReadCmId = outReadCmId
         return this
     }
 }

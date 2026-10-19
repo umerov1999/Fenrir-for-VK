@@ -135,7 +135,7 @@ class DialogsPresenter(
         }
         setNetLoadingNow(true)
         netDisposable.add(
-            messagesInteractor.getDialogs(dialogsOwnerId, COUNT, null)
+            messagesInteractor.getDialogs(dialogsOwnerId, COUNT, null, null)
                 .fromIOToMain({ onDialogsFirstResponse(it) }) { t ->
                     onDialogsGetError(
                         t
@@ -148,10 +148,10 @@ class DialogsPresenter(
         if (netLoadingNow) {
             return
         }
-        val lastMid = lastDialogMessageId ?: return
+        val lastCmId = lastDialogCmId ?: return
         setNetLoadingNow(true)
         netDisposable.add(
-            messagesInteractor.getDialogs(dialogsOwnerId, COUNT, lastMid)
+            messagesInteractor.getDialogs(dialogsOwnerId, COUNT, lastDialogPeerId, lastCmId)
                 .fromIOToMain(
                     { onNextDialogsResponse(it) }
                 ) { throwable -> onDialogsGetError(throwable) })
@@ -362,9 +362,9 @@ class DialogsPresenter(
         val accountId = update.accountId
         val peerId = update.peerId
         if (update.lastMessage != null) {
-            val messageId = update.lastMessage?.messageId ?: return
+            val cmId = update.lastMessage?.cmId ?: return
             appendJob(
-                messagesInteractor.findCachedMessages(accountId, listOf(Pair(peerId, messageId)))
+                messagesInteractor.findCachedMessages(accountId, listOf(Pair(peerId, cmId)))
                     .fromIOToMain { messages ->
                         if (messages.isEmpty()) {
                             onDialogDeleted(accountId, peerId)
@@ -394,18 +394,20 @@ class DialogsPresenter(
         val index = indexOf(dialogs, peerId)
         val dialog = if (index == -1) Dialog().setPeerId(peerId) else dialogs[index]
         if (update.readIn != null) {
-            dialog.setInRead((update.readIn ?: return).messageId)
+            dialog.setInReadCmId((update.readIn ?: return).cmId)
         }
         if (update.readOut != null) {
-            dialog.setOutRead((update.readOut ?: return).messageId)
+            dialog.setOutReadCmId((update.readOut ?: return).cmId)
         }
         if (update.unread != null) {
             dialog.setUnreadCount((update.unread ?: return).count)
         }
+        if (update.majorId != null) {
+            dialog.setMajorId(update.majorId?.majorId ?: return)
+        }
         if (messageOptional.nonEmpty()) {
             val message = messageOptional.get()
-            dialog.setLastMessageId((message ?: return).getObjectId())
-            dialog.setMinor_id(message.getObjectId())
+            dialog.setLastCmId((message ?: return).getObjectId())
             dialog.setMessage(message)
             if (dialog.isChat) {
                 dialog.setInterlocutor(message.sender)
@@ -415,8 +417,8 @@ class DialogsPresenter(
             dialog.setTitle(it)
         }
         if (index != -1) {
-            dialogs.sortWith(compareByDescending<Dialog> { it.major_id }
-                .thenByDescending { it.minor_id })
+            dialogs.sortWith(compareByDescending<Dialog> { it.majorId }
+                .thenByDescending { it.lastMessageDate })
             safeNotifyDataSetChanged()
         } else {
             if (Peer.isGroup(peerId) || Peer.isUser(peerId)) {
@@ -428,8 +430,8 @@ class DialogsPresenter(
                                 messages.insertDialog(accountId, dialog)
                                     .fromIOToMain {
                                         dialogs.add(dialog)
-                                        dialogs.sortWith(compareByDescending<Dialog> { it.major_id }
-                                            .thenByDescending { it.minor_id })
+                                        dialogs.sortWith(compareByDescending<Dialog> { it.majorId }
+                                            .thenByDescending { it.lastMessageDate })
                                         safeNotifyDataSetChanged()
                                     }
                             )
@@ -437,8 +439,8 @@ class DialogsPresenter(
                 )
             } else {
                 dialogs.add(dialog)
-                dialogs.sortWith(compareByDescending<Dialog> { it.major_id }
-                    .thenByDescending { it.minor_id })
+                dialogs.sortWith(compareByDescending<Dialog> { it.majorId }
+                    .thenByDescending { it.lastMessageDate })
                 safeNotifyDataSetChanged()
             }
         }
@@ -555,9 +557,16 @@ class DialogsPresenter(
         }
     }
 
-    private val lastDialogMessageId: Int?
+    private val lastDialogCmId: Int?
         get() = try {
-            dialogs[dialogs.size - 1].lastMessageId
+            dialogs[dialogs.size - 1].lastCmId
+        } catch (_: Exception) {
+            null
+        }
+
+    private val lastDialogPeerId: Long?
+        get() = try {
+            dialogs[dialogs.size - 1].peerId
         } catch (_: Exception) {
             null
         }
@@ -704,13 +713,13 @@ class DialogsPresenter(
             messagesInteractor.markAsRead(
                 accountId,
                 dialog.peerId,
-                dialog.lastMessageId
+                dialog.lastCmId
             )
                 .fromIOToMain({
                     view?.customToast?.showToastSuccessBottom(
                         R.string.success
                     )
-                    dialog.setInRead(dialog.lastMessageId)
+                    dialog.setInReadCmId(dialog.lastCmId)
                     view?.notifyDataSetChanged()
                 }) { throwable ->
                     showError(throwable)
@@ -720,11 +729,11 @@ class DialogsPresenter(
     fun fireContextViewCreated(contextView: IContextView, dialog: Dialog) {
         val isHide = Settings.get().security().isHiddenDialog(dialog.getOwnerObjectId())
         contextView.setCanDelete(true)
-        contextView.setCanRead(!isHiddenCurrent && !dialog.isLastMessageOut && dialog.lastMessageId != dialog.inRead)
+        contextView.setCanRead(!isHiddenCurrent && !dialog.isLastMessageOut && dialog.lastCmId != dialog.inReadCmId)
         contextView.setCanAddToHomeScreen(dialogsOwnerId > 0 && !isHide)
         contextView.setCanAddToShortcuts(dialogsOwnerId > 0 && !isHide)
         contextView.setCanConfigNotifications(dialogsOwnerId > 0)
-        contextView.setPinned(dialog.major_id > 0)
+        contextView.setPinned(dialog.majorId > 0)
         contextView.setIsHidden(isHide)
     }
 

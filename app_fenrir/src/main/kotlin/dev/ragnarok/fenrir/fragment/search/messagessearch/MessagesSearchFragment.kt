@@ -137,13 +137,15 @@ class MessagesSearchFragment :
     override fun onVoicePlayButtonClick(
         voiceHolderId: Int,
         voiceMessageId: Int,
-        messageId: Int,
+        peerId: Long,
+        cmId: Int,
         voiceMessage: VoiceMessage
     ) {
         presenter?.fireVoicePlayButtonClick(
             voiceHolderId,
             voiceMessageId,
-            messageId,
+            peerId,
+            cmId,
             voiceMessage
         )
     }
@@ -156,10 +158,11 @@ class MessagesSearchFragment :
         presenter?.firePlayPositionChanged(position)
     }
 
-    override fun onTranscript(voiceMessageId: String, messageId: Int) {
+    override fun onTranscript(voiceMessageId: String, peerId: Long, cmId: Int) {
         presenter?.fireTranscript(
             voiceMessageId,
-            messageId
+            peerId,
+            cmId
         )
     }
 

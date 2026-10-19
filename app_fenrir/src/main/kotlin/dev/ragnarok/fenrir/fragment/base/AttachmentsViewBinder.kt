@@ -111,7 +111,8 @@ class AttachmentsViewBinder(
         attachments: Attachments?,
         containers: AttachmentsHolder,
         postsAsLinks: Boolean,
-        messageId: Int?,
+        peerId: Long?,
+        cmId: Int?,
         holderPosition: Int?,
         useCompactVideoLayout: Boolean = false
     ) {
@@ -139,7 +140,8 @@ class AttachmentsViewBinder(
             displayVoiceMessages(
                 attachments.voiceMessages,
                 containers.voiceMessageRoot,
-                messageId
+                peerId,
+                cmId
             )
             displayDocs(attachments.getDocLinks(postsAsLinks, true), containers.vgDocs)
             if (containers.vgStickers != null) {
@@ -159,7 +161,8 @@ class AttachmentsViewBinder(
     private fun displayVoiceMessages(
         voices: ArrayList<VoiceMessage>?,
         container: ViewGroup?,
-        messageId: Int?
+        peerId: Long?,
+        cmId: Int?,
     ) {
         if (voices.isNullOrEmpty() || container == null) {
             if (container?.isNotEmpty() == true) {
@@ -184,7 +187,7 @@ class AttachmentsViewBinder(
             val root = container.getChildAt(g) as ViewGroup? ?: continue
             val holder = root.tag as VoiceHolder? ?: continue
             val voice = voices[g]
-            bindVoiceHolder(holder, voice, messageId)
+            bindVoiceHolder(holder, voice, peerId, cmId)
         }
     }
 
@@ -276,7 +279,8 @@ class AttachmentsViewBinder(
     private fun bindVoiceHolder(
         holder: VoiceHolder,
         voice: VoiceMessage,
-        messageId: Int?
+        peerId: Long?,
+        cmId: Int?,
     ) {
         val voiceMessageId = voice.id
         mVoiceSharedHolders.put(voiceMessageId, holder)
@@ -295,7 +299,7 @@ class AttachmentsViewBinder(
         }
         if (voice.transcript.isNullOrEmpty()) {
             holder.mTranscriptText.visibility = View.GONE
-            if (messageId == null) {
+            if (peerId == null && cmId == null) {
                 holder.mDoTranscript.visibility = View.GONE
             } else {
                 holder.mDoTranscript.visibility = View.VISIBLE
@@ -303,7 +307,7 @@ class AttachmentsViewBinder(
                     if (mVoiceActionListener != null) {
                         mVoiceActionListener?.onTranscript(
                             voice.ownerId.toString() + "_" + voice.id,
-                            messageId
+                            peerId.orZero(), cmId.orZero()
                         )
                         holder.mDoTranscript.visibility = View.GONE
                     }
@@ -342,7 +346,8 @@ class AttachmentsViewBinder(
             mVoiceActionListener?.onVoicePlayButtonClick(
                 holder.holderId,
                 voiceMessageId,
-                messageId.orZero(),
+                peerId.orZero(),
+                cmId.orZero(),
                 voice
             )
         }
@@ -462,11 +467,12 @@ class AttachmentsViewBinder(
             check.ownerName.text = copy.authorName
             check.buttonDots.tag = copy
             displayAttachments(
-                copy.attachments,
-                check.attachmentsHolder,
-                false,
-                null,
-                null
+                attachments = copy.attachments,
+                containers = check.attachmentsHolder,
+                postsAsLinks = false,
+                peerId = null,
+                cmId = null,
+                holderPosition = null
             )
         }
     }
@@ -602,11 +608,12 @@ class AttachmentsViewBinder(
                 .setVgStickers(itemView.findViewById(R.id.stickers_attachments))
                 .setVoiceMessageRoot(itemView.findViewById(R.id.voice_message_attachments))
             displayAttachments(
-                message.attachments,
-                attachmentContainers,
-                postsAsLinks,
-                message.getObjectId(),
-                null,
+                attachments = message.attachments,
+                containers = attachmentContainers,
+                postsAsLinks = postsAsLinks,
+                peerId = message.peerId,
+                cmId = message.cmId,
+                holderPosition = null,
                 useCompactVideoLayout = true
             )
         }
@@ -853,10 +860,10 @@ class AttachmentsViewBinder(
                     val hasAttachments = post.attachments?.hasAttachments == true
                     attachmentsRoot.visibility = if (hasAttachments) View.VISIBLE else View.GONE
                     if (hasAttachments) displayAttachments(
-                        post.attachments,
-                        attachmentsHolder,
-                        false,
-                        null, null
+                        attachments = post.attachments,
+                        containers = attachmentsHolder,
+                        postsAsLinks = false,
+                        peerId = null, cmId = null, holderPosition = null
                     )
                 }
 
@@ -880,10 +887,10 @@ class AttachmentsViewBinder(
                     attachmentsRoot.visibility =
                         if (hasCommentAttachments) View.VISIBLE else View.GONE
                     if (hasCommentAttachments) displayAttachments(
-                        comment.attachments,
-                        attachmentsHolder,
-                        false,
-                        null, null
+                        attachments = comment.attachments,
+                        containers = attachmentsHolder,
+                        postsAsLinks = false,
+                        peerId = null, cmId = null, holderPosition = null
                     )
                 }
 
@@ -1167,12 +1174,13 @@ class AttachmentsViewBinder(
         fun onVoicePlayButtonClick(
             voiceHolderId: Int,
             voiceMessageId: Int,
-            messageId: Int,
+            peerId: Long,
+            cmId: Int,
             voiceMessage: VoiceMessage
         )
 
         fun onVoiceTogglePlaybackSpeed()
-        fun onTranscript(voiceMessageId: String, messageId: Int)
+        fun onTranscript(voiceMessageId: String, peerId: Long, cmId: Int)
 
         fun onPlayPositionChanged(position: Long)
     }

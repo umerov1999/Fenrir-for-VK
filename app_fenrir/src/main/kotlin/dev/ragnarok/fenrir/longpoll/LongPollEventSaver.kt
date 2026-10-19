@@ -12,45 +12,53 @@ class LongPollEventSaver {
     private val messagesInteractor: IMessagesRepository = messages
     fun save(accountId: Long, updates: VKApiLongpollUpdates): Flow<Boolean> {
         var completable = emptyTaskFlow()
-        if (updates.output_messages_set_read_updates.nonNullNoEmpty() || updates.input_messages_set_read_updates.nonNullNoEmpty()) {
+        if (updates.outputMessagesSetReadUpdates.nonNullNoEmpty() || updates.inputMessagesSetReadUpdates.nonNullNoEmpty()) {
             completable = completable.andThen(
                 messagesInteractor.handleReadUpdates(
                     accountId,
-                    updates.output_messages_set_read_updates,
-                    updates.input_messages_set_read_updates
+                    updates.outputMessagesSetReadUpdates,
+                    updates.inputMessagesSetReadUpdates
                 )
             )
         }
-        if (updates.message_flags_reset_updates.nonNullNoEmpty() || updates.message_flags_set_updates.nonNullNoEmpty()) {
+        if (updates.messageFlagsResetUpdates.nonNullNoEmpty() || updates.messageFlagsSetUpdates.nonNullNoEmpty()) {
             completable = completable.andThen(
                 messagesInteractor.handleFlagsUpdates(
                     accountId,
-                    updates.message_flags_set_updates,
-                    updates.message_flags_reset_updates
+                    updates.messageFlagsSetUpdates,
+                    updates.messageFlagsResetUpdates
                 )
             )
         }
-        if (updates.badge_count_change_updates.nonNullNoEmpty()) {
+        if (updates.badgeCountChangeUpdates.nonNullNoEmpty()) {
             completable = completable.andThen(
                 messagesInteractor.handleUnreadBadgeUpdates(
                     accountId,
-                    updates.badge_count_change_updates
+                    updates.badgeCountChangeUpdates
                 )
             )
         }
-        if (updates.typing_message_or_uploading_in_dialog_updates.nonNullNoEmpty()) {
+        if (updates.pinConversationUpdates.nonNullNoEmpty()) {
+            completable = completable.andThen(
+                messagesInteractor.handlePinConversationUpdates(
+                    accountId,
+                    updates.pinConversationUpdates
+                )
+            )
+        }
+        if (updates.typingMessageOrUploadingInDialogUpdates.nonNullNoEmpty()) {
             completable = completable.andThen(
                 messagesInteractor.handleTypingMessageOrUploadingInDialogUpdates(
                     accountId,
-                    updates.typing_message_or_uploading_in_dialog_updates
+                    updates.typingMessageOrUploadingInDialogUpdates
                 )
             )
         }
-        if (updates.message_reaction_changed_updates.nonNullNoEmpty()) {
+        if (updates.messageReactionChangedUpdates.nonNullNoEmpty()) {
             completable = completable.andThen(
                 messagesInteractor.handleMessageReactionsChangedUpdates(
                     accountId,
-                    updates.message_reaction_changed_updates
+                    updates.messageReactionChangedUpdates
                 )
             )
         }

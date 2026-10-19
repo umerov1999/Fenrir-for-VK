@@ -13,7 +13,7 @@ object LongPollNotificationHelper {
      *
      * @param message нотификация с сервера
      */
-    fun notifyAbountNewMessage(context: Context, message: Message) {
+    fun notifyAboutNewMessage(context: Context, message: Message) {
         if (message.isOut) {
             return
         }
@@ -26,17 +26,17 @@ object LongPollNotificationHelper {
         //if(!needSendNotif){
         //    return;
         //}
-        notifyAbountNewMessage(context, message.accountId, message)
+        notifyAboutNewMessage(context, message.accountId, message)
     }
 
-    private fun notifyAbountNewMessage(context: Context, accountId: Long, message: Message) {
+    private fun notifyAboutNewMessage(context: Context, accountId: Long, message: Message) {
         if (Settings.get().notifications().isSilentPeer(accountId, message.peerId)) {
             return
         }
         if (Settings.get().accounts().current != accountId) {
             d(
                 TAG,
-                "notifyAbountNewMessage, Attempting to send a notification does not in the current account!!!"
+                "notifyAboutNewMessage, Attempting to send a notification does not in the current account!!!"
             )
             return
         }

@@ -323,7 +323,7 @@ object Dto2Model {
 
     fun transform(accountUid: Long, update: AddMessageUpdate): VKApiMessage {
         val message = VKApiMessage()
-        message.id = update.messageId
+        message.conversation_message_id = update.cmId
         message.out = update.isOut
         message.important = update.important
         message.deleted = update.deleted
@@ -344,7 +344,6 @@ object Dto2Model {
         message.keyboard = update.keyboard
         message.payload = update.payload
         message.update_time = update.edit_time
-        message.conversation_message_id = update.conversationMessageId
         return message
     }
 
@@ -399,8 +398,8 @@ object Dto2Model {
         contacts: List<VKApiConversation.ContactElement>?
     ): Conversation? {
         val entity = Conversation(dto.peer?.id ?: return null)
-            .setInRead(dto.inRead)
-            .setOutRead(dto.outRead)
+            .setInReadCmId(dto.inReadCmId)
+            .setOutReadCmId(dto.outReadCmId)
             .setUnreadCount(dto.unreadCount)
             .setAcl(calculateConversationAcl(dto))
         if (!Peer.isGroupChat(dto.peer?.id.orZero())) {
@@ -431,8 +430,7 @@ object Dto2Model {
             }
         }
         dto.sort_id.requireNonNull {
-            entity.setMajor_id(it.major_id)
-            entity.setMinor_id(it.minor_id)
+            entity.setMajorId(it.major_id)
         }
         entity.setCurrentKeyboard(mapKeyboard(dto.current_keyboard))
         return entity
@@ -455,10 +453,10 @@ object Dto2Model {
         val dialog = Dialog()
             .setPeerId(message?.peer_id ?: return null)
             .setUnreadCount(dto.conversation?.unreadCount.orZero())
-            .setInRead(dto.conversation?.inRead.orZero())
-            .setOutRead(dto.conversation?.outRead.orZero())
+            .setInReadCmId(dto.conversation?.inReadCmId.orZero())
+            .setOutReadCmId(dto.conversation?.outReadCmId.orZero())
             .setMessage(transform(accountId, message, bundle))
-            .setLastMessageId(message.id)
+            .setLastCmId(message.conversation_message_id)
             .setInterlocutor(interlocutor)
         dto.conversation?.settings.requireNonNull {
             dialog.setTitle(it.title)
@@ -479,8 +477,7 @@ object Dto2Model {
             }
         }
         dto.conversation?.sort_id.requireNonNull {
-            dialog.setMajor_id(it.major_id)
-            dialog.setMinor_id(it.minor_id)
+            dialog.setMajorId(it.major_id)
         }
         return dialog
     }
@@ -539,7 +536,7 @@ object Dto2Model {
     }
 
     fun transform(aid: Long, message: VKApiMessage, owners: IOwnersBundle): Message {
-        val appMessage = Message(message.id)
+        val appMessage = Message(message.conversation_message_id)
             .setAccountId(aid)
             .setText(message.text) //.setTitle(message.title)
             .setPeerId(message.peer_id)
@@ -561,8 +558,8 @@ object Dto2Model {
             .setPayload(message.payload)
             .setKeyboard(transformKeyboard(message.keyboard))
             .setUpdateTime(message.update_time)
-            .setConversationMessageId(message.conversation_message_id)
             .setReactionId(message.reaction_id)
+            .setVersion(message.version)
         if (message.action_mid != 0L) {
             appMessage.setActionUser(owners.getById(message.action_mid))
         }

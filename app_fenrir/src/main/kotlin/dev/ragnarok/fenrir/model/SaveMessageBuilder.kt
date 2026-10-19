@@ -11,13 +11,13 @@ class SaveMessageBuilder(val accountId: Long, val peerId: Long) {
         private set
     var voiceMessageFile: File? = null
         private set
-    var draftMessageId: Int? = null
+    var draftCmId: Int? = null
         private set
     var payload: String? = null
         private set
 
-    fun setDraftMessageId(draftMessageId: Int?): SaveMessageBuilder {
-        this.draftMessageId = draftMessageId
+    fun setDraftCmId(draftCmId: Int?): SaveMessageBuilder {
+        this.draftCmId = draftCmId
         return this
     }
 

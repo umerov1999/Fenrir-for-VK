@@ -19,7 +19,8 @@ interface IAttachmentsStorage : IStorage {
         accountId: Long,
         @AttachToType attachToType: Int,
         attachmentKey: String,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean>
 
     fun removeAll(
@@ -32,7 +33,8 @@ interface IAttachmentsStorage : IStorage {
     fun removeAll(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean>
 
     fun getAttachmentsFromBlob(
@@ -45,13 +47,15 @@ interface IAttachmentsStorage : IStorage {
     fun getAttachmentsFromBlob(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<List<DboEntity>?>
 
     fun getAttachmentsCount(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Int>
 
     fun getAttachmentsCount(
@@ -76,6 +80,7 @@ interface IAttachmentsStorage : IStorage {
         @AttachToType attachToType: Int,
         attachmentsEntities: List<DboEntity>?,
         attachToDbId: Int? = null,
+        attachToElement: Pair<Long, Int>?,
         replace: Boolean = false,
         accountId: Long? = null
     ): Flow<Boolean>

@@ -9,15 +9,13 @@ import kotlinx.serialization.Transient
 @Keep
 @Serializable
 class MessageDboEntity : DboEntity {
-    var id = 0
+    var cmId = 0
         private set
     var peerId = 0L
         private set
     var fromId = 0L
         private set
     var date: Long = 0
-        private set
-    var conversation_message_id = 0
         private set
     var isOut = false
         private set
@@ -33,7 +31,9 @@ class MessageDboEntity : DboEntity {
         private set
     var reactions: List<ReactionEntity>? = null
         private set
-    var reaction_id = 0
+    var reactionId = 0
+        private set
+    var version = 0
         private set
     @MessageStatus
     var status = 0
@@ -65,15 +65,15 @@ class MessageDboEntity : DboEntity {
     var updateTime: Long = 0
         private set
 
-    fun set(id: Int, peerId: Long, fromId: Long): MessageDboEntity {
-        this.id = id
+    fun set(cmId: Int, peerId: Long, fromId: Long): MessageDboEntity {
+        this.cmId = cmId
         this.peerId = peerId
         this.fromId = fromId
         return this
     }
 
     override fun getAttachmentKey(): String {
-        return "${conversation_message_id}_${peerId}"
+        return "${cmId}_${peerId}"
     }
 
     fun setUpdateTime(updateTime: Long): MessageDboEntity {
@@ -190,18 +190,18 @@ class MessageDboEntity : DboEntity {
         return this
     }
 
-    fun setReactionId(reaction_id: Int): MessageDboEntity {
-        this.reaction_id = reaction_id
+    fun setReactionId(reactionId: Int): MessageDboEntity {
+        this.reactionId = reactionId
+        return this
+    }
+
+    fun setVersion(version: Int): MessageDboEntity {
+        this.version = version
         return this
     }
 
     fun setReactions(reactions: List<ReactionEntity>?): MessageDboEntity {
         this.reactions = reactions
-        return this
-    }
-
-    fun setConversationMessageId(conversation_message_id: Int): MessageDboEntity {
-        this.conversation_message_id = conversation_message_id
         return this
     }
 }

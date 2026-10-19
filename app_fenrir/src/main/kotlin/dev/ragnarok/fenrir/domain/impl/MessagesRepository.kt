@@ -23,6 +23,7 @@ import dev.ragnarok.fenrir.api.model.longpoll.InputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsResetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsSetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.PinConversationUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
@@ -32,7 +33,6 @@ import dev.ragnarok.fenrir.db.model.MessagePatch
 import dev.ragnarok.fenrir.db.model.MessagePatch.Important
 import dev.ragnarok.fenrir.db.model.PeerPatch
 import dev.ragnarok.fenrir.db.model.entity.DialogDboEntity
-import dev.ragnarok.fenrir.db.model.entity.KeyboardEntity
 import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
 import dev.ragnarok.fenrir.db.model.entity.PeerDialogEntity
 import dev.ragnarok.fenrir.db.model.entity.ReactionAssetEntity
@@ -60,7 +60,6 @@ import dev.ragnarok.fenrir.domain.mappers.MapUtil.mapAll
 import dev.ragnarok.fenrir.domain.mappers.Model2Dto.createTokens
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildDboAttachments
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildDialog
-import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildKeyboardEntity
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildMessageEntity
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.exception.UploadNotResolvedException
@@ -71,7 +70,6 @@ import dev.ragnarok.fenrir.model.AppChatUser
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.IOwnersBundle
-import dev.ragnarok.fenrir.model.Keyboard
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.MessageStatus
 import dev.ragnarok.fenrir.model.MessageUpdate
@@ -151,6 +149,7 @@ import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.LinkedList
 import java.util.concurrent.Executors
+import kotlin.math.abs
 
 class MessagesRepository(
     private val accountsSettings: IAccountsSettings,
@@ -161,7 +160,7 @@ class MessagesRepository(
 ) : IMessagesRepository {
     private val peerUpdatePublisher = createPublishSubject<List<PeerUpdate>>()
     private val peerDeletingPublisher = createPublishSubject<PeerDeleting>()
-    private val messageUpdatesPublisher = createPublishSubject<List<MessageUpdate>>()
+    private val messageUpdatesPublisher = createPublishSubject<MessageUpdate>()
     private val typingMessageOrUploadingInDialogPublisher =
         createPublishSubject<List<TypingMessageOrUploadingInDialog>>()
     private val sentMessagesPublisher = createPublishSubject<SentMsg>()
@@ -246,7 +245,7 @@ class MessagesRepository(
 
     private fun onUploadSuccess(upload: Upload) {
         val accountId = upload.accountId
-        val messagesId = upload.destination.id
+        val cmId = upload.destination.id
         val peerId = upload.destination.ownerId
         compositeJob.add(
             uploadManager[accountId, upload.destination]
@@ -254,17 +253,17 @@ class MessagesRepository(
                     if (uploads.isNotEmpty()) {
                         toFlow(false)
                     } else {
-                        storages.messages().getMessageStatus(accountId, messagesId, peerId)
+                        storages.messages().getMessageStatus(accountId, cmId, peerId)
                             .flatMapConcat { status ->
                                 if (status != MessageStatus.WAITING_FOR_UPLOAD) {
                                     toFlow(false)
                                 } else {
                                     changeMessageStatus(
                                         accountId = accountId,
-                                        messageId = messagesId,
+                                        dbCmId = cmId,
                                         peerId = peerId,
                                         status = MessageStatus.QUEUE,
-                                        vkid = null, cmid = null
+                                        vkCmId = null
                                     ).map {
                                         true
                                     }
@@ -292,7 +291,7 @@ class MessagesRepository(
                     && !hasFlag(update.mask, VKApiMessage.FLAG_IMPORTANT)
                     && !hasFlag(update.mask, VKApiMessage.FLAG_DELETED_FOR_ALL)
                 ) continue
-                val patch = MessagePatch(update.messageId, update.peerId)
+                val patch = MessagePatch(update.cmId, update.peerId)
                 if (hasFlag(update.mask, VKApiMessage.FLAG_DELETED)) {
                     val forAll = hasFlag(update.mask, VKApiMessage.FLAG_DELETED_FOR_ALL)
                     patch.deletion = MessagePatch.Deletion(true, forAll)
@@ -310,7 +309,7 @@ class MessagesRepository(
                         VKApiMessage.FLAG_IMPORTANT
                     )
                 ) continue
-                val patch = MessagePatch(update.messageId, update.peerId)
+                val patch = MessagePatch(update.cmId, update.peerId)
                 if (hasFlag(update.mask, VKApiMessage.FLAG_DELETED)) {
                     patch.deletion = MessagePatch.Deletion(deleted = false, deletedForAll = false)
                 }
@@ -330,7 +329,7 @@ class MessagesRepository(
         val patches: MutableList<MessagePatch> = ArrayList()
         if (updates.nonNullNoEmpty()) {
             for (update in updates) {
-                val patch = MessagePatch(update.conversation_message_id, update.peer_id)
+                val patch = MessagePatch(update.cmId, update.peerId)
                 patch.reaction = MessagePatch.ReactionUpdate(
                     !update.myReactionChanged,
                     update.myReaction,
@@ -352,8 +351,8 @@ class MessagesRepository(
                     list.add(
                         TypingMessageOrUploadingInDialog(
                             accountId,
-                            update.peer_id,
-                            update.from_ids,
+                            update.peerId,
+                            update.fromIds,
                             update.action
                         )
                     )
@@ -417,15 +416,15 @@ class MessagesRepository(
                                 )
                             })
                 }
-                patches.add(PeerPatch(update.peerId).withOutRead(update.localId))
+                patches.add(PeerPatch(update.peerId).withOutReadCmId(update.cmId))
             }
         }
         if (resetUpdates.nonNullNoEmpty()) {
             for (update in resetUpdates) {
-                val patch = PeerPatch(update.peerId).withInRead(update.localId)
+                val patch = PeerPatch(update.peerId).withInReadCmId(update.cmId)
                     .withUnreadCount(update.unreadCount)
                 if (update.peerId == accountId) {
-                    patch.withOutRead(update.localId)
+                    patch.withOutReadCmId(update.cmId)
                 }
                 patches.add(
                     patch
@@ -436,11 +435,24 @@ class MessagesRepository(
         return applyPeerUpdatesAndPublish(accountId, patches)
     }
 
+    override fun handlePinConversationUpdates(
+        accountId: Long,
+        updates: List<PinConversationUpdate>?,
+    ): Flow<Boolean> {
+        val patches: MutableList<PeerPatch> = ArrayList()
+        if (updates.nonNullNoEmpty()) {
+            for (update in updates) {
+                patches.add(PeerPatch(update.peerId).withMajorId(update.majorId))
+            }
+        }
+        return applyPeerUpdatesAndPublish(accountId, patches)
+    }
+
     override fun observeSentMessages(): SharedFlow<SentMsg> {
         return sentMessagesPublisher
     }
 
-    override fun observeMessageUpdates(): SharedFlow<List<MessageUpdate>> {
+    override fun observeMessageUpdates(): SharedFlow<MessageUpdate> {
         return messageUpdatesPublisher
     }
 
@@ -595,13 +607,13 @@ class MessagesRepository(
             .messages()
             .edit(
                 message.peerId,
-                message.getObjectId(),
+                message.cmId,
                 text,
                 attachmentTokens,
                 keepForwardMessages,
                 null
             )
-            .andThen(getById(accountId, message.peerId, message.getObjectId()))
+            .andThen(getById(accountId, message.peerId, message.cmId))
     }
 
     override fun getCachedPeerMessages(
@@ -679,10 +691,10 @@ class MessagesRepository(
             }
     }
 
-    private fun getById(accountId: Long, peerId: Long, messageId: Int): Flow<Message> {
+    private fun getById(accountId: Long, peerId: Long, cmId: Int): Flow<Message> {
         return networker.vkDefault(accountId)
             .messages()
-            .getById(listOf(Pair(peerId, messageId)))
+            .getById(peerId, listOf(cmId))
             .map { dtos ->
                 mapAll(dtos) {
                     mapMessage(
@@ -748,7 +760,7 @@ class MessagesRepository(
                         val patches: MutableList<PeerPatch> = ArrayList(peerStates.size)
                         for (state in peerStates) {
                             var unread = state.unreadCount
-                            var messageId = state.lastMessageId
+                            var cmId = state.lastCmId
                             var keyboard: VKApiConversation.CurrentKeyboard? = null
                             for (m in messages) {
                                 if (m.peer_id != state.peerId) {
@@ -759,16 +771,16 @@ class MessagesRepository(
                                 } else {
                                     unread++
                                 }
-                                if (m.id > messageId) {
+                                if (m.conversation_message_id > cmId) {
                                     if (!m.out && m.keyboard != null && m.keyboard?.inline == false && m.keyboard?.buttons.nonNullNoEmpty()) {
                                         keyboard = m.keyboard
                                     }
-                                    messageId = m.id
+                                    cmId = m.conversation_message_id
                                 }
                             }
                             val patch = PeerPatch(state.peerId)
                                 .withUnreadCount(unread)
-                                .withLastMessage(messageId)
+                                .withLastCmId(cmId)
                             if (keyboard != null) {
                                 patch.withKeyboard(Dto2Entity.mapKeyboard(keyboard))
                             }
@@ -787,19 +799,22 @@ class MessagesRepository(
         for (p in patches) {
             val update = PeerUpdate(accountId, p.id)
             p.inRead.requireNonNull {
-                update.readIn = PeerUpdate.Read(it.id)
+                update.readIn = PeerUpdate.Read(it.cmId)
             }
             p.outRead.requireNonNull {
-                update.readOut = PeerUpdate.Read(it.id)
+                update.readOut = PeerUpdate.Read(it.cmId)
             }
             p.lastMessage.requireNonNull {
-                update.lastMessage = PeerUpdate.LastMessage(it.id)
+                update.lastMessage = PeerUpdate.LastMessage(it.cmId)
             }
             p.unread.requireNonNull {
                 update.unread = PeerUpdate.Unread(it.count)
             }
             p.title.requireNonNull {
                 update.title = PeerUpdate.Title(it.title)
+            }
+            p.majorId.requireNonNull {
+                update.majorId = PeerUpdate.MajorId(it.majorId)
             }
             p.botKeyboard.requireNonNull {
                 update.botKeyboard = PeerUpdate.BotKeyboard(it.keyboard)
@@ -814,20 +829,18 @@ class MessagesRepository(
     }
 
     override fun getImportantMessages(
-        accountId: Long, count: Int, offset: Int?,
-        startMessageId: Int?
+        accountId: Long,
+        count: Int,
+        offset: Int?
     ): Flow<List<Message>> {
         return networker.vkDefault(accountId)
             .messages()
-            .getImportantMessages(offset, count, startMessageId, true, Fields.FIELDS_BASE_OWNER)
+            .getImportantMessages(offset, count, true, Fields.FIELDS_BASE_OWNER)
             .flatMapConcat { response ->
                 val dtos: MutableList<VKApiMessage> =
                     if (response.messages == null) mutableListOf() else listEmptyIfNullMutable(
                         response.messages?.items
                     )
-                if (startMessageId != null && dtos.nonNullNoEmpty() && startMessageId == dtos[0].id) {
-                    dtos.removeAt(0)
-                }
                 val completable = emptyTaskFlow()
                 val ownerIds = VKOwnIds()
                 ownerIds.append(dtos)
@@ -882,7 +895,7 @@ class MessagesRepository(
 
     override fun getPeerMessages(
         accountId: Long, peerId: Long, count: Int, offset: Int?,
-        startMessageId: Int?, excludeStartMessage: Boolean, cacheData: Boolean, rev: Boolean
+        startCmId: Int?, excludeStartMessage: Boolean, cacheData: Boolean, rev: Boolean
     ): Flow<List<Message>> {
         var pCount = count
         if (rev) pCount = 200
@@ -892,7 +905,7 @@ class MessagesRepository(
                 offset,
                 pCount,
                 peerId,
-                startMessageId,
+                startCmId,
                 rev,
                 true,
                 Fields.FIELDS_BASE_OWNER
@@ -900,22 +913,22 @@ class MessagesRepository(
             .flatMapConcat { response ->
                 val dtos: MutableList<VKApiMessage> = listEmptyIfNullMutable(response.messages)
                 var patch: PeerPatch? = null
-                if (startMessageId == null && cacheData && response.conversations.nonNullNoEmpty()) {
+                if (startCmId == null && cacheData && response.conversations.nonNullNoEmpty()) {
                     val conversation =
                         response.conversations?.get(0) ?: throw NullPointerException("WTF!")
                     patch = PeerPatch(peerId)
-                        .withOutRead(conversation.outRead)
-                        .withInRead(conversation.inRead)
-                        .withLastMessage(conversation.lastMessageId)
+                        .withOutReadCmId(conversation.outReadCmId)
+                        .withInReadCmId(conversation.inReadCmId)
+                        .withLastCmId(conversation.lastCmId)
                         .withUnreadCount(conversation.unreadCount)
                 }
-                if (excludeStartMessage && startMessageId != null && dtos.nonNullNoEmpty() && startMessageId == dtos[0].id) {
+                if (excludeStartMessage && startCmId != null && dtos.nonNullNoEmpty() && startCmId == dtos[0].conversation_message_id) {
                     dtos.removeAt(0)
                 }
                 var completable: Flow<Boolean>
                 if (cacheData) {
                     completable =
-                        insertPeerMessages(accountId, peerId, dtos, startMessageId == null)
+                        insertPeerMessages(accountId, peerId, dtos, startCmId == null)
                     if (patch != null) {
                         completable = completable.andThen(
                             applyPeerUpdatesAndPublish(
@@ -943,7 +956,7 @@ class MessagesRepository(
                             .flatMapConcat {
                                 val insertCompletable =
                                     ownersRepository.insertOwners(accountId, ownerEntities)
-                                if (startMessageId == null && cacheData) {
+                                if (startCmId == null && cacheData) {
                                     // Это важно !!!
                                     // Если мы получаем сообщения сначала и кэшируем их в базу,
                                     // то нельзя отдать этот список в ответ (как сделано чуть ниже)
@@ -976,15 +989,16 @@ class MessagesRepository(
     override fun getDialogs(
         accountId: Long,
         count: Int,
-        startMessageId: Int?
+        startPeerId: Long?,
+        startCmId: Int?
     ): Flow<List<Dialog>> {
-        val clear = startMessageId == null
+        val clear = startCmId == null
         val dialogsStore = storages.dialogs()
         return networker.vkDefault(accountId)
             .messages()
-            .getDialogs(null, count, startMessageId, true, Fields.FIELDS_BASE_OWNER)
+            .getDialogs(null, count, startCmId, true, Fields.FIELDS_BASE_OWNER)
             .map { response ->
-                if (startMessageId != null && safeCountOf(response.dialogs) > 0) {
+                if (startCmId != null && safeCountOf(response.dialogs) > 0) {
                     // remove first item, because we will have duplicate with previous response
                     response.dialogs?.removeAt(0)
                 }
@@ -1038,12 +1052,12 @@ class MessagesRepository(
 
     override fun findCachedMessages(
         accountId: Long,
-        ids: List<Pair<Long, Int>>
+        cmIds: List<Pair<Long, Int>>
     ): Flow<List<Message>> {
         return storages.messages()
             .findMessagesByIds(
                 accountId = accountId,
-                ids = ids,
+                cmIds = cmIds,
                 withAttachments = true,
                 withForwardMessages = true
             )
@@ -1053,7 +1067,7 @@ class MessagesRepository(
     @SuppressLint("UseSparseArrays")
     override fun put(builder: SaveMessageBuilder): Flow<Message> {
         val accountId = builder.accountId
-        val draftMessageId = builder.draftMessageId
+        val draftCmId = builder.draftCmId
         val peerId = builder.peerId
         return getTargetMessageStatus(builder)
             .flatMapConcat { status ->
@@ -1090,8 +1104,8 @@ class MessagesRepository(
                     patch.setForward(null)
                 }
                 patch.setText(builder.text)
-                val storeSingle = if (draftMessageId != null) {
-                    storages.messages().applyPatch(accountId, draftMessageId, peerId, patch)
+                val storeSingle = if (draftCmId != null) {
+                    storages.messages().applyPatch(accountId, draftCmId, peerId, patch)
                 } else {
                     storages.messages().insert(accountId, peerId, patch)
                 }
@@ -1115,25 +1129,23 @@ class MessagesRepository(
 
     private fun changeMessageStatus(
         accountId: Long,
-        messageId: Int,
+        dbCmId: Int,
         peerId: Long,
         @MessageStatus status: Int,
-        vkid: Int?,
-        cmid: Int?
+        vkCmId: Int?
     ): Flow<Boolean> {
-        val update = MessageUpdate(accountId, messageId)
-        update.setStatusUpdate(StatusUpdate(status, vkid))
+        val update = MessageUpdate(accountId, dbCmId, peerId)
+        update.setStatusUpdate(StatusUpdate(status, vkCmId))
         return storages.messages()
             .changeMessageStatus(
                 accountId = accountId,
-                messageId = messageId,
+                dbCmId = dbCmId,
                 peerId = peerId,
                 status = status,
-                vkid = vkid,
-                cmid = cmid
+                vkCmId = vkCmId
             )
             .map {
-                messageUpdatesPublisher.emit(listOf(update))
+                messageUpdatesPublisher.emit(update)
                 true
             }
     }
@@ -1141,24 +1153,32 @@ class MessagesRepository(
     override fun enqueueAgainList(
         accountId: Long,
         peerId: Long,
-        ids: Collection<Int>
+        cmIds: Collection<Int>
     ): Flow<Boolean> {
-        val updates = ArrayList<MessageUpdate>(ids.size)
-        for (i in ids) {
-            val update = MessageUpdate(accountId, i)
+        val updates = ArrayList<MessageUpdate>(cmIds.size)
+        for (i in cmIds) {
+            val update = MessageUpdate(accountId, i, peerId)
             update.setStatusUpdate(StatusUpdate(MessageStatus.QUEUE, null))
             updates.add(update)
         }
         return storages.messages()
-            .changeMessagesStatus(accountId, peerId, ids, MessageStatus.QUEUE)
+            .changeMessagesStatus(accountId, peerId, cmIds, MessageStatus.QUEUE)
             .map {
-                messageUpdatesPublisher.emit(updates)
+                for(i in updates) {
+                    messageUpdatesPublisher.emit(i)
+                }
                 true
             }
     }
 
-    override fun enqueueAgain(accountId: Long, peerId: Long, messageId: Int): Flow<Boolean> {
-        return changeMessageStatus(accountId, messageId, peerId, MessageStatus.QUEUE, null, null)
+    override fun enqueueAgain(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean> {
+        return changeMessageStatus(
+            accountId = accountId,
+            dbCmId = cmId,
+            peerId = peerId,
+            status = MessageStatus.QUEUE,
+            vkCmId = null
+        )
     }
 
     override fun sendUnsentMessage(accountIds: Collection<Long>): Flow<SentMsg> {
@@ -1174,28 +1194,26 @@ class MessagesRepository(
                     if (entity == null || accountId == null) {
                         toFlowThrowable(NotFoundException())
                     } else {
-                        val dbid = entity.id
+                        val dbid = entity.cmId
                         val peerId = entity.peerId
                         changeMessageStatus(
-                            accountId,
-                            dbid,
-                            peerId,
-                            MessageStatus.SENDING,
-                            null,
-                            null
+                            accountId = accountId,
+                            dbCmId = dbid,
+                            peerId = peerId,
+                            status = MessageStatus.SENDING,
+                            vkCmId = null,
                         )
                             .andThen(
                                 internalSend(accountId, entity)
                                     .flatMapConcat { vkid ->
                                         val patch = PeerPatch(entity.peerId)
-                                            .withLastMessage(vkid.message_id)
+                                            .withLastCmId(vkid.conversation_message_id)
                                             .withUnreadCount(0)
                                         changeMessageStatus(
                                             accountId,
                                             dbid,
                                             peerId,
                                             MessageStatus.SENT,
-                                            vkid.message_id,
                                             vkid.conversation_message_id
                                         )
                                             .andThen(
@@ -1207,20 +1225,19 @@ class MessagesRepository(
                                             .map {
                                                 SentMsg(
                                                     dbid,
-                                                    vkid.message_id,
-                                                    peerId,
                                                     vkid.conversation_message_id,
+                                                    peerId,
                                                     accountId
                                                 )
                                             }
                                     }
                                     .catch {
                                         changeMessageStatus(
-                                            accountId,
-                                            dbid,
-                                            peerId,
-                                            MessageStatus.ERROR,
-                                            null, null
+                                            accountId = accountId,
+                                            dbCmId = dbid,
+                                            peerId = peerId,
+                                            status = MessageStatus.ERROR,
+                                            vkCmId = null
                                         ).syncSingleSafe()
                                         throw it
                                     })
@@ -1421,7 +1438,7 @@ class MessagesRepository(
                 val patches: MutableList<MessagePatch> = ArrayList(it.size)
                 for (i in it) {
                     if (i.response == 1) {
-                        val patch = MessagePatch(i.message_id, peerId)
+                        val patch = MessagePatch(i.conversation_message_id, peerId)
                         patch.deletion = MessagePatch.Deletion(true, forAll)
                         patches.add(patch)
                     }
@@ -1464,27 +1481,24 @@ class MessagesRepository(
 
     override fun sendOrDeleteReaction(
         accountId: Long,
-        peerId: Long, cMid: Int, reactionId: Int?
+        peerId: Long, cmId: Int, reactionId: Int?
     ): Flow<Boolean> {
         return networker.vkDefault(accountId)
             .messages()
-            .sendOrDeleteReaction(peerId, cMid, reactionId)
+            .sendOrDeleteReaction(peerId, cmId, reactionId)
             .ignoreElement()
     }
 
-    override fun pinUnPinConversation(accountId: Long, peerId: Long, peen: Boolean): Flow<Boolean> {
+    override fun pinUnPinConversation(accountId: Long, peerId: Long, pin: Boolean): Flow<Boolean> {
         return networker.vkDefault(accountId)
             .messages()
-            .pinUnPinConversation(peerId, peen)
+            .pinUnPinConversation(peerId, pin)
     }
 
-    override fun markAsListened(
-        accountId: Long,
-        messageId: Int
-    ): Flow<Boolean> {
+    override fun markAsListened(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean> {
         return networker.vkDefault(accountId)
             .messages()
-            .markAsListened(messageId)
+            .markAsListened(cmId)
     }
 
     override fun markAsImportant(
@@ -1532,14 +1546,16 @@ class MessagesRepository(
             .applyPatches(accountId, patches)
             .andThen(afterApply)
             .map {
-                messageUpdatesPublisher.emit(updates)
+                for(i in updates) {
+                    messageUpdatesPublisher.emit(i)
+                }
                 true
             }
     }
 
     private fun invalidatePeerLastMessage(accountId: Long, peerId: Long): Flow<Boolean> {
         return storages.messages()
-            .findLastSentMessageIdForPeer(accountId, peerId)
+            .findLastSentCmIdForPeer(accountId, peerId)
             .flatMapConcat {
                 if (it.isEmpty) {
                     val deleting = PeerDeleting(accountId, peerId)
@@ -1549,18 +1565,18 @@ class MessagesRepository(
                             true
                         }
                 } else {
-                    val patch = PeerPatch(peerId).withLastMessage(it.requireNonEmpty())
+                    val patch = PeerPatch(peerId).withLastCmId(it.requireNonEmpty())
                     applyPeerUpdatesAndPublish(accountId, listOf(patch))
                 }
             }
     }
 
-    override fun restoreMessage(accountId: Long, peerId: Long, messageId: Int): Flow<Boolean> {
+    override fun restoreMessage(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean> {
         return networker.vkDefault(accountId)
             .messages()
-            .restore(messageId)
+            .restore(cmId)
             .flatMapConcat {
-                val patch = MessagePatch(messageId, peerId)
+                val patch = MessagePatch(cmId, peerId)
                 patch.deletion = MessagePatch.Deletion(deleted = false, deletedForAll = false)
                 applyMessagesPatchesAndPublish(accountId, listOf(patch))
             }
@@ -1591,12 +1607,13 @@ class MessagesRepository(
 
     override fun recogniseAudioMessage(
         accountId: Long,
-        messageId: Int?,
+        peerId: Long?,
+        cmId: Int?,
         audioMessageId: String?
     ): Flow<Int> {
         return networker.vkDefault(accountId)
             .messages()
-            .recogniseAudioMessage(messageId, audioMessageId)
+            .recogniseAudioMessage(cmId, audioMessageId)
     }
 
     override fun setMemberRole(
@@ -1611,11 +1628,11 @@ class MessagesRepository(
             .ignoreElement()
     }
 
-    override fun markAsRead(accountId: Long, peerId: Long, toId: Int): Flow<Boolean> {
-        val patch = PeerPatch(peerId).withInRead(toId).withUnreadCount(0)
+    override fun markAsRead(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean> {
+        val patch = PeerPatch(peerId).withInReadCmId(cmId).withUnreadCount(0)
         return networker.vkDefault(accountId)
             .messages()
-            .markAsRead(peerId, toId)
+            .markAsRead(peerId, cmId)
             .flatMapConcat {
                 applyPeerUpdatesAndPublish(
                     accountId,
@@ -1653,12 +1670,12 @@ class MessagesRepository(
     override fun getReactedPeers(
         accountId: Long,
         peerId: Long,
-        cMid: Int,
+        cmId: Int,
         reactionId: Int?
     ): Flow<List<ReactedMessagesPeers>> {
         return networker.vkDefault(accountId)
             .messages()
-            .getReactedPeers(peerId, cMid, reactionId, true, Fields.FIELDS_BASE_OWNER)
+            .getReactedPeers(peerId, cmId, reactionId, true, Fields.FIELDS_BASE_OWNER)
             .flatMapConcat {
                 val dtos: List<VKApiReactedMessagesPeers> =
                     listEmptyIfNull(it.reactions)
@@ -1700,7 +1717,7 @@ class MessagesRepository(
             return networker.vkDefault(accountId)
                 .messages()
                 .send(
-                    dbo.id.toLong(),
+                    (abs(dbo.cmId) + dbo.peerId),
                     dbo.peerId,
                     null,
                     dbo.text,
@@ -1724,7 +1741,7 @@ class MessagesRepository(
                         return networker.vkDefault(accountId)
                             .messages()
                             .send(
-                                dbo.id.toLong(),
+                                (abs(dbo.cmId) + dbo.peerId),
                                 dbo.peerId,
                                 null,
                                 null,
@@ -1752,7 +1769,7 @@ class MessagesRepository(
                 networker.vkDefault(accountId)
                     .messages()
                     .send(
-                        dbo.id.toLong(),
+                        (abs(dbo.cmId) + dbo.peerId),
                         dbo.peerId,
                         null,
                         dbo.text,
@@ -1781,7 +1798,7 @@ class MessagesRepository(
                 isFirst = false
                 fromPeer = tmpFromPeer
             }
-            ids.add(Pair(tmpFromPeer, i.id))
+            ids.add(Pair(tmpFromPeer, i.cmId))
         }
         return Pair(ids.size == 1 && dbo.peerId == fromPeer, ids)
     }
@@ -1838,7 +1855,7 @@ class MessagesRepository(
     private fun getTargetMessageStatus(builder: SaveMessageBuilder): Flow<Int> {
         val accountId = builder.accountId
         val destination =
-            forMessage(builder.draftMessageId ?: return toFlow(MessageStatus.QUEUE), builder.peerId)
+            forMessage(builder.draftCmId ?: return toFlow(MessageStatus.QUEUE), builder.peerId)
         return uploadManager[accountId, destination]
             .map { uploads ->
                 if (uploads.isEmpty()) {
@@ -1910,8 +1927,8 @@ class MessagesRepository(
             owners: IOwnersBundle
         ): Conversation {
             return Conversation(entity.peerId)
-                .setInRead(entity.inRead)
-                .setOutRead(entity.outRead)
+                .setInReadCmId(entity.inReadCmId)
+                .setOutReadCmId(entity.outReadCmId)
                 .setPhoto50(entity.photo50)
                 .setPhoto100(entity.photo100)
                 .setPhoto200(entity.photo200)
@@ -1935,12 +1952,11 @@ class MessagesRepository(
                 .setAcl(entity.acl)
                 .setGroupChannel(entity.isGroupChannel)
                 .setCurrentKeyboard(buildKeyboardFromDbo(entity.currentKeyboard))
-                .setMajor_id(entity.major_id)
-                .setMinor_id(entity.minor_id)
+                .setMajorId(entity.majorId)
         }
 
         internal fun patch2Update(accountId: Long, patch: MessagePatch): MessageUpdate {
-            val update = MessageUpdate(accountId, patch.messageId)
+            val update = MessageUpdate(accountId, patch.cmId, patch.peerId)
             patch.deletion.requireNonNull {
                 update.setDeleteUpdate(MessageUpdate.DeleteUpdate(it.deleted, it.deletedForAll))
             }
@@ -1950,7 +1966,6 @@ class MessagesRepository(
             patch.reaction.requireNonNull {
                 update.setReactionUpdate(
                     MessageUpdate.ReactionUpdate(
-                        patch.peerId,
                         it.keepMyReaction,
                         it.reactionId,
                         it.reactions

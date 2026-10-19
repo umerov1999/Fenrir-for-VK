@@ -11,17 +11,17 @@ class VKApiConversation {
     /**
      * идентификатор последнего прочтенного входящего сообщения.
      */
-    @SerialName("in_read")
-    var inRead = 0
+    @SerialName("in_read_cmid")
+    var inReadCmId = 0
 
     /**
      * идентификатор последнего прочтенного исходящего сообщения.
      */
-    @SerialName("out_read")
-    var outRead = 0
+    @SerialName("out_read_cmid")
+    var outReadCmId = 0
 
-    @SerialName("last_message_id")
-    var lastMessageId = 0
+    @SerialName("last_conversation_message_id")
+    var lastCmId = 0
 
     /**
      * число непрочитанных сообщений.
@@ -186,9 +186,6 @@ class VKApiConversation {
     class SortElement {
         @SerialName("major_id")
         var major_id = 0
-
-        @SerialName("minor_id")
-        var minor_id = 0
     }
 
     @Serializable

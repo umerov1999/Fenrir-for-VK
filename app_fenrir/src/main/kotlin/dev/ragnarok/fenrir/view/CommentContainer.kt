@@ -143,7 +143,8 @@ class CommentContainer : LinearLayout {
                     comment.attachments,
                     check.attachmentContainers,
                     true,
-                    null, null
+                    null, null,
+                    null
                 )
             }
             check.tvOwnerName.text = comment.fullAuthorName

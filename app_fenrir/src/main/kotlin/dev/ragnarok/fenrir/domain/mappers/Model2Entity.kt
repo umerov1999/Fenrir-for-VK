@@ -106,17 +106,16 @@ object Model2Entity {
     fun buildDialog(model: Dialog): DialogDboEntity {
         return DialogDboEntity(model.peerId)
             .setUnreadCount(model.unreadCount)
-            .setInRead(model.inRead)
-            .setOutRead(model.outRead)
+            .setInReadCmId(model.inReadCmId)
+            .setOutReadCmId(model.outReadCmId)
             .setMessage(model.message?.let { buildMessageEntity(it) })
-            .setLastMessageId(model.lastMessageId)
+            .setLastCmId(model.lastCmId)
             .setTitle(model.getTitle())
             .setGroupChannel(model.isGroupChannel)
             .setPhoto50(model.photo50)
             .setPhoto100(model.photo100)
             .setPhoto200(model.photo200)
-            .setMajor_id(model.major_id)
-            .setMinor_id(model.minor_id)
+            .setMajorId(model.majorId)
     }
 
     fun buildReactionAssetEntity(dto: ReactionAsset): ReactionAssetEntity {
@@ -156,8 +155,8 @@ object Model2Entity {
             .setUpdateTime(message.updateTime)
             .setPayload(message.payload)
             .setKeyboard(buildKeyboardEntity(message.keyboard))
-            .setConversationMessageId(message.conversation_message_id)
-            .setReactionId(message.reaction_id)
+            .setReactionId(message.reactionId)
+            .setVersion(message.version)
             .setReactions(
                 mapAll(
                     message.reactions

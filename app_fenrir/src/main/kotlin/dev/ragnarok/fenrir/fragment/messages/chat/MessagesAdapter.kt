@@ -163,7 +163,8 @@ class MessagesAdapter(
                 message.attachments,
                 holder.attachmentsHolder,
                 true,
-                message.getObjectId(),
+                message.peerId,
+                message.cmId,
                 getItemRawPosition(holder.bindingAdapterPosition)
             )
             attachmentsViewBinder.displayForwards(message.fwd, holder.forwardMessagesRoot, true)
@@ -346,9 +347,9 @@ class MessagesAdapter(
         }
         holder.reactionContainer?.displayReactions(
             message.reactionEditMode,
-            message.reaction_id,
+            message.reactionId,
             reactionMarked,
-            message.conversation_message_id,
+            message.cmId,
             message.peerId,
             onReactionListener
         )
@@ -448,7 +449,8 @@ class MessagesAdapter(
                 message.attachments,
                 holder.attachmentsHolder,
                 true,
-                message.getObjectId(),
+                message.peerId,
+                message.cmId,
                 getItemRawPosition(holder.bindingAdapterPosition)
             )
             attachmentsViewBinder.displayForwards(message.fwd, holder.forwardMessagesRoot, true)
@@ -516,7 +518,8 @@ class MessagesAdapter(
             message.attachments,
             holder.mAttachmentsHolder,
             true,
-            message.getObjectId(),
+            message.peerId,
+            message.cmId,
             getItemRawPosition(holder.bindingAdapterPosition)
         )
     }
@@ -551,7 +554,7 @@ class MessagesAdapter(
 
     override fun getItemType(position: Int): Int {
         val m = getItem(position - headersCount)
-        if (m.isServiseMessage) {
+        if (m.isServiceMessage) {
             return TYPE_SERVICE
         }
         if (m.isSticker) {

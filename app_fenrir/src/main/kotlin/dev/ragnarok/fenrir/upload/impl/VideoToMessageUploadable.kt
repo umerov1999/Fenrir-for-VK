@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.INetworker
 import dev.ragnarok.fenrir.api.model.server.UploadServer
 import dev.ragnarok.fenrir.db.AttachToType
-import dev.ragnarok.fenrir.db.interfaces.IMessagesStorage
 import dev.ragnarok.fenrir.domain.IAttachmentsRepository
 import dev.ragnarok.fenrir.exception.NotFoundException
 import dev.ragnarok.fenrir.model.Video
@@ -13,8 +12,8 @@ import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
+import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.safelyClose
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlowThrowable
 import kotlinx.coroutines.flow.Flow
@@ -29,8 +28,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class VideoToMessageUploadable(
     private val context: Context,
     private val networker: INetworker,
-    private val attachmentsRepository: IAttachmentsRepository,
-    private val messagesStorage: IMessagesStorage
+    private val attachmentsRepository: IAttachmentsRepository
 ) : IUploadable<Video> {
     override fun doUpload(
         upload: Upload,
@@ -38,7 +36,7 @@ class VideoToMessageUploadable(
         listener: PercentagePublisher?
     ): Flow<UploadResult<Video>> {
         val accountId = upload.accountId
-        val messageId = upload.destination.id
+        val cmId = upload.destination.id
         val peerId = upload.destination.ownerId
         val serverSingle = networker.vkDefault(accountId)
             .video()
@@ -82,9 +80,8 @@ class VideoToMessageUploadable(
                             if (upload.isAutoCommit) {
                                 attachIntoDatabaseRx(
                                     attachmentsRepository,
-                                    messagesStorage,
                                     accountId,
-                                    messageId,
+                                    cmId,
                                     peerId,
                                     video
                                 ).map {
@@ -107,11 +104,11 @@ class VideoToMessageUploadable(
 
     companion object {
         fun attachIntoDatabaseRx(
-            repository: IAttachmentsRepository, storage: IMessagesStorage,
-            accountId: Long, messageId: Int, peerId: Long, video: Video
+            repository: IAttachmentsRepository,
+            accountId: Long, cmId: Int, peerId: Long, video: Video
         ): Flow<Boolean> {
             return repository
-                .attach(accountId, AttachToType.MESSAGE, messageId, listOf(video))
+                .attach(accountId, AttachToType.MESSAGE, 0, Pair(peerId, cmId), listOf(video))
         }
     }
 }

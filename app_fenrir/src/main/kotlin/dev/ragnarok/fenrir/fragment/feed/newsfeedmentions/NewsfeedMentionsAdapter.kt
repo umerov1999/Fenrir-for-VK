@@ -254,6 +254,7 @@ class NewsfeedMentionsAdapter(
             holder.commentAttachmentHolder,
             true,
             null,
+            null,
             null
         )
         displayAvatar(
@@ -294,6 +295,7 @@ class NewsfeedMentionsAdapter(
             post.attachments,
             holder.postAttachmentsHolder,
             false,
+            null,
             null,
             null
         )

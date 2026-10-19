@@ -16,9 +16,9 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         private set
     var photo200: String? = null
         private set
-    var inRead = 0
+    var inReadCmId = 0
         private set
-    var outRead = 0
+    var outReadCmId = 0
         private set
     var message: MessageDboEntity? = null
         private set
@@ -26,15 +26,13 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         private set
     var pinned: MessageDboEntity? = null
         private set
-    var lastMessageId = 0
+    var lastCmId = 0
         private set
     var acl = 0
         private set
     var isGroupChannel = false
         private set
-    var major_id = 0
-        private set
-    var minor_id = 0
+    var majorId = 0
         private set
 
     override fun getAttachmentKey(): String {
@@ -51,13 +49,13 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         return this
     }
 
-    fun setInRead(inRead: Int): DialogDboEntity {
-        this.inRead = inRead
+    fun setInReadCmId(inReadCmId: Int): DialogDboEntity {
+        this.inReadCmId = inReadCmId
         return this
     }
 
-    fun setOutRead(outRead: Int): DialogDboEntity {
-        this.outRead = outRead
+    fun setOutReadCmId(outReadCmId: Int): DialogDboEntity {
+        this.outReadCmId = outReadCmId
         return this
     }
 
@@ -87,16 +85,15 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
             .setPhoto200(photo200)
             .setPhoto100(photo100)
             .setPhoto50(photo50)
-            .setOutRead(outRead)
-            .setInRead(inRead)
+            .setOutReadCmId(outReadCmId)
+            .setInReadCmId(inReadCmId)
             .setUnreadCount(unreadCount)
             .setPinned(pinned)
-            .setLastMessageId(lastMessageId)
+            .setLastCmId(lastCmId)
             .setAcl(acl)
             .setCurrentKeyboard(currentKeyboard)
             .setGroupChannel(isGroupChannel)
-            .setMajor_id(major_id)
-            .setMinor_id(minor_id)
+            .setMajorId(majorId)
     }
 
     fun setPhoto100(photo100: String?): DialogDboEntity {
@@ -114,8 +111,8 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         return this
     }
 
-    fun setLastMessageId(lastMessageId: Int): DialogDboEntity {
-        this.lastMessageId = lastMessageId
+    fun setLastCmId(lastCmId: Int): DialogDboEntity {
+        this.lastCmId = lastCmId
         return this
     }
 
@@ -124,13 +121,9 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         return this
     }
 
-    fun setMajor_id(major_id: Int): DialogDboEntity {
-        this.major_id = major_id
+    fun setMajorId(majorId: Int): DialogDboEntity {
+        this.majorId = majorId
         return this
     }
 
-    fun setMinor_id(minor_id: Int): DialogDboEntity {
-        this.minor_id = minor_id
-        return this
-    }
 }

@@ -29,7 +29,7 @@ interface IMessagesApi {
     @CheckResult
     fun edit(
         peerId: Long,
-        messageId: Int,
+        cmId: Int,
         message: String?,
         attachments: List<IAttachmentToken>?,
         keepFwd: Boolean,
@@ -137,14 +137,14 @@ interface IMessagesApi {
     ): Flow<ItemsProfilesGroupsResponse<VKApiConversation>>
 
     @CheckResult
-    fun getById(identifiers: Collection<Pair<Long, Int>>?): Flow<List<VKApiMessage>>
+    fun getById(peerId: Long, cmIds: Collection<Int>?): Flow<List<VKApiMessage>>
 
     @CheckResult
     fun getHistory(
         offset: Int?,
         count: Int?,
         peerId: Long,
-        startMessageId: Int?,
+        startCmId: Int?,
         rev: Boolean?,
         extended: Boolean?,
         fields: String?
@@ -157,7 +157,6 @@ interface IMessagesApi {
     fun getImportantMessages(
         offset: Int?,
         count: Int?,
-        startMessageId: Int?,
         extended: Boolean?,
         fields: String?
     ): Flow<MessageImportantResponse>

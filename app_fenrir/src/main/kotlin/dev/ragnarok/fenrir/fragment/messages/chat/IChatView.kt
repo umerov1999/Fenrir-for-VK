@@ -110,8 +110,8 @@ interface IChatView : IBasicMessageListView, IErrorView, IToastView {
     fun setupKeepScreenOn(keep: Boolean)
     fun showReactedPeers(
         accountId: Long,
-        reaction_id: Int?,
-        conversation_message_id: Int,
+        reactionId: Int?,
+        cmId: Int,
         peerId: Long
     )
 }

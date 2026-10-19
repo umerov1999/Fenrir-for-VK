@@ -144,7 +144,8 @@ class MessagesSearchPresenter(
     fun fireVoicePlayButtonClick(
         voiceHolderId: Int,
         voiceMessageId: Int,
-        messageId: Int,
+        peerId: Long,
+        cmId: Int,
         voiceMessage: VoiceMessage
     ) {
         val player = mVoicePlayer ?: return
@@ -154,7 +155,7 @@ class MessagesSearchPresenter(
                 if (!voiceMessage.was_listened) {
                     if (!Utils.isHiddenCurrent && Settings.get().main().isMarkListenedVoice) {
                         appendJob(
-                            messages.markAsListened(accountId, messageId)
+                            messages.markAsListened(accountId, peerId, cmId)
                                 .fromIOToMain {
                                     voiceMessage.setWasListened(true)
                                     resolveVoiceMessagePlayingState()
@@ -208,9 +209,9 @@ class MessagesSearchPresenter(
         )
     }
 
-    fun fireTranscript(voiceMessageId: String?, messageId: Int) {
+    fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            messages.recogniseAudioMessage(accountId, messageId, voiceMessageId)
+            messages.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
                 .hiddenIO()
         )
     }

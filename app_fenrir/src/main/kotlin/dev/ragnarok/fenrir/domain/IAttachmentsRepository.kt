@@ -15,14 +15,16 @@ interface IAttachmentsRepository {
         accountId: Long,
         @AttachToType attachToType: Int,
         attachmentKey: String,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean>
 
     @CheckResult
     fun removeAll(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean>
 
     @CheckResult
@@ -30,6 +32,7 @@ interface IAttachmentsRepository {
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?,
         models: List<AbsModel>
     ): Flow<Boolean>
 
@@ -38,6 +41,7 @@ interface IAttachmentsRepository {
         accountId: Long,
         @AttachToType attachToType: Int,
         attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<List<AbsModel>?>
 
     fun observeAdding(): SharedFlow<IAddEvent>
@@ -48,6 +52,8 @@ interface IAttachmentsRepository {
         @get:AttachToType
         val attachToType: Int
         val attachToDbId: Int
+
+        val attachToElement: Pair<Long, Int>?
     }
 
     interface IRemoveEvent : IBaseEvent {

@@ -466,22 +466,19 @@ class UploadManagerImpl(
                 MessageMethod.PHOTO -> Photo2MessageUploadable(
                     context,
                     networker,
-                    attachmentsRepository,
-                    storages.messages()
+                    attachmentsRepository
                 )
 
                 MessageMethod.VIDEO -> VideoToMessageUploadable(
                     context,
                     networker,
-                    attachmentsRepository,
-                    storages.messages()
+                    attachmentsRepository
                 )
 
                 MessageMethod.AUDIO -> AudioToMessageUploadable(
                     context,
                     networker,
-                    attachmentsRepository,
-                    storages.messages()
+                    attachmentsRepository
                 )
 
                 else -> throw UnsupportedOperationException()

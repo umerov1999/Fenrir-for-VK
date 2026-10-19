@@ -10,11 +10,13 @@ class PeerUpdate(val accountId: Long, val peerId: Long) {
     var pin: Pin? = null
     var title: Title? = null
     var botKeyboard: BotKeyboard? = null
+    var majorId: MajorId? = null
 
-    class Read(val messageId: Int)
+    class Read(val cmId: Int)
     class Unread(val count: Int)
-    class LastMessage(val messageId: Int)
+    class LastMessage(val cmId: Int)
     class Pin(val pinned: Message?)
     class Title(val title: String?)
     class BotKeyboard(val keyboard: KeyboardEntity?)
+    class MajorId(val majorId: Int)
 }

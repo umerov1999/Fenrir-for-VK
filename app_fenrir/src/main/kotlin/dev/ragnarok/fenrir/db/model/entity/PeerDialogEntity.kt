@@ -11,23 +11,21 @@ class PeerDialogEntity(val peerId: Long) {
         private set
     var photo200: String? = null
         private set
-    var inRead = 0
+    var inReadCmId = 0
         private set
-    var outRead = 0
+    var outReadCmId = 0
         private set
     var pinned: MessageDboEntity? = null
         private set
     var currentKeyboard: KeyboardEntity? = null
         private set
-    var lastMessageId = 0
+    var lastCmId = 0
         private set
     var isGroupChannel = false
         private set
     var acl = 0
         private set
-    var major_id = 0
-        private set
-    var minor_id = 0
+    var majorId = 0
         private set
 
     fun setAcl(acl: Int): PeerDialogEntity {
@@ -35,8 +33,8 @@ class PeerDialogEntity(val peerId: Long) {
         return this
     }
 
-    fun setLastMessageId(lastMessageId: Int): PeerDialogEntity {
-        this.lastMessageId = lastMessageId
+    fun setLastCmId(lastCmId: Int): PeerDialogEntity {
+        this.lastCmId = lastCmId
         return this
     }
 
@@ -75,13 +73,13 @@ class PeerDialogEntity(val peerId: Long) {
         return this
     }
 
-    fun setInRead(inRead: Int): PeerDialogEntity {
-        this.inRead = inRead
+    fun setInReadCmId(inReadCmId: Int): PeerDialogEntity {
+        this.inReadCmId = inReadCmId
         return this
     }
 
-    fun setOutRead(outRead: Int): PeerDialogEntity {
-        this.outRead = outRead
+    fun setOutReadCmId(outReadCmId: Int): PeerDialogEntity {
+        this.outReadCmId = outReadCmId
         return this
     }
 
@@ -90,13 +88,8 @@ class PeerDialogEntity(val peerId: Long) {
         return this
     }
 
-    fun setMajor_id(major_id: Int): PeerDialogEntity {
-        this.major_id = major_id
-        return this
-    }
-
-    fun setMinor_id(minor_id: Int): PeerDialogEntity {
-        this.minor_id = minor_id
+    fun setMajorId(majorId: Int): PeerDialogEntity {
+        this.majorId = majorId
         return this
     }
 }

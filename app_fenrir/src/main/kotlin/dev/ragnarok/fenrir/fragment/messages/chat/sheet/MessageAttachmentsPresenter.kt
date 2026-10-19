@@ -46,7 +46,7 @@ import java.io.IOException
 class MessageAttachmentsPresenter(
     private val accountId: Long,
     private val messageOwnerId: Long,
-    private val messageId: Int,
+    private val cmId: Int,
     private val peerId: Long,
     bundle: ModelsBundle?,
     private val isGroupChat: Boolean,
@@ -54,7 +54,7 @@ class MessageAttachmentsPresenter(
 ) : RxSupportPresenter<IMessageAttachmentsView>(savedInstanceState) {
     private val entries: MutableList<AttachmentEntry> = ArrayList()
     private val attachmentsRepository: IAttachmentsRepository = Includes.attachmentsRepository
-    private val destination: UploadDestination = UploadDestination.forMessage(messageId, peerId)
+    private val destination: UploadDestination = UploadDestination.forMessage(cmId, peerId)
     private val uploadManager: IUploadManager = Includes.uploadManager
     private var currentPhotoCameraUri: Uri? = null
     private fun handleInputModels(bundle: ModelsBundle?) {
@@ -172,7 +172,8 @@ class MessageAttachmentsPresenter(
             .getAttachments(
                 accountId = messageOwnerId,
                 attachToType = AttachToType.MESSAGE,
-                attachToDbId = messageId
+                attachToDbId = 0,
+                attachToElement = Pair(peerId, cmId)
             )
             .map { entities2entries(it) }
             .zip(
@@ -356,7 +357,7 @@ class MessageAttachmentsPresenter(
             0 -> {
                 UploadUtils.createIntents(
                     accountId = messageOwnerId, destination = UploadDestination.forMessage(
-                        messageId, MessageMethod.VIDEO, peerId
+                        cmId, MessageMethod.VIDEO, peerId
                     ), file = file, size = size, autoCommit = true
                 )
             }
@@ -374,7 +375,7 @@ class MessageAttachmentsPresenter(
             else -> {
                 UploadUtils.createIntents(
                     accountId = messageOwnerId, destination = UploadDestination.forMessage(
-                        messageId, MessageMethod.AUDIO, peerId
+                        cmId, MessageMethod.AUDIO, peerId
                     ), file = file, size = size, autoCommit = true
                 )
             }
@@ -385,7 +386,7 @@ class MessageAttachmentsPresenter(
     private fun doUploadVideo(file: String) {
         val intents = UploadUtils.createVideoIntents(
             messageOwnerId, UploadDestination.forMessage(
-                mDbId = messageId,
+                mCmId = cmId,
                 msgMethod = MessageMethod.VIDEO,
                 mPeerId = peerId
             ), file, true
@@ -422,7 +423,8 @@ class MessageAttachmentsPresenter(
                 accountId = messageOwnerId,
                 attachToType = AttachToType.MESSAGE,
                 attachmentKey = entry.attachment.getAttachmentKey(),
-                attachToDbId = messageId
+                attachToDbId = 0,
+                attachToElement = Pair(peerId, cmId)
             ).hiddenIO()
             return
         }
@@ -575,7 +577,8 @@ class MessageAttachmentsPresenter(
         attachmentsRepository.attach(
             accountId = messageOwnerId,
             attachToType = AttachToType.MESSAGE,
-            attachToDbId = messageId,
+            attachToDbId = 0,
+            attachToElement = Pair(peerId, cmId),
             models = attachments
         ).hiddenIO()
     }
@@ -609,7 +612,10 @@ class MessageAttachmentsPresenter(
             handleInputModels(bundle)
         }
         val predicate: suspend (IBaseEvent) -> Boolean =
-            { it.attachToType == AttachToType.MESSAGE && it.attachToDbId == messageId && it.accountId == messageOwnerId }
+            { it.attachToType == AttachToType.MESSAGE &&
+                    it.attachToElement?.first == peerId &&
+                    it.attachToElement?.second == cmId &&
+                    it.accountId == messageOwnerId }
         appendJob(
             attachmentsRepository
                 .observeAdding()

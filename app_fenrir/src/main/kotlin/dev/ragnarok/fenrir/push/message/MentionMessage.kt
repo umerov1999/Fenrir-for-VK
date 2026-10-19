@@ -21,7 +21,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 class MentionMessage {
-    private var message_id = 0
+    private var cmId = 0
     private var peerId = 0L
     private var body: String? = null
     private var title: String? = null
@@ -38,12 +38,12 @@ class MentionMessage {
             .setAutoCancel(true)
         builder.priority = NotificationCompat.PRIORITY_HIGH
         val intent = Intent(context, MainActivity::class.java)
-        intent.putExtra(Extra.PLACE, getMessagesLookupPlace(account_id, peerId, message_id, null))
+        intent.putExtra(Extra.PLACE, getMessagesLookupPlace(account_id, peerId, cmId, null))
         intent.action = MainActivity.ACTION_OPEN_PLACE
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         val contentIntent = PendingIntent.getActivity(
             context,
-            message_id,
+            cmId,
             intent,
             makeImmutablePendingIntent(PendingIntent.FLAG_CANCEL_CURRENT)
         )
@@ -51,7 +51,7 @@ class MentionMessage {
         val notification = builder.build()
         if (AppPerms.hasNotificationPermissionSimple(context)) {
             nManager?.notify(
-                message_id.toString(),
+                cmId.toString(),
                 NotificationHelper.NOTIFICATION_MENTION,
                 notification
             )
@@ -60,8 +60,8 @@ class MentionMessage {
 
     @Serializable
     private class MentionContext {
-        @SerialName("msg_id")
-        var msg_id = 0
+        @SerialName("conversation_message_id")
+        var conversation_message_id = 0
 
         @SerialName("sender_id")
         var sender_id = 0L
@@ -77,7 +77,7 @@ class MentionMessage {
             val data = remote.data
             val context: MentionContext =
                 kJson.decodeFromString(MentionContext.serializer(), data["context"]!!)
-            message.message_id = context.msg_id
+            message.cmId = context.conversation_message_id
             message.body = data["body"]
             message.title = data["title"]
             message.peerId = if (context.chat_id == 0L) context.sender_id else context.chat_id

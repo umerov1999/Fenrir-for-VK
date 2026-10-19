@@ -27,7 +27,7 @@ interface IMessagesStorage : IStorage {
     ): Flow<List<MessageDboEntity>>
 
     fun insert(accountId: Long, peerId: Long, patch: MessageEditEntity): Flow<Int>
-    fun applyPatch(accountId: Long, messageId: Int, peerId: Long, patch: MessageEditEntity): Flow<Int>
+    fun applyPatch(accountId: Long, cmId: Int, peerId: Long, patch: MessageEditEntity): Flow<Int>
 
     fun findDraftMessage(accountId: Long, peerId: Long): Flow<DraftMessage?>
 
@@ -35,32 +35,31 @@ interface IMessagesStorage : IStorage {
 
     //@CheckResult
     //Maybe<Integer> getDraftMessageId(int accountId, int peerId);
-    fun getMessageStatus(accountId: Long, dbid: Int, peerId: Long): Flow<Int>
+    fun getMessageStatus(accountId: Long, cmId: Int, peerId: Long): Flow<Int>
     fun applyPatches(accountId: Long, patches: Collection<MessagePatch>): Flow<Boolean>
 
     fun changeMessageStatus(
         accountId: Long,
-        messageId: Int,
+        dbCmId: Int,
         peerId: Long,
         @MessageStatus status: Int,
-        vkid: Int?,
-        cmid: Int?
+        vkCmId: Int?,
     ): Flow<Boolean>
 
     fun changeMessagesStatus(
         accountId: Long,
         peerId: Long,
-        ids: Collection<Int>,
+        cmIds: Collection<Int>,
         @MessageStatus status: Int
     ): Flow<Boolean>
 
     //@CheckResult
-    //Completable updateMessageFlag(int accountId, int messageId, Collection<Pair<Integer, Boolean>> values);
-    fun deleteMessage(accountId: Long, messageId: Int, peerId: Long): Flow<Boolean>
-    fun findLastSentMessageIdForPeer(accountId: Long, peerId: Long): Flow<Optional<Int>>
+    //Completable updateMessageFlag(int accountId, int cmId, Collection<Pair<Integer, Boolean>> values);
+    fun deleteMessage(accountId: Long, cmId: Int, peerId: Long): Flow<Boolean>
+    fun findLastSentCmIdForPeer(accountId: Long, peerId: Long): Flow<Optional<Int>>
     fun findMessagesByIds(
         accountId: Long,
-        ids: List<Pair<Long, Int>>,
+        cmIds: List<Pair<Long, Int>>,
         withAttachments: Boolean,
         withForwardMessages: Boolean
     ): Flow<List<MessageDboEntity>>
@@ -72,7 +71,7 @@ interface IMessagesStorage : IStorage {
     ): Flow<Optional<Pair<Long, MessageDboEntity>>>
 
     //Observable<MessageUpdate> observeMessageUpdates();
-    fun getMissingMessages(accountId: Long, ids: Collection<Pair<Long, Int>>): Flow<Collection<Pair<Long, Int>>>
+    fun getMissingMessages(accountId: Long, cmIds: Collection<Pair<Long, Int>>): Flow<Collection<Pair<Long, Int>>>
 
-    fun deleteMessages(accountId: Long, ids: Collection<Pair<Long, Int>>): Flow<Boolean>
+    fun deleteMessages(accountId: Long, cmIds: Collection<Pair<Long, Int>>): Flow<Boolean>
 }

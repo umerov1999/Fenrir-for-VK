@@ -9,14 +9,14 @@ class Entry(val accountId: Long, val id: Int, val isIgnoreIfExists: Boolean) {
     fun has(id: Int, peerId: Long): Boolean {
         if (updates.hasNonFullMessages()) {
             for (nonFullId in updates.nonFull.orEmpty()) {
-                if (id == nonFullId.messageId && peerId == nonFullId.peerId) {
+                if (id == nonFullId.cmId && peerId == nonFullId.peerId) {
                     return true
                 }
             }
         }
         if (updates.hasFullMessages()) {
             for (update in updates.fullMessages.orEmpty()) {
-                if (update.messageId == id && peerId == update.peerId) {
+                if (update.cmId == id && peerId == update.peerId) {
                     return true
                 }
             }
@@ -36,9 +36,9 @@ class Entry(val accountId: Long, val id: Int, val isIgnoreIfExists: Boolean) {
         }
     }
 
-    fun append(messageId: Int, peerId: Long) {
+    fun append(cmId: Int, peerId: Long) {
         val u = AddMessageUpdate()
-        u.messageId = messageId
+        u.cmId = cmId
         u.peerId = peerId
         updates.prepareNonFull().add(u)
     }

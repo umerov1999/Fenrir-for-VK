@@ -225,9 +225,9 @@ class ChatPresenter(
         textingNotifier = TextingNotifier(messagesOwnerId)
 
         val predicate: suspend (IAttachmentsRepository.IBaseEvent) -> Boolean = {
-            draftMessage.id != null
+            draftMessage.cmId != null
                     && it.accountId == messagesOwnerId
-                    && it.attachToDbId == draftMessage.id
+                    && it.attachToElement?.first == peerId && draftMessage.cmId == it.attachToElement?.second
         }
 
         val attachmentsRepository = Includes.attachmentsRepository
@@ -247,6 +247,7 @@ class ChatPresenter(
         appendJob(
             messagesRepository
                 .observeMessageUpdates()
+                .filter { it.peerId == peerId }
                 .sharedFlowToMain { onMessagesUpdate(it) })
 
         recordingLookup = Lookup(1000)
@@ -390,11 +391,12 @@ class ChatPresenter(
         fireForwardToHereClick(arrayListOf(data[position]))
     }
 
-    fun fireTranscript(voiceMessageId: String, messageId: Int) {
+    fun fireTranscript(voiceMessageId: String, peerId: Long, cmId: Int) {
         appendJob(
             messagesRepository.recogniseAudioMessage(
                 accountId,
-                messageId,
+                peerId,
+                cmId,
                 voiceMessageId
             )
                 .fromIOToMain({ }, { t -> showError(view, t) })
@@ -438,8 +440,8 @@ class ChatPresenter(
             if (update.accountId != messagesOwnerId || update.peerId != peerId) continue
 
             update.readIn?.run {
-                conversation?.setInRead(messageId)
-                lastReadId.incoming = messageId
+                conversation?.setInReadCmId(cmId)
+                lastReadId.incoming = cmId
             }
 
             update.unread?.run {
@@ -448,8 +450,8 @@ class ChatPresenter(
             }
 
             update.readOut?.run {
-                conversation?.setOutRead(messageId)
-                lastReadId.outgoing = messageId
+                conversation?.setOutReadCmId(cmId)
+                lastReadId.outgoing = cmId
                 requireListUpdate = true
             }
 
@@ -462,6 +464,10 @@ class ChatPresenter(
                 conversation?.setTitle(title)
                 peer.setTitle(title)
                 resolveToolbarTitle()
+            }
+
+            update.majorId?.run {
+                conversation?.setMajorId(majorId)
             }
 
             update.botKeyboard?.run {
@@ -508,8 +514,8 @@ class ChatPresenter(
         resolvePinnedMessageView()
         resolveInputView()
 
-        lastReadId.incoming = data.inRead
-        lastReadId.outgoing = data.outRead
+        lastReadId.incoming = data.inReadCmId
+        lastReadId.outgoing = data.outReadCmId
 
         if (!refresh) {
             loadAllCachedData()
@@ -716,16 +722,16 @@ class ChatPresenter(
         requestAtStart()
     }
 
-    private fun onNetDataReceived(messages: List<Message>, startMessageId: Int?) {
+    private fun onNetDataReceived(messages: List<Message>, startCmId: Int?) {
         cacheLoadingDisposable.cancel()
 
         isLoadingFromDbNow = false
         endOfContent = messages.isEmpty()
-        if (chronologyInvert && startMessageId == null)
+        if (chronologyInvert && startCmId == null)
             endOfContent = true
 
         setNetLoadingNow(false)
-        onAllDataLoaded(messages, startMessageId != null, isCache = false)
+        onAllDataLoaded(messages, startCmId != null, isCache = false)
     }
 
     fun fireScrollToUnread() {
@@ -785,7 +791,7 @@ class ChatPresenter(
                     } else {
                         view?.goToUnreadMessages(
                             accountId,
-                            conversation?.inRead.orZero(),
+                            conversation?.inReadCmId.orZero(),
                             lastReadId.incoming,
                             lastReadId.outgoing,
                             conversation?.unreadCount.orZero(),
@@ -879,7 +885,7 @@ class ChatPresenter(
         resolveLoadUpHeaderView()
     }
 
-    private fun requestFromNet(startMessageId: Int?) {
+    private fun requestFromNet(startCmId: Int?) {
         setNetLoadingNow(true)
 
         netLoadingDisposable += messagesRepository.getPeerMessages(
@@ -887,13 +893,13 @@ class ChatPresenter(
             peerId = peerId,
             count = COUNT,
             offset = null,
-            startMessageId = startMessageId,
+            startCmId = startCmId,
             excludeStartMessage = true,
             cacheData = !chronologyInvert,
             rev = chronologyInvert
         )
             .fromIOToMain(
-                { messages -> onNetDataReceived(messages, startMessageId) },
+                { messages -> onNetDataReceived(messages, startCmId) },
                 { onMessagesGetError(it) })
     }
 
@@ -912,7 +918,7 @@ class ChatPresenter(
         val index = data.indexOfFirst {
             it.getObjectId() == id && it.peerId == peerId
         }
-        if(index >= 0) {
+        if (index >= 0) {
             data[index].setDeleted(false)
             data[index].setDeletedForAll(false)
             view?.notifyItemsChanged(index, 1)
@@ -979,7 +985,7 @@ class ChatPresenter(
         val trimmedText = draftMessage.text?.trim()
 
         val builder = SaveMessageBuilder(messagesOwnerId, peer.id).setText(trimmedText)
-            .setDraftMessageId(draftMessage.id)
+            .setDraftCmId(draftMessage.cmId)
 
         val fwds = ArrayList<Message>()
 
@@ -1059,8 +1065,8 @@ class ChatPresenter(
             return
         }
 
-        if (draftMessage.id == null) {
-            draftMessage.setId(
+        if (draftMessage.cmId == null) {
+            draftMessage.setCmId(
                 Stores.instance
                     .messages()
                     .saveDraftMessageBody(messagesOwnerId, peerId, draftMessage.text)
@@ -1068,7 +1074,7 @@ class ChatPresenter(
             )
         }
 
-        val destination = UploadDestination.forMessage(draftMessage.id ?: return, peerId)
+        val destination = UploadDestination.forMessage(draftMessage.cmId ?: return, peerId)
         view?.goToMessageAttachmentsEditor(
             accountId,
             messagesOwnerId,
@@ -1095,11 +1101,11 @@ class ChatPresenter(
     }
 
     private fun nowUploadingToEditingMessage(): Boolean {
-        val messageId = draftMessage.id ?: return false
+        val cmId = draftMessage.cmId ?: return false
 
         val current = uploadManager.getCurrent()
         return current.nonEmpty() && current.get()?.destination?.compareTo(
-            messageId,
+            cmId,
             peerId,
             Method.TO_MESSAGE
         ) == true
@@ -1288,85 +1294,82 @@ class ChatPresenter(
         return index
     }
 
-    private fun onMessagesUpdate(updates: List<MessageUpdate>) {
+    private fun onMessagesUpdate(update: MessageUpdate) {
         var needReload = false
-        for (update in updates) {
-            update.statusUpdate.requireNonNull {
-                val targetIndex = indexOf(update.messageId)
-                if (it.vkid != null) {
-                    // message was sent
-                    val alreadyExist = indexOf(it.vkid.orZero()) != -1
-
-                    if (alreadyExist) {
-                        if (targetIndex != -1) {
-                            data.removeAt(targetIndex)
-                            if (!needReload) {
-                                needReload = true
-                            }
-                        }
-                    } else {
-                        if (targetIndex != -1) {
-                            val message = data[targetIndex]
-                            message.setStatus(it.status)
-                            message.setId(it.vkid.orZero())
-
-                            data.removeAt(targetIndex)
-                            addMessageToList(message)
-                            if (!needReload) {
-                                needReload = true
-                            }
+        update.statusUpdate.requireNonNull {
+            val targetIndex = indexOf(update.cmId)
+            if (it.vkCmId != null) {
+                // message was sent
+                val alreadyExist = indexOf(it.vkCmId.orZero()) != -1
+                if (alreadyExist) {
+                    if (targetIndex != -1) {
+                        data.removeAt(targetIndex)
+                        if (!needReload) {
+                            needReload = true
                         }
                     }
                 } else {
-                    //message not sent
                     if (targetIndex != -1) {
                         val message = data[targetIndex]
                         message.setStatus(it.status)
+                        message.setCmId(it.vkCmId.orZero())
+
+                        data.removeAt(targetIndex)
+                        addMessageToList(message)
                         if (!needReload) {
                             needReload = true
                         }
                     }
                 }
-            }
-
-            update.deleteUpdate.requireNonNull {
-                val targetIndex = indexOf(update.messageId)
+            } else {
+                //message not sent
                 if (targetIndex != -1) {
-                    data[targetIndex].setDeleted(it.deleted)
-                    data[targetIndex].setDeletedForAll(it.deletedForAll)
+                    val message = data[targetIndex]
+                    message.setStatus(it.status)
                     if (!needReload) {
-                        view?.notifyItemsChanged(targetIndex, 1)
+                        needReload = true
                     }
                 }
             }
+        }
 
-            update.importantUpdate.requireNonNull {
-                val targetIndex = indexOf(update.messageId)
-                if (targetIndex != -1) {
-                    data[targetIndex].setImportant(it.important)
-                    if (!needReload) {
-                        view?.notifyItemsChanged(targetIndex, 1)
-                    }
+        update.deleteUpdate.requireNonNull {
+            val targetIndex = indexOf(update.cmId)
+            if (targetIndex != -1) {
+                data[targetIndex].setDeleted(it.deleted)
+                data[targetIndex].setDeletedForAll(it.deletedForAll)
+                if (!needReload) {
+                    view?.notifyItemsChanged(targetIndex, 1)
                 }
             }
+        }
 
-            update.reactionUpdate.requireNonNull {
-                waitReactionUpdateDisposable.cancel()
-                val targetIndex = indexOf(update.messageId, it.peerId)
-                if (targetIndex != -1) {
-                    if (!it.keepMyReaction) {
-                        data[targetIndex].setReactionId(it.reactionId)
-                    }
-                    data[targetIndex].reactions?.clear()
-                    data[targetIndex].setReactions(null)
-                    for (react in it.reactions) {
-                        data[targetIndex].prepareReactions(it.reactions.size)
-                            .add(Entity2Model.buildReactionFromDbo(react))
-                    }
-                    data[targetIndex].setReactionEditMode(false)
-                    if (!needReload) {
-                        view?.notifyItemsChanged(targetIndex, 1)
-                    }
+        update.importantUpdate.requireNonNull {
+            val targetIndex = indexOf(update.cmId)
+            if (targetIndex != -1) {
+                data[targetIndex].setImportant(it.important)
+                if (!needReload) {
+                    view?.notifyItemsChanged(targetIndex, 1)
+                }
+            }
+        }
+
+        update.reactionUpdate.requireNonNull {
+            waitReactionUpdateDisposable.cancel()
+            val targetIndex = indexOf(update.cmId)
+            if (targetIndex != -1) {
+                if (!it.keepMyReaction) {
+                    data[targetIndex].setReactionId(it.reactionId)
+                }
+                data[targetIndex].reactions?.clear()
+                data[targetIndex].setReactions(null)
+                for (react in it.reactions) {
+                    data[targetIndex].prepareReactions(it.reactions.size)
+                        .add(Entity2Model.buildReactionFromDbo(react))
+                }
+                data[targetIndex].setReactionEditMode(false)
+                if (!needReload) {
+                    view?.notifyItemsChanged(targetIndex, 1)
                 }
             }
         }
@@ -1675,7 +1678,7 @@ class ChatPresenter(
     private fun onDraftMessageRestored(message: DraftMessage, ignoreBody: Boolean) {
         if (draftMessage.text.isNullOrEmpty()) {
             draftMessage.setDbAttachmentsCount(message.attachmentsCount)
-            draftMessage.setId(message.id)
+            draftMessage.setCmId(message.cmId)
 
             if (!ignoreBody) {
                 draftMessage.setText(message.text)
@@ -1739,13 +1742,13 @@ class ChatPresenter(
     private fun readUnreadMessagesUpIfExists(message: Message): Boolean {
         if (isHiddenAccount(messagesOwnerId) || isHiddenAccount(accountId)) return false
 
-        if (!message.isOut && message.id > lastReadId.incoming) {
-            lastReadId.incoming = message.id
+        if (!message.isOut && message.cmId > lastReadId.incoming) {
+            lastReadId.incoming = message.cmId
 
             view?.notifyDataChanged()
 
             appendJob(
-                messagesRepository.markAsRead(messagesOwnerId, peer.id, message.id)
+                messagesRepository.markAsRead(messagesOwnerId, peer.id, message.cmId)
                     .fromIOToMain(dummy()) { t -> showError(view, t) }
             )
             return true
@@ -1757,13 +1760,13 @@ class ChatPresenter(
         if (isHiddenAccount(messagesOwnerId) || isHiddenAccount(accountId)) return
         val last = if (data.nonNullNoEmpty()) data[0] else return
 
-        if (!last.isOut && last.id > lastReadId.incoming) {
-            lastReadId.incoming = last.id
+        if (!last.isOut && last.cmId > lastReadId.incoming) {
+            lastReadId.incoming = last.cmId
 
             view?.notifyDataChanged()
 
             appendJob(
-                messagesRepository.markAsRead(messagesOwnerId, peer.id, last.id)
+                messagesRepository.markAsRead(messagesOwnerId, peer.id, last.cmId)
                     .fromIOToMain(dummy()) { t -> showError(view, t) }
             )
         }
@@ -2020,8 +2023,8 @@ class ChatPresenter(
         return chatAdminsIds?.contains(accountId) == true || (message.isOut && /* Unixtime.now() - message.date < 24 * 60 * 60 && */ peerId != accountId)
     }
 
-    private fun cancelWaitingForUploadMessage(messageId: Int) {
-        val destination = UploadDestination.forMessage(messageId, peerId)
+    private fun cancelWaitingForUploadMessage(cmId: Int) {
+        val destination = UploadDestination.forMessage(cmId, peerId)
         uploadManager.cancelAll(messagesOwnerId, destination)
     }
 
@@ -2132,8 +2135,8 @@ class ChatPresenter(
 
         view?.resetUploadImages()
 
-        if (draftMessage.id == null) {
-            draftMessage.setId(
+        if (draftMessage.cmId == null) {
+            draftMessage.setCmId(
                 Stores.instance
                     .messages()
                     .saveDraftMessageBody(messagesOwnerId, peerId, draftMessage.text)
@@ -2142,10 +2145,10 @@ class ChatPresenter(
         }
 
         val destination = if (is_video) UploadDestination.forMessage(
-            draftMessage.id ?: return,
+            draftMessage.cmId ?: return,
             MessageMethod.VIDEO,
             peerId
-        ) else UploadDestination.forMessage(draftMessage.id ?: return, peerId)
+        ) else UploadDestination.forMessage(draftMessage.cmId ?: return, peerId)
         val intents = ArrayList<UploadIntent>(streams.size)
 
         if (!is_video) {
@@ -2249,8 +2252,8 @@ class ChatPresenter(
         outState.putParcelable(SAVE_CONFIG, outConfig)
         outState.putParcelable(SAVE_CAMERA_FILE_URI, currentPhotoCameraUri)
 
-        draftMessage.id?.let {
-            outState.putInt(SAVE_DRAFT_MESSAGE_ID, it)
+        draftMessage.cmId?.let {
+            outState.putInt(SAVE_DRAFT_CM_ID, it)
         }
     }
 
@@ -2259,8 +2262,8 @@ class ChatPresenter(
         draftMessage.setText(state.getString(SAVE_DRAFT_MESSAGE_TEXT))
         draftMessage.setDbAttachmentsCount(state.getInt(SAVE_DRAFT_MESSAGE_ATTACHMENTS_COUNT))
 
-        if (state.containsKey(SAVE_DRAFT_MESSAGE_ID)) {
-            draftMessage.setId(state.getInt(SAVE_DRAFT_MESSAGE_ID))
+        if (state.containsKey(SAVE_DRAFT_CM_ID)) {
+            draftMessage.setCmId(state.getInt(SAVE_DRAFT_CM_ID))
         }
     }
 
@@ -2372,55 +2375,55 @@ class ChatPresenter(
         sendMessage(builder)
     }
 
-    fun fireReactionLongClicked(reaction_id: Int?, conversation_message_id: Int, peerId: Long) {
-        view?.showReactedPeers(accountId, reaction_id, conversation_message_id, peerId)
+    fun fireReactionLongClicked(reactionId: Int?, cmId: Int, peerId: Long) {
+        view?.showReactedPeers(accountId, reactionId, cmId, peerId)
     }
 
-    fun fireReactionClicked(reaction_id: Int?, conversation_message_id: Int, peerId: Long) {
+    fun fireReactionClicked(reactionId: Int?, cmId: Int, peerId: Long) {
         if (isHiddenAccount(messagesOwnerId) || isHiddenAccount(accountId)) {
             return
         }
         netLoadingDisposable += messagesRepository.sendOrDeleteReaction(
             messagesOwnerId,
             peerId,
-            conversation_message_id,
-            reaction_id
+            cmId,
+            reactionId
         )
             .fromIOToMain({
                 waitReactionUpdateDisposable.cancel()
                 waitReactionUpdateDisposable += delayTaskFlow(1000)
                     .toMain {
-                        val res = indexOf(conversation_message_id, peerId)
+                        val res = indexOf(cmId)
                         if (res != -1) {
                             data[res].setReactionEditMode(false)
                             if (data[res].reactions == null) {
                                 data[res].setReactions(ArrayList())
                             }
-                            if (reaction_id != null) {
-                                val reaction = data[res].getReactionById(reaction_id)
+                            if (reactionId != null) {
+                                val reaction = data[res].getReactionById(reactionId)
                                 if (reaction != null) {
                                     reaction.setCount(reaction.count + 1)
                                 } else {
                                     data[res].reactions?.add(
-                                        Reaction().setReactionId(reaction_id).setCount(1)
+                                        Reaction().setReactionId(reactionId).setCount(1)
                                     )
                                 }
-                                if (data[res].reaction_id != 0) {
-                                    data[res].getReactionById(data[res].reaction_id)?.let {
+                                if (data[res].reactionId != 0) {
+                                    data[res].getReactionById(data[res].reactionId)?.let {
                                         it.setCount(it.count - 1)
                                         if (it.count <= 0) {
-                                            data[res].getReactionIndexById(data[res].reaction_id)
+                                            data[res].getReactionIndexById(data[res].reactionId)
                                                 ?.let { it1 -> data[res].reactions?.removeAt(it1) }
                                         }
                                     }
                                 }
-                                data[res].setReactionId(reaction_id)
-                            } else if (data[res].reaction_id != 0) {
-                                val reaction = data[res].getReactionById(data[res].reaction_id)
+                                data[res].setReactionId(reactionId)
+                            } else if (data[res].reactionId != 0) {
+                                val reaction = data[res].getReactionById(data[res].reactionId)
                                 reaction?.let {
                                     reaction.setCount(reaction.count - 1)
                                     if (reaction.count <= 0) {
-                                        data[res].getReactionIndexById(data[res].reaction_id)
+                                        data[res].getReactionIndexById(data[res].reactionId)
                                             ?.let { it1 -> data[res].reactions?.removeAt(it1) }
                                     }
                                 }
@@ -2473,7 +2476,7 @@ class ChatPresenter(
 
     private fun cancelMessageEditing(): Boolean {
         edited?.run {
-            val destination = UploadDestination.forMessage(message.getObjectId(), message.peerId)
+            val destination = UploadDestination.forMessage(message.cmId, message.peerId)
 
             edited = null
             resolveDraftMessageText()
@@ -2599,7 +2602,7 @@ class ChatPresenter(
 
     fun fireFilePhotoForUploadSelected(file: String?, imageSize: Int) {
         edited?.run {
-            val destination = UploadDestination.forMessage(message.getObjectId(), message.peerId)
+            val destination = UploadDestination.forMessage(message.cmId, message.peerId)
             val intent = UploadIntent(accountId, destination)
                 .setAutoCommit(false)
                 .setFileUri(file?.toUri()).setSize(imageSize)
@@ -2611,7 +2614,7 @@ class ChatPresenter(
         edited?.run {
             val destination =
                 UploadDestination.forMessage(
-                    message.getObjectId(),
+                    message.cmId,
                     MessageMethod.VIDEO,
                     message.peerId
                 )
@@ -2626,7 +2629,7 @@ class ChatPresenter(
         edited?.run {
             val destination =
                 UploadDestination.forMessage(
-                    message.getObjectId(),
+                    message.cmId,
                     MessageMethod.AUDIO,
                     message.peerId
                 )
@@ -2660,7 +2663,7 @@ class ChatPresenter(
         edited?.run {
             if (localPhotos.isNotEmpty()) {
                 val destination =
-                    UploadDestination.forMessage(message.getObjectId(), message.peerId)
+                    UploadDestination.forMessage(message.cmId, message.peerId)
 
                 val intents = localPhotos.map {
                     UploadIntent(accountId, destination).apply {
@@ -2680,7 +2683,7 @@ class ChatPresenter(
         edited?.run {
             val destination =
                 UploadDestination.forMessage(
-                    message.getObjectId(),
+                    message.cmId,
                     MessageMethod.VIDEO,
                     message.peerId
                 )
@@ -2829,7 +2832,7 @@ class ChatPresenter(
         private const val SAVE_DRAFT_MESSAGE_TEXT = "save_draft_message_text"
         private const val SAVE_DRAFT_MESSAGE_ATTACHMENTS_COUNT =
             "save_draft_message_attachments_count"
-        private const val SAVE_DRAFT_MESSAGE_ID = "save_draft_message_id"
+        private const val SAVE_DRAFT_CM_ID = "save_draft_cm_id"
         private const val SAVE_CONFIG = "save_config"
         private const val SAVE_CAMERA_FILE_URI = "save_camera_file_uri"
     }

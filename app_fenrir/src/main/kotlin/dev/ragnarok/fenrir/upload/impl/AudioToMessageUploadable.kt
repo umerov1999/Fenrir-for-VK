@@ -14,6 +14,7 @@ import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
+import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
@@ -29,8 +30,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class AudioToMessageUploadable(
     private val context: Context, private val networker: INetworker,
-    private val attachmentsRepository: IAttachmentsRepository,
-    private val messagesStorage: IMessagesStorage
+    private val attachmentsRepository: IAttachmentsRepository
 ) :
     IUploadable<Audio> {
     override fun doUpload(
@@ -39,7 +39,7 @@ class AudioToMessageUploadable(
         listener: PercentagePublisher?
     ): Flow<UploadResult<Audio>> {
         val accountId = upload.accountId
-        val messageId = upload.destination.id
+        val cmId = upload.destination.id
         val peerId = upload.destination.ownerId
         val serverSingle = if (initialServer == null) {
             networker.vkDefault(accountId)
@@ -103,9 +103,8 @@ class AudioToMessageUploadable(
                                         if (upload.isAutoCommit) {
                                             attachIntoDatabaseRx(
                                                 attachmentsRepository,
-                                                messagesStorage,
                                                 accountId,
-                                                messageId,
+                                                cmId,
                                                 peerId,
                                                 audio
                                             ).map {
@@ -130,11 +129,11 @@ class AudioToMessageUploadable(
 
     companion object {
         private fun attachIntoDatabaseRx(
-            repository: IAttachmentsRepository, storage: IMessagesStorage,
-            accountId: Long, messageId: Int, peerId: Long, audio: Audio
+            repository: IAttachmentsRepository,
+            accountId: Long, cmId: Int, peerId: Long, audio: Audio
         ): Flow<Boolean> {
             return repository
-                .attach(accountId, AttachToType.MESSAGE, messageId, listOf(audio))
+                .attach(accountId, AttachToType.MESSAGE, 0, Pair(peerId, cmId), listOf(audio))
         }
     }
 }

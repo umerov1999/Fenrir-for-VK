@@ -43,30 +43,12 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
         view?.displayMessages(accountId, data, lastReadId)
     }
 
-    protected fun indexOf(conversationMessageId: Int, peerId: Long): Int {
-        for (i in data.indices) {
-            if (data[i].conversation_message_id == conversationMessageId && data[i].peerId == peerId) {
-                return i
-            }
-        }
-        return -1
+    protected fun indexOf(cmId: Int): Int {
+        return Utils.indexOf(data, cmId)
     }
 
-    protected fun findById(conversationMessageId: Int, peerId: Long): Message? {
-        for (element in data) {
-            if (element.conversation_message_id == conversationMessageId && element.peerId == peerId) {
-                return element
-            }
-        }
-        return null
-    }
-
-    protected fun indexOf(messageId: Int): Int {
-        return Utils.indexOf(data, messageId)
-    }
-
-    protected fun findById(messageId: Int): Message? {
-        return Utils.findById(data, messageId)
+    protected fun findById(cmId: Int): Message? {
+        return Utils.findById(data, cmId)
     }
 
     fun clearSelection(position: Int) {
@@ -221,7 +203,8 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
     fun fireVoicePlayButtonClick(
         voiceHolderId: Int,
         voiceMessageId: Int,
-        messageId: Int,
+        peerId: Long,
+        cmId: Int,
         voiceMessage: VoiceMessage
     ) {
         val player = mVoicePlayer ?: return
@@ -231,7 +214,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
                 if (!voiceMessage.was_listened) {
                     if (!Utils.isHiddenCurrent && Settings.get().main().isMarkListenedVoice) {
                         appendJob(
-                            Repository.messages.markAsListened(accountId, messageId)
+                            Repository.messages.markAsListened(accountId, peerId, cmId)
                                 .fromIOToMain {
                                     voiceMessage.setWasListened(true)
                                     resolveVoiceMessagePlayingState()

@@ -377,7 +377,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
 
     private fun getStatus(dialog: Dialog): Int {
         val time = dialog.lastMessageDate * 1000
-        if (dialog.major_id > 0) {
+        if (dialog.majorId > 0) {
             return DIV_PINNED
         }
         if (time >= mStartOfToday) {

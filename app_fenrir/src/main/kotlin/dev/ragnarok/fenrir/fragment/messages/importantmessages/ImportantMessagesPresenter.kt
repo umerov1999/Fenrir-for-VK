@@ -23,7 +23,7 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
         actualDataLoading = true
         resolveRefreshingView()
         actualDataDisposable.add(
-            fInteractor.getImportantMessages(accountId, 50, offset, null)
+            fInteractor.getImportantMessages(accountId, 50, offset)
                 .fromIOToMain({ data ->
                     onActualDataReceived(
                         offset,
@@ -197,9 +197,9 @@ class ImportantMessagesPresenter(accountId: Long, savedInstanceState: Bundle?) :
         loadActualData(0)
     }
 
-    fun fireTranscript(voiceMessageId: String?, messageId: Int) {
+    fun fireTranscript(voiceMessageId: String?, peerId: Long, cmId: Int) {
         appendJob(
-            fInteractor.recogniseAudioMessage(accountId, messageId, voiceMessageId)
+            fInteractor.recogniseAudioMessage(accountId, peerId, cmId, voiceMessageId)
                 .hiddenIO()
         )
     }

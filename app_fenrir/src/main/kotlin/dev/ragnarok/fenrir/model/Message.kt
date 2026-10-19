@@ -17,7 +17,7 @@ import dev.ragnarok.fenrir.writeTypedObjectCompat
 class Message : AbsModel, Identificable, ISelectable {
     var accountId = 0L
         private set
-    var id: Int
+    var cmId: Int
         private set
     var text: String? = null
         private set
@@ -32,8 +32,6 @@ class Message : AbsModel, Identificable, ISelectable {
     var status = 0
         private set
     var date: Long = 0
-        private set
-    var conversation_message_id = 0
         private set
     override var isSelected = false
     var reactionEditMode = false
@@ -54,7 +52,9 @@ class Message : AbsModel, Identificable, ISelectable {
         private set
     var reactions: ArrayList<Reaction>? = null
         private set
-    var reaction_id = 0
+    var reactionId = 0
+        private set
+    var version = 0
         private set
 
     //chat_columns
@@ -84,13 +84,13 @@ class Message : AbsModel, Identificable, ISelectable {
     var updateTime: Long = 0
         private set
 
-    constructor(id: Int) {
-        this.id = id
+    constructor(cmId: Int) {
+        this.cmId = cmId
     }
 
     internal constructor(parcel: Parcel) {
         accountId = parcel.readLong()
-        id = parcel.readInt()
+        cmId = parcel.readInt()
         text = parcel.readString()
         peerId = parcel.readLong()
         senderId = parcel.readLong()
@@ -99,7 +99,6 @@ class Message : AbsModel, Identificable, ISelectable {
         @MessageStatus val tStatus = parcel.readInt()
         status = tStatus
         date = parcel.readLong()
-        conversation_message_id = parcel.readInt()
         isSelected = parcel.getBoolean()
         reactionEditMode = parcel.getBoolean()
         isDeleted = parcel.getBoolean()
@@ -121,7 +120,8 @@ class Message : AbsModel, Identificable, ISelectable {
         updateTime = parcel.readLong()
         payload = parcel.readString()
         keyboard = parcel.readTypedObjectCompat(Keyboard.CREATOR)
-        reaction_id = parcel.readInt()
+        reactionId = parcel.readInt()
+        version = parcel.readInt()
         reactions = parcel.createTypedArrayList(Reaction.CREATOR)
     }
 
@@ -131,7 +131,7 @@ class Message : AbsModel, Identificable, ISelectable {
     }
 
     override fun getAttachmentKey(): String {
-        return "${conversation_message_id}_${peerId}"
+        return "${cmId}_${peerId}"
     }
 
     fun getReactionById(id: Int): Reaction? {
@@ -202,9 +202,9 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    fun getReactionCount(reaction_id: Int): Int {
+    fun getReactionCount(reactionId: Int): Int {
         for (i in reactions.orEmpty()) {
-            if (i.reaction_id == reaction_id) {
+            if (i.reaction_id == reactionId) {
                 return i.count
             }
         }
@@ -212,11 +212,11 @@ class Message : AbsModel, Identificable, ISelectable {
     }
 
     override fun getObjectId(): Int {
-        return id
+        return cmId
     }
 
-    fun setId(id: Int): Message {
-        this.id = id
+    fun setCmId(cmId: Int): Message {
+        this.cmId = cmId
         return this
     }
 
@@ -294,7 +294,7 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    val isServiseMessage: Boolean
+    val isServiceMessage: Boolean
         get() = action != ChatAction.NO_ACTION
 
     fun setSenderId(senderId: Long): Message {
@@ -350,11 +350,13 @@ class Message : AbsModel, Identificable, ISelectable {
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is Message && id == other.id
+        return other is Message && cmId == other.cmId && peerId == other.peerId
     }
 
     override fun hashCode(): Int {
-        return id
+        var result = cmId
+        result = 31 * result + peerId.hashCode()
+        return result
     }
 
     override fun describeContents(): Int {
@@ -368,7 +370,7 @@ class Message : AbsModel, Identificable, ISelectable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(accountId)
-        parcel.writeInt(id)
+        parcel.writeInt(cmId)
         parcel.writeString(text)
         parcel.writeLong(peerId)
         parcel.writeLong(senderId)
@@ -376,7 +378,6 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.putBoolean(isImportant)
         parcel.writeInt(status)
         parcel.writeLong(date)
-        parcel.writeInt(conversation_message_id)
         parcel.putBoolean(isSelected)
         parcel.putBoolean(reactionEditMode)
         parcel.putBoolean(isDeleted)
@@ -397,7 +398,8 @@ class Message : AbsModel, Identificable, ISelectable {
         parcel.writeLong(updateTime)
         parcel.writeString(payload)
         parcel.writeTypedObjectCompat(keyboard, flags)
-        parcel.writeInt(reaction_id)
+        parcel.writeInt(reactionId)
+        parcel.writeInt(version)
         parcel.writeTypedList(reactions)
     }
 
@@ -489,18 +491,18 @@ class Message : AbsModel, Identificable, ISelectable {
         return this
     }
 
-    fun setReactionId(reaction_id: Int): Message {
-        this.reaction_id = reaction_id
+    fun setReactionId(reactionId: Int): Message {
+        this.reactionId = reactionId
+        return this
+    }
+
+    fun setVersion(version: Int): Message {
+        this.version = version
         return this
     }
 
     fun setReactions(reactions: ArrayList<Reaction>?): Message {
         this.reactions = reactions
-        return this
-    }
-
-    fun setConversationMessageId(conversation_message_id: Int): Message {
-        this.conversation_message_id = conversation_message_id
         return this
     }
 

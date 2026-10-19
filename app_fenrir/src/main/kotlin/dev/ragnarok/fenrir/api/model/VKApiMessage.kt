@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.model
 
 import dev.ragnarok.fenrir.api.adapters.MessageDtoAdapter
 import dev.ragnarok.fenrir.api.model.VKApiConversation.CurrentKeyboard
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -14,9 +15,9 @@ class VKApiMessage
  */
 {
     /**
-     * Message ID, positive number
+     * Conversation Message ID, positive number
      */
-    var id = 0
+    var conversation_message_id = 0
 
     /**
      * For an incoming message, the user ID of the author. For an outgoing message, the user ID of the receiver.
@@ -111,10 +112,10 @@ class VKApiMessage
      */
     var payload // "payload":"null"
             : String? = null
-    var conversation_message_id = 0
     var reactions: ArrayList<VKApiReaction>? = null
     var reaction_id: Int = 0
     var update_time: Long = 0
+    var version = 0
 
     companion object {
         const val CHAT_PEER = 2000000000

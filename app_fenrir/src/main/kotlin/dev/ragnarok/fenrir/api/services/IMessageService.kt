@@ -29,7 +29,7 @@ import kotlinx.serialization.builtins.serializer
 class IMessageService : IServiceRest() {
     fun editMessage(
         peedId: Long,
-        messageId: Int,
+        cmId: Int,
         message: String?,
         attachment: String?,
         keepForwardMessages: Int?,
@@ -38,7 +38,7 @@ class IMessageService : IServiceRest() {
         return rest.request(
             "messages.edit", form(
                 "peer_id" to peedId,
-                "message_id" to messageId,
+                "cmid" to cmId,
                 "message" to message,
                 "attachment" to attachment,
                 "keep_forward_messages" to keepForwardMessages,
@@ -474,19 +474,22 @@ class IMessageService : IServiceRest() {
     /**
      * Returns messages by their IDs.
      *
-     * @param messageIds    Message IDs. List of comma-separated positive numbers
+     * @param peerId   Peer ID.
+     * @param cmIds    Conversation message IDs. List of comma-separated positive numbers
      * @param previewLength Number of characters after which to truncate a previewed message.
      * To preview the full message, specify 0.
      * NOTE: Messages are not truncated by default. Messages are truncated by words.
      * @return a list of message objects.
      */
     fun getById(
-        messageIds: String?,
+        peerId: Long,
+        cmIds: String?,
         previewLength: Int?
     ): Flow<BaseResponse<Items<VKApiMessage>>> {
         return rest.request(
             "messages.getById", form(
-                "message_ids" to messageIds,
+                "cmids" to cmIds,
+                "peer_id" to peerId,
                 "preview_length" to previewLength
             ), items(VKApiMessage.serializer())
         )
@@ -548,7 +551,7 @@ class IMessageService : IServiceRest() {
      * @param offset         Offset needed to return a specific subset of messages.
      * @param count          Number of messages to return. Default 20, maximum value 200
      * @param peerId         Destination ID
-     * @param startMessageId Starting message ID from which to return history.
+     * @param startCmId      Starting conversation message ID from which to return history.
      * @param rev            Sort order:
      * 1 — return messages in chronological order.
      * 0 — return messages in reverse chronological order.
@@ -558,7 +561,7 @@ class IMessageService : IServiceRest() {
         offset: Int?,
         count: Int?,
         peerId: Long,
-        startMessageId: Int?,
+        startCmId: Int?,
         rev: Int?,
         extended: Int?,
         fields: String?
@@ -569,7 +572,7 @@ class IMessageService : IServiceRest() {
                 "offset" to offset,
                 "count" to count,
                 "peer_id" to peerId,
-                "start_message_id" to startMessageId,
+                "start_cmid" to startCmId,
                 "rev" to rev,
                 "extended" to extended,
                 "fields" to fields
@@ -595,7 +598,6 @@ class IMessageService : IServiceRest() {
     fun getImportantMessages(
         offset: Int?,
         count: Int?,
-        startMessageId: Int?,
         extended: Int?,
         fields: String?
     ): Flow<BaseResponse<MessageImportantResponse>> {
@@ -604,7 +606,6 @@ class IMessageService : IServiceRest() {
             form(
                 "offset" to offset,
                 "count" to count,
-                "start_message_id" to startMessageId,
                 "extended" to extended,
                 "fields" to fields
             ),

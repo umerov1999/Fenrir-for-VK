@@ -6,13 +6,14 @@ import kotlinx.serialization.Serializable
 @Serializable(with = LongpollUpdateDtoAdapter::class)
 open class AbsLongpollEvent(val action: Int) {
     companion object {
-        const val ACTION_MESSAGES_FLAGS_SET = 2
-        const val ACTION_MESSAGES_FLAGS_RESET = 3
-        const val ACTION_MESSAGE_ADDED = 4
-        const val ACTION_MESSAGE_EDITED = 5
-        const val ACTION_SET_INPUT_MESSAGES_AS_READ = 6
-        const val ACTION_SET_OUTPUT_MESSAGES_AS_READ = 7
-        const val ACTION_MESSAGE_CHANGED = 18
+        const val ACTION_MESSAGES_FLAGS_SET = 10002
+        const val ACTION_MESSAGES_FLAGS_RESET = 10003
+        const val ACTION_MESSAGE_ADDED = 10004
+        const val ACTION_MESSAGE_EDITED = 10005
+        const val ACTION_SET_INPUT_MESSAGES_AS_READ = 10006
+        const val ACTION_SET_OUTPUT_MESSAGES_AS_READ = 10007
+        const val ACTION_MESSAGE_CHANGED = 10018
+        const val ACTION_PIN_CONVERSATION = 20
         const val ACTION_USER_TYPING_TEXT_IN_DIALOG = 63
         const val ACTION_USER_RECORDING_VOICE_IN_DIALOG = 64
         const val ACTION_USER_UPLOADING_PHOTO_IN_DIALOG = 65

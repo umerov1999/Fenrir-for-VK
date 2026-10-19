@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.db.FenrirContentProvider.Companion.getPeersContentUri
 import dev.ragnarok.fenrir.db.PeerStateEntity
 import dev.ragnarok.fenrir.db.column.DialogsColumns
 import dev.ragnarok.fenrir.db.column.DialogsColumns.getCV
-import dev.ragnarok.fenrir.db.column.MessagesColumns
 import dev.ragnarok.fenrir.db.column.PeersColumns
 import dev.ragnarok.fenrir.db.impl.AttachmentsStorage.Companion.mapAttachmentsFromBlobWithColumn
 import dev.ragnarok.fenrir.db.interfaces.IDialogsStorage
@@ -70,7 +69,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             val uri = getDialogsContentUriFor(criteria.accountId)
             val cursor = context.contentResolver.query(
                 uri, null, null,
-                null, DialogsColumns.MAJOR_ID + " DESC, " + DialogsColumns.MINOR_ID + " DESC"
+                null, DialogsColumns.MAJOR_ID + " DESC, " + DialogsColumns.FOREIGN_MESSAGE_DATE + " DESC"
             )
             val dbos: MutableList<DialogDboEntity> = ArrayList(safeCountOf(cursor))
             if (cursor != null) {
@@ -143,16 +142,15 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         cv.put(BaseColumns._ID, entity.peerId)
         cv.put(DialogsColumns.UNREAD, entity.unreadCount)
         cv.put(DialogsColumns.TITLE, entity.title)
-        cv.put(DialogsColumns.IN_READ, entity.inRead)
-        cv.put(DialogsColumns.OUT_READ, entity.outRead)
+        cv.put(DialogsColumns.IN_READ_CM_ID, entity.inReadCmId)
+        cv.put(DialogsColumns.OUT_READ_CM_ID, entity.outReadCmId)
         cv.put(DialogsColumns.PHOTO_50, entity.photo50)
         cv.put(DialogsColumns.PHOTO_100, entity.photo100)
         cv.put(DialogsColumns.PHOTO_200, entity.photo200)
-        cv.put(DialogsColumns.LAST_MESSAGE_ID, entity.message?.id.orZero())
+        cv.put(DialogsColumns.LAST_CM_ID, entity.message?.cmId.orZero())
         cv.put(DialogsColumns.ACL, entity.acl)
         cv.put(DialogsColumns.IS_GROUP_CHANNEL, entity.isGroupChannel)
-        cv.put(DialogsColumns.MAJOR_ID, entity.major_id)
-        cv.put(DialogsColumns.MINOR_ID, entity.minor_id)
+        cv.put(DialogsColumns.MAJOR_ID, entity.majorId)
         return cv
     }
 
@@ -161,8 +159,8 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         cv.put(BaseColumns._ID, entity.peerId)
         cv.put(PeersColumns.UNREAD, entity.unreadCount)
         cv.put(PeersColumns.TITLE, entity.title)
-        cv.put(PeersColumns.IN_READ, entity.inRead)
-        cv.put(PeersColumns.OUT_READ, entity.outRead)
+        cv.put(PeersColumns.IN_READ_CM_ID, entity.inReadCmId)
+        cv.put(PeersColumns.OUT_READ_CM_ID, entity.outReadCmId)
         cv.put(PeersColumns.PHOTO_50, entity.photo50)
         cv.put(PeersColumns.PHOTO_100, entity.photo100)
         cv.put(PeersColumns.PHOTO_200, entity.photo200)
@@ -184,9 +182,8 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         })
         cv.put(PeersColumns.ACL, entity.acl)
         cv.put(PeersColumns.IS_GROUP_CHANNEL, entity.isGroupChannel)
-        cv.put(PeersColumns.MAJOR_ID, entity.major_id)
-        cv.put(PeersColumns.MINOR_ID, entity.minor_id)
-        cv.put(PeersColumns.LAST_MESSAGE_ID, entity.lastMessageId)
+        cv.put(PeersColumns.MAJOR_ID, entity.majorId)
+        cv.put(PeersColumns.LAST_CM_ID, entity.lastCmId)
         return cv
     }
 
@@ -212,9 +209,9 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             val projection = arrayOf(
                 BaseColumns._ID,
                 PeersColumns.UNREAD,
-                PeersColumns.IN_READ,
-                PeersColumns.OUT_READ,
-                PeersColumns.LAST_MESSAGE_ID
+                PeersColumns.IN_READ_CM_ID,
+                PeersColumns.OUT_READ_CM_ID,
+                PeersColumns.LAST_CM_ID
             )
             val uri = getPeersContentUriFor(accountId)
             val where = BaseColumns._ID + " IN (" + join(",", ids) + ")"
@@ -224,10 +221,10 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 while (cursor.moveToNext()) {
                     val entity =
                         PeerStateEntity(cursor.getLong(BaseColumns._ID))
-                            .setInRead(cursor.getInt(PeersColumns.IN_READ))
-                            .setOutRead(cursor.getInt(PeersColumns.OUT_READ))
-                            .setLastMessageId(
-                                cursor.getInt(PeersColumns.LAST_MESSAGE_ID)
+                            .setInReadCmId(cursor.getInt(PeersColumns.IN_READ_CM_ID))
+                            .setOutReadCmId(cursor.getInt(PeersColumns.OUT_READ_CM_ID))
+                            .setLastCmId(
+                                cursor.getInt(PeersColumns.LAST_CM_ID)
                             )
                             .setUnreadCount(cursor.getInt(PeersColumns.UNREAD))
                     entities.add(entity)
@@ -243,18 +240,17 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             val projection = arrayOf(
                 PeersColumns.UNREAD,
                 PeersColumns.TITLE,
-                PeersColumns.IN_READ,
-                PeersColumns.OUT_READ,
+                PeersColumns.IN_READ_CM_ID,
+                PeersColumns.OUT_READ_CM_ID,
                 PeersColumns.PHOTO_50,
                 PeersColumns.PHOTO_100,
                 PeersColumns.PHOTO_200,
                 PeersColumns.KEYBOARD,
                 PeersColumns.PINNED,
-                PeersColumns.LAST_MESSAGE_ID,
+                PeersColumns.LAST_CM_ID,
                 PeersColumns.ACL,
                 PeersColumns.IS_GROUP_CHANNEL,
-                PeersColumns.MAJOR_ID,
-                PeersColumns.MINOR_ID
+                PeersColumns.MAJOR_ID
             )
             val uri = getPeersContentUriFor(accountId)
             val cursor = contentResolver.query(
@@ -272,8 +268,8 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                         .setPhoto200(cursor.getString(PeersColumns.PHOTO_200))
                         .setPhoto100(cursor.getString(PeersColumns.PHOTO_100))
                         .setPhoto50(cursor.getString(PeersColumns.PHOTO_50))
-                        .setInRead(cursor.getInt(PeersColumns.IN_READ))
-                        .setOutRead(cursor.getInt(PeersColumns.OUT_READ))
+                        .setInReadCmId(cursor.getInt(PeersColumns.IN_READ_CM_ID))
+                        .setOutReadCmId(cursor.getInt(PeersColumns.OUT_READ_CM_ID))
                         .setPinned(
                             if (pinJson == null) null else MsgPack.decodeFromByteArrayEx(
                                 MessageDboEntity.serializer(),
@@ -286,10 +282,9 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                                 keyboardJson
                             )
                         )
-                        .setLastMessageId(cursor.getInt(PeersColumns.LAST_MESSAGE_ID))
+                        .setLastCmId(cursor.getInt(PeersColumns.LAST_CM_ID))
                         .setAcl(cursor.getInt(PeersColumns.ACL))
-                        .setMajor_id(cursor.getInt(PeersColumns.MAJOR_ID))
-                        .setMinor_id(cursor.getInt(PeersColumns.MINOR_ID))
+                        .setMajorId(cursor.getInt(PeersColumns.MAJOR_ID))
                         .setGroupChannel(cursor.getBoolean(PeersColumns.IS_GROUP_CHANNEL))
                 }
                 cursor.close()
@@ -359,22 +354,20 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 val dialogscv = ContentValues()
                 val peerscv = ContentValues()
                 patch.inRead.requireNonNull {
-                    dialogscv.put(DialogsColumns.IN_READ, it.id)
-                    peerscv.put(PeersColumns.IN_READ, it.id)
+                    dialogscv.put(DialogsColumns.IN_READ_CM_ID, it.cmId)
+                    peerscv.put(PeersColumns.IN_READ_CM_ID, it.cmId)
                 }
                 patch.unread.requireNonNull {
                     dialogscv.put(DialogsColumns.UNREAD, it.count)
                     peerscv.put(PeersColumns.UNREAD, it.count)
                 }
                 patch.outRead.requireNonNull {
-                    dialogscv.put(DialogsColumns.OUT_READ, it.id)
-                    peerscv.put(PeersColumns.OUT_READ, it.id)
+                    dialogscv.put(DialogsColumns.OUT_READ_CM_ID, it.cmId)
+                    peerscv.put(PeersColumns.OUT_READ_CM_ID, it.cmId)
                 }
                 patch.lastMessage.requireNonNull {
-                    dialogscv.put(DialogsColumns.LAST_MESSAGE_ID, it.id)
-                    peerscv.put(PeersColumns.LAST_MESSAGE_ID, it.id)
-                    dialogscv.put(DialogsColumns.MINOR_ID, it.id)
-                    peerscv.put(PeersColumns.MINOR_ID, it.id)
+                    dialogscv.put(DialogsColumns.LAST_CM_ID, it.cmId)
+                    peerscv.put(PeersColumns.LAST_CM_ID, it.cmId)
                 }
                 patch.pin.requireNonNull {
                     it.pinned.ifNonNull({ dd ->
@@ -387,14 +380,18 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                     })
                 }
                 patch.botKeyboard.requireNonNull {
-                    it.keyboard.ifNonNull({
+                    it.keyboard.ifNonNull({ k ->
                         peerscv.put(
                             PeersColumns.KEYBOARD,
-                            MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), it)
+                            MsgPack.encodeToByteArrayEx(KeyboardEntity.serializer(), k)
                         )
                     }, {
                         peerscv.putNull(PeersColumns.KEYBOARD)
                     })
+                }
+                patch.majorId.requireNonNull {
+                    peerscv.put(PeersColumns.MAJOR_ID, it.majorId)
+                    dialogscv.put(DialogsColumns.MAJOR_ID, it.majorId)
                 }
                 patch.title.requireNonNull {
                     peerscv.put(PeersColumns.TITLE, it.title)
@@ -456,7 +453,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
     private fun mapEntity(accountId: Long, cursor: Cursor): DialogDboEntity {
         @ChatAction val action =
             cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_ACTION)
-        val messageId = cursor.getInt(DialogsColumns.LAST_MESSAGE_ID)
+        val cmId = cursor.getInt(DialogsColumns.LAST_CM_ID)
         val peerId = cursor.getLong(BaseColumns._ID)
         val fromId =
             cursor.getLong(DialogsColumns.FOREIGN_MESSAGE_FROM_ID)
@@ -479,7 +476,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             i.setOut(i.fromId == accountId)
         }
 
-        val message = MessageDboEntity().set(messageId, peerId, fromId)
+        val message = MessageDboEntity().set(cmId, peerId, fromId)
             .setText(cursor.getString(DialogsColumns.FOREIGN_MESSAGE_TEXT))
             .setDate(cursor.getLong(DialogsColumns.FOREIGN_MESSAGE_DATE))
             .setOut(cursor.getBoolean(DialogsColumns.FOREIGN_MESSAGE_OUT))
@@ -490,21 +487,20 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 )
             )
             .setForwardMessages(forwards)
-            .setConversationMessageId(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_CMID))
             .setAction(action)
+            .setVersion(cursor.getInt(DialogsColumns.FOREIGN_MESSAGE_VERSION))
         return DialogDboEntity(peerId)
             .setMessage(message)
-            .setInRead(cursor.getInt(DialogsColumns.IN_READ))
-            .setOutRead(cursor.getInt(DialogsColumns.OUT_READ))
+            .setInReadCmId(cursor.getInt(DialogsColumns.IN_READ_CM_ID))
+            .setOutReadCmId(cursor.getInt(DialogsColumns.OUT_READ_CM_ID))
             .setTitle(cursor.getString(DialogsColumns.TITLE))
             .setPhoto50(cursor.getString(DialogsColumns.PHOTO_50))
             .setPhoto100(cursor.getString(DialogsColumns.PHOTO_100))
             .setPhoto200(cursor.getString(DialogsColumns.PHOTO_200))
             .setUnreadCount(cursor.getInt(DialogsColumns.UNREAD))
-            .setLastMessageId(cursor.getInt(DialogsColumns.LAST_MESSAGE_ID))
+            .setInReadCmId(cursor.getInt(DialogsColumns.LAST_CM_ID))
             .setAcl(cursor.getInt(DialogsColumns.ACL))
-            .setMajor_id(cursor.getInt(DialogsColumns.MAJOR_ID))
-            .setMinor_id(cursor.getInt(DialogsColumns.MINOR_ID))
+            .setMajorId(cursor.getInt(DialogsColumns.MAJOR_ID))
             .setGroupChannel(cursor.getBoolean(DialogsColumns.IS_GROUP_CHANNEL))
     }
 

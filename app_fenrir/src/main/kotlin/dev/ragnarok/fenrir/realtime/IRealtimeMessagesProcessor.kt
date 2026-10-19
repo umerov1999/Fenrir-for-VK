@@ -11,9 +11,8 @@ interface IRealtimeMessagesProcessor {
     @Throws(QueueContainsException::class)
     fun process(
         accountId: Long,
-        messageId: Int,
+        cmId: Int,
         peerId: Long,
-        conversationMessageId: Int,
         ignoreIfExists: Boolean
     ): Int
 

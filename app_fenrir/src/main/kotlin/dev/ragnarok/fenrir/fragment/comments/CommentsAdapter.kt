@@ -93,7 +93,8 @@ class CommentsAdapter(
                 comment.attachments,
                 holder.attachmentContainers,
                 true,
-                null, null
+                null, null,
+                null
             )
         }
         holder.tvOwnerName.text = comment.fullAuthorName

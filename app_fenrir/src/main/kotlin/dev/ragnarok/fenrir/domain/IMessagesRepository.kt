@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.api.model.longpoll.InputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsResetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.MessageFlagsSetUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.PinConversationUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
 import dev.ragnarok.fenrir.model.AbsModel
@@ -43,6 +44,11 @@ interface IMessagesRepository {
         resetUpdates: List<InputMessagesSetReadUpdate>?
     ): Flow<Boolean>
 
+    fun handlePinConversationUpdates(
+        accountId: Long,
+        updates: List<PinConversationUpdate>?,
+    ): Flow<Boolean>
+
     fun handleUnreadBadgeUpdates(
         accountId: Long,
         updates: List<BadgeCountChangeUpdate>?
@@ -60,7 +66,7 @@ interface IMessagesRepository {
 
     fun observeSentMessages(): SharedFlow<SentMsg>
     fun observePeerUpdates(): SharedFlow<List<PeerUpdate>>
-    fun observeMessageUpdates(): SharedFlow<List<MessageUpdate>>
+    fun observeMessageUpdates(): SharedFlow<MessageUpdate>
     fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInDialog>>
     fun observePeerDeleting(): SharedFlow<PeerDeleting>
     fun getConversationSingle(accountId: Long, peerId: Long, mode: Mode): Flow<Conversation>
@@ -112,7 +118,7 @@ interface IMessagesRepository {
      * @param peerId         идентификатор диалога
      * @param count          количество сообщений
      * @param offset         сдвиг (может быть как положительным, так и отрицательным)
-     * @param startMessageId идентификатор сообщения, после которого необходимо получить (если null - от последнего)
+     * @param startCmId идентификатор сообщения, после которого необходимо получить (если null - от последнего)
      * @param cacheData      если true - сохранить полученные данные в кэш
      * @return полученные сообщения
      */
@@ -121,7 +127,7 @@ interface IMessagesRepository {
         peerId: Long,
         count: Int,
         offset: Int?,
-        startMessageId: Int?,
+        startCmId: Int?,
         excludeStartMessage: Boolean,
         cacheData: Boolean,
         rev: Boolean
@@ -138,16 +144,15 @@ interface IMessagesRepository {
         accountId: Long,
         count: Int,
         offset: Int?,
-        startMessageId: Int?
     ): Flow<List<Message>>
 
-    fun getDialogs(accountId: Long, count: Int, startMessageId: Int?): Flow<List<Dialog>>
+    fun getDialogs(accountId: Long, count: Int, startPeerId: Long?, startCmId: Int?): Flow<List<Dialog>>
     fun insertDialog(accountId: Long, dialog: Dialog): Flow<Boolean>
-    fun findCachedMessages(accountId: Long, ids: List<Pair<Long, Int>>): Flow<List<Message>>
+    fun findCachedMessages(accountId: Long, cmIds: List<Pair<Long, Int>>): Flow<List<Message>>
     fun put(builder: SaveMessageBuilder): Flow<Message>
     fun sendUnsentMessage(accountIds: Collection<Long>): Flow<SentMsg>
-    fun enqueueAgain(accountId: Long, peerId: Long, messageId: Int): Flow<Boolean>
-    fun enqueueAgainList(accountId: Long, peerId: Long, ids: Collection<Int>): Flow<Boolean>
+    fun enqueueAgain(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean>
+    fun enqueueAgainList(accountId: Long, peerId: Long, cmIds: Collection<Int>): Flow<Boolean>
 
     /**
      * Поиск диалогов
@@ -180,12 +185,13 @@ interface IMessagesRepository {
         spam: Boolean
     ): Flow<Boolean>
 
-    fun restoreMessage(accountId: Long, peerId: Long, messageId: Int): Flow<Boolean>
+    fun restoreMessage(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean>
     fun editChat(accountId: Long, chatId: Long, title: String?): Flow<Boolean>
     fun createGroupChat(accountId: Long, users: Collection<Long>, title: String?): Flow<Long>
     fun recogniseAudioMessage(
         accountId: Long,
-        messageId: Int?,
+        peerId: Long?,
+        cmId: Int?,
         audioMessageId: String?
     ): Flow<Int>
 
@@ -196,7 +202,7 @@ interface IMessagesRepository {
         isAdmin: Boolean
     ): Flow<Boolean>
 
-    fun markAsRead(accountId: Long, peerId: Long, toId: Int): Flow<Boolean>
+    fun markAsRead(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean>
     fun markAsImportant(
         accountId: Long,
         peerId: Long,
@@ -205,18 +211,18 @@ interface IMessagesRepository {
     ): Flow<Boolean>
 
     fun pin(accountId: Long, peerId: Long, message: Message?): Flow<Boolean>
-    fun pinUnPinConversation(accountId: Long, peerId: Long, peen: Boolean): Flow<Boolean>
-    fun markAsListened(accountId: Long, messageId: Int): Flow<Boolean>
+    fun pinUnPinConversation(accountId: Long, peerId: Long, pin: Boolean): Flow<Boolean>
+    fun markAsListened(accountId: Long, peerId: Long, cmId: Int): Flow<Boolean>
     fun sendOrDeleteReaction(
         accountId: Long,
-        peerId: Long, cMid: Int, reactionId: Int?
+        peerId: Long, cmId: Int, reactionId: Int?
     ): Flow<Boolean>
 
     fun getReactionsAssets(accountId: Long): Flow<List<ReactionAsset>>
     fun getReactedPeers(
         accountId: Long,
         peerId: Long,
-        cMid: Int,
+        cmId: Int,
         reactionId: Int?
     ): Flow<List<ReactedMessagesPeers>>
 }

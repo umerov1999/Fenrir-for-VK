@@ -104,10 +104,10 @@ class Video2WallUploadable(
         val dest = upload.destination
         return when (dest.method) {
             Method.TO_COMMENT -> repository
-                .attach(accountId, AttachToType.COMMENT, dest.id, listOf(video))
+                .attach(accountId, AttachToType.COMMENT, dest.id, null, listOf(video))
 
             Method.TO_WALL -> repository
-                .attach(accountId, AttachToType.POST, dest.id, listOf(video))
+                .attach(accountId, AttachToType.POST, dest.id, null, listOf(video))
 
             else -> toFlowThrowable(UnsupportedOperationException())
         }

@@ -9,9 +9,6 @@ class SendMessageResponse {
     @SerialName("peer_id")
     var peer_id = 0L
 
-    @SerialName("message_id")
-    var message_id = 0
-
     @SerialName("conversation_message_id")
     var conversation_message_id = 0
 

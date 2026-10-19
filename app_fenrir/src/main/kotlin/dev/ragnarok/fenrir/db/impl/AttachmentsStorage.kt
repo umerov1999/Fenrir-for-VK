@@ -18,6 +18,7 @@ import dev.ragnarok.fenrir.db.model.entity.DboEntity
 import dev.ragnarok.fenrir.getBlob
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
+import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -57,13 +58,21 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     override fun getAttachmentsFromBlob(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<List<DboEntity>?> {
         return getAttachmentsFromBlob(
             accountId,
             attachToType,
-            BaseColumns._ID + " = ?",
-            arrayOf(attachToDbId.toString())
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+                elementIdForType(
+                    attachToType
+                )
+            } = ?" else "${BaseColumns._ID} = ?",
+            args = if (attachToElement != null) arrayOf(
+                attachToElement.first.toString(),
+                attachToElement.second.toString()
+            ) else arrayOf(attachToDbId.toString())
         )
     }
 
@@ -121,14 +130,22 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         accountId: Long,
         @AttachToType attachToType: Int,
         attachmentKey: String,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
         return remove(
             accountId = accountId,
             attachToType = attachToType,
             attachmentKey = attachmentKey,
-            where = BaseColumns._ID + " = ?",
-            args = arrayOf(attachToDbId.toString())
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+                elementIdForType(
+                    attachToType
+                )
+            } = ?" else "${BaseColumns._ID} = ?",
+            args = if (attachToElement != null) arrayOf(
+                attachToElement.first.toString(),
+                attachToElement.second.toString()
+            ) else arrayOf(attachToDbId.toString())
         )
     }
 
@@ -154,13 +171,21 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     override fun removeAll(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Boolean> {
         return removeAll(
             accountId,
             attachToType,
-            BaseColumns._ID + " = ?",
-            arrayOf(attachToDbId.toString())
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+                elementIdForType(
+                    attachToType
+                )
+            } = ?" else "${BaseColumns._ID} = ?",
+            args = if (attachToElement != null) arrayOf(
+                attachToElement.first.toString(),
+                attachToElement.second.toString()
+            ) else arrayOf(attachToDbId.toString())
         )
     }
 
@@ -195,13 +220,21 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
     override fun getAttachmentsCount(
         accountId: Long,
         @AttachToType attachToType: Int,
-        attachToDbId: Int
+        attachToDbId: Int,
+        attachToElement: Pair<Long, Int>?
     ): Flow<Int> {
         return getAttachmentsCount(
             accountId,
             attachToType,
-            BaseColumns._ID + " = ?",
-            arrayOf(attachToDbId.toString())
+            where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+                elementIdForType(
+                    attachToType
+                )
+            } = ?" else "${BaseColumns._ID} = ?",
+            args = if (attachToElement != null) arrayOf(
+                attachToElement.first.toString(),
+                attachToElement.second.toString()
+            ) else arrayOf(attachToDbId.toString())
         )
     }
 
@@ -262,10 +295,11 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
         @AttachToType attachToType: Int,
         attachmentsEntities: List<DboEntity>?,
         attachToDbId: Int?,
+        attachToElement: Pair<Long, Int>?,
         replace: Boolean,
         accountId: Long?
     ): Flow<Boolean> {
-        return if (attachToDbId == null) {
+        return if (attachToDbId == null && attachToElement == null) {
             attachToBlobSync(
                 cv = cv,
                 attachToType = attachToType,
@@ -280,8 +314,15 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
                 cv = cv,
                 attachToType = attachToType,
                 attachmentsEntities = attachmentsEntities,
-                where = BaseColumns._ID + " = ?",
-                args = arrayOf(attachToDbId.toString()),
+                where = if (attachToElement != null) "${elementOwnerIdForType(attachToType)} = ? AND ${
+                    elementIdForType(
+                        attachToType
+                    )
+                } = ?" else "${BaseColumns._ID} = ?",
+                args = if (attachToElement != null) arrayOf(
+                    attachToElement.first.toString(),
+                    attachToElement.second.toString()
+                ) else arrayOf(attachToDbId.toString()),
                 replace = replace,
                 accountId = accountId
             )
@@ -336,6 +377,24 @@ internal class AttachmentsStorage(base: AppStorages) : AbsStorage(base), IAttach
             dbos: List<DboEntity>?
         ) {
             putAttachmentsToBlob(cv, dataColumnFor(attachToType), dbos)
+        }
+
+        internal fun elementIdForType(@AttachToType type: Int): String {
+            return when (type) {
+                AttachToType.COMMENT -> CommentsColumns.COMMENT_ID
+                AttachToType.MESSAGE -> MessagesColumns.CONVERSATION_MESSAGE_ID
+                AttachToType.POST -> PostsColumns.POST_ID
+                else -> throw IllegalArgumentException()
+            }
+        }
+
+        internal fun elementOwnerIdForType(@AttachToType type: Int): String {
+            return when (type) {
+                AttachToType.COMMENT -> CommentsColumns.SOURCE_ID
+                AttachToType.MESSAGE -> MessagesColumns.PEER_ID
+                AttachToType.POST -> PostsColumns.OWNER_ID
+                else -> throw IllegalArgumentException()
+            }
         }
 
         internal fun uriForType(@AttachToType type: Int, accountId: Long): Uri {

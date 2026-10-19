@@ -21,13 +21,13 @@ class Conversation(val id: Long) {
     /**
      * ID of the last read incoming message.
      */
-    var inRead = 0
+    var inReadCmId = 0
         private set
 
     /**
      * ID of the last read outcoming message.
      */
-    var outRead = 0
+    var outReadCmId = 0
         private set
     var interlocutor: Owner? = null
         private set
@@ -39,9 +39,7 @@ class Conversation(val id: Long) {
         private set
     var acl = 0
         private set
-    var major_id = 0
-        private set
-    var minor_id = 0
+    var majorId = 0
         private set
 
     fun setAcl(acl: Int): Conversation {
@@ -139,13 +137,13 @@ class Conversation(val id: Long) {
         return this
     }
 
-    fun setInRead(inRead: Int): Conversation {
-        this.inRead = inRead
+    fun setInReadCmId(inReadCmId: Int): Conversation {
+        this.inReadCmId = inReadCmId
         return this
     }
 
-    fun setOutRead(outRead: Int): Conversation {
-        this.outRead = outRead
+    fun setOutReadCmId(outReadCmId: Int): Conversation {
+        this.outReadCmId = outReadCmId
         return this
     }
 
@@ -154,13 +152,8 @@ class Conversation(val id: Long) {
         return this
     }
 
-    fun setMajor_id(major_id: Int): Conversation {
-        this.major_id = major_id
-        return this
-    }
-
-    fun setMinor_id(minor_id: Int): Conversation {
-        this.minor_id = minor_id
+    fun setMajorId(majorId: Int): Conversation {
+        this.majorId = majorId
         return this
     }
 

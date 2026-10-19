@@ -362,7 +362,7 @@ object Utils {
         return count
     }
 
-    inline fun <reified T : IdentificablePair> collectPairedIds(
+    inline fun <reified T : IdentificablePair> collectPairedIdsList(
         data: Collection<T?>?,
         predicate: (T) -> Boolean
     ): List<Pair<Long, Int>> {
@@ -375,6 +375,24 @@ object Utils {
         for (t in data) {
             if (t?.let { predicate.invoke(it) } == true) {
                 ids.add(Pair(t.getObjectOwnerId(), t.getObjectId()))
+            }
+        }
+        return ids
+    }
+
+    inline fun <reified T : IdentificablePair> collectPairedIdsMap(
+        data: Collection<T?>?,
+        predicate: (T) -> Boolean
+    ): Map<Long, List<Int>> {
+        data ?: return emptyMap()
+        val count = countOfPaired(data, predicate)
+        if (count == 0) {
+            return emptyMap()
+        }
+        val ids = HashMap<Long, ArrayList<Int>>(count)
+        for (t in data) {
+            if (t?.let { predicate.invoke(it) } == true) {
+                ids.getOrPut(t.getObjectOwnerId(), { ArrayList() }).add(t.getObjectId())
             }
         }
         return ids

@@ -125,10 +125,10 @@ class Photo2WallUploadable(
         val dest = upload.destination
         return when (dest.method) {
             Method.TO_COMMENT -> repository
-                .attach(accountId, AttachToType.COMMENT, dest.id, listOf(photo))
+                .attach(accountId, AttachToType.COMMENT, dest.id, null, listOf(photo))
 
             Method.TO_WALL -> repository
-                .attach(accountId, AttachToType.POST, dest.id, listOf(photo))
+                .attach(accountId, AttachToType.POST, dest.id, null, listOf(photo))
 
             else -> toFlowThrowable(UnsupportedOperationException())
         }

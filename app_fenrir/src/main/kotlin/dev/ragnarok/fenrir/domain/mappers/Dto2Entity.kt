@@ -867,10 +867,10 @@ object Dto2Entity {
         contacts: List<VKApiConversation.ContactElement>?
     ): PeerDialogEntity? {
         val entity = PeerDialogEntity(dto.peer?.id ?: return null)
-            .setInRead(dto.inRead)
-            .setOutRead(dto.outRead)
+            .setInReadCmId(dto.inReadCmId)
+            .setOutReadCmId(dto.outReadCmId)
             .setUnreadCount(dto.unreadCount)
-            .setLastMessageId(dto.lastMessageId)
+            .setLastCmId(dto.lastCmId)
             .setAcl(calculateConversationAcl(dto))
         dto.settings.requireNonNull {
             entity.setTitle(it.title)
@@ -893,8 +893,7 @@ object Dto2Entity {
             }
         }
         dto.sort_id.requireNonNull {
-            entity.setMajor_id(it.major_id)
-            entity.setMinor_id(it.minor_id)
+            entity.setMajorId(it.major_id)
         }
         entity.setCurrentKeyboard(mapKeyboard(dto.current_keyboard))
         return entity
@@ -906,10 +905,10 @@ object Dto2Entity {
     ): DialogDboEntity? {
         val messageEntity = dto.lastMessage?.let { mapMessage(it) }
         val entity = DialogDboEntity(messageEntity?.peerId ?: return null)
-            .setLastMessageId(messageEntity.id)
+            .setLastCmId(messageEntity.cmId)
             .setMessage(messageEntity)
-            .setInRead(dto.conversation?.inRead.orZero())
-            .setOutRead(dto.conversation?.outRead.orZero())
+            .setInReadCmId(dto.conversation?.inReadCmId.orZero())
+            .setOutReadCmId(dto.conversation?.outReadCmId.orZero())
             .setUnreadCount(dto.conversation?.unreadCount.orZero())
             .setAcl(calculateConversationAcl(dto.conversation))
         dto.conversation?.settings.requireNonNull {
@@ -934,8 +933,7 @@ object Dto2Entity {
             }
         }
         dto.conversation?.sort_id.requireNonNull {
-            entity.setMajor_id(it.major_id)
-            entity.setMinor_id(it.minor_id)
+            entity.setMajorId(it.major_id)
         }
         entity.setCurrentKeyboard(mapKeyboard(dto.conversation?.current_keyboard))
         return entity
@@ -1491,7 +1489,7 @@ object Dto2Entity {
             } catch (_: NumberFormatException) {
             }
         }
-        val entity = MessageDboEntity().set(dto.id, dto.peer_id, dto.from_id)
+        val entity = MessageDboEntity().set(dto.conversation_message_id, dto.peer_id, dto.from_id)
             .setDate(dto.date)
             .setOut(dto.out)
             .setText(dto.text)
@@ -1510,7 +1508,7 @@ object Dto2Entity {
             .setRandomId(randomId)
             .setUpdateTime(dto.update_time)
             .setPayload(dto.payload)
-            .setConversationMessageId(dto.conversation_message_id)
+            .setVersion(dto.version)
             .setReactionId(dto.reaction_id)
             .setReactions(
                 mapAll(

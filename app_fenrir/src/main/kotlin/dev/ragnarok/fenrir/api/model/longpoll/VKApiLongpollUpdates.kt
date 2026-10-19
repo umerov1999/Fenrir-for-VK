@@ -11,21 +11,27 @@ class VKApiLongpollUpdates {
     var ts: Long = 0
     var failed = 0
 
-    var add_message_updates: MutableList<AddMessageUpdate>? = null
+    var addMessageUpdates: MutableList<AddMessageUpdate>? = null
 
-    var typing_message_or_uploading_in_dialog_updates: MutableList<TypingMessageOrUploadingInDialogUpdate>? =
+    var typingMessageOrUploadingInDialogUpdates: MutableList<TypingMessageOrUploadingInDialogUpdate>? =
         null
-    var message_flags_reset_updates: MutableList<MessageFlagsResetUpdate>? = null
-    var message_flags_set_updates: MutableList<MessageFlagsSetUpdate>? = null
-    var input_messages_set_read_updates: MutableList<InputMessagesSetReadUpdate>? = null
-    var output_messages_set_read_updates: MutableList<OutputMessagesSetReadUpdate>? = null
-    var badge_count_change_updates: MutableList<BadgeCountChangeUpdate>? = null
-    var message_reaction_changed_updates: MutableList<ReactionMessageChangeUpdate>? = null
+    var messageFlagsResetUpdates: MutableList<MessageFlagsResetUpdate>? = null
+    var messageFlagsSetUpdates: MutableList<MessageFlagsSetUpdate>? = null
+    var inputMessagesSetReadUpdates: MutableList<InputMessagesSetReadUpdate>? = null
+    var outputMessagesSetReadUpdates: MutableList<OutputMessagesSetReadUpdate>? = null
+    var badgeCountChangeUpdates: MutableList<BadgeCountChangeUpdate>? = null
+    var messageReactionChangedUpdates: MutableList<ReactionMessageChangeUpdate>? = null
+    var pinConversationUpdates: MutableList<PinConversationUpdate>? = null
 
     fun isOnlyAddMessages(): Boolean {
-        return typing_message_or_uploading_in_dialog_updates.isNullOrEmpty() &&
-                message_flags_reset_updates.isNullOrEmpty() && message_flags_set_updates.isNullOrEmpty() && input_messages_set_read_updates.isNullOrEmpty() &&
-                output_messages_set_read_updates.isNullOrEmpty() && badge_count_change_updates.isNullOrEmpty() && message_reaction_changed_updates.isNullOrEmpty()
+        return typingMessageOrUploadingInDialogUpdates.isNullOrEmpty() &&
+                messageFlagsResetUpdates.isNullOrEmpty() &&
+                messageFlagsSetUpdates.isNullOrEmpty() &&
+                inputMessagesSetReadUpdates.isNullOrEmpty() &&
+                outputMessagesSetReadUpdates.isNullOrEmpty() &&
+                badgeCountChangeUpdates.isNullOrEmpty() &&
+                messageReactionChangedUpdates.isNullOrEmpty() &&
+                pinConversationUpdates.isNullOrEmpty()
     }
 
     //public VkApiLongpollUpdates(int account_id) {
@@ -33,18 +39,18 @@ class VKApiLongpollUpdates {
     //}
     fun putUpdate(update: AbsLongpollEvent) {
         when (update.action) {
-            AbsLongpollEvent.ACTION_MESSAGES_FLAGS_SET -> message_flags_set_updates =
-                addAndReturn(message_flags_set_updates, update as MessageFlagsSetUpdate)
+            AbsLongpollEvent.ACTION_MESSAGES_FLAGS_SET -> messageFlagsSetUpdates =
+                addAndReturn(messageFlagsSetUpdates, update as MessageFlagsSetUpdate)
 
-            AbsLongpollEvent.ACTION_MESSAGES_FLAGS_RESET -> message_flags_reset_updates =
-                addAndReturn(message_flags_reset_updates, update as MessageFlagsResetUpdate)
+            AbsLongpollEvent.ACTION_MESSAGES_FLAGS_RESET -> messageFlagsResetUpdates =
+                addAndReturn(messageFlagsResetUpdates, update as MessageFlagsResetUpdate)
 
-            AbsLongpollEvent.ACTION_MESSAGE_EDITED, AbsLongpollEvent.ACTION_MESSAGE_CHANGED, AbsLongpollEvent.ACTION_MESSAGE_ADDED -> add_message_updates =
-                addAndReturn(add_message_updates, update as AddMessageUpdate)
+            AbsLongpollEvent.ACTION_MESSAGE_EDITED, AbsLongpollEvent.ACTION_MESSAGE_CHANGED, AbsLongpollEvent.ACTION_MESSAGE_ADDED -> addMessageUpdates =
+                addAndReturn(addMessageUpdates, update as AddMessageUpdate)
 
-            AbsLongpollEvent.ACTION_MESSAGE_REACTION_CHANGE -> message_reaction_changed_updates =
+            AbsLongpollEvent.ACTION_MESSAGE_REACTION_CHANGE -> messageReactionChangedUpdates =
                 addAndReturn(
-                    message_reaction_changed_updates,
+                    messageReactionChangedUpdates,
                     update as ReactionMessageChangeUpdate
                 )
 
@@ -52,36 +58,39 @@ class VKApiLongpollUpdates {
             AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_DIALOG,
             AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_DIALOG,
             AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> typing_message_or_uploading_in_dialog_updates =
+            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> typingMessageOrUploadingInDialogUpdates =
                 addAndReturn(
-                    typing_message_or_uploading_in_dialog_updates,
+                    typingMessageOrUploadingInDialogUpdates,
                     update as TypingMessageOrUploadingInDialogUpdate
                 )
 
-            AbsLongpollEvent.ACTION_SET_INPUT_MESSAGES_AS_READ -> input_messages_set_read_updates =
-                addAndReturn(input_messages_set_read_updates, update as InputMessagesSetReadUpdate)
+            AbsLongpollEvent.ACTION_SET_INPUT_MESSAGES_AS_READ -> inputMessagesSetReadUpdates =
+                addAndReturn(inputMessagesSetReadUpdates, update as InputMessagesSetReadUpdate)
 
-            AbsLongpollEvent.ACTION_SET_OUTPUT_MESSAGES_AS_READ -> output_messages_set_read_updates =
+            AbsLongpollEvent.ACTION_SET_OUTPUT_MESSAGES_AS_READ -> outputMessagesSetReadUpdates =
                 addAndReturn(
-                    output_messages_set_read_updates,
+                    outputMessagesSetReadUpdates,
                     update as OutputMessagesSetReadUpdate
                 )
 
-            AbsLongpollEvent.ACTION_COUNTER_UNREAD_WAS_CHANGED -> badge_count_change_updates =
-                addAndReturn(badge_count_change_updates, update as BadgeCountChangeUpdate)
+            AbsLongpollEvent.ACTION_COUNTER_UNREAD_WAS_CHANGED -> badgeCountChangeUpdates =
+                addAndReturn(badgeCountChangeUpdates, update as BadgeCountChangeUpdate)
+            AbsLongpollEvent.ACTION_PIN_CONVERSATION -> pinConversationUpdates =
+                addAndReturn(pinConversationUpdates, update as PinConversationUpdate)
         }
     }
 
     val updatesCount: Int
         get() = safeCountOfMultiple(
-            typing_message_or_uploading_in_dialog_updates,
-            add_message_updates,
-            message_flags_reset_updates,
-            message_flags_set_updates,
-            input_messages_set_read_updates,
-            output_messages_set_read_updates,
-            badge_count_change_updates,
-            message_reaction_changed_updates
+            typingMessageOrUploadingInDialogUpdates,
+            addMessageUpdates,
+            messageFlagsResetUpdates,
+            messageFlagsSetUpdates,
+            inputMessagesSetReadUpdates,
+            outputMessagesSetReadUpdates,
+            badgeCountChangeUpdates,
+            messageReactionChangedUpdates,
+            pinConversationUpdates
         )
     val isEmpty: Boolean
         get() = updatesCount == 0

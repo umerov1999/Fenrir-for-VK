@@ -14,18 +14,20 @@ class PeerPatch(val id: Long) {
         private set
     var pin: Pin? = null
         private set
-    var botKeyboard: BotKeyboard? = null
-        private set
     var title: Title? = null
         private set
+    var botKeyboard: BotKeyboard? = null
+        private set
+    var majorId: MajorId? = null
+        private set
 
-    fun withInRead(id: Int): PeerPatch {
-        inRead = ReadTo(id)
+    fun withInReadCmId(cmId: Int): PeerPatch {
+        inRead = ReadTo(cmId)
         return this
     }
 
-    fun withOutRead(id: Int): PeerPatch {
-        outRead = ReadTo(id)
+    fun withOutReadCmId(cmId: Int): PeerPatch {
+        outRead = ReadTo(cmId)
         return this
     }
 
@@ -34,9 +36,9 @@ class PeerPatch(val id: Long) {
         return this
     }
 
-    fun withLastMessage(id: Int): PeerPatch {
-        if (id != 0) {
-            lastMessage = LastMessage(id)
+    fun withLastCmId(cmId: Int): PeerPatch {
+        if (cmId != 0) {
+            lastMessage = LastMessage(cmId)
         }
         return this
     }
@@ -46,20 +48,26 @@ class PeerPatch(val id: Long) {
         return this
     }
 
+    fun withTitle(title: String?): PeerPatch {
+        this.title = Title(title)
+        return this
+    }
+
     fun withKeyboard(keyboard: KeyboardEntity?): PeerPatch {
         botKeyboard = BotKeyboard(keyboard)
         return this
     }
 
-    fun withTitle(title: String?): PeerPatch {
-        this.title = Title(title)
+    fun withMajorId(majorId: Int): PeerPatch {
+        this.majorId = MajorId(majorId)
         return this
     }
 
     class Title internal constructor(val title: String?)
     class Unread internal constructor(val count: Int)
     class Pin internal constructor(val pinned: MessageDboEntity?)
+    class LastMessage internal constructor(val cmId: Int)
+    class ReadTo internal constructor(val cmId: Int)
     class BotKeyboard internal constructor(val keyboard: KeyboardEntity?)
-    class LastMessage internal constructor(val id: Int)
-    class ReadTo(val id: Int)
+    class MajorId internal constructor(val majorId: Int)
 }

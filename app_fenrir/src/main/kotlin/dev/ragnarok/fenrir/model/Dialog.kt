@@ -30,17 +30,15 @@ class Dialog : IdentificableOwner, Parcelable {
         private set
     var interlocutor: Owner? = null
         private set
-    var lastMessageId = 0
+    var lastCmId = 0
         private set
-    var inRead = 0
+    var inReadCmId = 0
         private set
-    var outRead = 0
+    var outReadCmId = 0
         private set
     var isGroupChannel = false
         private set
-    var major_id = 0
-        private set
-    var minor_id = 0
+    var majorId = 0
         private set
 
     constructor()
@@ -53,11 +51,10 @@ class Dialog : IdentificableOwner, Parcelable {
         photo200 = parcel.readString()
         message = parcel.readTypedObjectCompat(Message.CREATOR)
         interlocutor = ParcelableOwnerWrapper.readOwner(parcel)
-        lastMessageId = parcel.readInt()
-        inRead = parcel.readInt()
-        outRead = parcel.readInt()
-        major_id = parcel.readInt()
-        minor_id = parcel.readInt()
+        lastCmId = parcel.readInt()
+        inReadCmId = parcel.readInt()
+        outReadCmId = parcel.readInt()
+        majorId = parcel.readInt()
         isGroupChannel = parcel.getBoolean()
     }
 
@@ -123,8 +120,8 @@ class Dialog : IdentificableOwner, Parcelable {
         return this
     }
 
-    fun setLastMessageId(lastMessageId: Int): Dialog {
-        this.lastMessageId = lastMessageId
+    fun setLastCmId(lastCmId: Int): Dialog {
+        this.lastCmId = lastCmId
         return this
     }
 
@@ -215,16 +212,16 @@ class Dialog : IdentificableOwner, Parcelable {
             return interlocutor?.maxSquareAvatar
         }
 
-    fun setInRead(inRead: Int): Dialog {
-        this.inRead = inRead
+    fun setInReadCmId(inReadCmId: Int): Dialog {
+        this.inReadCmId = inReadCmId
         return this
     }
 
     val isLastMessageRead: Boolean
-        get() = if (isLastMessageOut) lastMessageId <= outRead else lastMessageId <= inRead
+        get() = if (isLastMessageOut) lastCmId <= outReadCmId else lastCmId <= inReadCmId
 
-    fun setOutRead(outRead: Int): Dialog {
-        this.outRead = outRead
+    fun setOutReadCmId(outReadCmId: Int): Dialog {
+        this.outReadCmId = outReadCmId
         return this
     }
 
@@ -233,13 +230,8 @@ class Dialog : IdentificableOwner, Parcelable {
         return this
     }
 
-    fun setMajor_id(major_id: Int): Dialog {
-        this.major_id = major_id
-        return this
-    }
-
-    fun setMinor_id(minor_id: Int): Dialog {
-        this.minor_id = minor_id
+    fun setMajorId(majorId: Int): Dialog {
+        this.majorId = majorId
         return this
     }
 
@@ -260,11 +252,10 @@ class Dialog : IdentificableOwner, Parcelable {
         dest.writeString(photo200)
         dest.writeTypedObjectCompat(message, flags)
         ParcelableOwnerWrapper.writeOwner(dest, flags, interlocutor)
-        dest.writeInt(lastMessageId)
-        dest.writeInt(inRead)
-        dest.writeInt(outRead)
-        dest.writeInt(major_id)
-        dest.writeInt(minor_id)
+        dest.writeInt(lastCmId)
+        dest.writeInt(inReadCmId)
+        dest.writeInt(outReadCmId)
+        dest.writeInt(majorId)
         dest.putBoolean(isGroupChannel)
     }
 

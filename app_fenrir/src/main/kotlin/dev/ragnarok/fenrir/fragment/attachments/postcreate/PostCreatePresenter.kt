@@ -273,7 +273,8 @@ class PostCreatePresenter(
             .getAttachments(
                 accountId = accountId,
                 attachToType = AttachToType.POST,
-                attachToDbId = postDbid
+                attachToDbId = postDbid,
+                attachToElement = null
             )
             .map { createFrom(it, true) }
     }
@@ -360,6 +361,7 @@ class PostCreatePresenter(
                 accountId = accountId,
                 attachToType = AttachToType.POST,
                 attachToDbId = pPost.dbid,
+                attachToElement = null,
                 models = models
             ).hiddenIO()
         )
@@ -373,7 +375,8 @@ class PostCreatePresenter(
                     accountId = accountId,
                     attachToType = AttachToType.POST,
                     attachmentKey = attachment.attachment.getAttachmentKey(),
-                    attachToDbId = pPost.dbid
+                    attachToDbId = pPost.dbid,
+                    attachToElement = null
                 ).hiddenIO()
             )
         } else {

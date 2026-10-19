@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.db.model
 
 import dev.ragnarok.fenrir.db.model.entity.ReactionEntity
 
-class MessagePatch(val messageId: Int, val peerId: Long) {
+class MessagePatch(val cmId: Int, val peerId: Long) {
     var deletion: Deletion? = null
     var important: Important? = null
     var reaction: ReactionUpdate? = null

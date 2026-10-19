@@ -94,6 +94,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         setupAttachmentViewWithVideo(notification.commentOf as Video, holder.ivRightAttachment)
@@ -167,6 +168,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         setupAttachmentViewWithPhoto(notification.commentOf as Photo, holder.ivRightAttachment)
@@ -229,6 +231,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         holder.ivRightAttachment.visibility = View.GONE
@@ -270,6 +273,7 @@ class FeedbackViewBinder(
             feedback.attachments,
             containers,
             true,
+            null,
             null,
             null
         )
@@ -314,6 +318,7 @@ class FeedbackViewBinder(
             feedback?.attachments,
             containers,
             true,
+            null,
             null,
             null
         )
@@ -363,6 +368,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         holder.ivRightAttachment.visibility = View.GONE
@@ -408,6 +414,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         feedback?.maxAuthorAvaUrl?.let { showUserAvatarOnImageView(it, holder.cOwnerAvatar) }
@@ -452,6 +459,7 @@ class FeedbackViewBinder(
             feedback?.attachments,
             containers,
             true,
+            null,
             null,
             null
         )
@@ -501,6 +509,7 @@ class FeedbackViewBinder(
             feedback?.attachments,
             containers,
             true,
+            null,
             null,
             null
         )
@@ -560,6 +569,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         setupAttachmentViewWithVideo(notification.commentsOf as Video, holder.ivRightAttachment)
@@ -610,6 +620,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         feedback?.maxAuthorAvaUrl?.let { showUserAvatarOnImageView(it, holder.cOwnerAvatar) }
@@ -644,6 +655,7 @@ class FeedbackViewBinder(
             feedback?.attachments,
             containers,
             true,
+            null,
             null,
             null
         )
@@ -713,6 +725,7 @@ class FeedbackViewBinder(
             containers,
             true,
             null,
+            null,
             null
         )
         holder.ivRightAttachment.visibility = View.GONE
@@ -759,6 +772,7 @@ class FeedbackViewBinder(
                 reply.attachments,
                 replyContainers,
                 true,
+                null,
                 null,
                 null
             )

@@ -425,6 +425,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
                 it,
                 false,
                 null,
+                null,
                 null
             )
         }

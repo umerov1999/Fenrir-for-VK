@@ -2,7 +2,7 @@ package dev.ragnarok.fenrir.model
 
 import dev.ragnarok.fenrir.db.model.entity.ReactionEntity
 
-class MessageUpdate(val accountId: Long, val messageId: Int) {
+class MessageUpdate(val accountId: Long, val cmId: Int, val peerId: Long) {
     var statusUpdate: StatusUpdate? = null
         private set
     var importantUpdate: ImportantUpdate? = null
@@ -29,7 +29,6 @@ class MessageUpdate(val accountId: Long, val messageId: Int) {
     }
 
     class ReactionUpdate(
-        val peerId: Long,
         val keepMyReaction: Boolean,
         val reactionId: Int,
         val reactions: List<ReactionEntity>
@@ -37,5 +36,5 @@ class MessageUpdate(val accountId: Long, val messageId: Int) {
 
     class ImportantUpdate(val important: Boolean)
     class DeleteUpdate(val deleted: Boolean, val deletedForAll: Boolean)
-    class StatusUpdate(@param:MessageStatus val status: Int, val vkid: Int?)
+    class StatusUpdate(@param:MessageStatus val status: Int, val vkCmId: Int?)
 }

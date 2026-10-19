@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.model
 
-class DraftMessage(val id: Int, val text: String?) {
+class DraftMessage(val cmId: Int, val text: String?) {
     var attachmentsCount = 0
         private set
 
@@ -9,6 +9,6 @@ class DraftMessage(val id: Int, val text: String?) {
     }
 
     override fun toString(): String {
-        return "id=$id, text='$text', count=$attachmentsCount"
+        return "cmId=$cmId, text='$text', count=$attachmentsCount"
     }
 }

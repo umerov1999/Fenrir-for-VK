@@ -74,12 +74,12 @@ class AndroidLongpollManager internal constructor(
 
     override fun onUpdates(aid: Long, updates: VKApiLongpollUpdates) {
         d(TAG, "updates, accountId: $aid")
-        updates.add_message_updates.nonNullNoEmpty {
+        updates.addMessageUpdates.nonNullNoEmpty {
             val deletes = ArrayList<Int>()
-            updates.message_reaction_changed_updates.nonNullNoEmpty { st ->
+            updates.messageReactionChangedUpdates.nonNullNoEmpty { st ->
                 for (i in st.indices) {
                     for (s in it) {
-                        if (s.conversationMessageId == st[i].conversation_message_id && s.peerId == st[i].peer_id) {
+                        if (s.cmId == st[i].cmId && s.peerId == st[i].peerId) {
                             deletes.add(i)
                         }
                     }
