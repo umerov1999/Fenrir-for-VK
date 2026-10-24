@@ -15,10 +15,13 @@ import dev.ragnarok.fenrir.media.voice.IVoicePlayer.IPlayerStatusListener
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.LastReadId
 import dev.ragnarok.fenrir.model.Message
+import dev.ragnarok.fenrir.model.MessageStatus
+import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Lookup
+import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -69,17 +72,70 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
         return hasChanges
     }
 
+    protected fun doStar(): Boolean {
+        val selectionCount = Utils.countOfSelection(data)
+        return selectionCount > 0 && data.find { it.isSelected }?.isImportant?.let {
+            !it
+        } ?: true
+    }
+
+    protected fun canStar(): Boolean {
+        val selectionCount = Utils.countOfSelection(data)
+        if (selectionCount <= 0)
+            return false
+
+        val iterator = data.iterator()
+        var status = false
+        var has = false
+        while (iterator.hasNext()) {
+            val message = iterator.next()
+            if (!message.isSelected) {
+                continue
+            }
+            if (!has) {
+                has = true
+                status = message.isImportant
+            } else {
+                if (message.isImportant != status || message.status != MessageStatus.SENT)
+                    return false
+            }
+        }
+        return true
+    }
+
+    protected fun canEdit(message: Message): Boolean {
+        return message.isOut && UnixTime.now() - message.date < 24 * 60 * 60
+                && !message.isSticker && !message.isVoiceMessage && !message.isGraffiti && !message.isCall
+    }
+
     open fun resolveActionMode() {
         val selectionCount = Utils.countOfSelection(data)
         if (selectionCount > 0) {
-            view?.showActionMode(
-                selectionCount.toString(),
-                canEdit = false,
-                canPin = false,
-                canStar = false,
-                doStar = false,
-                canSpam = true
-            )
+            if (selectionCount == 1) {
+                val message = data.find {
+                    it.isSelected
+                } ?: return
+
+                view?.showActionMode(
+                    selectionCount.toString(),
+                    canEdit(message),
+                    false,
+                    canStar(),
+                    doStar(),
+                    !message.isOut,
+                    message.isOut && Peer.isGroupChat(message.peerId)
+                )
+            } else {
+                view?.showActionMode(
+                    selectionCount.toString(),
+                    canEdit = false,
+                    canPin = false,
+                    canStar = canStar(),
+                    doStar = doStar(),
+                    canSpam = false,
+                    canViewMessageViewed = false
+                )
+            }
         } else {
             view?.finishActionMode()
         }
@@ -251,10 +307,17 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
         mVoicePlayer?.togglePlaybackSpeed()
     }
 
+    fun fireMessageReadPeersClick() {
+        val selected = Utils.getSelected(data)
+        if (selected.isNotEmpty()) {
+            view?.showMessageReadPeers(accountId, selected[0].peerId, selected[0].cmId)
+        }
+    }
+
     internal fun resolveVoiceMessagePlayingState(anim: Boolean = false) {
         val player = mVoicePlayer ?: return
-        val optionalVoiceMessageId = player.playingVoiceId
-        if (optionalVoiceMessageId.isEmpty) {
+        val voiceMessageId = player.playingVoiceId
+        if (voiceMessageId == null) {
             view?.disableVoicePlaying()
         } else {
             val progress = player.progress
@@ -263,7 +326,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
             val isSpeed = player.isPlaybackSpeed
 
             view?.configNowVoiceMessagePlaying(
-                optionalVoiceMessageId.get() ?: return,
+                voiceMessageId,
                 progress,
                 duration,
                 paused,
@@ -281,7 +344,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
     fun fireVoiceHolderCreated(voiceMessageId: Int, voiceHolderId: Int) {
         val player = mVoicePlayer ?: return
         val currentVoiceId = player.playingVoiceId
-        val play = currentVoiceId.nonEmpty() && currentVoiceId.get() == voiceMessageId
+        val play = currentVoiceId != null && currentVoiceId == voiceMessageId
         val paused = play && !player.isSupposedToPlay
         val isSpeed = player.isPlaybackSpeed
         view?.bindVoiceHolderById(
@@ -296,7 +359,7 @@ abstract class AbsMessageListPresenter<V : IBasicMessageListView> internal const
     }
 
     override fun onPlayerStatusChange(status: Int) {
-        //Optional<Integer> voiceMessageId = mVoicePlayer.getPlayingVoiceId();
+        //val voiceMessageId = mVoicePlayer.getPlayingVoiceId()
     }
 
     override fun onDestroyed() {

@@ -2623,6 +2623,76 @@ void ARGBMirrorRow_RVV(const uint8_t* src, uint8_t* dst, int width) {
 }
 #endif  // HAS_ARGBMIRRORROW_RVV
 
+#ifdef HAS_ARGBSETROW_RVV
+void ARGBSetRow_RVV(uint8_t* dst_argb, uint32_t v32, int width) {
+  size_t vl;
+  asm volatile(
+      "vsetvli     %[vl], %[w], e32, m8, ta, ma  \n"
+      "vmv.v.x     v8, %[v32]                    \n"
+      "1:                                        \n"
+      "vsetvli     %[vl], %[w], e32, m8, ta, ma  \n"
+      "vse32.v     v8, (%[dst])                  \n"
+      "sub         %[w], %[w], %[vl]             \n"
+      "slli        %[vl], %[vl], 2               \n"
+      "add         %[dst], %[dst], %[vl]         \n"
+      "bnez        %[w], 1b                      \n"
+      : [dst] "+r"(dst_argb),  // %[dst]
+        [w] "+r"(width),       // %[w]
+        [vl] "=&r"(vl)         // %[vl]
+      : [v32] "r"(v32)         // %[v32]
+      : RVV_VL_CLOBBER "memory", "v8", "v9", "v10", "v11", "v12", "v13", "v14",
+        "v15");
+}
+#endif  // HAS_ARGBSETROW_RVV
+
+#ifdef HAS_ARGBSHUFFLEROW_RVV
+// Shuffle the 4 bytes of each ARGB pixel with a 16 byte shuffler table (only
+// the first 4 entries are used, the pattern repeats every pixel), e.g.
+// {0, 1, 2, 3} is a copy and {2, 1, 0, 3} swaps R and B.
+// Byte index vector: index[i] = (i & ~3) + shuffler[i & 3], gathered with a
+// 16 bit index so any VLEN works (e8 indices would be limited to 256 bytes).
+void ARGBShuffleRow_RVV(const uint8_t* src_argb,
+                        uint8_t* dst_argb,
+                        const uint8_t* shuffler,
+                        int width) {
+  size_t vl;
+  size_t w = (size_t)width * 4;  // bytes
+  // The 4 shuffler bytes packed little endian so a 32 bit broadcast lays them
+  // out as s0 s1 s2 s3 s0 s1 s2 s3 ... in memory order.
+  uint32_t pattern = (uint32_t)shuffler[0] | ((uint32_t)shuffler[1] << 8) |
+                     ((uint32_t)shuffler[2] << 16) |
+                     ((uint32_t)shuffler[3] << 24);
+  asm volatile(
+      // v16..v23 (e16, m8): index = (i & ~3) + shuffler[i & 3].
+      "vsetvli     %[vl], %[w], e16, m8, ta, ma  \n"
+      "vid.v       v16                           \n"
+      "vand.vi     v16, v16, -4                  \n"
+      "srli        %[vl], %[vl], 2               \n"
+      "vsetvli     zero, %[vl], e32, m4, ta, ma  \n"
+      "vmv.v.x     v8, %[pattern]                \n"  // s0 s1 s2 s3 ...
+      "vsetvli     %[vl], %[w], e16, m8, ta, ma  \n"
+      "vzext.vf2   v24, v8                       \n"  // bytes -> e16
+      "vadd.vv     v16, v16, v24                 \n"
+      "1:                                        \n"
+      "vsetvli     %[vl], %[w], e8, m4, ta, ma   \n"
+      "vle8.v      v8, (%[src])                  \n"
+      "vrgatherei16.vv v0, v8, v16               \n"
+      "vse8.v      v0, (%[dst])                  \n"
+      "sub         %[w], %[w], %[vl]             \n"
+      "add         %[src], %[src], %[vl]         \n"
+      "add         %[dst], %[dst], %[vl]         \n"
+      "bnez        %[w], 1b                      \n"
+      : [src] "+r"(src_argb),   // %[src]
+        [dst] "+r"(dst_argb),   // %[dst]
+        [w] "+r"(w),            // %[w]
+        [vl] "=&r"(vl)          // %[vl]
+      : [pattern] "r"(pattern)  // %[pattern]
+      : RVV_VL_CLOBBER "memory", "v0", "v1", "v2", "v3", "v8", "v9", "v10",
+        "v11", "v16", "v17", "v18", "v19", "v20", "v21", "v22", "v23", "v24",
+        "v25", "v26", "v27", "v28", "v29", "v30", "v31");
+}
+#endif  // HAS_ARGBSHUFFLEROW_RVV
+
 #ifdef HAS_MIRRORUVROW_RVV
 void MirrorUVRow_RVV(const uint8_t* src_uv, uint8_t* dst_uv, int width) {
   int vl;
@@ -2780,6 +2850,85 @@ void Ssim4x4Row_RVV(const uint8_t* src_a,
 #undef SSIM4X4_LOAD_RVV
 #undef SSIM4X4_ACCUM_RVV
 #endif  // HAS_SSIM4X4ROW_RVV
+
+#ifdef HAS_SSIMWINDOWROW_RVV
+float SsimWindowRow_RVV(const uint32_t* row0,
+                        const uint32_t* row1,
+                        int num_windows) {
+  size_t vl;
+  size_t byte_vl;
+  const uint32_t* row0_next = row0 + 4;
+  const uint32_t* row1_next = row1 + 4;
+  float total;
+  asm volatile(
+      "vsetvli     %[vl], zero, e32, m2, ta, ma  \n"
+      "vmv.v.i     v0, 0                         \n"
+      "vmv.s.x     v4, zero                      \n"
+      "1:                                        \n"
+      "vsetvli     %[vl], %[w], e32, m2, tu, ma  \n"
+      "vlseg4e32.v v8, (%[row0])                 \n"
+      "vlseg4e32.v v16, (%[row0_next])           \n"
+      "vadd.vv     v8, v8, v16                   \n"
+      "vadd.vv     v10, v10, v18                 \n"
+      "vadd.vv     v12, v12, v20                 \n"
+      "vadd.vv     v14, v14, v22                 \n"
+      "vlseg4e32.v v16, (%[row1])                \n"
+      "vlseg4e32.v v24, (%[row1_next])           \n"
+      "vadd.vv     v16, v16, v24                 \n"
+      "vadd.vv     v18, v18, v26                 \n"
+      "vadd.vv     v20, v20, v28                 \n"
+      "vadd.vv     v22, v22, v30                 \n"
+      "vadd.vv     v8, v8, v16                   \n"
+      "vadd.vv     v10, v10, v18                 \n"
+      "vadd.vv     v12, v12, v20                 \n"
+      "vadd.vv     v14, v14, v22                 \n"
+      "vmul.vv     v16, v8, v10                  \n"
+      "vsll.vi     v16, v16, 1                   \n"
+      "vmul.vv     v18, v8, v8                   \n"
+      "vmacc.vv    v18, v10, v10                 \n"
+      "vsll.vi     v14, v14, 7                   \n"
+      "vsub.vv     v14, v14, v16                 \n"
+      "vadd.vx     v16, v16, %[c1]               \n"
+      "vadd.vx     v14, v14, %[c2]               \n"
+      "vsll.vi     v12, v12, 6                   \n"
+      "vsub.vv     v12, v12, v18                 \n"
+      "vadd.vx     v18, v18, %[c1]               \n"
+      "vadd.vx     v12, v12, %[c2]               \n"
+      "vfcvt.f.x.v v16, v16                      \n"
+      "vfcvt.f.x.v v14, v14                      \n"
+      "vfcvt.f.x.v v18, v18                      \n"
+      "vfcvt.f.x.v v12, v12                      \n"
+      "vfmul.vv    v16, v16, v14                 \n"
+      "vfmul.vv    v18, v18, v12                 \n"
+      "vfdiv.vv    v8, v16, v18                  \n"
+      "vfadd.vv    v0, v0, v8                    \n"
+      "sub         %[w], %[w], %[vl]             \n"
+      "slli        %[byte_vl], %[vl], 4          \n"
+      "add         %[row0], %[row0], %[byte_vl]  \n"
+      "add         %[row0_next], %[row0_next], %[byte_vl]\n"
+      "add         %[row1], %[row1], %[byte_vl]  \n"
+      "add         %[row1_next], %[row1_next], %[byte_vl]\n"
+      "bgtz        %[w], 1b                      \n"
+      "vsetvli     %[vl], zero, e32, m2, ta, ma  \n"
+      "vfredusum.vs v4, v0, v4                   \n"
+      "vfmv.f.s    %[total], v4                  \n"
+      : [row0] "+r"(row0),            // %[row0]
+        [row0_next] "+r"(row0_next),  // %[row0_next]
+        [row1] "+r"(row1),            // %[row1]
+        [row1_next] "+r"(row1_next),  // %[row1_next]
+        [w] "+r"(num_windows),        // %[w]
+        [vl] "=&r"(vl),               // %[vl]
+        [byte_vl] "=&r"(byte_vl),     // %[byte_vl]
+        [total] "=f"(total)           // %[total]
+      : [c1] "r"(26634),              // %[c1]
+        [c2] "r"(239708)              // %[c2]
+      : RVV_VL_CLOBBER "vtype", "memory", "v0", "v1", "v4", "v8", "v9", "v10",
+        "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18", "v19", "v20",
+        "v21", "v22", "v23", "v24", "v25", "v26", "v27", "v28", "v29", "v30",
+        "v31");
+  return total;
+}
+#endif  // HAS_SSIMWINDOWROW_RVV
 
 #ifdef __cplusplus
 }  // extern "C"

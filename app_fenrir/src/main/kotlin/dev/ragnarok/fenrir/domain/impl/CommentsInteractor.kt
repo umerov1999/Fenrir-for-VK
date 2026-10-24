@@ -203,6 +203,10 @@ class CommentsInteractor(
                 if (threadComment != null) {
                     modelsSingle.map { data ->
                         val bundle = CommentsBundle(data)
+                            .apply {
+                                rawCount = commentDtos.size
+                                totalCount = response.main?.count.orZero()
+                            }
                             .setAdminLevel(response.admin_level)
                             .setFirstCommentId(response.firstId)
                             .setLastCommentId(response.lastId)
@@ -217,6 +221,10 @@ class CommentsInteractor(
                     cacheData(accountId, commented, dbos, mapOwners(users, groups), invalidateCache)
                         .andThen(modelsSingle.map { data ->
                             val bundle = CommentsBundle(data)
+                                .apply {
+                                    rawCount = commentDtos.size
+                                    totalCount = response.main?.count.orZero()
+                                }
                                 .setAdminLevel(response.admin_level)
                                 .setFirstCommentId(response.firstId)
                                 .setLastCommentId(response.lastId)

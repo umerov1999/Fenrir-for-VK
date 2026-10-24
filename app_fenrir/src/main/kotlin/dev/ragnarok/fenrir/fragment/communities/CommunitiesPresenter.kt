@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Translit.cyr2lat
 import dev.ragnarok.fenrir.util.Translit.lat2cyr
 import dev.ragnarok.fenrir.util.Utils
@@ -164,7 +163,7 @@ class CommunitiesPresenter(accountId: Long, private val userId: Long, savedInsta
     }
 
     fun fireSearchQueryChanged(query: String?) {
-        if (!safeEquals(filter, query)) {
+        if (filter != query) {
             filter = query
             onFilterChanged()
         }

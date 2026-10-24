@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.fragment.messages.conversationattachments.abschatatt
 import android.os.Bundle
 import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow

@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.putBoolean
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.readStringMap
 import dev.ragnarok.fenrir.util.Utils.stringEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.writeStringMap
@@ -99,7 +98,7 @@ class Audio : AbsModel {
 
     /**
     public static String getMp3FromM3u8(String url) {
-    if (Utils.isEmpty(url) || !url.contains("index.m3u8"))
+    if (Utils.isEmpty(url) || !url.contains(".m3u8"))
     return url;
     if (url.contains("/audios/")) {
     final String regex = "^(.+?)/[^/]+?/audios/([^/]+)/.+$";
@@ -214,7 +213,7 @@ class Audio : AbsModel {
     }
 
     val isHLS: Boolean
-        get() = url?.contains("index.m3u8") == true
+        get() = url?.contains(".m3u8") == true
 
     fun setAlbum_title(album_title: String?): Audio {
         this.album_title = album_title

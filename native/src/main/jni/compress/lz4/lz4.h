@@ -32,15 +32,19 @@
     - LZ4 homepage : http://www.lz4.org
     - LZ4 source repository : https://github.com/lz4/lz4
 */
+/* --- Dependencies --- */
+/* note : included before extern "C", since C++ forbids including headers within a linkage specification */
+#include <stddef.h>   /* size_t */
+#if defined(__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
+#  include <stdint.h>   /* private definitions */
+#endif
+
 #if defined (__cplusplus)
 extern "C" {
 #endif
 
 #ifndef LZ4_H_2983827168210
 #define LZ4_H_2983827168210
-
-/* --- Dependency --- */
-#include <stddef.h>   /* size_t */
 
 
 /**
@@ -488,7 +492,6 @@ LZ4LIB_API int LZ4_setStreamDecode (LZ4_streamDecode_t* LZ4_streamDecode, const 
  *  to be compatible with any source respecting maxBlockSize condition.
  * @return : minimum ring buffer size,
  *           or 0 if there is an error (invalid maxBlockSize).
- *  Note : the former margin (+14 instead of +64) is too small for decoders >= v1.9.0.
  */
 LZ4LIB_API int LZ4_decoderRingBufferSize(int maxBlockSize);
 #define LZ4_DECODER_RING_BUFFER_SIZE(maxBlockSize) (65536 + 64 + (maxBlockSize))  /* for static allocation; maxBlockSize presumed valid */
@@ -709,7 +712,6 @@ int LZ4_compress_destSize_extState(void* state, const char* src, char* dst, int*
 #define LZ4_HASH_SIZE_U32 (1 << LZ4_HASHLOG)       /* required as macro for static allocation */
 
 #if defined(__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
-# include <stdint.h>
   typedef int8_t         LZ4_i8;
   typedef unsigned char  LZ4_byte;
   typedef uint16_t       LZ4_u16;

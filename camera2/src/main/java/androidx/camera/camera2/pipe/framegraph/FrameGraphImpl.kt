@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.CameraControls3A
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.FrameBuffer
+import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
@@ -33,15 +34,18 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Parameters
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestListeners
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.FrameGraphCoroutineScope
 import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.graph.Controller3A
+import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
+import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
+import java.lang.Class
 import javax.inject.Inject
-import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.cancel
@@ -57,10 +61,16 @@ constructor(
     private val frameGraphBuffers: FrameGraphBuffers,
     @FrameGraphCoroutineScope private val frameGraphCoroutineScope: CoroutineScope,
     private val controller3A: Controller3A,
+    private val frameGraphFrameCaptureQueue: FrameGraphFrameCaptureQueue,
+    private val frameCaptureQueue: FrameCaptureQueue,
+    private val frameGraphResourceTrimmer: FrameGraphResourceTrimmer,
 ) : FrameGraph, CameraControls3A by cameraGraph {
     init {
         // Wire up the frameStartedListener.
         frameDistributor.frameStartedListener = frameGraphBuffers
+
+        // Update the trigger that the corresponding graph has been created.
+        frameGraphResourceTrimmer.onGraphCreated()
     }
 
     override val streams = cameraGraph.streams
@@ -135,10 +145,19 @@ constructor(
 
     override fun start() {
         cameraGraph.start()
+        frameGraphResourceTrimmer.onGraphStarted()
     }
 
     override fun stop() {
         cameraGraph.stop()
+    }
+
+    override fun capture(request: Request): FrameCapture {
+        return frameGraphFrameCaptureQueue.enqueue(request)
+    }
+
+    override fun capture(requests: List<Request>): List<FrameCapture> {
+        return frameGraphFrameCaptureQueue.enqueue(requests)
     }
 
     override fun captureWith(
@@ -147,6 +166,11 @@ constructor(
         capacity: Int,
     ): FrameBuffer {
         return frameGraphBuffers.attach(streamIds, parameters, capacity)
+    }
+
+    override fun drain(streamId: StreamId) {
+        frameGraphBuffers.trimAll(streamId)
+        cameraGraph.streams.getImageSource(streamId)?.flush()
     }
 
     override suspend fun acquireSession(): FrameGraph.Session {
@@ -175,18 +199,28 @@ constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CameraGraph::class -> cameraGraph as T?
+            CameraGraph::class.java -> cameraGraph as T?
             else -> null
         }
 
     override fun close() {
+        frameGraphFrameCaptureQueue.close()
         cameraGraph.close()
+        frameGraphResourceTrimmer.onGraphClosed()
         frameGraphCoroutineScope.cancel()
     }
 
+    override fun toString() = cameraGraph.toString()
+
     private fun createSession(cameraGraphSession: CameraGraph.Session): FrameGraph.Session {
-        return FrameGraphSessionImpl(cameraGraphSession, frameGraphBuffers, controller3A)
+        return FrameGraphSessionImpl(
+            cameraGraphSession,
+            frameGraphBuffers,
+            controller3A,
+            frameCaptureQueue,
+            frameGraphResourceTrimmer,
+        )
     }
 }

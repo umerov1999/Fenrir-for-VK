@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.domain.interfaces
 import dev.ragnarok.fenrir.model.FriendsCounters
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IRelationshipInteractor {

@@ -155,6 +155,8 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     CameraController mCameraController;
 
+    private boolean mIsAttachedToController = false;
+
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @Nullable OnFrameUpdateListener mOnFrameUpdateListener;
@@ -183,6 +185,8 @@ public final class PreviewView extends FrameLayout {
                         right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
                 if (isSizeChanged) {
                     redrawPreview();
+                }
+                if (isSizeChanged || (mCameraController != null && !mIsAttachedToController)) {
                     attachToControllerIfReady(true);
                 }
             };
@@ -358,6 +362,14 @@ public final class PreviewView extends FrameLayout {
     }
 
     @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (mCameraController != null && !mIsAttachedToController) {
+            attachToControllerIfReady(true);
+        }
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         removeOnLayoutChangeListener(mOnLayoutChangeListener);
@@ -367,6 +379,7 @@ public final class PreviewView extends FrameLayout {
         if (mCameraController != null) {
             mCameraController.clearPreviewSurface();
         }
+        mIsAttachedToController = false;
         if (!isInEditMode()) {
             stopListeningToDisplayChange();
         }
@@ -958,6 +971,7 @@ public final class PreviewView extends FrameLayout {
             setScreenFlashUiInfo(null);
         }
         mCameraController = cameraController;
+        mIsAttachedToController = false;
         attachToControllerIfReady(/*shouldFailSilently=*/false);
         setScreenFlashUiInfo(getScreenFlashInternal());
     }
@@ -1061,6 +1075,7 @@ public final class PreviewView extends FrameLayout {
         if (mCameraController != null && viewPort != null && isAttachedToWindow()) {
             try {
                 mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort);
+                mIsAttachedToController = true;
             } catch (IllegalStateException ex) {
                 if (shouldFailSilently) {
                     // Swallow the exception and fail silently if the method is invoked by View
@@ -1217,6 +1232,9 @@ public final class PreviewView extends FrameLayout {
     class DisplayRotationListener implements DisplayManager.DisplayListener {
         @Override
         public void onDisplayAdded(int displayId) {
+            if (mCameraController != null && !mIsAttachedToController) {
+                attachToControllerIfReady(true);
+            }
         }
 
         @Override
@@ -1228,6 +1246,9 @@ public final class PreviewView extends FrameLayout {
             Display display = getDefaultDisplay();
             if (display != null && display.getDisplayId() == displayId) {
                 redrawPreview();
+                if (mCameraController != null && !mIsAttachedToController) {
+                    attachToControllerIfReady(true);
+                }
             }
         }
     }

@@ -19,6 +19,8 @@ package androidx.camera.core;
 import static androidx.camera.core.ImageProcessingUtil.Result.ERROR_CONVERSION;
 import static androidx.camera.core.ImageProcessingUtil.Result.SUCCESS;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.media.Image;
@@ -40,7 +42,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+
+import androidx.camera.common.ImagePlane;
 
 /**
  * Utility class to convert an {@link Image} from YUV to RGB.
@@ -271,22 +277,23 @@ public final class ImageProcessingUtil {
 
         int imageWidth = imageProxy.getWidth();
         int imageHeight = imageProxy.getHeight();
-        int srcStrideY = imageProxy.getPlanes()[0].getRowStride();
-        int srcStrideU = imageProxy.getPlanes()[1].getRowStride();
-        int srcStrideV = imageProxy.getPlanes()[2].getRowStride();
-        int srcPixelStrideY = imageProxy.getPlanes()[0].getPixelStride();
-        int srcPixelStrideUV = imageProxy.getPlanes()[1].getPixelStride();
+        List<androidx.camera.common.ImagePlane> planes = imageProxy.getImagePlanes();
+        int srcStrideY = planes.get(0).getRowStride();
+        int srcStrideU = planes.get(1).getRowStride();
+        int srcStrideV = planes.get(2).getRowStride();
+        int srcPixelStrideY = planes.get(0).getPixelStride();
+        int srcPixelStrideUV = planes.get(1).getPixelStride();
 
         Bitmap bitmap = Bitmap.createBitmap(imageProxy.getWidth(),
                 imageProxy.getHeight(), Bitmap.Config.ARGB_8888);
         int bitmapStride = bitmap.getRowBytes();
 
         int result = jcall_util.nativeConvertAndroid420ToBitmap(
-                imageProxy.getPlanes()[0].getBuffer(),
+                requireNonNull(planes.get(0).getBuffer()),
                 srcStrideY,
-                imageProxy.getPlanes()[1].getBuffer(),
+                requireNonNull(planes.get(1).getBuffer()),
                 srcStrideU,
-                imageProxy.getPlanes()[2].getBuffer(),
+                requireNonNull(planes.get(2).getBuffer()),
                 srcStrideV,
                 srcPixelStrideY,
                 srcPixelStrideUV,
@@ -351,11 +358,16 @@ public final class ImageProcessingUtil {
             return null;
         }
 
+        // Returns null for 0 degree rotation to indicate no processing is required.
+        if (rotationDegrees == 0) {
+            return null;
+        }
+
         Result result = ERROR_CONVERSION;
 
         // YUV rotation is checking non-zero rotation degrees in java layer to avoid unnecessary
         // overhead, while RGB rotation is checking in c++ layer.
-        if (Build.VERSION.SDK_INT >= 23 && rotationDegrees > 0) {
+        if (Build.VERSION.SDK_INT >= 23) {
             result = rotateYUVInternal(
                     imageProxy,
                     rotatedImageWriter,
@@ -432,7 +444,7 @@ public final class ImageProcessingUtil {
                 (rotationDegrees % 180 == 0) ? imageProxy.getHeight() : imageProxy.getWidth();
 
         ByteBuffer position1ChildByteBuffer = jcall_util.nativeNewDirectByteBuffer(
-                nv21UVDelegatedBuffer, 1, nv21UVDelegatedBuffer.capacity());
+                nv21UVDelegatedBuffer, 1, nv21UVDelegatedBuffer.limit() - 1);
 
         int result = jcall_util.nativeRotateYUV(
                 imageProxy.getPlanes()[0].getBuffer(),
@@ -532,22 +544,23 @@ public final class ImageProcessingUtil {
     private static @NonNull Result applyPixelShiftInternal(@NonNull ImageProxy imageProxy) {
         int imageWidth = imageProxy.getWidth();
         int imageHeight = imageProxy.getHeight();
-        int srcStrideY = imageProxy.getPlanes()[0].getRowStride();
-        int srcStrideU = imageProxy.getPlanes()[1].getRowStride();
-        int srcStrideV = imageProxy.getPlanes()[2].getRowStride();
-        int srcPixelStrideY = imageProxy.getPlanes()[0].getPixelStride();
-        int srcPixelStrideUV = imageProxy.getPlanes()[1].getPixelStride();
+        List<androidx.camera.common.ImagePlane> planes = imageProxy.getImagePlanes();
+        int srcStrideY = planes.get(0).getRowStride();
+        int srcStrideU = planes.get(1).getRowStride();
+        int srcStrideV = planes.get(2).getRowStride();
+        int srcPixelStrideY = planes.get(0).getPixelStride();
+        int srcPixelStrideUV = planes.get(1).getPixelStride();
 
         int startOffsetY = srcPixelStrideY;
         int startOffsetU = srcPixelStrideUV;
         int startOffsetV = srcPixelStrideUV;
 
         int result = jcall_util.nativeShiftPixel(
-                imageProxy.getPlanes()[0].getBuffer(),
+                requireNonNull(planes.get(0).getBuffer()),
                 srcStrideY,
-                imageProxy.getPlanes()[1].getBuffer(),
+                requireNonNull(planes.get(1).getBuffer()),
                 srcStrideU,
-                imageProxy.getPlanes()[2].getBuffer(),
+                requireNonNull(planes.get(2).getBuffer()),
                 srcStrideV,
                 srcPixelStrideY,
                 srcPixelStrideUV,
@@ -572,10 +585,11 @@ public final class ImageProcessingUtil {
             @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
         int imageWidth = imageProxy.getWidth();
         int imageHeight = imageProxy.getHeight();
-        int srcStrideY = imageProxy.getPlanes()[0].getRowStride();
-        int srcStrideU = imageProxy.getPlanes()[1].getRowStride();
-        int srcStrideV = imageProxy.getPlanes()[2].getRowStride();
-        int srcPixelStrideUV = imageProxy.getPlanes()[1].getPixelStride();
+        List<androidx.camera.common.ImagePlane> planes = imageProxy.getImagePlanes();
+        int srcStrideY = planes.get(0).getRowStride();
+        int srcStrideU = planes.get(1).getRowStride();
+        int srcStrideV = planes.get(2).getRowStride();
+        int srcPixelStrideUV = planes.get(1).getPixelStride();
 
         Image rotatedImage = ImageWriterCompat.dequeueInputImage(rotatedImageWriter);
         if (rotatedImage == null) {
@@ -583,11 +597,11 @@ public final class ImageProcessingUtil {
         }
 
         int result = jcall_util.nativeRotateYUV(
-                imageProxy.getPlanes()[0].getBuffer(),
+                requireNonNull(planes.get(0).getBuffer()),
                 srcStrideY,
-                imageProxy.getPlanes()[1].getBuffer(),
+                requireNonNull(planes.get(1).getBuffer()),
                 srcStrideU,
-                imageProxy.getPlanes()[2].getBuffer(),
+                requireNonNull(planes.get(2).getBuffer()),
                 srcStrideV,
                 srcPixelStrideUV,
                 rotatedImage.getPlanes()[0].getBuffer(),
@@ -618,15 +632,16 @@ public final class ImageProcessingUtil {
      * Checks whether the image proxy data is formatted in NV21.
      */
     public static boolean isNV21FormatImage(@NonNull ImageProxy imageProxy) {
-        if (imageProxy.getPlanes().length != 3) {
+        List<androidx.camera.common.ImagePlane> planes = imageProxy.getImagePlanes();
+        if (planes.size() != 3) {
             return false;
         }
-        if (imageProxy.getPlanes()[1].getPixelStride() != 2) {
+        if (planes.get(1).getPixelStride() != 2) {
             return false;
         }
         return jcall_util.nativeGetYUVImageVUOff(
-                imageProxy.getPlanes()[2].getBuffer(),
-                imageProxy.getPlanes()[1].getBuffer()) == -1;
+                requireNonNull(planes.get(2).getBuffer()),
+                requireNonNull(planes.get(1).getBuffer())) == -1;
     }
 
     /**
@@ -639,6 +654,7 @@ public final class ImageProcessingUtil {
      */
     private static class NV21ImageProxy extends ForwardingImageProxy {
         private final ImageProxy.PlaneProxy[] mPlanes;
+        private final List<ImagePlane> mImagePlanes;
         private final int mWidth;
         private final int mHeight;
 
@@ -650,6 +666,7 @@ public final class ImageProcessingUtil {
                 @IntRange(from = 0, to = 359) int rotatedRotationDegrees) {
             super(imageProxy);
             mPlanes = createPlanes(delegateBufferY, delegateBufferU, delegateBufferV, width);
+            mImagePlanes = Arrays.asList(mPlanes);
             mWidth = width;
             mHeight = height;
         }
@@ -665,8 +682,19 @@ public final class ImageProcessingUtil {
         }
 
         @Override
+        public <T> T unwrapAs(@NonNull Class<T> type) {
+            return null;
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
         public ImageProxy.PlaneProxy @NonNull [] getPlanes() {
             return mPlanes;
+        }
+
+        @Override
+        public @NonNull List<ImagePlane> getImagePlanes() {
+            return mImagePlanes;
         }
 
         private ImageProxy.PlaneProxy @NonNull [] createPlanes(
@@ -690,6 +718,11 @@ public final class ImageProcessingUtil {
                 @Override
                 public @NonNull ByteBuffer getBuffer() {
                     return delegateBufferY;
+                }
+
+                @Override
+                public <T> T unwrapAs(@NonNull Class<T> type) {
+                    return null;
                 }
             };
             planes[1] = new NV21PlaneProxy(delegateBufferU, rowStride);
@@ -722,6 +755,11 @@ public final class ImageProcessingUtil {
         @Override
         public @NonNull ByteBuffer getBuffer() {
             return mByteBuffer;
+        }
+
+        @Override
+        public <T> T unwrapAs(@NonNull Class<T> type) {
+            return null;
         }
     }
 }

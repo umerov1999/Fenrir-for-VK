@@ -9,8 +9,6 @@ import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Document
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -43,7 +41,7 @@ class DocsSearchPresenter(
         val offset = startFrom.offset
         val nextFrom = IntNextFrom(50 + offset)
         return docsInteractor.search(accountId, criteria, 50, offset)
-            .map { documents -> create(documents, nextFrom) }
+            .map { documents -> Pair(documents, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): DocumentSearchCriteria {

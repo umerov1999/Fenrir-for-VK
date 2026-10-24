@@ -19,6 +19,7 @@ import dev.ragnarok.fenrir.api.model.response.ItemsProfilesGroupsResponse
 import dev.ragnarok.fenrir.api.model.response.MessageDeleteResponse
 import dev.ragnarok.fenrir.api.model.response.MessageHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
+import dev.ragnarok.fenrir.api.model.response.MessageReadPeersResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import kotlinx.coroutines.flow.Flow
@@ -214,4 +215,11 @@ interface IMessagesApi {
         extended: Boolean?,
         fields: String?
     ): Flow<ReactedMessagesPeersResponse>
+
+    @CheckResult
+    fun getMessageReadPeers(
+        peerId: Long,
+        cmId: Int,
+        fields: String?
+    ): Flow<MessageReadPeersResponse>
 }

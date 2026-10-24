@@ -30,7 +30,6 @@ import dev.ragnarok.fenrir.settings.ISettings
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AssertUtils.assertPositive
 import dev.ragnarok.fenrir.util.HelperSimple
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.ShortcutUtils.addDynamicShortcut
 import dev.ragnarok.fenrir.util.ShortcutUtils.createChatShortcutRx

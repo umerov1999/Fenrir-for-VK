@@ -69,6 +69,7 @@ import dev.ragnarok.fenrir.UserAgentTool
 import dev.ragnarok.fenrir.activity.MainActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity
 import dev.ragnarok.fenrir.activity.SwipebleActivity.Companion.start
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
@@ -103,7 +104,6 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppTextUtils.updateDateLang
 import dev.ragnarok.fenrir.util.FileUtil.updateDateLang
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.toast.AbsCustomToast
 import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
@@ -325,7 +325,7 @@ object Utils {
         for (i in data.indices) {
             val t = data[i]
             if (predicate.invoke(t)) {
-                return create(i, t)
+                return Pair(i, t)
             }
         }
         return null
@@ -1060,6 +1060,10 @@ object Utils {
         return accType == AccountType.VK_ANDROID || accType == AccountType.VK_ANDROID_HIDDEN || accType == AccountType.IOS_HIDDEN
     }
 
+    fun isOfficialVKType(@AccountType accountType: Int): Boolean {
+        return accountType == AccountType.VK_ANDROID || accountType == AccountType.VK_ANDROID_HIDDEN || accountType == AccountType.IOS_HIDDEN
+    }
+
     fun getDeviceId(@AccountType type: Int, context: Context): String {
         if (isHiddenType(type)) {
             if (hiddenDevice_id.isNullOrEmpty()) {
@@ -1358,6 +1362,17 @@ object Utils {
             .connectTimeout(Constants.EXO_PLAYER_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.EXO_PLAYER_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.EXO_PLAYER_TIMEOUT, TimeUnit.SECONDS)
+            .addInterceptor(Interceptor { chain ->
+                val request =
+                    chain.toRequestBuilder(false)
+                        .vkHeader(
+                            Settings.get().accounts().currentType,
+                            auth = false,
+                            noCache = false
+                        ).build()
+                chain.proceed(request)
+            })
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         applyProxyConfig(builder, proxyConfig)
         return OkHttpDataSource.Factory(builder.build()).setUserAgent(userAgent)
     }
@@ -1557,14 +1572,20 @@ object Utils {
             .callTimeout(timeouts, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain ->
                 chain.proceed(
-                    chain.toRequestBuilder(false).vkHeader(true).addHeader(
-                        "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
-                    ).build()
+                    chain.toRequestBuilder(false)
+                        .vkHeader(
+                            Settings.get().accounts().currentType,
+                            auth = false,
+                            noCache = false
+                        ).addHeader(
+                            "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
+                        ).build()
                 )
             })
         if (compressIntercept) {
             builder.addInterceptor(UncompressDefaultInterceptor)
         }
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         applyProxyConfig(builder, proxySettings.activeProxy)
         return builder
     }

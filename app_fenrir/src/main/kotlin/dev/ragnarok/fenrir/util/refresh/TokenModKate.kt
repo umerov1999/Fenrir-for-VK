@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.Includes.proxySettings
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
+import okhttp3.CacheControl
 import okhttp3.FormBody
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -149,6 +150,7 @@ object TokenModKate {
                         .addHeader("app", "com.perm.kate_new_6")
                         .addHeader("Gcm-ver", "200313005")
                         .addHeader("Gcm-cert", "966882ba564c2619d55d0a9afd4327a38c327456")
+                        .cacheControl(CacheControl.FORCE_NETWORK)
                         .build()
                 )
             })

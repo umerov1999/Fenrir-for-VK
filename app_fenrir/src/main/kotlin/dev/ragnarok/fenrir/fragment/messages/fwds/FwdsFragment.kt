@@ -23,6 +23,7 @@ import dev.ragnarok.fenrir.model.Keyboard
 import dev.ragnarok.fenrir.model.LastReadId
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.VoiceMessage
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
 
 class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMessageActionListener,
@@ -118,13 +119,23 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     ) {
         // not supported
     }
 
     override fun refetchReactionCache(accountId: Long) {
         mAdapter?.refetchReactionCache(accountId)
+    }
+
+    override fun showMessageReadPeers(
+        accountId: Long,
+        peerId: Long,
+        cmId: Int
+    ) {
+        PlaceFactory.getMessagesReadPeersPlace(accountId, peerId, cmId)
+            .tryOpenWith(requireActivity())
     }
 
     override fun notifyItemsAdded(position: Int, count: Int) {
@@ -176,7 +187,8 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     ) {
         // not supported
     }

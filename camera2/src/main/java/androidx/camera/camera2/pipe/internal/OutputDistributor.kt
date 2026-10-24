@@ -128,7 +128,7 @@ internal class OutputDistributor<T>(
             //   is ignored, and nothing will be done for it.
             //
             // Please see b/324320062 and b/324940238 for context.
-            // TODO: b/327289130 - Make sure we finalize all OutputResults if multiple are returned.
+            // TODO(b/327289130): Make sure we finalize all OutputResults if multiple are returned.
             startedOutputs
                 .firstOrNull { it.cameraFrameNumber == cameraFrameNumber }
                 ?.let {
@@ -154,8 +154,9 @@ internal class OutputDistributor<T>(
                             outputNumber = it,
                         )
                     }
-                outputToFinalize =
-                    outputToFinalizeKey?.let { availableOutputs.remove(outputToFinalizeKey) }
+                outputToFinalize = outputToFinalizeKey?.let {
+                    availableOutputs.remove(outputToFinalizeKey)
+                }
                 outputNumber = outputToFinalizeKey
                 invokeOutputListener = true
                 return@synchronized
@@ -236,7 +237,7 @@ internal class OutputDistributor<T>(
     /**
      * Indicates a camera2 output has arrived for a specific [outputNumber].
      *
-     * This value is the primary keu used to match `onOutputStart` events with `onOutputResult`
+     * This value is the primary key used to match `onOutputStart` events with `onOutputResult`
      * events. For images, these values will often refer to the nanosecond timestamp of the Image,
      * and for TotalCaptureResults, this value will often reference the associated FrameNumber.
      */
@@ -256,13 +257,12 @@ internal class OutputDistributor<T>(
                 return@synchronized
             }
 
-            val matchingOutput =
-                startedOutputs.firstOrNull {
-                    outputMatcher.fuzzyEqual(
-                        cameraOutputNumber = it.cameraOutputNumber,
-                        outputNumber = outputNumber,
-                    )
-                }
+            val matchingOutput = startedOutputs.firstOrNull {
+                outputMatcher.fuzzyEqual(
+                    cameraOutputNumber = it.cameraOutputNumber,
+                    outputNumber = outputNumber,
+                )
+            }
 
             // Complete the matching output, if possible, and remove it from the list of started
             // outputs.
@@ -329,19 +329,18 @@ internal class OutputDistributor<T>(
         // This filter is bi-modal: If [output] is outOfOrder, it will only remove *other* out of
         // order events that are older than the most recent event. Similarly, if it's normal and in
         // order, then this will ignore other outOfOrder events.
-        val outputsToCancel =
-            startedOutputs.filter {
-                it.isOutOfOrder == isOutOfOrder &&
-                    it.cameraOutputSequence < cameraOutputSequence &&
-                    it.cameraOutputNumber < cameraOutputNumber
-            }
+        val outputsToCancel = startedOutputs.filter {
+            it.isOutOfOrder == isOutOfOrder &&
+                it.cameraOutputSequence < cameraOutputSequence &&
+                it.cameraOutputNumber < cameraOutputNumber
+        }
         startedOutputs.removeAll(outputsToCancel)
         return outputsToCancel
     }
 
     override fun close() {
-        var outputsToFinalize: List<OutputResult<T>>
-        var outputsToCancel: List<StartedOutput<T>>
+        val outputsToFinalize: List<OutputResult<T>>
+        val outputsToCancel: List<StartedOutput<T>>
 
         synchronized(lock) {
             if (closed) {

@@ -34,9 +34,6 @@ import dev.ragnarok.fenrir.link.types.WallLink
 import dev.ragnarok.fenrir.link.types.WallPostLink
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import java.net.URLDecoder
 import java.util.LinkedList
 import kotlin.math.abs
@@ -111,15 +108,15 @@ object VKLinkParser {
 
         init {
             PARSERS.add(object : IParser {
-                override fun parse(string: String?): Optional<AbsLink> {
-                    string ?: return empty()
+                override fun parse(string: String?): AbsLink? {
+                    string ?: return null
                     return try {
                         patterns.PATTERN_FEED_SEARCH.find(string)?.let {
                             val q = URLDecoder.decode(it.groupValues.getOrNull(1), "UTF-8")
-                            return wrap(FeedSearchLink(q))
-                        } ?: empty()
+                            return FeedSearchLink(q)
+                        }
                     } catch (_: Exception) {
-                        empty()
+                        null
                     }
                 }
             })
@@ -156,7 +153,7 @@ object VKLinkParser {
 
         for (parser in patterns.PARSERS) {
             try {
-                val link = parser.parse(string).get()
+                val link = parser.parse(string)
                 if (link != null) {
                     return link
                 }
@@ -768,6 +765,6 @@ object VKLinkParser {
 
     interface IParser {
         @Throws(Exception::class)
-        fun parse(string: String?): Optional<AbsLink>
+        fun parse(string: String?): AbsLink?
     }
 }

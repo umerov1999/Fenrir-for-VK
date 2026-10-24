@@ -25,9 +25,6 @@ import dev.ragnarok.fenrir.settings.ISettings.IMainSettings
 import dev.ragnarok.fenrir.settings.theme.ThemeOverlay
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.upload.Upload
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.pager.Transformers_Types
 import kotlinx.serialization.builtins.ListSerializer
@@ -37,7 +34,7 @@ import java.util.Collections
 
 internal class MainSettings(context: Context) : IMainSettings {
     private val app: Context = context.applicationContext
-    private var preferPhotoPreviewSize: Optional<Int>
+    private var preferPhotoPreviewSize: Int?
     private val userNameChangesKeys: MutableSet<String> = Collections.synchronizedSet(HashSet(1))
     private val userNameChangesTypes: MutableMap<String, String> =
         Collections.synchronizedMap(HashMap(1))
@@ -105,10 +102,10 @@ internal class MainSettings(context: Context) : IMainSettings {
     @get:SuppressLint("WrongConstant")
     override val prefPreviewImageSize: Int
         get() {
-            if (preferPhotoPreviewSize.isEmpty) {
-                preferPhotoPreviewSize = wrap(restorePhotoPreviewSize())
+            if (preferPhotoPreviewSize == null) {
+                preferPhotoPreviewSize = restorePhotoPreviewSize()
             }
-            return preferPhotoPreviewSize.get()!!
+            return preferPhotoPreviewSize!!
         }
 
     @PhotoSize
@@ -147,7 +144,7 @@ internal class MainSettings(context: Context) : IMainSettings {
         }
 
     override fun notifyPrefPreviewSizeChanged() {
-        preferPhotoPreviewSize = empty()
+        preferPhotoPreviewSize = null
     }
 
     @PhotoSize
@@ -1022,7 +1019,7 @@ internal class MainSettings(context: Context) : IMainSettings {
     }
 
     init {
-        preferPhotoPreviewSize = empty()
+        preferPhotoPreviewSize = null
         reloadUserNameChangesSettings(false)
         reloadOwnerChangesMonitor()
     }

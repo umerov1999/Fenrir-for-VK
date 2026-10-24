@@ -81,7 +81,7 @@ abstract class AbsVKApiInterceptor(private val version: String) :
             )
         }
         return chain.proceed(
-            original.newBuilder().vkHeader(false)
+            original.newBuilder().vkHeader(type, auth = false, noCache = true)
                 .header("Authorization", "Bearer $vkAccessToken")
                 .header("User-Agent", getAccountUserAgent(type, customDeviceName, false))
                 .post(formBuilder.build())

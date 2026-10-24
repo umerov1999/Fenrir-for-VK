@@ -45,7 +45,7 @@ import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.msgpack.MsgPack
 import kotlin.math.abs
 
@@ -624,11 +624,11 @@ internal class FaveStorage(mRepositoryContext: AppStorages) : AbsStorage(mReposi
         }
 
         private suspend fun mapUser(accountId: Long, id: Long): UserEntity? {
-            return stores.owners().findUserDboById(accountId, id).single().get()
+            return stores.owners().findUserDboById(accountId, id).singleOrNull()
         }
 
         private suspend fun mapGroup(accountId: Long, id: Long): CommunityEntity? {
-            return stores.owners().findCommunityDboById(accountId, abs(id)).single().get()
+            return stores.owners().findCommunityDboById(accountId, abs(id)).singleOrNull()
         }
 
         internal suspend fun mapFaveUserDbo(cursor: Cursor, accountId: Long): FavePageEntity {

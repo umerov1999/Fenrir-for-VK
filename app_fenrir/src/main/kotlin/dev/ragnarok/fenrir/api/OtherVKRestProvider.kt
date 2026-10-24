@@ -53,11 +53,13 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
                 .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
                 .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-                .followRedirects(true)
-                .followSslRedirects(true)
                 .addInterceptor(Interceptor { chain ->
                     val request =
-                        chain.toRequestBuilder(false).vkHeader(true)
+                        chain.toRequestBuilder(false).vkHeader(
+                            accountType,
+                            auth = true,
+                            noCache = true
+                        )
                             .addHeader(
                                 "User-Agent",
                                 UserAgentTool.getAccountUserAgent(accountType, customDevice, true)
@@ -98,7 +100,12 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
                         }
                     }
                     val request =
-                        chain.toRequestBuilder(false).vkHeader(true)
+                        chain.toRequestBuilder(false)
+                            .vkHeader(
+                                Settings.get().accounts().currentType,
+                                auth = true,
+                                noCache = true
+                            )
                             .addHeader(
                                 "User-Agent", UserAgentTool.AUTH_USER_AGENT_CURRENT_ACCOUNT
                             ).post(formBuilder.build())
@@ -132,9 +139,14 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
             .callTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain ->
                 val request =
-                    chain.toRequestBuilder(false).vkHeader(false).addHeader(
-                        "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
-                    ).build()
+                    chain.toRequestBuilder(false)
+                        .vkHeader(
+                            Settings.get().accounts().currentType,
+                            auth = false,
+                            noCache = true
+                        ).addHeader(
+                            "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
+                        ).build()
                 chain.proceed(request)
             }).addInterceptor(Interceptor { chain ->
                 val original = chain.request()
@@ -167,9 +179,14 @@ class OtherVKRestProvider @SuppressLint("CheckResult") constructor(private val p
             .callTimeout(Constants.LONGPOLL_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain ->
                 val request =
-                    chain.toRequestBuilder(false).vkHeader(true).addHeader(
-                        "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
-                    ).build()
+                    chain.toRequestBuilder(false)
+                        .vkHeader(
+                            Settings.get().accounts().currentType,
+                            auth = false,
+                            noCache = true
+                        ).addHeader(
+                            "User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
+                        ).build()
                 chain.proceed(request)
             })
             .addInterceptor(UncompressDefaultInterceptor)

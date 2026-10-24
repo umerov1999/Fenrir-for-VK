@@ -10,8 +10,6 @@ import dev.ragnarok.fenrir.fragment.search.options.SpinnerOption
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -61,7 +59,7 @@ class CommunitiesSearchPresenter(
             50,
             offset
         )
-            .map { communities -> create(communities, nextFrom) }
+            .map { communities -> Pair(communities, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): GroupSearchCriteria {

@@ -38,6 +38,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
+import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
@@ -145,7 +146,8 @@ class NotReadMessagesFragment :
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     ) {
         var hasOpt = false
         view?.let { anchorView ->
@@ -164,6 +166,15 @@ class NotReadMessagesFragment :
                             iconColor = CurrentTheme.getColorSecondary(requireActivity())
                             onSelect {
                                 presenter?.fireActionModeCopyClick()
+                            }
+                        }
+                        if (canViewMessageViewed) {
+                            item(R.string.views) {
+                                icon = R.drawable.view
+                                iconColor = CurrentTheme.getColorSecondary(requireActivity())
+                                onSelect {
+                                    presenter?.fireMessageReadPeersClick()
+                                }
                             }
                         }
                         item(R.string.select_more) {
@@ -218,6 +229,15 @@ class NotReadMessagesFragment :
         mMessagesAdapter?.refetchReactionCache(accountId)
     }
 
+    override fun showMessageReadPeers(
+        accountId: Long,
+        peerId: Long,
+        cmId: Int
+    ) {
+        PlaceFactory.getMessagesReadPeersPlace(accountId, peerId, cmId)
+            .tryOpenWith(requireActivity())
+    }
+
     override fun focusTo(index: Int) {
         mEndlessRecyclerOnScrollListener?.let { mRecyclerView?.removeOnScrollListener(it) }
         mRecyclerView?.scrollToPosition(index + 1) // +header
@@ -265,7 +285,8 @@ class NotReadMessagesFragment :
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     ) {
         val isDown = Settings.get().main().isMessages_menu_down
         if (if (isDown) downMenuGroup == null else toolbarRootView == null) {
@@ -289,16 +310,16 @@ class NotReadMessagesFragment :
                 downMenuGroup?.addView(mActionView?.rootView)
             }
         }
-        mActionView?.show()
-        mActionView?.titleView?.text = title
-        mActionView?.buttonSpam?.visibility =
-            if (canSpam) View.VISIBLE else View.GONE
-        mActionView?.buttonEdit?.visibility =
-            if (canEdit) View.VISIBLE else View.GONE
-        mActionView?.buttonPin?.visibility =
-            if (canPin) View.VISIBLE else View.GONE
-        mActionView?.buttonStar?.visibility = if (canStar) View.VISIBLE else View.GONE
-        mActionView?.buttonStar?.setImageResource(if (doStar) R.drawable.star_add else R.drawable.star_none)
+        mActionView?.run {
+            show()
+            titleView.text = title
+            buttonSpam.visibility = if (canSpam) View.VISIBLE else View.GONE
+            buttonEdit.visibility = if (canEdit) View.VISIBLE else View.GONE
+            buttonPin.visibility = if (canPin) View.VISIBLE else View.GONE
+            buttonStar.visibility = if (canStar) View.VISIBLE else View.GONE
+            buttonStar.setImageResource(if (doStar) R.drawable.star_add else R.drawable.star_none)
+            buttonMessageReadPeer.visibility = if (canViewMessageViewed) View.VISIBLE else View.GONE
+        }
     }
 
     override fun finishActionMode() {
@@ -484,8 +505,7 @@ class NotReadMessagesFragment :
             .apply(requireActivity())
     }
 
-    private inner class ActionModeHolder(val rootView: View, fragment: NotReadMessagesFragment) :
-        View.OnClickListener {
+    private inner class ActionModeHolder(val rootView: View, fragment: NotReadMessagesFragment) {
         val buttonClose: View = rootView.findViewById(R.id.buttonClose)
         val buttonEdit: View = rootView.findViewById(R.id.buttonEdit)
         val buttonForward: View = rootView.findViewById(R.id.buttonForward)
@@ -495,6 +515,7 @@ class NotReadMessagesFragment :
         val buttonSpam: View = rootView.findViewById(R.id.buttonSpam)
         val buttonStar: ImageView = rootView.findViewById(R.id.buttonStar)
         val buttonReaction: ImageView = rootView.findViewById(R.id.buttonReaction)
+        val buttonMessageReadPeer: ImageView = rootView.findViewById(R.id.buttonMessageReadPeer)
         val titleView: TextView = rootView.findViewById(R.id.actionModeTitle)
         val reference: WeakReference<NotReadMessagesFragment> = WeakReference(fragment)
         fun show() {
@@ -512,61 +533,49 @@ class NotReadMessagesFragment :
             reference.get()?.presenter?.fireActionModeDestroy()
         }
 
-        override fun onClick(v: View) {
-            when (v.id) {
-                R.id.buttonClose -> {
-                    hide()
-                }
-
-                R.id.buttonForward -> {
-                    reference.get()?.presenter?.fireForwardClick()
-                    hide()
-                }
-
-                R.id.buttonCopy -> {
-                    reference.get()?.presenter?.fireActionModeCopyClick()
-                    hide()
-                }
-
-                R.id.buttonDelete -> {
-                    reference.get()?.presenter?.fireActionModeDeleteClick()
-                    hide()
-                }
-
-                R.id.buttonReaction -> {
-                    reference.get()?.presenter?.fireReactionModeClick()
-                    hide()
-                }
-
-                R.id.buttonSpam -> {
-                    MaterialAlertDialogBuilder(requireActivity())
-                        .setIcon(R.drawable.report_red)
-                        .setMessage(R.string.do_report)
-                        .setTitle(R.string.select)
-                        .setPositiveButton(R.string.button_yes) { _, _ ->
-                            reference.get()?.presenter?.fireActionModeSpamClick()
-                            hide()
-                        }
-                        .setNeutralButton(R.string.delete) { _, _ ->
-                            reference.get()?.presenter?.fireActionModeDeleteClick()
-                            hide()
-                        }
-                        .setCancelable(true)
-                        .show()
-                }
-            }
-        }
-
         init {
-            buttonClose.setOnClickListener(this)
-            buttonEdit.setOnClickListener(this)
-            buttonForward.setOnClickListener(this)
-            buttonCopy.setOnClickListener(this)
-            buttonDelete.setOnClickListener(this)
-            buttonPin.setOnClickListener(this)
-            buttonStar.setOnClickListener(this)
-            buttonReaction.setOnClickListener(this)
-            buttonSpam.setOnClickListener(this)
+            buttonClose.setOnClickListener {
+                hide()
+            }
+            buttonEdit.setOnClickListener {
+
+            }
+            buttonForward.setOnClickListener {
+                reference.get()?.presenter?.fireForwardClick()
+                hide()
+            }
+            buttonCopy.setOnClickListener {
+                reference.get()?.presenter?.fireActionModeCopyClick()
+                hide()
+            }
+            buttonDelete.setOnClickListener {
+                reference.get()?.presenter?.fireActionModeDeleteClick()
+                hide()
+            }
+            buttonReaction.setOnClickListener {
+                reference.get()?.presenter?.fireReactionModeClick()
+                hide()
+            }
+            buttonSpam.setOnClickListener {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setIcon(R.drawable.report_red)
+                    .setMessage(R.string.do_report)
+                    .setTitle(R.string.select)
+                    .setPositiveButton(R.string.button_yes) { _, _ ->
+                        reference.get()?.presenter?.fireActionModeSpamClick()
+                        hide()
+                    }
+                    .setNeutralButton(R.string.delete) { _, _ ->
+                        reference.get()?.presenter?.fireActionModeDeleteClick()
+                        hide()
+                    }
+                    .setCancelable(true)
+                    .show()
+            }
+            buttonMessageReadPeer.setOnClickListener {
+                reference.get()?.presenter?.fireMessageReadPeersClick()
+                hide()
+            }
         }
     }
 

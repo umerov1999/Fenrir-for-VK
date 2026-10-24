@@ -18,9 +18,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Privacy
 import dev.ragnarok.fenrir.model.ShortLink
 import dev.ragnarok.fenrir.model.SimplePrivacy
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyMapFlow
@@ -76,30 +73,29 @@ class UtilsInteractor(
             }
     }
 
-    override fun resolveDomain(accountId: Long, domain: String?): Flow<Optional<Owner>> {
+    override fun resolveDomain(accountId: Long, domain: String?): Flow<Owner?> {
         return stores.owners()
             .findUserByDomain(accountId, domain)
-            .flatMapConcat { optionalUserEntity ->
-                if (optionalUserEntity.nonEmpty()) {
-                    val user = map(optionalUserEntity.get())
-                    toFlow(wrap<Owner>(user))
+            .flatMapConcat {
+                if (it != null) {
+                    toFlow(map(it))
                 } else {
                     stores.owners()
                         .findCommunityByDomain(accountId, domain)
-                        .map { optionalCommunityEntity ->
-                            if (optionalCommunityEntity.nonEmpty()) {
+                        .map { communityEntity ->
+                            if (communityEntity != null) {
                                 val community =
-                                    buildCommunityFromDbo(optionalCommunityEntity.requireNonEmpty())
-                                wrap<Owner>(community)
+                                    buildCommunityFromDbo(communityEntity)
+                                community
                             } else {
-                                empty()
+                                null
                             }
                         }
                 }
             }
-            .flatMapConcat { optionalOwner ->
-                if (optionalOwner.nonEmpty()) {
-                    toFlow(optionalOwner)
+            .flatMapConcat { owner ->
+                if (owner != null) {
+                    toFlow(owner)
                 } else {
                     networker.vkDefault(accountId)
                         .utils()
@@ -115,7 +111,6 @@ class UtilsInteractor(
                                             userId,
                                             FetchMode.ANY
                                         )
-                                            .map { pp -> wrap(pp) }
                                     }
 
                                     "group" -> {
@@ -127,12 +122,11 @@ class UtilsInteractor(
                                             ownerId,
                                             FetchMode.ANY
                                         )
-                                            .map { pp -> wrap(pp) }
                                     }
 
-                                    else -> toFlow(empty())
+                                    else -> toFlow(null)
                                 }
-                            } ?: toFlow(empty())
+                            } ?: toFlow(null)
                         }
                 }
             }

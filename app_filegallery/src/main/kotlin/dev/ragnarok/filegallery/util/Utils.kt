@@ -34,6 +34,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.ragnarok.filegallery.BuildConfig
 import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.R
+import dev.ragnarok.filegallery.api.HttpLoggerAndParser
 import dev.ragnarok.filegallery.applyAlpha
 import dev.ragnarok.filegallery.media.exo.OkHttpDataSource
 import dev.ragnarok.filegallery.model.Lang
@@ -322,7 +323,7 @@ object Utils {
     }
 
     fun createOkHttp(timeouts: Long): OkHttpClient.Builder {
-        return OkHttpClient.Builder()
+        val builder = OkHttpClient.Builder()
             .connectTimeout(timeouts, TimeUnit.SECONDS)
             .readTimeout(timeouts, TimeUnit.SECONDS)
             .writeTimeout(timeouts, TimeUnit.SECONDS)
@@ -333,6 +334,8 @@ object Utils {
                         .build()
                 )
             })
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
+        return builder
     }
 
     fun checkValues(values: Collection<Boolean?>): Boolean {
@@ -457,6 +460,7 @@ object Utils {
             .connectTimeout(Constants.EXO_PLAYER_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.EXO_PLAYER_TIMEOUT, TimeUnit.SECONDS)
             .callTimeout(Constants.EXO_PLAYER_TIMEOUT, TimeUnit.SECONDS)
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         return OkHttpDataSource.Factory(builder.build()).setUserAgent(userAgent)
     }
 

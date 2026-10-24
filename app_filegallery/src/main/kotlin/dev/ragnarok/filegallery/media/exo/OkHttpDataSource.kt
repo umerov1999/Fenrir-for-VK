@@ -148,11 +148,11 @@ class OkHttpDataSource internal constructor(
             throw HttpDataSource.InvalidContentTypeException(contentType, dataSpec)
         }
 
-        // If we requested a range starting from a non-zero position and received a 200 rather than a
-        // 206, then the server does not support partial requests. We'll need to manually skip to the
-        // requested position.
+        // If we requested a range starting from a non-zero position and did not receive a 206, then
+        // the server does not support partial requests. We'll need to manually skip to the requested
+        // position.
         val bytesToSkip =
-            if (responseCode == 200 && dataSpec.position != 0L) dataSpec.position else 0
+            if (responseCode != 206 && dataSpec.position != 0L) dataSpec.position else 0
 
         // Determine the length of the data to be read, after skipping.
         bytesToRead = if (dataSpec.length != C.LENGTH_UNSET.toLong()) {

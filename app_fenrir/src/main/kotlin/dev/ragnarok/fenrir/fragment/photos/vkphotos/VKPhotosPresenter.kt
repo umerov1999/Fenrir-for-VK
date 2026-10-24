@@ -35,7 +35,6 @@ import dev.ragnarok.fenrir.upload.UploadDestination.Companion.forPhotoAlbum
 import dev.ragnarok.fenrir.upload.UploadIntent
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils.createIntents
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.getSelected
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -313,7 +312,7 @@ class VKPhotosPresenter(
                 .zip(
                     uploadManager[accountId, destination]
                 ) { first, second ->
-                    Pair.create(
+                    Pair(
                         first,
                         second
                     )

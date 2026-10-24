@@ -14,8 +14,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
@@ -51,7 +49,7 @@ class PhotoSearchPresenter(
         val offset = startFrom.offset
         val nextFrom = IntNextFrom(50 + offset)
         return photoInteractor.search(accountId, criteria, offset, 50)
-            .map { photos -> create(photos, nextFrom) }
+            .map { photos -> Pair(photos, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): PhotoSearchCriteria {

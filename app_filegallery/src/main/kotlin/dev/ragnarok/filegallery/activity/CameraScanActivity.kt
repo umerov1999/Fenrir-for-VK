@@ -28,8 +28,7 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.LayoutRes
-import androidx.camera.camera2.interop.Camera2CameraControl
-import androidx.camera.camera2.interop.CaptureRequestOptions
+import androidx.camera.camera2.interop.applyCamera2InteropAsync
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
@@ -225,7 +224,7 @@ class CameraScanActivity : NoMainActivity() {
         }
         val result = try {
             reader.readYBuffer(
-                yPlane.getBuffer(),
+                yPlane.buffer,
                 yPlane.pixelStride,
                 Rect(left, top, left + aspect, top + aspect),
                 image.width,
@@ -276,7 +275,7 @@ class CameraScanActivity : NoMainActivity() {
         imageAnalysis.setAnalyzer(
             ContextCompat.getMainExecutor(this)
         ) { imageProxy ->
-            if (ImageFormat.YUV_420_888 != imageProxy.getFormat() || imageProxy.planes.size < 1) {
+            if (ImageFormat.YUV_420_888 != imageProxy.format || imageProxy.planes.size < 1) {
                 imageProxy.close()
                 return@setAnalyzer
             }
@@ -321,16 +320,11 @@ class CameraScanActivity : NoMainActivity() {
                     this, cameraSelector,
                     imageAnalysis, preview
                 )
-                camera?.let { cam ->
-                    val camera2 = Camera2CameraControl.from(cam.cameraControl)
-                    camera2.setCaptureRequestOptions(
-                        CaptureRequestOptions.Builder()
-                            .setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, 1600)
-                            .setCaptureRequestOption(
-                                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
-                                -8
-                            )
-                            .build()
+                camera?.cameraControl?.applyCamera2InteropAsync {
+                    setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, 1600)
+                    setCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
+                        -8
                     )
                 }
             } catch (e: Exception) {

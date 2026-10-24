@@ -7,8 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManagerSavedState
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.FileItem
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
@@ -64,7 +62,7 @@ class FileManagerSelectPresenter(
         if (query.isNullOrEmpty()) {
             query = null
         }
-        if (safeEquals(query, this.q)) {
+        if (query == this.q) {
             return
         }
         val locale = Utils.appLocale

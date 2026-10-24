@@ -11,6 +11,7 @@
         android:id="@+id/buttonClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:layout_marginStart="12dp"
         android:background="?attr/selectableItemBackgroundBorderless"
@@ -23,112 +24,132 @@
         android:id="@+id/actionModeTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="72dp"
-        android:layout_toStartOf="@id/options"
+        android:layout_toEndOf="@id/buttonClose"
         android:text="@string/button_1"
         android:textSize="@dimen/font_size_title" />
 
-    <LinearLayout
-        android:id="@+id/options"
-        android:layout_width="wrap_content"
+    <HorizontalScrollView
+        android:id="@+id/horiz_scroll_options"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:animateLayoutChanges="true"
-        android:orientation="horizontal">
+        android:layout_marginStart="@dimen/card_margin_horizontal"
+        android:layout_marginTop="@dimen/card_margin"
+        android:layout_marginEnd="@dimen/card_margin_horizontal"
+        android:layout_marginBottom="@dimen/card_margin_horizontal"
+        android:layout_toEndOf="@id/actionModeTitle"
+        android:scrollbars="none">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonForward"
+        <LinearLayout
+            android:id="@+id/options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/forward"
-            android:padding="8dp"
-            android:src="@drawable/ic_outline_forward"
-            app:tint="?colorOnSurface" />
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:animateLayoutChanges="true"
+            android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/edit"
-            android:padding="8dp"
-            android:src="@drawable/pencil"
-            app:tint="?colorOnSurface" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonForward"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/forward"
+                android:padding="8dp"
+                android:src="@drawable/ic_outline_forward"
+                app:tint="?colorOnSurface" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonCopy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/copy_data"
-            android:padding="8dp"
-            android:src="@drawable/content_copy"
-            app:tint="?colorOnSurface" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/edit"
+                android:padding="8dp"
+                android:src="@drawable/pencil"
+                app:tint="?colorOnSurface" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonPin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/pin"
-            android:padding="8dp"
-            android:src="@drawable/pin"
-            app:tint="?colorOnSurface" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonCopy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/copy_data"
+                android:padding="8dp"
+                android:src="@drawable/content_copy"
+                app:tint="?colorOnSurface" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonReaction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/reactions"
-            android:padding="8dp"
-            android:src="@drawable/emoticon"
-            app:tint="?colorOnSurface" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonPin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/pin"
+                android:padding="8dp"
+                android:src="@drawable/pin"
+                app:tint="?colorOnSurface" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonStar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/important"
-            android:padding="8dp"
-            android:src="@drawable/star"
-            app:tint="?colorOnSurface" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonReaction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/reactions"
+                android:padding="8dp"
+                android:src="@drawable/emoticon"
+                app:tint="?colorOnSurface" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/delete"
-            android:padding="8dp"
-            android:src="@drawable/ic_outline_delete"
-            app:tint="?colorOnSurface" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonMessageReadPeer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/views"
+                android:padding="8dp"
+                android:src="@drawable/view"
+                app:tint="?colorOnSurface" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/buttonSpam"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/reason_spam"
-            android:padding="8dp"
-            android:src="@drawable/report"
-            app:tint="?colorOnSurface" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonStar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/important"
+                android:padding="8dp"
+                android:src="@drawable/star"
+                app:tint="?colorOnSurface" />
 
-    </LinearLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/delete"
+                android:padding="8dp"
+                android:src="@drawable/ic_outline_delete"
+                app:tint="?colorOnSurface" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/buttonSpam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/reason_spam"
+                android:padding="8dp"
+                android:src="@drawable/report"
+                app:tint="?colorOnSurface" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </RelativeLayout>

@@ -20,6 +20,7 @@ import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.Dialog
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.MessageUpdate
+import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.PeerDeleting
 import dev.ragnarok.fenrir.model.PeerUpdate
@@ -29,7 +30,6 @@ import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.SentMsg
 import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -243,6 +243,12 @@ interface IMessagesRepository {
         cmId: Int,
         reactionId: Int?
     ): Flow<List<ReactedMessagesPeers>>
+
+    fun getMessageReadPeers(
+        accountId: Long,
+        peerId: Long,
+        cmId: Int
+    ): Flow<List<Owner>>
 
     fun getHistoryAttachments(
         accountId: Long,

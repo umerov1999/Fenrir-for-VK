@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.model.ContactInfo
 import dev.ragnarok.fenrir.model.GroupSettings
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IGroupSettingsInteractor {

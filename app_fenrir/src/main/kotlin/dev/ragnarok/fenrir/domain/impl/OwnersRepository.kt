@@ -43,11 +43,6 @@ import dev.ragnarok.fenrir.model.UserUpdate
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.andThen
@@ -66,13 +61,12 @@ import java.util.LinkedList
 class OwnersRepository(private val networker: INetworker, private val cache: IOwnersStorage) :
     IOwnersRepository {
     private val userUpdatesPublisher = createPublishSubject<List<UserUpdate>>()
-    private fun getCachedDetails(accountId: Long, userId: Long): Flow<Optional<UserDetails>> {
+    private fun getCachedDetails(accountId: Long, userId: Long): Flow<UserDetails?> {
         return cache.getUserDetails(accountId, userId)
-            .flatMapConcat { optional ->
-                if (optional.isEmpty) {
-                    toFlow(empty())
+            .flatMapConcat { entity ->
+                if (entity == null) {
+                    toFlow(null)
                 } else {
-                    val entity = optional.requireNonEmpty()
                     val requiredIds: MutableSet<Long> = HashSet(1)
                     entity.careers.nonNullNoEmpty {
                         for (career in it) {
@@ -93,10 +87,8 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
                     }
                     findBaseOwnersDataAsBundle(accountId, requiredIds, FetchMode.ANY)
                         .map { bundle ->
-                            wrap(
-                                buildUserDetailsFromDbo(
-                                    entity, bundle
-                                )
+                            buildUserDetailsFromDbo(
+                                entity, bundle
                             )
                         }
                 }
@@ -106,17 +98,14 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
     private fun getCachedGroupsDetails(
         accountId: Long,
         groupId: Long
-    ): Flow<Optional<CommunityDetails>> {
+    ): Flow<CommunityDetails?> {
         return cache.getGroupsDetails(accountId, groupId)
-            .map { optional ->
-                if (optional.isEmpty) {
-                    empty()
+            .map {
+                if (it == null) {
+                    null
                 } else {
-                    val entity = optional.requireNonEmpty()
-                    wrap(
-                        buildCommunityDetailsFromDbo(
-                            entity
-                        )
+                    buildCommunityDetailsFromDbo(
+                        it
                     )
                 }
             }
@@ -129,8 +118,8 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return cache.findCommunityDboById(accountId, groupId)
             .zip(
                 getCachedGroupsDetails(accountId, groupId)
-            ) { groupsEntityOptional, groupsDetailsOptional ->
-                create(map(groupsEntityOptional.get()), groupsDetailsOptional.get())
+            ) { groupsEntity, groupsDetails ->
+                Pair(map(groupsEntity), groupsDetails)
             }
     }
 
@@ -141,8 +130,8 @@ class OwnersRepository(private val networker: INetworker, private val cache: IOw
         return cache.findUserDboById(accountId, userId)
             .zip(
                 getCachedDetails(accountId, userId)
-            ) { userEntityOptional, userDetailsOptional ->
-                create(map(userEntityOptional.get()), userDetailsOptional.get())
+            ) { userEntity, userDetails ->
+                Pair(map(userEntity), userDetails)
             }
     }
 

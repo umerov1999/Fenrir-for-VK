@@ -8,8 +8,6 @@ import dev.ragnarok.fenrir.domain.Repository.messages
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.push.NotificationUtils.loadRoundedImageRx
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
@@ -36,15 +34,14 @@ object ChatEntryFetcher {
                 .getConversationById(accountId, peerId, FetchMode.ANY)
                 .flatMapConcat { chat ->
                     loadRoundedImageRx(app, chat.imageUrl, R.drawable.ic_group_chat)
-                        .map { Optional.wrap(it) }
                         .catch {
-                            emit(empty())
+                            emit(null)
                         }
-                        .map { optional ->
+                        .map {
                             val response = DialogInfo()
                             response.title = chat.getDisplayTitle()
                             response.img = chat.imageUrl
-                            response.icon = optional.get()
+                            response.icon = it
                             response
                         }
                 }

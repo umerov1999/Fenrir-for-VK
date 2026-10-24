@@ -55,7 +55,7 @@ class UploadRestProvider(private val mainSettings: ISettings.IMainSettings) : IU
             .callTimeout(Constants.UPLOAD_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(Interceptor { chain ->
                 val request =
-                    chain.request().newBuilder().serverHeader(false)
+                    chain.request().newBuilder().serverHeader(true)
                         .addHeader("User-Agent", Constants.USER_AGENT)
                         .build()
                 chain.proceed(request)

@@ -26,8 +26,6 @@ import dev.ragnarok.filegallery.upload.UploadDestination
 import dev.ragnarok.filegallery.upload.UploadDestination.Companion.forRemotePlay
 import dev.ragnarok.filegallery.upload.UploadIntent
 import dev.ragnarok.filegallery.upload.UploadResult
-import dev.ragnarok.filegallery.util.Objects.safeEquals
-import dev.ragnarok.filegallery.util.Pair
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.sharedFlowToMain
@@ -110,7 +108,7 @@ class FileManagerPresenter(
         if (query.isNullOrEmpty()) {
             query = null
         }
-        if (safeEquals(query, this.q) && !global) {
+        if (query == this.q && !global) {
             return
         }
         val locale = Utils.appLocale

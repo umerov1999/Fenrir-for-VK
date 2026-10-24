@@ -1,12 +1,15 @@
 package dev.ragnarok.fenrir.api
 
 import android.annotation.SuppressLint
+import android.os.Build
+import dev.ragnarok.fenrir.AccountType
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.model.Params
 import dev.ragnarok.fenrir.model.ParserType
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.OkHttp3LoggingInterceptor
 import dev.ragnarok.fenrir.util.Utils
+import okhttp3.CacheControl
 import okhttp3.FormBody
 import okhttp3.Interceptor
 import okhttp3.MediaType
@@ -101,9 +104,48 @@ object HttpLoggerAndParser {
     }
 
     @Suppress("unused_parameter")
-    fun Request.Builder.vkHeader(onlyJson: Boolean): Request.Builder {
+    fun Request.Builder.vkHeader(
+        @AccountType type: Int,
+        auth: Boolean,
+        noCache: Boolean
+    ): Request.Builder {
         addHeader("X-VK-Android-Client", "new")
-        if (/*!onlyJson && */Utils.currentParser == ParserType.MSGPACK) {
+            .addHeader("Client-Agent", "cv=1")
+            .addHeader("X-Get-Processing-Time", "1")
+            .addHeader("from", "mobile")
+            .addHeader("net", "okhttp")
+        if (noCache) {
+            cacheControl(CacheControl.FORCE_NETWORK)
+        }
+        if (type != AccountType.IOS_HIDDEN) {
+            addHeader("os", "android")
+        } else {
+            addHeader("os", "ios")
+            addHeader("os-v", Build.VERSION.SDK_INT.toString())
+            addHeader("sdk", Build.VERSION.SDK_INT.toString())
+        }
+        if (Utils.isOfficialVKType(type)) {
+            addHeader("app", "vk")
+            addHeader(
+                "v",
+                if (auth) Constants.AUTH_VK_ANDROID_APP_VERSION_NAME else Constants.API_VERSION
+            )
+            addHeader(
+                "b",
+                if (auth) Constants.AUTH_VK_ANDROID_APP_VERSION_CODE.toString() else Constants.VK_ANDROID_APP_VERSION_CODE.toString()
+            )
+        } else {
+            addHeader("app", "kate")
+            addHeader(
+                "v",
+                Constants.KATE_APP_VERSION_NAME
+            )
+            addHeader(
+                "b",
+                Constants.KATE_APP_VERSION_CODE.toString()
+            )
+        }
+        if (Utils.currentParser == ParserType.MSGPACK) {
             addHeader("X-Response-Format", "msgpack")
         }
         return this

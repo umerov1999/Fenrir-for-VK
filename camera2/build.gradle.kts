@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.devtools.ksp)
 }
 
-//1.6.2
+//1.7.0-rc01
 
 fun isDevelopBuild() = libs.versions.developerBuild.get().toBoolean()
 fun Provider<String>.asInt() = get().toInt()
@@ -26,6 +26,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
         encoding = "utf-8"
+    }
+
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
 }
 
@@ -61,6 +65,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.collection)
+    implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.tracing)
     implementation(libs.androidx.media3.muxer)
     implementation(libs.errorprone.annotations)

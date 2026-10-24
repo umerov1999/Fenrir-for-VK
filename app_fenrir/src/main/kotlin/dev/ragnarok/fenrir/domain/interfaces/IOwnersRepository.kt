@@ -15,7 +15,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.model.UserDetails
 import dev.ragnarok.fenrir.model.UserUpdate
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 

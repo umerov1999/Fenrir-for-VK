@@ -18,8 +18,6 @@ import dev.ragnarok.fenrir.getString
 import dev.ragnarok.fenrir.ifNonNull
 import dev.ragnarok.fenrir.model.criteria.PhotoAlbumsCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import kotlinx.coroutines.flow.Flow
@@ -31,7 +29,7 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
         accountId: Long,
         ownerId: Long,
         albumId: Int
-    ): Flow<Optional<PhotoAlbumDboEntity>> {
+    ): Flow<PhotoAlbumDboEntity?> {
         return flow {
             val where =
                 PhotoAlbumsColumns.OWNER_ID + " = ? AND " + PhotoAlbumsColumns.ALBUM_ID + " = ?"
@@ -45,7 +43,7 @@ internal class PhotoAlbumsStorage(base: AppStorages) : AbsStorage(base), IPhotoA
                 }
                 cursor.close()
             }
-            emit(wrap(album))
+            emit(album)
         }
     }
 

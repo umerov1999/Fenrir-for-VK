@@ -2,7 +2,6 @@ package dev.ragnarok.fenrir.domain.interfaces
 
 import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.model.feedback.Feedback
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IFeedbackInteractor {

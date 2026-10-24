@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Auth
+import dev.ragnarok.fenrir.api.exceptions.AuthException
 import dev.ragnarok.fenrir.api.exceptions.NeedValidationException
 import dev.ragnarok.fenrir.api.exceptions.VKIdCaptchaNeedException
 import dev.ragnarok.fenrir.api.interfaces.INetworker
@@ -293,7 +294,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                                 }
                                 if (validateMethods?.size == 1) {
                                     validateMethod = validateMethods?.get(0)
-                                    resolveFlow(AuthFlow.CODE_VALIDATION)
+                                    doSelectValidationMethod()
                                 } else {
                                     validateMethod = EcosystemGetVerificationMethods.Method()
                                         .setName(nextStep.verificationMethod)
@@ -305,13 +306,13 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                                 setLoadingNow(false)
                                 validateMethod = EcosystemGetVerificationMethods.Method()
                                     .setName(nextStep.verificationMethod)
-                                resolveFlow(AuthFlow.CODE_VALIDATION)
+                                doSelectValidationMethod()
                             })
                         )
                     } else {
                         validateMethod = EcosystemGetVerificationMethods.Method()
                             .setName(nextStep.verificationMethod)
-                        resolveFlow(AuthFlow.CODE_VALIDATION)
+                        doSelectValidationMethod()
                     }
                 }, {
                     setLoadingNow(false)
@@ -463,7 +464,25 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
         }
     }
 
-    private fun doAuth() {
+    private fun isSidError(t: Throwable?): Boolean {
+        return t is AuthException && t.message.contains("sid", ignoreCase = true)
+    }
+
+    private fun restartAuthFlow(message: String?) {
+        currentSid = null
+        validateFlow = null
+        validateMethods = null
+        validateMethod = null
+        validationCode = null
+        tokenNeedCode = false
+        backToPasswordOnError = false
+        view?.cleanCode()
+        resolveFlow(AuthFlow.VALIDATE_ACCOUNT)
+        setInfoOrErrorMessage(message, true)
+    }
+
+    private fun doAuth(grantOverride: String? = null, withoutSid: Boolean = false) {
+        val sentCode = tokenNeedCode
         clearInfoError()
         val anonymTokenData = Settings.get().accounts().anonymToken
         val anonymToken = anonymTokenData.token
@@ -472,7 +491,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
             return
         }
 
-        val grantType = when {
+        val grantType = grantOverride ?: when {
             validateMethod?.name == "password" -> "password"
             backToPasswordOnError -> "phone_confirmation_sid"
             else -> "without_password"
@@ -484,13 +503,13 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                 clientId = Constants.API_ID,
                 username = username?.trim(),
                 password = password?.trim(),
-                code = if (tokenNeedCode) validationCode else null,
+                code = if (tokenNeedCode) validationCode?.trim() else null,
                 v = Constants.AUTH_API_VERSION,
                 twoFaSupported = true,
                 scope = Auth.scope,
                 captchaSuccessToken = requiredVKIdCaptcha?.successToken,
                 libVerifySupport = false,
-                sid = currentSid,
+                sid = if (withoutSid) null else currentSid,
                 anonymousToken = anonymToken,
                 sakVersion = Constants.VK_ANDROID_APP_SAK_VERSION,
                 flowType = "tg_flow"
@@ -528,9 +547,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
 
                     when (type?.lowercase()) {
                         "2fa_sms", "2fa_callreset", "2fa_app", "2fa_push" -> {
-                            it.sid.nonNullNoEmpty { sid ->
-                                currentSid = sid
-                            }
+                            currentSid = it.sid?.takeIf { s -> s.isNotEmpty() }
                             tokenNeedCode = true
                             view?.cleanCode()
                             validationCode = null
@@ -538,9 +555,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                         }
 
                         "2fa_libverify" -> {
-                            it.sid.nonNullNoEmpty { sid ->
-                                currentSid = sid
-                            }
+                            currentSid = it.sid?.takeIf { s -> s.isNotEmpty() }
                             tokenNeedCode = true
                             view?.cleanCode()
                             validationCode = null
@@ -552,7 +567,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                                         apiId = Constants.API_ID,
                                         sid = currentSid,
                                         v = Constants.AUTH_API_VERSION,
-                                        libVerifySupport = true,
+                                        libVerifySupport = false,
                                         allowCallReset = true
                                     )
                                     .delayedFlow(1000)
@@ -591,6 +606,20 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
                                 )
                             }
                         }
+                    }
+                } else if (isSidError(Utils.getCauseIfRuntime(it))) {
+                    if (sentCode && !withoutSid && currentSid != null) {
+                        tokenNeedCode = true
+                        doAuth(grantOverride, withoutSid = true)
+                    } else if (grantType == "phone_confirmation_sid" && password.nonNullNoEmpty()) {
+                        doAuth("password")
+                    } else {
+                        restartAuthFlow(
+                            ErrorLocalizer.localizeThrowable(
+                                Includes.provideApplicationContext(),
+                                Utils.getCauseIfRuntime(it)
+                            )
+                        )
                     }
                 } else {
                     setInfoOrErrorMessage(

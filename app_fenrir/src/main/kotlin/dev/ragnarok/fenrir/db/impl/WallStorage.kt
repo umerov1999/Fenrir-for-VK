@@ -28,15 +28,12 @@ import dev.ragnarok.fenrir.model.EditingPostType
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.serialization.msgpack.MsgPack
 
 internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
@@ -131,19 +128,18 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         ownerId: Long,
         @EditingPostType type: Int,
         includeAttachment: Boolean
-    ): Flow<PostDboEntity> {
+    ): Flow<PostDboEntity?> {
         val vkPostId = getVkPostIdForEditingType(type)
         return findPostById(accountId, ownerId, vkPostId, includeAttachment)
             .flatMapConcat {
-                if (it.nonEmpty()) {
+                if (it != null) {
                     flow {
-                        emit(it.requireNonEmpty())
+                        emit(it)
                     }
                 } else {
                     insertNew(accountId, vkPostId, ownerId, accountId)
                         .flatMapConcat {
                             findPostById(accountId, ownerId, vkPostId, includeAttachment)
-                                .map { obj -> obj.requireNonEmpty() }
                         }
                 }
             }
@@ -159,7 +155,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         }
     }
 
-    override fun findPostById(accountId: Long, dbid: Int): Flow<Optional<PostDboEntity>> {
+    override fun findPostById(accountId: Long, dbid: Int): Flow<PostDboEntity?> {
         return flow {
             val uri = getPostsContentUriFor(accountId)
             val where = BaseColumns._ID + " = ?"
@@ -172,7 +168,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 }
                 cursor.close()
             }
-            emit(wrap(dbo))
+            emit(dbo)
         }
     }
 
@@ -181,7 +177,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
         ownerId: Long,
         vkpostId: Int,
         includeAttachment: Boolean
-    ): Flow<Optional<PostDboEntity>> {
+    ): Flow<PostDboEntity?> {
         return flow {
             val uri = getPostsContentUriFor(accountId)
             val cursor = contentResolver.query(
@@ -198,7 +194,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 }
                 cursor.close()
             }
-            emit(wrap(dbo))
+            emit(dbo)
         }
     }
 

@@ -18,7 +18,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.push.NotificationScheduler
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Logger.d
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.Utils.collectPairedIdsList
 import dev.ragnarok.fenrir.util.Utils.collectPairedIdsMap

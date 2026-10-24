@@ -14,6 +14,7 @@ import com.squareup.picasso3.BitmapSafeResize
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.UserAgentTool
+import dev.ragnarok.fenrir.api.HttpLoggerAndParser
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.vkHeader
 import dev.ragnarok.fenrir.api.ProxyUtil
@@ -86,10 +87,11 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
             .cache(cache_data)
             .addInterceptor(Interceptor { chain ->
                 val request = chain.toRequestBuilder(false)
-                    .vkHeader(true)
+                    .vkHeader(Settings.get().accounts().currentType, auth = false, noCache = false)
                     .addHeader("User-Agent", UserAgentTool.USER_AGENT_CURRENT_ACCOUNT).build()
                 chain.proceed(request)
             }).addInterceptor(UncompressDefaultInterceptor)
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         ProxyUtil.applyProxyConfig(builder, proxySettings.activeProxy)
         BitmapSafeResize.setMaxResolution(Settings.get().main().maxBitmapResolution)
         BitmapSafeResize.setHardwareRendering(Settings.get().main().rendering_mode)

@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.domain.interfaces
 
 import dev.ragnarok.fenrir.model.Owner
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 

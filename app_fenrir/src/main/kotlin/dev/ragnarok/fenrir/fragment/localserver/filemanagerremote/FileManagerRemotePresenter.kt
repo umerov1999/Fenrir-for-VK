@@ -15,8 +15,6 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Objects.safeEquals
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
@@ -68,7 +66,7 @@ class FileManagerRemotePresenter(
         if (query.isNullOrEmpty()) {
             query = null
         }
-        if (safeEquals(query, this.q)) {
+        if (query == this.q) {
             return
         }
         val locale = Utils.appLocale

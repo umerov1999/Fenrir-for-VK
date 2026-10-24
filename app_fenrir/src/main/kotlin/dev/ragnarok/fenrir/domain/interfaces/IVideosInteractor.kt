@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.domain.interfaces
 import dev.ragnarok.fenrir.fragment.search.criteria.VideoSearchCriteria
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.model.VideoAlbum
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IVideosInteractor {

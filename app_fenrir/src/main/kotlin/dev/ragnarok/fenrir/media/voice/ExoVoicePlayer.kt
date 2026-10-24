@@ -18,9 +18,6 @@ import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Logger.d
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.getExoPlayerFactory
 import dev.ragnarok.fenrir.util.Utils.makeMediaItem
@@ -153,8 +150,8 @@ class ExoVoicePlayer(context: Context, config: ProxyConfig?) : IVoicePlayer {
         this.errorListener = errorListener
     }
 
-    override val playingVoiceId: Optional<Int>
-        get() = playingEntry?.let { wrap(it.id) } ?: empty()
+    override val playingVoiceId: Int?
+        get() = playingEntry?.id
 
 
     override val isSupposedToPlay: Boolean

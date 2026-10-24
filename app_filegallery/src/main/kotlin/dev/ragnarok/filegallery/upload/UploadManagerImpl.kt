@@ -14,10 +14,6 @@ import dev.ragnarok.filegallery.service.NotificationIntentService.Companion.inte
 import dev.ragnarok.filegallery.upload.IUploadManager.IProgressUpdate
 import dev.ragnarok.filegallery.upload.impl.RemoteAudioPlayUploadable
 import dev.ragnarok.filegallery.util.AppPerms
-import dev.ragnarok.filegallery.util.Optional
-import dev.ragnarok.filegallery.util.Optional.Companion.wrap
-import dev.ragnarok.filegallery.util.Pair
-import dev.ragnarok.filegallery.util.Pair.Companion.create
 import dev.ragnarok.filegallery.util.Utils.firstNonEmptyString
 import dev.ragnarok.filegallery.util.Utils.getCauseIfRuntime
 import dev.ragnarok.filegallery.util.Utils.makeImmutablePendingIntent
@@ -261,7 +257,7 @@ class UploadManagerImpl(
                 current = null
             }
 
-            completeProcessor.myEmit(create(upload, result))
+            completeProcessor.myEmit(Pair(upload, result))
         }
         startIfNotStartedInternal()
     }
@@ -373,8 +369,8 @@ class UploadManagerImpl(
         startIfNotStarted()
     }
 
-    override fun getCurrent(): Optional<Upload> {
-        synchronized(lock) { return wrap(current) }
+    override fun getCurrent(): Upload? {
+        synchronized(lock) { return current }
     }
 
     override fun observeDeleting(includeCompleted: Boolean): Flow<IntArray> {

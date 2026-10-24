@@ -35,9 +35,6 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.upload.UploadIntent
 import dev.ragnarok.fenrir.upload.UploadUtils
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils.copyToArrayListWithPredicate
 import dev.ragnarok.fenrir.util.Utils.findInfoByPredicate
@@ -69,7 +66,7 @@ class PostCreatePresenter(
     private val mime: String?
     private var post: Post? = null
     private var postPublished = false
-    private var upload: Optional<ArrayList<Uri>?>
+    private var upload: ArrayList<Uri>?
     private var publishingNow = false
     private var links: String? = null
     override fun onGuiCreated(viewHost: IPostCreateView) {
@@ -89,8 +86,8 @@ class PostCreatePresenter(
     }
 
     private fun checkUploadUris() {
-        if (post != null && upload.nonEmpty()) {
-            val uris: List<Uri> = upload.get() ?: return
+        val uris: List<Uri> = upload ?: return
+        if (post != null) {
             val size = Settings.get()
                 .main()
                 .uploadImageSize
@@ -107,7 +104,7 @@ class PostCreatePresenter(
 
     private fun uploadStreamsImpl(streams: List<Uri>, size: Int, isVideo: Boolean) {
         val tPost = post ?: return
-        upload = empty()
+        upload = null
         val destination = if (isVideo) UploadDestination.forPost(
             tPost.dbid,
             ownerId,
@@ -535,11 +532,11 @@ class PostCreatePresenter(
     }
 
     fun fireUriUploadCancelClick() {
-        upload = empty()
+        upload = null
     }
 
     init {
-        upload = wrap(streams)
+        upload = streams
         this.mime = mime
         attachmentsRepository = Includes.attachmentsRepository
         walls = Repository.walls

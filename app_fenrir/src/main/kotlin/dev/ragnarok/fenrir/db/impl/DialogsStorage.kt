@@ -34,9 +34,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Exestime.log
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
@@ -241,7 +238,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         }
     }
 
-    override fun findPeerDialog(accountId: Long, peerId: Long): Flow<Optional<PeerDialogEntity>> {
+    override fun findPeerDialog(accountId: Long, peerId: Long): Flow<PeerDialogEntity?> {
         return flow {
             val projection = arrayOf(
                 PeersColumns.UNREAD,
@@ -297,7 +294,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 }
                 cursor.close()
             }
-            emit(wrap(entity))
+            emit(entity)
         }
     }
 
@@ -436,7 +433,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         }
     }
 
-    override fun findChatById(accountId: Long, peerId: Long): Flow<Optional<Chat>> {
+    override fun findChatById(accountId: Long, peerId: Long): Flow<Chat?> {
         return flow {
             val projection = arrayOf(
                 ConversationsColumns.TITLE,
@@ -460,7 +457,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 }
                 cursor.close()
             }
-            emit(wrap(chat))
+            emit(chat)
         }
     }
 

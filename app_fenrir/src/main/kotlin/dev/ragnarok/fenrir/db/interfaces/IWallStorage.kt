@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.db.model.entity.OwnerEntities
 import dev.ragnarok.fenrir.db.model.entity.PostDboEntity
 import dev.ragnarok.fenrir.model.EditingPostType
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
-import dev.ragnarok.fenrir.util.Optional
 import kotlinx.coroutines.flow.Flow
 
 interface IWallStorage : IStorage {
@@ -26,13 +25,13 @@ interface IWallStorage : IStorage {
         ownerId: Long,
         @EditingPostType type: Int,
         includeAttachment: Boolean
-    ): Flow<PostDboEntity>
+    ): Flow<PostDboEntity?>
 
     @CheckResult
     fun deletePost(accountId: Long, dbid: Int): Flow<Boolean>
 
     @CheckResult
-    fun findPostById(accountId: Long, dbid: Int): Flow<Optional<PostDboEntity>>
+    fun findPostById(accountId: Long, dbid: Int): Flow<PostDboEntity?>
 
     @CheckResult
     fun findPostById(
@@ -40,7 +39,7 @@ interface IWallStorage : IStorage {
         ownerId: Long,
         vkpostId: Int,
         includeAttachment: Boolean
-    ): Flow<Optional<PostDboEntity>>
+    ): Flow<PostDboEntity?>
 
     fun findDbosByCriteria(criteria: WallCriteria): Flow<List<PostDboEntity>>
 

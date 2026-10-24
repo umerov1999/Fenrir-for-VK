@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.realtime
 import dev.ragnarok.fenrir.api.model.VKApiMessage
 import dev.ragnarok.fenrir.api.model.interfaces.IdentificablePair
 import dev.ragnarok.fenrir.model.Message
-import dev.ragnarok.fenrir.util.Pair
 
 class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
     val data: MutableList<Msg> = ArrayList(capacity)
@@ -47,8 +46,8 @@ class TmpResult(val id: Int, val accountId: Long, capacity: Int) {
     fun setMissingIds(ids: Collection<Pair<Long, Int>>): TmpResult {
         for (msg in data) {
             var has = false
-            for (tId in ids) {
-                if (tId.first == msg.peerId && tId.second == msg.cmId) {
+            for ((first, second) in ids) {
+                if (first == msg.peerId && second == msg.cmId) {
                     has = true
                     break
                 }

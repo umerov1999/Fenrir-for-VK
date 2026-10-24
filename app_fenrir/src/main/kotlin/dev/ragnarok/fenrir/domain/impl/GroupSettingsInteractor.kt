@@ -22,8 +22,6 @@ import dev.ragnarok.fenrir.model.IdOption
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.requireNonNull
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.findById
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
@@ -119,7 +117,7 @@ class GroupSettingsInteractor(
             )
             .flatMapConcat {
                 repository.fireManagementChangeAction(
-                    create(
+                    Pair(
                         groupId, Manager(user, role)
                             .setContactInfo(
                                 ContactInfo(user.getOwnerObjectId())
@@ -188,7 +186,7 @@ class GroupSettingsInteractor(
                                 }
                             }
                         }
-                        create(infos, nextFrom)
+                        Pair(infos, nextFrom)
                     }
             }
     }

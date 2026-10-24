@@ -60,7 +60,7 @@ object Extra {
     const val MESSAGE = "message"
     const val MESSAGES = "messages"
     const val MESSAGE_ID = "message_id"
-    const val CMID = "cmid"
+    const val CM_ID = "cm_id"
     const val METHOD = "method"
     const val NEW = "new"
     const val NO_OWNER_ID = "no_owner_id"

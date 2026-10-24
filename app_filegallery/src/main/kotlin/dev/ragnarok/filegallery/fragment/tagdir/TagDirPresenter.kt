@@ -11,7 +11,6 @@ import dev.ragnarok.filegallery.model.FileType
 import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.model.tags.TagDir
-import dev.ragnarok.filegallery.util.Objects
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -33,7 +32,7 @@ class TagDirPresenter(private val owner_id: Long) :
         if (query.isNullOrEmpty()) {
             query = null
         }
-        if (Objects.safeEquals(query, this.q)) {
+        if (query == this.q) {
             return
         }
         q = query

@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.LocalVideo
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getSelected
@@ -32,7 +31,7 @@ class LocalVideosPresenter(savedInstanceState: Bundle?) :
 
     fun fireSearchRequestChanged(q: String?, force: Boolean) {
         val query = q?.trim()
-        if (!force && safeEquals(query, this.q)) {
+        if (!force && query == this.q) {
             return
         }
         this.q = query

@@ -36,9 +36,6 @@ import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.UserInfoResolveUtil.getUserActivityLine
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
@@ -80,7 +77,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
     override fun getUserDetails(
         accountId: Long,
         userId: Long
-    ): Flow<Optional<UserDetailsEntity>> {
+    ): Flow<UserDetailsEntity?> {
         return flow {
             val uri = getUserDetContentUriFor(accountId)
             val where = BaseColumns._ID + " = ?"
@@ -97,14 +94,14 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 }
                 cursor.close()
             }
-            emit(wrap(details))
+            emit(details)
         }
     }
 
     override fun getGroupsDetails(
         accountId: Long,
         groupId: Long
-    ): Flow<Optional<CommunityDetailsEntity>> {
+    ): Flow<CommunityDetailsEntity?> {
         return flow {
             val uri = getGroupsDetContentUriFor(accountId)
             val where = BaseColumns._ID + " = ?"
@@ -121,7 +118,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 }
                 cursor.close()
             }
-            emit(wrap(details))
+            emit(details)
         }
     }
 
@@ -244,7 +241,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
         }
     }
 
-    override fun findUserDboById(accountId: Long, ownerId: Long): Flow<Optional<UserEntity>> {
+    override fun findUserDboById(accountId: Long, ownerId: Long): Flow<UserEntity?> {
         return flow {
             val where = BaseColumns._ID + " = ?"
             val args = arrayOf(ownerId.toString())
@@ -257,14 +254,14 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 }
                 cursor.close()
             }
-            emit(wrap(dbo))
+            emit(dbo)
         }
     }
 
     override fun findCommunityDboById(
         accountId: Long,
         ownerId: Long
-    ): Flow<Optional<CommunityEntity>> {
+    ): Flow<CommunityEntity?> {
         return flow {
             val where = BaseColumns._ID + " = ?"
             val args = arrayOf(ownerId.toString())
@@ -277,11 +274,11 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 }
                 cursor.close()
             }
-            emit(wrap(dbo))
+            emit(dbo)
         }
     }
 
-    override fun findUserByDomain(accountId: Long, domain: String?): Flow<Optional<UserEntity>> {
+    override fun findUserByDomain(accountId: Long, domain: String?): Flow<UserEntity?> {
         return flow {
             val uri = getUserContentUriFor(accountId)
             val where = UsersColumns.DOMAIN + " LIKE ?"
@@ -294,7 +291,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 }
                 cursor.close()
             }
-            emit(wrap(entity))
+            emit(entity)
         }
     }
 
@@ -315,7 +312,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
     override fun findCommunityByDomain(
         accountId: Long,
         domain: String?
-    ): Flow<Optional<CommunityEntity>> {
+    ): Flow<CommunityEntity?> {
         return flow {
             val uri = getGroupsContentUriFor(accountId)
             val where = GroupsColumns.SCREEN_NAME + " LIKE ?"
@@ -328,7 +325,7 @@ internal class OwnersStorage(context: AppStorages) : AbsStorage(context), IOwner
                 }
                 cursor.close()
             }
-            emit(wrap(entity))
+            emit(entity)
         }
     }
 

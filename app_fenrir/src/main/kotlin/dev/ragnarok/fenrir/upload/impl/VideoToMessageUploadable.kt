@@ -14,7 +14,6 @@ import dev.ragnarok.fenrir.upload.IUploadable
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.safelyClose
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlowThrowable

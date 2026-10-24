@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Privacy
 import dev.ragnarok.fenrir.model.ShortLink
 import dev.ragnarok.fenrir.model.SimplePrivacy
-import dev.ragnarok.fenrir.util.Optional
 import kotlinx.coroutines.flow.Flow
 
 interface IUtilsInteractor {
@@ -16,7 +15,7 @@ interface IUtilsInteractor {
         orig: Map<Int, SimplePrivacy>
     ): Flow<Map<Int, Privacy>>
 
-    fun resolveDomain(accountId: Long, domain: String?): Flow<Optional<Owner>>
+    fun resolveDomain(accountId: Long, domain: String?): Flow<Owner?>
     fun getShortLink(accountId: Long, url: String?, t_private: Int?): Flow<ShortLink>
     fun getLastShortenedLinks(accountId: Long, count: Int?, offset: Int?): Flow<List<ShortLink>>
     fun deleteFromLastShortened(accountId: Long, key: String?): Flow<Int>

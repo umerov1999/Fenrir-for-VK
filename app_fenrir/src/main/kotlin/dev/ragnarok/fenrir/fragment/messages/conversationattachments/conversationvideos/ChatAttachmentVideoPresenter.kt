@@ -8,8 +8,6 @@ import dev.ragnarok.fenrir.domain.mappers.Dto2Model
 import dev.ragnarok.fenrir.fragment.messages.conversationattachments.abschatattachments.BaseChatAttachmentsPresenter
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -54,7 +52,7 @@ class ChatAttachmentVideoPresenter(peerId: Long, accountId: Long, savedInstanceS
                         }
                     }
                 }
-                create(response.next_from, videos)
+                Pair(response.next_from, videos)
             }
     }
 

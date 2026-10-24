@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.LinearLayoutManagerSavedState
 import dev.ragnarok.filegallery.fragment.base.RxSupportPresenter
 import dev.ragnarok.filegallery.model.FileItemSelect
 import dev.ragnarok.filegallery.settings.Settings
-import dev.ragnarok.filegallery.util.Objects.safeEquals
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
@@ -61,7 +60,7 @@ class FileManagerSelectPresenter(
         if (query.isNullOrEmpty()) {
             query = null
         }
-        if (safeEquals(query, this.q)) {
+        if (query == this.q) {
             return
         }
         q = query

@@ -16,7 +16,6 @@ import dev.ragnarok.fenrir.model.LocalPhoto
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.IOUtils.closeStreamQuietly
 import dev.ragnarok.fenrir.util.IOUtils.recycleBitmapQuietly
-import dev.ragnarok.fenrir.util.Pair
 import okio.Source
 import okio.source
 import java.io.File

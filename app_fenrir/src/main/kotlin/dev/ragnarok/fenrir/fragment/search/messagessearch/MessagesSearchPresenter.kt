@@ -17,8 +17,6 @@ import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
 import dev.ragnarok.fenrir.util.Lookup
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
@@ -57,7 +55,7 @@ class MessagesSearchPresenter(
     }
 
     override fun onPlayerStatusChange(status: Int) {
-        //Optional<Integer> voiceMessageId = mVoicePlayer.getPlayingVoiceId();
+        //val voiceMessageId = mVoicePlayer.getPlayingVoiceId()
     }
 
     override fun onDestroyed() {
@@ -107,7 +105,7 @@ class MessagesSearchPresenter(
                 offset,
                 criteria.query
             )
-            .map { messages -> create(messages, IntNextFrom(offset + COUNT)) }
+            .map { messages -> Pair(messages, IntNextFrom(offset + COUNT)) }
     }
 
     override fun instantiateEmptyCriteria(): MessageSearchCriteria {
@@ -195,7 +193,7 @@ class MessagesSearchPresenter(
     fun fireVoiceHolderCreated(voiceMessageId: Int, voiceHolderId: Int) {
         val player = mVoicePlayer ?: return
         val currentVoiceId = player.playingVoiceId
-        val play = currentVoiceId.nonEmpty() && currentVoiceId.get() == voiceMessageId
+        val play = currentVoiceId != null && currentVoiceId == voiceMessageId
         val paused = play && !player.isSupposedToPlay
         val isSpeed = player.isPlaybackSpeed
         view?.bindVoiceHolderById(
@@ -218,8 +216,8 @@ class MessagesSearchPresenter(
 
     internal fun resolveVoiceMessagePlayingState(anim: Boolean = false) {
         val player = mVoicePlayer ?: return
-        val optionalVoiceMessageId = player.playingVoiceId
-        if (optionalVoiceMessageId.isEmpty) {
+        val voiceMessageId = player.playingVoiceId
+        if (voiceMessageId == null) {
             view?.disableVoicePlaying()
         } else {
             val progress = player.progress
@@ -228,7 +226,7 @@ class MessagesSearchPresenter(
             val isSpeed = player.isPlaybackSpeed
 
             view?.configNowVoiceMessagePlaying(
-                optionalVoiceMessageId.get() ?: return,
+                voiceMessageId,
                 progress,
                 duration,
                 paused,

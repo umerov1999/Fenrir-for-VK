@@ -10,8 +10,6 @@ import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.Conversation
 import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -48,7 +46,7 @@ class DialogsSearchPresenter(
         }
         return messagesInteractor.searchConversations(accountId, 255, criteria.query)
             .map {
-                create(
+                Pair(
                     it,
                     startFrom
                 )

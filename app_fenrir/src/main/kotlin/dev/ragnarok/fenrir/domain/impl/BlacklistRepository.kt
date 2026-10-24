@@ -2,8 +2,6 @@ package dev.ragnarok.fenrir.domain.impl
 
 import dev.ragnarok.fenrir.domain.interfaces.IBlacklistRepository
 import dev.ragnarok.fenrir.model.Owner
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -15,14 +13,14 @@ class BlacklistRepository : IBlacklistRepository {
 
     override fun fireAdd(accountId: Long, owner: Owner): Flow<Boolean> {
         return flow {
-            addPublisher.emit(create(accountId, owner))
+            addPublisher.emit(Pair(accountId, owner))
             emit(true)
         }
     }
 
     override fun fireRemove(accountId: Long, ownerId: Long): Flow<Boolean> {
         return flow {
-            removePublisher.emit(create(accountId, ownerId))
+            removePublisher.emit(Pair(accountId, ownerId))
             emit(true)
         }
     }

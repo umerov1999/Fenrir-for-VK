@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.domain.interfaces
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.model.AbsModel
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 

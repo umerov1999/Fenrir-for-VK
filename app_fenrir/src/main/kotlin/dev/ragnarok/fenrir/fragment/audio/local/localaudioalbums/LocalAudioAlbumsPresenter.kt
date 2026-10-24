@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.LocalImageAlbum
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
-import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -20,7 +19,7 @@ class LocalAudioAlbumsPresenter(private val currentId: Int, savedInstanceState: 
     private var q: String? = null
     fun fireSearchRequestChanged(q: String?, force: Boolean) {
         val query = q?.trim()
-        if (!force && safeEquals(query, this.q)) {
+        if (!force && query == this.q) {
             return
         }
         this.q = query

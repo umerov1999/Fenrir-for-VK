@@ -4,8 +4,6 @@ import dev.ragnarok.fenrir.api.interfaces.IOtherApi
 import dev.ragnarok.fenrir.api.interfaces.providers.IVKRestProvider
 import dev.ragnarok.fenrir.api.rest.HttpException
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -19,7 +17,7 @@ class OtherApi(private val accountId: Long, private val provider: IVKRestProvide
     override fun rawRequest(
         method: String,
         postParams: Map<String, String>
-    ): Flow<Optional<ResponseBody>> {
+    ): Flow<ResponseBody?> {
         val bodyBuilder = FormBody.Builder()
         for ((key, value) in postParams) {
             bodyBuilder.add(key, value)
@@ -50,7 +48,7 @@ class OtherApi(private val accountId: Long, private val provider: IVKRestProvide
                 }
             }
             .map {
-                wrap(it.body)
+                it.body
             }
     }
 }

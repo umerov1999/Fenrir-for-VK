@@ -6,7 +6,6 @@ import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.EditingPostType
 import dev.ragnarok.fenrir.model.IdPair
 import dev.ragnarok.fenrir.model.Post
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 

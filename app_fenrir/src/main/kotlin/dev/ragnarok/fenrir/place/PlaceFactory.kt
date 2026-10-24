@@ -40,6 +40,7 @@ import dev.ragnarok.fenrir.fragment.messages.chatmembers.ChatMembersFragment
 import dev.ragnarok.fenrir.fragment.messages.conversationattachments.ConversationFragmentFactory
 import dev.ragnarok.fenrir.fragment.messages.fwds.FwdsFragment
 import dev.ragnarok.fenrir.fragment.messages.messageslook.MessagesLookFragment
+import dev.ragnarok.fenrir.fragment.messages.messagesread.MessagesReadPeersFragment
 import dev.ragnarok.fenrir.fragment.messages.notreadmessages.NotReadMessagesFragment
 import dev.ragnarok.fenrir.fragment.photos.createphotoalbum.CreatePhotoAlbumFragment
 import dev.ragnarok.fenrir.fragment.photos.vkphotos.VKPhotosFragment
@@ -712,6 +713,15 @@ object PlaceFactory {
     ): Place {
         return Place(Place.LIKES_AND_COPIES)
             .setArguments(LikesFragment.buildArgs(accountId, type, ownerId, itemId, filter))
+    }
+
+    fun getMessagesReadPeersPlace(
+        accountId: Long,
+        peerId: Long,
+        cmId: Int
+    ): Place {
+        return Place(Place.MESSAGES_READ_PEERS)
+            .setArguments(MessagesReadPeersFragment.buildArgs(accountId, peerId, cmId))
     }
 
     fun getStoriesViewPlace(

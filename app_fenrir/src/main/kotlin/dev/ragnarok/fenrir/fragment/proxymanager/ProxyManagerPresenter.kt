@@ -67,6 +67,6 @@ class ProxyManagerPresenter(savedInstanceState: Bundle?) :
                 .sharedFlowToMain { onProxyDeleted(it) })
         appendJob(
             settings.observeActive
-                .sharedFlowToMain { onActiveChanged(it.get()) })
+                .sharedFlowToMain { onActiveChanged(it) })
     }
 }

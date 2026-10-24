@@ -13,8 +13,6 @@ import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -51,7 +49,7 @@ class AudiosSearchPresenter(
     ): Flow<Pair<List<Audio>, IntNextFrom>> {
         val nextFrom = IntNextFrom(startFrom.offset + 50)
         return audioInteractor.search(accountId, criteria, startFrom.offset, 50)
-            .map { audio -> create(audio, nextFrom) }
+            .map { audio -> Pair(audio, nextFrom) }
     }
 
     fun playAudio(context: Context, position: Int) {

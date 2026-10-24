@@ -38,7 +38,8 @@ interface IBasicMessageListView : IMvpView, IAttachmentsPlacesView,
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     )
 
     fun finishActionMode()
@@ -52,8 +53,11 @@ interface IBasicMessageListView : IMvpView, IAttachmentsPlacesView,
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     )
 
     fun refetchReactionCache(accountId: Long)
+
+    fun showMessageReadPeers(accountId: Long, peerId: Long, cmId: Int)
 }

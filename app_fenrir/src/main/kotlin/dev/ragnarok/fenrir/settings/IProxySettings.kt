@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.settings
 
 import dev.ragnarok.fenrir.model.ProxyConfig
-import dev.ragnarok.fenrir.util.Optional
 import kotlinx.coroutines.flow.SharedFlow
 
 interface IProxySettings {
@@ -9,7 +8,7 @@ interface IProxySettings {
     fun put(address: String, port: Int, username: String, pass: String)
     val observeAdding: SharedFlow<ProxyConfig>
     val observeRemoving: SharedFlow<ProxyConfig>
-    val observeActive: SharedFlow<Optional<ProxyConfig>>
+    val observeActive: SharedFlow<ProxyConfig?>
     val all: MutableList<ProxyConfig>
     val activeProxy: ProxyConfig?
     fun setActive(config: ProxyConfig?)

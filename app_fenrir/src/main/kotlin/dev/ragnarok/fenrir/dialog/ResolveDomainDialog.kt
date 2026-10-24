@@ -10,7 +10,6 @@ import dev.ragnarok.fenrir.domain.interfaces.IUtilsInteractor
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.place.PlaceFactory.getExternalLinkPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getOwnerWallPlace
-import dev.ragnarok.fenrir.util.Optional
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.spots.SpotsDialog
 
@@ -38,7 +37,7 @@ class ResolveDomainDialog : AccountDependencyDialogFragment() {
     private fun request() {
         appendJob(
             (mUtilsInteractor ?: return).resolveDomain(mAccountId, domain)
-                .fromIOToMain({ optionalOwner -> onResolveResult(optionalOwner) }) {
+                .fromIOToMain({ onResolveResult(it) }) {
                     onResolveError()
                 })
     }
@@ -50,13 +49,13 @@ class ResolveDomainDialog : AccountDependencyDialogFragment() {
         dismissAllowingStateLoss()
     }
 
-    private fun onResolveResult(optionalOwner: Optional<Owner>) {
-        if (optionalOwner.isEmpty) {
+    private fun onResolveResult(owner: Owner?) {
+        if (owner == null) {
             getExternalLinkPlace(accountId, url ?: return).tryOpenWith(requireActivity())
         } else {
             getOwnerWallPlace(
                 mAccountId,
-                optionalOwner.get() ?: return
+                owner
             ).tryOpenWith(requireActivity())
         }
         dismissAllowingStateLoss()

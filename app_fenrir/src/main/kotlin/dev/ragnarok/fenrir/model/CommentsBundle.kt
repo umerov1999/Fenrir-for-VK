@@ -1,6 +1,8 @@
 package dev.ragnarok.fenrir.model
 
 class CommentsBundle(val comments: ArrayList<Comment>) {
+    var rawCount = comments.size
+    var totalCount = 0
     var firstCommentId: Int? = null
         private set
     var lastCommentId: Int? = null

@@ -12,7 +12,6 @@ import dev.ragnarok.filegallery.model.FileType
 import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.nonNullNoEmpty
-import dev.ragnarok.filegallery.util.Objects.safeEquals
 import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -60,7 +59,7 @@ class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() 
         if (query.isNullOrEmpty()) {
             query = null
         }
-        if (safeEquals(query, this.q)) {
+        if (query == this.q) {
             return
         }
         val locale = Utils.appLocale

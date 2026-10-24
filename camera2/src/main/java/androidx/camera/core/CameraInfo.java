@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.media.MediaActionSound;
 import android.util.Range;
 import android.view.Surface;
@@ -176,7 +177,9 @@ public interface CameraInfo {
      *
      * <p>The LiveData will be updated whenever the set zoom state has been changed. This can
      * occur when the application updates the zoom via {@link CameraControl#setZoomRatio(float)}
-     * or {@link CameraControl#setLinearZoom(float)}. The zoom state can also change anytime a
+     * or {@link CameraControl#setLinearZoom(float)}. When a valid zoom value is set through those
+     * methods, the {@link ZoomState} value in this {@link LiveData} is updated without waiting for
+     * the asynchronous camera operation to complete. The zoom state can also change anytime a
      * camera starts up, for example when a {@link UseCase} is bound to it.
      */
     @NonNull LiveData<ZoomState> getZoomState();
@@ -243,6 +246,7 @@ public interface CameraInfo {
      * {@link #IMPLEMENTATION_TYPE_UNKNOWN}, {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY},
      * {@link #IMPLEMENTATION_TYPE_CAMERA2}, {@link #IMPLEMENTATION_TYPE_FAKE}.
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ImplementationType
     @NonNull String getImplementationType();
@@ -580,6 +584,38 @@ public interface CameraInfo {
      */
     default @NonNull LiveData<Integer> getLowLightBoostState() {
         return new MutableLiveData<>(LowLightBoostState.OFF);
+    }
+
+    /**
+     * Returns whether the night mode indicator is supported.
+     *
+     * @return true if {@link CaptureResult#EXTENSION_NIGHT_MODE_INDICATOR} is supported,
+     * otherwise false.
+     * @see CaptureResult#EXTENSION_NIGHT_MODE_INDICATOR
+     */
+    default boolean isNightModeIndicatorSupported() {
+        return false;
+    }
+
+    /**
+     * Returns a {@link LiveData} which observes the night mode indicator changes.
+     *
+     * <p>The night mode indicator indicates whether the current environment conditions meet the
+     * criteria for Night Mode.
+     *
+     * <p>The value will be one of {@link NightModeIndicator#UNKNOWN},
+     * {@link NightModeIndicator#NOT_RECOMMENDED} or {@link NightModeIndicator#RECOMMENDED}.
+     * Meaningful values can only be reported when a camera capture session is in active state
+     * after binding {@link UseCase}s with repeating surfaces.
+     *
+     * <p>If the camera doesn't support night mode indicator, then the value will always be
+     * {@link NightModeIndicator#UNKNOWN}.
+     *
+     * @return a {@link LiveData} of {@link Integer} type to observe the night mode indicator
+     * changes.
+     */
+    default @NonNull LiveData<Integer> getNightModeIndicator() {
+        return new MutableLiveData<>(NightModeIndicator.UNKNOWN);
     }
 
     /**

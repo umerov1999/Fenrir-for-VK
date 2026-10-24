@@ -33,10 +33,6 @@ import dev.ragnarok.fenrir.upload.impl.Video2WallUploadable
 import dev.ragnarok.fenrir.upload.impl.VideoToMessageUploadable
 import dev.ragnarok.fenrir.upload.impl.VideoUploadable
 import dev.ragnarok.fenrir.util.AppPerms
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
 import dev.ragnarok.fenrir.util.Utils.getCauseIfRuntime
@@ -312,7 +308,7 @@ class UploadManagerImpl(
             if (destination.messageMethod != MessageMethod.VIDEO && destination.messageMethod != MessageMethod.AUDIO && destination.method != Method.VIDEO && destination.method != Method.AUDIO && destination.method != Method.STORY) serverMap[createServerKey(
                 upload
             )] = result.server
-            completeProcessor.myEmit(create(upload, result))
+            completeProcessor.myEmit(Pair(upload, result))
         }
         startIfNotStartedInternal()
     }
@@ -421,8 +417,8 @@ class UploadManagerImpl(
         startIfNotStarted()
     }
 
-    override fun getCurrent(): Optional<Upload> {
-        synchronized(lock) { return wrap(current) }
+    override fun getCurrent(): Upload? {
+        synchronized(lock) { return current }
     }
 
     override fun observeDeleting(includeCompleted: Boolean): Flow<IntArray> {

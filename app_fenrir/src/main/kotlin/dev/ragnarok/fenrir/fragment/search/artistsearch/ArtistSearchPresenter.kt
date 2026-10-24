@@ -11,8 +11,6 @@ import dev.ragnarok.fenrir.fragment.search.nextfrom.IntNextFrom
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -46,7 +44,7 @@ class ArtistSearchPresenter(
     ): Flow<Pair<List<VKApiArtist>, IntNextFrom>> {
         val nextFrom = IntNextFrom(startFrom.offset + 50)
         return audioInteractor.searchArtists(accountId, criteria, startFrom.offset, 50)
-            .map { audio -> create(audio, nextFrom) }
+            .map { audio -> Pair(audio, nextFrom) }
     }
 
     fun onAdd(album: AudioPlaylist) {

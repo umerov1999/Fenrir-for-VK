@@ -348,16 +348,14 @@ class BrowserFragment : BaseFragment(), MenuProvider, BackPressCallback,
             if (link is DomainLink) {
                 appendJob(
                     mUtilsInteractor.resolveDomain(mAccountId, link.domain)
-                        .fromIOToMain({ optionalOwner ->
-                            if (optionalOwner.isEmpty) {
+                        .fromIOToMain({ owner ->
+                            if (owner == null) {
                                 view.loadUrl(url)
                             } else {
-                                optionalOwner.get()?.let {
-                                    PlaceFactory.getOwnerWallPlace(
-                                        mAccountId,
-                                        it
-                                    ).tryOpenWith(requireActivity())
-                                }
+                                PlaceFactory.getOwnerWallPlace(
+                                    mAccountId,
+                                    owner
+                                ).tryOpenWith(requireActivity())
                             }
                         }) {
                             view.loadUrl(url)

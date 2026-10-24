@@ -5,7 +5,6 @@ import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.interfaces.IDatabaseInteractor
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.database.Country
-import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
@@ -39,7 +38,7 @@ class CountriesPresenter(private val accountId: Long, savedInstanceState: Bundle
     }
 
     fun fireFilterEdit(text: CharSequence?) {
-        if (safeEquals(text?.toString()?.trim(), filter)) {
+        if (text?.toString()?.trim() == filter) {
             return
         }
         filter = text?.toString()?.trim()

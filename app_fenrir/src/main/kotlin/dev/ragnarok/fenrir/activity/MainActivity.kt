@@ -110,6 +110,7 @@ import dev.ragnarok.fenrir.fragment.messages.dialogs.DialogsFragment
 import dev.ragnarok.fenrir.fragment.messages.fwds.FwdsFragment
 import dev.ragnarok.fenrir.fragment.messages.importantmessages.ImportantMessagesFragment
 import dev.ragnarok.fenrir.fragment.messages.messageslook.MessagesLookFragment
+import dev.ragnarok.fenrir.fragment.messages.messagesread.MessagesReadPeersFragment
 import dev.ragnarok.fenrir.fragment.messages.notreadmessages.NotReadMessagesFragment
 import dev.ragnarok.fenrir.fragment.narratives.NarrativesFragment
 import dev.ragnarok.fenrir.fragment.navigationedit.DrawerEditFragment
@@ -195,8 +196,6 @@ import dev.ragnarok.fenrir.util.Accounts
 import dev.ragnarok.fenrir.util.Action
 import dev.ragnarok.fenrir.util.Logger
 import dev.ragnarok.fenrir.util.MainActivityTransforms
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -1300,7 +1299,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
         if (mCurrentFrontSection != null && mCurrentFrontSection == item) {
             return
         }
-        mTargetPage = create(item, !longClick)
+        mTargetPage = Pair(item, !longClick)
         //после закрытия бокового меню откроется данная страница
     }
 
@@ -1864,6 +1863,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.REACTED_PEERS -> attachToFront(
                 ReactedPeersFragment.newInstance(args)
             )
+
+            Place.MESSAGES_READ_PEERS -> attachToFront(MessagesReadPeersFragment.newInstance(args))
 
             else -> throw IllegalArgumentException("Main activity can't open this place, type: " + place.type)
         }

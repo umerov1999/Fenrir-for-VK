@@ -18,8 +18,6 @@ import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.model.VideoAlbum
 import dev.ragnarok.fenrir.model.VideoAlbumCriteria
 import dev.ragnarok.fenrir.model.VideoCriteria
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.ignoreElement
@@ -171,12 +169,12 @@ class VideosInteractor(private val networker: INetworker, private val cache: ISt
             networker.vkDefault(accountId)
                 .likes()
                 .add("video", ownerId, videoId, accessKey)
-                .map { integer -> create(integer, true) }
+                .map { integer -> Pair(integer, true) }
         } else {
             networker.vkDefault(accountId)
                 .likes()
                 .delete("video", ownerId, videoId, accessKey)
-                .map { integer -> create(integer, false) }
+                .map { integer -> Pair(integer, false) }
         }
     }
 

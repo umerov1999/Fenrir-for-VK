@@ -12,7 +12,6 @@ import dev.ragnarok.fenrir.domain.mappers.Entity2Model.buildAttachmentFromDbo
 import dev.ragnarok.fenrir.domain.mappers.Entity2Model.fillOwnerIds
 import dev.ragnarok.fenrir.domain.mappers.Model2Entity.buildDboAttachments
 import dev.ragnarok.fenrir.model.AbsModel
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow

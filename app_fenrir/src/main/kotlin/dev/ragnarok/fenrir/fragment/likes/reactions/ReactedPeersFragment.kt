@@ -28,7 +28,7 @@ class ReactedPeersFragment : AbsOwnersListFragment<ReactedPeersPresenter, ISimpl
     override fun getPresenterFactory(saveInstanceState: Bundle?) = ReactedPeersPresenter(
         requireArguments().getLong(Extra.ACCOUNT_ID),
         requireArguments().getLong(Extra.PEER_ID),
-        requireArguments().getInt(Extra.CMID),
+        requireArguments().getInt(Extra.CM_ID),
         requireArguments().readObjectInteger(Extra.REACTION_ID),
         saveInstanceState
     )
@@ -51,7 +51,7 @@ class ReactedPeersFragment : AbsOwnersListFragment<ReactedPeersPresenter, ISimpl
             val args = Bundle()
             args.putLong(Extra.ACCOUNT_ID, accountId)
             args.putLong(Extra.PEER_ID, peerId)
-            args.putInt(Extra.CMID, cmid)
+            args.putInt(Extra.CM_ID, cmid)
             args.writeObjectInteger(Extra.REACTION_ID, reactionId)
             return args
         }

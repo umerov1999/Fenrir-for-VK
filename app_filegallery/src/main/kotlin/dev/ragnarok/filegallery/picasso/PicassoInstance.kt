@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.squareup.picasso3.BitmapSafeResize
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.filegallery.Constants
+import dev.ragnarok.filegallery.api.HttpLoggerAndParser
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.CoverSafeResize
 import dev.ragnarok.filegallery.util.Logger
@@ -62,6 +63,7 @@ class PicassoInstance @SuppressLint("CheckResult") private constructor(
                     .addHeader("User-Agent", Constants.USER_AGENT).build()
                 chain.proceed(request)
             })
+        HttpLoggerAndParser.configureToIgnoreCertificates(builder)
         BitmapSafeResize.setMaxResolution(Settings.get().main().maxBitmapResolution)
         BitmapSafeResize.setHardwareRendering(Settings.get().main().rendering_mode)
         CoverSafeResize.setMaxResolution(Settings.get().main().maxThumbResolution)

@@ -46,8 +46,6 @@ import dev.ragnarok.fenrir.nonNullNoEmptyOrNullable
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.ISettings
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.VKOwnIds
@@ -156,7 +154,7 @@ class FeedInteractor(
                                         }
                                         news.add(buildNews(dto, it))
                                     }
-                                    create(news, nextFrom)
+                                    Pair(news, nextFrom)
                                 }
                         }
                 }
@@ -219,7 +217,7 @@ class FeedInteractor(
                                             }
                                             news.add(buildNews(dto, it))
                                         }
-                                        create(news, nextFrom)
+                                        Pair(news, nextFrom)
                                     }
                             }
                     }
@@ -266,7 +264,7 @@ class FeedInteractor(
                 )
                     .map {
                         val posts = transformPosts(dtos, it)
-                        create(posts, response.nextFrom)
+                        Pair(posts, response.nextFrom)
                     }
             }
     }
@@ -358,7 +356,7 @@ class FeedInteractor(
                                 comments.add(comment)
                             }
                         }
-                        create(comments, response.nextFrom)
+                        Pair(comments, response.nextFrom)
                     }
             }
     }

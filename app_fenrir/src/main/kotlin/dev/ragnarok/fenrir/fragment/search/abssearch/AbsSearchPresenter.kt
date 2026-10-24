@@ -4,7 +4,6 @@ import android.os.Bundle
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
 import dev.ragnarok.fenrir.fragment.search.criteria.BaseSearchCriteria
 import dev.ragnarok.fenrir.fragment.search.nextfrom.AbsNextFrom
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.WeakActionHandler
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain

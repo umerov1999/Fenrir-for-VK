@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.model.UsersPart
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
-import dev.ragnarok.fenrir.util.Objects.safeEquals
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.indexOf
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -292,7 +291,7 @@ class RequestsPresenter(accountId: Long, private val userId: Long, savedInstance
 
     fun fireSearchRequestChanged(q: String?) {
         val query = q?.trim()
-        if (safeEquals(query, this.q)) {
+        if (query == this.q) {
             return
         }
         val wasSearch = isSearchNow

@@ -1957,4 +1957,5 @@
     <string name="autoscroll_to_unread_message_in_chats">Autoscroll to unread message</string>
     <string name="scroll_to_beginning_when_sent_in_chats">Scroll to beginning when sent</string>
     <string name="token_type_invalid_exception">Unsupported account %1$d with token policy: %2$s</string>
+    <string name="read_by">Read by</string>
 </resources>

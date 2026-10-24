@@ -1,7 +1,5 @@
 package dev.ragnarok.filegallery.upload
 
-import dev.ragnarok.filegallery.util.Optional
-import dev.ragnarok.filegallery.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -12,7 +10,7 @@ interface IUploadManager {
     fun retry(id: Int)
     fun retryAll()
     fun cancelAll(destination: UploadDestination)
-    fun getCurrent(): Optional<Upload>
+    fun getCurrent(): Upload?
     fun observeDeleting(includeCompleted: Boolean): Flow<IntArray>
     fun observeAdding(): SharedFlow<List<Upload>>
     fun observeStatus(): SharedFlow<Upload>

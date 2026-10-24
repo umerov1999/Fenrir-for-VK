@@ -8,8 +8,6 @@ import dev.ragnarok.fenrir.domain.Repository.owners
 import dev.ragnarok.fenrir.model.Community
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
@@ -36,12 +34,9 @@ class OwnerInfo private constructor(val owner: Owner, val avatar: Bitmap?) {
                                 R.drawable.ic_avatar_unknown
                             )
                         )
-                    }
-                        .map { Optional.wrap(it) }
-                        .catch {
-                            emit(empty())
-                        }
-                        .map { optional -> OwnerInfo(owner, optional.get()) }
+                    }.catch {
+                        emit(null)
+                    }.map { OwnerInfo(owner, it) }
                 }
         }
     }

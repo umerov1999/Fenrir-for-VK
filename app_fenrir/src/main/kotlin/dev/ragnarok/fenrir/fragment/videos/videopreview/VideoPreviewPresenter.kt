@@ -20,7 +20,6 @@ import dev.ragnarok.fenrir.model.Commented
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Video
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 

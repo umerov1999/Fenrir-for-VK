@@ -116,9 +116,9 @@ internal object EncoderProfilesProviderResolver {
 
     /** Extension property to check HLG10 support from supported dynamic ranges. */
     private val CameraInfoInternal.isHlg10Supported: Boolean
-        get() =
-            supportedDynamicRanges.any {
-                it.encoding == DynamicRange.ENCODING_HLG &&
-                    it.bitDepth == DynamicRange.BIT_DEPTH_10_BIT
-            }
+        get() = supportedDynamicRanges.any {
+            (it.encoding == DynamicRange.ENCODING_HLG ||
+                it.encoding == DynamicRange.ENCODING_HLG_SMPTE_2094_50) &&
+                it.bitDepth == DynamicRange.BIT_DEPTH_10_BIT
+        }
 }

@@ -594,7 +594,8 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     ) {
         var hasOpt = false
         view?.let { anchorView ->
@@ -629,6 +630,15 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                             iconColor = CurrentTheme.getColorSecondary(requireActivity())
                             onSelect {
                                 presenter?.fireReactionModeClick()
+                            }
+                        }
+                        if (canViewMessageViewed) {
+                            item(R.string.views) {
+                                icon = R.drawable.view
+                                iconColor = CurrentTheme.getColorSecondary(requireActivity())
+                                onSelect {
+                                    presenter?.fireMessageReadPeersClick()
+                                }
                             }
                         }
                         item(R.string.select_more) {
@@ -701,65 +711,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         adapter?.refetchReactionCache(accountId)
     }
 
-    private class ActionModeHolder(val rootView: View, fragment: ChatFragment) :
-        View.OnClickListener {
-
-        override fun onClick(v: View) {
-            when (v.id) {
-                R.id.buttonClose -> hide()
-                R.id.buttonEdit -> {
-                    reference.get()?.presenter?.fireActionModeEditClick()
-                    hide()
-                }
-
-                R.id.buttonForward -> {
-                    reference.get()?.presenter?.fireForwardClick()
-                    hide()
-                }
-
-                R.id.buttonCopy -> {
-                    reference.get()?.presenter?.fireActionModeCopyClick()
-                    hide()
-                }
-
-                R.id.buttonDelete -> {
-                    reference.get()?.presenter?.fireActionModeDeleteClick()
-                    hide()
-                }
-
-                R.id.buttonSpam -> {
-                    val dlgAlert =
-                        reference.get()?.let { MaterialAlertDialogBuilder(it.requireActivity()) }
-                    dlgAlert?.setIcon(R.drawable.report_red)
-                    dlgAlert?.setMessage(R.string.do_report)
-                    dlgAlert?.setTitle(R.string.select)
-                    dlgAlert?.setPositiveButton(
-                        R.string.button_yes
-                    ) { _, _ -> reference.get()?.presenter?.fireActionModeSpamClick(); hide(); }
-                    dlgAlert?.setNeutralButton(
-                        R.string.delete
-                    ) { _, _ -> reference.get()?.presenter?.fireActionModeDeleteClick(); hide(); }
-                    dlgAlert?.setCancelable(true)
-                    dlgAlert?.create()?.show()
-                }
-
-                R.id.buttonPin -> {
-                    reference.get()?.presenter?.fireActionModePinClick()
-                    hide()
-                }
-
-                R.id.buttonStar -> {
-                    reference.get()?.presenter?.fireActionModeStarClick()
-                    hide()
-                }
-
-                R.id.buttonReaction -> {
-                    reference.get()?.presenter?.fireReactionModeClick()
-                    hide()
-                }
-            }
-        }
-
+    private class ActionModeHolder(val rootView: View, fragment: ChatFragment) {
         val reference = WeakReference(fragment)
         val buttonClose: View = rootView.findViewById(R.id.buttonClose)
         val buttonEdit: View = rootView.findViewById(R.id.buttonEdit)
@@ -770,18 +722,60 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         val buttonPin: View = rootView.findViewById(R.id.buttonPin)
         val buttonStar: ImageView = rootView.findViewById(R.id.buttonStar)
         val buttonReaction: ImageView = rootView.findViewById(R.id.buttonReaction)
+        val buttonMessageReadPeer: ImageView = rootView.findViewById(R.id.buttonMessageReadPeer)
         val titleView: TextView = rootView.findViewById(R.id.actionModeTitle)
 
         init {
-            buttonClose.setOnClickListener(this)
-            buttonEdit.setOnClickListener(this)
-            buttonForward.setOnClickListener(this)
-            buttonCopy.setOnClickListener(this)
-            buttonDelete.setOnClickListener(this)
-            buttonSpam.setOnClickListener(this)
-            buttonPin.setOnClickListener(this)
-            buttonStar.setOnClickListener(this)
-            buttonReaction.setOnClickListener(this)
+            buttonClose.setOnClickListener {
+                hide()
+            }
+            buttonEdit.setOnClickListener {
+                reference.get()?.presenter?.fireActionModeEditClick()
+                hide()
+            }
+            buttonForward.setOnClickListener {
+                reference.get()?.presenter?.fireForwardClick()
+                hide()
+            }
+            buttonCopy.setOnClickListener {
+                reference.get()?.presenter?.fireActionModeCopyClick()
+                hide()
+            }
+            buttonDelete.setOnClickListener {
+                reference.get()?.presenter?.fireActionModeDeleteClick()
+                hide()
+            }
+            buttonSpam.setOnClickListener {
+                val dlgAlert =
+                    reference.get()?.let { MaterialAlertDialogBuilder(it.requireActivity()) }
+                dlgAlert?.setIcon(R.drawable.report_red)
+                dlgAlert?.setMessage(R.string.do_report)
+                dlgAlert?.setTitle(R.string.select)
+                dlgAlert?.setPositiveButton(
+                    R.string.button_yes
+                ) { _, _ -> reference.get()?.presenter?.fireActionModeSpamClick(); hide(); }
+                dlgAlert?.setNeutralButton(
+                    R.string.delete
+                ) { _, _ -> reference.get()?.presenter?.fireActionModeDeleteClick(); hide(); }
+                dlgAlert?.setCancelable(true)
+                dlgAlert?.create()?.show()
+            }
+            buttonPin.setOnClickListener {
+                reference.get()?.presenter?.fireActionModePinClick()
+                hide()
+            }
+            buttonStar.setOnClickListener {
+                reference.get()?.presenter?.fireActionModeStarClick()
+                hide()
+            }
+            buttonReaction.setOnClickListener {
+                reference.get()?.presenter?.fireReactionModeClick()
+                hide()
+            }
+            buttonMessageReadPeer.setOnClickListener {
+                reference.get()?.presenter?.fireMessageReadPeersClick()
+                hide()
+            }
         }
 
         fun show() {
@@ -1167,7 +1161,8 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         canPin: Boolean,
         canStar: Boolean,
         doStar: Boolean,
-        canSpam: Boolean
+        canSpam: Boolean,
+        canViewMessageViewed: Boolean
     ) {
         if (!Settings.get().main().isMessages_menu_down) {
             toolbarRootView?.run {
@@ -1203,6 +1198,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             buttonPin.visibility = if (canPin) View.VISIBLE else View.GONE
             buttonStar.visibility = if (canStar) View.VISIBLE else View.GONE
             buttonStar.setImageResource(if (doStar) R.drawable.star_add else R.drawable.star_none)
+            buttonMessageReadPeer.visibility = if (canViewMessageViewed) View.VISIBLE else View.GONE
         }
     }
 
@@ -1470,6 +1466,15 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
             .tryOpenWith(requireActivity())
     }
 
+    override fun showMessageReadPeers(
+        accountId: Long,
+        peerId: Long,
+        cmId: Int
+    ) {
+        PlaceFactory.getMessagesReadPeersPlace(accountId, peerId, cmId)
+            .tryOpenWith(requireActivity())
+    }
+
     internal fun onEditCameraClick() {
         if (AppPerms.hasCameraPermission(requireContext())) {
             presenter?.fireEditCameraClick()
@@ -1530,19 +1535,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         fragment: ChatFragment,
         attachments: MutableList<AttachmentEntry>,
         isGroupChat: Boolean
-    ) : AttachmentsBottomSheetAdapter.ActionListener, View.OnClickListener {
-        override fun onClick(v: View) {
-            when (v.id) {
-                R.id.buttonHide -> reference.get()?.hideEditAttachmentsDialog()
-                R.id.buttonSave -> reference.get()?.onEditAttachmentSaveClick()
-                R.id.buttonVideo -> reference.get()?.presenter?.onEditAddVideoClick()
-                R.id.buttonAudio -> reference.get()?.presenter?.onEditAddAudioClick()
-                R.id.buttonDoc -> reference.get()?.presenter?.onEditAddDocClick()
-                R.id.buttonCamera -> reference.get()?.onEditCameraClick()
-                R.id.button_photo_settings -> reference.get()?.onCompressSettingsClick()
-            }
-        }
-
+    ) : AttachmentsBottomSheetAdapter.ActionListener {
         override fun onAddPhotoButtonClick() {
             reference.get()?.presenter?.fireEditAddImageClick()
         }
@@ -1565,13 +1558,27 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
                 LinearLayoutManager(rootView.context, LinearLayoutManager.HORIZONTAL, false)
             recyclerView.adapter = adapter
 
-            rootView.findViewById<View>(R.id.buttonHide).setOnClickListener(this)
-            rootView.findViewById<View>(R.id.buttonVideo).setOnClickListener(this)
-            rootView.findViewById<View>(R.id.buttonAudio).setOnClickListener(this)
-            rootView.findViewById<View>(R.id.buttonDoc).setOnClickListener(this)
-            rootView.findViewById<View>(R.id.buttonCamera).setOnClickListener(this)
-            rootView.findViewById<View>(R.id.buttonSave).setOnClickListener(this)
-            rootView.findViewById<View>(R.id.button_photo_settings).setOnClickListener(this)
+            rootView.findViewById<View>(R.id.buttonHide).setOnClickListener {
+                reference.get()?.hideEditAttachmentsDialog()
+            }
+            rootView.findViewById<View>(R.id.buttonVideo).setOnClickListener {
+                reference.get()?.presenter?.onEditAddVideoClick()
+            }
+            rootView.findViewById<View>(R.id.buttonAudio).setOnClickListener {
+                reference.get()?.presenter?.onEditAddAudioClick()
+            }
+            rootView.findViewById<View>(R.id.buttonDoc).setOnClickListener {
+                reference.get()?.presenter?.onEditAddDocClick()
+            }
+            rootView.findViewById<View>(R.id.buttonCamera).setOnClickListener {
+                reference.get()?.onEditCameraClick()
+            }
+            rootView.findViewById<View>(R.id.buttonSave).setOnClickListener {
+                reference.get()?.onEditAttachmentSaveClick()
+            }
+            rootView.findViewById<View>(R.id.button_photo_settings).setOnClickListener {
+                reference.get()?.onCompressSettingsClick()
+            }
 
             rootView.findViewById<View>(R.id.button_photo_settings).visibility =
                 if (Settings.get()

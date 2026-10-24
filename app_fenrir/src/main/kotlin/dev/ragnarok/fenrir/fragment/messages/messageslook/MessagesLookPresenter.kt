@@ -99,7 +99,8 @@ class MessagesLookPresenter(
             canPin = false,
             canStar = false,
             doStar = false,
-            canSpam = !message.isOut
+            canSpam = !message.isOut,
+            message.isOut && Peer.isGroupChat(message.peerId)
         )
     }
 

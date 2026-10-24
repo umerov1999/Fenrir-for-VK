@@ -6,6 +6,7 @@ import dev.ragnarok.filegallery.model.ParserType
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.OkHttp3LoggingInterceptor
 import dev.ragnarok.filegallery.util.Utils
+import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.security.SecureRandom
@@ -31,9 +32,12 @@ object HttpLoggerAndParser {
      */
 
     @Suppress("unused_parameter")
-    fun Request.Builder.serverHeader(onlyJson: Boolean): Request.Builder {
-        if (/*!onlyJson && */Utils.currentParser == ParserType.MSGPACK) {
+    fun Request.Builder.serverHeader(noCache: Boolean): Request.Builder {
+        if (Utils.currentParser == ParserType.MSGPACK) {
             addHeader("X-Response-Format", "msgpack")
+        }
+        if (noCache) {
+            cacheControl(CacheControl.FORCE_NETWORK)
         }
         return this
     }

@@ -131,7 +131,7 @@ class OpusDecoder(
             } else {
                 OpusDecoderException(
                     "Decode error: " + opusGetErrorMessage(
-                        result.toLong()
+                        nativeDecoderContext
                     )
                 )
             }
@@ -150,11 +150,17 @@ class OpusDecoder(
                 skipSamples = 0
                 outputData.position(skipBytes)
             }
-        } else if (inputBuffer.hasSupplementalData()) {
+        }
+        if (inputBuffer.hasSupplementalData()) {
             val discardPaddingSamples = getDiscardPaddingSamples(inputBuffer.supplementalData)
             if (discardPaddingSamples > 0) {
                 val discardBytes = samplesToBytes(discardPaddingSamples, channelCount, outputFloat)
-                if (result >= discardBytes) {
+                // Skip the buffer if the remaining output (after any pre-skip) is completely covered by
+                // discard padding.
+                if (outputData.remaining() <= discardBytes) {
+                    outputBuffer.shouldBeSkipped = true
+                    outputData.limit(outputData.position())
+                } else {
                     outputData.limit(result - discardBytes)
                 }
             }

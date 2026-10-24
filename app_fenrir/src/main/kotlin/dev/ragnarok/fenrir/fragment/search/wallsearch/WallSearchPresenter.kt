@@ -13,8 +13,6 @@ import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -82,7 +80,7 @@ class WallSearchPresenter(
         val offset = startFrom.offset
         val nextFrom = IntNextFrom(offset + COUNT)
         return walls.search(accountId, criteria.ownerId, criteria.query, true, COUNT, offset)
-            .map { create(it.first, nextFrom) }
+            .map { Pair(it.first, nextFrom) }
     }
 
     override fun instantiateEmptyCriteria(): WallSearchCriteria {

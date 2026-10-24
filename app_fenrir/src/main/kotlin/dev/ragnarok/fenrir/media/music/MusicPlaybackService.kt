@@ -486,7 +486,7 @@ class MusicPlaybackService : MediaSessionService() {
                             .build()
                     )
                     .build()
-            return if (url?.contains("index.m3u8") == true)
+            return if (url?.contains(".m3u8") == true)
                 HlsMediaSource.Factory(factory)
                     .createMediaSource(mediaItem)
             else if (url?.contains("file://") == true || url?.contains("content://") == true) {

@@ -45,7 +45,6 @@ import dev.ragnarok.fenrir.upload.UploadDestination
 import dev.ragnarok.fenrir.upload.UploadIntent
 import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.upload.UploadUtils
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.checkEditInfo
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate

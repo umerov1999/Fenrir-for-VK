@@ -7,7 +7,6 @@ import dev.ragnarok.fenrir.model.News
 import dev.ragnarok.fenrir.model.NewsfeedComment
 import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.Post
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IFeedInteractor {

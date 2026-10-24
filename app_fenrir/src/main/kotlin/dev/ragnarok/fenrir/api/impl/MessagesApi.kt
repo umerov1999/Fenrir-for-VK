@@ -23,6 +23,7 @@ import dev.ragnarok.fenrir.api.model.response.ItemsProfilesGroupsResponse
 import dev.ragnarok.fenrir.api.model.response.MessageDeleteResponse
 import dev.ragnarok.fenrir.api.model.response.MessageHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
+import dev.ragnarok.fenrir.api.model.response.MessageReadPeersResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import dev.ragnarok.fenrir.api.services.IMessageService
@@ -490,6 +491,18 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
                 it.getReactedPeers(peerId, cmId, reactionId, integerFromBoolean(extended), fields)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun getMessageReadPeers(
+        peerId: Long,
+        cmId: Int,
+        fields: String?
+    ): Flow<MessageReadPeersResponse> {
+        return serviceRx(TokenType.USER, TokenType.COMMUNITY)
+            .flatMapConcat {
+                it.getMessageReadPeers(peerId, cmId, 1, fields)
                     .map(extractResponseWithErrorHandling())
             }
     }

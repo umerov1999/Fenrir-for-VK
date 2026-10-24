@@ -6,8 +6,6 @@ import androidx.core.content.edit
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.ProxyConfig
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.myEmit
 import kotlinx.coroutines.flow.SharedFlow
@@ -44,8 +42,8 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
     override val observeRemoving: SharedFlow<ProxyConfig>
         field = createPublishSubject<ProxyConfig>()
 
-    override val observeActive: SharedFlow<Optional<ProxyConfig>>
-        field = createPublishSubject<Optional<ProxyConfig>>()
+    override val observeActive: SharedFlow<ProxyConfig?>
+        field = createPublishSubject<ProxyConfig?>()
 
     override val all: MutableList<ProxyConfig>
         get() {
@@ -74,18 +72,16 @@ class ProxySettingsImpl(context: Context) : IProxySettings {
                 if (config == null) null else kJson.encodeToString(ProxyConfig.serializer(), config)
             )
         }
-        observeActive.myEmit(wrap(config))
+        observeActive.myEmit(config)
     }
 
     override fun broadcastUpdate(config: ProxyConfig?) {
         if (config == null) {
             observeActive.myEmit(
-                wrap(
-                    activeProxy
-                )
+                activeProxy
             )
         } else {
-            observeActive.myEmit(wrap(config))
+            observeActive.myEmit(config)
         }
     }
 

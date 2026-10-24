@@ -33,11 +33,6 @@ import dev.ragnarok.fenrir.model.criteria.MessagesCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Exestime.log
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Optional.Companion.empty
-import dev.ragnarok.fenrir.util.Optional.Companion.wrap
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
@@ -732,7 +727,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
         accountIds: Collection<Long>,
         withAttachments: Boolean,
         withForwardMessages: Boolean
-    ): Flow<Optional<Pair<Long, MessageDboEntity>>> {
+    ): Flow<Pair<Long, MessageDboEntity>?> {
         return flow {
             val where = MessagesColumns.STATUS + " = ?"
             val args = arrayOf(MessageStatus.QUEUE.toString())
@@ -756,11 +751,11 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                     cursor.close()
                 }
                 if (entity != null) {
-                    emit(wrap(create(accountId, entity)))
+                    emit(Pair(accountId, entity))
                     return@flow
                 }
             }
-            emit(empty())
+            emit(null)
         }
     }
 

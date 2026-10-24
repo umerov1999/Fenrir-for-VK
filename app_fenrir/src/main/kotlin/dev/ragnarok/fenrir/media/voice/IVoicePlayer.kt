@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.media.voice
 
 import dev.ragnarok.fenrir.model.VoiceMessage
-import dev.ragnarok.fenrir.util.Optional
 
 interface IVoicePlayer {
     fun toggle(id: Int, audio: VoiceMessage): Boolean
@@ -9,7 +8,7 @@ interface IVoicePlayer {
     val duration: Long
     fun setCallback(listener: IPlayerStatusListener?)
     fun setErrorListener(errorListener: IErrorListener?)
-    val playingVoiceId: Optional<Int>
+    val playingVoiceId: Int?
     val isSupposedToPlay: Boolean
     val isPlaybackSpeed: Boolean
     fun togglePlaybackSpeed()

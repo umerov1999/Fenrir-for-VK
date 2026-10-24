@@ -25,8 +25,6 @@ import dev.ragnarok.fenrir.model.FeedbackVKOfficial
 import dev.ragnarok.fenrir.model.criteria.NotificationsCriteria
 import dev.ragnarok.fenrir.model.feedback.Feedback
 import dev.ragnarok.fenrir.orZero
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.ignoreElement
@@ -127,7 +125,7 @@ class FeedbackInteractor(
                                 for (dbo in dbos) {
                                     feedbacks.add(buildFeedback(dbo, it))
                                 }
-                                create(feedbacks, response.nextFrom)
+                                Pair(feedbacks, response.nextFrom)
                             }
                     }
             }

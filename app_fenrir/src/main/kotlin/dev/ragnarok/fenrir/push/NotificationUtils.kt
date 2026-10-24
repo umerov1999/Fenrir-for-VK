@@ -20,7 +20,7 @@ object NotificationUtils {
         context: Context,
         url: String?,
         @DrawableRes ifErrorOrEmpty: Int
-    ): Flow<Bitmap> {
+    ): Flow<Bitmap?> {
         val app = context.applicationContext
         return flow { emit(loadRoundedImage(app, url, ifErrorOrEmpty)) }
     }
@@ -29,7 +29,7 @@ object NotificationUtils {
         context: Context,
         url: String?,
         @DrawableRes ifErrorOrEmpty: Int
-    ): Bitmap {
+    ): Bitmap? {
         val app = context.applicationContext
         val transformation = CurrentTheme.createTransformationForAvatar()
         val size = dpToPx(64f, app).toInt()
@@ -40,8 +40,13 @@ object NotificationUtils {
                     .resize(size, size)
                     .centerCrop()
                     .transform(transformation)
-                    .get()!!
-            } catch (_: IOException) {
+                    .get() ?: loadRoundedImageFromResources(
+                    app,
+                    ifErrorOrEmpty,
+                    transformation,
+                    size
+                )
+            } catch (_: Exception) {
                 loadRoundedImageFromResources(app, ifErrorOrEmpty, transformation, size)
             }
         } else {
@@ -54,19 +59,19 @@ object NotificationUtils {
         @DrawableRes res: Int,
         transformation: Transformation,
         size: Int
-    ): Bitmap {
+    ): Bitmap? {
         return try {
             with()
                 .load(res)
                 .resize(size, size)
                 .transform(transformation)
                 .centerCrop()
-                .get()!!
+                .get()
         } catch (e: IOException) {
             e.printStackTrace()
             val bitmap = BitmapFactory.decodeResource(context.resources, res)
             getRoundedBitmap(bitmap)
-        }!!
+        }
     }
 
     @JvmOverloads

@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir.db.interfaces
 import android.content.ContentValues
 import dev.ragnarok.fenrir.db.AttachmentFor
 import dev.ragnarok.fenrir.db.model.entity.DboEntity
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IAttachmentsStorage : IStorage {

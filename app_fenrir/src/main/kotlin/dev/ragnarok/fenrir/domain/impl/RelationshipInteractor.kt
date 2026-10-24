@@ -16,8 +16,6 @@ import dev.ragnarok.fenrir.model.Owner
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
 import kotlinx.coroutines.flow.Flow
@@ -215,7 +213,7 @@ class RelationshipInteractor(
             .search(userId, q, Fields.FIELDS_BASE_USER, null, offset, count)
             .map { items ->
                 val users = transformUsers(listEmptyIfNull(items.items))
-                create(users, items.count)
+                Pair(users, items.count)
             }
     }
 

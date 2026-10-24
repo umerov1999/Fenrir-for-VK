@@ -28,8 +28,6 @@ import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.model.criteria.WallCriteria
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
@@ -287,12 +285,15 @@ class WallsRepository(
                 }
         }
 
-    private fun entity2model(accountId: Long): suspend (PostDboEntity) -> Flow<Post> = {
+    private fun entity2model(accountId: Long): suspend (PostDboEntity?) -> Flow<Post> = {
         val ids = VKOwnIds()
         fillPostOwnerIds(ids, it)
         ownersRepository
             .findBaseOwnersDataAsBundle(accountId, ids.all, FetchMode.ANY)
             .map { owners ->
+                if (it == null) {
+                    throw NotFoundException()
+                }
                 buildPostFromDbo(
                     it, owners
                 )
@@ -489,7 +490,6 @@ class WallsRepository(
                     .flatMapConcat { dbid ->
                         cache
                             .findPostById(accountId, dbid)
-                            .map { obj -> obj.requireNonEmpty() }
                             .flatMapConcat(entity2model(accountId))
                     }
             }
@@ -532,7 +532,7 @@ class WallsRepository(
                     owners
                 )
                     .map { ownersBundle ->
-                        create(
+                        Pair(
                             transformPosts(
                                 dtos,
                                 ownersBundle

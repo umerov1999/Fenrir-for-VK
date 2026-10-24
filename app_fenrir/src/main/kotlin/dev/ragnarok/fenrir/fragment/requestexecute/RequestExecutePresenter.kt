@@ -15,8 +15,6 @@ import dev.ragnarok.fenrir.isMsgPack
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeLegalFilename
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safelyClose
@@ -160,9 +158,8 @@ class RequestExecutePresenter(accountId: Long, savedInstanceState: Bundle?) :
         return networker.vkDefault(accountId)
             .other()
             .rawRequest(method, params)
-            .map { optional ->
-                val responseString = optional.get()
-                val fullJson = if (responseString == null) null else toPrettyFormat(responseString)
+            .map {
+                val fullJson = if (it == null) null else toPrettyFormat(it)
                 var trimmedJson: String? = null
                 if (fullJson.nonNullNoEmpty()) {
                     val lines = fullJson.split(Regex("\\r?\\n")).toTypedArray()
@@ -177,7 +174,7 @@ class RequestExecutePresenter(accountId: Long, savedInstanceState: Bundle?) :
                     }
                     trimmedJson = join("\n", trimmed)
                 }
-                create(fullJson, trimmedJson)
+                Pair(fullJson, trimmedJson)
             }
     }
 

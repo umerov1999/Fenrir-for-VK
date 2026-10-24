@@ -6,8 +6,6 @@ import dev.ragnarok.fenrir.db.model.entity.MessageDboEntity
 import dev.ragnarok.fenrir.model.DraftMessage
 import dev.ragnarok.fenrir.model.MessageStatus
 import dev.ragnarok.fenrir.model.criteria.MessagesCriteria
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 
 interface IMessagesStorage : IStorage {
@@ -68,7 +66,7 @@ interface IMessagesStorage : IStorage {
         accountIds: Collection<Long>,
         withAttachments: Boolean,
         withForwardMessages: Boolean
-    ): Flow<Optional<Pair<Long, MessageDboEntity>>>
+    ): Flow<Pair<Long, MessageDboEntity>?>
 
     //Observable<MessageUpdate> observeMessageUpdates();
     fun getMissingMessages(

@@ -11,8 +11,6 @@ import dev.ragnarok.fenrir.db.model.entity.UserDetailsEntity
 import dev.ragnarok.fenrir.db.model.entity.UserEntity
 import dev.ragnarok.fenrir.model.Manager
 import dev.ragnarok.fenrir.model.User
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Pair
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -25,10 +23,10 @@ interface IOwnersStorage : IStorage {
 
     @CheckResult
     fun getLocalizedUserActivity(accountId: Long, userId: Long): Flow<String?>
-    fun findUserDboById(accountId: Long, ownerId: Long): Flow<Optional<UserEntity>>
-    fun findCommunityDboById(accountId: Long, ownerId: Long): Flow<Optional<CommunityEntity>>
-    fun findUserByDomain(accountId: Long, domain: String?): Flow<Optional<UserEntity>>
-    fun findCommunityByDomain(accountId: Long, domain: String?): Flow<Optional<CommunityEntity>>
+    fun findUserDboById(accountId: Long, ownerId: Long): Flow<UserEntity?>
+    fun findCommunityDboById(accountId: Long, ownerId: Long): Flow<CommunityEntity?>
+    fun findUserByDomain(accountId: Long, domain: String?): Flow<UserEntity?>
+    fun findCommunityByDomain(accountId: Long, domain: String?): Flow<CommunityEntity?>
     fun findUserDbosByIds(accountId: Long, ids: List<Long>): Flow<List<UserEntity>>
     fun findCommunityDbosByIds(accountId: Long, ids: List<Long>): Flow<List<CommunityEntity>>
     fun storeUserDbos(accountId: Long, users: List<UserEntity>): Flow<Boolean>
@@ -44,14 +42,14 @@ interface IOwnersStorage : IStorage {
     fun observeBanActions(): SharedFlow<BanAction>
     fun fireManagementChangeAction(manager: Pair<Long, Manager>): Flow<Boolean>
     fun observeManagementChanges(): SharedFlow<Pair<Long, Manager>>
-    fun getGroupsDetails(accountId: Long, groupId: Long): Flow<Optional<CommunityDetailsEntity>>
+    fun getGroupsDetails(accountId: Long, groupId: Long): Flow<CommunityDetailsEntity?>
     fun storeGroupsDetails(
         accountId: Long,
         groupId: Long,
         dbo: CommunityDetailsEntity
     ): Flow<Boolean>
 
-    fun getUserDetails(accountId: Long, userId: Long): Flow<Optional<UserDetailsEntity>>
+    fun getUserDetails(accountId: Long, userId: Long): Flow<UserDetailsEntity?>
     fun storeUserDetails(accountId: Long, userId: Long, dbo: UserDetailsEntity): Flow<Boolean>
     fun applyPathes(accountId: Long, patches: List<UserPatch>): Flow<Boolean>
     fun findFriendBirtday(accountId: Long): Flow<List<User>>

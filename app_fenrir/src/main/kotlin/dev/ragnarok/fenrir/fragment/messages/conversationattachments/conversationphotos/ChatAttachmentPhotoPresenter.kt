@@ -15,8 +15,6 @@ import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.util.Pair
-import dev.ragnarok.fenrir.util.Pair.Companion.create
 import dev.ragnarok.fenrir.util.PersistentLogger
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
@@ -58,7 +56,7 @@ class ChatAttachmentPhotoPresenter(peerId: Long, accountId: Long, savedInstanceS
                         }
                     }
                 }
-                create(response.next_from, photos)
+                Pair(response.next_from, photos)
             }
     }
 

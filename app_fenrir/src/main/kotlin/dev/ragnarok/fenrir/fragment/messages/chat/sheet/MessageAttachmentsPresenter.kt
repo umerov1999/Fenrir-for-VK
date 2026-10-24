@@ -31,7 +31,6 @@ import dev.ragnarok.fenrir.upload.UploadUtils
 import dev.ragnarok.fenrir.util.AppPerms.hasCameraPermission
 import dev.ragnarok.fenrir.util.FileUtil.createImageFile
 import dev.ragnarok.fenrir.util.FileUtil.getExportedUriForFile
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.Utils.findIndexByPredicate
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO

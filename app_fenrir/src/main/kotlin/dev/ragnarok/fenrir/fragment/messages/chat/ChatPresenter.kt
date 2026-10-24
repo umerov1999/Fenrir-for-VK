@@ -87,11 +87,8 @@ import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.FileUtil
 import dev.ragnarok.fenrir.util.Lookup
-import dev.ragnarok.fenrir.util.Optional
-import dev.ragnarok.fenrir.util.Pair
 import dev.ragnarok.fenrir.util.PersistentLogger.logThrowable
 import dev.ragnarok.fenrir.util.TextingNotifier
-import dev.ragnarok.fenrir.util.UnixTime
 import dev.ragnarok.fenrir.util.Utils.addElementToList
 import dev.ragnarok.fenrir.util.Utils.countOfSelection
 import dev.ragnarok.fenrir.util.Utils.getSelected
@@ -1107,11 +1104,11 @@ class ChatPresenter(
         val cmId = draftMessage.cmId ?: return false
 
         val current = uploadManager.getCurrent()
-        return current.nonEmpty() && current.get()?.destination?.compareTo(
+        return current != null && current.destination.compareTo(
             cmId,
             peerId,
             Method.TO_MESSAGE
-        ) == true
+        )
     }
 
     private fun resolveAttachmentsCounter() {
@@ -1498,48 +1495,12 @@ class ChatPresenter(
         }
     }
 
-    private fun canEdit(message: Message): Boolean {
-        return message.isOut && UnixTime.now() - message.date < 24 * 60 * 60
-                && !message.isSticker && !message.isVoiceMessage && !message.isGraffiti && !message.isCall
-    }
-
     private fun canChangePin(): Boolean {
         return conversation?.run {
             hasFlag(acl, Conversation.AclFlags.CAN_CHANGE_PIN)
         } ?: run {
             false
         }
-    }
-
-    private fun doStar(): Boolean {
-        val selectionCount = countOfSelection(data)
-        return selectionCount > 0 && data.find { it.isSelected }?.isImportant?.let {
-            !it
-        } ?: true
-    }
-
-    private fun canStar(): Boolean {
-        val selectionCount = countOfSelection(data)
-        if (selectionCount <= 0)
-            return false
-
-        val iterator = data.iterator()
-        var status = false
-        var has = false
-        while (iterator.hasNext()) {
-            val message = iterator.next()
-            if (!message.isSelected) {
-                continue
-            }
-            if (!has) {
-                has = true
-                status = message.isImportant
-            } else {
-                if (message.isImportant != status || message.status != MessageStatus.SENT)
-                    return false
-            }
-        }
-        return true
     }
 
     private fun doStar(message: Message): Boolean {
@@ -1564,7 +1525,8 @@ class ChatPresenter(
                     canChangePin(),
                     canStar(),
                     doStar(),
-                    !message.isOut
+                    !message.isOut,
+                    message.isOut && Peer.isGroupChat(message.peerId)
                 )
             } else {
                 view?.showActionMode(
@@ -1573,7 +1535,8 @@ class ChatPresenter(
                     canPin = false,
                     canStar = canStar(),
                     doStar = doStar(),
-                    canSpam = false
+                    canSpam = false,
+                    canViewMessageViewed = false
                 )
             }
         } else {
@@ -1599,7 +1562,7 @@ class ChatPresenter(
         super.onGuiResumed()
         checkLongpoll()
         Processors.realtimeMessages
-            .registerNotificationsInterceptor(generatedId, Pair.create(messagesOwnerId, peerId))
+            .registerNotificationsInterceptor(generatedId, Pair(messagesOwnerId, peerId))
         resolveKeepScreenOn()
     }
 
@@ -1792,7 +1755,8 @@ class ChatPresenter(
             canChangePin(),
             canStar(message),
             doStar(message),
-            !message.isOut
+            !message.isOut,
+            message.isOut && Peer.isGroupChat(message.peerId)
         )
     }
 
@@ -2270,7 +2234,7 @@ class ChatPresenter(
         }
     }
 
-    private fun checkGraffitiMessage(filePath: Sticker.LocalSticker): Flow<Optional<IAttachmentToken>> {
+    private fun checkGraffitiMessage(filePath: Sticker.LocalSticker): Flow<IAttachmentToken?> {
         if (filePath.path.nonNullNoEmpty()) {
             val docsApi = Includes.networkInterfaces.vkDefault(accountId).docs()
             return docsApi.getMessagesUploadServer(
@@ -2307,7 +2271,7 @@ class ChatPresenter(
                                                     dto.ownerId,
                                                     dto.accessKey
                                                 )
-                                                Optional.wrap(token)
+                                                token
                                             }
                                         }
                                 }
@@ -2318,7 +2282,7 @@ class ChatPresenter(
                     }
                 }
         }
-        return toFlow(Optional.empty())
+        return toFlow(null)
     }
 
     fun fireSendMyStickerClick(file: Sticker.LocalSticker) {
@@ -2327,8 +2291,7 @@ class ChatPresenter(
         }
         netLoadingDisposable += checkGraffitiMessage(file)
             .fromIOToMain({
-                if (it.nonEmpty()) {
-                    val kk = it.get() as AttachmentTokens.AttachmentToken
+                if (it != null && it is AttachmentTokens.AttachmentToken) {
                     val builder = SaveMessageBuilder(messagesOwnerId, peerId)
 
                     val fwds = ArrayList<Message>()
@@ -2345,12 +2308,12 @@ class ChatPresenter(
                     }
 
                     if (!file.isAnimated) {
-                        val graffiti = Graffiti().setId(kk.id).setOwner_id(kk.ownerId)
-                            .setAccess_key(kk.accessKey)
+                        val graffiti = Graffiti().setId(it.id).setOwner_id(it.ownerId)
+                            .setAccess_key(it.accessKey)
                         builder.attach(graffiti)
                         sendMessage(builder)
                     } else {
-                        val doc = Document(kk.id, kk.ownerId).setAccessKey(kk.accessKey)
+                        val doc = Document(it.id, it.ownerId).setAccessKey(it.accessKey)
                         builder.attach(doc)
                         sendMessage(builder)
                     }
@@ -2592,15 +2555,14 @@ class ChatPresenter(
     fun fireLongAvatarClick(uId: Long) {
         if (uId > 0) {
             netLoadingDisposable += Repository.owners.getFullUserInfo(accountId, uId, FetchMode.NET)
-                .fromIOToMain({ info ->
-                    run {
-                        val domainTmp: String = if (info.first?.domain == null)
-                            "@id$uId,"
-                        else
-                            "@" + info.first.domain + ","
-                        view?.appendMessageText(domainTmp)
-                    }
-                }, { })
+                .fromIOToMain { info ->
+                    val domain = info.first?.domain
+                    val domainTmp: String = if (domain.isNullOrEmpty())
+                        "@id$uId,"
+                    else
+                        "@$domain,"
+                    view?.appendMessageText(domainTmp)
+                }
         }
     }
 

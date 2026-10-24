@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.impl
 
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.api.TokenType
+import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.interfaces.ICommentsApi
 import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.response.CustomCommentsResponse
@@ -25,7 +26,7 @@ internal class CommentsApi(accountId: Long, provider: IServiceProvider) :
         accessKey: String?,
         fields: String?
     ): Flow<CustomCommentsResponse> {
-        val thread_id = threadComment.orZero()
+        val threadId = threadComment.orZero()
         return provideService(ICommentsService(), TokenType.USER)
             .flatMapConcat {
                 it.get(
@@ -115,17 +116,18 @@ internal class CommentsApi(accountId: Long, provider: IServiceProvider) :
                             "}\n" +
                             "\n" +
                             "if(source_type == \"topic\"){\n" +
-                            "    result = API.board.getComments({\"v\":\"" + Constants.API_VERSION + "\",\"group_id\":positive_group_id, \n" +
+                            "    var topic_params = {\"v\":\"" + Constants.API_VERSION + "\",\"group_id\":positive_group_id, \n" +
                             "        \"topic_id\":source_id, \n" +
                             "        \"need_likes\":\"1\", \n" +
-                            "        \"start_comment_id\":start_comment_id, \n" +
                             "        \"offset\":offset, \n" +
                             "        \"count\":count, \n" +
                             "        \"sort\":sort, \n" +
-                            "        \"extended\":\"1\"});\n" +
+                            "        \"extended\":\"1\"};\n" +
+                            "    if(start_comment_id > 0){ topic_params.start_comment_id = start_comment_id; }\n" +
+                            "    result = API.board.getComments(topic_params);\n" +
                             "}\n" +
                             "\n" +
-                            "var first_id;\n" +
+                            "var first_id = 0;\n" +
                             "if(source_type == \"post\"){\n" +
                             "   if(comment_id != 0)\n" +
                             "   {\n" +
@@ -153,12 +155,9 @@ internal class CommentsApi(accountId: Long, provider: IServiceProvider) :
                             "        \"video_id\":source_id, \"count\":\"1\", \"sort\":\"asc\"}).items[0].id;\n" +
                             "}\n" +
                             "\n" +
-                            "if(source_type == \"topic\"){\n" +
-                            "    first_id = API.board.getComments({\"v\":\"" + Constants.API_VERSION + "\",\"group_id\":positive_group_id, \n" +
-                            "        \"topic_id\":source_id, \"count\":\"1\", \"sort\":\"asc\"}).items[0].id;\n" +
-                            "}\n" +
+                            "// Topic boundaries are tracked by raw offsets and count.\n" +
                             "\n" +
-                            "var last_id;\n" +
+                            "var last_id = 0;\n" +
                             "if(source_type == \"post\"){\n" +
                             "    if(comment_id != 0)\n" +
                             "    {\n" +
@@ -182,10 +181,7 @@ internal class CommentsApi(accountId: Long, provider: IServiceProvider) :
                             "        \"video_id\":source_id, \"count\":\"1\", \"sort\":\"desc\"}).items[0].id;\n" +
                             "}\n" +
                             "\n" +
-                            "if(source_type == \"topic\"){\n" +
-                            "    last_id = API.board.getComments({\"v\":\"" + Constants.API_VERSION + "\",\"group_id\":positive_group_id, \n" +
-                            "        \"topic_id\":source_id, \"count\":\"1\", \"sort\":\"desc\"}).items[0].id;\n" +
-                            "}\n" +
+                            "// Topic boundaries are tracked by raw offsets and count.\n" +
                             "\n" +
                             "return {\"main\": result, \n" +
                             "    \"first_id\": first_id, \n" +
@@ -198,11 +194,30 @@ internal class CommentsApi(accountId: Long, provider: IServiceProvider) :
                     count,
                     sort,
                     startCommentId,
-                    thread_id,
+                    threadId,
                     accessKey,
                     fields
                 )
-                    .map(extractResponseWithErrorHandling())
+                    .map { response ->
+                        // execute may succeed at the transport level while board.getComments fails.
+                        if (sourceType == "topic") {
+                            response.executeErrors?.filterNotNull()?.firstOrNull()?.let { e ->
+                                throw ApiException(e)
+                            }
+                        }
+                        extractResponseWithErrorHandling<CustomCommentsResponse>()(response).also { r ->
+                            if (sourceType == "topic") {
+                                val main =
+                                    checkNotNull(r.main) { "VK returned no topic comments response" }
+                                check(
+                                    !main.comments.isNullOrEmpty() || main.count == 0 ||
+                                            (offset ?: 0) >= main.count
+                                ) {
+                                    "VK returned an empty topic page before the end"
+                                }
+                            }
+                        }
+                    }
             }
     }
 }

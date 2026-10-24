@@ -89,7 +89,11 @@ public object StreamUseCaseUtil {
             if (Build.VERSION.SDK_INT >= 33) {
                 put(
                     SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL.toLong(),
-                    setOf(CaptureType.PREVIEW, CaptureType.IMAGE_CAPTURE, CaptureType.VIDEO_CAPTURE),
+                    setOf(
+                        CaptureType.PREVIEW,
+                        CaptureType.IMAGE_CAPTURE,
+                        CaptureType.VIDEO_CAPTURE,
+                    ),
                 )
                 put(
                     SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD.toLong(),
@@ -504,6 +508,20 @@ public object StreamUseCaseUtil {
         attachedSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>,
     ): Boolean {
+        val isZslDisabledByUseCase =
+            attachedSurfaces.any {
+                it.implementationOptions?.retrieveOption(
+                    UseCaseConfig.OPTION_ZSL_DISABLED,
+                    false,
+                ) == true
+            } ||
+                newUseCaseConfigs.any {
+                    it.retrieveOption(UseCaseConfig.OPTION_ZSL_DISABLED, false) == true
+                }
+        if (isZslDisabledByUseCase) {
+            return false
+        }
+
         for (attachedSurfaceInfo: AttachedSurfaceInfo in attachedSurfaces) {
             val captureTypes = attachedSurfaceInfo.captureTypes
             val captureType = captureTypes[0]

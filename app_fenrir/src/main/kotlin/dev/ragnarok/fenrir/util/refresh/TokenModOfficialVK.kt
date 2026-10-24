@@ -9,6 +9,7 @@ import dev.ragnarok.fenrir.Includes.proxySettings
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser
 import dev.ragnarok.fenrir.api.HttpLoggerAndParser.toRequestBuilder
 import dev.ragnarok.fenrir.api.ProxyUtil.applyProxyConfig
+import okhttp3.CacheControl
 import okhttp3.FormBody
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -179,6 +180,7 @@ object TokenModOfficialVK {
                         .addHeader("app", "com.vkontakte.android")
                         .addHeader("Gcm-ver", "200313005")
                         .addHeader("Gcm-cert", "48761eef50ee53afc4cc9c5f10e6bde7f8f5b82f")
+                        .cacheControl(CacheControl.FORCE_NETWORK)
                         .build()
                 )
             })
