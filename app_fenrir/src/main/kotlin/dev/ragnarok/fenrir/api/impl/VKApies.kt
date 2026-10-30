@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.api.impl
 
-import android.annotation.SuppressLint
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.interfaces.IAccountApi
 import dev.ragnarok.fenrir.api.interfaces.IAccountApis
@@ -166,20 +165,22 @@ internal class VKApies private constructor(
     }
 
     companion object {
-        @SuppressLint("UseSparseArrays")
+        private val lock = Any()
         private val APIS: MutableMap<Long, VKApies> = HashMap(1)
         fun create(accountId: Long, accessToken: String?, provider: IVKRestProvider): VKApies {
             return VKApies(accountId, true, accessToken, provider)
         }
 
-        @Synchronized
-        operator fun get(accountId: Long, provider: IVKRestProvider): VKApies {
-            var apies = APIS[accountId]
-            if (apies == null) {
-                apies = VKApies(accountId, false, null, provider)
-                APIS[accountId] = apies
+        fun get(accountId: Long, provider: IVKRestProvider): VKApies {
+            var apies: VKApies? = null
+            synchronized(lock) {
+                apies = APIS[accountId]
+                if (apies == null) {
+                    apies = VKApies(accountId, false, null, provider)
+                    APIS[accountId] = apies
+                }
             }
-            return apies
+            return apies!!
         }
     }
 

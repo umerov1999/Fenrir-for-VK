@@ -3,14 +3,11 @@ package dev.ragnarok.fenrir.api.impl
 import dev.ragnarok.fenrir.api.PercentagePublisher
 import dev.ragnarok.fenrir.api.interfaces.IUploadApi
 import dev.ragnarok.fenrir.api.interfaces.providers.IUploadRestProvider
+import dev.ragnarok.fenrir.api.model.VKApiJsonString
 import dev.ragnarok.fenrir.api.model.response.BaseResponse
 import dev.ragnarok.fenrir.api.model.upload.UploadAudioDto
 import dev.ragnarok.fenrir.api.model.upload.UploadChatPhotoDto
 import dev.ragnarok.fenrir.api.model.upload.UploadDocDto
-import dev.ragnarok.fenrir.api.model.upload.UploadOwnerPhotoDto
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToAlbumDto
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToMessageDto
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToWallDto
 import dev.ragnarok.fenrir.api.model.upload.UploadVideoDto
 import dev.ragnarok.fenrir.api.services.IUploadService
 import dev.ragnarok.fenrir.api.util.ProgressRequestBody
@@ -50,6 +47,23 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
         val part: MultipartBody.Part = MultipartBody.Part.createFormData("file", filename, body)
         return service().flatMapConcat {
             it.uploadDocumentRx(server, part)
+        }
+    }
+
+    override fun uploadAudioMessageRx(
+        server: String,
+        filename: String?,
+        source: Source,
+        size: Long,
+        listener: PercentagePublisher?
+    ): Flow<VKApiJsonString> {
+        val body = ProgressRequestBody(
+            source, size, wrapPercentageListener(listener),
+            "*/*".toMediaTypeOrNull()
+        )
+        val part: MultipartBody.Part = MultipartBody.Part.createFormData("file", filename, body)
+        return service().flatMapConcat {
+            it.uploadAudioMessageRx(server, part)
         }
     }
 
@@ -159,7 +173,7 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
         source: Source,
         size: Long,
         listener: PercentagePublisher?
-    ): Flow<UploadOwnerPhotoDto> {
+    ): Flow<VKApiJsonString> {
         val body =
             ProgressRequestBody(
                 source, size, wrapPercentageListener(listener),
@@ -193,7 +207,7 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
         source: Source,
         size: Long,
         listener: PercentagePublisher?
-    ): Flow<UploadPhotoToWallDto> {
+    ): Flow<VKApiJsonString> {
         val body =
             ProgressRequestBody(
                 source, size, wrapPercentageListener(listener),
@@ -210,13 +224,13 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
         source: Source,
         size: Long,
         listener: PercentagePublisher?
-    ): Flow<UploadPhotoToMessageDto> {
+    ): Flow<VKApiJsonString> {
         val body =
             ProgressRequestBody(
                 source, size, wrapPercentageListener(listener),
                 "image/*".toMediaTypeOrNull()
             )
-        val part: MultipartBody.Part = MultipartBody.Part.createFormData("photo", "photo.jpg", body)
+        val part: MultipartBody.Part = MultipartBody.Part.createFormData("file1", "photo.jpg", body)
         return service().flatMapConcat {
             it.uploadPhotoToMessageRx(server, part)
         }
@@ -227,7 +241,7 @@ class UploadApi internal constructor(private val provider: IUploadRestProvider) 
         source: Source,
         size: Long,
         listener: PercentagePublisher?
-    ): Flow<UploadPhotoToAlbumDto> {
+    ): Flow<VKApiJsonString> {
         val body =
             ProgressRequestBody(
                 source, size, wrapPercentageListener(listener),

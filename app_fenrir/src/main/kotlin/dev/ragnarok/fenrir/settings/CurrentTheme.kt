@@ -22,8 +22,7 @@ import java.io.File
 
 object CurrentTheme {
     private const val KEY_CHAT_BACKGROUND = "chat_background"
-    val playPauseAnimator = createPathAnimator()
-    private fun createPathAnimator(): PathAnimator {
+    val playPauseAnimator: PathAnimator by lazy {
         val animator = PathAnimator(0.293f, -26f, -28f, 1.0f)
         animator.addSvgKeyFrame(
             "M 34.141 16.042 C 37.384 17.921 40.886 20.001 44.211 21.965 C 46.139 23.104 49.285 24.729 49.586 25.917 C 50.289 28.687 48.484 30 46.274 30 L 6 30.021 C 3.79 30.021 2.075 30.023 2 26.021 L 2.009 3.417 C 2.009 0.417 5.326 -0.58 7.068 0.417 C 10.545 2.406 25.024 10.761 34.141 16.042 Z",
@@ -53,7 +52,7 @@ object CurrentTheme {
             "M 48 7 C 50.21 7 52 8.79 52 11 C 52 19 52 19 52 19 C 52 21.21 50.21 23 48 23 L 4 23 C 1.79 23 0 21.21 0 19 L 0 11 C 0 8.79 1.79 7 4 7 C 48 7 48 7 48 7 Z",
             383f
         )
-        return animator
+        animator
     }
 
     fun getDrawerBackgroundFile(context: Context, light: Boolean): File {

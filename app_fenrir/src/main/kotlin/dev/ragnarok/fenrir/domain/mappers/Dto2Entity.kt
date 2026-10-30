@@ -1455,7 +1455,7 @@ object Dto2Entity {
             .setDuration(dto.duration)
             .setLinkMp3(dto.linkMp3)
             .setLinkOgg(dto.linkOgg)
-            .setWaveform(dto.waveform)
+            .setWaveform(dto.waveform?.toByteArray())
             .setTranscript(dto.transcript)
             .setWasListened(dto.was_listened)
     }

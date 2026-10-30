@@ -198,7 +198,10 @@ class AccountsPresenter(savedInstanceState: Bundle?) :
 
         val curPush = Settings.get().pushSettings().registered
         Settings.get().pushSettings().registered = null
-        if (curPush != null && curPush.userId == account.getOwnerObjectId()) {
+        if (curPush != null && curPush.userId == account.getOwnerObjectId() && Settings.get()
+                .accounts()
+                .getType(curPush.userId) == Constants.DEFAULT_ACCOUNT_TYPE
+        ) {
             setLoadingNow(true)
             appendJob(Includes.pushRegistrationResolver.unregister(curPush).fromIOToMain({
                 setLoadingNow(false)

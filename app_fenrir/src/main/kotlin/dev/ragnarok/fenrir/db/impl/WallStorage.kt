@@ -30,10 +30,10 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.msgpack.MsgPack
 
 internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
@@ -53,7 +53,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
                 val attachments = ArrayList<DboEntity>(dbo.getAttachments().orEmpty())
                 attachments.addAll(dbo.copyHierarchy.orEmpty())
                 stores.attachments().attachToBlobSync(cv, AttachmentFor.POST, attachments)
-                    .syncSingleSafe()
+                    .singleOrNull()
 
                 val mainPostHeaderOperation = ContentProviderOperation
                     .newInsert(getPostsContentUriFor(accountId))
@@ -87,7 +87,7 @@ internal class WallStorage(base: AppStorages) : AbsStorage(base), IWallStorage {
             val attachments = ArrayList<DboEntity>(post.getAttachments().orEmpty())
             attachments.addAll(post.copyHierarchy.orEmpty())
             stores.attachments().attachToBlobSync(cv, AttachmentFor.POST, attachments)
-                .syncSingleSafe()
+                .singleOrNull()
 
             if (post.dbid > 0) {
                 cv.put(BaseColumns._ID, post.dbid)

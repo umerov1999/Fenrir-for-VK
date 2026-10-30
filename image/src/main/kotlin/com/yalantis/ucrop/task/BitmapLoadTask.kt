@@ -15,8 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -51,18 +51,14 @@ class BitmapLoadTask(
     fun execute() {
         CoroutineScope(Dispatchers.IO).launch {
             doInBackground().catch {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onPostExecute(
-                            BitmapWorkerResult(it)
-                        )
-                    }
+                withContext(Dispatchers.Main) {
+                    onPostExecute(
+                        BitmapWorkerResult(it)
+                    )
                 }
             }.collect {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onPostExecute(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onPostExecute(it)
                 }
             }
         }

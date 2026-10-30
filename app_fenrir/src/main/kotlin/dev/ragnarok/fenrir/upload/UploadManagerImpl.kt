@@ -55,7 +55,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
-import java.util.Collections
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
@@ -95,7 +94,7 @@ class UploadManagerImpl(
     }
     private val notificationUpdateDisposable = CompositeJob()
     private val compositeDisposable = CompositeJob()
-    private val serverMap = Collections.synchronizedMap(HashMap<String, UploadServer>())
+    private val serverMap = HashMap<String, UploadServer>()
 
     @Volatile
     private var current: Upload? = null

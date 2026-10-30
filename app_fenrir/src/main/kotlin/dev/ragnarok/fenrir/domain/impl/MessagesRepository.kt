@@ -96,6 +96,7 @@ import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.model.criteria.DialogsCriteria
 import dev.ragnarok.fenrir.model.criteria.MessagesCriteria
+import dev.ragnarok.fenrir.module.encoder.AudioRecorderNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.push.OwnerInfo
@@ -128,7 +129,6 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.ignoreElement
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.mergeFlows
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.myEmit
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlowThrowable
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
@@ -145,6 +145,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.json.decodeFromBufferedSource
 import okio.Source
 import okio.buffer
@@ -1284,7 +1285,7 @@ class MessagesRepository(
                                             status = MessageStatus.ERROR,
                                             vkCmId = null,
                                             vkMessageId = null
-                                        ).syncSingleSafe()
+                                        ).singleOrNull()
                                         throw e
                                     })
                     }
@@ -1933,16 +1934,17 @@ class MessagesRepository(
         val extras = dbo.extras
         if (extras != null && extras.containsKey(Message.Extra.VOICE_RECORD)) {
             val filePath = extras[Message.Extra.VOICE_RECORD]
-            val docsApi = networker.vkDefault(accountId).docs()
+            val messagesApi = networker.vkDefault(accountId).messages()
 
-            return docsApi.getMessagesUploadServer(dbo.peerId, "audio_message")
+            return messagesApi.getAudioMessageUploadServer()
                 .flatMapConcat { server ->
                     val file = File(filePath ?: throw NotFoundException("filePath is empty"))
+                    val waveform = AudioRecorderNative.getWaveform(file.absolutePath)
                     var inputSource: Source? = null
                     try {
                         inputSource = file.source()
                         networker.uploads()
-                            .uploadDocumentRx(
+                            .uploadAudioMessageRx(
                                 server.url ?: throw NotFoundException("Upload url empty!"),
                                 file.name,
                                 inputSource,
@@ -1951,17 +1953,16 @@ class MessagesRepository(
                             )
                             .onCompletion { safelyClose(inputSource) }
                             .flatMapConcat { uploadDto ->
-                                docsApi
-                                    .save(uploadDto.file, null, null)
-                                    .map { dtos ->
-                                        if (dtos.type.isEmpty()) {
+                                messagesApi
+                                    .saveAudioMessage(uploadDto.json_data, waveform)
+                                    .map { dto ->
+                                        if (dto.id == 0) {
                                             throw NotFoundException("Unable to save voice message")
                                         } else {
-                                            val dto = dtos.doc
                                             val token = AttachmentsTokenCreator.ofDocument(
                                                 dto.id,
-                                                dto.ownerId,
-                                                dto.accessKey
+                                                dto.owner_id,
+                                                dto.access_key
                                             )
                                             token
                                         }

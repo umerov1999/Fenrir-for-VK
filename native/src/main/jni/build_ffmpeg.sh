@@ -32,8 +32,6 @@ COMMON_OPTIONS="
     --enable-demuxer=flac
     --enable-demuxer=ogg
     --enable-demuxer=hls
-    --enable-muxer=mp4
-    --enable-encoder=aac
     --enable-swresample
     --enable-protocol=file
     --enable-nonfree

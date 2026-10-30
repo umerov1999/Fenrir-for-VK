@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.api.impl
 
-import android.os.SystemClock
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.api.TokenType
 import dev.ragnarok.fenrir.api.exceptions.ApiException
@@ -21,11 +20,14 @@ import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.service.ApiErrorCodes
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.refresh.RefreshToken
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.decodeFromBufferedSource
 import kotlinx.serialization.msgpack.MsgPack
@@ -33,6 +35,7 @@ import okhttp3.FormBody
 import okhttp3.Request
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 internal open class AbsApi(val accountId: Long, private val restProvider: IServiceProvider) {
     fun <T : IServiceRest> provideService(
@@ -153,12 +156,12 @@ internal open class AbsApi(val accountId: Long, private val restProvider: IServi
             }
     }
 
-    private fun handleError(error: Error, params: HashMap<String, String>): Boolean {
+    private suspend fun handleError(error: Error, params: HashMap<String, String>): Boolean {
         var handle = true
         when (error.errorCode) {
             ApiErrorCodes.TOO_MANY_REQUESTS_PER_SECOND -> {
-                synchronized(lock) {
-                    SystemClock.sleep((1000 + RANDOM.nextInt(500)).toLong())
+                mutex.withLock {
+                    delay((1000 + RANDOM.nextInt(500)).milliseconds)
                 }
             }
 
@@ -185,13 +188,13 @@ internal open class AbsApi(val accountId: Long, private val restProvider: IServi
                 val provider = Includes.validationProvider
                 provider.requestValidate(redirectUri, accountId)
                 var code = false
-                while (true) {
+                for (attempt in 0 until 120) {
                     try {
                         code = provider.lookupState(redirectUri)
                         if (code) {
                             break
                         } else {
-                            SystemClock.sleep(1000)
+                            delay(1000.milliseconds)
                         }
                     } catch (_: OutOfDateException) {
                         break
@@ -213,13 +216,13 @@ internal open class AbsApi(val accountId: Long, private val restProvider: IServi
                         "https://" + Settings.get().main().apiDomain
                     )
                     var successToken: String? = null
-                    while (true) {
+                    for (attempt in 0 until 120) {
                         try {
                             successToken = provider.lookupSuccessToken(redirectUri)
                             if (successToken != null) {
                                 break
                             } else {
-                                SystemClock.sleep(1000)
+                                delay(1000.milliseconds)
                             }
                         } catch (_: OutOfDateException) {
                             break
@@ -293,7 +296,7 @@ internal open class AbsApi(val accountId: Long, private val restProvider: IServi
     }
 
     companion object {
-        val lock = Any()
+        val mutex = Mutex()
         val RANDOM = Random(System.nanoTime())
         inline fun <reified T> join(
             tokens: Iterable<T>?,

@@ -82,7 +82,7 @@
     <integer name="attachments_editor_column_count">3</integer>
 
     <dimen name="card_margin">8dp</dimen>
-    <dimen name="card_margin_horizontal">4dp</dimen>
+    <dimen name="card_margin_horizontal">8dp</dimen>
     <dimen name="refresher_offset_start">40dp</dimen>
     <dimen name="refresher_offset_end">72dp</dimen>
 

@@ -25,219 +25,152 @@ import dev.ragnarok.fenrir.db.interfaces.IVideoStorage
 import dev.ragnarok.fenrir.db.interfaces.IWallStorage
 
 class AppStorages(base: Context) : ContextWrapper(base), IStorages {
-    private val tempData: ITempDataStorage = TempDataStorage(this)
-    private var owners: IOwnersStorage? = null
-    private var feed: IFeedStorage? = null
-    private var relativeship: IRelativeshipStorage? = null
-    private var photos: IPhotosStorage? = null
-    private var fave: IFaveStorage? = null
-    private var wall: IWallStorage? = null
-    private var messages: IMessagesStorage? = null
-    private var dialogs: IDialogsStorage? = null
-    private var feedback: IFeedbackStorage? = null
-    private var localMedia: ILocalMediaStorage? = null
-    private var attachments: IAttachmentsStorage? = null
+    private val _tempData: ITempDataStorage by lazy {
+        TempDataStorage(this)
+    }
+    private val _owners: IOwnersStorage by lazy {
+        OwnersStorage(this)
+    }
+    private val _feed: IFeedStorage by lazy {
+        FeedStorage(this)
+    }
+    private val _relativeShip: IRelativeshipStorage by lazy {
+        RelativeshipStorage(this)
+    }
+    private val _photos: IPhotosStorage by lazy {
+        PhotosStorage(this)
+    }
+    private val _fave: IFaveStorage by lazy {
+        FaveStorage(this)
+    }
+    private val _wall: IWallStorage by lazy {
+        WallStorage(this)
+    }
+    private val _messages: IMessagesStorage by lazy {
+        MessagesStorage(this)
+    }
+    private val _dialogs: IDialogsStorage by lazy {
+        DialogsStorage(this)
+    }
+    private val _feedback: IFeedbackStorage by lazy {
+        FeedbackStorage(this)
+    }
+    private val _localMedia: ILocalMediaStorage by lazy {
+        LocalMediaStorage(this)
+    }
+    private val _attachments: IAttachmentsStorage by lazy {
+        AttachmentsStorage(this)
+    }
 
-    @Volatile
-    private var video: IVideoStorage? = null
+    private val _video: IVideoStorage by lazy {
+        VideoStorage(this)
+    }
 
-    @Volatile
-    private var videoAlbums: IVideoAlbumsStorage? = null
+    private val _videoAlbums: IVideoAlbumsStorage by lazy {
+        VideoAlbumsStorage(this)
+    }
 
-    @Volatile
-    private var comments: ICommentsStorage? = null
+    private val _comments: ICommentsStorage by lazy {
+        CommentsStorage(this)
+    }
 
-    @Volatile
-    private var photoAlbums: IPhotoAlbumsStorage? = null
+    private val _photoAlbums: IPhotoAlbumsStorage by lazy {
+        PhotoAlbumsStorage(this)
+    }
 
-    @Volatile
-    private var topics: ITopicsStore? = null
+    private val _topics: ITopicsStore by lazy {
+        TopicsStorage(this)
+    }
 
-    @Volatile
-    private var docs: IDocsStorage? = null
+    private val _docs: IDocsStorage by lazy {
+        DocsStorage(this)
+    }
 
-    @Volatile
-    private var stickers: IStickersStorage? = null
+    private val _stickers: IStickersStorage by lazy {
+        StickersStorage(this)
+    }
+    private val _database: IDatabaseStore by lazy {
+        DatabaseStorage(this)
+    }
 
-    @Volatile
-    private var database: IDatabaseStore? = null
+
     override fun comments(): ICommentsStorage {
-        if (comments == null) {
-            synchronized(this) {
-                if (comments == null) {
-                    comments = CommentsStorage(this)
-                }
-            }
-        }
-        return comments!!
+        return _comments
     }
 
     override fun photoAlbums(): IPhotoAlbumsStorage {
-        if (photoAlbums == null) {
-            synchronized(this) {
-                if (photoAlbums == null) {
-                    photoAlbums = PhotoAlbumsStorage(this)
-                }
-            }
-        }
-        return photoAlbums!!
+        return _photoAlbums
     }
 
     override fun topics(): ITopicsStore {
-        if (topics == null) {
-            synchronized(this) {
-                if (topics == null) {
-                    topics = TopicsStorage(this)
-                }
-            }
-        }
-        return topics!!
+        return _topics
     }
 
     override fun docs(): IDocsStorage {
-        if (docs == null) {
-            synchronized(this) {
-                if (docs == null) {
-                    docs = DocsStorage(this)
-                }
-            }
-        }
-        return docs!!
+        return _docs
     }
 
     override fun stickers(): IStickersStorage {
-        if (stickers == null) {
-            synchronized(this) {
-                if (stickers == null) {
-                    stickers = StickersStorage(this)
-                }
-            }
-        }
-        return stickers!!
+        return _stickers
     }
 
     override fun database(): IDatabaseStore {
-        if (database == null) {
-            synchronized(this) {
-                if (database == null) {
-                    database = DatabaseStorage(this)
-                }
-            }
-        }
-        return database!!
+        return _database
     }
 
     override fun tempStore(): ITempDataStorage {
-        return tempData
+        return _tempData
     }
 
     override fun videoAlbums(): IVideoAlbumsStorage {
-        if (videoAlbums == null) {
-            synchronized(this) {
-                if (videoAlbums == null) {
-                    videoAlbums = VideoAlbumsStorage(this)
-                }
-            }
-        }
-        return videoAlbums!!
+        return _videoAlbums
     }
 
     override fun videos(): IVideoStorage {
-        if (video == null) {
-            synchronized(this) {
-                if (video == null) {
-                    video = VideoStorage(this)
-                }
-            }
-        }
-        return video!!
+        return _video
     }
 
-    @Synchronized
     override fun attachments(): IAttachmentsStorage {
-        if (attachments == null) {
-            attachments = AttachmentsStorage(this)
-        }
-        return attachments!!
+        return _attachments
     }
 
-    @Synchronized
     override fun localMedia(): ILocalMediaStorage {
-        if (localMedia == null) {
-            localMedia = LocalMediaStorage(this)
-        }
-        return localMedia!!
+        return _localMedia
     }
 
-    @Synchronized
     override fun notifications(): IFeedbackStorage {
-        if (feedback == null) {
-            feedback = FeedbackStorage(this)
-        }
-        return feedback!!
+        return _feedback
     }
 
-    @Synchronized
     override fun dialogs(): IDialogsStorage {
-        if (dialogs == null) {
-            dialogs = DialogsStorage(this)
-        }
-        return dialogs!!
+        return _dialogs
     }
 
-    @Synchronized
     override fun messages(): IMessagesStorage {
-        if (messages == null) {
-            messages = MessagesStorage(this)
-        }
-        return messages!!
+        return _messages
     }
 
-    @Synchronized
     override fun wall(): IWallStorage {
-        if (wall == null) {
-            wall = WallStorage(this)
-        }
-        return wall!!
+        return _wall
     }
 
-    @Synchronized
     override fun fave(): IFaveStorage {
-        if (fave == null) {
-            fave = FaveStorage(this)
-        }
-        return fave!!
+        return _fave
     }
 
-    @Synchronized
     override fun photos(): IPhotosStorage {
-        if (photos == null) {
-            photos = PhotosStorage(this)
-        }
-        return photos!!
+        return _photos
     }
 
-    @Synchronized
     override fun relativeship(): IRelativeshipStorage {
-        if (relativeship == null) {
-            relativeship = RelativeshipStorage(this)
-        }
-        return relativeship!!
+        return _relativeShip
     }
 
-    @Synchronized
     override fun feed(): IFeedStorage {
-        if (feed == null) {
-            feed = FeedStorage(this)
-        }
-        return feed!!
+        return _feed
     }
 
-    @Synchronized
     override fun owners(): IOwnersStorage {
-        if (owners == null) {
-            owners = OwnersStorage(this)
-        }
-        return owners!!
+        return _owners
     }
 }

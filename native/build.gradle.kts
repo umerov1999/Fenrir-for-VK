@@ -12,7 +12,9 @@ fun Provider<String>.asInt() = get().toInt()
 android {
     namespace = "dev.ragnarok.fenrir.module"
     compileSdk {
-        version = preview(libs.versions.appCompileSDK.get())
+        version = release(libs.versions.appCompileSDK.asInt()) {
+            minorApiLevel = libs.versions.appCompileSDKMinor.asInt()
+        }
     }
     buildToolsVersion = libs.versions.appBuildTools.get()
     ndkVersion = libs.versions.appNdk.get()

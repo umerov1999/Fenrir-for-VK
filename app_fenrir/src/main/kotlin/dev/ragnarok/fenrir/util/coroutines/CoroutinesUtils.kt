@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
 
 object CoroutinesUtils {
@@ -48,28 +49,24 @@ object CoroutinesUtils {
     }
 
     inline fun <reified T> Flow<T>.fromIOToMain(
-        crossinline onSuccess: (result: T) -> Unit,
-        crossinline onError: (exception: Throwable) -> Unit
+        crossinline onSuccess: suspend CoroutineScope.(result: T) -> Unit,
+        crossinline onError: suspend CoroutineScope.(exception: Throwable) -> Unit
     ): Job {
         return CoroutineScope(Dispatchers.IO).launch {
             catch {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onError(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onError(it)
                 }
             }.collect {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onSuccess(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onSuccess(it)
                 }
             }
         }
     }
 
     inline fun <reified T> Flow<T>.fromIOToMain(
-        crossinline onSuccess: (result: T) -> Unit,
+        crossinline onSuccess: suspend CoroutineScope.(result: T) -> Unit,
     ): Job {
         return CoroutineScope(Dispatchers.IO).launch {
             catch {
@@ -77,16 +74,14 @@ object CoroutinesUtils {
                     it.printStackTrace()
                 }
             }.collect {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onSuccess(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onSuccess(it)
                 }
             }
         }
     }
 
-    inline fun <reified T> Flow<T>.fromIO(crossinline onSuccess: (result: T) -> Unit): Job {
+    inline fun <reified T> Flow<T>.fromIO(crossinline onSuccess: suspend CoroutineScope.(result: T) -> Unit): Job {
         return CoroutineScope(Dispatchers.IO).launch {
             catch {
                 if (Constants.IS_DEBUG) {
@@ -109,7 +104,7 @@ object CoroutinesUtils {
     }
 
     inline fun <reified T> Flow<T>.toMain(
-        crossinline onSuccess: (result: T) -> Unit
+        crossinline onSuccess: suspend CoroutineScope.(result: T) -> Unit
     ): Job {
         return CoroutineScope(Dispatchers.Main).launch {
             catch {
@@ -122,9 +117,9 @@ object CoroutinesUtils {
         }
     }
 
-    inline fun inMainThread(crossinline function: () -> Unit): Job {
+    inline fun inMainThread(crossinline block: suspend CoroutineScope.() -> Unit): Job {
         return CoroutineScope(Dispatchers.Main + coroutineExceptionHandlerEmpty).launch {
-            function.invoke()
+            block.invoke(this)
         }
     }
 
@@ -171,8 +166,8 @@ object CoroutinesUtils {
         }
     }
 
-    inline fun <reified T> dummy(): (T) -> Unit = {}
-    fun ignore(): (Throwable) -> Unit = {
+    inline fun <reified T> dummy(): suspend CoroutineScope.(T) -> Unit = {}
+    fun ignore(): suspend CoroutineScope.(Throwable) -> Unit = {
         if (Constants.IS_DEBUG) {
             it.printStackTrace()
         }
@@ -233,21 +228,17 @@ object CoroutinesUtils {
 
     inline fun <reified T> Flow<T>.fromScopeToMain(
         scope: CoroutineScope,
-        crossinline onSuccess: (result: T) -> Unit,
-        crossinline onError: (exception: Throwable) -> Unit
+        crossinline onSuccess: suspend CoroutineScope.(result: T) -> Unit,
+        crossinline onError: suspend CoroutineScope.(exception: Throwable) -> Unit
     ): Job {
         return scope.launch {
             catch {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onError(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onError(it)
                 }
             }.collect {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onSuccess(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onSuccess(it)
                 }
             }
         }
@@ -255,7 +246,7 @@ object CoroutinesUtils {
 
     inline fun <reified T> Flow<T>.fromScopeToMain(
         scope: CoroutineScope,
-        crossinline onSuccess: (result: T) -> Unit,
+        crossinline onSuccess: suspend CoroutineScope.(result: T) -> Unit,
     ): Job {
         return scope.launch {
             catch {
@@ -263,10 +254,8 @@ object CoroutinesUtils {
                     it.printStackTrace()
                 }
             }.collect {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onSuccess(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onSuccess(it)
                 }
             }
         }
@@ -305,14 +294,12 @@ object CoroutinesUtils {
     }
 
     inline fun <reified T> Flow<T>.sharedFlowToMain(
-        crossinline onSuccess: (result: T) -> Unit
+        crossinline onSuccess: suspend CoroutineScope.(result: T) -> Unit
     ): Job {
         return CoroutineScope(Dispatchers.IO).launch {
             collect {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        onSuccess(it)
-                    }
+                withContext(Dispatchers.Main) {
+                    onSuccess(it)
                 }
             }
         }

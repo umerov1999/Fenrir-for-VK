@@ -39,13 +39,13 @@ import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.VKOwnIds
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.createPublishSubject
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.msgpack.MsgPack
 
@@ -85,7 +85,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                 val cv = getCV(sourceId, sourceOwnerId, sourceType, dbo)
                 stores.attachments()
                     .attachToBlobSync(cv, AttachmentFor.COMMENT, dbo.getAttachments())
-                    .syncSingleSafe()
+                    .singleOrNull()
 
                 val mainPostHeaderOperation = ContentProviderOperation
                     .newInsert(getCommentsContentUriFor(accountId))
@@ -284,7 +284,7 @@ internal class CommentsStorage(base: AppStorages) : AbsStorage(base), ICommentsS
                 cv,
                 AttachmentFor.COMMENT,
                 Model2Entity.buildDboAttachments(attachments.orEmpty())
-            ).syncSingleSafe()
+            ).singleOrNull()
 
             val uri = getCommentsContentUriFor(accountId)
             contentResolver.update(

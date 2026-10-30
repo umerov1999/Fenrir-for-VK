@@ -20,8 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -65,25 +65,21 @@ class BitmapCropTask(
     fun execute() {
         CoroutineScope(Dispatchers.IO).launch {
             doInBackground().catch {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        mCropCallback?.onCropFailure(
-                            it
-                        )
-                    }
+                withContext(Dispatchers.Main) {
+                    mCropCallback?.onCropFailure(
+                        it
+                    )
                 }
             }.collect {
-                if (this@launch.isActive) {
-                    this@launch.launch(Dispatchers.Main) {
-                        val uri = Uri.fromFile(mImageOutputPath?.let { File(it) })
-                        mCropCallback?.onBitmapCropped(
-                            uri,
-                            cropOffsetX,
-                            cropOffsetY,
-                            mCroppedImageWidth,
-                            mCroppedImageHeight
-                        )
-                    }
+                withContext(Dispatchers.Main) {
+                    val uri = Uri.fromFile(mImageOutputPath?.let { File(it) })
+                    mCropCallback?.onBitmapCropped(
+                        uri,
+                        cropOffsetX,
+                        cropOffsetY,
+                        mCroppedImageWidth,
+                        mCroppedImageHeight
+                    )
                 }
             }
         }

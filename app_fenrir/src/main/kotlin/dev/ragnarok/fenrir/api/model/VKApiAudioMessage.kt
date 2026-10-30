@@ -16,7 +16,7 @@ class VKApiAudioMessage : VKApiAttachment {
     var duration = 0
 
     @SerialName("waveform")
-    var waveform: ByteArray? = null
+    var waveform: List<Byte>? = null
 
     @SerialName("link_ogg")
     var linkOgg: String? = null

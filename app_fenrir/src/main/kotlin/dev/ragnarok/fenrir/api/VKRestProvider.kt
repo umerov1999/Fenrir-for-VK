@@ -11,7 +11,6 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.OkHttpClient
-import java.util.Collections
 
 @SuppressLint("CheckResult")
 class VKRestProvider(
@@ -20,11 +19,11 @@ class VKRestProvider(
 ) : IVKRestProvider {
     private val restCacheLock = Any()
 
-    private val restCache = Collections.synchronizedMap(HashMap<Long, SimplePostHttp>(1))
+    private val restCache = HashMap<Long, SimplePostHttp>(1)
     private fun onProxySettingsChanged() {
         synchronized(restCacheLock) {
             for ((_, value) in restCache) {
-                value?.stop()
+                value.stop()
             }
             restCache.clear()
         }

@@ -42,7 +42,7 @@ class DocumentUploadable(
         val serverSingle = if (initialServer == null) {
             networker.vkDefault(accountId)
                 .docs()
-                .getUploadServer(groupId)
+                .getUploadServer(null, groupId)
         } else {
             toFlow(initialServer)
         }

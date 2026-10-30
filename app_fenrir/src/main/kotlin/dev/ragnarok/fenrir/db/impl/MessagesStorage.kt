@@ -36,10 +36,10 @@ import dev.ragnarok.fenrir.util.Exestime.log
 import dev.ragnarok.fenrir.util.Utils.join
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.isActive
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
@@ -261,7 +261,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             })
 
             stores.attachments()
-                .attachToBlobSync(cv, AttachmentFor.MESSAGE, patch.attachments).syncSingleSafe()
+                .attachToBlobSync(cv, AttachmentFor.MESSAGE, patch.attachments).singleOrNull()
 
             val result = contentResolver.insert(uri, cv)
             extractId(result)
@@ -320,7 +320,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
                     replace = false,
                     accountId = accountId
                 )
-                .syncSingleSafe()
+                .singleOrNull()
 
             patch.forward.ifNonNullNoEmpty({
                 cv.put(
@@ -763,7 +763,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
         private const val ORDER_BY =
             "${MessagesColumns.FULL_STATUS}, ${MessagesColumns.FULL_CONVERSATION_MESSAGE_ID} ASC"
 
-        fun appendDboOperation(
+        suspend fun appendDboOperation(
             attachments: IAttachmentsStorage,
             accountId: Long,
             dbo: MessageDboEntity,
@@ -829,7 +829,7 @@ internal class MessagesStorage(base: AppStorages) : AbsStorage(base), IMessagesS
             cv.put(MessagesColumns.VERSION, dbo.version)
             cv.put(MessagesColumns.PAYLOAD, dbo.payload)
             attachments.attachToBlobSync(cv, AttachmentFor.MESSAGE, dbo.getAttachments())
-                .syncSingleSafe()
+                .singleOrNull()
 
             dbo.forwardMessages.ifNonNullNoEmpty({
                 cv.put(

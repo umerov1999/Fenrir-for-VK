@@ -7,6 +7,11 @@ import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.Includes.networkInterfaces
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.Auth
+import dev.ragnarok.fenrir.api.auth.AccountCaptchaChallenge
+import dev.ragnarok.fenrir.api.auth.AuthCaptchaAnswer
+import dev.ragnarok.fenrir.api.auth.AuthFailurePolicy
+import dev.ragnarok.fenrir.api.auth.VkIdSession
+import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.exceptions.AuthException
 import dev.ragnarok.fenrir.api.exceptions.NeedValidationException
 import dev.ragnarok.fenrir.api.exceptions.VKIdCaptchaNeedException
@@ -16,13 +21,9 @@ import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemProfile
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.AuthFlow
-import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.service.ErrorLocalizer
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.trimmedIsNullOrEmpty
 import dev.ragnarok.fenrir.trimmedNonNullNoEmpty
-import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayedFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
@@ -38,14 +39,17 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
     private var currentInfoMessage: String? = null
     private var currentInfoIsError: Boolean = false
     private var isLoadingNow: Boolean = false
-    private var currentSid: String? = null
+    private val session = VkIdSession()
     private var validateFlow: String? = null
     private var validateMethods: ArrayList<EcosystemGetVerificationMethods.Method>? = null
     private var validateMethod: EcosystemGetVerificationMethods.Method? = null
-    private var backToPasswordOnError = false
+    private var requiresPassword = false
     private var requiredVKIdCaptcha: VKIdCaptcha? = null
+    private var accountCaptcha: AccountCaptchaChallenge? = null
+    private var accountCaptchaAnswer: AuthCaptchaAnswer? = null
+    private var accountCaptchaDiagnostic: String? = null
     private var redirectUrl: String? = null
-    private var tokenNeedCode = false
+    private val tokenNeedCode get() = session.needsTokenCode
 
     @AuthFlow
     private var currentFlow: Int = AuthFlow.VALIDATE_ACCOUNT
@@ -58,14 +62,34 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
         resolveLoadingViews()
     }
 
-    fun fireVKIdCaptchaSuccess(token: String?) {
-        requiredVKIdCaptcha?.successToken = token
+    fun fireVKIdCaptchaSuccess(request: VkIdSession.Request, token: String?) {
+        val challenge = accountCaptcha
+        if (challenge != null) {
+            accountCaptchaAnswer = challenge.webAnswer(request, token) ?: return
+            setInfoOrErrorMessage(
+                getString(R.string.auth_captcha_ready) + "\n" + accountCaptchaDiagnostic.orEmpty(),
+                false
+            )
+        } else {
+            val pending = requiredVKIdCaptcha?.takeIf { it.request === request } ?: return
+            pending.successToken = token?.takeIf { it.isNotBlank() } ?: return
+            setInfoOrErrorMessage(R.string.auth_captcha_ready, false)
+        }
+        // Completion only stores the answer. The user must press Next/Login to submit it.
+    }
+
+    fun fireImageCaptchaSuccess(request: VkIdSession.Request, key: String?) {
+        accountCaptchaAnswer = accountCaptcha?.imageAnswer(request, key) ?: return
+        setInfoOrErrorMessage(
+            getString(R.string.auth_captcha_ready) + "\n" + accountCaptchaDiagnostic.orEmpty(),
+            false
+        )
     }
 
     private fun resolveFlow(@AuthFlow flow: Int) {
         currentFlow = flow
         if (currentFlow == AuthFlow.PASSWORD) {
-            backToPasswordOnError = true
+            requiresPassword = true
         }
         view?.hideKeyboard()
         resolveFlow()
@@ -120,32 +144,35 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
         when (currentFlow) {
             AuthFlow.VALIDATE_ACCOUNT -> {
                 view?.setNextFlowButtonParams(
-                    true,
+                    !isLoadingNow && !session.busy && (!session.blocked || username.trimmedIsNullOrEmpty()),
                     if (username.trimmedIsNullOrEmpty()) R.string.cancel else R.string.next
                 )
             }
 
             AuthFlow.SELECT_VALIDATION_METHOD -> {
-                view?.setNextFlowButtonParams(true, R.string.next)
+                view?.setNextFlowButtonParams(
+                    !isLoadingNow && !session.busy && !session.blocked,
+                    R.string.next
+                )
             }
 
             AuthFlow.CODE_VALIDATION -> {
                 view?.setNextFlowButtonParams(
-                    true,
+                    !isLoadingNow && !session.busy && !session.blocked,
                     if (validationCode.trimmedIsNullOrEmpty()) R.string.retry else R.string.next
                 )
             }
 
             AuthFlow.PASSWORD -> {
                 view?.setNextFlowButtonParams(
-                    password.trimmedNonNullNoEmpty(),
+                    password.trimmedNonNullNoEmpty() && !isLoadingNow && !session.busy && !session.blocked,
                     R.string.next
                 )
             }
 
             AuthFlow.DO_AUTH -> {
                 view?.setNextFlowButtonParams(
-                    true,
+                    !isLoadingNow && !session.busy && !session.blocked,
                     R.string.button_login
                 )
             }
@@ -189,6 +216,7 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
             view?.hideKeyboard()
         }
         resolveLoadingViews()
+        resolveNextFlowButton()
     }
 
     private fun resolveLoadingViews() {
@@ -200,11 +228,20 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
     }
 
     fun fireUserNameEdit(sequence: CharSequence?) {
-        username = sequence?.toString()
+        val next = sequence?.toString()
+        if (username != next && (session.busy || session.phase != VkIdSession.Phase.EMPTY || accountCaptcha != null)) {
+            compositeJob.clear()
+            restartAuthFlow(null)
+        }
+        username = next
         resolveNextFlowButton()
     }
 
     fun firePasswordEdit(s: CharSequence?) {
+        if (password != s?.toString() && session.busy) {
+            compositeJob.clear()
+            restartAuthFlow(null)
+        }
         password = s?.toString()
         resolveNextFlowButton()
         resolveSavePasswordVisibility()
@@ -216,196 +253,227 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
     }
 
     fun fireSelectValidationMethod(index: Int) {
-        validateMethod = validateMethods?.get(index)
+        if (!session.busy) validateMethod = validateMethods?.getOrNull(index)
     }
 
-    private fun doValidateAccount() {
-        clearInfoError()
-        val tmpUsername = username?.trim()
-        if (tmpUsername.isNullOrEmpty()) {
-            view?.cancelAuth()
-            return
-        }
-        validateFlow = null
-        val anonymTokenData = Settings.get().accounts().anonymToken
-        val anonymToken = anonymTokenData.token
-        if (anonymToken.isNullOrEmpty() || !anonymTokenData.isValid()) {
-            setInfoOrErrorMessage(R.string.anonym_token_not_valid, true)
-            return
-        }
-        setLoadingNow(true)
-        appendJob(
-            networker.vkAuth()
-                .validateAccount(
-                    apiId = Constants.API_ID,
-                    supportedWays = "push,email,sms,callreset,password,reserve_code,codegen",
-                    login = tmpUsername,
-                    forcePassword = false,
-                    passkeySupported = false,
-                    sakVersion = Constants.VK_ANDROID_APP_SAK_VERSION,
-                    flowType = "auth_without_password",
-                    accessToken = anonymToken,
-                    v = Constants.AUTH_API_VERSION
-                ).fromIOToMain({
-                    val nextStep = it.nextStep
-                    validateFlow = it.flowName
-                    if (it.flowName == "need_registration") {
-                        setLoadingNow(false)
-                        setInfoOrErrorMessage(
-                            R.string.account_not_registered, true
-                        )
-                        return@fromIOToMain
-                    } else if (nextStep == null || nextStep.verificationMethod == "password") {
-                        validateMethod = EcosystemGetVerificationMethods.Method()
-                            .setName("password")
-                        setLoadingNow(false)
-                        currentSid = it.sid
-                        resolveFlow(AuthFlow.PASSWORD)
-                        return@fromIOToMain
-                    }
-                    currentSid = it.sid
+    private var attemptToken: dev.ragnarok.fenrir.settings.AnonymToken? = null
+    private var attemptUsername: String? = null
 
-                    if (nextStep.hasAnotherVerificationMethods) {
-                        appendJob(
-                            networker.vkAuth().getEcosystemVerificationMethods(
-                                apiId = Constants.API_ID,
-                                sid = it.sid,
-                                accessToken = anonymToken,
-                                v = Constants.AUTH_API_VERSION
-                            ).fromIOToMain({ verifications ->
-                                setLoadingNow(false)
-                                validateMethods = ArrayList(verifications.methods?.size ?: 1)
-                                verifications.methods?.let { c -> validateMethods?.addAll(c) }
-                                var hasMethod = false
-                                for (i in validateMethods.orEmpty()) {
-                                    if (i.name == nextStep.verificationMethod) {
-                                        hasMethod = true
-                                        break
-                                    }
-                                }
-                                validateMethods?.sortBy { d ->
-                                    d.priority
-                                }
-                                if (!hasMethod) {
-                                    validateMethods?.add(
-                                        0, EcosystemGetVerificationMethods.Method()
-                                            .setName(nextStep.verificationMethod)
-                                    )
-                                }
-                                if (validateMethods?.size == 1) {
-                                    validateMethod = validateMethods?.get(0)
-                                    doSelectValidationMethod()
-                                } else {
-                                    validateMethod = EcosystemGetVerificationMethods.Method()
-                                        .setName(nextStep.verificationMethod)
-                                    setInfoOrErrorMessage(R.string.sms_auth_help, false)
-                                    resolveFlow(AuthFlow.SELECT_VALIDATION_METHOD)
-                                }
-                            }, { vErr ->
-                                vErr.printStackTrace()
-                                setLoadingNow(false)
-                                validateMethod = EcosystemGetVerificationMethods.Method()
-                                    .setName(nextStep.verificationMethod)
-                                doSelectValidationMethod()
-                            })
-                        )
-                    } else {
-                        validateMethod = EcosystemGetVerificationMethods.Method()
-                            .setName(nextStep.verificationMethod)
-                        doSelectValidationMethod()
-                    }
-                }, {
-                    setLoadingNow(false)
-                    setInfoOrErrorMessage(
-                        ErrorLocalizer.localizeThrowable(
-                            Includes.provideApplicationContext(),
-                            Utils.getCauseIfRuntime(it)
-                        ), true
-                    )
-                })
+    private fun start(request: VkIdSession.Request) {
+        clearInfoError()
+        setLoadingNow(true)
+        VkIdDiagnostics.record(
+            request,
+            VkIdDiagnostics.Event.START,
+            session,
+            verificationMethod = validateMethod?.name
         )
     }
 
-    private fun doSelectValidationMethod() {
-        clearInfoError()
-        when (validateMethod?.name) {
-            "password" -> {
-                resolveFlow(AuthFlow.PASSWORD)
-            }
+    private fun current(request: VkIdSession.Request): Boolean {
+        if (session.isCurrent(request)) return true
+        VkIdDiagnostics.record(
+            request,
+            VkIdDiagnostics.Event.STALE,
+            session,
+            verificationMethod = validateMethod?.name
+        )
+        return false
+    }
 
-            "reserve_code" -> {
-                setInfoOrErrorMessage(R.string.auth_validate_reserve_code_help, false)
-                resolveFlow(AuthFlow.CODE_VALIDATION)
-            }
+    private fun token(): String? {
+        if (attemptToken?.isValid() == true) return attemptToken?.token
+        restartAuthFlow(getString(R.string.anonym_token_not_valid))
+        return null
+    }
 
-            "codegen" -> {
-                setInfoOrErrorMessage(R.string.auth_validate_codegen_help, false)
-                resolveFlow(AuthFlow.CODE_VALIDATION)
-            }
-
-            else -> {
-                val anonymTokenData = Settings.get().accounts().anonymToken
-                val anonymToken = anonymTokenData.token
-                if (anonymToken.isNullOrEmpty() || !anonymTokenData.isValid()) {
-                    setInfoOrErrorMessage(R.string.anonym_token_not_valid, true)
-                    return
+    private fun doValidateAccount() {
+        val login = username?.trim()
+        if (login.isNullOrEmpty()) {
+            view?.cancelAuth(); return
+        }
+        if (accountCaptcha != null && accountCaptchaAnswer == null) {
+            showAccountCaptcha()
+            return
+        }
+        // A solved challenge stays bound to the original phone and anonymous token.
+        val anonymous =
+            if (accountCaptcha != null) attemptToken else Settings.get().accounts().anonymToken
+        if (anonymous?.isValid() != true) {
+            restartAuthFlow(getString(R.string.anonym_token_not_valid))
+            return
+        }
+        val request = session.beginAccount() ?: return
+        val captchaAnswer = accountCaptchaAnswer
+        accountCaptcha = null
+        accountCaptchaAnswer = null
+        accountCaptchaDiagnostic = null
+        attemptToken = anonymous
+        attemptUsername = login
+        validateFlow = null
+        validateMethods = null
+        validateMethod = null
+        requiresPassword = false
+        validationCode = null
+        requiredVKIdCaptcha = null
+        authProfile = null
+        view?.cleanCode()
+        resolveProfile()
+        start(request)
+        appendJob(
+            networker.vkAuth().validateAccount(
+                apiId = Constants.API_ID,
+                supportedWays = "push,email,sms,callreset,password,reserve_code,codegen",
+                login = login,
+                forcePassword = false,
+                passkeySupported = false,
+                sakVersion = Constants.VK_ANDROID_APP_SAK_VERSION,
+                flowType = "auth_without_password",
+                accessToken = anonymous.token,
+                v = Constants.AUTH_API_VERSION,
+                captcha = captchaAnswer
+            ).fromIOToMain({ result ->
+                if (!current(request)) return@fromIOToMain
+                session.account(request, result.sid)
+                VkIdDiagnostics.record(
+                    request,
+                    VkIdDiagnostics.Event.SUCCESS,
+                    session,
+                    verificationMethod = validateMethod?.name
+                )
+                setLoadingNow(false)
+                validateFlow = result.flowName
+                if (result.flowName == "need_registration") {
+                    restartAuthFlow(getString(R.string.account_not_registered))
+                    return@fromIOToMain
                 }
+                val next = result.nextStep
+                validateMethod = EcosystemGetVerificationMethods.Method()
+                    .setName(next?.verificationMethod ?: "password")
+                if (validateMethod?.name == "password") resolveFlow(AuthFlow.PASSWORD)
+                else if (next?.hasAnotherVerificationMethods == true) doGetValidationMethods()
+                else doSelectValidationMethod()
+            }, { handleFailure(request, it) })
+        )
+    }
 
-                setLoadingNow(true)
+    private fun doGetValidationMethods() {
+        val anonymous = token() ?: return
+        val request = try {
+            session.begin(VkIdSession.Operation.METHODS)
+        } catch (_: VkIdSession.MissingSession) {
+            restartAuthFlow(getString(R.string.auth_session_expired)); return
+        }
+            ?: return
+        val preferred = validateMethod?.name
+        start(request)
+        appendJob(
+            networker.vkAuth().getEcosystemVerificationMethods(
+                Constants.API_ID, request.sid, anonymous, Constants.AUTH_API_VERSION
+            ).fromIOToMain({ result ->
+                if (!current(request)) return@fromIOToMain
+                session.finish(request)
+                VkIdDiagnostics.record(
+                    request,
+                    VkIdDiagnostics.Event.SUCCESS,
+                    session,
+                    verificationMethod = validateMethod?.name
+                )
+                validateMethods =
+                    ArrayList(result.methods.orEmpty().filter { supportedMethod(it.name) }
+                        .sortedBy { it.priority })
+                if (supportedMethod(preferred) && validateMethods.orEmpty()
+                        .none { it.name == preferred }
+                )
+                    validateMethods?.add(
+                        0,
+                        EcosystemGetVerificationMethods.Method().setName(preferred)
+                    )
+                setLoadingNow(false)
+                if (validateMethods?.size == 1) {
+                    validateMethod = validateMethods?.first()
+                    doSelectValidationMethod()
+                } else if (!validateMethods.isNullOrEmpty()) {
+                    setInfoOrErrorMessage(R.string.sms_auth_help, false)
+                    resolveFlow(AuthFlow.SELECT_VALIDATION_METHOD)
+                } else restartAuthFlow(getString(R.string.auth_invalid_response))
+            }, { handleFailure(request, it) })
+        )
+    }
+
+    private fun supportedMethod(method: String?) = method in setOf(
+        "password", "push", "email", "sms", "callreset", "reserve_code", "codegen"
+    )
+
+    private fun doSelectValidationMethod() {
+        val method = validateMethod?.name
+        clearInfoError()
+        when (method) {
+            "password" -> resolveFlow(AuthFlow.PASSWORD)
+            "reserve_code", "codegen" -> {
+                setInfoOrErrorMessage(
+                    if (method == "reserve_code") R.string.auth_validate_reserve_code_help
+                    else R.string.auth_validate_codegen_help, false
+                )
+                resolveFlow(AuthFlow.CODE_VALIDATION)
+            }
+
+            "push", "email", "sms", "callreset" -> {
+                val anonymous = token() ?: return
+                val request = try {
+                    session.begin(VkIdSession.Operation.SEND_OTP)
+                } catch (_: VkIdSession.MissingSession) {
+                    restartAuthFlow(getString(R.string.auth_session_expired)); return
+                }
+                    ?: return
+                start(request)
                 appendJob(
                     networker.vkAuth().sendEcosystemOtp(
-                        apiId = Constants.API_ID,
-                        sid = currentSid,
-                        accessToken = anonymToken,
-                        v = Constants.AUTH_API_VERSION,
-                        suffix = validateMethod?.name ?: return
-                    ).fromIOToMain({
+                        Constants.API_ID, request.sid, anonymous, Constants.AUTH_API_VERSION, method
+                    ).fromIOToMain({ result ->
+                        if (!current(request)) return@fromIOToMain
+                        session.otpSent(request, result.sid)
+                        VkIdDiagnostics.record(
+                            request,
+                            VkIdDiagnostics.Event.SUCCESS,
+                            session,
+                            verificationMethod = validateMethod?.name
+                        )
                         setLoadingNow(false)
-                        it.sid.nonNullNoEmpty { sid ->
-                            currentSid = sid
-                        }
-                        when (validateMethod?.name) {
+                        validationCode = null
+                        view?.cleanCode()
+                        when (method) {
                             "push" -> setInfoOrErrorMessageParams(
                                 R.string.auth_validate_push_help,
                                 false,
-                                it.info
+                                result.info
                             )
 
                             "email" -> setInfoOrErrorMessageParams(
                                 R.string.auth_validate_email_help,
                                 false,
-                                it.info
+                                result.info
                             )
 
                             "sms" -> setInfoOrErrorMessageParams(
                                 R.string.auth_validate_sms_help,
                                 false,
-                                it.info
+                                result.info
                             )
 
                             "callreset" -> setInfoOrErrorMessageParams(
                                 R.string.auth_validate_callreset_help,
                                 false,
-                                it.info,
-                                it.codeLength
+                                result.info,
+                                result.codeLength
                             )
-
-                            else -> {
-                                setInfoOrErrorMessage(validateMethod?.name, true)
-                            }
                         }
                         resolveFlow(AuthFlow.CODE_VALIDATION)
-                    }, {
-                        setLoadingNow(false)
-                        setInfoOrErrorMessage(
-                            ErrorLocalizer.localizeThrowable(
-                                Includes.provideApplicationContext(),
-                                Utils.getCauseIfRuntime(it)
-                            ), true
-                        )
-                    })
+                    }, { handleFailure(request, it) })
                 )
             }
+
+            else -> restartAuthFlow(getString(R.string.auth_invalid_response))
         }
     }
 
@@ -413,250 +481,298 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
         if (validationCode.trimmedIsNullOrEmpty()) {
             setInfoOrErrorMessage(R.string.sms_auth_help, false)
             resolveFlow(AuthFlow.SELECT_VALIDATION_METHOD)
-        } else {
-            clearInfoError()
-            val anonymTokenData = Settings.get().accounts().anonymToken
-            val anonymToken = anonymTokenData.token
-            if (anonymToken.isNullOrEmpty() || !anonymTokenData.isValid()) {
-                setInfoOrErrorMessage(R.string.anonym_token_not_valid, true)
-                return
-            }
-            val method = validateMethod?.name
-            val tmpCode = validationCode
-            if (method.trimmedIsNullOrEmpty() || tmpCode.trimmedIsNullOrEmpty()) {
-                return
-            }
-
-            setLoadingNow(true)
-            appendJob(
-                networker.vkAuth().checkEcosystemOtp(
-                    apiId = Constants.API_ID,
-                    sid = currentSid,
-                    accessToken = anonymToken,
-                    v = Constants.AUTH_API_VERSION,
-                    verificationMethod = method,
-                    code = tmpCode.trim()
-                ).fromIOToMain({
-                    setLoadingNow(false)
-                    it.sid.nonNullNoEmpty { sid ->
-                        currentSid = sid
-                    }
-                    authProfile = it.profile
-                    if (authProfile?.photo200.isNullOrEmpty()) {
-                        authProfile?.photo200 = VKApiUser.getPhotoLink200()
-                    }
-                    resolveProfile()
-                    if (validateFlow != "need_password_and_validation" || it.canSkipPassword) {
-                        resolveFlow(AuthFlow.DO_AUTH)
-                    } else {
-                        resolveFlow(AuthFlow.PASSWORD)
-                    }
-                }, {
-                    setLoadingNow(false)
-                    setInfoOrErrorMessage(
-                        ErrorLocalizer.localizeThrowable(
-                            Includes.provideApplicationContext(),
-                            Utils.getCauseIfRuntime(it)
-                        ), true
-                    )
-                })
-            )
+            return
         }
-    }
-
-    private fun isSidError(t: Throwable?): Boolean {
-        return t is AuthException && t.message.contains("sid", ignoreCase = true)
+        val anonymous = token() ?: return
+        val method = validateMethod?.name?.takeIf { supportedMethod(it) } ?: return
+        val code = validationCode?.trim() ?: return
+        val request = try {
+            session.begin(VkIdSession.Operation.CHECK_OTP)
+        } catch (_: VkIdSession.MissingSession) {
+            restartAuthFlow(getString(R.string.auth_session_expired)); return
+        }
+            ?: return
+        start(request)
+        appendJob(
+            networker.vkAuth().checkEcosystemOtp(
+                Constants.API_ID, request.sid, anonymous, Constants.AUTH_API_VERSION, method, code
+            ).fromIOToMain({ result ->
+                if (!current(request)) return@fromIOToMain
+                try {
+                    session.confirmed(request, result.sid)
+                } catch (error: VkIdSession.MissingSession) {
+                    handleFailure(request, error); return@fromIOToMain
+                }
+                VkIdDiagnostics.record(
+                    request,
+                    VkIdDiagnostics.Event.SUCCESS,
+                    session,
+                    verificationMethod = validateMethod?.name
+                )
+                validationCode = null
+                view?.cleanCode()
+                authProfile = result.profile
+                if (authProfile?.photo200.isNullOrEmpty()) authProfile?.photo200 =
+                    VKApiUser.getPhotoLink200()
+                resolveProfile()
+                setLoadingNow(false)
+                requiresPassword =
+                    validateFlow == "need_password_and_validation" && !result.canSkipPassword
+                resolveFlow(if (requiresPassword) AuthFlow.PASSWORD else AuthFlow.DO_AUTH)
+            }, { handleFailure(request, it) })
+        )
     }
 
     private fun restartAuthFlow(message: String?) {
-        currentSid = null
+        session.reset()
+        attemptToken = null
+        attemptUsername = null
         validateFlow = null
         validateMethods = null
         validateMethod = null
         validationCode = null
-        tokenNeedCode = false
-        backToPasswordOnError = false
+        requiresPassword = false
+        requiredVKIdCaptcha = null
+        accountCaptcha = null
+        accountCaptchaAnswer = null
+        accountCaptchaDiagnostic = null
+        redirectUrl = null
+        authProfile = null
+        setLoadingNow(false)
         view?.cleanCode()
+        resolveProfile()
         resolveFlow(AuthFlow.VALIDATE_ACCOUNT)
         setInfoOrErrorMessage(message, true)
     }
 
-    private fun doAuth(grantOverride: String? = null, withoutSid: Boolean = false) {
-        val sentCode = tokenNeedCode
-        clearInfoError()
-        val anonymTokenData = Settings.get().accounts().anonymToken
-        val anonymToken = anonymTokenData.token
-        if (anonymToken.isNullOrEmpty() || !anonymTokenData.isValid()) {
-            setInfoOrErrorMessage(R.string.anonym_token_not_valid, true)
-            return
-        }
+    private fun handleFailure(request: VkIdSession.Request, thrown: Throwable) {
+        if (!current(request)) return
+        val error = VkIdDiagnostics.cause(thrown)
+        val diagnostic = VkIdDiagnostics.record(
+            request,
+            VkIdDiagnostics.Event.ERROR,
+            session,
+            error,
+            validateMethod?.name
+        )
+        val kind = VkIdDiagnostics.kind(error)
+        val captcha = kind == AuthFailurePolicy.Kind.CAPTCHA
+        val uncertain = error !is AuthException && error !is ApiException && !captcha
+        session.failed(request, explicitCaptcha = captcha, uncertain = uncertain)
+        setLoadingNow(false)
+        when (val recovery = AuthFailurePolicy.recovery(kind, session.phase)) {
+            AuthFailurePolicy.Recovery.BLOCK -> {
+                session.block((error as? dev.ragnarok.fenrir.api.rest.HttpException)?.retryAfterSeconds)
+                restartAuthFlow(getString(R.string.auth_temporarily_limited) + "\n" + diagnostic)
+            }
 
-        val grantType = grantOverride ?: when {
-            validateMethod?.name == "password" -> "password"
-            backToPasswordOnError -> "phone_confirmation_sid"
-            else -> "without_password"
-        }
-        setLoadingNow(true)
-        appendJob(
-            networker.vkDirectAuth().directLogin(
-                grantType = grantType,
-                clientId = Constants.API_ID,
-                username = username?.trim(),
-                password = password?.trim(),
-                code = if (tokenNeedCode) validationCode?.trim() else null,
-                v = Constants.AUTH_API_VERSION,
-                twoFaSupported = true,
-                scope = Auth.scope,
-                captchaSuccessToken = requiredVKIdCaptcha?.successToken,
-                libVerifySupport = false,
-                sid = if (withoutSid) null else currentSid,
-                anonymousToken = anonymToken,
-                sakVersion = Constants.VK_ANDROID_APP_SAK_VERSION,
-                flowType = "tg_flow"
-            ).fromIOToMain({
-                tokenNeedCode = false
-                setLoadingNow(false)
-                var twoFa = "yes"
-                for (i in validateMethods.orEmpty()) {
-                    if (i.name == "password") {
-                        twoFa = "no"
-                        break
+            AuthFailurePolicy.Recovery.RESTART_SESSION ->
+                restartAuthFlow(getString(R.string.auth_session_expired) + "\n" + diagnostic)
+
+            AuthFailurePolicy.Recovery.CAPTCHA -> {
+                when (error) {
+                    is ApiException if request.operation == VkIdSession.Operation.ACCOUNT -> {
+                        accountCaptcha = AccountCaptchaChallenge(
+                            request, error.error.redirectUri,
+                            error.error.captchaSid, error.error.captchaImg
+                        )
+                        accountCaptchaAnswer = null
+                        accountCaptchaDiagnostic = diagnostic
+                        showAccountCaptcha()
                     }
-                }
-                view?.returnSuccessToParent(
-                    userId = it.user_id,
-                    accessToken = it.access_token,
-                    login = if (username.nonNullNoEmpty()) username?.trim() else "",
-                    password = password,
-                    twoFA = twoFa,
-                    isSave = needSavePassword
-                )
-            }, {
-                setLoadingNow(false)
-                tokenNeedCode = false
 
-                if (it is VKIdCaptchaNeedException) {
-                    requiredVKIdCaptcha = VKIdCaptcha(it.redirect_uri, it.domain, null)
-                    view?.openVKIdCaptcha(
-                        requiredVKIdCaptcha?.redirectUri,
-                        requiredVKIdCaptcha?.domain
-                    )
-                } else if (it is NeedValidationException) {
-                    val type = it.validationType
-                    setInfoOrErrorMessage("${it.message} ${it.description}", false)
-
-                    when (type?.lowercase()) {
-                        "2fa_sms", "2fa_callreset", "2fa_app", "2fa_push" -> {
-                            currentSid = it.sid?.takeIf { s -> s.isNotEmpty() }
-                            tokenNeedCode = true
-                            view?.cleanCode()
-                            validationCode = null
-                            resolveFlow()
-                        }
-
-                        "2fa_libverify" -> {
-                            currentSid = it.sid?.takeIf { s -> s.isNotEmpty() }
-                            tokenNeedCode = true
-                            view?.cleanCode()
-                            validationCode = null
-                            resolveFlow()
-                            appendJob(
-                                networker.vkAuth()
-                                    .validatePhone(
-                                        phone = username?.trim(),
-                                        apiId = Constants.API_ID,
-                                        sid = currentSid,
-                                        v = Constants.AUTH_API_VERSION,
-                                        libVerifySupport = false,
-                                        allowCallReset = true
-                                    )
-                                    .delayedFlow(1000)
-                                    .fromIOToMain({ v ->
-                                        v.sid.nonNullNoEmpty { sid ->
-                                            currentSid = sid
-                                        }
-                                        if ("callreset" == v.validationType) {
-                                            setInfoOrErrorMessage(
-                                                Includes.provideApplicationContext()
-                                                    .getString(
-                                                        R.string.call_reset_description,
-                                                        v.codeLength
-                                                    ), false
-                                            )
-                                        }
-                                    }) { e ->
-                                        setInfoOrErrorMessage(
-                                            ErrorLocalizer.localizeThrowable(
-                                                Includes.provideApplicationContext(),
-                                                Utils.getCauseIfRuntime(e)
-                                            ), true
-                                        )
-                                    })
-                        }
-
-                        else -> {
-                            redirectUrl = it.validationURL
-                            if (redirectUrl.nonNullNoEmpty()) {
-                                view?.returnSuccessValidation(
-                                    redirectUrl,
-                                    if (username.nonNullNoEmpty()) username?.trim() else "",
-                                    if (password.nonNullNoEmpty()) password?.trim() else "",
-                                    "web_validation",
-                                    needSavePassword
-                                )
-                            }
-                        }
-                    }
-                } else if (isSidError(Utils.getCauseIfRuntime(it))) {
-                    if (sentCode && !withoutSid && currentSid != null) {
-                        tokenNeedCode = true
-                        doAuth(grantOverride, withoutSid = true)
-                    } else if (grantType == "phone_confirmation_sid" && password.nonNullNoEmpty()) {
-                        doAuth("password")
-                    } else {
-                        restartAuthFlow(
-                            ErrorLocalizer.localizeThrowable(
-                                Includes.provideApplicationContext(),
-                                Utils.getCauseIfRuntime(it)
-                            )
+                    is VKIdCaptchaNeedException -> {
+                        requiredVKIdCaptcha = VKIdCaptcha(request, error.redirect_uri)
+                        view?.openVKIdCaptcha(request, error.redirect_uri, error.domain)
+                        setInfoOrErrorMessage(
+                            getString(R.string.auth_complete_captcha) + "\n" + diagnostic,
+                            false
                         )
                     }
-                } else {
-                    setInfoOrErrorMessage(
-                        ErrorLocalizer.localizeThrowable(
-                            Includes.provideApplicationContext(),
-                            Utils.getCauseIfRuntime(it)
-                        ), true
+
+                    else -> setInfoOrErrorMessage(
+                        getString(R.string.auth_captcha_unavailable) + "\n" + diagnostic,
+                        true
                     )
-                    if (backToPasswordOnError) {
-                        resolveFlow(AuthFlow.PASSWORD)
-                    }
                 }
+            }
+
+            AuthFailurePolicy.Recovery.RESTART_REQUEST, AuthFailurePolicy.Recovery.RETRY_MANUALLY -> {
+                val message = getString(
+                    when (kind) {
+                        AuthFailurePolicy.Kind.NETWORK -> R.string.auth_network_failed
+                        AuthFailurePolicy.Kind.HTTP -> R.string.auth_http_failed
+                        AuthFailurePolicy.Kind.API -> R.string.auth_api_failed
+                        AuthFailurePolicy.Kind.AUTHENTICATION -> R.string.auth_credentials_rejected
+                        AuthFailurePolicy.Kind.INVALID_RESPONSE -> R.string.auth_invalid_response
+                        else -> R.string.auth_request_failed
+                    }
+                ) + "\n" + diagnostic
+                if (recovery == AuthFailurePolicy.Recovery.RESTART_REQUEST) {
+                    // A discarded/absent session needs a fresh attempt, without relabelling the cause as SID.
+                    restartAuthFlow(message)
+                    return
+                }
+                validationCode = null
+                view?.cleanCode()
+                setInfoOrErrorMessage(message, true)
+                if (currentFlow == AuthFlow.DO_AUTH && !tokenNeedCode && validateMethod?.name == "password")
+                    resolveFlow(AuthFlow.PASSWORD)
+            }
+        }
+    }
+
+    private fun showAccountCaptcha() {
+        val challenge = accountCaptcha ?: return
+        val available = challenge.kind != AccountCaptchaChallenge.Kind.UNAVAILABLE
+        setInfoOrErrorMessage(
+            getString(
+                if (available) R.string.auth_complete_captcha
+                else R.string.auth_captcha_unavailable
+            ) + "\n" + accountCaptchaDiagnostic.orEmpty(), !available
+        )
+        when (challenge.kind) {
+            AccountCaptchaChallenge.Kind.WEB -> view?.openVKIdCaptcha(
+                challenge.request,
+                challenge.redirectUri, "https://" + Settings.get().main().apiDomain
+            )
+
+            AccountCaptchaChallenge.Kind.IMAGE -> view?.openImageCaptcha(
+                challenge.request,
+                challenge.image.orEmpty()
+            )
+
+            AccountCaptchaChallenge.Kind.UNAVAILABLE -> Unit // No challenge to solve; never replay blindly.
+        }
+    }
+
+    private fun doAuth() {
+        val anonymous = token() ?: return
+        if (tokenNeedCode && validationCode.trimmedIsNullOrEmpty()) {
+            setInfoOrErrorMessage(R.string.auth_enter_code, true)
+            return
+        }
+        val request = try {
+            session.beginToken(validateMethod?.name == "password", requiresPassword)
+        } catch (_: VkIdSession.MissingSession) {
+            restartAuthFlow(getString(R.string.auth_session_expired)); return
+        }
+            ?: return
+        start(request)
+        appendJob(
+            networker.vkDirectAuth().directLogin(
+                grantType = request.grant, clientId = Constants.API_ID,
+                username = attemptUsername, password = password,
+                code = if (request.needsCode) validationCode?.trim() else null,
+                v = Constants.AUTH_API_VERSION, twoFaSupported = true, scope = Auth.scope,
+                captchaSuccessToken = requiredVKIdCaptcha?.successToken, libVerifySupport = false,
+                sid = request.sid, anonymousToken = anonymous,
+                sakVersion = Constants.VK_ANDROID_APP_SAK_VERSION, flowType = "tg_flow"
+            ).fromIOToMain({ result ->
+                if (!current(request)) return@fromIOToMain
+                if (result.access_token.isNullOrEmpty() || result.user_id == 0L) {
+                    handleFailure(request, AuthException("invalid_response", null))
+                    return@fromIOToMain
+                }
+                session.succeeded(request)
+                VkIdDiagnostics.record(
+                    request,
+                    VkIdDiagnostics.Event.SUCCESS,
+                    session,
+                    verificationMethod = validateMethod?.name
+                )
+                setLoadingNow(false)
+                view?.returnSuccessToParent(
+                    result.user_id,
+                    result.access_token,
+                    attemptUsername.orEmpty(),
+                    password,
+                    if (validateMethods.orEmpty().any { it.name == "password" }) "no" else "yes",
+                    needSavePassword
+                )
+            }, { thrown ->
+                if (!current(request)) return@fromIOToMain
+                val error = VkIdDiagnostics.cause(thrown)
+                if (error is NeedValidationException) handleTokenValidation(request, error)
+                else handleFailure(request, error)
             })
         )
     }
 
+    private fun handleTokenValidation(
+        request: VkIdSession.Request,
+        error: NeedValidationException
+    ) {
+        VkIdDiagnostics.record(
+            request,
+            VkIdDiagnostics.Event.ERROR,
+            session,
+            error,
+            validateMethod?.name
+        )
+        val type = error.validationType?.lowercase()
+        if (type !in setOf("2fa_sms", "2fa_callreset", "2fa_app", "2fa_push", "2fa_libverify")) {
+            session.failed(request, uncertain = true)
+            setLoadingNow(false)
+            redirectUrl = error.validationURL
+            if (!redirectUrl.isNullOrEmpty()) view?.returnSuccessValidation(
+                redirectUrl,
+                attemptUsername.orEmpty(),
+                password.orEmpty(),
+                "web_validation",
+                needSavePassword
+            ) else restartAuthFlow(getString(R.string.auth_invalid_response))
+            return
+        }
+        try {
+            session.challenge(request, error.sid, error.expiresAtEpochSeconds)
+        } catch (missing: VkIdSession.MissingSession) {
+            handleFailure(request, missing); return
+        }
+        validationCode = null
+        requiredVKIdCaptcha = null
+        view?.cleanCode()
+        setInfoOrErrorMessage(R.string.auth_enter_code, false)
+        resolveFlow(AuthFlow.DO_AUTH)
+        if (type == "2fa_libverify") doValidatePhone() else setLoadingNow(false)
+    }
+
+    private fun doValidatePhone() {
+        val request = session.begin(VkIdSession.Operation.VALIDATE_PHONE) ?: return
+        start(request)
+        appendJob(
+            networker.vkAuth().validatePhone(
+                attemptUsername, Constants.API_ID, request.sid, Constants.AUTH_API_VERSION,
+                libVerifySupport = false, allowCallReset = true
+            ).fromIOToMain({ result ->
+                if (!current(request)) return@fromIOToMain
+                session.phoneValidated(request, result.sid)
+                VkIdDiagnostics.record(
+                    request,
+                    VkIdDiagnostics.Event.SUCCESS,
+                    session,
+                    verificationMethod = validateMethod?.name
+                )
+                setLoadingNow(false)
+                if (result.validationType == "callreset") setInfoOrErrorMessageParams(
+                    R.string.call_reset_description, false, result.codeLength
+                ) else setInfoOrErrorMessage(R.string.auth_enter_code, false)
+            }, { handleFailure(request, it) })
+        )
+    }
+
     fun fireNextFlowClick() {
+        if (currentFlow == AuthFlow.VALIDATE_ACCOUNT && username.trimmedIsNullOrEmpty()) {
+            view?.cancelAuth()
+            return
+        }
+        if (isLoadingNow || session.busy || session.blocked) return
         when (currentFlow) {
-            AuthFlow.VALIDATE_ACCOUNT -> {
-                doValidateAccount()
-            }
-
-            AuthFlow.CODE_VALIDATION -> {
-                doCodeValidation()
-            }
-
-            AuthFlow.SELECT_VALIDATION_METHOD -> {
-                doSelectValidationMethod()
-            }
-
-            AuthFlow.PASSWORD -> {
-                resolveFlow(AuthFlow.DO_AUTH)
-            }
-
-            AuthFlow.DO_AUTH -> {
-                doAuth()
-            }
+            AuthFlow.VALIDATE_ACCOUNT -> doValidateAccount()
+            AuthFlow.CODE_VALIDATION -> doCodeValidation()
+            AuthFlow.SELECT_VALIDATION_METHOD -> doSelectValidationMethod()
+            AuthFlow.PASSWORD -> resolveFlow(AuthFlow.DO_AUTH)
+            AuthFlow.DO_AUTH -> doAuth()
         }
     }
 
@@ -664,9 +780,5 @@ class DirectAuthIdVKPresenter(savedInstanceState: Bundle?) :
         needSavePassword = isSave
     }
 
-    private class VKIdCaptcha(
-        val redirectUri: String,
-        val domain: String,
-        var successToken: String?
-    )
+    private class VKIdCaptcha(val request: VkIdSession.Request, var successToken: String?)
 }

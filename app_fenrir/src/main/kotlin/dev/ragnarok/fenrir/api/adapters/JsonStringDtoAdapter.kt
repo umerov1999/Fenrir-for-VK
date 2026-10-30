@@ -9,12 +9,12 @@ class JsonStringDtoAdapter : AbsDtoAdapter<VKApiJsonString>("VKApiJsonString") {
     override fun deserialize(
         json: JsonElement
     ): VKApiJsonString {
-        val story = VKApiJsonString()
+        val content = VKApiJsonString()
         if (!checkObject(json)) {
-            return story
+            return content
         }
         val root = json.jsonObject
-        story.json_data = root.toString()
-        return story
+        content.json_data = root.toString()
+        return content
     }
 }

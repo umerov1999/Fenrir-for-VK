@@ -2,6 +2,7 @@ package dev.ragnarok.fenrir.api.services
 
 import dev.ragnarok.fenrir.api.model.Assets
 import dev.ragnarok.fenrir.api.model.Items
+import dev.ragnarok.fenrir.api.model.VKApiAudioMessage
 import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.api.model.VKApiJsonString
 import dev.ragnarok.fenrir.api.model.VKApiLongpollServer
@@ -22,6 +23,7 @@ import dev.ragnarok.fenrir.api.model.response.MessageReadPeersResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import dev.ragnarok.fenrir.api.model.response.UploadChatPhotoResponse
+import dev.ragnarok.fenrir.api.model.server.VKApiAudioMessageUploadServer
 import dev.ragnarok.fenrir.api.rest.IServiceRest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.builtins.serializer
@@ -684,6 +686,28 @@ class IMessageService : IServiceRest() {
                 "extended" to extended,
                 "fields" to fields
             ), base(MessageReadPeersResponse.serializer())
+        )
+    }
+
+    fun getAudioMessageUploadServer(): Flow<BaseResponse<VKApiAudioMessageUploadServer>> {
+        return rest.request(
+            "messages.getAudioMessageUploadServer",
+            null,
+            base(VKApiAudioMessageUploadServer.serializer())
+        )
+    }
+
+    fun saveAudioMessage(
+        file: String?,
+        waveform: String?
+    ): Flow<BaseResponse<VKApiAudioMessage>> {
+        return rest.request(
+            "messages.saveAudioMessage",
+            form(
+                "file" to file,
+                "waveform" to waveform
+            ),
+            base(VKApiAudioMessage.serializer())
         )
     }
 }

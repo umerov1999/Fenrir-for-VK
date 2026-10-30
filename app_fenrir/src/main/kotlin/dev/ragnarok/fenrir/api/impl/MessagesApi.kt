@@ -7,6 +7,7 @@ import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
 import dev.ragnarok.fenrir.api.model.Assets
 import dev.ragnarok.fenrir.api.model.Error
 import dev.ragnarok.fenrir.api.model.Items
+import dev.ragnarok.fenrir.api.model.VKApiAudioMessage
 import dev.ragnarok.fenrir.api.model.VKApiChat
 import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.api.model.VKApiJsonString
@@ -26,6 +27,7 @@ import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
 import dev.ragnarok.fenrir.api.model.response.MessageReadPeersResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
+import dev.ragnarok.fenrir.api.model.server.VKApiAudioMessageUploadServer
 import dev.ragnarok.fenrir.api.services.IMessageService
 import dev.ragnarok.fenrir.util.Utils.listEmptyIfNull
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.checkInt
@@ -503,6 +505,22 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
         return serviceRx(TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
                 it.getMessageReadPeers(peerId, cmId, 1, fields)
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun getAudioMessageUploadServer(): Flow<VKApiAudioMessageUploadServer> {
+        return serviceRx(TokenType.USER, TokenType.COMMUNITY)
+            .flatMapConcat {
+                it.getAudioMessageUploadServer()
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
+    override fun saveAudioMessage(file: String?, waveform: ByteArray?): Flow<VKApiAudioMessage> {
+        return serviceRx(TokenType.USER, TokenType.COMMUNITY)
+            .flatMapConcat {
+                it.saveAudioMessage(file, join(waveform?.toList(), ","))
                     .map(extractResponseWithErrorHandling())
             }
     }

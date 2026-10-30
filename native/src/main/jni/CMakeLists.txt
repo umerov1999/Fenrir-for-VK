@@ -95,10 +95,9 @@ target_include_directories(thorvg PRIVATE
         animation/thorvg/src/renderer/cpu_engine)
 
 if (${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "armeabi-v7a")
-    target_compile_definitions(thorvg PRIVATE RAPIDJSON_NEON)
+    target_compile_options(thorvg PRIVATE -DRAPIDJSON_NEON)
 else ()
-    target_compile_definitions(thorvg PRIVATE RAPIDJSON_SSE42)
-    target_compile_options(thorvg PRIVATE -mavx2)
+    target_compile_options(thorvg PRIVATE -mavx2 -DRAPIDJSON_SSE42)
 endif ()
 
 #####################################################################
@@ -165,83 +164,73 @@ if (${ANDROID_ABI} STREQUAL "arm64-v8a")
 endif ()
 
 #####################################################################
-add_library(opus STATIC
-        audio/opus/libopus/src/opus.c
-        audio/opus/libopus/src/opus_decoder.c
-        audio/opus/libopus/src/opus_encoder.c
-        audio/opus/libopus/src/opus_multistream.c
-        audio/opus/libopus/src/opus_multistream_encoder.c
-        audio/opus/libopus/src/opus_multistream_decoder.c
-        audio/opus/libopus/src/repacketizer.c
-        audio/opus/libopus/src/qext_compare.c
+add_library(libopus STATIC
         audio/opus/libopus/src/analysis.c
         audio/opus/libopus/src/extensions.c
+        audio/opus/libopus/src/mapping_matrix.c
         audio/opus/libopus/src/mlp.c
         audio/opus/libopus/src/mlp_data.c
-        audio/opus/libopus/src/opus_projection_encoder.c
+        audio/opus/libopus/src/opus.c
+        audio/opus/libopus/src/opus_compare.c
+        audio/opus/libopus/src/opus_decoder.c
+        audio/opus/libopus/src/opus_demo.c
+        audio/opus/libopus/src/opus_encoder.c
+        audio/opus/libopus/src/opus_multistream.c
+        audio/opus/libopus/src/opus_multistream_decoder.c
+        audio/opus/libopus/src/opus_multistream_encoder.c
         audio/opus/libopus/src/opus_projection_decoder.c
-        audio/opus/libopus/src/mapping_matrix.c
-        audio/opus/libopus/silk/CNG.c
-        audio/opus/libopus/silk/code_signs.c
-        audio/opus/libopus/silk/init_decoder.c
-        audio/opus/libopus/silk/decode_core.c
-        audio/opus/libopus/silk/decode_frame.c
-        audio/opus/libopus/silk/decode_parameters.c
-        audio/opus/libopus/silk/decode_indices.c
-        audio/opus/libopus/silk/decode_pulses.c
-        audio/opus/libopus/silk/decoder_set_fs.c
-        audio/opus/libopus/silk/dec_API.c
-        audio/opus/libopus/silk/enc_API.c
-        audio/opus/libopus/silk/encode_indices.c
-        audio/opus/libopus/silk/encode_pulses.c
-        audio/opus/libopus/silk/gain_quant.c
-        audio/opus/libopus/silk/interpolate.c
-        audio/opus/libopus/silk/LP_variable_cutoff.c
-        audio/opus/libopus/silk/NLSF_decode.c
-        audio/opus/libopus/silk/NSQ.c
-        audio/opus/libopus/silk/NSQ_del_dec.c
-        audio/opus/libopus/silk/PLC.c
-        audio/opus/libopus/silk/shell_coder.c
-        audio/opus/libopus/silk/tables_gain.c
-        audio/opus/libopus/silk/tables_LTP.c
-        audio/opus/libopus/silk/tables_NLSF_CB_NB_MB.c
-        audio/opus/libopus/silk/tables_NLSF_CB_WB.c
-        audio/opus/libopus/silk/tables_other.c
-        audio/opus/libopus/silk/tables_pitch_lag.c
-        audio/opus/libopus/silk/tables_pulses_per_block.c
-        audio/opus/libopus/silk/VAD.c
-        audio/opus/libopus/silk/control_audio_bandwidth.c
-        audio/opus/libopus/silk/quant_LTP_gains.c
-        audio/opus/libopus/silk/VQ_WMat_EC.c
-        audio/opus/libopus/silk/HP_variable_cutoff.c
-        audio/opus/libopus/silk/NLSF_encode.c
-        audio/opus/libopus/silk/NLSF_VQ.c
-        audio/opus/libopus/silk/NLSF_unpack.c
-        audio/opus/libopus/silk/NLSF_del_dec_quant.c
-        audio/opus/libopus/silk/process_NLSFs.c
-        audio/opus/libopus/silk/stereo_LR_to_MS.c
-        audio/opus/libopus/silk/stereo_MS_to_LR.c
-        audio/opus/libopus/silk/check_control_input.c
-        audio/opus/libopus/silk/control_SNR.c
-        audio/opus/libopus/silk/init_encoder.c
-        audio/opus/libopus/silk/control_codec.c
+        audio/opus/libopus/src/opus_projection_encoder.c
+        audio/opus/libopus/src/qext_compare.c
+        audio/opus/libopus/src/repacketizer.c
         audio/opus/libopus/silk/A2NLSF.c
         audio/opus/libopus/silk/ana_filt_bank_1.c
         audio/opus/libopus/silk/biquad_alt.c
         audio/opus/libopus/silk/bwexpander_32.c
         audio/opus/libopus/silk/bwexpander.c
+        audio/opus/libopus/silk/check_control_input.c
+        audio/opus/libopus/silk/CNG.c
+        audio/opus/libopus/silk/code_signs.c
+        audio/opus/libopus/silk/control_audio_bandwidth.c
+        audio/opus/libopus/silk/control_codec.c
+        audio/opus/libopus/silk/control_SNR.c
         audio/opus/libopus/silk/debug.c
+        audio/opus/libopus/silk/dec_API.c
+        audio/opus/libopus/silk/decode_core.c
+        audio/opus/libopus/silk/decode_frame.c
+        audio/opus/libopus/silk/decode_indices.c
+        audio/opus/libopus/silk/decode_parameters.c
         audio/opus/libopus/silk/decode_pitch.c
+        audio/opus/libopus/silk/decode_pulses.c
+        audio/opus/libopus/silk/decoder_set_fs.c
+        audio/opus/libopus/silk/enc_API.c
+        audio/opus/libopus/silk/encode_indices.c
+        audio/opus/libopus/silk/encode_pulses.c
+        audio/opus/libopus/silk/gain_quant.c
+        audio/opus/libopus/silk/HP_variable_cutoff.c
+        audio/opus/libopus/silk/init_decoder.c
+        audio/opus/libopus/silk/init_encoder.c
         audio/opus/libopus/silk/inner_prod_aligned.c
+        audio/opus/libopus/silk/interpolate.c
         audio/opus/libopus/silk/lin2log.c
         audio/opus/libopus/silk/log2lin.c
         audio/opus/libopus/silk/LPC_analysis_filter.c
+        audio/opus/libopus/silk/LPC_fit.c
         audio/opus/libopus/silk/LPC_inv_pred_gain.c
-        audio/opus/libopus/silk/table_LSF_cos.c
+        audio/opus/libopus/silk/LP_variable_cutoff.c
         audio/opus/libopus/silk/NLSF2A.c
+        audio/opus/libopus/silk/NLSF_decode.c
+        audio/opus/libopus/silk/NLSF_del_dec_quant.c
+        audio/opus/libopus/silk/NLSF_encode.c
         audio/opus/libopus/silk/NLSF_stabilize.c
+        audio/opus/libopus/silk/NLSF_unpack.c
+        audio/opus/libopus/silk/NLSF_VQ.c
         audio/opus/libopus/silk/NLSF_VQ_weights_laroia.c
+        audio/opus/libopus/silk/NSQ.c
+        audio/opus/libopus/silk/NSQ_del_dec.c
         audio/opus/libopus/silk/pitch_est_tables.c
+        audio/opus/libopus/silk/PLC.c
+        audio/opus/libopus/silk/process_NLSFs.c
+        audio/opus/libopus/silk/quant_LTP_gains.c
         audio/opus/libopus/silk/resampler.c
         audio/opus/libopus/silk/resampler_down2_3.c
         audio/opus/libopus/silk/resampler_down2.c
@@ -250,41 +239,82 @@ add_library(opus STATIC
         audio/opus/libopus/silk/resampler_private_IIR_FIR.c
         audio/opus/libopus/silk/resampler_private_up2_HQ.c
         audio/opus/libopus/silk/resampler_rom.c
+        audio/opus/libopus/silk/shell_coder.c
         audio/opus/libopus/silk/sigm_Q15.c
         audio/opus/libopus/silk/sort.c
-        audio/opus/libopus/silk/sum_sqr_shift.c
         audio/opus/libopus/silk/stereo_decode_pred.c
         audio/opus/libopus/silk/stereo_encode_pred.c
         audio/opus/libopus/silk/stereo_find_predictor.c
+        audio/opus/libopus/silk/stereo_LR_to_MS.c
+        audio/opus/libopus/silk/stereo_MS_to_LR.c
         audio/opus/libopus/silk/stereo_quant_pred.c
-        audio/opus/libopus/silk/LPC_fit.c
-        audio/opus/libopus/silk/fixed/LTP_analysis_filter_FIX.c
-        audio/opus/libopus/silk/fixed/LTP_scale_ctrl_FIX.c
+        audio/opus/libopus/silk/sum_sqr_shift.c
+        audio/opus/libopus/silk/table_LSF_cos.c
+        audio/opus/libopus/silk/tables_gain.c
+        audio/opus/libopus/silk/tables_LTP.c
+        audio/opus/libopus/silk/tables_NLSF_CB_NB_MB.c
+        audio/opus/libopus/silk/tables_NLSF_CB_WB.c
+        audio/opus/libopus/silk/tables_other.c
+        audio/opus/libopus/silk/tables_pitch_lag.c
+        audio/opus/libopus/silk/tables_pulses_per_block.c
+        audio/opus/libopus/silk/VAD.c
+        audio/opus/libopus/silk/VQ_WMat_EC.c
+        audio/opus/libopus/silk/fixed/apply_sine_window_FIX.c
+        audio/opus/libopus/silk/fixed/autocorr_FIX.c
+        audio/opus/libopus/silk/fixed/burg_modified_FIX.c
         audio/opus/libopus/silk/fixed/corrMatrix_FIX.c
         audio/opus/libopus/silk/fixed/encode_frame_FIX.c
         audio/opus/libopus/silk/fixed/find_LPC_FIX.c
         audio/opus/libopus/silk/fixed/find_LTP_FIX.c
         audio/opus/libopus/silk/fixed/find_pitch_lags_FIX.c
         audio/opus/libopus/silk/fixed/find_pred_coefs_FIX.c
+        audio/opus/libopus/silk/fixed/k2a_FIX.c
+        audio/opus/libopus/silk/fixed/k2a_Q16_FIX.c
+        audio/opus/libopus/silk/fixed/LTP_analysis_filter_FIX.c
+        audio/opus/libopus/silk/fixed/LTP_scale_ctrl_FIX.c
         audio/opus/libopus/silk/fixed/noise_shape_analysis_FIX.c
+        audio/opus/libopus/silk/fixed/pitch_analysis_core_FIX.c
         audio/opus/libopus/silk/fixed/process_gains_FIX.c
         audio/opus/libopus/silk/fixed/regularize_correlations_FIX.c
         audio/opus/libopus/silk/fixed/residual_energy16_FIX.c
         audio/opus/libopus/silk/fixed/residual_energy_FIX.c
-        audio/opus/libopus/silk/fixed/warped_autocorrelation_FIX.c
-        audio/opus/libopus/silk/fixed/apply_sine_window_FIX.c
-        audio/opus/libopus/silk/fixed/autocorr_FIX.c
-        audio/opus/libopus/silk/fixed/burg_modified_FIX.c
-        audio/opus/libopus/silk/fixed/k2a_FIX.c
-        audio/opus/libopus/silk/fixed/k2a_Q16_FIX.c
-        audio/opus/libopus/silk/fixed/pitch_analysis_core_FIX.c
-        audio/opus/libopus/silk/fixed/vector_ops_FIX.c
         audio/opus/libopus/silk/fixed/schur64_FIX.c
         audio/opus/libopus/silk/fixed/schur_FIX.c
+        audio/opus/libopus/silk/fixed/vector_ops_FIX.c
+        audio/opus/libopus/silk/fixed/warped_autocorrelation_FIX.c
+        audio/opus/libopus/silk/float/apply_sine_window_FLP.c
+        audio/opus/libopus/silk/float/autocorrelation_FLP.c
+        audio/opus/libopus/silk/float/burg_modified_FLP.c
+        audio/opus/libopus/silk/float/bwexpander_FLP.c
+        audio/opus/libopus/silk/float/corrMatrix_FLP.c
+        audio/opus/libopus/silk/float/encode_frame_FLP.c
+        audio/opus/libopus/silk/float/energy_FLP.c
+        audio/opus/libopus/silk/float/find_LPC_FLP.c
+        audio/opus/libopus/silk/float/find_LTP_FLP.c
+        audio/opus/libopus/silk/float/find_pitch_lags_FLP.c
+        audio/opus/libopus/silk/float/find_pred_coefs_FLP.c
+        audio/opus/libopus/silk/float/inner_product_FLP.c
+        audio/opus/libopus/silk/float/k2a_FLP.c
+        audio/opus/libopus/silk/float/LPC_analysis_filter_FLP.c
+        audio/opus/libopus/silk/float/LPC_inv_pred_gain_FLP.c
+        audio/opus/libopus/silk/float/LTP_analysis_filter_FLP.c
+        audio/opus/libopus/silk/float/LTP_scale_ctrl_FLP.c
+        audio/opus/libopus/silk/float/noise_shape_analysis_FLP.c
+        audio/opus/libopus/silk/float/pitch_analysis_core_FLP.c
+        audio/opus/libopus/silk/float/process_gains_FLP.c
+        audio/opus/libopus/silk/float/regularize_correlations_FLP.c
+        audio/opus/libopus/silk/float/residual_energy_FLP.c
+        audio/opus/libopus/silk/float/scale_copy_vector_FLP.c
+        audio/opus/libopus/silk/float/scale_vector_FLP.c
+        audio/opus/libopus/silk/float/schur_FLP.c
+        audio/opus/libopus/silk/float/sort_FLP.c
+        audio/opus/libopus/silk/float/warped_autocorrelation_FLP.c
+        audio/opus/libopus/silk/float/wrappers_FLP.c
         audio/opus/libopus/celt/bands.c
         audio/opus/libopus/celt/celt.c
-        audio/opus/libopus/celt/celt_encoder.c
         audio/opus/libopus/celt/celt_decoder.c
+        audio/opus/libopus/celt/celt_encoder.c
+        audio/opus/libopus/celt/celt_lpc.c
         audio/opus/libopus/celt/cwrs.c
         audio/opus/libopus/celt/entcode.c
         audio/opus/libopus/celt/entdec.c
@@ -296,40 +326,65 @@ add_library(opus STATIC
         audio/opus/libopus/celt/mini_kfft.c
         audio/opus/libopus/celt/modes.c
         audio/opus/libopus/celt/pitch.c
-        audio/opus/libopus/celt/celt_lpc.c
         audio/opus/libopus/celt/quant_bands.c
         audio/opus/libopus/celt/rate.c
         audio/opus/libopus/celt/vq.c
-        audio/opus/libopus/celt/arm/armcpu.c
-        audio/opus/libopus/celt/arm/arm_celt_map.c
+
+        audio/opus/opusfile/src/info.c
+        audio/opus/opusfile/src/internal.c
+        audio/opus/opusfile/src/opusfile.c
+        audio/opus/opusfile/src/stream.c
+        audio/opus/ogg/src/bitwise.c
+        audio/opus/ogg/src/framing.c
+        audio/opus/rnnoise/src/celt_lpc.c
+        audio/opus/rnnoise/src/denoise.c
+        audio/opus/rnnoise/src/pitch.c
+        audio/opus/rnnoise/src/rnn.c
+        audio/opus/rnnoise/src/rnn_data.c
+        audio/opus/rnnoise/src/rnn_reader.c
 )
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "arm64-v8a")
-    target_compile_definitions(opus PRIVATE
-            OPUS_HAVE_RTCD OPUS_ARM_ASM)
-    target_sources(opus PRIVATE
+    if (${ANDROID_ABI} STREQUAL "arm64-v8a")
+        target_compile_options(libopus PRIVATE -march=armv8-a+dotprod+i8mm -DOPUS_ARM_PRESUME_AARCH64_NEON_INTR -DOPUS_ARM_PRESUME_DOTPROD)
+    endif ()
+
+    target_compile_options(libopus PRIVATE -DOPUS_ARM_MAY_HAVE_NEON -DOPUS_ARM_MAY_HAVE_NEON_INTR -DOPUS_ARM_PRESUME_NEON -DOPUS_ARM_PRESUME_NEON_INTR)
+    target_sources(libopus PRIVATE
+            audio/opus/libopus/celt/arm/arm_celt_map.c
+            audio/opus/libopus/celt/arm/armcpu.c
             audio/opus/libopus/celt/arm/celt_neon_intr.c
             audio/opus/libopus/celt/arm/pitch_neon_intr.c
-            audio/opus/libopus/silk/arm/NSQ_neon.c
             audio/opus/libopus/silk/arm/arm_silk_map.c
+            audio/opus/libopus/silk/arm/biquad_alt_neon_intr.c
             audio/opus/libopus/silk/arm/LPC_inv_pred_gain_neon_intr.c
             audio/opus/libopus/silk/arm/NSQ_del_dec_neon_intr.c
-            audio/opus/libopus/silk/arm/biquad_alt_neon_intr.c
-            audio/opus/libopus/silk/fixed/arm/warped_autocorrelation_FIX_neon_intr.c
-    )
+            audio/opus/libopus/silk/arm/NSQ_neon.c
+            audio/opus/libopus/silk/fixed/arm/warped_autocorrelation_FIX_neon_intr.c)
+else ()
+    target_compile_options(libopus PRIVATE -mavx2 -mfma -DCPU_INFO_BY_C -DOPUS_X86_MAY_HAVE_AVX2 -DOPUS_X86_MAY_HAVE_SSE -DOPUS_X86_MAY_HAVE_SSE2 -DOPUS_X86_PRESUME_SSE -DOPUS_X86_PRESUME_SSE2 -DOPUS_X86_PRESUME_AVX2)
+    target_sources(libopus PRIVATE
+            audio/opus/libopus/celt/x86/pitch_avx.c
+            audio/opus/libopus/celt/x86/pitch_sse2.c
+            audio/opus/libopus/celt/x86/pitch_sse.c
+            audio/opus/libopus/celt/x86/vq_sse2.c
+            audio/opus/libopus/celt/x86/x86_celt_map.c
+            audio/opus/libopus/celt/x86/x86cpu.c
+            audio/opus/libopus/silk/x86/NSQ_del_dec_avx2.c
+            audio/opus/libopus/silk/x86/x86_silk_map.c
+            audio/opus/libopus/silk/float/x86/inner_product_FLP_avx2.c)
 endif ()
-target_include_directories(opus PRIVATE
+target_include_directories(libopus PRIVATE
         audio/opus/libopus/include
         audio/opus/libopus/silk
         audio/opus/libopus/silk/fixed
+        audio/opus/libopus/silk/float
         audio/opus/libopus/celt
-        audio/opus/libopus)
-target_compile_options(opus PRIVATE
-        -ffast-math ${OPTIMIZE_NORMAL} -funroll-loops -ffast-math -fno-strict-aliasing -fno-math-errno)
-set_target_properties(opus PROPERTIES
-        ANDROID_ARM_MODE arm)
-
-target_compile_definitions(opus PRIVATE
-        OPUS_BUILD FIXED_POINT USE_ALLOCA restrict= __EMX__ HAVE_LRINT HAVE_LRINTF)
+        audio/opus/libopus
+        audio/opus/ogg/include
+        audio/opus/opusfile/include
+        audio/opus/rnnoise/include)
+target_compile_options(libopus PRIVATE
+        ${OPTIMIZE_NORMAL} -funroll-loops -fno-strict-aliasing -fno-math-errno -DDISABLE_DEBUG_FLOAT -DENABLE_HARDENING -DHAVE_ALLOCA_H -DHAVE_LRINT -DHAVE_LRINTF -DOPUS_BUILD -DOPUS_HAVE_RTCD -DVAR_ARRAYS -DCUSTOM_MODES)
 
 #####################################################################
 add_library(common STATIC
@@ -571,11 +626,11 @@ add_library(fenrir_jni
         jni_call.cpp
         animation/thorvg/thorvg_jni.cpp
         animation/video/gifvideo_jni.cpp
-        audio/ffmpeg/to_mp4_audio_jni.cpp
         audio/ffmpeg/ffmpeg_jni.cpp
         audio/ts/mpegts_demux_jni.cpp
         audio/taglib/taglib_jni.cpp
         audio/opus/opus_jni.cc
+        audio/audio_recorder_jni.cpp
         camerax/image_processing_util_jni.cpp
         camerax/surface_util_jni.cpp
         parcel_jni.cpp
@@ -599,6 +654,9 @@ target_include_directories(fenrir_jni
         zxing
         zxing/qrcode
         audio/opus/libopus/include
+        audio/opus/ogg/include
+        audio/opus/opusfile/include
+        audio/opus/rnnoise/include
         audio/taglib
         audio/taglib/mpeg
         audio/taglib/mpeg/id3v1
@@ -628,7 +686,7 @@ target_link_libraries(fenrir_jni
         PRIVATE common
         PRIVATE thorvg
         PRIVATE libyuv
-        PRIVATE opus
+        PRIVATE libopus
         PRIVATE zxing)
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")

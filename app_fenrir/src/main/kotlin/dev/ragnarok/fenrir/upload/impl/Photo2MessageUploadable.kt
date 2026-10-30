@@ -41,7 +41,7 @@ class Photo2MessageUploadable(
         } else {
             networker.vkDefault(accountId)
                 .photos()
-                .getMessagesUploadServer(peerId)
+                .getMessagesUploadServer()
         }
         return serverSingle.flatMapConcat { server ->
             var input: Source? = null
@@ -64,12 +64,12 @@ class Photo2MessageUploadable(
                         )
                         .onCompletion { safelyClose(input) }
                         .flatMapConcat { dto ->
-                            if (dto.photo.isNullOrEmpty()) {
+                            if (dto.json_data.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
                             } else {
                                 networker.vkDefault(accountId)
                                     .photos()
-                                    .saveMessagesPhoto(dto.server, dto.photo, dto.hash)
+                                    .saveMessagesPhoto(dto.json_data)
                                     .flatMapConcat { photos ->
                                         if (photos.isEmpty()) {
                                             toFlowThrowable(NotFoundException("[saveMessagesPhoto] returned empty list"))

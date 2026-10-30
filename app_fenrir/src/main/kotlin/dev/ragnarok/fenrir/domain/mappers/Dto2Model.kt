@@ -1052,7 +1052,7 @@ object Dto2Model {
     fun transform(dto: VKApiAudioMessage): VoiceMessage {
         return VoiceMessage(dto.id, dto.owner_id)
             .setDuration(dto.duration)
-            .setWaveform(dto.waveform)
+            .setWaveform(dto.waveform?.toByteArray())
             .setLinkOgg(dto.linkOgg)
             .setLinkMp3(dto.linkMp3)
             .setAccessKey(dto.access_key)

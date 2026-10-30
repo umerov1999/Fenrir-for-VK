@@ -61,12 +61,12 @@ class OwnerPhotoUploadable(
                         )
                         .onCompletion { safelyClose(input) }
                         .flatMapConcat { dto ->
-                            if (dto.photo.isNullOrEmpty()) {
+                            if (dto.json_data.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
                             } else {
                                 networker.vkDefault(accountId)
                                     .photos()
-                                    .saveOwnerPhoto(dto.server, dto.hash, dto.photo)
+                                    .saveOwnerPhoto(dto.json_data)
                                     .flatMapConcat { response ->
                                         if (response.postId == 0) {
                                             toFlowThrowable(

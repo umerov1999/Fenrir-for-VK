@@ -221,13 +221,11 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
     }
 
     override fun saveOwnerPhoto(
-        server: String?,
-        hash: String?,
         photo: String?
     ): Flow<UploadOwnerPhotoResponse> {
         return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
-                it.saveOwnerPhoto(server, hash, photo)
+                it.saveOwnerPhoto(photo)
                     .map(extractResponseWithErrorHandling())
             }
     }
@@ -257,8 +255,7 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
     }
 
     override fun saveWallPhoto(
-        userId: Long?, groupId: Long?, photo: String?,
-        server: Long, hash: String?, latitude: Double?,
+        userId: Long?, groupId: Long?, photo: String?, latitude: Double?,
         longitude: Double?, caption: String?
     ): Flow<List<VKApiPhoto>> {
         return provideService(IPhotosService(), TokenType.USER)
@@ -267,8 +264,6 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
                     userId,
                     groupId,
                     photo,
-                    server,
-                    hash,
                     latitude,
                     longitude,
                     caption
@@ -286,12 +281,16 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
     }
 
     override fun save(
-        albumId: Int, groupId: Long?, server: Long, photosList: String?,
-        hash: String?, latitude: Double?, longitude: Double?, caption: String?
+        albumId: Int,
+        groupId: Long?,
+        photosList: String?,
+        latitude: Double?,
+        longitude: Double?,
+        caption: String?
     ): Flow<List<VKApiPhoto>> {
         return provideService(IPhotosService(), TokenType.USER)
             .flatMapConcat {
-                it.save(albumId, groupId, server, photosList, hash, latitude, longitude, caption)
+                it.save(albumId, groupId, photosList, latitude, longitude, caption)
                     .map(extractResponseWithErrorHandling())
             }
     }
@@ -336,22 +335,20 @@ internal class PhotosApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
-    override fun getMessagesUploadServer(peerId: Long): Flow<VKApiPhotoMessageServer> {
+    override fun getMessagesUploadServer(): Flow<VKApiPhotoMessageServer> {
         return provideService(IPhotosService(), TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.getMessagesUploadServer(peerId)
+                it.getMessagesUploadServer()
                     .map(extractResponseWithErrorHandling())
             }
     }
 
     override fun saveMessagesPhoto(
-        server: Long?,
-        photo: String?,
-        hash: String?
+        photo: String?
     ): Flow<List<VKApiPhoto>> {
         return provideService(IPhotosService(), TokenType.USER, TokenType.COMMUNITY)
             .flatMapConcat {
-                it.saveMessagesPhoto(server, photo, hash)
+                it.saveMessagesPhoto(photo)
                     .map(extractResponseWithErrorHandling())
             }
     }

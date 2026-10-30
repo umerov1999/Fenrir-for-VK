@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.api.rest
 
-class HttpException(val code: Int) : RuntimeException(
+class HttpException(val code: Int, val retryAfterSeconds: Long? = null) : RuntimeException(
     getMessage(
         code
     )

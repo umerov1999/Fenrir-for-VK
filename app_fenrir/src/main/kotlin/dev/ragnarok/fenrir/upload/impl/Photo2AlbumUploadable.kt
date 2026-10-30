@@ -90,7 +90,7 @@ class Photo2AlbumUploadable(
                                 }
                             } catch (_: Exception) {
                             }
-                            if (dto.photos_list.isNullOrEmpty()) {
+                            if (dto.json_data.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
                             } else {
                                 networker
@@ -99,9 +99,7 @@ class Photo2AlbumUploadable(
                                     .save(
                                         albumId,
                                         groupId,
-                                        dto.server,
-                                        dto.photos_list,
-                                        dto.hash,
+                                        dto.json_data,
                                         latitude,
                                         longitude,
                                         null

@@ -6,9 +6,9 @@ import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.singleOrNull
 
 object RefreshToken {
     /*
@@ -35,14 +35,14 @@ object RefreshToken {
     }
      */
 
-    private fun upgradeTokenKate(account: Long, oldToken: String, force: Boolean): Boolean {
+    private suspend fun upgradeTokenKate(account: Long, oldToken: String, force: Boolean): Boolean {
         if (Utils.isHiddenAccount(account) && !force) {
             return false
         }
         val gms = TokenModKate.requestToken() ?: return false
         val token =
             InteractorFactory.account.refreshToken(account, gms, null, null, null)
-                .syncSingleSafe()?.token
+                .singleOrNull()?.token
         Log.w("refresh", "$oldToken $token $gms")
         if (oldToken == token || token.isNullOrEmpty()) {
             return false
@@ -51,7 +51,11 @@ object RefreshToken {
         return true
     }
 
-    private fun upgradeTokenOfficial(account: Long, oldToken: String, force: Boolean): Boolean {
+    private suspend fun upgradeTokenOfficial(
+        account: Long,
+        oldToken: String,
+        force: Boolean
+    ): Boolean {
         if (Utils.isHiddenAccount(account) && !force) {
             return false
         }
@@ -64,7 +68,7 @@ object RefreshToken {
             TokenModOfficialVK.getNonce(timestamp),
             timestamp
         )
-            .syncSingleSafe()?.token
+            .singleOrNull()?.token
         Log.w("refresh", "$oldToken $token $gms")
         if (oldToken == token || token.isNullOrEmpty()) {
             return false
@@ -73,7 +77,7 @@ object RefreshToken {
         return true
     }
 
-    fun upgradeToken(account: Long, oldToken: String, force: Boolean = false): Boolean {
+    suspend fun upgradeToken(account: Long, oldToken: String, force: Boolean = false): Boolean {
         if (Constants.DEFAULT_ACCOUNT_TYPE == AccountType.KATE) {
             return upgradeTokenKate(account, oldToken, force)
         } else if (Constants.DEFAULT_ACCOUNT_TYPE == AccountType.VK_ANDROID) {

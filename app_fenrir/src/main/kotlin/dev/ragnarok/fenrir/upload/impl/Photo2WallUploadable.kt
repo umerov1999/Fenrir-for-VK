@@ -69,7 +69,7 @@ class Photo2WallUploadable(
                         )
                         .onCompletion { safelyClose(input) }
                         .flatMapConcat { dto ->
-                            if (dto.photo.isNullOrEmpty()) {
+                            if (dto.json_data.isNullOrEmpty()) {
                                 toFlowThrowable(NotFoundException("VK doesn't upload this file"))
                             } else {
                                 networker.vkDefault(accountId)
@@ -77,9 +77,7 @@ class Photo2WallUploadable(
                                     .saveWallPhoto(
                                         userId,
                                         groupId,
-                                        dto.photo,
-                                        dto.server,
-                                        dto.hash,
+                                        dto.json_data,
                                         null,
                                         null,
                                         null

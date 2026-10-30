@@ -767,8 +767,6 @@ internal class MainSettings(context: Context) : IMainSettings {
         get() = getPreferences(app).getBoolean("hint_stickers", true)
     override val isEnable_native: Boolean
         get() = getPreferences(app).getBoolean("enable_native", true)
-    override val isRecording_to_opus: Boolean
-        get() = getPreferences(app).getBoolean("recording_to_opus", false)
     override val isDisable_sensored_voice: Boolean
         get() = getPreferences(app).getBoolean("disable_sensored_voice", false)
     override var isInvertPhotoRev: Boolean

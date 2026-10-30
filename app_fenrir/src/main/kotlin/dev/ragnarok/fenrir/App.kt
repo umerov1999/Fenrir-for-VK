@@ -84,7 +84,7 @@ class App : Application() {
             .sharedFlowToMain { update ->
                 update.readIn?.let {
                     NotificationHelper.tryCancelNotificationForPeer(
-                        this,
+                        this@App,
                         update.accountId,
                         update.peerId
                     )
@@ -95,7 +95,7 @@ class App : Application() {
             .observeSentMessages()
             .sharedFlowToMain {
                 NotificationHelper.tryCancelNotificationForPeer(
-                    this,
+                    this@App,
                     it.accountId,
                     it.peerId
                 )
@@ -104,8 +104,8 @@ class App : Application() {
         messages
             .observeMessagesSendErrors()
             .sharedFlowToMain {
-                createCustomToast(this, null)?.showToastError(
-                    ErrorLocalizer.localizeThrowable(this, it)
+                createCustomToast(this@App, null)?.showToastError(
+                    ErrorLocalizer.localizeThrowable(this@App, it)
                 )
                 it.printStackTrace()
             }

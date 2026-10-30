@@ -17,6 +17,10 @@ class VKPushRegistration {
     lateinit var fcmToken: String
         private set
 
+    @SerialName("needRefresh")
+    var needRefresh = false
+        private set
+
     fun set(
         userId: Long,
         deviceId: String,
@@ -25,6 +29,11 @@ class VKPushRegistration {
         this.userId = userId
         this.deviceId = deviceId
         this.fcmToken = fcmToken
+        return this
+    }
+
+    fun setNeedRefresh(needRefresh: Boolean): VKPushRegistration {
+        this.needRefresh = needRefresh
         return this
     }
 }

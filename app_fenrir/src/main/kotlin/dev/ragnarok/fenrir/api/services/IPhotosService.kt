@@ -297,6 +297,7 @@ class IPhotosService : IServiceRest() {
     ): Flow<BaseResponse<VKApiUploadServer>> {
         return rest.request(
             "photos.getUploadServer", form(
+                "upload_v2" to 1,
                 "album_id" to albumId,
                 "group_id" to groupId
             ), base(VKApiUploadServer.serializer())
@@ -304,15 +305,12 @@ class IPhotosService : IServiceRest() {
     }
 
     fun saveOwnerPhoto(
-        server: String?,
-        hash: String?,
         photo: String?
     ): Flow<BaseResponse<UploadOwnerPhotoResponse>> {
         return rest.request(
             "photos.saveOwnerPhoto",
             form(
-                "server" to server,
-                "hash" to hash,
+                "upload_v2" to 1,
                 "photo" to photo
             ),
             base(UploadOwnerPhotoResponse.serializer())
@@ -330,7 +328,10 @@ class IPhotosService : IServiceRest() {
     fun getOwnerPhotoUploadServer(ownerId: Long): Flow<BaseResponse<VKApiOwnerPhotoUploadServer>> {
         return rest.request(
             "photos.getOwnerPhotoUploadServer",
-            form("owner_id" to ownerId),
+            form(
+                "upload_v2" to 1,
+                "owner_id" to ownerId
+            ),
             base(VKApiOwnerPhotoUploadServer.serializer())
         )
     }
@@ -347,19 +348,16 @@ class IPhotosService : IServiceRest() {
         userId: Long?,
         groupId: Long?,
         photo: String?,
-        server: Long,
-        hash: String?,
         latitude: Double?,
         longitude: Double?,
         caption: String?
     ): Flow<BaseResponse<List<VKApiPhoto>>> {
         return rest.request(
             "photos.saveWallPhoto", form(
+                "upload_v2" to 1,
                 "user_id" to userId,
                 "group_id" to groupId,
                 "photo" to photo,
-                "server" to server,
-                "hash" to hash,
                 "latitude" to latitude,
                 "longitude" to longitude,
                 "caption" to caption
@@ -370,7 +368,10 @@ class IPhotosService : IServiceRest() {
     fun getWallUploadServer(groupId: Long?): Flow<BaseResponse<VKApiWallUploadServer>> {
         return rest.request(
             "photos.getWallUploadServer",
-            form("group_id" to groupId),
+            form(
+                "upload_v2" to 1,
+                "group_id" to groupId
+            ),
             base(VKApiWallUploadServer.serializer())
         )
     }
@@ -378,20 +379,17 @@ class IPhotosService : IServiceRest() {
     fun save(
         albumId: Int,
         groupId: Long?,
-        server: Long,
         photosList: String?,
-        hash: String?,
         latitude: Double?,
         longitude: Double?,
         caption: String?
     ): Flow<BaseResponse<List<VKApiPhoto>>> {
         return rest.request(
             "photos.save", form(
+                "upload_v2" to 1,
                 "album_id" to albumId,
                 "group_id" to groupId,
-                "server" to server,
                 "photos_list" to photosList,
-                "hash" to hash,
                 "latitude" to latitude,
                 "longitude" to longitude,
                 "caption" to caption
@@ -465,24 +463,21 @@ class IPhotosService : IServiceRest() {
         )
     }
 
-    fun getMessagesUploadServer(peerId: Long): Flow<BaseResponse<VKApiPhotoMessageServer>> {
+    fun getMessagesUploadServer(): Flow<BaseResponse<VKApiPhotoMessageServer>> {
         return rest.request(
             "photos.getMessagesUploadServer",
-            form("peer_id" to peerId),
+            form("upload_v2" to 1),
             base(VKApiPhotoMessageServer.serializer())
         )
     }
 
     fun saveMessagesPhoto(
-        server: Long?,
-        photo: String?,
-        hash: String?
+        photo: String?
     ): Flow<BaseResponse<List<VKApiPhoto>>> {
         return rest.request(
             "photos.saveMessagesPhoto", form(
-                "server" to server,
+                "upload_v2" to 1,
                 "photo" to photo,
-                "hash" to hash
             ), baseList(VKApiPhoto.serializer())
         )
     }

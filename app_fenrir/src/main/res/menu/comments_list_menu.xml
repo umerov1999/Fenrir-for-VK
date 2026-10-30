@@ -23,4 +23,22 @@
         android:id="@+id/refresh"
         android:title="@string/refresh" />
 
+    <item
+        android:id="@+id/topic_go_page"
+        android:title="@string/topic_go_page" />
+    <item
+        android:id="@+id/topic_go_offset"
+        android:title="@string/topic_go_offset" />
+    <item
+        android:id="@+id/topic_first_page"
+        android:title="@string/topic_first_page" />
+    <item
+        android:id="@+id/topic_previous_page"
+        android:title="@string/topic_previous_page" />
+    <item
+        android:id="@+id/topic_next_page"
+        android:title="@string/topic_next_page" />
+    <item
+        android:id="@+id/topic_last_page"
+        android:title="@string/topic_last_page" />
 </menu>

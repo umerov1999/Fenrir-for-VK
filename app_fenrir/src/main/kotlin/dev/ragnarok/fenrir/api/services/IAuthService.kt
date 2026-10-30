@@ -1,5 +1,7 @@
 package dev.ragnarok.fenrir.api.services
 
+import dev.ragnarok.fenrir.api.auth.AuthCaptchaAnswer
+import dev.ragnarok.fenrir.api.auth.VkIdSession
 import dev.ragnarok.fenrir.api.model.VKApiValidateAccount
 import dev.ragnarok.fenrir.api.model.VKApiValidatePhone
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemCheckOtp
@@ -98,6 +100,7 @@ class IAuthService : IServiceRest() {
         flowType: String?,
         accessToken: String?,
         v: String?,
+        captcha: AuthCaptchaAnswer? = null
     ): Flow<BaseResponse<VKApiValidateAccount>> {
         return rest.request(
             "auth.validateAccount",
@@ -110,6 +113,9 @@ class IAuthService : IServiceRest() {
                 "passkey_supported" to passkeySupported,
                 "sak_version" to sakVersion,
                 "flow_type" to flowType,
+                "success_token" to captcha?.successToken,
+                "captcha_sid" to captcha?.sid,
+                "captcha_key" to captcha?.key,
                 "access_token" to accessToken,
                 "v" to v,
                 "https" to 1,
@@ -159,7 +165,7 @@ class IAuthService : IServiceRest() {
         v: String?,
         suffix: String
     ): Flow<BaseResponse<EcosystemSendOtp>> {
-        val finalSuffix = suffix.replaceFirstChar { it.uppercase() }
+        val finalSuffix = VkIdSession.otpSuffix(suffix)
         return rest.request(
             "ecosystem.sendOtp$finalSuffix",
             form(

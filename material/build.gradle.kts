@@ -96,7 +96,9 @@ android {
     }
 
     compileSdk {
-        version = preview(libs.versions.appCompileSDK.get())
+        version = release(libs.versions.appCompileSDK.asInt()) {
+            minorApiLevel = libs.versions.appCompileSDKMinor.asInt()
+        }
     }
     buildToolsVersion = libs.versions.appBuildTools.get()
 

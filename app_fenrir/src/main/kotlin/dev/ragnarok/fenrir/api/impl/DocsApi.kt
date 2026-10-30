@@ -58,21 +58,10 @@ internal class DocsApi(accountId: Long, provider: IServiceProvider) : AbsApi(acc
             }
     }
 
-    override fun getMessagesUploadServer(
-        peerId: Long,
-        type: String?
-    ): Flow<VKApiDocsUploadServer> {
-        return provideService(IDocsService(), TokenType.USER, TokenType.COMMUNITY)
-            .flatMapConcat {
-                it.getMessagesUploadServer(peerId, type)
-                    .map(extractResponseWithErrorHandling())
-            }
-    }
-
-    override fun getUploadServer(groupId: Long?): Flow<VKApiDocsUploadServer> {
+    override fun getUploadServer(type: String?, groupId: Long?): Flow<VKApiDocsUploadServer> {
         return provideService(IDocsService(), TokenType.USER)
             .flatMapConcat {
-                it.getUploadServer(groupId)
+                it.getUploadServer(type, groupId)
                     .map(extractResponseWithErrorHandling())
             }
     }

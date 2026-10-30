@@ -1,17 +1,15 @@
 package dev.ragnarok.fenrir.api.impl
 
-import android.os.SystemClock
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Constants.DEVICE_COUNTRY_CODE
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.Includes.provideApplicationContext
+import dev.ragnarok.fenrir.api.auth.AuthCaptchaAnswer
 import dev.ragnarok.fenrir.api.exceptions.ApiException
 import dev.ragnarok.fenrir.api.exceptions.AuthException
 import dev.ragnarok.fenrir.api.exceptions.NeedValidationException
 import dev.ragnarok.fenrir.api.exceptions.OutOfDateException
 import dev.ragnarok.fenrir.api.exceptions.VKIdCaptchaNeedException
-import dev.ragnarok.fenrir.api.impl.AbsApi.Companion.RANDOM
-import dev.ragnarok.fenrir.api.impl.AbsApi.Companion.lock
 import dev.ragnarok.fenrir.api.interfaces.IAuthApi
 import dev.ragnarok.fenrir.api.interfaces.providers.IDirectLoginServiceProvider
 import dev.ragnarok.fenrir.api.model.Error
@@ -34,6 +32,7 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.service.ApiErrorCodes
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils.getDeviceId
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -45,6 +44,7 @@ import kotlinx.serialization.msgpack.MsgPack
 import okhttp3.FormBody
 import okhttp3.Request
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
     override fun directLogin(
@@ -84,6 +84,7 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                 sakVersion,
                 flowType
             ).map { response ->
+                response.errorBasic?.let { error -> throw ApiException(error) }
                 when {
                     "need_captcha".equals(response.error, ignoreCase = true) -> {
                         response.redirect_uri.nonNullNoEmpty { uri ->
@@ -103,7 +104,8 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                             response.validationType,
                             response.redirect_uri,
                             response.validation_sid,
-                            response.errorDescription
+                            response.errorDescription,
+                            response.expired_at.takeIf { s -> s > 0 }
                         )
                     }
 
@@ -113,7 +115,11 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                         )
                     }
 
-                    else -> response
+                    else -> {
+                        if (response.access_token.isNullOrEmpty() || response.user_id == 0L)
+                            throw AuthException("invalid_response", null)
+                        response
+                    }
                 }
             }
         }
@@ -157,7 +163,8 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
         sakVersion: String?,
         flowType: String?,
         accessToken: String?,
-        v: String?
+        v: String?,
+        captcha: AuthCaptchaAnswer?
     ): Flow<VKApiValidateAccount> {
         return service.provideAuthService().flatMapConcat {
             it.validateAccount(
@@ -173,8 +180,13 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                 sakVersion,
                 flowType,
                 accessToken,
-                v
-            ).map(extractResponseWithErrorHandling())
+                v,
+                captcha
+            ).map { response ->
+                // Surface API 14 to the presenter. Resolving a challenge never submits login automatically.
+                response.error?.let { error -> throw ApiException(error) }
+                response.response ?: throw AuthException("invalid_response", null)
+            }
         }
     }
 
@@ -383,16 +395,17 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
             }
     }
 
-    private fun handleError(error: Error, params: HashMap<String, String>): Boolean {
-        var handle = true
+    private suspend fun handleError(error: Error, params: HashMap<String, String>): Boolean {
+        var handle: Boolean
         when (error.errorCode) {
             ApiErrorCodes.TOO_MANY_REQUESTS_PER_SECOND -> {
-                synchronized(lock) {
-                    SystemClock.sleep((1000 + RANDOM.nextInt(500)).toLong())
-                }
+                // Authentication is not idempotent. Do not recursively replay a SID/OTP on throttling.
+                return false
             }
 
             ApiErrorCodes.CAPTCHA_NEED -> {
+                // No redirect/solution means there is nothing to replay, even on other auth APIs.
+                handle = false
                 val redirectUri = error.redirectUri
                 if (redirectUri.nonNullNoEmpty()) {
                     val provider = Includes.vkIdCaptchaProvider
@@ -401,13 +414,13 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                         "https://" + Settings.get().main().apiDomain
                     )
                     var successToken: String? = null
-                    while (true) {
+                    for (attempt in 0 until 120) {
                         try {
                             successToken = provider.lookupSuccessToken(redirectUri)
                             if (successToken != null) {
                                 break
                             } else {
-                                SystemClock.sleep(1000)
+                                delay(1000.milliseconds)
                             }
                         } catch (_: OutOfDateException) {
                             break
@@ -415,6 +428,7 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
                     }
                     if (successToken.nonNullNoEmpty()) {
                         params["success_token"] = successToken
+                        handle = true
                     } else {
                         handle = false
                     }
@@ -428,27 +442,28 @@ class AuthApi(private val service: IDirectLoginServiceProvider) : IAuthApi {
         return handle
     }
 
-    private fun <T : Any> extractResponseWithErrorHandling(): suspend (BaseResponse<T>) -> T = {
-        val err = it.error
-        if (err != null) {
-            val params = err.requests()
+    private fun <T : Any> extractResponseWithErrorHandling(captchaRetries: Int = 1): suspend (BaseResponse<T>) -> T =
+        {
+            val err = it.error
+            if (err != null) {
+                val params = err.requests()
 
-            if (!handleError(err, params)) {
-                throw ApiException(err)
-            } else {
-                var method = err["post_url"]
-                if ("empty" == method) {
-                    method = "https://" + Settings.get()
-                        .main().apiDomain + "/method/" + err["method"]
+                if (captchaRetries <= 0 || !handleError(err, params)) {
+                    throw ApiException(err)
+                } else {
+                    var method = err["post_url"]
+                    if ("empty" == method) {
+                        method = "https://" + Settings.get()
+                            .main().apiDomain + "/method/" + err["method"]
+                    }
+                    rawVKRequest<T>(
+                        method,
+                        params,
+                        err.serializer ?: throw UnsupportedOperationException()
+                    ).map(extractResponseWithErrorHandling(captchaRetries - 1)).single()
                 }
-                rawVKRequest<T>(
-                    method,
-                    params,
-                    err.serializer ?: throw UnsupportedOperationException()
-                ).map(extractResponseWithErrorHandling()).single()
+            } else {
+                it.response ?: throw NullPointerException("VK return null response")
             }
-        } else {
-            it.response ?: throw NullPointerException("VK return null response")
         }
-    }
 }

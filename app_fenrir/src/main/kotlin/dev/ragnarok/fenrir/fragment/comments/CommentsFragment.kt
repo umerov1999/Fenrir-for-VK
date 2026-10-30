@@ -672,6 +672,16 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
 
     override fun onPrepareMenu(menu: Menu) {
         super.onPrepareMenu(menu)
+        for (item in listOf(
+            R.id.topic_first_page,
+            R.id.topic_previous_page,
+            R.id.topic_next_page,
+            R.id.topic_last_page
+        )) {
+            menu.findItem(item).isVisible = presenter?.canNavigateTopic == true
+        }
+        menu.findItem(R.id.topic_go_page).isVisible = presenter?.canNavigateTopic == true
+        menu.findItem(R.id.topic_go_offset).isVisible = presenter?.canNavigateTopic == true
         menu.findItem(R.id.open_poll).isVisible = mTopicPollAvailable
         val gotoSource = menu.findItem(R.id.to_commented)
         gotoSource.isVisible = mGotoSourceAvailable
@@ -689,6 +699,23 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
+            R.id.topic_first_page, R.id.topic_previous_page, R.id.topic_next_page, R.id.topic_last_page -> {
+                presenter?.fireTopicPageStep(
+                    when (menuItem.itemId) {
+                        R.id.topic_first_page -> Int.MIN_VALUE
+                        R.id.topic_last_page -> Int.MAX_VALUE
+                        R.id.topic_previous_page -> -1
+                        else -> 1
+                    }
+                )
+                return true
+            }
+
+            R.id.topic_go_page, R.id.topic_go_offset -> {
+                showTopicPositionDialog(menuItem.itemId == R.id.topic_go_page)
+                return true
+            }
+
             R.id.refresh -> {
                 presenter?.fireRefreshClick()
                 return true
@@ -713,6 +740,39 @@ class CommentsFragment : PlaceSupportMvpFragment<CommentsPresenter, ICommentsVie
 
             else -> return false
         }
+    }
+
+    private fun showTopicPositionDialog(page: Boolean) {
+        if (presenter?.canNavigateTopic != true) return
+        val layout = com.google.android.material.textfield.TextInputLayout(requireContext())
+        val input = com.google.android.material.textfield.TextInputEditText(layout.context)
+        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        input.setSingleLine(true)
+        layout.hint =
+            getString(if (page) R.string.topic_page_number else R.string.topic_offset_number)
+        layout.addView(input)
+        val padding = (24 * resources.displayMetrics.density).toInt()
+        val container = android.widget.FrameLayout(requireContext())
+        container.setPadding(padding, padding / 2, padding, 0)
+        container.addView(layout)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(if (page) R.string.topic_go_page else R.string.topic_go_offset)
+            .setView(container)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.topic_go, null).create()
+        dialog.setOnShowListener {
+            dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                val offset = try {
+                    TopicCommentsPager.parseOffset(input.text.toString(), page)
+                } catch (error: IllegalArgumentException) {
+                    layout.error = getString(R.string.topic_invalid_position)
+                    return@setOnClickListener
+                }
+                presenter?.fireTopicJump(offset)
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
     }
 
     override fun onBackPressed(): Boolean {

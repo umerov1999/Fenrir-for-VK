@@ -142,7 +142,7 @@ int ARGBToRAW(const uint8_t* src_argb,
               int width,
               int height);
 
-// Convert ARGB To RGB565.
+// Convert ARGB To RGB565. Deprecated.
 LIBYUV_API
 int ARGBToRGB565(const uint8_t* src_argb,
                  int src_stride_argb,
@@ -151,7 +151,7 @@ int ARGBToRGB565(const uint8_t* src_argb,
                  int width,
                  int height);
 
-// Convert ARGB To RGB565 with 4x4 dither matrix (16 bytes).
+// Convert ARGB To RGB565 with 4x4 dither matrix (16 bytes). Deprecated.
 // Values in dither matrix from 0 to 7 recommended.
 // The order of the dither matrix is first byte is upper left.
 // TODO(fbarchard): Consider pointer to 2d array for dither4x4.
@@ -165,7 +165,7 @@ int ARGBToRGB565Dither(const uint8_t* src_argb,
                        int width,
                        int height);
 
-// Convert ARGB To ARGB1555.
+// Convert ARGB To ARGB1555. Deprecated.
 LIBYUV_API
 int ARGBToARGB1555(const uint8_t* src_argb,
                    int src_stride_argb,
@@ -174,7 +174,7 @@ int ARGBToARGB1555(const uint8_t* src_argb,
                    int width,
                    int height);
 
-// Convert ARGB To ARGB4444.
+// Convert ARGB To ARGB4444. Deprecated.
 LIBYUV_API
 int ARGBToARGB4444(const uint8_t* src_argb,
                    int src_stride_argb,
@@ -390,15 +390,6 @@ int ARGBToI400(const uint8_t* src_argb,
                int width,
                int height);
 
-// Convert ARGB to G. (Reverse of J400toARGB, which replicates G back to ARGB)
-LIBYUV_API
-int ARGBToG(const uint8_t* src_argb,
-            int src_stride_argb,
-            uint8_t* dst_g,
-            int dst_stride_g,
-            int width,
-            int height);
-
 // Convert ARGB To NV12.
 LIBYUV_API
 int ARGBToNV12(const uint8_t* src_argb,
@@ -606,18 +597,6 @@ int ARGBToUYVY(const uint8_t* src_argb,
                int dst_stride_uyvy,
                int width,
                int height);
-
-// RAW to NV21 with Matrix
-LIBYUV_API
-int RGBToNV21Matrix(const uint8_t* src_raw,
-                    int src_stride_raw,
-                    uint8_t* dst_y,
-                    int dst_stride_y,
-                    uint8_t* dst_vu,
-                    int dst_stride_vu,
-                    const struct ArgbConstants* argbconstants,
-                    int width,
-                    int height);
 
 // RAW to NV21
 LIBYUV_API

@@ -174,7 +174,6 @@ class SettingsBackup {
         var is_side_no_stroke: Boolean? = null
         var is_side_transition: Boolean? = null
         var notification_force_link: Boolean? = null
-        var recording_to_opus: Boolean? = null
         var service_playlists: String? = null
         var rendering_bitmap_mode: String? = null
         var hidden_peers: Set<String>? = null

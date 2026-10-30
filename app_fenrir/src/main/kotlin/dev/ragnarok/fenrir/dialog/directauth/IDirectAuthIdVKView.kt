@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.dialog.directauth
 
 import androidx.annotation.StringRes
+import dev.ragnarok.fenrir.api.auth.VkIdSession
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemGetVerificationMethods
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemProfile
 import dev.ragnarok.fenrir.fragment.base.core.IErrorView
@@ -21,7 +22,8 @@ interface IDirectAuthIdVKView : IMvpView, IErrorView {
     fun setPasswordRootVisible(visible: Boolean)
     fun updateAuthProfile(authProfile: EcosystemProfile?)
     fun onSetInfoOrErrorMessage(currentInfoMessage: String?, currentInfoIsError: Boolean)
-    fun openVKIdCaptcha(redirectUri: String?, domain: String?)
+    fun openVKIdCaptcha(request: VkIdSession.Request, redirectUri: String?, domain: String?)
+    fun openImageCaptcha(request: VkIdSession.Request, image: String)
     fun returnSuccessToParent(
         userId: Long,
         accessToken: String?,

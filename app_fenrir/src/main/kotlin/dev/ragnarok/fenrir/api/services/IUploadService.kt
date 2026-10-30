@@ -6,10 +6,6 @@ import dev.ragnarok.fenrir.api.model.response.CustomResponse
 import dev.ragnarok.fenrir.api.model.upload.UploadAudioDto
 import dev.ragnarok.fenrir.api.model.upload.UploadChatPhotoDto
 import dev.ragnarok.fenrir.api.model.upload.UploadDocDto
-import dev.ragnarok.fenrir.api.model.upload.UploadOwnerPhotoDto
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToAlbumDto
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToMessageDto
-import dev.ragnarok.fenrir.api.model.upload.UploadPhotoToWallDto
 import dev.ragnarok.fenrir.api.model.upload.UploadStoryDto
 import dev.ragnarok.fenrir.api.model.upload.UploadVideoDto
 import dev.ragnarok.fenrir.api.rest.IServiceRest
@@ -19,6 +15,10 @@ import okhttp3.MultipartBody
 class IUploadService : IServiceRest() {
     fun uploadDocumentRx(server: String, file: MultipartBody.Part): Flow<UploadDocDto> {
         return rest.doMultipartFormFullUrl(server, file, UploadDocDto.serializer())
+    }
+
+    fun uploadAudioMessageRx(server: String, file: MultipartBody.Part): Flow<VKApiJsonString> {
+        return rest.doMultipartFormFullUrl(server, file, VKApiJsonString.serializer())
     }
 
     fun uploadAudioRx(server: String, file: MultipartBody.Part): Flow<UploadAudioDto> {
@@ -61,8 +61,8 @@ class IUploadService : IServiceRest() {
     fun uploadOwnerPhotoRx(
         server: String,
         photo: MultipartBody.Part
-    ): Flow<UploadOwnerPhotoDto> {
-        return rest.doMultipartFormFullUrl(server, photo, UploadOwnerPhotoDto.serializer())
+    ): Flow<VKApiJsonString> {
+        return rest.doMultipartFormFullUrl(server, photo, VKApiJsonString.serializer())
     }
 
     fun uploadChatPhotoRx(
@@ -75,21 +75,21 @@ class IUploadService : IServiceRest() {
     fun uploadPhotoToWallRx(
         server: String,
         photo: MultipartBody.Part
-    ): Flow<UploadPhotoToWallDto> {
-        return rest.doMultipartFormFullUrl(server, photo, UploadPhotoToWallDto.serializer())
+    ): Flow<VKApiJsonString> {
+        return rest.doMultipartFormFullUrl(server, photo, VKApiJsonString.serializer())
     }
 
     fun uploadPhotoToMessageRx(
         server: String,
         photo: MultipartBody.Part
-    ): Flow<UploadPhotoToMessageDto> {
-        return rest.doMultipartFormFullUrl(server, photo, UploadPhotoToMessageDto.serializer())
+    ): Flow<VKApiJsonString> {
+        return rest.doMultipartFormFullUrl(server, photo, VKApiJsonString.serializer())
     }
 
     fun uploadPhotoToAlbumRx(
         server: String,
-        file1: MultipartBody.Part
-    ): Flow<UploadPhotoToAlbumDto> {
-        return rest.doMultipartFormFullUrl(server, file1, UploadPhotoToAlbumDto.serializer())
+        photo: MultipartBody.Part
+    ): Flow<VKApiJsonString> {
+        return rest.doMultipartFormFullUrl(server, photo, VKApiJsonString.serializer())
     }
 }

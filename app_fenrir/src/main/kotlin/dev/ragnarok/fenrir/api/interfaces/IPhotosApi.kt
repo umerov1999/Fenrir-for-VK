@@ -80,8 +80,6 @@ interface IPhotosApi {
 
     @CheckResult
     fun saveOwnerPhoto(
-        server: String?,
-        hash: String?,
         photo: String?
     ): Flow<UploadOwnerPhotoResponse>
 
@@ -96,8 +94,12 @@ interface IPhotosApi {
 
     @CheckResult
     fun saveWallPhoto(
-        userId: Long?, groupId: Long?, photo: String?, server: Long,
-        hash: String?, latitude: Double?, longitude: Double?, caption: String?
+        userId: Long?,
+        groupId: Long?,
+        photo: String?,
+        latitude: Double?,
+        longitude: Double?,
+        caption: String?
     ): Flow<List<VKApiPhoto>>
 
     @CheckResult
@@ -105,7 +107,7 @@ interface IPhotosApi {
 
     @CheckResult
     fun save(
-        albumId: Int, groupId: Long?, server: Long, photosList: String?, hash: String?,
+        albumId: Int, groupId: Long?, photosList: String?,
         latitude: Double?, longitude: Double?, caption: String?
     ): Flow<List<VKApiPhoto>>
 
@@ -134,10 +136,10 @@ interface IPhotosApi {
     ): Flow<Items<VKApiPhoto>>
 
     @CheckResult
-    fun getMessagesUploadServer(peerId: Long): Flow<VKApiPhotoMessageServer>
+    fun getMessagesUploadServer(): Flow<VKApiPhotoMessageServer>
 
     @CheckResult
-    fun saveMessagesPhoto(server: Long?, photo: String?, hash: String?): Flow<List<VKApiPhoto>>
+    fun saveMessagesPhoto(photo: String?): Flow<List<VKApiPhoto>>
 
     @CheckResult
     fun getAlbums(

@@ -1,6 +1,7 @@
 package dev.ragnarok.fenrir.api.interfaces
 
 import androidx.annotation.CheckResult
+import dev.ragnarok.fenrir.api.auth.AuthCaptchaAnswer
 import dev.ragnarok.fenrir.api.model.VKApiValidateAccount
 import dev.ragnarok.fenrir.api.model.VKApiValidatePhone
 import dev.ragnarok.fenrir.api.model.ecosystem.EcosystemCheckOtp
@@ -53,7 +54,8 @@ interface IAuthApi {
         sakVersion: String?,
         flowType: String?,
         accessToken: String?,
-        v: String?
+        v: String?,
+        captcha: AuthCaptchaAnswer? = null
     ): Flow<VKApiValidateAccount>
 
     @CheckResult

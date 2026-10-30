@@ -15,7 +15,6 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dev.ragnarok.fenrir.App
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Includes
@@ -37,9 +36,7 @@ import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.link.LinkHelper
 import dev.ragnarok.fenrir.longpoll.ILongpollManager
 import dev.ragnarok.fenrir.longpoll.LongpollInstance
-import dev.ragnarok.fenrir.media.record.AudioRecordException
 import dev.ragnarok.fenrir.media.record.AudioRecordWrapper
-import dev.ragnarok.fenrir.media.record.Recorder
 import dev.ragnarok.fenrir.model.AbsModel
 import dev.ragnarok.fenrir.model.AttachmentEntry
 import dev.ragnarok.fenrir.model.ChatConfig
@@ -66,7 +63,7 @@ import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.Sticker
 import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
 import dev.ragnarok.fenrir.model.UserUpdate
-import dev.ragnarok.fenrir.module.encoder.ToMp4Audio
+import dev.ragnarok.fenrir.module.encoder.AudioRecorderNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.place.PlaceFactory
@@ -104,6 +101,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.emptyTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.inMainThread
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.syncSingleSafe
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toFlow
@@ -123,6 +121,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.math.abs
 
 class ChatPresenter(
     accountId: Long, private val messagesOwnerId: Long,
@@ -130,8 +129,46 @@ class ChatPresenter(
 ) : AbsMessageListPresenter<IChatView>(accountId, savedInstanceState) {
     private var peer: Peer
     private var subtitle: String? = null
-    private val audioRecordWrapper: AudioRecordWrapper = AudioRecordWrapper.Builder(App.instance)
-        .build()
+    private val audioRecordWrapper =
+        AudioRecordWrapper(Includes.provideApplicationContext(), {
+            inMainThread {
+                val currentTime = System.currentTimeMillis()
+                val destFileName = "record_$currentTime.ogg"
+                val destFile =
+                    File(
+                        AudioRecordWrapper.getRecordingDirectory(Includes.provideApplicationContext()),
+                        destFileName
+                    )
+                val renamed = it.renameTo(destFile)
+                if (!renamed) {
+                    view?.showError(R.string.error_audio)
+                }
+                sendRecordingMessageImpl(destFile)
+                onRecordingStateChanged()
+                resolveRecordPauseButton()
+            }
+        }, {
+            inMainThread {
+                view?.showThrowable(it)
+                onRecordingStateChanged()
+                resolveRecordPauseButton()
+            }
+        }, {
+            inMainThread {
+                onRecordingStateChanged()
+                resolveRecordingTimeView()
+            }
+        }, {
+            inMainThread {
+                resolveRecordPauseButton()
+            }
+        }, {
+            inMainThread {
+                onRecordingStateChanged()
+                resolveRecordPauseButton()
+            }
+        })
+
     private var endOfContent: Boolean = false
     private var outConfig: ChatConfig
     private var draftMessage = DraftChatPresenterMessage()
@@ -169,8 +206,7 @@ class ChatPresenter(
 
     private val isRecordingNow: Boolean
         get() {
-            val status = audioRecordWrapper.recorderStatus
-            return status == Recorder.Status.PAUSED || status == Recorder.Status.RECORDING_NOW
+            return audioRecordWrapper.isRecordingProcess
         }
 
     private val isGroupChat: Boolean
@@ -1136,9 +1172,7 @@ class ChatPresenter(
     }
 
     fun fireRecordCancelClick() {
-        audioRecordWrapper.stopRecording()
-        onRecordingStateChanged()
-        resolveRecordPauseButton()
+        audioRecordWrapper.cancelRecording()
     }
 
     private fun onRecordingStateChanged() {
@@ -1177,12 +1211,12 @@ class ChatPresenter(
     }
 
     fun sendRecordingCustomMessageImpl(context: Context, file: String) {
-        val to = File(AudioRecordWrapper.getRecordingDirectory(context), "converted.mp3")
+        val to = File(AudioRecordWrapper.getRecordingDirectory(context), "converted.ogg")
         to.delete()
         view?.customToast?.showToastInfo(R.string.do_convert)
         appendJob(
             flow {
-                emit(ToMp4Audio.encodeToMp4Audio(file, to.absolutePath))
+                emit(AudioRecorderNative.encodeToOpusAudio(file, to.absolutePath, 48000))
             }.fromIOToMain({ o ->
                 if (o) {
                     view?.customToast?.showToastInfo(R.string.success)
@@ -1201,30 +1235,11 @@ class ChatPresenter(
     }
 
     fun fireRecordSendClick() {
-        try {
-            val file = audioRecordWrapper.stopRecordingAndReceiveFile()
-            sendRecordingMessageImpl(file)
-        } catch (e: AudioRecordException) {
-            e.printStackTrace()
-        }
-
-        onRecordingStateChanged()
-        resolveRecordPauseButton()
+        audioRecordWrapper.stopAndCommit()
     }
 
     fun fireRecordResumePauseClick() {
-        try {
-            val isRecorderPaused = audioRecordWrapper.recorderStatus == Recorder.Status.PAUSED
-            if (!isRecorderPaused) {
-                audioRecordWrapper.pause()
-            } else {
-                audioRecordWrapper.doRecord()
-            }
-
-            resolveRecordPauseButton()
-        } catch (e: AudioRecordException) {
-            e.printStackTrace()
-        }
+        audioRecordWrapper.pauseResume()
     }
 
     private fun resolvePrimaryButton() {
@@ -1244,7 +1259,7 @@ class ChatPresenter(
     }
 
     private fun resolveRecordPauseButton() {
-        val paused = audioRecordWrapper.recorderStatus == Recorder.Status.PAUSED
+        val paused = audioRecordWrapper.isPaused
         view?.setupRecordPauseButton(!paused)
     }
 
@@ -1255,14 +1270,7 @@ class ChatPresenter(
     }
 
     private fun startRecordImpl() {
-        try {
-            audioRecordWrapper.doRecord()
-        } catch (e: AudioRecordException) {
-            e.printStackTrace()
-        }
-
-        onRecordingStateChanged()
-        resolveRecordingTimeView()
+        audioRecordWrapper.doRecord()
     }
 
     private fun hasAudioRecordPermissions(): Boolean {
@@ -2237,9 +2245,9 @@ class ChatPresenter(
     private fun checkGraffitiMessage(filePath: Sticker.LocalSticker): Flow<IAttachmentToken?> {
         if (filePath.path.nonNullNoEmpty()) {
             val docsApi = Includes.networkInterfaces.vkDefault(accountId).docs()
-            return docsApi.getMessagesUploadServer(
-                peerId,
-                if (filePath.isAnimated) "doc" else "graffiti"
+            return docsApi.getUploadServer(
+                if (filePath.isAnimated) null else "graffiti",
+                if (messagesOwnerId < 0) abs(messagesOwnerId) else null
             )
                 .flatMapConcat { server ->
                     val file = File(filePath.path)

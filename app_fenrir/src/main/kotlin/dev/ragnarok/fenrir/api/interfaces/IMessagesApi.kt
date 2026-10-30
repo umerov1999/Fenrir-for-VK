@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.api.interfaces
 import androidx.annotation.CheckResult
 import dev.ragnarok.fenrir.api.model.Assets
 import dev.ragnarok.fenrir.api.model.Items
+import dev.ragnarok.fenrir.api.model.VKApiAudioMessage
 import dev.ragnarok.fenrir.api.model.VKApiChat
 import dev.ragnarok.fenrir.api.model.VKApiConversation
 import dev.ragnarok.fenrir.api.model.VKApiJsonString
@@ -22,6 +23,7 @@ import dev.ragnarok.fenrir.api.model.response.MessageImportantResponse
 import dev.ragnarok.fenrir.api.model.response.MessageReadPeersResponse
 import dev.ragnarok.fenrir.api.model.response.ReactedMessagesPeersResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
+import dev.ragnarok.fenrir.api.model.server.VKApiAudioMessageUploadServer
 import kotlinx.coroutines.flow.Flow
 
 interface IMessagesApi {
@@ -222,4 +224,10 @@ interface IMessagesApi {
         cmId: Int,
         fields: String?
     ): Flow<MessageReadPeersResponse>
+
+    @CheckResult
+    fun getAudioMessageUploadServer(): Flow<VKApiAudioMessageUploadServer>
+
+    @CheckResult
+    fun saveAudioMessage(file: String?, waveform: ByteArray?): Flow<VKApiAudioMessage>
 }

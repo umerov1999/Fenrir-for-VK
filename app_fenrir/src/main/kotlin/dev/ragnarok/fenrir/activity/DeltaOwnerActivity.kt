@@ -139,83 +139,89 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, ActivityFuturesLi
         Time.text = getDateFromUnixTime(this, delta.time)
 
         disposable += OwnerInfo.getRx(this, accountId, delta.ownerId)
-            .fromIOToMain({ owner ->
-                Export.setOnClickListener {
-                    DownloadWorkUtils.CheckDirectory(Settings.get().main().docDir)
-                    val file = File(
-                        Settings.get().main().docDir, DownloadWorkUtils.makeLegalFilename(
-                            "OwnerChanges_" + owner.owner.fullName.orEmpty() + "_" + DOWNLOAD_DATE_FORMAT.format(
-                                delta.time * 1000L
-                            ), "json"
-                        )
-                    )
-                    var out: FileOutputStream? = null
-                    try {
-                        val bytes = kJsonPretty.encodeToString(
-                            DeltaOwner.serializer(),
-                            delta
-                        ).toByteArray(
-                            Charsets.UTF_8
-                        )
-                        out = FileOutputStream(file)
-                        val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
-                        out.write(bom)
-                        out.write(bytes)
-                        out.flush()
-                        Includes.provideApplicationContext().sendBroadcast(
-                            @Suppress("deprecation")
-                            Intent(
-                                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-                                Uri.fromFile(file)
+            .fromIOToMain(
+                { owner ->
+                    Export.setOnClickListener {
+                        DownloadWorkUtils.CheckDirectory(Settings.get().main().docDir)
+                        val file = File(
+                            Settings.get().main().docDir, DownloadWorkUtils.makeLegalFilename(
+                                "OwnerChanges_" + owner.owner.fullName.orEmpty() + "_" + DOWNLOAD_DATE_FORMAT.format(
+                                    delta.time * 1000L
+                                ), "json"
                             )
                         )
-                        CustomToast.createCustomToast(this, null)?.showToast(
-                            R.string.saved_to_param_file_name,
-                            file.absolutePath
-                        )
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        CustomToast.createCustomToast(this, null)
-                            ?.showToastThrowable(e)
-                    } finally {
-                        Utils.safelyClose(out)
+                        var out: FileOutputStream? = null
+                        try {
+                            val bytes = kJsonPretty.encodeToString(
+                                DeltaOwner.serializer(),
+                                delta
+                            ).toByteArray(
+                                Charsets.UTF_8
+                            )
+                            out = FileOutputStream(file)
+                            val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+                            out.write(bom)
+                            out.write(bytes)
+                            out.flush()
+                            Includes.provideApplicationContext().sendBroadcast(
+                                @Suppress("deprecation")
+                                Intent(
+                                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                                    Uri.fromFile(file)
+                                )
+                            )
+                            CustomToast.createCustomToast(this@DeltaOwnerActivity, null)?.showToast(
+                                R.string.saved_to_param_file_name,
+                                file.absolutePath
+                            )
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            CustomToast.createCustomToast(this@DeltaOwnerActivity, null)
+                                ?.showToastThrowable(e)
+                        } finally {
+                            Utils.safelyClose(out)
+                        }
                     }
-                }
 
-                Avatar.setOnClickListener {
-                    PlaceFactory.getOwnerWallPlace(accountId, owner.owner).tryOpenWith(this)
-                }
-                if (owner.owner.maxSquareAvatar.nonNullNoEmpty()) {
-                    EmptyAvatar.visibility = View.GONE
-                    Avatar.let {
-                        PicassoInstance.with()
-                            .load(owner.owner.maxSquareAvatar)
-                            .transform(RoundTransformation())
-                            .into(it)
+                    Avatar.setOnClickListener {
+                        PlaceFactory.getOwnerWallPlace(accountId, owner.owner)
+                            .tryOpenWith(this@DeltaOwnerActivity)
                     }
-                } else {
-                    Avatar.let { PicassoInstance.with().cancelRequest(it) }
-                    if (owner.owner.fullName.nonNullNoEmpty()) {
-                        EmptyAvatar.visibility = View.VISIBLE
-                        var name: String = owner.owner.fullName.orEmpty()
-                        if (name.length > 2) name = name.take(2)
-                        name = name.trim()
-                        EmptyAvatar.text = name
-                    } else {
+                    if (owner.owner.maxSquareAvatar.nonNullNoEmpty()) {
                         EmptyAvatar.visibility = View.GONE
-                    }
-                    Avatar.setImageBitmap(
-                        RoundTransformation().localTransform(
-                            Utils.createGradientChatImage(
-                                200,
-                                200,
-                                owner.owner.ownerId.orZero()
+                        Avatar.let {
+                            PicassoInstance.with()
+                                .load(owner.owner.maxSquareAvatar)
+                                .transform(RoundTransformation())
+                                .into(it)
+                        }
+                    } else {
+                        Avatar.let { PicassoInstance.with().cancelRequest(it) }
+                        if (owner.owner.fullName.nonNullNoEmpty()) {
+                            EmptyAvatar.visibility = View.VISIBLE
+                            var name: String = owner.owner.fullName.orEmpty()
+                            if (name.length > 2) name = name.take(2)
+                            name = name.trim()
+                            EmptyAvatar.text = name
+                        } else {
+                            EmptyAvatar.visibility = View.GONE
+                        }
+                        Avatar.setImageBitmap(
+                            RoundTransformation().localTransform(
+                                Utils.createGradientChatImage(
+                                    200,
+                                    200,
+                                    owner.owner.ownerId.orZero()
+                                )
                             )
                         )
-                    )
+                    }
+                    Title.text = owner.owner.fullName
+                },
+                {
+                    CustomToast.createCustomToast(this@DeltaOwnerActivity, null)
+                        ?.showToastThrowable(it)
                 }
-                Title.text = owner.owner.fullName
-            }, { CustomToast.createCustomToast(this, null)?.showToastThrowable(it) }
             )
 
         val viewPager: ViewPager2 = findViewById(R.id.delta_pager)

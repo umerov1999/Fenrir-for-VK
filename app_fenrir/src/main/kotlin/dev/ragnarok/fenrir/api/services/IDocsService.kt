@@ -101,26 +101,17 @@ class IDocsService : IServiceRest() {
     /**
      * Returns the server address for document upload.
      *
-     * @param peerId Peer ID (if the document will be uploaded to the chat).
+     * @param groupId Group ID (if the document will be uploaded to the group).
      * @param type    type of document, null or "audio_message" (undocumented option)
      * @return an object with an upload_url field. After the document is uploaded, use the [.save] method.
      */
-    fun getMessagesUploadServer(
-        peerId: Long,
-        type: String?
-    ): Flow<BaseResponse<VKApiDocsUploadServer>> {
-        return rest.request(
-            "docs.getMessagesUploadServer", form(
-                "peer_id" to peerId,
-                "type" to type
-            ), base(VKApiDocsUploadServer.serializer())
-        )
-    }
-
-    fun getUploadServer(groupId: Long?): Flow<BaseResponse<VKApiDocsUploadServer>> {
+    fun getUploadServer(type: String?, groupId: Long?): Flow<BaseResponse<VKApiDocsUploadServer>> {
         return rest.request(
             "docs.getUploadServer",
-            form("group_id" to groupId),
+            form(
+                "type" to type,
+                "group_id" to groupId
+            ),
             base(VKApiDocsUploadServer.serializer())
         )
     }

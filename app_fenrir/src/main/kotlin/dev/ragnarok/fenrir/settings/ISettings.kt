@@ -205,7 +205,6 @@ interface ISettings {
         val isVideo_play_with_external_player: Boolean
         val isHint_stickers: Boolean
         val isEnable_native: Boolean
-        val isRecording_to_opus: Boolean
         val paganSymbol: Int
         val isRunes_show: Boolean
         val musicLifecycle: Int

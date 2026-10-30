@@ -28,7 +28,7 @@ class Networker(settings: IProxySettings) : INetworker {
         VKRestProvider(settings, VKMethodHttpClientFactory())
     private val uploadRestProvider: IUploadRestProvider = UploadRestProvider(settings)
     override fun vkDefault(accountId: Long): IAccountApis {
-        return VKApies[accountId, vkRestProvider]
+        return VKApies.get(accountId, vkRestProvider)
     }
 
     override fun vkManual(accountId: Long, accessToken: String): IAccountApis {

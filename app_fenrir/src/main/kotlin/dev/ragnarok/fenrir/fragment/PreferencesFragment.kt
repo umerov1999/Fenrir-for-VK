@@ -79,6 +79,7 @@ import dev.ragnarok.fenrir.Constants.API_VERSION
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.Extra.ACCOUNT_ID
 import dev.ragnarok.fenrir.Extra.PHOTOS
+import dev.ragnarok.fenrir.FCMRegistrationUtils
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.UserAgentTool
@@ -517,6 +518,23 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 defaultValue = false
                 onCheckedChange {
                     Includes.proxySettings.broadcastUpdate(null)
+                }
+            }
+            pref("fcm_re_subscribe") {
+                titleRes = R.string.re_register_fcm_subscribe
+                onClick {
+                    val available = Settings.get().pushSettings().registered
+                    if (available != null) {
+                        available.setNeedRefresh(true)
+                        Settings.get().pushSettings().registered = available
+                        FCMRegistrationUtils.register.toMain {
+                            createCustomToast(
+                                requireActivity(),
+                                view
+                            )?.showToast(R.string.success)
+                        }
+                    }
+                    true
                 }
             }
             singleChoice(
@@ -1998,13 +2016,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
 
             switch("settings_no_push") {
                 titleRes = R.string.settings_no_push
-            }
-
-            switch("recording_to_opus") {
-                defaultValue = false
-                dependency = "developer_mode"
-                summaryRes = R.string.recording_to_opus_summary
-                titleRes = R.string.recording_to_opus
             }
 
             switch("keep_longpoll") {

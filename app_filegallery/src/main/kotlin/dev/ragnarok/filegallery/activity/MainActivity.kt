@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, PlaceProvider
                         {
                             if (Settings.get().main().isDeveloper_mode) {
                                 createCustomToast(
-                                    this,
+                                    this@MainActivity,
                                     mViewFragment,
                                     mBottomNavigation
                                 )?.showToastThrowable(it)
@@ -221,7 +221,7 @@ class MainActivity : AppCompatActivity(), OnSectionResumeCallback, PlaceProvider
                         CoroutinesUtils.dummy()
                     ) {
                         if (Settings.get().main().isDeveloper_mode) {
-                            createCustomToast(this, mViewFragment, mBottomNavigation)
+                            createCustomToast(this@MainActivity, mViewFragment, mBottomNavigation)
                                 ?.showToastThrowable(it)
                         }
                     })

@@ -6,4 +6,5 @@ class NeedValidationException(
     val validationURL: String?,
     val sid: String?,
     val description: String?,
+    val expiresAtEpochSeconds: Long? = null,
 ) : Exception("Need Validation $description")

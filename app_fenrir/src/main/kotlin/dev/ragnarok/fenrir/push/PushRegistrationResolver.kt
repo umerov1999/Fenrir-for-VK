@@ -51,7 +51,7 @@ class PushRegistrationResolver(
                 .getType(accountId) == Constants.DEFAULT_ACCOUNT_TYPE
         ) {
             val deviceId = Utils.getDeviceId(Settings.get().accounts().getType(accountId), context)
-            if (available != null && (available.userId != accountId || available.deviceId != deviceId || available.fcmToken != fcmToken)) {
+            if (available != null && (available.needRefresh || available.userId != accountId || available.deviceId != deviceId || available.fcmToken != fcmToken)) {
                 completable = completable.andThen(unregister(available))
             }
             val reg =

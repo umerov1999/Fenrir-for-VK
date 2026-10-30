@@ -604,7 +604,10 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                             )
                             .fromIOToMain(dummy()) { t ->
                                 if (Settings.get().main().isDeveloper_mode) {
-                                    createCustomToast(this, null)?.showToastThrowable(t)
+                                    createCustomToast(
+                                        this@MainActivity,
+                                        null
+                                    )?.showToastThrowable(t)
                                 }
                             })
                     Settings.get().main().last_audio_sync.let {

@@ -112,8 +112,11 @@ class SimplePostHttp(
             val call = client.newCall(request.build())
             try {
                 val response = call.execute()
-                if (!response.isSuccessful && onlySuccessful) {
-                    throw HttpException(response.code)
+                if (response.code == 429 || (!response.isSuccessful && onlySuccessful)) {
+                    throw HttpException(
+                        response.code,
+                        response.header("Retry-After")?.toLongOrNull()
+                    )
                 } else {
                     val ret = if (response.body.isMsgPack()) MsgPack().decodeFromOkioStream(
                         serial, response.body.source()
