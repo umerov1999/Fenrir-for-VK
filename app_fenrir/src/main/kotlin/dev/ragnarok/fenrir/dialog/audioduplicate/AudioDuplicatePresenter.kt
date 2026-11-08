@@ -35,10 +35,9 @@ class AudioDuplicatePresenter(
     private var needShowBitrateButton = true
     private val mp3AndBitrate: Unit
         get() {
-            val mode = new_audio.needRefresh()
-            if (mode.first) {
+            if (new_audio.needRefresh()) {
                 audioListDisposable +=
-                    mAudioInteractor.getByIdOld(accountId, listOf(new_audio), mode.second)
+                    mAudioInteractor.getById(accountId, listOf(new_audio))
                         .fromIOToMain({ t -> getBitrate(t[0]) }) {
                             getBitrate(
                                 new_audio

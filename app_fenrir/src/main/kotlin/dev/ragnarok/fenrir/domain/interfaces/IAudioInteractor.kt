@@ -52,7 +52,6 @@ interface IAudioInteractor {
     ): Flow<List<Audio>>
 
     fun getById(accountId: Long, audios: List<Audio>): Flow<List<Audio>>
-    fun getByIdOld(accountId: Long, audios: List<Audio>, old: Boolean): Flow<List<Audio>>
     fun getLyrics(accountId: Long, audio: Audio): Flow<String>
     fun getPopular(accountId: Long, foreign: Int, genre: Int, count: Int): Flow<List<Audio>>
     fun getRecommendations(accountId: Long, audioOwnerId: Long, count: Int): Flow<List<Audio>>

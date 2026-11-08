@@ -23,7 +23,9 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #if !defined(NDEBUG) || defined(TRACE_IN_RELEASE)
 

@@ -19,6 +19,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -40,7 +41,7 @@ import dev.ragnarok.filegallery.media.video.IVideoPlayer
 import dev.ragnarok.filegallery.media.video.IVideoPlayer.IVideoSizeChangeListener
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.orZero
-import dev.ragnarok.filegallery.settings.CurrentTheme.getColorPrimary
+import dev.ragnarok.filegallery.settings.CurrentTheme
 import dev.ragnarok.filegallery.settings.Settings.get
 import dev.ragnarok.filegallery.settings.theme.ThemesController.currentStyle
 import dev.ragnarok.filegallery.toColor
@@ -53,7 +54,8 @@ import dev.ragnarok.filegallery.view.VideoControllerView
 class VideoPlayerActivity : AppCompatActivity(),
     VideoControllerView.MediaPlayerControl, IVideoSizeChangeListener {
     private var mDecorView: View? = null
-    private var mPlaySpeed: ImageView? = null
+    private var mPlaySpeedIcon: ImageView? = null
+    private var mPlaySpeedText: TextView? = null
     private var mControllerView: VideoControllerView? = null
     private var mSurfaceView: ExpandableSurfaceView? = null
     private var mPlayer: IVideoPlayer? = null
@@ -101,6 +103,7 @@ class VideoPlayerActivity : AppCompatActivity(),
         outState.putLong("seek", mPlayer?.currentPosition ?: -1)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(currentStyle())
         Utils.prepareDensity(this)
@@ -227,16 +230,31 @@ class VideoPlayerActivity : AppCompatActivity(),
         if (seekSave > 0) {
             mPlayer?.seekTo(seekSave)
         }
-        mPlaySpeed = findViewById(R.id.toolbar_play_speed)
-        Utils.setTint(
-            mPlaySpeed,
-            if (mPlayer?.isPlaybackSpeed == true) getColorPrimary(this) else "#ffffff".toColor()
+        mPlaySpeedIcon = findViewById(R.id.toolbar_play_speed_icon)
+        mPlaySpeedText = findViewById(R.id.toolbar_play_speed_text)
+        mPlaySpeedText?.setTextColor(
+            if (mPlayer?.playbackSpeed.orZero() > 1f) CurrentTheme.getColorPrimary(
+                this
+            ) else "#ffffff".toColor()
         )
-        mPlaySpeed?.setOnClickListener {
+        val speed = mPlayer?.playbackSpeed ?: 1f
+        mPlaySpeedText?.text = "${if (speed % 1f == 0f) speed.toInt() else speed}x"
+        Utils.setTint(
+            mPlaySpeedIcon,
+            if (mPlayer?.playbackSpeed.orZero() > 1f) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
+        )
+        mPlaySpeedIcon?.setOnClickListener {
             mPlayer?.togglePlaybackSpeed()
+            val tmpSpeed = mPlayer?.playbackSpeed ?: 1f
+            mPlaySpeedText?.text = "${if (tmpSpeed % 1f == 0f) tmpSpeed.toInt() else tmpSpeed}x"
+            mPlaySpeedText?.setTextColor(
+                if (mPlayer?.playbackSpeed.orZero() > 1f) CurrentTheme.getColorPrimary(
+                    this
+                ) else "#ffffff".toColor()
+            )
             Utils.setTint(
-                mPlaySpeed,
-                if (mPlayer?.isPlaybackSpeed == true) getColorPrimary(this) else "#ffffff".toColor()
+                mPlaySpeedIcon,
+                if (mPlayer?.playbackSpeed.orZero() > 1f) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
             )
         }
         mControllerView?.setMediaPlayer(this)

@@ -415,6 +415,7 @@ void ScaleRowDown2Box_16_AVX2(const uint16_t* src_ptr,
 #endif  // HAS_SCALEROWDOWN2_16_AVX2
 
 #ifdef HAS_SCALEROWDOWN2_AVX512BW
+LIBYUV_TARGET_AVX512BW
 void ScaleRowDown2_AVX512BW(const uint8_t* src_ptr,
                             ptrdiff_t src_stride,
                             uint8_t* dst_ptr,
@@ -455,6 +456,7 @@ void ScaleRowDown2_AVX512BW(const uint8_t* src_ptr,
       : "memory", "cc", "xmm0", "k1");
 }
 
+LIBYUV_TARGET_AVX512BW
 void ScaleRowDown2Linear_AVX512BW(const uint8_t* src_ptr,
                                   ptrdiff_t src_stride,
                                   uint8_t* dst_ptr,
@@ -500,6 +502,7 @@ void ScaleRowDown2Linear_AVX512BW(const uint8_t* src_ptr,
       : "memory", "cc", "xmm0", "xmm4", "xmm5", "k1");
 }
 
+LIBYUV_TARGET_AVX512BW
 void ScaleRowDown2Box_AVX512BW(const uint8_t* src_ptr,
                                ptrdiff_t src_stride,
                                uint8_t* dst_ptr,
@@ -2200,6 +2203,7 @@ void ScaleAddRow_AVX2(const uint8_t* src_ptr,
 
 #ifdef HAS_SCALEADDROW_AVX512BW
 // Reads 32xN bytes and accumulates to 32xN shorts at a time, with masked tail.
+LIBYUV_TARGET_AVX512BW
 void ScaleAddRow_AVX512BW(const uint8_t* src_ptr,
                           uint16_t* dst_ptr,
                           int src_width) {
@@ -2259,6 +2263,7 @@ static const uint8_t kSequence0_15[16] = {0, 1, 2,  3,  4,  5,  6,  7,
 #endif
 
 #ifdef HAS_SCALEADDCOLS1_AVX512BW
+LIBYUV_TARGET_AVX512BW
 void ScaleAddCols1_AVX512BW(int dst_width,
                             int boxheight,
                             int x,
@@ -2511,6 +2516,7 @@ void ScaleAddCols1_AVX512BW(int dst_width,
 #endif  // HAS_SCALEADDCOLS1_AVX512BW
 
 #ifdef HAS_SCALEADDCOLS2_AVX512BW
+LIBYUV_TARGET_AVX512BW
 void ScaleAddCols2_AVX512BW(int dst_width,
                             int boxheight,
                             int x,
@@ -3346,6 +3352,9 @@ void ScaleARGBFilterCols_AVX2(uint8_t* dst_argb,
 
 // Divide num by div and return as 16.16 fixed point result.
 int FixedDiv_X86(int num, int div) {
+#if defined(__x86_64__)
+  return (int)(((int64_t)num * 65536) / div);
+#else
   asm volatile(
       "cdq         \n"
       "shld        $0x10,%%eax,%%edx             \n"
@@ -3356,10 +3365,14 @@ int FixedDiv_X86(int num, int div) {
       : "c"(div)   // %1
       : "memory", "cc", "edx");
   return num;
+#endif
 }
 
 // Divide num - 1 by div - 1 and return as 16.16 fixed point result.
 int FixedDiv1_X86(int num, int div) {
+#if defined(__x86_64__)
+  return (int)((((int64_t)num * 65536) - 0x00010001) / (div - 1));
+#else
   asm volatile(
       "cdq         \n"
       "shld        $0x10,%%eax,%%edx             \n"
@@ -3374,6 +3387,7 @@ int FixedDiv1_X86(int num, int div) {
       :
       : "memory", "cc", "edx");
   return num;
+#endif
 }
 
 #ifdef HAS_SCALEUVROWDOWN2_AVX2
@@ -4246,6 +4260,7 @@ static const uint8_t kPackEvenBytes[64] = {
 // Scale UV columns by 3 box filter using AVX512VBMI.
 // Processes 32 UV pixels (384 input bytes -> 64 output bytes) per main loop
 // iteration, followed by a 16-pixel block and a k-masked tail (1..15 pixels).
+LIBYUV_TARGET_AVX512VBMI
 void ScaleUVAddCols3_AVX512VBMI(int dst_width,
                                 int scaleval,
                                 const uint16_t* src_uv,
@@ -4385,6 +4400,161 @@ void ScaleUVAddCols3_AVX512VBMI(int dst_width,
         "k5", "k6");
 }
 #endif  // HAS_SCALEUVADDCOLS3_AVX512VBMI
+
+#ifdef HAS_SCALEMAXSAMPLES_AVX2
+float ScaleMaxSamples_AVX2(const float* src,
+                           float* dst,
+                           float scale,
+                           int width) {
+  float fmax;
+  asm volatile(
+      "vpxor       %%xmm3,%%xmm3,%%xmm3          \n"
+      "vbroadcastss %[scale],%%ymm2              \n"
+      "sub         $0x8,%[width]                 \n"
+      "jl          2f                            \n"
+
+      LABELALIGN
+      "1:                                        \n"
+      "vmovups     (%[src]),%%ymm0               \n"
+      "lea         0x20(%[src]),%[src]           \n"
+      "vmaxps      %%ymm3,%%ymm0,%%ymm3          \n"
+      "vmulps      %%ymm2,%%ymm0,%%ymm0          \n"
+      "vmovups     %%ymm0,(%[dst])               \n"
+      "lea         0x20(%[dst]),%[dst]           \n"
+      "sub         $0x8,%[width]                 \n"
+      "jge         1b                            \n"
+
+      "vextractf128 $0x1,%%ymm3,%%xmm1           \n"
+      "vmaxps      %%xmm3,%%xmm1,%%xmm3          \n"
+      "vpshufd     $0x4e,%%xmm3,%%xmm1           \n"
+      "vmaxps      %%xmm3,%%xmm1,%%xmm3          \n"
+      "vpshufd     $0x55,%%xmm3,%%xmm1           \n"
+      "vmaxss      %%xmm3,%%xmm1,%%xmm3          \n"
+
+      "2:                                        \n"
+      "add         $0x8,%[width]                 \n"
+      "jle         99f                           \n"
+
+      LABELALIGN
+      "3:                                        \n"
+      "vmovss      (%[src]),%%xmm0               \n"
+      "lea         0x4(%[src]),%[src]            \n"
+      "vmaxss      %%xmm3,%%xmm0,%%xmm3          \n"
+      "vmulss      %%xmm2,%%xmm0,%%xmm0          \n"
+      "vmovss      %%xmm0,(%[dst])               \n"
+      "lea         0x4(%[dst]),%[dst]            \n"
+      "sub         $0x1,%[width]                 \n"
+      "jg          3b                            \n"
+
+      "99:                                       \n"
+      "vmovss      %%xmm3,%[fmax]                \n"
+      "vzeroupper                                \n"
+      : [src] "+r"(src),
+        [dst] "+r"(dst),
+        [width] "+r"(width),
+        [fmax] "=m"(fmax)
+      : [scale] "m"(scale)
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3");
+  return fmax;
+}
+#endif  // HAS_SCALEMAXSAMPLES_AVX2
+
+#ifdef HAS_SCALESUMSAMPLES_AVX2
+float ScaleSumSamples_AVX2(const float* src,
+                           float* dst,
+                           float scale,
+                           int width) {
+  float fsum;
+  asm volatile(
+      "vpxor       %%xmm3,%%xmm3,%%xmm3          \n"
+      "vbroadcastss %[scale],%%ymm2              \n"
+      "sub         $0x8,%[width]                 \n"
+      "jl          2f                            \n"
+
+      LABELALIGN
+      "1:                                        \n"
+      "vmovups     (%[src]),%%ymm0               \n"
+      "lea         0x20(%[src]),%[src]           \n"
+      "vmulps      %%ymm0,%%ymm0,%%ymm1          \n"
+      "vaddps      %%ymm1,%%ymm3,%%ymm3          \n"
+      "vmulps      %%ymm2,%%ymm0,%%ymm0          \n"
+      "vmovups     %%ymm0,(%[dst])               \n"
+      "lea         0x20(%[dst]),%[dst]           \n"
+      "sub         $0x8,%[width]                 \n"
+      "jge         1b                            \n"
+
+      "vextractf128 $0x1,%%ymm3,%%xmm1           \n"
+      "vaddps      %%xmm1,%%xmm3,%%xmm3          \n"
+      "vhaddps     %%xmm3,%%xmm3,%%xmm3          \n"
+      "vhaddps     %%xmm3,%%xmm3,%%xmm3          \n"
+
+      "2:                                        \n"
+      "add         $0x8,%[width]                 \n"
+      "jle         99f                           \n"
+
+      LABELALIGN
+      "3:                                        \n"
+      "vmovss      (%[src]),%%xmm0               \n"
+      "lea         0x4(%[src]),%[src]            \n"
+      "vmulss      %%xmm0,%%xmm0,%%xmm1          \n"
+      "vaddss      %%xmm1,%%xmm3,%%xmm3          \n"
+      "vmulss      %%xmm2,%%xmm0,%%xmm0          \n"
+      "vmovss      %%xmm0,(%[dst])               \n"
+      "lea         0x4(%[dst]),%[dst]            \n"
+      "sub         $0x1,%[width]                 \n"
+      "jg          3b                            \n"
+
+      "99:                                       \n"
+      "vmovss      %%xmm3,%[fsum]                \n"
+      "vzeroupper                                \n"
+      : [src] "+r"(src),
+        [dst] "+r"(dst),
+        [width] "+r"(width),
+        [fsum] "=m"(fsum)
+      : [scale] "m"(scale)
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3");
+  return fsum;
+}
+#endif  // HAS_SCALESUMSAMPLES_AVX2
+
+#ifdef HAS_SCALESAMPLES_AVX2
+void ScaleSamples_AVX2(const float* src, float* dst, float scale, int width) {
+  asm volatile(
+      "vbroadcastss %[scale],%%ymm2              \n"
+      "sub         $0x8,%[width]                 \n"
+      "jl          2f                            \n"
+
+      LABELALIGN
+      "1:                                        \n"
+      "vmovups     (%[src]),%%ymm0               \n"
+      "lea         0x20(%[src]),%[src]           \n"
+      "vmulps      %%ymm2,%%ymm0,%%ymm0          \n"
+      "vmovups     %%ymm0,(%[dst])               \n"
+      "lea         0x20(%[dst]),%[dst]           \n"
+      "sub         $0x8,%[width]                 \n"
+      "jge         1b                            \n"
+
+      "2:                                        \n"
+      "add         $0x8,%[width]                 \n"
+      "jle         99f                           \n"
+
+      LABELALIGN
+      "3:                                        \n"
+      "vmovss      (%[src]),%%xmm0               \n"
+      "lea         0x4(%[src]),%[src]            \n"
+      "vmulss      %%xmm2,%%xmm0,%%xmm0          \n"
+      "vmovss      %%xmm0,(%[dst])               \n"
+      "lea         0x4(%[dst]),%[dst]            \n"
+      "sub         $0x1,%[width]                 \n"
+      "jg          3b                            \n"
+
+      "99:                                       \n"
+      "vzeroupper                                \n"
+      : [src] "+r"(src), [dst] "+r"(dst), [width] "+r"(width)
+      : [scale] "m"(scale)
+      : "memory", "cc", "xmm0", "xmm2");
+}
+#endif  // HAS_SCALESAMPLES_AVX2
 
 #endif  // defined(__x86_64__) || defined(__i386__)
 

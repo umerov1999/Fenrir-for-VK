@@ -14,8 +14,8 @@ interface IStoryPagerView : IMvpView, IErrorView, IToastView {
     fun setPreparingProgressVisible(position: Int, preparing: Boolean)
     fun attachDisplayToPlayer(adapterPosition: Int, storyPlayer: IStoryPlayer?)
     fun setToolbarTitle(@StringRes titleRes: Int, vararg params: Any?)
-    fun setToolbarSubtitle(story: Story, account_id: Long, isPlaySpeed: Boolean)
-    fun onShare(story: Story, account_id: Long)
+    fun setToolbarSubtitle(story: Story, accountId: Long)
+    fun onShare(story: Story, accountId: Long)
     fun configHolder(
         adapterPosition: Int,
         progress: Boolean,
@@ -27,10 +27,13 @@ interface IStoryPagerView : IMvpView, IErrorView, IToastView {
     fun onNext()
     fun requestWriteExternalStoragePermission()
     fun downloadPhoto(url: String, dir: String, file: String)
-    fun downloadVideo(video: Video, url: String, Res: String)
+    fun downloadVideo(video: Video, url: String, res: String)
 
     fun updateCount(count: Int)
     fun notifyDataSetChanged()
     fun displayListLoading(loading: Boolean)
     fun endAction()
+
+    fun onUpdateDuration(isVideo: Boolean, duration: Long)
+    fun onUpdateSpeed(speed: Float)
 }

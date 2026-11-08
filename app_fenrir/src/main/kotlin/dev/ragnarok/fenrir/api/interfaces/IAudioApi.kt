@@ -139,9 +139,6 @@ interface IAudioApi {
     fun getById(audios: List<Audio>): Flow<List<VKApiAudio>>
 
     @CheckResult
-    fun getByIdOld(audios: List<Audio>): Flow<List<VKApiAudio>>
-
-    @CheckResult
     fun getLyrics(audio: Audio): Flow<VKApiLyrics>
 
     @CheckResult

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.api.impl
 
-import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.api.interfaces.IAudioApi
 import dev.ragnarok.fenrir.api.interfaces.providers.IServiceProvider
@@ -363,19 +362,6 @@ internal class AudioApi(accountId: Long, provider: IServiceProvider) :
         return provideService(IAudioService())
             .flatMapConcat {
                 it.getById(audioString)
-                    .map(extractResponseWithErrorHandling())
-            }
-    }
-
-    override fun getByIdOld(audios: List<Audio>): Flow<List<VKApiAudio>> {
-        val ids = ArrayList<AccessIdPair>(audios.size)
-        for (i in audios) {
-            ids.add(AccessIdPair(i.id, i.ownerId, i.accessKey))
-        }
-        val audioString = join(ids, ",") { AccessIdPair.format(it) }
-        return provideService(IAudioService())
-            .flatMapConcat {
-                it.getByIdVersioned(audioString, Constants.OLD_API_FOR_AUDIO_VERSION)
                     .map(extractResponseWithErrorHandling())
             }
     }

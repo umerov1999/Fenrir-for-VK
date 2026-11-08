@@ -274,7 +274,7 @@ internal class MainSettings(context: Context) : IMainSettings {
 
     override val audioExt: Set<String>
         get() = getPreferences(app)
-            .getStringSet("audio_ext", setOf("mp3", "ogg", "flac", "opus"))!!
+            .getStringSet("audio_ext", setOf("mp3", "m4a", "aac", "ogg", "flac", "opus"))!!
 
     @get:ParserType
     override val currentParser: Int

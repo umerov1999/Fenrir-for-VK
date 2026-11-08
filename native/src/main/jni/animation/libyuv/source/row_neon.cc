@@ -8,6 +8,8 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
+#include <string.h>
+
 #include "libyuv/convert_from_argb.h"  // For ArgbConstants
 #include "libyuv/row.h"
 
@@ -2157,7 +2159,7 @@ void RGB24ToUVRow_NEON(const uint8_t* src_rgb24,
     "+r"(dst_v),     // %3
     "+r"(width)        // %4
   :
-  : "cc", "memory", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7",
+  : "memory", "cc", "q0", "q1", "q2", "q3", "q4", "q5", "q6",
     "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"
   );
 }
@@ -2202,7 +2204,7 @@ void RAWToUVRow_NEON(const uint8_t* src_raw,
     "+r"(dst_v),     // %3
     "+r"(width)        // %4
   :
-  : "cc", "memory", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7",
+  : "memory", "cc", "q0", "q1", "q2", "q3", "q4", "q5", "q6",
     "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"
   );
 }
@@ -2268,8 +2270,8 @@ void RGB565ToUVRow_NEON(const uint8_t* src_rgb565,
         "+r"(dst_v),              // %3
         "+r"(width)               // %4
       :
-      : "cc", "memory", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8",
-        "q9", "q10", "q11", "q12", "q13", "q14", "q15");
+      : "memory", "cc", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q8", "q9",
+        "q10", "q11", "q12", "q13", "q14", "q15");
 }
 
 // 16x2 pixels -> 8x1.  width is number of argb pixels. e.g. 16.
@@ -2333,8 +2335,8 @@ void ARGB1555ToUVRow_NEON(const uint8_t* src_argb1555,
         "+r"(dst_v),                // %3
         "+r"(width)                 // %4
       :
-      : "cc", "memory", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8",
-        "q9", "q10", "q11", "q12", "q13", "q14", "q15");
+      : "memory", "cc", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q8", "q9",
+        "q10", "q11", "q12", "q13", "q14", "q15");
 }
 
 // 16x2 pixels -> 8x1.  width is number of argb pixels. e.g. 16.
@@ -2389,7 +2391,7 @@ void ARGB4444ToUVRow_NEON(const uint8_t* src_argb4444,
         "+r"(dst_v),                // %3
         "+r"(width)                 // %4
       :
-      : "cc", "memory", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8",
+      : "memory", "cc", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q8",
         "q9", "q10", "q11", "q12", "q13", "q14", "q15");
 }
 
@@ -3819,6 +3821,12 @@ void DivideRow_16_NEON(const uint16_t* src_y,
                        uint16_t* dst_y,
                        int scale,
                        int width) {
+  if (scale == 65536) {  // Divide by 1, so do memcpy.
+    if (src_y != dst_y) {
+      memcpy(dst_y, src_y, (size_t)width * 2);
+    }
+    return;
+  }
   asm volatile(
       "vdup.16     d8, %3                        \n"
       "1:          \n"

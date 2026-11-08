@@ -76,14 +76,15 @@ uint32_t HammingDistance_SSE42(const uint8_t* src_a,
         "+r"(count),  // %2
         "=&r"(diff)   // %3
       :
-      : "cc", "memory", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10");
+      : "memory", "cc", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10");
 
   return (uint32_t)(diff);
 }
 #endif  // HAS_HAMMINGDISTANCE_SSE42
 
 #if defined(HAS_HAMMINGDISTANCE_SSSE3) || defined(HAS_HAMMINGDISTANCE_AVX2) || \
-    defined(HAS_HAMMINGDISTANCE_AVX512BW)
+    defined(HAS_HAMMINGDISTANCE_AVX512BW) ||                                   \
+    defined(HAS_HAMMINGDISTANCE_AVX512VNNI)
 static const vec8 kNibbleMask = {15, 15, 15, 15, 15, 15, 15, 15,
                                  15, 15, 15, 15, 15, 15, 15, 15};
 static const vec8 kBitCount = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4};
@@ -144,7 +145,7 @@ uint32_t HammingDistance_SSSE3(const uint8_t* src_a,
         "=r"(diff)         // %3
       : "m"(kNibbleMask),  // %4
         "m"(kBitCount)     // %5
-      : "cc", "memory", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6",
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6",
         "xmm7");
 
   return diff;
@@ -201,12 +202,13 @@ uint32_t HammingDistance_AVX2(const uint8_t* src_a,
         "=r"(diff)         // %3
       : "m"(kNibbleMask),  // %4
         "m"(kBitCount)     // %5
-      : "cc", "memory", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6");
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6");
 
   return diff;
 }
 #endif  // HAS_HAMMINGDISTANCE_AVX2
 
+#ifdef HAS_SUMSQUAREERROR_SSE2
 uint32_t SumSquareError_SSE2(const uint8_t* src_a,
                              const uint8_t* src_b,
                              int count) {
@@ -245,9 +247,10 @@ uint32_t SumSquareError_SSE2(const uint8_t* src_a,
         "+r"(count),  // %2
         "=r"(sse)     // %3
       :
-      : "cc", "memory", "xmm0", "xmm1", "xmm2", "xmm3", "xmm5");
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm5");
   return sse;
 }
+#endif  // HAS_SUMSQUAREERROR_SSE2
 
 #ifdef HAS_SUMSQUAREERROR_AVX2
 uint32_t SumSquareError_AVX2(const uint8_t* src_a,
@@ -290,11 +293,12 @@ uint32_t SumSquareError_AVX2(const uint8_t* src_a,
         "+r"(count),  // %2
         "=r"(sse)     // %3
       :
-      : "cc", "memory", "xmm0", "xmm1", "xmm2", "xmm3", "xmm5");
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm5");
   return sse;
 }
 #endif  // HAS_SUMSQUAREERROR_AVX2
 
+#ifdef HAS_HASHDJB2_SSE41
 static const uvec32 kHash16x33 = {0x92d9e201, 0, 0, 0};  // 33 ^ 16
 static const uvec32 kHashMul0 = {
     0x0c3525e1,  // 33 ^ 15
@@ -371,13 +375,16 @@ uint32_t HashDjb2_SSE41(const uint8_t* src, int count, uint32_t seed) {
         "m"(kHashMul1),   // %6
         "m"(kHashMul2),   // %7
         "m"(kHashMul3)    // %8
-      : "cc", "memory", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6",
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6",
         "xmm7");
   return hash;
 }
-#if defined(HAS_HAMMINGDISTANCE_AVX512BW) ||                                  \
-    defined(HAS_SUMSQUAREERROR_AVX512BW) || defined(HAS_HASHDJB2_AVX512BW) || \
-    defined(HAS_SSIM4X4ROW_AVX512BW)
+#endif  // HAS_HASHDJB2_SSE41
+#if defined(HAS_HAMMINGDISTANCE_AVX512BW) ||   \
+    defined(HAS_HAMMINGDISTANCE_AVX512VNNI) || \
+    defined(HAS_SUMSQUAREERROR_AVX512BW) ||    \
+    defined(HAS_SUMSQUAREERROR_AVX512VNNI) ||  \
+    defined(HAS_HASHDJB2_AVX512BW) || defined(HAS_SSIM4X4ROW_AVX512BW)
 // Mask of the low n bytes, for n = 0 to 63.
 static uint64_t LowBytesMask64(int n) {
   return n ? ~0ULL >> (64 - n) : 0ULL;
@@ -387,6 +394,7 @@ static uint64_t LowBytesMask64(int n) {
 #ifdef HAS_HAMMINGDISTANCE_AVX512BW
 // Process 64 bytes per loop and the remainder of 1 to 63 bytes with masked
 // loads that read zeros, so any count is supported.
+LIBYUV_TARGET_AVX512BW
 uint32_t HammingDistance_AVX512BW(const uint8_t* src_a,
                                   const uint8_t* src_b,
                                   int count) {
@@ -447,14 +455,86 @@ uint32_t HammingDistance_AVX512BW(const uint8_t* src_a,
       : [src_a] "+r"(src_a), [src_b] "+r"(src_b), [count] "+r"(count),
         [diff] "=r"(diff)
       : [nibble] "m"(kNibbleMask), [bitcount] "m"(kBitCount), [mask] "m"(mask)
-      : "cc", "memory", "k1", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5");
+      : "memory", "cc", "k1", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5");
   return diff;
 }
 #endif  // HAS_HAMMINGDISTANCE_AVX512BW
 
+#ifdef HAS_HAMMINGDISTANCE_AVX512VNNI
+// Process 64 bytes per loop and the remainder of 1 to 63 bytes with masked
+// loads that read zeros, accumulating byte popcounts with vpdpbusd.
+LIBYUV_TARGET_AVX512VNNI
+uint32_t HammingDistance_AVX512VNNI(const uint8_t* src_a,
+                                    const uint8_t* src_b,
+                                    int count) {
+  uint32_t diff;
+  const uint64_t mask = LowBytesMask64(count & 63);
+  asm volatile(
+      "vbroadcasti32x4 %[nibble],%%zmm2          \n"
+      "vbroadcasti32x4 %[bitcount],%%zmm3        \n"
+      "vpxord      %%zmm0,%%zmm0,%%zmm0          \n"
+      "vpternlogd  $0xff,%%zmm1,%%zmm1,%%zmm1    \n"
+      "vpsrlw      $0xf,%%zmm1,%%zmm1            \n"
+      "vpshufb     %%zmm0,%%zmm1,%%zmm1          \n"
+      "kmovq       %[mask],%%k1                  \n"
+      "sub         %[src_a],%[src_b]             \n"
+      "sub         $0x40,%[count]                \n"
+      "jl          2f                            \n"
+
+      LABELALIGN
+      "1:          \n"
+      "vmovdqu8    (%[src_a]),%%zmm4             \n"
+      "vpxorq      (%[src_a],%[src_b]),%%zmm4,%%zmm4 \n"
+      "add         $0x40,%[src_a]                \n"
+      "vpandq      %%zmm2,%%zmm4,%%zmm5          \n"
+      "vpsrlw      $0x4,%%zmm4,%%zmm4            \n"
+      "vpandq      %%zmm2,%%zmm4,%%zmm4          \n"
+      "vpshufb     %%zmm5,%%zmm3,%%zmm5          \n"
+      "vpshufb     %%zmm4,%%zmm3,%%zmm4          \n"
+      "vpaddb      %%zmm5,%%zmm4,%%zmm4          \n"
+      "vpdpbusd    %%zmm4,%%zmm1,%%zmm0          \n"
+      "sub         $0x40,%[count]                \n"
+      "jge         1b                            \n"
+
+      // Remainder: 1 to 63 bytes, masked loads.
+      "2:          \n"
+      "add         $0x40,%[count]                \n"
+      "je          3f                            \n"
+      "vmovdqu8    (%[src_a]),%%zmm4%{%%k1%}%{z%} \n"
+      "vmovdqu8    (%[src_a],%[src_b]),%%zmm5%{%%k1%}%{z%} \n"
+      "vpxorq      %%zmm5,%%zmm4,%%zmm4          \n"
+      "vpandq      %%zmm2,%%zmm4,%%zmm5          \n"
+      "vpsrlw      $0x4,%%zmm4,%%zmm4            \n"
+      "vpandq      %%zmm2,%%zmm4,%%zmm4          \n"
+      "vpshufb     %%zmm5,%%zmm3,%%zmm5          \n"
+      "vpshufb     %%zmm4,%%zmm3,%%zmm4          \n"
+      "vpaddb      %%zmm5,%%zmm4,%%zmm4          \n"
+      "vpdpbusd    %%zmm4,%%zmm1,%%zmm0          \n"
+
+      // Add 16 dwords.
+      "3:          \n"
+      "vextracti64x4 $1,%%zmm0,%%ymm1            \n"
+      "vpaddd      %%ymm1,%%ymm0,%%ymm0          \n"
+      "vextracti128 $1,%%ymm0,%%xmm1             \n"
+      "vpaddd      %%xmm1,%%xmm0,%%xmm0          \n"
+      "vpshufd     $0xee,%%xmm0,%%xmm1           \n"
+      "vpaddd      %%xmm1,%%xmm0,%%xmm0          \n"
+      "vpshufd     $0x1,%%xmm0,%%xmm1            \n"
+      "vpaddd      %%xmm1,%%xmm0,%%xmm0          \n"
+      "vmovd       %%xmm0,%[diff]                \n"
+      "vzeroupper  \n"
+      : [src_a] "+r"(src_a), [src_b] "+r"(src_b), [count] "+r"(count),
+        [diff] "=r"(diff)
+      : [nibble] "m"(kNibbleMask), [bitcount] "m"(kBitCount), [mask] "m"(mask)
+      : "memory", "cc", "k1", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5");
+  return diff;
+}
+#endif  // HAS_HAMMINGDISTANCE_AVX512VNNI
+
 #ifdef HAS_SUMSQUAREERROR_AVX512BW
 // Process 64 bytes per loop and the remainder of 1 to 63 bytes with masked
 // loads that read zeros, so any count is supported.
+LIBYUV_TARGET_AVX512BW
 uint32_t SumSquareError_AVX512BW(const uint8_t* src_a,
                                  const uint8_t* src_b,
                                  int count) {
@@ -524,6 +604,7 @@ uint32_t SumSquareError_AVX512BW(const uint8_t* src_a,
 #ifdef HAS_SUMSQUAREERROR_AVX512VNNI
 // Process 64 bytes per loop and the remainder of 1 to 63 bytes with masked
 // loads that read zeros, so any count is supported.
+LIBYUV_TARGET_AVX512VNNI
 uint32_t SumSquareError_AVX512VNNI(const uint8_t* src_a,
                                    const uint8_t* src_b,
                                    int count) {
@@ -691,7 +772,7 @@ uint32_t HashDjb2_AVX2(const uint8_t* src, int count, uint32_t seed) {
       :
       [src] "+r"(src), [count] "+r"(count), [seed] "+r"(seed), [sum] "=&r"(sum)
       : [tbl] "r"(kHashMulLoHi)
-      : "cc", "memory", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5");
+      : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5");
   return seed;
 }
 #undef HASH32_AVX2
@@ -739,6 +820,7 @@ static uint32_t Pow33(int n) {
 // Process 64 bytes per loop. The remainder of n = 1 to 63 bytes is loaded
 // into the high n bytes with a masked load ending at src + count, so the
 // same multipliers apply, and hash is multiplied by 33 ^ n.
+LIBYUV_TARGET_AVX512BW
 uint32_t HashDjb2_AVX512BW(const uint8_t* src, int count, uint32_t seed) {
   const int n = count & 63;
   const uint64_t mask = n ? ~0ULL << (64 - n) : 0ULL;
@@ -778,7 +860,7 @@ uint32_t HashDjb2_AVX512BW(const uint8_t* src, int count, uint32_t seed) {
       :
       [src] "+r"(src), [width] "+r"(width), [seed] "+r"(seed), [sum] "=&r"(sum)
       : [tbl] "r"(kHashMulLoHi), [pow_n] "m"(pow_n), [mask] "m"(mask)
-      : "cc", "memory", "k1", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5",
+      : "memory", "cc", "k1", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5",
         "xmm6", "xmm7");
   return seed;
 }
@@ -1078,6 +1160,7 @@ void Ssim4x4Row_AVX2(const uint8_t* src_a,
 
 // Process 64 pixels (16 4x4 tiles) per loop and the remainder of 4 to 60
 // pixels (1 to 15 tiles) with masked loads and stores.
+LIBYUV_TARGET_AVX512BW
 void Ssim4x4Row_AVX512BW(const uint8_t* src_a,
                          int stride_a,
                          const uint8_t* src_b,
@@ -1361,6 +1444,7 @@ float SsimWindowRow_AVX2(const uint32_t* row0,
 
 // Process 16 8x8 windows per loop and the remainder of 1 to 15 windows with
 // masked loads and masked accumulation.
+LIBYUV_TARGET_AVX512BW
 float SsimWindowRow_AVX512BW(const uint32_t* row0,
                              const uint32_t* row1,
                              int num_windows) {
@@ -1454,8 +1538,7 @@ uint32_t ARGBDetectRow_AVX2(const uint8_t* argb, int width) {
   asm volatile(
       "vpcmpeqd    %%ymm1,%%ymm1,%%ymm1          \n"
       "sub         $0x8,%[width]                 \n"
-      "jl          2f                            \n"
-      LABELALIGN
+      "jl          2f                            \n" LABELALIGN
       "1:                                        \n"
       "vpcmpeqb    (%[argb]),%%ymm1,%%ymm0       \n"
       "vpmovmskb   %%ymm0,%[diff]                \n"
@@ -1467,8 +1550,7 @@ uint32_t ARGBDetectRow_AVX2(const uint8_t* argb, int width) {
       "jge         1b                            \n"
       "2:                                        \n"
       "add         $0x8,%[width]                 \n"
-      "jle         99f                           \n"
-      LABELALIGN
+      "jle         99f                           \n" LABELALIGN
       "3:                                        \n"
       "vmovd       (%[argb]),%%xmm0              \n"
       "add         $0x4,%[argb]                  \n"

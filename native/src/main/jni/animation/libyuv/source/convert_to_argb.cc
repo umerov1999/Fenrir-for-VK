@@ -221,6 +221,14 @@ static int NV24ToARGB(const uint8_t* src_y,
     I444ToARGBRow = I444ToARGBRow_HVX;
   }
 #endif
+#if defined(HAS_I444TOARGBROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    I444ToARGBRow = I444ToARGBRow_Any_WASMSIMD;
+    if (IS_ALIGNED(width, 8)) {
+      I444ToARGBRow = I444ToARGBRow_WASMSIMD;
+    }
+  }
+#endif
 
 #if defined(HAS_SPLITUVROW_SSE2)
   if (TestCpuFlag(kCpuHasSSE2)) {
@@ -240,10 +248,7 @@ static int NV24ToARGB(const uint8_t* src_y,
 #endif
 #if defined(HAS_SPLITUVROW_AVX512BW)
   if (TestCpuFlag(kCpuHasAVX512BW)) {
-    SplitUVRow = SplitUVRow_Any_AVX512BW;
-    if (IS_ALIGNED(width, 64)) {
-      SplitUVRow = SplitUVRow_AVX512BW;
-    }
+    SplitUVRow = SplitUVRow_AVX512BW;
   }
 #endif
 #if defined(HAS_SPLITUVROW_NEON)
@@ -257,6 +262,11 @@ static int NV24ToARGB(const uint8_t* src_y,
 #if defined(HAS_SPLITUVROW_SVE2)
   if (TestCpuFlag(kCpuHasSVE2)) {
     SplitUVRow = SplitUVRow_SVE2;
+  }
+#endif
+#if defined(HAS_SPLITUVROW_SME)
+  if (TestCpuFlag(kCpuHasSME)) {
+    SplitUVRow = SplitUVRow_SME;
   }
 #endif
 #if defined(HAS_SPLITUVROW_LSX)
@@ -283,6 +293,14 @@ static int NV24ToARGB(const uint8_t* src_y,
 #if defined(HAS_SPLITUVROW_HVX)
   if (TestCpuFlag(kCpuHasHVX)) {
     SplitUVRow = SplitUVRow_HVX;
+  }
+#endif
+#if defined(HAS_SPLITUVROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    SplitUVRow = SplitUVRow_Any_WASMSIMD;
+    if (IS_ALIGNED(width, 16)) {
+      SplitUVRow = SplitUVRow_WASMSIMD;
+    }
   }
 #endif
 
@@ -464,35 +482,31 @@ int ConvertToARGB(const uint8_t* sample,
     // Biplanar formats
     case FOURCC_NV12:
       src = sample + ((ptrdiff_t)src_width * crop_y + crop_x);
-      src_uv = sample +
-               aligned_src_width * ((ptrdiff_t)abs_src_height + crop_y / 2) +
-               (crop_x & ~1);
+      src_uv = sample + ((ptrdiff_t)src_width * abs_src_height) +
+               ((ptrdiff_t)(crop_y / 2) * aligned_src_width) + (crop_x & ~1);
       r = NV12ToARGB(src, src_width, src_uv, aligned_src_width, dst_argb,
                      dst_stride_argb, crop_width, inv_crop_height);
       break;
     case FOURCC_NV21:
       src = sample + ((ptrdiff_t)src_width * crop_y + crop_x);
-      src_uv = sample +
-               aligned_src_width * ((ptrdiff_t)abs_src_height + crop_y / 2) +
-               (crop_x & ~1);
+      src_uv = sample + ((ptrdiff_t)src_width * abs_src_height) +
+               ((ptrdiff_t)(crop_y / 2) * aligned_src_width) + (crop_x & ~1);
       // Call NV12 but with u and v parameters swapped.
       r = NV21ToARGB(src, src_width, src_uv, aligned_src_width, dst_argb,
                      dst_stride_argb, crop_width, inv_crop_height);
       break;
     case FOURCC_NV16:
       src = sample + ((ptrdiff_t)src_width * crop_y + crop_x);
-      src_uv = sample +
-               aligned_src_width * ((ptrdiff_t)abs_src_height + crop_y) +
-               (crop_x & ~1);
+      src_uv = sample + ((ptrdiff_t)src_width * abs_src_height) +
+               ((ptrdiff_t)crop_y * aligned_src_width) + (crop_x & ~1);
       r = NV16ToARGB(src, src_width, src_uv, aligned_src_width, dst_argb,
                      dst_stride_argb, crop_width, inv_crop_height);
       break;
     case FOURCC_NV24:
       src = sample + ((ptrdiff_t)src_width * crop_y + crop_x);
-      src_uv = sample + (ptrdiff_t)aligned_src_width * abs_src_height +
-               (ptrdiff_t)aligned_src_width * 2 * crop_y +
-               (ptrdiff_t)crop_x * 2;
-      r = NV24ToARGB(src, src_width, src_uv, aligned_src_width * 2, dst_argb,
+      src_uv = sample + ((ptrdiff_t)src_width * abs_src_height) +
+               ((ptrdiff_t)crop_y * src_width * 2) + ((ptrdiff_t)crop_x * 2);
+      r = NV24ToARGB(src, src_width, src_uv, src_width * 2, dst_argb,
                      dst_stride_argb, crop_width, inv_crop_height);
       break;
     case FOURCC_P010: {

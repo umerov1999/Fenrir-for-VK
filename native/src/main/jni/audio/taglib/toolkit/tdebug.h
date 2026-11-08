@@ -26,7 +26,9 @@
 #ifndef TAGLIB_DEBUG_H
 #define TAGLIB_DEBUG_H
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 namespace TagLib {
 

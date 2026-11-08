@@ -322,11 +322,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
         mStoryAdapter = HorizontalStoryAdapter(mutableListOf())
         mStoryAdapter?.setListener(object : HorizontalStoryAdapter.Listener {
             override fun onStoryClick(item: Story, pos: Int) {
-                openHistoryVideo(
-                    Settings.get().accounts().current, ArrayList(
-                        presenter?.stories ?: emptyList()
-                    ), pos
-                )
+                presenter?.fireOpenStory(pos)
             }
 
             override fun onStoryLongClick(item: Story, pos: Int): Boolean {

@@ -131,7 +131,6 @@ interface ISettings {
         val authDomain: String
         val authWebDomain: String
         val domain: String
-        val isUse_api_5_90_for_audio: Boolean
         val isSaving_network_traffic: Boolean
         val isDisable_history: Boolean
         val isShow_wall_cover: Boolean

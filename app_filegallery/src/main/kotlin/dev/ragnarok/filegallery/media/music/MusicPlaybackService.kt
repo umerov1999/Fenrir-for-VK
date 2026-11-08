@@ -532,7 +532,21 @@ class MusicPlaybackService : MediaSessionService() {
         }
 
         val duration: Long
-            get() = if (exoplayer.duration == C.TIME_UNSET) -1 else exoplayer.duration
+            get() {
+                return when (exoplayer.duration) {
+                    C.TIME_UNSET -> {
+                        if (exoplayer.currentPosition != C.TIME_UNSET) {
+                            exoplayer.currentPosition
+                        } else {
+                            -1L
+                        }
+                    }
+
+                    else -> {
+                        exoplayer.duration
+                    }
+                }
+            }
 
         val position: Long
             get() = if (exoplayer.currentPosition == C.TIME_UNSET) -1 else exoplayer.currentPosition

@@ -398,6 +398,30 @@ int I422ToYUY2(const uint8_t* src_y,
     }
   }
 #endif
+#if defined(HAS_I422TOYUY2ROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    I422ToYUY2Row = I422ToYUY2Row_Any_LSX;
+    if (IS_ALIGNED(width, 16)) {
+      I422ToYUY2Row = I422ToYUY2Row_LSX;
+    }
+  }
+#endif
+#if defined(HAS_I422TOYUY2ROW_LASX)
+  if (TestCpuFlag(kCpuHasLASX)) {
+    I422ToYUY2Row = I422ToYUY2Row_Any_LASX;
+    if (IS_ALIGNED(width, 32)) {
+      I422ToYUY2Row = I422ToYUY2Row_LASX;
+    }
+  }
+#endif
+#if defined(HAS_I422TOYUY2ROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    I422ToYUY2Row = I422ToYUY2Row_Any_WASMSIMD;
+    if (IS_ALIGNED(width, 16)) {
+      I422ToYUY2Row = I422ToYUY2Row_WASMSIMD;
+    }
+  }
+#endif
 
   for (y = 0; y < height; ++y) {
     I422ToYUY2Row(src_y, src_u, src_v, dst_yuy2, width);
@@ -471,6 +495,14 @@ int I420ToYUY2(const uint8_t* src_y,
     I422ToYUY2Row = I422ToYUY2Row_Any_LASX;
     if (IS_ALIGNED(width, 32)) {
       I422ToYUY2Row = I422ToYUY2Row_LASX;
+    }
+  }
+#endif
+#if defined(HAS_I422TOYUY2ROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    I422ToYUY2Row = I422ToYUY2Row_Any_WASMSIMD;
+    if (IS_ALIGNED(width, 16)) {
+      I422ToYUY2Row = I422ToYUY2Row_WASMSIMD;
     }
   }
 #endif
@@ -563,6 +595,14 @@ int I422ToUYVY(const uint8_t* src_y,
     }
   }
 #endif
+#if defined(HAS_I422TOUYVYROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    I422ToUYVYRow = I422ToUYVYRow_Any_WASMSIMD;
+    if (IS_ALIGNED(width, 16)) {
+      I422ToUYVYRow = I422ToUYVYRow_WASMSIMD;
+    }
+  }
+#endif
 
   for (y = 0; y < height; ++y) {
     I422ToUYVYRow(src_y, src_u, src_v, dst_uyvy, width);
@@ -639,6 +679,14 @@ int I420ToUYVY(const uint8_t* src_y,
     }
   }
 #endif
+#if defined(HAS_I422TOUYVYROW_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    I422ToUYVYRow = I422ToUYVYRow_Any_WASMSIMD;
+    if (IS_ALIGNED(width, 16)) {
+      I422ToUYVYRow = I422ToUYVYRow_WASMSIMD;
+    }
+  }
+#endif
 
   for (y = 0; y < height - 1; y += 2) {
     I422ToUYVYRow(src_y, src_u, src_v, dst_uyvy, width);
@@ -678,10 +726,12 @@ int I420ToNV12(const uint8_t* src_y,
   if (height < 0) {
     height = -height;
     halfheight = (height + 1) >> 1;
-    src_y = src_y + (ptrdiff_t)(height - 1) * src_stride_y;
+    if (src_y) {
+      src_y = src_y + (ptrdiff_t)(height - 1) * src_stride_y;
+      src_stride_y = -src_stride_y;
+    }
     src_u = src_u + (ptrdiff_t)(halfheight - 1) * src_stride_u;
     src_v = src_v + (ptrdiff_t)(halfheight - 1) * src_stride_v;
-    src_stride_y = -src_stride_y;
     src_stride_u = -src_stride_u;
     src_stride_v = -src_stride_v;
   }
@@ -775,10 +825,7 @@ static int I4xxToPxxx(const uint8_t* src_y,
 #endif
 #if defined(HAS_CONVERT8TO16ROW_AVX512BW)
   if (TestCpuFlag(kCpuHasAVX512BW)) {
-    Convert8To16Row = Convert8To16Row_Any_AVX512BW;
-    if (IS_ALIGNED(uv_width, 64)) {
-      Convert8To16Row = Convert8To16Row_AVX512BW;
-    }
+    Convert8To16Row = Convert8To16Row_AVX512BW;
   }
 #endif
 #if defined(HAS_CONVERT8TO16ROW_NEON)
@@ -812,6 +859,22 @@ static int I4xxToPxxx(const uint8_t* src_y,
     }
   }
 #endif
+#if defined(HAS_CONVERT8TO16ROW_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    Convert8To16Row = Convert8To16Row_Any_LSX;
+    if (IS_ALIGNED(uv_width, 16)) {
+      Convert8To16Row = Convert8To16Row_LSX;
+    }
+  }
+#endif
+#if defined(HAS_CONVERT8TO16ROW_LASX)
+  if (TestCpuFlag(kCpuHasLASX)) {
+    Convert8To16Row = Convert8To16Row_Any_LASX;
+    if (IS_ALIGNED(uv_width, 32)) {
+      Convert8To16Row = Convert8To16Row_LASX;
+    }
+  }
+#endif
 #if defined(HAS_MERGEUVROW_16_AVX2)
   if (TestCpuFlag(kCpuHasAVX2)) {
     MergeUVRow_16 = MergeUVRow_16_Any_AVX2;
@@ -841,6 +904,30 @@ static int I4xxToPxxx(const uint8_t* src_y,
 #if defined(HAS_MERGEUVROW_16_HVX)
   if (TestCpuFlag(kCpuHasHVX)) {
     MergeUVRow_16 = MergeUVRow_16_HVX;
+  }
+#endif
+#if defined(HAS_MERGEUVROW_16_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    MergeUVRow_16 = MergeUVRow_16_Any_LSX;
+    if (IS_ALIGNED(uv_width, 8)) {
+      MergeUVRow_16 = MergeUVRow_16_LSX;
+    }
+  }
+#endif
+#if defined(HAS_MERGEUVROW_16_LASX)
+  if (TestCpuFlag(kCpuHasLASX)) {
+    MergeUVRow_16 = MergeUVRow_16_Any_LASX;
+    if (IS_ALIGNED(uv_width, 16)) {
+      MergeUVRow_16 = MergeUVRow_16_LASX;
+    }
+  }
+#endif
+#if defined(HAS_MERGEUVROW_16_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    MergeUVRow_16 = MergeUVRow_16_Any_WASMSIMD;
+    if (IS_ALIGNED(uv_width, 8)) {
+      MergeUVRow_16 = MergeUVRow_16_WASMSIMD;
+    }
   }
 #endif
 
@@ -1113,25 +1200,26 @@ int ConvertFromI420(const uint8_t* y,
       break;
     case FOURCC_NV12: {
       int dst_y_stride = dst_sample_stride ? dst_sample_stride : width;
+      int dst_uv_stride =
+          dst_sample_stride ? dst_sample_stride : ((width + 1) / 2) * 2;
       uint8_t* dst_uv = dst_sample + (ptrdiff_t)dst_y_stride * abs_height;
       r = I420ToNV12(y, y_stride, u, u_stride, v, v_stride, dst_sample,
-                     dst_sample_stride ? dst_sample_stride : width, dst_uv,
-                     dst_sample_stride ? dst_sample_stride : width, width,
-                     height);
+                     dst_y_stride, dst_uv, dst_uv_stride, width, height);
       break;
     }
     case FOURCC_NV21: {
       int dst_y_stride = dst_sample_stride ? dst_sample_stride : width;
+      int dst_vu_stride =
+          dst_sample_stride ? dst_sample_stride : ((width + 1) / 2) * 2;
       uint8_t* dst_vu = dst_sample + (ptrdiff_t)dst_y_stride * abs_height;
       r = I420ToNV21(y, y_stride, u, u_stride, v, v_stride, dst_sample,
-                     dst_sample_stride ? dst_sample_stride : width, dst_vu,
-                     dst_sample_stride ? dst_sample_stride : width, width,
-                     height);
+                     dst_y_stride, dst_vu, dst_vu_stride, width, height);
       break;
     }
     case FOURCC_NV16: {
       int dst_y_stride = dst_sample_stride ? dst_sample_stride : width;
-      int dst_uv_stride = dst_sample_stride ? dst_sample_stride : width;
+      int dst_uv_stride =
+          dst_sample_stride ? dst_sample_stride : ((width + 1) / 2) * 2;
       uint8_t* dst_uv = dst_sample + (ptrdiff_t)dst_y_stride * abs_height;
       int halfwidth = (width + 1) / 2;
       int halfheight = SUBSAMPLE(height, 1, 1);

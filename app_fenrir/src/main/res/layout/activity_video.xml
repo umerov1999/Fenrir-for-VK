@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/videoSurfaceContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -33,15 +34,33 @@
             android:contentDescription="@null"
             android:stateListAnimator="@animator/clicked" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/toolbar_play_speed"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginEnd="16dp"
-            android:contentDescription="@null"
-            android:src="@drawable/voice_speed"
-            android:stateListAnimator="@animator/clicked" />
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/toolbar_play_speed_icon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="@null"
+                android:src="@drawable/voice_speed"
+                android:stateListAnimator="@animator/clicked"
+                android:tint="#ffffff" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/toolbar_play_speed_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="4dp"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="#ffffff"
+                android:textSize="16sp"
+                tools:text="1x" />
+        </LinearLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.imageview.ShapeableImageView

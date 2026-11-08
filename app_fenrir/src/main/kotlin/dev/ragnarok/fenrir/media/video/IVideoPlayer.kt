@@ -26,7 +26,7 @@ interface IVideoPlayer {
     val bufferPosition: Long
     fun setSurfaceHolder(holder: SurfaceHolder?)
     fun setTextureView(view: TextureView?)
-    val isPlaybackSpeed: Boolean
+    var playbackSpeed: Float
     fun togglePlaybackSpeed()
     fun addVideoSizeChangeListener(listener: IVideoSizeChangeListener)
     fun removeVideoSizeChangeListener(listener: IVideoSizeChangeListener)

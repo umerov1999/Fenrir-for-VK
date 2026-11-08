@@ -13,6 +13,7 @@ import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.model.Story
 import dev.ragnarok.fenrir.model.VideoSize
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.requireNonNull
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
@@ -28,20 +29,16 @@ class StoryPagerPresenter(
     private var mCurrentIndex: Int,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IStoryPagerView>(accountId, savedInstanceState),
-    IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener {
+    IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener,
+    IStoryPlayer.IPositionChangeListener {
     private val storiesInteractor = InteractorFactory.story
     private var mStoryPlayer: IStoryPlayer? = null
-    private var isPlayBackSpeed = false
     private var loadingNow = false
+    private var currentPosition = 0L
+    private var currentSpeed = 1f
 
     fun isStoryIsVideo(pos: Int): Boolean {
         return mStories.isNotEmpty() && mStories[pos].isStoryIsVideo()
-    }
-
-    fun togglePlaybackSpeed(): Boolean {
-        isPlayBackSpeed = !isPlayBackSpeed
-        mStoryPlayer?.setPlaybackSpeed(isPlayBackSpeed)
-        return isPlayBackSpeed
     }
 
     fun getStory(pos: Int): Story? {
@@ -57,6 +54,14 @@ class StoryPagerPresenter(
         resolveAspectRatio()
         resolvePreparingProgress()
         resolveToolbarSubtitle()
+        resolveDuration()
+        resolveSpeed()
+    }
+
+    fun fireTogglePlaybackSpeed() {
+        mStoryPlayer?.togglePlaybackSpeed()
+        currentSpeed = mStoryPlayer?.playbackSpeed ?: 1f
+        resolveSpeed()
     }
 
     fun fireSurfaceCreated(adapterPosition: Int) {
@@ -85,8 +90,8 @@ class StoryPagerPresenter(
     }
 
     private fun initStoryPlayer() {
-        val story = mStories[mCurrentIndex]
-        if (story.video == null) {
+        val story = mStories.getOrNull(mCurrentIndex)
+        if (story?.video == null) {
             if (mStoryPlayer != null) {
                 val old: IStoryPlayer? = mStoryPlayer
                 mStoryPlayer = null
@@ -106,7 +111,8 @@ class StoryPagerPresenter(
         }
         if (!update) {
             mStoryPlayer = storyPlayerFactory.createStoryPlayer(url, false)
-            mStoryPlayer?.setPlaybackSpeed(isPlayBackSpeed)
+            mStoryPlayer?.playbackSpeed = currentSpeed
+            mStoryPlayer?.addPositionChangeListener(this)
             mStoryPlayer?.addStatusChangeListener(this)
             mStoryPlayer?.addVideoSizeChangeListener(this)
         } else {
@@ -128,7 +134,7 @@ class StoryPagerPresenter(
     }
 
     private val isMy: Boolean
-        get() = mStories.isEmpty() || mStories[mCurrentIndex].ownerId == accountId
+        get() = mStories.isEmpty() || mStories.getOrNull(mCurrentIndex)?.ownerId == accountId
 
     private fun resolveAspectRatio() {
         if (mStoryPlayer == null) {
@@ -160,13 +166,23 @@ class StoryPagerPresenter(
     }
 
     private fun resolveToolbarSubtitle() {
-        if (mStories.isEmpty()) {
-            return
-        }
+        val curStory = mStories.getOrNull(mCurrentIndex) ?: return
         view?.setToolbarSubtitle(
-            mStories[mCurrentIndex],
-            accountId, isPlayBackSpeed
+            curStory,
+            accountId
         )
+    }
+
+    private fun resolveDuration() {
+        val curStory = mStories.getOrNull(mCurrentIndex) ?: return
+        view?.onUpdateDuration(
+            curStory.isStoryIsVideo(),
+            if (curStory.isStoryIsVideo()) 0L.coerceAtLeast(curStory.video?.duration.orZero() - currentPosition) else 0
+        )
+    }
+
+    private fun resolveSpeed() {
+        view?.onUpdateSpeed(mStoryPlayer?.playbackSpeed ?: 1f)
     }
 
     fun firePageSelected(position: Int) {
@@ -176,6 +192,7 @@ class StoryPagerPresenter(
         selectPage(position)
         resolveToolbarTitle()
         resolveToolbarSubtitle()
+        resolveDuration()
         resolvePreparingProgress()
     }
 
@@ -205,27 +222,23 @@ class StoryPagerPresenter(
     }
 
     fun fireShareButtonClick() {
-        if (mStories.isEmpty()) {
-            return
-        }
-        val story = mStories[mCurrentIndex]
-        view?.onShare(story, accountId)
+        val curStory = mStories.getOrNull(mCurrentIndex) ?: return
+        view?.onShare(curStory, accountId)
     }
 
     fun fireDownloadButtonClick() {
-        if (mStories.isEmpty()) {
-            return
-        }
+        val curStory = mStories.getOrNull(mCurrentIndex) ?: return
         if (!hasReadWriteStoragePermission(instance)) {
             view?.requestWriteExternalStoragePermission()
             return
         }
-        downloadImpl()
+        downloadImpl(curStory)
     }
 
     private fun onWritePermissionResolved() {
+        val curStory = mStories.getOrNull(mCurrentIndex) ?: return
         if (hasReadWriteStoragePermission(instance)) {
-            downloadImpl()
+            downloadImpl(curStory)
         }
     }
 
@@ -256,8 +269,7 @@ class StoryPagerPresenter(
         super.onDestroyed()
     }
 
-    private fun downloadImpl() {
-        val story = mStories[mCurrentIndex]
+    private fun downloadImpl(story: Story) {
         if (story.photo != null) doSaveOnDrive(story)
         if (story.video != null) {
             val url = firstNonEmptyString(
@@ -370,6 +382,17 @@ class StoryPagerPresenter(
                     view?.endAction()
                 })
         )
+    }
+
+    override fun onPlayerPositionChange(
+        player: IStoryPlayer,
+        previousPosition: Long,
+        currentPosition: Long
+    ) {
+        if (mStoryPlayer === player) {
+            this.currentPosition = currentPosition
+            resolveDuration()
+        }
     }
 
     companion object {

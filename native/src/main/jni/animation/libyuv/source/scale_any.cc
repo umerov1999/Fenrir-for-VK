@@ -206,6 +206,21 @@ SDANY(ScaleRowDown2Box_Any_LSX,
       1,
       15)
 #endif
+#ifdef HAS_SCALEROWDOWN2_LASX
+SDANY(ScaleRowDown2_Any_LASX, ScaleRowDown2_LASX, ScaleRowDown2_C, 2, 1, 31)
+SDANY(ScaleRowDown2Linear_Any_LASX,
+      ScaleRowDown2Linear_LASX,
+      ScaleRowDown2Linear_C,
+      2,
+      1,
+      31)
+SDANY(ScaleRowDown2Box_Any_LASX,
+      ScaleRowDown2Box_LASX,
+      ScaleRowDown2Box_C,
+      2,
+      1,
+      31)
+#endif
 #ifdef HAS_SCALEROWDOWN4_SSSE3
 SDANY(ScaleRowDown4_Any_SSSE3, ScaleRowDown4_SSSE3, ScaleRowDown4_C, 4, 1, 7)
 SDANY(ScaleRowDown4Box_Any_SSSE3,
@@ -241,6 +256,15 @@ SDANY(ScaleRowDown4Box_Any_LSX,
       4,
       1,
       7)
+#endif
+#ifdef HAS_SCALEROWDOWN4_LASX
+SDANY(ScaleRowDown4_Any_LASX, ScaleRowDown4_LASX, ScaleRowDown4_C, 4, 1, 15)
+SDANY(ScaleRowDown4Box_Any_LASX,
+      ScaleRowDown4Box_LASX,
+      ScaleRowDown4Box_C,
+      4,
+      1,
+      15)
 #endif
 #ifdef HAS_SCALEROWDOWN34_AVX2
 SDANY(ScaleRowDown34_Any_AVX2,
@@ -323,6 +347,26 @@ SDANY(ScaleRowDown34_1_Box_Any_LSX,
       1,
       11)
 #endif
+#ifdef HAS_SCALEROWDOWN34_LASX
+SDANY(ScaleRowDown34_Any_LASX,
+      ScaleRowDown34_LASX,
+      ScaleRowDown34_C,
+      4 / 3,
+      1,
+      23)
+SDANY(ScaleRowDown34_0_Box_Any_LASX,
+      ScaleRowDown34_0_Box_LASX,
+      ScaleRowDown34_0_Box_C,
+      4 / 3,
+      1,
+      23)
+SDANY(ScaleRowDown34_1_Box_Any_LASX,
+      ScaleRowDown34_1_Box_LASX,
+      ScaleRowDown34_1_Box_C,
+      4 / 3,
+      1,
+      23)
+#endif
 #ifdef HAS_SCALEROWDOWN38_AVX2
 SDANY(ScaleRowDown38_Any_AVX2,
       ScaleRowDown38_AVX2,
@@ -378,6 +422,26 @@ SDANY(ScaleRowDown38_3_Box_Any_LSX,
       11)
 SDANY(ScaleRowDown38_2_Box_Any_LSX,
       ScaleRowDown38_2_Box_LSX,
+      ScaleRowDown38_2_Box_C,
+      8 / 3,
+      1,
+      11)
+#endif
+#ifdef HAS_SCALEROWDOWN38_LASX
+SDANY(ScaleRowDown38_Any_LASX,
+      ScaleRowDown38_LASX,
+      ScaleRowDown38_C,
+      8 / 3,
+      1,
+      11)
+SDANY(ScaleRowDown38_3_Box_Any_LASX,
+      ScaleRowDown38_3_Box_LASX,
+      ScaleRowDown38_3_Box_C,
+      8 / 3,
+      1,
+      11)
+SDANY(ScaleRowDown38_2_Box_Any_LASX,
+      ScaleRowDown38_2_Box_LASX,
       ScaleRowDown38_2_Box_C,
       8 / 3,
       1,
@@ -444,6 +508,26 @@ SDANY(ScaleARGBRowDown2Box_Any_LSX,
       4,
       3)
 #endif
+#ifdef HAS_SCALEARGBROWDOWN2_LASX
+SDANY(ScaleARGBRowDown2_Any_LASX,
+      ScaleARGBRowDown2_LASX,
+      ScaleARGBRowDown2_C,
+      2,
+      4,
+      7)
+SDANY(ScaleARGBRowDown2Linear_Any_LASX,
+      ScaleARGBRowDown2Linear_LASX,
+      ScaleARGBRowDown2Linear_C,
+      2,
+      4,
+      7)
+SDANY(ScaleARGBRowDown2Box_Any_LASX,
+      ScaleARGBRowDown2Box_LASX,
+      ScaleARGBRowDown2Box_C,
+      2,
+      4,
+      7)
+#endif
 #ifdef HAS_SCALEROWDOWN2_WASMSIMD
 SDANY(ScaleRowDown2_Any_WASMSIMD,
       ScaleRowDown2_WASMSIMD,
@@ -504,6 +588,26 @@ SDANY(ScaleRowDown34_1_Box_Any_WASMSIMD,
       1,
       23)
 #endif
+#ifdef HAS_SCALEROWDOWN34_RELAXEDSIMD
+SDANY(ScaleRowDown34_Any_RELAXEDSIMD,
+      ScaleRowDown34_RELAXEDSIMD,
+      ScaleRowDown34_C,
+      4 / 3,
+      1,
+      23)
+SDANY(ScaleRowDown34_0_Box_Any_RELAXEDSIMD,
+      ScaleRowDown34_0_Box_RELAXEDSIMD,
+      ScaleRowDown34_0_Box_C,
+      4 / 3,
+      1,
+      23)
+SDANY(ScaleRowDown34_1_Box_Any_RELAXEDSIMD,
+      ScaleRowDown34_1_Box_RELAXEDSIMD,
+      ScaleRowDown34_1_Box_C,
+      4 / 3,
+      1,
+      23)
+#endif
 #ifdef HAS_SCALEROWDOWN38_WASMSIMD
 SDANY(ScaleRowDown38_Any_WASMSIMD,
       ScaleRowDown38_WASMSIMD,
@@ -523,6 +627,50 @@ SDANY(ScaleRowDown38_2_Box_Any_WASMSIMD,
       8 / 3,
       1,
       11)
+#endif
+#ifdef HAS_SCALEROWDOWN38_RELAXEDSIMD
+SDANY(ScaleRowDown38_Any_RELAXEDSIMD,
+      ScaleRowDown38_RELAXEDSIMD,
+      ScaleRowDown38_C,
+      8 / 3,
+      1,
+      11)
+SDANY(ScaleRowDown38_3_Box_Any_RELAXEDSIMD,
+      ScaleRowDown38_3_Box_RELAXEDSIMD,
+      ScaleRowDown38_3_Box_C,
+      8 / 3,
+      1,
+      11)
+SDANY(ScaleRowDown38_2_Box_Any_RELAXEDSIMD,
+      ScaleRowDown38_2_Box_RELAXEDSIMD,
+      ScaleRowDown38_2_Box_C,
+      8 / 3,
+      1,
+      11)
+#endif
+#ifdef HAS_SCALEUVROWDOWN2_WASMSIMD
+SDANY(ScaleUVRowDown2_Any_WASMSIMD,
+      ScaleUVRowDown2_WASMSIMD,
+      ScaleUVRowDown2_C,
+      2,
+      2,
+      7)
+#endif
+#ifdef HAS_SCALEUVROWDOWN2LINEAR_WASMSIMD
+SDANY(ScaleUVRowDown2Linear_Any_WASMSIMD,
+      ScaleUVRowDown2Linear_WASMSIMD,
+      ScaleUVRowDown2Linear_C,
+      2,
+      2,
+      7)
+#endif
+#ifdef HAS_SCALEUVROWDOWN2BOX_WASMSIMD
+SDANY(ScaleUVRowDown2Box_Any_WASMSIMD,
+      ScaleUVRowDown2Box_WASMSIMD,
+      ScaleUVRowDown2Box_C,
+      2,
+      2,
+      7)
 #endif
 #ifdef HAS_SCALEARGBROWDOWN2_WASMSIMD
 SDANY(ScaleARGBRowDown2_Any_WASMSIMD,
@@ -598,6 +746,18 @@ SDAANY(ScaleARGBRowDownEvenBox_Any_LSX,
        4,
        3)
 #endif
+#ifdef HAS_SCALEARGBROWDOWNEVEN_LASX
+SDAANY(ScaleARGBRowDownEven_Any_LASX,
+       ScaleARGBRowDownEven_LASX,
+       ScaleARGBRowDownEven_C,
+       4,
+       7)
+SDAANY(ScaleARGBRowDownEvenBox_Any_LASX,
+       ScaleARGBRowDownEvenBox_LASX,
+       ScaleARGBRowDownEvenBox_C,
+       4,
+       7)
+#endif
 #ifdef HAS_SCALEUVROWDOWNEVEN_AVX2
 SDAANY(ScaleUVRowDownEven_Any_AVX2,
        ScaleUVRowDownEven_AVX2,
@@ -608,6 +768,13 @@ SDAANY(ScaleUVRowDownEven_Any_AVX2,
 #ifdef HAS_SCALEUVROWDOWNEVEN_NEON
 SDAANY(ScaleUVRowDownEven_Any_NEON,
        ScaleUVRowDownEven_NEON,
+       ScaleUVRowDownEven_C,
+       2,
+       3)
+#endif
+#ifdef HAS_SCALEUVROWDOWNEVEN_WASMSIMD
+SDAANY(ScaleUVRowDownEven_Any_WASMSIMD,
+       ScaleUVRowDownEven_WASMSIMD,
        ScaleUVRowDownEven_C,
        2,
        3)
@@ -669,6 +836,9 @@ SAROW(ScaleAddRow_Any_NEON, ScaleAddRow_NEON, 1, 2, 15)
 #ifdef HAS_SCALEADDROW_LSX
 SAROW(ScaleAddRow_Any_LSX, ScaleAddRow_LSX, 1, 2, 15)
 #endif
+#ifdef HAS_SCALEADDROW_LASX
+SAROW(ScaleAddRow_Any_LASX, ScaleAddRow_LASX, 1, 2, 31)
+#endif
 #ifdef HAS_SCALEADDROW_WASMSIMD
 SAROW(ScaleAddRow_Any_WASMSIMD, ScaleAddRow_WASMSIMD, 1, 2, 15)
 #endif
@@ -698,6 +868,9 @@ SAANY(ScaleAddRow_Any_NEON, ScaleAddRow_NEON, ScaleAddRow_C, 15)
 #ifdef HAS_SCALEADDROW_LSX
 SAANY(ScaleAddRow_Any_LSX, ScaleAddRow_LSX, ScaleAddRow_C, 15)
 #endif
+#ifdef HAS_SCALEADDROW_LASX
+SAANY(ScaleAddRow_Any_LASX, ScaleAddRow_LASX, ScaleAddRow_C, 31)
+#endif
 #ifdef HAS_SCALEADDROW_WASMSIMD
 SAANY(ScaleAddRow_Any_WASMSIMD, ScaleAddRow_WASMSIMD, ScaleAddRow_C, 15)
 #endif
@@ -724,11 +897,17 @@ CANY(ScaleFilterCols_Any_NEON, ScaleFilterCols_NEON, ScaleFilterCols_C, 1, 7)
 #ifdef HAS_SCALEFILTERCOLS_LSX
 CANY(ScaleFilterCols_Any_LSX, ScaleFilterCols_LSX, ScaleFilterCols_C, 1, 3)
 #endif
+#ifdef HAS_SCALEFILTERCOLS_LASX
+CANY(ScaleFilterCols_Any_LASX, ScaleFilterCols_LASX, ScaleFilterCols_C, 1, 7)
+#endif
 #ifdef HAS_SCALEARGBCOLS_NEON
 CANY(ScaleARGBCols_Any_NEON, ScaleARGBCols_NEON, ScaleARGBCols_C, 4, 7)
 #endif
 #ifdef HAS_SCALEARGBCOLS_LSX
 CANY(ScaleARGBCols_Any_LSX, ScaleARGBCols_LSX, ScaleARGBCols_C, 4, 3)
+#endif
+#ifdef HAS_SCALEARGBCOLS_LASX
+CANY(ScaleARGBCols_Any_LASX, ScaleARGBCols_LASX, ScaleARGBCols_C, 4, 7)
 #endif
 #ifdef HAS_SCALEARGBFILTERCOLS_NEON
 CANY(ScaleARGBFilterCols_Any_NEON,
@@ -743,6 +922,13 @@ CANY(ScaleARGBFilterCols_Any_LSX,
      ScaleARGBFilterCols_C,
      4,
      3)
+#endif
+#ifdef HAS_SCALEARGBFILTERCOLS_LASX
+CANY(ScaleARGBFilterCols_Any_LASX,
+     ScaleARGBFilterCols_LASX,
+     ScaleARGBFilterCols_C,
+     4,
+     7)
 #endif
 #ifdef HAS_SCALEFILTERCOLS_WASMSIMD
 CANY(ScaleFilterCols_Any_WASMSIMD,
@@ -882,6 +1068,22 @@ SUH2LANY(ScaleRowUp2_Linear_16_Any_NEON,
          uint16_t)
 #endif
 
+#ifdef HAS_SCALEROWUP2_LINEAR_WASMSIMD
+SUH2LANY(ScaleRowUp2_Linear_Any_WASMSIMD,
+         ScaleRowUp2_Linear_WASMSIMD,
+         ScaleRowUp2_Linear_C,
+         15,
+         uint8_t)
+#endif
+
+#ifdef HAS_SCALEROWUP2_LINEAR_RELAXEDSIMD
+SUH2LANY(ScaleRowUp2_Linear_Any_RELAXEDSIMD,
+         ScaleRowUp2_Linear_RELAXEDSIMD,
+         ScaleRowUp2_Linear_C,
+         15,
+         uint8_t)
+#endif
+
 #undef SUH2LANY
 
 // Scale up 2 times using bilinear filter.
@@ -1002,6 +1204,22 @@ SU2BLANY(ScaleRowUp2_Bilinear_16_Any_NEON,
          uint16_t)
 #endif
 
+#ifdef HAS_SCALEROWUP2_BILINEAR_WASMSIMD
+SU2BLANY(ScaleRowUp2_Bilinear_Any_WASMSIMD,
+         ScaleRowUp2_Bilinear_WASMSIMD,
+         ScaleRowUp2_Bilinear_C,
+         15,
+         uint8_t)
+#endif
+
+#ifdef HAS_SCALEROWUP2_BILINEAR_RELAXEDSIMD
+SU2BLANY(ScaleRowUp2_Bilinear_Any_RELAXEDSIMD,
+         ScaleRowUp2_Bilinear_RELAXEDSIMD,
+         ScaleRowUp2_Bilinear_C,
+         15,
+         uint8_t)
+#endif
+
 #undef SU2BLANY
 
 // Scale bi-planar plane up horizontally 2 times using linear filter.
@@ -1081,6 +1299,22 @@ SBUH2LANY(ScaleUVRowUp2_Linear_16_Any_NEON,
           ScaleUVRowUp2_Linear_16_C,
           7,
           uint16_t)
+#endif
+
+#ifdef HAS_SCALEUVROWUP2_LINEAR_WASMSIMD
+SBUH2LANY(ScaleUVRowUp2_Linear_Any_WASMSIMD,
+          ScaleUVRowUp2_Linear_WASMSIMD,
+          ScaleUVRowUp2_Linear_C,
+          7,
+          uint8_t)
+#endif
+
+#ifdef HAS_SCALEUVROWUP2_LINEAR_RELAXEDSIMD
+SBUH2LANY(ScaleUVRowUp2_Linear_Any_RELAXEDSIMD,
+          ScaleUVRowUp2_Linear_RELAXEDSIMD,
+          ScaleUVRowUp2_Linear_C,
+          7,
+          uint8_t)
 #endif
 
 #undef SBUH2LANY
@@ -1182,6 +1416,22 @@ SBU2BLANY(ScaleUVRowUp2_Bilinear_16_Any_NEON,
           uint16_t)
 #endif
 
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_WASMSIMD
+SBU2BLANY(ScaleUVRowUp2_Bilinear_Any_WASMSIMD,
+          ScaleUVRowUp2_Bilinear_WASMSIMD,
+          ScaleUVRowUp2_Bilinear_C,
+          7,
+          uint8_t)
+#endif
+
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_RELAXEDSIMD
+SBU2BLANY(ScaleUVRowUp2_Bilinear_Any_RELAXEDSIMD,
+          ScaleUVRowUp2_Bilinear_RELAXEDSIMD,
+          ScaleUVRowUp2_Bilinear_C,
+          7,
+          uint8_t)
+#endif
+
 #undef SBU2BLANY
 
 // Scale UV columns by 3 box filter.
@@ -1203,6 +1453,9 @@ SUVAC3ANY(ScaleUVAddCols3_Any_NEON, ScaleUVAddCols3_NEON, ScaleUVAddCols3_C, 7)
 #endif
 #ifdef HAS_SCALEUVADDCOLS3_LSX
 SUVAC3ANY(ScaleUVAddCols3_Any_LSX, ScaleUVAddCols3_LSX, ScaleUVAddCols3_C, 7)
+#endif
+#ifdef HAS_SCALEUVADDCOLS3_LASX
+SUVAC3ANY(ScaleUVAddCols3_Any_LASX, ScaleUVAddCols3_LASX, ScaleUVAddCols3_C, 7)
 #endif
 #ifdef HAS_SCALEUVADDCOLS3_WASMSIMD
 SUVAC3ANY(ScaleUVAddCols3_Any_WASMSIMD,

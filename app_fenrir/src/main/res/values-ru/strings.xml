@@ -1285,8 +1285,6 @@
     <string name="audio_force_download">Уже скачен. Всё равно скачать?</string>
     <string name="audio_force_download_pc">На компьютере. Всё равно скачать?</string>
     <string name="null_image_link">Отсутствует ссылка на скачивание</string>
-    <string name="use_api_5_90_for_audio">VK Api 5.90 для аудио</string>
-    <string name="use_api_5_90_for_audio_summary">Если скачивание аудио не работает, отключите</string>
     <string name="expires">%1$s %2$s</string>
     <string name="disable_history">Не показывать Истории</string>
     <string name="audio_round_icon">Круглые обложки аудио</string>

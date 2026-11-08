@@ -588,12 +588,12 @@ class GroupWallPresenter(
                 })
     }
 
-    override fun searchStory(ByName: Boolean) {
+    override fun searchStory(byName: Boolean) {
         appendJob(
             storiesInteractor.searchStories(
                 accountId,
-                if (ByName) community.fullName else null,
-                if (ByName) null else ownerId
+                if (byName) community.fullName else null,
+                if (byName) null else ownerId
             )
                 .fromIOToMain {
                     if (it.nonNullNoEmpty()) {

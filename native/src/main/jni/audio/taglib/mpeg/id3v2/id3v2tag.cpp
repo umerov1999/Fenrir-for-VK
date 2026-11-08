@@ -59,6 +59,46 @@ namespace
   constexpr unsigned int MAX_ID3V2_FRAME_COUNT = 50000;
 
   /*!
+   * Sets \a values as the value of \a frame, the only frame holding \a key,
+   * if its type can hold them, keeping its other fields.
+   * \return false, leaving \a frame unchanged, if it cannot.
+   */
+  bool updateFrameInPlace(ID3v2::Frame *frame, const String &key, const StringList &values)
+  {
+    if(auto f = dynamic_cast<ID3v2::UserTextIdentificationFrame *>(frame)) {
+      f->setText(values);
+      return true;
+    }
+    if(auto f = dynamic_cast<ID3v2::TextIdentificationFrame *>(frame)) {
+      if(ID3v2::Frame::keyToFrameID(key) != frame->frameID())
+        return false;
+      f->setText(values);
+      return true;
+    }
+    if(values.size() != 1)
+      return false;
+    if(auto f = dynamic_cast<ID3v2::CommentsFrame *>(frame)) {
+      f->setText(values.front());
+      return true;
+    }
+    if(auto f = dynamic_cast<ID3v2::UnsynchronizedLyricsFrame *>(frame)) {
+      f->setText(values.front());
+      return true;
+    }
+    if(auto f = dynamic_cast<ID3v2::UserUrlLinkFrame *>(frame)) {
+      f->setUrl(values.front());
+      return true;
+    }
+    if(auto f = dynamic_cast<ID3v2::UrlLinkFrame *>(frame)) {
+      if(ID3v2::Frame::keyToFrameID(key) != frame->frameID())
+        return false;
+      f->setUrl(values.front());
+      return true;
+    }
+    return false;
+  }
+
+  /*!
    * Downgrade ID3v2.4 text \a encoding to value supported by ID3v2.3.
    */
   String::Type downgradeTextEncoding(String::Type encoding)
@@ -78,6 +118,18 @@ namespace
     return (!frame1 || frame1->textEncoding() == String::Latin1) &&
            (!frame2 || frame2->textEncoding() == String::Latin1)
        ? String::Latin1 : String::UTF16;
+  }
+
+  // Whether a frame ID of the length \a version uses, made of uppercase
+  // letters and digits, starts at \a offset in \a data.
+  bool startsWithFrameID(const ByteVector &data, unsigned int offset, unsigned int version)
+  {
+    const unsigned int idSize = version < 3 ? 3 : 4;
+    if(offset + idSize > data.size())
+      return false;
+
+    return std::none_of(data.begin() + offset, data.begin() + offset + idSize,
+      [](auto c) { return (c < 'A' || c > 'Z') && (c < '0' || c > '9'); });
   }
 }  // namespace
 
@@ -433,6 +485,27 @@ PropertyMap ID3v2::Tag::setProperties(const PropertyMap &origProps)
   PropertyMap tiplProperties;
   PropertyMap tmclProperties;
   Frame::splitProperties(origProps, singleFrameProperties, tiplProperties, tmclProperties);
+  // A key can be spread over several frames (e.g. comments in different
+  // languages), whose values properties() merges in frame order. Keep all of
+  // them if the requested values are the merged ones.
+  PropertyMap spreadProperties;
+  Map<String, unsigned int> framesPerKey;
+  for(const auto &frame : std::as_const(frameList())) {
+    if(const ByteVector id = frame->frameID(); id != "TIPL" && id != "TMCL") {
+      PropertyMap frameProperties = frame->asProperties();
+      for(const auto &[key, values] : std::as_const(frameProperties))
+        framesPerKey[key] += 1;
+      if(frameProperties.size() == 1)
+        spreadProperties.merge(frameProperties);
+    }
+  }
+  StringList keptKeys;
+  for(const auto &[key, values] : std::as_const(spreadProperties)) {
+    if(singleFrameProperties.contains(key) && singleFrameProperties[key] == values) {
+      keptKeys.append(key);
+      singleFrameProperties.erase(key);
+    }
+  }
   for(const auto &[tag, frames] : std::as_const(frameListMap())) {
     for(const auto &frame : frames) {
       PropertyMap frameProperties = frame->asProperties();
@@ -448,8 +521,21 @@ PropertyMap ID3v2::Tag::setProperties(const PropertyMap &origProps)
         else
           tmclProperties.erase(frameProperties);
       }
-      else if(!singleFrameProperties.contains(frameProperties))
+      else if(frameProperties.size() == 1 && keptKeys.contains(frameProperties.begin()->first))
+        continue;
+      else if(!singleFrameProperties.contains(frameProperties)) {
+        // The only frame holding an edited key keeps its other fields if it can hold the new value.
+        if(frameProperties.size() == 1) {
+          const String &key = frameProperties.begin()->first;
+          if(framesPerKey[key] == 1 && singleFrameProperties.contains(key) &&
+             !singleFrameProperties[key].isEmpty() &&
+             updateFrameInPlace(frame, key, singleFrameProperties[key])) {
+            singleFrameProperties.erase(key);
+            continue;
+          }
+        }
         framesToDelete.append(frame);
+      }
       else
         singleFrameProperties.erase(frameProperties);
     }
@@ -883,8 +969,21 @@ void ID3v2::Tag::parse(const ByteVector &origData)
     unsigned int headerVersion = tagHeader->majorVersion();
     Frame *frame = d->factory->createFrame(origData, tagHeader);
 
-    if(!frame)
+    if(!frame) {
+      // A frame that cannot be read, such as one with an invalid ID, is skipped
+      // when what follows where its size ends is another frame, padding or the
+      // end of the frames. Anything else is taken for corruption and ends the tag.
+      const Frame::Header frameHeader(origData, headerVersion);
+      const unsigned long long next = static_cast<unsigned long long>(frameDataPosition) +
+                                      frameHeader.size() + frameHeader.frameSize();
+      if(next <= frameDataLength &&
+         (next == frameDataLength || data.at(static_cast<unsigned int>(next)) == 0 ||
+          startsWithFrameID(data, static_cast<unsigned int>(next), headerVersion))) {
+        frameDataPosition = static_cast<unsigned int>(next);
+        continue;
+      }
       return;
+    }
 
     if(frame->header()->version() == headerVersion) {
       frameDataPosition += frame->size() + frame->headerSize();

@@ -78,7 +78,9 @@ typedef enum { noDictCtx, usingDictCtxHc } dictCtx_directive;
 
 
 /*===   Macros   ===*/
+#undef MIN
 #define MIN(a,b)   ( (a) < (b) ? (a) : (b) )
+#undef MAX
 #define MAX(a,b)   ( (a) > (b) ? (a) : (b) )
 
 
@@ -89,21 +91,23 @@ typedef struct {
     int nbSearches;
     U32 targetLength;
     int nbSearchesSeq;   /* lz4opt with favorDecSpeed only : budget at positions only worth searching to save a sequence */
+    int dictCopyMin;     /* attached dictionary : from this input size, its tables (256 KB) are copied rather than referenced (dictCtx),
+                          * which compresses as well or better, and pays off sooner at levels which search more */
 } cParams_t;
 static const cParams_t k_clTable[LZ4HC_CLEVEL_MAX+1] = {
-    { lz4mid,    2, 16,  0 },  /* 0, unused */
-    { lz4mid,    2, 16,  0 },  /* 1, unused */
-    { lz4mid,    2, 16,  0 },  /* 2 */
-    { lz4hc,     4, 16,  0 },  /* 3 */
-    { lz4hc,     8, 16,  0 },  /* 4 */
-    { lz4hc,    16, 16,  0 },  /* 5 */
-    { lz4hc,    32, 16,  0 },  /* 6 */
-    { lz4hc,    64, 16,  0 },  /* 7 */
-    { lz4hc,   128, 16,  0 },  /* 8 */
-    { lz4hc,   256, 16,  0 },  /* 9 */
-    { lz4opt,   96, 64,  1 },  /*10==LZ4HC_CLEVEL_OPT_MIN*/
-    { lz4opt,  512,128,  2 },  /*11 */
-    { lz4opt,16384,LZ4_OPT_NUM, 64 },  /* 12==LZ4HC_CLEVEL_MAX */
+    { lz4mid,    2, 16,  0, 4 KB },  /* 0, unused */
+    { lz4mid,    2, 16,  0, 4 KB },  /* 1, unused */
+    { lz4mid,    2, 16,  0, 4 KB },  /* 2 */
+    { lz4hc,     4, 16,  0, 4 KB },  /* 3 */
+    { lz4hc,     8, 16,  0, 4 KB },  /* 4 */
+    { lz4hc,    16, 16,  0, 4 KB },  /* 5 */
+    { lz4hc,    32, 16,  0, 4 KB },  /* 6 */
+    { lz4hc,    64, 16,  0, 4 KB },  /* 7 */
+    { lz4hc,   128, 16,  0, 4 KB },  /* 8 */
+    { lz4hc,   256, 16,  0, 4 KB },  /* 9 */
+    { lz4opt,   96, 64,  1, 4 KB },  /*10==LZ4HC_CLEVEL_OPT_MIN*/
+    { lz4opt,  512,128,  2, 2 KB },  /*11 */
+    { lz4opt,16384,LZ4_OPT_NUM, 64, 1 KB },  /* 12==LZ4HC_CLEVEL_MAX */
 };
 
 static cParams_t LZ4HC_getCLevelParams(int cLevel)
@@ -589,6 +593,37 @@ static LZ4HC_match_t LZ4MID_searchExtDict(const BYTE* ip, U32 ipIndex,
     }
 }
 
+/* LZ4HC_dropPositions() :
+ * In fillOutput mode, compression can stop at @start, before positions the parser has already referenced.
+ * The next block compresses them : it must not find them as matches.
+ * Remove their references from the hash table, up to @end (excluded).
+ * Costs one pass on these positions, or on the hash table, whichever is shorter. */
+static void
+LZ4HC_dropPositions(LZ4HC_CCtx_internal* ctx, const BYTE* start, const BYTE* end, lz4hc_strat_e strat)
+{
+    U32* const hashTable = ctx->hashTable;
+    U32 const startIdx = ctx->dictLimit + (U32)(start - ctx->prefixStart);
+    if (end - start > LZ4HC_HASHTABLESIZE) {
+        int i;
+        for (i = 0; i < LZ4HC_HASHTABLESIZE; i++) {
+            /* branchless, so that it can be vectorized */
+            hashTable[i] = (hashTable[i] >= startIdx) ? 0 : hashTable[i];
+        }
+    } else {
+        U32 idx = startIdx;
+        const BYTE* p;
+        for (p = start; p < end; p++, idx++) {
+            if (strat == lz4mid) {
+                U32 const h4 = LZ4MID_hash4Ptr(p);
+                U32 const h8 = LZ4MID_HASHTABLESIZE + LZ4MID_hash8Ptr(p);
+                if (hashTable[h4] == idx) hashTable[h4] = 0;
+                if (hashTable[h8] == idx) hashTable[h8] = 0;
+            } else {
+                U32 const h = LZ4HC_hashPtr(p);
+                if (hashTable[h] == idx) hashTable[h] = 0;
+    }   }   }
+}
+
 /**************************************
 *  Mid Compression (level 2)
 **************************************/
@@ -682,20 +717,21 @@ static int LZ4MID_compress (
     const BYTE* ip = (const BYTE*)src;
     const BYTE* anchor = ip;
     const BYTE* const iend = ip + *srcSizePtr;
-    const BYTE* const mflimit = iend - MFLIMIT;
-    const BYTE* const matchlimit = (iend - LASTLITERALS);
-    const BYTE* const ilimit = (iend - LZ4MID_HASHSIZE);
+    const BYTE* mflimit;      /* set after the size check : would precede a small input */
+    const BYTE* matchlimit;
+    const BYTE* ilimit;
     BYTE* op = (BYTE*)dst;
     /* fillOutput : keep room for the final run of literals (LZ4 format restriction) */
     BYTE* const oend = op + maxOutputSize - ((limit == fillOutput) ? LASTLITERALS : 0);
 
     const BYTE* const prefixPtr = ctx->prefixStart;
     const U32 prefixIdx = ctx->dictLimit;
-    const U32 ilimitIdx = (U32)(ilimit - prefixPtr) + prefixIdx;
+    U32 ilimitIdx;
     const BYTE* const dictStart = ctx->dictStart;
     const U32 dictIdx = ctx->lowLimit;
     const U32 gDictEndIndex = ctx->lowLimit;
     const LZ4MID_searchIntoDict_f searchIntoDict = (dict == usingDictCtxHc) ? select_searchDict_function(ctx->dictCtx) : NULL;
+    const BYTE* refEnd = ip;   /* fillOutput : the hash tables reference positions before MAX(refEnd, ip) */
 
     DEBUGLOG(5, "LZ4MID_compress (%i bytes)", *srcSizePtr);
 
@@ -709,6 +745,10 @@ static int LZ4MID_compress (
 
     if (*srcSizePtr < LZ4_minLength)
         goto _lz4mid_last_literals;  /* Input too small, no compression (all literals) */
+    mflimit = iend - MFLIMIT;
+    matchlimit = (iend - LASTLITERALS);
+    ilimit = (iend - LZ4MID_HASHSIZE);
+    ilimitIdx = (U32)(ilimit - prefixPtr) + prefixIdx;
 
     /* main loop */
     while (ip <= mflimit) {
@@ -723,35 +763,30 @@ static int LZ4MID_compress (
             LZ4MID_addPosition(hash8Table, h8, ipIndex);
             matchLength = LZ4MID_countMatch(ip, ipIndex, pos8, matchlimit, prefixPtr, prefixIdx, dictStart, dictIdx);
             matchDistance = ipIndex - pos8;
-            if (matchLength >= MINMATCH) goto _lz4mid_encode_sequence;
         }
         /* search short match */
-        {   U32 const h4 = LZ4MID_hash4Ptr(ip);
+        if (matchLength < MINMATCH) {
+            U32 const h4 = LZ4MID_hash4Ptr(ip);
             U32 const pos4 = hash4Table[h4];
             assert(h4 < LZ4MID_HASHTABLESIZE);
             assert(pos4 < ipIndex);
             LZ4MID_addPosition(hash4Table, h4, ipIndex);
             matchLength = LZ4MID_countMatch(ip, ipIndex, pos4, matchlimit, prefixPtr, prefixIdx, dictStart, dictIdx);
             matchDistance = ipIndex - pos4;
-            if ((matchLength >= MINMATCH) && (pos4 >= prefixIdx)) {
-                /* short match found in prefix, let's just check ip+1 for longer */
+        }
+        if (matchLength >= MINMATCH) {
+            if ((matchLength < 8) && likely(ip < mflimit)) {
+                /* short match : check ip+1 for longer, except ip itself */
                 U32 const h8 = LZ4MID_hash8Ptr(ip+1);
                 U32 const pos8 = hash8Table[h8];
-                U32 const m2Distance = ipIndex + 1 - pos8;
-                if ( m2Distance <= LZ4_DISTANCE_MAX
-                && pos8 >= prefixIdx /* only search within prefix */
-                && likely(ip < mflimit)
-                ) {
-                    const BYTE* const m2Ptr = prefixPtr + (pos8 - prefixIdx);
-                    unsigned ml2 = LZ4_count(ip+1, m2Ptr, matchlimit);
-                    if (ml2 > matchLength) {
-                        LZ4MID_addPosition(hash8Table, h8, ipIndex+1);
-                        ip++;
-                        matchLength = ml2;
-                        matchDistance = m2Distance;
-                }   }
-            }
-            if (matchLength >= MINMATCH) goto _lz4mid_encode_sequence;
+                unsigned const ml2 = LZ4MID_countMatch(ip+1, ipIndex+1, pos8, matchlimit, prefixPtr, prefixIdx, dictStart, dictIdx);
+                if ((ml2 > matchLength) && (pos8 != ipIndex)) {
+                    LZ4MID_addPosition(hash8Table, h8, ipIndex+1);
+                    ip++;
+                    matchLength = ml2;
+                    matchDistance = ipIndex + 1 - pos8;
+            }   }
+            goto _lz4mid_encode_sequence;
         }
         /* no match found in prefix nor extDict : search into the attached dictionary */
         if ( (dict == usingDictCtxHc)
@@ -791,6 +826,7 @@ _lz4mid_encode_sequence:
                 (int)matchLength, (int)matchDistance,
                 limit, oend) ) {
             if (limit != fillOutput) return 0;  /* compression failed */
+            refEnd = ip + matchLength;
             LZ4HC_encodeLastSequence_fillOutput(UPDATABLE(ip, op, anchor),
                                 (int)matchLength, (int)matchDistance, oend);
             break;
@@ -812,8 +848,11 @@ _lz4mid_encode_sequence:
     }
 
 _lz4mid_last_literals:
+    if (refEnd < ip) refEnd = ip;
     if (LZ4HC_encodeLastLiterals(UPDATABLE(ip, op, anchor), iend, limit, oend))
         return 0;  /* not enough space in @dst */
+    if (ip < refEnd)   /* fillOutput : the rest of input is left to the next block (input >= LZ4_minLength) */
+        LZ4HC_dropPositions(ctx, ip, MIN(refEnd, iend - LZ4MID_HASHSIZE), lz4mid);
 
     /* End */
     DEBUGLOG(5, "compressed %i bytes into %i bytes", *srcSizePtr, (int)((char*)op - dst));
@@ -1231,8 +1270,8 @@ LZ4_FORCE_INLINE int LZ4HC_compress_hashChain (
     const BYTE* ip = (const BYTE*)src;
     const BYTE* anchor = ip;
     const BYTE* const iend = ip + inputSize;
-    const BYTE* const mflimit = iend - MFLIMIT;
-    const BYTE* const matchlimit = (iend - LASTLITERALS);
+    const BYTE* mflimit;      /* set after the size check : would precede a small input */
+    const BYTE* matchlimit;
 
     BYTE* op = (BYTE*) dst;
     /* fillOutput : keep room for the final run of literals (LZ4 format restriction) */
@@ -1255,6 +1294,8 @@ LZ4_FORCE_INLINE int LZ4HC_compress_hashChain (
 
     *srcSizePtr = 0;
     if (inputSize < LZ4_minLength) goto _last_literals;             /* Input too small, no compression (all literals) */
+    mflimit = iend - MFLIMIT;
+    matchlimit = (iend - LASTLITERALS);
 
     /* Main Loop */
     while (ip <= mflimit) {
@@ -1426,6 +1467,7 @@ LZ4HC_compress_generic_internal (
     ctx->end += *srcSizePtr;
     {   cParams_t const cParam = LZ4HC_getCLevelParams(cLevel);
         HCfavor_e const favor = ctx->favorDecSpeed ? favorDecompressionSpeed : favorCompressionRatio;
+        int const srcSize = *srcSizePtr;
         int result;
 
         if (cParam.strat == lz4mid) {
@@ -1443,7 +1485,20 @@ LZ4HC_compress_generic_internal (
                                 cParam.nbSearches, cParam.nbSearchesSeq, (int)cParam.targetLength, limit,
                                 dict, favor);
         }
-        if (result <= 0) ctx->dirty = 1;
+        if ((limit == fillOutput) && (result > 0) && (*srcSizePtr < srcSize)) {
+            /* fillOutput : compression stopped before the end of input.
+             * The rest of input is left to the next block : it isn't history yet,
+             * and the positions already inserted into it are dropped (lz4mid drops its own).
+             * Note : a failed compression is different : lz4frame stores its block uncompressed,
+             * and the next block still references it. */
+            const BYTE* const consumedEnd = (const BYTE*)src + *srcSizePtr;
+            U32 const consumedIdx = ctx->dictLimit + (U32)(consumedEnd - ctx->prefixStart);
+            if ((cParam.strat != lz4mid) && (ctx->nextToUpdate > consumedIdx)) {
+                LZ4HC_dropPositions(ctx, consumedEnd, consumedEnd + (ctx->nextToUpdate - consumedIdx), cParam.strat);
+                ctx->nextToUpdate = consumedIdx;
+            }
+            ctx->end = consumedEnd;
+        }
         return result;
     }
 }
@@ -1488,13 +1543,15 @@ LZ4HC_compress_generic_dictCtx (
     if (position >= 64 KB) {
         ctx->dictCtx = NULL;
         return LZ4HC_compress_generic_noDictCtx(ctx, src, dst, srcSizePtr, dstCapacity, cLevel, limit);
-    } else if (position == 0 && *srcSizePtr > 4 KB && isStateCompatible(ctx, ctx->dictCtx)) {
-        /* parameters belong to the working context, not to the dictionary */
+    } else if (position == 0 && *srcSizePtr >= LZ4HC_getCLevelParams(cLevel).dictCopyMin && isStateCompatible(ctx, ctx->dictCtx)) {
+        /* parameters and extension belong to the working context, not to the dictionary */
         LZ4_i8 const favorDecSpeed = ctx->favorDecSpeed;
+        LZ4_i8 const hasWorkspace = ctx->hasWorkspace;
         LZ4_memcpy(ctx, ctx->dictCtx, sizeof(LZ4HC_CCtx_internal));
         LZ4HC_setExternalDict(ctx, (const BYTE *)src);
         ctx->compressionLevel = (short)cLevel;
         ctx->favorDecSpeed = favorDecSpeed;
+        ctx->hasWorkspace = hasWorkspace;
         return LZ4HC_compress_generic_noDictCtx(ctx, src, dst, srcSizePtr, dstCapacity, cLevel, limit);
     } else {
         return LZ4HC_compress_generic_internal(ctx, src, dst, srcSizePtr, dstCapacity, cLevel, limit, usingDictCtxHc);
@@ -1556,17 +1613,18 @@ int LZ4_compress_HC_extStateHC (void* state, const char* src, char* dst, int src
 int LZ4_compress_HC(const char* src, char* dst, int srcSize, int dstCapacity, int compressionLevel)
 {
     int cSize;
-#if defined(LZ4HC_HEAPMODE) && LZ4HC_HEAPMODE==1
-    LZ4_streamHC_t* const statePtr = (LZ4_streamHC_t*)ALLOC(sizeof(LZ4_streamHC_t));
-    if (statePtr==NULL) return 0;
-#else
-    LZ4_streamHC_t state;
-    LZ4_streamHC_t* const statePtr = &state;
-#endif
     DEBUGLOG(5, "LZ4_compress_HC")
-    cSize = LZ4_compress_HC_extStateHC(statePtr, src, dst, srcSize, dstCapacity, compressionLevel);
 #if defined(LZ4HC_HEAPMODE) && LZ4HC_HEAPMODE==1
-    FREEMEM(statePtr);
+    {   /* extended state : a single allocation, including the temporary buffer of levels >= 10 */
+        LZ4_streamHC_t* const statePtr = LZ4_initStreamHC(ALLOC(LZ4_STREAMHC_EXTSIZE), LZ4_STREAMHC_EXTSIZE);
+        if (statePtr==NULL) return 0;
+        cSize = LZ4_compress_HC_extStateHC_fastReset(statePtr, src, dst, srcSize, dstCapacity, compressionLevel);
+        FREEMEM(statePtr);
+    }
+#else
+    {   LZ4_streamHC_t state;
+        cSize = LZ4_compress_HC_extStateHC(&state, src, dst, srcSize, dstCapacity, compressionLevel);
+    }
 #endif
     return cSize;
 }
@@ -1591,8 +1649,9 @@ int LZ4_compress_HC_destSize(void* state, const char* source, char* dest, int* s
 LZ4_streamHC_t* LZ4_createStreamHC(void)
 {
     LZ4_streamHC_t* const state =
-        (LZ4_streamHC_t*)ALLOC_AND_ZERO(sizeof(LZ4_streamHC_t));
+        (LZ4_streamHC_t*)ALLOC_AND_ZERO(LZ4_STREAMHC_EXTSIZE);   /* zeroed : initialized */
     if (state == NULL) return NULL;
+    state->internal_donotuse.hasWorkspace = 1;
     LZ4_setCompressionLevel(state, LZ4HC_CLEVEL_DEFAULT);
     return state;
 }
@@ -1617,15 +1676,22 @@ LZ4_streamHC_t* LZ4_initStreamHC (void* buffer, size_t size)
     if (!LZ4_isAligned(buffer, LZ4_streamHC_t_alignment())) return NULL;
     /* init */
     { LZ4HC_CCtx_internal* const hcstate = &(LZ4_streamHCPtr->internal_donotuse);
-      MEM_INIT(hcstate, 0, sizeof(*hcstate)); }
+      MEM_INIT(hcstate, 0, sizeof(*hcstate));
+      hcstate->hasWorkspace = (size >= LZ4_STREAMHC_EXTSIZE); }
     LZ4_setCompressionLevel(LZ4_streamHCPtr, LZ4HC_CLEVEL_DEFAULT);
     return LZ4_streamHCPtr;
+}
+
+/* size of an initialized state, to initialize it again : extended states are followed by their buffer */
+static size_t LZ4HC_sizeofState(const LZ4_streamHC_t* s)
+{
+    return s->internal_donotuse.hasWorkspace ? LZ4_STREAMHC_EXTSIZE : sizeof(*s);
 }
 
 /* just a stub */
 void LZ4_resetStreamHC (LZ4_streamHC_t* LZ4_streamHCPtr, int compressionLevel)
 {
-    LZ4_initStreamHC(LZ4_streamHCPtr, sizeof(*LZ4_streamHCPtr));
+    LZ4_initStreamHC(LZ4_streamHCPtr, LZ4HC_sizeofState(LZ4_streamHCPtr));
     LZ4_setCompressionLevel(LZ4_streamHCPtr, compressionLevel);
 }
 
@@ -1633,19 +1699,12 @@ void LZ4_resetStreamHC_fast (LZ4_streamHC_t* LZ4_streamHCPtr, int compressionLev
 {
     LZ4HC_CCtx_internal* const s = &LZ4_streamHCPtr->internal_donotuse;
     DEBUGLOG(5, "LZ4_resetStreamHC_fast(%p, %d)", LZ4_streamHCPtr, compressionLevel);
-    if (s->dirty) {
-        /* a failed compression left the tables in an undefined state : start from scratch,
-         * but preserve parameters, as a reset without prior failure would */
-        LZ4_i8 const favorDecSpeed = s->favorDecSpeed;
-        LZ4_initStreamHC(LZ4_streamHCPtr, sizeof(*LZ4_streamHCPtr));
-        s->favorDecSpeed = favorDecSpeed;
-    } else {
-        assert(s->end >= s->prefixStart);
-        s->dictLimit += (U32)(s->end - s->prefixStart);
-        s->prefixStart = NULL;
-        s->end = NULL;
-        s->dictCtx = NULL;
-    }
+    /* also after a failed compression : its positions are below @end, hence out of reach of the next stream */
+    assert(s->end >= s->prefixStart);
+    s->dictLimit += (U32)(s->end - s->prefixStart);
+    s->prefixStart = NULL;
+    s->end = NULL;
+    s->dictCtx = NULL;
     LZ4_setCompressionLevel(LZ4_streamHCPtr, compressionLevel);
 }
 
@@ -1680,7 +1739,7 @@ int LZ4_loadDictHC (LZ4_streamHC_t* LZ4_streamHCPtr,
      * but preserve parameters */
     {   int const cLevel = ctxPtr->compressionLevel;
         LZ4_i8 const favorDecSpeed = ctxPtr->favorDecSpeed;
-        LZ4_initStreamHC(LZ4_streamHCPtr, sizeof(*LZ4_streamHCPtr));
+        LZ4_initStreamHC(LZ4_streamHCPtr, LZ4HC_sizeofState(LZ4_streamHCPtr));
         LZ4_setCompressionLevel(LZ4_streamHCPtr, cLevel);
         ctxPtr->favorDecSpeed = favorDecSpeed;
         cp = LZ4HC_getCLevelParams(cLevel);
@@ -1793,6 +1852,9 @@ int LZ4_saveDictHC (LZ4_streamHC_t* LZ4_streamHCPtr, char* safeBuffer, int dictS
     LZ4HC_CCtx_internal* const streamPtr = &LZ4_streamHCPtr->internal_donotuse;
     int const prefixSize = (int)(streamPtr->end - streamPtr->prefixStart);
     DEBUGLOG(5, "LZ4_saveDictHC(%p, %p, %d)", LZ4_streamHCPtr, safeBuffer, dictSize);
+    /* nothing compressed yet (new or reset stream) : nothing to save,
+     * the stream remains to be initialized by next compression (attached dictionary included) */
+    if (streamPtr->prefixStart == NULL) return 0;
     assert(prefixSize >= 0);
     if (dictSize > 64 KB) dictSize = 64 KB;
     if (dictSize < 4) dictSize = 0;
@@ -1977,9 +2039,10 @@ LZ4HC_compress_optimal_internal(LZ4HC_CCtx_internal* ctx,
 {
     const BYTE* ip = (const BYTE*) source;
     const BYTE* anchor = ip;
-    const BYTE* const iend = ip + *srcSizePtr;
-    const BYTE* const mflimit = iend - MFLIMIT;
-    const BYTE* const matchlimit = iend - LASTLITERALS;
+    const int inputSize = *srcSizePtr;
+    const BYTE* const iend = ip + inputSize;
+    const BYTE* mflimit;      /* set after the size check : would precede a small input */
+    const BYTE* matchlimit;
     BYTE* op = (BYTE*) dst;
     /* fillOutput : keep room for the final run of literals (LZ4 format restriction) */
     BYTE* const oend = op + dstCapacity - ((limit == fillOutput) ? LASTLITERALS : 0);
@@ -1996,6 +2059,9 @@ LZ4HC_compress_optimal_internal(LZ4HC_CCtx_internal* ctx,
     assert(nbSearchesSeq >= 1);
 
     *srcSizePtr = 0;
+    if (inputSize < LZ4_minLength) goto _last_literals;
+    mflimit = iend - MFLIMIT;
+    matchlimit = iend - LASTLITERALS;
 
     /* Main Loop */
     while (ip <= mflimit) {
@@ -2118,6 +2184,13 @@ static int LZ4HC_compress_optimal ( LZ4HC_CCtx_internal* ctx,
                                     const dictCtx_directive dict,
                                     const HCfavor_e favorDecSpeed)
 {
+    LZ4_STATIC_ASSERT(LZ4_STREAMHC_EXTSIZE == sizeof(LZ4_streamHC_t) + sizeof(LZ4HC_optimal_t) * (LZ4_OPT_NUM + TRAILING_LITERALS));
+    if (ctx->hasWorkspace) {   /* extended state : the buffer follows it */
+        LZ4HC_optimal_t* const opt = (LZ4HC_optimal_t*)(void*)((BYTE*)ctx + sizeof(LZ4_streamHC_t));
+        return LZ4HC_compress_optimal_internal(ctx, source, dst, srcSizePtr, dstCapacity,
+                    nbSearches, nbSearchesSeq, targetLength, limit, dict, favorDecSpeed, opt);
+    }
+  { /* plain state */
 #if defined(LZ4HC_HEAPMODE) && LZ4HC_HEAPMODE==1
     LZ4HC_optimal_t* const opt = (LZ4HC_optimal_t*)ALLOC(sizeof(LZ4HC_optimal_t) * (LZ4_OPT_NUM + TRAILING_LITERALS));
     int result;
@@ -2131,14 +2204,39 @@ static int LZ4HC_compress_optimal ( LZ4HC_CCtx_internal* ctx,
     return LZ4HC_compress_optimal_internal(ctx, source, dst, srcSizePtr, dstCapacity,
                     nbSearches, nbSearchesSeq, targetLength, limit, dict, favorDecSpeed, opt);
 #endif
+  }
 }
 
 
 /***************************************************
-*  Deprecated Functions
+*  Obsolete functions, removed from lz4hc.h (v1.11.0)
+*  still exported, for programs linked to previous versions
 ***************************************************/
+#if defined (__cplusplus)
+extern "C" {
+#endif
 
-/* These functions currently generate deprecation warnings */
+LZ4LIB_API int LZ4_compressHC (const char* source, char* dest, int inputSize);
+LZ4LIB_API int LZ4_compressHC_limitedOutput (const char* source, char* dest, int inputSize, int maxOutputSize);
+LZ4LIB_API int LZ4_compressHC2 (const char* source, char* dest, int inputSize, int compressionLevel);
+LZ4LIB_API int LZ4_compressHC2_limitedOutput (const char* source, char* dest, int inputSize, int maxOutputSize, int compressionLevel);
+LZ4LIB_API int LZ4_compressHC_withStateHC (void* state, const char* source, char* dest, int inputSize);
+LZ4LIB_API int LZ4_compressHC_limitedOutput_withStateHC (void* state, const char* source, char* dest, int inputSize, int maxOutputSize);
+LZ4LIB_API int LZ4_compressHC2_withStateHC (void* state, const char* source, char* dest, int inputSize, int compressionLevel);
+LZ4LIB_API int LZ4_compressHC2_limitedOutput_withStateHC (void* state, const char* source, char* dest, int inputSize, int maxOutputSize, int compressionLevel);
+LZ4LIB_API int LZ4_compressHC_continue (LZ4_streamHC_t* LZ4_streamHCPtr, const char* source, char* dest, int inputSize);
+LZ4LIB_API int LZ4_compressHC_limitedOutput_continue (LZ4_streamHC_t* LZ4_streamHCPtr, const char* source, char* dest, int inputSize, int maxOutputSize);
+LZ4LIB_API void* LZ4_createHC (const char* inputBuffer);
+LZ4LIB_API int   LZ4_freeHC (void* LZ4HC_Data);
+LZ4LIB_API char* LZ4_slideInputBufferHC (void* LZ4HC_Data);
+LZ4LIB_API int LZ4_compressHC2_continue (void* LZ4HC_Data, const char* source, char* dest, int inputSize, int compressionLevel);
+LZ4LIB_API int LZ4_compressHC2_limitedOutput_continue (void* LZ4HC_Data, const char* source, char* dest, int inputSize, int maxOutputSize, int compressionLevel);
+LZ4LIB_API int   LZ4_sizeofStreamStateHC(void);
+LZ4LIB_API int   LZ4_resetStreamStateHC(void* state, char* inputBuffer);
+
+#if defined (__cplusplus)
+}
+#endif
 
 /* Wrappers for deprecated compression functions */
 int LZ4_compressHC(const char* src, char* dst, int srcSize) { return LZ4_compress_HC (src, dst, srcSize, LZ4_compressBound(srcSize), 0); }
@@ -2183,14 +2281,17 @@ int LZ4_freeHC (void* LZ4HC_Data)
 }
 #endif
 
+/* LZ4_compress_HC_continue() at level @cLevel : notably, restarts the stream after LZ4_slideInputBufferHC() */
 int LZ4_compressHC2_continue (void* LZ4HC_Data, const char* src, char* dst, int srcSize, int cLevel)
 {
-    return LZ4HC_compress_generic (&((LZ4_streamHC_t*)LZ4HC_Data)->internal_donotuse, src, dst, &srcSize, LZ4_compressBound(srcSize), cLevel, notLimited);
+    LZ4_setCompressionLevel((LZ4_streamHC_t*)LZ4HC_Data, cLevel);
+    return LZ4_compress_HC_continue((LZ4_streamHC_t*)LZ4HC_Data, src, dst, srcSize, LZ4_compressBound(srcSize));
 }
 
 int LZ4_compressHC2_limitedOutput_continue (void* LZ4HC_Data, const char* src, char* dst, int srcSize, int dstCapacity, int cLevel)
 {
-    return LZ4HC_compress_generic (&((LZ4_streamHC_t*)LZ4HC_Data)->internal_donotuse, src, dst, &srcSize, dstCapacity, cLevel, limitedOutput);
+    LZ4_setCompressionLevel((LZ4_streamHC_t*)LZ4HC_Data, cLevel);
+    return LZ4_compress_HC_continue((LZ4_streamHC_t*)LZ4HC_Data, src, dst, srcSize, dstCapacity);
 }
 
 char* LZ4_slideInputBufferHC(void* LZ4HC_Data)

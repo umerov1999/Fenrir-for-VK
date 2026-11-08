@@ -140,23 +140,6 @@ class AudioInteractor(private val networker: INetworker) : IAudioInteractor {
             }
     }
 
-    override fun getByIdOld(
-        accountId: Long,
-        audios: List<Audio>,
-        old: Boolean
-    ): Flow<List<Audio>> {
-        return if (!old) {
-            getById(accountId, audios)
-        } else networker.vkDefault(accountId)
-            .audio()
-            .getByIdOld(audios)
-            .map { out ->
-                val ret: MutableList<Audio> = ArrayList()
-                for (i in out.indices) ret.add(transform(out[i]))
-                ret
-            }
-    }
-
     override fun getLyrics(accountId: Long, audio: Audio): Flow<String> {
         return networker.vkDefault(accountId)
             .audio().getLyrics(audio).map { it.text.orEmpty() }

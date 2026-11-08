@@ -38,12 +38,14 @@ import dev.ragnarok.fenrir.module.FenrirNative
 
 class DBHelper private constructor(context: Context, aid: Long) :
     SQLiteOpenHelper(context, getDatabaseFileName(aid), null, Constants.DATABASE_FENRIR_VERSION) {
+    /*
     override fun onOpen(db: SQLiteDatabase) {
         super.onOpen(db)
         if (!db.isReadOnly) {
             db.execSQL("PRAGMA foreign_keys=ON;")
         }
     }
+    */
 
     /*
     private fun insertColumn(

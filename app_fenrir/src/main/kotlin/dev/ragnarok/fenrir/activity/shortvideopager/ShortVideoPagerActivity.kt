@@ -72,7 +72,8 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
     private var mViewPager: ViewPager2? = null
     private var mToolbar: Toolbar? = null
     private var mAvatar: ImageView? = null
-    private var mPlaySpeed: ImageView? = null
+    private var mPlaySpeedIcon: ImageView? = null
+    private var mPlaySpeedText: TextView? = null
     private var transformation: Transformation? = null
     private var mDownload: CircleCounterButton? = null
     private var mShare: CircleCounterButton? = null
@@ -109,13 +110,10 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
         likeButton = findViewById(R.id.like_button)
         commentsButton = findViewById(R.id.comments_button)
         shortVideoDuration = findViewById(R.id.item_short_video_duration)
-        mPlaySpeed = findViewById(R.id.toolbar_play_speed)
-        mPlaySpeed?.setOnClickListener {
-            val stateSpeed = presenter?.togglePlaybackSpeed() == true
-            Utils.setTint(
-                mPlaySpeed,
-                if (stateSpeed) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
-            )
+        mPlaySpeedIcon = findViewById(R.id.toolbar_play_speed_icon)
+        mPlaySpeedText = findViewById(R.id.toolbar_play_speed_text)
+        mPlaySpeedIcon?.setOnClickListener {
+            presenter?.fireTogglePlaybackSpeed()
         }
         commentsButton?.setOnClickListener {
             presenter?.fireCommentsClick()
@@ -254,8 +252,22 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
             .tryOpenWith(this)
     }
 
-    override fun downloadVideo(video: Video, url: String, Res: String) {
-        DownloadWorkUtils.doDownloadVideo(this, video, url, Res)
+    override fun downloadVideo(video: Video, url: String, res: String) {
+        DownloadWorkUtils.doDownloadVideo(this, video, url, res)
+    }
+
+    override fun onUpdateDuration(duration: Long) {
+        shortVideoDuration?.text = AppTextUtils.getDurationString(duration)
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onUpdateSpeed(speed: Float) {
+        mPlaySpeedText?.text = "${if (speed % 1f == 0f) speed.toInt() else speed}x"
+        mPlaySpeedText?.setTextColor(if (speed > 1f) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor())
+        Utils.setTint(
+            mPlaySpeedIcon,
+            if (speed > 1f) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
+        )
     }
 
     override fun displayListLoading(loading: Boolean) {
@@ -461,11 +473,11 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
         supportActionBar?.title = getString(titleRes, *params)
     }
 
-    override fun setToolbarSubtitle(shortVideo: Video, account_id: Long, isPlaySpeed: Boolean) {
+    override fun setToolbarSubtitle(shortVideo: Video, accountId: Long) {
         supportActionBar?.subtitle = shortVideo.optionalOwner?.fullName
         mAvatar?.setOnClickListener {
             shortVideo.optionalOwner?.let { it1 ->
-                PlaceFactory.getOwnerWallPlace(account_id, it1)
+                PlaceFactory.getOwnerWallPlace(accountId, it1)
                     .tryOpenWith(this)
             }
         }
@@ -477,17 +489,12 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
                 Constants.PICASSO_TAG
             )
         }
-        Utils.setTint(
-            mPlaySpeed,
-            if (isPlaySpeed) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
-        )
-        shortVideoDuration?.text = AppTextUtils.getDurationString(shortVideo.duration)
         displayLikes(shortVideo.likesCount, shortVideo.isUserLikes)
         displayCommentCount(shortVideo.commentsCount)
     }
 
-    override fun onShare(shortVideo: Video, account_id: Long) {
-        SendAttachmentsActivity.startForSendAttachments(this, account_id, shortVideo)
+    override fun onShare(shortVideo: Video, accountId: Long) {
+        SendAttachmentsActivity.startForSendAttachments(this, accountId, shortVideo)
     }
 
     override fun configHolder(
@@ -571,12 +578,12 @@ class ShortVideoPagerActivity : BaseMvpActivity<ShortVideoPagerPresenter, IShort
             mSurfaceView.setAspectRatio(w, h)
         }
 
-        fun setSurfaceVisible(Vis: Int) {
-            mSurfaceView.visibility = Vis
+        fun setSurfaceVisible(visibility: Int) {
+            mSurfaceView.visibility = visibility
         }
 
-        fun setPreviewVisible(Vis: Int) {
-            mPreviewView.visibility = Vis
+        fun setPreviewVisible(visibility: Int) {
+            mPreviewView.visibility = visibility
         }
 
         fun bindTo(video: Video) {

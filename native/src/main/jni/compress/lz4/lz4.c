@@ -213,7 +213,7 @@
 #elif defined(LZ4_USER_MEMORY_FUNCTIONS)
 /* memory management functions can be customized by user project.
  * Below functions must exist somewhere in the Project
- * and be available at link time */
+ * and be available at link time. */
 void* LZ4_malloc(size_t s);
 void* LZ4_calloc(size_t n, size_t s);
 void  LZ4_free(void* p);
@@ -517,11 +517,15 @@ LZ4_memcpy_using_offset_base(BYTE* dstPtr, const BYTE* srcPtr, BYTE* dstEnd, con
 
 #if LZ4_FAST_DEC_LOOP
 
-/* LZ4_wildCopy64 is faster on aarch64 and x86-64, but not on 32-bit x86 */
-#if defined(__aarch64__) || defined(__x86_64__) || defined(_M_X64)
-#  define LZ4_WILDCOPY64 1
-#else
-#  define LZ4_WILDCOPY64 0
+/* LZ4_wildCopy64 is faster on aarch64 and x86-64, but not on 32-bit x86.
+ * On wasm, it depends on the host cpu (faster on Apple silicon, slower on x86-64) :
+ * it's not enabled by default, but can be, with LZ4_FAST_DEC_LOOP, from the build command */
+#ifndef LZ4_WILDCOPY64
+#  if defined(__aarch64__) || defined(__x86_64__) || defined(_M_X64)
+#    define LZ4_WILDCOPY64 1
+#  else
+#    define LZ4_WILDCOPY64 0
+#  endif
 #endif
 
 #if LZ4_WILDCOPY64
@@ -793,6 +797,34 @@ int LZ4_decompress_safe_partial_forceExtDict(const char* source, char* dest,
 }
 #endif
 
+
+/*-****************************************
+*  Obsolete functions, removed from lz4.h (v1.11.0)
+*  still exported, for programs linked to previous versions
+*******************************************/
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
+LZ4LIB_API int LZ4_compress (const char* src, char* dest, int srcSize);
+LZ4LIB_API int LZ4_compress_limitedOutput (const char* src, char* dest, int srcSize, int maxOutputSize);
+LZ4LIB_API int LZ4_compress_withState (void* state, const char* source, char* dest, int inputSize);
+LZ4LIB_API int LZ4_compress_limitedOutput_withState (void* state, const char* source, char* dest, int inputSize, int maxOutputSize);
+LZ4LIB_API int LZ4_compress_continue (LZ4_stream_t* LZ4_streamPtr, const char* source, char* dest, int inputSize);
+LZ4LIB_API int LZ4_compress_limitedOutput_continue (LZ4_stream_t* LZ4_streamPtr, const char* source, char* dest, int inputSize, int maxOutputSize);
+LZ4LIB_API int LZ4_uncompress (const char* source, char* dest, int outputSize);
+LZ4LIB_API int LZ4_uncompress_unknownOutputSize (const char* source, char* dest, int isize, int maxOutputSize);
+LZ4LIB_API void* LZ4_create (char* inputBuffer);
+LZ4LIB_API int   LZ4_sizeofStreamState(void);
+LZ4LIB_API int   LZ4_resetStreamState(void* state, char* inputBuffer);
+LZ4LIB_API char* LZ4_slideInputBuffer (void* state);
+LZ4LIB_API int LZ4_decompress_safe_withPrefix64k (const char* src, char* dst, int compressedSize, int maxDstSize);
+LZ4LIB_API int LZ4_decompress_fast_withPrefix64k (const char* src, char* dst, int originalSize);
+
+#if defined (__cplusplus)
+}
+#endif
+
 /*-******************************
 *  Compression functions
 ********************************/
@@ -943,6 +975,21 @@ LZ4_prepareTable(LZ4_stream_t_internal* const cctx,
     cctx->dictSize = 0;
 }
 
+/* LZ4_match8() : the 8 bytes at p and q are equal */
+LZ4_FORCE_INLINE int LZ4_match8(const void* p, const void* q)
+{
+    if (sizeof(reg_t) == 8) return LZ4_read_ARCH(p) == LZ4_read_ARCH(q);
+    return (LZ4_read32(p) == LZ4_read32(q))
+        && (LZ4_read32((const BYTE*)p + 4) == LZ4_read32((const BYTE*)q + 4));
+}
+
+/* state of an extDict compression which resumes in prefix mode (see LZ4_compress_generic()) */
+typedef struct {
+    const BYTE* ip;   /* end of a match : resumes at the test of the next position */
+    BYTE* op;
+    U32 startIndex;
+} LZ4_resume_t;
+
 /** LZ4_compress_generic_validated() :
  *  inlined, to ensure branches are decided at compilation time.
  *  The following conditions are presumed already validated:
@@ -960,12 +1007,14 @@ LZ4_FORCE_INLINE int LZ4_compress_generic_validated(
                  const tableType_t tableType,
                  const dict_directive dictDirective,
                  const dictIssue_directive dictIssue,
-                 const int acceleration)
+                 const int acceleration,
+                 LZ4_resume_t* const suspend,      /* usingExtDict : stops when the dictionary is out of reach, saving its state */
+                 const LZ4_resume_t* const resume) /* withPrefix64k : resumes such a compression */
 {
     int result;
-    const BYTE* ip = (const BYTE*)source;
+    const BYTE* ip = resume ? resume->ip : (const BYTE*)source;
 
-    U32 const startIndex = cctx->currentOffset;
+    U32 const startIndex = resume ? resume->startIndex : cctx->currentOffset;
     const BYTE* base = (const BYTE*)source - startIndex;
     const BYTE* lowLimit;
 
@@ -980,10 +1029,11 @@ LZ4_FORCE_INLINE int LZ4_compress_generic_validated(
     int const maybe_extMem = (dictDirective == usingExtDict) || (dictDirective == usingDictCtx);
     U32 const prefixIdxLimit = startIndex - dictSize;   /* used when dictDirective == dictSmall */
     const BYTE* const dictEnd = dictionary ? dictionary + dictSize : dictionary;
-    const BYTE* anchor = (const BYTE*) source;
-    const BYTE* const iend = ip + inputSize;
+    const BYTE* anchor = resume ? resume->ip : (const BYTE*)source;
+    const BYTE* const iend = (const BYTE*)source + inputSize;
     const BYTE* mflimitPlusOne;   /* set after the size check : would precede a small input */
     const BYTE* matchlimit;
+    const BYTE* seqLimit;   /* suspend : mflimitPlusOne, or earlier, where the dictionary gets out of reach */
 
     /* the dictCtx currentOffset is indexed on the start of the dictionary,
      * while a dictionary in the current context precedes the currentOffset */
@@ -992,11 +1042,12 @@ LZ4_FORCE_INLINE int LZ4_compress_generic_validated(
                             dictionary + dictSize - dictCtx->currentOffset :
                             dictionary + dictSize - startIndex;
 
-    BYTE* op = (BYTE*) dest;
-    BYTE* const olimit = op + maxOutputSize;
+    BYTE* op = resume ? resume->op : (BYTE*)dest;
+    BYTE* const olimit = (BYTE*)dest + maxOutputSize;
 
     U32 offset = 0;
     U32 forwardH;
+    const BYTE* filledIp = NULL;   /* fillOutput only ; set by catch up (resume : never with fillOutput) */
 
     DEBUGLOG(5, "LZ4_compress_generic_validated: srcSize=%i, tableType=%u", inputSize, tableType);
     assert(ip != NULL);
@@ -1007,23 +1058,31 @@ LZ4_FORCE_INLINE int LZ4_compress_generic_validated(
     if (outputDirective == fillOutput && maxOutputSize < 1) { return 0; } /* Impossible to store anything */
     assert(acceleration >= 1);
 
-    lowLimit = (const BYTE*)source - (dictDirective == withPrefix64k ? dictSize : 0);
+    /* resume : candidates are within source (see LZ4_compress_generic()) */
+    lowLimit = (const BYTE*)source - ((dictDirective == withPrefix64k) && !resume ? dictSize : 0);
 
-    /* Update context state */
-    if (dictDirective == usingDictCtx) {
-        /* Subsequent linked blocks can't use the dictionary. */
-        /* Instead, they use the block we just compressed. */
-        cctx->dictCtx = NULL;
-        cctx->dictSize = (U32)inputSize;
-    } else {
-        cctx->dictSize += (U32)inputSize;
+    if (!resume) {   /* resume : context state already updated */
+        /* Update context state */
+        if (dictDirective == usingDictCtx) {
+            /* Subsequent linked blocks can't use the dictionary. */
+            /* Instead, they use the block we just compressed. */
+            cctx->dictCtx = NULL;
+            cctx->dictSize = (U32)inputSize;
+        } else {
+            cctx->dictSize += (U32)inputSize;
+        }
+        cctx->currentOffset += (U32)inputSize;
+        cctx->tableType = (U32)tableType;
+
+        if (inputSize<LZ4_minLength) goto _last_literals;        /* Input too small, no compression (all literals) */
     }
-    cctx->currentOffset += (U32)inputSize;
-    cctx->tableType = (U32)tableType;
-
-    if (inputSize<LZ4_minLength) goto _last_literals;        /* Input too small, no compression (all literals) */
     mflimitPlusOne = iend - MFLIMIT + 1;
     matchlimit = iend - LASTLITERALS;
+    seqLimit = mflimitPlusOne;
+    if ((suspend != NULL) && (inputSize > LZ4_DISTANCE_MAX + MFLIMIT - 1))   /* source + LZ4_DISTANCE_MAX < mflimitPlusOne */
+        seqLimit = (const BYTE*)source + LZ4_DISTANCE_MAX;
+
+    if (resume) goto _resume;
 
     /* First Byte */
     LZ4_putPosition(ip, cctx->hashTable, tableType, base);
@@ -1033,7 +1092,6 @@ LZ4_FORCE_INLINE int LZ4_compress_generic_validated(
     for ( ; ; ) {
         const BYTE* match;
         BYTE* token;
-        const BYTE* filledIp;
 
         /* Find a match */
         if (tableType == byPtr) {
@@ -1087,16 +1145,10 @@ LZ4_FORCE_INLINE int LZ4_compress_generic_validated(
                         lowLimit = (const BYTE*)source;
                     }
                 } else if (dictDirective == usingExtDict) {
-                    if (matchIndex < startIndex) {
-                        DEBUGLOG(7, "extDict candidate: matchIndex=%5u  <  startIndex=%5u", matchIndex, startIndex);
-                        assert(startIndex - matchIndex >= MINMATCH);
-                        assert(dictBase);
-                        match = dictBase + matchIndex;
-                        lowLimit = dictionary;
-                    } else {
-                        match = base + matchIndex;
-                        lowLimit = (const BYTE*)source;
-                    }
+                    /* select without branch : dictionary and prefix candidates alternate unpredictably.
+                     * relative to dictEnd or source, within their buffers (base can be NULL) */
+                    ptrdiff_t const relIdx = (ptrdiff_t)matchIndex - (ptrdiff_t)startIndex;   /* < 0 : within dictionary */
+                    match = ((relIdx < 0) ? dictEnd : (const BYTE*)source) + relIdx;
                 } else {   /* single continuous memory segment */
                     match = base + matchIndex;
                 }
@@ -1106,14 +1158,25 @@ LZ4_FORCE_INLINE int LZ4_compress_generic_validated(
                 DEBUGLOG(7, "candidate at pos=%u  (offset=%u \n", matchIndex, current - matchIndex);
                 if ((dictIssue == dictSmall) && (matchIndex < prefixIdxLimit)) { continue; }    /* match outside of valid area */
                 assert(matchIndex < current);
-                if ( ((tableType != byU16) || (LZ4_DISTANCE_MAX < LZ4_DISTANCE_ABSOLUTE_MAX))
+                /* noDict : the candidate is within input, so it is compared before checking its distance :
+                 * this order is faster (better branch prediction) */
+                assert((dictDirective != noDict) || (match >= (const BYTE*)source));
+                if ( (dictDirective != noDict)
+                  && ((tableType != byU16) || (LZ4_DISTANCE_MAX < LZ4_DISTANCE_ABSOLUTE_MAX))
                   && (matchIndex+LZ4_DISTANCE_MAX < current)) {
                     continue;
                 } /* too far */
-                assert((current - matchIndex) <= LZ4_DISTANCE_MAX);  /* match now expected within distance */
 
                 if (LZ4_read32(match) == LZ4_read32(ip)) {
+                    if ( (dictDirective == noDict)
+                      && ((tableType != byU16) || (LZ4_DISTANCE_MAX < LZ4_DISTANCE_ABSOLUTE_MAX))
+                      && (matchIndex+LZ4_DISTANCE_MAX < current)) {
+                        continue;
+                    } /* too far */
+                    assert((current - matchIndex) <= LZ4_DISTANCE_MAX);  /* match now expected within distance */
                     if (maybe_extMem) offset = current - matchIndex;
+                    if (dictDirective == usingExtDict)   /* lowLimit : only needed once a match is found */
+                        lowLimit = (matchIndex < startIndex) ? dictionary : (const BYTE*)source;
                     break;   /* match found */
                 }
 
@@ -1249,16 +1312,28 @@ _next_match:
         anchor = ip;
 
         /* Test end of chunk */
-        if (ip >= mflimitPlusOne) break;
+        if (ip >= seqLimit) {
+            if ((suspend == NULL) || (ip >= mflimitPlusOne)) break;
+            /* extDict : from ip, all candidates (and catch up) are beyond reach of the dictionary :
+             * stop, to resume in prefix mode, which is faster */
+            suspend->ip = ip;
+            suspend->op = op;
+            suspend->startIndex = startIndex;
+            return 0;
+        }
 
-        /* Fill table */
-        LZ4_putPosition(ip-2, cctx->hashTable, tableType, base);
-
-        /* Test next position */
+_resume:
+        /* Fill table, and test next position.
+         * First, the position after the previous occurrence of ip-1, if it matches 8+ bytes :
+         * it breaks chains of short matches, which the table alone can produce on periodic data. */
         if (tableType == byPtr) {
 
+            U32 const hPrev = LZ4_hashPosition(ip-1, tableType);
+            const BYTE* const prev = LZ4_getPositionOnHash(hPrev, cctx->hashTable, tableType);
             U32 const h = LZ4_hashPosition(ip, tableType);
+            LZ4_putPositionOnHash(ip-1, hPrev, cctx->hashTable, tableType);
             match = LZ4_getPositionOnHash(h, cctx->hashTable, tableType);
+            if ((prev+1+LZ4_DISTANCE_MAX >= ip) && LZ4_match8(prev+1, ip)) match = prev+1;
             LZ4_putPositionOnHash(ip, h, cctx->hashTable, tableType);
             if ( (match+LZ4_DISTANCE_MAX >= ip)
               && (LZ4_read32(match) == LZ4_read32(ip)) )
@@ -1268,31 +1343,41 @@ _next_match:
 
             U32 const h = LZ4_hashPosition(ip, tableType);
             U32 const current = (U32)(ip-base);
-            U32 matchIndex = LZ4_getIndexOnHash(h, cctx->hashTable, tableType);
+            U32 const hPrev = LZ4_hashPosition(ip-1, tableType);
+            U32 prevIndex = LZ4_getIndexOnHash(hPrev, cctx->hashTable, tableType);
+            U32 matchIndex;
+            LZ4_putIndexOnHash(current-1, hPrev, cctx->hashTable, tableType);
+            if ((dictDirective == usingDictCtx) && (prevIndex < startIndex)) {
+                /* no occurrence in the current context : try the dictionary */
+                prevIndex = LZ4_getIndexOnHash(hPrev, dictCtx->hashTable, byU32) + dictDelta;
+            }
+            {   /* used table (small block, see LZ4_prepareTable()) : a stale entry yields the candidate of an empty slot
+                 * of a cleared table (0), the position after the first one : the output doesn't depend on the table's history */
+                int const usedTable = (dictDirective == noDict) && (dictIssue == dictSmall);
+                U32 const ctxIndex = ((usedTable && (prevIndex < startIndex)) ? startIndex : prevIndex) + 1;
+                int const inDict = (dictDirective == usingExtDict || dictDirective == usingDictCtx) && (ctxIndex < startIndex);
+                if ( ((dictIssue==dictSmall) ? (ctxIndex >= prefixIdxLimit) : 1)
+                  && (((tableType==byU16) && (LZ4_DISTANCE_MAX == LZ4_DISTANCE_ABSOLUTE_MAX)) ? 1 : (ctxIndex+LZ4_DISTANCE_MAX >= current))
+                  && (!inDict || (ctxIndex + 8 <= startIndex))   /* the 8 compared bytes are within the dictionary */
+                  && LZ4_match8(inDict ? dictBase + (ctxIndex - dictDelta) : base + ctxIndex, ip) ) {
+                    matchIndex = ctxIndex;
+                } else {
+                    matchIndex = LZ4_getIndexOnHash(h, cctx->hashTable, tableType);
+                    if ((dictDirective == usingDictCtx) && (matchIndex < startIndex))
+                        matchIndex = LZ4_getIndexOnHash(h, dictCtx->hashTable, byU32) + dictDelta;
+                }
+            }
             assert(matchIndex < current);
-            if (dictDirective == usingDictCtx) {
-                if (matchIndex < startIndex) {
-                    /* there was no match, try the dictionary */
-                    assert(tableType == byU32);
-                    matchIndex = LZ4_getIndexOnHash(h, dictCtx->hashTable, byU32);
-                    match = dictBase + matchIndex;
-                    lowLimit = dictionary;   /* required for match length counter */
-                    matchIndex += dictDelta;
-                } else {
-                    match = base + matchIndex;
-                    lowLimit = (const BYTE*)source;  /* required for match length counter */
-                }
-            } else if (dictDirective==usingExtDict) {
-                if (matchIndex < startIndex) {
-                    assert(dictBase);
-                    match = dictBase + matchIndex;
-                    lowLimit = dictionary;   /* required for match length counter */
-                } else {
-                    match = base + matchIndex;
-                    lowLimit = (const BYTE*)source;   /* required for match length counter */
-                }
-            } else {   /* single memory segment */
+            if (dictDirective == usingExtDict) {   /* select without branch */
+                ptrdiff_t const relIdx = (ptrdiff_t)matchIndex - (ptrdiff_t)startIndex;   /* < 0 : within dictionary */
+                match = ((relIdx < 0) ? dictEnd : (const BYTE*)source) + relIdx;
+            } else if ((dictDirective == usingDictCtx) && (matchIndex < startIndex)) {
+                match = dictBase + (matchIndex - dictDelta);
+                lowLimit = dictionary;   /* required for match length counter */
+            } else {
                 match = base + matchIndex;
+                if (dictDirective == usingDictCtx)
+                    lowLimit = (const BYTE*)source;   /* required for match length counter */
             }
             LZ4_putIndexOnHash(current, h, cctx->hashTable, tableType);
             assert(matchIndex < current);
@@ -1302,6 +1387,8 @@ _next_match:
                 token=op++;
                 *token=0;
                 if (maybe_extMem) offset = current - matchIndex;
+                if (dictDirective == usingExtDict)
+                    lowLimit = (matchIndex < startIndex) ? dictionary : (const BYTE*)source;   /* required for match length counter */
                 DEBUGLOG(6, "seq.start:%i, literals=%u, match.start:%i",
                             (int)(anchor-(const BYTE*)source), 0, (int)(ip-(const BYTE*)source));
                 goto _next_match;
@@ -1351,6 +1438,16 @@ _last_literals:
     return result;
 }
 
+/* second part of an extDict compression, in prefix mode (see LZ4_compress_generic()).
+ * not inlined : a single instance serves all invocations */
+LZ4_FORCE_NOINLINE int LZ4_compress_resumeWithPrefix(LZ4_stream_t_internal* cctx,
+                 const char* src, char* dst, int srcSize, int dstCapacity, int acceleration,
+                 const LZ4_resume_t* state)
+{
+    return LZ4_compress_generic_validated(cctx, src, dst, srcSize, NULL, dstCapacity, limitedOutput,
+                byU32, withPrefix64k, noDictIssue, acceleration, NULL, state);
+}
+
 /** LZ4_compress_generic() :
  *  inlined, to ensure branches are decided at compilation time;
  *  takes care of src == (NULL, 0)
@@ -1386,10 +1483,26 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(
     }
     assert(src != NULL);
 
+    if ((dictDirective == usingExtDict) && (dictIssue == noDictIssue)) {
+        /* beyond LZ4_DISTANCE_MAX, the dictionary is out of reach : the rest of the input is compressed in prefix mode */
+        LZ4_resume_t state;
+        int result;
+        assert(tableType == byU32);
+        assert(outputDirective != fillOutput);
+        state.ip = NULL;
+        result = LZ4_compress_generic_validated(cctx, src, dst, srcSize, inputConsumed, dstCapacity, outputDirective,
+                    tableType, usingExtDict, noDictIssue, acceleration, &state, NULL);
+        if (state.ip == NULL) return result;   /* completed (or failed) in extDict mode */
+        /* notLimited : dst is presumed large enough for LZ4_compressBound() */
+        return LZ4_compress_resumeWithPrefix(cctx, src, dst, srcSize,
+                    (outputDirective == notLimited) ? LZ4_COMPRESSBOUND(srcSize) : dstCapacity,
+                    acceleration, &state);
+    }
+
     return LZ4_compress_generic_validated(cctx, src, dst, srcSize,
                 inputConsumed, /* only written into if outputDirective == fillOutput */
                 dstCapacity, outputDirective,
-                tableType, dictDirective, dictIssue, acceleration);
+                tableType, dictDirective, dictIssue, acceleration, NULL, NULL);
 }
 
 
@@ -1730,6 +1843,11 @@ static int LZ4_isDictSmall(const LZ4_stream_t_internal* streamPtr)
     return (streamPtr->dictSize < 64 KB) && (streamPtr->dictSize < streamPtr->currentOffset);
 }
 
+/* from this input size (2 KB by default, at most 4 KB),
+ * copying the tables of an attached dictionary is faster than looking into both tables.
+ * The copy cost follows the table size. */
+#define LZ4_DICTCTX_COPY_THRESHOLD ((LZ4_HASHTABLESIZE / 8 < 4 KB) ? (LZ4_HASHTABLESIZE / 8) : 4 KB)
+
 
 int LZ4_compress_fast_continue (LZ4_stream_t* LZ4_stream,
                                 const char* source, char* dest,
@@ -1790,7 +1908,7 @@ int LZ4_compress_fast_continue (LZ4_stream_t* LZ4_stream,
              * dictCtx->currentOffset - dictCtx->dictSize. This makes it safe
              * to use noDictIssue even when the dict isn't a full 64 KB.
              */
-            if (inputSize > 4 KB) {
+            if (inputSize >= LZ4_DICTCTX_COPY_THRESHOLD) {
                 /* For compressing large blobs, it is faster to pay the setup
                  * cost to copy the dictionary's tables into the active context,
                  * so that the compression loop is only looking into one table.
@@ -2134,7 +2252,8 @@ LZ4_decompress_generic(
         if (unlikely(outputSize==0)) {
             /* Empty output buffer */
             if (partialDecoding) return 0;
-            return ((srcSize==1) && (*ip==0)) ? 0 : -1;
+            if ((srcSize==1) && (*ip==0)) return 0;   /* empty block */
+            return (srcSize > 1) ? -2 : -1;   /* -2 : output buffer too small */
         }
         if (unlikely(srcSize<=0)) { return -1; }
 
@@ -2256,7 +2375,7 @@ LZ4_decompress_generic(
 
             if ( checkOffset && (unlikely(match + dictSize < lowPrefix)) ) {
                 DEBUGLOG(5, "Error : pos=%zi, offset=%zi => outside buffers", op-lowPrefix, op-match);
-                goto _output_error;
+                goto _offset_error;
             }
             /* match starting within external dictionary */
             if ((dict==usingExtDict) && (match < lowPrefix)) {
@@ -2359,6 +2478,7 @@ LZ4_decompress_generic(
                     } else if ((ip+ll != iend) || (cpy > oend)) {
                         /* last literals must end exactly at input end, within output */
                         DEBUGLOG(5, "invalid last literals : they end at iend%+zi and oend%+zi", (ip+ll)-iend, cpy-oend);
+                        if ((ip+ll <= iend) && (cpy > oend-MFLIMIT)) goto _dst_too_small;   /* output full, input left */
                         goto _output_error;
                     }
                     LZ4_memmove(op, ip, ll);  /* supports overlapping memory regions, for in-place decompression scenarios */
@@ -2396,13 +2516,13 @@ LZ4_decompress_generic(
         safe_match_copy:
 #endif
             /* literals copied, match fully decoded (ml includes MINMATCH), offset not validated yet */
-            if ((checkOffset) && (unlikely(match + dictSize < lowPrefix))) goto _output_error;   /* Error : offset outside buffers */
+            if ((checkOffset) && (unlikely(match + dictSize < lowPrefix))) goto _offset_error;   /* Error : offset outside buffers */
 
             /* end of block : the last LASTLITERALS bytes must be literals */
             assert(op <= oend);
             if (unlikely(op+ml > oend-LASTLITERALS)) {
                 if (partialDecoding) ml = MIN(ml, (size_t)(oend-op));   /* partialDecoding : may end anywhere */
-                else goto _output_error;
+                else goto _dst_too_small;
             }
 
             /* match starting within external dictionary */
@@ -2430,9 +2550,13 @@ LZ4_decompress_generic(
         DEBUGLOG(5, "decoded %i bytes", (int) (((char*)op)-dst));
         return (int) (((char*)op)-dst);     /* Nb of output bytes decoded */
 
-        /* Overflow error detected */
+        /* errors : see LZ4_decompress_safe() in lz4.h */
     _output_error:
-        return (int) (-(((const char*)ip)-src))-1;
+        return -1;
+    _dst_too_small:
+        return -2;
+    _offset_error:
+        return -3;
     }
 }
 

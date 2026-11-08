@@ -688,7 +688,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                 titleRes = R.string.audio_ext
                 isSpace = true
                 dependency = "developer_mode"
-                defaultValue = setOf("mp3", "ogg", "flac", "opus")
+                defaultValue = setOf("mp3", "m4a", "aac", "ogg", "flac", "opus")
                 onMultiLineTextChange {
                     requireActivity().recreate()
                 }

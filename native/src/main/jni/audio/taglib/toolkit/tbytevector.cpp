@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 
@@ -133,8 +134,12 @@ T toNumber(const ByteVector &v, size_t offset, bool mostSignificantByteFirst)
   const bool isBigEndian = Utils::systemByteOrder() == Utils::BigEndian;
   const bool swap = mostSignificantByteFirst != isBigEndian;
 
-  if(offset + sizeof(T) > v.size())
-    return toNumber<T>(v, offset, v.size() - offset, mostSignificantByteFirst);
+  if(offset >= v.size())
+    return toNumber<T>(v, offset, 0, mostSignificantByteFirst);
+
+  const size_t remaining = v.size() - offset;
+  if(sizeof(T) > remaining)
+    return toNumber<T>(v, offset, remaining, mostSignificantByteFirst);
 
   // Uses memcpy instead of reinterpret_cast to avoid an alignment exception.
   T tmp;
@@ -749,13 +754,35 @@ long double ByteVector::toFloat80BE(size_t offset) const
   return toFloat80<Utils::BigEndian>(*this, offset);
 }
 
+namespace
+{
+  // If the standard library checks indices in std::vector::operator[], e.g.
+  // with _GLIBCXX_ASSERTIONS or a libc++ hardening mode, ByteVector::operator[]
+  // is checked too. This cannot be left to std::vector, because a ByteVector
+  // created by mid() shares the buffer of the original byte vector.
+  void checkIndex(const ByteVector &v, int index)
+  {
+#if defined(_GLIBCXX_ASSERTIONS) || \
+    (defined(_LIBCPP_HARDENING_MODE) && \
+     _LIBCPP_HARDENING_MODE != _LIBCPP_HARDENING_MODE_NONE)
+    if(index < 0 || static_cast<unsigned int>(index) >= v.size())
+      std::abort();
+#else
+    static_cast<void>(v);
+    static_cast<void>(index);
+#endif
+  }
+}  // namespace
+
 const char &ByteVector::operator[](int index) const
 {
+  checkIndex(*this, index);
   return (*d->data)[d->offset + index];
 }
 
 char &ByteVector::operator[](int index)
 {
+  checkIndex(*this, index);
   detach();
   return (*d->data)[d->offset + index];
 }
@@ -870,6 +897,19 @@ ByteVector ByteVector::fromBase64(const ByteVector & input)
     0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
     0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
   };
+
+  // Some encoders wrap the output into lines (e.g. MIME style base64 with a
+  // line break every 76 characters), skip such whitespace.
+  const auto isWhitespace = [](char c) {
+    return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+  };
+  if(std::any_of(input.begin(), input.end(), isWhitespace)) {
+    ByteVector stripped(input.size());
+    const auto end = std::remove_copy_if(input.begin(), input.end(),
+                                         stripped.begin(), isWhitespace);
+    stripped.resize(static_cast<unsigned int>(end - stripped.begin()));
+    return fromBase64(stripped);
+  }
 
   unsigned int len = input.size();
 

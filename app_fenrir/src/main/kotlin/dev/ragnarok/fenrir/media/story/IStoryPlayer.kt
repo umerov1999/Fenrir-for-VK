@@ -14,11 +14,13 @@ interface IStoryPlayer {
     fun release()
     fun addVideoSizeChangeListener(listener: IVideoSizeChangeListener)
     fun addStatusChangeListener(listener: IStatusChangeListener)
+    fun addPositionChangeListener(listener: IPositionChangeListener)
     fun removeVideoSizeChangeListener(listener: IVideoSizeChangeListener)
     fun removeStatusChangeListener(listener: IStatusChangeListener)
+    fun removePositionChangeListener(listener: IPositionChangeListener)
     var playerStatus: Int
-    val isPlaybackSpeed: Boolean
-    fun setPlaybackSpeed(isSpeed: Boolean)
+    var playbackSpeed: Float
+    fun togglePlaybackSpeed()
 
     interface IStatus {
         companion object {
@@ -35,5 +37,13 @@ interface IStoryPlayer {
 
     interface IStatusChangeListener {
         fun onPlayerStatusChange(player: IStoryPlayer, previousStatus: Int, currentStatus: Int)
+    }
+
+    interface IPositionChangeListener {
+        fun onPlayerPositionChange(
+            player: IStoryPlayer,
+            previousPosition: Long,
+            currentPosition: Long
+        )
     }
 }

@@ -1530,8 +1530,6 @@
     <string name="audio_force_download">Already downloaded. Download anyway?</string>
     <string name="audio_force_download_pc">Already available on computer. Download anyway?</string>
     <string name="null_image_link">Missing download link</string>
-    <string name="use_api_5_90_for_audio">Use VK Api 5.90 for audio</string>
-    <string name="use_api_5_90_for_audio_summary">Disable if audio downloads do not work</string>
     <string name="expires">%1$s %2$s</string>
     <string name="disable_history">Don\'t show Stories</string>
     <string name="audio_round_icon">Rounded audio covers</string>

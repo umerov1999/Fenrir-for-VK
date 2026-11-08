@@ -32,6 +32,7 @@ COMMON_OPTIONS="
     --enable-demuxer=flac
     --enable-demuxer=ogg
     --enable-demuxer=hls
+    --enable-muxer=ipod
     --enable-swresample
     --enable-protocol=file
     --enable-nonfree

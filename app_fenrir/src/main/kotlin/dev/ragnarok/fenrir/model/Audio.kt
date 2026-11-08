@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.api.model.VKApiAudio
 import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.putBoolean
-import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
 import dev.ragnarok.fenrir.util.Utils.readStringMap
 import dev.ragnarok.fenrir.util.Utils.stringEmptyIfNull
@@ -118,10 +117,8 @@ class Audio : AbsModel {
     }
     }
      */
-    fun needRefresh(): Pair<Boolean, Boolean> {
-        val empty_url = url.isNullOrEmpty()
-        val refresh_old = get().main().isUse_api_5_90_for_audio
-        return Pair(empty_url || refresh_old && isHLS, refresh_old)
+    fun needRefresh(): Boolean {
+        return url.isNullOrEmpty()
     }
 
     @AbsModelType

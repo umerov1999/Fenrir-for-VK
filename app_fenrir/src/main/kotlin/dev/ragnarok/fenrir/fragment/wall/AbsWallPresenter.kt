@@ -91,7 +91,7 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
     private var skipWallOffset = 0
     private var toStory: String? = null
     private val uploadsData: MutableList<Upload> = ArrayList(0)
-    open fun searchStory(ByName: Boolean) {
+    open fun searchStory(byName: Boolean) {
         throw IllegalArgumentException("Unknown story search")
     }
 
@@ -136,6 +136,10 @@ abstract class AbsWallPresenter<V : IWallView> internal constructor(
 
     fun fireClipsClick() {
         view?.goClips(accountId, ownerId)
+    }
+
+    fun fireOpenStory(pos: Int) {
+        view?.openHistoryVideo(accountId, ArrayList(stories), pos)
     }
 
     private fun onPostInvalid(postVkid: Int) {

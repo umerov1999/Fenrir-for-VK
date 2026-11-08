@@ -683,12 +683,12 @@ class UserWallPresenter(
                 })
     }
 
-    override fun searchStory(ByName: Boolean) {
+    override fun searchStory(byName: Boolean) {
         appendJob(
             storiesInteractor.searchStories(
                 accountId,
-                if (ByName) user.fullName else null,
-                if (ByName) null else ownerId
+                if (byName) user.fullName else null,
+                if (byName) null else ownerId
             )
                 .fromIOToMain({
                     if (it.nonNullNoEmpty()) {

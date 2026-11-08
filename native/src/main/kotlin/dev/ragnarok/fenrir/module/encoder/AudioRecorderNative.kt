@@ -28,6 +28,9 @@ class AudioRecorderNative {
         outputPath: String,
         sampleRate: Int
     ): Boolean {
+        if (!isNativeLoaded) {
+            return false
+        }
         nativeHandle = nCreate(
             outputPath,
             sampleRate

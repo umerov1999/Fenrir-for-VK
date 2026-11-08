@@ -24,7 +24,8 @@ class ShortVideoPagerPresenter(
     private val ownerId: Long?,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IShortVideoPagerView>(accountId, savedInstanceState),
-    IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener {
+    IStatusChangeListener, IStoryPlayer.IVideoSizeChangeListener,
+    IStoryPlayer.IPositionChangeListener {
     private var mShortVideoPlayer: IStoryPlayer? = null
     private val mShortVideos: ArrayList<Video> = ArrayList()
     private val shortVideosInteractor = InteractorFactory.story
@@ -33,7 +34,8 @@ class ShortVideoPagerPresenter(
     private var nextFrom: String? = null
     private var isEndContent: Boolean = false
     private var loadingNow = false
-    private var isPlayBackSpeed = false
+    private var currentPosition = 0L
+    private var currentSpeed = 1f
 
     override fun onGuiCreated(viewHost: IShortVideoPagerView) {
         super.onGuiCreated(viewHost)
@@ -44,12 +46,14 @@ class ShortVideoPagerPresenter(
         resolveAspectRatio()
         resolvePreparingProgress()
         resolveToolbarSubtitle()
+        resolveDuration()
+        resolveSpeed()
     }
 
-    fun togglePlaybackSpeed(): Boolean {
-        isPlayBackSpeed = !isPlayBackSpeed
-        mShortVideoPlayer?.setPlaybackSpeed(isPlayBackSpeed)
-        return isPlayBackSpeed
+    fun fireTogglePlaybackSpeed() {
+        mShortVideoPlayer?.togglePlaybackSpeed()
+        currentSpeed = mShortVideoPlayer?.playbackSpeed ?: 1f
+        resolveSpeed()
     }
 
     private fun receiveShortVideos() {
@@ -87,6 +91,7 @@ class ShortVideoPagerPresenter(
             initShortVideosPlayer()
             resolveToolbarTitle()
             resolveToolbarSubtitle()
+            resolveDuration()
         } else {
             val startSize = mShortVideos.size
             mShortVideos.addAll(shortVideos)
@@ -97,6 +102,7 @@ class ShortVideoPagerPresenter(
             )
             resolveToolbarTitle()
             resolveToolbarSubtitle()
+            resolveDuration()
         }
     }
 
@@ -127,11 +133,11 @@ class ShortVideoPagerPresenter(
 
     private fun initShortVideosPlayer() {
         val update: Boolean = mShortVideoPlayer != null
-        val shortVideo = mShortVideos[mCurrentIndex]
+        val shortVideo = mShortVideos.getOrNull(mCurrentIndex)
         val url = firstNonEmptyString(
-            shortVideo.mp4link2160, shortVideo.mp4link1440,
-            shortVideo.mp4link1080, shortVideo.mp4link720, shortVideo.mp4link480,
-            shortVideo.mp4link360, shortVideo.mp4link240
+            shortVideo?.mp4link2160, shortVideo?.mp4link1440,
+            shortVideo?.mp4link1080, shortVideo?.mp4link720, shortVideo?.mp4link480,
+            shortVideo?.mp4link360, shortVideo?.mp4link240
         )
         if (url == null) {
             view?.showError(R.string.unable_to_play_file)
@@ -139,7 +145,8 @@ class ShortVideoPagerPresenter(
         }
         if (!update) {
             mShortVideoPlayer = storyPlayerFactory.createStoryPlayer(url, false)
-            mShortVideoPlayer?.setPlaybackSpeed(isPlayBackSpeed)
+            mShortVideoPlayer?.playbackSpeed = currentSpeed
+            mShortVideoPlayer?.addPositionChangeListener(this)
             mShortVideoPlayer?.addStatusChangeListener(this)
             mShortVideoPlayer?.addVideoSizeChangeListener(this)
         } else {
@@ -190,12 +197,23 @@ class ShortVideoPagerPresenter(
     }
 
     private fun resolveToolbarSubtitle() {
-        if (mShortVideos.isEmpty()) {
-            return
-        }
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
         view?.setToolbarSubtitle(
-            mShortVideos[mCurrentIndex],
-            accountId, isPlayBackSpeed
+            curVideo,
+            accountId
+        )
+    }
+
+    private fun resolveDuration() {
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
+        view?.onUpdateDuration(
+            0L.coerceAtLeast(curVideo.duration - currentPosition)
+        )
+    }
+
+    private fun resolveSpeed() {
+        view?.onUpdateSpeed(
+            mShortVideoPlayer?.playbackSpeed ?: 1f
         )
     }
 
@@ -206,6 +224,7 @@ class ShortVideoPagerPresenter(
         selectPage(position)
         resolveToolbarTitle()
         resolveToolbarSubtitle()
+        resolveDuration()
         resolvePreparingProgress()
         if (mCurrentIndex >= mShortVideos.size - 1 && !isEndContent && !loadingNow) {
             receiveShortVideos()
@@ -241,20 +260,16 @@ class ShortVideoPagerPresenter(
     }
 
     fun fireCommentsClick() {
-        if (mShortVideos.isEmpty()) {
-            return
-        }
-        mShortVideos[mCurrentIndex].let {
-            val commented = Commented.from(it)
-            view?.showComments(
-                accountId,
-                commented
-            )
-        }
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
+        val commented = Commented.from(curVideo)
+        view?.showComments(
+            accountId,
+            commented
+        )
     }
 
     private fun onLikesResponse(count: Int, userLikes: Boolean, index: Int) {
-        mShortVideos[index].let {
+        mShortVideos.getOrNull(index)?.let {
             it.setLikesCount(count)
             it.setUserLikes(userLikes)
             view?.displayLikes(
@@ -271,67 +286,55 @@ class ShortVideoPagerPresenter(
         ) {
             return
         }
-        if (mShortVideos.isEmpty()) {
-            return
-        }
-        mShortVideos[mCurrentIndex].let {
-            val add = !it.isUserLikes
-            appendJob(
-                interactor.likeOrDislike(
-                    accountId,
-                    it.ownerId,
-                    it.id,
-                    it.accessKey,
-                    add
-                )
-                    .fromIOToMain(
-                        { pair ->
-                            onLikesResponse(
-                                pair.first,
-                                pair.second,
-                                mCurrentIndex
-                            )
-                        }
-                    ) { throwable -> showError(throwable) })
-        }
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
+        val add = !curVideo.isUserLikes
+        appendJob(
+            interactor.likeOrDislike(
+                accountId,
+                curVideo.ownerId,
+                curVideo.id,
+                curVideo.accessKey,
+                add
+            )
+                .fromIOToMain(
+                    { pair ->
+                        onLikesResponse(
+                            pair.first,
+                            pair.second,
+                            mCurrentIndex
+                        )
+                    }
+                ) { showError(it) })
     }
 
     fun fireLikeLongClick() {
-        if (mShortVideos.isEmpty()) {
-            return
-        }
-        mShortVideos[mCurrentIndex].let {
-            view?.goToLikes(
-                accountId,
-                "video",
-                it.ownerId,
-                it.id
-            )
-        }
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
+        view?.goToLikes(
+            accountId,
+            "video",
+            curVideo.ownerId,
+            curVideo.id
+        )
     }
 
     fun fireShareButtonClick() {
-        if (mShortVideos.isEmpty()) {
-            return
-        }
-        val shortVideo = mShortVideos[mCurrentIndex]
-        view?.onShare(shortVideo, accountId)
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
+        view?.onShare(curVideo, accountId)
     }
 
     fun fireDownloadButtonClick() {
-        if (mShortVideos.isEmpty()) {
-            return
-        }
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
         if (!hasReadWriteStoragePermission(instance)) {
             view?.requestWriteExternalStoragePermission()
             return
         }
-        downloadImpl()
+        downloadImpl(curVideo)
     }
 
     private fun onWritePermissionResolved() {
+        val curVideo = mShortVideos.getOrNull(mCurrentIndex) ?: return
         if (hasReadWriteStoragePermission(instance)) {
-            downloadImpl()
+            downloadImpl(curVideo)
         }
     }
 
@@ -362,8 +365,7 @@ class ShortVideoPagerPresenter(
         super.onDestroyed()
     }
 
-    private fun downloadImpl() {
-        val shortVideo = mShortVideos[mCurrentIndex]
+    private fun downloadImpl(shortVideo: Video) {
         val url = firstNonEmptyString(
             shortVideo.mp4link2160, shortVideo.mp4link1440,
             shortVideo.mp4link1080, shortVideo.mp4link720, shortVideo.mp4link480,
@@ -393,6 +395,17 @@ class ShortVideoPagerPresenter(
     override fun onVideoSizeChanged(player: IStoryPlayer, size: VideoSize) {
         if (mShortVideoPlayer === player) {
             resolveAspectRatio()
+        }
+    }
+
+    override fun onPlayerPositionChange(
+        player: IStoryPlayer,
+        previousPosition: Long,
+        currentPosition: Long
+    ) {
+        if (mShortVideoPlayer === player) {
+            this.currentPosition = currentPosition
+            resolveDuration()
         }
     }
 

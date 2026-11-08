@@ -141,12 +141,10 @@ class AudioContainer : LinearLayout {
     }
 
     private fun getMp3AndBitrate(accountId: Long, audio: Audio) {
-        val mode = audio.needRefresh()
-        if (mode.first) {
-            audioListDisposable += mAudioInteractor.getByIdOld(
+        if (audio.needRefresh()) {
+            audioListDisposable += mAudioInteractor.getById(
                 accountId,
-                listOf(audio),
-                mode.second
+                listOf(audio)
             ).fromIOToMain({ t -> getBitrate(t[0]) }) {
                 getBitrate(
                     audio

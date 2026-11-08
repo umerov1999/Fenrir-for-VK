@@ -94,7 +94,8 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
     private var mLink: CircleCounterButton? = null
     private var mFullscreen = false
     private var hasExternalUrl = false
-    private var mPlaySpeed: ImageView? = null
+    private var mPlaySpeedIcon: ImageView? = null
+    private var mPlaySpeedText: TextView? = null
     private var helpDisposable = CancelableJob()
     private var mAdapter: Adapter? = null
     private var mLoadingProgressBarDispose = CancelableJob()
@@ -129,13 +130,10 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
         )
         mExpires = findViewById(R.id.item_story_expires)
         mDuration = findViewById(R.id.item_story_duration)
-        mPlaySpeed = findViewById(R.id.toolbar_play_speed)
-        mPlaySpeed?.setOnClickListener {
-            val stateSpeed = presenter?.togglePlaybackSpeed() == true
-            Utils.setTint(
-                mPlaySpeed,
-                if (stateSpeed) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
-            )
+        mPlaySpeedIcon = findViewById(R.id.toolbar_play_speed_icon)
+        mPlaySpeedText = findViewById(R.id.toolbar_play_speed_text)
+        mPlaySpeedIcon?.setOnClickListener {
+            presenter?.fireTogglePlaybackSpeed()
         }
         val mHelper = findViewById<ThorVGLottieView>(R.id.swipe_helper)
         if (HelperSimple.needHelp(HelperSimple.STORY_HELPER, 2)) {
@@ -266,8 +264,8 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
         DownloadWorkUtils.doDownloadPhoto(this, url, dir, file)
     }
 
-    override fun downloadVideo(video: Video, url: String, Res: String) {
-        DownloadWorkUtils.doDownloadVideo(this, video, url, Res)
+    override fun downloadVideo(video: Video, url: String, res: String) {
+        DownloadWorkUtils.doDownloadVideo(this, video, url, res)
     }
 
     override fun updateCount(count: Int) {
@@ -276,6 +274,22 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
 
     override fun notifyDataSetChanged() {
         mAdapter?.notifyDataSetChanged()
+    }
+
+    override fun onUpdateDuration(isVideo: Boolean, duration: Long) {
+        if (isVideo) {
+            mDuration?.text = AppTextUtils.getDurationString(duration)
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onUpdateSpeed(speed: Float) {
+        mPlaySpeedText?.text = "${if (speed % 1f == 0f) speed.toInt() else speed}x"
+        mPlaySpeedText?.setTextColor(if (speed > 1f) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor())
+        Utils.setTint(
+            mPlaySpeedIcon,
+            if (speed > 1f) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
+        )
     }
 
     override fun displayListLoading(loading: Boolean) {
@@ -439,11 +453,11 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
         supportActionBar?.title = getString(titleRes, *params)
     }
 
-    override fun setToolbarSubtitle(story: Story, account_id: Long, isPlaySpeed: Boolean) {
+    override fun setToolbarSubtitle(story: Story, accountId: Long) {
         supportActionBar?.subtitle = story.owner?.fullName
         mAvatar?.setOnClickListener {
             story.owner?.let { it1 ->
-                PlaceFactory.getOwnerWallPlace(account_id, it1)
+                PlaceFactory.getOwnerWallPlace(accountId, it1)
                     .tryOpenWith(this)
             }
         }
@@ -472,15 +486,13 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
         if (story.isStoryIsVideo()) {
             mDuration?.visibility = View.VISIBLE
             mDuration?.text = story.video?.duration?.let { AppTextUtils.getDurationString(it) }
-            mPlaySpeed?.visibility = View.VISIBLE
+            mPlaySpeedIcon?.visibility = View.VISIBLE
+            mPlaySpeedText?.visibility = View.VISIBLE
         } else {
             mDuration?.visibility = View.GONE
-            mPlaySpeed?.visibility = View.GONE
+            mPlaySpeedIcon?.visibility = View.GONE
+            mPlaySpeedText?.visibility = View.GONE
         }
-        Utils.setTint(
-            mPlaySpeed,
-            if (isPlaySpeed) CurrentTheme.getColorPrimary(this) else "#ffffff".toColor()
-        )
         if (story.target_url.isNullOrEmpty()) {
             mLink?.visibility = View.GONE
             hasExternalUrl = false
@@ -490,15 +502,15 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
             mLink?.setOnClickListener {
                 LinkHelper.openUrl(
                     this,
-                    account_id,
+                    accountId,
                     story.target_url
                 )
             }
         }
     }
 
-    override fun onShare(story: Story, account_id: Long) {
-        SendAttachmentsActivity.startForSendAttachments(this, account_id, story)
+    override fun onShare(story: Story, accountId: Long) {
+        SendAttachmentsActivity.startForSendAttachments(this, accountId, story)
     }
 
     override fun configHolder(
@@ -554,8 +566,8 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
 
         open fun setProgressVisible(visible: Boolean) {}
         open fun setAspectRatio(w: Int, h: Int) {}
-        open fun setSurfaceVisible(Vis: Int) {}
-        open fun setPreviewVisible(Vis: Int) {}
+        open fun setSurfaceVisible(visibility: Int) {}
+        open fun setPreviewVisible(visibility: Int) {}
         open fun bindTo(story: Story) {}
     }
 
@@ -596,12 +608,12 @@ class StoryPagerActivity : BaseMvpActivity<StoryPagerPresenter, IStoryPagerView>
             mSurfaceView.setAspectRatio(w, h)
         }
 
-        override fun setSurfaceVisible(Vis: Int) {
-            mSurfaceView.visibility = Vis
+        override fun setSurfaceVisible(visibility: Int) {
+            mSurfaceView.visibility = visibility
         }
 
-        override fun setPreviewVisible(Vis: Int) {
-            mPreviewView.visibility = Vis
+        override fun setPreviewVisible(visibility: Int) {
+            mPreviewView.visibility = visibility
         }
 
         override fun bindTo(story: Story) {

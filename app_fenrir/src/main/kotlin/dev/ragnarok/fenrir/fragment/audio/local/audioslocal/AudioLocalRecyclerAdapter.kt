@@ -112,10 +112,18 @@ class AudioLocalRecyclerAdapter(private val mContext: Context, private var data:
                     cursor.getString(MediaStore.MediaColumns.DATA)
                 cursor.close()
                 if (fl.nonNullNoEmpty()) {
-                    if (FileUtils.audioTagStrip(fl)) {
-                        emit(true)
+                    if (fl.contains(".m4a")) {
+                        if (FileUtils.videoTagStrip(fl)) {
+                            emit(true)
+                        } else {
+                            throw Throwable("Can't strip metadata")
+                        }
                     } else {
-                        throw Throwable("Can't strip metadata")
+                        if (FileUtils.audioTagStrip(fl)) {
+                            emit(true)
+                        } else {
+                            throw Throwable("Can't strip metadata")
+                        }
                     }
                 } else {
                     throw Throwable("Can't find file")

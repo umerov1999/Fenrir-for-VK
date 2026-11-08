@@ -1070,7 +1070,7 @@ object Utils {
                 hiddenDevice_id =
                     PreferenceScreen.getPreferences(context).getString("hidden_device_id", null)
                 if (hiddenDevice_id.isNullOrEmpty()) {
-                    val allowedChars = ('a'..'f').plusElement(('0'..'9'))
+                    val allowedChars = ('a'..'f').toList() + ('0'..'9').toList()
                     hiddenDevice_id = (1..16).map { allowedChars.random() }
                         .joinToString("") + ":" + (1..32).map { allowedChars.random() }
                         .joinToString("")
@@ -1085,7 +1085,7 @@ object Utils {
                 device_id =
                     PreferenceScreen.getPreferences(context).getString("device_id", null)
                 if (device_id.isNullOrEmpty()) {
-                    val allowedChars = ('a'..'f').plusElement(('0'..'9'))
+                    val allowedChars = ('a'..'f').toList() + ('0'..'9').toList()
                     device_id = (1..16).map { allowedChars.random() }
                         .joinToString("") + ":" + (1..32).map { allowedChars.random() }
                         .joinToString("")

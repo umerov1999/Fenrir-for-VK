@@ -147,6 +147,22 @@ static void ScaleUVDown2(int src_width,
                                           : ScaleUVRowDown2Box_HVX);
   }
 #endif
+#if defined(HAS_SCALEUVROWDOWN2_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    ScaleUVRowDown2 =
+        filtering == kFilterNone
+            ? ScaleUVRowDown2_Any_WASMSIMD
+            : (filtering == kFilterLinear ? ScaleUVRowDown2Linear_Any_WASMSIMD
+                                          : ScaleUVRowDown2Box_Any_WASMSIMD);
+    if (IS_ALIGNED(dst_width, 8)) {
+      ScaleUVRowDown2 =
+          filtering == kFilterNone
+              ? ScaleUVRowDown2_WASMSIMD
+              : (filtering == kFilterLinear ? ScaleUVRowDown2Linear_WASMSIMD
+                                            : ScaleUVRowDown2Box_WASMSIMD);
+    }
+  }
+#endif
 
   if (filtering == kFilterLinear) {
     src_stride = 0;
@@ -265,6 +281,14 @@ static int ScaleUVDown4Box(int src_width,
 #if defined(HAS_SCALEUVROWDOWN2BOX_HVX)
   if (TestCpuFlag(kCpuHasHVX)) {
     ScaleUVRowDown2 = ScaleUVRowDown2Box_HVX;
+  }
+#endif
+#if defined(HAS_SCALEUVROWDOWN2BOX_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    ScaleUVRowDown2 = ScaleUVRowDown2Box_Any_WASMSIMD;
+    if (IS_ALIGNED(dst_width, 8)) {
+      ScaleUVRowDown2 = ScaleUVRowDown2Box_WASMSIMD;
+    }
   }
 #endif
 
@@ -453,8 +477,16 @@ static int ScaleUVBox(int src_width,
           }
         }
 #endif
+#if defined(HAS_SCALEUVADDCOLS3_LASX)
+        if (TestCpuFlag(kCpuHasLASX)) {
+          ScaleUVAddCols3 = ScaleUVAddCols3_Any_LASX;
+          if (IS_ALIGNED(dst_width, 8)) {
+            ScaleUVAddCols3 = ScaleUVAddCols3_LASX;
+          }
+        }
+#endif
 #if defined(HAS_SCALEUVADDCOLS3_WASMSIMD)
-        if (TestCpuFlag(kCpuHasWASM)) {
+        if (TestCpuFlag(kCpuHasWASMSIMD)) {
           ScaleUVAddCols3 = ScaleUVAddCols3_Any_WASMSIMD;
           if (IS_ALIGNED(dst_width, 8)) {
             ScaleUVAddCols3 = ScaleUVAddCols3_WASMSIMD;
@@ -504,6 +536,14 @@ static int ScaleUVBox(int src_width,
         }
       }
 #endif
+#if defined(HAS_SCALEADDROW_LASX)
+      if (TestCpuFlag(kCpuHasLASX)) {
+        ScaleAddRow = ScaleAddRow_Any_LASX;
+        if (IS_ALIGNED(row_samples, 32)) {
+          ScaleAddRow = ScaleAddRow_LASX;
+        }
+      }
+#endif
 #if defined(HAS_SCALEADDROW_RVV)
       if (TestCpuFlag(kCpuHasRVV)) {
         ScaleAddRow = ScaleAddRow_RVV;
@@ -515,7 +555,7 @@ static int ScaleUVBox(int src_width,
       }
 #endif
 #if defined(HAS_SCALEADDROW_WASMSIMD)
-      if (TestCpuFlag(kCpuHasWASM)) {
+      if (TestCpuFlag(kCpuHasWASMSIMD)) {
         ScaleAddRow = ScaleAddRow_Any_WASMSIMD;
         if (IS_ALIGNED(row_samples, 16)) {
           ScaleAddRow = ScaleAddRow_WASMSIMD;
@@ -722,6 +762,14 @@ static void ScaleUVDownEven(int src_width,
       ScaleUVRowDownEven = ScaleUVRowDown4_RVV;
     }
 #endif
+  }
+#endif
+#if defined(HAS_SCALEUVROWDOWNEVEN_WASMSIMD)
+  if (TestCpuFlag(kCpuHasWASMSIMD) && !filtering) {
+    ScaleUVRowDownEven = ScaleUVRowDownEven_Any_WASMSIMD;
+    if (IS_ALIGNED(dst_width, 4)) {
+      ScaleUVRowDownEven = ScaleUVRowDownEven_WASMSIMD;
+    }
   }
 #endif
 
@@ -973,6 +1021,22 @@ static int ScaleUVBilinearDown_16(int src_width,
     InterpolateRow = InterpolateRow_16_Any_WASMSIMD;
     if (IS_ALIGNED(clip_src_width, 8)) {
       InterpolateRow = InterpolateRow_16_WASMSIMD;
+    }
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_16_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    InterpolateRow = InterpolateRow_16_Any_LSX;
+    if (IS_ALIGNED(clip_src_width, 8)) {
+      InterpolateRow = InterpolateRow_16_LSX;
+    }
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_16_LASX)
+  if (TestCpuFlag(kCpuHasLASX)) {
+    InterpolateRow = InterpolateRow_16_Any_LASX;
+    if (IS_ALIGNED(clip_src_width, 16)) {
+      InterpolateRow = InterpolateRow_16_LASX;
     }
   }
 #endif
@@ -1243,6 +1307,22 @@ static int ScaleUVBilinearUp_16(int src_width,
     }
   }
 #endif
+#if defined(HAS_INTERPOLATEROW_16_LSX)
+  if (TestCpuFlag(kCpuHasLSX)) {
+    InterpolateRow = InterpolateRow_16_Any_LSX;
+    if (IS_ALIGNED(dst_width, 4)) {
+      InterpolateRow = InterpolateRow_16_LSX;
+    }
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_16_LASX)
+  if (TestCpuFlag(kCpuHasLASX)) {
+    InterpolateRow = InterpolateRow_16_Any_LASX;
+    if (IS_ALIGNED(dst_width, 8)) {
+      InterpolateRow = InterpolateRow_16_LASX;
+    }
+  }
+#endif
   if (src_width >= 32768) {
     ScaleUVFilterCols =
         filtering ? ScaleUVFilterCols64_16_C : ScaleUVCols64_16_C;
@@ -1352,6 +1432,18 @@ static void ScaleUVLinearUp2(int src_width,
   }
 #endif
 
+#ifdef HAS_SCALEUVROWUP2_LINEAR_WASMSIMD
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    ScaleRowUp = ScaleUVRowUp2_Linear_Any_WASMSIMD;
+  }
+#endif
+
+#ifdef HAS_SCALEUVROWUP2_LINEAR_RELAXEDSIMD
+  if (TestCpuFlag(kCpuHasRELAXEDSIMD)) {
+    ScaleRowUp = ScaleUVRowUp2_Linear_Any_RELAXEDSIMD;
+  }
+#endif
+
   if (dst_height == 1) {
     ScaleRowUp(src_uv + ((src_height - 1) / 2) * src_stride, dst_uv, dst_width);
   } else {
@@ -1409,6 +1501,18 @@ static void ScaleUVBilinearUp2(int src_width,
 #ifdef HAS_SCALEUVROWUP2_BILINEAR_RVV
   if (TestCpuFlag(kCpuHasRVV)) {
     Scale2RowUp = ScaleUVRowUp2_Bilinear_RVV;
+  }
+#endif
+
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_WASMSIMD
+  if (TestCpuFlag(kCpuHasWASMSIMD)) {
+    Scale2RowUp = ScaleUVRowUp2_Bilinear_Any_WASMSIMD;
+  }
+#endif
+
+#ifdef HAS_SCALEUVROWUP2_BILINEAR_RELAXEDSIMD
+  if (TestCpuFlag(kCpuHasRELAXEDSIMD)) {
+    Scale2RowUp = ScaleUVRowUp2_Bilinear_Any_RELAXEDSIMD;
   }
 #endif
 

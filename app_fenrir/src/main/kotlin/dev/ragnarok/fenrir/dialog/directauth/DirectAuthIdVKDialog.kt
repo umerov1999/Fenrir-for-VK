@@ -32,6 +32,7 @@ import dev.ragnarok.fenrir.listener.TextWatcherAdapter
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.settings.CurrentTheme
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.inMainThread
 import dev.ragnarok.fenrir.view.RoundCornerLinearView
 
 class DirectAuthIdVKDialog : BaseMvpDialogFragment<DirectAuthIdVKPresenter, IDirectAuthIdVKView>(),
@@ -226,8 +227,10 @@ class DirectAuthIdVKDialog : BaseMvpDialogFragment<DirectAuthIdVKPresenter, IDir
             redirectUri, object : VKCaptchaResultListener {
                 override fun onResult(result: VKCaptchaResult) {
                     result.token.nonNullNoEmpty {
-                        lazyPresenter {
-                            fireVKIdCaptchaSuccess(request, it)
+                        inMainThread {
+                            lazyPresenter {
+                                fireVKIdCaptchaSuccess(request, it)
+                            }
                         }
                     }
                 }

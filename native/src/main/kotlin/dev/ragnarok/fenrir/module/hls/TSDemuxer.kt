@@ -5,12 +5,13 @@ import dev.ragnarok.fenrir.module.FenrirNative.isNativeLoaded
 object TSDemuxer {
     private external fun unpack(
         input: String,
-        output: String,
-        info: Boolean,
-        printDebug: Boolean
-    ): Boolean
+        output: String
+    ): Int
 
-    fun unpackTS(input: String, output: String, info: Boolean, printDebug: Boolean): Boolean {
-        return isNativeLoaded && unpack(input, output, info, printDebug)
+    fun unpackNative(input: String, output: String): Int {
+        if (!isNativeLoaded) {
+            return 0
+        }
+        return unpack(input, output)
     }
 }

@@ -1,5 +1,6 @@
 package dev.ragnarok.fenrir.module.encoder
 
+import dev.ragnarok.fenrir.module.FenrirNative.isNativeLoaded
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -12,6 +13,9 @@ class AudioNoiseSuppressor {
     private var nativeHandle = 0L
 
     fun create(): Boolean {
+        if (!isNativeLoaded) {
+            return false
+        }
         nativeHandle = nCreate()
         return nativeHandle != 0L
     }

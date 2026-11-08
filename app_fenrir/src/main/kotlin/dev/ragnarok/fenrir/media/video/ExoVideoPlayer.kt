@@ -37,7 +37,23 @@ class ExoVideoPlayer(
     private var source: MediaSource
     private var supposedToBePlaying = false
     private var prepareCalled = false
-    private var playbackSpeed = false
+    override var playbackSpeed = 1f
+        set(value) {
+            field = value
+            player?.setPlaybackSpeed(value)
+        }
+
+    override fun togglePlaybackSpeed() {
+        when {
+            playbackSpeed in 1f..<2f -> playbackSpeed = 2f
+            playbackSpeed in 2f..<2.5f -> playbackSpeed = 2.5f
+            playbackSpeed in 2.5f..<3f -> playbackSpeed = 3f
+            playbackSpeed in 3f..<3.5f -> playbackSpeed = 3.5f
+            playbackSpeed in 3.5f..<4f -> playbackSpeed = 4f
+            playbackSpeed >= 4f -> playbackSpeed = 1f
+        }
+    }
+
     override fun updateSource(
         context: Context,
         url: String?,
@@ -52,7 +68,7 @@ class ExoVideoPlayer(
             size == InternalVideoSize.SIZE_HLS || size == InternalVideoSize.SIZE_LIVE
         )
         player?.setMediaSource(source)
-        player?.setPlaybackSpeed(if (playbackSpeed) 2f else 1f)
+        player?.setPlaybackSpeed(playbackSpeed)
         player?.prepare()
         player?.play()
     }
@@ -74,7 +90,7 @@ class ExoVideoPlayer(
         supposedToBePlaying = true
         if (!prepareCalled) {
             player?.setMediaSource(source)
-            player?.setPlaybackSpeed(if (playbackSpeed) 2f else 1f)
+            player?.setPlaybackSpeed(playbackSpeed)
             player?.prepare()
             prepareCalled = true
         }
@@ -87,14 +103,6 @@ class ExoVideoPlayer(
         }
         supposedToBePlaying = false
         player?.pause()
-    }
-
-    override val isPlaybackSpeed: Boolean
-        get() = playbackSpeed
-
-    override fun togglePlaybackSpeed() {
-        playbackSpeed = !playbackSpeed
-        player?.setPlaybackSpeed(if (playbackSpeed) 2f else 1f)
     }
 
     override fun release() {

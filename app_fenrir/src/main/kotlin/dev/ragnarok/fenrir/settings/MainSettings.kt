@@ -469,8 +469,6 @@ internal class MainSettings(context: Context) : IMainSettings {
         get() = getPreferences(app).getBoolean("developer_mode", Constants.forceDeveloperMode)
     override val isForce_cache: Boolean
         get() = getPreferences(app).getBoolean("force_cache", false)
-    override val isUse_api_5_90_for_audio: Boolean
-        get() = getPreferences(app).getBoolean("use_api_5_90_for_audio", true)
     override val isSaving_network_traffic: Boolean
         get() = getPreferences(app).getBoolean("saving_network_traffic", false)
     override val isDisable_history: Boolean
@@ -942,7 +940,7 @@ internal class MainSettings(context: Context) : IMainSettings {
 
     override val audioExt: Set<String>
         get() = getPreferences(app)
-            .getStringSet("audio_ext", setOf("mp3", "ogg", "flac", "opus"))!!
+            .getStringSet("audio_ext", setOf("mp3", "m4a", "aac", "ogg", "flac", "opus"))!!
 
     override val maxThumbResolution: Int
         get() = try {

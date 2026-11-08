@@ -7,8 +7,8 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     set(OPTIMIZE_NORMAL "-O0")
     set(OPTIMIZE_FAST "-O0")
 else ()
-    set(CMAKE_CXX_FLAGS "-std=c++23 -DANDROID -DFENRIR_NATIVE_LOG_DISABLED -ffunction-sections -fdata-sections -fmerge-all-constants")
-    set(CMAKE_C_FLAGS "-std=c23 -w -DANDROID -DFENRIR_NATIVE_LOG_DISABLED -D_LARGEFILE_SOURCE -ffunction-sections -fdata-sections -fmerge-all-constants")
+    set(CMAKE_CXX_FLAGS "-std=c++23 -DANDROID -DFENRIR_NATIVE_LOG_DISABLED -DNDEBUG -ffunction-sections -fdata-sections -fmerge-all-constants")
+    set(CMAKE_C_FLAGS "-std=c23 -w -DANDROID -DFENRIR_NATIVE_LOG_DISABLED -DNDEBUG -D_LARGEFILE_SOURCE -ffunction-sections -fdata-sections -fmerge-all-constants")
     set(OPTIMIZE_NORMAL "-Os")
     set(OPTIMIZE_FAST "-O3")
     set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -84,7 +84,7 @@ add_library(thorvg STATIC
         animation/thorvg/src/renderer/tvgText.cpp)
 
 target_compile_options(thorvg PRIVATE
-        -DTVG_STATIC -DBIG_ENDIAN_COLORS -fno-exceptions -ffast-math ${OPTIMIZE_NORMAL} -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -Woverloaded-virtual -Wno-unused-parameter -Wno-nan-infinity-disabled)
+        -DTVG_STATIC -DBIG_ENDIAN_COLORS -fno-exceptions ${OPTIMIZE_NORMAL} -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -Woverloaded-virtual -Wno-unused-parameter -Wno-nan-infinity-disabled)
 target_include_directories(thorvg PRIVATE
         animation/thorvg/inc
         animation/thorvg/src/common
@@ -106,6 +106,7 @@ add_library(libyuv STATIC
         animation/libyuv/source/compare_common.cc
         animation/libyuv/source/compare_gcc.cc
         animation/libyuv/source/compare_hvx.cc
+        animation/libyuv/source/compare_la.cc
         animation/libyuv/source/compare_neon64.cc
         animation/libyuv/source/compare_neon.cc
         animation/libyuv/source/convert_argb.cc
@@ -125,8 +126,7 @@ add_library(libyuv STATIC
         animation/libyuv/source/rotate_common.cc
         animation/libyuv/source/rotate_gcc.cc
         animation/libyuv/source/rotate_hvx.cc
-        animation/libyuv/source/rotate_lasx.cc
-        animation/libyuv/source/rotate_lsx.cc
+        animation/libyuv/source/rotate_la.cc
         animation/libyuv/source/rotate_neon64.cc
         animation/libyuv/source/rotate_neon.cc
         animation/libyuv/source/rotate_rvv.cc
@@ -136,8 +136,7 @@ add_library(libyuv STATIC
         animation/libyuv/source/row_common.cc
         animation/libyuv/source/row_gcc.cc
         animation/libyuv/source/row_hvx.cc
-        animation/libyuv/source/row_lasx.cc
-        animation/libyuv/source/row_lsx.cc
+        animation/libyuv/source/row_la.cc
         animation/libyuv/source/row_neon64.cc
         animation/libyuv/source/row_neon.cc
         animation/libyuv/source/row_rvv.cc
@@ -149,7 +148,7 @@ add_library(libyuv STATIC
         animation/libyuv/source/scale_common.cc
         animation/libyuv/source/scale_gcc.cc
         animation/libyuv/source/scale_hvx.cc
-        animation/libyuv/source/scale_lsx.cc
+        animation/libyuv/source/scale_la.cc
         animation/libyuv/source/scale_neon64.cc
         animation/libyuv/source/scale_neon.cc
         animation/libyuv/source/scale_rgb.cc
@@ -157,7 +156,7 @@ add_library(libyuv STATIC
         animation/libyuv/source/scale_sme.cc
         animation/libyuv/source/scale_uv.cc
         animation/libyuv/source/video_common.cc)
-target_compile_options(libyuv PRIVATE -ffast-math ${OPTIMIZE_NORMAL} -funroll-loops -fno-strict-aliasing -fno-math-errno)
+target_compile_options(libyuv PRIVATE ${OPTIMIZE_NORMAL} -funroll-loops -fno-strict-aliasing -fno-math-errno)
 target_include_directories(libyuv PRIVATE animation/libyuv/include)
 if (${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_compile_options(libyuv PRIVATE -march=armv8-a+dotprod+i8mm -DLIBYUV_DISABLE_SVE -DLIBYUV_DISABLE_SME)
@@ -388,10 +387,18 @@ target_compile_options(libopus PRIVATE
 
 #####################################################################
 add_library(common STATIC
-        audio/ts/MpegTsBitStream.cpp
-        audio/ts/MpegTsDemux.cpp
-        audio/taglib/audioproperties.cpp
-        audio/taglib/fileref.cpp
+        audio/ts/MpegTsDemuxer.cpp
+        audio/taglib/mp4/mp4atom.cpp
+        audio/taglib/mp4/mp4chapter.cpp
+        audio/taglib/mp4/mp4coverart.cpp
+        audio/taglib/mp4/mp4file.cpp
+        audio/taglib/mp4/mp4item.cpp
+        audio/taglib/mp4/mp4itemfactory.cpp
+        audio/taglib/mp4/mp4nerochapterlist.cpp
+        audio/taglib/mp4/mp4properties.cpp
+        audio/taglib/mp4/mp4qtchapterlist.cpp
+        audio/taglib/mp4/mp4stem.cpp
+        audio/taglib/mp4/mp4tag.cpp
         audio/taglib/mpeg/id3v1/id3v1genres.cpp
         audio/taglib/mpeg/id3v1/id3v1tag.cpp
         audio/taglib/mpeg/id3v2/frames/attachedpictureframe.cpp
@@ -422,14 +429,13 @@ add_library(common STATIC
         audio/taglib/mpeg/mpegheader.cpp
         audio/taglib/mpeg/mpegproperties.cpp
         audio/taglib/mpeg/xingheader.cpp
-        audio/taglib/tag.cpp
-        audio/taglib/tagunion.cpp
-        audio/taglib/tagutils.cpp
         audio/taglib/toolkit/tbytevector.cpp
         audio/taglib/toolkit/tbytevectorlist.cpp
         audio/taglib/toolkit/tbytevectorstream.cpp
+        audio/taglib/toolkit/tcharset.cpp
         audio/taglib/toolkit/tdebug.cpp
         audio/taglib/toolkit/tdebuglistener.cpp
+        audio/taglib/toolkit/tdeferredwritestream.cpp
         audio/taglib/toolkit/tfile.cpp
         audio/taglib/toolkit/tfilestream.cpp
         audio/taglib/toolkit/tiostream.cpp
@@ -440,6 +446,11 @@ add_library(common STATIC
         audio/taglib/toolkit/tvariant.cpp
         audio/taglib/toolkit/tversionnumber.cpp
         audio/taglib/toolkit/tzlib.cpp
+        audio/taglib/audioproperties.cpp
+        audio/taglib/fileref.cpp
+        audio/taglib/tag.cpp
+        audio/taglib/tagunion.cpp
+        audio/taglib/tagutils.cpp
         compress/lz4/lz4.c
         compress/zstd/dictBuilder/fastcover.c
         compress/zstd/dictBuilder/cover.c
@@ -476,7 +487,9 @@ add_library(common STATIC
 
 target_include_directories(common
         PRIVATE
+        ./
         audio/taglib
+        audio/taglib/mp4
         audio/taglib/mpeg
         audio/taglib/mpeg/id3v1
         audio/taglib/mpeg/id3v2
@@ -626,9 +639,9 @@ add_library(fenrir_jni
         jni_call.cpp
         animation/thorvg/thorvg_jni.cpp
         animation/video/gifvideo_jni.cpp
-        audio/ffmpeg/ffmpeg_jni.cpp
-        audio/ts/mpegts_demux_jni.cpp
-        audio/taglib/taglib_jni.cpp
+        audio/ffmpeg_exoplayer_jni.cpp
+        audio/mpegts_demux_jni.cpp
+        audio/taglib_jni.cpp
         audio/opus/opus_jni.cc
         audio/audio_recorder_jni.cpp
         camerax/image_processing_util_jni.cpp
@@ -658,6 +671,7 @@ target_include_directories(fenrir_jni
         audio/opus/opusfile/include
         audio/opus/rnnoise/include
         audio/taglib
+        audio/taglib/mp4
         audio/taglib/mpeg
         audio/taglib/mpeg/id3v1
         audio/taglib/mpeg/id3v2

@@ -40,6 +40,7 @@ import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppTextUtils
+import dev.ragnarok.fenrir.util.DownloadWorkUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
@@ -267,14 +268,20 @@ class AudioDuplicateDialog :
         fun newInstance(
             context: Context,
             aid: Long,
-            new_audio: Audio?,
-            old_audio: String
+            newAudio: Audio?,
+            oldAudio: DownloadWorkUtils.DownloadInfo
         ): AudioDuplicateDialog? {
-            val old = getAudioContent(context, old_audio, aid) ?: return null
+            val oldMp3 = getAudioContent(context, oldAudio.build(), aid)
+            val oldM4A = getAudioContent(
+                context,
+                DownloadWorkUtils.DownloadInfo(oldAudio.file, oldAudio.path, "m4a").build(),
+                aid
+            )
+            val old = oldMp3 ?: oldM4A
             val args = Bundle()
             args.putLong(Extra.ACCOUNT_ID, aid)
-            args.putParcelable(Extra.NEW, new_audio)
-            args.putParcelable(Extra.OLD, old)
+            args.putParcelable(Extra.NEW, newAudio)
+            args.putParcelable(Extra.OLD, old ?: return null)
             val dialog = AudioDuplicateDialog()
             dialog.arguments = args
             return dialog

@@ -6,39 +6,74 @@ object FileUtils {
     private external fun getThreadsCountNative(): Int
     private external fun listDirRecursiveNative(dir: String, listener: ListDirRecursive)
     private external fun listDirRecursiveNativePointer(dir: String, pointer: Long)
-    private external fun audioTagStripNative(audio_file: String): Boolean
+    private external fun audioTagStripNative(audioFile: String): Boolean
+    private external fun videoTagStripNative(file: String): Boolean
     private external fun audioTagModifyNative(
-        audio_file: String,
-        cover_file: String?,
-        cover_mime_type: String?,
+        audioFile: String,
+        coverFile: String?,
+        coverMimeType: String?,
         title: String?,
         artist: String?,
-        album_title: String?,
+        albumTitle: String?,
         ifGenre: String?,
         comment: String?
     ): Boolean
 
-    fun audioTagStrip(audio_file: String): Boolean {
-        return audioTagStripNative(audio_file)
+    private external fun videoTagModifyNative(
+        file: String,
+        coverFile: String?,
+        title: String?,
+        artist: String?,
+        albumTitle: String?,
+        ifGenre: String?,
+        comment: String?
+    ): Boolean
+
+    fun audioTagStrip(audioFile: String): Boolean {
+        return audioTagStripNative(audioFile)
+    }
+
+    fun videoTagStrip(file: String): Boolean {
+        return videoTagStripNative(file)
     }
 
     fun audioTagModify(
-        audio_file: String,
-        cover_file: String?,
-        cover_mime_type: String?,
+        audioFile: String,
+        coverFile: String?,
+        coverMimeType: String?,
         title: String?,
         artist: String?,
-        album_title: String?,
+        albumTitle: String?,
         ifGenre: String?,
         comment: String?
     ): Boolean {
         return audioTagModifyNative(
-            audio_file,
-            cover_file,
-            cover_mime_type,
+            audioFile,
+            coverFile,
+            coverMimeType,
             title,
             artist,
-            album_title,
+            albumTitle,
+            ifGenre,
+            comment
+        )
+    }
+
+    fun videoTagModify(
+        file: String,
+        coverFile: String?,
+        title: String?,
+        artist: String?,
+        albumTitle: String?,
+        ifGenre: String?,
+        comment: String?
+    ): Boolean {
+        return videoTagModifyNative(
+            file,
+            coverFile,
+            title,
+            artist,
+            albumTitle,
             ifGenre,
             comment
         )

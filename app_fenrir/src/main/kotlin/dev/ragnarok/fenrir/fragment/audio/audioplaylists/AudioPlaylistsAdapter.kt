@@ -65,7 +65,7 @@ class AudioPlaylistsAdapter(
             holder.genre.text = playlist.genre
         }
         holder.update.text = AppTextUtils.getDateFromUnixTime(context, playlist.update_time)
-        holder.playlist_container.setOnClickListener {
+        holder.playlistContainer.setOnClickListener {
             clickListener?.onAlbumClick(holder.bindingAdapterPosition, playlist)
         }
     }
@@ -113,7 +113,7 @@ class AudioPlaylistsAdapter(
         val artist: TextView
         val genre: TextView
         val update: TextView
-        val playlist_container: View
+        val playlistContainer: View
         override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo?) {
             val position = recyclerView?.getChildAdapterPosition(v).orZero()
             val playlist = data[position]
@@ -169,7 +169,7 @@ class AudioPlaylistsAdapter(
             thumb = itemView.findViewById(R.id.item_thumb)
             title = itemView.findViewById(R.id.item_title)
             count = itemView.findViewById(R.id.item_count)
-            playlist_container = itemView.findViewById(R.id.playlist_container)
+            playlistContainer = itemView.findViewById(R.id.playlist_container)
             description = itemView.findViewById(R.id.item_description)
             update = itemView.findViewById(R.id.item_time)
             year = itemView.findViewById(R.id.item_year)
@@ -177,5 +177,4 @@ class AudioPlaylistsAdapter(
             genre = itemView.findViewById(R.id.item_genre)
         }
     }
-
 }

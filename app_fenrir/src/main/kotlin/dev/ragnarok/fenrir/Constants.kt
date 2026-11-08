@@ -3,7 +3,6 @@ package dev.ragnarok.fenrir
 object Constants {
     const val API_VERSION = "5.186"
     const val AUTH_API_VERSION = API_VERSION
-    const val OLD_API_FOR_AUDIO_VERSION = "5.90"
 
     const val DATABASE_FENRIR_VERSION = 51
     const val DATABASE_TEMPORARY_VERSION = 15

@@ -12,6 +12,7 @@ import com.squareup.picasso3.Transformation
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.Account
+import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -88,7 +89,11 @@ class AccountAdapter(
             holder.vOnline.setIcon(iconRes.orZero())
             holder.vOnline.visibility = if (online) View.VISIBLE else View.GONE
         } else {
-            holder.domain.text = "club" + abs(account.getOwnerObjectId())
+            if (Peer.isUser(account.getOwnerObjectId())) {
+                holder.domain.text = "@id" + account.getOwnerObjectId()
+            } else {
+                holder.domain.text = "club" + abs(account.getOwnerObjectId())
+            }
             holder.tvLastTime.visibility = View.GONE
             holder.vOnline.visibility = View.GONE
         }

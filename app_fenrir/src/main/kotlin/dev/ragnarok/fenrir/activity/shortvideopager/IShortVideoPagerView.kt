@@ -14,8 +14,8 @@ interface IShortVideoPagerView : IMvpView, IErrorView, IToastView {
     fun setPreparingProgressVisible(position: Int, preparing: Boolean)
     fun attachDisplayToPlayer(adapterPosition: Int, storyPlayer: IStoryPlayer?)
     fun setToolbarTitle(@StringRes titleRes: Int, vararg params: Any?)
-    fun setToolbarSubtitle(shortVideo: Video, account_id: Long, isPlaySpeed: Boolean)
-    fun onShare(shortVideo: Video, account_id: Long)
+    fun setToolbarSubtitle(shortVideo: Video, accountId: Long)
+    fun onShare(shortVideo: Video, accountId: Long)
     fun configHolder(
         adapterPosition: Int,
         progress: Boolean,
@@ -38,5 +38,8 @@ interface IShortVideoPagerView : IMvpView, IErrorView, IToastView {
     fun showComments(accountId: Long, commented: Commented)
     fun goToLikes(accountId: Long, type: String, ownerId: Long, id: Int)
 
-    fun downloadVideo(video: Video, url: String, Res: String)
+    fun downloadVideo(video: Video, url: String, res: String)
+
+    fun onUpdateDuration(duration: Long)
+    fun onUpdateSpeed(speed: Float)
 }

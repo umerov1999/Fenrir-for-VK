@@ -29,6 +29,7 @@ extern "C" {
      defined(_M_IX86)) &&                                           \
     ((defined(_MSC_VER) && !defined(__clang__)) ||                  \
      defined(LIBYUV_ENABLE_ROWWIN))
+#if defined(VISUALC_HAS_AVX2)
 #define HAS_TRANSPOSEWX8_AVX2
 #define HAS_TRANSPOSEUVWX8_AVX2
 #define HAS_TRANSPOSEWX8_16_AVX2
@@ -38,7 +39,8 @@ extern "C" {
 #define HAS_TRANSPOSEWXH_32_AVX2
 #define HAS_TRANSPOSEWX16_AVX2
 #define HAS_TRANSPOSEUVWX16_AVX2
-#if defined(__x86_64__) || defined(_M_X64)
+#endif
+#if defined(VISUALC_HAS_AVX512)
 #define HAS_TRANSPOSEWX16_AVX512BW
 #define HAS_TRANSPOSEUVWX16_AVX512BW
 #define HAS_TRANSPOSEWX32_16_AVX512BW
@@ -48,9 +50,10 @@ extern "C" {
 
 // The following are available for 32/64 bit GCC and clang, as inline assembly
 // in rotate_gcc.cc:
-#if !defined(LIBYUV_DISABLE_X86) &&               \
-    (defined(__x86_64__) || defined(__i386__)) && \
-    !defined(LIBYUV_ENABLE_ROWWIN) &&             \
+#if !defined(LIBYUV_DISABLE_X86) &&                       \
+    (defined(__x86_64__) || defined(__i386__)) &&         \
+    (defined(CLANG_HAS_AVX2) || defined(GCC_HAS_AVX2)) && \
+    !defined(LIBYUV_ENABLE_ROWWIN) &&                     \
     (!defined(_MSC_VER) || defined(__clang__))
 #define HAS_TRANSPOSEWX8_AVX2
 #define HAS_TRANSPOSEUVWX8_AVX2
@@ -63,9 +66,10 @@ extern "C" {
 #define HAS_TRANSPOSEUVWX16_AVX2
 #endif
 
-// The following are available for AVX512 clang x64 platforms:
-#if !defined(LIBYUV_DISABLE_X86) && defined(__x86_64__) && \
-    defined(CLANG_HAS_AVX512) && !defined(LIBYUV_ENABLE_ROWWIN) && \
+// The following are available for AVX512 GCC/clang x64 platforms:
+#if !defined(LIBYUV_DISABLE_X86) && defined(__x86_64__) &&    \
+    (defined(CLANG_HAS_AVX512) || defined(GCC_HAS_AVX512)) && \
+    !defined(LIBYUV_ENABLE_ROWWIN) &&                         \
     (!defined(_MSC_VER) || defined(__clang__))
 #define HAS_TRANSPOSEWX16_AVX512BW
 #define HAS_TRANSPOSEUVWX16_AVX512BW
@@ -73,13 +77,23 @@ extern "C" {
 #define HAS_TRANSPOSEWX16_32_AVX512BW
 #endif
 
+// The following are available for ACEV1 GCC/clang x64 platforms:
+#if !defined(LIBYUV_DISABLE_X86) && defined(__x86_64__) &&  \
+    (defined(CLANG_HAS_ACEV1) || defined(GCC_HAS_ACEV1)) && \
+    !defined(LIBYUV_ENABLE_ROWWIN) &&                       \
+    (!defined(_MSC_VER) || defined(__clang__))
+#define HAS_TRANSPOSEWXH_ACEV1
+#define HAS_TRANSPOSEUVWXH_ACEV1
+#define HAS_TRANSPOSEWXH_16_ACEV1
+#define HAS_TRANSPOSEWXH_32_ACEV1
+#endif
+
 #if !defined(LIBYUV_DISABLE_NEON) && \
     (defined(__ARM_NEON__) || defined(LIBYUV_NEON) || defined(__aarch64__))
 #if defined(__aarch64__)
 #define HAS_TRANSPOSEWX16_NEON
-#else
-#define HAS_TRANSPOSEWX8_NEON
 #endif
+#define HAS_TRANSPOSEWX8_NEON
 #define HAS_TRANSPOSEUVWX8_NEON
 #define HAS_TRANSPOSEWX8_16_NEON
 #define HAS_TRANSPOSEWX4_32_NEON
@@ -91,24 +105,27 @@ extern "C" {
 #define HAS_TRANSPOSEWX4_32_SVE2
 #endif
 
-#if !defined(LIBYUV_DISABLE_SME) && defined(CLANG_HAS_SME) && \
-    defined(__aarch64__)
+#if !defined(LIBYUV_DISABLE_SME) && \
+    (defined(CLANG_HAS_SME) || defined(GCC_HAS_SME)) && defined(__aarch64__)
 #define HAS_TRANSPOSEWXH_SME
 #define HAS_TRANSPOSEUVWXH_SME
 #define HAS_TRANSPOSEWXH_16_SME
 #define HAS_TRANSPOSEWXH_32_SME
 #endif
 
-#if !defined(LIBYUV_DISABLE_LSX) && defined(__loongarch_sx)
+#if !defined(LIBYUV_DISABLE_LSX) && defined(__loongarch_lp64)
 #define HAS_TRANSPOSEWX8_LSX
 #define HAS_TRANSPOSEUVWX8_LSX
 #define HAS_TRANSPOSEWX8_16_LSX
 #define HAS_TRANSPOSEWX4_32_LSX
 #endif
 
-#if !defined(LIBYUV_DISABLE_LASX) && defined(__loongarch_asx)
+#if !defined(LIBYUV_DISABLE_LASX) && defined(__loongarch_lp64)
+#define HAS_TRANSPOSEWX8_LASX
 #define HAS_TRANSPOSEWX16_LASX
+#define HAS_TRANSPOSEUVWX8_LASX
 #define HAS_TRANSPOSEUVWX16_LASX
+#define HAS_TRANSPOSEWX8_16_LASX
 #define HAS_TRANSPOSEWX16_16_LASX
 #define HAS_TRANSPOSEWX4_32_LASX
 #endif
@@ -119,7 +136,7 @@ extern "C" {
 #define HAS_TRANSPOSEWXH_32_RVV
 #endif
 
-#if !defined(LIBYUV_DISABLE_WASM) && defined(__wasm_simd128__)
+#if !defined(LIBYUV_DISABLE_WASMSIMD) && defined(__wasm_simd128__)
 #define HAS_TRANSPOSEWX8_WASMSIMD
 #define HAS_TRANSPOSEUVWX8_WASMSIMD
 #define HAS_TRANSPOSEWX16_WASMSIMD
@@ -182,11 +199,22 @@ void TransposeWx16_AVX512BW(const uint8_t* src,
                             uint8_t* dst,
                             int dst_stride,
                             int width);
+void TransposeWxH_ACEV1(const uint8_t* src,
+                        int src_stride,
+                        uint8_t* dst,
+                        int dst_stride,
+                        int width,
+                        int height);
 void TransposeWx8_LSX(const uint8_t* src,
                       int src_stride,
                       uint8_t* dst,
                       int dst_stride,
                       int width);
+void TransposeWx8_LASX(const uint8_t* src,
+                       int src_stride,
+                       uint8_t* dst,
+                       int dst_stride,
+                       int width);
 void TransposeWx16_LASX(const uint8_t* src,
                         int src_stride,
                         uint8_t* dst,
@@ -228,6 +256,11 @@ void TransposeWx8_Any_LSX(const uint8_t* src,
                           uint8_t* dst,
                           int dst_stride,
                           int width);
+void TransposeWx8_Any_LASX(const uint8_t* src,
+                           int src_stride,
+                           uint8_t* dst,
+                           int dst_stride,
+                           int width);
 void TransposeWx16_Any_LASX(const uint8_t* src,
                             int src_stride,
                             uint8_t* dst,
@@ -279,6 +312,14 @@ void TransposeUVWx16_AVX512BW(const uint8_t* src,
                               uint8_t* dst_b,
                               int dst_stride_b,
                               int width);
+void TransposeUVWxH_ACEV1(const uint8_t* src,
+                          int src_stride,
+                          uint8_t* dst_a,
+                          int dst_stride_a,
+                          uint8_t* dst_b,
+                          int dst_stride_b,
+                          int width,
+                          int height);
 void TransposeUVWx8_NEON(const uint8_t* src,
                          int src_stride,
                          uint8_t* dst_a,
@@ -309,6 +350,13 @@ void TransposeUVWx8_LSX(const uint8_t* src,
                         uint8_t* dst_b,
                         int dst_stride_b,
                         int width);
+void TransposeUVWx8_LASX(const uint8_t* src,
+                         int src_stride,
+                         uint8_t* dst_a,
+                         int dst_stride_a,
+                         uint8_t* dst_b,
+                         int dst_stride_b,
+                         int width);
 void TransposeUVWx16_LASX(const uint8_t* src,
                           int src_stride,
                           uint8_t* dst_a,
@@ -359,6 +407,13 @@ void TransposeUVWx8_Any_LSX(const uint8_t* src,
                             uint8_t* dst_b,
                             int dst_stride_b,
                             int width);
+void TransposeUVWx8_Any_LASX(const uint8_t* src,
+                             int src_stride,
+                             uint8_t* dst_a,
+                             int dst_stride_a,
+                             uint8_t* dst_b,
+                             int dst_stride_b,
+                             int width);
 void TransposeUVWx16_Any_LASX(const uint8_t* src,
                               int src_stride,
                               uint8_t* dst_a,
@@ -401,6 +456,12 @@ void TransposeWx32_16_AVX512BW(const uint16_t* src,
                                uint16_t* dst,
                                int dst_stride,
                                int width);
+void TransposeWxH_16_ACEV1(const uint16_t* src,
+                           int src_stride,
+                           uint16_t* dst,
+                           int dst_stride,
+                           int width,
+                           int height);
 void TransposeWx8_16_NEON(const uint16_t* src,
                           int src_stride,
                           uint16_t* dst,
@@ -434,6 +495,11 @@ void TransposeWx8_16_LSX(const uint16_t* src,
                          uint16_t* dst,
                          int dst_stride,
                          int width);
+void TransposeWx8_16_LASX(const uint16_t* src,
+                          int src_stride,
+                          uint16_t* dst,
+                          int dst_stride,
+                          int width);
 void TransposeWx16_16_LASX(const uint16_t* src,
                            int src_stride,
                            uint16_t* dst,
@@ -464,6 +530,11 @@ void TransposeWx8_16_Any_LSX(const uint16_t* src,
                              uint16_t* dst,
                              int dst_stride,
                              int width);
+void TransposeWx8_16_Any_LASX(const uint16_t* src,
+                              int src_stride,
+                              uint16_t* dst,
+                              int dst_stride,
+                              int width);
 void TransposeWx16_16_Any_LASX(const uint16_t* src,
                                int src_stride,
                                uint16_t* dst,
@@ -532,6 +603,13 @@ void TransposeWx16_32_AVX512BW(const uint8_t* src,
                                uint8_t* dst,
                                int dst_stride,
                                int width);
+
+void TransposeWxH_32_ACEV1(const uint8_t* src,
+                           int src_stride,
+                           uint8_t* dst,
+                           int dst_stride,
+                           int width,
+                           int height);
 
 void TransposeWx4_32_RVV(const uint8_t* src,
                          int src_stride,

@@ -156,7 +156,7 @@ class AnimatedFileDrawable(
         scheduleNextGetFrame()
     }
 
-    private fun loadFrameRunnable() {
+    private suspend fun loadFrameRunnable() {
         if (!isRecycled) {
             try {
                 if (nativePtr != 0L || metaData[0] == 0 || metaData[1] == 0) {
@@ -192,7 +192,7 @@ class AnimatedFileDrawable(
                                 endTime, true
                             ) == 0
                         ) {
-                            CoroutineScope(Dispatchers.Main).launch {
+                            withContext(Dispatchers.Main) {
                                 uiRunnableNoFrame()
                             }
                             return
@@ -203,7 +203,7 @@ class AnimatedFileDrawable(
                         backgroundBitmapTime = metaData[3]
                     }
                 } else {
-                    CoroutineScope(Dispatchers.Main).launch {
+                    withContext(Dispatchers.Main) {
                         uiRunnableNoFrame()
                     }
                     return
@@ -214,7 +214,7 @@ class AnimatedFileDrawable(
                 }
             }
         }
-        CoroutineScope(Dispatchers.Main).launch {
+        withContext(Dispatchers.Main) {
             uiRunnable()
         }
     }
@@ -592,15 +592,15 @@ class AnimatedFileDrawable(
             ThreadPoolExecutor.DiscardPolicy()
         ).asCoroutineDispatcher()
 
-        private val coroutineExceptionHandlerEmpty = CoroutineExceptionHandler { _, throwable ->
+        internal val coroutineExceptionHandlerEmpty = CoroutineExceptionHandler { _, throwable ->
             if (BuildConfig.DEBUG) {
                 throwable.printStackTrace()
             }
         }
 
-        internal inline fun inMainThread(crossinline function: () -> Unit): Job {
+        internal inline fun inMainThread(crossinline block: suspend CoroutineScope.() -> Unit): Job {
             return CoroutineScope(Dispatchers.Main + coroutineExceptionHandlerEmpty).launch {
-                function.invoke()
+                block.invoke(this)
             }
         }
     }
@@ -624,10 +624,10 @@ class AnimatedFileDrawable(
                 isInitializing = false
                 return@launch
             }
-            inMainThread {
+            withContext(Dispatchers.Main) {
                 isInitializing = false
                 if (isRecycled) {
-                    return@inMainThread
+                    return@withContext
                 }
                 if (!decoderCreated) {
                     decoderListener.onError()

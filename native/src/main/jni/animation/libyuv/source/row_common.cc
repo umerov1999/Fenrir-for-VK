@@ -231,7 +231,8 @@ void AR30ToARGBRow_C(const uint8_t* src_ar30, uint8_t* dst_argb, int width) {
     uint32_t g = (ar30 >> 12) & 0xff;
     uint32_t r = (ar30 >> 22) & 0xff;
     uint32_t a = (ar30 >> 30) * 0x55;  // Replicate 2 bits to 8 bits.
-    *(uint32_t*)(dst_argb) = b | (g << 8) | (r << 16) | (a << 24);
+    uint32_t argb = b | (g << 8) | (r << 16) | (a << 24);
+    memcpy(dst_argb, &argb, sizeof argb);
     dst_argb += 4;
     src_ar30 += 4;
   }
@@ -246,7 +247,8 @@ void AR30ToABGRRow_C(const uint8_t* src_ar30, uint8_t* dst_abgr, int width) {
     uint32_t g = (ar30 >> 12) & 0xff;
     uint32_t r = (ar30 >> 22) & 0xff;
     uint32_t a = (ar30 >> 30) * 0x55;  // Replicate 2 bits to 8 bits.
-    *(uint32_t*)(dst_abgr) = r | (g << 8) | (b << 16) | (a << 24);
+    uint32_t abgr = r | (g << 8) | (b << 16) | (a << 24);
+    memcpy(dst_abgr, &abgr, sizeof abgr);
     dst_abgr += 4;
     src_ar30 += 4;
   }
@@ -260,7 +262,8 @@ void AR30ToAB30Row_C(const uint8_t* src_ar30, uint8_t* dst_ab30, int width) {
     uint32_t b = ar30 & 0x3ff;
     uint32_t ga = ar30 & 0xc00ffc00;
     uint32_t r = (ar30 >> 20) & 0x3ff;
-    *(uint32_t*)(dst_ab30) = r | ga | (b << 20);
+    uint32_t ab30 = r | ga | (b << 20);
+    memcpy(dst_ab30, &ab30, sizeof ab30);
     dst_ab30 += 4;
     src_ar30 += 4;
   }
@@ -481,8 +484,9 @@ void ABGRToAR30Row_C(const uint8_t* src_abgr, uint8_t* dst_ar30, int width) {
     uint32_t g0 = (src_abgr[1] >> 6) | ((uint32_t)(src_abgr[1]) << 2);
     uint32_t b0 = (src_abgr[2] >> 6) | ((uint32_t)(src_abgr[2]) << 2);
     uint32_t a0 = (src_abgr[3] >> 6);
-    *(uint32_t*)(dst_ar30) =
+    uint32_t ar30 =
         STATIC_CAST(uint32_t, b0 | (g0 << 10) | (r0 << 20) | (a0 << 30));
+    memcpy(dst_ar30, &ar30, sizeof ar30);
     dst_ar30 += 4;
     src_abgr += 4;
   }
@@ -495,8 +499,9 @@ void ARGBToAR30Row_C(const uint8_t* src_argb, uint8_t* dst_ar30, int width) {
     uint32_t g0 = (src_argb[1] >> 6) | ((uint32_t)(src_argb[1]) << 2);
     uint32_t r0 = (src_argb[2] >> 6) | ((uint32_t)(src_argb[2]) << 2);
     uint32_t a0 = (src_argb[3] >> 6);
-    *(uint32_t*)(dst_ar30) =
+    uint32_t ar30 =
         STATIC_CAST(uint32_t, b0 | (g0 << 10) | (r0 << 20) | (a0 << 30));
+    memcpy(dst_ar30, &ar30, sizeof ar30);
     dst_ar30 += 4;
     src_argb += 4;
   }
@@ -2067,7 +2072,7 @@ static void StoreAR30(uint8_t* rgb_buf, int b, int g, int r) {
   g = Clamp10(g);
   r = Clamp10(r);
   ar30 = b | ((uint32_t)g << 10) | ((uint32_t)r << 20) | 0xc0000000;
-  (*(uint32_t*)rgb_buf) = ar30;
+  memcpy(rgb_buf, &ar30, sizeof ar30);
 }
 
 // 10 bit YUV to 10 bit AR30
@@ -2878,7 +2883,7 @@ void DetileToYUY2_C(const uint8_t* src_y,
 // packed into 1x4 blocks, whereas the upper bits are packed in normal raster
 // order.
 void UnpackMT2T_C(const uint8_t* src, uint16_t* dst, size_t size) {
-  for (size_t i = 0; i < size; i += 80) {
+  while (size >= 80) {
     const uint8_t* src_lower_bits = src;
     const uint8_t* src_upper_bits = src + 16;
 
@@ -2892,6 +2897,7 @@ void UnpackMT2T_C(const uint8_t* src, uint16_t* dst, size_t size) {
     }
 
     src += 80;
+    size -= 80;
   }
 }
 
@@ -2965,12 +2971,13 @@ void MergeXR30Row_C(const uint16_t* src_r,
   assert(depth <= 16);
   int x;
   int shift = depth - 10;
-  uint32_t* dst_ar30_32 = (uint32_t*)dst_ar30;
   for (x = 0; x < width; ++x) {
     uint32_t r = clamp1023(src_r[x] >> shift);
     uint32_t g = clamp1023(src_g[x] >> shift);
     uint32_t b = clamp1023(src_b[x] >> shift);
-    dst_ar30_32[x] = b | (g << 10) | (r << 20) | 0xc0000000;
+    uint32_t ar30 = b | (g << 10) | (r << 20) | 0xc0000000;
+    memcpy(dst_ar30, &ar30, sizeof ar30);
+    dst_ar30 += 4;
   }
 }
 
@@ -3574,17 +3581,19 @@ void ComputeCumulativeSumRow_C(const uint8_t* row,
                                int32_t* cumsum,
                                const int32_t* previous_cumsum,
                                int width) {
-  int32_t row_sum[4] = {0, 0, 0, 0};
+  uint32_t row_sum[4] = {0, 0, 0, 0};
+  uint32_t* u_cumsum = (uint32_t*)cumsum;
+  const uint32_t* u_previous_cumsum = (const uint32_t*)previous_cumsum;
   int x;
   for (x = 0; x < width; ++x) {
     row_sum[0] += row[x * 4 + 0];
     row_sum[1] += row[x * 4 + 1];
     row_sum[2] += row[x * 4 + 2];
     row_sum[3] += row[x * 4 + 3];
-    cumsum[x * 4 + 0] = row_sum[0] + previous_cumsum[x * 4 + 0];
-    cumsum[x * 4 + 1] = row_sum[1] + previous_cumsum[x * 4 + 1];
-    cumsum[x * 4 + 2] = row_sum[2] + previous_cumsum[x * 4 + 2];
-    cumsum[x * 4 + 3] = row_sum[3] + previous_cumsum[x * 4 + 3];
+    u_cumsum[x * 4 + 0] = row_sum[0] + u_previous_cumsum[x * 4 + 0];
+    u_cumsum[x * 4 + 1] = row_sum[1] + u_previous_cumsum[x * 4 + 1];
+    u_cumsum[x * 4 + 2] = row_sum[2] + u_previous_cumsum[x * 4 + 2];
+    u_cumsum[x * 4 + 3] = row_sum[3] + u_previous_cumsum[x * 4 + 3];
   }
 }
 
@@ -3594,27 +3603,25 @@ void CumulativeSumToAverageRow_C(const int32_t* tl,
                                  int area,
                                  uint8_t* dst,
                                  int count) {
+  const uint32_t* u_tl = (const uint32_t*)tl;
+  const uint32_t* u_bl = (const uint32_t*)bl;
   float ooa;
   int i;
   assert(area != 0);
 
   ooa = 1.0f / STATIC_CAST(float, area);
   for (i = 0; i < count; ++i) {
-    dst[0] =
-        (uint8_t)(STATIC_CAST(float, bl[w + 0] + tl[0] - bl[0] - tl[w + 0]) *
-                  ooa);
-    dst[1] =
-        (uint8_t)(STATIC_CAST(float, bl[w + 1] + tl[1] - bl[1] - tl[w + 1]) *
-                  ooa);
-    dst[2] =
-        (uint8_t)(STATIC_CAST(float, bl[w + 2] + tl[2] - bl[2] - tl[w + 2]) *
-                  ooa);
-    dst[3] =
-        (uint8_t)(STATIC_CAST(float, bl[w + 3] + tl[3] - bl[3] - tl[w + 3]) *
-                  ooa);
+    uint32_t sum0 = u_bl[w + 0] + u_tl[0] - u_bl[0] - u_tl[w + 0];
+    uint32_t sum1 = u_bl[w + 1] + u_tl[1] - u_bl[1] - u_tl[w + 1];
+    uint32_t sum2 = u_bl[w + 2] + u_tl[2] - u_bl[2] - u_tl[w + 2];
+    uint32_t sum3 = u_bl[w + 3] + u_tl[3] - u_bl[3] - u_tl[w + 3];
+    dst[0] = (uint8_t)(STATIC_CAST(float, sum0) * ooa);
+    dst[1] = (uint8_t)(STATIC_CAST(float, sum1) * ooa);
+    dst[2] = (uint8_t)(STATIC_CAST(float, sum2) * ooa);
+    dst[3] = (uint8_t)(STATIC_CAST(float, sum3) * ooa);
     dst += 4;
-    tl += 4;
-    bl += 4;
+    u_tl += 4;
+    u_bl += 4;
   }
 }
 
@@ -3633,9 +3640,8 @@ void ARGBAffineRow_C(const uint8_t* src_argb,
   for (i = 0; i < width; ++i) {
     int x = (int)(uv[0]);
     int y = (int)(uv[1]);
-    *(uint32_t*)(dst_argb) =
-        *(const uint32_t*)(src_argb + (ptrdiff_t)y * src_argb_stride +
-                           (ptrdiff_t)x * 4);
+    memcpy(dst_argb,
+           src_argb + (ptrdiff_t)y * src_argb_stride + (ptrdiff_t)x * 4, 4);
     dst_argb += 4;
     uv[0] += uv_dudv[2];
     uv[1] += uv_dudv[3];
@@ -3942,7 +3948,7 @@ void ByteToFloatRow_C(const uint8_t* src, float* dst, float scale, int width) {
   int i;
   for (i = 0; i < width; ++i) {
     float value = src[i] * scale;
-    dst[i] = value;
+    memcpy(&dst[i], &value, sizeof(value));
   }
 }
 
@@ -4374,36 +4380,6 @@ void NV12ToRGB565Row_AVX2(const uint8_t* src_y,
   }
 }
 #endif
-
-float ScaleSumSamples_C(const float* src, float* dst, float scale, int width) {
-  float fsum = 0.f;
-  int i;
-  for (i = 0; i < width; ++i) {
-    float v = *src++;
-    fsum += v * v;
-    *dst++ = v * scale;
-  }
-  return fsum;
-}
-
-float ScaleMaxSamples_C(const float* src, float* dst, float scale, int width) {
-  float fmax = 0.f;
-  int i;
-  for (i = 0; i < width; ++i) {
-    float v = *src++;
-    float vs = v * scale;
-    fmax = (v > fmax) ? v : fmax;
-    *dst++ = vs;
-  }
-  return fmax;
-}
-
-void ScaleSamples_C(const float* src, float* dst, float scale, int width) {
-  int i;
-  for (i = 0; i < width; ++i) {
-    *dst++ = *src++ * scale;
-  }
-}
 
 void GaussRow_C(const uint32_t* src, uint16_t* dst, int width) {
   int i;

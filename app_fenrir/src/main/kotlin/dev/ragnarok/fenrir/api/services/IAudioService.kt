@@ -209,17 +209,6 @@ class IAudioService : IServiceRest() {
         )
     }
 
-    fun getByIdVersioned(
-        audios: String?,
-        version: String?
-    ): Flow<BaseResponse<List<VKApiAudio>>> {
-        return rest.request(
-            "audio.getById",
-            form("audios" to audios, "v" to version),
-            baseList(VKApiAudio.serializer())
-        )
-    }
-
     fun getLyrics(audio: String?): Flow<BaseResponse<VKApiLyrics>> {
         return rest.request(
             "audio.getLyrics",

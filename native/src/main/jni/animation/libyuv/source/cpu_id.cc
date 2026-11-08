@@ -9,6 +9,11 @@
  */
 
 #include "libyuv/cpu_id.h"
+#include "libyuv/cpu_support.h"
+
+#if defined(__wasm__) && defined(__wasm_simd128__)
+#include <wasm_simd128.h>
+#endif
 
 #if defined(_MSC_VER)
 #include <intrin.h>  // For __cpuidex()
@@ -25,6 +30,39 @@
 
 #if defined(__linux__) && (defined(__aarch64__) || defined(__loongarch__))
 #include <sys/auxv.h>  // For getauxval()
+#endif
+
+#if !defined(__pnacl__) && !defined(__CLR_VER) && defined(__linux__) && \
+    defined(__x86_64__)
+#include <sys/syscall.h>
+#include <unistd.h>
+#ifndef ARCH_GET_XCOMP_PERM
+#define ARCH_GET_XCOMP_PERM 0x1022
+#endif
+#ifndef XFEATURE_XTILEDATA
+#define XFEATURE_XTILEDATA 18
+#endif
+// Linux 5.16+ disables AMX tile data (XTILEDATA) per process with XFD until
+// the process requests it via arch_prctl(ARCH_REQ_XCOMP_PERM). Executing a
+// tile instruction without permission raises SIGILL even though XCR0 reports
+// tile state as enabled. libyuv only queries the permission and does not
+// request it, so it never changes process state (signal frame size) or trips
+// sandbox policies. Applications that want AMX/ACE kernels should request
+// XTILEDATA permission before libyuv detects CPU features.
+static int HasXTilePermission(void) {
+  unsigned long bitmask = 0;
+  if (syscall(SYS_arch_prctl, ARCH_GET_XCOMP_PERM, &bitmask) != 0) {
+    return 0;
+  }
+  return (bitmask & (1UL << XFEATURE_XTILEDATA)) != 0;
+}
+#elif !defined(__pnacl__) && !defined(__CLR_VER) &&                 \
+    (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || \
+     defined(_M_IX86))
+// Other operating systems enable tile state when XCR0 reports it.
+static int HasXTilePermission(void) {
+  return 1;
+}
 #endif
 
 #if defined(_WIN32) && defined(__aarch64__)
@@ -135,7 +173,7 @@ static int GetXCR0() {
 #if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 160040219)
   xcr0 = (int)_xgetbv(0);  // VS2010 SP1 required.  NOLINT
 #elif defined(__i386__) || defined(__x86_64__)
-  asm(".byte 0x0f, 0x01, 0xd0" : "=a"(xcr0) : "c"(0) : "%edx");
+  __asm__ __volatile__(".byte 0x0f, 0x01, 0xd0" : "=a"(xcr0) : "c"(0) : "edx");
 #endif  // defined(__i386__) || defined(__x86_64__)
   return xcr0;
 }
@@ -377,24 +415,83 @@ LIBYUV_API SAFEBUFFERS int RiscvCpuCaps(const char* cpuinfo_name) {
   return flag;
 }
 
-#if defined(__loongarch__) && defined(__linux__)
-// Define hwcap values ourselves: building with an old auxv header where these
-// hwcap values are not defined should not prevent features from being enabled.
+// Define cpucfg and hwcap values ourselves: building with an old auxv header
+// where these hwcap values are not defined should not prevent features from
+// being enabled.
+#define YUV_LOONGARCH_CFG2_LSX (1 << 6)
+#define YUV_LOONGARCH_CFG2_LASX (1 << 7)
 #define YUV_LOONGARCH_HWCAP_LSX (1 << 4)
 #define YUV_LOONGARCH_HWCAP_LASX (1 << 5)
 
+// For LoongArch, but public to allow testing on any CPU.
 LIBYUV_API SAFEBUFFERS int LoongArchCpuCaps(void) {
   int flag = 0;
-  unsigned long hwcap = getauxval(AT_HWCAP);
-
-  if (hwcap & YUV_LOONGARCH_HWCAP_LSX)
+#if defined(__loongarch__)
+#if !defined(LIBYUV_DISABLE_ASM)
+  uint32_t cfg2 = 0;
+  __asm__ volatile("cpucfg %0, %1\n" : "=r"(cfg2) : "r"(2));
+  if (cfg2 & YUV_LOONGARCH_CFG2_LSX) {
     flag |= kCpuHasLSX;
-
-  if (hwcap & YUV_LOONGARCH_HWCAP_LASX)
-    flag |= kCpuHasLASX;
+    if (cfg2 & YUV_LOONGARCH_CFG2_LASX) {
+      flag |= kCpuHasLASX;
+    }
+  }
+#if defined(__linux__)
+  // Confirm OS kernel has enabled LSX/LASX context switching via AT_HWCAP.
+  unsigned long hwcap = getauxval(AT_HWCAP);
+  if (!(hwcap & YUV_LOONGARCH_HWCAP_LSX)) {
+    flag &= ~(kCpuHasLSX | kCpuHasLASX);
+  } else if (!(hwcap & YUV_LOONGARCH_HWCAP_LASX)) {
+    flag &= ~kCpuHasLASX;
+  }
+#endif
+#elif defined(__linux__)
+  unsigned long hwcap = getauxval(AT_HWCAP);
+  if (hwcap & YUV_LOONGARCH_HWCAP_LSX) {
+    flag |= kCpuHasLSX;
+    if (hwcap & YUV_LOONGARCH_HWCAP_LASX) {
+      flag |= kCpuHasLASX;
+    }
+  }
+#endif
+#endif  // defined(__loongarch__)
   return flag;
 }
+
+// For WebAssembly, but public to allow testing on any CPU.
+LIBYUV_API SAFEBUFFERS int WasmCpuCaps(void) {
+  int flag = 0;
+#if defined(__wasm__)
+#if !defined(LIBYUV_DISABLE_WASMSIMD) && defined(__wasm_simd128__)
+  flag |= kCpuHasWASMSIMD;
 #endif
+#if !defined(LIBYUV_DISABLE_RELAXEDSIMD) && defined(__wasm_relaxed_simd__)
+  // Probe whether the runtime executes Relaxed SIMD instructions natively on
+  // the host CPU:
+  // - On x86 (SSSE3/AVX2/AVX-512), i8x16.relaxed_swizzle lowers to vpshufb,
+  //   which masks out-of-range index 16 by 0x0f and selects lane 0 (non-zero),
+  //   whereas deterministic i8x16.swizzle zeroes out-of-range indices.
+  // - On AArch64 (Neon fmla) and x86 (FMA3/AVX2 vfmadd213ps),
+  //   f32x4.relaxed_madd(16777218.f, 3.f, 3.f) computes a single-rounded
+  //   fused multiply-add (50331656.f), whereas unfused mul+add rounds twice
+  //   (50331660.f).
+  const v128_t kNonZero = wasm_i8x16_splat(1);
+  const volatile v128_t kIndex16 = wasm_i8x16_splat(16);
+  const v128_t swizzle_diff =
+      wasm_v128_xor(wasm_i8x16_relaxed_swizzle(kNonZero, kIndex16),
+                    wasm_i8x16_swizzle(kNonZero, kIndex16));
+  const volatile v128_t kFmaA = wasm_f32x4_splat(16777218.0f);
+  const v128_t kFmaB = wasm_f32x4_splat(3.0f);
+  const v128_t fma_diff =
+      wasm_v128_xor(wasm_f32x4_relaxed_madd(kFmaA, kFmaB, kFmaB),
+                    wasm_f32x4_add(kFmaB, wasm_f32x4_mul(kFmaA, kFmaB)));
+  if (wasm_v128_any_true(wasm_v128_or(swizzle_diff, fma_diff))) {
+    flag |= kCpuHasRELAXEDSIMD;
+  }
+#endif
+#endif  // defined(__wasm__)
+  return flag;
+}
 
 static SAFEBUFFERS int GetCpuFlags(void) {
   int cpu_info = 0;
@@ -405,8 +502,11 @@ static SAFEBUFFERS int GetCpuFlags(void) {
   int cpu_info1[4] = {0, 0, 0, 0};
   int cpu_info7[4] = {0, 0, 0, 0};
   int cpu_einfo7[4] = {0, 0, 0, 0};
+  int cpu_info1d[4] = {0, 0, 0, 0};
+  int cpu_einfo1d_2[4] = {0, 0, 0, 0};
   int cpu_einfo1e[4] = {0, 0, 0, 0};
   int cpu_info24[4] = {0, 0, 0, 0};
+  int cpu_einfo24_1[4] = {0, 0, 0, 0};
   int cpu_info21[4] = {0, 0, 0, 0};
   int cpu_amdinfo21[4] = {0, 0, 0, 0};
   int cpu_extinfo0[4] = {0, 0, 0, 0};
@@ -426,6 +526,12 @@ static SAFEBUFFERS int GetCpuFlags(void) {
   if ((unsigned)cpu_extinfo0[0] >= 0x80000021u) {
     CpuId(0x80000021, 0, cpu_amdinfo21);
   }
+  if (cpu_info0[0] >= 0x1d) {
+    CpuId(0x1d, 0, cpu_info1d);
+    if (cpu_info1d[0] >= 2) {
+      CpuId(0x1d, 2, cpu_einfo1d_2);
+    }
+  }
   if (cpu_info0[0] >= 0x1e) {
     CpuId(0x1e, 1, cpu_einfo1e);
   }
@@ -434,12 +540,16 @@ static SAFEBUFFERS int GetCpuFlags(void) {
   }
   if (cpu_info0[0] >= 0x24) {
     CpuId(0x24, 0, cpu_info24);
+    if (cpu_info24[0] >= 1) {
+      CpuId(0x24, 1, cpu_einfo24_1);
+    }
   }
   cpu_info = kCpuHasX86 | ((cpu_info1[3] & 0x04000000) ? kCpuHasSSE2 : 0) |
              ((cpu_info1[2] & 0x00000200) ? kCpuHasSSSE3 : 0) |
              ((cpu_info1[2] & 0x00080000) ? kCpuHasSSE41 : 0) |
              ((cpu_info1[2] & 0x00100000) ? kCpuHasSSE42 : 0) |
              ((cpu_info7[1] & 0x00000200) ? kCpuHasERMS : 0) |
+             ((cpu_amdinfo21[0] & 0x00008000) ? kCpuHasERMS : 0) |
              ((cpu_info7[3] & 0x00000010) ? kCpuHasFSMR : 0);
 
   // AVX requires OS saves YMM registers.
@@ -449,29 +559,41 @@ static SAFEBUFFERS int GetCpuFlags(void) {
                 ((cpu_info1[2] & 0x00001000) ? kCpuHasFMA3 : 0) |
                 ((cpu_info1[2] & 0x20000000) ? kCpuHasF16C : 0) |
                 ((cpu_einfo7[0] & 0x00000010) ? kCpuHasAVXVNNI : 0) |
-                ((cpu_einfo7[3] & 0x00000010) ? kCpuHasAVXVNNIINT8 : 0);
+                ((cpu_einfo7[3] & 0x00000010) ? kCpuHasAVXVNNIINT8 : 0) |
+                ((cpu_einfo7[3] & 0x00200000) ? kCpuHasAPX : 0);
 
-    cpu_info |= ((cpu_amdinfo21[0] & 0x00008000) ? kCpuHasERMS : 0);
-
-    // Detect AVX512bw
-    if ((GetXCR0() & 0xe0) == 0xe0 && (cpu_info7[1] & 0x00010000)) {
-      cpu_info |= ((cpu_info7[1] & 0x40000000) ? kCpuHasAVX512BW : 0) |
-                  ((cpu_info7[1] & 0x80000000) ? kCpuHasAVX512VL : 0) |
-                  ((cpu_info7[2] & 0x00000002) ? kCpuHasAVX512VBMI : 0) |
-                  ((cpu_info7[2] & 0x00000040) ? kCpuHasAVX512VBMI2 : 0) |
-                  ((cpu_info7[2] & 0x00000800) ? kCpuHasAVX512VNNI : 0) |
-                  ((cpu_info7[2] & 0x00001000) ? kCpuHasAVX512VBITALG : 0) |
-                  ((cpu_einfo7[3] & 0x00080000) ? kCpuHasAVX10 : 0) |
-                  ((cpu_info7[3] & 0x02000000) ? kCpuHasAMXINT8 : 0) |
-                  ((cpu_info21[0] & 0x00800000) ? kCpuHasAVX512BMM : 0) |
-                  ((cpu_einfo1e[0] & 0x00000040) ? kCpuHasAMXTF32 : 0);
+    // Detect AVX512bw / AVX10 (512-bit vector support)
+    int has_avx512 = (cpu_info7[1] & 0x00010000) ||
+                     ((cpu_einfo7[3] & 0x00080000) && cpu_info0[0] >= 0x24 &&
+                      (cpu_info24[1] & 0x00040000));
+    if ((GetXCR0() & 0xe0) == 0xe0 && has_avx512) {
+      int has_tile = ((GetXCR0() & 0x60000) == 0x60000) &&
+                     ((cpu_info7[3] & 0x01000000) != 0) && HasXTilePermission();
+      cpu_info |=
+          ((cpu_info7[1] & 0x40000000) ? kCpuHasAVX512BW : 0) |
+          ((cpu_info7[1] & 0x80000000) ? kCpuHasAVX512VL : 0) |
+          ((cpu_info7[2] & 0x00000002) ? kCpuHasAVX512VBMI : 0) |
+          ((cpu_info7[2] & 0x00000040) ? kCpuHasAVX512VBMI2 : 0) |
+          ((cpu_info7[2] & 0x00000800) ? kCpuHasAVX512VNNI : 0) |
+          ((cpu_einfo7[3] & 0x00080000) ? kCpuHasAVX10 : 0) |
+          ((has_tile && (cpu_info7[3] & 0x02000000)) ? kCpuHasAMXINT8 : 0) |
+          ((cpu_amdinfo21[0] & 0x00800000) ? kCpuHasAVX512BMM : 0) |
+          ((cpu_einfo1e[0] & 0x00000040) ? kCpuHasAMXTF32 : 0);
       if (cpu_info0[0] >= 0x24 && (cpu_einfo7[3] & 0x00080000)) {
         cpu_info |= ((cpu_info24[1] & 0xFF) >= 2) ? kCpuHasAVX10_2 : 0;
+        if (has_tile && (GetXCR0() & 0x001000e6) == 0x001000e6 &&
+            (cpu_einfo7[2] & 0x00000800) && (cpu_einfo1d_2[0] & 0xff) >= 1 &&
+            ((cpu_info24[1] & 0xff) >= 2 ||
+             ((cpu_info24[1] & 0xff) >= 1 &&
+              (cpu_einfo24_1[2] & 0x00000004))) &&
+            (cpu_einfo24_1[2] & 0x00000008)) {
+          cpu_info |= kCpuHasACEV1;
+        }
       }
     }
   }
 #endif
-#if defined(__loongarch__) && defined(__linux__)
+#if defined(__loongarch__)
   cpu_info = LoongArchCpuCaps();
   cpu_info |= kCpuHasLOONGARCH;
 #endif
@@ -508,10 +630,8 @@ static SAFEBUFFERS int GetCpuFlags(void) {
   cpu_info |= kCpuHasRISCV;
 #endif  // __riscv
 #if defined(__wasm__)
-  cpu_info = kCpuHasWASM;
-#if !defined(LIBYUV_DISABLE_WASM) && defined(__wasm_simd128__)
-  cpu_info |= kCpuHasWASMSIMD;
-#endif
+  cpu_info = WasmCpuCaps();
+  cpu_info |= kCpuHasWASM;
 #endif  // __wasm__
 #if defined(__hexagon__)
   cpu_info = kCpuHasHexagon;

@@ -56,7 +56,7 @@ static const int kCpuHasAVX512VL = 0x80000;
 static const int kCpuHasAVX512VNNI = 0x100000;
 static const int kCpuHasAVX512VBMI = 0x200000;
 static const int kCpuHasAVX512VBMI2 = 0x400000;
-static const int kCpuHasAVX512VBITALG = 0x800000;
+static const int kCpuHasAPX = 0x800000;
 static const int kCpuHasAVX10 = 0x1000000;
 static const int kCpuHasAVX10_2 = 0x2000000;
 static const int kCpuHasAVXVNNI = 0x4000000;
@@ -64,6 +64,7 @@ static const int kCpuHasAVXVNNIINT8 = 0x8000000;
 static const int kCpuHasAMXINT8 = 0x10000000;
 static const int kCpuHasAVX512BMM = 0x20000000;
 static const int kCpuHasAMXTF32 = 0x40000000;
+static const int kCpuHasACEV1 = 0x80000000;  // NOLINT
 
 // These flags are only valid on LOONGARCH processors.
 static const int kCpuHasLOONGARCH = 0x20;
@@ -73,6 +74,7 @@ static const int kCpuHasLASX = 0x200;
 // These flags are only valid on WASM processors.
 static const int kCpuHasWASM = 0x40;
 static const int kCpuHasWASMSIMD = 0x100;
+static const int kCpuHasRELAXEDSIMD = 0x200;
 
 // These flags are only valid on Hexagon processors.
 static const int kCpuHasHexagon = 0x80;
@@ -101,6 +103,8 @@ LIBYUV_API
 int ArmCpuCaps(const char* cpuinfo_name);
 LIBYUV_API
 int RiscvCpuCaps(const char* cpuinfo_name);
+LIBYUV_API
+int WasmCpuCaps(void);
 
 #ifdef __linux__
 // On Linux, parse AArch64 features from getauxval(AT_HWCAP{,2}).

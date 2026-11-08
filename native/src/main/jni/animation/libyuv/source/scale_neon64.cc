@@ -110,8 +110,11 @@ void ScaleRowDown4_NEON(const uint8_t* src_ptr,
   (void)src_stride;
   asm volatile(
       "1:          \n"
-      "ld4         {v0.16b,v1.16b,v2.16b,v3.16b}, [%0], #64 \n"  // src line 0
+      "ld1         {v0.16b, v1.16b, v2.16b, v3.16b}, [%0], #64 \n"
       "subs        %w2, %w2, #16                 \n"  // 16 processed per loop
+      "uzp2        v0.8h, v0.8h, v1.8h           \n"
+      "uzp2        v2.8h, v2.8h, v3.8h           \n"
+      "uzp1        v2.16b, v0.16b, v2.16b        \n"
       "prfm        pldl1keep, [%0, 448]          \n"  // prefetch 7 lines ahead
       "st1         {v2.16b}, [%1], #16           \n"
       "b.gt        1b                            \n"
@@ -1581,6 +1584,84 @@ void ScaleUVAddCols3_NEON(int dst_width,
         [dst_width] "+r"(dst_width)  // %[dst_width]
       : [scaleval] "r"(scaleval)     // %[scaleval]
       : "memory", "cc", "v0", "v1", "v2", "v3", "v4", "v5", "v6");
+}
+
+float ScaleMaxSamples_NEON(const float* src,
+                           float* dst,
+                           float scale,
+                           int width) {
+  float fmax;
+  asm volatile(
+      "movi        v5.4s, #0                     \n"  // max
+      "movi        v6.4s, #0                     \n"
+
+      "1:          \n"
+      "ld1         {v1.4s, v2.4s}, [%0], #32     \n"  // load 8 samples
+      "subs        %w2, %w2, #8                  \n"  // 8 processed per loop
+      "fmul        v3.4s, v1.4s, %4.s[0]         \n"  // scale
+      "prfm        pldl1keep, [%0, 448]          \n"
+      "fmul        v4.4s, v2.4s, %4.s[0]         \n"  // scale
+      "fmax        v5.4s, v5.4s, v1.4s           \n"  // max
+      "fmax        v6.4s, v6.4s, v2.4s           \n"
+      "st1         {v3.4s, v4.4s}, [%1], #32     \n"  // store 8 samples
+      "b.gt        1b                            \n"
+      "fmax        v5.4s, v5.4s, v6.4s           \n"  // max
+      "fmaxv       %s3, v5.4s                    \n"  // signed max acculator
+      : "+r"(src),                                    // %0
+        "+r"(dst),                                    // %1
+        "+r"(width),                                  // %2
+        "=w"(fmax)                                    // %3
+      : "w"(scale)                                    // %4
+      : "memory", "cc", "v1", "v2", "v3", "v4", "v5", "v6");
+  return fmax;
+}
+
+float ScaleSumSamples_NEON(const float* src,
+                           float* dst,
+                           float scale,
+                           int width) {
+  float fsum;
+  asm volatile(
+      "movi        v5.4s, #0                     \n"  // max
+      "movi        v6.4s, #0                     \n"  // max
+
+      "1:          \n"
+      "ld1         {v1.4s, v2.4s}, [%0], #32     \n"  // load 8 samples
+      "subs        %w2, %w2, #8                  \n"  // 8 processed per loop
+      "fmul        v3.4s, v1.4s, %4.s[0]         \n"  // scale
+      "prfm        pldl1keep, [%0, 448]          \n"
+      "fmul        v4.4s, v2.4s, %4.s[0]         \n"
+      "fmla        v5.4s, v1.4s, v1.4s           \n"  // sum of squares
+      "fmla        v6.4s, v2.4s, v2.4s           \n"
+      "st1         {v3.4s, v4.4s}, [%1], #32     \n"  // store 8 samples
+      "b.gt        1b                            \n"
+      "faddp       v5.4s, v5.4s, v6.4s           \n"
+      "faddp       v5.4s, v5.4s, v5.4s           \n"
+      "faddp       %3.4s, v5.4s, v5.4s           \n"  // sum
+      : "+r"(src),                                    // %0
+        "+r"(dst),                                    // %1
+        "+r"(width),                                  // %2
+        "=w"(fsum)                                    // %3
+      : "w"(scale)                                    // %4
+      : "memory", "cc", "v1", "v2", "v3", "v4", "v5", "v6");
+  return fsum;
+}
+
+void ScaleSamples_NEON(const float* src, float* dst, float scale, int width) {
+  asm volatile(
+      "1:          \n"
+      "ld1         {v1.4s, v2.4s}, [%0], #32     \n"  // load 8 samples
+      "subs        %w2, %w2, #8                  \n"  // 8 processed per loop
+      "prfm        pldl1keep, [%0, 448]          \n"
+      "fmul        v1.4s, v1.4s, %3.s[0]         \n"  // scale
+      "fmul        v2.4s, v2.4s, %3.s[0]         \n"  // scale
+      "st1         {v1.4s, v2.4s}, [%1], #32     \n"  // store 8 samples
+      "b.gt        1b                            \n"
+      : "+r"(src),   // %0
+        "+r"(dst),   // %1
+        "+r"(width)  // %2
+      : "w"(scale)   // %3
+      : "memory", "cc", "v1", "v2");
 }
 
 #endif  // !defined(LIBYUV_DISABLE_NEON) && defined(__aarch64__)

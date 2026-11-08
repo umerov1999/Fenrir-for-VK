@@ -137,7 +137,7 @@ bool GlobalHistogramBinarizer::getPatternRow(int row, int rotation, PatternRow& 
 	if (buffer.width() < 3)
 		return false; // special casing the code below for a width < 3 makes no sense
 
-#if defined(__AVX__) || defined(__ARM_NEON)
+#if defined(__x86_64__) || defined(__ARM_NEON__) || defined(__aarch64__)
 	// If we are extracting a column (instead of a row), we run into cache misses on every pixel access both
 	// during the histogram calculation and during the sharpen+threshold operation. Additionally, if we
 	// perform the ThresholdSharpened function on pixStride==1 data, the auto-vectorizer makes that part

@@ -26,7 +26,6 @@ import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.audioduplicate.AudioDuplicateDialog
 import dev.ragnarok.fenrir.domain.InteractorFactory
-import dev.ragnarok.fenrir.filePathToUrl
 import dev.ragnarok.fenrir.longpoll.AppNotificationChannels
 import dev.ragnarok.fenrir.longpoll.NotificationHelper
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
@@ -213,7 +212,7 @@ object DownloadWorkUtils {
         return false
     }
 
-    private fun track_file_exist(context: Context, file: DownloadInfo): Int {
+    private fun track_file_exist(context: Context, file: DownloadInfo, sub: Boolean = false): Int {
         val file_name = file.buildFilename()
         val Temp = File(file.build())
         if (Temp.exists()) {
@@ -231,6 +230,10 @@ object DownloadWorkUtils {
         if (MusicPlaybackController.tracksExist.isExistRemoteAudio(file_name)) {
             return 2
         }
+        if (!sub) {
+            val tmp = DownloadInfo(file.file, file.path, "m4a")
+            return track_file_exist(context, tmp, true)
+        }
         return 0
     }
 
@@ -238,18 +241,42 @@ object DownloadWorkUtils {
         if (audio.isLocal) {
             return 1
         }
-        val audioName = makeLegalFilename(audio.artist + " - " + audio.title, "mp3")
-        return MusicPlaybackController.tracksExist.isExistAllAudio(audioName)
+        var exist = MusicPlaybackController.tracksExist.isExistAllAudio(
+            makeLegalFilename(
+                audio.artist + " - " + audio.title,
+                "mp3"
+            )
+        )
+        if (exist <= 0) {
+            exist = MusicPlaybackController.tracksExist.isExistAllAudio(
+                makeLegalFilename(
+                    audio.artist + " - " + audio.title,
+                    "m4a"
+                )
+            )
+        }
+        return exist
     }
 
     fun GetLocalTrackLink(audio: Audio): String? {
         if (audio.url?.contains("file://") == true || audio.url?.contains("content://") == true)
             return audio.url
-        return (Settings.get()
-            .main().musicDir + "/" + makeLegalFilename(
-            audio.artist + " - " + audio.title,
-            "mp3"
-        )).filePathToUrl()
+        val fileMp3 = File(
+            (Settings.get()
+                .main().musicDir + "/" + makeLegalFilename(
+                audio.artist + " - " + audio.title,
+                "mp3"
+            ))
+        )
+        val fileM4A = File(
+            (Settings.get()
+                .main().musicDir + "/" + makeLegalFilename(
+                audio.artist + " - " + audio.title,
+                "m4a"
+            ))
+        )
+
+        return (if (!fileMp3.exists()) fileM4A.toUri() else fileMp3.toUri()).toString()
     }
 
     fun doSyncRemoteAudio(context: Context) {
@@ -468,7 +495,7 @@ object DownloadWorkUtils {
                     context,
                     account_id,
                     audio,
-                    result_filename.build()
+                    result_filename
                 )
                     ?: return download_status
             context.supportFragmentManager.setFragmentResultListener(
@@ -586,16 +613,30 @@ object DownloadWorkUtils {
 
             show_notification(mBuilder, NotificationHelper.NOTIFICATION_DOWNLOADING, null)
 
-            val file = file_v.build()
+            var file = file_v.build()
             try {
                 val file_u = DownloadInfo(file_v.file, file_v.path, "ts")
                 if (!M3U8(url, file_u.build()).run()) {
                     throw Exception("M3U8 error download")
                 }
-                if (!TSDemuxer.unpackTS(file_u.build(), file, info = false, printDebug = false)) {
+                val unpackResult = TSDemuxer.unpackNative(file_u.build(), file)
+                if (unpackResult <= 0) {
                     throw Exception("Error TSDemuxer")
                 }
                 File(file_u.build()).delete()
+                if (unpackResult == 2) {
+                    val aacFilePath = DownloadInfo(file_v.file, file_v.path, "aac").build()
+                    val aacFile = File(aacFilePath)
+                    File(file).renameTo(aacFile)
+                    file = aacFilePath
+                    file_v.setExt("aac")
+                } else if (unpackResult == 3) {
+                    val aacFilePath = DownloadInfo(file_v.file, file_v.path, "m4a").build()
+                    val aacFile = File(aacFilePath)
+                    File(file).renameTo(aacFile)
+                    file = aacFilePath
+                    file_v.setExt("m4a")
+                }
                 applicationContext.sendBroadcast(
                     @Suppress("deprecation")
                     Intent(
@@ -906,6 +947,9 @@ object DownloadWorkUtils {
     class TrackDownloadWorker(context: Context, workerParams: WorkerParameters) :
         DefaultDownloadWorker(context, workerParams) {
         override fun doWork(): Result {
+            if (!FenrirNative.isNativeLoaded) {
+                return Result.failure()
+            }
             val file_v = DownloadInfo(
                 inputData.getString(ExtraDwn.FILE)!!,
                 inputData.getString(ExtraDwn.DIR)!!, inputData.getString(ExtraDwn.EXT)!!
@@ -919,11 +963,10 @@ object DownloadWorkUtils {
             val account_id =
                 inputData.getLong(ExtraDwn.ACCOUNT, ISettings.IAccountsSettings.INVALID_ID)
 
-            val mode = audio.needRefresh()
-            if (mode.first) {
+            if (audio.needRefresh()) {
                 val link: String? = InteractorFactory
                     .audio
-                    .getByIdOld(account_id, listOf(audio), mode.second)
+                    .getById(account_id, listOf(audio))
                     .map { e ->
                         e[0].url.nonNullNoEmpty({ l -> l }, { audio.url.orEmpty() })
                     }.syncSingleSafe(audio.url)
@@ -971,16 +1014,28 @@ object DownloadWorkUtils {
                             if (audio.genreByID3 != 0) {
                                 ifGenre = audio.genreByID3.toString()
                             }
-                            updated_tag = FileUtils.audioTagModify(
-                                pathAudio,
-                                pathCover,
-                                "image/jpg",
-                                audio.title,
-                                audio.artist,
-                                audio.album_title,
-                                ifGenre,
-                                commentText
-                            )
+                            if (file_v.ext == "m4a") {
+                                updated_tag = FileUtils.videoTagModify(
+                                    pathAudio,
+                                    pathCover,
+                                    audio.title,
+                                    audio.artist,
+                                    audio.album_title,
+                                    ifGenre,
+                                    commentText
+                                )
+                            } else {
+                                updated_tag = FileUtils.audioTagModify(
+                                    pathAudio,
+                                    pathCover,
+                                    "image/jpg",
+                                    audio.title,
+                                    audio.artist,
+                                    audio.album_title,
+                                    ifGenre,
+                                    commentText
+                                )
+                            }
                             File(pathCover).delete()
                             applicationContext.sendBroadcast(
                                 @Suppress("deprecation")

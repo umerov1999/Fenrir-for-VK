@@ -8,6 +8,8 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
+#include <string.h>
+
 #include "libyuv/convert_from_argb.h"
 #include "libyuv/row.h"
 
@@ -29,6 +31,14 @@ extern "C" {
 
 // This module is for GCC Neon armv8 64 bit.
 #if !defined(LIBYUV_DISABLE_NEON) && defined(__aarch64__)
+
+#if defined(__clang__)
+#pragma clang attribute push(__attribute__((target("dotprod,i8mm"))), \
+                             apply_to = function)
+#elif defined(__GNUC__)
+#pragma GCC push_options
+#pragma GCC target("+dotprod+i8mm")
+#endif
 
 // v0.8h: Y
 // v1.16b: 8U, 8V
@@ -1285,8 +1295,8 @@ void UnpackMT2T_NEON(const uint8_t* src, uint16_t* dst, size_t size) {
         "+r"(dst),  // %1
         "+r"(size)  // %2
       :
-      : "cc", "memory", "w0", "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7",
-        "v16", "v17", "v18", "v19", "v20", "v21", "v22", "v23");
+      : "memory", "cc", "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v16",
+        "v17", "v18", "v19", "v20", "v21", "v22", "v23");
 }
 
 #if defined(LIBYUV_USE_ST2)
@@ -2567,17 +2577,17 @@ void ARGBToARGB4444Row_NEON(const uint8_t* src_argb,
                             int width) {
   asm volatile(
       "1:          \n"
-      "ld4         {v16.8b,v17.8b,v18.8b,v19.8b}, [%0], #32 \n"  // load 8
-                                                                 // pixels
+      "ld2         {v16.16b, v17.16b}, [%0], #32 \n"  // load 8 pixels
       "subs        %w2, %w2, #8                  \n"  // 8 processed per loop.
-      "prfm        pldl1keep, [%0, 448]          \n" ARGBTOARGB4444
-      "st1         {v0.16b}, [%1], #16           \n"  // store 8 pixels
+      "sri         v17.16b, v16.16b, #4          \n"
+      "prfm        pldl1keep, [%0, 448]          \n"
+      "st1         {v17.16b}, [%1], #16          \n"  // store 8 pixels
       "b.gt        1b                            \n"
       : "+r"(src_argb),      // %0
         "+r"(dst_argb4444),  // %1
         "+r"(width)          // %2
       :
-      : "cc", "memory", "v0", "v1", "v16", "v17", "v18", "v19");
+      : "cc", "memory", "v16", "v17");
 }
 
 #if defined(LIBYUV_USE_ST2)
@@ -4980,84 +4990,6 @@ void ConvertFP32ToFP16Row_NEON(const float* src,
       : "cc", "memory", "v1", "v2", "v3");
 }
 
-float ScaleMaxSamples_NEON(const float* src,
-                           float* dst,
-                           float scale,
-                           int width) {
-  float fmax;
-  asm volatile(
-      "movi        v5.4s, #0                     \n"  // max
-      "movi        v6.4s, #0                     \n"
-
-      "1:          \n"
-      "ld1         {v1.4s, v2.4s}, [%0], #32     \n"  // load 8 samples
-      "subs        %w2, %w2, #8                  \n"  // 8 processed per loop
-      "fmul        v3.4s, v1.4s, %4.s[0]         \n"  // scale
-      "prfm        pldl1keep, [%0, 448]          \n"
-      "fmul        v4.4s, v2.4s, %4.s[0]         \n"  // scale
-      "fmax        v5.4s, v5.4s, v1.4s           \n"  // max
-      "fmax        v6.4s, v6.4s, v2.4s           \n"
-      "st1         {v3.4s, v4.4s}, [%1], #32     \n"  // store 8 samples
-      "b.gt        1b                            \n"
-      "fmax        v5.4s, v5.4s, v6.4s           \n"  // max
-      "fmaxv       %s3, v5.4s                    \n"  // signed max acculator
-      : "+r"(src),                                    // %0
-        "+r"(dst),                                    // %1
-        "+r"(width),                                  // %2
-        "=w"(fmax)                                    // %3
-      : "w"(scale)                                    // %4
-      : "cc", "memory", "v1", "v2", "v3", "v4", "v5", "v6");
-  return fmax;
-}
-
-float ScaleSumSamples_NEON(const float* src,
-                           float* dst,
-                           float scale,
-                           int width) {
-  float fsum;
-  asm volatile(
-      "movi        v5.4s, #0                     \n"  // max
-      "movi        v6.4s, #0                     \n"  // max
-
-      "1:          \n"
-      "ld1         {v1.4s, v2.4s}, [%0], #32     \n"  // load 8 samples
-      "subs        %w2, %w2, #8                  \n"  // 8 processed per loop
-      "fmul        v3.4s, v1.4s, %4.s[0]         \n"  // scale
-      "prfm        pldl1keep, [%0, 448]          \n"
-      "fmul        v4.4s, v2.4s, %4.s[0]         \n"
-      "fmla        v5.4s, v1.4s, v1.4s           \n"  // sum of squares
-      "fmla        v6.4s, v2.4s, v2.4s           \n"
-      "st1         {v3.4s, v4.4s}, [%1], #32     \n"  // store 8 samples
-      "b.gt        1b                            \n"
-      "faddp       v5.4s, v5.4s, v6.4s           \n"
-      "faddp       v5.4s, v5.4s, v5.4s           \n"
-      "faddp       %3.4s, v5.4s, v5.4s           \n"  // sum
-      : "+r"(src),                                    // %0
-        "+r"(dst),                                    // %1
-        "+r"(width),                                  // %2
-        "=w"(fsum)                                    // %3
-      : "w"(scale)                                    // %4
-      : "cc", "memory", "v1", "v2", "v3", "v4", "v5", "v6");
-  return fsum;
-}
-
-void ScaleSamples_NEON(const float* src, float* dst, float scale, int width) {
-  asm volatile(
-      "1:          \n"
-      "ld1         {v1.4s, v2.4s}, [%0], #32     \n"  // load 8 samples
-      "subs        %w2, %w2, #8                  \n"  // 8 processed per loop
-      "prfm        pldl1keep, [%0, 448]          \n"
-      "fmul        v1.4s, v1.4s, %3.s[0]         \n"  // scale
-      "fmul        v2.4s, v2.4s, %3.s[0]         \n"  // scale
-      "st1         {v1.4s, v2.4s}, [%1], #32     \n"  // store 8 samples
-      "b.gt        1b                            \n"
-      : "+r"(src),   // %0
-        "+r"(dst),   // %1
-        "+r"(width)  // %2
-      : "w"(scale)   // %3
-      : "cc", "memory", "v1", "v2");
-}
-
 // filter 5 rows with 1, 4, 6, 4, 1 coefficients to produce 1 row.
 void GaussCol_NEON(const uint16_t* src0,
                    const uint16_t* src1,
@@ -5464,6 +5396,12 @@ void DivideRow_16_NEON(const uint16_t* src_y,
                        uint16_t* dst_y,
                        int scale,
                        int width) {
+  if (scale == 65536) {  // Divide by 1, so do memcpy.
+    if (src_y != dst_y) {
+      memcpy(dst_y, src_y, (size_t)width * 2);
+    }
+    return;
+  }
   asm volatile(
       "dup         v4.8h, %w3                    \n"
       "1:          \n"
@@ -6106,6 +6044,12 @@ void ARGBAffineRow_NEON(const uint8_t* src_argb,
         "r"(src_argb)          // %6
       : "memory", "cc", "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7");
 }
+
+#if defined(__clang__)
+#pragma clang attribute pop
+#elif defined(__GNUC__)
+#pragma GCC pop_options
+#endif
 
 #endif  // !defined(LIBYUV_DISABLE_NEON) && defined(__aarch64__)
 

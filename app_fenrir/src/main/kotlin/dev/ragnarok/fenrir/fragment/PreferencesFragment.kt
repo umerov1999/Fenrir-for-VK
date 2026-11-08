@@ -1441,12 +1441,6 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
                     }
                 }
             }
-
-            switch("use_api_5_90_for_audio") {
-                summaryRes = R.string.use_api_5_90_for_audio_summary
-                titleRes = R.string.use_api_5_90_for_audio
-                defaultValue = true
-            }
             switch("audio_round_icon") {
                 defaultValue = true
                 titleRes = R.string.audio_round_icon
@@ -1992,7 +1986,7 @@ class PreferencesFragment : AbsPreferencesFragment(), PreferencesAdapter.OnScree
             multiLineText("audio_ext", parentFragmentManager) {
                 titleRes = R.string.audio_ext
                 isSpace = true
-                defaultValue = setOf("mp3", "ogg", "flac", "opus")
+                defaultValue = setOf("mp3", "m4a", "aac", "ogg", "flac", "opus")
                 onMultiLineTextChange {
                     requireActivity().recreate()
                 }

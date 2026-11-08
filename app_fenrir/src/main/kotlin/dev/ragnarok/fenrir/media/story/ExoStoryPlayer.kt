@@ -12,9 +12,16 @@ import dev.ragnarok.fenrir.media.story.IStoryPlayer.IStatus
 import dev.ragnarok.fenrir.media.story.IStoryPlayer.IStatusChangeListener
 import dev.ragnarok.fenrir.model.ProxyConfig
 import dev.ragnarok.fenrir.model.VideoSize
+import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.util.Logger.d
 import dev.ragnarok.fenrir.util.Utils.getExoPlayerFactory
 import dev.ragnarok.fenrir.util.Utils.makeMediaItem
+import dev.ragnarok.fenrir.util.coroutines.CancelableJob
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.repeatUntil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class ExoStoryPlayer(
@@ -25,8 +32,26 @@ class ExoStoryPlayer(
     private val videoSizeChangeListeners: MutableList<IStoryPlayer.IVideoSizeChangeListener> =
         ArrayList(1)
     private val statusChangeListeners: MutableList<IStatusChangeListener> = ArrayList(1)
+    private val positionChangeListeners: MutableList<IStoryPlayer.IPositionChangeListener> =
+        ArrayList(1)
     override var videoSize: VideoSize? = null
-    private var playbackSpeed = false
+    override var playbackSpeed = 1f
+        set(value) {
+            field = value
+            internalPlayer?.setPlaybackSpeed(value)
+        }
+
+    override fun togglePlaybackSpeed() {
+        when {
+            playbackSpeed in 1f..<2f -> playbackSpeed = 2f
+            playbackSpeed in 2f..<2.5f -> playbackSpeed = 2.5f
+            playbackSpeed in 2.5f..<3f -> playbackSpeed = 3f
+            playbackSpeed in 3f..<3.5f -> playbackSpeed = 3.5f
+            playbackSpeed in 3.5f..<4f -> playbackSpeed = 4f
+            playbackSpeed >= 4f -> playbackSpeed = 1f
+        }
+    }
+
     private val videoListener: Player.Listener = object : Player.Listener {
         override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
             this@ExoStoryPlayer.videoSize = VideoSize(videoSize.width, videoSize.height)
@@ -42,6 +67,10 @@ class ExoStoryPlayer(
     override var playerStatus: Int = IStatus.INIT
     private var internalPlayer: ExoPlayer? = null
     private var supposedToBePlaying = false
+    private var playingPosition: Long = 0
+
+    private var mRefreshPlaybackDisposable = CancelableJob()
+
     override fun play() {
         if (supposedToBePlaying) return
         supposedToBePlaying = true
@@ -53,6 +82,8 @@ class ExoStoryPlayer(
     }
 
     override fun updateSource(url: String?) {
+        mRefreshPlaybackDisposable.cancel()
+        onVideoPositionChanged(0)
         internalPlayer?.stop()
         setStatus(IStatus.PREPARING)
         val userAgent = UserAgentTool.USER_AGENT_CURRENT_ACCOUNT
@@ -89,21 +120,26 @@ class ExoStoryPlayer(
         internalPlayer?.addListener(videoListener)
         internalPlayer?.playWhenReady = true
         internalPlayer?.setMediaSource(mediaSource)
-        internalPlayer?.setPlaybackSpeed(if (playbackSpeed) 2f else 1f)
+        internalPlayer?.setPlaybackSpeed(playbackSpeed)
         internalPlayer?.prepare()
-    }
-
-    override val isPlaybackSpeed: Boolean
-        get() = playbackSpeed
-
-    override fun setPlaybackSpeed(isSpeed: Boolean) {
-        playbackSpeed = isSpeed
-        internalPlayer?.setPlaybackSpeed(if (playbackSpeed) 2f else 1f)
     }
 
     internal fun onInternalPlayerStateChanged(state: @Player.State Int) {
         if (state == Player.STATE_READY) {
             setStatus(IStatus.PREPARED)
+            mRefreshPlaybackDisposable.cancel()
+            mRefreshPlaybackDisposable.set(
+                flow {
+                    withContext(Dispatchers.Main) {
+                        val tmp = internalPlayer?.currentPosition.orZero() / 1000
+                        if (tmp != playingPosition) {
+                            onVideoPositionChanged(tmp)
+                            playingPosition = tmp
+                        }
+                    }
+                    emit(true)
+                }.repeatUntil({ true }, 500).hiddenIO()
+            )
         } else if (state == Player.STATE_ENDED && !isRepeat) {
             setStatus(IStatus.ENDED)
         }
@@ -112,6 +148,16 @@ class ExoStoryPlayer(
     internal fun onVideoSizeChanged() {
         for (listener in videoSizeChangeListeners) {
             listener.onVideoSizeChanged(this, videoSize ?: VideoSize(1, 1))
+        }
+    }
+
+    internal fun onVideoPositionChanged(newPosition: Long) {
+        for (listener in positionChangeListeners) {
+            listener.onPlayerPositionChange(
+                this@ExoStoryPlayer,
+                playingPosition,
+                newPosition
+            )
         }
     }
 
@@ -136,6 +182,7 @@ class ExoStoryPlayer(
     }
 
     override fun release() {
+        mRefreshPlaybackDisposable.cancel()
         if (internalPlayer != null) {
             try {
                 internalPlayer?.removeListener(videoListener)
@@ -165,12 +212,20 @@ class ExoStoryPlayer(
         statusChangeListeners.add(listener)
     }
 
+    override fun addPositionChangeListener(listener: IStoryPlayer.IPositionChangeListener) {
+        positionChangeListeners.add(listener)
+    }
+
     override fun removeVideoSizeChangeListener(listener: IStoryPlayer.IVideoSizeChangeListener) {
         videoSizeChangeListeners.remove(listener)
     }
 
     override fun removeStatusChangeListener(listener: IStatusChangeListener) {
         statusChangeListeners.remove(listener)
+    }
+
+    override fun removePositionChangeListener(listener: IStoryPlayer.IPositionChangeListener) {
+        positionChangeListeners.remove(listener)
     }
 
     companion object {
