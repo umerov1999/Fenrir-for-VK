@@ -216,6 +216,7 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
                     cv.put(ReactionsColumns.BIG_ANIMATION, i.big_animation)
                     cv.put(ReactionsColumns.SMALL_ANIMATION, i.small_animation)
                     cv.put(ReactionsColumns.STATIC, i.static)
+                    cv.put(ReactionsColumns.POSITION, i.position)
                     insert(ReactionsColumns.TABLENAME, null, cv)
                 }
             }
@@ -558,7 +559,8 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
             BaseColumns._ID,
             ReactionsColumns.BIG_ANIMATION,
             ReactionsColumns.SMALL_ANIMATION,
-            ReactionsColumns.STATIC
+            ReactionsColumns.STATIC,
+            ReactionsColumns.POSITION
         )
 
         private val PROJECTION_AUDIO = arrayOf(
@@ -648,6 +650,7 @@ class TempDataStorage internal constructor(context: Context) : ITempDataStorage 
                 .setBigAnimation(cursor.getString(ReactionsColumns.BIG_ANIMATION))
                 .setSmallAnimation(cursor.getString(ReactionsColumns.SMALL_ANIMATION))
                 .setStatic(cursor.getString(ReactionsColumns.STATIC))
+                .setPosition(cursor.getInt(ReactionsColumns.POSITION))
         }
 
         internal fun mapFeedOwners(cursor: Cursor): FeedOwnersEntity {
