@@ -84,8 +84,18 @@ class MessagesAdapter(
     private var reactions: Map<Int, ReactionAsset> =
         HashMap(Utils.getReactionsAssets()[accountId].orEmpty())
 
+    /**
+     * Reactions offered in edit mode: only the ones VK accepts, in VK's order.
+     */
+    private var pickerReactions: List<ReactionAsset> = buildPickerReactions(reactions)
+
+    private fun buildPickerReactions(assets: Map<Int, ReactionAsset>): List<ReactionAsset> {
+        return assets.values.filter { it.isSelectable }.sortedBy { it.position }
+    }
+
     fun refetchReactionCache(accountId: Long) {
         reactions = HashMap(Utils.getReactionsAssets()[accountId].orEmpty())
+        pickerReactions = buildPickerReactions(reactions)
         notifyDataSetChanged()
     }
 
@@ -338,10 +348,10 @@ class MessagesAdapter(
                 }
             }
         } else {
-            for ((key, value) in reactions) {
+            for (value in pickerReactions) {
                 reactionMarked.add(
                     ReactionWithAsset().setReactionAsset(value)
-                        .setCount(message.getReactionCount(key))
+                        .setCount(message.getReactionCount(value.reaction_id))
                 )
             }
         }

@@ -123,6 +123,7 @@ object Model2Entity {
         return ReactionAssetEntity().setReactionId(dto.reaction_id)
             .setBigAnimation(dto.big_animation).setSmallAnimation(dto.small_animation)
             .setStatic(dto.static)
+            .setPosition(dto.position)
     }
 
     private fun buildReactionEntity(dto: Reaction): ReactionEntity {
