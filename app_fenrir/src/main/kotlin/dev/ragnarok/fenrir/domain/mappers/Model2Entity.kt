@@ -106,6 +106,7 @@ object Model2Entity {
     fun buildDialog(model: Dialog): DialogDboEntity {
         return DialogDboEntity(model.peerId)
             .setUnreadCount(model.unreadCount)
+            .setUnreadReactions(model.unreadReactions)
             .setInReadCmId(model.inReadCmId)
             .setOutReadCmId(model.outReadCmId)
             .setMessage(model.message?.let { buildMessageEntity(it) })

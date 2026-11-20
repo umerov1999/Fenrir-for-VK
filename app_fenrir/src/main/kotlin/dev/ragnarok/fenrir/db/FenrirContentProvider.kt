@@ -749,6 +749,8 @@ class FenrirContentProvider : ContentProvider() {
                 ConversationsColumns.FULL_LAST_CM_ID
             sDialogsProjectionMap[ConversationsColumns.IS_GROUP_CHANNEL] =
                 ConversationsColumns.FULL_IS_GROUP_CHANNEL
+            sDialogsProjectionMap[ConversationsColumns.UNREAD_REACTIONS] =
+                ConversationsColumns.FULL_UNREAD_REACTIONS
             sDialogsProjectionMap[ConversationsColumns.MAJOR_ID] =
                 ConversationsColumns.FULL_MAJOR_ID
             sDialogsProjectionMap[ConversationsColumns.MINOR_ID] =

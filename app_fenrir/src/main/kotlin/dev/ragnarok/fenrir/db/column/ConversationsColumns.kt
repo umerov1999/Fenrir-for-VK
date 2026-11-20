@@ -19,6 +19,7 @@ object ConversationsColumns : BaseColumns {
     const val LAST_CM_ID = "last_cm_id"
     const val ACL = "acl"
     const val IS_GROUP_CHANNEL = "is_group_channel"
+    const val UNREAD_REACTIONS = "unread_reactions"
     const val FULL_ID = TABLENAME + "." + BaseColumns._ID
     const val FULL_UNREAD = "$TABLENAME.$UNREAD"
     const val FULL_TITLE = "$TABLENAME.$TITLE"
@@ -30,6 +31,7 @@ object ConversationsColumns : BaseColumns {
     const val FULL_LAST_CM_ID = "$TABLENAME.$LAST_CM_ID"
     const val FULL_ACL = "$TABLENAME.$ACL"
     const val FULL_IS_GROUP_CHANNEL = "$TABLENAME.$IS_GROUP_CHANNEL"
+    const val FULL_UNREAD_REACTIONS = "$TABLENAME.$UNREAD_REACTIONS"
     const val FULL_MAJOR_ID = "$TABLENAME.$MAJOR_ID"
     const val FULL_MINOR_ID = "$TABLENAME.$MINOR_ID"
     const val FOREIGN_MESSAGE_LOCAL_ID = "message_local_id"

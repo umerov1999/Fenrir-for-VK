@@ -221,6 +221,13 @@ interface IMessagesRepository {
     ): Flow<Boolean>
 
     fun markAsRead(accountId: Long, peerId: Long, startMessageId: Int): Flow<Boolean>
+
+    /**
+     * Marks reactions on own messages as read if the cached dialog has any.
+     * Emits false when there was nothing to clear.
+     */
+    fun markReactionsAsReadIfNeeded(accountId: Long, peerId: Long): Flow<Boolean>
+
     fun markAsImportant(
         accountId: Long,
         peerId: Long,

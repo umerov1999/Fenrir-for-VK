@@ -29,6 +29,12 @@ class VKApiConversation {
     @SerialName("unread_count")
     var unreadCount = 0
 
+    /**
+     * cmid собственных сообщений с непрочитанными реакциями (поле отсутствует, если список пуст).
+     */
+    @SerialName("unread_reactions")
+    var unreadReactions: List<Int>? = null
+
     @SerialName("sort_id")
     var sort_id: SortElement? = null
 

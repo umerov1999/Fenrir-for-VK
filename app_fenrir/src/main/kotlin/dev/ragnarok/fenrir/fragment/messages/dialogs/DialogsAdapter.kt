@@ -257,8 +257,14 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         holder.ivOnline.visibility =
             if (online && !dialog.isChat && !dialog.isContact) View.VISIBLE else View.GONE
         val counterVisible = dialog.unreadCount > 0
+        val reactionsVisible = dialog.hasUnreadReactions
         holder.tvUnreadCount.text = AppTextUtils.getCounterWithK(dialog.unreadCount)
-        holder.tvUnreadCount.visibility = if (counterVisible) View.VISIBLE else View.INVISIBLE
+        holder.tvUnreadCount.visibility = when {
+            counterVisible -> View.VISIBLE
+            reactionsVisible -> View.GONE
+            else -> View.INVISIBLE
+        }
+        holder.ivUnreadReactions.visibility = if (reactionsVisible) View.VISIBLE else View.GONE
         val lastMessageJavaTime = dialog.lastMessageDate * 1000
         val headerStatus = getDivided(dialog, previous)
         if (headerInDialog) {
@@ -432,6 +438,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         val silent: ImageView = itemView.findViewById(R.id.dialog_silent)
         val tvUnreadCount: TextView = view.findViewById(R.id.item_chat_unread_count)
         val ivUnreadTicks: ImageView = view.findViewById(R.id.unread_ticks)
+        val ivUnreadReactions: ImageView = view.findViewById(R.id.item_chat_unread_reactions)
         val ivOnline: OnlineView = view.findViewById(R.id.item_chat_online)
         val tvDate: TextView = view.findViewById(R.id.item_chat_date)
         val mHeaderTitle: TextView = view.findViewById(R.id.header_title)

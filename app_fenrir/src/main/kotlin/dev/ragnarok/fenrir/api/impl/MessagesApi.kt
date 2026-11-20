@@ -483,6 +483,14 @@ internal class MessagesApi(accountId: Long, provider: IServiceProvider) :
             }
     }
 
+    override fun markReactionsAsRead(peerId: Long, cmIds: Collection<Int>): Flow<Int> {
+        return serviceRx(TokenType.USER, TokenType.COMMUNITY)
+            .flatMapConcat {
+                it.markReactionsAsRead(peerId, join(cmIds, ","))
+                    .map(extractResponseWithErrorHandling())
+            }
+    }
+
     override fun getReactedPeers(
         peerId: Long,
         cmId: Int,
