@@ -498,6 +498,7 @@ class DBHelper private constructor(context: Context, aid: Long) :
                 " [" + ConversationsColumns.IN_READ_CM_ID + "] INTEGER, " +
                 " [" + ConversationsColumns.OUT_READ_CM_ID + "] INTEGER, " +
                 " [" + ConversationsColumns.IS_GROUP_CHANNEL + "] BOOLEAN, " +
+                " [" + ConversationsColumns.UNREAD_REACTIONS + "] TEXT, " +
                 " [" + ConversationsColumns.ACL + "] INTEGER, " +
                 " [" + ConversationsColumns.TITLE + "] TEXT, " +
                 " [" + ConversationsColumns.PHOTO_50 + "] TEXT, " +

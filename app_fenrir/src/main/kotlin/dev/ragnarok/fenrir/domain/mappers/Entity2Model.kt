@@ -558,6 +558,7 @@ object Entity2Model {
             .setTitle(entity.title)
             .setMessage(message)
             .setUnreadCount(entity.unreadCount)
+            .setUnreadReactions(entity.unreadReactions)
             .setOutReadCmId(entity.outReadCmId)
             .setInReadCmId(entity.inReadCmId)
             .setGroupChannel(entity.isGroupChannel)

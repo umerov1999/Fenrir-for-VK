@@ -397,6 +397,9 @@ class DialogsPresenter(
         if (update.unread != null) {
             dialog.setUnreadCount((update.unread ?: return).count)
         }
+        update.unreadReactions?.let {
+            dialog.setUnreadReactions(it.cmIds)
+        }
         if (update.majorId != null) {
             dialog.setMajorId(update.majorId?.majorId ?: return)
         }

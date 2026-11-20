@@ -36,6 +36,8 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
         private set
     var minorId = 0
         private set
+    var unreadReactions: List<Int> = emptyList()
+        private set
 
     override fun getAttachmentKey(): String {
         return "conversation_$peerId"
@@ -131,6 +133,11 @@ class DialogDboEntity(val peerId: Long) : DboEntity {
 
     fun setMinorId(minorId: Int): DialogDboEntity {
         this.minorId = minorId
+        return this
+    }
+
+    fun setUnreadReactions(unreadReactions: List<Int>): DialogDboEntity {
+        this.unreadReactions = unreadReactions
         return this
     }
 }

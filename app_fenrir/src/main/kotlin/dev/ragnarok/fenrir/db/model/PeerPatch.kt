@@ -22,6 +22,8 @@ class PeerPatch(val id: Long) {
         private set
     var minorId: MinorId? = null
         private set
+    var unreadReactions: UnreadReactions? = null
+        private set
 
     fun withInReadCmId(cmId: Int): PeerPatch {
         inRead = ReadTo(cmId)
@@ -70,6 +72,11 @@ class PeerPatch(val id: Long) {
         return this
     }
 
+    fun withUnreadReactions(cmIds: List<Int>): PeerPatch {
+        unreadReactions = UnreadReactions(cmIds)
+        return this
+    }
+
     class Title internal constructor(val title: String?)
     class Unread internal constructor(val count: Int)
     class Pin internal constructor(val pinned: MessageDboEntity?)
@@ -78,4 +85,5 @@ class PeerPatch(val id: Long) {
     class BotKeyboard internal constructor(val keyboard: KeyboardEntity?)
     class MajorId internal constructor(val majorId: Int)
     class MinorId internal constructor(val minorId: Int)
+    class UnreadReactions internal constructor(val cmIds: List<Int>)
 }

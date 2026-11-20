@@ -207,6 +207,9 @@ interface IMessagesApi {
     fun sendOrDeleteReaction(peerId: Long, cmId: Int, reactionId: Int?): Flow<Int>
 
     @CheckResult
+    fun markReactionsAsRead(peerId: Long, cmIds: Collection<Int>): Flow<Int>
+
+    @CheckResult
     fun getReactionsAssets(): Flow<Assets<VKApiReactionAsset>>
 
     @CheckResult

@@ -852,7 +852,16 @@ class ChatPresenter(
         if (Settings.get().main().isAuto_read) {
             appendJob(
                 checkErrorMessages().fromIOToMain({ t -> if (t) startSendService() else readAllUnreadMessagesIfExists() }) { })
+            markReactionsAsReadIfNeeded()
         }
+    }
+
+    private fun markReactionsAsReadIfNeeded() {
+        if (isHiddenAccount(messagesOwnerId) || isHiddenAccount(accountId)) return
+        appendJob(
+            messagesRepository.markReactionsAsReadIfNeeded(messagesOwnerId, peerId)
+                .fromIOToMain(dummy()) { t -> showError(view, t) }
+        )
     }
 
     fun fireNetworkChanged() {
@@ -871,6 +880,7 @@ class ChatPresenter(
         if (Settings.get().main().isAuto_read) {
             appendJob(
                 checkErrorMessages().fromIOToMain({ t -> if (t) startSendService() else readAllUnreadMessagesIfExists() }) { })
+            markReactionsAsReadIfNeeded()
         }
     }
 
