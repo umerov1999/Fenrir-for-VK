@@ -96,7 +96,7 @@
         <androidx.constraintlayout.helper.widget.Layer
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:constraint_referenced_ids="dialog_type,dialog_title,dialog_silent,unread_ticks,item_chat_date,dialog_message,item_chat_unread_count"
+            app:constraint_referenced_ids="dialog_type,dialog_title,dialog_silent,unread_ticks,item_chat_date,dialog_message,item_chat_unread_reactions,item_chat_unread_count"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/dialog_message"
             app:layout_constraintTop_toTopOf="@id/item_chat_avatar" />
@@ -170,16 +170,31 @@
             android:layout_below="@id/dialog_title"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="11dp"
-            android:layout_toStartOf="@id/item_chat_unread_count"
+            android:layout_toStartOf="@id/item_chat_unread_reactions"
             android:ellipsize="end"
             android:maxLines="2"
             android:scrollbars="none"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textSize="14sp"
-            app:layout_constraintEnd_toStartOf="@id/item_chat_unread_count"
+            app:layout_constraintEnd_toStartOf="@id/item_chat_unread_reactions"
             app:layout_constraintStart_toEndOf="@id/item_chat_avatar"
             app:layout_constraintTop_toBottomOf="@id/dialog_title"
             tools:text="Message" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/item_chat_unread_reactions"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="6dp"
+            android:contentDescription="@null"
+            android:src="@drawable/heart_filled"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/item_chat_unread_count"
+            app:layout_constraintTop_toBottomOf="@id/dialog_title"
+            app:layout_goneMarginEnd="0dp"
+            app:tint="?colorPrimary"
+            tools:visibility="visible" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/item_chat_unread_count"

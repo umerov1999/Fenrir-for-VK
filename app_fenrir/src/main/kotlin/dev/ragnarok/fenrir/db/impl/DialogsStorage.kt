@@ -149,6 +149,7 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
         cv.put(ConversationsColumns.LAST_CM_ID, entity.message?.cmId.orZero())
         cv.put(ConversationsColumns.ACL, entity.acl)
         cv.put(ConversationsColumns.IS_GROUP_CHANNEL, entity.isGroupChannel)
+        cv.put(ConversationsColumns.UNREAD_REACTIONS, encodeCmIds(entity.unreadReactions))
         cv.put(ConversationsColumns.MAJOR_ID, entity.majorId)
         cv.put(ConversationsColumns.MINOR_ID, entity.minorId)
         return cv
@@ -408,6 +409,9 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                     peerscv.put(PeersColumns.TITLE, it.title)
                     dialogscv.put(ConversationsColumns.TITLE, it.title)
                 }
+                patch.unreadReactions.requireNonNull {
+                    dialogscv.put(ConversationsColumns.UNREAD_REACTIONS, encodeCmIds(it.cmIds))
+                }
                 val args = arrayOf(patch.id.toString())
                 if (dialogscv.size() > 0) {
                     operations.add(
@@ -430,6 +434,24 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
                 contentResolver.applyBatch(FenrirContentProvider.AUTHORITY, operations)
             }
             emit(true)
+        }
+    }
+
+    override fun getUnreadReactions(accountId: Long, peerId: Long): Flow<List<Int>> {
+        return flow {
+            val uri = getDialogsContentUriFor(accountId)
+            val cursor = contentResolver.query(
+                uri, arrayOf(ConversationsColumns.UNREAD_REACTIONS),
+                ConversationsColumns.FULL_ID + " = ?", arrayOf(peerId.toString()), null
+            )
+            var cmIds: List<Int> = emptyList()
+            if (cursor != null) {
+                if (cursor.moveToNext()) {
+                    cmIds = decodeCmIds(cursor.getString(ConversationsColumns.UNREAD_REACTIONS))
+                }
+                cursor.close()
+            }
+            emit(cmIds)
         }
     }
 
@@ -517,11 +539,23 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             .setMajorId(cursor.getInt(ConversationsColumns.MAJOR_ID))
             .setMinorId(cursor.getInt(ConversationsColumns.MINOR_ID))
             .setGroupChannel(cursor.getBoolean(ConversationsColumns.IS_GROUP_CHANNEL))
+            .setUnreadReactions(decodeCmIds(cursor.getString(ConversationsColumns.UNREAD_REACTIONS)))
     }
 
     companion object {
         internal fun unreadKeyFor(accountId: Long): String {
             return "unread$accountId"
+        }
+
+        private fun encodeCmIds(cmIds: List<Int>): String? {
+            return if (cmIds.isEmpty()) null else cmIds.joinToString(",")
+        }
+
+        private fun decodeCmIds(value: String?): List<Int> {
+            if (value.isNullOrEmpty()) {
+                return emptyList()
+            }
+            return value.split(',').mapNotNull { it.trim().toIntOrNull() }
         }
     }
 

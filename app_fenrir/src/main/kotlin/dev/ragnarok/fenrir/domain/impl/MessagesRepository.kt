@@ -852,6 +852,9 @@ class MessagesRepository(
             p.botKeyboard.requireNonNull {
                 update.botKeyboard = PeerUpdate.BotKeyboard(it.keyboard)
             }
+            p.unreadReactions.requireNonNull {
+                update.unreadReactions = PeerUpdate.UnreadReactions(it.cmIds)
+            }
             updates.add(update)
         }
         return storages.dialogs().applyPatches(accountId, patches)
@@ -957,6 +960,7 @@ class MessagesRepository(
                             conversation.sort_id?.minor_id.orZero()
                         )
                         .withUnreadCount(conversation.unreadCount)
+                        .withUnreadReactions(conversation.unreadReactions.orEmpty())
                 }
                 if (excludeStartMessage && startCmId != null && dtos.nonNullNoEmpty() && startCmId == dtos[0].conversation_message_id) {
                     dtos.removeAt(0)
@@ -1694,6 +1698,28 @@ class MessagesRepository(
                     accountId,
                     listOf(patch)
                 )
+            }
+    }
+
+    override fun markReactionsAsReadIfNeeded(accountId: Long, peerId: Long): Flow<Boolean> {
+        if (isHiddenAccount(accountId) && !Constants.IS_DEBUG) {
+            return toFlow(false)
+        }
+        return storages.dialogs().getUnreadReactions(accountId, peerId)
+            .flatMapConcat { cmIds ->
+                if (cmIds.isEmpty()) {
+                    toFlow(false)
+                } else {
+                    networker.vkDefault(accountId)
+                        .messages()
+                        .markReactionsAsRead(peerId, cmIds)
+                        .flatMapConcat {
+                            applyPeerUpdatesAndPublish(
+                                accountId,
+                                listOf(PeerPatch(peerId).withUnreadReactions(emptyList()))
+                            )
+                        }
+                }
             }
     }
 

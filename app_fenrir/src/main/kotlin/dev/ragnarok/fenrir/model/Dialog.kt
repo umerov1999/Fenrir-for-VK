@@ -9,9 +9,11 @@ import dev.ragnarok.fenrir.getBoolean
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.putBoolean
+import dev.ragnarok.fenrir.readIntArrayList
 import dev.ragnarok.fenrir.readTypedObjectCompat
 import dev.ragnarok.fenrir.settings.Settings.get
 import dev.ragnarok.fenrir.util.Utils.firstNonEmptyString
+import dev.ragnarok.fenrir.writeIntList
 import dev.ragnarok.fenrir.writeTypedObjectCompat
 
 class Dialog : IdentificableOwner, Parcelable {
@@ -42,6 +44,8 @@ class Dialog : IdentificableOwner, Parcelable {
         private set
     var minorId = 0
         private set
+    var unreadReactions: List<Int> = emptyList()
+        private set
 
     constructor()
     internal constructor(parcel: Parcel) {
@@ -59,6 +63,7 @@ class Dialog : IdentificableOwner, Parcelable {
         majorId = parcel.readInt()
         minorId = parcel.readInt()
         isGroupChannel = parcel.getBoolean()
+        unreadReactions = parcel.readIntArrayList().orEmpty()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -243,6 +248,14 @@ class Dialog : IdentificableOwner, Parcelable {
         return this
     }
 
+    fun setUnreadReactions(unreadReactions: List<Int>): Dialog {
+        this.unreadReactions = unreadReactions
+        return this
+    }
+
+    val hasUnreadReactions: Boolean
+        get() = unreadReactions.isNotEmpty()
+
     override fun getOwnerObjectId(): Long {
         return peerId
     }
@@ -266,6 +279,7 @@ class Dialog : IdentificableOwner, Parcelable {
         dest.writeInt(majorId)
         dest.writeInt(minorId)
         dest.putBoolean(isGroupChannel)
+        dest.writeIntList(unreadReactions)
     }
 
     companion object CREATOR : Parcelable.Creator<Dialog> {

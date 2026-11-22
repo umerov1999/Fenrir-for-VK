@@ -911,6 +911,7 @@ object Dto2Entity {
             .setInReadCmId(dto.conversation?.inReadCmId.orZero())
             .setOutReadCmId(dto.conversation?.outReadCmId.orZero())
             .setUnreadCount(dto.conversation?.unreadCount.orZero())
+            .setUnreadReactions(dto.conversation?.unreadReactions.orEmpty())
             .setAcl(calculateConversationAcl(dto.conversation))
         dto.conversation?.settings.requireNonNull {
             entity.setTitle(it.title)

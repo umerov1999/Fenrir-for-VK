@@ -643,6 +643,18 @@ class IMessageService : IServiceRest() {
         )
     }
 
+    fun markReactionsAsRead(
+        peerId: Long,
+        cmIds: String?
+    ): Flow<BaseResponse<Int>> {
+        return rest.request(
+            "messages.markReactionsAsRead", form(
+                "peer_id" to peerId,
+                "cmids" to cmIds
+            ), baseInt
+        )
+    }
+
     fun deleteReaction(
         peerId: Long,
         cmId: Int

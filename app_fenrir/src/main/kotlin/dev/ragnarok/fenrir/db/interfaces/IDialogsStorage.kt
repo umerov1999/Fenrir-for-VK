@@ -34,5 +34,7 @@ interface IDialogsStorage : IStorage {
     fun getMissingGroupChats(accountId: Long, ids: Collection<Long>): Flow<Collection<Long>>
     fun insertChats(accountId: Long, chats: List<VKApiChat>): Flow<Boolean>
     fun applyPatches(accountId: Long, patches: List<PeerPatch>): Flow<Boolean>
+
+    fun getUnreadReactions(accountId: Long, peerId: Long): Flow<List<Int>>
     fun findChatById(accountId: Long, peerId: Long): Flow<Chat?>
 }

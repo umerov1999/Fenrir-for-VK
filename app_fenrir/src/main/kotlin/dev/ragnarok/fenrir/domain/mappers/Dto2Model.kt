@@ -456,6 +456,7 @@ object Dto2Model {
         val dialog = Dialog()
             .setPeerId(message?.peer_id ?: return null)
             .setUnreadCount(dto.conversation?.unreadCount.orZero())
+            .setUnreadReactions(dto.conversation?.unreadReactions.orEmpty())
             .setInReadCmId(dto.conversation?.inReadCmId.orZero())
             .setOutReadCmId(dto.conversation?.outReadCmId.orZero())
             .setMessage(transform(accountId, message, bundle))
