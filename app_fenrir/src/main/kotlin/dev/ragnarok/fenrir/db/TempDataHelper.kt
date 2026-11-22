@@ -45,6 +45,7 @@ class TempDataHelper(context: Context) :
                 " [" + ReactionsColumns.STATIC + "] TEXT, " +
                 " [" + ReactionsColumns.SMALL_ANIMATION + "] TEXT, " +
                 " [" + ReactionsColumns.BIG_ANIMATION + "] TEXT, " +
+                " [" + ReactionsColumns.POSITION + "] INTEGER, " +
                 " UNIQUE ([" + BaseColumns._ID + "], [" + ReactionsColumns.ACCOUNT_ID + "]) ON CONFLICT REPLACE);"
         db.execSQL(sql)
     }

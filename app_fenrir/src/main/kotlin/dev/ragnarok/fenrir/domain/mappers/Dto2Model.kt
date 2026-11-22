@@ -291,6 +291,7 @@ object Dto2Model {
         return ReactionAsset().setReactionId(dto.reaction_id)
             .setBigAnimation(dto.big_animation).setSmallAnimation(dto.small_animation)
             .setStatic(dto.static)
+            .setPosition(dto.position)
     }
 
     fun transformUser(user: VKApiUser): User {
@@ -536,6 +537,7 @@ object Dto2Model {
         return ReactionAsset().setReactionId(dto.reaction_id).setBigAnimation(dto.big_animation)
             .setSmallAnimation(dto.small_animation)
             .setStatic(dto.static)
+            .setPosition(dto.position)
     }
 
     fun transform(aid: Long, message: VKApiMessage, owners: IOwnersBundle): Message {
