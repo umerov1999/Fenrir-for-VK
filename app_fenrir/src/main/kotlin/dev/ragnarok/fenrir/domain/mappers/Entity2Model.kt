@@ -602,6 +602,7 @@ object Entity2Model {
         return ReactionAsset().setReactionId(dto.reaction_id)
             .setBigAnimation(dto.big_animation).setSmallAnimation(dto.small_animation)
             .setStatic(dto.static)
+            .setPosition(dto.position)
     }
 
     fun buildReactionFromDbo(dto: ReactionEntity): Reaction {

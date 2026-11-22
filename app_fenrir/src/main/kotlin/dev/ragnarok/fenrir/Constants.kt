@@ -5,7 +5,7 @@ object Constants {
     const val AUTH_API_VERSION = API_VERSION
 
     const val DATABASE_FENRIR_VERSION = 52
-    const val DATABASE_TEMPORARY_VERSION = 15
+    const val DATABASE_TEMPORARY_VERSION = 16
     const val EXPORT_SETTINGS_FORMAT = 1
     const val forceDeveloperMode: Boolean = BuildConfig.FORCE_DEVELOPER_MODE
 

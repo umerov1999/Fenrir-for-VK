@@ -1500,34 +1500,46 @@ class MessagesRepository(
 
     override fun getReactionsAssets(accountId: Long): Flow<List<ReactionAsset>> {
         if (Utils.needFetchReactionAssets(accountId)) {
-            return networker.vkDefault(accountId)
-                .messages()
-                .getReactionsAssets()
-                .flatMapConcat { ndtos ->
-                    val dtos: List<VKApiReactionAsset> = listEmptyIfNull(ndtos.assets)
-                    val dbos: List<ReactionAssetEntity> =
-                        mapAll(dtos) { Dto2Entity.mapReactionAsset(it) }
-                    val models: List<ReactionAsset> =
-                        mapAll(dtos) { Dto2Model.transformReactionAsset(it) }
-
-                    if (dtos.isEmpty()) {
-                        Settings.get().main().del_last_reaction_assets_sync(accountId)
-                        toFlow(models)
-                    } else {
-                        storages.tempStore().addReactionsAssets(accountId, dbos)
-                            .map {
-                                models
-                            }
-                    }
-                }
-        } else {
-            return storages.tempStore().getReactionsAssets(accountId).map {
-                val dbos: List<ReactionAssetEntity> = listEmptyIfNull(it)
-                val models: List<ReactionAsset> =
-                    mapAll(dbos) { st -> Entity2Model.buildReactionAssetFromDbo(st) }
-                models
+            return fetchReactionsAssets(accountId)
+        }
+        return storages.tempStore().getReactionsAssets(accountId).flatMapConcat {
+            val dbos: List<ReactionAssetEntity> = listEmptyIfNull(it)
+            if (dbos.isEmpty()) {
+                // The temp DB may have been recreated less than an hour after the last sync.
+                fetchReactionsAssets(accountId)
+            } else {
+                toFlow(mapAll(dbos) { st -> Entity2Model.buildReactionAssetFromDbo(st) })
             }
         }
+    }
+
+    private fun fetchReactionsAssets(accountId: Long): Flow<List<ReactionAsset>> {
+        return networker.vkDefault(accountId)
+            .messages()
+            .getReactionsAssets()
+            .flatMapConcat { ndtos ->
+                val dtos: List<VKApiReactionAsset> = listEmptyIfNull(ndtos.assets)
+                val sendable = ndtos.reaction_ids.orEmpty()
+                for ((index, dto) in dtos.withIndex()) {
+                    // Without reaction_ids keep the old behaviour: every asset is selectable.
+                    dto.position =
+                        if (sendable.isEmpty()) index else sendable.indexOf(dto.reaction_id)
+                }
+                val dbos: List<ReactionAssetEntity> =
+                    mapAll(dtos) { Dto2Entity.mapReactionAsset(it) }
+                val models: List<ReactionAsset> =
+                    mapAll(dtos) { Dto2Model.transformReactionAsset(it) }
+
+                if (dtos.isEmpty()) {
+                    Settings.get().main().del_last_reaction_assets_sync(accountId)
+                    toFlow(models)
+                } else {
+                    storages.tempStore().addReactionsAssets(accountId, dbos)
+                        .map {
+                            models
+                        }
+                }
+            }
     }
 
     override fun sendOrDeleteReaction(

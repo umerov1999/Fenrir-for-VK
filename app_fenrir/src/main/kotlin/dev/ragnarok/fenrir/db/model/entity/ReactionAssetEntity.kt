@@ -9,6 +9,8 @@ class ReactionAssetEntity {
         private set
     var reaction_id = 0
         private set
+    var position = -1
+        private set
 
     fun setBigAnimation(big_animation: String?): ReactionAssetEntity {
         this.big_animation = big_animation
@@ -27,6 +29,11 @@ class ReactionAssetEntity {
 
     fun setReactionId(reaction_id: Int): ReactionAssetEntity {
         this.reaction_id = reaction_id
+        return this
+    }
+
+    fun setPosition(position: Int): ReactionAssetEntity {
+        this.position = position
         return this
     }
 }

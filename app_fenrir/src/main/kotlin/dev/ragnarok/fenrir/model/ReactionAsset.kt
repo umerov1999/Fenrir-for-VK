@@ -12,6 +12,14 @@ class ReactionAsset : Parcelable {
         private set
     var reaction_id = 0
         private set
+    var position = -1
+        private set
+
+    /**
+     * True if VK allows sending this reaction (it is listed in `reaction_ids`).
+     */
+    val isSelectable: Boolean
+        get() = position >= 0
 
     constructor()
     internal constructor(parcel: Parcel) {
@@ -19,6 +27,7 @@ class ReactionAsset : Parcelable {
         small_animation = parcel.readString()
         static = parcel.readString()
         reaction_id = parcel.readInt()
+        position = parcel.readInt()
     }
 
     fun setBigAnimation(big_animation: String?): ReactionAsset {
@@ -41,11 +50,17 @@ class ReactionAsset : Parcelable {
         return this
     }
 
+    fun setPosition(position: Int): ReactionAsset {
+        this.position = position
+        return this
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(big_animation)
         parcel.writeString(small_animation)
         parcel.writeString(static)
         parcel.writeInt(reaction_id)
+        parcel.writeInt(position)
     }
 
     override fun describeContents(): Int {

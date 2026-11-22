@@ -9,4 +9,5 @@ object ReactionsColumns : BaseColumns {
     const val STATIC = "static"
     const val SMALL_ANIMATION = "small_animation"
     const val BIG_ANIMATION = "big_animation"
+    const val POSITION = "position"
 }
